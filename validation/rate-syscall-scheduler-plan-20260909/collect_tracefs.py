@@ -76,13 +76,47 @@ def verify_roles(found,run_id,epoch):
             and any(v.startswith('/') and Path(v).name==run_id for v in argv),'Supervisor run/epoch differs')
 
 
-def filters(owners):
-    workers=[owners[n]['pid'] for n in ('ap_worker','px4_worker')]
-    tids=workers+[owners['supervisor']['pid']]
+def filters(owners,kernel_pids=None):
+    pids={name:value['pid'] for name,value in owners.items()} if kernel_pids is None else kernel_pids
+    workers=[pids[n] for n in ('ap_worker','px4_worker')]
+    tids=workers+[pids['supervisor']]
     writes=' || '.join('common_pid == '+str(pid) for pid in workers)
     return {EVENTS[0]:writes,EVENTS[1]:writes,
         EVENTS[2]:' || '.join(f'prev_pid == {pid} || next_pid == {pid}' for pid in tids),
         EVENTS[3]:' || '.join('pid == '+str(pid) for pid in tids)}
+
+
+def map_kernel_pids(instance,put,owners,epoch,output):
+    """Correlate only the exact owned comm names through native sched events.
+
+    WSL /proc PIDs are namespace-local, while these tracepoint fields use
+    kernel-global IDs. Numeric PID equality is never assumed.
+    """
+    names={role:'wk'+epoch[:11]+suffix for role,suffix in (
+        ('ap_worker','a'),('px4_worker','p'),('supervisor','s'))}
+    for role,name in names.items():
+        require((Path('/proc')/str(owners[role]['pid'])/'comm').read_text().strip()==name,
+                'Diagnostic comm name missing or wrong: '+role)
+    expression=' || '.join(f'prev_comm == "{name}" || next_comm == "{name}"' for name in names.values())
+    put('events/sched/sched_switch/filter',expression)
+    put('events/sched/sched_switch/enable','1')
+    put('tracing_on','1')
+    time.sleep(.5)
+    put('tracing_on','0')
+    raw=(instance/'trace').read_bytes()
+    (output/'pid-mapping-trace.txt').write_bytes(raw)
+    mapped={}
+    text=raw.decode()
+    for role,name in names.items():
+        matches=set(int(value) for value in re.findall(
+            r'(?:prev|next)_comm='+re.escape(name)+r' (?:prev|next)_pid=(\d+)',text))
+        require(len(matches)==1,'Kernel PID mapping absent/ambiguous: '+role)
+        mapped[role]=matches.pop()
+    require(len(set(mapped.values()))==3,'Kernel PID mappings are not distinct')
+    put('events/sched/sched_switch/enable','0')
+    put('trace','')
+    return dict(names=names,kernel_pids=mapped,mapping_sha256=hashlib.sha256(raw).hexdigest(),
+                method='exact owned comm names observed in private sched_switch events')
 
 
 def preflight(owners=None,expected_boot=None):
@@ -173,7 +207,8 @@ def finalize_capture(path,inode,descriptor,metadata,output,before,owners,expecte
             loss=metadata.get('stats_after',{}).get('loss_counts',{})
             metadata['loss_free']=bool(loss) and all(v==0 for c in loss.values() for v in c.values())
             metadata['duration_cap_met']=metadata['elapsed_s'] is not None and metadata['elapsed_s']<=20
-            metadata['complete']=not metadata['errors'] and not cancelled and metadata.get('instance_removed',False) and metadata['loss_free'] and metadata['duration_cap_met'] and metadata['global_controls_unchanged']
+            metadata['events_observed']=metadata.get('trace_bytes',0)>0
+            metadata['complete']=not metadata['errors'] and not cancelled and metadata.get('instance_removed',False) and metadata['loss_free'] and metadata['duration_cap_met'] and metadata['global_controls_unchanged'] and metadata['events_observed']
             metadata['status']='diagnostic_window_captured' if metadata['complete'] else 'diagnostic_partial'
         finally:
             try:
@@ -225,7 +260,11 @@ def collect(args,owners):
         put('trace_clock','mono')
         put('buffer_size_kb','1024')
         require('[mono]' in (path/'trace_clock').read_text(),'Instance mono clock not selected')
-        for event,expression in filters(owners).items():
+        require(args.map_comm,'Capture requires namespace-verified --map-comm')
+        mapping=map_kernel_pids(path,put,owners,args.epoch,output)
+        metadata['pid_mapping']=mapping
+        verify(owners,args.boot_id)
+        for event,expression in filters(owners,mapping['kernel_pids']).items():
             put('events/'+event+'/filter',expression)
             put('events/'+event+'/enable','1')
         metadata['applied_filters']={e:(path/'events'/e/'filter').read_text() for e in EVENTS}
@@ -267,6 +306,7 @@ def main():
     parser.add_argument('--epoch')
     parser.add_argument('--output',type=Path)
     parser.add_argument('--duration',type=float,default=10.)
+    parser.add_argument('--map-comm',action='store_true',help='Map exact per-run diagnostic comm names to kernel tracepoint IDs')
     args=parser.parse_args()
     require(0<args.duration<=20,'Duration must be >0 and <=20 seconds')
     owners={n:getattr(args,n) for n in ('ap_worker','px4_worker','supervisor') if getattr(args,n) is not None}

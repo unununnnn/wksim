@@ -1,5 +1,13 @@
 # 独立 private tracefs 采集器
 
+## 主任务真实验证补充
+
+现已有三场受控执行及一个自有canary，见[诊断报告](../../docs/joint-scheduler-diagnostic-report.md)。WSL可见PID与内核tracepoint PID不同，原直接数字过滤产生了空结果；当前运行入口必须使用`--map-comm`，先核对精确绑定的独有线程名，再从私有sched事件获得内核PID。主窗口无事件时不再判complete。
+
+推荐由`tools/profile_joint_scheduler.py`创建全新地面运行并分配名称、核对身份、调用采集器和收尾；不要直接复制下文历史命令附加旧PID。名称映射是额外的0.5秒请求时长准备窗口，主诊断窗口固定10秒。钩子只在该次子进程环境启用，未修改生产文件。第三场采集39,736次write配对、无已知丢失、实例清理通过；没有证明1×正式验收通过。
+
+以下保留原静态交付记录，“未执行真实采集”只描述该历史交付。
+
 `collect_tracefs.py` 已实现；**没有执行真实采集**。实际只运行 `--help`、无目标的只读 `--preflight` 和7项离线guard测试。日志分别为 `collector-help.txt`、`collector-preflight.json`、`collector-final-tests.log`。预检不创建instance、不开启事件；创建/配置/清理内核instance仍是待受控实测的路径，不能把这些检查当作已采集证明。
 
 ## 行为

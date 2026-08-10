@@ -1,0 +1,46 @@
+{
+  "group": {
+    "kind": "rate_group_end",
+    "epoch": "60f3d9cd76be469a9153f64d0aef0578",
+    "tick": 1928,
+    "issued_monotonic_ns": 61809076003,
+    "segment_id": 1,
+    "request_id": "config",
+    "requested_rate": 1.0,
+    "transition": false,
+    "actual_end_ns": 61809071617,
+    "lateness_ns": 15739962,
+    "start_tick": 1924,
+    "end_tick": 1928,
+    "ideal_start_ns": 61789331655,
+    "ideal_end_ns": 61793331655,
+    "earliest_start_ns": 61797061427,
+    "actual_start_ns": 61797061997
+  },
+  "inside_capture": true,
+  "timings": [
+    {
+      "kind": "diagnostic_step_cpu_timing",
+      "epoch": "60f3d9cd76be469a9153f64d0aef0578",
+      "tick": 1926,
+      "issued_monotonic_s": 61.806877566,
+      "wall_start_ns": 61798417716,
+      "wall_end_ns": 61806870648,
+      "stages": {
+        "health_and_models": {
+          "wall_ns": 322997,
+          "thread_cpu_ns": 177708
+        },
+        "encode_send": {
+          "wall_ns": 31909,
+          "thread_cpu_ns": 31725
+        },
+        "native_inputs": {
+          "wall_ns": 8098026,
+          "thread_cpu_ns": 653392
+        }
+      },
+      "limitation": "Thread CPU separates execution from off-CPU time; off-CPU includes I/O wait and descheduling"
+    }
+  ]
+}

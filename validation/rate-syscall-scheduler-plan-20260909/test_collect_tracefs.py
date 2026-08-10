@@ -67,5 +67,46 @@ class Guards(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'Worker epoch'):
             collector.verify_roles(found,run,'b'*32)
 
+    def test_kernel_mapping_uses_owned_names_and_rejects_shared_thread_name(self):
+        for ambiguous in (False, True):
+            with tempfile.TemporaryDirectory() as temp:
+                root=Path(temp);instance=root/'instance';instance.mkdir();output=root/'output';output.mkdir()
+                owners={role:dict(pid=pid,start_ticks=1) for role,pid in (
+                    ('ap_worker',11),('px4_worker',22),('supervisor',33))}
+                epoch='a'*32;lines=[]
+                for role,pid,suffix,kernel in (('ap_worker',11,'a',1011),('px4_worker',22,'p',1022),('supervisor',33,'s',1033)):
+                    name='wk'+epoch[:11]+suffix
+                    process=root/'proc'/str(pid);process.mkdir(parents=True)
+                    (process/'comm').write_text(name+'\n')
+                    lines.append(f'prev_comm={name} prev_pid={kernel} prev_prio=120 prev_state=S ==> next_comm=idle next_pid=0\n')
+                if ambiguous:lines.append('next_comm=wk'+epoch[:11]+'s next_pid=2033\n')
+                (instance/'trace').write_text(''.join(lines))
+                with patch.object(collector,'Path',side_effect=lambda value:root/'proc' if value=='/proc' else Path(value)), \
+                     patch.object(collector.time,'sleep'):
+                    if ambiguous:
+                        with self.assertRaisesRegex(ValueError,'absent/ambiguous: supervisor'):
+                            collector.map_kernel_pids(instance,lambda *args:None,owners,epoch,output)
+                    else:
+                        result=collector.map_kernel_pids(instance,lambda *args:None,owners,epoch,output)
+                        self.assertEqual(result['kernel_pids'],dict(ap_worker=1011,px4_worker=1022,supervisor=1033))
+                        filtered=collector.filters(owners,result['kernel_pids'])
+                        self.assertEqual(filtered['syscalls/sys_enter_write'],'common_pid == 1011 || common_pid == 1022')
+
+    def test_empty_capture_is_not_complete_even_with_no_reported_loss(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root=Path(temp);instance=root/'instance';instance.mkdir();output=root/'output';output.mkdir()
+            controls=dict(tracing_on='1',current_tracer='nop',trace_clock='mono')
+            for name,value in controls.items():(root/name).write_text(value)
+            (output/'trace.txt').write_bytes(b'')
+            metadata=dict(errors=[])
+            with patch.object(collector,'TRACE',root),patch.object(collector,'guarded_instance'), \
+                 patch.object(collector,'statistics',return_value=dict(loss_counts={'cpu0':{k:0 for k in collector.LOSS}})), \
+                 patch.object(collector,'verify',return_value={}),patch.object(Path,'rmdir'):
+                collector.finalize_capture(instance,(1,1),None,metadata,output,dict(global_controls=controls),
+                    {},'boot',{},[],1,1_000_000_001)
+            self.assertFalse(metadata['events_observed'])
+            self.assertFalse(metadata['complete'])
+            self.assertEqual(metadata['status'],'diagnostic_partial')
+
 
 if __name__=='__main__':unittest.main()
