@@ -21,6 +21,8 @@ from Simulator.wksim_runtime.evidence import write_json, json_identity, group_me
 from Simulator.wksim_runtime.joint_actions import submit
 
 COLLECTOR = ROOT/'validation/rate-syscall-scheduler-plan-20260909/collect_tracefs.py'
+FC_THREAD_NAMES={'arducopter-fc':{'arducopter','log_io','DDS'},
+                 'px4-fc':{'sim_send','logger','wq:lp_default'}}
 
 
 def digest(path): return hashlib.sha256(Path(path).read_bytes()).hexdigest()
@@ -29,6 +31,19 @@ def digest(path): return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 def epoch_groups_retired(product_result):
     epochs=product_result.get('epochs') if isinstance(product_result,dict) else None
     return bool(epochs) and all(isinstance(e,dict) and e.get('remaining_group_members')==[] for e in epochs)
+
+
+def fc_threads_ready(children):
+    """Avoid spending the only diagnostic run before required FC tasks exist."""
+    try:
+        for role,required in FC_THREAD_NAMES.items():
+            pid=children[role]['identity']['pid']
+            names={(path/'comm').read_text().strip()
+                   for path in (Path('/proc')/str(pid)/'task').iterdir() if path.name.isdigit()}
+            if not required.issubset(names):return False
+        return True
+    except (KeyError,OSError):
+        return False
 
 
 def run(output):
@@ -78,11 +93,13 @@ def run(output):
                     child_path = directory/'epochs'/state['epoch']/'children.json'
                     if child_path.exists() and state['authority']['tick'] >= 40:
                         children = json.loads(child_path.read_text())
-                        if all(k in children for k in ('arducopter-model', 'px4-model')):
+                        if (all(k in children for k in ('arducopter-model','px4-model','arducopter-fc','px4-fc'))
+                                and fc_threads_ready(children)):
                             break
                 time.sleep(.02)
             owners = dict(ap_worker=children['arducopter-model']['identity'],
-                          px4_worker=children['px4-model']['identity'], supervisor=state['supervisor'])
+                          px4_worker=children['px4-model']['identity'], supervisor=state['supervisor'],
+                          ap_fc=children['arducopter-fc']['identity'],px4_fc=children['px4-fc']['identity'])
             result.update(epoch=state['epoch'], owners=owners, capture_start_state=state)
             argv = [sys.executable, '-B', str(COLLECTOR), '--boot-id', result['boot_id'],
                     '--run-id', run_id, '--epoch', state['epoch'], '--duration', '10',

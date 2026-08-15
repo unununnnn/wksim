@@ -1,6 +1,6 @@
 """Private tracefs diagnostic collector. --preflight never creates/enables tracing.
 
-Capture needs root, three exact PID:start_ticks identities and their boot_id.
+Capture needs root, three or five exact PID:start_ticks identities and their boot_id.
 It sends no signal to a target. All tracefs mutations stay in one new instance.
 """
 import argparse
@@ -16,8 +16,14 @@ import time
 import uuid
 
 TRACE=Path('/sys/kernel/tracing')
-EVENTS=('syscalls/sys_enter_write','syscalls/sys_exit_write','sched/sched_switch','sched/sched_wakeup')
+EVENTS=('syscalls/sys_enter_write','syscalls/sys_exit_write',
+        'syscalls/sys_enter_fsync','syscalls/sys_exit_fsync',
+        'syscalls/sys_enter_fdatasync','syscalls/sys_exit_fdatasync',
+        'sched/sched_switch','sched/sched_wakeup')
 LOSS=('overrun','commit overrun','dropped events')
+FC_THREADS={'ap_fc':('arducopter','log_io','DDS'),
+            'px4_fc':('sim_send','logger','wq:lp_default')}
+BASE_ROLES=('ap_worker','px4_worker','supervisor')
 
 
 def require(value,message):
@@ -38,6 +44,45 @@ def identity(pid):
     text=(root/'stat').read_text()
     return dict(pid=pid,start_ticks=int(text[text.rfind(')')+2:].split()[19]),
                 argv=(root/'cmdline').read_bytes().rstrip(b'\0').decode(errors='replace').split('\0'))
+
+
+def task_inventory(pid):
+    """Return stable namespace-local task identities for one owned process."""
+    root=Path('/proc')/str(pid)/'task'
+    result=[]
+    for path in sorted(root.iterdir(),key=lambda value:int(value.name)):
+        require(path.name.isdigit(),'Non-numeric task entry')
+        before=(path/'stat').read_text()
+        status=(path/'status').read_text()
+        after=(path/'stat').read_text()
+        before_end=before.rfind(')');after_end=after.rfind(')')
+        before_fields=before[before_end+2:].split();after_fields=after[after_end+2:].split()
+        before_comm=before[before.find('(')+1:before_end]
+        after_comm=after[after.find('(')+1:after_end]
+        tgid=re.search(r'^Tgid:\s*(\d+)$',status,re.MULTILINE)
+        require(len(before_fields)>19 and len(after_fields)>19 and tgid is not None
+                and int(tgid.group(1))==pid,
+                'Task does not belong to owned process: '+path.name)
+        comm=(path/'comm').read_text().strip()
+        require(before_comm==after_comm==comm and before_fields[19]==after_fields[19],
+                'Task identity changed during inventory: '+path.name)
+        result.append(dict(local_tid=int(path.name),comm=comm,start_ticks=int(before_fields[19])))
+    require(result,'Owned process has no tasks: '+str(pid))
+    return result
+
+
+def required_fc_threads(owners):
+    """Select one exact local task for every required FC comm name."""
+    selected={}
+    inventories={}
+    for role,names in FC_THREADS.items():
+        rows=task_inventory(owners[role]['pid'])
+        inventories[role]=rows
+        for name in names:
+            matches=[row for row in rows if row['comm']==name]
+            require(len(matches)==1,'Required FC thread absent/ambiguous: '+role+'/'+name)
+            selected[role+'/'+name]=matches[0]
+    return selected,inventories
 
 
 def verify(owners,expected_boot):
@@ -74,16 +119,27 @@ def verify_roles(found,run_id,epoch):
     argv=found['supervisor']['argv']
     require('Simulator.wksim_runtime.joint_runtime' in argv and epoch in argv
             and any(v.startswith('/') and Path(v).name==run_id for v in argv),'Supervisor run/epoch differs')
+    for role,binary in (('ap_fc','arducopter'),('px4_fc','px4')):
+        if role not in found:continue
+        argv=found[role]['argv']
+        require(argv and Path(argv[0]).name==binary and any(run_id in v and epoch in v for v in argv),
+                'FC run/epoch differs: '+role)
 
 
-def filters(owners,kernel_pids=None):
-    pids={name:value['pid'] for name,value in owners.items()} if kernel_pids is None else kernel_pids
+def filters(pids):
     workers=[pids[n] for n in ('ap_worker','px4_worker')]
-    tids=workers+[pids['supervisor']]
-    writes=' || '.join('common_pid == '+str(pid) for pid in workers)
-    return {EVENTS[0]:writes,EVENTS[1]:writes,
-        EVENTS[2]:' || '.join(f'prev_pid == {pid} || next_pid == {pid}' for pid in tids),
-        EVENTS[3]:' || '.join('pid == '+str(pid) for pid in tids)}
+    loggers=[pids[n] for n in ('ap_fc/log_io','px4_fc/logger') if n in pids]
+    writes=' || '.join('common_pid == '+str(pid) for pid in workers+loggers)
+    tids=list(pids.values())
+    switches=' || '.join(f'prev_pid == {pid} || next_pid == {pid}' for pid in tids)
+    wakes=' || '.join('pid == '+str(pid) for pid in tids)
+    result={'syscalls/sys_enter_write':writes,'syscalls/sys_exit_write':writes,
+            'sched/sched_switch':switches,'sched/sched_wakeup':wakes}
+    if loggers:
+        syncs=' || '.join('common_pid == '+str(pid) for pid in loggers)
+        result.update({'syscalls/sys_enter_fsync':syncs,'syscalls/sys_exit_fsync':syncs,
+            'syscalls/sys_enter_fdatasync':syncs,'syscalls/sys_exit_fdatasync':syncs})
+    return result
 
 
 def map_kernel_pids(instance,put,owners,epoch,output):
@@ -97,11 +153,14 @@ def map_kernel_pids(instance,put,owners,epoch,output):
     for role,name in names.items():
         require((Path('/proc')/str(owners[role]['pid'])/'comm').read_text().strip()==name,
                 'Diagnostic comm name missing or wrong: '+role)
+    local_threads,inventories_before=required_fc_threads(owners) if 'ap_fc' in owners else ({},{})
+    names.update({role:value['comm'] for role,value in local_threads.items()})
+    require(len(set(names.values()))==len(names),'Trace comm names are not distinct')
     expression=' || '.join(f'prev_comm == "{name}" || next_comm == "{name}"' for name in names.values())
     put('events/sched/sched_switch/filter',expression)
     put('events/sched/sched_switch/enable','1')
     put('tracing_on','1')
-    time.sleep(.5)
+    time.sleep(3.)
     put('tracing_on','0')
     raw=(instance/'trace').read_bytes()
     (output/'pid-mapping-trace.txt').write_bytes(raw)
@@ -112,11 +171,16 @@ def map_kernel_pids(instance,put,owners,epoch,output):
             r'(?:prev|next)_comm='+re.escape(name)+r' (?:prev|next)_pid=(\d+)',text))
         require(len(matches)==1,'Kernel PID mapping absent/ambiguous: '+role)
         mapped[role]=matches.pop()
-    require(len(set(mapped.values()))==3,'Kernel PID mappings are not distinct')
+    require(len(set(mapped.values()))==len(mapped),'Kernel PID mappings are not distinct')
+    local_threads_after,inventories_after=required_fc_threads(owners) if 'ap_fc' in owners else ({},{})
+    require(local_threads_after==local_threads,'Required FC thread identity changed during mapping')
     put('events/sched/sched_switch/enable','0')
     put('trace','')
     return dict(names=names,kernel_pids=mapped,mapping_sha256=hashlib.sha256(raw).hexdigest(),
-                method='exact owned comm names observed in private sched_switch events')
+                local_threads=local_threads,inventories_before=inventories_before,
+                inventories_after=inventories_after,
+                method='owned local task inventory plus unique comm observed in private sched_switch events',
+                limitation='FC kernel TID ownership relies on one matching comm being scheduled in the mapping window; foreign dormant names cannot be excluded')
 
 
 def preflight(owners=None,expected_boot=None):
@@ -130,7 +194,7 @@ def preflight(owners=None,expected_boot=None):
             'Private instance/mono clock unavailable')
     if owners:
         result['verified_owners']=verify(owners,expected_boot)
-        result['filters']=filters(owners)
+        result['filters_pending_kernel_mapping']=True
     return result
 
 
@@ -264,10 +328,11 @@ def collect(args,owners):
         mapping=map_kernel_pids(path,put,owners,args.epoch,output)
         metadata['pid_mapping']=mapping
         verify(owners,args.boot_id)
-        for event,expression in filters(owners,mapping['kernel_pids']).items():
+        applied=filters(mapping['kernel_pids'])
+        for event,expression in applied.items():
             put('events/'+event+'/filter',expression)
             put('events/'+event+'/enable','1')
-        metadata['applied_filters']={e:(path/'events'/e/'filter').read_text() for e in EVENTS}
+        metadata['applied_filters']={e:(path/'events'/e/'filter').read_text() for e in applied}
         metadata['fd_before']={name:fds(value['pid']) for name,value in verify(owners,args.boot_id).items()}
         metadata['stats_before']=statistics(path)
         descriptor=os.open(path/'trace_pipe',os.O_RDONLY|os.O_NONBLOCK)
@@ -301,6 +366,8 @@ def main():
     parser.add_argument('--ap-worker',type=owner,metavar='PID:START_TICKS')
     parser.add_argument('--px4-worker',type=owner,metavar='PID:START_TICKS')
     parser.add_argument('--supervisor',type=owner,metavar='PID:START_TICKS')
+    parser.add_argument('--ap-fc',type=owner,metavar='PID:START_TICKS')
+    parser.add_argument('--px4-fc',type=owner,metavar='PID:START_TICKS')
     parser.add_argument('--boot-id')
     parser.add_argument('--run-id')
     parser.add_argument('--epoch')
@@ -309,9 +376,12 @@ def main():
     parser.add_argument('--map-comm',action='store_true',help='Map exact per-run diagnostic comm names to kernel tracepoint IDs')
     args=parser.parse_args()
     require(0<args.duration<=20,'Duration must be >0 and <=20 seconds')
-    owners={n:getattr(args,n) for n in ('ap_worker','px4_worker','supervisor') if getattr(args,n) is not None}
+    owner_roles=BASE_ROLES+tuple(FC_THREADS)
+    owners={n:getattr(args,n) for n in owner_roles if getattr(args,n) is not None}
     if owners or not args.preflight:
-        require(len(owners)==3 and len({v['pid'] for v in owners.values()})==3 and args.boot_id,'Supply three distinct owned identities and boot-id')
+        shape=tuple(owners)==BASE_ROLES or tuple(owners)==owner_roles
+        require(shape and len({v['pid'] for v in owners.values()})==len(owners) and args.boot_id,
+                'Supply three base or five full distinct owned identities and boot-id')
     if args.preflight:
         value=preflight(owners,args.boot_id)
         if owners and args.run_id and args.epoch:verify_roles(value['verified_owners'],args.run_id,args.epoch)

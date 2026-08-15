@@ -1,6 +1,7 @@
 """Offline proof cases for trace parsing and scheduler attribution."""
 import unittest
-from tools.analyze_joint_scheduler import parse,pair,explain,native_wait,recorded_native_waits
+from tools.analyze_joint_scheduler import (parse,pair,pair_all,explain,native_wait,
+    recorded_native_waits,storage_summary)
 from tools.profile_joint_scheduler import epoch_groups_retired
 
 
@@ -18,6 +19,18 @@ class SchedulerAnalysisTests(unittest.TestCase):
         self.assertEqual((event['ns'],event['count'],event['fd']),(3123456000,1309,3))
         event=parse(self.line('3.123457','sys_write -> 0xffffffffffffffff'))
         self.assertEqual(event['ret'],-1)
+
+    def test_fsync_and_fdatasync_are_parsed_and_paired(self):
+        events=[parse(self.line('3.123456','sys_fsync(fd: 0x00000009)')),
+                parse(self.line('3.123457','sys_fsync -> 0x0')),
+                parse(self.line('3.123458','sys_fdatasync(fd: 0x0000000a)')),
+                parse(self.line('3.123460','sys_fdatasync -> 0xffffffffffffffff'))]
+        paired=pair_all(events,{1011});calls=paired['syncs'];boundaries=paired['boundaries']
+        self.assertEqual([(row['syscall'],row['fd'],row['ret']) for row in calls],
+                         [('fsync',9,0),('fdatasync',10,-1)])
+        self.assertEqual(boundaries['open_syncs_at_end'],0)
+        writes,_off,_boundaries=pair(events,{1011})
+        self.assertEqual(writes,[])
 
     def test_blocked_and_runnable_intervals_are_distinguished(self):
         events=[dict(kind='write_enter',pid=1011,ns=10,fd=3,count=10),
@@ -43,6 +56,19 @@ class SchedulerAnalysisTests(unittest.TestCase):
         self.assertEqual(boundaries['exit_without_entry'],1)
         self.assertEqual(explain(writes[0],off[1011])['unknown_off_cpu_ns'],60)
 
+    def test_fc_storage_keeps_fd_rate_group_and_scheduler_evidence(self):
+        call=dict(kind='fsync_enter',syscall='fsync',pid=42,ns=100,fd=9,
+                  end_ns=200,duration_ns=100,ret=0)
+        off={42:[dict(start_ns=120,end_ns=180,state='S',wake_ns=160)]}
+        groups=[dict(actual_start_ns=50,actual_end_ns=250,start_tick=1,end_tick=2)]
+        result=storage_summary([call],off,{'ap_fc/log_io':42},
+            {'ap_fc':{'fds':{'9':{'target':'/tmp/APM.bin'}}}},groups)
+        fsync=next(row for row in result[0]['operations'] if row['syscall']=='fsync')
+        self.assertEqual((fsync['complete_calls'],fsync['failed_or_short'],fsync['maximum_ns']),(1,0,100))
+        self.assertEqual(fsync['top'][0]['fd_before']['target'],'/tmp/APM.bin')
+        self.assertEqual(fsync['top'][0]['rate_group']['start_tick'],1)
+        self.assertEqual(fsync['top'][0]['scheduler']['blocked_before_wake_ns'],40)
+
     def test_native_wait_excludes_model_and_encoding_and_preserves_stack_boundary(self):
         timing=dict(tick=6,wall_start_ns=10,wall_end_ns=117,stages={
             'health_and_models':dict(wall_ns=5,thread_cpu_ns=4),
@@ -54,6 +80,9 @@ class SchedulerAnalysisTests(unittest.TestCase):
         self.assertEqual(result['native_path'],'AP input only')
         self.assertEqual(result['supervisor_scheduler']['blocked_before_wake_ns'],60)
         self.assertEqual(result['supervisor_scheduler']['runnable_ns'],20)
+        result=native_wait(timing,intervals,{'ap_fc/arducopter':[
+            dict(start_ns=30,end_ns=70,state='R',wake_ns=None)]})
+        self.assertEqual(result['correlated_threads']['ap_fc/arducopter']['runnable_ns'],40)
         timing['tick']=8
         self.assertIn('not separated',native_wait(timing,intervals)['native_path'])
         timing['wall_end_ns']+=1
