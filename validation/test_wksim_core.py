@@ -4,7 +4,8 @@ import math
 import unittest
 
 from Simulator.wksim_core.ap_json import Lockstep, SERVO_PACKET, decode_servos, sensor_message
-from Simulator.wksim_core.model import Model, build_model
+from Simulator.wksim_core.model import (ABI_CONTRACT, Model, build_model, dynamic_dependencies,
+                                         exported_model_symbols, probe_model)
 from Simulator.wksim_core.px4_mavlink import actuator_commands, gps_arguments
 from pymavlink.dialects.v20 import common as mavlink
 
@@ -176,12 +177,26 @@ class NativeModelTests(unittest.TestCase):
         with Model(self.library) as model:
             self.assertEqual(model.ticks, 0)
             initial = model.initial_state()
+            self.assertEqual(model.initial_state(), initial)
             self.assertEqual(model.ticks, 0)
             self.assertEqual(len(initial), 120)
             self.assertTrue(all(math.isfinite(value) for value in initial))
             state = model.step([0] * 16)
             self.assertEqual(model.ticks, 1)
             self.assertAlmostEqual(state[2], 0.001, places=8)
+        with Model(self.library) as fresh:
+            self.assertEqual(fresh.step([0] * 16), state)
+
+    def test_build_manifest_and_probe_bind_current_abi(self):
+        manifest = json.loads(self.library.with_name('build.json').read_text())
+        self.assertEqual(manifest['schema_version'], 2)
+        self.assertEqual(manifest['abi'], ABI_CONTRACT)
+        self.assertEqual(manifest['dynamic_dependencies'], dynamic_dependencies(self.library))
+        self.assertEqual(exported_model_symbols(self.library), sorted(ABI_CONTRACT['required_symbols']))
+        probe = probe_model(self.library)
+        self.assertTrue(probe['read_only'])
+        self.assertEqual((probe['tick_before_step'], probe['tick_after_step']), (0, 1))
+        self.assertEqual(probe['values'], 120)
 
     def test_initial_state_fails_closed_without_symbol_or_after_step(self):
         class DummyLib:

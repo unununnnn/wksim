@@ -61,7 +61,8 @@ class StorageLaunchTests(unittest.TestCase):
                 self.assertEqual(after['parameter_files']['eeprom.bin']['sha256'],
                                  hashlib.sha256(b'fixture retained parameter bytes').hexdigest())
                 for fields in ({'mission': {'waypoints': []}}, {'telemetry_socket': '/tmp/t.sock'},
-                               {'promotion_flight': True}, {'runtime_profile': 'other'}):
+                               {'promotion_flight': True}, {'model_promotion_flight': True},
+                               {'runtime_profile': 'other'}):
                     with self.subTest(fields=fields), self.assertRaises(ValueError):
                         runtime.parameter_storage_metadata(dict(cfg, **fields), lease)
             with self.assertRaisesRegex(ValueError, 'closed'):

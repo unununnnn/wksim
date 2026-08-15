@@ -6,6 +6,8 @@ import json
 import math
 from pathlib import Path
 import platform
+import re
+import struct
 import subprocess
 import tempfile
 import zipfile
@@ -16,6 +18,46 @@ MODEL_PREFIX = "e0_MinModelTemp/Exp1_MinModelTemp_ert_rtw/"
 MEMBERS = [MODEL_PREFIX + name for name in
            ("Exp1_MinModelTemp.cpp", "Exp1_MinModelTemp.h", "rtwtypes.h")]
 MEMBERS += ["R2022b/simulink/include/rtw_continuous.h", "R2022b/simulink/include/rtw_solver.h"]
+ABI_CONTRACT = {
+    "name": "wksim-model-c-v2",
+    "required_symbols": {
+        "wk_model_create": "void*()",
+        "wk_model_destroy": "void(void*)",
+        "wk_model_initial_state": "int(void*,double*,int)",
+        "wk_model_step": "int(void*,const double*,int,int,double*,int)",
+        "wk_model_step_with_terrain": "int(void*,const double*,int,const double*,int,int,double*,int)",
+    },
+    "actuator_count": 16,
+    "terrain_count": 15,
+    "output_count": 120,
+    "output_layout": ["Vehicle60", "Sensor30", "HILGPS30"],
+    "dt_seconds": 0.001,
+    "initial_state": {"tick": 0, "read_only": True, "finite": True, "return_codes": [0, 1, 3]},
+    "step_return_codes": [0, 1, 2, 3],
+}
+
+
+def _sha(path):
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+def dynamic_dependencies(library):
+    """Return ELF NEEDED entries without executing the candidate library."""
+    output = subprocess.check_output(["readelf", "-d", str(library)], text=True, timeout=10)
+    return sorted(match.group(1) for line in output.splitlines()
+                  if (match := re.search(r"\(NEEDED\).*Shared library: \[(.+)\]", line)))
+
+
+def exported_model_symbols(library):
+    """Return defined public wk_model_* symbols without loading the library."""
+    output = subprocess.check_output(["nm", "-D", "--defined-only", str(library)], text=True, timeout=10)
+    return sorted({line.split()[-1] for line in output.splitlines()
+                   if line.split() and line.split()[-1].startswith("wk_model_")})
+
+
+def model_platform():
+    return {"system": platform.system(), "machine": platform.machine(),
+            "libc": list(platform.libc_ver()), "binary64_bytes": ctypes.sizeof(ctypes.c_double)}
 
 
 def extract_source(archive_path=ARCHIVE):
@@ -46,11 +88,20 @@ def build_model(archive_path=ARCHIVE):
     (build_dir / "build.stderr.log").write_text(build.stderr, encoding="utf-8")
     if build.returncode:
         raise RuntimeError(f"Build failed; see {build_dir / 'build.stderr.log'}")
-    manifest = {"archive": str(archive_path), "archive_sha256": EXPECTED_HASH,
-                "wrapper_sha256": hashlib.sha256(wrapper.read_bytes()).hexdigest(),
-                "library": str(library), "library_sha256": hashlib.sha256(library.read_bytes()).hexdigest(),
+    loader = Path(__file__).resolve()
+    source_files = [{"path": Path(member).name, "size": (build_dir / Path(member).name).stat().st_size,
+                     "sha256": _sha(build_dir / Path(member).name)} for member in MEMBERS]
+    archive_members = [{"path": member, "size": row["size"], "sha256": row["sha256"]}
+                       for member, row in zip(MEMBERS, source_files)]
+    manifest = {"schema_version": 2, "archive": str(archive_path), "archive_sha256": EXPECTED_HASH,
+                "archive_members": archive_members, "source_files": source_files,
+                "wrapper": str(wrapper), "wrapper_sha256": _sha(wrapper),
+                "loader": str(loader), "loader_sha256": _sha(loader),
+                "library": str(library), "library_sha256": _sha(library),
                 "argv": argv, "compiler": subprocess.check_output(["g++", "--version"], text=True).splitlines()[0],
-                "profile": "generated-quad-x-1ms; local use; vendor redistribution not granted"}
+                "profile": "generated-quad-x-1ms; local use; vendor redistribution not granted",
+                "platform": model_platform(), "abi": ABI_CONTRACT,
+                "dynamic_dependencies": dynamic_dependencies(library)}
     (build_dir / "build.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
     return library
 
@@ -176,6 +227,26 @@ class Model:
 
     def __exit__(self, *args):
         self.close()
+
+
+def probe_model(library):
+    """Exercise the tick-0 ABI and prove it does not change the first fixed step."""
+    commands = [0.0] * ABI_CONTRACT["actuator_count"]
+    with Model(library) as candidate:
+        initial = candidate.initial_state()
+        repeated = candidate.initial_state()
+        if candidate.ticks != 0 or initial != repeated:
+            raise RuntimeError("Initial-state ABI advanced or changed the model")
+        after_initial = candidate.step(commands)
+    with Model(library) as fresh:
+        direct = fresh.step(commands)
+    if after_initial != direct:
+        raise RuntimeError("Initial-state ABI changed the first fixed model step")
+    pack = lambda values: hashlib.sha256(struct.pack("<120d", *values)).hexdigest()
+    return {"symbol": "wk_model_initial_state", "values": len(initial), "finite": True,
+            "tick_before_step": 0, "tick_after_step": 1, "read_only": True,
+            "initial_state_sha256": pack(initial), "first_step_sha256": pack(after_initial),
+            "scope": "tick-0 ABI exercise and first-step equivalence; not flight proof"}
 
 
 if __name__ == "__main__":

@@ -202,8 +202,22 @@ def run(args):
     timing_probe = timing_probe_enabled()
     if timing_probe and args.task_profile not in (PV_PROFILE, MIXED_PROFILE):
         raise ValueError(f"{TIMING_PROBE_ENV}=1 is only allowed for candidate/PV task profiles")
+    model_promotion_flight = getattr(args, 'model_promotion_flight', False)
     diagnostic_identity = timing_probe_identity() if timing_probe else None
     check_isolation()
+    promotion_profile = None
+    if model_promotion_flight:
+        from Simulator.wksim_runtime.joint_profile import LEGACY_PROFILE, select_profile
+        promotion_profile = select_profile(LEGACY_PROFILE)
+        supplied = {
+            'ap': (args.ap_manifest, args.ap_sha256),
+            'px4': (args.px4_manifest, args.px4_sha256),
+            'control': (args.control_manifest, args.control_sha256),
+        }
+        for key, (path, checksum) in supplied.items():
+            pin = promotion_profile['manifests'][key]
+            if path is None or Path(path).resolve(strict=True) != Path(pin['path']).resolve(strict=True) or checksum != pin['sha256']:
+                raise ValueError('Model promotion must retain the pinned ' + key + ' manifest')
     def interrupted(signum, frame):
         raise InterruptedError('Owned joint validation interrupted; not a production airborne stop policy')
     signal.signal(signal.SIGTERM, interrupted)
@@ -216,6 +230,7 @@ def run(args):
     mixed_firmware = bool(args.ap_mixed_manifest)
     candidate = pv or mixed
     result = dict(status='failed', run_id=archive.name, scene_epoch=uuid.uuid4().hex, task_profile=args.task_profile,
+                  model_promotion_flight_requested=model_promotion_flight,
                   pause_probe_requested=args.pause_probe,
                   scene_lifecycle_requested=args.scene_lifecycle,
                   scene_lease_loss_requested=args.scene_lease_loss,
@@ -296,6 +311,8 @@ def run(args):
                        for stack in ('arducopter','px4')}
             for stack, config in configs.items():
                 config['model_library'] = str(library)
+                if model_promotion_flight:
+                    config['model_promotion_flight'] = True
                 if stack == 'arducopter':
                     configs[stack], admission = admit(config, args.ap_manifest, args.ap_sha256)
                 elif args.px4_manifest:
@@ -306,8 +323,24 @@ def run(args):
                 save(live/(stack+'-preflight.json'), admission)
                 if not admission['ok']:
                     raise ValueError('Fixed environment admission failed: '+str(admission['reasons']))
-            control = check_control(args.control_manifest, args.control_sha256)
-        result['model_build'] = json.loads(library.with_name('build.json').read_text())
+            if model_promotion_flight:
+                from Simulator.wksim_runtime.joint_profile import _control, _pinned_json
+                control = _pinned_json(promotion_profile['manifests']['control'])
+                _control(control, sealed=True)
+            else:
+                control = check_control(args.control_manifest, args.control_sha256)
+        model_manifest = library.with_name('build.json')
+        result['model_build'] = json.loads(model_manifest.read_text())
+        result['model_build_manifest_sha256'] = digest(model_manifest)
+        shutil.copyfile(model_manifest, live/'model-build.json')
+        if model_promotion_flight:
+            from Simulator.wksim_core.model import probe_model
+            if digest(library) != result['model_build']['library_sha256']:
+                raise ValueError('Promotion model changed after static preflight')
+            result['model_promotion_probe'] = probe_model(library)
+            if (json.loads(library.with_name('build.json').read_text()) != result['model_build']
+                    or digest(library) != result['model_build']['library_sha256']):
+                raise ValueError('Promotion model changed during the pre-launch ABI probe')
         if args.scene_lifecycle:
             sys.path.insert(0, str(Path(control['package']).parent))
         result['control_candidate'] = control
@@ -817,12 +850,21 @@ def run(args):
                 digest(Path(result['native_source_root'])/name) == expected
                 and digest(live/'native-source'/name) == expected
                 for name, expected in result['native_source_sha256'].items())
+        if result.get('model_promotion_flight_requested') and result.get('model_build'):
+            try:
+                model_library=Path(result['model_build']['library'])
+                result['model_unchanged'] = (digest(model_library)==result['model_build']['library_sha256']
+                    and digest(model_library.with_name('build.json'))==result['model_build_manifest_sha256']
+                    and json.loads(model_library.with_name('build.json').read_text())==result['model_build'])
+            except (OSError, ValueError, KeyError, TypeError):
+                result['model_unchanged'] = False
         result['control_shutdown_clean']=all(child['returncode']==0 for name,child in result['children'].items()
-                                             if name.endswith('-control'))
+                                              if name.endswith('-control'))
         if result['status'] in ('pass', 'observed') and not result['control_shutdown_clean']:
             result['status'], result['error'] = 'failed', 'Control nodes did not stop normally'
         if (result['cleanup_errors'] or any(v['remaining_group_members'] for v in result['children'].values())
-                or not result['source_unchanged'] or result['unowned_ap_before']!=result['unowned_ap_after']):
+                or not result['source_unchanged'] or result['unowned_ap_before']!=result['unowned_ap_after']
+                or result.get('model_promotion_flight_requested') and not result.get('model_unchanged')):
             result['status']='failed'
         result['wall_seconds']=time.monotonic()-started
         save(live/'result.json',result)
@@ -850,6 +892,8 @@ def main(argv=None):
                         help='Read-only debug observation of the actual PX4 Control callbacks and state decisions')
     runner.add_argument('--probe-land-freshness', action='store_true',
                         help='Diagnostic only: pace landing at >=12ms wall per 4ms joint barrier to reproduce low-rate state expiry')
+    runner.add_argument('--model-promotion-flight', action='store_true',
+                        help='Explicit unflown current-model ABI admission for one healthy position flight')
     for name in ('control-manifest','control-sha256'):
         runner.add_argument('--'+name,required=True)
     for name in ('ap-manifest','ap-sha256','ap-pv-manifest','ap-pv-sha256','ap-mixed-manifest','ap-mixed-sha256'):
@@ -887,6 +931,10 @@ def main(argv=None):
         elif (not args.ap_manifest or not args.ap_sha256 or args.ap_pv_manifest or args.ap_pv_sha256
                 or args.ap_mixed_manifest or args.ap_mixed_sha256):
             parser.error('Position experiment requires the existing AP clock manifest/SHA')
+        if args.model_promotion_flight and (args.task_profile != 'position' or args.pause_probe
+                or args.repeat_paused_clock or args.scene_lifecycle or args.scene_lease_loss
+                or args.dds_loss or args.native_state_trace or args.probe_land_freshness):
+            parser.error('Model promotion requires the fixed healthy position flight without alternate probes/candidates')
     if args.role == 'task' and args.task_profile in (PV_PROFILE, MIXED_PROFILE) and (args.task_mode != 'initial' or args.scene_lifecycle):
         parser.error('P+V task is a separate initial experimental flow')
     if args.role == 'run' and args.repeat_paused_clock and not args.pause_probe:

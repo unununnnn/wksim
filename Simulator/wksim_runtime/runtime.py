@@ -157,7 +157,8 @@ def parameter_storage_metadata(config, storage):
             or config.get('runtime_profile') != 'independent_quad_dds_v1'
             or config.get('control_protocol') != 'session_v1'
             or any(config.get(key) for key in ('mission', 'display_socket', 'telemetry_socket',
-                'gcs_udp_forward', 'restart_control_on_ground', 'promotion_flight'))):
+                'gcs_udp_forward', 'restart_control_on_ground', 'promotion_flight',
+                'model_promotion_flight'))):
         raise ValueError('Retained parameter storage requires an explicit independent maintenance session')
     metadata = storage.check(config['stack'], px4_root=config['px4_root'] if config['stack'] == 'px4' else None)
     lease, directory = os.fstat(storage.fd), storage.path.stat()

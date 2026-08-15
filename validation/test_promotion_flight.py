@@ -1,10 +1,12 @@
 """Promotion contract checks; mocked reports are not build or flight evidence."""
 import copy
+import hashlib
 import json
 from pathlib import Path
 import tempfile
 import unittest
 from unittest.mock import patch
+import zipfile
 
 from Simulator.wksim_runtime.config import ConfigError, validate_config
 from Simulator.wksim_runtime import independent_profile as profile, joint_profile, preflight
@@ -23,6 +25,69 @@ class PromotionFlightTests(unittest.TestCase):
         data.pop('runtime_profile')
         with self.assertRaisesRegex(ConfigError, 'explicit session_v1'):
             validate_config(dict(data, control_protocol='legacy_v1', promotion_flight=True))
+        for value in ('true', 1, 0, None, [], {}):
+            with self.subTest(model_value=value), self.assertRaises(ConfigError):
+                validate_config(dict(config(), model_promotion_flight=value))
+        with self.assertRaisesRegex(ConfigError, 'explicit session_v1'):
+            validate_config(dict(data, control_protocol='legacy_v1', model_promotion_flight=True))
+        promoted = validate_config(dict(config(), model_promotion_flight=True))
+        self.assertIs(promoted['model_promotion_flight'], True)
+
+    def test_model_promotion_binds_exact_build_and_static_abi(self):
+        from Simulator.wksim_core.model import ABI_CONTRACT, MEMBERS
+        with tempfile.TemporaryDirectory() as directory:
+            repo = Path(directory) / 'repo'
+            core = repo / 'Simulator/wksim_core'
+            core.mkdir(parents=True)
+            wrapper, loader = core / 'model.cpp', core / 'model.py'
+            wrapper.write_bytes(b'current wrapper')
+            loader.write_bytes(b'current loader')
+            build_dir = Path(directory) / 'model'
+            build_dir.mkdir()
+            archive = build_dir / 'MulticopterModel.zip'
+            library = build_dir / 'libwksim_model.so'
+            with zipfile.ZipFile(archive, 'w') as package:
+                for index, member in enumerate(MEMBERS):
+                    package.writestr(member, f'generated source {index}'.encode())
+                    (build_dir / Path(member).name).write_bytes(f'generated source {index}'.encode())
+            library.write_bytes(b'candidate library')
+            sha = lambda path: hashlib.sha256(path.read_bytes()).hexdigest()
+            baseline = dict(archive=str(archive), archive_sha256=sha(archive),
+                            compiler='pinned compiler', profile='pinned profile')
+            source_files = [{'path': Path(member).name,
+                             'size': (build_dir / Path(member).name).stat().st_size,
+                             'sha256': sha(build_dir / Path(member).name)} for member in MEMBERS]
+            archive_members = [{'path': member, 'size': row['size'], 'sha256': row['sha256']}
+                               for member, row in zip(MEMBERS, source_files)]
+            dependencies = ['libc.so.6', 'libstdc++.so.6']
+            platform_record = {'system': 'Linux', 'machine': 'x86_64',
+                               'libc': ['glibc', '2.35'], 'binary64_bytes': 8}
+            build = dict(baseline, schema_version=2, archive_members=archive_members,
+                         source_files=source_files, wrapper=str(wrapper), wrapper_sha256=sha(wrapper),
+                         loader=str(loader.resolve()), loader_sha256=sha(loader), library=str(library),
+                         library_sha256=sha(library), argv=[
+                            'g++', '-std=c++17', '-O2', '-fno-fast-math', '-fPIC', '-shared',
+                            '-Wl,--no-undefined', '-I', str(build_dir),
+                            str(build_dir / 'Exp1_MinModelTemp.cpp'), str(wrapper), '-o', str(library)],
+                         platform=platform_record, abi=ABI_CONTRACT,
+                         dynamic_dependencies=dependencies)
+            (build_dir / 'build.json').write_text(json.dumps(build))
+            flags = dict(model_library=str(library), model_promotion_flight=True)
+            with patch.object(preflight, 'REPO', repo), \
+                    patch('Simulator.wksim_core.model.dynamic_dependencies', return_value=dependencies), \
+                    patch('Simulator.wksim_core.model.exported_model_symbols',
+                          return_value=sorted(ABI_CONTRACT['required_symbols'])), \
+                    patch('Simulator.wksim_core.model.model_platform', return_value=platform_record):
+                result = preflight.promotion_model_build(flags, {'model_build': baseline})
+                self.assertEqual(result['build'], build)
+                self.assertEqual(result['abi']['contract'], ABI_CONTRACT)
+                self.assertIn('wk_model_initial_state', result['abi']['exported_symbols'])
+                self.assertEqual(result['identities']['model_loader']['sha256'], sha(loader))
+                changed = copy.deepcopy(build)
+                changed['wrapper_sha256'] = '0' * 64
+                (build_dir / 'build.json').write_text(json.dumps(changed))
+                with self.assertRaisesRegex(ValueError, 'model_wrapper'):
+                    preflight.promotion_model_build(flags, {'model_build': baseline})
 
     def test_independent_only_skips_history_and_never_claims_flown(self):
         for stack in ('px4', 'arducopter'):

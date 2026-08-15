@@ -221,8 +221,34 @@ def audit(root,verify_current_sources=False):
         require(digest(root/('source__'+name.replace('/','__')+'.txt'))==expected,'Source snapshot differs: '+name)
         if verify_current_sources:
             require(digest(REPO/name)==expected,'Current executed source differs: '+name)
+    model_promotion = r.get('model_promotion_flight_requested', False)
     for stack in ('arducopter','px4'):
-        require(json.loads((root/(stack+'-preflight.json')).read_text())['ok'],'Baseline admission failed')
+        admission=json.loads((root/(stack+'-preflight.json')).read_text())
+        require(admission['ok'],'Baseline admission failed')
+        if model_promotion:
+            resource_admission=admission
+            while 'baseline_preflight' in resource_admission:
+                resource_admission=resource_admission['baseline_preflight']
+            require(resource_admission['config'].get('model_promotion_flight') is True
+                    and not resource_admission['config'].get('promotion_flight', False)
+                    and resource_admission.get('flight_provenance')=='model_promotion_flight'
+                    and resource_admission['candidate_status']['flown'] is False,
+                    'Model promotion admission scope differs')
+            require(resource_admission['identities']['model_build']==r['model_build']
+                    and 'wk_model_initial_state' in resource_admission['model_promotion']['exported_symbols'],
+                    'Model promotion build or static ABI evidence differs')
+    if model_promotion:
+        from Simulator.wksim_core.model import probe_model
+        library=Path(r['model_build']['library'])
+        require(r.get('model_unchanged') is True
+                and digest(root/'model-build.json')==r['model_build_manifest_sha256']
+                and json.loads((root/'model-build.json').read_text())==r['model_build']
+                and digest(library)==r['model_build']['library_sha256']
+                and digest(library.with_name('build.json'))==r['model_build_manifest_sha256']
+                and json.loads(library.with_name('build.json').read_text())==r['model_build'],
+                'Promotion model changed after flight')
+        require(probe_model(library)==r['model_promotion_probe'],
+                'Promotion model ABI probe is not independently reproducible')
     require(digest(root/'ap-build.json')==r['manifest_sha256']['ap'],'AP manifest changed')
     control=verify_control_candidate(root,r,verify_current_sources)
     px4_candidate=verify_px4_candidate(root,r)
@@ -285,7 +311,7 @@ def audit(root,verify_current_sources=False):
                 current_source_verification=verify_current_sources,
                 control_exit_codes={name:child['returncode'] for name,child in r['children'].items() if name.endswith('-control')},
                 tasks=task_reports,**timeline,
-                px4_candidate=px4_candidate,
+                px4_candidate=px4_candidate, model_promotion_flight=model_promotion,
                 result_sha256=digest(root/'result.json'),evidence_sha256=artifacts)
 
 

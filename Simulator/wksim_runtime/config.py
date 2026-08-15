@@ -21,7 +21,7 @@ def validate_config(data):
                 'communication', 'dds_workspace', 'prometheus_workspace', 'px4_root'}
     optional = {'ap_candidate', 'capabilities', 'model_library', 'display_socket', 'control_protocol',
                 'restart_control_on_ground', 'mission', 'telemetry_socket', 'runtime_profile', 'gcs_udp_forward',
-                'promotion_flight', 'global_reference'}
+                'promotion_flight', 'model_promotion_flight', 'global_reference'}
     if required - data.keys():
         raise ConfigError('Missing fields: ' + ', '.join(sorted(required - data.keys())))
     if data.keys() - required - optional:
@@ -46,6 +46,11 @@ def validate_config(data):
             raise ConfigError('promotion_flight must be a boolean')
         if data['promotion_flight'] and data.get('control_protocol') != 'session_v1':
             raise ConfigError('promotion_flight requires explicit session_v1')
+    if 'model_promotion_flight' in data:
+        if type(data['model_promotion_flight']) is not bool:
+            raise ConfigError('model_promotion_flight must be a boolean')
+        if data['model_promotion_flight'] and data.get('control_protocol') != 'session_v1':
+            raise ConfigError('model_promotion_flight requires explicit session_v1')
     if 'runtime_profile' in data:
         if data['runtime_profile'] != 'independent_quad_dds_v1' or data.get('control_protocol') != 'session_v1':
             raise ConfigError('Independent runtime_profile requires independent_quad_dds_v1 and session_v1')

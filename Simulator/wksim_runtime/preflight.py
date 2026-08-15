@@ -7,12 +7,18 @@ import os
 from pathlib import Path, PurePosixPath
 import platform
 import stat
+import subprocess
 import sys
+import zipfile
 
 from .config import ConfigError, load_config, validate_config
 
 REPO = Path(__file__).resolve().parents[2]
 INDEX = Path(__file__).with_name('capability-index.json')
+MODEL_BUILD_FIELDS = frozenset(('schema_version', 'archive', 'archive_sha256', 'archive_members',
+                                'source_files', 'wrapper', 'wrapper_sha256', 'loader',
+                                'loader_sha256', 'library', 'library_sha256', 'argv', 'compiler',
+                                'profile', 'platform', 'abi', 'dynamic_dependencies'))
 
 
 def digest(path):
@@ -37,6 +43,80 @@ def package_digest(root, complete=False):
         raise ValueError(f'Empty message package: {root}')
     content = ''.join(f'{p.relative_to(root).as_posix()}\0{digest(p)}\n' for p in files)
     return hashlib.sha256(content.encode()).hexdigest()
+
+
+def promotion_model_build(config, evidence):
+    """Statically validate one explicit unflown model build without changing old proof."""
+    if config.get('model_promotion_flight') is not True:
+        raise ValueError('Model promotion requires an explicit model_promotion_flight flag')
+    from Simulator.wksim_core.model import (ABI_CONTRACT, MEMBERS, dynamic_dependencies,
+                                             exported_model_symbols, model_platform)
+    baseline = evidence['model_build']
+    library = Path(config['model_library'])
+    if library.is_symlink() or library.resolve(strict=True) != library:
+        raise ValueError('Promotion model library must be an existing canonical non-symlink path')
+    manifest = library.with_name('build.json')
+    if manifest.is_symlink() or not manifest.is_file():
+        raise ValueError('Promotion model build manifest is missing or a symlink')
+    build = json.loads(manifest.read_text(encoding='utf-8'))
+    if not isinstance(build, dict) or set(build) != MODEL_BUILD_FIELDS:
+        raise ValueError('Promotion model build manifest fields differ')
+    if build['schema_version'] != 2:
+        raise ValueError('Promotion model build manifest schema differs')
+    for key in ('archive', 'archive_sha256', 'compiler', 'profile'):
+        if build.get(key) != baseline[key]:
+            raise ValueError('Promotion model differs from the reviewed baseline at ' + key)
+    archive = Path(build['archive'])
+    wrapper = REPO / 'Simulator/wksim_core/model.cpp'
+    loader = REPO / 'Simulator/wksim_core/model.py'
+    if build['wrapper'] != str(wrapper) or build['loader'] != str(loader.resolve()):
+        raise ValueError('Promotion model wrapper or loader path differs')
+    expected_argv = ['g++', '-std=c++17', '-O2', '-fno-fast-math', '-fPIC', '-shared',
+                     '-Wl,--no-undefined', '-I', str(library.parent),
+                     str(library.parent / 'Exp1_MinModelTemp.cpp'), str(wrapper), '-o', str(library)]
+    if build['argv'] != expected_argv:
+        raise ValueError('Promotion model compiler invocation differs')
+    identities = {
+        'model_library': (library, build['library_sha256']),
+        'model_archive': (archive, build['archive_sha256']),
+        'model_wrapper': (wrapper, build['wrapper_sha256']),
+    }
+    checked = {}
+    for label, (path, expected) in identities.items():
+        actual = digest(path)
+        if actual != expected:
+            raise ValueError(f'{label}: SHA256 differs: {path}')
+        checked[label] = dict(path=str(path.resolve()), sha256=actual,
+                              expected_sha256=expected, match=True, promotion_candidate=True)
+    if Path(build['library']).resolve(strict=True) != library:
+        raise ValueError('Promotion model build manifest library path differs')
+    loader_sha = digest(loader)
+    if loader_sha != build['loader_sha256']:
+        raise ValueError('model_loader: SHA256 differs: ' + str(loader))
+    checked['model_loader'] = dict(path=str(loader.resolve()), sha256=loader_sha,
+                                   expected_sha256=build['loader_sha256'], match=True,
+                                   promotion_candidate=True)
+    with zipfile.ZipFile(archive) as source_archive:
+        archive_members = [{"path": member, "size": source_archive.getinfo(member).file_size,
+                            "sha256": hashlib.sha256(source_archive.read(member)).hexdigest()}
+                           for member in MEMBERS]
+    source_files = [{"path": Path(member).name,
+                     "size": (library.parent / Path(member).name).stat().st_size,
+                     "sha256": digest(library.parent / Path(member).name)} for member in MEMBERS]
+    if build['archive_members'] != archive_members or build['source_files'] != source_files:
+        raise ValueError('Promotion model generated source evidence differs')
+    if build['abi'] != ABI_CONTRACT or build['platform'] != model_platform():
+        raise ValueError('Promotion model ABI or platform contract differs')
+    dependencies = dynamic_dependencies(library)
+    symbols = exported_model_symbols(library)
+    if build['dynamic_dependencies'] != dependencies:
+        raise ValueError('Promotion model dynamic dependency set differs')
+    if symbols != sorted(ABI_CONTRACT['required_symbols']):
+        raise ValueError('Promotion model exported symbol set differs')
+    return dict(build=build, identities=checked,
+                abi=dict(contract=ABI_CONTRACT, exported_symbols=symbols,
+                         dynamic_dependencies=dependencies,
+                         scope='static candidate ELF/source contract; not ABI execution or flight proof'))
 
 
 def control_profile(index, protocol, stack, check_file):
@@ -286,17 +366,23 @@ def preflight(config):
         model = evidence['model_build']
         library = Path(config.get('model_library', index.get('resource_locations', {}).get('model_library', model['library'])))
         config['model_library'] = str(library.resolve())
-        check_file('model_library', library, model['library_sha256'])
-        check_file('model_archive', model['archive'], model['archive_sha256'])
-        check_file('model_wrapper', REPO / 'Simulator/wksim_core/model.cpp', model['wrapper_sha256'])
-        check_file('model_loader', REPO / 'Simulator/wksim_core/model.py',
-                   evidence['implementation_sha256']['Simulator/wksim_core/model.py'])
-        build = json.loads(library.with_name('build.json').read_text())
-        for key in ('archive_sha256', 'wrapper_sha256', 'library_sha256', 'profile', 'compiler'):
-            if build.get(key) != model[key]:
-                reject('model_manifest_mismatch', f'model build.json differs at {key}')
-        if Path(build['library']).resolve() != library.resolve():
-            reject('model_manifest_mismatch', 'build.json library path differs from selected library')
+        if config.get('model_promotion_flight', False):
+            promoted = promotion_model_build(config, evidence)
+            build = promoted['build']
+            result['identities'].update(promoted['identities'])
+            result['model_promotion'] = promoted['abi']
+        else:
+            check_file('model_library', library, model['library_sha256'])
+            check_file('model_archive', model['archive'], model['archive_sha256'])
+            check_file('model_wrapper', REPO / 'Simulator/wksim_core/model.cpp', model['wrapper_sha256'])
+            check_file('model_loader', REPO / 'Simulator/wksim_core/model.py',
+                       evidence['implementation_sha256']['Simulator/wksim_core/model.py'])
+            build = json.loads(library.with_name('build.json').read_text())
+            for key in ('archive_sha256', 'wrapper_sha256', 'library_sha256', 'profile', 'compiler'):
+                if build.get(key) != model[key]:
+                    reject('model_manifest_mismatch', f'model build.json differs at {key}')
+            if Path(build['library']).resolve() != library.resolve():
+                reject('model_manifest_mismatch', 'build.json library path differs from selected library')
         result['identities']['model_build'] = build
         package_root = roots['prometheus_workspace'] / 'install/prometheus_control/local/lib/python3.10/dist-packages/prometheus_control'
         expected_control = control_sources(config, index, evidence)
@@ -348,12 +434,15 @@ def preflight(config):
             reject('ros_environment', 'ROS_DISTRO must be humble; source the selected overlays')
         result['candidate_status']['built'] = not any(r['code'] in ('identity_mismatch', 'resource_missing', 'candidate_not_pinned', 'model_manifest_mismatch') for r in result['reasons'])
         result['ok'] = not result['reasons']
-        result['candidate_status']['flown'] = result['ok'] and not config.get('promotion_flight', False)
-        if config.get('promotion_flight', False):
+        promotion = config.get('promotion_flight', False) or config.get('model_promotion_flight', False)
+        result['candidate_status']['flown'] = result['ok'] and not promotion
+        if config.get('model_promotion_flight', False):
+            result['flight_provenance'] = 'model_promotion_flight'
+        elif config.get('promotion_flight', False):
             result['flight_provenance'] = 'promotion_flight'
     except ConfigError as error:
         reject('invalid_config', error)
-    except (OSError, ValueError, KeyError, TypeError, ImportError) as error:
+    except (OSError, ValueError, KeyError, TypeError, ImportError, subprocess.SubprocessError) as error:
         reject('preflight_unavailable', error)
     return result
 
