@@ -147,6 +147,14 @@ class ArduCopterLink:
     def failed(self):
         return bool(self.latest['status'].failsafe) if self.fresh('status') else False
 
+    @property
+    def navigation_valid(self):
+        if not self.fresh('status','local'):
+            return False
+        local=self.latest['local']
+        return bool(local.filter_status_valid and local.ahrs_healthy and local.attitude_valid
+                    and local.position_valid and local.velocity_valid and local.home_valid and local.gps_fix_type>=3)
+
     def state(self, uav_id):
         msg = UAVState(uav_id=uav_id, location_source=UAVState.GPS)
         msg.header.frame_id = 'map'
@@ -182,9 +190,7 @@ class ArduCopterLink:
         if msg.gps_status >= 3:
             msg.latitude, msg.longitude, msg.altitude = (local.gps_latitude_e7/1e7,
                 local.gps_longitude_e7/1e7, local.gps_altitude_cm/100.0)
-        msg.odom_valid = bool(msg.connected and local.filter_status_valid and local.ahrs_healthy
-                              and local.attitude_valid and local.position_valid and local.velocity_valid
-                              and local.home_valid and msg.gps_status >= 3 and not self.failed)
+        msg.odom_valid = bool(self.navigation_valid and not self.failed)
         return msg
 
     def supports(self, command):

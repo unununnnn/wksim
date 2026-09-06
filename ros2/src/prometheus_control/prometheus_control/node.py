@@ -28,7 +28,7 @@ from .session import RunSession
 
 
 class ControlNode(Node):
-    scene = scene_hold = None
+    scene = scene_hold = scene_recovery = None
     def __init__(self):
         super().__init__('prometheus_native_control')
         def parameter(name, default):
@@ -87,7 +87,9 @@ class ControlNode(Node):
         self.legacy_command_sub = self.create_subscription(Cmd, root + '/command',
             lambda msg: self.event('command_rejected', error=True, reason='legacy_input_requires_session', request_id=0), 1)
         self.session = RunSession(parameter('run_id', ''), self.uav_id)
-        self.scene = self.scene_hold = None
+        self.scene = self.scene_hold = self.scene_recovery = None
+        self.scene_native_endpoints = {}
+        self.retired_native_endpoints = set()
         scene_epoch = parameter('scene_epoch', '')
         if scene_epoch:
             from .scene import SceneLease, TOPIC
@@ -154,9 +156,11 @@ class ControlNode(Node):
         for subscription in self.native.subscriptions:
             if 'command_ack' in subscription.topic_name:
                 continue
-            writers = self.get_publishers_info_by_topic(subscription.topic_name)
+            writers = [writer for writer in self.get_publishers_info_by_topic(subscription.topic_name)
+                       if bytes(writer.endpoint_gid).hex() not in self.retired_native_endpoints]
             if len(writers) != 1:
-                raise ValueError('scene_requires_one_native_state_writer_per_topic')
+                raise ValueError('scene_requires_one_native_state_writer_per_topic: '
+                                 +subscription.topic_name+': count='+str(len(writers)))
             endpoints[subscription.topic_name] = bytes(writers[0].endpoint_gid).hex()
         if not endpoints:
             raise ValueError('scene_native_state_writers_missing')
@@ -169,7 +173,31 @@ class ControlNode(Node):
                 return
             accepted = True
             permission = self.scene.check()
-            if permission['phase'] == 'paused' and self.scene_hold is None:
+            if permission['phase'] == 'recovering':
+                if (not self.revoked or self.processor.control_state != Control.INIT
+                        or self.operation is not None or self.native.pending is not None):
+                    raise ValueError('scene_recovery_requires_withdrawn_task_control')
+                if self.scene_recovery is None or self.scene_recovery['request_id'] != permission['request_id']:
+                    if self.uav_id in permission.get('faulted_uav_ids',[]):
+                        if not self.scene_native_endpoints:
+                            raise ValueError('No previously bound native source to retire')
+                        self.retired_native_endpoints.update(self.scene_native_endpoints.values())
+                        self.event('scene_native_sources_retired', scene_epoch=self.scene.epoch,
+                            scene_request_id=permission['request_id'], native_endpoints=self.scene_native_endpoints)
+                    self.scene_hold = None
+                    self.scene_recovery = dict(request_id=permission['request_id'],
+                        frozen_ns=permission['time_ns'], generation=self.native.generation, ready=False)
+                    self.event('scene_recovery_requested', scene_epoch=self.scene.epoch,
+                        scene_request_id=permission['request_id'], frozen_ns=permission['time_ns'],
+                        task_control_released=True)
+            elif permission['phase'] == 'running' and self.scene_recovery is not None:
+                if not self.recovery_state_ready():
+                    raise ValueError('scene_running_before_fresh_recovery_evidence')
+                self.scene_native_endpoints = self.scene_recovery['native_endpoints']
+                self.scene_recovery = None
+                self.event('scene_physics_ready_new_task_required', scene_epoch=self.scene.epoch,
+                    scene_request_id=permission['request_id'], task_control_released=self.revoked)
+            elif permission['phase'] == 'paused' and self.scene_hold is None:
                 state = self.unfrozen_state()
                 if (self.revoked or self.operation is not None or self.native.pending is not None
                         or self.processor.control_state != Control.COMMAND_CONTROL
@@ -198,9 +226,55 @@ class ControlNode(Node):
         except (ValueError, TypeError, OverflowError) as error:
             # Malformed/foreign messages never grant an exemption. Once bound,
             # a rejected transition retires active control, never replays it.
+            if accepted and str(error).startswith('scene_running_before_'):
+                self.scene.error = 'scene_faulted_control_released'
             if (accepted or self.scene.error is not None) and not self.revoked:
                 self.revoke(str(error))
             self.event('scene_permission_rejected', error=True, reason=str(error))
+
+    def recovery_state_ready(self):
+        recovery = self.scene_recovery
+        if (recovery is None or not self.revoked or self.native.generation != recovery['generation']
+                or self.native.clock_invalid or not self.native.available()):
+            if recovery is not None:
+                recovery['not_ready_reason']='generation_clock_or_native_endpoints_not_ready'
+            return False
+        state = self.unfrozen_state()
+        stamp = state.header.stamp.sec*10**9+state.header.stamp.nanosec
+        if not (state.connected and self.native.navigation_valid and state.armed and stamp > recovery['frozen_ns']):
+            recovery['not_ready_reason']='fresh_armed_navigation_not_ready'
+            return False
+        try:
+            recovery['native_endpoints']=self.scene_endpoints()
+        except ValueError as error:
+            recovery['not_ready_reason']=str(error)
+            return False
+        recovery['not_ready_reason']=None
+        return True
+
+    def supervise_recovery(self):
+        permission = self.scene.check()
+        if permission['phase'] != 'recovering' or not self.revoked:
+            raise ValueError('Recovery phase cannot restore task ownership')
+        if self.native.generation != self.scene_recovery['generation'] or self.native.clock_invalid:
+            raise ValueError('Recovery cannot repair native time/origin regression')
+        ready = self.recovery_state_ready()
+        self.scene_recovery['ready'] = ready
+        reason=self.scene_recovery.get('not_ready_reason')
+        if self.scene_recovery.get('last_reported_reason','initial') != reason:
+            self.event('scene_recovery_readiness', reason=reason, ready=ready,
+                       connected=self.state.connected, odom_valid=self.state.odom_valid,
+                       armed=self.state.armed, native_generation=self.native.generation)
+            self.scene_recovery['last_reported_reason']=reason
+        stamp = self.state.header.stamp.sec*10**9+self.state.header.stamp.nanosec
+        self.scene_ack.publish(String(data=json.dumps(dict(version=1, run_id=self.session.run_id,
+            scene_epoch=self.scene.epoch, control_epoch=self.session.epoch, uav_id=self.uav_id,
+            phase='recovering', request_id=permission['request_id'], sequence=permission['sequence'],
+            tick=permission['tick'], ready=ready, source_boot_ns=stamp, issued_monotonic_s=self.wall(),
+            task_control_released=True, native_generation=self.native.generation,
+            readiness='native_link_and_navigation', command_control_eligible=self.state.odom_valid,
+            native_failsafe=self.native.failed, native_mode=self.state.mode,
+            native_endpoints=self.scene_recovery.get('native_endpoints',{})), allow_nan=False)))
 
     def frozen_native_fresh(self, key, received):
         if self.scene is None or self.scene_hold is None or self.revoked:
@@ -268,6 +342,7 @@ class ControlNode(Node):
         self.processor.enter_control(Control.INIT)
         self.shaper.reset()
         self.operation = self.warmup_target = None
+        self.scene_hold = self.scene_recovery = None
         self.revoked = True
         # Clearing observation is not cancelling a command already inside the FC.
         self.native.cancel_request()
@@ -446,6 +521,12 @@ class ControlNode(Node):
                 self.revoke(str(error))
         else:
             try:
+                if self.scene is not None and not self.scene_native_endpoints and self.state.connected and self.state.odom_valid:
+                    self.scene_native_endpoints=self.scene_endpoints()
+                    self.event('scene_native_sources_bound',scene_epoch=self.scene.epoch,
+                               native_endpoints=self.scene_native_endpoints)
+                if self.scene_recovery is not None:
+                    self.supervise_recovery()
                 self.drive()
             except (ValueError, RuntimeError, OverflowError) as error:
                 # A rejected setup/ACK does not mean the transport disconnected.
@@ -489,7 +570,11 @@ class ControlNode(Node):
         self.processor.update_state(self.state)
         if active and not self.state.connected:
             raise ValueError('native_state_stale')
-        if active and self.native.failed:
+        observing_operator_hold = (self.scene is not None and self.revoked
+            and self.processor.control_state == Control.INIT and self.native.external_mode == 'OFFBOARD'
+            and self.operation is not None and self.operation.get('stage')=='simple'
+            and self.operation.get('action')=='mode' and self.operation.get('value')=='AUTO.LOITER')
+        if active and self.native.failed and not observing_operator_hold:
             raise ValueError('native_failsafe_control_released')
         if self.operation is not None:
             self.advance()

@@ -7,8 +7,7 @@ import sys
 
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO))
-from audit_joint_flight import digest, lines, require
-from joint_control_candidate import check as check_control
+from audit_joint_flight import digest, lines, require, verify_control_candidate, AUDIT_OUTPUTS
 from probe_joint_clock import group_members, json_identity
 
 
@@ -31,10 +30,7 @@ def audit(root, verify_current_sources=False):
     for stack in ('arducopter', 'px4'):
         require(json.loads((root/(stack+'-preflight.json')).read_text())['ok'], 'Baseline admission failed')
     require(digest(root/'ap-build.json') == result['manifest_sha256']['ap'], 'AP build manifest differs')
-    control = result['control_candidate']
-    require(digest(root/'control-build.json') == result['manifest_sha256']['control'], 'Control manifest differs')
-    require(check_control(Path(control['root'])/'build.json', result['manifest_sha256']['control']) == control,
-            'Actual control source/install changed')
+    control = verify_control_candidate(root,result,verify_current_sources)
     ap = json.loads((root/'ap-build.json').read_text())
     require(digest(ap['candidate_root']+'/build/sitl/bin/arducopter') ==
             ap['artifacts']['build/sitl/bin/arducopter']['sha256'], 'Actual AP changed')
@@ -165,6 +161,6 @@ if __name__ == '__main__':
     report = audit(args.directory, args.verify_current_sources)
     report['audit_source_sha256'] = digest(Path(__file__))
     report['evidence_sha256'] = {p.relative_to(args.directory).as_posix(): digest(p)
-        for p in sorted(args.directory.rglob('*')) if p.is_file() and p.name != 'pause-audit.json'}
+        for p in sorted(args.directory.rglob('*')) if p.is_file() and p.name not in AUDIT_OUTPUTS}
     (args.directory/'pause-audit.json').write_text(json.dumps(report, indent=2)+'\n')
     print(json.dumps({k:v for k,v in report.items() if k not in ('evidence_sha256', 'source_sha256')}, indent=2))

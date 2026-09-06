@@ -64,7 +64,8 @@ def audit(root, verify_current_sources=False):
             value=row['message']
             require(json.loads(deserialize_message(bytes.fromhex(row['cdr_hex']),String).data)==value,
                     'Raw lifecycle CDR differs from permission record')
-            require(value['version']==1 and value['run_id']==result['run_id'] and value['scene_epoch']==epoch
+            require(value['version'] in (1,2) and not value.get('faulted_uav_ids',[])
+                    and value['run_id']==result['run_id'] and value['scene_epoch']==epoch
                     and value['sequence']==sequence+1 and value['tick']==row['tick']>=last_tick
                     and value['time_ns']==value['tick']*1000000 and value['lease_seconds']==.5,
                     'Lease identity/time/count differs')
@@ -88,7 +89,14 @@ def audit(root, verify_current_sources=False):
         for value in event['control_ack'].values():
             require(value in raw_acks,'Summary acknowledgement absent from actual raw DDS')
     task_phases={}
+    task_implementations={}
     for stack in ('arducopter','px4'):
+        task_report=json.loads((root/stack/'result.json').read_text())
+        if 'scene_implementation' in task_report:
+            expected=dict(path=str(Path(result['control_candidate']['package'])/'scene.py'),
+                          sha256=result['control_candidate']['python_sha256']['scene.py'])
+            require(task_report['scene_implementation']==expected,'Task loaded another permission implementation')
+            task_implementations[stack]=expected
         phases=[]; suspended=False
         for row in lines(root/stack/'prometheus.jsonl'):
             if 'scene_event' in row:
@@ -104,6 +112,7 @@ def audit(root, verify_current_sources=False):
         lifecycle=dict(events=events, raw_permissions=sequence, raw_control_acknowledgements=len(raw_acks),
             paused_clock_republications=repeats, maximum_permission_gap_s=max_gap, task_phases=task_phases),
         remaining='fault recovery, genuine DDS loss modes, rate control, full reset isolation, formal joint UI/UE and Full remain open')
+    report['lifecycle']['task_implementations']=task_implementations
     return report
 
 

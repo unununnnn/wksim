@@ -103,6 +103,28 @@ class SceneClockTests(unittest.TestCase):
         self.clock.barrier(4, 4000, True)
         self.assertEqual(self.clock.begin_step(), 5)
 
+    def test_only_completed_communication_fault_can_explicitly_recover(self):
+        self.advance()
+        tick=self.clock.begin_step()
+        self.clock.commit(self.responses(tick))
+        with self.assertRaises(ValueError):
+            self.clock.suspend('agent_exit')
+        self.clock.acknowledge_ap(5)
+        frozen=self.clock.suspend('agent_exit')
+        self.assertTrue(frozen['recoverable'])
+        self.assertEqual((frozen['tick'],frozen['last_barrier_tick']),(5,4))
+        with self.assertRaises(ValueError):
+            self.request('resume')
+        with self.assertRaises(ValueError):
+            self.clock.begin_step()
+        self.request('recover')
+        self.assertEqual(self.clock.tick,5)
+        self.assertEqual(self.clock.begin_step(),6)
+        self.clock.fault('partial_model_timeout')
+        with self.assertRaises(ValueError):
+            self.request('recover')
+        self.assertEqual(self.clock.tick,5)
+
 
 @unittest.skipUnless(os.environ.get('WK_SCENE_ROS_TESTS') == '1', 'explicit private ROS test environment required')
 class RosClockTests(unittest.TestCase):

@@ -3,8 +3,7 @@ import argparse
 import json
 from pathlib import Path
 
-from audit_joint_flight import digest, lines, require
-from joint_control_candidate import check as check_control
+from audit_joint_flight import digest, lines, require, verify_control_candidate, AUDIT_OUTPUTS
 from probe_joint_clock import group_members, json_identity
 
 
@@ -21,9 +20,7 @@ def audit(root, current=False):
     for name, checksum in result['source_sha256'].items():
         require(digest(root/('source__'+name.replace('/','__')+'.txt'))==checksum,'Source snapshot differs')
         if current: require(digest(repo/name)==checksum,'Current source changed: '+name)
-    control=result['control_candidate']
-    require(check_control(Path(control['root'])/'build.json',result['manifest_sha256']['control'])==control,
-            'Actual candidate changed')
+    control=verify_control_candidate(root,result,current)
     require(result['unowned_ap_before']==result['unowned_ap_after']==json_identity(828),'Unowned AP changed')
     require(len(result['children'])==10,'Unexpected participant count')
     for name, child in result['children'].items():
@@ -106,6 +103,6 @@ if __name__=='__main__':
     args=parser.parse_args();result=audit(args.directory,args.verify_current_sources)
     result['audit_source_sha256']=digest(Path(__file__))
     result['evidence_sha256']={p.relative_to(args.directory).as_posix():digest(p) for p in args.directory.rglob('*')
-                              if p.is_file() and p.name!='permission-loss-audit.json'}
+                              if p.is_file() and p.name not in AUDIT_OUTPUTS}
     (args.directory/'permission-loss-audit.json').write_text(json.dumps(result,indent=2)+'\n')
     print(json.dumps({key:value for key,value in result.items() if key!='evidence_sha256'},indent=2))

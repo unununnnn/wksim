@@ -14,7 +14,7 @@ import time
 
 from .config import load_config, validate_config
 from .preflight import preflight
-from .isolation import Reservation, resources, check_isolation
+from .isolation import Reservation, resources, check_isolation, isolate_temporary_files
 
 REPO = Path(__file__).resolve().parents[2]
 AP_SHA256 = '98c003de2a328b3aeb5813583070f4640dc6c935bde9f42fedaaaefad39ac9b5'
@@ -68,7 +68,8 @@ def launch_spec(config, directory, library):
               '--defaults', defaults, '--home', '40.1540302,116.2593683,50,0']
     else:
         binary = px4 / 'build/px4_sitl_default/bin/px4'
-        fc = [str(binary), '-d', str(px4 / 'build/px4_sitl_default/etc'), '-i', '21', '-w', str(directory)]
+        fc = [str(binary), '-d', str(px4 / 'build/px4_sitl_default/etc'),
+              '-t', str(px4/'test_data'), '-i', '21', '-w', str(directory)]
         overrides = dict(PX4_SYS_AUTOSTART='10016', PX4_SIM_MODEL='none_iris', PX4_SIM_HOST_ADDR='127.0.0.1',
                          PX4_SIM_SPEED_FACTOR='3', PX4_UXRCE_DDS_PORT='18888', PX4_UXRCE_DDS_NS='wksim_px4_21',
                          ROS_DOMAIN_ID='77', WKSIM_MAVLINK_LOCAL_PORT='18591', WKSIM_MAVLINK_REMOTE_PORT='14661',
@@ -78,7 +79,7 @@ def launch_spec(config, directory, library):
             overrides[f'PX4_PARAM_CA_ROTOR{rotor}_PX'] = str(x)
             overrides[f'PX4_PARAM_CA_ROTOR{rotor}_PY'] = str(y)
             overrides[f'PX4_PARAM_CA_ROTOR{rotor}_KM'] = str((1 if rotor < 2 else -1) * 2.783e-7 / 1.681e-5)
-        overrides['PATH'] = str(core) + os.pathsep + os.environ.get('PATH', '')
+        overrides['PATH'] = str(core) + os.pathsep + str(binary.parent) + os.pathsep + os.environ.get('PATH', '')
     return dict(agent=[str(agent), 'udp4', '-p', '12019' if ap else '18888', '-v', '4'],
                 physics=physics, fc=fc, control=control, fc_environment=overrides)
 
@@ -224,6 +225,7 @@ def _run_reserved(config, output_root, resource, reservation, task_factory=None)
         result['preflight'] = preflight(config)
         if not result['preflight']['ok']:
             raise RuntimeError('Preflight rejected: ' + json.dumps(result['preflight']['reasons']))
+        result['private_temporary_files']=isolate_temporary_files()
         config = result['preflight']['config']
         result['config'] = config
         (directory / 'config.json').write_text(json.dumps(config, indent=2) + '\n', encoding='utf-8')

@@ -4,6 +4,44 @@ import json
 import os
 from pathlib import Path
 import stat
+import subprocess
+import tempfile
+
+_private_tmp = None
+
+
+def isolate_temporary_files():
+    """Private writable /tmp while retaining read access to pinned old builds.
+
+    PX4's native daemon CLI uses /tmp/px4-sock-<instance>, which network/IPC
+    namespaces alone do not isolate. Overlay writes/unlinks stay private; the
+    existing lower tree is never modified. New build artifacts use a persistent
+    project-owned directory so post-run evidence remains readable.
+    """
+    global _private_tmp
+    check_isolation()
+    namespace=os.readlink('/proc/self/ns/mnt')
+    if namespace==os.readlink('/proc/1/ns/mnt'):
+        raise RuntimeError('Private mount namespace required before isolating /tmp')
+    if _private_tmp is not None:
+        if _private_tmp['mount_namespace']!=namespace or os.stat('/tmp').st_dev!=_private_tmp['device']:
+            raise RuntimeError('Private temporary mount identity changed')
+        return dict(_private_tmp)
+    directory=Path(tempfile.mkdtemp(prefix='wksim-private-tmp-',dir='/root'))
+    for name in ('upper','work','artifacts'):
+        (directory/name).mkdir(mode=0o700)
+    before=os.stat('/tmp').st_dev
+    command=['mount','-t','overlay','overlay','-o',
+             f'lowerdir=/tmp,upperdir={directory}/upper,workdir={directory}/work','/tmp']
+    subprocess.run(command,check=True,capture_output=True,text=True)
+    device=os.stat('/tmp').st_dev
+    if device==before:
+        raise RuntimeError('Temporary directory did not acquire a private filesystem')
+    os.environ['TMPDIR']=str(directory/'artifacts')
+    tempfile.tempdir=None
+    _private_tmp=dict(root=str(directory),mount_namespace=namespace,device=device,lower_device=before,
+                      artifact_directory=str(directory/'artifacts'),command=command)
+    return dict(_private_tmp)
 
 
 def resources(config, directory):

@@ -191,6 +191,31 @@ def preflight(config):
         check_file('firmware', firmware, evidence['fc_binary_sha256'])
         if not os.access(firmware, os.X_OK):
             reject('resource_not_executable', f'Firmware is not executable: {firmware}')
+        if stack == 'px4':
+            manifest = roots['px4_root']/'wksim-runtime-files.json'
+            pin = index.get('runtime_resources', {}).get('px4_launch_manifest_sha256')
+            if pin is None:
+                reject('resource_missing', 'No pinned independent PX4 launch-file manifest')
+            else:
+                check_file('px4_launch_manifest', manifest, pin)
+                if result['identities'].get('px4_launch_manifest', {}).get('match'):
+                    launch_files=json.loads(manifest.read_text())
+                    if (launch_files.get('independent_root')!=str(roots['px4_root'])
+                            or launch_files.get('binary_sha256')!=evidence['fc_binary_sha256']):
+                        reject('identity_mismatch','PX4 launch resource root/binary differs')
+                    for name, entry in launch_files['files'].items():
+                        if Path(name).name!=name or not name.startswith('px4-'):
+                            reject('identity_mismatch','Invalid PX4 launch resource name')
+                            continue
+                        path=firmware.parent/name
+                        if 'sha256' in entry:
+                            check_file('px4_launch/'+name,path,entry['sha256'])
+                        elif (entry.get('relative_link')!='px4' or not path.is_symlink()
+                              or os.readlink(path)!='px4' or path.resolve()!=firmware.resolve()):
+                            reject('resource_missing','PX4 module entry is not bound to the local pinned binary: '+name)
+                    data=roots['px4_root']/'test_data'
+                    if not data.is_dir() or data.resolve()!=data:
+                        reject('resource_missing','Independent PX4 test_data directory is missing or external')
         firmware_identity = result['identities'].get('firmware', {})
         for candidate in index['known_unflown_candidates']:
             if firmware_identity.get('sha256') == candidate['sha256']:

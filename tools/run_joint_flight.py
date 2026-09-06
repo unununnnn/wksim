@@ -1,6 +1,7 @@
 """Bounded common-time two-FC public Task flight, not a completed G2 product.
 
-No physics pause, airborne loss recovery or collision/spawn-offset claim here.
+Explicit candidates exercise healthy lifecycle or controlled DDS Agent loss.
+Collision/spawn offsets and the complete G2 product remain separate gates.
 All mode/arm/takeoff/move/land requests go through installed Prometheus control.
 """
 import argparse
@@ -25,7 +26,7 @@ sys.path.insert(0, str(REPO))
 from Simulator.wksim_core.model import build_model
 from Simulator.wksim_core.joint import JointPhysics
 from Simulator.wksim_runtime.scene_clock import SceneClock, ClockPublisher
-from Simulator.wksim_runtime.isolation import check_isolation
+from Simulator.wksim_runtime.isolation import check_isolation, isolate_temporary_files
 from Simulator.wksim_runtime.config import load_config
 from Simulator.wksim_runtime.preflight import preflight
 from Simulator.wksim_runtime.runtime import launch_spec, stop_children, digest
@@ -55,7 +56,7 @@ def task_main(args):
     from Simulator.wksim_runtime.task import Task
     root = Path(args.output)
     result = dict(status='failed', stack=args.stack, uav_id=args.uav_id,
-                  run_id=args.run_id, scene_epoch=args.scene_epoch, phases=[])
+                  run_id=args.run_id, scene_epoch=args.scene_epoch, phases=[], task_mode=args.task_mode)
     started = time.monotonic()
     task = None
     rclpy.init(args=[])
@@ -73,17 +74,39 @@ def task_main(args):
         task = Task(root, health, phase, args.stack, run_id=args.run_id,
                     protocol='session_v1', uav_id=args.uav_id, use_sim_time=True,
                     scene_epoch=args.scene_epoch if args.scene_lifecycle else None)
-        task.wait('joint_public_ready', lambda: task.fresh()
+        if args.scene_lifecycle:
+            implementation = Path(importlib.util.find_spec('prometheus_control.scene').origin).resolve()
+            if implementation.parent != Path(args.control_package) or digest(implementation) != args.scene_module_sha:
+                raise RuntimeError('Task did not load the sealed scene permission implementation')
+            result['scene_implementation'] = dict(path=str(implementation), sha256=digest(implementation))
+        if args.task_mode == 'recover':
+            while task.task_time() == 0:
+                health()
+                rclpy.spin_once(task.node, timeout_sec=.02)
+        task.wait('joint_public_ready', lambda: (task.recovery_transport_fresh() if args.task_mode=='recover' else task.fresh())
                   and task.setup_pub.get_subscription_count() == 1
                   and task.command_pub.get_subscription_count() == 1, 55)
         save(root/'ready.json', dict(run_id=args.run_id, scene_epoch=args.scene_epoch,
-                                    uav_id=args.uav_id, control_epoch=task.epoch))
-        while not (root.parent/'go.json').is_file():
+                                    uav_id=args.uav_id, control_epoch=task.epoch,
+                                    task_mode=args.task_mode, start_token=args.start_token,
+                                    request_high_water=task.request_id))
+        go_file = root.parent/('recovery-go.json' if args.task_mode == 'recover' else 'go.json')
+        while not go_file.is_file():
             task.pump()
-        go = json.loads((root.parent/'go.json').read_text())
+        go = json.loads(go_file.read_text())
         if go['epoch'] != args.scene_epoch:
             raise ValueError('Joint start belongs to another scene epoch')
-        task.execute()
+        if args.task_mode == 'recover':
+            offer = go['tasks'][args.stack]
+            if (go.get('version') != 1 or go.get('run_id') != args.run_id
+                    or go.get('action') != 'new_recovery_task'
+                    or go.get('scene_request_id') != task.scene_lease.check()['request_id']
+                    or offer.get('start_token') != args.start_token or offer.get('uav_id') != args.uav_id
+                    or offer.get('control_epoch') != task.epoch):
+                raise ValueError('Recovery task requires a current explicit start offer')
+            task.recover_then_land(allow_native_hold=offer.get('allow_native_hold',False))
+        else:
+            task.execute()
         result.update(status='pass', task=task.report(), task_final_ros_ns=task.node.get_clock().now().nanoseconds,
                       use_sim_time=task.node.get_parameter('use_sim_time').value)
     except BaseException as error:
@@ -117,6 +140,7 @@ def run(args):
                   pause_probe_requested=args.pause_probe,
                   scene_lifecycle_requested=args.scene_lifecycle,
                   scene_lease_loss_requested=args.scene_lease_loss,
+                  dds_loss_requested=args.dds_loss,
                   require_clean_control_exit=True,
                   archive=str(archive), live=str(live), children={}, tasks={},
                   isolation={n: os.readlink('/proc/self/ns/'+n) for n in ('net','ipc','mnt')},
@@ -127,6 +151,7 @@ def run(args):
                   scope=__doc__)
     print(json.dumps(dict(archive=str(archive), live=str(live))), flush=True)
     children, expected_exits = [], set()
+    child_specs, dds_pending, dds_injection, dds_handled = {}, None, None, False
     clock, started = SceneClock(result['scene_epoch']), time.monotonic()
     pause_probe = lifecycle = None
     sources = ['tools/run_joint_flight.py','tools/run-joint-flight.sh','tools/joint_control_candidate.py',
@@ -134,13 +159,19 @@ def run(args):
                'Simulator/wksim_core/model.py','Simulator/wksim_core/model.cpp',
                'Simulator/wksim_core/ap_json.py','Simulator/wksim_core/px4_mavlink.py',
                'Simulator/wksim_runtime/scene_clock.py','Simulator/wksim_runtime/task.py',
-               'tools/joint_pause_probe.py']
+               'tools/joint_pause_probe.py','Simulator/wksim_runtime/runtime.py',
+               'Simulator/wksim_runtime/isolation.py',
+               'Simulator/wksim_runtime/preflight.py','Simulator/wksim_runtime/config.py',
+               'Simulator/wksim_runtime/capability-index.json',
+               'Simulator/wksim_runtime/examples/arducopter-session.json',
+               'Simulator/wksim_runtime/examples/px4-session.json']
     if args.scene_lifecycle:
-        sources += ['tools/joint_lifecycle.py']
+        sources += ['tools/joint_lifecycle.py','Simulator/wksim_runtime/joint_lifecycle.py']
     result['source_sha256'] = {name:digest(REPO/name) for name in sources}
     for name in sources:
         (live/('source__'+name.replace('/','__')+'.txt')).write_bytes((REPO/name).read_bytes())
     try:
+        result['private_temporary_files']=isolate_temporary_files()
         library = build_model()
         result['model_build'] = json.loads(library.with_name('build.json').read_text())
         configs = {stack:load_config(REPO/f'Simulator/wksim_runtime/examples/{stack}-session.json')
@@ -162,7 +193,7 @@ def run(args):
         shutil.copyfile(args.ap_manifest, live/'ap-build.json')
         shutil.copyfile(args.control_manifest, live/'control-build.json')
 
-        def health():
+        def physics_health():
             if pause_probe is not None:
                 pause_probe.pump()
             if lifecycle is not None:
@@ -173,24 +204,157 @@ def run(args):
                 code = child.poll()
                 if code is None or child.pid in expected_exits:
                     continue
-                if name.endswith('-task') and code == 0:
-                    stack = name[:-5]
-                    report = json.loads((live/stack/'result.json').read_text())
+                role = child_specs.get(child.pid,{}).get('role','model')
+                if role in ('model','fc','control'):
+                    raise RuntimeError(f'{name} exited unexpectedly: {code}')
+
+        def health():
+            nonlocal dds_pending
+            physics_health()
+            for name, child, _ in children:
+                code = child.poll()
+                if code is None or child.pid in expected_exits:
+                    continue
+                spec = child_specs[child.pid]
+                if (args.dds_loss and not dds_handled and dds_injection is not None
+                        and name == args.dds_loss+'-agent'):
+                    dds_pending = (name, child)
+                    lifecycle.record('agent_exit_detected', name=name, pid=child.pid, returncode=code)
+                    return
+                if spec['role'] == 'task' and code == 0:
+                    stack = spec['result_key']
+                    report = json.loads((spec['directory']/'result.json').read_text())
                     if (report['status'] != 'pass' or report['scene_epoch'] != clock.epoch
                             or report['run_id'] != result['run_id']):
                         raise RuntimeError('Task exited without matching successful result')
+                    if args.scene_lifecycle and report.get('scene_implementation') != dict(
+                            path=str(Path(control['package'])/'scene.py'), sha256=control['python_sha256']['scene.py']):
+                        raise RuntimeError('Task scene permission implementation identity differs')
                     expected_exits.add(child.pid)
                     result['tasks'][stack] = report
                 else:
                     raise RuntimeError(f'{name} exited unexpectedly: {code}')
 
-        def launch(name, argv, cwd, env=None):
+        def launch(name, argv, cwd, env=None, role=None, result_key=None):
             log = (live/(name+'.log')).open('x')
             child = subprocess.Popen(argv, cwd=cwd, env=env, stdout=log, stderr=log,
                                      stdin=subprocess.DEVNULL, start_new_session=True)
             children.append((name,child,log))
+            child_specs[child.pid] = dict(role=role or name.rsplit('-',1)[-1], directory=Path(cwd),
+                                          result_key=result_key or name[:-5], env=env)
             result['children'][name] = dict(identity=json_identity(child.pid), argv=argv, cwd=str(cwd))
             return child
+
+        def launch_task(stack, uid, directory, task_mode='initial', start_token=None):
+            command = [sys.executable,'-B',str(Path(__file__).resolve()),'task',
+                '--stack',stack,'--uav-id',str(uid),'--run-id',result['run_id'],
+                '--scene-epoch',clock.epoch,'--output',str(directory),'--task-mode',task_mode]
+            if args.scene_lifecycle:
+                command += ['--scene-lifecycle','--control-package',control['package'],
+                            '--scene-module-sha',control['python_sha256']['scene.py']]
+            if start_token is not None:
+                command += ['--start-token',start_token]
+            name = stack+('-recovery-task' if task_mode == 'recover' else '-task')
+            return launch(name,command,directory,control_environment(control) if args.scene_lifecycle else None,
+                          role='task',result_key=stack)
+
+        def recover_agent(advance):
+            nonlocal dds_handled
+            name, failed_agent = dds_pending
+            failure_before = lifecycle.snapshot(physics)
+            progress = dict(status='running', affected_stack=args.dds_loss, injection=dds_injection,
+                            before_failure=failure_before)
+            result['dds_recovery'] = progress
+            lifecycle.communication_fault(name+'_exited',[1 if args.dds_loss=='arducopter' else 2])
+            expected_exits.add(failed_agent.pid)
+            old_tasks = [(n,p) for n,p,_ in children if child_specs[p.pid]['role']=='task']
+            expected_exits.update(p.pid for _,p in old_tasks)
+            began = time.monotonic()
+            while time.monotonic()-began < 3:
+                physics_health()
+                time.sleep(.002)
+            old_reports = {}
+            for task_name, process in old_tasks:
+                if process.poll() != 1:
+                    raise RuntimeError('Original tasks must naturally fail and retire after DDS loss')
+                spec = child_specs[process.pid]
+                old_reports[spec['result_key']] = json.loads((spec['directory']/'result.json').read_text())
+                if old_reports[spec['result_key']]['status'] != 'failed':
+                    raise RuntimeError('Old task was not recorded as failed')
+            frozen = lifecycle.snapshot(physics)
+            progress.update(frozen=frozen,old_tasks=old_reports)
+            if frozen['models'] != failure_before['models']:
+                raise RuntimeError('DDS failure advanced physics before explicit recovery')
+            if any(not pause_probe.sessions[uid].control.failsafe for uid in (1,2)):
+                raise RuntimeError('Both controls must withdraw after a participant DDS loss')
+            original = result['children'][name]
+            replacement = launch(name+'-reconnected',original['argv'],Path(original['cwd']),
+                                 child_specs[failed_agent.pid]['env'],role='agent')
+            lifecycle.record('agent_restarted', name=name, old_pid=failed_agent.pid, new_pid=replacement.pid)
+            until = time.monotonic()+1
+            while time.monotonic() < until:
+                physics_health()
+                if replacement.poll() is not None:
+                    raise RuntimeError('Replacement Agent exited before explicit recovery')
+                time.sleep(.002)
+            reconnected_frozen = lifecycle.snapshot(physics)
+            progress.update(reconnected_frozen=reconnected_frozen,replacement_agent_pid=replacement.pid)
+            if reconnected_frozen['models'] != frozen['models']:
+                raise RuntimeError('Agent restart automatically advanced physics')
+            recovery_boundary = lifecycle.begin_recovery()
+            if args.dds_loss == 'px4':
+                import socket, struct
+                px_process=next(p for n,p,_ in children if n=='px4-fc')
+                with socket.socket(socket.AF_UNIX,socket.SOCK_STREAM) as peer:
+                    peer.settimeout(1)
+                    peer.connect('/tmp/px4-sock-21')
+                    peer_pid,peer_uid,peer_gid=struct.unpack('3i',peer.getsockopt(socket.SOL_SOCKET,socket.SO_PEERCRED,12))
+                if (peer_pid!=px_process.pid or json_identity(px_process.pid)!=result['children']['px4-fc']['identity']
+                        or px_process.poll() is not None):
+                    raise RuntimeError('Native DDS client command did not resolve to the owned PX4 daemon')
+                lifecycle.record('px4_cli_peer_verified',pid=peer_pid,uid=peer_uid,gid=peer_gid)
+                commands=[['stop'],['start','-t','udp','-h','127.0.0.1','-p','18888','-n','wksim_px4_21']]
+                progress['native_dds_restart']=[]
+                for command in commands:
+                    argv=[str(Path(configs['px4']['px4_root'])/'build/px4_sitl_default/bin/px4-uxrce_dds_client'),
+                          '--instance','21',*command]
+                    process=launch('px4-dds-'+command[0],argv,live/'px4',role='service')
+                    while process.poll() is None:
+                        if time.monotonic()-lifecycle.recovery_started>=5:
+                            lifecycle.communication_fault('native_dds_client_restart_timeout')
+                            raise TimeoutError('Native DDS client restart exceeded the approved recovery window')
+                        advance()
+                    if process.returncode:
+                        raise RuntimeError('Native DDS client '+command[0]+' failed: '+str(process.returncode))
+                    expected_exits.add(process.pid)
+                    event=dict(argv=argv,pid=process.pid,returncode=process.returncode,phase=command[0])
+                    progress['native_dds_restart'].append(event)
+                    lifecycle.record('native_dds_client_restarted',observation=event)
+            offers = {}
+            for stack, uid in (('arducopter',1),('px4',2)):
+                directory = live/(stack+'-recovery')
+                directory.mkdir()
+                token = uuid.uuid4().hex
+                offers[stack] = dict(start_token=token,uav_id=uid,control_epoch=pause_probe.sessions[uid].control_epoch)
+                launch_task(stack,uid,directory,'recover',token)
+            physical_recovery = lifecycle.recover_physics(advance,recovery_boundary)
+            progress['physics_recovery'] = physical_recovery
+            for stack,uid in (('arducopter',1),('px4',2)):
+                ack=physical_recovery['control_ack'][uid]
+                offers[stack]['allow_native_hold']=bool(stack=='px4' and ack.get('native_failsafe')
+                    and not ack.get('command_control_eligible'))
+            # No new high-level flight request is authorized by Agent restart or
+            # by the physical recovery alone. This is a new explicit task offer.
+            authorization = dict(version=1,epoch=clock.epoch,run_id=result['run_id'],
+                scene_request_id=clock.last_request,action='new_recovery_task',tasks=offers)
+            save(live/'recovery-go.json',authorization)
+            lifecycle.record('new_task_authorized', authorization=authorization)
+            dds_handled = True
+            progress.update(status='pass',affected_stack=args.dds_loss,
+                injection=dds_injection, before_failure=failure_before, frozen=frozen,
+                reconnected_frozen=reconnected_frozen, old_tasks=old_reports,
+                replacement_agent_pid=replacement.pid, physics_recovery=physical_recovery,
+                new_task_authorization=authorization)
 
         import rclpy
         rclpy.init(args=[])
@@ -209,7 +373,7 @@ def run(args):
                 wire.write(json.dumps(dict(kind=kind, epoch=clock.epoch,tick=clock.tick,
                                           wall=time.monotonic()-started,**data),separators=(',',':'),allow_nan=False)+'\n')
             workers = {}
-            physics = JointPhysics(resources, clock, workers, health, record)
+            physics = JointPhysics(resources, clock, workers, physics_health, record)
             publisher.publish(clock)
             clock_log.write(json.dumps(clock.snapshot())+'\n')
             if args.scene_lifecycle:
@@ -228,6 +392,7 @@ def run(args):
                 child = subprocess.Popen(argv,cwd=directory,stdin=subprocess.PIPE,stdout=subprocess.PIPE,
                                          stderr=log,text=True,start_new_session=True)
                 children.append((stack+'-model',child,log)); workers[stack]=child
+                child_specs[child.pid] = dict(role='model',directory=directory,result_key=stack,env=None)
                 result['children'][stack+'-model'] = dict(identity=json_identity(child.pid),argv=argv,cwd=str(directory))
                 plan = launch_spec(configs[stack], directory, library)
                 launch(stack+'-agent',plan['agent'],directory)
@@ -244,13 +409,7 @@ def run(args):
                     +repr(control['package'])+'); import prometheus_control.node as n; n.main()')
                 command = [sys.executable,'-B','-c',verifier,*plan['control'][3:]]
                 launch(stack+'-control',command,directory,control_environment(control))
-                task_command = [sys.executable,'-B',str(Path(__file__).resolve()),'task',
-                    '--stack',stack,'--uav-id',str(uid),'--run-id',result['run_id'],
-                    '--scene-epoch',clock.epoch,'--output',str(directory)]
-                if args.scene_lifecycle:
-                    task_command += ['--scene-lifecycle']
-                launch(stack+'-task', task_command, directory,
-                       control_environment(control) if args.scene_lifecycle else None)
+                launch_task(stack,uid,directory)
             save(live/'children-start.json',result['children'])
             physics.connect()
             summaries = {name:dict(max_height_m=0., min_waypoint_error_m=1e30) for name in workers}
@@ -260,6 +419,9 @@ def run(args):
                 clock_log.write(json.dumps(clock.snapshot(),separators=(',',':'))+'\n')
                 return states
             while clock.tick < MAX_TICKS:
+                health()
+                if dds_pending is not None and not dds_handled:
+                    recover_agent(advance)
                 states = advance()
                 if not (live/'go.json').exists() and all((live/name/'ready.json').exists() for name in workers):
                     save(live/'go.json', clock.snapshot())
@@ -272,7 +434,23 @@ def run(args):
                 if clock.tick % 5000 == 0:
                     print(json.dumps(dict(tick=clock.tick,heights={k:round(-v[8],3) for k,v in states.items()},
                                           completed_tasks=list(result['tasks']))),flush=True)
-                if lifecycle is not None and not lifecycle.completed and pause_probe.ready(result['run_id'], states):
+                if args.dds_loss and dds_injection is None and pause_probe.ready(result['run_id'],states):
+                    target = next(p for n,p,_ in children if n == args.dds_loss+'-agent')
+                    identity = json_identity(target.pid)
+                    expected_identity=result['children'][args.dds_loss+'-agent']['identity']
+                    executable=Path('/proc')/str(target.pid)/'exe'
+                    observation=dict(expected=expected_identity,observed=identity,
+                                     executable=os.readlink(executable) if executable.exists() else None)
+                    result['agent_identity_before_injection']=observation
+                    if (identity is None or any(identity[key]!=expected_identity[key] for key in ('pid','pgid','start_ticks'))
+                            or not executable.exists() or executable.resolve()!=Path(result['children'][args.dds_loss+'-agent']['argv'][0]).resolve()
+                            or target.poll() is not None):
+                        raise RuntimeError('Agent identity changed before owned failure injection')
+                    dds_injection = dict(tick=clock.tick,wall=time.monotonic()-started,identity=identity)
+                    lifecycle.record('agent_stop_requested', observation=dds_injection)
+                    target.terminate()
+                if (not args.dds_loss and lifecycle is not None and not lifecycle.completed
+                        and pause_probe.ready(result['run_id'], states)):
                     observed = lifecycle.exercise(physics, health, advance, children if args.scene_lease_loss else None)
                     if args.scene_lease_loss:
                         result['scene_fault_observation'] = observed
@@ -301,13 +479,16 @@ def run(args):
                     break
             if len(result['tasks']) != 2:
                 raise TimeoutError('Both public tasks did not finish inside the fixed simulation budget')
-            if any(row['max_height_m']<2.5 or row['min_waypoint_error_m']>.5 or abs(row['final_height_m'])>.3
+            if any(row['max_height_m']<2.5 or (not args.dds_loss and row['min_waypoint_error_m']>.5) or abs(row['final_height_m'])>.3
                    for row in summaries.values()):
                 raise ValueError('Independent model truth failed the fixed flight bounds')
             result['truth_summary'] = summaries
             result['clock_publications'] = publisher.publications
             result['paused_clock_republications'] = publisher.paused_republications
-            if args.scene_lifecycle and (lifecycle is None or not lifecycle.completed):
+            result['faulted_clock_republications'] = publisher.faulted_republications
+            if args.dds_loss and not dds_handled:
+                raise RuntimeError('Requested DDS recovery was not exercised')
+            if args.scene_lifecycle and not args.dds_loss and (lifecycle is None or not lifecycle.completed):
                 raise RuntimeError('Requested lifecycle exercise did not complete')
             clock.request(dict(version=1,epoch=clock.epoch,request_id=clock.last_request+1,action='stop'))
             result['final_authority'] = clock.snapshot()
@@ -318,7 +499,8 @@ def run(args):
     except PauseProbeComplete as error:
         result.update(status='observed', observation=str(error))
     except BaseException as error:
-        clock.fault(str(error))
+        if clock.phase != 'faulted':
+            clock.fault(str(error))
         result.update(error=repr(error),traceback=traceback.format_exc(),faulted_authority=clock.snapshot())
         print('Joint flight failed: '+repr(error),flush=True)
     finally:
@@ -355,12 +537,18 @@ if __name__=='__main__':
                         help='Approved opt-in permission candidate: long pause, four ticks, pause, explicit resume')
     runner.add_argument('--scene-lease-loss', action='store_true',
                         help='Withhold permission at an airborne pause, observe withdrawal and no automatic recovery, then stop')
+    runner.add_argument('--dds-loss', choices=('arducopter','px4'),
+                        help='Stop one actual Agent at hover, freeze on observed exit, explicitly recover physics and launch new landing tasks')
     for name in ('ap-manifest','ap-sha256','control-manifest','control-sha256'):
         runner.add_argument('--'+name,required=True)
     task=sub.add_parser('task')
     task.add_argument('--stack',choices=['arducopter','px4'],required=True)
     task.add_argument('--uav-id',type=int,required=True)
     task.add_argument('--scene-lifecycle', action='store_true')
+    task.add_argument('--control-package')
+    task.add_argument('--scene-module-sha')
+    task.add_argument('--task-mode',choices=('initial','recover'),default='initial')
+    task.add_argument('--start-token')
     for name in ('run-id','scene-epoch','output'): task.add_argument('--'+name,required=True)
     args=parser.parse_args()
     if args.role == 'run' and args.repeat_paused_clock and not args.pause_probe:
@@ -369,4 +557,10 @@ if __name__=='__main__':
         parser.error('--scene-lifecycle and --pause-probe are separate experiments')
     if args.role == 'run' and args.scene_lease_loss and not args.scene_lifecycle:
         parser.error('--scene-lease-loss requires --scene-lifecycle')
+    if args.role == 'task' and args.scene_lifecycle and not (args.control_package and args.scene_module_sha):
+        parser.error('Scene task requires the explicit sealed package and module SHA')
+    if args.role == 'run' and args.dds_loss and (not args.scene_lifecycle or args.scene_lease_loss or args.pause_probe):
+        parser.error('--dds-loss requires its own --scene-lifecycle experiment')
+    if args.role == 'task' and args.task_mode == 'recover' and (not args.scene_lifecycle or not args.start_token):
+        parser.error('New recovery task requires a scene and explicit start token')
     raise SystemExit(task_main(args) if args.role=='task' else run(args))

@@ -135,6 +135,7 @@ class RuntimeTests(unittest.TestCase):
                     patch.object(runtime.os, 'readlink', side_effect=lambda p: 'private' if '/self/' in p else 'host'), \
                     patch.dict(os.environ, ROS_DOMAIN_ID='77', ROS_LOCALHOST_ONLY='1', RMW_IMPLEMENTATION='rmw_fastrtps_cpp'), \
                     patch.object(runtime, 'preflight', return_value=admission), \
+                    patch.object(runtime, 'isolate_temporary_files', return_value={'scope':'unit filesystem boundary'}), \
                     patch.object(runtime.importlib.util, 'find_spec', return_value=NS(origin=folder + '/install/pkg/__init__.py')), \
                     patch.object(runtime, 'digest', return_value=runtime.PX4_SHA256), \
                     patch.object(runtime.socket, 'socket'), patch.object(runtime.subprocess, 'Popen', side_effect=spawn), \

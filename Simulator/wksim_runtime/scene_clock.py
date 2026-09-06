@@ -22,6 +22,7 @@ class SceneClock:
         self.phase, self.reason = 'running', None
         self.single_remaining = 0
         self.synchronized = False
+        self.last_input_tick, self.recoverable = 0, False
 
     def begin_step(self):
         if self.phase not in ('running', 'stepping') or self.pending is not None:
@@ -69,8 +70,31 @@ class SceneClock:
             raise ValueError(self.reason)
         self.synchronized |= synchronized
         self.last_barrier = self.tick
+        self.last_input_tick = self.tick
         if self.phase == 'stepping' and self.single_remaining == 0:
             self.phase = 'paused'
+
+    def acknowledge_ap(self, frame):
+        if (self.pending is not None or self.phase not in ('running', 'stepping')
+                or type(frame) is not int or frame != self.tick or self.tick <= self.last_input_tick):
+            self.fault('Invalid per-tick AP input acknowledgement')
+            raise ValueError(self.reason)
+        self.last_input_tick = self.tick
+
+    def suspend(self, reason):
+        """Recoverable communication failure at a completed real microstep.
+
+        Never rolls back a model or hides an incomplete model/input response.
+        At a non-macro tick, the last PX4 barrier remains the preceding 4ms
+        boundary and its real actuator output is still the held input.
+        """
+        if (self.phase not in ('running', 'paused') or self.pending is not None
+                or not self.synchronized or self.last_input_tick != self.tick
+                or self.last_barrier != self.tick-self.tick % self.MACRO_TICKS
+                or not isinstance(reason, str) or not reason):
+            raise ValueError('Communication suspension needs a completed authoritative input step')
+        self.phase, self.reason, self.recoverable = 'faulted', reason, True
+        return self.snapshot()
 
     def request(self, request):
         if (not isinstance(request, dict) or set(request) != {'version', 'epoch', 'request_id', 'action'}
@@ -83,6 +107,13 @@ class SceneClock:
         action = request['action']
         if action == 'stop':
             self.phase = 'stopped'
+            self.recoverable = False
+        elif action == 'recover':
+            if (self.phase != 'faulted' or not self.recoverable or self.pending is not None
+                    or self.last_input_tick != self.tick
+                    or self.last_barrier != self.tick-self.tick % self.MACRO_TICKS):
+                raise ValueError('Only explicit recovery of a completed communication-fault boundary is allowed')
+            self.phase, self.reason, self.recoverable = 'running', None, False
         elif (self.pending is not None or self.last_barrier != self.tick
               or not self.synchronized or self.phase not in ('running', 'paused')):
             raise ValueError('Scene action requires a synchronized, non-faulted input boundary')
@@ -98,13 +129,14 @@ class SceneClock:
 
     def fault(self, reason):
         self.phase, self.reason = 'faulted', str(reason)
+        self.recoverable = False
 
     def snapshot(self):
         return dict(version=1, epoch=self.epoch, tick=self.tick, time_ns=self.tick*self.STEP_NS,
                     phase=self.phase, last_barrier_tick=self.last_barrier,
                     synchronized=self.synchronized, pending_tick=self.pending,
                     single_remaining=self.single_remaining, last_request_id=self.last_request,
-                    fault=self.reason)
+                    fault=self.reason, last_input_tick=self.last_input_tick, recoverable=self.recoverable)
 
 
 class ClockPublisher:
@@ -124,6 +156,7 @@ class ClockPublisher:
             raise ValueError('Invalid ROS domain for scene clock')
         self.node, self.message_type, self.publications = node, Clock, 0
         self.paused_republications = 0
+        self.faulted_republications = 0
         self.epoch, self.last_tick = None, None
         self.owner = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
         self.publisher = None
@@ -141,13 +174,16 @@ class ClockPublisher:
     def publish(self, clock):
         if self.publisher is None or self.node.count_publishers('/clock') > 1:
             raise RuntimeError('Scene lost unique /clock publisher ownership')
+        fault_boundary = (isinstance(clock, SceneClock) and clock.phase == 'faulted' and clock.recoverable
+                          and clock.last_input_tick == clock.tick and clock.last_barrier == clock.tick-clock.tick%4)
         if (not isinstance(clock, SceneClock) or clock.pending is not None
-                or clock.phase not in ('running', 'stepping', 'paused')):
+                or clock.phase not in ('running', 'stepping', 'paused') and not fault_boundary):
             raise ValueError('Only committed, non-faulted scene time may be published')
         repeated = self.last_tick is not None and clock.tick == self.last_tick
         if (self.epoch is not None and clock.epoch != self.epoch
-                or repeated and (clock.phase != 'paused' or not clock.synchronized
-                                 or clock.last_barrier != clock.tick)
+                or repeated and not fault_boundary and (clock.phase != 'paused' or not clock.synchronized
+                                                        or clock.last_barrier != clock.tick)
+                or fault_boundary and not repeated
                 or not repeated and clock.tick != (0 if self.last_tick is None else self.last_tick+1)):
             raise ValueError('Clock publication skipped a tick or crossed an unretired epoch')
         message = self.message_type()
@@ -158,7 +194,8 @@ class ClockPublisher:
         # Volatile/best-effort consumers can miss the last tick or join while
         # paused. Retransmit only this committed synchronized boundary; never
         # manufacture another step or treat retransmission as model progress.
-        self.paused_republications += int(repeated)
+        self.paused_republications += int(repeated and clock.phase == 'paused')
+        self.faulted_republications += int(repeated and fault_boundary)
 
     def close(self):
         if self.publisher is not None:

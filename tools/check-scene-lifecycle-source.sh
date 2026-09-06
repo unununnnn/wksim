@@ -17,9 +17,10 @@ source /root/wksim-ap-dds-yaw-state-4Wr27s/ros-install/local_setup.bash
 source /root/wksim-ros2-MUlZd0/install/local_setup.bash
 export PYTHONPATH="$PWD/ros2/src/prometheus_control:$PWD:$PYTHONPATH"
 export ROS_DOMAIN_ID=81 ROS_LOCALHOST_ONLY=1 RMW_IMPLEMENTATION=rmw_fastrtps_cpp
-export WK_SCENE_ROS_TESTS=1 WK_TASK_SCENE_ROS_TESTS=1
+export WK_SCENE_ROS_TESTS=1 WK_TASK_SCENE_ROS_TESTS=1 WK_PRIVATE_TMP_TESTS=1
 python3 -B -m unittest validation.test_scene_lease validation.test_prometheus_native \
   validation.test_control_operation_clock validation.test_task_scene_pause \
-  validation.test_task_identity validation.test_scene_clock validation.test_joint_pause_probe -v
+  validation.test_task_identity validation.test_scene_clock validation.test_joint_pause_probe \
+  validation.test_task_airborne_recovery validation.test_private_tmp_isolation validation.test_joint_kinematics_audit -v
 ' > "$evidence/tests.log" 2>&1
 printf 'Source checks passed: %s\n' "$evidence"

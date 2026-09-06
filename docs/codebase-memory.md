@@ -2,6 +2,8 @@
 
 ## Checkout and index
 
+获批生命周期跟进（2026-09-06 JST）：新增共享SceneLease和双Control许可/原生发布者GID冻结接缝，Task保持共享ROS时间并等待新原生源后继续。[实测报告](2026-09-06_approved-joint-lifecycle-report.md)记录真实两次4s暂停/四tick/继续/降落和许可失效负向验证。精确覆盖仍为scene及新测试not_tracked、Node/两个适配器/Task metadata_changed、tools排除；[状态](../validation/approved-scene-lifecycle-integration-20260906/index-coverage.json)。本段直接读已知源及封存构建，按源码/运行SHA审查，没有新结构查询或不必要重索引；下次依赖这些新结构的查询须先检查/刷新，旧持久化错误未冒称解决。
+
 空中暂停跟进（2026-09-06 JST）：已知 `ClockPublisher.publish` 新增严格的已提交同步暂停时间重发，tools新增原始DDS观察/审计，真实结果见[报告](2026-09-06_joint-airborne-pause-report.md)。本轮实读仍600527节点/712312边；核心/test_scene_clock为metadata_changed，新测试not_tracked，tools排除。采用精确源读取、历史源快照差分和当前运行SHA核验，没有依赖新改动的结构查询，也未为报告全库刷新。此前完整索引/持久化失败仍未验证修复；下次新结构查询前须按路由检查/刷新。[本轮状态](../validation/joint-pause-integration-20260906/index-state.json)。
 
 连续联合公共任务跟进（2026-09-06 JST）：新增 `Simulator/wksim_core/joint.py`、修改Task/MissionTask身份及ControlNode显式ROS操作时基和正常退出；实际双FC公共任务/当前源码审计见[报告](2026-09-06_joint-public-flight-report.md)。本轮状态仍可读600527节点/712312边；精确覆盖显示JointPhysics为not_tracked，Task/Control为metadata_changed，tools排除。此前刷新/持久化失败未宣称解决。本轮围绕精确已知源码和新建文件工作，不作依赖这些新增结构的图断言；状态归档不重复全库索引。当前证据与覆盖导航 `validation/joint-flight-integration-20260906/`，下一结构查询仍按前述刷新/覆盖规则处理。

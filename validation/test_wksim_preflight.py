@@ -16,6 +16,20 @@ class PreflightTests(unittest.TestCase):
     def setUp(self):
         self.config = load_config(INDEX.parent / 'examples/arducopter.json')
 
+    @unittest.skipUnless(os.environ.get('WKSIM_PREFLIGHT_LIVE_RESOURCES')=='1',
+                         'explicit pinned environment; no process is launched')
+    def test_missing_independent_px4_alias_is_rejected_before_startup(self):
+        selected=load_config(INDEX.parent/'examples/px4.json')
+        def unavailable(path):
+            if Path(path).name=='px4-alias.sh':
+                raise FileNotFoundError('injected missing generated alias')
+            return digest(path)
+        with patch('Simulator.wksim_runtime.preflight.digest',side_effect=unavailable):
+            result=preflight(selected)
+        self.assertFalse(result['ok'])
+        self.assertEqual(result['children_created'],0)
+        self.assertTrue(any(row['code']=='resource_missing' and 'px4-alias.sh' in row['message'] for row in result['reasons']))
+
     def test_strict_configuration(self):
         for key, value in [('schema_version', True), ('vehicle_id', 2), ('stack', 'sih'),
                            ('model_profile', 'hex'), ('communication', 'UDP_Full'),

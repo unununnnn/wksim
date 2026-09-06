@@ -125,6 +125,7 @@ class JointPhysics:
                 self.protocol.send(gps)
                 self.record('gps', stack='px4', raw_hex=bytes(gps.get_msgbuf()).hex())
         self.pending_ap = self.wait_ap(ap_frame)
+        self.clock.acknowledge_ap(self.pending_ap['frame'])
         if tick % 4 == 0:
             synchronized = self.wait_px4()
             self.clock.barrier(self.pending_ap['frame'], self.px_time, synchronized)

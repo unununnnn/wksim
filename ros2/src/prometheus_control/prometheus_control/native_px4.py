@@ -172,6 +172,15 @@ class PX4Link:
     def failed(self):
         return bool(self.latest['status'].failsafe) if self.fresh('status') else False
 
+    @property
+    def navigation_valid(self):
+        if not self.fresh('status','position','attitude','gps','estimator'):
+            return False
+        pos,est=self.latest['position'],self.latest['estimator']
+        return bool(self.latest['gps'].fix_type>=3 and pos.xy_valid and pos.z_valid
+                    and pos.v_xy_valid and pos.v_z_valid and est.cs_tilt_align and est.cs_yaw_align
+                    and not pos.dead_reckoning)
+
     def state(self, uav_id):
         msg = UAVState(uav_id=uav_id, location_source=UAVState.GPS)
         msg.header.frame_id = 'map'
@@ -202,10 +211,7 @@ class PX4Link:
             msg.gps_status, msg.gps_num = gps.fix_type, gps.satellites_used
             msg.latitude, msg.longitude, msg.altitude = (float(v) for v in (gps.latitude_deg, gps.longitude_deg, gps.altitude_msl_m))
         estimator = self.latest.get('estimator')
-        msg.odom_valid = bool(msg.connected and self.fresh('gps', 'estimator') and msg.gps_status >= 3
-                              and pos.xy_valid and pos.z_valid and pos.v_xy_valid and pos.v_z_valid
-                              and estimator.cs_tilt_align and estimator.cs_yaw_align
-                              and not pos.dead_reckoning and not self.failed)
+        msg.odom_valid = bool(self.navigation_valid and not self.failed)
         if pos.dist_bottom_valid:
             msg.range = float(pos.dist_bottom)
         return msg

@@ -230,13 +230,18 @@ class Task:
                         event.get('run_id') != self.run_id or event.get('control_epoch') != self.epoch):
                     return
                 self.events.append(event)
+                recovery_floor = getattr(self, '_recovery_request_floor', None)
+                if (recovery_floor is not None and type(event.get('request_id')) is int
+                        and 0 < event['request_id'] <= recovery_floor):
+                    return  # Delayed events belong to the retired task, never this request.
                 rejected_own_request = (getattr(self, 'protocol', 'legacy_v1') == 'legacy_v1' or
                     (self.pending_request_id is not None and event.get('request_id') == self.pending_request_id
                      and event.get('requested_run_id', self.run_id) == self.run_id
                      and event.get('requested_epoch', self.epoch) == self.epoch))
-                if self.active and event.get('event') == 'control_revoked':
+                monitoring = self.active or getattr(self,'_recovery_mode_request',False)
+                if monitoring and event.get('event') == 'control_revoked':
                     self.on_control_revoked(event)
-                elif self.active and event.get('event') in ('setup_rejected', 'command_rejected') and rejected_own_request:
+                elif monitoring and event.get('event') in ('setup_rejected', 'command_rejected') and rejected_own_request:
                     self.error = f'Product control failure: {event}'
             except (ValueError, AttributeError):
                 self.error = 'Malformed product event'
@@ -255,7 +260,7 @@ class Task:
             if scene is None:
                 return False
             if scene is not None and (scene['phase'] in ('paused', 'stepping', 'resuming')
-                                      or self._scene_frozen_stamp is not None):
+                                      or (self._scene_frozen_stamp is not None and scene['phase'] != 'recovering')):
                 return (not self.error and valid_state(self.state, self.uav_id)
                         and 0 <= now-self._session_received <= 2)
         return (valid_state(self.state, self.uav_id) and now - self.received.get('state', 0) <= 2
@@ -272,6 +277,8 @@ class Task:
                 raise RuntimeError(self.error)
             if self.active and not self.fresh():
                 raise RuntimeError('Public state invalid, disconnected, or stale')
+            if getattr(self,'_recovery_mode_request',False) and not self.recovery_transport_fresh():
+                raise RuntimeError('Recovery mode request lost fresh native transport')
             if scene is None or (scene['phase'] == 'running' and self._scene_frozen_stamp is None):
                 return
 
@@ -371,6 +378,79 @@ class Task:
         record.update(old_epoch=old_epoch, new_epoch=self.epoch)
         self.restarts.append(record)
         self.active = True
+
+    def recovery_transport_fresh(self):
+        """Transport/navigation observation is not permission for position control."""
+        state=self.state
+        now=time.monotonic()
+        return bool(state is not None and state.uav_id==self.uav_id and state.connected
+                    and state.header.frame_id=='map' and state_time(state)>0
+                    and all(math.isfinite(value) for value in (*state.position,*state.velocity,*state.attitude))
+                    and now-self.received.get('state',0)<=2 and now-self.advanced_at<=2)
+
+    def recover_then_land(self, *, allow_native_hold=False):
+        """Explicit new task after physical recovery; never resume an old mission.
+
+        The supervisor must restore physics first and call this on a new Task.
+        Session request identities advance from the observed public high-water mark.
+        """
+        if (type(allow_native_hold) is not bool or self.protocol != 'session_v1' or not self.use_sim_time or self.active
+                or self.error or self.sent or self.envelopes
+                or getattr(self, '_recovery_started', False)):
+            raise RuntimeError('Airborne recovery requires a new session task with shared ROS time')
+        self._recovery_started = True
+        entered_at = time.monotonic()
+        def airborne():
+            return self.fresh() and self.state.armed and self.state.position[2] > 0.3
+        self.wait('airborne_recovery_public_ready', lambda: (self.recovery_transport_fresh()
+                  if allow_native_hold and self.flight_stack=='px4' else self.fresh())
+                  and self.state.armed and self.state.position[2]>0.3
+                  and self.received.get('state', 0) > entered_at and self.epoch is not None
+                  and self.setup_pub.get_subscription_count() == 1
+                  and self.command_pub.get_subscription_count() == 1, 55)
+        if type(self.request_id) is not int or not 0 <= self.request_id <= 2**32-3:
+            raise RuntimeError('Airborne recovery request high-water mark exceeds command_id range')
+        self._recovery_request_floor = self.request_id
+        self.log.write(json.dumps(dict(new_airborne_recovery=True, run_id=self.run_id,
+            control_epoch=self.epoch, previous_request_high_water=self.request_id)) + '\n')
+        if allow_native_hold and self.flight_stack=='px4' and not self.state.odom_valid:
+            # A returned DDS link can still report the FC's real Offboard-loss
+            # failsafe. This explicit new mode request lets PX4 accept/reject a
+            # safe autonomous hold; no flags are cleared or invented here.
+            self._recovery_mode_request=True
+            try:
+                self.send(self.Setup(cmd=self.Setup.SET_PX4_MODE,px4_mode='AUTO.LOITER'),
+                          'recovery_autonomous_hold_acknowledged')
+                self.wait('recovery_navigation_and_health_ready',airborne,10)
+            finally:
+                self._recovery_mode_request=False
+        else:
+            self.wait('recovery_navigation_and_health_ready',airborne,10)
+        self.active = True
+        takeover_stamp = state_time(self.state)
+        self.send(self.Setup(cmd=self.Setup.SET_CONTROL_MODE, control_state='COMMAND_CONTROL'),
+                  'airborne_recovery_control_ready', 40)
+        def controlled():
+            control = self.latest.get('control_state')
+            return (airborne() and control is not None and not control.failsafe
+                    and control.control_state == control.COMMAND_CONTROL
+                    and self.state.mode == ('OFFBOARD' if self.flight_stack == 'px4' else 'GUIDED'))
+        self.wait('airborne_recovery_state_confirmed', lambda: controlled()
+                  and state_time(self.state) > takeover_stamp)
+        position = tuple(self.state.position)
+        self.dwell('airborne_recovery_hold_completed', lambda: controlled()
+                   and math.dist(self.state.position, position) <= 0.5
+                   and math.hypot(*self.state.velocity) <= 0.5
+                   and max(abs(x) for x in self.state.attitude[:2]) <= 0.35, 2)
+        # LAND has a uint32 command_id; its public request identity remains distinct.
+        if not 0 <= self.request_id < 2**32-1:
+            raise RuntimeError('Airborne recovery LAND command_id exhausted')
+        self.send(self.Cmd(agent_cmd=self.Cmd.LAND, command_id=self.request_id+1), 'land_accepted')
+        self.wait('landed_disarmed_public', lambda: grounded(self.state, self.uav_id), 30)
+        self.send(self.Setup(cmd=self.Setup.SET_PX4_MODE, px4_mode='AUTO.LOITER'), 'ground_hold_completed')
+        completed_at = time.monotonic()
+        self.wait('normal_stop_ready', lambda: self.fresh() and grounded(self.state, self.uav_id)
+                  and self.received.get('state', 0) > completed_at)
 
     def execute(self):
         self.wait('public_control_ready', lambda: self.fresh() and
