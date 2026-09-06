@@ -32,7 +32,7 @@ if [[ $phase == fetch ]]; then
     fetch px4_msgs https://github.com/PX4/px4_msgs.git 86d8239e962f6939e05c3737784f60c02fa884db
     if [[ ! -e "$dds_work/src/ardupilot" ]]; then
         # Preserve source, submodule metadata and cached build inputs in a private copy.
-        cp -a --reflink=auto /root/aerotwinsim-ap-native/source/ardupilot "$dds_work/src/ardupilot"
+        cp -a --reflink=auto /root/wksim-dependencies/ardupilot-1511f271 "$dds_work/src/ardupilot"
     fi
     [[ $(git -C "$dds_work/src/ardupilot" rev-parse HEAD) == 1511f27194f1dcc3728270883047bdf022b3fd53 ]]
     exit 0

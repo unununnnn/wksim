@@ -13,7 +13,7 @@ import sys
 import xml.etree.ElementTree as ET
 
 PINS = {
-    'px4': ('/opt/aerotwinsim/src/px4-d6f12ad1', 'd6f12ad1c4f70ad3230afd7d86e971421e02fef4',
+    'px4': ('/root/wksim-dependencies/px4-d6f12ad1', 'd6f12ad1c4f70ad3230afd7d86e971421e02fef4',
             'src/modules/mavlink/mavlink', 'development'),
     'arducopter': ('/root/wksim-ap-dds-yaw-state-4Wr27s/src', '1511f27194f1dcc3728270883047bdf022b3fd53',
                   'modules/mavlink', 'ardupilotmega'),

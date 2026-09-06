@@ -8,6 +8,7 @@ Prometheus 仿真工具链迁移开发：Windows UE5.5、WSL Ubuntu22.04、ROS2/
 
 - [规格、阶段目标与实施票据](docs/plan/README.md)
 - [运行入口与本机依赖](docs/wksim-runtime.md)
+- [独立项目、唯一远端与本机依赖位置](docs/project-isolation.md)
 - [ROS2 工作区](ros2/README.md)
 - [自主物理模型宿主](Simulator/wksim_core/README.md)
 - [UE5.5 显示](Simulator/ue55/README.md)
@@ -21,8 +22,7 @@ Prometheus 仿真工具链迁移开发：Windows UE5.5、WSL Ubuntu22.04、ROS2/
 [SOURCE_SNAPSHOT.json](SOURCE_SNAPSHOT.json) 记录采集时间、来源分支及逐文件输入 SHA256。需要工具读取上游固定 Git 对象时，可以另行获取基线：
 
 ```bash
-git remote add upstream https://github.com/amov-lab/Prometheus.git
-git fetch --depth=1 --filter=blob:none upstream 5dcd8cfa764d558f3e15dcb88aa7d49e32c54cce
+git fetch --depth=1 --filter=blob:none https://github.com/amov-lab/Prometheus.git 5dcd8cfa764d558f3e15dcb88aa7d49e32c54cce
 ```
 
 本快照包含迁移源码、脚本、规格、测试源码，以及有上游许可记录的 P450 转换资产。未包含本机实验运行目录、原始遥测/截图、构建产物、Codebase Memory 数据库、厂商安装、闭源 DLL 或授权未明确的生成模型源码。报告中的这些本机证据链接在 GitHub 上可能不可打开；它们不是被删除或重新判定的测试结果。

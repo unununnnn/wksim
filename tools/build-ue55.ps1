@@ -2,7 +2,8 @@ param([string]$Stage)
 $ErrorActionPreference = 'Stop'
 $repo = Split-Path -Parent $PSScriptRoot
 $engine = 'E:/ue5.5/files/UE_5.5'
-$reference = 'E:/ue5.5/build/aesim-ue55-5ce6ee8/visual/unreal/AeroTwinVisual/Content'
+$reference = Join-Path $repo 'work/dependencies/ue55/Content'
+if (-not (Test-Path -LiteralPath $reference)) { throw 'Missing project-owned UE content: see docs/project-isolation.md' }
 if (-not $Stage) { $Stage = 'E:/ue5.5/build/wksim-native-' + [guid]::NewGuid().ToString('N').Substring(0, 8) }
 $stageFull = [IO.Path]::GetFullPath($Stage)
 if (-not $stageFull.StartsWith('E:\ue5.5\build\wksim-native-', [StringComparison]::OrdinalIgnoreCase)) { throw 'Unexpected staging directory' }

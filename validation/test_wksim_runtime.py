@@ -20,7 +20,7 @@ from Simulator.wksim_runtime.task import Task, grounded, valid_state
 def config(stack='px4'):
     result = dict(schema_version=1, run_id='runtime-test', vehicle_id=1, stack=stack,
                   model_profile='quad_x', communication='native_dds', dds_workspace='/root/wksim-dds-VxM6Ni',
-                  prometheus_workspace='/root/wksim-ros2-0viK3f', px4_root='/opt/aerotwinsim/src/px4-d6f12ad1')
+                  prometheus_workspace='/root/wksim-ros2-0viK3f', px4_root='/root/wksim-dependencies/px4-d6f12ad1')
     if stack == 'arducopter':
         result['ap_candidate'] = '/root/wksim-ap-dds-yaw-state-4Wr27s'
     return result

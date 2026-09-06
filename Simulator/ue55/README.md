@@ -43,8 +43,8 @@ UE位置为 `[N*100,E*100,-D*100]` 厘米，四元数XYZW为 `[-x,-y,z,w]`。UE�
 
 ## 本地资源复用
 
-构建脚本从 `E:/ue5.5/build/aesim-ue55-5ce6ee8/visual/unreal/AeroTwinVisual` 复制城市 Content 和两项材质依赖到独立 wksim staging。保留原挂载名的 `AeroTwinVisualRuntime.uplugin` 是**无代码的内容插件**，只挂载 `MI_RefHexX_Body.uasset` 与 `T_RefHexX_Surface.uasset`；不加载旧六旋翼、AirSim、RPC或Gazebo运行模块。
+构建脚本从本仓库 `work/dependencies/ue55/` 复制城市 Content 和两项材质依赖到独立 wksim staging，资源已从既有 wksim 构建独立归档并核对哈希。保留原挂载名的 `AeroTwinVisualRuntime.uplugin` 是**无代码的内容插件**，只挂载 `MI_RefHexX_Body.uasset` 与 `T_RefHexX_Surface.uasset`；不依赖其他工程的工作副本。
 
-参考资源的来源记录是该工程 `SourceAssets/owned-asset-sources.json`。资产仅在本机复用，当前仓库不打包这些二进制；独立发布所需的资源许可与高保真资产仍需处理。
+当前私有资源清单为 `work/dependencies/ue55/content-sha256.json`，管理边界见 [独立项目说明](../../docs/project-isolation.md)。资产仅在本机保存，当前仓库不打包这些二进制；历史来源记录保留。
 
 详细阈值、首次失败原因、截图和准确结果见 [UE5.5验证报告](../../docs/2026-09-05_ue55-report.md)。

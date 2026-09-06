@@ -181,6 +181,9 @@ def preflight(config):
             roots['ap_candidate'] = Path(config['ap_candidate']).resolve(strict=True)
         # Explicit roots plus content hashes: a familiar basename grants no trust.
         for key, expected in baseline['roots'].items():
+            # Relocation changes local storage, not historical flight evidence
+            # or the firmware/content hashes required below.
+            expected = index.get('resource_locations', {}).get(key, expected)
             if roots[key] != Path(expected).resolve(strict=True):
                 reject('candidate_not_pinned', f'{key}: {roots[key]} is not the reviewed resource {expected}')
         firmware = (roots['ap_candidate'] / 'build/sitl/bin/arducopter' if stack == 'arducopter'

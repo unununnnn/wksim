@@ -23,14 +23,14 @@ sys.path.insert(0, str(REPO))
 from Simulator.wksim_core.model import build_model  # noqa: E402
 from pymavlink import mavutil  # noqa: E402
 
-AP_ROOT = Path("/root/aerotwinsim-ap-native/source/ardupilot")
+AP_ROOT = Path("/root/wksim-dependencies/ardupilot-1511f271")
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--stack", choices=("arducopter", "px4"), default="arducopter")
     parser.add_argument("--ap-root", type=Path, default=AP_ROOT)
-    parser.add_argument("--px4-root", type=Path, default=Path("/opt/aerotwinsim/src/px4-d6f12ad1"))
+    parser.add_argument("--px4-root", type=Path, default=Path("/root/wksim-dependencies/px4-d6f12ad1"))
     parser.add_argument("--physics-port", type=int)
     parser.add_argument("--telemetry-port", type=int)
     parser.add_argument("--dds-workspace", type=Path)
