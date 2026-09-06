@@ -1,0 +1,910 @@
+{
+  "version": 1,
+  "status": "published",
+  "approval": {
+    "date": "2026-09-05",
+    "message": "确认开始",
+    "scope": "规格测试接缝、38张实施切片与阻塞拆分；既有未决HITL继续保留"
+  },
+  "date": "2026-09-05",
+  "parent_issue": 1,
+  "tickets": [
+    {
+      "id": 1,
+      "slug": "capability-preflight",
+      "title": "实验能力预检与候选身份核验",
+      "behavior": "使用者选择模型、飞控与通信配置后，在启动前得到可运行结论或可定位的拒绝原因。",
+      "deps": [],
+      "gates": [],
+      "lane": "配置/能力",
+      "acceptance": [
+        "记录模型、固件、消息层和可选补丁身份，区分已实现、已构建和已实测能力。",
+        "使用现有通过候选完成有效配置预检；故意混用AP消息覆盖层或未实现模式时拒绝且不创建飞控进程。",
+        "公开CLI输出机器可读结果及用户可读原因；未知资源不被自动认定为兼容。",
+        "以已冻结Full功能范围建立可增量扩展的能力索引，明确本票不实现索引中全部能力。"
+      ],
+      "status": "completed",
+      "proposed_label": "ready-for-agent",
+      "issue": 11,
+      "url": "https://github.com/unununnnn/wksim/issues/11",
+      "closed_at": "2026-09-05T12:38:59Z",
+      "completion_evidence": "docs/2026-09-05_product-first-wave-report.md"
+    },
+    {
+      "id": 2,
+      "slug": "single-run-launch",
+      "title": "正式入口启动与停止一次双栈可选实验",
+      "behavior": "使用同一实验配置选择PX4或ArduCopter，启动产品节点，执行现有共同位置任务，在已落地后停止。",
+      "deps": [],
+      "gates": [],
+      "lane": "运行编排",
+      "acceptance": [
+        "复用当前已验证候选和正常任务，不由诊断观察器代发原生命令。",
+        "就绪顺序依实际状态推进，配置中明确运行身份、模型、命名空间和资源；不要求MATLAB、Gazebo或原版应用运行。",
+        "PX4和ArduCopter分别经正式入口完成起飞、保持、航点、降落并输出结果。",
+        "部分启动失败或已落地停止只回收本次创建的进程，空中停止动作不在本票擅自确定。"
+      ],
+      "status": "completed",
+      "proposed_label": "ready-for-agent",
+      "issue": 12,
+      "url": "https://github.com/unununnnn/wksim/issues/12",
+      "closed_at": "2026-09-05T12:38:59Z",
+      "completion_evidence": "docs/2026-09-05_product-first-wave-report.md"
+    },
+    {
+      "id": 3,
+      "slug": "isolated-runs",
+      "title": "两个独立实验同时运行且互不干扰",
+      "behavior": "同时启动两次独立实验，停止其中一次后另一实验继续执行自己的任务。",
+      "deps": [
+        1,
+        2
+      ],
+      "gates": [],
+      "lane": "运行编排",
+      "acceptance": [
+        "启动前检查载具ID、DDS namespace/domain、XRCE身份、端口和输出目录冲突。",
+        "一套PX4与一套ArduCopter独立实验同时运行，分别保存自己的配置、时间和证据。",
+        "实验A的启动失败、停止或资源清理不终止B及原有用户进程。",
+        "界面或CLI明确标注独立实验，不能称为联合场景。"
+      ],
+      "status": "completed",
+      "proposed_label": "ready-for-agent",
+      "issue": 13,
+      "url": "https://github.com/unununnnn/wksim/issues/13",
+      "closed_at": "2026-09-05T14:00:01Z",
+      "completion_evidence": "docs/2026-09-05_product-second-wave-report.md"
+    },
+    {
+      "id": 4,
+      "slug": "run-epoch",
+      "title": "控制节点重启后的旧命令隔离",
+      "behavior": "使用者在同一实验内重启任务控制节点后，旧命令和旧确认不能控制或完成新操作。",
+      "deps": [
+        2
+      ],
+      "gates": [],
+      "lane": "控制生命周期",
+      "acceptance": [
+        "定义最小运行身份与代次边界并贯穿公开命令、事件和状态；兼容旧接口的过渡行为显式说明。",
+        "注入旧代次命令、重复MOVE ID及迟到ACK时，记录拒绝且不发送新设定值。",
+        "重启后仅新请求可以重新接管；本地撤销不冒称取消飞控内部已接受命令。",
+        "源时间与接收新鲜度分别保留，重置/时钟回退不会刷新旧状态。"
+      ],
+      "status": "completed",
+      "proposed_label": "ready-for-agent",
+      "issue": 14,
+      "url": "https://github.com/unununnnn/wksim/issues/14",
+      "closed_at": "2026-09-05T14:00:01Z",
+      "completion_evidence": "docs/2026-09-05_product-second-wave-report.md"
+    },
+    {
+      "id": 5,
+      "slug": "mission-waypoints",
+      "title": "单机多航点任务与取消闭环",
+      "behavior": "通过Prometheus任务入口执行多航点任务并可取消，用户看到各阶段进度和实际完成结果。",
+      "deps": [
+        2,
+        4
+      ],
+      "gates": [],
+      "lane": "任务",
+      "acceptance": [
+        "同一ENU/机体系位置任务分别在双栈完成逐点驻留与降落；使用既有控制集成门槛。",
+        "取消后不再发送后续航点；已接受飞控动作如何结束按明确契约报告，不伪造即时停止。",
+        "持续递增命令身份，状态区分受理、接管、运行、完成、失败和取消。",
+        "测试包含正常多航点、任务取消、无效目标和外部模式切换；观察器不代发控制。"
+      ],
+      "status": "completed",
+      "proposed_label": "ready-for-agent",
+      "issue": 15,
+      "url": "https://github.com/unununnnn/wksim/issues/15",
+      "closed_at": "2026-09-05T15:14:40Z",
+      "completion_evidence": "docs/2026-09-06_product-third-wave-report.md"
+    },
+    {
+      "id": 6,
+      "slug": "offline-evidence",
+      "title": "已有任务记录的离线回看",
+      "behavior": "使用者打开一个既有真实实验的证据包，在不连接飞控的情况下回看状态与事件。",
+      "deps": [],
+      "gates": [],
+      "lane": "证据/回放",
+      "acceptance": [
+        "以当前真实双栈日志为输入，按源时间显示命令、ACK、状态与物理真值的关联。",
+        "缺失运行代次或其他旧日志字段显式标为未知，不补造为已记录。",
+        "截断、缺段、格式错误和过期状态给出诊断；回看器不创建控制发布者。",
+        "证明回看相同已记录样本和事件顺序；本票不承诺确定性重新仿真。"
+      ],
+      "status": "completed",
+      "proposed_label": "ready-for-agent",
+      "issue": 16,
+      "url": "https://github.com/unununnnn/wksim/issues/16",
+      "closed_at": "2026-09-05T12:38:59Z",
+      "completion_evidence": "docs/2026-09-05_product-first-wave-report.md"
+    },
+    {
+      "id": 7,
+      "slug": "ue-product-stream",
+      "title": "单载具产品状态流接入UE5.5",
+      "behavior": "真实产品实验直接向UE5.5提供当前权威状态，显示机体、旋翼与LIVE/STALE状态。",
+      "deps": [],
+      "gates": [],
+      "lane": "UE/状态分发",
+      "acceptance": [
+        "复用现有UE模块、坐标验证和本机环境，以正式状态输出代替共享诊断JSONL尾读。",
+        "PX4和ArduCopter分别完成真实共同任务，UE坐标/姿态回读与同一来源状态一致。",
+        "载具身份、源时间、序号、单位和构型元数据有明确契约，非法或旧运行报文被拒绝。",
+        "断开显示后物理继续，恢复只显示当前状态；本票仍是单载具，不宣称联合场景。"
+      ],
+      "status": "completed",
+      "proposed_label": "ready-for-agent",
+      "issue": 17,
+      "url": "https://github.com/unununnnn/wksim/issues/17",
+      "closed_at": "2026-09-05T12:38:59Z",
+      "completion_evidence": "docs/2026-09-05_product-first-wave-report.md"
+    },
+    {
+      "id": 8,
+      "slug": "wksim-run-workflow",
+      "title": "wksim界面配置到任务结果的完整流程",
+      "behavior": "在wksim界面选择实验、启动、执行任务、观察状态、停止并定位结果，能再次运行同一配置。",
+      "deps": [
+        1,
+        5,
+        6,
+        7
+      ],
+      "gates": [],
+      "lane": "产品界面",
+      "acceptance": [
+        "界面调用同一正式操作入口，不自行维护飞控控制逻辑；无界面入口仍可用。",
+        "用户可见配置校验、连接/定位/接管状态、任务进度、错误及结果位置。",
+        "保存并重载同一配置后行为一致；失败后修正配置可再次运行。",
+        "完成一次真实双栈分别运行的交互验收，保留UI观察与机器可检验的证据关联；不复制厂商品牌。"
+      ],
+      "status": "ready-for-agent",
+      "proposed_label": "ready-for-agent",
+      "issue": 18,
+      "url": "https://github.com/unununnnn/wksim/issues/18"
+    },
+    {
+      "id": 9,
+      "slug": "joint-clock",
+      "title": "双飞控联合场景最小权威时间闭环",
+      "behavior": "在一个场景中让一个PX4和一个ArduCopter载具按同一权威时间推进共同位置任务。",
+      "deps": [
+        2,
+        4
+      ],
+      "gates": [
+        8
+      ],
+      "lane": "联合调度",
+      "acceptance": [
+        "按已批准时间决策执行，初始限定现有四旋翼、固定倍率和两个真实飞控。",
+        "唯一时间发布者；物理、传感器、任务和记录关联共同代次/步编号。",
+        "执行器握手、模型子步、迟到输入及掉队处理都有可观测证据，不仅添加一个clock话题。",
+        "证明这是同一场景时间线，而不是两个独立serve循环或对日志时间做事后对齐。"
+      ],
+      "status": "ready-for-agent",
+      "proposed_label": "ready-for-agent",
+      "issue": 19,
+      "url": "https://github.com/unununnnn/wksim/issues/19"
+    },
+    {
+      "id": 10,
+      "slug": "joint-step-reset",
+      "title": "联合场景暂停单步与冷重置",
+      "behavior": "用户对联合场景执行暂停、单步、继续、倍速和冷重置，得到预先定义的时间与控制行为。",
+      "deps": [
+        9
+      ],
+      "gates": [
+        8
+      ],
+      "lane": "联合调度",
+      "acceptance": [
+        "暂停时物理状态不推进，单步只推进已批准的权威时间量；显示是否刷新不改变物理步数。",
+        "暂停期间保活、墙钟看门狗和飞控处理遵循批准策略并有真实记录。",
+        "冷重置产生新代次并重新就绪，不恢复旧任务；不把热复位或全部模式重置混入本票。",
+        "倍速和恢复没有补发历史动作，时间偏差在预先批准的门槛内。"
+      ],
+      "status": "ready-for-agent",
+      "proposed_label": "ready-for-agent",
+      "issue": 20,
+      "url": "https://github.com/unununnnn/wksim/issues/20"
+    },
+    {
+      "id": 11,
+      "slug": "ue-joint-scene",
+      "title": "联合场景双载具显示与切换观察",
+      "behavior": "UE在同一场景中同时显示PX4与ArduCopter载具，并支持切换观察目标。",
+      "deps": [
+        7,
+        9
+      ],
+      "gates": [],
+      "lane": "UE/状态分发",
+      "acceptance": [
+        "按载具身份创建和更新独立Actor，不再使用一个硬编码单载具接收槽。",
+        "同一画面显示同一场景时间的两机状态，位置、姿态、旋翼和标签不串机。",
+        "一个载具断流时仅该载具标为陈旧；场景重置后旧代次状态不能重新出现。",
+        "用真实联合场景和Actor回读验证，不用多个窗口或分别运行替代。"
+      ],
+      "status": "ready-for-agent",
+      "proposed_label": "ready-for-agent",
+      "issue": 21,
+      "url": "https://github.com/unununnnn/wksim/issues/21"
+    },
+    {
+      "id": 12,
+      "slug": "airborne-dds-loss",
+      "title": "悬停期间DDS断连与显式恢复",
+      "behavior": "使用者在真实双栈悬停实验中断开Agent，观察已批准的失联动作并显式恢复任务控制。",
+      "deps": [
+        2,
+        4
+      ],
+      "gates": [
+        8
+      ],
+      "lane": "异常验证",
+      "acceptance": [
+        "在运行前锁定失联动作、墙钟超时、仿真时基和恢复授权；未决策略不算验收通过。",
+        "两栈分别在悬停中断流，记录检测时间、实际飞控模式、位置和物理真值。",
+        "恢复后不自动重放旧任务或抢回模式，只有符合契约的新请求可以接管。",
+        "本票仅测Agent链路，物理链中断、飞控崩溃和硬件故障另列扩展，不能借本票一并宣称通过。"
+      ],
+      "status": "ready-for-agent",
+      "proposed_label": "ready-for-agent",
+      "issue": 22,
+      "url": "https://github.com/unununnnn/wksim/issues/22"
+    },
+    {
+      "id": 13,
+      "slug": "quad-numerical-baseline",
+      "title": "四旋翼固定工况数值对照",
+      "behavior": "对一个有明确来源的四旋翼模型，在预先约定工况和误差预算下生成可复查的数值对照。",
+      "deps": [],
+      "gates": [
+        6
+      ],
+      "lane": "模型/数值",
+      "acceptance": [
+        "运行前冻结模型、初态、参数、输入、种子、采样时刻、观测量和误差预算。",
+        "对照独立模型与合法可用参考；无法观测的量单列，不能用有限数值检查代替精度。",
+        "输出逐量误差与完整失败记录，不事后放宽阈值，也不把控制任务门槛当作物理预算。",
+        "在缺少参考样本或授权时精确报告阻塞，不声称当前Full应用版本已核实。"
+      ],
+      "status": "ready-for-agent",
+      "proposed_label": "ready-for-agent",
+      "issue": 23,
+      "url": "https://github.com/unununnnn/wksim/issues/23"
+    },
+    {
+      "id": 14,
+      "slug": "quad-model-config",
+      "title": "四旋翼参数保存导入与真实运行",
+      "behavior": "用户修改四旋翼模型参数、保存导出并重新导入后，运行得到对应模型和可观察动力学变化。",
+      "deps": [
+        2,
+        13
+      ],
+      "gates": [],
+      "lane": "模型/参数工具",
+      "acceptance": [
+        "对齐该构型的参数单位、默认值、组件及电机映射，拒绝非法或不完整配置。",
+        "保存/重载和导出/导入保持关键参数、模型身份与构建来源一致。",
+        "质量或动力参数的受控变化反映在预先声明的静态/飞行观测量上。",
+        "保留Full组件库、性能计算与其他构型的后续行，本票不冒称全部内置模型工具完成。"
+      ],
+      "status": "ready-for-agent",
+      "proposed_label": "ready-for-agent",
+      "issue": 24,
+      "url": "https://github.com/unununnnn/wksim/issues/24"
+    },
+    {
+      "id": 15,
+      "slug": "hex-model-workflow",
+      "title": "六旋翼从参数配置到双栈运行",
+      "behavior": "用户选择六旋翼构型，配置、运行并在UE观察正确数量与方向的旋翼。",
+      "deps": [
+        7,
+        14
+      ],
+      "gates": [],
+      "lane": "模型/机型",
+      "acceptance": [
+        "冻结这一构型的模型、参数、质量惯量、电机编号和旋向以及适用飞控配置。",
+        "独立模型及适用双栈配置完成起飞、保持、航点、降落和重置证据。",
+        "UE几何与旋翼表达符合构型，不能仍显示四旋翼占位模型。",
+        "不适用的飞控组合列明依据，缺少实现的组合保持未完成；不推断三轴六旋翼等其他构型同样通过。"
+      ],
+      "status": "ready-for-agent",
+      "proposed_label": "ready-for-agent",
+      "issue": 25,
+      "url": "https://github.com/unununnnn/wksim/issues/25"
+    },
+    {
+      "id": 16,
+      "slug": "generated-model-import",
+      "title": "生成模型构建导入与无MATLAB运行",
+      "behavior": "模型开发者从现有可编辑模板或明确来源生成产物构建模型，导入后运行与重置。",
+      "deps": [
+        14
+      ],
+      "gates": [
+        9
+      ],
+      "lane": "模型/生成",
+      "acceptance": [
+        "完整记录可编辑材料、生成产物、编译工具、导入模型和运行证据的来源链。",
+        "复用本机MATLAB/Simulink构建工具时实际检查可用性，不把文件存在当作许可检出成功。",
+        "生成后关闭MATLAB，核心仍独立加载、运行、重置和终止该模型。",
+        "厂商材料留在受控本地来源，不提交授权不明生成源码；不把旧ZIP直接编译称为已验证完整生成流程。"
+      ],
+      "status": "ready-for-agent",
+      "proposed_label": "ready-for-agent",
+      "issue": 26,
+      "url": "https://github.com/unununnnn/wksim/issues/26"
+    },
+    {
+      "id": 17,
+      "slug": "legacy-dll-host",
+      "title": "可选旧ABI模型DLL生命周期闭环",
+      "behavior": "用户选择一个合法可用的旧ABI DLL，在独立Windows宿主中加载、步进、重置和卸载。",
+      "deps": [
+        2,
+        13
+      ],
+      "gates": [
+        9
+      ],
+      "lane": "模型插件",
+      "acceptance": [
+        "按批准ABI核对导出、签名、数组布局和单位，以输入输出对照验证而非只查导出名。",
+        "同一固定工况下完成初始化、步进、重置、终止和卸载，错误有确定反馈。",
+        "宿主崩溃或不兼容DLL被隔离，不影响原厂安装或其他运行。",
+        "禁用/移除DLL后自主模型流程仍运行；本票不自动宣称新ABI兼容。"
+      ],
+      "status": "ready-for-agent",
+      "proposed_label": "ready-for-agent",
+      "issue": 27,
+      "url": "https://github.com/unununnnn/wksim/issues/27"
+    },
+    {
+      "id": 18,
+      "slug": "modern-dll-host",
+      "title": "可选新ABI模型DLL与扩展输出",
+      "behavior": "用户选择一个合法可用的新ABI模型，运行并获取经过布局验证的传感器/载具与扩展输出。",
+      "deps": [
+        17
+      ],
+      "gates": [
+        9
+      ],
+      "lane": "模型插件",
+      "acceptance": [
+        "明确区分旧/新命名和真实ABI，不依靠函数名相近猜测可互换。",
+        "验证该样本全部已声明输入输出长度、单位、有效性及生命周期。",
+        "按批准预算与固定输入完成新ABI对照，非法布局明确拒绝。",
+        "旧ABI回归保持通过，新旧DLL均不成为核心必需依赖；未测扩展I/O单列后续。"
+      ],
+      "status": "ready-for-agent",
+      "proposed_label": "ready-for-agent",
+      "issue": 28,
+      "url": "https://github.com/unununnnn/wksim/issues/28"
+    },
+    {
+      "id": 19,
+      "slug": "terrain-collision",
+      "title": "坡面与障碍场景的物理反馈",
+      "behavior": "载具在可见坡面或障碍场景中运行，地形/碰撞反馈与权威状态及画面一致。",
+      "deps": [
+        7,
+        13
+      ],
+      "gates": [
+        9
+      ],
+      "lane": "环境/UE",
+      "acceptance": [
+        "冻结一个可核验场景的物理表示、视觉表示、坐标和反馈有效时间。",
+        "在坡面/接触工况中检查高度、接触位置与模型反应，重置后按批准预算可复核。",
+        "显示断开及反馈过期按批准契约处理，不能永久复用旧反馈或依赖渲染帧推进物理。",
+        "保留动态地形/对象变化等额外能力行，不把视觉地面偏移当作碰撞实现。"
+      ],
+      "status": "ready-for-agent",
+      "proposed_label": "ready-for-agent",
+      "issue": 29,
+      "url": "https://github.com/unununnnn/wksim/issues/29"
+    },
+    {
+      "id": 20,
+      "slug": "rgb-sensor",
+      "title": "带时间与标定的真实RGB相机",
+      "behavior": "用户给指定载具配置RGB相机，在UE场景中采集并消费关联真实位姿的图像。",
+      "deps": [
+        7
+      ],
+      "gates": [
+        9
+      ],
+      "lane": "视觉传感器",
+      "acceptance": [
+        "输出载具/传感器身份、采样时间、内外参和图像，不以屏幕截图替代。",
+        "固定目标场景下改变位姿与遮挡，输出和标定关系符合已声明测试条件。",
+        "相机断流、重连和旧代次数据可识别，主物理不等待图像消费。",
+        "保存实际传感器输出及消费者结果，不能仅凭Actor ACK算通过。"
+      ],
+      "status": "ready-for-agent",
+      "proposed_label": "ready-for-agent",
+      "issue": 30,
+      "url": "https://github.com/unununnnn/wksim/issues/30"
+    },
+    {
+      "id": 21,
+      "slug": "depth-cloud",
+      "title": "深度相机与由深度生成的点云",
+      "behavior": "用户配置一个深度相机，在已知几何场景中消费深度及带坐标标识的点云。",
+      "deps": [
+        20
+      ],
+      "gates": [
+        9
+      ],
+      "lane": "视觉传感器",
+      "acceptance": [
+        "标定、距离单位、有效像素、无效深度和点云坐标有明确约定。",
+        "以已知平面/障碍验证距离和投影误差，阈值在运行前冻结。",
+        "图像、点云和状态关联同一采样身份，断流不阻塞物理。",
+        "明确本票是深度相机及其点云，不冒称扫描LiDAR、语义分割或所有视觉传感器均已完成。"
+      ],
+      "status": "ready-for-agent",
+      "proposed_label": "ready-for-agent",
+      "issue": 31,
+      "url": "https://github.com/unununnnn/wksim/issues/31"
+    },
+    {
+      "id": 22,
+      "slug": "velocity-yaw",
+      "title": "双栈速度与偏航控制能力",
+      "behavior": "通过同一Prometheus命令在双栈执行速度阶跃、回中保持和偏航/偏航速率控制。",
+      "deps": [
+        2,
+        4
+      ],
+      "gates": [
+        6
+      ],
+      "lane": "原生控制",
+      "acceptance": [
+        "AP所需原生入口或候选变更必须实际构建并匹配消息身份；不能只保留ROS字段。",
+        "冻结激活轴、yaw与yaw-rate语义和控制门槛，支持与不支持的组合明确列出。",
+        "两栈真实运行速度阶跃、停止保持和偏航工况，并以持续状态/真值验证。",
+        "无效组合在受理前拒绝且没有控制副作用，已有位置任务回归通过。"
+      ],
+      "status": "ready-for-agent",
+      "proposed_label": "ready-for-agent",
+      "issue": 32,
+      "url": "https://github.com/unununnnn/wksim/issues/32"
+    },
+    {
+      "id": 23,
+      "slug": "mixed-trajectory",
+      "title": "双栈混合轴与轨迹跟随",
+      "behavior": "使用者执行混合位置/速度目标和一条固定轨迹，未激活轴不会变成零目标。",
+      "deps": [
+        22
+      ],
+      "gates": [
+        6
+      ],
+      "lane": "原生控制",
+      "acceptance": [
+        "分别验证速度XY/位置Z等批准组合及轨迹位置/速度/偏航语义。",
+        "加速度前馈是否执行必须显式声明，不能因消息带字段就声称生效。",
+        "固定轨迹的误差、驻留和恢复门槛预先确定，两栈保存真值证据。",
+        "模式切换、静止轴保持和停止信号不复用旧锚点；原命令/输出差分回归保持通过。"
+      ],
+      "status": "ready-for-agent",
+      "proposed_label": "ready-for-agent",
+      "issue": 33,
+      "url": "https://github.com/unununnnn/wksim/issues/33"
+    },
+    {
+      "id": 24,
+      "slug": "attitude-thrust",
+      "title": "双栈姿态与推力出口",
+      "behavior": "使用者通过批准姿态/推力profile驱动双栈，并可观察实际姿态和推力响应。",
+      "deps": [
+        2,
+        4,
+        13
+      ],
+      "gates": [],
+      "lane": "原生控制",
+      "acceptance": [
+        "明确FLU/FRD四元数、归一化推力、符号、范围及标定条件。",
+        "AP原生姿态出口若需候选变更须实际构建、核验身份并真实运行。",
+        "两栈固定姿态阶跃及恢复工况通过预先预算，有限值和非单位四元数等非法输入拒绝。",
+        "能力不会默认开放给未验证固件，已有位置/速度profile不被隐式替换。"
+      ],
+      "status": "ready-for-agent",
+      "proposed_label": "ready-for-agent",
+      "issue": 34,
+      "url": "https://github.com/unununnnn/wksim/issues/34"
+    },
+    {
+      "id": 25,
+      "slug": "pid-controller",
+      "title": "Prometheus PID控制器选择与闭环",
+      "behavior": "用户选择迁移的Prometheus PID外部位置控制器，经姿态/推力出口执行定点与固定轨迹。",
+      "deps": [
+        24
+      ],
+      "gates": [],
+      "lane": "控制算法",
+      "acceptance": [
+        "保留固定上游来源，记录初始化、重置、质量和推力映射。",
+        "界面/配置和结果显示实际使用PID，不能仅修改标签仍使用飞控位置环。",
+        "双栈定点、轨迹和预先声明扰动工况按冻结指标通过。",
+        "建立实际需要的控制器选择/复位契约，供后续UDE与NE复用，原ROS1代码保持不变。"
+      ],
+      "status": "ready-for-agent",
+      "proposed_label": "ready-for-agent",
+      "issue": 35,
+      "url": "https://github.com/unununnnn/wksim/issues/35"
+    },
+    {
+      "id": 26,
+      "slug": "ude-controller",
+      "title": "Prometheus UDE控制器闭环",
+      "behavior": "用户在同一任务中选择UDE控制器，运行并比较已声明扰动下的响应。",
+      "deps": [
+        25
+      ],
+      "gates": [],
+      "lane": "控制算法",
+      "acceptance": [
+        "迁移实际UDE方法和所需状态，记录与上游的必要差异。",
+        "复用已落地的控制器选择与姿态出口，不另造任务控制入口。",
+        "双栈完成定点、轨迹和约定扰动，按预定超调/稳态/恢复指标判断。",
+        "切换与重置不保留旧观测器状态，失败时不回退成PID却报告UDE成功。"
+      ],
+      "status": "ready-for-agent",
+      "proposed_label": "ready-for-agent",
+      "issue": 36,
+      "url": "https://github.com/unununnnn/wksim/issues/36"
+    },
+    {
+      "id": 27,
+      "slug": "ne-controller",
+      "title": "Prometheus NE控制器闭环",
+      "behavior": "用户选择NE控制器，经相同任务和姿态出口验证其实际响应。",
+      "deps": [
+        25
+      ],
+      "gates": [],
+      "lane": "控制算法",
+      "acceptance": [
+        "迁移实际NE方法及必要状态，保留来源与初始化/复位差异。",
+        "配置、事件和证据标识实际控制器，拒绝不满足标定/周期条件的运行。",
+        "双栈完成预先定义的定点、轨迹和扰动工况。",
+        "退出、失联和新代次不复用旧算法状态，其他控制器回归通过。"
+      ],
+      "status": "ready-for-agent",
+      "proposed_label": "ready-for-agent",
+      "issue": 37,
+      "url": "https://github.com/unununnnn/wksim/issues/37"
+    },
+    {
+      "id": 28,
+      "slug": "rc-handoff",
+      "title": "RC位置控制与任务显式交接",
+      "behavior": "使用者通过已确认RC输入进行位置/偏航控制，并在RC与任务控制之间显式交接。",
+      "deps": [
+        2,
+        4
+      ],
+      "gates": [
+        6
+      ],
+      "lane": "RC/控制",
+      "acceptance": [
+        "先明确输入设备/模拟源、通道、死区、有效期和失联动作，不以伪RC规避原生解锁检查。",
+        "真实双栈验证移动、回中保持、偏航和控制权交接。",
+        "断流或外部模式切走后不自动抢回，反馈区分输入失效与飞控模式拒绝。",
+        "本票仅位置RC闭环，其他RC/手动模式按来源矩阵继续跟踪。"
+      ],
+      "status": "ready-for-agent",
+      "proposed_label": "ready-for-agent",
+      "issue": 38,
+      "url": "https://github.com/unununnnn/wksim/issues/38"
+    },
+    {
+      "id": 29,
+      "slug": "planner-flight",
+      "title": "单机规划绕障到真实飞行",
+      "behavior": "用户在固定地图中指定目标，选定Prometheus规划器生成并执行轨迹绕过障碍。",
+      "deps": [
+        5,
+        19,
+        23
+      ],
+      "gates": [
+        6
+      ],
+      "lane": "规划",
+      "acceptance": [
+        "先冻结一个上游规划器、输入地图和任务profile，不把全部规划算法合在一票。",
+        "规划目标到真实飞行的完整路径经过公开控制入口，真值检查到达、碰撞和净空。",
+        "无路、取消和重规划不继续旧轨迹；输出命令ID在会话内严格递增。",
+        "迁移时修正已核对的上游停止参考被后续轨迹覆盖及每次新建命令导致ID重复的问题，并记录有意差异。"
+      ],
+      "status": "ready-for-agent",
+      "proposed_label": "ready-for-agent",
+      "issue": 39,
+      "url": "https://github.com/unununnnn/wksim/issues/39"
+    },
+    {
+      "id": 30,
+      "slug": "visual-tracking",
+      "title": "真实相机驱动ArUco目标跟踪",
+      "behavior": "使用者在真实相机场景中指定一个标记目标，运行Prometheus感知与跟踪闭环。",
+      "deps": [
+        20,
+        22
+      ],
+      "gates": [
+        6
+      ],
+      "lane": "感知",
+      "acceptance": [
+        "先冻结标记场景、标定、外参、有效期和遮挡策略；不把推荐ArUco默认扩大为所有感知demo。",
+        "图像采集、检测、机体系目标与双栈飞行关联同一运行证据。",
+        "目标出现、移动、遮挡和恢复分别验证距离/速度/突跳门槛。",
+        "回放可做接口测试，但只有真实传感器到实际飞行闭环通过才关闭本票。"
+      ],
+      "status": "ready-for-agent",
+      "proposed_label": "ready-for-agent",
+      "issue": 40,
+      "url": "https://github.com/unununnnn/wksim/issues/40"
+    },
+    {
+      "id": 31,
+      "slug": "matlab-bridge",
+      "title": "MATLAB TCP/JSON可选桥闭环",
+      "behavior": "MATLAB用户通过基础tcpclient执行已获确认的操作，并在断开后不影响主仿真。",
+      "deps": [
+        4,
+        5,
+        6
+      ],
+      "gates": [
+        5
+      ],
+      "lane": "MATLAB",
+      "acceptance": [
+        "先取得首期操作范围答复；状态/日志、配置和高层命令目前只是候选，按实际批准子集冻结接口。",
+        "UTF-8 JSON边界具有版本、运行/请求身份和有界输入，非法JSON、碎片/粘包、非有限值和未知方法可检验。",
+        "不提供任意文件/shell/DLL执行，写操作复用公开任务与白名单契约，重连不重放旧命令。",
+        "用本机真实MATLAB完成批准流程并记录版本/许可实际结果；没有MATLAB时主SITL照常运行，其他客户端不能代替MATLAB联测。"
+      ],
+      "status": "ready-for-agent",
+      "proposed_label": "ready-for-agent",
+      "issue": 41,
+      "url": "https://github.com/unununnnn/wksim/issues/41"
+    },
+    {
+      "id": 32,
+      "slug": "qgc-handoff",
+      "title": "地面站查看与显式控制权交接",
+      "behavior": "使用本机地面站观察实验并与Prometheus任务控制显式交接，双方不会争抢模式。",
+      "deps": [
+        2,
+        4
+      ],
+      "gates": [],
+      "lane": "地面站",
+      "acceptance": [
+        "复用本机地面站和已有MAVLink边界，明确其与原生DDS任务控制的不同职责。",
+        "双栈遥测、载具身份和必要状态可见，端口不与其他运行冲突。",
+        "切走任务模式后任务节点撤销持续输出，不自动抢回；恢复需新请求。",
+        "正常结束和地面站断开不终止其他用户进程，未经授权不连接真实硬件。"
+      ],
+      "status": "ready-for-agent",
+      "proposed_label": "ready-for-agent",
+      "issue": 42,
+      "url": "https://github.com/unununnnn/wksim/issues/42"
+    },
+    {
+      "id": 33,
+      "slug": "parameters-reboot",
+      "title": "仿真参数操作与飞控重启恢复",
+      "behavior": "使用者对已准入仿真参数执行读取和修改，并在飞控重启后重新进入就绪流程。",
+      "deps": [
+        2,
+        4
+      ],
+      "gates": [
+        6
+      ],
+      "lane": "参数/生命周期",
+      "acceptance": [
+        "先锁定双栈对应的最小参数白名单、单位、可写范围和是否需重启，不把任意参数暴露给客户端。",
+        "读写有真实确认和生效状态；未支持的参数或不安全时机明确拒绝。",
+        "仅在隔离且已落地的SITL中重启自己创建的飞控；旧代次命令不再有效。",
+        "重启后重新发现、定位和显式接管，不能把进程启动当作飞控就绪或自动重放任务。"
+      ],
+      "status": "ready-for-agent",
+      "proposed_label": "ready-for-agent",
+      "issue": 43,
+      "url": "https://github.com/unununnnn/wksim/issues/43"
+    },
+    {
+      "id": 34,
+      "slug": "motor-fault",
+      "title": "单电机效率故障的可复现实验",
+      "behavior": "用户在固定模型任务中按事件计划降低一个电机效率并观察实际响应。",
+      "deps": [
+        12,
+        14
+      ],
+      "gates": [],
+      "lane": "故障/模型",
+      "acceptance": [
+        "故障时刻、持续时间、目标电机和幅值进入运行配置及记录。",
+        "事件映射到实际模型执行器路径，真值和飞控反馈反映该电机变化。",
+        "使用预先批准的安全/失联与数值预算，重置后故障状态清除。",
+        "无故障回归和相同种子重复实验通过；卡死/关闭及其他电气故障继续列为独立扩展。"
+      ],
+      "status": "ready-for-agent",
+      "proposed_label": "ready-for-agent",
+      "issue": 44,
+      "url": "https://github.com/unununnnn/wksim/issues/44"
+    },
+    {
+      "id": 35,
+      "slug": "gnss-fault",
+      "title": "GNSS中断与状态有效性恢复",
+      "behavior": "用户按计划中断GNSS输入，观察定位有效性、飞控和任务控制恢复行为。",
+      "deps": [
+        12,
+        13
+      ],
+      "gates": [],
+      "lane": "故障/传感器",
+      "acceptance": [
+        "注入位置在真实传感器链，不仅修改显示标志；保留原始GPS质量与源时间。",
+        "定位失效、失联和过期数据不同事件分别可观察，旧坐标不能因新时间戳变成有效。",
+        "按已批准策略验证任务撤销、飞控动作和恢复后显式接管。",
+        "故障计划、真实传感器/状态/真值及固定预算一并记录，其他传感器故障不自动算通过。"
+      ],
+      "status": "ready-for-agent",
+      "proposed_label": "ready-for-agent",
+      "issue": 45,
+      "url": "https://github.com/unununnnn/wksim/issues/45"
+    },
+    {
+      "id": 36,
+      "slug": "deterministic-reexecution",
+      "title": "固定输入实验的确定性重新运行",
+      "behavior": "使用者用已记录配置和执行器输入重新运行自主模型，得到约定容差内的状态轨迹。",
+      "deps": [
+        6,
+        10,
+        14
+      ],
+      "gates": [],
+      "lane": "复现/记录",
+      "acceptance": [
+        "区别离线状态回放与重新计算物理，输入、种子、模型和时间条件完整可得。",
+        "源运行记录不足时拒绝声称可重演，不对降采样缺口自行插值成真值。",
+        "同一受控构建的重演满足预先预算，并记录平台差异而非要求跨平台位级一致。",
+        "异常事件、暂停/单步与重置身份可追溯，重演不向真实飞控或原运行发送控制。"
+      ],
+      "status": "ready-for-agent",
+      "proposed_label": "ready-for-agent",
+      "issue": 46,
+      "url": "https://github.com/unununnnn/wksim/issues/46"
+    },
+    {
+      "id": 37,
+      "slug": "global-waypoints",
+      "title": "双栈全球航点与home基准",
+      "behavior": "使用者以经纬度和明确home相对高度给出航点，两套飞控执行同义目标。",
+      "deps": [
+        2,
+        4,
+        13
+      ],
+      "gates": [],
+      "lane": "原生控制",
+      "acceptance": [
+        "补齐并验证PX4全球位置适配，保持AP已明确的home与局部转换边界。",
+        "经纬度、AMSL/相对高度、ENU/NED之间的转换有显式基准与数值检查。",
+        "全球目标真实飞行、越界拒绝和home变化后的旧目标失效在两栈分别通过。",
+        "不能把EKF origin当home，也不能将未校验的全球目标静默改成局部位置。"
+      ],
+      "status": "ready-for-agent",
+      "proposed_label": "ready-for-agent",
+      "issue": 47,
+      "url": "https://github.com/unununnnn/wksim/issues/47"
+    },
+    {
+      "id": 38,
+      "slug": "sitl-product-acceptance",
+      "title": "首期SITL产品流程集成验收",
+      "behavior": "使用者按批准的首期清单，从配置到飞行显示再到停止和结果回看，独立复现两套飞控。",
+      "deps": [
+        1,
+        3,
+        5,
+        6,
+        7,
+        8,
+        12,
+        32
+      ],
+      "gates": [
+        6
+      ],
+      "lane": "主集成",
+      "acceptance": [
+        "以已批准首期机型/场景、矩阵和门槛执行完整产品黑盒验收，保留既有回归。",
+        "记录产品发命令、真实FC动作、独立物理真值和UE状态的同一证据链，失败样本保留。",
+        "核验核心不依赖Gazebo、原版程序、闭源DLL或MATLAB运行时；所有运行资源可控收尾。",
+        "MATLAB按首期决议验证契约或实际桥，不能自动提升范围；首期通过不关闭完整Full目标、联合场景或其他未完成分支。"
+      ],
+      "status": "ready-for-agent",
+      "proposed_label": "ready-for-agent",
+      "issue": 48,
+      "url": "https://github.com/unununnnn/wksim/issues/48"
+    }
+  ],
+  "gateTitles": {
+    "5": "MATLAB 最小接口边界决策",
+    "6": "双飞控 SITL 首期验收与迁移顺序决策",
+    "8": "联合场景权威时间与双飞控步进策略决策",
+    "9": "可选模型插件与场景反馈接口决策"
+  },
+  "spec_issue": 10,
+  "publication_manifest": "published-issues.json",
+  "execution": {
+    "completed_issues": [
+      11,
+      12,
+      16,
+      17
+    ],
+    "next_frontier": [
+      13,
+      14
+    ],
+    "status_readback": "docs/plan/completions/status.json",
+    "goal_status": "active",
+    "full_complete": false
+  }
+}

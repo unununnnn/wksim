@@ -1,0 +1,130 @@
+diff --git a/ArduCopter/AP_ExternalControl_Copter.cpp b/ArduCopter/AP_ExternalControl_Copter.cpp
+index 4e8bc36..098c02c 100644
+--- a/ArduCopter/AP_ExternalControl_Copter.cpp
++++ b/ArduCopter/AP_ExternalControl_Copter.cpp
+@@ -7,6 +7,7 @@
+ #if AP_EXTERNAL_CONTROL_ENABLED
+ 
+ #include "Copter.h"
++#include <cmath>
+ 
+ /*
+   set linear velocity and yaw rate. Pass NaN for yaw_rate_rads to not control yaw
+@@ -33,6 +34,15 @@ bool AP_ExternalControl_Copter::set_global_position(const Location& loc)
+     return copter.set_target_location(loc);
+ }
+ 
++bool AP_ExternalControl_Copter::set_global_position_and_yaw(const Location& loc, float yaw_rad)
++{
++    if (!ready_for_external_control() || !std::isfinite(yaw_rad)) {
++        return false;
++    }
++    // Same destination/fence checks as the native guided command path.
++    return copter.mode_guided.set_destination(loc, true, yaw_rad, false, 0.0f, false);
++}
++
+ bool AP_ExternalControl_Copter::ready_for_external_control()
+ {
+     return copter.flightmode->in_guided_mode() && copter.motors->armed();
+diff --git a/ArduCopter/AP_ExternalControl_Copter.h b/ArduCopter/AP_ExternalControl_Copter.h
+index 694a560..058e080 100644
+--- a/ArduCopter/AP_ExternalControl_Copter.h
++++ b/ArduCopter/AP_ExternalControl_Copter.h
+@@ -21,6 +21,7 @@ public:
+       Sets the target global position for a loiter point.
+     */
+     bool set_global_position(const Location& loc) override WARN_IF_UNUSED;
++    bool set_global_position_and_yaw(const Location& loc, float yaw_rad) override WARN_IF_UNUSED;
+ private:
+     /*
+       Return true if Copter is ready to handle external control data.
+diff --git a/libraries/AP_DDS/AP_DDS_ExternalControl.cpp b/libraries/AP_DDS/AP_DDS_ExternalControl.cpp
+index 22e95e8..2f3214b 100644
+--- a/libraries/AP_DDS/AP_DDS_ExternalControl.cpp
++++ b/libraries/AP_DDS/AP_DDS_ExternalControl.cpp
+@@ -7,6 +7,7 @@
+ #include <AP_AHRS/AP_AHRS.h>
+ 
+ #include <AP_ExternalControl/AP_ExternalControl.h>
++#include <cmath>
+ 
+ bool AP_DDS_External_Control::handle_global_position_control(ardupilot_msgs_msg_GlobalPosition& cmd_pos)
+ {
+@@ -16,29 +17,37 @@ bool AP_DDS_External_Control::handle_global_position_control(ardupilot_msgs_msg_
+     }
+ 
+     if (strcmp(cmd_pos.header.frame_id, MAP_FRAME) == 0) {
+-        // Narrow the altitude
+-        const int32_t alt_cm  = static_cast<int32_t>(cmd_pos.altitude * 100);
++        constexpr uint16_t ignored_fields = GlobalPosition::IGNORE_VX |
++            GlobalPosition::IGNORE_VY | GlobalPosition::IGNORE_VZ |
++            GlobalPosition::IGNORE_AFX | GlobalPosition::IGNORE_AFY |
++            GlobalPosition::IGNORE_AFZ | GlobalPosition::IGNORE_YAW_RATE;
++        // This DDS path implements a complete position, optionally with yaw.
++        // Velocity/acceleration/partial-position/yaw-rate are not silently dropped.
++        if ((cmd_pos.type_mask & ignored_fields) != ignored_fields ||
++            (cmd_pos.type_mask & ~(ignored_fields | GlobalPosition::IGNORE_YAW)) != 0 ||
++            !std::isfinite(cmd_pos.latitude) || !std::isfinite(cmd_pos.longitude) ||
++            !std::isfinite(cmd_pos.altitude) ||
++            fabs(cmd_pos.latitude) > 90.0 || fabs(cmd_pos.longitude) > 180.0 ||
++            fabsf(cmd_pos.altitude) >= 21474836.0f) {
++            return false;
++        }
++        const bool use_yaw = (cmd_pos.type_mask & GlobalPosition::IGNORE_YAW) == 0;
++        if (use_yaw && !std::isfinite(cmd_pos.yaw)) {
++            return false;
++        }
++        const int32_t alt_cm = static_cast<int32_t>(double(cmd_pos.altitude) * 100.0);
+ 
+         Location::AltFrame alt_frame;
+         if (!convert_alt_frame(cmd_pos.coordinate_frame, alt_frame)) {
+             return false;
+         }
+ 
+-        constexpr uint32_t MASK_POS_IGNORE =
+-            GlobalPosition::IGNORE_LATITUDE |
+-            GlobalPosition::IGNORE_LONGITUDE |
+-            GlobalPosition::IGNORE_ALTITUDE;
+-
+-        if (!(cmd_pos.type_mask & MASK_POS_IGNORE)) {
+-            Location loc(cmd_pos.latitude * 1E7, cmd_pos.longitude * 1E7, alt_cm, alt_frame);
+-            if (!external_control->set_global_position(loc)) {
+-                return false; // Don't try sending other commands if this fails
+-            }
++        Location loc(cmd_pos.latitude * 1E7, cmd_pos.longitude * 1E7, alt_cm, alt_frame);
++        if (use_yaw) {
++            // map is ENU/FLU; Guided uses absolute NED yaw, radians.
++            return external_control->set_global_position_and_yaw(loc, wrap_PI(radians(90.0f) - cmd_pos.yaw));
+         }
+-
+-        // TODO add velocity and accel handling
+-
+-        return true;
++        return external_control->set_global_position(loc);
+     }
+ 
+     return false;
+@@ -127,4 +136,4 @@ bool AP_DDS_External_Control::convert_alt_frame(const uint8_t frame_in,  Locatio
+ }
+ 
+ 
+-#endif // AP_DDS_ENABLED
+\ No newline at end of file
++#endif // AP_DDS_ENABLED
+diff --git a/libraries/AP_ExternalControl/AP_ExternalControl.h b/libraries/AP_ExternalControl/AP_ExternalControl.h
+index eac6119..806720c 100644
+--- a/libraries/AP_ExternalControl/AP_ExternalControl.h
++++ b/libraries/AP_ExternalControl/AP_ExternalControl.h
+@@ -40,6 +40,12 @@ public:
+         return false;
+     }
+ 
++    // Explicit position + absolute NED yaw. Unsupported vehicle types reject it
++    // instead of accepting a position while silently ignoring the requested yaw.
++    virtual bool set_global_position_and_yaw(const Location& loc, float yaw_rad) WARN_IF_UNUSED {
++        return false;
++    }
++
+     /*
+         Arm the vehicle
+     */

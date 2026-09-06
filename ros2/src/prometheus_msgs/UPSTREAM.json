@@ -1,0 +1,1219 @@
+{
+  "repository": "https://github.com/amov-lab/Prometheus",
+  "commit": "5dcd8cfa764d558f3e15dcb88aa7d49e32c54cce",
+  "source_package": "Modules/common/prometheus_msgs",
+  "license": "Apache-2.0 (repository LICENSE; upstream package.xml says TODO)",
+  "compatibility": "Source-semantic migration, not ROS1 wire compatibility. ROS2 Header has no seq; builtin Time.sec is int32.",
+  "interfaces": [
+    {
+      "file": "action/CheckForObjects.action",
+      "upstream_sha256": "bbd1e0fa242adeabec7e251e787997189a744ce1d8de17ae6b09a6535aae3ab1",
+      "source_lf_sha256": "bbd1e0fa242adeabec7e251e787997189a744ce1d8de17ae6b09a6535aae3ab1",
+      "migrated_sha256": "6db07a180af93996697a853bfbe0256fe0ac54f3640d4f4fff6693f2b3c83061",
+      "changes": []
+    },
+    {
+      "file": "msg/ArucoInfo.msg",
+      "upstream_sha256": "172fdd1816ee189650c88930286b7ddbfd11669f8d01998cdc34202340561254",
+      "source_lf_sha256": "172fdd1816ee189650c88930286b7ddbfd11669f8d01998cdc34202340561254",
+      "migrated_sha256": "dc610c50b2070b6b302e89147602478226a58edb373cfb6bf56cba04d23db0fb",
+      "changes": []
+    },
+    {
+      "file": "msg/BasicDataTypeAndValue.msg",
+      "upstream_sha256": "823a4e8f55d9da1fbfd39ad4717e8f8cb3719ea79da486588d946aa78c306bba",
+      "source_lf_sha256": "823a4e8f55d9da1fbfd39ad4717e8f8cb3719ea79da486588d946aa78c306bba",
+      "migrated_sha256": "d3674e706856ac07449d7b0c5ff4a025f02d5146519692680b59492f457aceca",
+      "changes": []
+    },
+    {
+      "file": "msg/BoundingBox.msg",
+      "upstream_sha256": "8bed993fef266247f4f07292b5675c5c44f84328df8bed9d661319cd6fe02a42",
+      "source_lf_sha256": "8bed993fef266247f4f07292b5675c5c44f84328df8bed9d661319cd6fe02a42",
+      "migrated_sha256": "68c85e253ae82ff86a1dad7f6a3fa6c16d53a5d2b61ef47d1cbaa0e60a0afd3f",
+      "changes": [
+        {
+          "line": 2,
+          "section": 0,
+          "kind": "field",
+          "source_type": "string",
+          "target_type": "string",
+          "source_name": "Class",
+          "target_name": "class_name"
+        }
+      ]
+    },
+    {
+      "file": "msg/BoundingBoxes.msg",
+      "upstream_sha256": "efabf37197aba12ff013899a75c89b7a3aeb36ed3bda4c0d6e791b68d42ae4a0",
+      "source_lf_sha256": "efabf37197aba12ff013899a75c89b7a3aeb36ed3bda4c0d6e791b68d42ae4a0",
+      "migrated_sha256": "d674b3bc438876fd2a364ad275fdf84c6aae18347cd4cc79f0c41548c12c8808",
+      "changes": [
+        {
+          "line": 1,
+          "section": 0,
+          "kind": "field",
+          "source_type": "Header",
+          "target_type": "std_msgs/Header",
+          "source_name": "header",
+          "target_name": "header"
+        },
+        {
+          "line": 2,
+          "section": 0,
+          "kind": "field",
+          "source_type": "Header",
+          "target_type": "std_msgs/Header",
+          "source_name": "image_header",
+          "target_name": "image_header"
+        }
+      ]
+    },
+    {
+      "file": "msg/Bspline.msg",
+      "upstream_sha256": "9aa978c3c74867e0decdb333ce936c3ea2704a8f94ce9054e08a9d1de36b92d5",
+      "source_lf_sha256": "9aa978c3c74867e0decdb333ce936c3ea2704a8f94ce9054e08a9d1de36b92d5",
+      "migrated_sha256": "83922f2387a58be693aaad1f4d35d5421719e9288daa65ed5f48f27132c4dbe8",
+      "changes": [
+        {
+          "line": 5,
+          "section": 0,
+          "kind": "field",
+          "source_type": "time",
+          "target_type": "builtin_interfaces/Time",
+          "source_name": "start_time",
+          "target_name": "start_time"
+        }
+      ]
+    },
+    {
+      "file": "msg/Control.msg",
+      "upstream_sha256": "46dc40fd7714d3514a1103b4caf9cc31f4cd08953e02f312dc079acab4d8e465",
+      "source_lf_sha256": "46dc40fd7714d3514a1103b4caf9cc31f4cd08953e02f312dc079acab4d8e465",
+      "migrated_sha256": "d0bbd5ac033b275ccd94b251f3291418c2f589be34f3f0bed7df3e1253f6be6c",
+      "changes": []
+    },
+    {
+      "file": "msg/CustomDataSegment.msg",
+      "upstream_sha256": "06fe3ebe940345f86a703da87a48733952ec280517a93abbc71e0f6c58b49e69",
+      "source_lf_sha256": "06fe3ebe940345f86a703da87a48733952ec280517a93abbc71e0f6c58b49e69",
+      "migrated_sha256": "1b248146fa8d5058ea1590faf9837c1f468f5c6bda6fe36d68d2478ccae178b7",
+      "changes": []
+    },
+    {
+      "file": "msg/DepthCompressed.msg",
+      "upstream_sha256": "32f6526dba63b16f9b142c643a1d0195a860d857f037a5dfb15680b92a1e467b",
+      "source_lf_sha256": "32f6526dba63b16f9b142c643a1d0195a860d857f037a5dfb15680b92a1e467b",
+      "migrated_sha256": "8b7262bcbc607862eb9588537f4e5d6279251028004325415c07410b02328f29",
+      "changes": []
+    },
+    {
+      "file": "msg/DetectionInfo.msg",
+      "upstream_sha256": "cd686d01192b1c0c1abe538ef31b3e7c30fe99dc1e5fbb7bb7362612732b1c1b",
+      "source_lf_sha256": "cd686d01192b1c0c1abe538ef31b3e7c30fe99dc1e5fbb7bb7362612732b1c1b",
+      "migrated_sha256": "da50a054cf925d86c9ed19c2bb9ec05a48820e6281cec7ff7dc507c32a7f08d5",
+      "changes": []
+    },
+    {
+      "file": "msg/DetectionInfoSub.msg",
+      "upstream_sha256": "5fb27d75970f9cfedac9e3d2bb2ed7769f8549796535140a2c1a3f91df01b1dd",
+      "source_lf_sha256": "5fb27d75970f9cfedac9e3d2bb2ed7769f8549796535140a2c1a3f91df01b1dd",
+      "migrated_sha256": "764bce6705944c1744d21d5f458d198781527c3c099553b8dddd46d29015b88d",
+      "changes": [
+        {
+          "line": 9,
+          "section": 0,
+          "kind": "field",
+          "source_type": "int32",
+          "target_type": "int32",
+          "source_name": "trackIds",
+          "target_name": "track_ids"
+        }
+      ]
+    },
+    {
+      "file": "msg/FormationAssign.msg",
+      "upstream_sha256": "fc11e2154d23f2efaa91478279c6354406e04b09a58e2e1c1a477e3e12b25bda",
+      "source_lf_sha256": "fc11e2154d23f2efaa91478279c6354406e04b09a58e2e1c1a477e3e12b25bda",
+      "migrated_sha256": "ad8ec91154d60cb93ce43ab70c1266beff28a28a544c3c5ec086976ddfcaf7ad",
+      "changes": []
+    },
+    {
+      "file": "msg/GPSData.msg",
+      "upstream_sha256": "6c6da486bae4198aab2ecf5b4e233035f47006014470ec420128e3eb90456ca0",
+      "source_lf_sha256": "6c6da486bae4198aab2ecf5b4e233035f47006014470ec420128e3eb90456ca0",
+      "migrated_sha256": "0aabc7e4f63ae0247414112114128e13a64ad7529ff8824b19fcb90931ace3b2",
+      "changes": []
+    },
+    {
+      "file": "msg/GimbalControl.msg",
+      "upstream_sha256": "050d1a1f3d1cf104a44c3e48178d52c88d1de1d2b7b19fcadc274d88d6374bbb",
+      "source_lf_sha256": "050d1a1f3d1cf104a44c3e48178d52c88d1de1d2b7b19fcadc274d88d6374bbb",
+      "migrated_sha256": "b2e8b712db6895ae234b7da45d3501c482946742a0d24cf656cf2224f8355b7d",
+      "changes": [
+        {
+          "line": 1,
+          "section": 0,
+          "kind": "field",
+          "source_type": "Header",
+          "target_type": "std_msgs/Header",
+          "source_name": "header",
+          "target_name": "header"
+        }
+      ]
+    },
+    {
+      "file": "msg/GimbalState.msg",
+      "upstream_sha256": "3126e91da51e9d5b93a1edeb8fa345bc4c117df006da9cdff11c9da4b45562a7",
+      "source_lf_sha256": "3126e91da51e9d5b93a1edeb8fa345bc4c117df006da9cdff11c9da4b45562a7",
+      "migrated_sha256": "9ea876178734fe33172ee58741a425b0a47e63b4a0cf5727d2ba487dbe196062",
+      "changes": [
+        {
+          "line": 1,
+          "section": 0,
+          "kind": "field",
+          "source_type": "Header",
+          "target_type": "std_msgs/Header",
+          "source_name": "header",
+          "target_name": "header"
+        },
+        {
+          "line": 6,
+          "section": 0,
+          "kind": "field",
+          "source_type": "uint8",
+          "target_type": "uint8",
+          "source_name": "moveMode",
+          "target_name": "move_mode"
+        },
+        {
+          "line": 8,
+          "section": 0,
+          "kind": "field",
+          "source_type": "uint8",
+          "target_type": "uint8",
+          "source_name": "imageMode",
+          "target_name": "image_mode"
+        },
+        {
+          "line": 10,
+          "section": 0,
+          "kind": "field",
+          "source_type": "bool",
+          "target_type": "bool",
+          "source_name": "isZoom",
+          "target_name": "is_zoom"
+        },
+        {
+          "line": 12,
+          "section": 0,
+          "kind": "field",
+          "source_type": "uint8",
+          "target_type": "uint8",
+          "source_name": "isRec",
+          "target_name": "is_rec"
+        },
+        {
+          "line": 16,
+          "section": 0,
+          "kind": "field",
+          "source_type": "float32[3]",
+          "target_type": "float32[3]",
+          "source_name": "angleRT",
+          "target_name": "angle_rt"
+        },
+        {
+          "line": 18,
+          "section": 0,
+          "kind": "field",
+          "source_type": "float32[3]",
+          "target_type": "float32[3]",
+          "source_name": "angleRTRate",
+          "target_name": "angle_rt_rate"
+        },
+        {
+          "line": 20,
+          "section": 0,
+          "kind": "field",
+          "source_type": "float32[3]",
+          "target_type": "float32[3]",
+          "source_name": "angleRateSet",
+          "target_name": "angle_rate_set"
+        },
+        {
+          "line": 22,
+          "section": 0,
+          "kind": "field",
+          "source_type": "uint8",
+          "target_type": "uint8",
+          "source_name": "gimbalFollowTrackResMode",
+          "target_name": "gimbal_follow_track_res_mode"
+        }
+      ]
+    },
+    {
+      "file": "msg/GlobalAruco.msg",
+      "upstream_sha256": "8e11951d7da3ea8f2141f89647f2cd87742b61ba62db331793db1767003cd629",
+      "source_lf_sha256": "8e11951d7da3ea8f2141f89647f2cd87742b61ba62db331793db1767003cd629",
+      "migrated_sha256": "6f84af2ac4d7eab9e117b18c18c2cf3754e5e7c41d1b279e983fc8e3a083fa5e",
+      "changes": [
+        {
+          "line": 4,
+          "section": 0,
+          "kind": "field",
+          "source_type": "ArucoInfo",
+          "target_type": "ArucoInfo",
+          "source_name": "Aruco1",
+          "target_name": "aruco1"
+        },
+        {
+          "line": 5,
+          "section": 0,
+          "kind": "field",
+          "source_type": "ArucoInfo",
+          "target_type": "ArucoInfo",
+          "source_name": "Aruco2",
+          "target_name": "aruco2"
+        },
+        {
+          "line": 6,
+          "section": 0,
+          "kind": "field",
+          "source_type": "ArucoInfo",
+          "target_type": "ArucoInfo",
+          "source_name": "Aruco3",
+          "target_name": "aruco3"
+        },
+        {
+          "line": 7,
+          "section": 0,
+          "kind": "field",
+          "source_type": "ArucoInfo",
+          "target_type": "ArucoInfo",
+          "source_name": "Aruco4",
+          "target_name": "aruco4"
+        },
+        {
+          "line": 8,
+          "section": 0,
+          "kind": "field",
+          "source_type": "ArucoInfo",
+          "target_type": "ArucoInfo",
+          "source_name": "Aruco5",
+          "target_name": "aruco5"
+        },
+        {
+          "line": 9,
+          "section": 0,
+          "kind": "field",
+          "source_type": "ArucoInfo",
+          "target_type": "ArucoInfo",
+          "source_name": "Aruco6",
+          "target_name": "aruco6"
+        },
+        {
+          "line": 10,
+          "section": 0,
+          "kind": "field",
+          "source_type": "ArucoInfo",
+          "target_type": "ArucoInfo",
+          "source_name": "Aruco7",
+          "target_name": "aruco7"
+        },
+        {
+          "line": 11,
+          "section": 0,
+          "kind": "field",
+          "source_type": "ArucoInfo",
+          "target_type": "ArucoInfo",
+          "source_name": "Aruco8",
+          "target_name": "aruco8"
+        },
+        {
+          "line": 12,
+          "section": 0,
+          "kind": "field",
+          "source_type": "ArucoInfo",
+          "target_type": "ArucoInfo",
+          "source_name": "Aruco9",
+          "target_name": "aruco9"
+        }
+      ]
+    },
+    {
+      "file": "msg/LinktrackNode2.msg",
+      "upstream_sha256": "bf70e147471a22fc16df9af0b7245772658cdc9fe8c4169a5fb0dd4c2924338d",
+      "source_lf_sha256": "bf70e147471a22fc16df9af0b7245772658cdc9fe8c4169a5fb0dd4c2924338d",
+      "migrated_sha256": "dc55da44ecb9e8ad79e47bb27ab31284b3bfde8702916ae6bfc6cd8ad8e7fe50",
+      "changes": []
+    },
+    {
+      "file": "msg/LinktrackNodeframe2.msg",
+      "upstream_sha256": "d540b31ca66dac3fe50f5c03cdd1b2fa577a652522cf4b92a71e230e07ca6b45",
+      "source_lf_sha256": "d540b31ca66dac3fe50f5c03cdd1b2fa577a652522cf4b92a71e230e07ca6b45",
+      "migrated_sha256": "9ce18d199f5be6a0ed67b189b924699df0aee8248482615cd38cb64eb0575879",
+      "changes": []
+    },
+    {
+      "file": "msg/LivoxCustomMsg.msg",
+      "upstream_sha256": "2e71cd6332e7f4a4ccdd9dd37c7ef2c43f62ea95a4eac0adb306351224b242a4",
+      "source_lf_sha256": "2e71cd6332e7f4a4ccdd9dd37c7ef2c43f62ea95a4eac0adb306351224b242a4",
+      "migrated_sha256": "cc5fd233a7eae1b066157d41e77355239f82491f02699ef51e1211b27d091601",
+      "changes": []
+    },
+    {
+      "file": "msg/LivoxCustomPoint.msg",
+      "upstream_sha256": "b64b31a8edc8c8b3765d82b5d3ccd2d2e1f217b9525ef7007ab918674c619c59",
+      "source_lf_sha256": "b64b31a8edc8c8b3765d82b5d3ccd2d2e1f217b9525ef7007ab918674c619c59",
+      "migrated_sha256": "c15970e30a96f690f0c9d0bd50baa81d43c7262fd5c780fa33fa60168bcc4dcb",
+      "changes": []
+    },
+    {
+      "file": "msg/MultiArucoInfo.msg",
+      "upstream_sha256": "d55f2861a38c943498906ebceebb78271ae89addd672bdbf3c7575f293c69f0f",
+      "source_lf_sha256": "d55f2861a38c943498906ebceebb78271ae89addd672bdbf3c7575f293c69f0f",
+      "migrated_sha256": "f55ce8414d3780d0c971dc7410fdf708a4fcb43d7ea8d0ec006efba77b458f81",
+      "changes": []
+    },
+    {
+      "file": "msg/MultiBsplines.msg",
+      "upstream_sha256": "8a2833175547ea3cd74aefedc054039a45d11c7d91bdba3b6f98c0f56fe18b76",
+      "source_lf_sha256": "8a2833175547ea3cd74aefedc054039a45d11c7d91bdba3b6f98c0f56fe18b76",
+      "migrated_sha256": "875dd656d34370921bdc47d1d1bd62c0d42bb5bf196006ff85d30a1a2d7adbe4",
+      "changes": []
+    },
+    {
+      "file": "msg/MultiDetectionInfo.msg",
+      "upstream_sha256": "47d5c1cf6be39945cc54280dba742cb1396d68e4ccd8cae9094ddd701258db4d",
+      "source_lf_sha256": "47d5c1cf6be39945cc54280dba742cb1396d68e4ccd8cae9094ddd701258db4d",
+      "migrated_sha256": "86311d37e507bffacb3d2cd9ccfbfde6478fde3e54b4dec5d2fdc6e409736749",
+      "changes": [
+        {
+          "line": 1,
+          "section": 0,
+          "kind": "field",
+          "source_type": "Header",
+          "target_type": "std_msgs/Header",
+          "source_name": "header",
+          "target_name": "header"
+        }
+      ]
+    },
+    {
+      "file": "msg/MultiDetectionInfoSub.msg",
+      "upstream_sha256": "8bfae6b9dcffd434c7185abeea3b56447c99e13cd6676b79d2f626b301ed321a",
+      "source_lf_sha256": "8bfae6b9dcffd434c7185abeea3b56447c99e13cd6676b79d2f626b301ed321a",
+      "migrated_sha256": "89be0a81990b258313c65d7dac5cfccdc6106df48bf2b340c95e2c5cbcff243f",
+      "changes": []
+    },
+    {
+      "file": "msg/MultiUAVState.msg",
+      "upstream_sha256": "4636204ab74e9cf8fdf56b9fe5a6e2e0bd6c53d289c50c3859e76ef3c05dfcee",
+      "source_lf_sha256": "4636204ab74e9cf8fdf56b9fe5a6e2e0bd6c53d289c50c3859e76ef3c05dfcee",
+      "migrated_sha256": "60ae450f8e11f31228b6b4512967e2b30fcd13c36ae9a68428dbe0d6a3d391a8",
+      "changes": []
+    },
+    {
+      "file": "msg/MultiUGVState.msg",
+      "upstream_sha256": "036cf920603863215b38c0d86b4193dfa75c628b6ce746420d11e3a27d088bf1",
+      "source_lf_sha256": "036cf920603863215b38c0d86b4193dfa75c628b6ce746420d11e3a27d088bf1",
+      "migrated_sha256": "1104c1733e02f8faf3a14c9ed1d4a5cc16f76fe19f1dcb7d4963db2cfbce4b24",
+      "changes": []
+    },
+    {
+      "file": "msg/OffsetPose.msg",
+      "upstream_sha256": "70c042dd5e89be6c12e05c58d5225a5829d8f4e260effdb8da18469bd7954530",
+      "source_lf_sha256": "70c042dd5e89be6c12e05c58d5225a5829d8f4e260effdb8da18469bd7954530",
+      "migrated_sha256": "c834567f6cbce2b3f4575a6f7eeb14d4f909fddc0f5f69f03bb27e9aa90a8473",
+      "changes": []
+    },
+    {
+      "file": "msg/ParamSettings.msg",
+      "upstream_sha256": "e932526c93778d7455b8779b2c094b4391e696d7b0b19355153018f90724ee13",
+      "source_lf_sha256": "e932526c93778d7455b8779b2c094b4391e696d7b0b19355153018f90724ee13",
+      "migrated_sha256": "65ed8f63db4f63f576691875a0e965bab1b8414ccf1cee643644a91fb3bdf990",
+      "changes": []
+    },
+    {
+      "file": "msg/PositionReference.msg",
+      "upstream_sha256": "15aa914c53ff499ec0bea072879d1f50033d765bc96c299c9d0c87779a25c45a",
+      "source_lf_sha256": "15aa914c53ff499ec0bea072879d1f50033d765bc96c299c9d0c87779a25c45a",
+      "migrated_sha256": "2880e70e3a6e10b53d5bfbd8e1276a357792fd0b9f8375145ba15762f46907ff",
+      "changes": [
+        {
+          "line": 6,
+          "section": 0,
+          "kind": "field",
+          "source_type": "uint8",
+          "target_type": "uint8",
+          "source_name": "Move_mode",
+          "target_name": "move_mode"
+        },
+        {
+          "line": 15,
+          "section": 0,
+          "kind": "field",
+          "source_type": "uint8",
+          "target_type": "uint8",
+          "source_name": "Move_frame",
+          "target_name": "move_frame"
+        }
+      ]
+    },
+    {
+      "file": "msg/ROI.msg",
+      "upstream_sha256": "def7bd753220afb3f0f644b33fe06bbc0e7a6270e0108bd195356fefd942c5e8",
+      "source_lf_sha256": "def7bd753220afb3f0f644b33fe06bbc0e7a6270e0108bd195356fefd942c5e8",
+      "migrated_sha256": "d27d425367a17f2976a0a9af2506cc307dd4763c88e4dc39feb88fd23e452dc6",
+      "changes": []
+    },
+    {
+      "file": "msg/StartScript.msg",
+      "upstream_sha256": "9f6bbec542627f6d9ca875fc68b7ed1bf8b4b750aac9d6fc6ad66d063fdadb6d",
+      "source_lf_sha256": "9f6bbec542627f6d9ca875fc68b7ed1bf8b4b750aac9d6fc6ad66d063fdadb6d",
+      "migrated_sha256": "d281113823d87a6fbe3d06f7fa02378039f248b8a08a2e51d9e6efc682641b25",
+      "changes": []
+    },
+    {
+      "file": "msg/StationCommand.msg",
+      "upstream_sha256": "317a5c96a729d0bd23cd6aa18390acc550488079f3ab3317c42918bdc730c4d6",
+      "source_lf_sha256": "317a5c96a729d0bd23cd6aa18390acc550488079f3ab3317c42918bdc730c4d6",
+      "migrated_sha256": "55d4b52afd593c3920226ab54b1176b7f123d7d7f144f7bcafd19885cd5bdfd2",
+      "changes": [
+        {
+          "line": 10,
+          "section": 0,
+          "kind": "field",
+          "source_type": "uint8",
+          "target_type": "uint8",
+          "source_name": "Command",
+          "target_name": "command"
+        },
+        {
+          "line": 12,
+          "section": 0,
+          "kind": "constant",
+          "source_type": "uint8",
+          "target_type": "uint8",
+          "source_name": "Start",
+          "target_name": "START"
+        },
+        {
+          "line": 13,
+          "section": 0,
+          "kind": "constant",
+          "source_type": "uint8",
+          "target_type": "uint8",
+          "source_name": "Return",
+          "target_name": "RETURN"
+        },
+        {
+          "line": 14,
+          "section": 0,
+          "kind": "constant",
+          "source_type": "uint8",
+          "target_type": "uint8",
+          "source_name": "Stop",
+          "target_name": "STOP"
+        }
+      ]
+    },
+    {
+      "file": "msg/SwarmCommand.msg",
+      "upstream_sha256": "89edcdfe52dfda2a84ee7563c5ebe3aa109bebb2170aba1ebfad8822f1f8542b",
+      "source_lf_sha256": "89edcdfe52dfda2a84ee7563c5ebe3aa109bebb2170aba1ebfad8822f1f8542b",
+      "migrated_sha256": "2fe84cbb360e74ca61b0004c80afabf9ddd46a4726d36ef3a2344110ff69f381",
+      "changes": [
+        {
+          "line": 12,
+          "section": 0,
+          "kind": "constant",
+          "source_type": "uint8",
+          "target_type": "uint8",
+          "source_name": "mocap",
+          "target_name": "MOCAP"
+        },
+        {
+          "line": 13,
+          "section": 0,
+          "kind": "constant",
+          "source_type": "uint8",
+          "target_type": "uint8",
+          "source_name": "gps",
+          "target_name": "GPS"
+        },
+        {
+          "line": 14,
+          "section": 0,
+          "kind": "constant",
+          "source_type": "uint8",
+          "target_type": "uint8",
+          "source_name": "rtk",
+          "target_name": "RTK"
+        },
+        {
+          "line": 15,
+          "section": 0,
+          "kind": "constant",
+          "source_type": "uint8",
+          "target_type": "uint8",
+          "source_name": "uwb",
+          "target_name": "UWB"
+        },
+        {
+          "line": 18,
+          "section": 0,
+          "kind": "field",
+          "source_type": "uint8",
+          "target_type": "uint8",
+          "source_name": "Swarm_CMD",
+          "target_name": "swarm_cmd"
+        },
+        {
+          "line": 20,
+          "section": 0,
+          "kind": "constant",
+          "source_type": "uint8",
+          "target_type": "uint8",
+          "source_name": "Ready",
+          "target_name": "READY"
+        },
+        {
+          "line": 21,
+          "section": 0,
+          "kind": "constant",
+          "source_type": "uint8",
+          "target_type": "uint8",
+          "source_name": "Init",
+          "target_name": "INIT"
+        },
+        {
+          "line": 22,
+          "section": 0,
+          "kind": "constant",
+          "source_type": "uint8",
+          "target_type": "uint8",
+          "source_name": "Start",
+          "target_name": "START"
+        },
+        {
+          "line": 23,
+          "section": 0,
+          "kind": "constant",
+          "source_type": "uint8",
+          "target_type": "uint8",
+          "source_name": "Hold",
+          "target_name": "HOLD"
+        },
+        {
+          "line": 24,
+          "section": 0,
+          "kind": "constant",
+          "source_type": "uint8",
+          "target_type": "uint8",
+          "source_name": "Stop",
+          "target_name": "STOP"
+        },
+        {
+          "line": 25,
+          "section": 0,
+          "kind": "constant",
+          "source_type": "uint8",
+          "target_type": "uint8",
+          "source_name": "Formation",
+          "target_name": "FORMATION"
+        },
+        {
+          "line": 27,
+          "section": 0,
+          "kind": "constant",
+          "source_type": "uint8",
+          "target_type": "uint8",
+          "source_name": "Col_Around_Circle",
+          "target_name": "COL_AROUND_CIRCLE"
+        },
+        {
+          "line": 28,
+          "section": 0,
+          "kind": "constant",
+          "source_type": "uint8",
+          "target_type": "uint8",
+          "source_name": "Col_Follow_UAV",
+          "target_name": "COL_FOLLOW_UAV"
+        },
+        {
+          "line": 29,
+          "section": 0,
+          "kind": "constant",
+          "source_type": "uint8",
+          "target_type": "uint8",
+          "source_name": "Col_Follow_UGV",
+          "target_name": "COL_FOLLOW_UGV"
+        },
+        {
+          "line": 31,
+          "section": 0,
+          "kind": "constant",
+          "source_type": "uint8",
+          "target_type": "uint8",
+          "source_name": "InitPlanner",
+          "target_name": "INIT_PLANNER"
+        },
+        {
+          "line": 32,
+          "section": 0,
+          "kind": "constant",
+          "source_type": "uint8",
+          "target_type": "uint8",
+          "source_name": "SwarmFormationPlanner",
+          "target_name": "SWARM_FORMATION_PLANNER"
+        },
+        {
+          "line": 34,
+          "section": 0,
+          "kind": "constant",
+          "source_type": "uint8",
+          "target_type": "uint8",
+          "source_name": "Follow",
+          "target_name": "FOLLOW"
+        },
+        {
+          "line": 35,
+          "section": 0,
+          "kind": "constant",
+          "source_type": "uint8",
+          "target_type": "uint8",
+          "source_name": "Search",
+          "target_name": "SEARCH"
+        },
+        {
+          "line": 36,
+          "section": 0,
+          "kind": "constant",
+          "source_type": "uint8",
+          "target_type": "uint8",
+          "source_name": "Attack",
+          "target_name": "ATTACK"
+        },
+        {
+          "line": 43,
+          "section": 0,
+          "kind": "constant",
+          "source_type": "uint8",
+          "target_type": "uint8",
+          "source_name": "One_column",
+          "target_name": "ONE_COLUMN"
+        },
+        {
+          "line": 44,
+          "section": 0,
+          "kind": "constant",
+          "source_type": "uint8",
+          "target_type": "uint8",
+          "source_name": "Triangle",
+          "target_name": "TRIANGLE"
+        },
+        {
+          "line": 45,
+          "section": 0,
+          "kind": "constant",
+          "source_type": "uint8",
+          "target_type": "uint8",
+          "source_name": "Square",
+          "target_name": "SQUARE"
+        },
+        {
+          "line": 46,
+          "section": 0,
+          "kind": "constant",
+          "source_type": "uint8",
+          "target_type": "uint8",
+          "source_name": "Circular",
+          "target_name": "CIRCULAR"
+        },
+        {
+          "line": 47,
+          "section": 0,
+          "kind": "constant",
+          "source_type": "uint8",
+          "target_type": "uint8",
+          "source_name": "around_Circle",
+          "target_name": "AROUND_CIRCLE"
+        }
+      ]
+    },
+    {
+      "file": "msg/Target.msg",
+      "upstream_sha256": "2f7a558ffc6cdc7a04b7db5ffa1363a95781ccb157b7974410f4cbaeb6d086aa",
+      "source_lf_sha256": "2f7a558ffc6cdc7a04b7db5ffa1363a95781ccb157b7974410f4cbaeb6d086aa",
+      "migrated_sha256": "c62de7547ddf4848cb9ca9a5caba72a019b06e5eec9e7cdb6c4176a056ac4636",
+      "changes": []
+    },
+    {
+      "file": "msg/TargetsInFrame.msg",
+      "upstream_sha256": "4fd652d5cdbd6f3ec564698dc9088563ad75c0227f2ab810930a202d4d706080",
+      "source_lf_sha256": "4fd652d5cdbd6f3ec564698dc9088563ad75c0227f2ab810930a202d4d706080",
+      "migrated_sha256": "35c66f8a59511738ce1fdd6c33193f7393cc2a1745baf1c937a752f9ec6164e5",
+      "changes": []
+    },
+    {
+      "file": "msg/TextInfo.msg",
+      "upstream_sha256": "7da93df2b6ed431822459b9e0a6ea4c78c463f7e9e562c2cc0ea6ec66a1feea8",
+      "source_lf_sha256": "7da93df2b6ed431822459b9e0a6ea4c78c463f7e9e562c2cc0ea6ec66a1feea8",
+      "migrated_sha256": "438bef95310eb7de47cb620ced45b722cddf283293c8b730be955155d0eba9c9",
+      "changes": [
+        {
+          "line": 11,
+          "section": 0,
+          "kind": "field",
+          "source_type": "uint8",
+          "target_type": "uint8",
+          "source_name": "MessageType",
+          "target_name": "message_type"
+        },
+        {
+          "line": 12,
+          "section": 0,
+          "kind": "field",
+          "source_type": "string",
+          "target_type": "string",
+          "source_name": "Message",
+          "target_name": "message"
+        }
+      ]
+    },
+    {
+      "file": "msg/UAVCommand.msg",
+      "upstream_sha256": "f2f1860df3086bc4f27d041459f53e474b1fffaec64121cfab2ae58386d732c8",
+      "source_lf_sha256": "f2f1860df3086bc4f27d041459f53e474b1fffaec64121cfab2ae58386d732c8",
+      "migrated_sha256": "6c5ec0afae45cb0971b494ed98bac12e3548e889f6452413f5f91f9830a9a189",
+      "changes": [
+        {
+          "line": 4,
+          "section": 0,
+          "kind": "field",
+          "source_type": "uint8",
+          "target_type": "uint8",
+          "source_name": "Agent_CMD",
+          "target_name": "agent_cmd"
+        },
+        {
+          "line": 6,
+          "section": 0,
+          "kind": "constant",
+          "source_type": "uint8",
+          "target_type": "uint8",
+          "source_name": "Init_Pos_Hover",
+          "target_name": "INIT_POS_HOVER"
+        },
+        {
+          "line": 7,
+          "section": 0,
+          "kind": "constant",
+          "source_type": "uint8",
+          "target_type": "uint8",
+          "source_name": "Current_Pos_Hover",
+          "target_name": "CURRENT_POS_HOVER"
+        },
+        {
+          "line": 8,
+          "section": 0,
+          "kind": "constant",
+          "source_type": "uint8",
+          "target_type": "uint8",
+          "source_name": "Land",
+          "target_name": "LAND"
+        },
+        {
+          "line": 9,
+          "section": 0,
+          "kind": "constant",
+          "source_type": "uint8",
+          "target_type": "uint8",
+          "source_name": "Move",
+          "target_name": "MOVE"
+        },
+        {
+          "line": 10,
+          "section": 0,
+          "kind": "constant",
+          "source_type": "uint8",
+          "target_type": "uint8",
+          "source_name": "User_Mode",
+          "target_name": "USER_MODE"
+        },
+        {
+          "line": 13,
+          "section": 0,
+          "kind": "field",
+          "source_type": "uint8",
+          "target_type": "uint8",
+          "source_name": "Control_Level",
+          "target_name": "control_level"
+        },
+        {
+          "line": 20,
+          "section": 0,
+          "kind": "field",
+          "source_type": "uint8",
+          "target_type": "uint8",
+          "source_name": "Move_mode",
+          "target_name": "move_mode"
+        },
+        {
+          "line": 37,
+          "section": 0,
+          "kind": "field",
+          "source_type": "bool",
+          "target_type": "bool",
+          "source_name": "Yaw_Rate_Mode",
+          "target_name": "yaw_rate_mode"
+        },
+        {
+          "line": 45,
+          "section": 0,
+          "kind": "field",
+          "source_type": "uint32",
+          "target_type": "uint32",
+          "source_name": "Command_ID",
+          "target_name": "command_id"
+        }
+      ]
+    },
+    {
+      "file": "msg/UAVControlState.msg",
+      "upstream_sha256": "49903714dabb84bd5c8cb92deb96ec76d3d7d095ddb8c2a1d1be4678267a7d00",
+      "source_lf_sha256": "49903714dabb84bd5c8cb92deb96ec76d3d7d095ddb8c2a1d1be4678267a7d00",
+      "migrated_sha256": "4d9bd410ccb9e3deff40042eced42f14762f58cfebb42889ddb7f5c561371a36",
+      "changes": []
+    },
+    {
+      "file": "msg/UAVSetup.msg",
+      "upstream_sha256": "d74dbf30519b666d2c112cea346857f4e868a8cd4439a2e8a2a711da48b88e5d",
+      "source_lf_sha256": "d74dbf30519b666d2c112cea346857f4e868a8cd4439a2e8a2a711da48b88e5d",
+      "migrated_sha256": "101e063aa3644f85d029c48ef74e974dfdf728c22e4820d725ebd0afde7558ab",
+      "changes": []
+    },
+    {
+      "file": "msg/UAVState.msg",
+      "upstream_sha256": "fcbb60dffd4f3173bc832887bac2581a0b05b33bf3d78086ef30ca72e2065670",
+      "source_lf_sha256": "fcbb60dffd4f3173bc832887bac2581a0b05b33bf3d78086ef30ca72e2065670",
+      "migrated_sha256": "ef2e7ff61b76a5da78c8e067ff8645dbd8002890a5417711fd4816fae9b62925",
+      "changes": [
+        {
+          "line": 24,
+          "section": 0,
+          "kind": "constant",
+          "source_type": "uint8",
+          "target_type": "uint8",
+          "source_name": "viobot",
+          "target_name": "VIOBOT"
+        },
+        {
+          "line": 27,
+          "section": 0,
+          "kind": "constant",
+          "source_type": "uint8",
+          "target_type": "uint8",
+          "source_name": "ProSim",
+          "target_name": "PRO_SIM"
+        },
+        {
+          "line": 36,
+          "section": 0,
+          "kind": "constant",
+          "source_type": "uint8",
+          "target_type": "uint8",
+          "source_name": "GPS_FIX_TYPE_2D_FIX",
+          "target_name": "GPS_FIX_TYPE_2_D_FIX"
+        },
+        {
+          "line": 37,
+          "section": 0,
+          "kind": "constant",
+          "source_type": "uint8",
+          "target_type": "uint8",
+          "source_name": "GPS_FIX_TYPE_3D_FIX",
+          "target_name": "GPS_FIX_TYPE_3_D_FIX"
+        }
+      ]
+    },
+    {
+      "file": "msg/UGVCommand.msg",
+      "upstream_sha256": "c0992179bb1bf9d0096b8441c7dec3774a66bb9b9b6ded6014a080bc490ee79a",
+      "source_lf_sha256": "c0992179bb1bf9d0096b8441c7dec3774a66bb9b9b6ded6014a080bc490ee79a",
+      "migrated_sha256": "602808b4abe7144fa9cadf96826a9871871924b814f2e07d70fe27e6b13ce5b0",
+      "changes": [
+        {
+          "line": 4,
+          "section": 0,
+          "kind": "field",
+          "source_type": "uint32",
+          "target_type": "uint32",
+          "source_name": "Command_ID",
+          "target_name": "command_id"
+        },
+        {
+          "line": 7,
+          "section": 0,
+          "kind": "field",
+          "source_type": "uint8",
+          "target_type": "uint8",
+          "source_name": "Mode",
+          "target_name": "mode"
+        },
+        {
+          "line": 9,
+          "section": 0,
+          "kind": "constant",
+          "source_type": "uint8",
+          "target_type": "uint8",
+          "source_name": "Hold",
+          "target_name": "HOLD"
+        },
+        {
+          "line": 10,
+          "section": 0,
+          "kind": "constant",
+          "source_type": "uint8",
+          "target_type": "uint8",
+          "source_name": "Direct_Control_BODY",
+          "target_name": "DIRECT_CONTROL_BODY"
+        },
+        {
+          "line": 11,
+          "section": 0,
+          "kind": "constant",
+          "source_type": "uint8",
+          "target_type": "uint8",
+          "source_name": "Direct_Control_ENU",
+          "target_name": "DIRECT_CONTROL_ENU"
+        },
+        {
+          "line": 12,
+          "section": 0,
+          "kind": "constant",
+          "source_type": "uint8",
+          "target_type": "uint8",
+          "source_name": "Point_Control",
+          "target_name": "POINT_CONTROL"
+        },
+        {
+          "line": 13,
+          "section": 0,
+          "kind": "constant",
+          "source_type": "uint8",
+          "target_type": "uint8",
+          "source_name": "Path_Control",
+          "target_name": "PATH_CONTROL"
+        },
+        {
+          "line": 14,
+          "section": 0,
+          "kind": "constant",
+          "source_type": "uint8",
+          "target_type": "uint8",
+          "source_name": "Test",
+          "target_name": "TEST"
+        }
+      ]
+    },
+    {
+      "file": "msg/UGVState.msg",
+      "upstream_sha256": "634a5226d8225c98886953cd341a6b01db3a078d4e4be6820994a4d286ed678c",
+      "source_lf_sha256": "634a5226d8225c98886953cd341a6b01db3a078d4e4be6820994a4d286ed678c",
+      "migrated_sha256": "42f04a5480b99dfc07dfc595f2c2afbd4ae187075519a90d4cbd51aa343a07c0",
+      "changes": []
+    },
+    {
+      "file": "msg/VisionDiff.msg",
+      "upstream_sha256": "c4bfb8ef91c52533255bbd0b40665e08dc488b76a3fccfeb0feb9aa0250308b1",
+      "source_lf_sha256": "c4bfb8ef91c52533255bbd0b40665e08dc488b76a3fccfeb0feb9aa0250308b1",
+      "migrated_sha256": "689a22e9fd916b37ebbd775406fa371f06af1916db43b212b3cb28bc40a1d165",
+      "changes": [
+        {
+          "line": 1,
+          "section": 0,
+          "kind": "field",
+          "source_type": "uint8",
+          "target_type": "uint8",
+          "source_name": "Id",
+          "target_name": "id"
+        },
+        {
+          "line": 4,
+          "section": 0,
+          "kind": "field",
+          "source_type": "uint16",
+          "target_type": "uint16",
+          "source_name": "objectX",
+          "target_name": "object_x"
+        },
+        {
+          "line": 5,
+          "section": 0,
+          "kind": "field",
+          "source_type": "uint16",
+          "target_type": "uint16",
+          "source_name": "objectY",
+          "target_name": "object_y"
+        },
+        {
+          "line": 6,
+          "section": 0,
+          "kind": "field",
+          "source_type": "uint16",
+          "target_type": "uint16",
+          "source_name": "objectWidth",
+          "target_name": "object_width"
+        },
+        {
+          "line": 7,
+          "section": 0,
+          "kind": "field",
+          "source_type": "uint16",
+          "target_type": "uint16",
+          "source_name": "objectHeight",
+          "target_name": "object_height"
+        },
+        {
+          "line": 9,
+          "section": 0,
+          "kind": "field",
+          "source_type": "uint16",
+          "target_type": "uint16",
+          "source_name": "frameWidth",
+          "target_name": "frame_width"
+        },
+        {
+          "line": 10,
+          "section": 0,
+          "kind": "field",
+          "source_type": "uint16",
+          "target_type": "uint16",
+          "source_name": "frameHeight",
+          "target_name": "frame_height"
+        },
+        {
+          "line": 17,
+          "section": 0,
+          "kind": "field",
+          "source_type": "int8",
+          "target_type": "int8",
+          "source_name": "ctlMode",
+          "target_name": "ctl_mode"
+        },
+        {
+          "line": 18,
+          "section": 0,
+          "kind": "constant",
+          "source_type": "int8",
+          "target_type": "int8",
+          "source_name": "yawPitch",
+          "target_name": "YAW_PITCH"
+        },
+        {
+          "line": 19,
+          "section": 0,
+          "kind": "constant",
+          "source_type": "int8",
+          "target_type": "int8",
+          "source_name": "rollPitch",
+          "target_name": "ROLL_PITCH"
+        },
+        {
+          "line": 20,
+          "section": 0,
+          "kind": "constant",
+          "source_type": "int8",
+          "target_type": "int8",
+          "source_name": "mix",
+          "target_name": "MIX"
+        },
+        {
+          "line": 23,
+          "section": 0,
+          "kind": "field",
+          "source_type": "float32",
+          "target_type": "float32",
+          "source_name": "currSize",
+          "target_name": "curr_size"
+        },
+        {
+          "line": 24,
+          "section": 0,
+          "kind": "field",
+          "source_type": "float32",
+          "target_type": "float32",
+          "source_name": "maxSize",
+          "target_name": "max_size"
+        },
+        {
+          "line": 25,
+          "section": 0,
+          "kind": "field",
+          "source_type": "float32",
+          "target_type": "float32",
+          "source_name": "minSize",
+          "target_name": "min_size"
+        },
+        {
+          "line": 27,
+          "section": 0,
+          "kind": "field",
+          "source_type": "float32",
+          "target_type": "float32",
+          "source_name": "trackIgnoreError",
+          "target_name": "track_ignore_error"
+        },
+        {
+          "line": 28,
+          "section": 0,
+          "kind": "field",
+          "source_type": "bool",
+          "target_type": "bool",
+          "source_name": "autoZoom",
+          "target_name": "auto_zoom"
+        }
+      ]
+    },
+    {
+      "file": "msg/WindowPosition.msg",
+      "upstream_sha256": "487aebce0b66c1a3bc3febdb8ed84ee632dd250ec7da5a51edad41733f8577ae",
+      "source_lf_sha256": "487aebce0b66c1a3bc3febdb8ed84ee632dd250ec7da5a51edad41733f8577ae",
+      "migrated_sha256": "a6bdde14c96b7ca538671615e9a60ccc332b1da9ded7ec539cbb2090fdfb306a",
+      "changes": []
+    },
+    {
+      "file": "srv/GetLocationSource.srv",
+      "upstream_sha256": "7324849bdeef0acdc05d65749700f1d06971761878c452243ae0e5eb3546cd1b",
+      "source_lf_sha256": "7324849bdeef0acdc05d65749700f1d06971761878c452243ae0e5eb3546cd1b",
+      "migrated_sha256": "fadc1bfddd753d6b26bec6b7016c1f0e09a727ac53b1c57686b82cb8d67f93ff",
+      "changes": []
+    },
+    {
+      "file": "srv/GimbalFollowTrackResSevice.srv",
+      "upstream_sha256": "46d7ca3f152e600ccbc770342f1e70a949e0fa23b7ec8f3b6e573e89c3edf018",
+      "source_lf_sha256": "46d7ca3f152e600ccbc770342f1e70a949e0fa23b7ec8f3b6e573e89c3edf018",
+      "migrated_sha256": "4fcaf72ff2d01d1976b43228baf8b3dc7a709eba10e512a5e12c6b35123e7e9c",
+      "changes": [
+        {
+          "line": 8,
+          "section": 1,
+          "kind": "field",
+          "source_type": "bool",
+          "target_type": "bool",
+          "source_name": "stateResponse",
+          "target_name": "state_response"
+        }
+      ]
+    },
+    {
+      "file": "srv/SwitchLocationSource.srv",
+      "upstream_sha256": "4e0ef72c8b8b664044643705a64593245a1a32e857a71e38a34f3e21fd5df6de",
+      "source_lf_sha256": "4e0ef72c8b8b664044643705a64593245a1a32e857a71e38a34f3e21fd5df6de",
+      "migrated_sha256": "20f5dea3da8273c3db49ee57cb103c68f337ada807d369adec329dcdeb8ca5f9",
+      "changes": []
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "run_id": "example-arducopter-mission-001",
+  "vehicle_id": 1,
+  "stack": "arducopter",
+  "model_profile": "quad_x",
+  "communication": "native_dds",
+  "control_protocol": "session_v1",
+  "dds_workspace": "/root/wksim-dds-VxM6Ni",
+  "prometheus_workspace": "/root/wksim-ros2-MUlZd0",
+  "px4_root": "/opt/aerotwinsim/src/px4-d6f12ad1",
+  "ap_candidate": "/root/wksim-ap-dds-yaw-state-4Wr27s",
+  "capabilities": [
+    "native_position_mission"
+  ],
+  "mission": {
+    "version": 1,
+    "waypoints": [
+      {
+        "frame": "enu",
+        "position_m": [
+          2,
+          3,
+          3
+        ],
+        "yaw_rad": 0,
+        "dwell_s": 2
+      },
+      {
+        "frame": "enu",
+        "position_m": [
+          2,
+          3,
+          3
+        ],
+        "yaw_rad": 1.5707963267948966,
+        "dwell_s": 2
+      },
+      {
+        "frame": "body_flu",
+        "position_m": [
+          1,
+          0,
+          0
+        ],
+        "yaw_rad": 0,
+        "dwell_s": 2
+      }
+    ],
+    "cancel_policy": "land"
+  }
+}

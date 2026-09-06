@@ -1,0 +1,6 @@
+#!/bin/sh
+# rcS's documented PATH override: one private loopback link, no GCS fan-out.
+mavlink start -x -u "$WKSIM_MAVLINK_LOCAL_PORT" -o "$WKSIM_MAVLINK_REMOTE_PORT" -t 127.0.0.1 -r 4000000 -m onboard
+mavlink stream -r 50 -s LOCAL_POSITION_NED -u "$WKSIM_MAVLINK_LOCAL_PORT"
+mavlink stream -r 20 -s GLOBAL_POSITION_INT -u "$WKSIM_MAVLINK_LOCAL_PORT"
+mavlink stream -r 50 -s ATTITUDE -u "$WKSIM_MAVLINK_LOCAL_PORT"

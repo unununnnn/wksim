@@ -1,0 +1,16 @@
+# Copyright 2022 AMOVLAB. SPDX-License-Identifier: Apache-2.0
+# wksim ROS2 migration of Prometheus 5dcd8cfa764d: CheckForObjects.action.
+# Naming/type aliases changed; see UPSTREAM.json. Original comments retained.
+# Check if objects in image
+
+# Goal definition
+int16 id
+sensor_msgs/Image image
+
+---
+# Result definition
+int16 id
+prometheus_msgs/BoundingBoxes bounding_boxes
+
+---
+# Feedback definition

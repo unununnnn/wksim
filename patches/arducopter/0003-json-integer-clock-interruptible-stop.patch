@@ -1,0 +1,177 @@
+diff --git a/libraries/AP_HAL_SITL/HAL_SITL_Class.cpp b/libraries/AP_HAL_SITL/HAL_SITL_Class.cpp
+index dde5270..ca393c9 100644
+--- a/libraries/AP_HAL_SITL/HAL_SITL_Class.cpp
++++ b/libraries/AP_HAL_SITL/HAL_SITL_Class.cpp
+@@ -285,10 +285,7 @@ void HAL_SITL::run(int argc, char * const argv[], Callbacks* callbacks) const
+     uint8_t fill_count = 0;
+ 
+     while (true) {
+-        if (HALSITL::Scheduler::_should_exit) {
+-            ::fprintf(stderr, "Exitting\n");
+-            exit(0);
+-        }
++        HALSITL::Scheduler::check_for_exit();
+         if (fill_count++ % 10 == 0) {
+             // only fill every 10 loops. This still gives us a lot of
+             // protection, but saves a lot of CPU
+diff --git a/libraries/AP_HAL_SITL/Scheduler.cpp b/libraries/AP_HAL_SITL/Scheduler.cpp
+index 329617d..b9a6e83 100644
+--- a/libraries/AP_HAL_SITL/Scheduler.cpp
++++ b/libraries/AP_HAL_SITL/Scheduler.cpp
+@@ -39,7 +39,16 @@ bool Scheduler::_in_timer_proc = false;
+ AP_HAL::MemberProc Scheduler::_io_proc[SITL_SCHEDULER_MAX_TIMER_PROCS] = {nullptr};
+ uint8_t Scheduler::_num_io_procs = 0;
+ bool Scheduler::_in_io_proc = false;
+-bool Scheduler::_should_exit = false;
++volatile sig_atomic_t Scheduler::_should_exit = 0;
++
++void Scheduler::check_for_exit()
++{
++    // Called in ordinary execution, never from the signal handler itself.
++    if (_should_exit) {
++        ::fprintf(stderr, "Exitting\n");
++        exit(0);
++    }
++}
+ 
+ bool Scheduler::_in_semaphore_take_wait = false;
+ 
+diff --git a/libraries/AP_HAL_SITL/Scheduler.h b/libraries/AP_HAL_SITL/Scheduler.h
+index 518cad4..195388d 100644
+--- a/libraries/AP_HAL_SITL/Scheduler.h
++++ b/libraries/AP_HAL_SITL/Scheduler.h
+@@ -5,6 +5,7 @@
+ #include "AP_HAL_SITL_Namespace.h"
+ #include <sys/time.h>
+ #include <pthread.h>
++#include <signal.h>
+ 
+ #define SITL_SCHEDULER_MAX_TIMER_PROCS 8
+ 
+@@ -50,7 +51,8 @@ public:
+     uint64_t stopped_clock_usec() const { return _stopped_clock_usec; }
+ 
+     static void _run_io_procs();
+-    static bool _should_exit;
++    static volatile sig_atomic_t _should_exit;
++    static void check_for_exit();
+ 
+     /*
+       create a new thread
+diff --git a/libraries/SITL/SIM_JSON.cpp b/libraries/SITL/SIM_JSON.cpp
+index dfa9223..306e6c9 100644
+--- a/libraries/SITL/SIM_JSON.cpp
++++ b/libraries/SITL/SIM_JSON.cpp
+@@ -32,6 +32,10 @@
+ #include <SRV_Channel/SRV_Channel.h>
+ #include <AP_Filesystem/AP_Filesystem.h>
+ 
++#if CONFIG_HAL_BOARD == HAL_BOARD_SITL
++#include <AP_HAL_SITL/Scheduler.h>
++#endif
++
+ #define UDP_TIMEOUT_MS 100
+ 
+ extern const AP_HAL::HAL& hal;
+@@ -302,8 +306,14 @@ uint64_t JSON::parse_sensors(const char *json)
+ */
+ void JSON::recv_fdm(const struct sitl_input &input)
+ {
++#if CONFIG_HAL_BOARD == HAL_BOARD_SITL
++    HALSITL::Scheduler::check_for_exit();
++#endif
+     // Receive sensor packet
+     ssize_t ret = sock.recv(&sensor_buffer[sensor_buffer_len], sizeof(sensor_buffer)-sensor_buffer_len, UDP_TIMEOUT_MS);
++#if CONFIG_HAL_BOARD == HAL_BOARD_SITL
++    HALSITL::Scheduler::check_for_exit();
++#endif
+     uint32_t wait_ms = UDP_TIMEOUT_MS;
+ 
+     if (state.no_lockstep && ret <= 0) {
+@@ -321,6 +331,11 @@ void JSON::recv_fdm(const struct sitl_input &input)
+     while (ret <= 0) {
+         //printf("No JSON sensor message received - %s\n", strerror(errno));
+         ret = sock.recv(&sensor_buffer[sensor_buffer_len], sizeof(sensor_buffer)-sensor_buffer_len, UDP_TIMEOUT_MS);
++#if CONFIG_HAL_BOARD == HAL_BOARD_SITL
++        // A paused external simulator must not need another sensor packet
++        // (and another physics step) just to let this process exit.
++        HALSITL::Scheduler::check_for_exit();
++#endif
+         wait_ms += UDP_TIMEOUT_MS;
+         // if no sensor message is received after 10 second resend servos, this help cope with SITL and the physics getting out of sync
+         if (wait_ms > 1000) {
+@@ -496,18 +511,35 @@ void JSON::recv_fdm(const struct sitl_input &input)
+         battery_current = state.bat_amp; 
+     }
+ 
+-    double deltat;
++    // Quantize absolute JSON time once; never truncate each floating-point delta.
++    if (!isfinite(state.timestamp_s) || state.timestamp_s < 0 ||
++        state.timestamp_s >= double(UINT64_MAX) / 1.0e6) {
++        printf("Invalid JSON timestamp\n");
++        return;
++    }
++    const double rounded_us = round(state.timestamp_s * 1.0e6);
++    if (rounded_us >= double(UINT64_MAX)) {
++        printf("JSON timestamp overflow\n");
++        return;
++    }
++    const uint64_t timestamp_us = uint64_t(rounded_us);
++    uint64_t delta_us;
+     if (state.timestamp_s < last_timestamp_s) {
+         // Physics time has gone backwards, don't reset AP
+         printf("Detected physics reset\n");
+-        deltat = 0;
++        delta_us = 0;
+         last_received_bitmask = 0;
+     } else {
+-        deltat = state.timestamp_s - last_timestamp_s;
++        delta_us = timestamp_us - last_timestamp_us;
++    }
++    if (delta_us > UINT64_MAX - time_now_us) {
++        printf("JSON boot clock overflow\n");
++        return;
+     }
+-    time_now_us += deltat * 1.0e6;
++    time_now_us += delta_us;
+ 
+-    if (is_positive(deltat) && deltat < 0.1) {
++    if (delta_us > 0 && delta_us < 100000) {
++        const double deltat = delta_us * 1.0e-6;
+         // Only adjust frame time if we want lockstep
+         // When no_lockstep is true, skip adjust_frame_time to let SITL run free
+         if (use_time_sync && !state.no_lockstep) {
+@@ -518,6 +550,7 @@ void JSON::recv_fdm(const struct sitl_input &input)
+         time_advance();
+     }
+     last_timestamp_s = state.timestamp_s;
++    last_timestamp_us = timestamp_us;
+     frame_counter++;
+ 
+ #if 0
+@@ -615,4 +648,4 @@ void JSON::update(const struct sitl_input &input)
+ #endif
+ }
+ 
+-#endif  // AP_SIM_JSON_ENABLED
+\ No newline at end of file
++#endif  // AP_SIM_JSON_ENABLED
+diff --git a/libraries/SITL/SIM_JSON.h b/libraries/SITL/SIM_JSON.h
+index 48af85f..95d9851 100644
+--- a/libraries/SITL/SIM_JSON.h
++++ b/libraries/SITL/SIM_JSON.h
+@@ -71,6 +71,7 @@ private:
+ 
+     uint32_t frame_counter;
+     double last_timestamp_s;
++    uint64_t last_timestamp_us = 0;
+ 
+     void output_servos(const struct sitl_input &input);
+     void recv_fdm(const struct sitl_input &input);
+@@ -214,4 +215,4 @@ private:
+ 
+ }
+ 
+-#endif  // AP_SIM_JSON_ENABLED
+\ No newline at end of file
++#endif  // AP_SIM_JSON_ENABLED

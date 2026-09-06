@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "visual_model": "prometheus_p450_visual_v1",
+  "source_repository": "https://github.com/amov-lab/Prometheus",
+  "source_commit": "5dcd8cfa764d558f3e15dcb88aa7d49e32c54cce",
+  "source_manifest": "validation/prometheus-p450-assets-20260906/manifest.json",
+  "source_manifest_sha256": "c4a5dc46e1c5d29c70fcfe37c0047453e5249a34f2ca5adaf7d374e2b2be196b",
+  "import_report": "validation/p450-import-20260906-axes/result.json",
+  "import_report_sha256": "9adea5ff02cae709bd6246f9f51fbf33b7c68455586b85b8f3f7fd69b4b43f61",
+  "bounds_diagnostic": "validation/p450-import-20260906-axes/bounds-green.json",
+  "asset_frame": "X-forward Y-right Z-up centimetres",
+  "geometry_scale": [1, 1, 1],
+  "geometry_attachment_offset_cm": [0, 0, 4.4560544192790985],
+  "offset_reason": "Bring lowest source body geometry to the visual ground at an unchanged authoritative Actor pose",
+  "rotor_sdf_origins_cm_before_geometry_offset": [[14.65, 14.7, 15.1], [-14.65, -14.7, 15.1], [14.65, -14.7, 15.1], [-14.65, 14.7, 15.1]],
+  "rotor_order": ["FR", "RL", "FL", "RR"],
+  "rotor_yaw_sign_in_ue": [-1, -1, 1, 1],
+  "rotor_rpm_source": "Unmodified authoritative state stream, no prerecorded animation",
+  "physics_scope": "P450 visual geometry on existing quad-X test dynamics; P450 inertia/aerodynamics and rotor arm calibration are NOT claimed",
+  "sensor_scope": "Any visible equipment is geometry only, not simulated GPS/D435i functionality",
+  "import_warnings": "Source STL lacks UV/smoothing groups; 25 source zero-area body faces retained in OBJ, UE importer reports degenerate geometry/tangents. Solid materials use no texture/normal map or emission.",
+  "upstream_license": "Content/Wksim/P450/UPSTREAM_LICENSE.txt"
+}

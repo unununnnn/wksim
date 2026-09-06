@@ -1,0 +1,1083 @@
+{
+  "schema_version": 1,
+  "frozen_manual_sha256": "29da779803edaa15c8a751500e96a88243dfc6b71ed6c66e462bf228956143c3",
+  "status_semantics": {
+    "implemented": "Product implementation of the complete named row; partial diagnostics do not qualify",
+    "built": "true only with build evidence; null means unknown",
+    "flown": "true only for exact pinned candidate and stated scenario; null means unverified",
+    "admitted": "requestable in this v1 slice; no Cartesian-product compatibility inference"
+  },
+  "message_snapshot_date": "2026-09-05",
+  "baselines": {
+    "px4": {
+      "roots": {
+        "dds_workspace": "/root/wksim-dds-VxM6Ni",
+        "prometheus_workspace": "/root/wksim-ros2-0viK3f",
+        "px4_root": "/opt/aerotwinsim/src/px4-d6f12ad1"
+      },
+      "result": "validation/px4-dds-epf9gukj/result.json",
+      "result_sha256": "11ba0b41d11a20894995fae34eb9305b8138acd5a6f47d4d6b3f446284c95832",
+      "message_packages": {
+        "px4_msgs": {
+          "prefix": "/root/wksim-dds-VxM6Ni/ros-install/px4_msgs",
+          "sha256": "4e925a5917bce0442f487b93c39763ee49a6c07662ef3b23560207a15f37ee3e"
+        },
+        "prometheus_msgs": {
+          "prefix": "/root/wksim-ros2-0viK3f/install/prometheus_msgs",
+          "sha256": "a21b7e056bd98659024e6dde0a0ad42c6d032653d1b733f8585c608ee02abd10"
+        }
+      }
+    },
+    "arducopter": {
+      "roots": {
+        "dds_workspace": "/root/wksim-dds-VxM6Ni",
+        "prometheus_workspace": "/root/wksim-ros2-0viK3f",
+        "px4_root": "/opt/aerotwinsim/src/px4-d6f12ad1",
+        "ap_candidate": "/root/wksim-ap-dds-yaw-state-4Wr27s"
+      },
+      "result": "validation/arducopter-dds-urq9hofr/result.json",
+      "result_sha256": "49708ddf16724b1fcbc6caaea74f668df0ebc813c356f6e9390b3c280f08fa06",
+      "message_packages": {
+        "ardupilot_msgs": {
+          "prefix": "/root/wksim-ap-dds-yaw-state-4Wr27s/ros-install/ardupilot_msgs",
+          "sha256": "5ff82c59c182e5b904ce227ede45d6e9e046c6882d0f82a7453df231a9dac0aa"
+        },
+        "prometheus_msgs": {
+          "prefix": "/root/wksim-ros2-0viK3f/install/prometheus_msgs",
+          "sha256": "a21b7e056bd98659024e6dde0a0ad42c6d032653d1b733f8585c608ee02abd10"
+        }
+      }
+    }
+  },
+  "control_profiles": {
+    "legacy_v1": {
+      "baselines": "baselines",
+      "provenance": "Immutable historical flight pins; existing installed snapshots do not claim full hashing during those flights"
+    },
+    "session_v1": {
+      "workspace": "/root/wksim-ros2-MUlZd0",
+      "evidence": {
+        "px4": {
+          "result": "validation/px4-dds-hxgna8aa/result.json",
+          "result_sha256": "e106cb9b266baf290f23b517cb63404269f07a6bda1968eba1a35dd43ac7189a"
+        },
+        "arducopter": {
+          "result": "validation/arducopter-dds-xuvva567/result.json",
+          "result_sha256": "c3e0098eba16ff2e77cb50f55e3bfac81255c03d6a48d92662d72ed36e267899"
+        }
+      },
+      "snapshot_date": "2026-09-06",
+      "snapshot_provenance": "Read-only installed snapshot after the two pinned flights; all relative file names and bytes except __pycache__ and .pyc. Flight results separately hash all eight installed control Python sources. Schema/build artifacts were not fully hashed during historical flights.",
+      "installed_packages": {
+        "prometheus_msgs": {
+          "prefix": "/root/wksim-ros2-MUlZd0/install/prometheus_msgs",
+          "sha256": "fc5f25cd3bd19b3dae4c1c58ea303cd85c484dbf6e9c065ec082058ff987b806",
+          "complete_snapshot": true
+        },
+        "wksim_msgs": {
+          "prefix": "/root/wksim-ros2-MUlZd0/install/wksim_msgs",
+          "sha256": "fa5fadcb39d83bd1d2412b3b1d58955423a698236f19d9cf208956c120fdabe3",
+          "complete_snapshot": true
+        },
+        "prometheus_control": {
+          "prefix": "/root/wksim-ros2-MUlZd0/install/prometheus_control",
+          "sha256": "e4c44ad9a1797f043669bbae9bc2e9b82d5f109979e1300d1f29e7cc98368da8",
+          "complete_snapshot": true
+        }
+      }
+    }
+  },
+  "patches": {
+    "patches/arducopter/0001-dds-global-position-yaw.patch": "e588bdd6250d42d3ed8a45ade0c6e14eb6443c035aad1c9c46c5af2d1d649621",
+    "patches/arducopter/0002-dds-local-state.patch": "105a7b7fd687f764db4b3c8fdd069954f235f5384a475a7cc46fec57b1b6ea7d"
+  },
+  "known_unflown_candidates": [
+    {
+      "path": "/root/wksim-ap-dds-yaw-fJUTtb",
+      "sha256": "6e666bd73e5add95d3279fbfc08d0b4a47773cc2befaf14a49e70fb8d21c23b2",
+      "implemented": true,
+      "built": true,
+      "flown": false,
+      "admitted": false,
+      "reason": "Built successfully, no flight evidence; source equivalence does not promote binary identity"
+    }
+  ],
+  "capabilities": [
+    {
+      "id": "native_position_mission",
+      "name": "Six public Prometheus inputs / independent quad-X native DDS SITL",
+      "implemented": true,
+      "built": true,
+      "flown": true,
+      "admitted": true,
+      "reason": "Historical pinned candidates only; current identity and overlay checks required. Not joint-scene or complete Full support.",
+      "evidence": [
+        "validation/arducopter-dds-urq9hofr/result.json",
+        "validation/px4-dds-epf9gukj/result.json"
+      ]
+    },
+    {
+      "id": "full.1",
+      "name": "PX4_HITL",
+      "reference_id": 0,
+      "category": "仿真模式逐项映射",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "串口连接实体PX4并执行硬件在环 — 本阶段未验收；先取得硬件、串口、固件、移除动力风险的测试条件及明确授权，再单独拆票",
+      "reference": "docs/plan/full-scope-expansion.md"
+    },
+    {
+      "id": "full.2",
+      "name": "PX4_SITL",
+      "reference_id": 1,
+      "category": "仿真模式逐项映射",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "通过TCP连接标准PX4软件在环 — 当前自主物理与原生任务链已部分证明；正式产品入口及参考模式操作映射仍需验收",
+      "reference": "docs/plan/full-scope-expansion.md"
+    },
+    {
+      "id": "full.3",
+      "name": "PX4_SITL_RFLY",
+      "reference_id": 2,
+      "category": "仿真模式逐项映射",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "通过UDP连接Rfly定制PX4软件在环 — 需锁定本地定制固件、协议和使用条件；不能把标准PX4通过记为本模式通过",
+      "reference": "docs/plan/full-scope-expansion.md"
+    },
+    {
+      "id": "full.4",
+      "name": "Simulink&DLL_SIL",
+      "reference_id": 3,
+      "category": "仿真模式逐项映射",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "无飞控的纯模型运行 — 自主模型有局部构建证据；完整选择、初始化、运行、重置及导出流程另行验收，不要求日常运行必须启动Simulink",
+      "reference": "docs/plan/full-scope-expansion.md"
+    },
+    {
+      "id": "full.5",
+      "name": "PX4_HITL_NET",
+      "reference_id": 4,
+      "category": "仿真模式逐项映射",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "网络连接实体PX4硬件在环 — 硬件/网络和安全授权先决；手册免费版标签不一致不影响它属于Full范围",
+      "reference": "docs/plan/full-scope-expansion.md"
+    },
+    {
+      "id": "full.6",
+      "name": "EXT_HITL_COM",
+      "reference_id": 5,
+      "category": "仿真模式逐项映射",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "MAVLink串口接外部飞控 — 先明确一个可核验外部飞控和接口，不将“外部”解释为任意厂商任意设备",
+      "reference": "docs/plan/full-scope-expansion.md"
+    },
+    {
+      "id": "full.7",
+      "name": "EXT_SIM_NET",
+      "reference_id": 6,
+      "category": "仿真模式逐项映射",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "连接外部仿真系统 — 先明确一个参考系统、物理权威、时钟和失败语义，再做单系统端到端票",
+      "reference": "docs/plan/full-scope-expansion.md"
+    },
+    {
+      "id": "full.8",
+      "name": "APM_SITL_NET",
+      "reference_id": 7,
+      "category": "仿真模式逐项映射",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "连接ArduPilot软件在环 — 当前ArduCopter物理/任务候选有证据；不泛化为所有ArduPilot机型或原厂模式全兼容",
+      "reference": "docs/plan/full-scope-expansion.md"
+    },
+    {
+      "id": "full.9",
+      "name": "PX4_SIH_COM",
+      "reference_id": 8,
+      "category": "仿真模式逐项映射",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "SIH串口流程 — 需实体设备与对应固件；物理位于飞控内部，必须重新映射显示/任务时间而非再启动第二物理核心",
+      "reference": "docs/plan/full-scope-expansion.md"
+    },
+    {
+      "id": "full.10",
+      "name": "PX4_SIH_NET",
+      "reference_id": 9,
+      "category": "仿真模式逐项映射",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "SIH网络流程 — 与串口分开验证连接、状态、停止和重连；保留硬件/固件条件",
+      "reference": "docs/plan/full-scope-expansion.md"
+    },
+    {
+      "id": "full.11",
+      "name": "PX4_SIH_SITL",
+      "reference_id": 10,
+      "category": "仿真模式逐项映射",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "软件飞控内运行SIH — 先核对固定PX4的该模式及接口，验证唯一物理权威和时间映射；当前外部物理SITL不覆盖它",
+      "reference": "docs/plan/full-scope-expansion.md"
+    },
+    {
+      "id": "full.12",
+      "name": "PX4_SIH_FLY",
+      "reference_id": 11,
+      "category": "仿真模式逐项映射",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "SIH RFly流程 — 先核对RFly固件、模型、接口和授权，不按名称猜测可由标准固件代替",
+      "reference": "docs/plan/full-scope-expansion.md"
+    },
+    {
+      "id": "full.13",
+      "name": "UDP_Full",
+      "reference_id": 0,
+      "category": "通信模式逐项映射",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "参考完整UDP输出与消费，手册列168字节SOut2Simulator — 精确字段、布局、字节序、速率、目标地址及完整模式控制/反馈行为；对照本地SDK与实际观测",
+      "reference": "docs/plan/full-scope-expansion.md"
+    },
+    {
+      "id": "full.14",
+      "name": "UDP_Simple",
+      "reference_id": 1,
+      "category": "通信模式逐项映射",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "参考简化带时间UDP输出，手册列112字节SOut2SimulatorSimpleTime — 字段和时间语义、简化丢失的量、非法报文拒绝及原SDK互操作",
+      "reference": "docs/plan/full-scope-expansion.md"
+    },
+    {
+      "id": "full.15",
+      "name": "Mavlink_Full",
+      "reference_id": 2,
+      "category": "通信模式逐项映射",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "QGC与SDK所需完整MAVLink交互 — 消息集合、身份、控制权、参数和状态映射；已有QGC切片不自动覆盖全部功能",
+      "reference": "docs/plan/full-scope-expansion.md"
+    },
+    {
+      "id": "full.16",
+      "name": "Mavlink_Simple",
+      "reference_id": 3,
+      "category": "通信模式逐项映射",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "简化MAVLink交互 — 相对Full的准确删减与频率；不能只复用Full实现并改模式标签",
+      "reference": "docs/plan/full-scope-expansion.md"
+    },
+    {
+      "id": "full.17",
+      "name": "Mavlink_NoSend",
+      "reference_id": 4,
+      "category": "通信模式逐项映射",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "只接收，不主动发送 — 被动接收的副作用、是否允许响应及其参考证据；抓包证明发送约束",
+      "reference": "docs/plan/full-scope-expansion.md"
+    },
+    {
+      "id": "full.18",
+      "name": "Mavlink_NoGPS",
+      "reference_id": 5,
+      "category": "通信模式逐项映射",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "无GPS场景下的参考接口行为 — 传感器/定位与控制条件；GNSS故障切片不自动等价于此模式",
+      "reference": "docs/plan/full-scope-expansion.md"
+    },
+    {
+      "id": "full.19",
+      "name": "Mavlink_Vision",
+      "reference_id": 6,
+      "category": "通信模式逐项映射",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "视觉定位数据输出 — 坐标、协方差、采样时刻、消息与估计器接入；真实相机图像接口不能代替本模式",
+      "reference": "docs/plan/full-scope-expansion.md"
+    },
+    {
+      "id": "full.20",
+      "name": "四旋翼",
+      "reference_id": null,
+      "category": "机型与模型材料",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "固定数值对照、参数运行切片已列，尚未实现这些新增票 — 固定模型/参数/预算和来源",
+      "reference": "docs/plan/full-scope-expansion.md"
+    },
+    {
+      "id": "full.21",
+      "name": "六旋翼",
+      "reference_id": null,
+      "category": "机型与模型材料",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "单独端到端切片已列 — 正确动力、惯量、电机/旋翼映射及适用飞控",
+      "reference": "docs/plan/full-scope-expansion.md"
+    },
+    {
+      "id": "full.22",
+      "name": "三旋翼",
+      "reference_id": null,
+      "category": "机型与模型材料",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "未被四旋翼或六旋翼票覆盖 — 单独构型、驱动/舵机、模型与测试定义",
+      "reference": "docs/plan/full-scope-expansion.md"
+    },
+    {
+      "id": "full.23",
+      "name": "三轴六旋翼",
+      "reference_id": null,
+      "category": "机型与模型材料",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "未被平面六旋翼覆盖 — 共轴影响、旋向、电机分配与具体参数",
+      "reference": "docs/plan/full-scope-expansion.md"
+    },
+    {
+      "id": "full.24",
+      "name": "四轴八旋翼",
+      "reference_id": null,
+      "category": "机型与模型材料",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "未覆盖 — 独立构型、动力与混控校验",
+      "reference": "docs/plan/full-scope-expansion.md"
+    },
+    {
+      "id": "full.25",
+      "name": "八旋翼",
+      "reference_id": null,
+      "category": "机型与模型材料",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "未覆盖 — 独立构型与适用飞控校验",
+      "reference": "docs/plan/full-scope-expansion.md"
+    },
+    {
+      "id": "full.26",
+      "name": "固定翼、复合翼",
+      "reference_id": null,
+      "category": "机型与模型材料",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "未覆盖 — 各自模型来源、控制栈/执行器、运动工况；不能强行要求由ArduCopter控制固定翼",
+      "reference": "docs/plan/full-scope-expansion.md"
+    },
+    {
+      "id": "full.27",
+      "name": "CarAckerman",
+      "reference_id": null,
+      "category": "机型与模型材料",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "未覆盖 — 转向/驱动接口、轨迹与地形工况",
+      "reference": "docs/plan/full-scope-expansion.md"
+    },
+    {
+      "id": "full.28",
+      "name": "CarR1Diff",
+      "reference_id": null,
+      "category": "机型与模型材料",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "未覆盖 — 差速映射及对应运动/重置工况",
+      "reference": "docs/plan/full-scope-expansion.md"
+    },
+    {
+      "id": "full.29",
+      "name": "CarNoCtrl",
+      "reference_id": null,
+      "category": "机型与模型材料",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "未覆盖 — 无控输入和模型观测，不依赖飞控也可验收",
+      "reference": "docs/plan/full-scope-expansion.md"
+    },
+    {
+      "id": "full.30",
+      "name": "Trailer",
+      "reference_id": null,
+      "category": "机型与模型材料",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "未覆盖 — 牵引/关节与场景耦合工况",
+      "reference": "docs/plan/full-scope-expansion.md"
+    },
+    {
+      "id": "full.31",
+      "name": "MulticopterNoCtrl",
+      "reference_id": null,
+      "category": "机型与模型材料",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "未覆盖 — 无控模型输入、运动与复位定义",
+      "reference": "docs/plan/full-scope-expansion.md"
+    },
+    {
+      "id": "full.32",
+      "name": "MulticopterNOpx4",
+      "reference_id": null,
+      "category": "机型与模型材料",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "未覆盖 — 无飞控模型接口与适用控制方式，不按名称猜测实现",
+      "reference": "docs/plan/full-scope-expansion.md"
+    },
+    {
+      "id": "full.33",
+      "name": "CopterSILVelCtrl",
+      "reference_id": null,
+      "category": "机型与模型材料",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "未覆盖 — 纯模型速度控制工作流，不等同于真实FC速度票",
+      "reference": "docs/plan/full-scope-expansion.md"
+    },
+    {
+      "id": "full.34",
+      "name": "MultSILSwarm",
+      "reference_id": null,
+      "category": "机型与模型材料",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "未覆盖 — SIL集群场景、身份及共享时间映射，不能由双FC联合场景自动代验",
+      "reference": "docs/plan/full-scope-expansion.md"
+    },
+    {
+      "id": "full.35",
+      "name": "Exp1_MinModelTemp、Exp2_MaxModelTemp",
+      "reference_id": null,
+      "category": "机型与模型材料",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "生成模型切片只验证选定样本 — 两个模板各自I/O、生成、构建、导入与运行流程；缺可编辑材料时明确阻塞",
+      "reference": "docs/plan/full-scope-expansion.md"
+    },
+    {
+      "id": "full.36",
+      "name": "模型数据库/组件库",
+      "reference_id": null,
+      "category": "仍需逐项展开的操作、环境和实验",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "品牌组件参数、自定义参数、确认/计算、加入与删除机型、数据库导入导出、备份恢复 — 四旋翼参数表单不是完整数据库；删除只作用于用户明确选择的工作副本，不能改原厂库",
+      "reference": "docs/plan/full-scope-expansion.md"
+    },
+    {
+      "id": "full.37",
+      "name": "性能计算",
+      "reference_id": null,
+      "category": "仍需逐项展开的操作、环境和实验",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "悬停时间、油门、电流、转速、功率、能效及FlyEval关联的参考流程 — 在线服务存在不保证可访问或公式已公开；本地独立计算与服务集成分开记录",
+      "reference": "docs/plan/full-scope-expansion.md"
+    },
+    {
+      "id": "full.38",
+      "name": "XML/模型元数据",
+      "reference_id": null,
+      "category": "仍需逐项展开的操作、环境和实验",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "ModelInfo、HoverInfo、FrameInfo、ClassID及默认值、单位和错误 — 能选一个DLL不等于XML模型配置可用",
+      "reference": "docs/plan/full-scope-expansion.md"
+    },
+    {
+      "id": "full.39",
+      "name": "CLI/NoUI/GUI一致性",
+      "reference_id": null,
+      "category": "仍需逐项展开的操作、环境和实验",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "冻结手册16个启动参数、多值初态、GPS、串口/波特率、通信地址、自动启动、实时/日志选项 — 初期“点启动”仅覆盖一个正常产品路径，不能吞掉参数组合与错误流程",
+      "reference": "docs/plan/full-scope-expansion.md"
+    },
+    {
+      "id": "full.40",
+      "name": "网络与远程",
+      "reference_id": null,
+      "category": "仍需逐项展开的操作、环境和实验",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "UDP广播、指定主机、JSON联机、端口/身份、多实例与分布式场景 — 本机两独立实验隔离和同机场景各自仅覆盖子集；跨主机边界单独验证",
+      "reference": "docs/plan/full-scope-expansion.md"
+    },
+    {
+      "id": "full.41",
+      "name": "载具与场景资产",
+      "reference_id": null,
+      "category": "仍需逐项展开的操作、环境和实验",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "正确机体、旋翼、场景选择、导入资产、模型ClassID映射 — 当前几何占位四旋翼与城市显示不是最终机型/场景库",
+      "reference": "docs/plan/full-scope-expansion.md"
+    },
+    {
+      "id": "full.42",
+      "name": "环境反馈",
+      "reference_id": null,
+      "category": "仍需逐项展开的操作、环境和实验",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "地形、碰撞、动态对象/环境变化、过期反馈处理 — 单坡面/单障碍切片只是首例，不代表全部场景交互",
+      "reference": "docs/plan/full-scope-expansion.md"
+    },
+    {
+      "id": "full.43",
+      "name": "传感器",
+      "reference_id": null,
+      "category": "仍需逐项展开的操作、环境和实验",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "基础传感器标定/噪声/延迟、其余图像/点云能力与所需Prometheus输入 — RGB与深度生成点云不覆盖扫描LiDAR、分割及其他未细化能力",
+      "reference": "docs/plan/full-scope-expansion.md"
+    },
+    {
+      "id": "full.44",
+      "name": "故障",
+      "reference_id": null,
+      "category": "仍需逐项展开的操作、环境和实验",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "电机卡死/关闭、传感器偏置/冻结/丢失、环境扰动和通信异常的公开范围 — 单电机效率与GNSS中断各只覆盖一种事件",
+      "reference": "docs/plan/full-scope-expansion.md"
+    },
+    {
+      "id": "full.45",
+      "name": "控制/任务/算法",
+      "reference_id": null,
+      "category": "仍需逐项展开的操作、环境和实验",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "RC其他模式、更多规划/感知demo、多机任务与队形、公开实验来源逐项映射 — PID/UDE/NE、单规划器与ArUco只是明确的首批路径，不能代表全部Prometheus算法",
+      "reference": "docs/plan/full-scope-expansion.md"
+    },
+    {
+      "id": "full.46",
+      "name": "日志与复现",
+      "reference_id": null,
+      "category": "仍需逐项展开的操作、环境和实验",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "源/接收时间、bag与飞控原生日志、完整事件流、回放/重演、容量与缺段策略 — 既有JSONL回看不自动完成全部记录系统或跨平台确定性",
+      "reference": "docs/plan/full-scope-expansion.md"
+    },
+    {
+      "id": "full.47",
+      "name": "资源自主交付",
+      "reference_id": null,
+      "category": "仍需逐项展开的操作、环境和实验",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "无原版程序/DLL依赖、模型/资产可获得性、构建说明与来源许可 — 本机能编译厂商ZIP不代表可以公开分发其源代码；本地UE staging素材同理",
+      "reference": "docs/plan/full-scope-expansion.md"
+    },
+    {
+      "id": "full.48",
+      "name": "性能与规模",
+      "reference_id": null,
+      "category": "仍需逐项展开的操作、环境和实验",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "目标载具数、步频、吞吐、CPU/GPU负载、记录容量、时间偏差与恢复窗口 — 单机3倍速或两机验证不证明十机、任意硬件或分布式实时性能",
+      "reference": "docs/plan/full-scope-expansion.md"
+    },
+    {
+      "id": "ticket.1.capability-preflight",
+      "name": "实验能力预检与候选身份核验",
+      "implemented": true,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "Strict preflight verified with real pinned resources and rejection cases; not itself a flight capability",
+      "reference": "docs/plan/tickets/01-capability-preflight.md",
+      "verification": "validation/product-first-wave-20260905/manifest.json"
+    },
+    {
+      "id": "ticket.2.single-run-launch",
+      "name": "正式入口启动与停止一次双栈可选实验",
+      "implemented": true,
+      "built": null,
+      "flown": true,
+      "admitted": false,
+      "reason": "Both pinned stacks completed the same six-input independent product mission with safe landing and owned cleanup",
+      "reference": "docs/plan/tickets/02-single-run-launch.md",
+      "verification": "validation/product-first-wave-20260905/manifest.json"
+    },
+    {
+      "id": "ticket.3.isolated-runs",
+      "name": "两个独立实验同时运行且互不干扰",
+      "implemented": true,
+      "built": null,
+      "flown": true,
+      "admitted": false,
+      "reason": "Two session-profile independent runs passed overlap, duplicate-start refusal and survivor progress after normal cleanup; not a joint clock",
+      "reference": "docs/plan/tickets/03-isolated-runs.md",
+      "verification": "validation/product-second-wave-20260905/manifest.json"
+    },
+    {
+      "id": "ticket.4.run-epoch",
+      "name": "控制节点重启后的旧命令隔离",
+      "implemented": true,
+      "built": true,
+      "flown": true,
+      "admitted": false,
+      "reason": "Built session envelopes and durable native identity; both real stacks passed explicit pre-arm ground control restart and old-input rejection. No airborne recovery claim",
+      "reference": "docs/plan/tickets/04-run-epoch.md",
+      "verification": "validation/product-second-wave-20260905/manifest.json"
+    },
+    {
+      "id": "ticket.5.mission-waypoints",
+      "name": "单机多航点任务与取消闭环",
+      "implemented": true,
+      "built": null,
+      "flown": true,
+      "admitted": false,
+      "reason": "Both pinned stacks completed the same ENU/body mission, cancellation and negative operator/target cases; no joint clock, airborne loss or restart-resume claim",
+      "reference": "docs/plan/tickets/05-mission-waypoints.md",
+      "verification": "validation/product-third-wave-20260906/manifest.json"
+    },
+    {
+      "id": "ticket.6.offline-evidence",
+      "name": "已有任务记录的离线回看",
+      "implemented": true,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "Offline CLI/JSON replay verified against 41681 original records; not physics reexecution",
+      "reference": "docs/plan/tickets/06-offline-evidence.md",
+      "verification": "validation/product-first-wave-20260905/manifest.json"
+    },
+    {
+      "id": "ticket.7.ue-product-stream",
+      "name": "单载具产品状态流接入UE5.5",
+      "implemented": true,
+      "built": true,
+      "flown": true,
+      "admitted": false,
+      "reason": "Final clock-bound UE5.5 build and both real product streams passed Actor readback, display loss/recovery and packet rejection",
+      "reference": "docs/plan/tickets/07-ue-product-stream.md",
+      "verification": "validation/product-first-wave-20260905/manifest.json"
+    },
+    {
+      "id": "ticket.8.wksim-run-workflow",
+      "name": "wksim界面配置到任务结果的完整流程",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "Not accepted by this slice; sibling implementation must supply its own evidence",
+      "reference": "docs/plan/tickets/08-wksim-run-workflow.md"
+    },
+    {
+      "id": "ticket.9.joint-clock",
+      "name": "双飞控联合场景最小权威时间闭环",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "Not accepted by this slice; sibling implementation must supply its own evidence",
+      "reference": "docs/plan/tickets/09-joint-clock.md"
+    },
+    {
+      "id": "ticket.10.joint-step-reset",
+      "name": "联合场景暂停单步与冷重置",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "Not accepted by this slice; sibling implementation must supply its own evidence",
+      "reference": "docs/plan/tickets/10-joint-step-reset.md"
+    },
+    {
+      "id": "ticket.11.ue-joint-scene",
+      "name": "联合场景双载具显示与切换观察",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "Not accepted by this slice; sibling implementation must supply its own evidence",
+      "reference": "docs/plan/tickets/11-ue-joint-scene.md"
+    },
+    {
+      "id": "ticket.12.airborne-dds-loss",
+      "name": "悬停期间DDS断连与显式恢复",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "Not accepted by this slice; sibling implementation must supply its own evidence",
+      "reference": "docs/plan/tickets/12-airborne-dds-loss.md"
+    },
+    {
+      "id": "ticket.13.quad-numerical-baseline",
+      "name": "四旋翼固定工况数值对照",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "Not accepted by this slice; sibling implementation must supply its own evidence",
+      "reference": "docs/plan/tickets/13-quad-numerical-baseline.md"
+    },
+    {
+      "id": "ticket.14.quad-model-config",
+      "name": "四旋翼参数保存导入与真实运行",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "Not accepted by this slice; sibling implementation must supply its own evidence",
+      "reference": "docs/plan/tickets/14-quad-model-config.md"
+    },
+    {
+      "id": "ticket.15.hex-model-workflow",
+      "name": "六旋翼从参数配置到双栈运行",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "Not accepted by this slice; sibling implementation must supply its own evidence",
+      "reference": "docs/plan/tickets/15-hex-model-workflow.md"
+    },
+    {
+      "id": "ticket.16.generated-model-import",
+      "name": "生成模型构建导入与无MATLAB运行",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "Not accepted by this slice; sibling implementation must supply its own evidence",
+      "reference": "docs/plan/tickets/16-generated-model-import.md"
+    },
+    {
+      "id": "ticket.17.legacy-dll-host",
+      "name": "可选旧ABI模型DLL生命周期闭环",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "Not accepted by this slice; sibling implementation must supply its own evidence",
+      "reference": "docs/plan/tickets/17-legacy-dll-host.md"
+    },
+    {
+      "id": "ticket.18.modern-dll-host",
+      "name": "可选新ABI模型DLL与扩展输出",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "Not accepted by this slice; sibling implementation must supply its own evidence",
+      "reference": "docs/plan/tickets/18-modern-dll-host.md"
+    },
+    {
+      "id": "ticket.19.terrain-collision",
+      "name": "坡面与障碍场景的物理反馈",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "Not accepted by this slice; sibling implementation must supply its own evidence",
+      "reference": "docs/plan/tickets/19-terrain-collision.md"
+    },
+    {
+      "id": "ticket.20.rgb-sensor",
+      "name": "带时间与标定的真实RGB相机",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "Not accepted by this slice; sibling implementation must supply its own evidence",
+      "reference": "docs/plan/tickets/20-rgb-sensor.md"
+    },
+    {
+      "id": "ticket.21.depth-cloud",
+      "name": "深度相机与由深度生成的点云",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "Not accepted by this slice; sibling implementation must supply its own evidence",
+      "reference": "docs/plan/tickets/21-depth-cloud.md"
+    },
+    {
+      "id": "ticket.22.velocity-yaw",
+      "name": "双栈速度与偏航控制能力",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "Not accepted by this slice; sibling implementation must supply its own evidence",
+      "reference": "docs/plan/tickets/22-velocity-yaw.md"
+    },
+    {
+      "id": "ticket.23.mixed-trajectory",
+      "name": "双栈混合轴与轨迹跟随",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "Not accepted by this slice; sibling implementation must supply its own evidence",
+      "reference": "docs/plan/tickets/23-mixed-trajectory.md"
+    },
+    {
+      "id": "ticket.24.attitude-thrust",
+      "name": "双栈姿态与推力出口",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "Not accepted by this slice; sibling implementation must supply its own evidence",
+      "reference": "docs/plan/tickets/24-attitude-thrust.md"
+    },
+    {
+      "id": "ticket.25.pid-controller",
+      "name": "Prometheus PID控制器选择与闭环",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "Not accepted by this slice; sibling implementation must supply its own evidence",
+      "reference": "docs/plan/tickets/25-pid-controller.md"
+    },
+    {
+      "id": "ticket.26.ude-controller",
+      "name": "Prometheus UDE控制器闭环",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "Not accepted by this slice; sibling implementation must supply its own evidence",
+      "reference": "docs/plan/tickets/26-ude-controller.md"
+    },
+    {
+      "id": "ticket.27.ne-controller",
+      "name": "Prometheus NE控制器闭环",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "Not accepted by this slice; sibling implementation must supply its own evidence",
+      "reference": "docs/plan/tickets/27-ne-controller.md"
+    },
+    {
+      "id": "ticket.28.rc-handoff",
+      "name": "RC位置控制与任务显式交接",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "Not accepted by this slice; sibling implementation must supply its own evidence",
+      "reference": "docs/plan/tickets/28-rc-handoff.md"
+    },
+    {
+      "id": "ticket.29.planner-flight",
+      "name": "单机规划绕障到真实飞行",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "Not accepted by this slice; sibling implementation must supply its own evidence",
+      "reference": "docs/plan/tickets/29-planner-flight.md"
+    },
+    {
+      "id": "ticket.30.visual-tracking",
+      "name": "真实相机驱动ArUco目标跟踪",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "Not accepted by this slice; sibling implementation must supply its own evidence",
+      "reference": "docs/plan/tickets/30-visual-tracking.md"
+    },
+    {
+      "id": "ticket.31.matlab-bridge",
+      "name": "MATLAB TCP/JSON可选桥闭环",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "Not accepted by this slice; sibling implementation must supply its own evidence",
+      "reference": "docs/plan/tickets/31-matlab-bridge.md"
+    },
+    {
+      "id": "ticket.32.qgc-handoff",
+      "name": "地面站查看与显式控制权交接",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "Not accepted by this slice; sibling implementation must supply its own evidence",
+      "reference": "docs/plan/tickets/32-qgc-handoff.md"
+    },
+    {
+      "id": "ticket.33.parameters-reboot",
+      "name": "仿真参数操作与飞控重启恢复",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "Not accepted by this slice; sibling implementation must supply its own evidence",
+      "reference": "docs/plan/tickets/33-parameters-reboot.md"
+    },
+    {
+      "id": "ticket.34.motor-fault",
+      "name": "单电机效率故障的可复现实验",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "Not accepted by this slice; sibling implementation must supply its own evidence",
+      "reference": "docs/plan/tickets/34-motor-fault.md"
+    },
+    {
+      "id": "ticket.35.gnss-fault",
+      "name": "GNSS中断与状态有效性恢复",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "Not accepted by this slice; sibling implementation must supply its own evidence",
+      "reference": "docs/plan/tickets/35-gnss-fault.md"
+    },
+    {
+      "id": "ticket.36.deterministic-reexecution",
+      "name": "固定输入实验的确定性重新运行",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "Not accepted by this slice; sibling implementation must supply its own evidence",
+      "reference": "docs/plan/tickets/36-deterministic-reexecution.md"
+    },
+    {
+      "id": "ticket.37.global-waypoints",
+      "name": "双栈全球航点与home基准",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "Not accepted by this slice; sibling implementation must supply its own evidence",
+      "reference": "docs/plan/tickets/37-global-waypoints.md"
+    },
+    {
+      "id": "ticket.38.sitl-product-acceptance",
+      "name": "首期SITL产品流程集成验收",
+      "implemented": false,
+      "built": null,
+      "flown": null,
+      "admitted": false,
+      "reason": "Not accepted by this slice; sibling implementation must supply its own evidence",
+      "reference": "docs/plan/tickets/38-sitl-product-acceptance.md"
+    }
+  ]
+}
