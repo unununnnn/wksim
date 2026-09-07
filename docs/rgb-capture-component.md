@@ -55,3 +55,17 @@ This checks the declared ideal projection only, not image generation or acceptan
 `View(..., joint_instance=..., rgb_config=...)` now writes the validated optional camera configuration for GameMode. The JSON uses version 1, vehicle_id, sensor_id, width/height, horizontal_fov_degrees, position_cm/quaternion_xyzw in UE vehicle coordinates, interval_steps and a separate localhost notify_port. View supplies its own fresh output directory. `Simulator.ue55.rgb.Reader` receives only notifications for an explicitly selected authoritative epoch/generation; it never scans recordings for live delivery.
 
 The real two-FC ground run, PNG decoding, physical-pose/clock audit, consumer outage and reconnect are documented in [the integration report](2026-09-07-independent-rgb-report.md). This updates the earlier build-only status above. Projection/occlusion calibration, airborne image flows and real cold-reset acceptance remain open.
+
+
+## Producer restart identity (v2)
+
+Live metadata/notifications now use `wksim.rgb.v2` / `wksim.rgb-ready.v2` and require `stream_id`, a fresh 32-character lowercase-hex identity for each View. The physical manager instance, epoch and authoritative step remain separate. `FWksimRgbConfig` and `FWksimRgbRequest` require that stream identity; `Reader(..., stream_id=view.rgb_stream_id)` is bound to it and does not learn identity from received datagrams. Reopening a consumer for the same live View keeps that identity; reopening UE creates a new one. Filenames are `rgb_<stream_id>_<frame>.png/json`, keeping path components bounded even with long user sensor/run names. Historical v1 records remain auditable as historical evidence, but the current live Reader does not accept them.
+
+Unit rejection of a retired producer within the same physical epoch is verified. Actual producer restart and cold-reset validation are still required before closing the complete camera lifecycle criteria.
+
+
+## Explicit camera producer control
+
+`View.set_rgb_enabled(False/True)` uses a separate, identity-bound UDP camera command. It cannot issue flight or physical-step commands. Disable invalidates pending delivery immediately; enable selects a fresh stream ID and requires a later authority step before capture. Acknowledgment means configuration accepted; completion still requires observed native PNG output. Scene generation, epoch, old stream ID and increasing request sequence are checked by UE. A new Reader must bind to the acknowledged stream ID.
+
+The first actual stop/start/cold-reset run retained a UE D3D12 render-thread access violation after restart, during physical cold reset. It is failed evidence (`validation/rgb-lifecycle-20260907-run1`). Reconfiguration now retains its render-target UObject/resource, using the engine's `ResizeTarget` only for changed dimensions. This is a candidate correction pending a fresh complete real run; no claim that the crash cause or lifecycle acceptance is yet settled.

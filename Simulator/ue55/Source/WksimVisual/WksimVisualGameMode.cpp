@@ -1,4 +1,5 @@
 #include "WksimVisualGameMode.h"
+#include "WksimRgbFixture.h"
 #include "AssetCompilingManager.h"
 #include "Camera/CameraActor.h"
 #include "Camera/CameraComponent.h"
@@ -236,6 +237,19 @@ void AWksimVisualGameMode::BeginPlay()
         FPlatformMisc::RequestExitWithStatus(true, 23);
         return;
     }
+    int32 FixtureCase;
+    if (FParse::Value(FCommandLine::Get(), TEXT("WksimRgbFixtureCase="), FixtureCase))
+    {
+        FString ManifestPath, Error;
+        if (!RgbSensor || !FParse::Value(FCommandLine::Get(), TEXT("WksimRgbFixtureManifest="), ManifestPath))
+        { FPlatformMisc::RequestExitWithStatus(true, 24); return; }
+        RgbFixture = GetWorld()->SpawnActor<AWksimRgbFixture>();
+        if (!RgbFixture->Configure(FixtureCase, Error) || !RgbFixture->WriteManifest(ManifestPath))
+        { UE_LOG(LogTemp, Error, TEXT("WKSIM_RGB_FIXTURE %s"), *Error); FPlatformMisc::RequestExitWithStatus(true, 24); return; }
+        // The fixture has its own known visual occlusion scene. Never use it
+        // as proof of terrain/collision physics in the decorative city map.
+        for (TActorIterator<AStaticMeshActor> It(GetWorld()); It; ++It) It->SetActorHiddenInGame(true);
+    }
     UE_LOG(LogTemp, Display, TEXT("WKSIM_STARTING run=%s vehicle=%s port=%d world=%s"),
         *RunId, *VehicleId, Port, *GetWorld()->GetMapName());
 }
@@ -248,6 +262,32 @@ bool AWksimVisualGameMode::ApplyPacket(const uint8* Bytes, int32 Count, FString&
     if (VehicleId == TEXT("joint"))
     {
         FString Kind;
+        if (Object->TryGetStringField(TEXT("kind"), Kind) && Kind == TEXT("rgb_stream_control"))
+        {
+            FString Run, Instance, Epoch, Stream, NextStream;
+            int64 Version, Generation, Request;
+            bool Enabled;
+            if (!RgbSensor || Object->Values.Num() != 10 ||
+                !IntegerField(Object, TEXT("version"), Version) || Version != 3 ||
+                !Object->TryGetStringField(TEXT("run_id"), Run) || Run != RunId ||
+                !Object->TryGetStringField(TEXT("instance_id"), Instance) || Instance != InstanceId ||
+                !Object->TryGetStringField(TEXT("epoch"), Epoch) || Epoch != JointEpoch ||
+                !IntegerField(Object, TEXT("generation"), Generation) || Generation != JointGeneration || Generation < 1 ||
+                !IntegerField(Object, TEXT("request_sequence"), Request) || Request <= LastRgbRequest ||
+                !Object->TryGetStringField(TEXT("stream_id"), Stream) || Stream != RgbConfig.StreamId ||
+                !Object->TryGetStringField(TEXT("next_stream_id"), NextStream) || !IsHexIdentity(NextStream) ||
+                !Object->TryGetBoolField(TEXT("enabled"), Enabled) || Enabled == bRgbEnabled ||
+                (Enabled ? NextStream == Stream : NextStream != Stream)) return false;
+            // This changes capture only. There is no physics/flight command path.
+            RgbSensor->Invalidate();
+            RgbEpoch.Reset();
+            bRgbEnabled = Enabled;
+            LastRgbRequest = Request;
+            if (Enabled) { RgbConfig.StreamId = NextStream; RgbLastStep = JointStep; }
+            Object->SetStringField(TEXT("kind"), TEXT("rgb_stream_controlled"));
+            FJsonSerializer::Serialize(Object.ToSharedRef(), TJsonWriterFactory<TCHAR, TCondensedJsonPrintPolicy<TCHAR>>::Create(&Ack));
+            return true;
+        }
         if (Object->TryGetStringField(TEXT("kind"), Kind) && Kind == TEXT("joint_view_select"))
         {
             FString Run, Instance, Epoch;
@@ -561,7 +601,7 @@ void AWksimVisualGameMode::Tick(float DeltaSeconds)
     // not sensor calibration or assurance about every later visual frame.
     if (!bRenderReady)
     {
-        if (FAssetCompilingManager::Get().GetNumRemainingAssets() > 0)
+        if (FAssetCompilingManager::Get().GetNumRemainingAssets() > 0 || (RgbFixture && !RgbFixture->IsReady()))
         {
             ReadyFrames = 0;
             bStartupFenceQueued = false;
@@ -602,7 +642,7 @@ bool AWksimVisualGameMode::LoadRgbConfig(const FString& Path)
     int64 Version, Id, Width, Height, Interval, Notify;
     double Fov;
     TArray<double> P, Q;
-    if (Object->Values.Num() != 11 || !IntegerField(Object, TEXT("version"), Version) || Version != 1 ||
+    if (Object->Values.Num() != 12 || !IntegerField(Object, TEXT("version"), Version) || Version != 1 ||
         !IntegerField(Object, TEXT("vehicle_id"), Id) || Id < 1 || Id > 2 ||
         !IntegerField(Object, TEXT("width"), Width) || Width < 16 || Width > 4096 ||
         !IntegerField(Object, TEXT("height"), Height) || Height < 16 || Height > 4096 || Width * Height > 4194304 ||
@@ -610,6 +650,7 @@ bool AWksimVisualGameMode::LoadRgbConfig(const FString& Path)
         !IntegerField(Object, TEXT("notify_port"), Notify) || Notify < 1024 || Notify > 65535 || Notify == LaunchPort ||
         !Object->TryGetNumberField(TEXT("horizontal_fov_degrees"), Fov) || !FMath::IsFinite(Fov) || Fov < 5 || Fov > 150 ||
         !Object->TryGetStringField(TEXT("sensor_id"), RgbConfig.SensorId) ||
+        !Object->TryGetStringField(TEXT("stream_id"), RgbConfig.StreamId) || !IsHexIdentity(RgbConfig.StreamId) ||
         !Object->TryGetStringField(TEXT("output_directory"), RgbConfig.OutputDirectory) ||
         !VectorField(Object, TEXT("position_cm"), 3, P) || !VectorField(Object, TEXT("quaternion_xyzw"), 4, Q)) return false;
     for (const TCHAR* Key : {TEXT("position_cm"), TEXT("quaternion_xyzw")})
@@ -640,7 +681,7 @@ void AWksimVisualGameMode::TickRgb()
     if (!RgbSensor) return;
     // Every moving Actor must represent this exact authoritative joint step.
     // Partial/outdated display data cannot be relabelled as a synchronous image.
-    const bool Current = bRenderReady && !IsStale() && JointVehicles.Num() == 2 &&
+    const bool Current = bRgbEnabled && bRenderReady && !IsStale() && JointVehicles.Num() == 2 &&
         JointVehicles[0].Step == JointStep && JointVehicles[1].Step == JointStep &&
         JointVehicles[0].Phase != TEXT("stopped") && JointVehicles[1].Phase != TEXT("stopped");
     if (!Current)
@@ -652,10 +693,11 @@ void AWksimVisualGameMode::TickRgb()
     if (RgbSensor->Poll(Completed, Error))
     {
         auto Event = MakeShared<FJsonObject>();
-        Event->SetStringField(TEXT("schema"), TEXT("wksim.rgb-ready.v1"));
+        Event->SetStringField(TEXT("schema"), TEXT("wksim.rgb-ready.v2"));
         Event->SetStringField(TEXT("run_id"), RunId);
         Event->SetStringField(TEXT("instance_id"), InstanceId);
         Event->SetStringField(TEXT("epoch"), JointEpoch);
+        Event->SetStringField(TEXT("stream_id"), RgbConfig.StreamId);
         Event->SetNumberField(TEXT("generation"), JointGeneration);
         Event->SetStringField(TEXT("metadata"), FPaths::GetCleanFilename(Completed));
         FString Json;
@@ -681,6 +723,7 @@ void AWksimVisualGameMode::TickRgb()
     Request.RunId = RunId;
     Request.InstanceId = InstanceId;
     Request.Epoch = JointEpoch;
+    Request.StreamId = RgbConfig.StreamId;
     Request.Step = JointStep;
     Request.SimTimeSeconds = SourceTime;
     Request.CameraWorldPose = RgbConfig.CameraInVehicle * JointVehicles[Index].Actor->GetActorTransform();

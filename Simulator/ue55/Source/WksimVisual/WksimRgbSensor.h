@@ -20,7 +20,7 @@ public:
 // UE boundary: centimeters, +X forward / +Y right / +Z up. No implicit NED conversion.
 struct FWksimRgbConfig
 {
-    FString RunId, InstanceId, Epoch, VehicleId, SensorId, OutputDirectory;
+    FString RunId, InstanceId, Epoch, StreamId, VehicleId, SensorId, OutputDirectory;
     int32 Width = 640, Height = 480;
     float HorizontalFovDegrees = 90.f;
     FTransform CameraInVehicle = FTransform::Identity;
@@ -28,7 +28,7 @@ struct FWksimRgbConfig
 
 struct FWksimRgbRequest
 {
-    FString RunId, InstanceId, Epoch;
+    FString RunId, InstanceId, Epoch, StreamId;
     int64 Step = -1;
     double SimTimeSeconds = -1;
     // Caller must have applied this authoritative state to all relevant scene actors.

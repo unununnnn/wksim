@@ -4,6 +4,10 @@
 
 ## 最新执行点（覆盖后文历史状态）
 
+2026-09-07 收口轮（全部主代理完成，本会话无 gpt-6-astra 可核验配置）：临时 timing_probe 已按基准精确清理；新增自有进程 nice/FIFO 调度、AP 包单次序列化、健康轮询 1ms 限频（检测仍 ≤1ms）。四矩阵 403(38跳过)/11/79/96+4 全绿。RGB 生产者停启/重连/冷重置旧 epoch 隔离与空中公共任务实时 RGB 均真实通过并审计（`joint-rgb-lifecycle-20260907-run2`、`joint-rgb-airborne-20260907-run2`）。0.5× 生命周期回归以 cohort 同字节 wrapper 通过（`joint-rate-flow-ox8h58cv`）。**持续 1× 最佳 31.3s/需 60s 仍失败**，迟到实测为宿主机层停顿（FIFO 无可测改善）；**AP 失联恢复在 0.5× 监督下因 start-recovery-task 的 DDS 发现风暴（FC 锁步停顿 69.57/15.31/6.85ms）如实 rate_unmet 失败**。两项未决问题已提交用户，见 [本轮报告](../2026-09-07-rate-recovery-rgb-closure-report.md)。失败样本全部保留，Goal active，#19/#20/#21/#22/G2/Full 不关闭。
+
+本轮最新：RGB四个几何/遮挡场景共60帧通过，增加v2生产实例身份并修复真实重连晚到旧帧；持续1×仍失败。当前未提交改动及资源/测试边界见 [最新检查点](../2026-09-07-rgb-geometry-rate-wip.md)。所有本轮真实实验已结束，Goal active。
+
 本节最新：新独立默认 PX4/AP 三航点、准入来源绑定和真实 MATLAB 双栈联测通过；AP 同时通过新 UE 单载具实时显示。RGB ground run2 产生 35 张原生 PNG、消费解码 15 张，关闭消费者 3.0404s 后物理推进 1556 步，真值/权威时钟/位姿原始审计及三个篡改反例通过。默认配置和 UE build manifest 已提升，旧配置/构建清单保留。详见 [本轮整合报告](../2026-09-07-independent-rgb-report.md)。
 
 本轮所有真实 FC/UE/MATLAB 运行均已结束，所有 exec 句柄已 wait 完成；没有活动实验。最后正确配置的矩阵：默认399（36跳过）、旧预检11、候选79、Windows产品104通过。最初未设置环境的 discover 失败保留。22 个代理均已结束且实际 gpt-6-astra/low 核验入档。Goal active，#30 几何/空中/旧代次真实验收及 Full 不关闭；联合时序探针和持续倍率问题仍待后续处理。

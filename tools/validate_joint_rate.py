@@ -121,6 +121,10 @@ def run(directory,output,mode):
             evidence.update(status='behavior_pass',scope='ground_cold_reset_and_retired_rate_rejection_not_flight',result=result)
             return evidence
         action('start-task',epoch)
+        if mode=='steady-one-after-ready':
+            wait('airborne before explicit 1x request',lambda row:'set-rate' in row['allowed_actions'] and
+                all(peer['state']['armed'] and peer['state']['position'][2]>2.5 for peer in row['participants'].values()))
+            action('set-rate',epoch,1)
         if mode in ('lifecycle','overload'):
             airborne=wait('both tasks airborne',lambda row:'pause' in row['allowed_actions'] and
                 all(peer['state']['armed'] and peer['state']['position'][2]>2.5 for peer in row['participants'].values()))
@@ -211,6 +215,6 @@ if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('directory',type=Path)
     parser.add_argument('--output',type=Path,required=True)
-    parser.add_argument('--mode',choices=('steady','lifecycle','overload','ground-reset'),default='steady')
+    parser.add_argument('--mode',choices=('steady','steady-one-after-ready','lifecycle','overload','ground-reset'),default='steady')
     args=parser.parse_args()
     print(json.dumps({'status':run(args.directory,args.output,args.mode)['status'],'output':str(args.output)}))

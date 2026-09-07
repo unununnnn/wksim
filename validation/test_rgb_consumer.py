@@ -27,20 +27,33 @@ class RgbConsumerTests(unittest.TestCase):
         with socket.socket(socket.AF_INET,socket.SOCK_DGRAM) as probe:
             probe.bind(('127.0.0.1',0));port=probe.getsockname()[1]
         with tempfile.TemporaryDirectory() as directory:
-            root=Path(directory);reader=Reader(root,'run','a'*32,settings(port))
+            root=Path(directory);reader=Reader(root,'run','a'*32,settings(port),stream_id='e'*32)
             try:
                 reader.set_epoch('b'*32,1)
-                data=dict(schema='wksim.rgb.v1',run_id='run',instance_id='a'*32,epoch='b'*32,
+                data=dict(schema='wksim.rgb.v2',run_id='run',instance_id='a'*32,epoch='b'*32,stream_id='e'*32,
                           vehicle_id='2',sensor_id='front_rgb',step='100',frame_id='1',sim_time_seconds=.1,
                           width=640,height=480,image='fixture.png')
                 (root/'fixture.json').write_text(json.dumps(data))
                 # Header fixture exercises decoder admission only, not PNG pixel validity.
                 (root/'fixture.png').write_bytes(b'\x89PNG\r\n\x1a\n'+struct.pack('>I',13)+b'IHDR'+struct.pack('>II',640,480))
                 self.assertEqual(reader.poll(),[])  # Existing files are never replayed.
-                event=dict(schema='wksim.rgb-ready.v1',run_id='run',instance_id='a'*32,epoch='b'*32,
+                event=dict(schema='wksim.rgb-ready.v2',run_id='run',instance_id='a'*32,epoch='b'*32,stream_id='e'*32,
                            generation=1,metadata='fixture.json')
+                # Same physical epoch, but a retired UE producer must not be adopted.
+                with self.assertRaises(ValueError):reader._read(dict(event,stream_id='f'*32))
+                data['stream_id']='f'*32;(root/'fixture.json').write_text(json.dumps(data))
+                with self.assertRaises(ValueError):reader._read(event)
+                data['stream_id']='e'*32;(root/'fixture.json').write_text(json.dumps(data))
                 self.assertEqual(reader._read(event)['metadata']['step'],'100')
                 with self.assertRaises(ValueError):reader._read(event)
+                reader.close()
+                reader=Reader(root,'run','a'*32,settings(port),stream_id='e'*32)
+                reader.set_epoch('b'*32,1,minimum_step=104)
+                # A frame captured before reconnect may complete afterwards.
+                with self.assertRaises(ValueError):reader._read(event)
+                data.update(step='200',frame_id='2',sim_time_seconds=.2)
+                (root/'fixture.json').write_text(json.dumps(data))
+                self.assertEqual(reader._read(event)['metadata']['step'],'200')
                 reader.set_epoch('c'*32,2)
                 with self.assertRaises(ValueError):reader._read(event)
                 with self.assertRaises(ValueError):reader.set_epoch('b'*32,1)

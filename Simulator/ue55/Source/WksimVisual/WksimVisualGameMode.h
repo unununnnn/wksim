@@ -9,6 +9,7 @@
 class FSocket;
 class ACameraActor;
 class UStaticMeshComponent;
+class AWksimRgbFixture;
 
 USTRUCT()
 struct FWksimJointVehicle
@@ -76,6 +77,9 @@ private:
     int64 RgbLastStep = -1;
     int64 RgbIntervalSteps = 100;
     int32 RgbNotifyPort = 0;
+    bool bRgbEnabled = true;
+    int64 LastRgbRequest = -1;
+    UPROPERTY(Transient) TObjectPtr<AWksimRgbFixture> RgbFixture;
 };
 
 UCLASS()

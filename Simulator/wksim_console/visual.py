@@ -96,12 +96,15 @@ class _Cancelled(Exception):
 class View:
     _resource = threading.Lock()
 
-    def __init__(self, directory, run_id, state_socket, repo=REPO, *, joint_instance=None, build_manifest=None, rgb_config=None):
+    def __init__(self, directory, run_id, state_socket, repo=REPO, *, joint_instance=None, build_manifest=None, rgb_config=None, rgb_fixture_case=None):
         self.directory = Path(directory).resolve()
         self.repo = Path(repo).resolve()
         self.run_id, self.state_socket = run_id, state_socket
         self.joint_instance=joint_instance
         self.rgb_config=None
+        if rgb_fixture_case is not None and (type(rgb_fixture_case) is not int or not 0<=rgb_fixture_case<=3 or rgb_config is None):
+            raise ValueError('RGB calibration fixture needs a configured camera and case 0..3')
+        self.rgb_fixture_case=rgb_fixture_case
         if rgb_config is not None:
             from Simulator.ue55.rgb import config
             if joint_instance is None:raise ValueError('RGB requires an authoritative joint step source')
@@ -119,6 +122,8 @@ class View:
         self._ready = False
         self._started = False
         self._attempt = uuid.uuid4().hex
+        self.rgb_stream_id = self._attempt
+        self.rgb_enabled = rgb_config is not None
         self._root = self.directory / ('view-' + self._attempt)
         self.readback_path = self._root / 'actor.jsonl'
         self.frames_directory = self._root / 'frames'
@@ -201,6 +206,9 @@ class View:
                                     returncode=row['process'].poll()) for row in self._children],
                     readback_path=str(self.readback_path), frames_directory=str(self.frames_directory),
                     rgb_directory=str(self.rgb_directory), rgb_config=self.rgb_config,
+                    rgb_stream_id=self.rgb_stream_id,
+                    rgb_enabled=self.rgb_enabled,
+                    rgb_fixture_case=self.rgb_fixture_case, rgb_fixture_manifest=str(self._root/'rgb-fixture.json'),
                     latest_actor=self._latest, cleanup_pending=self._cleanup_pending,
                     relay=self._relay_record(), resource_held=self._owns_resource,
                     cleanup_scope='Created Popen handles only; UE wrapper descendants and bridge-owned WSL relay reaping unverified')
@@ -271,8 +279,12 @@ class View:
             rgb_args=[]
             if self.rgb_config is not None:
                 rgb_path=self._root/'rgb-config.json'
-                rgb_path.write_text(json.dumps(dict(self.rgb_config,output_directory=str(self.rgb_directory)),allow_nan=False)+'\n',encoding='utf-8')
+                rgb_path.write_text(json.dumps(dict(self.rgb_config,output_directory=str(self.rgb_directory),
+                                                    stream_id=self.rgb_stream_id),allow_nan=False)+'\n',encoding='utf-8')
                 rgb_args=['-WksimRgbConfig='+str(rgb_path)]
+                if self.rgb_fixture_case is not None:
+                    rgb_args+=['-WksimRgbFixtureCase='+str(self.rgb_fixture_case),
+                               '-WksimRgbFixtureManifest='+str(self._root/'rgb-fixture.json')]
             ue = self._launch('ue', [str(ENGINE), build['project'],
                 '/Game/Maps/UrbanBlock?game=/Script/WksimVisual.WksimVisualGameMode',
                 '-game', '-windowed', '-ResX=1280', '-ResY=720', '-NoSound', '-NoSplash', '-unattended',
@@ -444,6 +456,35 @@ class View:
             record=dict(request=request,response=response,observed_unix_s=time.time())
             with (self._root/'view-actions.jsonl').open('a',encoding='utf-8') as stream:
                 stream.write(json.dumps(record,allow_nan=False)+'\n')
+            return record
+
+    def set_rgb_enabled(self, enabled):
+        """Accept capture stop/start; actual new PNGs establish completion."""
+        with self._mutex:
+            if self.rgb_config is None or type(enabled) is not bool or enabled==self.rgb_enabled:
+                raise ValueError('RGB needs an explicit state change on a configured camera')
+            self.poll()
+            if not self._ready or self._latest is None or self._state!='live':
+                raise ValueError('No current joint Actor identity')
+            packet=self._latest['packet']
+            self._view_request_sequence=max(self._view_request_sequence+1,int(time.monotonic()*1000))
+            new_stream=uuid.uuid4().hex if enabled else self.rgb_stream_id
+            request=dict(version=3,kind='rgb_stream_control',run_id=self.run_id,instance_id=self.joint_instance,
+                         epoch=packet['epoch'],generation=packet['generation'],request_sequence=self._view_request_sequence,
+                         stream_id=self.rgb_stream_id,enabled=enabled,next_stream_id=new_stream)
+            with socket.socket(socket.AF_INET,socket.SOCK_DGRAM) as peer:
+                peer.bind(('127.0.0.1',0));peer.settimeout(.75)
+                peer.sendto(json.dumps(request,separators=(',',':')).encode(),('127.0.0.1',PORT))
+                raw,sender=peer.recvfrom(8193)
+            response=json.loads(raw)
+            if sender!=('127.0.0.1',PORT) or len(raw)>8192 or response!=dict(request,kind='rgb_stream_controlled'):
+                raise ValueError('Uncorrelated RGB control response')
+            self.rgb_stream_id,self.rgb_enabled=new_stream,enabled
+            record=dict(request=request,response=response,observed_unix_s=time.time(),
+                        completion='capture state accepted; new images require independent observation')
+            with (self._root/'rgb-actions.jsonl').open('a',encoding='utf-8') as stream:
+                stream.write(json.dumps(record,allow_nan=False)+'\n')
+            self._persist()
             return record
 
     def stop(self):

@@ -72,8 +72,8 @@ void SaveFrame(const TSharedPtr<FWksimRgbWork, ESPMode::ThreadSafe>& W, TArray<F
 {
     if (W->Cancelled.load()) { W->Done.store(true); return; }
     const auto& C = W->Config;
-    const FString Stem = FString::Printf(TEXT("%s_%s_%s_%s_%s_%llu"),
-        *C.RunId, *C.InstanceId, *C.Epoch, *C.VehicleId, *C.SensorId, W->Frame);
+    // Keep names bounded even with maximum-length user run/sensor identities.
+    const FString Stem = FString::Printf(TEXT("rgb_%s_%llu"), *C.StreamId, W->Frame);
     const FString PngPath = FPaths::Combine(C.OutputDirectory, Stem + TEXT(".png"));
     W->MetadataPath = FPaths::Combine(C.OutputDirectory, Stem + TEXT(".json"));
     const FString TempJson = W->MetadataPath + TEXT(".tmp");
@@ -98,10 +98,11 @@ void SaveFrame(const TSharedPtr<FWksimRgbWork, ESPMode::ThreadSafe>& W, TArray<F
     if (Ok && !W->Cancelled.load())
     {
         auto Json = MakeShared<FJsonObject>();
-        Json->SetStringField(TEXT("schema"), TEXT("wksim.rgb.v1"));
+        Json->SetStringField(TEXT("schema"), TEXT("wksim.rgb.v2"));
         Json->SetStringField(TEXT("run_id"), C.RunId);
         Json->SetStringField(TEXT("instance_id"), C.InstanceId);
         Json->SetStringField(TEXT("epoch"), C.Epoch);
+        Json->SetStringField(TEXT("stream_id"), C.StreamId);
         Json->SetStringField(TEXT("vehicle_id"), C.VehicleId);
         Json->SetStringField(TEXT("sensor_id"), C.SensorId);
         // Decimal strings preserve integer identity beyond JSON's binary64 exact range.
@@ -153,11 +154,14 @@ bool UWksimRgbSensor::Configure(const FWksimRgbConfig& C, FString& Error)
     if (Work) { Error = TEXT("RGB pending work must be drained with Poll before reconfiguration"); return false; }
     bConfigured = false;
     if (!ValidId(C.RunId) || !ValidId(C.InstanceId) || !ValidId(C.Epoch) ||
+        !ValidId(C.StreamId) || C.StreamId.Len() != 32 ||
         !ValidId(C.VehicleId) || !ValidId(C.SensorId) || C.Width < 16 || C.Height < 16 ||
         C.Width > 4096 || C.Height > 4096 || int64(C.Width) * C.Height > 4194304 ||
         !FMath::IsFinite(C.HorizontalFovDegrees) || C.HorizontalFovDegrees < 5 || C.HorizontalFovDegrees > 150 ||
         !ValidPose(C.CameraInVehicle) || C.OutputDirectory.IsEmpty() || FPaths::IsRelative(C.OutputDirectory))
     { Error = TEXT("Invalid RGB identity, dimensions, FOV, unit extrinsics or absolute output directory"); return false; }
+    for (TCHAR Cc : C.StreamId) if (!((Cc >= '0' && Cc <= '9') || (Cc >= 'a' && Cc <= 'f')))
+    { Error = TEXT("RGB stream identity must be 32 lowercase hex characters"); return false; }
     if (!GetWorld() || !GetWorld()->Scene || !GetOwner())
     { Error = TEXT("RGB requires a registered owner in a rendering world"); return false; }
     if (!Capture)
@@ -177,9 +181,18 @@ bool UWksimRgbSensor::Configure(const FWksimRgbConfig& C, FString& Error)
         Capture->PostProcessBlendWeight = 0;
         Capture->RegisterComponent();
     }
-    Target = NewObject<UTextureRenderTarget2D>(this, NAME_None, RF_Transient);
-    Target->bAutoGenerateMips = false;
-    Target->InitCustomFormat(C.Width, C.Height, PF_B8G8R8A8, false);
+    if (!Target)
+    {
+        Target = NewObject<UTextureRenderTarget2D>(this, NAME_None, RF_Transient);
+        Target->bAutoGenerateMips = false;
+        Target->InitCustomFormat(C.Width, C.Height, PF_B8G8R8A8, false);
+    }
+    else if (Target->SizeX != C.Width || Target->SizeY != C.Height)
+    {
+        // Keep the resource owner alive across stream/epoch changes. The
+        // engine's resize path updates its existing FTextureResource.
+        Target->ResizeTarget(C.Width, C.Height);
+    }
     Capture->TextureTarget = Target;
     Capture->FOVAngle = C.HorizontalFovDegrees;
     Config = C;
@@ -195,7 +208,7 @@ bool UWksimRgbSensor::RequestCapture(const FWksimRgbRequest& R, FString& Error)
 {
     check(IsInGameThread());
     Error.Reset();
-    if (!bConfigured || R.RunId != Config.RunId || R.InstanceId != Config.InstanceId || R.Epoch != Config.Epoch)
+    if (!bConfigured || R.RunId != Config.RunId || R.InstanceId != Config.InstanceId || R.Epoch != Config.Epoch || R.StreamId != Config.StreamId)
     { ++DroppedStale; Error = TEXT("RGB unconfigured or stale identity"); return false; }
     if (R.Step < 0 || R.Step <= LastStep || !FMath::IsFinite(R.SimTimeSeconds) ||
         R.SimTimeSeconds < 0 || R.SimTimeSeconds < LastSimTime || !ValidPose(R.CameraWorldPose))

@@ -100,8 +100,24 @@ def epoch_run(directory,epoch,generation=1):
     monitor=lifecycle=None
     task_group=None; task_state='idle'; ever_started=False; needs_recovery_task=False
     offer=uuid.uuid4().hex; previous_offer=None; next_status=0.; pending=None; busy_phase=None
-    physics_wait_started=None
+    physics_wait_started=None; last_child_poll=0.
     started=time.monotonic()
+    # Own-process scheduling priority for the latency-critical lockstep loop.
+    # A negative nice needs privilege; the actual value is recorded either way
+    # so a run never silently claims a priority it did not receive.
+    try:
+        os.nice(-10)
+        result['manager_priority']=dict(target=-10,applied=os.getpriority(os.PRIO_PROCESS,0))
+    except OSError as error:
+        result['manager_priority']=dict(target=-10,error=repr(error))
+    # Real-time scheduling bounds preemption by ordinary processes; RT
+    # throttling and host jitter still apply and are not claimed away.
+    try:
+        os.sched_setscheduler(0,os.SCHED_FIFO,os.sched_param(50))
+        result['manager_scheduler']=dict(policy='SCHED_FIFO',priority=50,
+                                         actual_policy=os.sched_getscheduler(0))
+    except OSError as error:
+        result['manager_scheduler']=dict(policy='SCHED_FIFO',priority=50,error=repr(error))
     def interrupted(signum,frame):
         raise InterruptedError('Owned joint epoch interrupted')
     signal.signal(signal.SIGTERM,interrupted)
@@ -132,14 +148,35 @@ def epoch_run(directory,epoch,generation=1):
         next_status=time.monotonic()+.1
         return row
     status(['stop'],'starting')
+    def child_priority(child,role):
+        # Only this manager's own children are ever reniced, right after spawn.
+        target=-10 if role in ('model','fc') else -5
+        record=dict(target=target)
+        try:
+            os.setpriority(os.PRIO_PROCESS,child.pid,target)
+            record['applied']=os.getpriority(os.PRIO_PROCESS,child.pid)
+        except OSError as error:
+            record['error']=repr(error)
+        # Real-time scheduling only for the lockstep-critical model/FC pair;
+        # the applied policy is recorded, never silently assumed.
+        if role in ('model','fc'):
+            try:
+                os.sched_setscheduler(child.pid,os.SCHED_FIFO,os.sched_param(40))
+                record['scheduler']=dict(policy='SCHED_FIFO',priority=40,
+                                         actual_policy=os.sched_getscheduler(child.pid))
+            except OSError as error:
+                record['scheduler']=dict(policy='SCHED_FIFO',priority=40,error=repr(error))
+        return record
     def launch(name,argv,cwd,role):
         log=(output/(name+'.log')).open('x')
         child=subprocess.Popen(argv,cwd=cwd,stdout=log,stderr=log,stdin=subprocess.DEVNULL)
         children.append((name,child,log));specs[child.pid]=dict(name=name,argv=argv,cwd=Path(cwd),role=role)
-        result['children'][name]=dict(identity=json_identity(child.pid),argv=argv,cwd=str(cwd))
+        result['children'][name]=dict(identity=json_identity(child.pid),argv=argv,cwd=str(cwd),
+                                      priority=child_priority(child,role))
         write_json(output/'children.json',result['children'])
         return child
     def physics_health():
+        nonlocal last_child_poll
         if lifecycle is not None:
             lifecycle.periodic()
         now=time.monotonic()
@@ -151,10 +188,16 @@ def epoch_run(directory,epoch,generation=1):
                 result['stop_request']=request
                 result['status']='cold_reset' if request['action']=='cold-reset' else 'stopped'
                 raise OperatorRetirement(request['action'])
-        for name,child,_ in children:
-            if child.poll() is not None and child.pid not in expected and specs[child.pid]['role'] in ('model','fc','control'):
-                expected.add(child.pid)
-                raise RuntimeError(f'{name} exited: {child.returncode}')
+        # Child liveness is polled at most once per millisecond: health runs at
+        # least once per 1ms tick, so exit detection stays <=1ms, far inside
+        # the approved 100ms/500ms/2s/3s/5s supervision budgets. Deadline,
+        # permission and operator-request checks above still run every call.
+        if now>=last_child_poll+.001:
+            last_child_poll=now
+            for name,child,_ in children:
+                if child.poll() is not None and child.pid not in expected and specs[child.pid]['role'] in ('model','fc','control'):
+                    expected.add(child.pid)
+                    raise RuntimeError(f'{name} exited: {child.returncode}')
     def record_images(label):
         observed={}
         for name,child,_ in children:
@@ -264,7 +307,8 @@ def epoch_run(directory,epoch,generation=1):
                 child=subprocess.Popen(argv,cwd=folder,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=log,text=True)
                 name=stack+'-model';children.append((name,child,log));model_workers[stack]=child
                 specs[child.pid]=dict(name=name,role='model',cwd=folder,argv=argv)
-                result['children'][name]=dict(identity=json_identity(child.pid),argv=argv,cwd=str(folder))
+                result['children'][name]=dict(identity=json_identity(child.pid),argv=argv,cwd=str(folder),
+                                              priority=child_priority(child,'model'))
                 plan=launch_spec(admission['configs'][stack],folder,library)
                 agents[stack]=launch(stack+'-agent',plan['agent'],folder,'agent')
                 log=(output/(stack+'-fc.log')).open('x')
@@ -272,7 +316,8 @@ def epoch_run(directory,epoch,generation=1):
                     stdout=log,stderr=log,stdin=subprocess.DEVNULL)
                 name=stack+'-fc';children.append((name,child,log))
                 specs[child.pid]=dict(name=name,role='fc',cwd=folder,argv=plan['fc'])
-                result['children'][name]=dict(identity=json_identity(child.pid),argv=plan['fc'],cwd=str(folder))
+                result['children'][name]=dict(identity=json_identity(child.pid),argv=plan['fc'],cwd=str(folder),
+                                              priority=child_priority(child,'fc'))
                 argv=plan['control']
                 argv=[f'uav_id:={uid}' if value.startswith('uav_id:=') else value for value in argv]
                 argv+=['-p','use_sim_time:=true','-p','scene_epoch:='+epoch,

@@ -34,11 +34,15 @@ def decode_servos(packet):
     return frame, rate, pwm, normalized
 
 
-def sensor_message(state):
+def sensor_fields(state):
     # Use the model's sensor output, NOT Vehicle[24:27] (body velocity derivative).
-    data = {"timestamp": state[2],
+    return {"timestamp": state[2],
             "imu": {"gyro": state[64:67], "accel_body": state[61:64]},
             "position": state[6:9], "quaternion": state[12:16], "velocity": state[3:6]}
+
+
+def sensor_message(state):
+    data = sensor_fields(state)
     return ("\n" + json.dumps(data, separators=(",", ":"), allow_nan=False) + "\n").encode("ascii")
 
 

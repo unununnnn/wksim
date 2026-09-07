@@ -21,6 +21,7 @@ class JointLifecycle:
         self.node, self.clock, self.clock_publisher = node, clock, publisher
         self.observer, self.run_id, self.started = observer, run_id, started
         self.phase, self.sequence, self.next_publish = 'running', 0, 0.
+        self.next_spin = 0.
         self.faulted_uav_ids = []
         self.acks, self.events, self.completed = {}, [], False
         self.log = (directory/'scene-lifecycle.jsonl').open('x', buffering=1)
@@ -85,7 +86,15 @@ class JointLifecycle:
                 self.record('faulted_clock', publication=self.clock_publisher.publications,
                             time_ns=self.clock.tick*1000000)
             self.next_publish = now+PERIOD_SECONDS
-        self.ros.spin_once(self.node, timeout_sec=0)
+        # Several model/socket checks call periodic within the same substep.
+        # Keep permission/deadline/process checks at every original call, but
+        # bound redundant executor dispatch to 500Hz for this two-vehicle node,
+        # matching the existing 2ms wait polling bound. State is 100Hz per
+        # participant; ACKs can also reach 100Hz during pause/recovery.
+        # Explicit phase changes still dispatch immediately; no wait is added.
+        if force or now >= self.next_spin:
+            self.ros.spin_once(self.node, timeout_sec=0)
+            self.next_spin = now+.002
 
     def acknowledged(self):
         now = time.monotonic()

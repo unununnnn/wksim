@@ -5,11 +5,13 @@ flight. It never sends task, arming or mode commands. Inputs are held between
 their native updates; AP next-frame is not a control-calculation-complete ACK.
 """
 import json
+import os
+import gc
 import select
 import socket
 import time
 
-from .ap_json import decode_servos, sensor_message
+from .ap_json import decode_servos, sensor_fields, sensor_message
 from .px4_mavlink import Sender, actuator_commands, gps_arguments
 from .worker import receive_workers
 
@@ -46,6 +48,21 @@ class JointPhysics:
         self.px_commands = [0.0]*16
         self.states = {}
         self.inflight = None
+        # Opt-in diagnostic sampling; disabled in normal product execution.
+        self.cpu_timing = os.environ.get('WKSIM_JOINT_CPU_TIMING') == '1'
+        if self.cpu_timing:
+            collection_start = [None]
+            def gc_timing(phase, info):
+                if phase == 'start':
+                    collection_start[0] = (time.monotonic_ns(), time.thread_time_ns())
+                elif collection_start[0] is not None:
+                    began, cpu = collection_start[0]
+                    collection_start[0] = None
+                    self.record('diagnostic_gc_timing', generation=info['generation'],
+                        collected=info['collected'], wall_start_ns=began, wall_end_ns=time.monotonic_ns(),
+                        thread_cpu_ns=time.thread_time_ns()-cpu)
+            gc.callbacks.append(gc_timing)
+            stack.callback(gc.callbacks.remove, gc_timing)
 
     def wait_readable(self, sock, deadline, stack=None):
         self.health()
@@ -128,6 +145,7 @@ class JointPhysics:
         return False
 
     def advance(self):
+        marks = [(time.monotonic_ns(), time.thread_time_ns())] if self.cpu_timing else None
         self.health()
         tick = self.clock.begin_step()
         ap_frame, px_time = self.pending_ap['frame'], self.px_time
@@ -139,7 +157,10 @@ class JointPhysics:
         self.clock.commit(responses)
         self.inflight['model_ticks']={name:response['tick'] for name,response in responses.items()}
         self.states = {name: response['state'] for name, response in responses.items()}
-        value = json.loads(sensor_message(self.states['arducopter']))
+        if marks is not None: marks.append((time.monotonic_ns(), time.thread_time_ns()))
+        # Single serialization pass; byte-identical to building sensor_message
+        # then parsing/updating/re-encoding (same field order and options).
+        value = sensor_fields(self.states['arducopter'])
         value.update(no_lockstep=False, no_time_sync=False)
         packet = ('\n'+json.dumps(value, separators=(',', ':'), allow_nan=False)+'\n').encode('ascii')
         self.ap.sendto(packet, self.peer)
@@ -153,7 +174,15 @@ class JointPhysics:
                 gps = self.protocol.hil_gps_encode(*gps_arguments(self.states['px4']))
                 self.protocol.send(gps)
                 self.record('gps', stack='px4', raw_hex=bytes(gps.get_msgbuf()).hex())
+        if marks is not None: marks.append((time.monotonic_ns(), time.thread_time_ns()))
         self.finish_inputs()
+        if marks is not None:
+            marks.append((time.monotonic_ns(), time.thread_time_ns()))
+            if marks[-1][0]-marks[0][0] > 2_000_000 or tick % 250 == 0:
+                self.record('diagnostic_step_cpu_timing', wall_start_ns=marks[0][0], wall_end_ns=marks[-1][0],
+                    stages={name:dict(wall_ns=b[0]-a[0],thread_cpu_ns=b[1]-a[1])
+                            for name,a,b in zip(('health_and_models','encode_send','native_inputs'),marks,marks[1:])},
+                    limitation='Thread CPU separates execution from off-CPU time; off-CPU includes I/O wait and descheduling')
         if tick > 4000 and self.px_time is None:
             raise TimeoutError('PX4 actuator startup exceeded four simulation seconds')
         return self.states

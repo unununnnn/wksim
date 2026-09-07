@@ -87,14 +87,11 @@ class JointRate:
             raise RateUnmet(lateness)
 
     def begin_group(self, tick, health):
-        probe_entry=self.now()
         if self.latched or self.anchor is None or self.group is not None or tick!=self.anchor['tick']+self.completed*4:
             raise ValueError('Rate group lacks a current complete anchor')
         ideal=self.anchor['wall_ns']+self.completed*self.period_ns
         earliest=max(ideal,ideal if self.previous_start is None else self.previous_start+self.period_ns)
         health()
-        probe_health_done=self.now()
-        probe_wait_health=probe_sleep=probe_sleep_overshoot=0
         next_health=self.now()+2_000_000
         while True:
             now=self.now()
@@ -103,10 +100,8 @@ class JointRate:
             # Avoid scheduling a callback on the group's exact release edge.
             # The next physical step immediately services health again.
             if now>=next_health and earliest-now>1_000_000:
-                probe_before=self.now()
                 health()
                 now=self.now()
-                probe_wait_health+=now-probe_before
                 next_health=now+2_000_000
             self.check(max(0,now-ideal))
             if now>=earliest: break
@@ -115,20 +110,12 @@ class JointRate:
             # Long waits service health every 2ms; the release guard adds at
             # most 1ms, far below the unchanged 100ms permission cadence.
             remaining=earliest-now
-            if remaining>1_000_000:
-                seconds=min((remaining-1_000_000)/1e9,.002)
-                probe_before=self.now()
-                self.sleep(seconds)
-                probe_elapsed=self.now()-probe_before
-                probe_sleep+=probe_elapsed
-                probe_sleep_overshoot=max(probe_sleep_overshoot,probe_elapsed-round(seconds*1e9))
+            if remaining>1_000_000: self.sleep(min((remaining-1_000_000)/1e9,.002))
         self.group=dict(start_tick=tick,end_tick=tick+4,ideal_start_ns=ideal,
                         ideal_end_ns=ideal+self.period_ns,earliest_start_ns=earliest,actual_start_ns=now)
         self.previous_start=now
         self.record('rate_group_start',segment_id=self.segment_id,request_id=self.request_id,
                     requested_rate=self.requested_rate,transition=self.anchor['transition'],
-                    timing_probe=dict(entry_ns=probe_entry,initial_health_end_ns=probe_health_done,
-                        wait_health_ns=probe_wait_health,sleep_ns=probe_sleep,sleep_max_overshoot_ns=probe_sleep_overshoot),
                     lateness_ns=max(0,now-ideal),**self.group)
 
     def end_group(self, tick):
