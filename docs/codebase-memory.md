@@ -1,5 +1,7 @@
 # Prometheus Codebase Memory
 
+2026-09-07 维护刷新：原生 CLI（显式 CBM_CACHE_DIR/CBM_RUNTIME_DIR）fast+persistence 成功，快照 **50,515 节点 / 163,780 边，ready**，日志 `C:/CBMData/logs/wksim-prometheus-1788790869.log`。覆盖本轮恢复修订/回滚/验证驱动改动后的结构查询基础；部分解析仍为既有第三方头文件，非新缺口。
+
 2026-09-07 RGB 接入前结构查询：先 index_status/detect_changes，再 fast+persistence 成功刷新为46,541节点/158,981边（日志 C:/CBMData/logs/wksim-prometheus-1788745406.log）。图定位 View.start/_work 后读取实际 visual.py。此后新增 RGB/GameMode/准入代码只按已知路径读取，不宣称旧图覆盖新改动；下次依赖新结构的查询仍先检测/刷新。
 
 正式联合入口跟进（2026-09-06/07 JST）：本轮在结构探索前成功刷新并持久化，快照为 **2026-09-06 13:34:37 UTC，46,110 nodes / 155,626 edges**，日志 `C:/CBMData/logs/wksim-prometheus-1788701677.log`。后续 MCP `index_status` 读回同一项目/root 和 ready 计数，见 `validation/product-joint-entry-20260906/index-status.json`；此前600527/712312及持久化失败是历史状态。新正式入口/配置/动作/监视模块在该快照之后添加，之后只按已知路径读取实际源码，并以逐epoch源码副本/哈希、真实运行和原始审计复核；没有用旧图推断新调用结构。下一次依赖这些改动的结构查询仍须检查/刷新，ready和计数不代表Full覆盖或所有路径已索引。
