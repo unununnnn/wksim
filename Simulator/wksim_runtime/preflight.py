@@ -1,4 +1,4 @@
-"""Read-only Linux candidate admission. No FC, ROS node, compiler or child process."""
+"""Read-only Linux admission; no flight, ROS node or compiler is launched."""
 import argparse
 import hashlib
 import importlib.util
@@ -105,8 +105,40 @@ def control_profile(index, protocol, stack, check_file):
                 message_packages=dict(baseline['message_packages'], **profile['installed_packages']))
 
 
+def consumer_rejections(config):
+    errors=[]
+    def reject(key,message):errors.append(dict(code=key+'_invalid',message=message))
+    for key in ('display_socket','telemetry_socket'):
+        if key not in config:continue
+        socket=Path(config[key]);parent=socket.parent
+        if parent.is_symlink() or parent.resolve()!=parent:
+            reject(key,'Consumer directory must not resolve through a symlink')
+        if parent.exists():
+            mode=parent.stat()
+            if not parent.is_dir() or mode.st_uid!=os.getuid() or stat.S_IMODE(mode.st_mode)!=0o700:
+                reject(key,'Consumer directory must be owned by current UID with mode 0700')
+        if socket.is_symlink() or (socket.exists() and not stat.S_ISSOCK(socket.stat().st_mode)):
+            reject(key,'Consumer receiver must be a Unix socket, not a regular file or symlink')
+        if key=='telemetry_socket' and socket.exists():
+            info=socket.stat()
+            if info.st_uid!=os.getuid() or stat.S_IMODE(info.st_mode)!=0o600:
+                reject(key,'Telemetry receiver must be owned by current UID with mode 0600')
+    return errors
+
+
 def preflight(config):
     """Return JSON-safe evidence; ok is candidate admission, never flight readiness."""
+    if isinstance(config,dict) and config.get('kind')=='joint_scene':
+        from .joint_config import validate_joint_config
+        from .joint_profile import check_profile
+        try:
+            normalized=validate_joint_config(config)
+            if platform.system()=='Linux':
+                errors=consumer_rejections(normalized)
+                if errors:return dict(ok=False,reasons=errors,children_created=0,config=normalized)
+            return dict(check_profile(normalized['runtime_profile'],normalized['run_id']),config=normalized)
+        except (OSError,ValueError,TypeError) as error:
+            return dict(ok=False,reasons=[dict(code='invalid_config',message=str(error))],children_created=0)
     result = dict(ok=False, reasons=[], identities={}, capabilities=[], children_created=0)
 
     def reject(code, message):
@@ -137,29 +169,25 @@ def preflight(config):
         if platform.system() != 'Linux':
             reject('unsupported_platform', 'Run inside Ubuntu-22.04 with the selected ROS2 overlays sourced')
             return result
-        for key in ('display_socket', 'telemetry_socket'):
-            if key not in config:
-                continue
-            socket = Path(config[key])
-            parent = socket.parent
-            if parent.is_symlink() or parent.resolve() != parent:
-                reject(key + '_invalid', 'Consumer directory must not resolve through a symlink')
-            if parent.exists():
-                mode = parent.stat()
-                if not parent.is_dir() or mode.st_uid != os.getuid() or stat.S_IMODE(mode.st_mode) != 0o700:
-                    reject(key + '_invalid', 'Consumer directory must be owned by current UID with mode 0700')
-            if socket.is_symlink() or (socket.exists() and not stat.S_ISSOCK(socket.stat().st_mode)):
-                reject(key + '_invalid', 'Consumer receiver must be a Unix socket, not a regular file or symlink')
-            if key == 'telemetry_socket' and socket.exists():
-                info = socket.stat()
-                if info.st_uid != os.getuid() or stat.S_IMODE(info.st_mode) != 0o600:
-                    reject(key + '_invalid', 'Telemetry receiver must be owned by current UID with mode 0600')
+        result['reasons'].extend(consumer_rejections(config))
         if 'telemetry_socket' in config:
             from .telemetry_dialect import load_dialect
             _, result['identities']['telemetry_decoder'] = load_dialect(config['stack'])
         release = dict(line.split('=', 1) for line in Path('/etc/os-release').read_text().splitlines() if '=' in line)
         if release.get('ID', '').strip('"') != 'ubuntu' or release.get('VERSION_ID', '').strip('"') != '22.04':
             reject('unsupported_platform', 'Only Ubuntu 22.04 has a pinned environment')
+        if config.get('runtime_profile'):
+            if result['reasons']:
+                return result
+            from .independent_profile import check_profile
+            consumer_identities=result['identities']
+            result=check_profile(config)
+            result['identities'].update(consumer_identities)
+            if (result['ok'] and 'telemetry_socket' in config
+                    and result['identities']['telemetry_decoder']['fc_commit']!=result['identities']['firmware_commit']):
+                reject('identity_mismatch','Telemetry dialect does not match the pinned firmware commit')
+                result['ok']=False
+            return result
         stack = config['stack']
         protocol = config.get('control_protocol', 'legacy_v1')
         result['control_profile'] = protocol
@@ -230,7 +258,7 @@ def preflight(config):
         if not os.access(agent, os.X_OK):
             reject('resource_not_executable', f'Agent is not executable: {agent}')
         model = evidence['model_build']
-        library = Path(config.get('model_library', model['library']))
+        library = Path(config.get('model_library', index.get('resource_locations', {}).get('model_library', model['library'])))
         config['model_library'] = str(library.resolve())
         check_file('model_library', library, model['library_sha256'])
         check_file('model_archive', model['archive'], model['archive_sha256'])

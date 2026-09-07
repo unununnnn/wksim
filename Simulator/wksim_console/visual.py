@@ -34,7 +34,13 @@ ACTOR_LIMITS = dict(position_cm=2e-4, quaternion_l2=2e-6, sim_time_s=1e-8)
 
 # Executed by WSL python with an argument, never a shell interpolation. The
 # relay repeats these checks before binding and owns/unlinks only its inode.
-_PREPARE_SOCKET = """import os, pathlib, stat, sys
+_PREPARE_SOCKET = """import os, pathlib, stat, subprocess, sys
+# WSL can return an exec process before systemd finishes its boot-time /tmp clear.
+# Wait before creating/binding the admitted socket, without changing host services.
+if pathlib.Path("/run/systemd/system").is_dir():
+    state = subprocess.run(["systemctl", "is-system-running", "--wait"], capture_output=True, text=True, timeout=30)
+    if state.stdout.strip() not in ("running", "degraded"):
+        raise RuntimeError("WSL host initialization did not settle: " + state.stdout.strip())
 p = pathlib.Path(sys.argv[1])
 assert str(p) == sys.argv[1] and p.name == 'state.sock' and p.parent.parent == pathlib.Path('/tmp')
 try:
@@ -90,10 +96,20 @@ class _Cancelled(Exception):
 class View:
     _resource = threading.Lock()
 
-    def __init__(self, directory, run_id, state_socket, repo=REPO):
+    def __init__(self, directory, run_id, state_socket, repo=REPO, *, joint_instance=None, build_manifest=None, rgb_config=None):
         self.directory = Path(directory).resolve()
         self.repo = Path(repo).resolve()
         self.run_id, self.state_socket = run_id, state_socket
+        self.joint_instance=joint_instance
+        self.rgb_config=None
+        if rgb_config is not None:
+            from Simulator.ue55.rgb import config
+            if joint_instance is None:raise ValueError('RGB requires an authoritative joint step source')
+            self.rgb_config=config(rgb_config)
+        self.display_fps=15 if joint_instance is not None else 30
+        self._view_request_sequence=0
+        self._actor_cursor=None
+        self._manifest=Path(build_manifest) if build_manifest is not None else self.repo/'Simulator/ue55/state-build-manifest.json'
         self._mutex = threading.RLock()
         self._cancel = threading.Event()
         self._thread = None
@@ -106,11 +122,15 @@ class View:
         self._root = self.directory / ('view-' + self._attempt)
         self.readback_path = self._root / 'actor.jsonl'
         self.frames_directory = self._root / 'frames'
+        self.rgb_directory = self._root / 'rgb'
         self._latest = None
         self._cleanup_pending = False
 
     def _preflight(self):
         identity(self.run_id, 1)
+        if self.joint_instance is not None:
+            from Simulator.wksim_core.joint_state_stream import hex_identity
+            if not hex_identity(self.joint_instance):raise ValueError('Invalid joint manager instance')
         if not isinstance(self.state_socket, str):
             raise ValueError('state_socket must be a Linux pathname')
         path = PurePosixPath(self.state_socket)
@@ -121,7 +141,7 @@ class View:
             raise ValueError('Socket must be /tmp/<private directory containing run_id>/state.sock')
         if os.name != 'nt':
             raise OSError('UE view is available only on Windows')
-        build = json.loads((self.repo / 'Simulator/ue55/state-build-manifest.json').read_text(encoding='utf-8'))
+        build = json.loads(self._manifest.read_text(encoding='utf-8'))
         if build.get('build_exit_code') != 0 or not build.get('build_inputs'):
             raise ValueError('UE build manifest is incomplete or failed')
         if not ENGINE.is_file() or not Path(build['project']).is_file():
@@ -172,11 +192,15 @@ class View:
 
     def _snapshot(self):
         return dict(state=self._state, error=self._error, run_id=self.run_id,
+                    joint_instance=self.joint_instance,
+                    transport_ready=self._ready,
+                    display_fps=self.display_fps,
                     state_socket=self.state_socket,
                     pids={row['name']: row['process'].pid for row in self._children},
                     processes=[dict(name=row['name'], argv=row['argv'], pid=row['process'].pid,
                                     returncode=row['process'].poll()) for row in self._children],
                     readback_path=str(self.readback_path), frames_directory=str(self.frames_directory),
+                    rgb_directory=str(self.rgb_directory), rgb_config=self.rgb_config,
                     latest_actor=self._latest, cleanup_pending=self._cleanup_pending,
                     relay=self._relay_record(), resource_held=self._owns_resource,
                     cleanup_scope='Created Popen handles only; UE wrapper descendants and bridge-owned WSL relay reaping unverified')
@@ -185,7 +209,16 @@ class View:
         self.directory.mkdir(parents=True, exist_ok=True)
         temporary = self.directory / ('view-' + self._attempt + '.tmp')
         temporary.write_text(json.dumps(self._snapshot(), ensure_ascii=False, allow_nan=False, indent=2) + '\n', encoding='utf-8')
-        os.replace(temporary, self.directory / 'view.json')
+        deadline=time.monotonic()+.25
+        while True:
+            try:
+                os.replace(temporary,self.directory/'view.json')
+                break
+            except PermissionError:
+                # Windows readers can briefly hold a handle without DELETE
+                # sharing. The viewer may wait; physics is a separate process.
+                if time.monotonic()>=deadline:raise
+                time.sleep(.01)
 
     def start(self):
         with self._mutex:
@@ -232,28 +265,23 @@ class View:
             except OSError as error:
                 raise RuntimeError('UE port 19060 busy; refusing to take over') from error
             self.frames_directory.mkdir(parents=True, exist_ok=False)
-            # Exact validated target; existing private directories may be reused
-            # only after their owner/mode and absent socket are checked.
-            created = self._launch('socket-directory', ['wsl.exe', '-d', 'Ubuntu-22.04', '--exec',
-                                   'python3', '-c', _PREPARE_SOCKET, self.state_socket])
-            deadline = time.monotonic() + 10
-            while created.poll() is None:
-                if self._cancel.wait(.05):
-                    raise _Cancelled()
-                if time.monotonic() > deadline:
-                    raise TimeoutError('Private socket directory creation timed out')
-            if created.returncode:
-                raise RuntimeError('Private socket directory unsafe or socket already exists; refusing reuse')
             # Recheck immediately before UE creation, after potentially slow WSL.
             _probe_port()
+            vehicle='joint' if self.joint_instance is not None else '1'
+            rgb_args=[]
+            if self.rgb_config is not None:
+                rgb_path=self._root/'rgb-config.json'
+                rgb_path.write_text(json.dumps(dict(self.rgb_config,output_directory=str(self.rgb_directory)),allow_nan=False)+'\n',encoding='utf-8')
+                rgb_args=['-WksimRgbConfig='+str(rgb_path)]
             ue = self._launch('ue', [str(ENGINE), build['project'],
                 '/Game/Maps/UrbanBlock?game=/Script/WksimVisual.WksimVisualGameMode',
                 '-game', '-windowed', '-ResX=1280', '-ResY=720', '-NoSound', '-NoSplash', '-unattended',
-                '-ExecCmds=' + DISPLAY_COMMANDS, '-WksimVehicle=1',
+                '-ExecCmds=' + DISPLAY_COMMANDS.replace('t.MaxFPS 30','t.MaxFPS '+str(self.display_fps)), '-WksimVehicle='+vehicle,
                 '-WksimRunId=' + self.run_id, '-WksimPort=' + str(PORT),
-                '-abslog=' + str(self._root / 'ue.log'), '-WksimCaptureDir=' + str(self.frames_directory)], visible=True)
+                '-abslog=' + str(self._root / 'ue.log'), '-WksimCaptureDir=' + str(self.frames_directory),
+                *(['-WksimInstance='+self.joint_instance] if self.joint_instance is not None else []), *rgb_args], visible=True)
             deadline = time.monotonic() + STARTUP_TIMEOUT
-            marker = ('WKSIM_READY run=' + self.run_id + ' vehicle=1 port=19060 ').encode()
+            marker = ('WKSIM_READY run=' + self.run_id + ' vehicle='+vehicle+' port=19060 ').encode()
             while marker not in _tail(self._root / 'ue.log'):
                 if self._cancel.wait(.05):
                     raise _Cancelled()
@@ -265,10 +293,23 @@ class View:
             if ue.poll() is not None:
                 self._cleanup_pending = True
                 raise RuntimeError('UE launcher exited at readiness; descendant identity unverified')
+            # Exact validated target; existing private directories may be reused
+            # only after their owner/mode and absent socket are checked.
+            created = self._launch('socket-directory', ['wsl.exe', '-d', 'Ubuntu-22.04', '--exec',
+                                   'python3', '-c', _PREPARE_SOCKET, self.state_socket])
+            deadline = time.monotonic() + 40
+            while created.poll() is None:
+                if self._cancel.wait(.05):
+                    raise _Cancelled()
+                if time.monotonic() > deadline:
+                    raise TimeoutError('Private socket directory creation timed out')
+            if created.returncode:
+                raise RuntimeError('Private socket directory unsafe or socket already exists; refusing reuse')
             bridge = self._launch('bridge', [sys.executable, '-X', 'utf8', '-m', 'Simulator.wksim_console.visual',
                 '--bridge-helper', '--relay-record', str(self._root / 'relay.json'),
                 '--wsl-repo', self._wsl_repo, '--state-socket', self.state_socket, '--run-id', self.run_id,
-                '--vehicle-id', '1', '--port', str(PORT), '--readback', str(self.readback_path)])
+                '--vehicle-id', '1', '--port', str(PORT), '--readback', str(self.readback_path),
+                *(['--instance-id',self.joint_instance] if self.joint_instance is not None else [])])
             with self._mutex:
                 self._ready = True
             while not self._cancel.wait(.1):
@@ -322,8 +363,23 @@ class View:
                 packet, ack = row['packet'], row['ack']
                 # Validate original source clock in its own domain. Windows
                 # freshness is the conservative bound written by product_bridge.
-                validate(packet, self.run_id, 1, now=packet['source_wall_time_s'])
-                errors = actor_errors(packet, ack)
+                if self.joint_instance is not None:
+                    from Simulator.ue55.joint_bridge import joint_actor_errors
+                    if packet.get('run_id')!=self.run_id or packet.get('instance_id')!=self.joint_instance:
+                        continue
+                    errors=joint_actor_errors(packet,ack)
+                    error_groups=list(errors.values())
+                    cursor=(packet['generation'],packet['epoch'],packet['sequence'])
+                    if self._actor_cursor is not None and (cursor[0]<self._actor_cursor[0]
+                            or cursor[0]==self._actor_cursor[0] and
+                               (cursor[1]!=self._actor_cursor[1] or cursor[2]<self._actor_cursor[2])):
+                        continue
+                else:
+                    validate(packet, self.run_id, 1, now=packet['source_wall_time_s'])
+                    errors=actor_errors(packet,ack)
+                    error_groups=[errors]
+                    cursor=packet['sequence']
+                    if self._actor_cursor is not None and cursor<self._actor_cursor:continue
                 # The pinned UE ACK omits these fields. Its correlated packet
                 # supplies vehicle identity and the clock below supplies age.
                 # If an ACK does supply them, never ignore disagreement.
@@ -333,8 +389,8 @@ class View:
                 for key in ('vehicle_id', 'vehicleID'):
                     if key in ack and (type(ack[key]) is not int or ack[key] != 1):
                         return None, False
-                if any(not math.isfinite(errors[key]) or errors[key] > limit
-                       for key, limit in ACTOR_LIMITS.items()):
+                if any(not math.isfinite(group[key]) or group[key] > limit
+                       for group in error_groups for key,limit in ACTOR_LIMITS.items()):
                     # Do not fall back to an older good ACK and hide the latest
                     # correlated Actor mismatch as a currently live view.
                     return None, False
@@ -344,8 +400,10 @@ class View:
                         not 0 <= bound <= MAX_AGE):
                     continue
                 age = time.time() - stamp
+                peers_fresh=self.joint_instance is None or all(not item['stale'] for item in ack['observed_vehicles'])
+                self._actor_cursor=cursor
                 return dict(ack=ack, packet=packet, age_s=age, errors=errors,
-                            clock='windows_utc_bound'), -0.25 <= age <= MAX_AGE
+                            clock='windows_utc_bound'), -0.25 <= age <= MAX_AGE and peers_fresh
             except (ValueError, TypeError, KeyError, AttributeError, OverflowError, RecursionError):
                 continue
         return None, False
@@ -364,6 +422,29 @@ class View:
             self._persist()
             return self._snapshot()
 
+
+    def select_vehicle(self,vehicle_id):
+        """Select the camera only; this endpoint has no route to flight control."""
+        with self._mutex:
+            if self.joint_instance is None or type(vehicle_id) is not int or vehicle_id not in (1,2):
+                raise ValueError('Joint camera selection requires vehicle 1 or 2')
+            if not self._ready or self._latest is None:raise ValueError('No current joint Actor identity')
+            packet=self._latest['packet']
+            self._view_request_sequence=max(self._view_request_sequence+1,int(time.monotonic()*1000))
+            request=dict(version=3,kind='joint_view_select',run_id=self.run_id,instance_id=self.joint_instance,
+                         epoch=packet['epoch'],generation=packet['generation'],request_sequence=self._view_request_sequence,
+                         vehicle_id=vehicle_id)
+            with socket.socket(socket.AF_INET,socket.SOCK_DGRAM) as peer:
+                peer.bind(('127.0.0.1',0));peer.settimeout(.75)
+                peer.sendto(json.dumps(request,separators=(',',':')).encode(),('127.0.0.1',PORT))
+                raw,sender=peer.recvfrom(8193)
+            response=json.loads(raw)
+            if sender!=('127.0.0.1',PORT) or len(raw)>8192 or response!=dict(request,kind='joint_view_selected'):
+                raise ValueError('Uncorrelated camera selection response')
+            record=dict(request=request,response=response,observed_unix_s=time.time())
+            with (self._root/'view-actions.jsonl').open('a',encoding='utf-8') as stream:
+                stream.write(json.dumps(record,allow_nan=False)+'\n')
+            return record
 
     def stop(self):
         self._cancel.set()
@@ -400,6 +481,7 @@ def _bridge_helper():
     parser.add_argument('--vehicle-id', type=int, default=1)
     parser.add_argument('--port', type=int, default=PORT)
     parser.add_argument('--readback', required=True)
+    parser.add_argument('--instance-id')
     args = parser.parse_args()
     record = Path(args.relay_record)
     guard = threading.RLock()
@@ -443,7 +525,8 @@ def _bridge_helper():
     threading.Thread(target=close_on_request, daemon=True).start()
     try:
         product_bridge.bridge(args.wsl_repo, args.state_socket, args.run_id,
-                              args.vehicle_id, args.port, args.readback)
+                              args.vehicle_id, args.port, args.readback,
+                              **({'instance_id':args.instance_id} if args.instance_id is not None else {}))
     except (ConnectionError, ValueError, OSError, _Cancelled):
         if not closing.is_set():
             raise

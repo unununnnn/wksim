@@ -92,6 +92,19 @@ class SceneLeaseTests(unittest.TestCase):
 
 @unittest.skipUnless(SCENE_AVAILABLE and os.environ.get('WK_SCENE_ROS_TESTS') == '1', 'explicit isolated ROS environment')
 class RealSceneNodeTests(unittest.TestCase):
+    def test_recovery_requires_home_and_fresh_airborne_evidence(self):
+        from types import SimpleNamespace as NS
+        from prometheus_control.node import ControlNode
+        state=NS(connected=True,armed=True,header=NS(stamp=NS(sec=11,nanosec=0)))
+        node=NS(scene_recovery=dict(generation=7,frozen_ns=10_000_000_000),revoked=True,
+            native=NS(generation=7,clock_invalid=False,available=lambda:True,navigation_valid=True,flying=True),
+            processor=NS(home=(0.,0.,0.)),unfrozen_state=lambda:state,scene_endpoints=lambda:{'state':'writer'})
+        self.assertTrue(ControlNode.recovery_state_ready(node))
+        for home,flying in ((None,True),((0.,0.,0.),None),((0.,0.,0.),False)):
+            node.processor.home=home
+            node.native.flying=flying
+            self.assertFalse(ControlNode.recovery_state_ready(node))
+
     def test_native_hold_observation_does_not_enable_position_output_during_failsafe(self):
         from types import SimpleNamespace as NS
         from unittest.mock import Mock

@@ -1,5 +1,11 @@
 # DDS 恢复进行中检查点
 
+后续新鲜度根因、无Gazebo PX4及恢复/原子交接修复已完成限定候选验收，见[新报告](../2026-09-06_native-state-cadence-report.md)和[归档检查点](2026-09-06-native-state-cadence-wip.md)。最新三场当前源码审计通过、127组无残留；下一工作为正式产品配置/联合入口。下文为较早历史。
+
+本检查点的最终健康回归、矩阵、审计与残留汇总已完成，见[收口报告](../2026-09-06_joint-dds-recovery-report.md)。新增健康场u46hqids当前源码通过、6个审计负例正确拒绝、138组无残留；PX4旧案例因后续运行器身份保护增强，按其封存源码通过，不能把旧current=true字段当作今天全源码一致。下文保留原检查点历史，后续按新报告的剩余门槛推进。
+
+下一项可执行工作是保留失败kj284sh1的原生新鲜度精确观测：`validation/joint-dds-recovery-final-20260906/px4-landing-diagnosis.json`和`decode_px4_landing.py`已经按归档CDR/ULog复现21.747ms公共状态失效。1仿真秒estimator发布间隔对应2.026墙钟秒，强指向2s新鲜度，但Control实际接收时刻缺失，仍是假设。下一轮只补Control各源接收时间/年龄与有效性原因、原始estimator/GPS/attitude及发布者身份，再有界验证，不放宽2s或过滤无效状态。两位本轮侧线均已结束；续派接口不能明确选择模型/effort，不复用它们；若需要新代理须重新显式选择并核验astra/low。
+
 完整Goal继续active；此文件是工作检查点，不是阶段验收报告。上一Goal轮属于实际进展，当前轮也已有代码、实测和失败诊断。
 
 ## 当前授权与工作区

@@ -4,7 +4,7 @@ import json
 import math
 from pathlib import Path
 
-from audit_joint_flight import audit_timeline,digest,lines,require,verify_control_candidate,AUDIT_OUTPUTS,REPO
+from audit_joint_flight import audit_timeline,digest,lines,require,verify_control_candidate,verify_px4_candidate,AUDIT_OUTPUTS,REPO
 from probe_joint_clock import group_members,json_identity
 
 
@@ -15,6 +15,10 @@ def audit(root,current=False):
     result=json.loads((root/'result.json').read_text())
     require(result['status']=='pass' and result['flight_completed'] and result['source_unchanged']
             and not result['cleanup_errors'],'Recovery experiment did not pass')
+    require(result['bounds']==dict(wall_seconds=900,simulation_ticks=180000,task_position_error_m=.5,
+            task_speed_m_s=.5,takeoff_min_height_m=2.5,ground_abs_height_m=.3),'Predeclared bounds changed')
+    require(result['final_authority']['phase']=='stopped' and 0<result['final_authority']['tick']<=180000
+            and result['final_authority']['tick']%4==0,'Bad final recovery authority')
     recovery=result['dds_recovery']; affected=result['dds_loss_requested']; epoch=result['scene_epoch']
     require(recovery['status']=='pass' and affected in ('arducopter','px4')
             and recovery['affected_stack']==affected,'Wrong fault scenario')
@@ -22,6 +26,7 @@ def audit(root,current=False):
         require(digest(root/('source__'+name.replace('/','__')+'.txt'))==checksum,'Source snapshot differs')
         if current: require(digest(REPO/name)==checksum,'Current executed source differs: '+name)
     control=verify_control_candidate(root,result,current)
+    px4_candidate=verify_px4_candidate(root,result)
     for stack in ('arducopter','px4'):
         require(json.loads((root/(stack+'-preflight.json')).read_text())['ok'],'Candidate admission failed')
     require(digest(root/'ap-build.json')==result['manifest_sha256']['ap'],'AP build manifest changed')
@@ -47,8 +52,6 @@ def audit(root,current=False):
         require(all(observed['expected'][key]==observed['observed'][key] for key in ('pid','pgid','start_ticks'))
                 and Path(observed['executable']).resolve()==Path(dead['argv'][0]).resolve(),
                 'Failure injection was not bound to the actual owned Agent executable')
-    px_identity=json.loads((root/'px4-preflight.json').read_text())['identities']['firmware']
-    require(digest(Path(result['children']['px4-fc']['argv'][0]))==px_identity['expected_sha256'],'Actual PX4 firmware changed')
     before=recovery['before_failure']; frozen=recovery['frozen']; restored=recovery['reconnected_frozen']
     require(before['models']==frozen['models']==restored['models'],'Agent loss/restart changed frozen physics')
     require(frozen['authority']==restored['authority'] and frozen['authority']['phase']=='faulted'
@@ -92,12 +95,21 @@ def audit(root,current=False):
             and recovery_wall>markers['agent_restarted']['wall']
             and markers['new_task_authorized']['wall']>=markers['physics_recovery_verified']['wall'],
             'Restart or task dispatch implicitly bypassed explicit physical recovery')
+    authorization=json.loads((root/'recovery-go.json').read_text())
+    require(authorization==recovery['new_task_authorization']==markers['new_task_authorized']['authorization']
+            and authorization['version']==1 and authorization['run_id']==result['run_id']
+            and authorization['epoch']==epoch and authorization['action']=='new_recovery_task'
+            and authorization['scene_request_id']==physical['recovered']['last_request_id']
+            and set(authorization['tasks'])=={'arducopter','px4'},'Recovery task authorization differs')
     for row in lines(root/'joint-wire.jsonl'):
         if row['kind'] in ('step','sensor','gps'):
             require(not detection_wall<=row['wall']<recovery_wall,'Physics advanced after loss detection and before explicit recovery')
+    raw_events={1:[],2:[]}
     for row in lines(root/'pause-dds.jsonl'):
         if row['topic'].endswith('/text_info'):
             event=json.loads(deserialize_message(bytes.fromhex(row['cdr_hex']),TextInfo).message)
+            for uid in raw_events:
+                if row['topic']==f'/uav{uid}/prometheus/text_info': raw_events[uid].append(event)
             if event['event']=='scene_native_sources_bound': bound[row['topic']]=event['native_endpoints']
             if event['event']=='scene_native_sources_retired': retired[row['topic']]=event['native_endpoints']
     key=f'/uav{1 if affected=="arducopter" else 2}/prometheus/text_info'
@@ -120,6 +132,9 @@ def audit(root,current=False):
     for uid,ack in physical['control_ack'].items():
         require(ack in acks and ack['ready'] and ack['task_control_released'] and ack['phase']=='recovering'
                 and ack['source_boot_ns']>freeze_tick*1000000 and ack['native_endpoints'], 'Recovery used old native evidence')
+        if ack.get('readiness')=='native_link_navigation_home_and_airborne':
+            require(ack.get('home_initialized') is True and ack.get('native_flying') is True,
+                    'Recovery acknowledged missing home or native airborne evidence')
         if int(uid)==(1 if affected=='arducopter' else 2):
             require(not set(ack['native_endpoints'].values())&set(retired[key].values()),'Old Agent writer admitted after restart')
 
@@ -144,11 +159,45 @@ def audit(root,current=False):
         floor=max(request['request_id'] for request in old_requests)
         require([request['request_id'] for request in new_requests]==list(range(floor+1,floor+1+len(new_requests))),
                 'Recovery reused old public request identities')
+        offer=authorization['tasks'][stack]
+        if 'native_hold_policy' in offer:
+            require(offer['native_hold_policy']=='explicit_before_task_control' and stack=='px4'
+                    and allow_hold and native_hold,'Explicit native hold entry was not executed')
+        ready=json.loads((root/(stack+'-recovery')/'ready.json').read_text())
+        require(ready['run_id']==result['run_id'] and ready['scene_epoch']==epoch and ready['task_mode']=='recover'
+                and ready['request_high_water']==floor and ready['start_token']==offer['start_token']
+                and ready['uav_id']==offer['uav_id']==uid
+                and ready['control_epoch']==offer['control_epoch']==fresh['task']['control_epoch'],
+                'New task did not match its authorized ready identity')
+        sent=[request.get('setup',request.get('command')) for request in new_requests]
+        require(sent==fresh['task']['sent'] and fresh['use_sim_time']
+                and all(request['version']==1 and request['run_id']==result['run_id']
+                        and request['control_epoch']==offer['control_epoch'] for request in new_requests),
+                'Recovery public envelope or sent payload identity differs')
+        logged_requests=[]; logged_payloads=[]
+        for row in lines(root/(stack+'-recovery')/'prometheus.jsonl'):
+            if row.get('request_envelope'): logged_requests.append(row['message'])
+            if 'public_payload' in row: logged_payloads.append(row['message'])
+            if row.get('topic','').startswith('/uav'):
+                require(row['topic'].startswith(f'/uav{uid}/prometheus/'),'Recovery public topic crossed vehicle identity')
+        require(logged_requests==new_requests and logged_payloads==sent,'Logged public recovery requests differ')
+        native_acks=[event for event in fresh['task']['events'] if event['event']=='native_ack' and event['accepted']]
+        require(all(event in raw_events[uid] for event in native_acks),'Recovery acknowledgement differs from raw DDS')
+        for request in new_requests:
+            def matches(event):
+                return (event.get('version')==1 and event.get('run_id')==result['run_id']
+                        and event.get('control_epoch')==offer['control_epoch']
+                        and event.get('request_id')==request['request_id'])
+            require(any(matches(event) for event in native_acks),'New request lacks its own native acknowledgement')
+            completion='setup_completed' if 'setup' in request else 'command_accepted'
+            require(any(matches(event) and event['event']==completion for event in raw_events[uid]),
+                    'New request lacks raw public acceptance or takeover confirmation')
         if native_hold:
             require(new_requests[0]['setup']['px4_mode']=='AUTO.LOITER'
-                    and physical['control_ack'][str(uid)]['native_failsafe']
-                    and not physical['control_ack'][str(uid)]['command_control_eligible'],
-                    'Native hold was not an explicit new response to the actual FC failsafe')
+                    and (offer.get('native_hold_policy')=='explicit_before_task_control'
+                         or physical['control_ack'][str(uid)]['native_failsafe']
+                            and not physical['control_ack'][str(uid)]['command_control_eligible']),
+                    'Native hold was not explicitly selected by the new task offer')
         main_requests=new_requests[1:] if native_hold else new_requests
         require(main_requests[0]['setup']['control_state']=='COMMAND_CONTROL'
                 and main_requests[1]['command']['agent_cmd']==3
@@ -156,7 +205,9 @@ def audit(root,current=False):
         for request in new_requests:
             body=request.get('setup',request.get('command'))
             stamp=body['header']['stamp']['sec']*10**9+body['header']['stamp']['nanosec']
-            require(stamp>=physical['recovered']['time_ns'],'New task sent before physical recovery')
+            require(physical['recovered']['time_ns']<=stamp<=result['final_authority']['time_ns']
+                    and stamp%1000000==0 and body['header']['frame_id']=='map',
+                    'New task sent before physical recovery or outside the scene frame/time')
         require(len([event for event in fresh['task']['events'] if event['event']=='native_ack' and event['accepted']])>=len(new_requests),
                 'New task lacks actual native acknowledgements')
         phases={event['phase']:event for event in fresh['phases']}
@@ -178,12 +229,15 @@ def audit(root,current=False):
                 'New task did not reach valid landed/disarmed state')
         summaries[stack]=dict(old_task_status='failed',new_request_ids=[r['request_id'] for r in new_requests],
             explicit_native_hold=native_hold,
+            native_hold_policy=offer.get('native_hold_policy'),
+            authorization_and_public_log_verified=True,raw_correlated_native_acks=len(native_acks),
             physical_hold_max_error_m=error,physical_hold_max_speed_m_s=speed,control_epoch=fresh['task']['control_epoch'])
     return dict(status='pass',scope='actual Agent termination/restart, frozen joint scene, explicit physical recovery and new public tasks',
         affected_stack=affected,freeze_tick=freeze_tick,requested_loss_tick=recovery['injection']['tick'],
         recovery_wall_seconds=physical['wall_seconds'],old_agent_pid=dead['identity']['pid'],new_agent_pid=new['identity']['pid'],
         extra_physics_steps_while_faulted=0,retired_native_sources=retired,tasks=summaries,timeline=timeline,
         current_source_verification=current,owned_groups_without_residue=expected_groups,native_dds_cli=native_cli,
+        px4_candidate=px4_candidate,
         result_sha256=digest(root/'result.json'))
 
 

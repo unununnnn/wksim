@@ -1,0 +1,218 @@
+{
+  "status": "pass",
+  "runs": [
+    {
+      "status": "pass",
+      "stack": "px4",
+      "run_id": "matlab-flight-px4-bb855f5e07",
+      "control_epoch": "df4d8dbdf6054cd4a668b79b6922bd77",
+      "runtime_profile": "independent_quad_dds_v1",
+      "firmware_sha256": "93b4ebe0d83a5897131ec24ee58d732c8999972bb7730f429fc396bc8d10602a",
+      "physics": {
+        "ok": true,
+        "completed_waypoints": [
+          {
+            "index": 1,
+            "start_record_exclusive": 2415,
+            "end_record_inclusive": 2917,
+            "physical_duration_s": 10.04,
+            "max_position_error_m": 0.4395927730456718,
+            "max_speed_m_s": 0.46400205829356544,
+            "max_yaw_error_rad": 0.0041935561458055215
+          },
+          {
+            "index": 2,
+            "start_record_exclusive": 2998,
+            "end_record_inclusive": 3502,
+            "physical_duration_s": 10.079999999999998,
+            "max_position_error_m": 0.12814392439181907,
+            "max_speed_m_s": 0.29348619842216705,
+            "max_yaw_error_rad": 0.12539353063066905
+          },
+          {
+            "index": 3,
+            "start_record_exclusive": 3616,
+            "end_record_inclusive": 4120,
+            "physical_duration_s": 10.079999999999998,
+            "max_position_error_m": 0.16614114503308464,
+            "max_speed_m_s": 0.2570311223205655,
+            "max_yaw_error_rad": 0.0018239961157162643
+          },
+          {
+            "index": 4,
+            "start_record_exclusive": 4238,
+            "end_record_inclusive": 4740,
+            "physical_duration_s": 10.040000000000006,
+            "max_position_error_m": 0.09581558136451396,
+            "max_speed_m_s": 0.21744454643094782,
+            "max_yaw_error_rad": 0.03268109339611902
+          },
+          {
+            "index": 5,
+            "start_record_exclusive": 4834,
+            "end_record_inclusive": 5329,
+            "physical_duration_s": 9.900000000000006,
+            "max_position_error_m": 0.09426536029178223,
+            "max_speed_m_s": 0.18714120386516256,
+            "max_yaw_error_rad": 0.12336933422825402
+          },
+          {
+            "index": 6,
+            "start_record_exclusive": 5451,
+            "end_record_inclusive": 5950,
+            "physical_duration_s": 9.980000000000004,
+            "max_position_error_m": 0.1953608013240951,
+            "max_speed_m_s": 0.1781498770696326,
+            "max_yaw_error_rad": 0.003221469166726054
+          }
+        ],
+        "complete_physical_records": 6443,
+        "thresholds": {
+          "position_m": 0.5,
+          "speed_m_s": 0.5,
+          "yaw_rad": 0.15
+        },
+        "clocks": "public boot dwell and independent physical intervals are separate"
+      },
+      "public_native_acks": 8,
+      "public_requests": 14,
+      "streamed_position_request_ids": [
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "post_exit_observations": 42,
+      "post_exit_physics_seconds": 63.14,
+      "visual": null,
+      "source_audit": {
+        "mode": "current-checkout",
+        "current_checkout_accepted": true
+      },
+      "source_dependencies_checked": 21,
+      "limitations": [
+        "Native ACKs are recorded public events; this audit adds no independent raw DDS observer.",
+        "Streamed position targets have public command acceptance and physical completion, not a per-target native ACK.",
+        "Normal MATLAB cancel is not exercised by these completed-mission cases.",
+        "Independent profile selects the pinned autonomous-model/firmware builds; this audit is not a whole-flight loader trace or G6/Full claim.",
+        "Process exit assertions are contemporaneous records; current-host cleanup is recorded separately."
+      ]
+    },
+    {
+      "status": "pass",
+      "stack": "arducopter",
+      "run_id": "matlab-flight-arducopter-9519837b8b",
+      "control_epoch": "58b16d72569641289824eec00ac23f85",
+      "runtime_profile": "independent_quad_dds_v1",
+      "firmware_sha256": "083971caff8883188488b02ec18a8ef17141fe948b520b3c597a6109e8c2d7de",
+      "physics": {
+        "ok": true,
+        "completed_waypoints": [
+          {
+            "index": 1,
+            "start_record_exclusive": 3822,
+            "end_record_inclusive": 4327,
+            "physical_duration_s": 10.099999999999994,
+            "max_position_error_m": 0.19571777109224509,
+            "max_speed_m_s": 0.28250481748238704,
+            "max_yaw_error_rad": 0.008022212441991527
+          },
+          {
+            "index": 2,
+            "start_record_exclusive": 4456,
+            "end_record_inclusive": 4959,
+            "physical_duration_s": 10.059999999999988,
+            "max_position_error_m": 0.05920291882573244,
+            "max_speed_m_s": 0.02030424121761675,
+            "max_yaw_error_rad": 0.09192671412625919
+          },
+          {
+            "index": 3,
+            "start_record_exclusive": 5060,
+            "end_record_inclusive": 5560,
+            "physical_duration_s": 10.0,
+            "max_position_error_m": 0.06626793191122628,
+            "max_speed_m_s": 0.05875487144643014,
+            "max_yaw_error_rad": 0.004378072070112093
+          },
+          {
+            "index": 4,
+            "start_record_exclusive": 5696,
+            "end_record_inclusive": 6197,
+            "physical_duration_s": 10.019999999999996,
+            "max_position_error_m": 0.08360711863845711,
+            "max_speed_m_s": 0.060426426490186896,
+            "max_yaw_error_rad": 0.09640902437976195
+          },
+          {
+            "index": 5,
+            "start_record_exclusive": 6332,
+            "end_record_inclusive": 6834,
+            "physical_duration_s": 10.039999999999992,
+            "max_position_error_m": 0.06201929570663434,
+            "max_speed_m_s": 0.01767193602944952,
+            "max_yaw_error_rad": 0.08634859794773675
+          },
+          {
+            "index": 6,
+            "start_record_exclusive": 6943,
+            "end_record_inclusive": 7447,
+            "physical_duration_s": 10.080000000000013,
+            "max_position_error_m": 0.0541124027181013,
+            "max_speed_m_s": 0.039242318331935165,
+            "max_yaw_error_rad": 0.008110328314593795
+          }
+        ],
+        "complete_physical_records": 7965,
+        "thresholds": {
+          "position_m": 0.5,
+          "speed_m_s": 0.5,
+          "yaw_rad": 0.15
+        },
+        "clocks": "public boot dwell and independent physical intervals are separate"
+      },
+      "public_native_acks": 8,
+      "public_requests": 14,
+      "streamed_position_request_ids": [
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "post_exit_observations": 47,
+      "post_exit_physics_seconds": 72.24000000000001,
+      "visual": {
+        "actor_packets": 2180,
+        "max_actor_error": {
+          "position_cm": 9.641039970257843e-05,
+          "quaternion_l2": 1.087351339311671e-06,
+          "sim_time_s": 2.842170943040401e-14
+        },
+        "live_frames": 23,
+        "post_exit_sequence": [
+          81088,
+          152740
+        ]
+      },
+      "source_audit": {
+        "mode": "current-checkout",
+        "current_checkout_accepted": true
+      },
+      "source_dependencies_checked": 21,
+      "limitations": [
+        "Native ACKs are recorded public events; this audit adds no independent raw DDS observer.",
+        "Streamed position targets have public command acceptance and physical completion, not a per-target native ACK.",
+        "Normal MATLAB cancel is not exercised by these completed-mission cases.",
+        "Independent profile selects the pinned autonomous-model/firmware builds; this audit is not a whole-flight loader trace or G6/Full claim.",
+        "Process exit assertions are contemporaneous records; current-host cleanup is recorded separately."
+      ]
+    }
+  ],
+  "audit_sha256": "61b32072934dbd743ae3b0d3c0686e63d3bd6c9f7606721484a0fa653c129c89"
+}

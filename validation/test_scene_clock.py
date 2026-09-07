@@ -125,6 +125,29 @@ class SceneClockTests(unittest.TestCase):
             self.request('recover')
         self.assertEqual(self.clock.tick,5)
 
+    def test_input_fault_requires_exact_repair_before_explicit_recovery(self):
+        self.advance()
+        for tick in range(5,9):
+            self.clock.begin_step();self.clock.commit(self.responses(tick))
+            self.clock.acknowledge_ap(tick)
+        frozen=self.clock.suspend_input('px4 input deadline')
+        self.assertTrue(frozen['input_pending'])
+        with self.assertRaises(ValueError): self.request('recover')
+        with self.assertRaises(ValueError): self.clock.repair_input(8,7000)
+        self.assertEqual(self.clock.tick,8)
+        self.clock.repair_input(8,8000)
+        self.assertEqual(self.clock.phase,'faulted')
+        with self.assertRaises(ValueError): self.clock.begin_step()
+        self.request('recover')
+        self.assertEqual(self.clock.begin_step(),9)
+
+    def test_partial_model_cannot_be_repaired_as_an_input_delay(self):
+        self.advance()
+        self.clock.begin_step()
+        with self.assertRaises(ValueError): self.clock.suspend_input('model incomplete')
+        self.clock.fault('model RPC timeout')
+        with self.assertRaises(ValueError): self.clock.repair_input(5,4000)
+
 
 @unittest.skipUnless(os.environ.get('WK_SCENE_ROS_TESTS') == '1', 'explicit private ROS test environment required')
 class RosClockTests(unittest.TestCase):

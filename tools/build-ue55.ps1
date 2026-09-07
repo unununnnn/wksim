@@ -51,6 +51,8 @@ $assetInputs = @(foreach ($relative in $assetPaths) {
 $inputPaths = @(
     'Source/WksimVisual/WksimVisualGameMode.cpp',
     'Source/WksimVisual/WksimVisualGameMode.h',
+    'Source/WksimVisual/WksimRgbSensor.cpp',
+    'Source/WksimVisual/WksimRgbSensor.h',
     'Source/WksimVisual/WksimVisual.Build.cs',
     'Source/WksimVisual.Target.cs',
     'Source/WksimVisualEditor.Target.cs',

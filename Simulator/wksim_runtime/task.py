@@ -399,24 +399,25 @@ class Task:
                 or getattr(self, '_recovery_started', False)):
             raise RuntimeError('Airborne recovery requires a new session task with shared ROS time')
         self._recovery_started = True
+        native_hold = allow_native_hold and self.flight_stack=='px4'
         entered_at = time.monotonic()
         def airborne():
             return self.fresh() and self.state.armed and self.state.position[2] > 0.3
         self.wait('airborne_recovery_public_ready', lambda: (self.recovery_transport_fresh()
-                  if allow_native_hold and self.flight_stack=='px4' else self.fresh())
+                  if native_hold else self.fresh())
                   and self.state.armed and self.state.position[2]>0.3
                   and self.received.get('state', 0) > entered_at and self.epoch is not None
                   and self.setup_pub.get_subscription_count() == 1
                   and self.command_pub.get_subscription_count() == 1, 55)
-        if type(self.request_id) is not int or not 0 <= self.request_id <= 2**32-3:
+        if type(self.request_id) is not int or not 0 <= self.request_id <= 2**32-(4 if native_hold else 3):
             raise RuntimeError('Airborne recovery request high-water mark exceeds command_id range')
         self._recovery_request_floor = self.request_id
         self.log.write(json.dumps(dict(new_airborne_recovery=True, run_id=self.run_id,
             control_epoch=self.epoch, previous_request_high_water=self.request_id)) + '\n')
-        if allow_native_hold and self.flight_stack=='px4' and not self.state.odom_valid:
-            # A returned DDS link can still report the FC's real Offboard-loss
-            # failsafe. This explicit new mode request lets PX4 accept/reject a
-            # safe autonomous hold; no flags are cleared or invented here.
+        if native_hold:
+            # Execute the explicitly selected new-task entry even if the first
+            # recovered sample is healthy: Offboard-loss failsafe may arrive
+            # after physical readiness. The native FC still accepts/rejects it.
             self._recovery_mode_request=True
             try:
                 self.send(self.Setup(cmd=self.Setup.SET_PX4_MODE,px4_mode='AUTO.LOITER'),

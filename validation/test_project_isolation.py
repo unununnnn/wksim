@@ -14,7 +14,15 @@ class ProjectIsolationTests(unittest.TestCase):
         for path in (ROOT/'Simulator/wksim_runtime/examples').glob('*.json'):
             config = json.loads(path.read_text())
             if 'px4_root' in config:
-                self.assertEqual(config['px4_root'], expected, str(path))
+                if config.get('runtime_profile')=='independent_quad_dds_v1':
+                    from Simulator.wksim_runtime.independent_profile import select_config
+                    checked,profile=select_config(config)
+                    from pathlib import PurePosixPath
+                    pinned=str(PurePosixPath(profile['manifests']['px4']['path']).parent/'src')
+                    self.assertEqual(checked['px4_root'], pinned, str(path))
+                    self.assertTrue(pinned.startswith('/root/wksim-'))
+                else:
+                    self.assertEqual(config['px4_root'], expected, str(path))
 
     def test_active_entry_points_have_no_sibling_absolute_paths(self):
         blocked = ('/opt/aerotwinsim/', '/root/aerotwinsim-', 'build/aesim-')

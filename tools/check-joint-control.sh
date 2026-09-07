@@ -26,6 +26,7 @@ export ROS_DOMAIN_ID=79 ROS_LOCALHOST_ONLY=1 RMW_IMPLEMENTATION=rmw_fastrtps_cpp
 export WKSIM_TASK_IDENTITY_ROS=1 WKSIM_JOINT_CONTROL_TESTS=1
 exec python3 -B -m unittest validation.test_control_operation_clock validation.test_prometheus_native \
   validation.test_task_identity validation.test_wksim_mission_task validation.test_wksim_runtime \
-  validation.test_joint_evidence validation.test_joint_control_candidate validation.test_control_shutdown -v
+  validation.test_joint_evidence validation.test_joint_control_candidate validation.test_control_shutdown \
+  validation.test_joint_lifecycle_deadline validation.test_joint_retirement -v
 ' > "$evidence/tests.log" 2>&1
 printf 'Candidate tests passed: %s\n' "$evidence"

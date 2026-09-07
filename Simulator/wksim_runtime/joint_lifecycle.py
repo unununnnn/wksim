@@ -126,10 +126,13 @@ class JointLifecycle:
         if self.phase != 'recovering' or self.clock.phase != 'running':
             raise ValueError('Physical recovery requires an explicit current recovery request')
         started = self.recovery_started
-        while not self.acknowledged() or self.clock.tick % 4:
+        while True:
+            ready = self.acknowledged() and self.clock.tick % 4 == 0
             if time.monotonic()-started >= 5:
                 self.communication_fault('native_recovery_readiness_timeout')
                 raise TimeoutError('Explicit communication recovery did not regain fresh native state in 5s')
+            if ready:
+                break
             advance()
         if any(value['source_boot_ns'] <= frozen['time_ns'] or not value.get('task_control_released')
                for value in self.acks.values()):
@@ -212,9 +215,12 @@ class JointLifecycle:
                            request_id=self.clock.last_request+1, action='resume'))
         self.set_phase('resuming')
         deadline = time.monotonic()+5
-        while not self.acknowledged() or self.clock.tick % 4:
+        while True:
+            ready = self.acknowledged() and self.clock.tick % 4 == 0
             if time.monotonic() >= deadline:
                 raise TimeoutError('Explicit scene resume did not obtain fresh dual native state in 5s')
+            if ready:
+                break
             advance()
         if any(value['source_boot_ns'] <= resumed_at*1000000 for value in self.acks.values()):
             raise RuntimeError('Resume acknowledged an old native source sample')

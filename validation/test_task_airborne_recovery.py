@@ -95,6 +95,21 @@ class Harness:
 
 
 class AirborneRecoveryTests(unittest.TestCase):
+    def test_explicit_native_hold_is_not_skipped_for_a_temporarily_healthy_snapshot(self):
+        h=Harness('px4')
+        self.assertTrue(h.aircraft.odom_valid)
+        h.run(allow_native_hold=True)
+        self.assertEqual([message.request_id for message in h.published],[701,702,703,704])
+        self.assertEqual(h.published[0].setup.px4_mode,'AUTO.LOITER')
+        self.assertEqual(h.published[1].setup.control_state,'COMMAND_CONTROL')
+
+    def test_native_hold_reserves_the_land_command_id_before_any_public_request(self):
+        h=Harness('px4')
+        h.high_water=2**32-3
+        with self.assertRaisesRegex(RuntimeError,'high-water mark'):
+            h.run(allow_native_hold=True)
+        self.assertEqual(h.published,[])
+
     def test_only_explicit_native_hold_offer_can_request_mode_before_position_control(self):
         h=Harness('px4')
         h.aircraft.odom_valid=False

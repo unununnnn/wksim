@@ -234,6 +234,8 @@ class ControlNode(Node):
 
     def recovery_state_ready(self):
         recovery = self.scene_recovery
+        if recovery is not None:
+            recovery.update(home_initialized=self.processor.home is not None,native_flying=None)
         if (recovery is None or not self.revoked or self.native.generation != recovery['generation']
                 or self.native.clock_invalid or not self.native.available()):
             if recovery is not None:
@@ -243,6 +245,10 @@ class ControlNode(Node):
         stamp = state.header.stamp.sec*10**9+state.header.stamp.nanosec
         if not (state.connected and self.native.navigation_valid and state.armed and stamp > recovery['frozen_ns']):
             recovery['not_ready_reason']='fresh_armed_navigation_not_ready'
+            return False
+        recovery['native_flying']=self.native.flying
+        if not recovery['home_initialized'] or recovery['native_flying'] is not True:
+            recovery['not_ready_reason']='fresh_home_and_airborne_evidence_not_ready'
             return False
         try:
             recovery['native_endpoints']=self.scene_endpoints()
@@ -272,7 +278,10 @@ class ControlNode(Node):
             phase='recovering', request_id=permission['request_id'], sequence=permission['sequence'],
             tick=permission['tick'], ready=ready, source_boot_ns=stamp, issued_monotonic_s=self.wall(),
             task_control_released=True, native_generation=self.native.generation,
-            readiness='native_link_and_navigation', command_control_eligible=self.state.odom_valid,
+            readiness='native_link_navigation_home_and_airborne',
+            home_initialized=self.scene_recovery.get('home_initialized',False),
+            native_flying=self.scene_recovery.get('native_flying'),
+            command_control_eligible=bool(ready and self.state.odom_valid),
             native_failsafe=self.native.failed, native_mode=self.state.mode,
             native_endpoints=self.scene_recovery.get('native_endpoints',{})), allow_nan=False)))
 

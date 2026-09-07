@@ -139,8 +139,12 @@ class MissionPlanTests(unittest.TestCase):
             self.assertEqual(source, before)
             example = load_config(EXAMPLES / f'{stack}-mission.json')
             self.assertNotEqual(example['run_id'], base['run_id'])
-            self.assertEqual({k: v for k, v in example.items() if k not in ('mission', 'run_id')},
+            retained = load_config(EXAMPLES / f'{stack}-mission-retained-baseline.json')
+            self.assertEqual({k: v for k, v in retained.items() if k not in ('mission', 'run_id')},
                              {k: v for k, v in base.items() if k != 'run_id'})
+            from Simulator.wksim_runtime.independent_profile import select_config,PROFILE_ID
+            self.assertEqual(example['runtime_profile'],PROFILE_ID)
+            self.assertEqual(select_config(example)[0],example)
             self.assertEqual(example['mission'], {'version': 1, 'cancel_policy': 'land', 'waypoints': [
                 {'frame': 'enu', 'position_m': [2, 3, 3], 'yaw_rad': 0, 'dwell_s': 2},
                 {'frame': 'enu', 'position_m': [2, 3, 3], 'yaw_rad': math.pi/2, 'dwell_s': 2},

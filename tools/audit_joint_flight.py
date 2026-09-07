@@ -8,7 +8,8 @@ import struct
 import sys
 
 REPO=Path(__file__).resolve().parents[1]
-AUDIT_OUTPUTS=frozenset(('audit.json','pause-audit.json','lifecycle-audit.json','permission-loss-audit.json','dds-recovery-audit.json'))
+AUDIT_OUTPUTS=frozenset(('audit.json','pause-audit.json','lifecycle-audit.json','permission-loss-audit.json',
+                         'dds-recovery-audit.json','native-state-inspection.json'))
 sys.path.insert(0,str(REPO))
 from Simulator.wksim_core.ap_json import decode_servos,sensor_message
 from Simulator.wksim_core.px4_mavlink import actuator_commands,gps_arguments
@@ -52,10 +53,39 @@ def verify_control_candidate(root, result, verify_current_sources=False):
     return control
 
 
-def audit_timeline(root,r,windows=None):
+def verify_px4_candidate(root, result):
+    admission=json.loads((root/'px4-preflight.json').read_text())
+    binary=Path(result['children']['px4-fc']['argv'][0])
+    require(digest(binary)==admission['identities']['firmware']['expected_sha256'],'Actual PX4 firmware changed')
+    if 'px4' not in result['manifest_sha256']:
+        return None
+    from px4_state_candidate import snapshot, candidate_root, BINARY
+    require(digest(root/'px4-build.json')==result['manifest_sha256']['px4'],'PX4 build manifest changed')
+    candidate=json.loads((root/'px4-build.json').read_text())
+    require(candidate==admission['candidate']==snapshot(candidate_root(candidate['candidate_root'])),
+            'PX4 candidate source/build/runtime snapshot changed')
+    require(binary==Path(candidate['px4_root'])/BINARY and not admission['production_admitted'],
+            'PX4 candidate executable or admission scope differs')
+    for label in ('running','completed'):
+        observed=result['native_runtime_maps'][label]['px4']
+        path=root/observed['maps_file']
+        require(digest(path)==observed['sha256'] and not observed['forbidden_libraries']
+                and observed['identity']['pid']==result['children']['px4-fc']['identity']['pid'],
+                'Native loaded-library evidence differs')
+        require(not any(token in path.read_text().lower() for token in ('libgz-','libgazebo','libignition','matlab')),
+                'Independent PX4 loaded forbidden runtime libraries')
+    return dict(manifest_sha256=result['manifest_sha256']['px4'],binary_sha256=digest(binary),
+                source_files=len(candidate['source']['files']),linked_libraries=candidate['linked_libraries'],
+                production_admitted=False,loaded_maps_verified=['running','completed'])
+
+
+def audit_timeline(root,r,windows=None,*,require_flight=True,require_ground=True,pending_model_tick=None):
     """Raw two-model/native-input/clock audit, shared by distinct public workflows."""
     from pymavlink.dialects.v20 import common
     total=r['final_authority']['tick']; epoch=r['scene_epoch']
+    if pending_model_tick is not None:
+        require(pending_model_tick==total+1==r['final_authority']['pending_tick'],
+                'Uncommitted model audit requires the actual one-step pending authority')
     model={}; sensors={}; imu={}; gps={}; physical={}
     protocol=common.MAVLink(None)
     f32=lambda value:struct.unpack('<f',struct.pack('<f',value))[0]
@@ -77,12 +107,16 @@ def audit_timeline(root,r,windows=None):
                 sensor=state[60:90]
                 imu_expected[tick]=protocol.hil_sensor_encode(round(sensor[0]),*[f32(x) for x in sensor[1:14]],round(sensor[14])).to_dict()
                 if tick%100==0: gps_expected[tick]=protocol.hil_gps_encode(*gps_arguments(state)).to_dict()
-        require(len(data)==total,'Model was stepped a different number of times')
+        require(len(data)==total or pending_model_tick is not None and len(data)==pending_model_tick,
+                'Model was stepped a different number of times')
         model[stack]=data; sensors[stack]=sensor_hash; imu[stack]=imu_expected; gps[stack]=gps_expected
-        physical[stack]=dict(max_height_m=max(-d[0][2] for d in data),final_height_m=-data[-1][0][2],
-            min_waypoint_error_m=min(math.dist(d[0][:3],[3,2,-3]) for d in data))
-        require(physical[stack]['max_height_m']>=2.5 and abs(physical[stack]['final_height_m'])<.3
-                and (windows is None or physical[stack]['min_waypoint_error_m']<=.5),'Independent truth failed')
+        committed=data[:total]
+        physical[stack]=dict(max_height_m=max(-d[0][2] for d in committed),final_height_m=-committed[-1][0][2],
+            min_waypoint_error_m=min(math.dist(d[0][:3],[3,2,-3]) for d in committed))
+        if require_ground: require(abs(physical[stack]['final_height_m'])<.3,'Independent final ground truth failed')
+        if require_flight:
+            require(physical[stack]['max_height_m']>=2.5
+                    and (windows is None or physical[stack]['min_waypoint_error_m']<=.5),'Independent truth failed')
         if windows is not None:
             for finish,start,label in (('hold_completed','takeoff_reached','hold'),('waypoint_completed','waypoint_reached','waypoint')):
                 lo=windows[stack][start]['ros_time_ns']//1000000; hi=windows[stack][finish]['ros_time_ns']//1000000
@@ -90,8 +124,8 @@ def audit_timeline(root,r,windows=None):
                 error=max((abs(d[0][2]+3) if label=='hold' else math.dist(d[0][:3],[3,2,-3])) for d in rows)
                 physical[stack][label+'_truth_max_error_m']=error
                 require(error<=(.6 if label=='hold' else .5),'Truth disagrees with task scene-time dwell')
-    overlap=sum(-a[0][2]>1 and -b[0][2]>1 for a,b in zip(model['arducopter'],model['px4']))
-    require(overlap>0,'No simultaneous true flight interval')
+    overlap=sum(-a[0][2]>1 and -b[0][2]>1 for a,b in zip(model['arducopter'][:total],model['px4'][:total]))
+    require(not require_flight or overlap>0,'No simultaneous true flight interval')
 
     ap_current=None; ap_frames=[]; ap_duplicates=0; px_current=[0.]*16; px_time=None; pending={}; counts={'ap_sensor':0,'px_sensor':0,'gps':0,'step':0,'barrier':0}
     for e in lines(root/'joint-wire.jsonl'):
@@ -137,6 +171,11 @@ def audit_timeline(root,r,windows=None):
             counts['step']+=1
     require(counts==dict(ap_sensor=total,px_sensor=total//4,gps=total//100,step=total,barrier=total//4),'Missing/extra wire steps')
     require(ap_frames==list(range(total+1)),'AP did not acknowledge every model step')
+    if pending_model_tick is not None:
+        require(ap_current[0]==total,'Pending model step lacks its true AP input source')
+        for stack,commands in (('arducopter',ap_current[1]),('px4',px_current)):
+            if len(model[stack])>total:
+                require(model[stack][total][1]==commands,'Uncommitted model input differs from retained native output')
     clock_count=0
     for tick,c in enumerate(lines(root/'clock.jsonl')):
         require(c['epoch']==epoch and c['tick']==tick and c['time_ns']==tick*1000000 and c['pending_tick'] is None,
@@ -157,11 +196,16 @@ def audit_timeline(root,r,windows=None):
                         'Paused clock retransmission changed committed time or publication identity')
         require(repeated==repetitions,'Missing raw paused clock publication record')
     require(clock_count==total+1 and r['clock_publications']==clock_count+repetitions,'Clock count differs')
-    return dict(total_ticks=total,shared_epoch=epoch,physical=physical,
+    result=dict(total_ticks=total,shared_epoch=epoch,physical=physical,
         simultaneous_height_above_1m_ticks=overlap,wire_counts=counts,ap_identical_duplicates=ap_duplicates,
         clock_publications=r['clock_publications'],unique_clock_ticks=clock_count,
         paused_clock_republications=r.get('paused_clock_republications',0),
-        faulted_clock_republications=r.get('faulted_clock_republications',0)),model
+        faulted_clock_republications=r.get('faulted_clock_republications',0))
+    if pending_model_tick is not None:
+        result['uncommitted_model_state']=dict(pending_tick=pending_model_tick,
+            retained_model_ticks={name:len(rows) for name,rows in model.items()},
+            committed_physical_metrics_only=True,ground_completion_required=require_ground)
+    return result,model
 
 
 def audit(root,verify_current_sources=False):
@@ -181,6 +225,7 @@ def audit(root,verify_current_sources=False):
         require(json.loads((root/(stack+'-preflight.json')).read_text())['ok'],'Baseline admission failed')
     require(digest(root/'ap-build.json')==r['manifest_sha256']['ap'],'AP manifest changed')
     control=verify_control_candidate(root,r,verify_current_sources)
+    px4_candidate=verify_px4_candidate(root,r)
     ap=json.loads((root/'ap-build.json').read_text())
     require(digest(ap['candidate_root']+'/build/sitl/bin/arducopter')==ap['artifacts']['build/sitl/bin/arducopter']['sha256'],
             'AP binary no longer matches selected build')
@@ -240,6 +285,7 @@ def audit(root,verify_current_sources=False):
                 current_source_verification=verify_current_sources,
                 control_exit_codes={name:child['returncode'] for name,child in r['children'].items() if name.endswith('-control')},
                 tasks=task_reports,**timeline,
+                px4_candidate=px4_candidate,
                 result_sha256=digest(root/'result.json'),evidence_sha256=artifacts)
 
 

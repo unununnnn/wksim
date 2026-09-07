@@ -47,7 +47,15 @@ def save(path, data):
         if isinstance(value, (list,tuple)):
             return [evidence(item) for item in value]
         return value
-    Path(path).write_text(json.dumps(evidence(data), indent=2, allow_nan=False)+'\n')
+    target = Path(path)
+    raw = json.dumps(evidence(data), indent=2, allow_nan=False)+'\n'
+    descriptor, temporary = tempfile.mkstemp(prefix='.'+target.name+'-',suffix='.tmp',dir=target.parent)
+    try:
+        with os.fdopen(descriptor,'w',encoding='utf-8') as output:
+            output.write(raw)
+        os.replace(temporary,target)
+    finally:
+        Path(temporary).unlink(missing_ok=True)
 
 
 def task_main(args):
@@ -104,6 +112,9 @@ def task_main(args):
                     or offer.get('start_token') != args.start_token or offer.get('uav_id') != args.uav_id
                     or offer.get('control_epoch') != task.epoch):
                 raise ValueError('Recovery task requires a current explicit start offer')
+            if 'native_hold_policy' in offer and (args.stack!='px4' or offer.get('allow_native_hold') is not True
+                    or offer['native_hold_policy']!='explicit_before_task_control'):
+                raise ValueError('Unknown or unauthorized native hold entry policy')
             task.recover_then_land(allow_native_hold=offer.get('allow_native_hold',False))
         else:
             task.execute()
@@ -141,6 +152,8 @@ def run(args):
                   scene_lifecycle_requested=args.scene_lifecycle,
                   scene_lease_loss_requested=args.scene_lease_loss,
                   dds_loss_requested=args.dds_loss,
+                  native_state_trace_requested=args.native_state_trace,
+                  diagnostic_land_step_period_s=.012 if args.probe_land_freshness else None,
                   require_clean_control_exit=True,
                   archive=str(archive), live=str(live), children={}, tasks={},
                   isolation={n: os.readlink('/proc/self/ns/'+n) for n in ('net','ipc','mnt')},
@@ -167,6 +180,12 @@ def run(args):
                'Simulator/wksim_runtime/examples/px4-session.json']
     if args.scene_lifecycle:
         sources += ['tools/joint_lifecycle.py','Simulator/wksim_runtime/joint_lifecycle.py']
+    if args.native_state_trace:
+        sources += ['tools/debug_px4_native_state.py']
+    if args.px4_manifest:
+        sources += ['tools/px4_state_candidate.py','tools/build-px4-state-cadence.sh',
+                    'patches/px4/0001-estimator-status-cadence.patch',
+                    'patches/px4/0002-independent-sitl-without-gazebo.patch']
     result['source_sha256'] = {name:digest(REPO/name) for name in sources}
     for name in sources:
         (live/('source__'+name.replace('/','__')+'.txt')).write_bytes((REPO/name).read_bytes())
@@ -180,6 +199,9 @@ def run(args):
             config['model_library'] = str(library)
             if stack == 'arducopter':
                 configs[stack], admission = admit(config, args.ap_manifest, args.ap_sha256)
+            elif args.px4_manifest:
+                from px4_state_candidate import admit as admit_px4
+                configs[stack], admission = admit_px4(config, args.px4_manifest, args.px4_sha256)
             else:
                 admission = preflight(config)
             save(live/(stack+'-preflight.json'), admission)
@@ -190,6 +212,9 @@ def run(args):
             sys.path.insert(0, str(Path(control['package']).parent))
         result['control_candidate'] = control
         result['manifest_sha256'] = dict(ap=args.ap_sha256, control=args.control_sha256)
+        if args.px4_manifest:
+            result['manifest_sha256']['px4'] = args.px4_sha256
+            shutil.copyfile(args.px4_manifest, live/'px4-build.json')
         shutil.copyfile(args.ap_manifest, live/'ap-build.json')
         shutil.copyfile(args.control_manifest, live/'control-build.json')
 
@@ -257,6 +282,30 @@ def run(args):
             name = stack+('-recovery-task' if task_mode == 'recover' else '-task')
             return launch(name,command,directory,control_environment(control) if args.scene_lifecycle else None,
                           role='task',result_key=stack)
+
+        def record_native_maps(label):
+            observations = {}
+            for stack in ('arducopter','px4'):
+                name = stack+'-fc'
+                child = next(process for key,process,_ in children if key==name)
+                identity = json_identity(child.pid)
+                expected = result['children'][name]['identity']
+                if identity is None or any(identity[key]!=expected[key] for key in ('pid','pgid','start_ticks')):
+                    raise RuntimeError('Native library observation lost owned process identity')
+                proc = Path('/proc')/str(child.pid)
+                executable = (proc/'exe').resolve()
+                if executable!=Path(result['children'][name]['argv'][0]).resolve():
+                    raise RuntimeError('Native executable changed before library observation')
+                raw = (proc/'maps').read_text()
+                path = live/(name+'-'+label+'-maps.txt')
+                path.write_text(raw)
+                forbidden = sorted({line.split()[-1] for line in raw.splitlines()
+                                    if any(token in line.lower() for token in ('libgz-','libgazebo','libignition','matlab'))})
+                observations[stack] = dict(identity=identity,executable=str(executable),
+                    maps_file=path.name,sha256=digest(path),forbidden_libraries=forbidden)
+                if stack=='px4' and args.px4_manifest and forbidden:
+                    raise RuntimeError('Independent PX4 candidate loaded forbidden libraries')
+            result.setdefault('native_runtime_maps',{})[label] = observations
 
         def recover_agent(advance):
             nonlocal dds_handled
@@ -339,10 +388,10 @@ def run(args):
                 launch_task(stack,uid,directory,'recover',token)
             physical_recovery = lifecycle.recover_physics(advance,recovery_boundary)
             progress['physics_recovery'] = physical_recovery
-            for stack,uid in (('arducopter',1),('px4',2)):
-                ack=physical_recovery['control_ack'][uid]
-                offers[stack]['allow_native_hold']=bool(stack=='px4' and ack.get('native_failsafe')
-                    and not ack.get('command_control_eligible'))
+            for stack in offers:
+                offers[stack]['allow_native_hold']=stack=='px4'
+                if stack=='px4':
+                    offers[stack]['native_hold_policy']='explicit_before_task_control'
             # No new high-level flight request is authorized by Agent restart or
             # by the physical recovery alone. This is a new explicit task offer.
             authorization = dict(version=1,epoch=clock.epoch,run_id=result['run_id'],
@@ -407,13 +456,29 @@ def run(args):
                 verifier = ('import importlib.util,pathlib; '
                     'assert pathlib.Path(importlib.util.find_spec("prometheus_control").origin).parent == pathlib.Path('
                     +repr(control['package'])+'); import prometheus_control.node as n; n.main()')
+                if args.native_state_trace and stack == 'px4':
+                    verifier = ('from tools.debug_px4_native_state import install; install('
+                        +repr(str(live/'px4-native-state-trace.jsonl'))+'); '+verifier)
                 command = [sys.executable,'-B','-c',verifier,*plan['control'][3:]]
                 launch(stack+'-control',command,directory,control_environment(control))
                 launch_task(stack,uid,directory)
             save(live/'children-start.json',result['children'])
             physics.connect()
             summaries = {name:dict(max_height_m=0., min_waypoint_error_m=1e30) for name in workers}
+            land_pacing_next = None
             def advance():
+                nonlocal land_pacing_next
+                session = pause_probe.sessions.get(2) if pause_probe is not None else None
+                if (args.probe_land_freshness and dds_handled and clock.tick%4==0
+                        and session is not None and session.state.mode=='AUTO.LAND'):
+                    if land_pacing_next is None:
+                        record('diagnostic_land_pacing_started', minimum_barrier_wall_seconds=.012,
+                               reason='reproduce low-rate estimator wall freshness without changing any health threshold')
+                    else:
+                        while time.monotonic() < land_pacing_next:
+                            health()
+                            time.sleep(min(.001, max(0,land_pacing_next-time.monotonic())))
+                    land_pacing_next = time.monotonic()+.012
                 states = physics.advance()
                 publisher.publish(clock)
                 clock_log.write(json.dumps(clock.snapshot(),separators=(',',':'))+'\n')
@@ -423,6 +488,8 @@ def run(args):
                 if dds_pending is not None and not dds_handled:
                     recover_agent(advance)
                 states = advance()
+                if clock.tick==5000:
+                    record_native_maps('running')
                 if not (live/'go.json').exists() and all((live/name/'ready.json').exists() for name in workers):
                     save(live/'go.json', clock.snapshot())
                 for name,state in states.items():
@@ -490,6 +557,7 @@ def run(args):
                 raise RuntimeError('Requested DDS recovery was not exercised')
             if args.scene_lifecycle and not args.dds_loss and (lifecycle is None or not lifecycle.completed):
                 raise RuntimeError('Requested lifecycle exercise did not complete')
+            record_native_maps('completed')
             clock.request(dict(version=1,epoch=clock.epoch,request_id=clock.last_request+1,action='stop'))
             result['final_authority'] = clock.snapshot()
             for child in workers.values():
@@ -539,8 +607,14 @@ if __name__=='__main__':
                         help='Withhold permission at an airborne pause, observe withdrawal and no automatic recovery, then stop')
     runner.add_argument('--dds-loss', choices=('arducopter','px4'),
                         help='Stop one actual Agent at hover, freeze on observed exit, explicitly recover physics and launch new landing tasks')
+    runner.add_argument('--native-state-trace', action='store_true',
+                        help='Read-only debug observation of the actual PX4 Control callbacks and state decisions')
+    runner.add_argument('--probe-land-freshness', action='store_true',
+                        help='Diagnostic only: pace landing at >=12ms wall per 4ms joint barrier to reproduce low-rate state expiry')
     for name in ('ap-manifest','ap-sha256','control-manifest','control-sha256'):
         runner.add_argument('--'+name,required=True)
+    runner.add_argument('--px4-manifest')
+    runner.add_argument('--px4-sha256')
     task=sub.add_parser('task')
     task.add_argument('--stack',choices=['arducopter','px4'],required=True)
     task.add_argument('--uav-id',type=int,required=True)
@@ -561,6 +635,10 @@ if __name__=='__main__':
         parser.error('Scene task requires the explicit sealed package and module SHA')
     if args.role == 'run' and args.dds_loss and (not args.scene_lifecycle or args.scene_lease_loss or args.pause_probe):
         parser.error('--dds-loss requires its own --scene-lifecycle experiment')
+    if args.role == 'run' and args.probe_land_freshness and (not args.native_state_trace or not args.dds_loss):
+        parser.error('--probe-land-freshness requires --native-state-trace and --dds-loss')
+    if args.role == 'run' and (args.px4_manifest is None)!=(args.px4_sha256 is None):
+        parser.error('Optional PX4 candidate requires both manifest and external SHA256')
     if args.role == 'task' and args.task_mode == 'recover' and (not args.scene_lifecycle or not args.start_token):
         parser.error('New recovery task requires a scene and explicit start token')
     raise SystemExit(task_main(args) if args.role=='task' else run(args))

@@ -137,6 +137,28 @@ class StateStreamTests(unittest.TestCase):
         with StateWriter() as writer:
             self.assertFalse(writer.emit(None))
 
+    def test_unlinked_relay_reports_loss_without_replacing_new_owner(self):
+        with tempfile.TemporaryDirectory(prefix="wksim-state-", dir="/tmp") as folder:
+            path = Path(folder)/"state.sock"
+            child = subprocess.Popen([sys.executable, "-m", "Simulator.ue55.state_relay",
+                                      "--state-socket", str(path), "--run-id", RUN],
+                                     stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            try:
+                deadline = time.monotonic()+3
+                while not path.exists() and time.monotonic()<deadline:
+                    time.sleep(.01)
+                self.assertTrue(path.exists())
+                path.unlink()  # Simulate removal of this test's own bound endpoint.
+                path.write_text('replacement owned by test')
+                child.stdin.write(b'?'); child.stdin.flush()
+                self.assertNotEqual(child.wait(timeout=3), 0)
+                self.assertIn(b'Owned state socket path was removed or replaced', child.stderr.read())
+                self.assertEqual(path.read_text(), 'replacement owned by test')
+            finally:
+                if child.poll() is None:
+                    child.kill(); child.wait()
+                child.stdin.close(); child.stdout.close(); child.stderr.close()
+
     def test_private_network_namespace_pathname_ipc(self):
         with tempfile.TemporaryDirectory(prefix="wksim-state-", dir="/tmp") as folder:
             path = str(Path(folder)/"state.sock")

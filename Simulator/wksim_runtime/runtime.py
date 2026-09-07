@@ -135,8 +135,17 @@ def udp_listening(port):
         return any(line.split()[1].endswith(f':{port:04X}') for line in list(source)[1:])
 
 
-def run(config, output_root, *, task_factory=None):
+def run(config, output_root, *, task_factory=None, use_prepared_run=None):
     config = validate_config(config)
+    if config.get('kind')=='joint_scene':
+        if task_factory is not None:
+            raise ValueError('Joint product entry does not accept a replacement task factory')
+        from .joint_runtime import run_joint
+        if use_prepared_run is not None:
+            return run_joint(config,output_root,use_prepared_run=use_prepared_run)
+        return run_joint(config,output_root)
+    if use_prepared_run is not None:
+        raise ValueError("Prepared runs require joint_scene")
     if sys.platform != 'linux' or os.readlink('/proc/self/ns/net') == os.readlink('/proc/1/ns/net'):
         raise RuntimeError('Use run-wksim.sh: a private Linux network namespace is required')
     check_isolation()
@@ -225,7 +234,8 @@ def _run_reserved(config, output_root, resource, reservation, task_factory=None)
         result['preflight'] = preflight(config)
         if not result['preflight']['ok']:
             raise RuntimeError('Preflight rejected: ' + json.dumps(result['preflight']['reasons']))
-        result['private_temporary_files']=isolate_temporary_files()
+        result['private_temporary_files']=isolate_temporary_files(
+            config[key] for key in ('display_socket','telemetry_socket') if config.get(key))
         config = result['preflight']['config']
         result['config'] = config
         (directory / 'config.json').write_text(json.dumps(config, indent=2) + '\n', encoding='utf-8')
@@ -245,7 +255,8 @@ def _run_reserved(config, output_root, resource, reservation, task_factory=None)
         plan = launch_spec(config, directory, library)
         binary = Path(plan['fc'][0])
         result['fc_binary'], result['fc_sha256'] = str(binary), digest(binary)
-        expected = AP_SHA256 if config['stack'] == 'arducopter' else PX4_SHA256
+        expected = (result['preflight']['identities']['firmware']['expected_sha256'] if config.get('runtime_profile')
+                    else AP_SHA256 if config['stack'] == 'arducopter' else PX4_SHA256)
         if result['fc_sha256'] != expected:
             raise RuntimeError('FC binary differs from the pinned flown baseline')
         result['agent_sha256'] = digest(plan['agent'][0])
@@ -257,6 +268,10 @@ def _run_reserved(config, output_root, resource, reservation, task_factory=None)
                                     REPO / 'Simulator/wksim_core/model.cpp', REPO / 'Simulator/wksim_core/state_stream.py',
                                     REPO / 'Simulator/wksim_core' / ('ap_json.py' if config['stack'] == 'arducopter' else 'px4_mavlink.py'),
                                     REPO / 'Simulator/wksim_core' / ('arducopter-quad-x.parm' if config['stack'] == 'arducopter' else 'px4-rc.mavlink'))}
+        if config.get('runtime_profile'):
+            for name in ('independent_profile.py','independent-profile-evidence.json','joint_profile.py','joint-profiles.json','build_identity.py'):
+                source=Path(__file__).with_name(name)
+                result['runtime_sha256'][str(source.relative_to(REPO))]=digest(source)
         if config.get('mission'):
             for name in ('mission_task.py', 'mission_plan.py', 'mission_cancel.py', 'mission_actions.py', 'mission_evidence.py'):
                 source = Path(__file__).with_name(name)
@@ -380,10 +395,43 @@ def main():
     parser.add_argument('config', type=Path)
     parser.add_argument('--output-root', type=Path, default=REPO / 'validation/runs')
     parser.add_argument('--prepared', action='store_true', help=argparse.SUPPRESS)
+    parser.add_argument('--preflight',action='store_true',help='Verify configuration/resources without launching flight processes')
+    lifecycle=parser.add_mutually_exclusive_group()
+    lifecycle.add_argument('--prepare-run',action='store_true',help='Prepare a joint run identity without launching physics')
+    lifecycle.add_argument('--use-prepared-run',type=Path,help='Consume this prepared joint run directory once')
     args = parser.parse_args()
     try:
         config = load_config(args.config)
+        if args.prepare_run or args.use_prepared_run is not None:
+            if config.get('kind')!='joint_scene' or args.preflight:
+                raise ValueError('Preparation flags require joint_scene and cannot combine with --preflight')
+            from .joint_runtime import _joint_directory
+            _joint_directory(args.output_root,config['run_id'])
+        if args.prepare_run:
+            from .joint_runtime import prepare_joint
+            print(json.dumps(prepare_joint(config,args.output_root),allow_nan=False),flush=True)
+            return 0
         if not args.prepared:
+            if config.get('kind')=='joint_scene' or config.get('runtime_profile'):
+                if config.get('kind')=='joint_scene':
+                    from .joint_profile import select_profile
+                    profile=select_profile(config['runtime_profile'])
+                else:
+                    from .independent_profile import select_config
+                    _,profile=select_config(config)
+                script='''set -eo pipefail
+setup_count=$1
+shift
+for ((setup_index=0; setup_index<setup_count; setup_index++)); do source "$1"; shift; done
+export LD_LIBRARY_PATH="$1/agent-install/lib:${LD_LIBRARY_PATH:-}"
+export ROS_DOMAIN_ID=77 ROS_LOCALHOST_ONLY=1 RMW_IMPLEMENTATION=rmw_fastrtps_cpp
+shift
+exec python3 -B -m Simulator.wksim_runtime.runtime --prepared "$@"
+'''
+                os.execvp('bash',['bash','-c',script,'wksim',str(len(profile['setup_files'])),
+                                 *profile['setup_files'],profile['dds_workspace'],str(args.config.resolve()),
+                                 '--output-root',str(args.output_root.resolve()),*(['--preflight'] if args.preflight else []),
+                                 *(['--use-prepared-run',str(args.use_prepared_run.absolute())] if args.use_prepared_run is not None else [])])
             # Source overlays in the verified order; paths are positional arguments, never shell code.
             dds, prom = config['dds_workspace'], config['prometheus_workspace']
             ap = config.get('ap_candidate', '') if config['stack'] == 'arducopter' else ''
@@ -397,8 +445,15 @@ shift 3
 exec python3 -m Simulator.wksim_runtime.runtime --prepared "$@"
 '''
             os.execvp('bash', ['bash', '-c', script, 'wksim', dds, ap, prom,
-                              str(args.config.resolve()), '--output-root', str(args.output_root.resolve())])
-        return 0 if run(config, args.output_root)['status'] in ('pass', 'cancelled') else 1
+                              str(args.config.resolve()), '--output-root', str(args.output_root.resolve()),
+                              *(['--preflight'] if args.preflight else []),
+                                 *(['--use-prepared-run',str(args.use_prepared_run.absolute())] if args.use_prepared_run is not None else [])])
+        if args.preflight:
+            result=preflight(config)
+            print(json.dumps(result,indent=2,allow_nan=False))
+            return 0 if result['ok'] else 2
+        options={'use_prepared_run':args.use_prepared_run} if args.use_prepared_run is not None else {}
+        return 0 if run(config, args.output_root,**options)['status'] in ('pass', 'cancelled','stopped') else 1
     except (OSError, ValueError, RuntimeError) as error:
         print(f'wksim: {error}', file=sys.stderr)
         return 2

@@ -125,60 +125,99 @@ def model_worker(library, trace, epoch):
             sys.stdout.flush()
 
 
-def receive_worker(child, request, epoch, timeout=3.0):
-    """Bound the entire RPC, including partial lines, by a wall-clock deadline.
+def receive_worker(child, request, epoch, timeout=3.0, *, health=None):
+    """Single-channel compatibility API; see receive_workers for transport rules."""
+    return receive_workers({0: (child, request)}, epoch, timeout, health=health)[0]
 
-    3s is an experimental default, not an approved production threshold.
-    Linux nonblocking pipes avoid a new thread for every 1ms model step. No
-    other reader/writer may use these pipes while an RPC is outstanding. A
-    timed-out channel stays poisoned until the lifecycle owner retires it.
+
+def receive_workers(requests, epoch, timeout=3.0, *, health=None):
+    """Send every request before collecting responses under one wall deadline.
+
+    Each channel permits one outstanding RPC. Its tick records the last actual
+    validated response, even if another member fails. Any transport failure
+    poisons the entire batch; only the caller can commit the common clock.
     """
     if not _number(timeout) or timeout <= 0:
         raise ValueError('timeout must be finite and positive')
     if sys.platform != 'linux':
         raise RuntimeError('Model worker transport requires WSL/Linux')
+    if not requests:
+        raise ValueError('Expected at least one worker request')
     deadline = time.monotonic() + timeout
-    with _rpc_guard:
-        if not hasattr(child, '_wksim_rpc'):
-            child._wksim_rpc = dict(lock=threading.Lock(), failed=False, tick=0, epoch=epoch)
-        rpc = child._wksim_rpc
-    if not rpc['lock'].acquire(blocking=False):
-        raise RuntimeError('Only one outstanding worker RPC is allowed')
+    channels = []
+    transmitting = False
     try:
-        if rpc['failed'] or rpc['epoch'] != epoch:
-            raise RuntimeError('Worker channel must be retired')
-        commands = step_request(request, rpc['tick'], epoch)
-        frame = encoded(request) + '\n'
-        parse_frame(frame, REQUEST_LIMIT)
-        reader, writer = child.stdout.fileno(), child.stdin.fileno()
-        os.set_blocking(reader, False)
-        os.set_blocking(writer, False)
+        # Complete validation and acquire every lock before sending any bytes.
+        for name, (child, request) in requests.items():
+            with _rpc_guard:
+                if not hasattr(child, '_wksim_rpc'):
+                    child._wksim_rpc = dict(lock=threading.Lock(), failed=False, tick=0, epoch=epoch)
+                rpc = child._wksim_rpc
+            if not rpc['lock'].acquire(blocking=False):
+                raise RuntimeError('Only one outstanding worker RPC is allowed')
+            channel = dict(name=name, rpc=rpc)
+            channels.append(channel)
+            if rpc['failed'] or rpc['epoch'] != epoch:
+                raise RuntimeError('Worker channel must be retired')
+            commands = step_request(request, rpc['tick'], epoch)
+            frame = encoded(request) + '\n'
+            parse_frame(frame, REQUEST_LIMIT)
+            channel.update(reader=child.stdout.fileno(), writer=child.stdin.fileno(),
+                           outgoing=memoryview(frame.encode('utf-8')), incoming=bytearray(),
+                           tick=rpc['tick'] + (commands is not None))
+        transmitting = True
+        for channel in channels:
+            os.set_blocking(channel['reader'], False)
+            os.set_blocking(channel['writer'], False)
+            channel['rpc'].update(request_tick=channel['tick'], sent_bytes=0, response_received=False)
 
-        def ready(reading):
-            remaining = deadline - time.monotonic()
-            if remaining <= 0:
-                raise TimeoutError('Model worker response timeout; retire child')
-            readable, writable, _ = select.select([reader] if reading else [],
-                                                   [] if reading else [writer], [], remaining)
-            if not (readable or writable):
-                raise TimeoutError('Model worker response timeout; retire child')
+        next_service = time.monotonic() + .02
+        def ready(reading, pending):
+            nonlocal next_service
+            while True:
+                now = time.monotonic()
+                if health is not None and now >= next_service:
+                    health()
+                    now = time.monotonic()
+                    next_service = now + .02
+                remaining = deadline - now
+                if remaining <= 0:
+                    raise TimeoutError('Model worker response timeout; retire child')
+                descriptors = [c['reader' if reading else 'writer'] for c in pending]
+                readable, writable, _ = select.select(descriptors if reading else [],
+                    [] if reading else descriptors, [],
+                    min(remaining, max(0., next_service-now)) if health is not None else remaining)
+                if time.monotonic() >= deadline:
+                    raise TimeoutError('Model worker response timeout; retire child')
+                if readable or writable:
+                    return readable if reading else writable
 
-        try:
-            outgoing = memoryview(frame.encode('utf-8'))
-            while outgoing:
-                ready(False)
+        pending = list(channels)
+        while pending:
+            writable = ready(False, pending)
+            for channel in pending[:]:
+                if channel['writer'] not in writable:
+                    continue
                 try:
-                    written = os.write(writer, outgoing)
+                    written = os.write(channel['writer'], channel['outgoing'])
                 except BlockingIOError:
                     continue
                 if written == 0:
                     raise RuntimeError('Worker request pipe closed')
-                outgoing = outgoing[written:]
-            incoming = bytearray()
-            while b'\n' not in incoming:
-                ready(True)
+                channel['rpc']['sent_bytes'] += written
+                channel['outgoing'] = channel['outgoing'][written:]
+                if not channel['outgoing']:
+                    pending.remove(channel)
+        responses = {}
+        pending = list(channels)
+        while pending:
+            readable = ready(True, pending)
+            for channel in pending[:]:
+                if channel['reader'] not in readable:
+                    continue
+                incoming = channel['incoming']
                 try:
-                    chunk = os.read(reader, min(4096, RESPONSE_LIMIT+1-len(incoming)))
+                    chunk = os.read(channel['reader'], min(4096, RESPONSE_LIMIT + 1 - len(incoming)))
                 except BlockingIOError:
                     continue
                 if not chunk:
@@ -186,17 +225,25 @@ def receive_worker(child, request, epoch, timeout=3.0):
                 incoming.extend(chunk)
                 if len(incoming) > RESPONSE_LIMIT:
                     raise ValueError('Oversized worker response')
-            tick = rpc['tick'] + (commands is not None)
-            response = validate_response(parse_frame(incoming.decode('utf-8'), RESPONSE_LIMIT), epoch, tick)
-            if time.monotonic() >= deadline:
-                raise TimeoutError('Model worker response timeout; retire child')
-            rpc['tick'] = tick
-            return response
-        except Exception:
-            rpc['failed'] = True
-            raise
+                if b'\n' not in incoming:
+                    continue
+                response = validate_response(parse_frame(incoming.decode('utf-8'), RESPONSE_LIMIT),
+                                             epoch, channel['tick'])
+                # Keep the actual confirmation frontier, distinct from clock.commit.
+                channel['rpc'].update(tick=channel['tick'], response_received=True)
+                responses[channel['name']] = response
+                pending.remove(channel)
+                if time.monotonic() >= deadline:
+                    raise TimeoutError('Model worker response timeout; retire child')
+        return responses
+    except BaseException:
+        if transmitting:
+            for channel in channels:
+                channel['rpc']['failed'] = True
+        raise
     finally:
-        rpc['lock'].release()
+        for channel in channels:
+            channel['rpc']['lock'].release()
 
 
 if __name__ == '__main__':

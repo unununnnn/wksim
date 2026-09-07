@@ -121,6 +121,21 @@ class OwnedChildren(unittest.TestCase):
 
 @unittest.skipUnless(sys.platform == 'linux', 'WSL/Linux model pipe transport')
 class TransportTests(OwnedChildren):
+    def test_wait_services_supervision_and_aborted_rpc_stays_poisoned(self):
+        child,_=self.launch([sys.executable,'-c',
+            'import sys,time; sys.stdin.readline(); time.sleep(10)'],'transport-only supervised stall')
+        calls=[]
+        def health():
+            calls.append(time.monotonic())
+            if len(calls)==3: raise InterruptedError('owned supervisor stop')
+        started=time.monotonic()
+        with self.assertRaisesRegex(InterruptedError,'owned supervisor stop'):
+            receive_worker(child,snapshot(),EPOCH,health=health)
+        self.assertEqual(len(calls),3)
+        self.assertLess(time.monotonic()-started,.5)
+        with self.assertRaisesRegex(RuntimeError,'retired'):
+            receive_worker(child,snapshot(),EPOCH)
+
     def test_single_outstanding_rpc(self):
         marker = self.root / 'received'
         child, _ = self.launch([sys.executable, '-c',

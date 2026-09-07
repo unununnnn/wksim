@@ -1,5 +1,13 @@
 # Prometheus Codebase Memory
 
+2026-09-07 RGB 接入前结构查询：先 index_status/detect_changes，再 fast+persistence 成功刷新为46,541节点/158,981边（日志 C:/CBMData/logs/wksim-prometheus-1788745406.log）。图定位 View.start/_work 后读取实际 visual.py。此后新增 RGB/GameMode/准入代码只按已知路径读取，不宣称旧图覆盖新改动；下次依赖新结构的查询仍先检测/刷新。
+
+正式联合入口跟进（2026-09-06/07 JST）：本轮在结构探索前成功刷新并持久化，快照为 **2026-09-06 13:34:37 UTC，46,110 nodes / 155,626 edges**，日志 `C:/CBMData/logs/wksim-prometheus-1788701677.log`。后续 MCP `index_status` 读回同一项目/root 和 ready 计数，见 `validation/product-joint-entry-20260906/index-status.json`；此前600527/712312及持久化失败是历史状态。新正式入口/配置/动作/监视模块在该快照之后添加，之后只按已知路径读取实际源码，并以逐epoch源码副本/哈希、真实运行和原始审计复核；没有用旧图推断新调用结构。下一次依赖这些改动的结构查询仍须检查/刷新，ready和计数不代表Full覆盖或所有路径已索引。
+
+原生状态周期/独立PX4跟进（2026-09-06 JST）：Node恢复前提、Task显式原生保持和实验JSON原子交接已有当前源码真实回归；外部PX4源码通过固定提交、42,012文件/40仓库清单及两个补丁核验。图状态仍600527节点/712312边，Node/Task metadata_changed，新测试not_tracked，工具按tools排除，详见 `validation/native-state-observation-20260906/index-coverage.json`。本轮按已知路径直接读取源码，没有依赖新结构的图查询；下一结构查询仍须检查/刷新，不冒称此前持久化问题解决。[报告](2026-09-06_native-state-cadence-report.md)提供构建、真实输入、原始审计和加载映射，图计数不表示验收覆盖率。
+
+真实DDS恢复收口（2026-09-06 JST）：本轮直接读取已知候选/运行器及审计源码，修复授权文件、公开发送日志与原始DDS确认的审计缺口。状态仍600527节点/712312边；精确路径覆盖显示 `Simulator/wksim_runtime/joint_lifecycle.py` not_tracked，两审计工具按tools排除。完整状态与边界在 `validation/joint-dds-recovery-final-20260906/index-coverage.json`，实现/真实运行/负例见[报告](2026-09-06_joint-dds-recovery-report.md)。本轮没有依赖新结构的图查询或不必要全库索引，不声称此前持久化失败已经修复；下一依赖新结构的查询仍须先检查/刷新。
+
 ## Checkout and index
 
 获批生命周期跟进（2026-09-06 JST）：新增共享SceneLease和双Control许可/原生发布者GID冻结接缝，Task保持共享ROS时间并等待新原生源后继续。[实测报告](2026-09-06_approved-joint-lifecycle-report.md)记录真实两次4s暂停/四tick/继续/降落和许可失效负向验证。精确覆盖仍为scene及新测试not_tracked、Node/两个适配器/Task metadata_changed、tools排除；[状态](../validation/approved-scene-lifecycle-integration-20260906/index-coverage.json)。本段直接读已知源及封存构建，按源码/运行SHA审查，没有新结构查询或不必要重索引；下次依赖这些新结构的查询须先检查/刷新，旧持久化错误未冒称解决。

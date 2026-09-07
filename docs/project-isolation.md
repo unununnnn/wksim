@@ -14,8 +14,11 @@
 | 资源 | wksim 独立位置 |
 |---|---|
 | PX4 固定源与 SITL 产物 | `/root/wksim-dependencies/px4-d6f12ad1`（Ubuntu-22.04） |
+| 已实测无Gazebo的PX4候选 | `/root/wksim-px4-state-ONa1Kw/src`；清单位于其上级目录，正式联合配置 `joint_quad_dds_v1` 单独核验准入；旧单机配置规则保留 |
 | 旧 AP 源与诊断产物 | `/root/wksim-dependencies/ardupilot-1511f271`（Ubuntu-22.04） |
 | 当前 AP/DDS/ROS2 候选 | 继续使用本项目已有 `/root/wksim-*` 目录 |
+| 正式联合控制候选 | `/root/wksim-joint-control-8xt3WC`；精确清单、源码/安装/消息覆盖层由联合预检核验 |
+| 正式联合实验 | 每次 `/root/wksim-formal-joint-*`；每个 epoch 独立进程组和 net/ipc/mnt 空间，冷重置以保留句柄核验新空间，原始证据按epoch保存 |
 | UE 环境与材质输入 | `work/dependencies/ue55/`（本仓库内、仅本机） |
 | UE 独立构建示例 | `E:/ue5.5/build/wksim-native-isolated-20260906` |
 
@@ -28,6 +31,8 @@ UE 的 12 个环境/材质/插件文件从已有 wksim 构建中归档，并逐�
 `capability-index.json` 的历史 baselines 保持原摘要；新 `resource_locations` 指定当前独立资源位置。准入仍校验原固件和组件内容哈希，未通过更改历史证据来放行新产物。
 
 UE5.5、Visual Studio、ROS2、Python及其系统库仍是正常工具链依赖；本次移除的是对其他本地工程工作副本的依赖，不是把工具链全部静态打包。
+
+2026-09-06后续独立PX4构建确认原参考二进制仍链接libgz。新的实验候选去掉相关SITL模块，实际链接和运行前后映射均无Gazebo库；固定参考仍保留。构建/当前三场验证和正式产品接入门槛见[原生状态周期报告](2026-09-06_native-state-cadence-report.md)。
 
 ## 验证
 

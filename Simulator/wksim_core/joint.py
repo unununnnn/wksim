@@ -11,7 +11,19 @@ import time
 
 from .ap_json import decode_servos, sensor_message
 from .px4_mavlink import Sender, actuator_commands, gps_arguments
-from .worker import receive_worker
+from .worker import receive_workers
+
+
+class InputTimeout(TimeoutError):
+    def __init__(self, stack, deadline):
+        super().__init__(stack+' input wall deadline exceeded')
+        self.stack,self.deadline=stack,deadline
+
+
+def before_deadline(deadline,stack=None):
+    if time.monotonic()>=deadline:
+        if stack is not None: raise InputTimeout(stack,deadline)
+        raise TimeoutError('Joint FC input wall deadline exceeded')
 
 
 class JointPhysics:
@@ -33,12 +45,14 @@ class JointPhysics:
         self.px_time = None
         self.px_commands = [0.0]*16
         self.states = {}
+        self.inflight = None
 
-    def wait_readable(self, sock, deadline):
+    def wait_readable(self, sock, deadline, stack=None):
         self.health()
-        if time.monotonic() >= deadline:
-            raise TimeoutError('Joint FC input wall deadline exceeded')
-        return bool(select.select([sock], [], [], .002)[0])
+        before_deadline(deadline,stack)
+        ready=bool(select.select([sock], [], [], .002)[0])
+        before_deadline(deadline,stack)
+        return ready
 
     def connect(self):
         deadline = time.monotonic()+25
@@ -55,10 +69,10 @@ class JointPhysics:
         self.pending_ap = self.wait_ap(None)
         self.record('connected', ap_peer=list(self.peer), px4_peer=list(address))
 
-    def wait_ap(self, previous):
-        deadline = time.monotonic()+5
+    def wait_ap(self, previous, deadline=None):
+        deadline = time.monotonic()+5 if deadline is None else deadline
         while True:
-            if not self.wait_readable(self.ap, deadline):
+            if not self.wait_readable(self.ap, deadline,'arducopter'):
                 continue
             packet, address = self.ap.recvfrom(4096)
             if self.peer is None:
@@ -69,16 +83,27 @@ class JointPhysics:
             self.record('actuator', stack='arducopter', raw_hex=packet.hex(), frame=frame,
                         rate=rate, pwm=pwm, commands=commands)
             if previous is None or frame == (previous+1) % 2**32:
-                return dict(frame=frame, commands=commands)
+                candidate=dict(frame=frame,commands=commands)
+                try: before_deadline(deadline,'arducopter')
+                except InputTimeout:
+                    # Received evidence is retained, but cannot release a model
+                    # step until an explicit input repair accepts this same ACK.
+                    self.pending_ap=candidate
+                    raise
+                return candidate
             if frame != previous:
                 raise ValueError('AP actuator frame discontinuity')
             # Duplicate requests are retained but never issue another model tick.
 
-    def wait_px4(self):
+    def wait_px4(self, deadline=None):
         startup = self.px_time is None
-        deadline = time.monotonic() + (.004 if startup else 5)
+        deadline = time.monotonic() + (.004 if startup else 5) if deadline is None else deadline
         while time.monotonic() < deadline:
-            if not self.wait_readable(self.connection, deadline):
+            try: readable=self.wait_readable(self.connection,deadline,'px4')
+            except InputTimeout:
+                if startup: return False  # Initial 4ms polling window, before synchronization.
+                raise
+            if not readable:
                 continue
             data = self.connection.recv(8192)
             if not data:
@@ -96,9 +121,10 @@ class JointPhysics:
                 self.px_time, self.px_commands = stamp, actuator_commands(message)
                 acknowledged |= stamp == self.clock.tick*1000
             if acknowledged:
+                if not startup: before_deadline(deadline,'px4')
                 return True
         if not startup:
-            raise TimeoutError('PX4 did not acknowledge the exact input barrier')
+            raise InputTimeout('px4',deadline)
         return False
 
     def advance(self):
@@ -106,9 +132,12 @@ class JointPhysics:
         tick = self.clock.begin_step()
         ap_frame, px_time = self.pending_ap['frame'], self.px_time
         inputs = dict(arducopter=self.pending_ap['commands'], px4=self.px_commands)
-        responses = {name: receive_worker(self.workers[name], dict(version=1, epoch=self.clock.epoch,
-                     tick=tick, commands=commands), self.clock.epoch) for name, commands in inputs.items()}
+        self.inflight=dict(tick=tick,ap_source_frame=ap_frame,px4_source_time_us=px_time,stage='model')
+        responses = receive_workers({name: (self.workers[name], dict(version=1, epoch=self.clock.epoch,
+                     tick=tick, commands=commands)) for name, commands in inputs.items()},
+                     self.clock.epoch, health=self.health)
         self.clock.commit(responses)
+        self.inflight['model_ticks']={name:response['tick'] for name,response in responses.items()}
         self.states = {name: response['state'] for name, response in responses.items()}
         value = json.loads(sensor_message(self.states['arducopter']))
         value.update(no_lockstep=False, no_time_sync=False)
@@ -124,15 +153,31 @@ class JointPhysics:
                 gps = self.protocol.hil_gps_encode(*gps_arguments(self.states['px4']))
                 self.protocol.send(gps)
                 self.record('gps', stack='px4', raw_hex=bytes(gps.get_msgbuf()).hex())
-        self.pending_ap = self.wait_ap(ap_frame)
-        self.clock.acknowledge_ap(self.pending_ap['frame'])
-        if tick % 4 == 0:
-            synchronized = self.wait_px4()
-            self.clock.barrier(self.pending_ap['frame'], self.px_time, synchronized)
-            self.record('barrier', ap_next_frame=self.pending_ap['frame'], px4_time_us=self.px_time,
-                        synchronized=synchronized)
-        self.record('step', ap_source_frame=ap_frame, px4_source_time_us=px_time,
-                    model_ticks={name: response['tick'] for name, response in responses.items()})
+        self.finish_inputs()
         if tick > 4000 and self.px_time is None:
             raise TimeoutError('PX4 actuator startup exceeded four simulation seconds')
         return self.states
+
+    def finish_inputs(self, *, recovering=False, deadline=None):
+        """Complete the already-produced sensor step; never issue a model RPC."""
+        if self.inflight is None or self.clock.pending is not None or self.inflight['tick']!=self.clock.tick:
+            raise ValueError('No complete model state has an outstanding native input')
+        if recovering and (not self.clock.input_pending or self.clock.phase!='faulted'):
+            raise ValueError('Input repair requires an explicitly selected latched fault')
+        tick=self.clock.tick
+        self.inflight['stage']='ap_input'
+        if self.pending_ap['frame']!=tick:
+            self.pending_ap = self.wait_ap(self.inflight['ap_source_frame'],deadline)
+        if not recovering: self.clock.acknowledge_ap(self.pending_ap['frame'])
+        if tick % 4 == 0:
+            self.inflight['stage']='px4_input'
+            synchronized = True if recovering and self.px_time==tick*1000 else self.wait_px4(deadline)
+            if recovering: self.clock.repair_input(self.pending_ap['frame'],self.px_time)
+            else: self.clock.barrier(self.pending_ap['frame'], self.px_time, synchronized)
+            self.record('barrier', ap_next_frame=self.pending_ap['frame'], px4_time_us=self.px_time,
+                        synchronized=synchronized)
+        elif recovering: self.clock.repair_input(self.pending_ap['frame'],self.px_time)
+        self.record('step', ap_source_frame=self.inflight['ap_source_frame'],
+                    px4_source_time_us=self.inflight['px4_source_time_us'],
+                    model_ticks=self.inflight['model_ticks'])
+        self.inflight=None

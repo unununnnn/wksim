@@ -5,7 +5,7 @@ public class WksimVisual : ModuleRules
     {
         PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
         PublicDependencyModuleNames.AddRange(new string[] {
-            "Core", "CoreUObject", "Engine", "InputCore", "Sockets", "Networking", "Json", "RenderCore"
+            "Core", "CoreUObject", "Engine", "InputCore", "Sockets", "Networking", "Json", "RenderCore", "RHI", "ImageWrapper"
         });
     }
 }

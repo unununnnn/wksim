@@ -12,12 +12,15 @@ class ConfigError(ValueError):
 
 def validate_config(data):
     """Return a new normalized dict; never touch resources or launch a process."""
+    if isinstance(data,dict) and data.get('kind')=='joint_scene':
+        from .joint_config import validate_joint_config
+        return validate_joint_config(data)
     if not isinstance(data, dict):
         raise ConfigError("Configuration must be a JSON object")
     required = {'schema_version', 'run_id', 'vehicle_id', 'stack', 'model_profile',
                 'communication', 'dds_workspace', 'prometheus_workspace', 'px4_root'}
     optional = {'ap_candidate', 'capabilities', 'model_library', 'display_socket', 'control_protocol',
-                'restart_control_on_ground', 'mission', 'telemetry_socket'}
+                'restart_control_on_ground', 'mission', 'telemetry_socket', 'runtime_profile'}
     if required - data.keys():
         raise ConfigError('Missing fields: ' + ', '.join(sorted(required - data.keys())))
     if data.keys() - required - optional:
@@ -37,6 +40,9 @@ def validate_config(data):
         raise ConfigError('ap_candidate is only valid for arducopter')
     if data.get('control_protocol', 'legacy_v1') not in ('legacy_v1', 'session_v1'):
         raise ConfigError('control_protocol must explicitly select legacy_v1 or session_v1')
+    if 'runtime_profile' in data:
+        if data['runtime_profile'] != 'independent_quad_dds_v1' or data.get('control_protocol') != 'session_v1':
+            raise ConfigError('Independent runtime_profile requires independent_quad_dds_v1 and session_v1')
     if 'restart_control_on_ground' in data:
         if type(data['restart_control_on_ground']) is not bool:
             raise ConfigError('restart_control_on_ground must be a boolean')

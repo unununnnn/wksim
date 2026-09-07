@@ -29,8 +29,14 @@ def private_path(path):
     return path
 
 
-def relay(path, run_id, vehicle_id=1):
-    latest = LatestState(run_id, vehicle_id)
+def relay(path, run_id, vehicle_id=1, instance_id=None):
+    packet_limit=MAX_PACKET
+    if instance_id is None:
+        latest=LatestState(run_id,vehicle_id)
+    else:
+        from Simulator.wksim_core.joint_state_stream import LatestJointState,MAX_PACKET as JOINT_LIMIT
+        latest=LatestJointState(run_id,instance_id)
+        packet_limit=JOINT_LIMIT
     path = private_path(path)
     # Never unlink another relay's socket. The owner removes only its own inode.
     with socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM) as source:
@@ -46,7 +52,7 @@ def relay(path, run_id, vehicle_id=1):
                 drained = False
                 for _ in range(256):
                     try:
-                        raw = source.recv(MAX_PACKET + 1)
+                        raw = source.recv(packet_limit + 1)
                     except BlockingIOError:
                         drained = True
                         break
@@ -57,6 +63,11 @@ def relay(path, run_id, vehicle_id=1):
                         return
                     if request != b"?":
                         raise ValueError("Expected latest-state pull")
+                    # A boot-time /tmp clear or external unlink leaves a bound
+                    # datagram FD alive but unreachable. Report lost ownership
+                    # instead of returning null forever or replacing a new owner.
+                    if not path.exists() or path.stat().st_ino != inode:
+                        raise ConnectionError("Owned state socket path was removed or replaced")
                     packet = latest.current() if drained else None
                     sys.stdout.write(json.dumps(dict(packet=packet, relay_wall_time_s=time.time()),
                                                 separators=(",", ":"), allow_nan=False) + "\n")
@@ -71,5 +82,6 @@ if __name__ == "__main__":
     parser.add_argument("--state-socket", required=True)
     parser.add_argument("--run-id", required=True)
     parser.add_argument("--vehicle-id", type=int, default=1)
+    parser.add_argument("--instance-id", help="Select v3 joint manager identity instead of the v2 single stream")
     args = parser.parse_args()
-    relay(args.state_socket, args.run_id, args.vehicle_id)
+    relay(args.state_socket, args.run_id, args.vehicle_id, args.instance_id)

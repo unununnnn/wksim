@@ -3,11 +3,25 @@
 #include "GameFramework/GameModeBase.h"
 #include "GameFramework/HUD.h"
 #include "RenderCommandFence.h"
+#include "WksimRgbSensor.h"
 #include "WksimVisualGameMode.generated.h"
 
 class FSocket;
 class ACameraActor;
 class UStaticMeshComponent;
+
+USTRUCT()
+struct FWksimJointVehicle
+{
+    GENERATED_BODY()
+    UPROPERTY() TObjectPtr<AActor> Actor;
+    UPROPERTY() TArray<TObjectPtr<UStaticMeshComponent>> Rotors;
+    FVector PositionNed = FVector::ZeroVector;
+    int64 Step = -1;
+    double ReceivedWall = 0.0;
+    double SourceWall = 0.0;
+    FString Phase;
+};
 
 UCLASS()
 class AWksimVisualGameMode : public AGameModeBase
@@ -28,14 +42,25 @@ public:
     int64 Rejected = 0;
     bool IsStale() const;
     bool IsRenderReady() const { return bRenderReady; }
+    bool IsJointStale(int32 Index) const;
+    UPROPERTY() TArray<FWksimJointVehicle> JointVehicles;
+    int32 SelectedVehicleId = 1;
+    int64 JointGeneration = 0;
 private:
     bool ApplyPacket(const uint8* Bytes, int32 Count, FString& Ack);
-    UStaticMeshComponent* AddPart(const FString& Name, const TCHAR* Asset, const FVector& Location,
+    bool ApplyJointPacket(const TSharedPtr<class FJsonObject>& Object, FString& Ack);
+    bool LoadRgbConfig(const FString& Path);
+    void TickRgb();
+    UStaticMeshComponent* AddPart(AActor* ModelActor, const FString& Name, const TCHAR* Asset, const FVector& Location,
                                 const FVector& Scale, const FRotator& Rotation = FRotator::ZeroRotator);
     UPROPERTY() TObjectPtr<AActor> Vehicle;
     UPROPERTY() TObjectPtr<ACameraActor> Camera;
     UPROPERTY() TArray<TObjectPtr<UStaticMeshComponent>> Rotors;
     TArray<double> RotorRpm;
+    FString InstanceId;
+    FString JointEpoch;
+    int64 JointStep = -1;
+    int64 LastViewRequest = -1;
     FSocket* Socket = nullptr;
     FString CaptureDirectory;
     double NextCaptureWall = 0.0;
@@ -45,6 +70,12 @@ private:
     bool bRenderReady = false;
     bool bStartupFenceQueued = false;
     FRenderCommandFence StartupFence;
+    UPROPERTY(Transient) TObjectPtr<UWksimRgbSensor> RgbSensor;
+    FWksimRgbConfig RgbConfig;
+    FString RgbEpoch;
+    int64 RgbLastStep = -1;
+    int64 RgbIntervalSteps = 100;
+    int32 RgbNotifyPort = 0;
 };
 
 UCLASS()

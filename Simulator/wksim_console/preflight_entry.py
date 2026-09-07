@@ -9,10 +9,17 @@ from Simulator.wksim_runtime.config import load_config
 def main():
     path = Path(sys.argv[1]).resolve(strict=True)
     config = load_config(path)
+    if config.get('runtime_profile'):
+        # Select strict pinned roots before delegating environment setup to the
+        # same formal entry used for execution. PX4 still imports AP DDS types.
+        from Simulator.wksim_runtime.independent_profile import select_config
+        select_config(config)
+        os.execv(sys.executable, [sys.executable, '-B', '-m',
+            'Simulator.wksim_runtime.runtime', str(path), '--preflight'])
     # Only source the reviewed local overlay, never a user-supplied setup script.
     # The real preflight still receives the requested config and reports mismatch.
     selected = load_config(Path(__file__).resolve().parents[1] /
-        'wksim_runtime/examples' / (config['stack'] + '-mission.json'))
+        'wksim_runtime/examples' / (config['stack'] + '-mission-retained-baseline.json'))
     script = '''set -eo pipefail
 source "$1/ros-install/setup.bash"
 if [[ -n $2 ]]; then source "$2/ros-install/local_setup.bash"; fi

@@ -23,6 +23,7 @@ class SceneClock:
         self.single_remaining = 0
         self.synchronized = False
         self.last_input_tick, self.recoverable = 0, False
+        self.input_pending = False
 
     def begin_step(self):
         if self.phase not in ('running', 'stepping') or self.pending is not None:
@@ -110,6 +111,7 @@ class SceneClock:
             self.recoverable = False
         elif action == 'recover':
             if (self.phase != 'faulted' or not self.recoverable or self.pending is not None
+                    or self.input_pending
                     or self.last_input_tick != self.tick
                     or self.last_barrier != self.tick-self.tick % self.MACRO_TICKS):
                 raise ValueError('Only explicit recovery of a completed communication-fault boundary is allowed')
@@ -127,16 +129,41 @@ class SceneClock:
             raise ValueError('Unsupported scene action or transition')
         return self.snapshot()
 
+    def suspend_input(self, reason):
+        """Latch an input timeout after both models committed, without rollback."""
+        if (self.phase not in ('running','stepping') or self.pending is not None
+                or not self.synchronized or self.tick<=self.last_barrier
+                or self.last_input_tick not in (self.tick,self.tick-1)
+                or not isinstance(reason,str) or not reason):
+            raise ValueError('Input suspension requires a known committed model step')
+        self.phase,self.reason,self.recoverable,self.input_pending='faulted',reason,True,True
+        self.single_remaining=0
+        return self.snapshot()
+
+    def repair_input(self, ap_frame, px4_time_us):
+        """Accept only this frozen step's real acknowledgements; remain faulted."""
+        expected_px=(self.tick-self.tick%4)*1000
+        if (self.phase!='faulted' or not self.recoverable or not self.input_pending
+                or self.pending is not None or type(ap_frame) is not int or ap_frame!=self.tick
+                or type(px4_time_us) is not int or px4_time_us!=expected_px):
+            raise ValueError('Input recovery did not prove the exact frozen boundary')
+        self.last_input_tick=self.tick
+        if self.tick%4==0: self.last_barrier=self.tick
+        self.input_pending=False
+        return self.snapshot()
+
     def fault(self, reason):
         self.phase, self.reason = 'faulted', str(reason)
         self.recoverable = False
+        self.input_pending = False
 
     def snapshot(self):
         return dict(version=1, epoch=self.epoch, tick=self.tick, time_ns=self.tick*self.STEP_NS,
                     phase=self.phase, last_barrier_tick=self.last_barrier,
                     synchronized=self.synchronized, pending_tick=self.pending,
                     single_remaining=self.single_remaining, last_request_id=self.last_request,
-                    fault=self.reason, last_input_tick=self.last_input_tick, recoverable=self.recoverable)
+                    fault=self.reason, last_input_tick=self.last_input_tick, recoverable=self.recoverable,
+                    input_pending=self.input_pending)
 
 
 class ClockPublisher:
@@ -175,7 +202,8 @@ class ClockPublisher:
         if self.publisher is None or self.node.count_publishers('/clock') > 1:
             raise RuntimeError('Scene lost unique /clock publisher ownership')
         fault_boundary = (isinstance(clock, SceneClock) and clock.phase == 'faulted' and clock.recoverable
-                          and clock.last_input_tick == clock.tick and clock.last_barrier == clock.tick-clock.tick%4)
+                          and (clock.input_pending or clock.last_input_tick == clock.tick
+                               and clock.last_barrier == clock.tick-clock.tick%4))
         if (not isinstance(clock, SceneClock) or clock.pending is not None
                 or clock.phase not in ('running', 'stepping', 'paused') and not fault_boundary):
             raise ValueError('Only committed, non-faulted scene time may be published')
