@@ -1,5 +1,7 @@
 # wksim 已批准规格、Goal与实施票据
 
+最新进展（2026-09-08 远端参考与受控QGC构建）：用户授权后分支已推送 origin（`27cf3a1` 起），Goal 明确「直到完成所有票据为止」（[goal-objective.md](goal-objective.md)）。#42 受控 QGC 构建完成：WksimGCS（Qt 6.11.1/VS2022，独立身份/编译去串口/关 GStreamer）stage 完备；`WksimGCS Daily.ini` 实证六自动连接键抑制零自动连接、单一保存 UDP 链路真实绑定 14560（type=0 修正）；14550 为本机既有 MissionPlanner 未触碰。遥测 Observer 新增字节一致 GCS 转发+反向钉定桥（17 项单测全绿）；拓扑确认需 Windows 桥接助手（下一步）。矩阵 403/29跳过（3 红=控制提升死锁层待用户 A/B/C）、Windows 96+4。详见[构建报告](../2026-09-08-contained-qgc-build-report.md)；#42/#32/#31/#21/#20/#6/1×/G2/Full 保持开放。
+
 最新进展（2026-09-08 C1速度偏航实施与提升级联）：五项决策包按用户「按照推荐继续推进」记录在案执行（[批准记录](../2026-09-08-five-decisions-accepted.md)）。#32 双栈速度/偏航已实现并实飞验证：AP 原生 cmd_vel 入口+受理前能力门、81 项候选矩阵、联合 profile 经健康提升飞行换钉 FVMjak；**四次正式联合任务双栈全部速度/偏航相位通过（4/4），AP 无效组合受理前拒绝+无副作用 3/3**；全场景干净收尾 0/4（宿主噪声，与 1× 同族）。**首次 profile 机制下提升控制包发现证据层死锁与提升通道缺失，[机制提案](../2026-09-08-control-promotion-deadlock-and-proposal.md)已提交用户**（A 显式 promotion_flight/B 回退/C 手工）。矩阵 403/29跳过（3 项红精确对应死锁层）、候选 81、Windows 96+4。详见[C1报告](../2026-09-08-c1-velocity-yaw-report.md)；#32/#21/#20/#42/#6/1×/G2/Full 保持开放。
 
 最新进展（2026-09-08 G6来源链与执行方案轮）：e1_MinModelTempLib 发现**版本一致链**（SLX↔ZIP 均 1.1183）但与 e0 动力学不同（±160 加速度饱和等独有常量）；e0 SLX 11.8 证实 R2022b 保存可本机仿真，**11.0↔11.8 漂移刻画完成**（大气/重力语义相同——codegen 预计算假象，噪声配置为唯一真实开放项）；本机 MATLAB 能力盘点（Simulink 可执行、Simulink Coder 无许可不可再生成）。#42 受控构建具体方案（工具链/开关/播种/读回验证全核实）与 #31 深度传感器实施方案（镜像 RGB 组件架构）已备好待授权。详见[漂移刻画](model-reference-drift-11x.md)、[受控构建方案](2026-09-08-contained-qgc-build-plan.md)、[深度实施方案](2026-09-08-depth-sensor-plan.md)；五项决策包（#6 批次/#31 约定/#42 构建/#21 措辞/1×）仍待用户，G2/Full 保持开放。
