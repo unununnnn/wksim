@@ -80,7 +80,11 @@ def run(path):
                 or offer['tasks'][settings['stack']]!=ready):
             raise ValueError('Task start offer differs from its ready identity')
         if settings['mode']=='recovery':
+            if settings.get('task_type','public_position')!='public_position':
+                raise ValueError('Airborne recovery is defined only for the public_position task')
             task.recover_then_land(allow_native_hold=settings['stack']=='px4')
+        elif settings.get('task_type','public_position')=='public_velocity_yaw':
+            task.execute_velocity_yaw()
         else:
             task.execute()
         result['status']='pass'

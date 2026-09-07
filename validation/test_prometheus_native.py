@@ -131,6 +131,43 @@ class NativeTests(unittest.TestCase):
             self.ap.send(Setpoint('local', position=(2., 3., 3.), yaw=0.))
         self.assertEqual(len(self.ap.position_pub.messages), 1)
 
+    def test_ap_velocity_wire_and_capability(self):
+        self.assertIsNone(self.ap.supports(Cmd(agent_cmd=Cmd.MOVE, move_mode=Cmd.XYZ_VEL, yaw_rate_mode=True)))
+        self.assertIsNone(self.ap.supports(Cmd(agent_cmd=Cmd.MOVE, move_mode=Cmd.XYZ_VEL_BODY, yaw_rate_mode=True)))
+        self.assertEqual(self.ap.supports(Cmd(agent_cmd=Cmd.MOVE, move_mode=Cmd.XYZ_VEL)),
+                         'arducopter_velocity_requires_yaw_rate_mode')
+        self.assertEqual(self.ap.supports(Cmd(agent_cmd=Cmd.MOVE, move_mode=Cmd.XY_VEL_Z_POS, yaw_rate_mode=True)),
+                         'arducopter_move_mode_not_implemented')
+        self.ap.send(Setpoint('local', velocity=(1., .5, -.2), yaw_rate=.3))
+        msg = self.ap.velocity_pub.messages[-1]
+        self.assertEqual((msg.header.frame_id, msg.header.stamp.sec), ('map', 1))
+        self.assertEqual((msg.twist.linear.x, msg.twist.linear.y, msg.twist.linear.z), (1., .5, -.2))
+        self.assertEqual(msg.twist.angular.z, .3)
+        self.ap.send(Setpoint('local', velocity=(0., 0., 0.)))
+        self.assertEqual(self.ap.velocity_pub.messages[-1].twist.angular.z, 0.)
+        for bad in (Setpoint('local', velocity=(1., 0., 0.), yaw=0.),
+                    Setpoint('local', position=(2., None, None), velocity=(1., 0., 0.), yaw_rate=0.),
+                    Setpoint('local', velocity=(math.inf, 0., 0.), yaw_rate=0.),
+                    Setpoint('local', velocity=(1., 0., 0.), yaw_rate=math.nan)):
+            with self.subTest(bad=bad), self.assertRaises(ValueError):
+                self.ap.send(bad)
+        self.assertEqual(len(self.ap.velocity_pub.messages), 2)
+        self.assertEqual(len(self.ap.position_pub.messages), 0)
+
+    def test_px_velocity_wire_and_capability(self):
+        self.assertIsNone(self.px.supports(Cmd(agent_cmd=Cmd.MOVE, move_mode=Cmd.XYZ_VEL)))
+        self.assertIsNone(self.px.supports(Cmd(agent_cmd=Cmd.MOVE, move_mode=Cmd.XYZ_VEL, yaw_rate_mode=True)))
+        self.px.send(Setpoint('local', velocity=(1., 0., 0.), yaw_rate=.5))
+        mode = self.px.publishers['offboard'].messages[-1]
+        self.assertEqual((mode.position, mode.velocity, mode.acceleration), (False, True, False))
+        msg = self.px.publishers['position'].messages[-1]
+        self.assertEqual(list(msg.velocity), [0., 1., -0.])
+        self.assertTrue(math.isnan(msg.yaw))
+        self.assertEqual(msg.yawspeed, -.5)
+        self.px.send(Setpoint('local', velocity=(0., 0., 0.), yaw=math.pi/2))
+        msg = self.px.publishers['position'].messages[-1]
+        self.assertAlmostEqual(msg.yaw, 0., places=6)
+
     def test_ap_service_ack_and_timeout(self):
         self.ap.request('mode', 'POSCTL')
         client, _ = self.ap.services['mode']

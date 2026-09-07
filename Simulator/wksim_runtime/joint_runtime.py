@@ -240,7 +240,7 @@ def epoch_run(directory,epoch,generation=1):
             folder=task_group/stack;folder.mkdir()
             settings=dict(run_id=config['run_id'],epoch=epoch,stack=stack,uav_id=uid,mode=mode,
                           token=uuid.uuid4().hex,parent=json_identity(os.getpid()),control_package=admission['control_package'],
-                          task_dwell_seconds=config['task_dwell_seconds'])
+                          task_dwell_seconds=config['task_dwell_seconds'],task_type=config['task'])
             write_json(folder/'task-config.json',settings)
             launch(stack+'-task-'+task_id,[sys.executable,'-B','-m','Simulator.wksim_runtime.joint_task',
                                          str(folder/'task-config.json')],folder,'task')

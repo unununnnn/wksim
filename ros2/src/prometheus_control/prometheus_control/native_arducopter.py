@@ -10,6 +10,7 @@ import time
 from collections import deque
 
 from ardupilot_msgs.msg import GlobalPosition, Status, WksimState
+from geometry_msgs.msg import TwistStamped
 from ardupilot_msgs.srv import ArmMotors, ModeSwitch, Takeoff
 from prometheus_msgs.msg import UAVCommand as Cmd, UAVState
 from rclpy.qos import QoSProfile, ReliabilityPolicy, DurabilityPolicy
@@ -61,6 +62,7 @@ class ArduCopterLink:
             lambda msg, key=key: self.receive(key, msg), qos) for key, cls, suffix in (
                 ('status', Status, '/status'), ('local', WksimState, '/wksim/local_state_v1'))]
         self.position_pub = node.create_publisher(GlobalPosition, self.prefix+'/cmd_gps_pose', 1)
+        self.velocity_pub = node.create_publisher(TwistStamped, self.prefix+'/cmd_vel', 1)
         self.services = {key: (node.create_client(cls, self.prefix+suffix), cls) for key, cls, suffix in (
             ('arm', ArmMotors, '/arm_motors'), ('mode', ModeSwitch, '/mode_switch'),
             ('takeoff', Takeoff, '/experimental/takeoff'))}
@@ -198,12 +200,18 @@ class ArduCopterLink:
             return None
         if not self.position_yaw:
             return 'arducopter_position_yaw_not_enabled'
+        if command.move_mode in (Cmd.XYZ_VEL, Cmd.XYZ_VEL_BODY):
+            if not command.yaw_rate_mode:
+                # The DDS velocity entry carries yaw rate only; a yaw-angle
+                # velocity target cannot be accepted without side effects.
+                return 'arducopter_velocity_requires_yaw_rate_mode'
+            return None
         if command.move_mode not in (Cmd.XYZ_POS, Cmd.XYZ_POS_BODY, Cmd.LAT_LON_ALT):
             return 'arducopter_move_mode_not_implemented'
         return None
 
     def available(self):
-        return bool(self.position_pub.get_subscription_count() and
+        return bool(self.position_pub.get_subscription_count() and self.velocity_pub.get_subscription_count() and
                     all(client.service_is_ready() for client, _ in self.services.values()))
 
     @staticmethod
@@ -220,6 +228,23 @@ class ArduCopterLink:
         local = self.latest['local']
         if not self.state(1).odom_valid:
             raise ValueError('ArduCopter odometry is invalid')
+        if target.kind == 'local' and any(v is not None for v in target.velocity):
+            if any(v is not None for v in (*target.position, *target.acceleration)):
+                raise ValueError('ArduCopter velocity profile cannot carry position/acceleration axes')
+            if target.yaw is not None:
+                raise ValueError('ArduCopter velocity profile carries yaw rate, not yaw angle')
+            if not all(math.isfinite(v) for v in target.velocity):
+                raise ValueError('ArduCopter velocity reference must be finite')
+            rate = float(target.yaw_rate) if target.yaw_rate is not None else 0.0
+            if not math.isfinite(rate):
+                raise ValueError('ArduCopter velocity yaw rate must be finite')
+            msg = TwistStamped()
+            msg.header.frame_id = 'map'
+            stamp_us(msg.header, local.time_boot_us)
+            msg.twist.linear.x, msg.twist.linear.y, msg.twist.linear.z = (float(v) for v in target.velocity)
+            msg.twist.angular.z = rate
+            self.velocity_pub.publish(msg)
+            return
         if target.yaw is None or target.yaw_rate is not None:
             raise ValueError('ArduCopter position profile requires yaw, not yaw rate')
         if target.kind == 'local':

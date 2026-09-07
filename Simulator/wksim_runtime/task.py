@@ -66,7 +66,7 @@ class Task:
         self.envelopes = []
         self.native_health = None
         self.health_received = self.health_advanced = 0.0
-        self.latest, self.received, self.events, self.sent = {}, {}, [], []
+        self.latest, self.received, self.events, self.sent, self.expected_rejections = {}, {}, [], [], []
         self.error = None
         self.active = False
         self.last_stamp = None
@@ -242,7 +242,11 @@ class Task:
                 if monitoring and event.get('event') == 'control_revoked':
                     self.on_control_revoked(event)
                 elif monitoring and event.get('event') in ('setup_rejected', 'command_rejected') and rejected_own_request:
-                    self.error = f'Product control failure: {event}'
+                    if (getattr(self, '_expecting_rejection', None) is not None
+                            and event.get('request_id') == self._expecting_rejection):
+                        self.expected_rejections.append(event)
+                    else:
+                        self.error = f'Product control failure: {event}'
             except (ValueError, AttributeError):
                 self.error = 'Malformed product event'
 
@@ -346,6 +350,28 @@ class Task:
             self.wait(label, acknowledged, timeout)
         finally:
             self.pending_request_id = None
+    def offer_rejected(self, msg, reason, label, timeout=10):
+        """Publish a command that must be rejected pre-acceptance; verify the exact reason."""
+        if self.protocol != 'session_v1' or self.epoch is None:
+            raise RuntimeError('Expected-rejection probe requires a current session')
+        start = len(self.events)
+        msg.header.stamp = self.node.get_clock().now().to_msg()
+        msg.header.frame_id = 'map'
+        self.sent.append(self.convert(msg))
+        self.request_id += 1
+        outgoing = self.CommandRequest(version=1, run_id=self.run_id, control_epoch=self.epoch,
+                                       request_id=self.request_id, command=msg)
+        self.envelopes.append(self.convert(outgoing))
+        self.log.write(json.dumps(dict(wall=time.monotonic()-self.started, published='CommandRequest',
+                                       message=self.envelopes[-1], request_envelope=True)) + '\n')
+        self._expecting_rejection = self.request_id
+        try:
+            self.command_pub.publish(outgoing)
+            self.wait(label, lambda: any(e.get('event') == 'command_rejected'
+                                         and e.get('request_id') == self._expecting_rejection
+                                         and e.get('reason') == reason for e in self.events[start:]), timeout)
+        finally:
+            self._expecting_rejection = None
 
     def dwell(self, label, predicate, seconds):
         clock = self.task_time if self.use_sim_time else lambda: state_time(self.state)
@@ -487,6 +513,67 @@ class Task:
         completed_at = time.monotonic()
         self.wait('normal_stop_ready', lambda: self.fresh() and grounded(self.state, self.uav_id)
                   and self.received.get('state', 0) > completed_at)
+    def execute_velocity_yaw(self):
+        """Dual-stack velocity step / zero hold / yaw-rate profile on the public command path.
+
+        Frozen gates for the velocity+yaw slice: step tracks (0.8, 0.4, 0.0) m/s ENU
+        within 0.3 m/s per axis; zero hold keeps |v| <= 0.25 m/s and drift <= 1.0 m;
+        yaw rate 0.5 rad/s tracks the integrated angle within 0.35 rad. The invalid
+        ArduCopter velocity+yaw-angle combo must be rejected pre-acceptance with the
+        exact capability reason and zero control side effects.
+        """
+        self.wait('public_control_ready', lambda: self.fresh() and
+                  self.setup_pub.get_subscription_count() == 1 and self.command_pub.get_subscription_count() == 1, 55)
+        if not grounded(self.state, self.uav_id):
+            raise RuntimeError('Task requires initial disarmed ground state')
+        self.active = True
+        self.send(self.Setup(cmd=self.Setup.SET_PX4_MODE, px4_mode='AUTO.LOITER'), 'autonomous_hold_ready')
+        if self.flight_stack == 'px4':
+            mode_completed_at = time.monotonic()
+            self.wait('native_prearm_health_ready', lambda: self.arm_ready(mode_completed_at), 55)
+        self.send(self.Setup(cmd=self.Setup.ARMING, arming=True), 'arming_completed')
+        self.wait('armed', lambda: self.state.armed)
+        self.send(self.Setup(cmd=self.Setup.SET_CONTROL_MODE, control_state='COMMAND_CONTROL'),
+                  'task_control_ready', 40)
+        self.wait('takeoff_reached', lambda: self.state.position[2] >= 2.5, 25)
+        self.dwell('hold_completed', lambda: abs(self.state.position[2] - 3) <= 0.6
+                   and max(abs(x) for x in self.state.attitude[:2]) <= 0.35, 5)
+        def move_velocity(velocity, rate, command_id, label):
+            self.send(self.Cmd(agent_cmd=self.Cmd.MOVE, move_mode=self.Cmd.XYZ_VEL,
+                               velocity_ref=list(velocity), yaw_rate_mode=True, yaw_rate_ref=rate,
+                               command_id=command_id), label)
+        def tracking(target):
+            return (self.fresh() and all(abs(self.state.velocity[axis] - target[axis]) <= 0.3 for axis in range(3)))
+        move_velocity((0.8, 0.4, 0.0), 0.0, 1, 'velocity_step_accepted')
+        self.dwell('velocity_step_settled', lambda: self.fresh(), 2)
+        self.dwell('velocity_step_tracking', lambda: tracking((0.8, 0.4, 0.0)), 3)
+        anchor = tuple(self.state.position)
+        move_velocity((0.0, 0.0, 0.0), 0.0, 2, 'velocity_hold_accepted')
+        self.dwell('velocity_hold_settled', lambda: self.fresh(), 2)
+        self.dwell('velocity_zero_hold', lambda: self.fresh()
+                   and math.hypot(*self.state.velocity) <= 0.25
+                   and math.dist(self.state.position, anchor) <= 1.0, 4)
+        yaw0, t0 = self.state.attitude[2], self.task_time()
+        move_velocity((0.0, 0.0, 0.0), 0.5, 3, 'yaw_rate_accepted')
+        def yaw_tracked():
+            advance = (self.state.attitude[2] - yaw0 + math.pi) % (2 * math.pi) - math.pi
+            return self.fresh() and abs(advance - 0.5 * (self.task_time() - t0)) <= 0.35
+        self.dwell('yaw_rate_tracking', yaw_tracked, 4)
+        if self.flight_stack == 'arducopter':
+            move_velocity((0.0, 0.0, 0.0), 0.0, 4, 'velocity_rehold_accepted')
+            self.dwell('velocity_rehold_settled', lambda: self.fresh(), 2)
+            self.offer_rejected(self.Cmd(agent_cmd=self.Cmd.MOVE, move_mode=self.Cmd.XYZ_VEL,
+                                         velocity_ref=[1.0, 0.0, 0.0], yaw_ref=0.0, command_id=5),
+                                'arducopter_velocity_requires_yaw_rate_mode', 'invalid_combo_rejected')
+            self.dwell('invalid_combo_no_side_effects', lambda: self.fresh()
+                       and math.hypot(*self.state.velocity) <= 0.25, 2)
+        self.send(self.Cmd(agent_cmd=self.Cmd.LAND, command_id=6), 'land_accepted')
+        self.wait('landed_disarmed_public', lambda: grounded(self.state, self.uav_id), 30)
+        self.send(self.Setup(cmd=self.Setup.SET_PX4_MODE, px4_mode='AUTO.LOITER'), 'ground_hold_completed')
+        completed_at = time.monotonic()
+        self.wait('normal_stop_ready', lambda: self.fresh() and grounded(self.state, self.uav_id)
+                  and self.received.get('state', 0) > completed_at)
+
 
     def report(self):
         return dict(sent=self.sent, events=self.events, protocol=self.protocol, run_id=self.run_id,

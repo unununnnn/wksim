@@ -17,8 +17,8 @@ def validate_joint_config(data):
         raise ConfigError('Invalid joint run_id')
     if not isinstance(data['runtime_profile'],str) or not re.fullmatch(r'[a-z][a-z0-9_]{0,63}',data['runtime_profile']):
         raise ConfigError('Invalid joint runtime_profile')
-    if data.get('task','public_position')!='public_position':
-        raise ConfigError('Only the Prometheus public_position task is implemented for this initial joint profile')
+    if data.get('task','public_position') not in ('public_position','public_velocity_yaw'):
+        raise ConfigError('Only the Prometheus public_position/public_velocity_yaw tasks are implemented for this joint profile')
     if 'display_socket' in data:
         path=data['display_socket']
         if not isinstance(path,str):raise ConfigError('display_socket must be a Linux pathname')
@@ -34,5 +34,5 @@ def validate_joint_config(data):
             or any(type(value) not in (int,float) or not math.isfinite(value)
                    or not {'hold':5,'waypoint':2}[key]<=value<=600 for key,value in dwell.items())):
         raise ConfigError('task_dwell_seconds accepts hold in 5..600 and waypoint in 2..600 finite seconds')
-    return dict(data,task='public_position',requested_rate=rate,
+    return dict(data,task=data.get('task','public_position'),requested_rate=rate,
                 task_dwell_seconds={'hold':5,'waypoint':2}|dwell)
