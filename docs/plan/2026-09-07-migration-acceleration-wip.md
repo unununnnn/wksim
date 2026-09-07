@@ -4,6 +4,8 @@
 
 ## 最新执行点（覆盖后文历史状态）
 
+2026-09-08 C1速度偏航实施与提升级联（全部主代理完成）：按[五项批准记录](../2026-09-08-five-decisions-accepted.md)执行。#32 实现：native_arducopter cmd_vel/TwistStamped 速度入口（固件处理器实证）+supports 受理前拒绝速度+偏航角组合；Task.execute_velocity_yaw（预期拒绝机制）、public_velocity_yaw 任务类型、验证驱动/启动器；语义与门槛冻结入票。FVMjak 候选 81 通过；提升飞行 `_cs_wxw_` 实飞+审计后 joint-profiles/MUlZd0 快照/示例配置换钉。四次正式联合速度任务：双栈阶跃（|Δ|≤0.3×3s）/零保持（|v|≤0.25×4s）/偏航速率（积分角|Δ|≤0.35×4s）与 AP 无效组合拒绝+无副作用全部持续真值通过（4/4 相位）；干净收尾 0/4（两次降落 rate_unmet 100.02/100.03ms、一次原生 freshness 撤销、一次驱动缺陷已修），样本全保留。**控制提升级联发现证据层死锁（independent catalog 与 session_v1 两层）与提升通道缺失，[机制提案](../2026-09-08-control-promotion-deadlock-and-proposal.md)提交用户**；当前矩阵 403/29跳过（3 红=死锁层）、Windows 96+4 绿（`028d943`）。Goal active；#32 干净验收待宿主窗口，独立 profile 飞行待提升机制决策。
+
 2026-09-08 G6来源链与执行方案轮（全部主代理完成）：e1 版本一致链（SLX↔ZIP 1.1183，R2024b）确立但动力学异于 e0；e0 SLX 11.8 为 R2022b 保存、本机可仿真；11.0↔11.8 漂移刻画完成——大气（ISA 常量预计算一致到 15 位）/重力（9.81）语义相同，噪声功率/种子（SLX 11.8 显式 [23093–23098]+noisePowerIMU vs ZIP 无此字面量）为唯一真实开放项，结构等价留待确定性对照行为判定；本机 Simulink Coder 无许可（checkout -5,357）不可再生成、Embedded Coder 可用（`a12d1a3`）。#42 受控构建方案全要素核实（Qt6.8.3/VS2022/cmake4.3.1、QGC_NO_SERIAL_LINK 编译去串口、私有 ini 播种与无 GUI 读回验证，`0d43ddf`）；#31 深度实施方案镜像 RGB（R32F SceneDepth→float32 平面 Z 米制+NaN、内参反投影→ENU 点云，`2aaea6d`）。Goal active；五项决策包待用户，批准后即执行 C1/#31/#42。
 
 2026-09-07 #42核查与决策包轮（全部主代理完成）：#42 厂商证据核查（HowToUse.pdf 全文/官网检索/exe 字符串+GitHub API 实查）维持「无受控启动机制」结论；新事实为本机 `../qgroundcontrol/` 完整现代源码检出（CLI 无 --settings-file），唯一可核验路径 QGC_CUSTOM_DIR 定制构建（独立身份/关闭自动连接/回环链路），构建授权与界面动作分工已提交用户（`63b4cd2`）。#6 首期批次与验收矩阵提案（已验证项基线+C1→C2→C3 控制链批次）与 #31 深度点云约定提案已发布（`ff2cc22`）。CBM 原生刷新 50,515/163,780 ready。Goal active；#20/#21/#42/1×/G2/Full 不关闭，等待用户批答后可执行前沿为 C1 控制链与 #31 实施。
