@@ -20,7 +20,7 @@ def save(path,value):Path(path).write_text(json.dumps(value,indent=2,allow_nan=F
 def unc(path):return Path('\\\\wsl.localhost\\Ubuntu-22.04'+str(path).replace('/','\\'))
 
 
-def run(manifest,output,reconnect_view=False):
+def run(manifest,output,reconnect_view=False,reset_scene=False):
     output=output.resolve();output.mkdir(parents=True,exist_ok=False)
     run_id='joint-view-'+uuid.uuid4().hex[:10]
     config=dict(schema_version=1,kind='joint_scene',run_id=run_id,runtime_profile='joint_quad_dds_v1',
@@ -132,6 +132,20 @@ def run(manifest,output,reconnect_view=False):
             state,current=wait('public tasks landed',lambda s,v:s and s['task_state']=='completed',300)
             assert all(not item['state']['armed'] for item in state['participants'].values())
             report['final_actor']=current['latest_actor']
+            if reset_scene:
+                old_generation=current['latest_actor']['ack']['generation']
+                reset=action('cold-reset',epoch,180)
+                state,current=wait('new epoch ground display after scene reset',lambda s,v:
+                    s and s['epoch']!=epoch and 'start-task' in s['allowed_actions']
+                    and v and v['state']=='live' and v['latest_actor']['ack']['epoch']==s['epoch']
+                    and v['latest_actor']['ack']['generation']==old_generation+1
+                    and len(v['latest_actor']['ack']['vehicles'])==2
+                    and all(not item['stale'] for item in v['latest_actor']['ack']['observed_vehicles']),180)
+                assert reset['new_epoch']==state['epoch'] and state['task_state']=='idle'
+                report['scene_reset']=dict(old_epoch=epoch,new_epoch=state['epoch'],old_generation=old_generation,
+                                           new_actor=current['latest_actor'],
+                                           isolation='new epoch/generation accepted only with both vehicles fresh; old-generation datagrams rejected by the validated receiver (LatestJointState)')
+                epoch=state['epoch']
             action('stop',epoch)
             manager.wait(timeout=30);report['manager_returncode']=manager.returncode
         result=read(shared/'result.json')
@@ -167,6 +181,7 @@ if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--manifest',required=True,type=Path);parser.add_argument('--output',required=True,type=Path)
     parser.add_argument('--reconnect-view',action='store_true',help='Also restart the entire UE process while airborne; record host resource failures')
-    args=parser.parse_args();result=run(args.manifest,args.output,args.reconnect_view)
+    parser.add_argument('--reset-scene',action='store_true',help='Also cold-reset the scene after landing and verify old-generation display isolation')
+    args=parser.parse_args();result=run(args.manifest,args.output,args.reconnect_view,args.reset_scene)
     print(json.dumps({key:result.get(key) for key in ('status','error','cleanup_error','cleanup_incomplete')}))
     raise SystemExit(0 if result['status']=='pass' else 1)

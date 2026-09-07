@@ -2,6 +2,8 @@
 
 状态：2026-09-05用户“确认开始”批准；ready-for-agent。阻塞未清除前不进入执行前沿。
 
+2026-09-07 证据轮：基础双机显示/相机选择/暂停/单步/降落正式通过（`joint-visual-20260907-run8`，Actor 回读与权威真值逐机一致）；UE 整进程空中重开物理独立推进 1768 tick（run9）；冷重置代次隔离真实通过（run10，新增 `--reset-scene` 驱动）。验收 3 前半句「一机断流仅该机标陈」与单一权威屏障架构冲突，已提交用户（[报告](../../2026-09-07-joint-ue-visual-evidence-report.md)），未代为决定，本票继续 OPEN。
+
 ## Parent
 
 [规格：Prometheus 到 wksim 完整仿真工具链移植](https://github.com/unununnnn/wksim/issues/10)；来源：[Wayfinder：Prometheus 双飞控 SITL 移植（UE5.5 / ROS2 / DDS）](https://github.com/unununnnn/wksim/issues/1)。不改写或关闭父图。
