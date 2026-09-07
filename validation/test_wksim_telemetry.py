@@ -127,6 +127,77 @@ class SocketTests(unittest.TestCase):
         with self.assertRaises(BlockingIOError):
             sender.recvfrom(65535)
 
+    def gcs_observer(self, stack='px4', target='127.0.0.1:14560'):
+        result = Observer(dict(stack=stack, telemetry_socket=str(self.path),
+                               run_id='telemetry-unit', vehicle_id=1, gcs_udp_forward=target))
+        self.addCleanup(result.close)
+        return result
+
+    def qgc_packet(self, heartbeat=True):
+        encoder = mav.MAVLink(None, srcSystem=255, srcComponent=1)
+        message = (mav.MAVLink_heartbeat_message(6, 8, 0, 0, 3, 3) if heartbeat
+                   else mav.MAVLink_attitude_message(123, 1, 2, 3, 4, 5, 6))
+        return bytes(message.pack(encoder))
+
+    def test_reverse_bridge_forwards_qgc_bytes_to_pinned_fc_only(self):
+        observer = self.gcs_observer()
+        fc = self.sender()
+        qgc = self.sender(port=24570)
+        qgc.sendto(self.qgc_packet(heartbeat=False), ('127.0.0.1', 14570))
+        observer.poll(0.1)
+        self.assertEqual(observer.counters['reverse_received'], 1)
+        self.assertEqual(observer.counters['reverse_dropped'], 1)
+        self.assertEqual(observer.counters['reverse_forwarded'], 0)
+        qgc.sendto(self.qgc_packet(), ('127.0.0.1', 14570))
+        observer.poll(0.1)
+        self.assertEqual(observer.qgc_peer[1], 24570)
+        self.assertEqual(observer.counters['reverse_forwarded'], 0)
+        self.deliver(observer, fc, packet())
+        self.assertIsNotNone(observer.peer)
+        command = self.qgc_packet(heartbeat=False)
+        qgc.sendto(command, ('127.0.0.1', 14570))
+        observer.poll(0.1)
+        self.assertEqual(observer.counters['reverse_forwarded'], 1)
+        received, peer = fc.recvfrom(65535)
+        self.assertEqual(received, command)
+        self.assertEqual(peer, ('127.0.0.1', 14570))
+        foreign = self.sender(port=24571)
+        foreign.sendto(self.qgc_packet(), ('127.0.0.1', 14570))
+        observer.poll(0.1)
+        self.assertEqual(observer.counters['reverse_wrong_peer'], 1)
+
+
+    def test_gcs_forward_byte_identical_only_after_native_peer_pinned(self):
+        gcs = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.addCleanup(gcs.close)
+        gcs.bind(('127.0.0.1', 14560))
+        gcs.settimeout(0.2)
+        observer = self.gcs_observer()
+        sender = self.sender()
+        self.deliver(observer, sender, packet(heartbeat=False))
+        self.assertEqual(observer.counters['gcs_forwarded'], 0)
+        with self.assertRaises(socket.timeout):
+            gcs.recvfrom(65535)
+        wire = packet()
+        self.deliver(observer, sender, wire)
+        self.assertEqual(observer.counters['gcs_forwarded'], 1)
+        forwarded, peer = gcs.recvfrom(65535)
+        self.assertEqual(forwarded, wire)
+        self.assertEqual(peer[0], '127.0.0.1')
+
+    def test_gcs_forward_validation_rejects_non_loopback_and_pinned_ports(self):
+        from Simulator.wksim_runtime.config import ConfigError, validate_config
+        base = dict(schema_version=1, run_id='telemetry-unit', vehicle_id=1, stack='px4',
+                    model_profile='quad_x', communication='native_dds',
+                    dds_workspace='/root/wksim-dds-VxM6Ni', prometheus_workspace='/root/wksim-ros2-MUlZd0',
+                    px4_root='/root/wksim-px4-state-ONa1Kw/src')
+        for bad in ('192.168.1.10:14560', 'localhost:14560', '127.0.0.1:14550',
+                    '127.0.0.1:14660', '127.0.0.1:9999', '127.0.0.1:61000', '127.0.0.1:abc'):
+            with self.subTest(bad=bad), self.assertRaises(ConfigError):
+                validate_config(dict(base, gcs_udp_forward=bad))
+        self.assertEqual(validate_config(dict(base, gcs_udp_forward='127.0.0.1:14560'))['gcs_udp_forward'],
+                         '127.0.0.1:14560')
+
     def test_output_original_bytes_metadata_unbound_and_no_udp_reply(self):
         receiver = self.receiver()
         observer = self.observer()

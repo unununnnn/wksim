@@ -20,7 +20,7 @@ def validate_config(data):
     required = {'schema_version', 'run_id', 'vehicle_id', 'stack', 'model_profile',
                 'communication', 'dds_workspace', 'prometheus_workspace', 'px4_root'}
     optional = {'ap_candidate', 'capabilities', 'model_library', 'display_socket', 'control_protocol',
-                'restart_control_on_ground', 'mission', 'telemetry_socket', 'runtime_profile'}
+                'restart_control_on_ground', 'mission', 'telemetry_socket', 'runtime_profile', 'gcs_udp_forward'}
     if required - data.keys():
         raise ConfigError('Missing fields: ' + ', '.join(sorted(required - data.keys())))
     if data.keys() - required - optional:
@@ -67,6 +67,13 @@ def validate_config(data):
     if ('telemetry_socket' in data and 'display_socket' in data
             and PurePosixPath(data['telemetry_socket']) == PurePosixPath(data['display_socket'])):
         raise ConfigError('telemetry_socket and display_socket must be distinct')
+    if 'gcs_udp_forward' in data:
+        value = data['gcs_udp_forward']
+        if not isinstance(value, str) or not re.fullmatch(r'127\.0\.0\.1:([0-9]{4,5})', value):
+            raise ConfigError('gcs_udp_forward must be 127.0.0.1:<port> (loopback only)')
+        port = int(value.rsplit(':', 1)[1])
+        if not 10000 <= port <= 60999 or port in (12019, 14550, 14660, 14661, 18591, 18888):
+            raise ConfigError('gcs_udp_forward port must be 10000-60999 and not a pinned simulation/telemetry port')
     requested = data.get('capabilities', ['native_position_mission'])
     if (not isinstance(requested, list) or not requested or
             any(not isinstance(item, str) or not item for item in requested) or

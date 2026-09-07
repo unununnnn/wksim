@@ -6,6 +6,8 @@
 
 2026-09-07 厂商证据核查：厂商文档站/HowToUse.pdf/exe 字符串均无来源对应与受控启动机制，维持前研究结论；新发现本机 `../qgroundcontrol/` 完整现代源码检出（Qt6/CMake，CLI 无 --settings-file），唯一可核验路径是 QGC_CUSTOM_DIR 定制构建（独立身份/关闭自动连接/回环链路），范围决策与界面动作分工已提交用户（[核查与 HITL](../../2026-09-07-qgc-vendor-evidence-and-hitl.md)），本票继续 OPEN。
 
+2026-09-08 受控 QGC 构建与遥测接入进展：WksimGCS（Qt 6.11.1/VS2022，独立身份/编译去串口/关 GStreamer）构建通过并 stage 完备；实际设置文件 `WksimGCS Daily.ini`（daily 命名）实证；六个自动连接键抑制与单一保存 UDP 链路（0.0.0.0:14560，type=0 修正 NO_SERIAL 枚举）真实绑定读回；14550 核实为本机既有 MissionPlanner（未触碰）。遥测 Observer 已具字节一致 GCS 转发+反向钉定桥（17 项单测）；拓扑确认需 Windows 桥接助手（telemetry_socket↔QGC loopback）为下一步，随后验收运行需用户亲手切模式。详见[构建报告](../../2026-09-08-contained-qgc-build-report.md)，本票继续 OPEN。
+
 2026-09-06工作台动作跟进：暂停/显式恢复按钮已实现，正式本地HTTP→Prometheus双栈恢复及暂停后取消4例通过，源身份/任务日志/独立物理重核，16个Linux组及12个Windows启动器无残留；见[报告](../../2026-09-06_console-mission-actions-report.md)。尚无真实浏览器或QGC操作验收，仍不关闭本票；以下“UI按钮未交付”仅为早期快照。
 
 2026-09-06任务生命周期跟进：正式MissionTask已接入CLI暂停/恢复、外部模式释放保活和暂停中取消等待显式接管；双栈6个新场景通过，1个脚本失败样本保留，28个自建进程组无残留。机体系目标恢复使用原记录ENU、新身份和整段驻留；原生故障不自动恢复。详见[本轮报告](../../2026-09-06_mission-lifecycle-report.md)。实际QGC、RC驾驶及UI按钮仍未验收，本票保持OPEN，不据CLI/公开输入测试关闭。
