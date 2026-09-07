@@ -4,6 +4,8 @@
 
 ## 最新执行点（覆盖后文历史状态）
 
+2026-09-07 恢复/修订/1×重测轮（全部主代理完成）：用户「全按照推荐进行」已执行。AP/PX4 失联恢复回归修订前合同下双通过（etsaqmso/nasz1u3f，审计各两次字节一致+负例）。start-recovery-task 重锚修订已实现+单测 11/11+[合同附录](../2026-09-07-rate-contract-amendment-start-recovery-task.md)；修订后 4 次真实尝试全部如实失败于锚点之前（q2qexeye EKF origin 复位；w1wi0gpj/dtcollzf/523cme9k recover 窗口末端 >100ms 单次停顿），当晚宿主显著更噪（seg1 worst 75–95ms vs 早晨 46–82ms）。1× 重测三 epoch（vmmemWSL=High 核验 priority=13，VM 重启需重设）：47.1/41.1/23.7s 仍未达 60s×3（较 31.3s 提升 50%）。矩阵 404(38跳过)/11/79/96+4 全绿，残留干净。**recover 窗口风暴新合同问题与 1× 后续选项已提交用户**，见[本轮报告](../2026-09-07-recovery-amendment-1x-retest-report.md)。Goal active，#20/#22/G2/Full 不关闭。
+
 2026-09-07 收口轮（全部主代理完成，本会话无 gpt-6-astra 可核验配置）：临时 timing_probe 已按基准精确清理；新增自有进程 nice/FIFO 调度、AP 包单次序列化、健康轮询 1ms 限频（检测仍 ≤1ms）。四矩阵 403(38跳过)/11/79/96+4 全绿。RGB 生产者停启/重连/冷重置旧 epoch 隔离与空中公共任务实时 RGB 均真实通过并审计（`joint-rgb-lifecycle-20260907-run2`、`joint-rgb-airborne-20260907-run2`）。0.5× 生命周期回归以 cohort 同字节 wrapper 通过（`joint-rate-flow-ox8h58cv`）。**持续 1× 最佳 31.3s/需 60s 仍失败**，迟到实测为宿主机层停顿（FIFO 无可测改善）；**AP 失联恢复在 0.5× 监督下因 start-recovery-task 的 DDS 发现风暴（FC 锁步停顿 69.57/15.31/6.85ms）如实 rate_unmet 失败**。两项未决问题已提交用户，见 [本轮报告](../2026-09-07-rate-recovery-rgb-closure-report.md)。失败样本全部保留，Goal active，#19/#20/#21/#22/G2/Full 不关闭。
 
 本轮最新：RGB四个几何/遮挡场景共60帧通过，增加v2生产实例身份并修复真实重连晚到旧帧；持续1×仍失败。当前未提交改动及资源/测试边界见 [最新检查点](../2026-09-07-rgb-geometry-rate-wip.md)。所有本轮真实实验已结束，Goal active。

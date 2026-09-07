@@ -98,8 +98,9 @@ def epoch_run(directory,epoch,generation=1):
     mailbox=Mailbox(directory,config['run_id'],epoch)
     children=[]; specs={}; expected=set(); model_workers={}; agents={}
     monitor=lifecycle=None
-    task_group=None; task_state='idle'; ever_started=False; needs_recovery_task=False
+    task_group=None; task_state='idle'; ever_started=False; needs_recovery_task=False; recovery_group=None
     offer=uuid.uuid4().hex; previous_offer=None; next_status=0.; pending=None; busy_phase=None
+    pending_task_reanchor=False
     physics_wait_started=None; last_child_poll=0.
     started=time.monotonic()
     # Own-process scheduling priority for the latency-critical lockstep loop.
@@ -227,22 +228,25 @@ def epoch_run(directory,epoch,generation=1):
         result['action_results'].append(record)
     def clock_action(action):
         return clock.request(dict(version=1,epoch=epoch,request_id=clock.last_request+1,action=action))
-    def start_tasks(mode,prepare_only=False):
-        nonlocal task_group,task_state,ever_started
-        if mode=='initial' and task_group is not None and not ever_started and not prepare_only:
-            task_state='preparing';ever_started=True
-            return
+    def launch_task_group(mode):
         task_id=uuid.uuid4().hex
-        task_group=output/'tasks'/task_id
-        task_group.mkdir(parents=True)
+        group=output/'tasks'/task_id
+        group.mkdir(parents=True)
         for stack,uid in (('arducopter',1),('px4',2)):
-            folder=task_group/stack;folder.mkdir()
+            folder=group/stack;folder.mkdir()
             settings=dict(run_id=config['run_id'],epoch=epoch,stack=stack,uav_id=uid,mode=mode,
                           token=uuid.uuid4().hex,parent=json_identity(os.getpid()),control_package=admission['control_package'],
                           task_dwell_seconds=config['task_dwell_seconds'])
             write_json(folder/'task-config.json',settings)
             launch(stack+'-task-'+task_id,[sys.executable,'-B','-m','Simulator.wksim_runtime.joint_task',
                                          str(folder/'task-config.json')],folder,'task')
+        return group
+    def start_tasks(mode,prepare_only=False):
+        nonlocal task_group,task_state,ever_started
+        if mode=='initial' and task_group is not None and not ever_started and not prepare_only:
+            task_state='preparing';ever_started=True
+            return
+        task_group=launch_task_group(mode)
         if not prepare_only:
             task_state='preparing';ever_started=True
     try:
@@ -384,12 +388,18 @@ def epoch_run(directory,epoch,generation=1):
                     mailbox.respond(pending,'failed',reason=str(error),authority=clock.snapshot());pending=None
                 status(['stop','cold-reset'],'faulted')
             def advance():
-                nonlocal physics_wait_started
+                nonlocal physics_wait_started,pending_task_reanchor
                 if clock.tick%4==0:
                     if clock.phase=='running' and clock.synchronized:
                         if rate.anchor is None:
                             rate.reanchor(clock.tick,'synchronized_boundary',
                                           transition=lifecycle.phase in ('recovering','resuming'))
+                        elif pending_task_reanchor:
+                            # Deferred from a mid-group start-recovery-task request:
+                            # fire at this complete boundary before pacing resumes.
+                            pending_task_reanchor=False
+                            if not rate.latched:
+                                rate.reanchor(clock.tick,'start-recovery-task',transition=True)
                         rate.begin_group(clock.tick,physics_health)
                     else:
                         record_rate('untimed_group_start',classification='single_step' if clock.phase=='stepping' else 'bootstrap',
@@ -407,7 +417,7 @@ def epoch_run(directory,epoch,generation=1):
                 finally:
                     physics_wait_started=None
             def recover(request):
-                nonlocal task_state,needs_recovery_task,busy_phase,ever_started
+                nonlocal task_state,needs_recovery_task,busy_phase,ever_started,recovery_group
                 recovery_started=time.monotonic()
                 busy_phase='recovering'
                 status(['stop','cold-reset'],busy_phase)
@@ -453,8 +463,8 @@ def epoch_run(directory,epoch,generation=1):
                                          pid=child.pid,returncode=child.returncode)
                         expected.add(child.pid)
                 observation=lifecycle.recover_physics(advance,frozen)
-                rate.reanchor(clock.tick,'recover_confirmed')
                 grounded=all(not monitor.sessions[uid].state.armed for uid in (1,2))
+                rate.reanchor(clock.tick,'recover_confirmed')
                 needs_recovery_task=not grounded
                 task_state='idle' if grounded else 'recovery_required'
                 if grounded: ever_started=False
@@ -541,6 +551,7 @@ def epoch_run(directory,epoch,generation=1):
                     request=mailbox.poll(offer,allowed)
                     if request:
                         action=request['action']
+                        if action!='start-recovery-task': pending_task_reanchor=False
                         if action in ('stop','cold-reset'):
                             rate.close_segment(action,clock.tick)
                             if pending is not None:
@@ -552,6 +563,16 @@ def epoch_run(directory,epoch,generation=1):
                             record_images('stopping')
                             break
                         if action in ('start-task','start-recovery-task'):
+                            # Approved 2026-09-07 amendment: an explicit operator
+                            # start-recovery-task closes the previous rate segment
+                            # and re-anchors like recover/resume; every numeric
+                            # budget (100ms / 10s ±2% / 60s ±1%) stays unchanged.
+                            if action=='start-recovery-task':
+                                if (clock.phase=='running' and clock.synchronized and clock.tick%4==0
+                                        and rate.anchor is not None and rate.group is None and not rate.latched):
+                                    rate.reanchor(clock.tick,'start-recovery-task',transition=True)
+                                else:
+                                    pending_task_reanchor=True
                             start_tasks('initial' if action=='start-task' else 'recovery')
                             needs_recovery_task=False;complete(request,effect='new_tasks_started')
                         elif action=='set-rate':

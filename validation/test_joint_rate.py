@@ -93,7 +93,7 @@ class RateTests(unittest.TestCase):
         self.assertEqual(sample['actual_check_ns']-sample['ideal_boundary_ns'],LATE_LIMIT_NS+1)
 
     def test_transition_confirmation_cannot_discard_boundary_lateness(self):
-        for reason in ('resume_confirmed','recover_confirmed'):
+        for reason in ('resume_confirmed','recover_confirmed','start-recovery-task'):
             with self.subTest(reason=reason):
                 rate=self.rate(1)
                 rate.begin_group(4,lambda:None)
@@ -102,6 +102,23 @@ class RateTests(unittest.TestCase):
                 with self.assertRaises(RateUnmet): rate.reanchor(8,reason)
                 self.assertEqual(rate.segment_id,1)
                 self.assertTrue(rate.latched)
+
+    def test_start_recovery_task_anchor_resets_segment_but_not_budgets(self):
+        # Approved 2026-09-07 amendment: the storm segment starts at zero, but
+        # the unchanged 100ms budget still applies inside it.
+        rate=self.rate()
+        rate.begin_group(4,lambda:None);self.wall.ns+=8_000_000;rate.end_group(8)
+        self.assertEqual(rate.worst_lateness_ns,0)
+        rate.reanchor(8,'start-recovery-task',transition=True)
+        self.assertEqual(rate.segment_id,2)
+        self.assertTrue(rate.anchor['transition'])
+        self.assertEqual(rate.worst_lateness_ns,0)
+        self.assertIn('rate_segment_end',[event['kind'] for event in self.events])
+        anchor=[event for event in self.events if event['kind']=='rate_anchor'][-1]
+        self.assertEqual(anchor['reason'],'start-recovery-task')
+        self.wall.ns+=LATE_LIMIT_NS+1
+        with self.assertRaises(RateUnmet): rate.begin_group(8,lambda:None)
+        self.assertTrue(rate.latched)
 
     def test_pause_boundary_checks_exact_budget_and_excludes_paused_wall_time(self):
         rate=self.rate(1)
