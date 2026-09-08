@@ -1,4 +1,6 @@
-# wksim 本地实验工作台（#18，交互验收待完成）
+# wksim 本地实验工作台（#18 已验收）
+
+2026-09-08：真实内置浏览器操作、双栈任务、保存重跑、空中取消、结果分页与键盘/窄屏检查通过，#18已关闭。浏览器旧限制已解除，375px哈希溢出已修复；原始失败、五次运行与收尾证据见[UI收口报告](2026-09-08-console-ui-closure-report.md)。本文后续带2026-09-05/06时间的限制是历史状态，其他Full边界仍有效。
 
 Windows 本地 Python 标准库服务及离线 HTML/CSS/JavaScript；不需要 npm、CDN、Electron 或新增 ROS 依赖。服务调用已有 `tools/run-wksim.sh`，飞行命令仍由 Prometheus 正式 Task 发送。浏览器、UE 和证据查看不负责物理节拍。
 
@@ -50,4 +52,4 @@ Windows 检查：
 
 异常杀死服务后，未证明 UE 包装器后代/WSL 中间进程自动全树回收；历史记录不会变成新的控制权限。实际正常流程的残留检查单独保存在本轮审计。此服务也不宣称抵御具有同一主机账户写权限的攻击者。
 
-原始工作台证据见[第四批报告](2026-09-06_operator-workspace-report.md)，后续见[P450 显示报告](2026-09-06_p450-view-report.md)，接口见[console-contract.md](console-contract.md)。#18 保持 open；Full Goal、联合场景、数值预算、MATLAB 和其他 HITL 门槛不因此完成或缩减。
+原始工作台证据见[第四批报告](2026-09-06_operator-workspace-report.md)，后续见[P450 显示报告](2026-09-06_p450-view-report.md)和[UI收口报告](2026-09-08-console-ui-closure-report.md)，接口见[console-contract.md](console-contract.md)。#18已关闭；Full Goal、数值预算和其他未完成门槛不因此完成或缩减。

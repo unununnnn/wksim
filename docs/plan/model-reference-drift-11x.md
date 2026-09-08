@@ -1,5 +1,7 @@
 # G6 参考链 11.0↔11.8 漂移刻画（e0 SLX 11.8 vs ZIP 11.0）
 
+2026-09-08纠正：七组显式随机种子已逐组对应；内置IMU的i_rand为off，不能仅凭i_pow未解析断言有效噪声漂移。全局Noise rate=0仍保留若干非零噪声支路，不能当成全部关闭。以[数值合同就绪报告](2026-09-08-numerical-contract-readiness.md)的逐组证据和剩余前置为准；未据此批准动力学预算或运行对照。
+
 2026-09-08；只读文本对比，未执行模型/厂商程序。承接 [来源核对](model-reference-provenance.md) 与 [补充（e1 一致链与能力盘点）](model-reference-provenance-supplement.md)。不关闭 G6/#23，不提出未经依据的误差预算。
 
 ## 结论

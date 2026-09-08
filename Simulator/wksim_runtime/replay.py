@@ -10,13 +10,35 @@ import math
 from pathlib import Path
 import sys
 
+from .config import _unique_object
+
 
 STREAMS = ('prometheus', 'dds', 'truth', 'telemetry')
 MAX_BYTES = 64 * 1024 * 1024
 
 
 def finite(value):
-    return isinstance(value, (float, int)) and not isinstance(value, bool) and math.isfinite(value)
+    try:
+        return isinstance(value, (float, int)) and not isinstance(value, bool) and math.isfinite(value)
+    except OverflowError:
+        return False
+
+
+def _decode(raw):
+    constants = []
+
+    def constant(token):
+        constants.append(token)
+        return {'nonfinite': token}
+
+    def number(token):
+        value = float(token)
+        return value if math.isfinite(value) else constant(token)
+
+    row = json.loads(raw, parse_constant=constant, parse_float=number, object_pairs_hook=_unique_object)
+    if not isinstance(row, dict):
+        raise ValueError('record must be an object')
+    return row, constants
 
 
 def source_time(stream, row):
@@ -33,6 +55,8 @@ def source_time(stream, row):
     stamp = msg.get('header', {}).get('stamp') if isinstance(msg.get('header'), dict) else None
     if isinstance(stamp, dict) and finite(stamp.get('sec')) and finite(stamp.get('nanosec')):
         value = stamp['sec'] + stamp['nanosec'] / 1e9
+        if not finite(value):
+            return 'unknown', None
         topic = str(row.get('topic', ''))
         # Public state uses FC boot; public commands/events use the ROS clock.
         clock = 'fc_boot' if stream == 'dds' or topic.endswith(('/state', '/control_state')) else 'ros'
@@ -83,9 +107,9 @@ def load_evidence(directory):
     result = {}
     if result_bytes is not None:
         try:
-            result = json.loads(result_bytes)
-            if not isinstance(result, dict):
-                raise ValueError('result must be an object')
+            result, constants = _decode(result_bytes)
+            if constants:
+                diagnostics.append(dict(code='nonfinite_values', file='result.json', values=sorted(set(constants))))
         except (ValueError, UnicodeError) as error:
             result = {}
             diagnostics.append({'code': 'invalid_result', 'detail': str(error)})
@@ -105,15 +129,25 @@ def load_evidence(directory):
             where = {'stream': stream, 'line': line_number}
             try:
                 raw = line.decode('utf-8')
-                constants = []
-                row = json.loads(raw, parse_constant=lambda token: constants.append(token) or {'nonfinite': token})
-                if not isinstance(row, dict):
-                    raise ValueError('record must be an object')
+                row, constants = _decode(raw)
             except (ValueError, UnicodeError) as error:
                 diagnostics.append(dict(where, code='malformed_record', detail=str(error), raw_sha256=hashlib.sha256(line).hexdigest()))
                 continue
             if constants:
                 diagnostics.append(dict(where, code='nonfinite_values', values=sorted(set(constants))))
+            # Explicit recorded identity wins over result metadata; conflicting
+            # wrappers/messages remain visible but cannot be assigned an identity.
+            identity, mismatches = {}, []
+            message = row.get('message')
+            for field, fallback in (('run_id', run_id), ('epoch', epoch)):
+                values = [part[field] for part in (row, message) if isinstance(part, dict) and field in part]
+                conflict = values and any(type(v) is not type(values[0]) or v != values[0] for v in values[1:])
+                identity[field] = None if conflict else values[0] if values else fallback
+                if conflict or (values and fallback is not None and
+                                (type(values[0]) is not type(fallback) or values[0] != fallback)):
+                    mismatches.append(field)
+            if mismatches:
+                diagnostics.append(dict(where, code='identity_mismatch', fields=mismatches))
             clock, stamp = source_time(stream, row)
             topic = str(row.get('topic', row.get('mavpackettype', stream)))
             key = (topic, clock)
@@ -131,7 +165,7 @@ def load_evidence(directory):
             records.append(dict(where, clock=clock, source_time_s=stamp,
                                 receive_wall_s=row.get('wall') if finite(row.get('wall')) else None,
                                 receive_clock='wall_elapsed:' + stream, kind=event_kind(row),
-                                recorded_invalid=invalid, run_id=run_id, epoch=epoch,
+                                recorded_invalid=invalid, **identity,
                                 raw_sha256=hashlib.sha256(line).hexdigest(), raw_json=raw, payload=row))
     # Re-read hashes detects an active/growing run; never advertise a live snapshot as stable.
     for name, identity in files.items():
@@ -140,7 +174,7 @@ def load_evidence(directory):
     counts = {s: sum(r['stream'] == s for r in records) for s in STREAMS}
     return {'format_version': 1, 'mode': 'offline-records-not-resimulation',
             'reader_status': 'partial' if any(d['code'] in ('missing_file', 'invalid_result', 'malformed_record',
-                                                          'unterminated_last_line', 'sequence_discontinuity')
+                                                          'unterminated_last_line', 'sequence_discontinuity', 'identity_mismatch')
                                             for d in diagnostics) else 'parsed',
             'run_id': run_id, 'epoch': epoch, 'stack': result.get('stack'),
             'recorded_run_status': result.get('status'), 'input_directory': str(root),
