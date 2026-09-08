@@ -541,7 +541,7 @@ def run(args):
                     if rate.anchor is None:
                         rate.reanchor(clock.tick, 'synchronized_boundary')
                     rate.begin_group(clock.tick, physics_health)
-                session = pause_probe.sessions.get(2) if pause_probe is not None else None
+                session = pause_probe.sessions.get(2) if args.probe_land_freshness else None
                 if (args.probe_land_freshness and dds_handled and clock.tick%4==0
                         and session is not None and session.state.mode=='AUTO.LAND'):
                     if land_pacing_next is None:
