@@ -12,7 +12,7 @@ source /root/wksim-ap-dds-yaw-state-4Wr27s/ros-install/local_setup.bash
 source /root/wksim-ros2-MUlZd0/install/local_setup.bash
 for arg in "$@"; do
   case "$arg" in
-    --ap-pv-manifest|--ap-pv-manifest=*) source /root/wksim-joint-control-FVMjak/install/local_setup.bash ;;
+    --ap-pv-manifest|--ap-pv-manifest=*|--ap-mixed-manifest|--ap-mixed-manifest=*) source /root/wksim-joint-control-FVMjak/install/local_setup.bash ;;
   esac
 done
 export LD_LIBRARY_PATH="/root/wksim-dds-VxM6Ni/agent-install/lib:${LD_LIBRARY_PATH:-}"

@@ -207,7 +207,7 @@ def retained_identity(root, result):
                 loaded_maps_verified=['running', 'completed'])
 
 
-def decode(root, result):
+def decode(root, result, *, admission_key='pv_admission'):
     from rclpy.serialization import deserialize_message
     from rosidl_runtime_py.convert import message_to_ordereddict
     from prometheus_msgs.msg import TextInfo
@@ -216,7 +216,7 @@ def decode(root, result):
     from ardupilot_msgs.msg import GlobalPosition, WksimState
     from px4_msgs.msg import TrajectorySetpoint, OffboardControlMode, VehicleLocalPosition, VehicleStatus
     from Simulator.wksim_runtime.joint_profile import package_digest
-    for name, pin in result['pv_admission']['identities']['baseline']['message_packages'].items():
+    for name, pin in result[admission_key]['identities']['baseline']['message_packages'].items():
         require(package_digest(pin['prefix'], complete=pin.get('complete_snapshot', False)) == pin['sha256'],
                 'Raw CDR message schema package differs: '+name)
     types = {'/ap/cmd_gps_pose': GlobalPosition, '/ap/wksim/local_state_v1': WksimState}

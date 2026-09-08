@@ -35,6 +35,7 @@ from joint_control_candidate import check as check_control, environment as contr
 from probe_joint_clock import json_identity, group_members
 from joint_pause_probe import PauseProbe, PauseProbeComplete
 from pv_trajectory_task import PROFILE as PV_PROFILE
+from tools.mixed_control_task import PROFILE as MIXED_PROFILE
 
 WALL_LIMIT, MAX_TICKS = 900, 180000
 
@@ -84,6 +85,9 @@ def task_main(args):
         if args.task_profile == PV_PROFILE:
             from pv_trajectory_task import PVTask
             task_class, extra = PVTask, dict(trajectory_epoch=args.scene_epoch)
+        elif args.task_profile == MIXED_PROFILE:
+            from tools.mixed_control_task import MixedTask
+            task_class, extra = MixedTask, dict(trajectory_epoch=args.scene_epoch)
         else:
             task_class, extra = Task, {}
         task = task_class(root, health, phase, args.stack, run_id=args.run_id,
@@ -99,7 +103,7 @@ def task_main(args):
                 health()
                 rclpy.spin_once(task.node, timeout_sec=.02)
         task.wait('joint_public_ready', lambda: (task.recovery_transport_fresh() if args.task_mode=='recover' else task.fresh())
-                  and (task.request_graph_ready() if args.task_profile == PV_PROFILE else
+                  and (task.request_graph_ready() if args.task_profile in (PV_PROFILE, MIXED_PROFILE) else
                        task.setup_pub.get_subscription_count() == task.command_pub.get_subscription_count() == 1), 55)
         save(root/'ready.json', dict(run_id=args.run_id, scene_epoch=args.scene_epoch,
                                     uav_id=args.uav_id, control_epoch=task.epoch,
@@ -155,6 +159,8 @@ def run(args):
     archive = Path(tempfile.mkdtemp(prefix='joint-public-flight-', dir=REPO/'validation'))
     live = Path(tempfile.mkdtemp(prefix='wksim-joint-flight-', dir='/root'))
     pv = args.task_profile == PV_PROFILE
+    mixed = args.task_profile == MIXED_PROFILE
+    candidate = pv or mixed
     result = dict(status='failed', run_id=archive.name, scene_epoch=uuid.uuid4().hex, task_profile=args.task_profile,
                   pause_probe_requested=args.pause_probe,
                   scene_lifecycle_requested=args.scene_lifecycle,
@@ -175,7 +181,8 @@ def run(args):
     child_specs, dds_pending, dds_injection, dds_handled = {}, None, None, False
     clock, started = SceneClock(result['scene_epoch']), time.monotonic()
     pause_probe = lifecycle = rate = None
-    sources = ['tools/run_joint_flight.py','tools/run-joint-flight.sh','tools/joint_control_candidate.py','tools/pv_trajectory_task.py',
+    sources = ['tools/run_joint_flight.py','tools/run-joint-flight.sh','tools/joint_control_candidate.py',
+               'tools/pv_trajectory_task.py','tools/mixed_control_task.py',
                'tools/ap_clock_candidate.py','Simulator/wksim_core/joint.py','Simulator/wksim_core/worker.py',
                'Simulator/wksim_core/model.py','Simulator/wksim_core/model.cpp',
                'Simulator/wksim_core/ap_json.py','Simulator/wksim_core/px4_mavlink.py',
@@ -190,11 +197,16 @@ def run(args):
         sources += ['tools/joint_lifecycle.py','Simulator/wksim_runtime/joint_lifecycle.py']
     if args.native_state_trace:
         sources += ['tools/debug_px4_native_state.py']
-    if pv:
+    if candidate:
         sources += ['tools/ap_pv_candidate.py','tools/verify_ap_pv_candidate.py','tools/prepare_ap_pv_candidate.py',
-                    'docs/2026-09-09-pv-flight-plan.md',
                     'Simulator/wksim_runtime/joint_rate.py','Simulator/wksim_runtime/joint_profile.py',
                     'Simulator/wksim_runtime/joint-profiles.json','Simulator/wksim_runtime/build_identity.py']
+    if pv:
+        sources += ['docs/2026-09-09-pv-flight-plan.md']
+    if mixed:
+        sources += ['tools/ap_mixed_candidate.py','tools/prepare_ap_mixed_candidate.py',
+                    'docs/2026-09-09-mixed-flight-plan.md',
+                    'patches/arducopter/0005-dds-mixed-xy-velocity-z-position.patch']
     if args.px4_manifest:
         sources += ['tools/px4_state_candidate.py','tools/build-px4-state-cadence.sh',
                     'patches/px4/0001-estimator-status-cadence.patch',
@@ -204,14 +216,18 @@ def run(args):
         (live/('source__'+name.replace('/','__')+'.txt')).write_bytes((REPO/name).read_bytes())
     try:
         result['private_temporary_files']=isolate_temporary_files()
-        if pv:
-            from ap_pv_candidate import admit as admit_pv
-            admission = admit_pv(args.ap_pv_manifest, args.ap_pv_sha256,
-                                 args.control_manifest, args.control_sha256, result['run_id'])
+        if candidate:
+            if pv:
+                from ap_pv_candidate import admit as admit_candidate
+                ap_manifest, ap_sha = args.ap_pv_manifest, args.ap_pv_sha256
+            else:
+                from ap_mixed_candidate import admit as admit_candidate
+                ap_manifest, ap_sha = args.ap_mixed_manifest, args.ap_mixed_sha256
+            admission = admit_candidate(ap_manifest, ap_sha, args.control_manifest, args.control_sha256, result['run_id'])
             save(live/'experimental-admission.json', admission)
             if not admission['ok']:
-                raise ValueError('P+V experimental admission rejected: '+str(admission['reasons']))
-            result['pv_admission'] = admission
+                raise ValueError('Explicit experimental admission rejected: '+str(admission['reasons']))
+            result['pv_admission' if pv else 'mixed_admission'] = admission
             configs, control = admission['configs'], admission['control_candidate']
             library = Path(admission['model_library'])
         else:
@@ -235,7 +251,7 @@ def run(args):
         if args.scene_lifecycle:
             sys.path.insert(0, str(Path(control['package']).parent))
         result['control_candidate'] = control
-        if pv:
+        if candidate:
             result['control_source_sha256'] = control['python_sha256']
             for name, expected in control['python_sha256'].items():
                 source = Path(control['package'])/name
@@ -244,12 +260,33 @@ def run(args):
                 target = live/'control-source'/name
                 target.parent.mkdir(parents=True, exist_ok=True)
                 target.write_bytes(source.read_bytes())
-        result['manifest_sha256'] = dict(ap=args.ap_pv_sha256 if pv else args.ap_sha256, control=args.control_sha256)
+        result['manifest_sha256'] = dict(ap=ap_sha if candidate else args.ap_sha256, control=args.control_sha256)
         if args.px4_manifest:
             result['manifest_sha256']['px4'] = args.px4_sha256
             shutil.copyfile(args.px4_manifest, live/'px4-build.json')
-        shutil.copyfile(args.ap_pv_manifest if pv else args.ap_manifest, live/'ap-build.json')
+        shutil.copyfile(ap_manifest if candidate else args.ap_manifest, live/'ap-build.json')
         shutil.copyfile(args.control_manifest, live/'control-build.json')
+        if mixed:
+            from verify_ap_pv_candidate import checked_json
+            native_root = Path(ap_manifest).parent
+            prepared = checked_json(native_root/'mixed-source.json', admission['candidate']['source_manifest_sha256'])
+            shutil.copyfile(native_root/'mixed-source.json', live/'mixed-source.json')
+            shutil.copyfile(native_root/'baseline-pv-build.json', live/'baseline-pv-build.json')
+            native_files = ('libraries/AP_DDS/AP_DDS_ExternalControl.cpp',
+                'libraries/AP_ExternalControl/AP_ExternalControl.h', 'ArduCopter/AP_ExternalControl_Copter.h',
+                'ArduCopter/AP_ExternalControl_Copter.cpp', 'ArduCopter/mode.h', 'ArduCopter/mode_guided.cpp',
+                'ArduCopter/GCS_MAVLink_Copter.cpp', 'ArduCopter/Log.cpp')
+            result['native_source_root'] = str(native_root/'src')
+            result['native_source_sha256'] = {}
+            for name in native_files:
+                source = native_root/'src'/name
+                expected = prepared['source']['files'][name]['sha256']
+                if digest(source) != expected:
+                    raise ValueError('Native source changed before retention: '+name)
+                target = live/'native-source'/name
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_bytes(source.read_bytes())
+                result['native_source_sha256'][name] = expected
 
         def physics_health():
             if pause_probe is not None:
@@ -314,7 +351,7 @@ def run(args):
             if start_token is not None:
                 command += ['--start-token',start_token]
             name = stack+('-recovery-task' if task_mode == 'recover' else '-task')
-            return launch(name,command,directory,control_environment(control) if args.scene_lifecycle or pv else None,
+            return launch(name,command,directory,control_environment(control) if args.scene_lifecycle or candidate else None,
                           role='task',result_key=stack)
 
         def record_native_maps(label):
@@ -338,10 +375,10 @@ def run(args):
                 observations[stack] = dict(identity=identity,executable=str(executable),executable_sha256=digest(executable),
                     maps_file=path.name,sha256=digest(path),forbidden_libraries=forbidden,
                     scene_phase=clock.phase, captured_monotonic_ns=time.monotonic_ns())
-                if (pv or stack=='px4' and args.px4_manifest) and forbidden:
+                if (candidate or stack=='px4' and args.px4_manifest) and forbidden:
                     raise RuntimeError('Independent PX4 candidate loaded forbidden libraries')
             result.setdefault('native_runtime_maps',{})[label] = observations
-            if pv:
+            if candidate:
                 models = {}
                 for stack in ('arducopter', 'px4'):
                     name = stack+'-model'
@@ -471,7 +508,7 @@ def run(args):
             resources.callback(node.destroy_node)
             publisher = ClockPublisher(node)
             resources.callback(publisher.close)
-            if pv:
+            if candidate:
                 from pv_trajectory_task import PVProbe
                 from Simulator.wksim_runtime.joint_rate import JointRate
                 pause_probe = PVProbe(node, clock, live, started)
@@ -522,6 +559,8 @@ def run(args):
                 plan['control'] += ['-p','use_sim_time:=true','-r','__node:=wksim_joint_'+stack+'_control']
                 if pv and stack == 'arducopter':
                     plan['control'] += ['-p','arducopter_pv_profile:='+PV_PROFILE]
+                if mixed and stack == 'arducopter':
+                    plan['control'] += ['-p','arducopter_mixed_profile:='+MIXED_PROFILE]
                 if args.scene_lifecycle:
                     plan['control'] += ['-p', 'scene_epoch:='+clock.epoch]
                 verifier = ('import importlib.util,pathlib; '
@@ -678,11 +717,16 @@ def run(args):
             result['children'][name].update(returncode=child.returncode,remaining_group_members=group_members(child.pid))
         result['unowned_ap_after']=json_identity(828)
         result['source_unchanged']=result['source_sha256']=={name:digest(REPO/name) for name in sources}
-        if pv and result.get('control_source_sha256'):
+        if candidate and result.get('control_source_sha256'):
             result['source_unchanged'] = result['source_unchanged'] and all(
                 digest(Path(result['control_candidate']['package'])/name) == expected
                 and digest(live/'control-source'/name) == expected
                 for name, expected in result['control_source_sha256'].items())
+        if result.get('native_source_sha256'):
+            result['source_unchanged'] = result['source_unchanged'] and all(
+                digest(Path(result['native_source_root'])/name) == expected
+                and digest(live/'native-source'/name) == expected
+                for name, expected in result['native_source_sha256'].items())
         result['control_shutdown_clean']=all(child['returncode']==0 for name,child in result['children'].items()
                                              if name.endswith('-control'))
         if result['status'] in ('pass', 'observed') and not result['control_shutdown_clean']:
@@ -718,9 +762,9 @@ if __name__=='__main__':
                         help='Diagnostic only: pace landing at >=12ms wall per 4ms joint barrier to reproduce low-rate state expiry')
     for name in ('control-manifest','control-sha256'):
         runner.add_argument('--'+name,required=True)
-    for name in ('ap-manifest','ap-sha256','ap-pv-manifest','ap-pv-sha256'):
+    for name in ('ap-manifest','ap-sha256','ap-pv-manifest','ap-pv-sha256','ap-mixed-manifest','ap-mixed-sha256'):
         runner.add_argument('--'+name)
-    runner.add_argument('--task-profile', choices=('position', PV_PROFILE), default='position')
+    runner.add_argument('--task-profile', choices=('position', PV_PROFILE, MIXED_PROFILE), default='position')
     runner.add_argument('--px4-manifest')
     runner.add_argument('--px4-sha256')
     task=sub.add_parser('task')
@@ -730,20 +774,29 @@ if __name__=='__main__':
     task.add_argument('--control-package')
     task.add_argument('--scene-module-sha')
     task.add_argument('--task-mode',choices=('initial','recover'),default='initial')
-    task.add_argument('--task-profile', choices=('position', PV_PROFILE), default='position')
+    task.add_argument('--task-profile', choices=('position', PV_PROFILE, MIXED_PROFILE), default='position')
     task.add_argument('--start-token')
     for name in ('run-id','scene-epoch','output'): task.add_argument('--'+name,required=True)
     args=parser.parse_args()
     if args.role == 'run':
         pv = args.task_profile == PV_PROFILE
+        mixed = args.task_profile == MIXED_PROFILE
         if pv:
             if (not args.ap_pv_manifest or not args.ap_pv_sha256 or args.ap_manifest or args.ap_sha256
+                    or args.ap_mixed_manifest or args.ap_mixed_sha256
                     or args.px4_manifest or args.px4_sha256 or args.pause_probe or args.scene_lifecycle
                     or args.scene_lease_loss or args.dds_loss or args.native_state_trace or args.probe_land_freshness):
                 parser.error('P+V requires its own explicit AP manifest/SHA and fixed experiment without other probes')
-        elif not args.ap_manifest or not args.ap_sha256 or args.ap_pv_manifest or args.ap_pv_sha256:
+        elif mixed:
+            if (not args.ap_mixed_manifest or not args.ap_mixed_sha256 or args.ap_manifest or args.ap_sha256
+                    or args.ap_pv_manifest or args.ap_pv_sha256 or args.px4_manifest or args.px4_sha256
+                    or args.pause_probe or args.scene_lifecycle or args.scene_lease_loss or args.dds_loss
+                    or args.native_state_trace or args.probe_land_freshness):
+                parser.error('Mixed profile requires its own AP manifest/SHA and no alternate probes')
+        elif (not args.ap_manifest or not args.ap_sha256 or args.ap_pv_manifest or args.ap_pv_sha256
+                or args.ap_mixed_manifest or args.ap_mixed_sha256):
             parser.error('Position experiment requires the existing AP clock manifest/SHA')
-    if args.role == 'task' and args.task_profile == PV_PROFILE and (args.task_mode != 'initial' or args.scene_lifecycle):
+    if args.role == 'task' and args.task_profile in (PV_PROFILE, MIXED_PROFILE) and (args.task_mode != 'initial' or args.scene_lifecycle):
         parser.error('P+V task is a separate initial experimental flow')
     if args.role == 'run' and args.repeat_paused_clock and not args.pause_probe:
         parser.error('--repeat-paused-clock requires --pause-probe')

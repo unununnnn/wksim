@@ -3,8 +3,8 @@
 
 Requires patches/arducopter/0002 and its matching ardupilot_msgs overlay.
 Position+yaw also requires explicit opt-in to patch 0001; no MAVLink fallback.
-Full XYZ P+V+yaw requires the separate experimental PV firmware/profile;
-acceleration and mixed position/velocity axes remain unsupported.
+Full XYZ P+V+yaw and XY velocity/Z position+yaw require their separate
+experimental firmware/profiles; acceleration remains unsupported.
 Legacy PoseStamped/GeoPointStamped are not sufficient to prove valid odometry.
 """
 import math
@@ -43,13 +43,16 @@ def home_offset(home, position):
 class ArduCopterLink:
     external_mode = 'GUIDED'
 
-    def __init__(self, node, prefix='/ap', *, position_yaw=False, pv_profile='',
+    def __init__(self, node, prefix='/ap', *, position_yaw=False, pv_profile='', mixed_profile='',
                  stale_seconds=2.0, clock=time.monotonic):
         self.node, self.prefix = node, prefix.rstrip('/')
         self.position_yaw = bool(position_yaw)
         if pv_profile not in ('', 'full_xyz_pv_yaw_v1') or pv_profile and not self.position_yaw:
             raise ValueError('ArduCopter P+V profile must be empty or full_xyz_pv_yaw_v1 with position_yaw enabled')
         self.pv_profile = pv_profile
+        if mixed_profile not in ('', 'xy_velocity_z_position_yaw_v1') or mixed_profile and not self.position_yaw:
+            raise ValueError('ArduCopter mixed profile must be empty or xy_velocity_z_position_yaw_v1 with position_yaw enabled')
+        self.mixed_profile = mixed_profile
         self.clock, self.stale_seconds = clock, scalar(stale_seconds)
         if self.stale_seconds <= 0:
             raise ValueError('State timeout must be positive')
@@ -208,6 +211,8 @@ class ArduCopterLink:
             return 'arducopter_position_yaw_not_enabled'
         if command.move_mode == Cmd.TRAJECTORY and self.pv_profile:
             return 'arducopter_trajectory_requires_yaw_angle' if command.yaw_rate_mode else None
+        if command.move_mode in (Cmd.XY_VEL_Z_POS, Cmd.XY_VEL_Z_POS_BODY) and self.mixed_profile:
+            return 'arducopter_mixed_requires_yaw_angle' if command.yaw_rate_mode else None
         if command.move_mode in (Cmd.XYZ_VEL, Cmd.XYZ_VEL_BODY):
             if not command.yaw_rate_mode:
                 # The DDS velocity entry carries yaw rate only; a yaw-angle
@@ -236,14 +241,35 @@ class ArduCopterLink:
         local = self.latest['local']
         if not self.state(1).odom_valid:
             raise ValueError('ArduCopter odometry is invalid')
-        if self.pv_profile and target.kind == 'local':
+        if (self.pv_profile or self.mixed_profile) and target.kind == 'local':
             try:
                 axes = tuple(tuple(values) for values in (target.position, target.velocity, target.acceleration))
             except TypeError as error:
                 raise ValueError('ArduCopter local target requires three-axis vectors') from error
             if any(len(values) != 3 for values in axes):
                 raise ValueError('ArduCopter local target requires three-axis vectors')
-            if any(v is not None for v in axes[0]) and any(v is not None for v in axes[1]):
+            if (self.mixed_profile and axes[0][:2] == (None, None) and axes[0][2] is not None
+                    and any(v is not None for v in axes[1])):
+                if any(v is not None for v in axes[2]) or target.yaw is None or target.yaw_rate is not None:
+                    raise ValueError('ArduCopter mixed target requires altitude/XY velocity/yaw without acceleration/yaw rate')
+                altitude = scalar(axes[0][2])
+                velocity = vector(axes[1])
+                # Match 0005's double DDS guard and float32 Guided setter guard.
+                # Avoidance converts to cm and squares the horizontal norm.
+                max_xy_speed = math.sqrt(float.fromhex('0x1.fffffep+127') / 4.0) / 100.0
+                if (abs(altitude) > 100 or velocity[2] != 0.0 or
+                        any(max(abs(v), abs(float32(v))) > max_xy_speed for v in velocity[:2])):
+                    raise ValueError('ArduCopter mixed target exceeds native range or has nonzero vertical feedforward')
+                yaw = wrap_pi(float32(target.yaw))
+                # Pxy and Vz are inactive: never synthesize a geographic XY anchor.
+                msg = GlobalPosition(coordinate_frame=GlobalPosition.FRAME_GLOBAL_REL_ALT,
+                    type_mask=0x9E3, altitude=altitude, yaw=yaw)
+                msg.velocity.linear.x, msg.velocity.linear.y = velocity[:2]
+                msg.header.frame_id = 'map'
+                stamp_us(msg.header, local.time_boot_us)
+                self.position_pub.publish(msg)
+                return
+            if self.pv_profile and any(v is not None for v in axes[0]) and any(v is not None for v in axes[1]):
                 if any(v is not None for v in axes[2]) or target.yaw is None or target.yaw_rate is not None:
                     raise ValueError('ArduCopter P+V requires full position/velocity/yaw without acceleration/yaw rate')
                 lat, lon, alt = home_offset(local, axes[0])

@@ -57,6 +57,7 @@ class ControlNode(Node):
             from .native_arducopter import ArduCopterLink
             self.native = ArduCopterLink(self, prefix, position_yaw=parameter('arducopter_position_yaw', False),
                                         pv_profile=parameter('arducopter_pv_profile', ''),
+                                        mixed_profile=parameter('arducopter_mixed_profile', ''),
                                         stale_seconds=stale)
         self.processor = CommandProcessor(takeoff_height=self.takeoff_height,
             enable_external_control=parameter('enable_external_attitude', False))
@@ -592,7 +593,24 @@ class ControlNode(Node):
             raise ValueError('external_mode_left_no_automatic_reacquisition')
         elif self.processor.control_state == Control.COMMAND_CONTROL and not self.native.ready_external:
             raise ValueError('external_heading_alignment_lost')
-        target = self.shaper.shape(self.processor.step(), self.processor.local_position())
+        command = self.processor.command
+        capture_mixed_body = (command.agent_cmd == Cmd.MOVE and command.move_mode == Cmd.XY_VEL_Z_POS_BODY
+                              and not command.yaw_rate_mode and self.processor.body_reference is None)
+        reference = self.processor.step()
+        target = self.shaper.shape(reference, self.processor.local_position())
+        if capture_mixed_body and reference is not None and reference is self.processor.body_reference:
+            # Capture is a resolved reference, not proof of native publication/ACK.
+            # It happens at the actual first step, even if output pacing sends later.
+            q = self.processor.state.attitude_q
+            header = self.processor.state.header.stamp
+            self.event('mixed_body_reference_captured', command_id=int(command.command_id),
+                source_boot_ns=int(header.sec)*1_000_000_000+int(header.nanosec),
+                source_position=list(self.processor.position), source_yaw=float(self.processor.yaw),
+                source_quaternion_wxyz=[float(v) for v in (q.w,q.x,q.y,q.z)],
+                reference_position=list(reference.position), reference_velocity=list(reference.velocity),
+                reference_yaw=float(reference.yaw),
+                shaped_position=[None if v is None else float(v) for v in target.position],
+                shaped_velocity=[None if v is None else float(v) for v in target.velocity])
         if target is not None and target.kind == 'land':
             if self.state.armed and self.state.mode != self.native.mode_name('AUTO.LAND') and self.operation is None:
                 self.native.request('land')
