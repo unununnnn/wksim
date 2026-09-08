@@ -120,7 +120,8 @@ class MixedTask(PVTask):
                 and math.hypot(*self.state.velocity) <= .5
                 and abs(math.remainder(self.state.attitude[2]-.6, 2*math.pi)) <= .15)
             self.wait('body_heading_ready', at_heading, 20)
-            self.window('body_heading', at_heading, 2, dict(position=position, yaw=.6))
+            settling = self.stable_hold('body_heading', at_heading)
+            self.window('body_heading', at_heading, 2, dict(position=position, yaw=.6), hold_settling=settling)
             self.moving('body_step', (.8, .4), 1., .3, body=True)
             self.zero('body_zero', 0., body=True)
             self.absolute_stop('body_absolute_stop')

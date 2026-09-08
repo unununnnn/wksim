@@ -475,13 +475,13 @@ def physical(root, result, tasks, phases):
             else:
                 require(lo >= phase['invalid_world_yaw_rate_rejected']['ros_time_ns'], 'No-effect hold predates rejection')
             maxima = {}
-            if name in ('world_zero', 'body_zero', 'world_absolute_stop', 'body_absolute_stop'):
+            if name in ('world_zero', 'body_zero', 'world_absolute_stop', 'body_absolute_stop', 'body_heading'):
                 settled = segment['hold_settling']
                 require(settled['wall_limit_s'] == 12. and settled['stable_minimum_s'] == 1.5
                         and 0 <= settled['ready_monotonic_s']-settled['started_monotonic_s'] <= 12.
                         and settled['ready_s']-settled['stable_from_s'] >= 1.5
                         and round(settled['ready_s']*1e9) == phase[name+'_stable']['ros_time_ns'] == lo
-                        and round(settled['stable_from_s']*1e9) >= phase[name+'_prepared']['ros_time_ns'],
+                        and round(settled['stable_from_s']*1e9) >= phase[name+('_ready' if name == 'body_heading' else '_prepared')]['ros_time_ns'],
                         'Stop preparation lacked bounded continuous stability: '+name)
                 for state in truth_window(rows, round(settled['stable_from_s']*1e9), round(settled['ready_s']*1e9)):
                     physical_metrics(state, name, segment['reference'], segment.get('anchor'))
