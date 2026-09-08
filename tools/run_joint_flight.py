@@ -336,7 +336,8 @@ def run(args):
                 forbidden = sorted({line.split()[-1] for line in raw.splitlines()
                                     if any(token in line.lower() for token in ('libgz-','libgazebo','libignition','matlab'))})
                 observations[stack] = dict(identity=identity,executable=str(executable),executable_sha256=digest(executable),
-                    maps_file=path.name,sha256=digest(path),forbidden_libraries=forbidden)
+                    maps_file=path.name,sha256=digest(path),forbidden_libraries=forbidden,
+                    scene_phase=clock.phase, captured_monotonic_ns=time.monotonic_ns())
                 if (pv or stack=='px4' and args.px4_manifest) and forbidden:
                     raise RuntimeError('Independent PX4 candidate loaded forbidden libraries')
             result.setdefault('native_runtime_maps',{})[label] = observations
@@ -360,7 +361,8 @@ def run(args):
                         raise RuntimeError('Model mapped an unexpected executable or library')
                     models[stack] = dict(identity=identity, executable=str(executable),
                         executable_sha256=digest(executable), maps_file=path.name, maps_sha256=digest(path),
-                        model_library=str(library), model_library_sha256=digest(library))
+                        model_library=str(library), model_library_sha256=digest(library),
+                        scene_phase=clock.phase, captured_monotonic_ns=time.monotonic_ns())
                 result.setdefault('model_runtime_maps',{})[label] = models
 
         def recover_agent(advance):
@@ -649,13 +651,15 @@ def run(args):
                 raise RuntimeError('Requested DDS recovery was not exercised')
             if args.scene_lifecycle and not args.dds_loss and (lifecycle is None or not lifecycle.completed):
                 raise RuntimeError('Requested lifecycle exercise did not complete')
-            record_native_maps('completed')
             if rate is not None:
                 rate.check_boundary(clock.tick)
                 rate.close_segment('completed', clock.tick)
                 result['rate'] = rate.last_summary
             clock.request(dict(version=1,epoch=clock.epoch,request_id=clock.last_request+1,action='stop'))
             result['final_authority'] = clock.snapshot()
+            result['terminal_transition'] = dict(action='stop', tick=clock.tick, phase=clock.phase,
+                                                 issued_monotonic_ns=time.monotonic_ns())
+            record_native_maps('completed')
             for child in workers.values():
                 child.stdin.close(); child.wait(timeout=3)
                 if child.returncode: raise RuntimeError('Model did not close normally')

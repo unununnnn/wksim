@@ -15,3 +15,5 @@
 全程只监听并保存实际ROS原始CDR：公开请求/状态/事件/stop信号、AP GlobalPosition/WksimState、PX4 TrajectorySetpoint/OffboardControlMode及原生状态；观察器不发布控制。保存每一物理步、原生包、clock/rate、真实加载映射、执行源码、候选manifest。公开受理、原生目标发布和物理跟踪分别审计；AP该入口无目标ACK，不把发布成功写成原生确认。原生fence/origin/timeout边界仍须后续实际专场验证。
 
 起飞前接线修正：第二轮未发送飞行请求即因订阅者数等待超时。记录器对公共请求的被动订阅会增加DDS计数；仅本候选任务明确要求每个请求话题恰好两个匹配端点，节点名分别为该栈唯一控制节点和wksim_joint_flight_clock，均根命名空间，保存真实endpoint GID。额外/缺失/非预期节点名及同名重复端点拒绝；节点名不是跨进程认证，进程身份由隔离启动记录另行绑定。正式Task原恰好一个订阅者检查不变。此修正不改轨迹、物理门槛或等待预算。
+
+终态收尾顺序修正：第四轮双栈任务pass并落地，但最后物理组71.56ms迟到加上终态映射读取约40ms，最终边界111.68ms如实失败。后续运行在双机任务完成/真值落地后，先检查不变倍率边界、记录完整rate_segment_end并显式stop同一权威tick，再读取终态映射。映射保留实际scene_phase与monotonic时间，必须位于该stop之后；stopped场景本来就无继续推进义务。没有提前结束飞行期监督、改阈值或追改第四轮失败。

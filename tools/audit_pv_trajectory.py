@@ -83,6 +83,9 @@ def retained_identity(root, result):
     require(result['bounds'] == dict(wall_seconds=900, simulation_ticks=180000, task_position_error_m=.5,
             task_speed_m_s=.5, takeoff_min_height_m=2.5, ground_abs_height_m=.3), 'Frozen run bounds changed')
     final = result['final_authority']
+    terminal = result['terminal_transition']
+    require(terminal['action'] == 'stop' and terminal['phase'] == 'stopped' and terminal['tick'] == final['tick']
+            and type(terminal['issued_monotonic_ns']) is int, 'Missing explicit terminal boundary')
     require(final['epoch'] == result['scene_epoch'] and final['phase'] == 'stopped' and final['pending_tick'] is None
             and 0 < final['tick'] <= 180000 and final['tick'] % 4 == 0 and result['wall_seconds'] <= 900,
             'Final authority or watchdog bound differs')
@@ -144,6 +147,9 @@ def retained_identity(root, result):
         require(child['argv'][0] == expected['path'], 'Executed firmware selection differs')
         for label in ('running', 'completed'):
             observation = result['native_runtime_maps'][label][stack]
+            require(observation['scene_phase'] == ('running' if label == 'running' else 'stopped')
+                    and (label == 'running' or observation['captured_monotonic_ns'] >= terminal['issued_monotonic_ns']),
+                    'Final native mapping was not captured after the explicit stop')
             require(all(observation['identity'][k] == child['identity'][k] for k in ('pid', 'pgid', 'start_ticks'))
                     and observation['executable'] == expected['path'] and observation['executable_sha256'] == expected['sha256']
                     and not observation['forbidden_libraries'], 'Native loaded process/binary identity differs')
@@ -157,7 +163,10 @@ def retained_identity(root, result):
     for stack, _ in STACKS:
         observed = [result['model_runtime_maps'][label][stack] for label in ('running', 'completed')]
         child = result['children'][stack+'-model']
-        for record in observed:
+        for label, record in zip(('running', 'completed'), observed):
+            require(record['scene_phase'] == ('running' if label == 'running' else 'stopped')
+                    and (label == 'running' or record['captured_monotonic_ns'] >= terminal['issued_monotonic_ns']),
+                    'Final model mapping was not captured after the explicit stop')
             require(all(record['identity'][key] == child['identity'][key] for key in ('pid', 'pgid', 'start_ticks'))
                     and record['model_library'] == baseline['model']['library']
                     and record['model_library_sha256'] == baseline['model']['library_sha256']
@@ -509,11 +518,21 @@ def native_targets(data, requests):
 
 def rate_windows(root, result):
     reports = []
-    for segment in schedule(root/'rate.jsonl', result['scene_epoch']).values():
+    segments = schedule(root/'rate.jsonl', result['scene_epoch'])
+    require(len(segments) == 1, 'P+V flight must have one uninterrupted active rate segment')
+    synchronized = None
+    for row in lines(root/'joint-wire.jsonl'):
+        if row['kind'] == 'barrier':
+            if synchronized is not None:
+                require(row['synchronized'], 'Native synchronization was lost during the rate segment')
+            elif row['synchronized']:
+                synchronized = row['tick']
+    for segment in segments.values():
         anchor = segment['anchor']
         require(anchor['requested_rate'] == .5, 'Frozen half-rate differs')
-        if anchor['anchor']['transition']:
-            continue
+        require(not anchor['anchor']['transition'] and anchor['anchor']['tick'] == synchronized
+                and segment['groups'][-1]['end_tick'] == result['final_authority']['tick'],
+                'Rate supervision did not cover synchronization through the final physical boundary')
         require(anchor['steady_after_ns'] == anchor['anchor']['wall_ns']+2_000_000_000, 'Rate stabilization changed')
         samples = segment['groups']; ends = [row['actual_end_ns'] for row in samples]
         first = bisect_left(ends, anchor['steady_after_ns']); checked = {}
@@ -528,6 +547,10 @@ def rate_windows(root, result):
                 require(abs(value['relative_error']) <= budget, f'A full {seconds}s rate window exceeded original budget')
             checked[str(seconds)] = dict(all_complete_sliding_windows=count, worst_absolute_relative_error=worst, budget=budget)
         reports.append(dict(segment_id=anchor['segment_id'], requested_rate=.5, windows=checked, worst_lateness_ns=segment['worst_ns']))
+    boundaries = [r for r in lines(root/'rate.jsonl') if r['kind'] == 'rate_boundary_check']
+    require(boundaries and boundaries[-1]['boundary_tick'] == result['final_authority']['tick']
+            and boundaries[-1]['actual_check_ns'] <= result['terminal_transition']['issued_monotonic_ns'],
+            'Final rate check did not precede the explicit stop')
     require(reports and any(r['windows']['60']['all_complete_sliding_windows'] for r in reports), 'Missing complete 60s rate evidence')
     return reports
 
