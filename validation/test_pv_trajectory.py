@@ -1,15 +1,37 @@
 """Check analytic trajectory derivatives without claiming a real flight."""
 import math
 import os
+import json
 from pathlib import Path
 import subprocess
 import sys
 import time
+import tempfile
 import unittest
 from tools.pv_trajectory_task import reference, DURATION, PVTask
 
 
 class PVReferenceTests(unittest.TestCase):
+    @unittest.skipUnless(os.environ.get('WKSIM_TEST_PRIVATE_ROS') == '1', 'requires generated ROS messages')
+    def test_new_origin_serializes_real_generated_float32_position(self):
+        from prometheus_msgs.msg import UAVState
+        class BeforeFlight(Exception):
+            pass
+        def stop_before_offer(*args):
+            raise BeforeFlight()
+        with tempfile.TemporaryDirectory() as directory:
+            task = PVTask.__new__(PVTask)
+            task.directory = Path(directory)
+            task.latest = {'state': UAVState(position=[3.5, 4., 3.4], attitude=[0., 0., .6])}
+            self.assertEqual(type(task.state.position[0]).__name__, 'float32')
+            task.uav_id, task.run_id, task.scene_epoch, task.epoch = 1, 'pv-test-origin', 'a'*32, 'b'*32
+            task.wait = stop_before_offer
+            with self.assertRaises(BeforeFlight):
+                task.fly_leg(2)
+            ready = json.loads((task.directory/'pv-ready-2.json').read_text())
+            self.assertEqual(ready['position'], [float(v) for v in task.state.position])
+            self.assertEqual(ready['yaw'], float(task.state.attitude[2]))
+
     @unittest.skipUnless(os.environ.get('WKSIM_TEST_PRIVATE_ROS') == '1', 'requires isolated ROS graph')
     def test_exact_controller_and_passive_recorder_graph(self):
         import rclpy

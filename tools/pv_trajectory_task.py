@@ -91,7 +91,7 @@ class PVTask(Task):
                   and self.received.get('state', 0) > completed)
 
     def fly_leg(self, leg):
-        position = [2., 3., 3.] if leg == 1 else list(self.state.position)
+        position = [2., 3., 3.] if leg == 1 else [float(v) for v in self.state.position]
         yaw = 0. if leg == 1 else float(self.state.attitude[2])
         ready = dict(version=1, profile=PROFILE, leg=leg, run_id=self.run_id,
             scene_epoch=self.scene_epoch, control_epoch=self.epoch, uav_id=self.uav_id,
@@ -134,7 +134,7 @@ class PVTask(Task):
         p, v, _, heading = reference(DURATION, position, yaw, leg)
         self.dwell(f'pv_{leg}_endpoint_prepared', self.fresh, 2)
         self.dwell(f'pv_{leg}_endpoint_held', lambda: self.tracked(p, v, heading), 2)
-        record['stop_anchor'] = list(self.state.position)
+        record['stop_anchor'] = [float(v) for v in self.state.position]
         record['stop_yaw'] = float(self.state.attitude[2])
         record['stop_requested_ros_s'] = self.task_time()
         self.offer(f'pv_{leg}_stop_accepted', agent_cmd=self.Cmd.CURRENT_POS_HOVER,
