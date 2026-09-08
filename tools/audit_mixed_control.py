@@ -504,6 +504,9 @@ def physical(root, result, tasks, phases):
             elif name != 'invalid_world_yaw_rate':
                 require(0 <= phase[name+'_ready']['ros_time_ns']-phase[name+'_accepted']['ros_time_ns'] <= 20_000_000_000,
                         'Frozen readiness budget exceeded: '+name)
+                if name in MOVING:
+                    require(phase[name+'_prepared']['ros_time_ns']-phase[name+'_ready']['ros_time_ns'] >= 2_000_000_000
+                            and lo >= phase[name+'_prepared']['ros_time_ns'], 'Moving settling preparation shortened: '+name)
             else:
                 require(lo >= phase['invalid_world_yaw_rate_rejected']['ros_time_ns'], 'No-effect hold predates rejection')
             maxima = {}
