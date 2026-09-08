@@ -8,10 +8,23 @@ import unittest
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'tools'))
 from run_ap_mixed_timeout import (AP_MANIFEST, AP_SHA, SCOPE, FINAL_ALTITUDE, parameter_contract,
-                                 validate_inputs, validate_offer, validate_mixed_target, validate_audit_output)
+                                 validate_inputs, validate_offer, validate_mixed_target, validate_audit_output,
+                                 initial_yaw_alignment)
 
 
 class TimeoutContractTests(unittest.TestCase):
+    def test_initial_yaw_alignment_never_waives_other_resets_or_mixed_resets(self):
+        old=(401540302,1162593683,4997,5375,40888,3930)
+        new=(*old[:3],48775,*old[4:])
+        fields=dict(takeoff_preparation=True,observed=[],height=2.64,boot_us=48785000)
+        self.assertTrue(initial_yaw_alignment(old,new,**fields))
+        for key,value in (('takeoff_preparation',False),('observed',[{}]),('height',2.),('boot_us',48774000)):
+            with self.subTest(key=key):
+                self.assertFalse(initial_yaw_alignment(old,new,**dict(fields,**{key:value})))
+        for index in (0,1,2,4,5):
+            changed=list(new); changed[index]+=1
+            self.assertFalse(initial_yaw_alignment(list(old),changed,**fields))
+
     def test_full_mixed_payload_refusal(self):
         zero = dict(x=0.,y=0.,z=0.)
         target = dict(type_mask=2531,coordinate_frame=6,header=dict(frame_id='map'),latitude=0.,longitude=0.,

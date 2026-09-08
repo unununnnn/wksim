@@ -52,6 +52,12 @@ def require(value, message):
         raise ValueError(message)
 
 
+def initial_yaw_alignment(old, new, *, takeoff_preparation, observed, height, boot_us):
+    return (takeoff_preparation and not observed and len(old)==len(new)==6
+            and old[:3]==new[:3] and old[4:]==new[4:] and 0<old[3]<new[3]<=boot_us//1000
+            and 2.5<=height<=3.5)
+
+
 def validate_inputs(args):
     require(args.ap_mixed_manifest == AP_MANIFEST and args.ap_mixed_sha256 == AP_SHA,
             'Timeout v1 requires the exact sealed mixed AP manifest and SHA256')
@@ -89,7 +95,7 @@ def read_native_log(directory):
                 if name in parameters and parameters[name] != value:
                     changes.append(dict(name=name, before=parameters[name], after=value))
                 parameters[name] = value
-            if kind in ('GUIP', 'ORGN'):
+            if kind in ('GUIP', 'ORGN', 'MSG'):
                 rows.append(msg.to_dict())
         reader.close()
     relevant = {name:value for name,value in parameters.items()
@@ -169,6 +175,7 @@ class NativeBoundary(NativeDDS):
         self.home_token = self.origin_token = None
         self.source_clock, self.advanced = {}, {}
         self.active = False
+        self.takeoff_preparation, self.initial_yaw_alignments = False, []
         self.last_ros_ns = None
 
     def receive(self, key, msg):
@@ -210,7 +217,16 @@ class NativeBoundary(NativeDDS):
         origin = (origin.latitude,origin.longitude,origin.altitude)
         require(all(math.isfinite(v) for v in origin), 'Nonfinite native origin')
         if self.active:
-            require(home == self.home_token and origin == self.origin_token, 'Native home/origin/EKF reset changed')
+            require(origin == self.origin_token, 'Native origin changed')
+            if home != self.home_token:
+                require(initial_yaw_alignment(self.home_token,home,takeoff_preparation=self.takeoff_preparation,
+                    observed=self.initial_yaw_alignments,height=m.pose.position.z,boot_us=m.time_boot_us),
+                    'Native home/origin/EKF reset changed')
+                event = dict(tick=self.clock.tick,boot_us=m.time_boot_us,height=m.pose.position.z,
+                             old=list(self.home_token),new=list(home))
+                self.initial_yaw_alignments.append(event)
+                self.log.write(json.dumps(dict(initial_takeoff_yaw_alignment=event))+'\n')
+                self.home_token = home
         else:
             self.home_token, self.origin_token = home, origin
         return True
@@ -357,7 +373,9 @@ def run(args):
             'ArduCopter/AP_ExternalControl_Copter.cpp','libraries/AP_DDS/AP_DDS_ExternalControl.cpp',
             'libraries/AP_DDS/AP_DDS_config.h','libraries/AP_DDS/AP_DDS_Client.cpp',
             'libraries/AC_WPNav/AC_WPNav.h','libraries/AC_WPNav/AC_WPNav.cpp',
-            'libraries/AC_AttitudeControl/AC_PosControl.cpp')
+            'libraries/AC_AttitudeControl/AC_PosControl.cpp',
+            'libraries/AP_NavEKF3/AP_NavEKF3_MagFusion.cpp','libraries/AP_NavEKF3/AP_NavEKF3_Control.cpp',
+            'libraries/AP_NavEKF3/AP_NavEKF3_core.h')
         retained = [(Path(control['package'])/name,root/'control-source'/name) for name in control['python_sha256']]
         retained += [(native_root/'src'/name,root/'native-source'/name) for name in native_files]
         for source,target in retained:
@@ -539,10 +557,15 @@ def run(args):
                                 native.active = True
                                 native.command(22,[0,0,0,0,0,0,3]); transition('takeoff_ack')
                             else:
+                                native.takeoff_preparation = True
                                 transition('takeoff')
                 elif stage == 'takeoff':
                     require(elapsed < 25,'Native takeoff timeout')
                     if stable(abs(-ap[8]-3)<=.5 and math.hypot(*ap[3:6])<=.5,2):
+                        native.takeoff_preparation = False
+                        result['initial_yaw_alignments'] = native.initial_yaw_alignments
+                        result['mixed_reference_identity'] = dict(tick=clock.tick,home=list(native.home_token),
+                                                                  origin=list(native.origin_token))
                         transition('mixed_prepare')
                 elif stage in ('mixed_prepare','mixed_baseline','terminal_burst'):
                     native.mixed(FINAL_ALTITUDE if stage=='terminal_burst' else 3.)
@@ -752,7 +775,28 @@ def audit(root):
     states = [row for row in raw if row['topic']=='/ap/wksim/local_state_v1']
     require(targets and states,'Missing raw target/native state observations')
     silence_start,transfer = phases['silence']['tick'],phases['recovery']['tick']
-    monitored = [row for row in raw if phases['takeoff']['tick']<=row['tick']<=transfer
+    keys = ('home_latitude_e7','home_longitude_e7','home_altitude_cm','yaw_reset_ms',
+            'position_ne_reset_ms','position_down_reset_ms')
+    alignments = result['initial_yaw_alignments']
+    require(len(alignments)<=1,'Repeated initial takeoff yaw alignment')
+    for event in alignments:
+        require(phases['takeoff']['tick']<=event['tick']<phases['mixed_prepare']['tick']
+                and initial_yaw_alignment(event['old'],event['new'],takeoff_preparation=True,
+                    observed=[],height=event['height'],boot_us=event['boot_us']),
+                'Yaw alignment was outside the frozen initial takeoff preparation')
+        require(any(row['message']['time_boot_us']==event['boot_us']
+                    and [row['message'][key] for key in keys]==event['new']
+                    and row['message']['pose']['position']['z']==event['height'] for row in states),
+                'Initial yaw alignment lacks matching raw native state')
+        prior = [row for row in states if row['message']['time_boot_us']<event['boot_us']]
+        require(prior and [prior[-1]['message'][key] for key in keys]==event['old'],
+                'Initial yaw alignment old identity differs from preceding raw state')
+        require(any(row.get('mavpackettype')=='MSG' and 'in-flight yaw alignment complete' in row['Message']
+                    and abs(row['TimeUS']-event['new'][3]*1000)<=200000 for row in data['rows']),
+                'Initial yaw reset lacks native final in-flight alignment log')
+    locked = result['mixed_reference_identity']
+    require(locked['tick']==phases['mixed_prepare']['tick'],'Mixed reference identity locked at another boundary')
+    monitored = [row for row in raw if phases['mixed_prepare']['tick']<=row['tick']<=transfer
                  and row['topic'] in ('/ap/status','/ap/wksim/local_state_v1','/ap/gps_global_origin/filtered')]
     for topic in ('/ap/status','/ap/wksim/local_state_v1','/ap/gps_global_origin/filtered'):
         channel = [row for row in monitored if row['topic']==topic]
@@ -764,15 +808,15 @@ def audit(root):
             require(all(row['message']['armed'] and row['message']['mode']==4 and not row['message']['failsafe']
                         for row in channel),'Native GUIDED/armed/healthy state changed during silence experiment')
         elif topic=='/ap/wksim/local_state_v1':
-            keys = ('home_latitude_e7','home_longitude_e7','home_altitude_cm','yaw_reset_ms',
-                    'position_ne_reset_ms','position_down_reset_ms')
-            require(len({tuple(row['message'][key] for key in keys) for row in channel})==1,
+            require({tuple(row['message'][key] for key in keys) for row in channel}=={tuple(locked['home'])},
                     'Native home/reset identity changed')
             require(all(b['message']['time_boot_us']>a['message']['time_boot_us'] for a,b in zip(channel,channel[1:])),
                     'Native source boot clock did not advance')
         else:
             require(len({json.dumps(row['message']['position'],sort_keys=True) for row in channel})==1,
                     'Native origin changed')
+            require(all([row['message']['position'][key] for key in ('latitude','longitude','altitude')]==locked['origin']
+                        for row in channel),'Raw native origin differs from the locked mixed reference')
     commands = result['native']['commands']
     require([row['command_id'] for row in commands]==[176,400,22]
             and all(row['tick']<phases['mixed_prepare']['tick'] for row in commands)
@@ -899,6 +943,7 @@ def audit(root):
         timeout_bracket_ticks=[left['tick'],right['tick']],minimum_boundary_z_error_m=error,
         z_correction='pass' if error>.75 else 'inconclusive_already_near_target_at_timeout',
         stop_dwell_ticks=len(dwell),public_recovery='pass',production_admitted=False,
+        initial_takeoff_yaw_alignments=alignments,mixed_reference_identity=locked,
         attribution='strict discovered endpoint transitions; per-message publisher GID unavailable and not reconstructed',
         parameters=data['parameters'],native_log_files=data['files'])
 

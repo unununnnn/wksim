@@ -30,10 +30,10 @@ axis, height ≤17 m, speed norm ≤5 m/s and roll/pitch ≤0.7 rad; PX4 stays w
 ≤2 wall seconds and source stamps must advance. Origin is finite immutable
 metadata, recorded at the native 1000 ms delay (strict `>` in the actual
 AP_DDS_Client loop); at 0.5× this is over 2 wall seconds and therefore is not
-misused as a 2-wall-second dynamic freshness signal. Home/origin/reset changes
-after normal arming fail. The normal arming home capture is recorded before
-the immutable flight token is frozen. These are refusal guards, not bypasses
-for arming.
+misused as a 2-wall-second dynamic freshness signal. Home/origin/position-reset
+changes after normal arming fail. Initial native takeoff may perform one final
+yaw alignment as detailed below; all resets after the mixed reference is
+established fail. These are refusal guards, not bypasses for arming.
 
 Before the first timeout run, the supervisor approved the 15 m terminal target
 and 17 m envelope in place of the seam's unvalidated 6 m suggestion. Read-only
@@ -102,3 +102,19 @@ passed a real isolated DDS loopback (152-byte target CDR, actual source/receive
 timestamps), observed one discovered publisher and then zero after destruction.
 There were no FC/model/Agent processes in these smoke checks and no timeout
 flight was run by this implementation task.
+
+Revision before trial 03: trials `l_mg2f8w` and `qwnu_ksm` both failed during
+native takeoff at ~2.64 m, with yaw_reset_ms changing 5375→48775 while home,
+origin and position-reset counters stayed fixed. Raw failure logs are kept;
+their DataFlash files end at 48.753/48.755 s, just before the reset, so those
+files cannot identify its reason. Actual sealed AP_NavEKF3_MagFusion.cpp
+controlMagYawReset and AP_NavEKF3_core.h define final airborne yaw alignment
+above 2.5 m. The diagnostic now permits at most one yaw-only counter advance
+at observed native height 2.5..3.5 m during the initial native takeoff, with
+all other identities unchanged. It records old/new counters and source boot
+time. Offline acceptance additionally requires the actual native MSG
+`in-flight yaw alignment complete` within 200 ms of that counter; absence
+fails this classification. The 3 m / ≤0.5 m/s / 2 s takeoff hold finishes before
+freezing the mixed reference. No public ControlNode/Task exists in this
+initial phase. Once mixed preparation begins, every reset again fails;
+production ControlNode and public Task reset/revocation rules are unchanged.
