@@ -4,7 +4,7 @@ import hashlib
 import importlib.util
 import json
 import os
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 import platform
 import stat
 import sys
@@ -70,7 +70,14 @@ def control_profile(index, protocol, stack, check_file):
                 evidence['dds_workspace'] != historical_pin['roots']['dds_workspace'] or
                 evidence['dds']['commands'] != []):
             raise ValueError(f'{peer}: invalid control protocol, workspace, stack or observer evidence')
-        for key in ('fc_binary', 'fc_binary_sha256', 'fc_commit', 'agent_sha256'):
+        allowed_binaries = {historical['fc_binary']}
+        if peer == 'px4' and index.get('resource_locations', {}).get('px4_root'):
+            # The already-approved project relocation applies to new evidence
+            # as well as resource preflight. Historical bytes/hashes stay fixed.
+            allowed_binaries.add(str(PurePosixPath(index['resource_locations']['px4_root']) / 'build/px4_sitl_default/bin/px4'))
+        if evidence['fc_binary'] not in allowed_binaries:
+            raise ValueError(f'{peer}: fixed firmware path differs from historical or reviewed relocation')
+        for key in ('fc_binary_sha256', 'fc_commit', 'agent_sha256'):
             if evidence[key] != historical[key]:
                 raise ValueError(f'{peer}: fixed firmware/agent differs at {key}')
         if peer == 'arducopter':
@@ -124,6 +131,22 @@ def consumer_rejections(config):
             if info.st_uid!=os.getuid() or stat.S_IMODE(info.st_mode)!=0o600:
                 reject(key,'Telemetry receiver must be owned by current UID with mode 0600')
     return errors
+
+
+def control_sources(config, index, evidence):
+    """Promotion replaces only historical source binding with the pinned build."""
+    if not config.get('promotion_flight', False):
+        return evidence['prometheus']['implementation_sha256']
+    from . import joint_profile
+    p = joint_profile.select_profile('joint_quad_dds_v1')
+    record = joint_profile._pinned_json(p['manifests']['control'])
+    joint_profile._control(record)
+    pin = index['control_profiles']['session_v1']['installed_packages']['prometheus_control']
+    prefix = Path(config['prometheus_workspace']) / 'install/prometheus_control'
+    if (prefix != Path(pin['prefix']) or not pin.get('complete_snapshot')
+            or package_digest(prefix, complete=True) != pin['sha256']):
+        raise ValueError('Promotion control complete installed snapshot differs')
+    return record['python_sha256']
 
 
 def preflight(config):
@@ -273,15 +296,16 @@ def preflight(config):
             reject('model_manifest_mismatch', 'build.json library path differs from selected library')
         result['identities']['model_build'] = build
         package_root = roots['prometheus_workspace'] / 'install/prometheus_control/local/lib/python3.10/dist-packages/prometheus_control'
-        for file, expected in evidence['prometheus']['implementation_sha256'].items():
+        expected_control = control_sources(config, index, evidence)
+        for file, expected in expected_control.items():
             check_file('prometheus/' + file, package_root / file, expected)
         if protocol == 'session_v1':
-            expected_files = set(evidence['prometheus']['implementation_sha256'])
+            expected_files = set(expected_control)
             actual_files = {p.relative_to(package_root).as_posix() for p in package_root.rglob('*.py')}
             if actual_files != expected_files:
                 reject('identity_mismatch', 'Installed control Python file set differs from both flown results')
             source_root = roots['prometheus_workspace'] / 'src/prometheus_control/prometheus_control'
-            for file, expected in evidence['prometheus']['implementation_sha256'].items():
+            for file, expected in expected_control.items():
                 check_file('control_source/' + file, source_root / file, expected)
         if stack == 'arducopter':
             for file, expected in evidence['candidate_source_sha256'].items():
@@ -321,7 +345,9 @@ def preflight(config):
             reject('ros_environment', 'ROS_DISTRO must be humble; source the selected overlays')
         result['candidate_status']['built'] = not any(r['code'] in ('identity_mismatch', 'resource_missing', 'candidate_not_pinned', 'model_manifest_mismatch') for r in result['reasons'])
         result['ok'] = not result['reasons']
-        result['candidate_status']['flown'] = result['ok']
+        result['candidate_status']['flown'] = result['ok'] and not config.get('promotion_flight', False)
+        if config.get('promotion_flight', False):
+            result['flight_provenance'] = 'promotion_flight'
     except ConfigError as error:
         reject('invalid_config', error)
     except (OSError, ValueError, KeyError, TypeError, ImportError) as error:

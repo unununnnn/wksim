@@ -1,10 +1,11 @@
-"""One-way native MAVLink observation, never a GCS command/control connection.
+"""Native MAVLink observation with an explicit optional contained GCS byte bridge.
 
-The input is private SITL loopback UDP. The output is an unbound, nonblocking
-Unix datagram socket: there is deliberately no receive or return path to the FC.
+The diagnostic destination remains one-way. The opt-in GCS path relays actual
+GCS bytes and never constructs native commands or drives the public task.
 """
 import argparse
 import base64
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -75,22 +76,38 @@ class Observer:
         # Fail before binding if the existing decoder dependency is unavailable.
         _, self.decoder = load_dialect(config['stack'])
         self.gcs_target = None
+        self.gcs_forward_path = None
+        self.gcs_reverse = None
+        self.gcs_reverse_path = None
+        self.gcs_reverse_inode = None
+        self.qgc_pinned = False
+        self.qgc_identity = None
+        self.reverse_digest = hashlib.sha256()
+        self.gcs_packet_hashes = set()
+        self.gcs_hashes_truncated = False
         if config.get('gcs_udp_forward'):
+            # The declared QGC loopback endpoint belongs to the Windows bridge.
+            # The experiment side exchanges byte-identical raw MAVLink over
+            # owned UNIX datagram sockets in the telemetry directory.
             host, port = config['gcs_udp_forward'].rsplit(':', 1)
             self.gcs_target = (host, int(port))
             self.counters.update(gcs_forwarded=0, gcs_failed=0, reverse_received=0, reverse_forwarded=0,
                                  reverse_dropped=0, reverse_wrong_peer=0, reverse_invalid=0, reverse_non_mavlink=0)
-            self.gcs_udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            self.gcs_udp.setblocking(False)
-            self.qgc_peer = None
+            directory = Path(config['telemetry_socket']).parent
+            self.gcs_forward_path = directory/'gcs-forward.sock'
+            self.gcs_reverse_path = directory/'gcs-reverse.sock'
+            self.gcs_reverse = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
         self.udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.output = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
         try:
             self.udp.bind(('127.0.0.1', self.port))
             self.udp.setblocking(False)
             self.output.setblocking(False)
-            if self.gcs_target is not None:
-                self.gcs_udp.bind(('127.0.0.1', 14570))
+            if self.gcs_reverse is not None:
+                self.gcs_reverse.bind(str(self.gcs_reverse_path))
+                self.gcs_reverse_inode = self.gcs_reverse_path.stat().st_ino
+                os.chmod(self.gcs_reverse_path, 0o600)
+                self.gcs_reverse.setblocking(False)
         except BaseException:
             self.close()
             raise
@@ -120,12 +137,16 @@ class Observer:
                 self.counters['dropped'] += 1
                 return None
             self.peer = peer
-        if self.gcs_target is not None:
-            # Byte-identical raw MAVLink to the validated loopback GCS endpoint,
-            # only with a pinned native peer. No queue, retry or replay.
+        if self.gcs_forward_path is not None:
+            # Byte-identical raw MAVLink to the owned forward socket for the
+            # GCS relay, only with a pinned native peer. No queue/retry/replay.
             try:
-                self.gcs_udp.sendto(packet, self.gcs_target)
+                self.output.sendto(packet, str(self.gcs_forward_path))
                 self.counters['gcs_forwarded'] += 1
+                if len(self.gcs_packet_hashes) < 8192:
+                    self.gcs_packet_hashes.add(hashlib.sha256(packet).hexdigest())
+                else:
+                    self.gcs_hashes_truncated = True
             except OSError:
                 self.counters['gcs_failed'] += 1
         self.sequence += 1
@@ -144,11 +165,8 @@ class Observer:
             self.counters['dropped'] += 1
         return record
 
-    def reverse_forward(self, packet, peer):
+    def reverse_forward(self, packet):
         self.counters['reverse_received'] += 1
-        if peer[0] != '127.0.0.1' or (self.qgc_peer is not None and peer != self.qgc_peer):
-            self.counters['reverse_wrong_peer'] += 1
-            return
         if packet and packet[0] not in (0xfe, 0xfd):
             self.counters['reverse_non_mavlink'] += 1
             return
@@ -158,26 +176,38 @@ class Observer:
         except Exception:
             self.counters['reverse_invalid'] += 1
             return
-        if not messages:
+        if (not messages or not packet or len(packet) > MAX_DATAGRAM or
+                b''.join(bytes(m.get_msgbuf()) for m in messages) != packet or
+                any(m.get_type() == 'BAD_DATA' for m in messages)):
             self.counters['reverse_invalid'] += 1
             return
-        if self.qgc_peer is None:
-            if not any(m.get_type() == 'HEARTBEAT' and getattr(m, 'type', None) == 6 and getattr(m, 'autopilot', None) == 8
-                       for m in messages):
+        # The reverse socket accepts only same-uid writers inside the owned
+        # directory; a valid GCS heartbeat must still precede any forwarding.
+        candidate_identity = self.qgc_identity
+        if not self.qgc_pinned:
+            heartbeats = [m for m in messages if m.get_type() == 'HEARTBEAT' and getattr(m, 'type', None) == 6 and getattr(m, 'autopilot', None) == 8]
+            if not heartbeats:
                 self.counters['reverse_dropped'] += 1
                 return
-            self.qgc_peer = peer
+            heartbeat = heartbeats[0]
+            candidate_identity = (heartbeat.get_srcSystem(), heartbeat.get_srcComponent())
+        if any((m.get_srcSystem(), m.get_srcComponent()) != candidate_identity for m in messages):
+            self.counters['reverse_wrong_peer'] += 1
+            return
+        self.qgc_identity = candidate_identity
+        self.qgc_pinned = True
         if self.peer is None:
             self.counters['reverse_dropped'] += 1
             return
         try:
-            self.gcs_udp.sendto(packet, self.peer)
+            self.udp.sendto(packet, self.peer)
             self.counters['reverse_forwarded'] += 1
+            self.reverse_digest.update(len(packet).to_bytes(4, 'big') + packet)
         except OSError:
             self.counters['reverse_dropped'] += 1
 
     def poll(self, timeout=0.1):
-        sources = [self.udp] + ([self.gcs_udp] if self.gcs_target is not None else [])
+        sources = [self.udp] + ([self.gcs_reverse] if self.gcs_reverse is not None else [])
         ready = select.select(sources, [], [], timeout)[0]
         if self.udp in ready:
             for _ in range(MAX_DRAIN):
@@ -186,23 +216,32 @@ class Observer:
                 except BlockingIOError:
                     break
                 self.forward(packet, peer)
-        if self.gcs_target is not None and self.gcs_udp in ready:
+        if self.gcs_reverse is not None and self.gcs_reverse in ready:
             for _ in range(MAX_DRAIN):
                 try:
-                    packet, peer = self.gcs_udp.recvfrom(MAX_DATAGRAM + 1)
+                    packet = self.gcs_reverse.recv(MAX_DATAGRAM + 1)
                 except BlockingIOError:
                     break
-                self.reverse_forward(packet, peer)
+                self.reverse_forward(packet)
+
     def close(self):
         self.output.close()
         self.udp.close()
-        if self.gcs_target is not None:
-            self.gcs_udp.close()
+        if self.gcs_reverse is not None:
+            self.gcs_reverse.close()
+            try:
+                if self.gcs_reverse_inode is not None and self.gcs_reverse_path.exists() and self.gcs_reverse_path.lstat().st_ino == self.gcs_reverse_inode:
+                    self.gcs_reverse_path.unlink()
+            except OSError:
+                pass
 
     def report(self):
-        return dict(policy='observe_only_v1', control_path=False,
+        return dict(policy='explicit_gcs_bridge_v1' if self.gcs_target else 'observe_only_v1', control_path=bool(self.gcs_target),
                     counters=dict(self.counters), peer=self.peer,
                     decoder=self.decoder,
+                    reverse_forwarded_sha256=self.reverse_digest.hexdigest() if self.gcs_target else None,
+                    gcs_forwarded_packet_sha256=sorted(self.gcs_packet_hashes),
+                    gcs_hashes_truncated=self.gcs_hashes_truncated,
                     freshness='application dequeue wall time, not kernel timestamp or simulation state validity')
 
 
@@ -223,7 +262,7 @@ def main():
     for sig in (signal.SIGINT, signal.SIGTERM):
         signal.signal(sig, stop)
     observer = Observer(config)
-    print(json.dumps(dict(ready=True, policy='observe_only_v1', port=observer.port)), flush=True)
+    print(json.dumps(dict(ready=True, policy=observer.report()['policy'], port=observer.port)), flush=True)
     try:
         while not stopping:
             observer.poll()

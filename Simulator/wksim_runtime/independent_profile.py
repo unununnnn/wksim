@@ -86,9 +86,12 @@ def check_profile(config):
         result['capabilities'] = [dict(id='native_position_mission', admitted=checked['ok'],
                                       implemented=True, built=checked['ok'], flown=False, reason=SCOPE)]
         if checked['ok']:
-            result['flight_provenance'] = check_flight_evidence(stack, p, result['identities'])
-            result['candidate_status']['flown'] = True
-            result['capabilities'][0]['flown'] = True
+            if normalized.get('promotion_flight', False):
+                result['flight_provenance'] = 'promotion_flight'
+            else:
+                result['flight_provenance'] = check_flight_evidence(stack, p, result['identities'])
+                result['candidate_status']['flown'] = True
+                result['capabilities'][0]['flown'] = True
             identities = result['identities']
             firmware = identities['ap' if stack == 'arducopter' else 'px4']
             identities['firmware'] = dict(firmware, expected_sha256=firmware['sha256'], match=True)

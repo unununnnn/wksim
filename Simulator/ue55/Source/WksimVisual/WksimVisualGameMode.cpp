@@ -237,11 +237,19 @@ void AWksimVisualGameMode::BeginPlay()
         FPlatformMisc::RequestExitWithStatus(true, 23);
         return;
     }
+    FString DepthPath;
+    if (FParse::Value(FCommandLine::Get(), TEXT("WksimDepthConfig="), DepthPath) &&
+        (VehicleId != TEXT("joint") || !LoadDepthConfig(DepthPath)))
+    {
+        UE_LOG(LogTemp, Error, TEXT("WKSIM invalid depth configuration; joint source required"));
+        FPlatformMisc::RequestExitWithStatus(true, 25);
+        return;
+    }
     int32 FixtureCase;
     if (FParse::Value(FCommandLine::Get(), TEXT("WksimRgbFixtureCase="), FixtureCase))
     {
         FString ManifestPath, Error;
-        if (!RgbSensor || !FParse::Value(FCommandLine::Get(), TEXT("WksimRgbFixtureManifest="), ManifestPath))
+        if ((!RgbSensor && !DepthSensor) || !FParse::Value(FCommandLine::Get(), TEXT("WksimRgbFixtureManifest="), ManifestPath))
         { FPlatformMisc::RequestExitWithStatus(true, 24); return; }
         RgbFixture = GetWorld()->SpawnActor<AWksimRgbFixture>();
         if (!RgbFixture->Configure(FixtureCase, Error) || !RgbFixture->WriteManifest(ManifestPath))
@@ -286,6 +294,59 @@ bool AWksimVisualGameMode::ApplyPacket(const uint8* Bytes, int32 Count, FString&
             if (Enabled) { RgbConfig.StreamId = NextStream; RgbLastStep = JointStep; }
             Object->SetStringField(TEXT("kind"), TEXT("rgb_stream_controlled"));
             FJsonSerializer::Serialize(Object.ToSharedRef(), TJsonWriterFactory<TCHAR, TCondensedJsonPrintPolicy<TCHAR>>::Create(&Ack));
+            return true;
+        }
+        if (Object->TryGetStringField(TEXT("kind"), Kind) && Kind == TEXT("joint_actor_query"))
+        {
+            FString Run, Instance, Epoch;
+            int64 Version, Generation, Request;
+            if (Object->Values.Num() != 7 || !IntegerField(Object, TEXT("version"), Version) || Version != 3 ||
+                !Object->TryGetStringField(TEXT("run_id"), Run) || Run != RunId ||
+                !Object->TryGetStringField(TEXT("instance_id"), Instance) || Instance != InstanceId ||
+                !Object->TryGetStringField(TEXT("epoch"), Epoch) || Epoch != JointEpoch ||
+                !IntegerField(Object, TEXT("generation"), Generation) || Generation < 1 || Generation != JointGeneration ||
+                !IntegerField(Object, TEXT("request_sequence"), Request)) return false;
+            // Read-only observation: do not apply state or refresh any source/receipt clock.
+            auto Reply = MakeShared<FJsonObject>();
+            Reply->SetNumberField(TEXT("version"), 3);
+            Reply->SetStringField(TEXT("kind"), TEXT("joint_actor_snapshot"));
+            Reply->SetStringField(TEXT("run_id"), RunId);
+            Reply->SetStringField(TEXT("instance_id"), InstanceId);
+            Reply->SetStringField(TEXT("epoch"), JointEpoch);
+            Reply->SetNumberField(TEXT("generation"), JointGeneration);
+            Reply->SetNumberField(TEXT("request_sequence"), Request);
+            Reply->SetNumberField(TEXT("step"), JointStep);
+            Reply->SetNumberField(TEXT("sequence"), LastSequence);
+            TArray<TSharedPtr<FJsonValue>> Actors, Observed;
+            auto Numbers = [](std::initializer_list<double> Values)
+            {
+                TArray<TSharedPtr<FJsonValue>> Result;
+                for (double Value : Values) Result.Add(MakeShared<FJsonValueNumber>(Value));
+                return Result;
+            };
+            for (int32 Index = 0; Index < JointVehicles.Num(); ++Index)
+            {
+                const auto& State = JointVehicles[Index];
+                const FVector P = State.Actor->GetActorLocation();
+                const FQuat Q = State.Actor->GetActorQuat();
+                auto Actor = MakeShared<FJsonObject>();
+                Actor->SetNumberField(TEXT("vehicle_id"), Index + 1);
+                Actor->SetArrayField(TEXT("ue_position_cm"), Numbers({P.X, P.Y, P.Z}));
+                Actor->SetArrayField(TEXT("ue_quaternion_xyzw"), Numbers({Q.X, Q.Y, Q.Z, Q.W}));
+                TArray<TSharedPtr<FJsonValue>> Yaws;
+                for (const auto& Rotor : State.Rotors) Yaws.Add(MakeShared<FJsonValueNumber>(Rotor->GetRelativeRotation().Yaw));
+                Actor->SetArrayField(TEXT("rotor_yaw_deg"), Yaws);
+                Actors.Add(MakeShared<FJsonValueObject>(Actor));
+                auto Status = MakeShared<FJsonObject>();
+                Status->SetNumberField(TEXT("vehicle_id"), Index + 1);
+                Status->SetNumberField(TEXT("step"), State.Step);
+                Status->SetBoolField(TEXT("stale"), IsJointStale(Index));
+                Status->SetBoolField(TEXT("visible"), !State.Actor->IsHidden());
+                Observed.Add(MakeShared<FJsonValueObject>(Status));
+            }
+            Reply->SetArrayField(TEXT("vehicles"), Actors);
+            Reply->SetArrayField(TEXT("observed_vehicles"), Observed);
+            FJsonSerializer::Serialize(Reply, TJsonWriterFactory<TCHAR, TCondensedJsonPrintPolicy<TCHAR>>::Create(&Ack));
             return true;
         }
         if (Object->TryGetStringField(TEXT("kind"), Kind) && Kind == TEXT("joint_view_select"))
@@ -453,6 +514,9 @@ bool AWksimVisualGameMode::ApplyJointPacket(const TSharedPtr<FJsonObject>& Objec
         if (RgbSensor) RgbSensor->Invalidate();
         RgbEpoch.Reset();
         RgbLastStep = -1;
+        if (DepthSensor) DepthSensor->Invalidate();
+        DepthEpoch.Reset();
+        DepthLastStep = -1;
         for (auto& State : JointVehicles)
         {
             State.Step = -1;
@@ -540,7 +604,8 @@ bool AWksimVisualGameMode::IsJointStale(int32 Index) const
     if (!JointVehicles.IsValidIndex(Index)) return true;
     const auto& State = JointVehicles[Index];
     const double Age = UtcSeconds() - State.SourceWall;
-    return State.Step < 0 || FPlatformTime::Seconds() - State.ReceivedWall > 0.75 || Age > 0.75 || Age < -0.25;
+    return State.Step < 0 || State.Phase == TEXT("faulted") || State.Phase == TEXT("stopped") ||
+        FPlatformTime::Seconds() - State.ReceivedWall > 0.75 || Age > 0.75 || Age < -0.25;
 }
 
 bool AWksimVisualGameMode::IsStale() const
@@ -630,6 +695,7 @@ void AWksimVisualGameMode::Tick(float DeltaSeconds)
         NextCaptureWall = Wall + 2.0;
     }
     TickRgb();
+    TickDepth();
 }
 
 bool AWksimVisualGameMode::LoadRgbConfig(const FString& Path)
@@ -731,9 +797,121 @@ void AWksimVisualGameMode::TickRgb()
     else if (!Error.IsEmpty()) UE_LOG(LogTemp, Warning, TEXT("WKSIM_RGB %s"), *Error);
 }
 
+bool AWksimVisualGameMode::LoadDepthConfig(const FString& Path)
+{
+    FString Text;
+    TSharedPtr<FJsonObject> Object;
+    if (FPaths::IsRelative(Path) || IFileManager::Get().FileSize(*Path) > 16384 ||
+        !FFileHelper::LoadFileToString(Text, *Path) ||
+        !FJsonSerializer::Deserialize(TJsonReaderFactory<>::Create(Text), Object) || !Object.IsValid()) return false;
+    int64 Version, Id, Width, Height, Interval, Notify;
+    double Fov, MaxDepth;
+    TArray<double> P, Q;
+    if (Object->Values.Num() != 13 || !IntegerField(Object, TEXT("version"), Version) || Version != 1 ||
+        !IntegerField(Object, TEXT("vehicle_id"), Id) || Id < 1 || Id > 2 ||
+        !IntegerField(Object, TEXT("width"), Width) || Width < 16 || Width > 640 ||
+        !IntegerField(Object, TEXT("height"), Height) || Height < 16 || Height > 480 ||
+        !IntegerField(Object, TEXT("interval_steps"), Interval) || Interval < 1 || Interval > 60000 ||
+        !IntegerField(Object, TEXT("notify_port"), Notify) || Notify < 1024 || Notify > 65535 || Notify == LaunchPort ||
+        !Object->TryGetNumberField(TEXT("max_depth_meters"), MaxDepth) || !FMath::IsFinite(MaxDepth) || MaxDepth <= 0 || MaxDepth > 1000 ||
+        !Object->TryGetNumberField(TEXT("horizontal_fov_degrees"), Fov) || !FMath::IsFinite(Fov) || Fov < 5 || Fov > 150 ||
+        !Object->TryGetStringField(TEXT("sensor_id"), DepthConfig.SensorId) ||
+        !Object->TryGetStringField(TEXT("stream_id"), DepthConfig.StreamId) || !IsHexIdentity(DepthConfig.StreamId) ||
+        !Object->TryGetStringField(TEXT("output_directory"), DepthConfig.OutputDirectory) ||
+        !VectorField(Object, TEXT("position_cm"), 3, P) || !VectorField(Object, TEXT("quaternion_xyzw"), 4, Q)) return false;
+    for (const TCHAR* Key : {TEXT("position_cm"), TEXT("quaternion_xyzw")})
+        for (const auto& Item : Object->GetArrayField(Key)) if (Item->Type != EJson::Number) return false;
+    if (Object->Values[TEXT("horizontal_fov_degrees")]->Type != EJson::Number) return false;
+    if (RgbSensor && (Notify == RgbNotifyPort || DepthConfig.OutputDirectory == RgbConfig.OutputDirectory)) return false;
+    DepthConfig.MaxDepthMeters = static_cast<float>(MaxDepth);
+    DepthConfig.RunId = RunId;
+    DepthConfig.InstanceId = InstanceId;
+    // Validate before starting; the first accepted source epoch replaces this value.
+    DepthConfig.Epoch = TEXT("pending");
+    DepthConfig.VehicleId = LexToString(Id);
+    DepthConfig.Width = static_cast<int32>(Width);
+    DepthConfig.Height = static_cast<int32>(Height);
+    DepthConfig.HorizontalFovDegrees = static_cast<float>(Fov);
+    DepthConfig.CameraInVehicle = FTransform(FQuat(Q[0], Q[1], Q[2], Q[3]), FVector(P[0], P[1], P[2]));
+    DepthIntervalSteps = Interval;
+    DepthNotifyPort = static_cast<int32>(Notify);
+    DepthSensor = NewObject<UWksimDepthSensor>(this);
+    DepthSensor->RegisterComponent();
+    FString Error;
+    if (!DepthSensor->Configure(DepthConfig, Error))
+    { UE_LOG(LogTemp, Error, TEXT("WKSIM_DEPTH config rejected: %s"), *Error); return false; }
+    DepthSensor->Invalidate();
+    return true;
+}
+
+void AWksimVisualGameMode::TickDepth()
+{
+    if (!DepthSensor) return;
+    // Every moving Actor must represent this exact authoritative joint step.
+    // Partial/outdated display data cannot be relabelled as a synchronous image.
+    const bool Current = bRenderReady && !IsStale() && JointVehicles.Num() == 2 &&
+        JointVehicles[0].Step == JointStep && JointVehicles[1].Step == JointStep &&
+        JointVehicles[0].Phase != TEXT("stopped") && JointVehicles[1].Phase != TEXT("stopped");
+    if (!Current)
+    {
+        DepthSensor->Invalidate();
+        DepthEpoch.Reset();
+    }
+    FString Completed, Error;
+    if (DepthSensor->Poll(Completed, Error))
+    {
+        auto Event = MakeShared<FJsonObject>();
+        Event->SetStringField(TEXT("schema"), TEXT("wksim.depth-ready.v1"));
+        Event->SetStringField(TEXT("run_id"), RunId);
+        Event->SetStringField(TEXT("instance_id"), InstanceId);
+        Event->SetStringField(TEXT("epoch"), JointEpoch);
+        Event->SetStringField(TEXT("stream_id"), DepthConfig.StreamId);
+        Event->SetNumberField(TEXT("generation"), JointGeneration);
+        Event->SetStringField(TEXT("metadata"), FPaths::GetCleanFilename(Completed));
+        FString Json;
+        FJsonSerializer::Serialize(Event, TJsonWriterFactory<TCHAR, TCondensedJsonPrintPolicy<TCHAR>>::Create(&Json));
+        const FTCHARToUTF8 Bytes(*Json);
+        const auto Destination = FIPv4Endpoint(FIPv4Address::InternalLoopback, static_cast<uint16>(DepthNotifyPort)).ToInternetAddr();
+        int32 Sent;
+        Socket->SendTo(reinterpret_cast<const uint8*>(Bytes.Get()), Bytes.Length(), Sent, *Destination);
+        UE_LOG(LogTemp, Display, TEXT("WKSIM_DEPTH_READY %s generation=%lld"), *Completed, JointGeneration);
+    }
+    if (!Error.IsEmpty()) UE_LOG(LogTemp, Warning, TEXT("WKSIM_DEPTH %s"), *Error);
+    if (Current && DepthSensor->IsBusy() && JointStep > DepthLastStep &&
+        (DepthLastStep < 0 || JointStep - DepthLastStep >= DepthIntervalSteps))
+    {
+        ++DepthSensor->DroppedBusy;
+        DepthLastStep = JointStep;
+        UE_LOG(LogTemp, Display, TEXT("WKSIM_DEPTH_DROPPED busy=%llu stale=%llu failed=%llu step=%lld"),
+            DepthSensor->DroppedBusy, DepthSensor->DroppedStale, DepthSensor->Failed, JointStep);
+    }
+    if (!Current || DepthSensor->IsBusy() || JointStep <= DepthLastStep ||
+        (DepthLastStep >= 0 && JointStep - DepthLastStep < DepthIntervalSteps)) return;
+    if (DepthEpoch != JointEpoch)
+    {
+        DepthConfig.Epoch = JointEpoch;
+        DepthConfig.Generation = JointGeneration;
+        if (!DepthSensor->Configure(DepthConfig, Error))
+        { UE_LOG(LogTemp, Warning, TEXT("WKSIM_DEPTH %s"), *Error); return; }
+        DepthEpoch = JointEpoch;
+    }
+    const int32 Index = FCString::Atoi(*DepthConfig.VehicleId) - 1;
+    FWksimDepthRequest Request;
+    Request.RunId = RunId;
+    Request.InstanceId = InstanceId;
+    Request.Epoch = JointEpoch;
+    Request.StreamId = DepthConfig.StreamId;
+    Request.Step = JointStep;
+    Request.SimTimeSeconds = SourceTime;
+    Request.CameraWorldPose = DepthConfig.CameraInVehicle * JointVehicles[Index].Actor->GetActorTransform();
+    if (DepthSensor->RequestCapture(Request, Error)) DepthLastStep = JointStep;
+    else if (!Error.IsEmpty()) UE_LOG(LogTemp, Warning, TEXT("WKSIM_DEPTH %s"), *Error);
+}
+
 void AWksimVisualGameMode::EndPlay(const EEndPlayReason::Type Reason)
 {
     if (RgbSensor) RgbSensor->Invalidate();
+    if (DepthSensor) DepthSensor->Invalidate();
     if (Socket)
     {
         Socket->Close();

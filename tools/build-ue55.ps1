@@ -53,6 +53,8 @@ $inputPaths = @(
     'Source/WksimVisual/WksimVisualGameMode.h',
     'Source/WksimVisual/WksimRgbSensor.cpp',
     'Source/WksimVisual/WksimRgbSensor.h',
+    'Source/WksimVisual/WksimDepthSensor.cpp',
+    'Source/WksimVisual/WksimDepthSensor.h',
     'Source/WksimVisual/WksimRgbFixture.cpp',
     'Source/WksimVisual/WksimRgbFixture.h',
     'Source/WksimVisual/WksimVisual.Build.cs',

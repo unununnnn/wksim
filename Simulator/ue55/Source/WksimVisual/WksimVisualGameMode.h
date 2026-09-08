@@ -4,6 +4,7 @@
 #include "GameFramework/HUD.h"
 #include "RenderCommandFence.h"
 #include "WksimRgbSensor.h"
+#include "WksimDepthSensor.h"
 #include "WksimVisualGameMode.generated.h"
 
 class FSocket;
@@ -52,6 +53,8 @@ private:
     bool ApplyJointPacket(const TSharedPtr<class FJsonObject>& Object, FString& Ack);
     bool LoadRgbConfig(const FString& Path);
     void TickRgb();
+    bool LoadDepthConfig(const FString& Path);
+    void TickDepth();
     UStaticMeshComponent* AddPart(AActor* ModelActor, const FString& Name, const TCHAR* Asset, const FVector& Location,
                                 const FVector& Scale, const FRotator& Rotation = FRotator::ZeroRotator);
     UPROPERTY() TObjectPtr<AActor> Vehicle;
@@ -80,6 +83,11 @@ private:
     bool bRgbEnabled = true;
     int64 LastRgbRequest = -1;
     UPROPERTY(Transient) TObjectPtr<AWksimRgbFixture> RgbFixture;
+    UPROPERTY(Transient) TObjectPtr<UWksimDepthSensor> DepthSensor;
+    FWksimDepthConfig DepthConfig;
+    FString DepthEpoch;
+    int64 DepthLastStep = -1, DepthIntervalSteps = 100;
+    int32 DepthNotifyPort = 0;
 };
 
 UCLASS()

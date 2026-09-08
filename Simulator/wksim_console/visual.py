@@ -96,7 +96,7 @@ class _Cancelled(Exception):
 class View:
     _resource = threading.Lock()
 
-    def __init__(self, directory, run_id, state_socket, repo=REPO, *, joint_instance=None, build_manifest=None, rgb_config=None, rgb_fixture_case=None):
+    def __init__(self, directory, run_id, state_socket, repo=REPO, *, joint_instance=None, build_manifest=None, rgb_config=None, rgb_fixture_case=None, depth_config=None):
         self.directory = Path(directory).resolve()
         self.repo = Path(repo).resolve()
         self.run_id, self.state_socket = run_id, state_socket
@@ -109,6 +109,13 @@ class View:
             from Simulator.ue55.rgb import config
             if joint_instance is None:raise ValueError('RGB requires an authoritative joint step source')
             self.rgb_config=config(rgb_config)
+        self.depth_config=None
+        if depth_config is not None:
+            from Simulator.ue55.depth import config
+            if joint_instance is None:raise ValueError('Depth requires an authoritative joint step source')
+            self.depth_config=config(depth_config)
+            if self.rgb_config is not None and self.depth_config['notify_port']==self.rgb_config['notify_port']:
+                raise ValueError('RGB and depth require independent notification ports')
         self.display_fps=15 if joint_instance is not None else 30
         self._view_request_sequence=0
         self._actor_cursor=None
@@ -122,12 +129,14 @@ class View:
         self._ready = False
         self._started = False
         self._attempt = uuid.uuid4().hex
+        self.depth_stream_id = uuid.uuid4().hex
         self.rgb_stream_id = self._attempt
         self.rgb_enabled = rgb_config is not None
         self._root = self.directory / ('view-' + self._attempt)
         self.readback_path = self._root / 'actor.jsonl'
         self.frames_directory = self._root / 'frames'
         self.rgb_directory = self._root / 'rgb'
+        self.depth_directory = self._root / 'depth'
         self._latest = None
         self._cleanup_pending = False
 
@@ -205,6 +214,8 @@ class View:
                     processes=[dict(name=row['name'], argv=row['argv'], pid=row['process'].pid,
                                     returncode=row['process'].poll()) for row in self._children],
                     readback_path=str(self.readback_path), frames_directory=str(self.frames_directory),
+                    depth_directory=str(self.depth_directory), depth_config=self.depth_config,
+                    depth_stream_id=self.depth_stream_id,
                     rgb_directory=str(self.rgb_directory), rgb_config=self.rgb_config,
                     rgb_stream_id=self.rgb_stream_id,
                     rgb_enabled=self.rgb_enabled,
@@ -285,13 +296,19 @@ class View:
                 if self.rgb_fixture_case is not None:
                     rgb_args+=['-WksimRgbFixtureCase='+str(self.rgb_fixture_case),
                                '-WksimRgbFixtureManifest='+str(self._root/'rgb-fixture.json')]
+            depth_args=[]
+            if self.depth_config is not None:
+                depth_path=self._root/'depth-config.json'
+                depth_path.write_text(json.dumps(dict(self.depth_config,output_directory=str(self.depth_directory),
+                                                      stream_id=self.depth_stream_id),allow_nan=False)+'\n',encoding='utf-8')
+                depth_args=['-WksimDepthConfig='+str(depth_path)]
             ue = self._launch('ue', [str(ENGINE), build['project'],
                 '/Game/Maps/UrbanBlock?game=/Script/WksimVisual.WksimVisualGameMode',
                 '-game', '-windowed', '-ResX=1280', '-ResY=720', '-NoSound', '-NoSplash', '-unattended',
                 '-ExecCmds=' + DISPLAY_COMMANDS.replace('t.MaxFPS 30','t.MaxFPS '+str(self.display_fps)), '-WksimVehicle='+vehicle,
                 '-WksimRunId=' + self.run_id, '-WksimPort=' + str(PORT),
                 '-abslog=' + str(self._root / 'ue.log'), '-WksimCaptureDir=' + str(self.frames_directory),
-                *(['-WksimInstance='+self.joint_instance] if self.joint_instance is not None else []), *rgb_args], visible=True)
+                *(['-WksimInstance='+self.joint_instance] if self.joint_instance is not None else []), *rgb_args, *depth_args], visible=True)
             deadline = time.monotonic() + STARTUP_TIMEOUT
             marker = ('WKSIM_READY run=' + self.run_id + ' vehicle='+vehicle+' port=19060 ').encode()
             while marker not in _tail(self._root / 'ue.log'):

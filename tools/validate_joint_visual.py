@@ -20,7 +20,7 @@ def save(path,value):Path(path).write_text(json.dumps(value,indent=2,allow_nan=F
 def unc(path):return Path('\\\\wsl.localhost\\Ubuntu-22.04'+str(path).replace('/','\\'))
 
 
-def run(manifest,output,reconnect_view=False,reset_scene=False):
+def run(manifest,output,reconnect_view=False,reset_scene=False,stale_target=None):
     output=output.resolve();output.mkdir(parents=True,exist_ok=False)
     run_id='joint-view-'+uuid.uuid4().hex[:10]
     config=dict(schema_version=1,kind='joint_scene',run_id=run_id,runtime_profile='joint_quad_dds_v1',
@@ -100,6 +100,15 @@ def run(manifest,output,reconnect_view=False,reset_scene=False):
             state,current=wait('dual airborne settled display',lambda s,v:s and 'pause' in s['allowed_actions'] and v and v['state']=='live'
                 and all(item['state']['armed'] and item['state']['position'][2]>2.5 for item in s['participants'].values()))
             report['airborne_actor']=current['latest_actor']
+            if stale_target:
+                from tools.validate_joint_stale import observe_stall
+                observe_stall(wsl, shared, state, view, manager, report, output, stale_target)
+                action('stop',epoch)
+                manager.wait(timeout=30)
+                result=read(shared/'result.json')
+                assert manager.returncode==0 and result['status']=='stopped' and all(not item['remaining_group_members'] for item in result['epochs'])
+                report.update(status='pass',result=result,manager_returncode=manager.returncode)
+                return report
             report['camera_selections']=[]
             for target in (2,1):
                 selected=view.select_vehicle(target)

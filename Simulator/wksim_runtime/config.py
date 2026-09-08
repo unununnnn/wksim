@@ -20,7 +20,8 @@ def validate_config(data):
     required = {'schema_version', 'run_id', 'vehicle_id', 'stack', 'model_profile',
                 'communication', 'dds_workspace', 'prometheus_workspace', 'px4_root'}
     optional = {'ap_candidate', 'capabilities', 'model_library', 'display_socket', 'control_protocol',
-                'restart_control_on_ground', 'mission', 'telemetry_socket', 'runtime_profile', 'gcs_udp_forward'}
+                'restart_control_on_ground', 'mission', 'telemetry_socket', 'runtime_profile', 'gcs_udp_forward',
+                'promotion_flight'}
     if required - data.keys():
         raise ConfigError('Missing fields: ' + ', '.join(sorted(required - data.keys())))
     if data.keys() - required - optional:
@@ -40,6 +41,11 @@ def validate_config(data):
         raise ConfigError('ap_candidate is only valid for arducopter')
     if data.get('control_protocol', 'legacy_v1') not in ('legacy_v1', 'session_v1'):
         raise ConfigError('control_protocol must explicitly select legacy_v1 or session_v1')
+    if 'promotion_flight' in data:
+        if type(data['promotion_flight']) is not bool:
+            raise ConfigError('promotion_flight must be a boolean')
+        if data['promotion_flight'] and data.get('control_protocol') != 'session_v1':
+            raise ConfigError('promotion_flight requires explicit session_v1')
     if 'runtime_profile' in data:
         if data['runtime_profile'] != 'independent_quad_dds_v1' or data.get('control_protocol') != 'session_v1':
             raise ConfigError('Independent runtime_profile requires independent_quad_dds_v1 and session_v1')
