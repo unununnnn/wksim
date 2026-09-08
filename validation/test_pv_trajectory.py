@@ -1,13 +1,59 @@
 """Check analytic trajectory derivatives without claiming a real flight."""
 import math
+import os
 from pathlib import Path
 import subprocess
 import sys
+import time
 import unittest
-from tools.pv_trajectory_task import reference, DURATION
+from tools.pv_trajectory_task import reference, DURATION, PVTask
 
 
 class PVReferenceTests(unittest.TestCase):
+    @unittest.skipUnless(os.environ.get('WKSIM_TEST_PRIVATE_ROS') == '1', 'requires isolated ROS graph')
+    def test_exact_controller_and_passive_recorder_graph(self):
+        import rclpy
+        from wksim_msgs.msg import SetupRequest, CommandRequest
+        self.assertNotEqual(os.readlink('/proc/self/ns/net'), os.readlink('/proc/1/ns/net'))
+        rclpy.init(args=[])
+        nodes = []
+        try:
+            node = rclpy.create_node('pv_graph_test_task'); nodes.append(node)
+            task = PVTask.__new__(PVTask)
+            task.node, task.flight_stack, task.uav_id = node, 'arducopter', 1
+            task.setup_pub = node.create_publisher(SetupRequest, task.topic_root+'v2/setup', 1)
+            task.command_pub = node.create_publisher(CommandRequest, task.topic_root+'v2/command', 1)
+            def subscriber(name):
+                item = rclpy.create_node(name); nodes.append(item)
+                item.create_subscription(SetupRequest, task.topic_root+'v2/setup', lambda m: None, 1)
+                item.create_subscription(CommandRequest, task.topic_root+'v2/command', lambda m: None, 1)
+            def await_count(count):
+                deadline = time.monotonic()+5
+                while time.monotonic() < deadline:
+                    rclpy.spin_once(node, timeout_sec=.02)
+                    if task.setup_pub.get_subscription_count() == task.command_pub.get_subscription_count() == count:
+                        return
+                self.fail('Graph did not reach expected native matching count')
+            subscriber('wksim_joint_arducopter_control')
+            await_count(1)
+            self.assertFalse(task.request_graph_ready())
+            subscriber('unapproved_recorder')
+            await_count(2)
+            self.assertFalse(task.request_graph_ready())
+            nodes.pop().destroy_node()
+            await_count(1)
+            subscriber('wksim_joint_flight_clock')
+            await_count(2)
+            self.assertTrue(task.request_graph_ready())
+            self.assertEqual(set(task.pv_request_graph), {'setup', 'command'})
+            subscriber('extra_control')
+            await_count(3)
+            self.assertFalse(task.request_graph_ready())
+        finally:
+            for node in reversed(nodes):
+                node.destroy_node()
+            rclpy.shutdown()
+
     def test_smooth_endpoints_and_interior_derivatives(self):
         origin, yaw = (2., 3., 3.), .2
         for leg, delta in ((1, (1.5, 1., .4, .6)), (2, (-1., .5, -.2, -.3))):

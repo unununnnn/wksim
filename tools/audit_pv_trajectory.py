@@ -223,6 +223,14 @@ def task_evidence(root, result, data):
                 and report['scene_epoch'] == result['scene_epoch'] and report['uav_id'] == uid and report['use_sim_time']
                 and report['task_profile'] == PROFILE, 'Task report identity differs')
         task = report['task']; tasks[stack] = task
+        graph = task['pv_request_graph']
+        require(set(graph) == {'setup', 'command'}, 'Missing named passive-observer graph proof')
+        for endpoints in graph.values():
+            require(len(endpoints) == 2 and {e['node_name'] for e in endpoints} == {
+                'wksim_joint_'+stack+'_control', 'wksim_joint_flight_clock'}
+                and all(e['node_namespace'] == '/' and re.fullmatch('[0-9a-f]+', e['endpoint_gid'])
+                        and int(e['endpoint_gid'], 16) != 0 for e in endpoints),
+                'Unexpected control/observer subscriber graph')
         require(task['pv_profile'] == PROFILE and len(task['pv_legs']) == 2 and not task['control_restarts'], 'Missing/restarted P+V task')
         phase = {p['phase']: p for p in report['phases']}; phases[stack] = phase
         counts = Counter(p['phase'] for p in report['phases'])

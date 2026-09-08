@@ -99,8 +99,8 @@ def task_main(args):
                 health()
                 rclpy.spin_once(task.node, timeout_sec=.02)
         task.wait('joint_public_ready', lambda: (task.recovery_transport_fresh() if args.task_mode=='recover' else task.fresh())
-                  and task.setup_pub.get_subscription_count() == 1
-                  and task.command_pub.get_subscription_count() == 1, 55)
+                  and (task.request_graph_ready() if args.task_profile == PV_PROFILE else
+                       task.setup_pub.get_subscription_count() == task.command_pub.get_subscription_count() == 1), 55)
         save(root/'ready.json', dict(run_id=args.run_id, scene_epoch=args.scene_epoch,
                                     uav_id=args.uav_id, control_epoch=task.epoch,
                                     task_mode=args.task_mode, start_token=args.start_token,

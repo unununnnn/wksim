@@ -33,6 +33,22 @@ class PVTask(Task):
         self.scene_epoch = trajectory_epoch
         self.pv_legs = []
         self.command_id = 0
+        self.pv_request_graph = {}
+
+    def request_graph_ready(self):
+        """Exactly one controller plus this experiment's named passive recorder."""
+        expected = {'wksim_joint_'+self.flight_stack+'_control', 'wksim_joint_flight_clock'}
+        observations = {}
+        for kind, publisher in (('setup', self.setup_pub), ('command', self.command_pub)):
+            endpoints = self.node.get_subscriptions_info_by_topic(self.topic_root+'v2/'+kind)
+            if (publisher.get_subscription_count() != 2 or len(endpoints) != 2
+                    or {info.node_name for info in endpoints} != expected
+                    or any(info.node_namespace != '/' for info in endpoints)):
+                return False
+            observations[kind] = [dict(node_name=info.node_name, node_namespace=info.node_namespace,
+                                       endpoint_gid=bytes(info.endpoint_gid).hex()) for info in endpoints]
+        self.pv_request_graph = observations
+        return True
 
     def offer(self, label, **fields):
         self.command_id += 1
@@ -44,8 +60,7 @@ class PVTask(Task):
                 and abs((self.state.attitude[2]-yaw+math.pi) % (2*math.pi)-math.pi) <= .15)
 
     def execute(self):
-        self.wait('public_control_ready', lambda: self.fresh()
-                  and self.setup_pub.get_subscription_count() == self.command_pub.get_subscription_count() == 1, 55)
+        self.wait('public_control_ready', lambda: self.fresh() and self.request_graph_ready(), 55)
         if not grounded(self.state, self.uav_id):
             raise RuntimeError('Candidate task requires disarmed ground state')
         self.active = True
@@ -129,7 +144,7 @@ class PVTask(Task):
                    and math.dist(self.state.position, record['stop_anchor']) <= 1., 4)
 
     def report(self):
-        return dict(super().report(), pv_profile=PROFILE, pv_legs=self.pv_legs)
+        return dict(super().report(), pv_profile=PROFILE, pv_legs=self.pv_legs, pv_request_graph=self.pv_request_graph)
 
 
 class PVProbe:
