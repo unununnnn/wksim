@@ -1,5 +1,6 @@
 """Frozen public mixed-axis candidate task; reference capture is not native ACK."""
 import math
+import time
 from tools.pv_trajectory_task import PVTask
 from Simulator.wksim_runtime.task import Task
 
@@ -53,19 +54,42 @@ class MixedTask(PVTask):
         if body:
             anchor = list(reference['body_capture']['shaped_position'])
         self.dwell(name+'_prepared', self.fresh, 2)
-        self.window(name, lambda: self.tracking(reference) and math.hypot(*self.state.velocity) <= .25
-                    and math.dist(self.state.position, anchor) <= 1., 4, reference, anchor=anchor)
+        held = lambda: (self.tracking(reference) and math.hypot(*self.state.velocity) <= .25
+                        and math.dist(self.state.position, anchor) <= 1.)
+        settling = self.stable_hold(name, held)
+        self.window(name, held, 4, reference, anchor=anchor, hold_settling=settling)
         return reference, anchor
+
+    def stable_hold(self, name, predicate):
+        began, stable_since = time.monotonic(), None
+        record = dict(started_monotonic_s=began, wall_limit_s=12., stable_minimum_s=1.5)
+        def stable():
+            nonlocal stable_since
+            wall, now = time.monotonic(), self.task_time()
+            if wall-began > 12:
+                raise TimeoutError(name+': stable hold preparation exceeded 12 wall seconds')
+            if not predicate():
+                stable_since = None
+                return False
+            if stable_since is None:
+                stable_since = now
+            if now-stable_since < 1.5:
+                return False
+            record.update(stable_from_s=stable_since, ready_s=now, ready_monotonic_s=wall)
+            return True
+        self.wait(name+'_stable', stable, 20)
+        return record
 
     def absolute_stop(self, name):
         anchor = [float(v) for v in self.state.position]
         yaw = float(self.state.attitude[2])
         self.offer(name+'_accepted', agent_cmd=self.Cmd.CURRENT_POS_HOVER, control_level=self.Cmd.ABSOLUTE_CONTROL)
         self.dwell(name+'_prepared', self.fresh, 2)
-        self.window(name, lambda: self.fresh() and math.hypot(*self.state.velocity) <= .25
-                    and math.dist(self.state.position, anchor) <= 1.
-                    and abs(math.remainder(self.state.attitude[2]-yaw, 2*math.pi)) <= .15,
-                    4, dict(altitude=anchor[2], yaw=yaw), anchor=anchor)
+        held = lambda: (self.fresh() and math.hypot(*self.state.velocity) <= .25
+                        and math.dist(self.state.position, anchor) <= 1.
+                        and abs(math.remainder(self.state.attitude[2]-yaw, 2*math.pi)) <= .15)
+        settling = self.stable_hold(name, held)
+        self.window(name, held, 4, dict(altitude=anchor[2], yaw=yaw), anchor=anchor, hold_settling=settling)
 
     def fly_leg(self, leg):
         if leg == 1:

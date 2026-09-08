@@ -5,11 +5,32 @@ from pathlib import Path
 import subprocess
 import sys
 import unittest
+from unittest.mock import patch
 
 from tools.mixed_control_task import MixedTask, PROFILE
 
 
 class MixedTaskTests(unittest.TestCase):
+    def test_hold_readiness_resets_after_relapse_and_has_wall_bound(self):
+        task = MixedTask.__new__(MixedTask)
+        seconds = [0., .5, 1., 1.5, 2., 2.5, 3.]
+        good = [True, True, False, True, True, True, True]
+        current = 0
+        task.task_time = lambda: seconds[current]
+        def wait(label, ready, timeout):
+            nonlocal current
+            for current in range(len(seconds)):
+                if ready():
+                    return
+            self.fail('No continuously stable window')
+        task.wait = wait
+        with patch('tools.mixed_control_task.time.monotonic', side_effect=[0., *seconds]):
+            record = task.stable_hold('zero', lambda: good[current])
+        self.assertEqual((record['stable_from_s'], record['ready_s']), (1.5, 3.))
+        with patch('tools.mixed_control_task.time.monotonic', side_effect=[0., 13.]):
+            with self.assertRaises(TimeoutError):
+                task.stable_hold('zero', lambda: True)
+
     def test_mixed_selectors_do_not_silently_select_another_firmware(self):
         root = Path(__file__).resolve().parents[1]
         command = [sys.executable, '-B', str(root/'tools/run_joint_flight.py'), 'run',

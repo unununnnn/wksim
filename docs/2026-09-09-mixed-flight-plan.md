@@ -23,3 +23,5 @@
 BODY坐标在CommandProcessor第一次step解析时一次捕获，保持既有行为；控制节点新增只读mixed_body_reference_captured事件，记录该瞬间源位置/四元数/偏航、解析参考和shaped轴，不改变控制或输出，也不代表原生发送/ACK。审计从真实公共状态四元数独立重算旋转，结合实际原生包和逐1ms真值证明一次捕获。捕获事件可早于首次受输出频率限制的发送，不能用后来的姿态替代。
 
 被动记录器与控制节点按已验证的恰好两个具名订阅端点检查，保持source/GID/run/epoch记录；使用现有pv-dds.jsonl作为同一原始消息容器，文件名不代表本次为完整P+V。原生AP GUIP日志（实际Log.cpp名称）必须出现新type7，结合真实native binary/源码/映射证明进入新子模式；其pX/pY零为失活占位，pZ属于origin NED，不能直接冒称home高度。Location/Fence转换失败、native timeout、native pause/EKF reset/避障等异常工况仍需独立运行，不以本正常场景代验。
+
+首轮准备段纠正：kjbim9c6中PX4完成world_one_axis后转完整P，固定2s准备结束时速度约0.266m/s（Y=-0.26582m/s），超过原0.25m/s；位置漂移约0.053m、Z/yaw均在界内，整轮失败保留。后续仅对world_zero/body_zero及两次absolute_stop，在原最少2仿真秒准备之后，加一个最多12墙钟秒的就绪等待：必须连续满足同一保持条件1.5仿真秒，失效即重新累计。随后才进入原4s连续验收，任何违例仍立即失败；审计也逐1ms核对这1.5s稳定段。记录实际准备时长，不改控制律、参考量、速度/漂移/yaw或倍率界，也不将首轮改判成功。
