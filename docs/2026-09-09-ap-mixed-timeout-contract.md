@@ -118,3 +118,15 @@ fails this classification. The 3 m / ≤0.5 m/s / 2 s takeoff hold finishes befo
 freezing the mixed reference. No public ControlNode/Task exists in this
 initial phase. Once mixed preparation begins, every reset again fails;
 production ControlNode and public Task reset/revocation rules are unchanged.
+
+Revision before trial 04: trial `n_9cb0wi` passed the initial alignment, mixed
+baseline and true target silence, reached ~14.6 m and the stop dwell, but failed
+at tick67208 with cumulative lateness100112865ns. It remains failed. Its new
+supervisor polled NativeDDS, eight raw subscriptions and all child processes on
+every physics wait callback, unlike the lighter nominal observer. Repeated
+observer/process polling is now limited to once per1wall ms; the independent
+wall watchdog still runs on every health call. No physical tick, raw channel,
+rate sample, source-clock/freshness condition or 100ms/10s/60s threshold changes.
+This removes redundant inspection work; a new real run must establish whether
+it provides sufficient headroom. No cause is attributed to an unrelated host
+process without evidence.

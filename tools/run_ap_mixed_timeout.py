@@ -389,8 +389,15 @@ def run(args):
             children.append((name,child,log))
             result['children'][name] = dict(identity=json_identity(child.pid),argv=argv,cwd=str(cwd))
             return child
+        next_observation_ns = 0
+        result['observer_poll_period_ns'] = 1_000_000
         def health():
-            require(time.monotonic()-started < WALL_LIMIT, 'Independent wall watchdog exceeded')
+            nonlocal next_observation_ns
+            now = time.monotonic_ns()
+            require(now/1e9-started < WALL_LIMIT, 'Independent wall watchdog exceeded')
+            if now < next_observation_ns:
+                return
+            next_observation_ns = now+result['observer_poll_period_ns']
             if native is not None:
                 native.pump()
             if recorder is not None:
@@ -690,6 +697,7 @@ def audit(root):
             and result['source_unchanged'],'Run did not complete cleanly')
     require(set(result['source_sha256'])==set(SOURCES),'Mandatory executed source set differs')
     require(result['bounds']==dict(wall_seconds=900,simulation_ticks=180000,requested_rate=.5)
+            and result['observer_poll_period_ns']==1_000_000
             and result['wall_seconds']<=900 and result['final_authority']['phase']=='stopped'
             and 0<result['final_authority']['tick']<=180000 and result['final_authority']['tick']%4==0,
             'Frozen runtime bounds or terminal authority differ')
