@@ -12,6 +12,21 @@ from validation.test_wksim_runtime import config
 
 
 class StorageLaunchTests(unittest.TestCase):
+    def test_human_duration_changes_only_the_bounded_physics_lifetime(self):
+        original=runtime.launch_spec(config(),Path('/tmp/run'),Path('/tmp/model.so'))
+        extended=runtime.launch_spec(config(),Path('/tmp/run'),Path('/tmp/model.so'),physics_duration=3600)
+        index=extended['physics'].index('--duration')+1
+        self.assertEqual(extended['physics'][index],'3600')
+        extended['physics'][index]='600'
+        self.assertEqual(extended,original)
+        for duration in (True,599,3601,float('nan')):
+            with self.assertRaises(ValueError):
+                runtime.launch_spec(config(),Path('/tmp/run'),Path('/tmp/model.so'),physics_duration=duration)
+        with tempfile.TemporaryDirectory() as root:
+            with self.assertRaises(ValueError):
+                runtime.run(config(),Path(root)/'unused',physics_duration=3600)
+            self.assertFalse((Path(root)/'unused').exists())
+
     def test_only_fc_working_directory_changes(self):
         for stack in ('arducopter', 'px4'):
             original = runtime.launch_spec(config(stack), Path('/tmp/run'), Path('/tmp/model.so'))

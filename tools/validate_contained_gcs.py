@@ -62,7 +62,33 @@ def sha(path):
         digest = hashlib.sha256()
         for block in iter(lambda: stream.read(1024 * 1024), b''):
             digest.update(block)
-        return digest.hexdigest()
+    return digest.hexdigest()
+
+
+def verify_forward_packets(observer, archive, forwarded):
+    expected=observer.get('gcs_forward_hash_log')
+    if expected is None:
+        assert not observer['gcs_hashes_truncated'], 'Legacy source hash evidence reached its bound'
+        known=set(observer['gcs_forwarded_packet_sha256'])
+        assert forwarded and all(hashlib.sha256(base64.b64decode(p,validate=True)).hexdigest() in known for p in forwarded)
+        return dict(method='legacy_bounded_source_hash_set',packets=len(forwarded))
+    path=archive/'gcs-forward-hashes.jsonl'
+    assert sha(path)==expected['sha256'], 'Source hash transcript differs from the producing Observer digest'
+    count=0
+    matched=0
+    hashes=[hashlib.sha256(base64.b64decode(p,validate=True)).hexdigest() for p in forwarded]
+    assert hashes, 'No bridge packets to verify'
+    with path.open(encoding='ascii') as source:
+        for line in source:
+            record=json.loads(line)
+            count+=1
+            assert record['sequence']==count and 0 < record['size'] <= 8192
+            if matched<len(hashes) and record['sha256']==hashes[matched]:
+                matched+=1
+    assert count==expected['records']==observer['counters']['gcs_forwarded'], 'Incomplete source hash transcript'
+    assert matched==len(hashes), 'Bridge raw packets are not an ordered subsequence of successful native forwarding'
+    return dict(method='complete_streamed_source_hash_transcript',packets=matched,source_packets=count,
+                source_log_sha256=expected['sha256'])
 
 
 def last_truth(path):
@@ -102,7 +128,8 @@ def linux(args):
     out = args.output.resolve()
     run_id = 'gcs-' + args.stack + '-' + uuid.uuid4().hex[:12]
     private = Path(tempfile.mkdtemp(prefix=run_id + '-', dir='/tmp'))
-    config = json.loads((REPO / 'Simulator/wksim_runtime/examples' / (args.stack + '-mission.json')).read_text())
+    example = 'parameter-' + args.stack + '.json' if args.manual_handoff else args.stack + '-mission.json'
+    config = json.loads((REPO / 'Simulator/wksim_runtime/examples' / example).read_text())
     config.update(run_id=run_id,
                   telemetry_socket=str(private / 'native.sock'), gcs_udp_forward='127.0.0.1:14560')
     if args.promotion_flight:
@@ -110,22 +137,28 @@ def linux(args):
     save(out / 'config.json', config)
     child = None
     identity = None
+    validator_pidfd = None
     try:
         with socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM) as capture, (out / 'native.jsonl').open('w', buffering=1) as evidence:
             capture.bind(config['telemetry_socket'])
             os.chmod(config['telemetry_socket'], 0o600)
             capture.setblocking(False)
             with (out / 'formal-driver.log').open('w') as log:
-                child = subprocess.Popen([sys.executable, '-B', str(REPO / 'tools/validate_independent_profile.py'),
-                    str(out / 'config.json'), '--output', str(out / 'formal')], stdout=log, stderr=subprocess.STDOUT)
+                command = (['bash', str(REPO/'tools/run-gcs-handoff.sh')] if args.manual_handoff else
+                           [sys.executable, '-B', str(REPO/'tools/validate_independent_profile.py')])
+                child = subprocess.Popen([*command,str(out/'config.json'),'--output',str(out/'formal')],
+                                         stdout=log,stderr=subprocess.STDOUT)
+                if args.manual_handoff:
+                    # The owned wrapper execs unshare/Python; pidfd retains the same kernel process across exec.
+                    validator_pidfd = os.pidfd_open(child.pid)
                 identity = json_identity(child.pid)
                 save(out / 'linux-owned.json', {'wrapper': json_identity(os.getpid()), 'validator': identity,
                     'private': str(private), 'run_id': config['run_id']})
-                deadline = time.monotonic() + 420
+                deadline = time.monotonic() + (1200 if args.manual_handoff else 420)
                 truth_path = None
                 while child.poll() is None:
                     if (out / 'abort').exists() or time.monotonic() > deadline:
-                        raise TimeoutError('Abort requested or formal run exceeded 420 seconds')
+                        raise TimeoutError('Abort requested or formal run exceeded its bounded duration')
                     for _ in range(128):
                         try:
                             raw = capture.recv(65536)
@@ -146,13 +179,18 @@ def linux(args):
                 return child.returncode
     finally:
         if child is not None and child.poll() is None:
-            if json_identity(child.pid) != identity:
-                raise RuntimeError('Validator identity changed; refusing signal')
-            child.send_signal(signal.SIGINT)  # Existing validator catches BaseException and reaps its manager.
+            if validator_pidfd is not None:
+                signal.pidfd_send_signal(validator_pidfd, signal.SIGINT)
+            else:
+                if json_identity(child.pid) != identity:
+                    raise RuntimeError('Validator identity changed; refusing signal')
+                child.send_signal(signal.SIGINT)  # Existing validator catches BaseException and reaps its manager.
             try:
                 child.wait(timeout=40)
             except subprocess.TimeoutExpired:
                 save(out / 'cleanup-incomplete.json', {'validator': identity, 'reason': 'Not killed: descendant cleanup unconfirmed'})
+        if validator_pidfd is not None:
+            os.close(validator_pidfd)
         # Retain private paths on any failure; never recursively remove anything.
         save(out / 'linux-finished.json', {'returncode': None if child is None else child.poll(), 'private': str(private)})
 
@@ -182,13 +220,21 @@ def windows(args):
     save(out / 'preflight.json', preflight)
     processes = []
     logs = []
-    report = {'status': 'failed', 'stack': args.stack, 'manual_mode_switch': 'not performed; separate user acceptance'}
+    report = {'status': 'failed', 'stack': args.stack,
+              'manual_mode_switch': 'pending human action' if args.manual_handoff else 'not performed; separate user acceptance'}
 
     def start(argv, name):
         log = (out / (name + '.log')).open('wb')
         logs.append(log)
+        startup=None
+        flags=subprocess.CREATE_NO_WINDOW
+        if name=='qgc':
+            startup=subprocess.STARTUPINFO()
+            startup.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+            startup.wShowWindow=1  # SW_SHOWNORMAL: the human must see the interactive GUI.
+            flags=0
         child = subprocess.Popen(argv, cwd=REPO, stdout=log, stderr=subprocess.STDOUT,
-                                 creationflags=subprocess.CREATE_NO_WINDOW)
+                                 creationflags=flags,startupinfo=startup)
         processes.append((name, child))
         report[name] = {'pid': child.pid, 'argv': argv}
         return child
@@ -208,6 +254,7 @@ def windows(args):
         command += ' && exec python3 -B ' + shlex.quote(wsl_path(Path(__file__)))
         command += ' --linux --stack ' + args.stack + ' --output ' + shlex.quote(wsl_path(out))
         if args.promotion_flight: command += ' --promotion-flight'
+        if args.manual_handoff: command += ' --manual-handoff'
         formal = start(['wsl.exe', '-d', 'Ubuntu-22.04', '--cd', wsl_path(REPO), '--exec', 'bash', '-c', command], 'linux')
         wait_for(lambda: (out / 'ready.json').exists(), 90)
         ready = read_json(out / 'ready.json')
@@ -215,28 +262,56 @@ def windows(args):
             '--forward-socket', ready['forward'], '--reverse-socket', ready['reverse'], '--qgc-endpoint', '127.0.0.1:14560',
             '--relay-port', '14570', '--readback', str(out / 'bridge.jsonl'), '--stop-file', str(out / 'bridge.stop')], 'bridge')
         # Category strings are verified in QGC source, not C++ variable names.
-        qgc = start([str(exe), '--logging:Comms.LinkManager,Vehicle.MultiVehicleManager', '--log-output'], 'qgc')
+        if args.manual_handoff:
+            qgc=start(['powershell.exe','-NoProfile','-File',str(REPO/'tools/run-visible-gcs.ps1'),
+                       '-Executable',str(exe),'-OutputDirectory',str(out)],'qgc_launcher')
+        else:
+            qgc = start([str(exe), '--logging:Comms.LinkManager,Vehicle.MultiVehicleManager', '--log-output'], 'qgc')
         wait_for(lambda: any(r.get('kind') == 'gcs_bridge_reverse' and r.get('relay', {}).get('reverse_forwarded', 0) > 0
                             for r in rows(out / 'bridge.jsonl')) and (out / 'live-truth.json').exists()
-                            and read_json(out / 'live-truth.json')['height_m'] > .5, 90)
+                            and (args.manual_handoff or read_json(out / 'live-truth.json')['height_m'] > .5), 90)
         before = read_json(out / 'live-truth.json')
-        (out / 'bridge.stop').touch()
-        bridge.wait(timeout=15)
-        assert bridge.returncode == 0, 'Bridge did not close cleanly'
-        report['truth_at_bridge_stop'] = before
-        formal.wait(timeout=420)
+        if args.manual_handoff:
+            seen=None
+            deadline=time.monotonic()+1200
+            while formal.poll() is None:
+                if time.monotonic()>deadline:
+                    raise TimeoutError('Human handoff exceeded its bounded session')
+                path=out/'formal/human-handoff.json'
+                if path.exists():
+                    state=read_json(path)['current']
+                    if state['event'] != seen:
+                        print(json.dumps(dict(human_handoff=state)),flush=True)
+                        seen=state['event']
+                        if seen=='ready_to_stop_bridge':
+                            (out/'bridge.stop').touch()
+                            bridge.wait(timeout=15)
+                            assert bridge.returncode==0, 'Bridge did not stop before FC teardown'
+                            save(out/'formal/bridge-stopped.json',state['stop_request'])
+                time.sleep(.2)
+        else:
+            (out / 'bridge.stop').touch()
+            bridge.wait(timeout=15)
+            assert bridge.returncode == 0, 'Bridge did not close cleanly'
+            report['truth_at_bridge_stop'] = before
+            formal.wait(timeout=420)
         assert formal.returncode == 0
         result = json.loads((out / 'formal/report.json').read_text())
         assert result['status'] == 'pass'
         truth = last_truth(out / 'formal/run/truth.jsonl')
-        assert truth['time'] > before['time'] + 1, 'Physics did not advance after bridge stopped'
-        report['truth_after_bridge_stop'] = truth
+        if args.manual_handoff:
+            assert result['gcs_mode_evidence']['matches'], 'Native GCS mode evidence missing'
+            report['human_handoff']=result
+            report['manual_mode_switch']='native mode command and explicit takeover verified'
+            (out/'bridge.stop').touch()
+            bridge.wait(timeout=15)
+            assert bridge.returncode==0
+        else:
+            assert truth['time'] > before['time'] + 1, 'Physics did not advance after bridge stopped'
+            report['truth_after_bridge_stop'] = truth
         forwarded = [r['packet_base64'] for r in rows(out / 'bridge.jsonl') if r.get('kind') == 'gcs_bridge_forward']
         observer = [r for r in rows(out / 'formal/run/telemetry.log') if 'counters' in r][-1]
-        source_hashes = set(observer['gcs_forwarded_packet_sha256'])
-        assert not observer['gcs_hashes_truncated'], 'Source hash evidence reached its bound'
-        assert forwarded and all(hashlib.sha256(base64.b64decode(packet, validate=True)).hexdigest() in source_hashes
-                                 for packet in forwarded), 'Forward raw bytes lack observer source hash match'
+        report['forward_verification']=verify_forward_packets(observer,out/'formal/run',forwarded)
         report['forward_packets_verified'] = len(forwarded)
         assert observer['counters']['reverse_forwarded'] > 0, 'Observer did not actually forward reverse bytes'
         report['observer'] = observer
@@ -256,12 +331,14 @@ def windows(args):
         if reverse_verified:
             assert relay_count == observer['counters']['reverse_forwarded'], 'Relay and observer successful reverse counts differ'
             assert reverse_digest.hexdigest() == observer['reverse_forwarded_sha256'], 'Reverse raw-byte digest differs'
-        log = (out / 'qgc.log').read_text(encoding='utf-8', errors='replace')
+        log = ((out/'qgc.stdout.log').read_text(encoding='utf-8',errors='replace')+
+               (out/'qgc.stderr.log').read_text(encoding='utf-8',errors='replace')) if args.manual_handoff else (out/'qgc.log').read_text(encoding='utf-8',errors='replace')
         sysid = 22 if args.stack == 'px4' else 241
         identity_lines = [line for line in log.splitlines() if 'Adding new vehicle link:vehicleId:' in line and re.search(r'\b' + str(sysid) + r'\s+1\s+', line)]
         assert identity_lines, 'QGC log lacks expected native vehicle identity'
         report.update(status='pass' if reverse_verified else 'partial', qgc_identity=identity_lines,
-            limitation='Manual mode switch not exercised; not full issue #42 acceptance.' if reverse_verified else
+            limitation=('Human handoff candidate; requires independent raw audit.' if args.manual_handoff else
+                        'Manual mode switch not exercised; not full issue #42 acceptance.') if reverse_verified else
             'Observer lacks reverse byte digest; cannot certify end-to-end reverse byte equality. Manual mode switch not exercised.')
     except BaseException as error:
         report['error'] = repr(error)
@@ -269,6 +346,8 @@ def windows(args):
     finally:
         (out / 'bridge.stop').touch()
         (out / 'abort').touch()
+        if args.manual_handoff:
+            (out/'qgc.stop').touch()
         for name, child in reversed(processes):
             if child.poll() is None:
                 try:
@@ -280,6 +359,12 @@ def windows(args):
             report[name]['returncode'] = child.poll()
         for log in logs:
             log.close()
+        if args.manual_handoff and (out/'qgc-owned.json').exists():
+            report['qgc_gui']=json.loads((out/'qgc-owned.json').read_text(encoding='utf-8-sig'))
+            if (out/'qgc-exit.json').exists():
+                report['qgc_gui_exit']=json.loads((out/'qgc-exit.json').read_text(encoding='utf-8-sig'))
+            else:
+                report.setdefault('cleanup_incomplete',[]).append('QGC GUI exit unconfirmed')
         identities = []
         owned = out / 'linux-owned.json'
         if owned.exists():
@@ -319,6 +404,9 @@ if __name__ == '__main__':
     parser.add_argument('--output', type=Path, default=REPO / 'validation/gcs-bridge-20260908' / ('live-' + uuid.uuid4().hex[:12]))
     parser.add_argument('--execute', action='store_true')
     parser.add_argument('--promotion-flight', action='store_true', help='Explicit unflown candidate admission; omitted for normal runs')
+    parser.add_argument('--manual-handoff', action='store_true', help='Human changes QGC mode and explicitly requests fresh takeover')
     parser.add_argument('--linux', action='store_true', help=argparse.SUPPRESS)
     args = parser.parse_args()
+    if args.manual_handoff and args.promotion_flight:
+        parser.error('Human handoff requires already admitted resources, not a promotion flight')
     raise SystemExit(linux(args) if args.linux else windows(args))

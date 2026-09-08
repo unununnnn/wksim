@@ -9,7 +9,7 @@ import sys
 REPO = Path(__file__).resolve().parents[1]
 
 
-def audit(path, release_only=False):
+def audit(path, release_only=False, *, expected_takeover_request_id=6):
     path = Path(path)
     result = json.loads(path.read_text(encoding='utf-8'))
     probe = result['task']['takeover_probe']
@@ -50,7 +50,7 @@ def audit(path, release_only=False):
     assert all(a['request_id'] < b['request_id'] for a, b in zip(envelopes, envelopes[1:]))
     assert len(probe['holds']) == 1
     hold = probe['holds'][0]
-    assert hold['reference']['airborne'] and hold['reference']['request_id'] == 6
+    assert hold['reference']['airborne'] and hold['reference']['request_id'] == expected_takeover_request_id
     reference = hold['reference']
     start, end = (hold[phase]['truth']['records'] for phase in ('before', 'after'))
     assert 1 <= start < end <= len(rows)

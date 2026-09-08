@@ -127,9 +127,9 @@ class SocketTests(unittest.TestCase):
         with self.assertRaises(BlockingIOError):
             sender.recvfrom(65535)
 
-    def gcs_observer(self, stack='px4', target='127.0.0.1:14560'):
+    def gcs_observer(self, stack='px4', target='127.0.0.1:14560', hash_log=None):
         result = Observer(dict(stack=stack, telemetry_socket=str(self.path),
-                               run_id='telemetry-unit', vehicle_id=1, gcs_udp_forward=target))
+                               run_id='telemetry-unit', vehicle_id=1, gcs_udp_forward=target), gcs_hash_log=hash_log)
         self.addCleanup(result.close)
         return result
 
@@ -183,6 +183,34 @@ class SocketTests(unittest.TestCase):
         self.assertEqual(observer.counters['gcs_forwarded'], 1)
         self.assertEqual(forward.recv(65535), wire)
         self.assertEqual(observer.report()['gcs_forwarded_packet_sha256'], [hashlib.sha256(wire).hexdigest()])
+
+    def test_streamed_hash_evidence_remains_complete_after_memory_bound(self):
+        from tools.validate_contained_gcs import verify_forward_packets
+        forward=socket.socket(socket.AF_UNIX,socket.SOCK_DGRAM)
+        self.addCleanup(forward.close)
+        forward.bind(str(self.directory/'gcs-forward.sock'))
+        forward.settimeout(.2)
+        path=self.directory/'gcs-forward-hashes.jsonl'
+        with path.open('x',encoding='ascii',buffering=1) as log:
+            observer=self.gcs_observer(hash_log=log)
+            observer.gcs_packet_hashes={f'{i:064x}' for i in range(8192)}
+            sender=self.sender()
+            wire=packet()
+            self.deliver(observer,sender,wire)
+            self.assertEqual(forward.recv(65535),wire)
+            self.deliver(observer,sender,wire)
+            self.assertEqual(forward.recv(65535),wire)
+            report=observer.report()
+            self.assertTrue(report['gcs_hashes_truncated'])
+            self.assertEqual(report['gcs_forward_hash_log']['records'],2)
+            encoded=base64.b64encode(wire).decode()
+            self.assertEqual(verify_forward_packets(report,self.directory,[encoded,encoded])['packets'],2)
+            with self.assertRaises(AssertionError):
+                verify_forward_packets(report,self.directory,[encoded]*3)
+            original=path.read_bytes()
+            path.write_bytes(original+b'{}\n')
+            with self.assertRaises(AssertionError):
+                verify_forward_packets(report,self.directory,[encoded])
 
     def test_rejected_mixed_gcs_identity_does_not_pin_or_forward(self):
         observer = self.gcs_observer()

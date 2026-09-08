@@ -5,6 +5,7 @@ GCS bytes and never constructs native commands or drives the public task.
 """
 import argparse
 import base64
+from contextlib import ExitStack
 import hashlib
 import json
 import os
@@ -63,7 +64,7 @@ def decode_datagram(packet, system_id):
 
 
 class Observer:
-    def __init__(self, config):
+    def __init__(self, config, *, gcs_hash_log=None):
         # Configuration and namespace admission are enforced by the runtime/CLI;
         # this class is also the bounded protocol/socket test seam.
         self.config = config
@@ -85,6 +86,9 @@ class Observer:
         self.reverse_digest = hashlib.sha256()
         self.gcs_packet_hashes = set()
         self.gcs_hashes_truncated = False
+        self.gcs_hash_log = gcs_hash_log
+        self.gcs_hash_log_records = 0
+        self.gcs_hash_log_digest = hashlib.sha256()
         if config.get('gcs_udp_forward'):
             # The declared QGC loopback endpoint belongs to the Windows bridge.
             # The experiment side exchanges byte-identical raw MAVLink over
@@ -143,12 +147,21 @@ class Observer:
             try:
                 self.output.sendto(packet, str(self.gcs_forward_path))
                 self.counters['gcs_forwarded'] += 1
-                if len(self.gcs_packet_hashes) < 8192:
-                    self.gcs_packet_hashes.add(hashlib.sha256(packet).hexdigest())
-                else:
-                    self.gcs_hashes_truncated = True
             except OSError:
                 self.counters['gcs_failed'] += 1
+            else:
+                packet_hash = hashlib.sha256(packet).hexdigest()
+                if len(self.gcs_packet_hashes) < 8192:
+                    self.gcs_packet_hashes.add(packet_hash)
+                else:
+                    self.gcs_hashes_truncated = True
+                if self.gcs_hash_log is not None:
+                    line = json.dumps(dict(sequence=self.counters['gcs_forwarded'], size=len(packet),
+                                           sha256=packet_hash), separators=(',', ':'))+'\n'
+                    if self.gcs_hash_log.write(line) != len(line):
+                        raise OSError('Incomplete GCS source hash log write')
+                    self.gcs_hash_log_digest.update(line.encode('ascii'))
+                    self.gcs_hash_log_records += 1
         self.sequence += 1
         record = dict(schema_version=1, kind='native_mavlink_observation',
                       run_id=self.config['run_id'], vehicle_id=self.config['vehicle_id'],
@@ -236,13 +249,17 @@ class Observer:
                 pass
 
     def report(self):
-        return dict(policy='explicit_gcs_bridge_v1' if self.gcs_target else 'observe_only_v1', control_path=bool(self.gcs_target),
+        result = dict(policy='explicit_gcs_bridge_v1' if self.gcs_target else 'observe_only_v1', control_path=bool(self.gcs_target),
                     counters=dict(self.counters), peer=self.peer,
                     decoder=self.decoder,
                     reverse_forwarded_sha256=self.reverse_digest.hexdigest() if self.gcs_target else None,
                     gcs_forwarded_packet_sha256=sorted(self.gcs_packet_hashes),
                     gcs_hashes_truncated=self.gcs_hashes_truncated,
                     freshness='application dequeue wall time, not kernel timestamp or simulation state validity')
+        if self.gcs_hash_log is not None:
+            result['gcs_forward_hash_log'] = dict(path=str(self.gcs_hash_log.name), records=self.gcs_hash_log_records,
+                                                 sha256=self.gcs_hash_log_digest.hexdigest())
+        return result
 
 
 def main():
@@ -261,14 +278,17 @@ def main():
 
     for sig in (signal.SIGINT, signal.SIGTERM):
         signal.signal(sig, stop)
-    observer = Observer(config)
-    print(json.dumps(dict(ready=True, policy=observer.report()['policy'], port=observer.port)), flush=True)
-    try:
-        while not stopping:
-            observer.poll()
-    finally:
-        observer.close()
-        print(json.dumps(observer.report()), flush=True)
+    with ExitStack() as files:
+        hash_log = (files.enter_context(args.config.with_name('gcs-forward-hashes.jsonl').open('x',encoding='ascii',buffering=1))
+                    if config.get('gcs_udp_forward') else None)
+        observer = Observer(config, gcs_hash_log=hash_log)
+        print(json.dumps(dict(ready=True, policy=observer.report()['policy'], port=observer.port)), flush=True)
+        try:
+            while not stopping:
+                observer.poll()
+        finally:
+            observer.close()
+            print(json.dumps(observer.report()), flush=True)
 
 
 if __name__ == '__main__':

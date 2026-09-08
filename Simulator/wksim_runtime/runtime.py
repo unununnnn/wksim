@@ -29,7 +29,7 @@ def digest(path):
     return value.hexdigest()
 
 
-def launch_spec(config, directory, library, *, fc_directory=None):
+def launch_spec(config, directory, library, *, fc_directory=None, physics_duration=600):
     """Pinned launch semantics; no subprocesses or filesystem writes here."""
     ap = config['stack'] == 'arducopter'
     dds, px4 = Path(config['dds_workspace']), Path(config['px4_root'])
@@ -38,7 +38,9 @@ def launch_spec(config, directory, library, *, fc_directory=None):
     physics = [sys.executable, '-m', 'Simulator.wksim_core.' + ('ap_json' if ap else 'px4_mavlink'),
                '--library', str(library), '--port', '19002' if ap else '4581',
                '--trace', str(directory / 'truth.jsonl')]
-    physics += ['--run-until-stopped'] if config.get('mission') else ['--duration', '600']
+    if type(physics_duration) is not int or not 600 <= physics_duration <= 3600:
+        raise ValueError('Explicit physics duration must be an integer from 600 to 3600 simulation seconds')
+    physics += ['--run-until-stopped'] if config.get('mission') else ['--duration', str(physics_duration)]
     if config.get('display_socket'):
         physics += ['--state-socket', config['display_socket'], '--run-id', config['run_id'],
                     '--vehicle-id', str(config['vehicle_id'])]
@@ -157,8 +159,12 @@ def parameter_storage_metadata(config, storage):
     return metadata
 
 
-def run(config, output_root, *, task_factory=None, use_prepared_run=None, parameter_storage=None):
+def run(config, output_root, *, task_factory=None, use_prepared_run=None, parameter_storage=None, physics_duration=None):
     config = validate_config(config)
+    if physics_duration is not None:
+        if (type(physics_duration) is not int or not 600 <= physics_duration <= 3600 or task_factory is None
+                or use_prepared_run is not None or config.get('kind')=='joint_scene' or config.get('mission')):
+            raise ValueError('Extended physics duration requires an explicit independent task and 600..3600 simulation seconds')
     if parameter_storage is not None:
         if task_factory is None or use_prepared_run is not None:
             raise ValueError('Retained parameter storage requires an explicit maintenance task')
@@ -179,10 +185,12 @@ def run(config, output_root, *, task_factory=None, use_prepared_run=None, parame
     resource = resources(config, directory)
     with Reservation(resource) as reservation:
         options = {'parameter_storage': parameter_storage} if parameter_storage is not None else {}
+        if physics_duration is not None:
+            options['physics_duration']=physics_duration
         return _run_reserved(config, output_root, resource, reservation, task_factory, **options)
 
 
-def _run_reserved(config, output_root, resource, reservation, task_factory=None, *, parameter_storage=None):
+def _run_reserved(config, output_root, resource, reservation, task_factory=None, *, parameter_storage=None, physics_duration=600):
     if any(os.environ.get(k) != v for k, v in dict(ROS_DOMAIN_ID='77', ROS_LOCALHOST_ONLY='1',
                                                   RMW_IMPLEMENTATION='rmw_fastrtps_cpp').items()):
         raise RuntimeError('Requires isolated ROS domain77/FastDDS/localhost environment')
@@ -194,6 +202,8 @@ def _run_reserved(config, output_root, resource, reservation, task_factory=None,
                   network_namespace=os.readlink('/proc/self/ns/net'))
     result['resources'] = resource
     result['started_unix'] = time.time()
+    if physics_duration != 600:
+        result['physics_duration_s']=physics_duration
     (directory / 'isolation.json').write_text(json.dumps(resource, indent=2) + '\n', encoding='utf-8')
     (directory / 'config.json').write_text(json.dumps(config, indent=2) + '\n', encoding='utf-8')
     children, task, ros = [], None, None
@@ -286,6 +296,8 @@ def _run_reserved(config, output_root, resource, reservation, task_factory=None,
         result['model_build'] = result['preflight']['identities']['model_build']
         phase('model_identity_checked')
         options = {'fc_directory': parameter_storage.path} if parameter_storage is not None else {}
+        if physics_duration != 600:
+            options['physics_duration']=physics_duration
         plan = launch_spec(config, directory, library, **options)
         binary = Path(plan['fc'][0])
         result['fc_binary'], result['fc_sha256'] = str(binary), digest(binary)
