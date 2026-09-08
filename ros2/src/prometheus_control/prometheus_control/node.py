@@ -56,6 +56,7 @@ class ControlNode(Node):
         else:
             from .native_arducopter import ArduCopterLink
             self.native = ArduCopterLink(self, prefix, position_yaw=parameter('arducopter_position_yaw', False),
+                                        pv_profile=parameter('arducopter_pv_profile', ''),
                                         stale_seconds=stale)
         self.processor = CommandProcessor(takeoff_height=self.takeoff_height,
             enable_external_control=parameter('enable_external_attitude', False))

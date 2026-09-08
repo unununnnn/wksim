@@ -34,6 +34,7 @@ from ap_clock_candidate import admit
 from joint_control_candidate import check as check_control, environment as control_environment
 from probe_joint_clock import json_identity, group_members
 from joint_pause_probe import PauseProbe, PauseProbeComplete
+from pv_trajectory_task import PROFILE as PV_PROFILE
 
 WALL_LIMIT, MAX_TICKS = 900, 180000
 
@@ -64,7 +65,8 @@ def task_main(args):
     from Simulator.wksim_runtime.task import Task
     root = Path(args.output)
     result = dict(status='failed', stack=args.stack, uav_id=args.uav_id,
-                  run_id=args.run_id, scene_epoch=args.scene_epoch, phases=[], task_mode=args.task_mode)
+                  run_id=args.run_id, scene_epoch=args.scene_epoch, phases=[], task_mode=args.task_mode,
+                  task_profile=args.task_profile)
     started = time.monotonic()
     task = None
     rclpy.init(args=[])
@@ -79,9 +81,14 @@ def task_main(args):
             result['phases'].append(value)
             save(root/'progress.json', value)
             print(json.dumps(dict(phase=name, uav_id=args.uav_id, ros_time_ns=value['ros_time_ns'])), flush=True)
-        task = Task(root, health, phase, args.stack, run_id=args.run_id,
+        if args.task_profile == PV_PROFILE:
+            from pv_trajectory_task import PVTask
+            task_class, extra = PVTask, dict(trajectory_epoch=args.scene_epoch)
+        else:
+            task_class, extra = Task, {}
+        task = task_class(root, health, phase, args.stack, run_id=args.run_id,
                     protocol='session_v1', uav_id=args.uav_id, use_sim_time=True,
-                    scene_epoch=args.scene_epoch if args.scene_lifecycle else None)
+                    scene_epoch=args.scene_epoch if args.scene_lifecycle else None, **extra)
         if args.scene_lifecycle:
             implementation = Path(importlib.util.find_spec('prometheus_control.scene').origin).resolve()
             if implementation.parent != Path(args.control_package) or digest(implementation) != args.scene_module_sha:
@@ -147,7 +154,8 @@ def run(args):
         raise RuntimeError('Private mount namespace required')
     archive = Path(tempfile.mkdtemp(prefix='joint-public-flight-', dir=REPO/'validation'))
     live = Path(tempfile.mkdtemp(prefix='wksim-joint-flight-', dir='/root'))
-    result = dict(status='failed', run_id=archive.name, scene_epoch=uuid.uuid4().hex,
+    pv = args.task_profile == PV_PROFILE
+    result = dict(status='failed', run_id=archive.name, scene_epoch=uuid.uuid4().hex, task_profile=args.task_profile,
                   pause_probe_requested=args.pause_probe,
                   scene_lifecycle_requested=args.scene_lifecycle,
                   scene_lease_loss_requested=args.scene_lease_loss,
@@ -166,8 +174,8 @@ def run(args):
     children, expected_exits = [], set()
     child_specs, dds_pending, dds_injection, dds_handled = {}, None, None, False
     clock, started = SceneClock(result['scene_epoch']), time.monotonic()
-    pause_probe = lifecycle = None
-    sources = ['tools/run_joint_flight.py','tools/run-joint-flight.sh','tools/joint_control_candidate.py',
+    pause_probe = lifecycle = rate = None
+    sources = ['tools/run_joint_flight.py','tools/run-joint-flight.sh','tools/joint_control_candidate.py','tools/pv_trajectory_task.py',
                'tools/ap_clock_candidate.py','Simulator/wksim_core/joint.py','Simulator/wksim_core/worker.py',
                'Simulator/wksim_core/model.py','Simulator/wksim_core/model.cpp',
                'Simulator/wksim_core/ap_json.py','Simulator/wksim_core/px4_mavlink.py',
@@ -182,6 +190,11 @@ def run(args):
         sources += ['tools/joint_lifecycle.py','Simulator/wksim_runtime/joint_lifecycle.py']
     if args.native_state_trace:
         sources += ['tools/debug_px4_native_state.py']
+    if pv:
+        sources += ['tools/ap_pv_candidate.py','tools/verify_ap_pv_candidate.py','tools/prepare_ap_pv_candidate.py',
+                    'docs/2026-09-09-pv-flight-plan.md',
+                    'Simulator/wksim_runtime/joint_rate.py','Simulator/wksim_runtime/joint_profile.py',
+                    'Simulator/wksim_runtime/joint-profiles.json','Simulator/wksim_runtime/build_identity.py']
     if args.px4_manifest:
         sources += ['tools/px4_state_candidate.py','tools/build-px4-state-cadence.sh',
                     'patches/px4/0001-estimator-status-cadence.patch',
@@ -191,31 +204,51 @@ def run(args):
         (live/('source__'+name.replace('/','__')+'.txt')).write_bytes((REPO/name).read_bytes())
     try:
         result['private_temporary_files']=isolate_temporary_files()
-        library = build_model()
-        result['model_build'] = json.loads(library.with_name('build.json').read_text())
-        configs = {stack:load_config(REPO/f'Simulator/wksim_runtime/examples/{stack}-session.json')
-                   for stack in ('arducopter','px4')}
-        for stack, config in configs.items():
-            config['model_library'] = str(library)
-            if stack == 'arducopter':
-                configs[stack], admission = admit(config, args.ap_manifest, args.ap_sha256)
-            elif args.px4_manifest:
-                from px4_state_candidate import admit as admit_px4
-                configs[stack], admission = admit_px4(config, args.px4_manifest, args.px4_sha256)
-            else:
-                admission = preflight(config)
-            save(live/(stack+'-preflight.json'), admission)
+        if pv:
+            from ap_pv_candidate import admit as admit_pv
+            admission = admit_pv(args.ap_pv_manifest, args.ap_pv_sha256,
+                                 args.control_manifest, args.control_sha256, result['run_id'])
+            save(live/'experimental-admission.json', admission)
             if not admission['ok']:
-                raise ValueError('Fixed environment admission failed: '+str(admission['reasons']))
-        control = check_control(args.control_manifest, args.control_sha256)
+                raise ValueError('P+V experimental admission rejected: '+str(admission['reasons']))
+            result['pv_admission'] = admission
+            configs, control = admission['configs'], admission['control_candidate']
+            library = Path(admission['model_library'])
+        else:
+            library = build_model()
+            configs = {stack:load_config(REPO/f'Simulator/wksim_runtime/examples/{stack}-session.json')
+                       for stack in ('arducopter','px4')}
+            for stack, config in configs.items():
+                config['model_library'] = str(library)
+                if stack == 'arducopter':
+                    configs[stack], admission = admit(config, args.ap_manifest, args.ap_sha256)
+                elif args.px4_manifest:
+                    from px4_state_candidate import admit as admit_px4
+                    configs[stack], admission = admit_px4(config, args.px4_manifest, args.px4_sha256)
+                else:
+                    admission = preflight(config)
+                save(live/(stack+'-preflight.json'), admission)
+                if not admission['ok']:
+                    raise ValueError('Fixed environment admission failed: '+str(admission['reasons']))
+            control = check_control(args.control_manifest, args.control_sha256)
+        result['model_build'] = json.loads(library.with_name('build.json').read_text())
         if args.scene_lifecycle:
             sys.path.insert(0, str(Path(control['package']).parent))
         result['control_candidate'] = control
-        result['manifest_sha256'] = dict(ap=args.ap_sha256, control=args.control_sha256)
+        if pv:
+            result['control_source_sha256'] = control['python_sha256']
+            for name, expected in control['python_sha256'].items():
+                source = Path(control['package'])/name
+                if digest(source) != expected:
+                    raise ValueError('Candidate control changed before source retention')
+                target = live/'control-source'/name
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_bytes(source.read_bytes())
+        result['manifest_sha256'] = dict(ap=args.ap_pv_sha256 if pv else args.ap_sha256, control=args.control_sha256)
         if args.px4_manifest:
             result['manifest_sha256']['px4'] = args.px4_sha256
             shutil.copyfile(args.px4_manifest, live/'px4-build.json')
-        shutil.copyfile(args.ap_manifest, live/'ap-build.json')
+        shutil.copyfile(args.ap_pv_manifest if pv else args.ap_manifest, live/'ap-build.json')
         shutil.copyfile(args.control_manifest, live/'control-build.json')
 
         def physics_health():
@@ -273,14 +306,15 @@ def run(args):
         def launch_task(stack, uid, directory, task_mode='initial', start_token=None):
             command = [sys.executable,'-B',str(Path(__file__).resolve()),'task',
                 '--stack',stack,'--uav-id',str(uid),'--run-id',result['run_id'],
-                '--scene-epoch',clock.epoch,'--output',str(directory),'--task-mode',task_mode]
+                '--scene-epoch',clock.epoch,'--output',str(directory),'--task-mode',task_mode,
+                '--task-profile',args.task_profile]
             if args.scene_lifecycle:
                 command += ['--scene-lifecycle','--control-package',control['package'],
                             '--scene-module-sha',control['python_sha256']['scene.py']]
             if start_token is not None:
                 command += ['--start-token',start_token]
             name = stack+('-recovery-task' if task_mode == 'recover' else '-task')
-            return launch(name,command,directory,control_environment(control) if args.scene_lifecycle else None,
+            return launch(name,command,directory,control_environment(control) if args.scene_lifecycle or pv else None,
                           role='task',result_key=stack)
 
         def record_native_maps(label):
@@ -301,11 +335,33 @@ def run(args):
                 path.write_text(raw)
                 forbidden = sorted({line.split()[-1] for line in raw.splitlines()
                                     if any(token in line.lower() for token in ('libgz-','libgazebo','libignition','matlab'))})
-                observations[stack] = dict(identity=identity,executable=str(executable),
+                observations[stack] = dict(identity=identity,executable=str(executable),executable_sha256=digest(executable),
                     maps_file=path.name,sha256=digest(path),forbidden_libraries=forbidden)
-                if stack=='px4' and args.px4_manifest and forbidden:
+                if (pv or stack=='px4' and args.px4_manifest) and forbidden:
                     raise RuntimeError('Independent PX4 candidate loaded forbidden libraries')
             result.setdefault('native_runtime_maps',{})[label] = observations
+            if pv:
+                models = {}
+                for stack in ('arducopter', 'px4'):
+                    name = stack+'-model'
+                    child = next(process for key,process,_ in children if key == name)
+                    identity = json_identity(child.pid)
+                    expected = result['children'][name]['identity']
+                    if identity is None or any(identity[key] != expected[key] for key in ('pid','pgid','start_ticks')):
+                        raise RuntimeError('Model mapping lost owned process identity')
+                    proc = Path('/proc')/str(child.pid)
+                    executable = (proc/'exe').resolve()
+                    raw = (proc/'maps').read_text()
+                    path = live/(name+'-'+label+'-maps.txt')
+                    path.write_text(raw)
+                    if (executable != Path(result['children'][name]['argv'][0]).resolve()
+                            or str(library) not in raw or any(token in raw.lower() for token in
+                                ('libgz-','libgazebo','libignition','matlab','coptersim.exe'))):
+                        raise RuntimeError('Model mapped an unexpected executable or library')
+                    models[stack] = dict(identity=identity, executable=str(executable),
+                        executable_sha256=digest(executable), maps_file=path.name, maps_sha256=digest(path),
+                        model_library=str(library), model_library_sha256=digest(library))
+                result.setdefault('model_runtime_maps',{})[label] = models
 
         def recover_agent(advance):
             nonlocal dds_handled
@@ -413,7 +469,18 @@ def run(args):
             resources.callback(node.destroy_node)
             publisher = ClockPublisher(node)
             resources.callback(publisher.close)
-            if args.pause_probe or args.scene_lifecycle:
+            if pv:
+                from pv_trajectory_task import PVProbe
+                from Simulator.wksim_runtime.joint_rate import JointRate
+                pause_probe = PVProbe(node, clock, live, started)
+                resources.callback(pause_probe.close)
+                rate_log = resources.enter_context((live/'rate.jsonl').open('x', buffering=65536))
+                def record_rate(kind, **fields):
+                    rate_log.write(json.dumps(dict(kind=kind, epoch=clock.epoch, tick=clock.tick,
+                        issued_monotonic_ns=time.monotonic_ns(), **fields), separators=(',', ':'))+'\n')
+                rate = JointRate(clock.epoch, .5, record_rate)
+                record_rate('rate_bootstrap', classification='untimed_until_first_synchronized_barrier')
+            elif args.pause_probe or args.scene_lifecycle:
                 pause_probe = PauseProbe(node, clock, live, started, args.repeat_paused_clock)
                 resources.callback(pause_probe.close)
             wire = resources.enter_context((live/'joint-wire.jsonl').open('x', buffering=65536))
@@ -451,6 +518,8 @@ def run(args):
                     if value.startswith('uav_id:='): plan['control'][index] = 'uav_id:='+str(uid)
                     if value.startswith('run_id:='): plan['control'][index] = 'run_id:='+result['run_id']
                 plan['control'] += ['-p','use_sim_time:=true','-r','__node:=wksim_joint_'+stack+'_control']
+                if pv and stack == 'arducopter':
+                    plan['control'] += ['-p','arducopter_pv_profile:='+PV_PROFILE]
                 if args.scene_lifecycle:
                     plan['control'] += ['-p', 'scene_epoch:='+clock.epoch]
                 verifier = ('import importlib.util,pathlib; '
@@ -468,6 +537,10 @@ def run(args):
             land_pacing_next = None
             def advance():
                 nonlocal land_pacing_next
+                if rate is not None and clock.tick%4 == 0 and clock.synchronized and clock.phase == 'running':
+                    if rate.anchor is None:
+                        rate.reanchor(clock.tick, 'synchronized_boundary')
+                    rate.begin_group(clock.tick, physics_health)
                 session = pause_probe.sessions.get(2) if pause_probe is not None else None
                 if (args.probe_land_freshness and dds_handled and clock.tick%4==0
                         and session is not None and session.state.mode=='AUTO.LAND'):
@@ -482,6 +555,8 @@ def run(args):
                 states = physics.advance()
                 publisher.publish(clock)
                 clock_log.write(json.dumps(clock.snapshot(),separators=(',',':'))+'\n')
+                if rate is not None and clock.tick%4 == 0 and rate.group is not None:
+                    rate.end_group(clock.tick)
                 return states
             while clock.tick < MAX_TICKS:
                 health()
@@ -492,6 +567,23 @@ def run(args):
                     record_native_maps('running')
                 if not (live/'go.json').exists() and all((live/name/'ready.json').exists() for name in workers):
                     save(live/'go.json', clock.snapshot())
+                if pv and clock.tick%4 == 0:
+                    for leg in (1, 2):
+                        go_path = live/f'pv-go-{leg}.json'
+                        ready_paths = {stack:live/stack/f'pv-ready-{leg}.json' for stack in workers}
+                        if not go_path.exists() and all(path.is_file() for path in ready_paths.values()):
+                            offers = {stack:json.loads(path.read_text()) for stack, path in ready_paths.items()}
+                            for stack, uid in (('arducopter', 1), ('px4', 2)):
+                                initial = json.loads((live/stack/'ready.json').read_text())
+                                offer = offers[stack]
+                                if (offer['version'] != 1 or offer['profile'] != PV_PROFILE or offer['leg'] != leg
+                                        or offer['run_id'] != result['run_id'] or offer['scene_epoch'] != clock.epoch
+                                        or offer['uav_id'] != uid or offer['control_epoch'] != initial['control_epoch']
+                                        or len(offer['token']) != 32):
+                                    raise ValueError('P+V readiness identity differs')
+                            save(go_path, dict(version=1, profile=PV_PROFILE, run_id=result['run_id'],
+                                scene_epoch=clock.epoch, leg=leg, issued_tick=clock.tick,
+                                start_ns=(clock.tick+1000)*clock.STEP_NS, tasks=offers))
                 for name,state in states.items():
                     import math
                     row=summaries[name]
@@ -558,6 +650,10 @@ def run(args):
             if args.scene_lifecycle and not args.dds_loss and (lifecycle is None or not lifecycle.completed):
                 raise RuntimeError('Requested lifecycle exercise did not complete')
             record_native_maps('completed')
+            if rate is not None:
+                rate.check_boundary(clock.tick)
+                rate.close_segment('completed', clock.tick)
+                result['rate'] = rate.last_summary
             clock.request(dict(version=1,epoch=clock.epoch,request_id=clock.last_request+1,action='stop'))
             result['final_authority'] = clock.snapshot()
             for child in workers.values():
@@ -578,6 +674,11 @@ def run(args):
             result['children'][name].update(returncode=child.returncode,remaining_group_members=group_members(child.pid))
         result['unowned_ap_after']=json_identity(828)
         result['source_unchanged']=result['source_sha256']=={name:digest(REPO/name) for name in sources}
+        if pv and result.get('control_source_sha256'):
+            result['source_unchanged'] = result['source_unchanged'] and all(
+                digest(Path(result['control_candidate']['package'])/name) == expected
+                and digest(live/'control-source'/name) == expected
+                for name, expected in result['control_source_sha256'].items())
         result['control_shutdown_clean']=all(child['returncode']==0 for name,child in result['children'].items()
                                              if name.endswith('-control'))
         if result['status'] in ('pass', 'observed') and not result['control_shutdown_clean']:
@@ -611,8 +712,11 @@ if __name__=='__main__':
                         help='Read-only debug observation of the actual PX4 Control callbacks and state decisions')
     runner.add_argument('--probe-land-freshness', action='store_true',
                         help='Diagnostic only: pace landing at >=12ms wall per 4ms joint barrier to reproduce low-rate state expiry')
-    for name in ('ap-manifest','ap-sha256','control-manifest','control-sha256'):
+    for name in ('control-manifest','control-sha256'):
         runner.add_argument('--'+name,required=True)
+    for name in ('ap-manifest','ap-sha256','ap-pv-manifest','ap-pv-sha256'):
+        runner.add_argument('--'+name)
+    runner.add_argument('--task-profile', choices=('position', PV_PROFILE), default='position')
     runner.add_argument('--px4-manifest')
     runner.add_argument('--px4-sha256')
     task=sub.add_parser('task')
@@ -622,9 +726,21 @@ if __name__=='__main__':
     task.add_argument('--control-package')
     task.add_argument('--scene-module-sha')
     task.add_argument('--task-mode',choices=('initial','recover'),default='initial')
+    task.add_argument('--task-profile', choices=('position', PV_PROFILE), default='position')
     task.add_argument('--start-token')
     for name in ('run-id','scene-epoch','output'): task.add_argument('--'+name,required=True)
     args=parser.parse_args()
+    if args.role == 'run':
+        pv = args.task_profile == PV_PROFILE
+        if pv:
+            if (not args.ap_pv_manifest or not args.ap_pv_sha256 or args.ap_manifest or args.ap_sha256
+                    or args.px4_manifest or args.px4_sha256 or args.pause_probe or args.scene_lifecycle
+                    or args.scene_lease_loss or args.dds_loss or args.native_state_trace or args.probe_land_freshness):
+                parser.error('P+V requires its own explicit AP manifest/SHA and fixed experiment without other probes')
+        elif not args.ap_manifest or not args.ap_sha256 or args.ap_pv_manifest or args.ap_pv_sha256:
+            parser.error('Position experiment requires the existing AP clock manifest/SHA')
+    if args.role == 'task' and args.task_profile == PV_PROFILE and (args.task_mode != 'initial' or args.scene_lifecycle):
+        parser.error('P+V task is a separate initial experimental flow')
     if args.role == 'run' and args.repeat_paused_clock and not args.pause_probe:
         parser.error('--repeat-paused-clock requires --pause-probe')
     if args.role == 'run' and args.scene_lifecycle and args.pause_probe:

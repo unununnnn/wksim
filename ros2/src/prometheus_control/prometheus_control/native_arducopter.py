@@ -3,6 +3,8 @@
 
 Requires patches/arducopter/0002 and its matching ardupilot_msgs overlay.
 Position+yaw also requires explicit opt-in to patch 0001; no MAVLink fallback.
+Full XYZ P+V+yaw requires the separate experimental PV firmware/profile;
+acceleration and mixed position/velocity axes remain unsupported.
 Legacy PoseStamped/GeoPointStamped are not sufficient to prove valid odometry.
 """
 import math
@@ -16,7 +18,7 @@ from prometheus_msgs.msg import UAVCommand as Cmd, UAVState
 from rclpy.qos import QoSProfile, ReliabilityPolicy, DurabilityPolicy
 
 from .frames import set_orientation, stamp_us, wrap_pi
-from .shaping import scalar, vector
+from .shaping import float32, scalar, vector
 
 
 def home_offset(home, position):
@@ -41,9 +43,13 @@ def home_offset(home, position):
 class ArduCopterLink:
     external_mode = 'GUIDED'
 
-    def __init__(self, node, prefix='/ap', *, position_yaw=False, stale_seconds=2.0, clock=time.monotonic):
+    def __init__(self, node, prefix='/ap', *, position_yaw=False, pv_profile='',
+                 stale_seconds=2.0, clock=time.monotonic):
         self.node, self.prefix = node, prefix.rstrip('/')
         self.position_yaw = bool(position_yaw)
+        if pv_profile not in ('', 'full_xyz_pv_yaw_v1') or pv_profile and not self.position_yaw:
+            raise ValueError('ArduCopter P+V profile must be empty or full_xyz_pv_yaw_v1 with position_yaw enabled')
+        self.pv_profile = pv_profile
         self.clock, self.stale_seconds = clock, scalar(stale_seconds)
         if self.stale_seconds <= 0:
             raise ValueError('State timeout must be positive')
@@ -200,6 +206,8 @@ class ArduCopterLink:
             return None
         if not self.position_yaw:
             return 'arducopter_position_yaw_not_enabled'
+        if command.move_mode == Cmd.TRAJECTORY and self.pv_profile:
+            return 'arducopter_trajectory_requires_yaw_angle' if command.yaw_rate_mode else None
         if command.move_mode in (Cmd.XYZ_VEL, Cmd.XYZ_VEL_BODY):
             if not command.yaw_rate_mode:
                 # The DDS velocity entry carries yaw rate only; a yaw-angle
@@ -228,6 +236,29 @@ class ArduCopterLink:
         local = self.latest['local']
         if not self.state(1).odom_valid:
             raise ValueError('ArduCopter odometry is invalid')
+        if self.pv_profile and target.kind == 'local':
+            try:
+                axes = tuple(tuple(values) for values in (target.position, target.velocity, target.acceleration))
+            except TypeError as error:
+                raise ValueError('ArduCopter local target requires three-axis vectors') from error
+            if any(len(values) != 3 for values in axes):
+                raise ValueError('ArduCopter local target requires three-axis vectors')
+            if any(v is not None for v in axes[0]) and any(v is not None for v in axes[1]):
+                if any(v is not None for v in axes[2]) or target.yaw is None or target.yaw_rate is not None:
+                    raise ValueError('ArduCopter P+V requires full position/velocity/yaw without acceleration/yaw rate')
+                lat, lon, alt = home_offset(local, axes[0])
+                velocity = vector(axes[1])
+                # DDS Vector3 is double; the native AP handler consumes Vector3f.
+                for value in velocity:
+                    float32(value)
+                yaw = wrap_pi(float32(target.yaw))
+                msg = GlobalPosition(coordinate_frame=GlobalPosition.FRAME_GLOBAL_REL_ALT,
+                    type_mask=0x9C0, latitude=lat, longitude=lon, altitude=alt, yaw=yaw)
+                msg.velocity.linear.x, msg.velocity.linear.y, msg.velocity.linear.z = velocity
+                msg.header.frame_id = 'map'
+                stamp_us(msg.header, local.time_boot_us)
+                self.position_pub.publish(msg)
+                return
         if target.kind == 'local' and any(v is not None for v in target.velocity):
             if any(v is not None for v in (*target.position, *target.acceleration)):
                 raise ValueError('ArduCopter velocity profile cannot carry position/acceleration axes')
