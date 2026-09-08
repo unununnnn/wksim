@@ -10,6 +10,7 @@ is only an observation, never proof that a particular write caused it.
 from dataclasses import dataclass
 import math
 import re
+import struct
 import time
 
 
@@ -57,12 +58,41 @@ def validate_value(stack, name, value):
         raise ParameterError('parameter is not allowlisted for this stack')
     if not _finite(value):
         raise ParameterError('value must be a finite number, excluding bool')
-    if not 3.0 <= value <= 5.0:
-        raise ParameterError('value must be within [3, 5] m/s')
+    upper = 10.0 if stack == 'arducopter' else 5.0
+    if not 3.0 <= value <= upper:
+        raise ParameterError(f'value must be within [3, {upper:g}] m/s')
     scaled = value * allowed[stack][1]
     if not math.isclose(scaled, round(scaled), rel_tol=0, abs_tol=1e-12):
         raise ParameterError('value violates the supported parameter increment')
     return float(value)
+
+
+def float32_value(value):
+    """Exact native REAL32 storage widened to Python float; no tolerance."""
+    if not _finite(value):
+        raise ParameterError('value must be finite numeric data')
+    try:
+        return struct.unpack('<f', struct.pack('<f', value))[0]
+    except (OverflowError, struct.error) as error:
+        raise ParameterError('value cannot be stored as float32') from error
+
+
+def restore_request_value(stack, name, original):
+    """Find an allowed grid request with identical original float32 bits.
+
+    Reject non-float32 originals as well: a double must not silently lose data.
+    Enumerating this tiny fixed grid avoids rounding an off-grid original.
+    """
+    validate_value(stack, name, 4.0)
+    stored = float32_value(original)
+    if stored != original:
+        raise ParameterError('original is not an exact native float32 value')
+    bits = struct.pack('<f', stored)
+    candidates = (n / 10 for n in range(30, 101)) if stack == 'arducopter' else range(3, 6)
+    for candidate in candidates:
+        if struct.pack('<f', candidate) == bits:
+            return validate_value(stack, name, candidate)
+    raise ParameterError('original has no lossless allowed restore request')
 
 
 class ParameterProtocol:
@@ -192,6 +222,6 @@ class ParameterProtocol:
         actual = float(value)
         if expected is not None:
             expected = validate_value(self.stack, self.name, expected)
-            if not math.isclose(actual, expected, rel_tol=0, abs_tol=0.0000003):
+            if actual != float32_value(expected):
                 raise ParameterError('native parameter value differs from requested value')
         return actual

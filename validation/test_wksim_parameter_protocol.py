@@ -10,7 +10,7 @@ import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'Simulator'))
 from wksim_runtime.parameter_protocol import (
-    GroundState, ParameterContext, ParameterError, ParameterProtocol, validate_value,
+    GroundState, ParameterContext, ParameterError, ParameterProtocol, validate_value, float32_value, restore_request_value,
 )
 
 
@@ -25,7 +25,7 @@ class ParameterProtocolTest(unittest.TestCase):
 
     def test_allowlist_range_type_increment(self):
         for stack, name in [('arducopter', 'WP_SPD'), ('px4', 'MPC_XY_CRUISE')]:
-            for value in [True, False, '4', None, 10**400, float('nan'), float('inf'), -float('inf'), 2.9, 5.1, 3.01, 3.0000001]:
+            for value in [True, False, '4', None, 10**400, float('nan'), float('inf'), -float('inf'), 2.9, 10.1, 3.01, 3.0000001]:
                 with self.subTest(stack=stack, value=value), self.assertRaises(ParameterError):
                     validate_value(stack, name, value)
             for value in [3, 4.0, 5]:
@@ -35,6 +35,57 @@ class ParameterProtocolTest(unittest.TestCase):
         self.assertEqual(validate_value('arducopter', 'WP_SPD', 3.1), 3.1)
         with self.assertRaises(ParameterError):
             validate_value('px4', 'MPC_XY_CRUISE', 3.1)
+
+    def test_exact_storage_and_lossless_restore(self):
+        protocol = self.protocol()
+        for n in range(30, 101):
+            requested = n / 10
+            actual = float32_value(requested)
+            self.assertEqual(restore_request_value('arducopter', 'WP_SPD', actual), requested)
+            self.assertEqual(protocol._value(actual, requested), actual)
+            with self.assertRaises(ParameterError):
+                protocol._value(actual + 1e-10, requested)
+        self.assertEqual(restore_request_value('arducopter', 'WP_SPD', 10), 10)
+        for value in [3.1, 3.125, 2.0, 11.0, True, float('nan')]:
+            with self.subTest(value=value), self.assertRaises(ParameterError):
+                restore_request_value('arducopter', 'WP_SPD', value)
+        for value in [3.1, 5.1, 10.0]:
+            with self.assertRaises(ParameterError):
+                validate_value('px4', 'MPC_XY_CRUISE', value)
+        for value in [3, 4, 5]:
+            self.assertEqual(restore_request_value('px4', 'MPC_XY_CRUISE', value), value)
+
+    def test_write_cycle_stops_without_recovery_on_unknown(self):
+        sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+        from tools.probe_parameter_write import WriteProbe
+        from types import SimpleNamespace
+        protocol = SimpleNamespace(stack='arducopter', name='WP_SPD')
+        for original, fail_read, expected_writes in [(10.0, None, [4.0, 10.0]),
+                                                   (3.125, None, []),
+                                                   (10.0, 2, [4.0]),
+                                                   (10.0, 3, [4.0, 10.0])]:
+            probe = object.__new__(WriteProbe)
+            probe.probe = {'pending_restore': False}
+            probe.record = lambda *args, **kwargs: None
+            writes, reads = [], []
+            def get(expected):
+                reads.append(expected)
+                if len(reads) == fail_read:
+                    raise TimeoutError('unknown read result')
+                return original if expected is None else float32_value(expected)
+            def set_value(value):
+                writes.append(value)
+                probe.probe['pending_restore'] = True
+            if fail_read or original == 3.125:
+                with self.assertRaises((ValueError, TimeoutError)):
+                    probe.cycle(protocol, get, set_value)
+            else:
+                probe.cycle(protocol, get, set_value)
+                self.assertEqual(reads, [None, 4.0, 10.0])
+                self.assertFalse(probe.probe['pending_restore'])
+            self.assertEqual(writes, expected_writes)
+            if fail_read:
+                self.assertTrue(probe.probe['pending_restore'])
 
     def test_current_state_invalidation_is_latched(self):
         changes = [dict(disarmed=False), dict(grounded=False), dict(active_task=True),
@@ -101,7 +152,7 @@ class ParameterProtocolTest(unittest.TestCase):
                 protocol.ap_get_value(GetParameters.Response(values=values))
         with self.assertRaises(ParameterError):
             protocol.ap_get_value(response, expected=4)
-        for stored in [10.0, 3.1234]:
+        for stored in [11.0, 3.1234]:
             response = GetParameters.Response(values=[ParameterValue(type=3, double_value=stored)])
             self.assertEqual(protocol.ap_get_value(response), stored)
             with self.assertRaises(ParameterError):

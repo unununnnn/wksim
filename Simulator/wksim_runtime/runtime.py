@@ -29,7 +29,7 @@ def digest(path):
     return value.hexdigest()
 
 
-def launch_spec(config, directory, library):
+def launch_spec(config, directory, library, *, fc_directory=None):
     """Pinned launch semantics; no subprocesses or filesystem writes here."""
     ap = config['stack'] == 'arducopter'
     dds, px4 = Path(config['dds_workspace']), Path(config['px4_root'])
@@ -69,7 +69,7 @@ def launch_spec(config, directory, library):
     else:
         binary = px4 / 'build/px4_sitl_default/bin/px4'
         fc = [str(binary), '-d', str(px4 / 'build/px4_sitl_default/etc'),
-              '-t', str(px4/'test_data'), '-i', '21', '-w', str(directory)]
+              '-t', str(px4/'test_data'), '-i', '21', '-w', str(fc_directory or directory)]
         overrides = dict(PX4_SYS_AUTOSTART='10016', PX4_SIM_MODEL='none_iris', PX4_SIM_HOST_ADDR='127.0.0.1',
                          PX4_SIM_SPEED_FACTOR='3', PX4_UXRCE_DDS_PORT='18888', PX4_UXRCE_DDS_NS='wksim_px4_21',
                          ROS_DOMAIN_ID='77', WKSIM_MAVLINK_LOCAL_PORT='18591', WKSIM_MAVLINK_REMOTE_PORT='14661',
@@ -80,8 +80,11 @@ def launch_spec(config, directory, library):
             overrides[f'PX4_PARAM_CA_ROTOR{rotor}_PY'] = str(y)
             overrides[f'PX4_PARAM_CA_ROTOR{rotor}_KM'] = str((1 if rotor < 2 else -1) * 2.783e-7 / 1.681e-5)
         overrides['PATH'] = str(core) + os.pathsep + str(binary.parent) + os.pathsep + os.environ.get('PATH', '')
-    return dict(agent=[str(agent), 'udp4', '-p', '12019' if ap else '18888', '-v', '4'],
-                physics=physics, fc=fc, control=control, fc_environment=overrides)
+    result = dict(agent=[str(agent), 'udp4', '-p', '12019' if ap else '18888', '-v', '4'],
+                  physics=physics, fc=fc, control=control, fc_environment=overrides)
+    if fc_directory is not None:
+        result['fc_cwd'] = str(fc_directory)
+    return result
 
 
 def stop_children(children):
@@ -135,8 +138,31 @@ def udp_listening(port):
         return any(line.split()[1].endswith(f':{port:04X}') for line in list(source)[1:])
 
 
-def run(config, output_root, *, task_factory=None, use_prepared_run=None):
+def parameter_storage_metadata(config, storage):
+    """Validate a borrowed lease; resource admission still runs independently."""
+    from .parameter_storage import ParameterStorage
+    if (not isinstance(storage, ParameterStorage) or config.get('kind') == 'joint_scene'
+            or config.get('runtime_profile') != 'independent_quad_dds_v1'
+            or config.get('control_protocol') != 'session_v1'
+            or any(config.get(key) for key in ('mission', 'display_socket', 'telemetry_socket',
+                'gcs_udp_forward', 'restart_control_on_ground', 'promotion_flight'))):
+        raise ValueError('Retained parameter storage requires an explicit independent maintenance session')
+    metadata = storage.check(config['stack'], px4_root=config['px4_root'] if config['stack'] == 'px4' else None)
+    lease, directory = os.fstat(storage.fd), storage.path.stat()
+    metadata['directory_identity'] = dict(lease_device=lease.st_dev, lease_inode=lease.st_ino,
+                                        storage_device=directory.st_dev, storage_inode=directory.st_ino)
+    names = ('eeprom.bin',) if config['stack'] == 'arducopter' else ('parameters.bson', 'parameters_backup.bson')
+    metadata['parameter_files'] = {name: dict(sha256=digest(storage.path/name), size=(storage.path/name).stat().st_size)
+                                   for name in names if (storage.path/name).is_file()}
+    return metadata
+
+
+def run(config, output_root, *, task_factory=None, use_prepared_run=None, parameter_storage=None):
     config = validate_config(config)
+    if parameter_storage is not None:
+        if task_factory is None or use_prepared_run is not None:
+            raise ValueError('Retained parameter storage requires an explicit maintenance task')
+        parameter_storage_metadata(config, parameter_storage)
     if config.get('kind')=='joint_scene':
         if task_factory is not None:
             raise ValueError('Joint product entry does not accept a replacement task factory')
@@ -152,10 +178,11 @@ def run(config, output_root, *, task_factory=None, use_prepared_run=None):
     directory = Path(output_root).resolve() / config['run_id']
     resource = resources(config, directory)
     with Reservation(resource) as reservation:
-        return _run_reserved(config, output_root, resource, reservation, task_factory)
+        options = {'parameter_storage': parameter_storage} if parameter_storage is not None else {}
+        return _run_reserved(config, output_root, resource, reservation, task_factory, **options)
 
 
-def _run_reserved(config, output_root, resource, reservation, task_factory=None):
+def _run_reserved(config, output_root, resource, reservation, task_factory=None, *, parameter_storage=None):
     if any(os.environ.get(k) != v for k, v in dict(ROS_DOMAIN_ID='77', ROS_LOCALHOST_ONLY='1',
                                                   RMW_IMPLEMENTATION='rmw_fastrtps_cpp').items()):
         raise RuntimeError('Requires isolated ROS domain77/FastDDS/localhost environment')
@@ -170,6 +197,7 @@ def _run_reserved(config, output_root, resource, reservation, task_factory=None)
     (directory / 'isolation.json').write_text(json.dumps(resource, indent=2) + '\n', encoding='utf-8')
     (directory / 'config.json').write_text(json.dumps(config, indent=2) + '\n', encoding='utf-8')
     children, task, ros = [], None, None
+    storage_fds = ()
     expected_exits = set()
     optional_children = set()
     started = time.monotonic()
@@ -197,17 +225,19 @@ def _run_reserved(config, output_root, resource, reservation, task_factory=None)
             if time.monotonic() >= deadline:
                 raise TimeoutError(label)
             time.sleep(0.02)
-    def launch(name, argv, env=None):
+    def launch(name, argv, env=None, cwd=None):
         log = (directory / (name + '.log')).open('x', encoding='utf-8')
         try:
-            child = subprocess.Popen(argv, cwd=directory, env=env, stdout=log,
+            child = subprocess.Popen(argv, cwd=cwd or directory, env=env, stdout=log,
                                      stderr=subprocess.STDOUT, start_new_session=True,
-                                     pass_fds=tuple(reservation.fds))
+                                     pass_fds=tuple(reservation.fds) + storage_fds)
         except BaseException:
             log.close()
             raise
         children.append((name, child, log))
         result['children'][name] = dict(argv=argv, pid=child.pid, pgid=child.pid, log=str(directory / (name + '.log')))
+        if parameter_storage is not None:
+            result['children'][name].update(cwd=str(cwd or directory), parameter_storage_fd=parameter_storage.fd)
         return child
     def restart_control():
         health()
@@ -231,6 +261,9 @@ def _run_reserved(config, output_root, resource, reservation, task_factory=None)
         raise InterruptedError(f'Interrupted by signal {signum}; no airborne stop policy selected')
     old_signals = {sig: signal.signal(sig, interrupted) for sig in (signal.SIGINT, signal.SIGTERM)}
     try:
+        if parameter_storage is not None:
+            result['parameter_storage_before'] = parameter_storage_metadata(config, parameter_storage)
+            storage_fds = (parameter_storage.fd,)
         result['preflight'] = preflight(config)
         if not result['preflight']['ok']:
             raise RuntimeError('Preflight rejected: ' + json.dumps(result['preflight']['reasons']))
@@ -252,7 +285,8 @@ def _run_reserved(config, output_root, resource, reservation, task_factory=None)
             raise RuntimeError('Preflight model path identity disagrees with normalized configuration')
         result['model_build'] = result['preflight']['identities']['model_build']
         phase('model_identity_checked')
-        plan = launch_spec(config, directory, library)
+        options = {'fc_directory': parameter_storage.path} if parameter_storage is not None else {}
+        plan = launch_spec(config, directory, library, **options)
         binary = Path(plan['fc'][0])
         result['fc_binary'], result['fc_sha256'] = str(binary), digest(binary)
         expected = (result['preflight']['identities']['firmware']['expected_sha256'] if config.get('runtime_profile')
@@ -268,6 +302,9 @@ def _run_reserved(config, output_root, resource, reservation, task_factory=None)
                                     REPO / 'Simulator/wksim_core/model.cpp', REPO / 'Simulator/wksim_core/state_stream.py',
                                     REPO / 'Simulator/wksim_core' / ('ap_json.py' if config['stack'] == 'arducopter' else 'px4_mavlink.py'),
                                     REPO / 'Simulator/wksim_core' / ('arducopter-quad-x.parm' if config['stack'] == 'arducopter' else 'px4-rc.mavlink'))}
+        if parameter_storage is not None:
+            source = Path(__file__).with_name('parameter_storage.py')
+            result['runtime_sha256'][str(source.relative_to(REPO))] = digest(source)
         if config.get('runtime_profile'):
             for name in ('independent_profile.py','independent-profile-evidence.json','joint_profile.py','joint-profiles.json','build_identity.py'):
                 source=Path(__file__).with_name(name)
@@ -307,7 +344,9 @@ def _run_reserved(config, output_root, resource, reservation, task_factory=None)
         wait('physics_listening', lambda: '"ready": true' in (directory / 'physics.log').read_text())
         launch('agent', plan['agent'])
         wait('agent_listening', lambda: udp_listening(12019 if ap else 18888))
-        launch('fc', plan['fc'], dict(os.environ, **plan['fc_environment']))
+        if parameter_storage is not None:
+            parameter_storage_metadata(config, parameter_storage)
+        launch('fc', plan['fc'], dict(os.environ, **plan['fc_environment']), cwd=plan.get('fc_cwd'))
         wait('physics_fc_coupled', lambda: (directory / 'truth.jsonl').exists() and
              (directory / 'truth.jsonl').stat().st_size > 0, 30)
         launch('control', plan['control'])
@@ -362,6 +401,11 @@ def _run_reserved(config, output_root, resource, reservation, task_factory=None)
         errors.extend(stop_children([item for item in children if item[1].pid not in expected_exits]))
         result['cleanup_errors'] = errors
         result['children_reaped'] = all(child.poll() is not None for _, child, _ in children)
+        if parameter_storage is not None:
+            try:
+                result['parameter_storage_after'] = parameter_storage_metadata(config, parameter_storage)
+            except Exception as error:
+                errors.append('parameter storage: ' + str(error))
         result['stop_kind'] = 'landed_stop' if result['safe_landing'] else 'unsuccessful_isolated_teardown'
         if errors or not result['children_reaped']:
             result['status'] = 'failed'

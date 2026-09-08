@@ -1,5 +1,7 @@
 # #43 最小参数原生协议模块（离线验证）
 
+2026-09-09当前合同更正：首次实际写入之前已把AP白名单冻结为WP_SPD [3,10] m/s、0.1步，以允许无损恢复实读默认值10；PX4 MPC_XY_CRUISE仍为[3,5] m/s整数步。float32量化和无损恢复映射已进入模块，6项协议测试通过。下文[3,5]/4项是初始离线草案的历史记录。真实读写及FC重启证据见[收口报告](2026-09-09-parameter-maintenance-closure-report.md)。
+
 新增 `Simulator/wksim_runtime/parameter_protocol.py` 和 `validation/test_wksim_parameter_protocol.py`。本切片没有启动 SITL、UE、MATLAB、ROS 节点或硬件，没有创建网络口，没有更改遥测观察器、配置或固定清单；不构成 #43 实际参数写入、持久化或飞控重启验收。
 
 ## 接口和责任
