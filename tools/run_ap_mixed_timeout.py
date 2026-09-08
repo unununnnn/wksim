@@ -256,6 +256,15 @@ class NativeBoundary(NativeDDS):
         require(self.pending is None,'Native service request already pending')
         super().command(command_id,parameters)
         self.commands[-1]['tick'] = self.clock.tick
+        self.log.write(json.dumps(dict(native_command_requested=self.commands[-1]))+'\n')
+
+    def check_command(self):
+        had_response = 'response' in self.commands[-1]
+        try:
+            return super().check_command()
+        finally:
+            if not had_response and 'response' in self.commands[-1]:
+                self.log.write(json.dumps(dict(native_command_response=self.commands[-1],tick=self.clock.tick))+'\n')
 
 
 class Recorder:
@@ -661,6 +670,9 @@ def run(args):
         result.update(error=repr(error),traceback=traceback.format_exc(),authority_at_failure=clock.snapshot())
         print(result['traceback'],file=sys.stderr,flush=True)
     finally:
+        if native is not None:
+            result['native_command_history'] = native.commands
+            result.setdefault('initial_yaw_alignments',native.initial_yaw_alignments)
         result['cleanup_errors'] = stop_children(children)
         for name,child,_ in children:
             result['children'][name].update(returncode=child.returncode,remaining_group_members=group_members(child.pid))
@@ -826,6 +838,7 @@ def audit(root):
             require(all([row['message']['position'][key] for key in ('latitude','longitude','altitude')]==locked['origin']
                         for row in channel),'Raw native origin differs from the locked mixed reference')
     commands = result['native']['commands']
+    require(commands==result['native_command_history'],'Retained native command history differs')
     require([row['command_id'] for row in commands]==[176,400,22]
             and all(row['tick']<phases['mixed_prepare']['tick'] for row in commands)
             and commands[0]['response']['status'] and commands[0]['response']['curr_mode']==4
