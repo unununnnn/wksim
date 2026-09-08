@@ -2,9 +2,10 @@
 import copy
 import json
 import math
+import os
 import unittest
 
-from tools.audit_pv_trajectory import analytic, tracking, truth_window, native_targets
+from tools.audit_pv_trajectory import analytic, tracking, truth_window, native_targets, wire_request, rejected_bootstrap_ack
 
 
 def header(seconds):
@@ -47,6 +48,37 @@ def native_fixture():
 
 
 class PVRawAuditBoundaries(unittest.TestCase):
+    def test_unsolicited_bootstrap_ack_does_not_allow_a_failed_task_request(self):
+        event = dict(event='native_input_rejected', reason='unmatched_ack', source='ack',
+                     request_id=0, command=211, request_identity=[51, 80])
+        self.assertTrue(rejected_bootstrap_ack(event, 60_000_000, 40_000_000_000))
+        self.assertFalse(rejected_bootstrap_ack(event, 40_000_000_000, 40_000_000_000))
+        for key, value in (('request_id', 1), ('source', 'position'), ('reason', 'regressed_source'),
+                           ('event', 'setup_rejected'), ('request_identity', [256, 1])):
+            self.assertFalse(rejected_bootstrap_ack(dict(event, **{key:value}), 1, 10))
+
+    @unittest.skipUnless(os.environ.get('WKSIM_TEST_PRIVATE_ROS') == '1', 'requires actual generated ROS codec')
+    def test_only_declared_yaw_float32_encoding_is_normalized(self):
+        from prometheus_msgs.msg import UAVCommand
+        from wksim_msgs.msg import CommandRequest
+        from rclpy.serialization import serialize_message, deserialize_message
+        from rosidl_runtime_py.convert import message_to_ordereddict
+        command = UAVCommand(yaw_ref=.123456789, position_ref=[2., 3., 3.], command_id=4)
+        message = CommandRequest(version=1, run_id='pv-codec-test', control_epoch='a'*32, request_id=7, command=command)
+        request = message_to_ordereddict(message)
+        original = copy.deepcopy(request)
+        expected = message_to_ordereddict(deserialize_message(serialize_message(message), CommandRequest))
+        self.assertNotEqual(request, expected)
+        self.assertEqual(wire_request(request), expected)
+        self.assertEqual(request, original)
+        for key, value in (('request_id', 8),):
+            changed = copy.deepcopy(expected); changed[key] = value
+            self.assertNotEqual(wire_request(request), changed)
+        changed = copy.deepcopy(expected); changed['command']['position_ref'][1] += 1e-5
+        self.assertNotEqual(wire_request(request), changed)
+        changed = copy.deepcopy(expected); changed['command']['yaw_ref'] += 1e-7
+        self.assertNotEqual(wire_request(request), changed)
+
     def test_independent_polynomial_endpoints(self):
         for leg in (1, 2):
             start = analytic(0, [2, 3, 3], 0, leg)

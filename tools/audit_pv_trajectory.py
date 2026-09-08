@@ -17,6 +17,7 @@ REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / 'tools'))
 from audit_joint_flight import audit_timeline, digest, lines, require
 from audit_joint_rate import schedule, measurement
+from Simulator.wksim_runtime.evidence import json_value
 
 PROFILE = 'full_xyz_pv_yaw_v1'
 DELTAS = ((1.5, 1., .4, .6), (-1., .5, -.2, -.3))
@@ -38,6 +39,26 @@ def angle(value):
 
 def f32(value):
     return struct.unpack('<f', struct.pack('<f', value))[0]
+
+
+def wire_command(command):
+    """The generated Python setter retains yaw double precision until CDR float32 encoding."""
+    require(type(command['yaw_ref']) is float and math.isfinite(command['yaw_ref']), 'Invalid pre-encoding yaw scalar')
+    return dict(command, yaw_ref=f32(command['yaw_ref']))
+
+
+def wire_request(request):
+    return dict(request, command=wire_command(request['command'])) if 'command' in request else request
+
+
+def rejected_bootstrap_ack(event, event_ns, first_request_ns):
+    """An unsolicited ACK rejected before any public request is not a failed task ACK."""
+    identity = event.get('request_identity')
+    return (0 <= event_ns < first_request_ns and event.get('event') == 'native_input_rejected'
+            and event.get('reason') == 'unmatched_ack' and event.get('source') == 'ack'
+            and event.get('request_id') == 0 and type(event.get('command')) is int
+            and 0 <= event['command'] <= 65535 and isinstance(identity, list) and len(identity) == 2
+            and all(type(v) is int and 0 <= v <= 255 for v in identity))
 
 
 def analytic(elapsed, position, yaw, leg):
@@ -251,7 +272,8 @@ def task_evidence(root, result, data):
         base = f'/uav{uid}/prometheus/'
         raw_requests = sorted(data[base+'v2/setup']+data[base+'v2/command'], key=lambda item: item[1]['request_id'])
         requests[stack] = raw_requests
-        require([m for _, m in raw_requests] == task['request_envelopes'] and len(raw_requests) == len(task['sent']),
+        require([m for _, m in raw_requests] == [wire_request(r) for r in task['request_envelopes']]
+                and len(raw_requests) == len(task['sent']),
                 'Raw public request stream differs from task report')
         setups = [(i, e['setup']) for i, (_, e) in enumerate(raw_requests) if 'setup' in e]
         require([i for i, _ in setups] == [0, 1, 2, len(raw_requests)-1]
@@ -271,9 +293,13 @@ def task_evidence(root, result, data):
                 and all(m['move_mode'] == 6 for m in commands[1:] if m['agent_cmd'] == 4),
                 'Unexpected/replayed public command sequence')
         events = []
+        first_request_ns = min(stamp(e.get('command', e.get('setup'))) for _, e in raw_requests)
         for row, message in data[base+'text_info']:
-            require(message['message_type'] < 2, 'Unexpected raw public ERROR/FATAL')
             event = json.loads(message['message'])
+            require(message['message_type'] < 2 or message['message_type'] == 2
+                    and event.get('run_id') == result['run_id'] and event.get('control_epoch') == task['control_epoch']
+                    and rejected_bootstrap_ack(event, stamp(message), first_request_ns),
+                    'Unexpected raw public ERROR/FATAL: '+str(event))
             if event.get('run_id') != result['run_id'] or event.get('control_epoch') != task['control_epoch']:
                 require(event.get('request_id', 0) == 0, 'Foreign request event')
                 continue
@@ -287,7 +313,9 @@ def task_evidence(root, result, data):
                     and envelope['control_epoch'] == task['control_epoch'] and envelope['request_id'] == index,
                     'Public request identity/replay differs')
             setup = 'setup' in envelope; body = envelope['setup' if setup else 'command']
-            require(body == sent and body['header']['frame_id'] == 'map'
+            recorded = task['request_envelopes'][index-1]
+            require(recorded['setup' if setup else 'command'] == sent
+                    and body == (sent if setup else wire_command(sent)) and body['header']['frame_id'] == 'map'
                     and 0 < stamp(body) <= row['tick']*1_000_000, 'Public payload/frame/clock differs')
             accepted = [e for e in events if e.get('request_id') == index and e.get('event') == ('setup_completed' if setup else 'command_accepted')]
             require(len(accepted) == 1 and (setup or accepted[0]['command_id'] == body['command_id']), 'Public acceptance missing/duplicated')
@@ -302,11 +330,15 @@ def task_evidence(root, result, data):
             require(message['version'] == 1 and message['run_id'] == result['run_id']
                     and message['control_epoch'] == task['control_epoch']
                     and message['state']['uav_id'] == message['control']['uav_id'] == uid, 'Public state crossed session/vehicle')
+        # The retained runner writes explicit markers for unavailable telemetry
+        # (e.g. battery/range NaN); raw CDR retains IEEE nonfinite values.
+        fresh_states = {json.dumps(json_value(m['state']), sort_keys=True)
+                        for _, m in states if m['source_received_valid']
+                        and 0 <= m['published_monotonic_s']-m['source_received_monotonic_s'] <= 2}
         for p in report['phases']:
             if p['state'] is not None:
-                require(any(message['state'] == p['state'] and message['source_received_valid']
-                            and 0 <= message['published_monotonic_s']-message['source_received_monotonic_s'] <= 2
-                            for _, message in states), 'Phase state lacks fresh raw public corroboration')
+                require(json.dumps(p['state'], sort_keys=True) in fresh_states,
+                        'Phase state lacks fresh raw public corroboration: '+stack+'/'+p['phase'])
         final = task['final']['state']
         require(final['connected'] and final['odom_valid'] and not final['armed'] and abs(final['position'][2]) < .3,
                 'Task did not finish freshly grounded')
@@ -567,9 +599,16 @@ def audit(root):
     artifacts = {p.relative_to(root).as_posix(): digest(p) for p in sorted(root.rglob('*'))
                  if p.is_file() and p.name not in ('pv-audit.json', 'audit.json')}
     return dict(status='pass', task_profile=PROFILE, run_id=result['run_id'], scene_epoch=result['scene_epoch'],
+                pre_encoding_yaw_float32_narrowings={stack: sum(
+                    r['command']['yaw_ref'] != f32(r['command']['yaw_ref']) for r in task['request_envelopes'] if 'command' in r)
+                    for stack, task in tasks.items()},
+                rejected_unsolicited_bootstrap_acks={stack: [json.loads(m['message']) for _, m in
+                    raw[f'/uav{uid}/prometheus/text_info'] if m['message_type'] == 2] for stack, uid in STACKS},
                 identity=identity, raw_dds_channels={name:len(rows) for name, rows in raw.items()}, native_targets=native,
                 **physics, rate_segments=rates, result_sha256=digest(root/'result.json'), evidence_sha256=artifacts,
-                audit_source_sha256=digest(__file__), outstanding_checks=[], limitations=[
+                audit_source_sha256=digest(__file__),
+                audit_evidence_formatter_sha256=digest(REPO/'Simulator/wksim_runtime/evidence.py'),
+                outstanding_checks=[], limitations=[
                     'Bounded experimental full XYZ P+V+yaw only; production and mixed axes remain unadmitted.',
                     'Raw target publication is not native target acknowledgement; setup ACKs are checked separately.',
                     'Acceleration input is retained but native acceleration/yaw-rate axes are inactive.',
@@ -585,7 +624,7 @@ def main():
         require(not args.output.resolve().is_relative_to(args.directory.resolve()), 'Audit output must be outside raw evidence')
     try:
         report = audit(args.directory)
-    except (OSError, ValueError, KeyError, TypeError, ImportError, AssertionError, IndexError, StopIteration) as error:
+    except (OSError, ValueError, KeyError, TypeError, ImportError, AssertionError, IndexError, StopIteration, OverflowError) as error:
         report = dict(status='failed', directory=str(args.directory), error=repr(error), audit_source_sha256=digest(__file__),
                       outstanding_checks=['Audit terminated at the reported failure; downstream checks are not accepted.'])
     raw = json.dumps(report, indent=2, allow_nan=False)+'\n'
