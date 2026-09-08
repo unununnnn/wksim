@@ -8,7 +8,8 @@ import unittest
 
 from tools.audit_mixed_control import (PROFILE, f32, wire_request, quaternion_yaw, body_reference,
     command_contract, physical_metrics, truth_window, native_expected, native_matches,
-    native_targets, guip_target, validate_build, rejected_bootstrap_ack, exact_request)
+    native_targets, guip_target, validate_build, rejected_bootstrap_ack, exact_request, completion_clock_ok,
+    identical_status_duplicate, after_completed_window)
 
 
 def header(seconds):
@@ -91,6 +92,32 @@ def native_fixture():
 
 
 class MixedRawAuditBoundaries(unittest.TestCase):
+    def test_source_stamp_overlap_needs_a_completed_window_and_new_acceptance(self):
+        self.assertTrue(after_completed_window(6, 5, 60_672_000_000, 60_672_000_000, 60673))
+        self.assertFalse(after_completed_window(6, 5, 60_671_000_000, 60_672_000_000, 60673))
+        self.assertFalse(after_completed_window(6, 5, 60_672_000_000, 60_672_000_000, 60671))
+        self.assertFalse(after_completed_window(5, 5, 60_672_000_000, 60_672_000_000, 60673))
+
+    def test_duplicate_status_requires_two_identical_raw_statuses(self):
+        event = dict(event='native_input_rejected', reason='duplicate_source', source='status', source_stamp=1000)
+        sample = dict(timestamp=1000, system_id=22, nav_state=18)
+        data = {'/px/fmu/out/vehicle_status': [(row(1, .001), sample), (row(2, .001), dict(sample))]}
+        self.assertTrue(identical_status_duplicate(event, row(3, .002), data, 'px4'))
+        self.assertFalse(identical_status_duplicate(event, row(3, .002), data, 'arducopter'))
+        self.assertFalse(identical_status_duplicate(dict(event, reason='regressed_source'), row(3, .002), data, 'px4'))
+        data['/px/fmu/out/vehicle_status'][1][1]['nav_state'] = 14
+        self.assertFalse(identical_status_duplicate(event, row(3, .002), data, 'px4'))
+
+    def test_setup_completion_is_not_input_receipt_age(self):
+        takeoff = dict(header=header(10), cmd=3)
+        self.assertTrue(completion_clock_ok(takeoff, 16_000_000_000, 16001, setup=True))
+        self.assertFalse(completion_clock_ok(takeoff, 51_000_000_000, 51001, setup=True))
+        move = dict(header=header(10))
+        self.assertTrue(completion_clock_ok(move, 9_996_000_000, 10001, setup=False))
+        self.assertFalse(completion_clock_ok(move, 9_000_000_000, 10001, setup=False))
+        self.assertFalse(completion_clock_ok(move, 13_000_000_000, 13001, setup=False))
+        self.assertFalse(completion_clock_ok(takeoff, 16_000_000_000, 15000, setup=True))
+
     def test_mixed_build_is_its_own_schema_and_fixed_chain(self):
         admission = json.loads((Path(__file__).parent/'ap-mixed-20260909/admission-02.json').read_text())
         validate_build(admission['candidate'], admission['candidate_verification'])

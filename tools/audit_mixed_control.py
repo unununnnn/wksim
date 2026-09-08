@@ -29,6 +29,36 @@ SEGMENTS = ('world_step', 'world_reverse', 'world_one_axis', 'world_zero',
             'world_reentry', 'world_absolute_stop', 'body_heading', 'body_step', 'body_zero', 'body_absolute_stop')
 
 
+def completion_clock_ok(body, event_ns, observed_tick, *, setup):
+    # Completion of ARM/mode/takeoff is not the receipt of its input message.
+    # Task.send uses 40s for COMMAND_CONTROL and 10s for simple setup; MOVE
+    # acceptance/rejection happens inside the original -0.5..2s input age gate.
+    limit = (40 if body['cmd'] == 3 else 10) if setup else 2
+    delta = event_ns-stamp(body)
+    return -.5e9 <= delta <= limit*1e9 and event_ns <= observed_tick*1_000_000
+
+
+def identical_status_duplicate(event, event_row, data, stack):
+    if (stack != 'px4' or event.get('event') != 'native_input_rejected'
+            or event.get('reason') != 'duplicate_source' or event.get('source') != 'status'
+            or type(event.get('source_stamp')) is not int):
+        return False
+    channels = [rows for topic, rows in data.items() if '/out/vehicle_status' in topic]
+    if len(channels) != 1:
+        return False
+    samples = [(row, message) for row, message in channels[0]
+               if message['timestamp'] == event['source_stamp'] and abs(row['wall']-event_row['wall']) <= 2]
+    return (len(samples) >= 2 and event['source_stamp'] > 0
+            and event['source_stamp']*1000 <= event_row['tick']*1_000_000
+            and all(message['system_id'] == 22 and normalized(message) == normalized(samples[0][1])
+                    for _, message in samples))
+
+
+def after_completed_window(matched_request, expected_request, accepted_ns, window_end_ns, observed_tick):
+    return (matched_request > expected_request and accepted_ns >= window_end_ns
+            and observed_tick*1_000_000 >= accepted_ns)
+
+
 def validate_build(ap, verified):
     keys = {'schema_version', 'status', 'profile', 'candidate_root', 'baseline_root', 'baseline_manifest_sha256',
             'source_manifest_sha256', 'patch_sha256', 'artifacts', 'source_unchanged_during_build',
@@ -302,16 +332,17 @@ def task_evidence(root, result, data):
         for row, message in data[base+'text_info']:
             e = json.loads(message['message'])
             bootstrap = rejected_bootstrap_ack(e, stamp(message), first_ns)
+            duplicate = identical_status_duplicate(e, row, data, stack)
             expected_rejection = (invalid_id is not None and e.get('event') == 'command_rejected'
                 and e.get('request_id') == invalid_id and e.get('command_id') == named['invalid_world_yaw_rate']['command']['command_id']
                 and e.get('reason') == 'arducopter_mixed_requires_yaw_angle')
-            require(message['message_type'] < 2 or message['message_type'] == 2 and (bootstrap or expected_rejection),
+            require(message['message_type'] < 2 or message['message_type'] == 2 and (bootstrap or expected_rejection or duplicate),
                     'Unexpected raw public ERROR/FATAL: '+str(e))
             if e.get('run_id') != result['run_id'] or e.get('control_epoch') != task['control_epoch']:
                 require(e.get('request_id', 0) == 0 and not expected_rejection, 'Foreign request event')
                 continue
             require((e.get('event') not in ('setup_rejected', 'command_rejected', 'control_revoked', 'native_input_rejected')
-                    or expected_rejection or bootstrap) and not e.get('error')
+                    or expected_rejection or bootstrap or duplicate) and not e.get('error')
                     and not (e.get('event') == 'native_ack' and not e.get('accepted')), 'Unexpected rejection/revocation/ACK failure')
             require(e['event_id'] not in event_times, 'Duplicate raw event identity')
             events.append(e); event_times[e['event_id']] = (row, stamp(message))
@@ -334,7 +365,8 @@ def task_evidence(root, result, data):
                 require(len(accepted) == 1 and not rejected and (setup or accepted[0]['command_id'] == body['command_id']),
                         'Public acceptance missing/duplicated')
             completion = rejected[0] if index == invalid_id else accepted[0]
-            require(stamp(body) <= event_times[completion['event_id']][1] <= row['tick']*1_000_000+2_000_000_000,
+            completion_row, completion_ns = event_times[completion['event_id']]
+            require(completion_clock_ok(body, completion_ns, completion_row['tick'], setup=setup),
                     'Request completion source clock differs')
             acks = [e for e in events if e.get('request_id') == index and e.get('event') == 'native_ack']
             if setup:
@@ -562,7 +594,7 @@ def native_targets(data, requests, references, tasks):
                 accepted[e['request_id']] = (r, stamp(m))
         commands = [(r, e) for r, e in requests[stack] if 'command' in e and e['request_id'] in accepted]
         refs = references[stack]
-        coverage = Counter(); during = Counter(); overlaps = 0; native_rows = []
+        coverage = Counter(); during = Counter(); overlaps = 0; native_rows = []; window_end_overlaps = 0
         initial_armed = next((m['state'] for _, m in public if m['state'].get('armed')), None)
         startup_overlaps = 0
         for row, target in targets:
@@ -633,14 +665,23 @@ def native_targets(data, requests, references, tasks):
             for segment in tasks[stack]['mixed_segments']:
                 if segment['start_ns'] <= boot_ns <= segment['end_ns']:
                     expected_name = 'world_zero' if segment['name'] == 'invalid_world_yaw_rate' else segment['name']
-                    require(matched == expected_name, 'Wrong active native command within frozen continuous window')
+                    expected_rid = refs[expected_name]['envelope']['request_id']
+                    if matched != expected_name and after_completed_window(rid, expected_rid, accepted[rid][1],
+                                                                           segment['end_ns'], row['tick']):
+                        window_end_overlaps += 1
+                        continue
+                    require(matched == expected_name, 'Wrong active native command within frozen continuous window: '
+                        +str(dict(stack=stack, expected=expected_name, matched=matched, source_boot_ns=boot_ns,
+                                  observed_tick=row['tick'], window_start_ns=segment['start_ns'],
+                                  window_end_ns=segment['end_ns'], matched_accepted_ns=accepted[rid][1])))
                     during[segment['name']] += 1
             if stack == 'arducopter' and target['type_mask'] == 0x9E3:
                 native_rows.append(dict(name=matched, boot_us=boot_ns//1000, wall=row['wall'], target=target))
         require(set(coverage) == set(refs)-{'invalid_world_yaw_rate'} and all(during[s['name']] for s in tasks[stack]['mixed_segments']),
                 'Missing native output for a public command or physical window')
         output[stack] = dict(targets_by_command=dict(coverage), targets_inside_windows=dict(during),
-            cross_topic_boundary_observations=overlaps, startup_boundary_observations=startup_overlaps, target_ack_available=False,
+            cross_topic_boundary_observations=overlaps, startup_boundary_observations=startup_overlaps,
+            source_stamp_window_end_overlaps=window_end_overlaps, target_ack_available=False,
             ordering_claim='Exact request identity and source/public timestamps; no DDS cross-topic FIFO claim')
         if stack == 'arducopter':
             output[stack]['mixed_rows'] = native_rows

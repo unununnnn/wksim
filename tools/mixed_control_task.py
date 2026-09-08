@@ -46,6 +46,7 @@ class MixedTask(PVTask):
     def moving(self, name, velocity, altitude, yaw=0., *, body=False):
         reference = self.mixed(name, velocity, altitude, yaw, body=body)
         self.wait(name+'_ready', lambda: self.tracking(reference), 20)
+        self.dwell(name+'_prepared', self.fresh, 2)
         self.window(name, lambda: self.tracking(reference), 3, reference)
 
     def zero(self, name, altitude, *, body=False):
