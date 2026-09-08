@@ -296,6 +296,32 @@ bool AWksimVisualGameMode::ApplyPacket(const uint8* Bytes, int32 Count, FString&
             FJsonSerializer::Serialize(Object.ToSharedRef(), TJsonWriterFactory<TCHAR, TCondensedJsonPrintPolicy<TCHAR>>::Create(&Ack));
             return true;
         }
+        if (Object->TryGetStringField(TEXT("kind"), Kind) && Kind == TEXT("depth_stream_control"))
+        {
+            FString Run, Instance, Epoch, Stream, NextStream;
+            int64 Version, Generation, Request;
+            bool Enabled;
+            if (!DepthSensor || Object->Values.Num() != 10 ||
+                !IntegerField(Object, TEXT("version"), Version) || Version != 3 ||
+                !Object->TryGetStringField(TEXT("run_id"), Run) || Run != RunId ||
+                !Object->TryGetStringField(TEXT("instance_id"), Instance) || Instance != InstanceId ||
+                !Object->TryGetStringField(TEXT("epoch"), Epoch) || Epoch != JointEpoch ||
+                !IntegerField(Object, TEXT("generation"), Generation) || Generation != JointGeneration || Generation < 1 ||
+                !IntegerField(Object, TEXT("request_sequence"), Request) || Request <= LastDepthRequest ||
+                !Object->TryGetStringField(TEXT("stream_id"), Stream) || Stream != DepthConfig.StreamId ||
+                !Object->TryGetStringField(TEXT("next_stream_id"), NextStream) || !IsHexIdentity(NextStream) ||
+                !Object->TryGetBoolField(TEXT("enabled"), Enabled) || Enabled == bDepthEnabled ||
+                (Enabled ? NextStream == Stream : NextStream != Stream)) return false;
+            // This changes capture only. There is no physics/flight command path.
+            DepthSensor->Invalidate();
+            DepthEpoch.Reset();
+            bDepthEnabled = Enabled;
+            LastDepthRequest = Request;
+            if (Enabled) { DepthConfig.StreamId = NextStream; DepthLastStep = JointStep; }
+            Object->SetStringField(TEXT("kind"), TEXT("depth_stream_controlled"));
+            FJsonSerializer::Serialize(Object.ToSharedRef(), TJsonWriterFactory<TCHAR, TCondensedJsonPrintPolicy<TCHAR>>::Create(&Ack));
+            return true;
+        }
         if (Object->TryGetStringField(TEXT("kind"), Kind) && Kind == TEXT("joint_actor_query"))
         {
             FString Run, Instance, Epoch;
@@ -849,7 +875,7 @@ void AWksimVisualGameMode::TickDepth()
     if (!DepthSensor) return;
     // Every moving Actor must represent this exact authoritative joint step.
     // Partial/outdated display data cannot be relabelled as a synchronous image.
-    const bool Current = bRenderReady && !IsStale() && JointVehicles.Num() == 2 &&
+    const bool Current = bDepthEnabled && bRenderReady && !IsStale() && JointVehicles.Num() == 2 &&
         JointVehicles[0].Step == JointStep && JointVehicles[1].Step == JointStep &&
         JointVehicles[0].Phase != TEXT("stopped") && JointVehicles[1].Phase != TEXT("stopped");
     if (!Current)

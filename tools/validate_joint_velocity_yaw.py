@@ -28,9 +28,10 @@ def run(directory,output):
         deadline=time.monotonic()+seconds
         while time.monotonic()<deadline:
             value=status()
-            if value and value['phase']=='failed':
-                detail=json.loads((Path(value['epoch_dir'])/'result.json').read_text())
-                raise RuntimeError(label+': '+str(detail.get('error')))
+            if value and value['phase'] in ('faulted','failed'):
+                detail=Path(value['epoch_dir'])/'result.json'
+                error=json.loads(detail.read_text()).get('error') if detail.is_file() else value['authority'].get('fault')
+                raise RuntimeError(label+': '+str(error))
             if value and predicate(value): return value
             time.sleep(.05)
         raise TimeoutError(label)
@@ -64,7 +65,8 @@ def run(directory,output):
             assert not missing,(stack,missing)
             envelopes=report['task']['request_envelopes']
             commands=[row['command']['command_id'] for row in envelopes if 'command' in row]
-            assert commands==list(range(1,len(commands)+1)),commands
+            expected=[1,2,3,4,5,6] if stack=='arducopter' else [1,2,3,6]
+            assert commands==expected,commands
             if stack=='arducopter':
                 extra=[name for name in AP_EXTRA if name not in phases]
                 assert not extra,(stack,extra)

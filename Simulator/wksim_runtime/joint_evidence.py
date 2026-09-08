@@ -3,7 +3,17 @@ import json
 import math
 
 
-def verify_tasks(directory,epoch,total_ticks,reports):
+def final_run_status(epochs):
+    """Completed windows cannot clear an active fault; recovered history can."""
+    final=epochs[-1]['result']
+    if final['status']=='stopped' and any(row['result'].get('flight_completed') for row in epochs):
+        return 'failed' if final.get('authority',{}).get('fault') else 'pass'
+    return final['status']
+
+
+def verify_tasks(directory,epoch,total_ticks,reports,task_type='public_position'):
+    if task_type not in ('public_position','public_velocity_yaw'):
+        raise ValueError('Unknown public task audit type')
     completed=[report for report in reports.values() if report['status']=='pass']
     if not completed:
         return None
@@ -26,6 +36,10 @@ def verify_tasks(directory,epoch,total_ticks,reports):
         for report in values:
             if report['scene_epoch']!=epoch:
                 raise ValueError('Task evidence crossed scene epoch')
+            if task_type=='public_velocity_yaw':
+                from .velocity_evidence import verify_velocity_windows
+                windows.extend(verify_velocity_windows(trace,report))
+                continue
             phases={row['phase']:row for row in report['phases']}
             if report['task_mode']=='initial':
                 specs=[('takeoff_reached','hold_completed',5,'altitude'),

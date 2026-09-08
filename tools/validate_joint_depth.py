@@ -7,6 +7,7 @@ import hashlib
 import json
 import math
 import os
+import socket
 from pathlib import Path
 import subprocess
 import sys
@@ -22,8 +23,27 @@ from Simulator.ue55.depth import Reader
 from tools.validate_joint_visual import unc,read,save
 
 
-def run(manifest,output):
-    airborne=True
+def observe_module(view, manifest, output, name='ue-loaded-module.json'):
+    pid=view.poll()['pids']['ue']
+    script='''$p=[int]$env:WKSIM_DEPTH_UE_PID
+(Get-Process -Id $p).Modules | Where-Object { $_.ModuleName -eq 'UnrealEditor-WksimVisual.dll' } | ForEach-Object {
+ [pscustomobject]@{path=$_.FileName;pid=$p}
+} | ConvertTo-Json -Compress'''
+    result=subprocess.run(['C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe','-NoProfile','-NonInteractive',
+        '-Command',script],capture_output=True,text=True,timeout=20,
+        env=dict(os.environ,WKSIM_DEPTH_UE_PID=str(pid)),creationflags=subprocess.CREATE_NO_WINDOW)
+    save(output/(name+'.probe.json'),dict(returncode=result.returncode,stdout=result.stdout,stderr=result.stderr))
+    if result.returncode or not result.stdout.strip():raise RuntimeError('UE module probe failed: '+result.stderr)
+    loaded=json.loads(result.stdout);build=read(manifest)
+    loaded['sha256']=hashlib.sha256(Path(loaded['path']).read_bytes()).hexdigest()
+    assert loaded['pid']==pid and Path(loaded['path']).resolve()==Path(build['binary']).resolve()
+    assert loaded['sha256']==build['binary_sha256']
+    save(output/name,loaded)
+    return loaded
+
+
+def run(manifest,output,lifecycle=False):
+    airborne=not lifecycle
     output=output.resolve();output.mkdir(parents=True,exist_ok=False)
     names=['tools/validate_joint_depth.py','Simulator/ue55/depth.py','Simulator/ue55/rgb.py','Simulator/ue55/state_relay.py',
            'Simulator/ue55/product_bridge.py','Simulator/wksim_console/visual.py',
@@ -47,7 +67,7 @@ def run(manifest,output):
     directory=runs+'/'+run_id;shared=unc(directory)
     entry=[*wsl,'bash',wsl_path(REPO/'tools/run-wksim.sh'),wsl_path(output/'config.json'),'--output-root',runs]
     report=dict(status='failed',scope=__doc__,runtime_directory=directory,config=config,manifest=str(manifest.resolve()),frames=[],
-                started_unix_s=time.time(),airborne_requested=airborne)
+                started_unix_s=time.time(),airborne_requested=airborne,lifecycle_requested=lifecycle,views=[])
     manager=None;view=None;reader=None
     def physical_airborne(state):
         if not state or len(state.get('participants', {})) != 2:
@@ -90,8 +110,8 @@ def run(manifest,output):
     def sample():
         if manager.poll() is not None:raise RuntimeError('Manager exited')
         state=read(shared/'status.json') if (shared/'status.json').is_file() else None
-        current=view.poll()
-        if current['state'] in ('failed','unavailable'):raise RuntimeError(current['error'])
+        current=view.poll() if view else None
+        if current and current['state'] in ('failed','unavailable'):raise RuntimeError(current['error'])
         if state:
             if state.get('display_stream',{}).get('sent')==0 and state.get('display_stream',{}).get('dropped',0)>100:
                 raise RuntimeError('Display transport unavailable: '+str(state['display_stream'].get('last_error')))
@@ -126,22 +146,7 @@ def run(manifest,output):
             if current['state'] in ('failed','unavailable'):raise RuntimeError(current['error'])
             if time.monotonic()>deadline:raise TimeoutError('UE preparation')
             time.sleep(.1)
-        # Read only our already-running UE module, before starting physics.
-        module_script='''$ueModulePid=[int]$env:WKSIM_RGB_UE_PID
-(Get-Process -Id $ueModulePid).Modules | Where-Object { $_.ModuleName -eq 'UnrealEditor-WksimVisual.dll' } | ForEach-Object {
- [pscustomobject]@{path=$_.FileName;pid=$ueModulePid}
-} | ConvertTo-Json -Compress'''
-        module_result=subprocess.run(['C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe','-NoProfile','-NonInteractive',
-                                      '-Command',module_script],capture_output=True,text=True,timeout=20,
-                                     env=dict(os.environ,WKSIM_RGB_UE_PID=str(view.poll()['pids']['ue'])),creationflags=subprocess.CREATE_NO_WINDOW)
-        save(output/'module-probe.json',dict(returncode=module_result.returncode,stdout=module_result.stdout,stderr=module_result.stderr))
-        if module_result.returncode or not module_result.stdout.strip():raise RuntimeError('UE module probe returned no result: '+module_result.stderr)
-        loaded=json.loads(module_result.stdout)
-        loaded['sha256']=hashlib.sha256(Path(loaded['path']).read_bytes()).hexdigest()
-        build=read(manifest)
-        assert loaded['pid']==view.poll()['pids']['ue'] and Path(loaded['path']).resolve()==Path(build['binary']).resolve()
-        assert loaded['sha256'].lower()==build['binary_sha256']
-        save(output/'ue-loaded-module.json',loaded)
+        observe_module(view,manifest,output)
         command=[*entry,'--use-prepared-run',directory];report['command']=command
         with (output/'service.log').open('w') as log:
             manager=subprocess.Popen(command,cwd=REPO,stdout=log,stderr=subprocess.STDOUT,creationflags=subprocess.CREATE_NO_WINDOW)
@@ -150,6 +155,65 @@ def run(manifest,output):
                 state=sample()
                 if time.monotonic()>deadline:raise TimeoutError('Ten real depth frames')
                 time.sleep(.1)
+            if lifecycle:
+                record=report['depth_lifecycle']=dict(before_epoch=state['epoch'],before_generation=state['generation'],
+                    old_notification=report['frames'][-1]['notification'],old_stream=view.depth_stream_id,
+                    restart_kind='capture_stream')
+                old_directory=view.depth_directory
+                record['disable']=view.set_depth_enabled(False)
+                before=sample();count=len(report['frames']);began=time.monotonic()
+                stopped=view.poll();report['views'].append(stopped)
+                files_before=sorted(p.name for p in old_directory.glob('*.json'))
+                while time.monotonic()-began<3:
+                    state=sample();time.sleep(.1)
+                files_after=sorted(p.name for p in old_directory.glob('*.json'))
+                assert set(files_after)<=set(files_before), 'Stopped producer published new metadata'
+                assert len(report['frames'])==count, 'Stopped producer delivered new frames'
+                assert state['epoch']==before['epoch'] and state['authority']['tick']>=before['authority']['tick']+1000
+                record['producer_outage']=dict(before=before['authority'],after=state['authority'],
+                    wall_seconds=time.monotonic()-began,files_before=files_before,files_after=files_after,
+                    old_view=stopped)
+                reader.close();reader=None
+                record['enable']=view.set_depth_enabled(True)
+                assert view.depth_stream_id!=record['old_stream']
+                report['producer_streams'].append(view.depth_stream_id)
+                reader=Reader(view.depth_directory,run_id,session['instance_id'],settings,stream_id=view.depth_stream_id)
+                reader.set_epoch(state['epoch'],state['generation'],minimum_step=state['authority']['tick'])
+                count=len(report['frames']);restart_tick=state['authority']['tick'];deadline=time.monotonic()+30
+                while len(report['frames'])<count+5:
+                    state=sample()
+                    if time.monotonic()>deadline:raise TimeoutError('Restarted producer actual frames')
+                    time.sleep(.1)
+                record['restarted_first_frame']=report['frames'][count]
+                record['restart_tick']=restart_tick
+                assert int(report['frames'][count]['metadata']['step'])>=restart_tick
+                def reject_old(notification):
+                    before_rejected=reader.rejected;before_count=len(report['frames'])
+                    with socket.socket(socket.AF_INET,socket.SOCK_DGRAM) as negative:
+                        negative.sendto(json.dumps(notification).encode(),('127.0.0.1',settings['notify_port']))
+                    deadline=time.monotonic()+2
+                    while reader.rejected==before_rejected:
+                        sample()
+                        if time.monotonic()>deadline:raise TimeoutError('Retired notification rejection')
+                        time.sleep(.01)
+                    assert all(f['notification']!=notification for f in report['frames'][before_count:])
+                    return dict(notification=notification,rejected=reader.rejected-before_rejected,
+                        observed_unix_s=time.time())
+                record['old_producer_rejection']=reject_old(record['old_notification'])
+                record['before_reset_notification']=report['frames'][-1]['notification']
+                old_epoch=state['epoch'];count=len(report['frames'])
+                record['reset']=action('cold-reset');deadline=time.monotonic()+180
+                while len(report['frames'])<count+5:
+                    state=sample()
+                    if time.monotonic()>deadline:raise TimeoutError('New epoch actual depth frames')
+                    time.sleep(.1)
+                assert state['epoch']!=old_epoch and state['generation']==record['before_generation']+1
+                assert all(f['metadata']['epoch']==state['epoch'] for f in report['frames'][count:])
+                record['reset_first_frame']=report['frames'][count]
+                record['after_epoch']=state['epoch'];record['after_generation']=state['generation']
+                record['old_epoch_rejection']=reject_old(record['before_reset_notification'])
+                record['status']='pass'
+                save(output/'report.json',report)
             if airborne:
                 deadline=time.monotonic()+240
                 while not state or 'start-task' not in state['allowed_actions']:
@@ -218,9 +282,13 @@ def audit(directory):
     """Use original physical truth and committed clocks, never displayed pose as oracle."""
     from tools.audit_joint_rgb import rotated, multiplied, require, sha
     directory=Path(directory).resolve();report=read(directory/'report.json')
+    lifecycle=report.get('lifecycle_requested',False)
     require(report['status']=='pass' and report['manager_returncode']==0,'Live run failed')
-    require(report['result']['status']=='pass' and all(not e['remaining_group_members'] and
-            e['result']['flight_completed'] for e in report['result']['epochs']),'Public flight/retirement failed')
+    require(report['result']==read(directory/'run/result.json'),'Retained run result differs')
+    require(report['result']['status']==('stopped' if lifecycle else 'pass') and all(not e['remaining_group_members'] and
+            (lifecycle or e['result']['flight_completed']) for e in report['result']['epochs']),'Public flight/retirement failed')
+    require(all(not e['result'].get('faults') and not e['result'].get('authority',{}).get('fault')
+                for e in report['result']['epochs']),'Unexpected physical fault in a sensor-only experiment')
     provenance=read(directory/'implementation.json')
     for name,digest in provenance['sha256'].items():
         require(sha(directory/'sources'/name)==digest,'Retained source changed')
@@ -230,12 +298,19 @@ def audit(directory):
     for item in build['build_inputs']:
         source=directory/'sources/Simulator/ue55'/item['path']
         if source.is_file():require(sha(source)==item['source_sha256']==item['staging_sha256'],'Source/build mismatch')
-    view=report['view_final'];root=Path(view['depth_directory']).resolve();settings=view['depth_config']
-    require(root.is_relative_to(directory),'Depth output escaped owned directory')
+    views=report.get('views',[])+[report['view_final']]
+    by_stream={v['depth_stream_id']:v for v in views}
+    require(len(by_stream)==len(views),'Repeated producer stream identity')
+    for view in views:
+        require(Path(view['depth_directory']).resolve().is_relative_to(directory),'Depth output escaped owned directory')
     wanted={(f['metadata']['epoch'],int(f['metadata']['step'])) for f in report['frames']}
-    outage=report['consumer_outage']
-    outage_key=(outage['before']['epoch'],outage['before']['tick'])
-    wanted.add(outage_key)
+    if lifecycle:
+        record=report['depth_lifecycle'];outage=record['producer_outage']
+        for endpoint in ('before','after'):wanted.add((outage[endpoint]['epoch'],outage[endpoint]['tick']))
+    else:
+        outage=report['consumer_outage']
+        outage_key=(outage['before']['epoch'],outage['before']['tick'])
+        wanted.add(outage_key)
     truth={};committed=set();evidence={}
     for epoch in report['result']['epochs']:
         folder=directory/'run/epochs'/epoch['epoch']
@@ -253,14 +328,19 @@ def audit(directory):
                         truth[(*key,uid)]=row['state']
     # No socket is opened for the retained-byte audit. Use exactly the production
     # admission/parser after explicitly restoring each recorded authoritative binding.
-    reader=Reader.__new__(Reader)
-    reader.config=settings;reader.directory=root;reader.run_id=report['config']['run_id']
-    reader.instance_id=report['session']['instance_id'];reader.stream_id=view['depth_stream_id']
-    reader.epoch=None;reader.generation=0;reader.minimum_step=0;reader.last_step=reader.last_frame=-1
-    require(all(truth[(*outage_key,uid)][8]<-2.5 for uid in (1,2)),'Consumer outage did not start during dual flight')
+    readers={}
+    for stream,view in by_stream.items():
+        reader=Reader.__new__(Reader)
+        reader.config=view['depth_config'];reader.directory=Path(view['depth_directory']).resolve();reader.run_id=report['config']['run_id']
+        reader.instance_id=report['session']['instance_id'];reader.stream_id=stream
+        reader.epoch=None;reader.generation=0;reader.minimum_step=0;reader.last_step=reader.last_frame=-1
+        readers[stream]=reader
+    if not lifecycle:
+        require(all(truth[(*outage_key,uid)][8]<-2.5 for uid in (1,2)),'Consumer outage did not start during dual flight')
     checked=[];airborne=[]
     for recorded in report['frames']:
         data=recorded['metadata'];step=int(data['step']);key=(data['epoch'],step)
+        reader=readers[data['stream_id']];root=reader.directory;settings=reader.config
         require(key in committed,'Depth step is not an original committed physics step')
         require(Path(recorded['metadata_path']).resolve().parent==root and
                 Path(recorded['image_path']).resolve().parent==root,'Foreign frame path')
@@ -283,17 +363,55 @@ def audit(directory):
         checked.append(dict(epoch=key[0],step=step,position_error_cm=position,quaternion_l2=quaternion,
                             valid_pixels=sum(frame['valid_mask']),metadata_sha256=sha(recorded['metadata_path']),
                             depth_sha256=sha(recorded['image_path']),cloud_sha256=sha(cloud_path),mask_sha256=sha(mask_path)))
-    require(len(checked)>=15 and len(airborne)>=5,'Insufficient consumed/dual-airborne depth frames')
+    require(len(checked)>=15 and (lifecycle or len(airborne)>=5),'Insufficient consumed/dual-airborne depth frames')
     require(sum(f['valid_pixels'] for f in checked)>=100,'No useful valid native depth samples')
-    outage=report['consumer_outage'];reconnect=report['consumer_reconnect']
-    require(outage['wall_seconds']>=3 and outage['after_tick']-outage['before']['tick']>=1000,'Consumer outage stalled physics')
-    require(int(reconnect['first_frame']['metadata']['step'])>=reconnect['start_tick']>outage['before']['tick'],
-            'Consumer reconnect replayed earlier frames')
+    if lifecycle:
+        record=report['depth_lifecycle'];outage=record['producer_outage']
+        require(record['status']=='pass' and len(by_stream)==2,'Missing actual producer restart')
+        stopped=outage['old_view']
+        require(record['restart_kind']=='capture_stream' and stopped['depth_enabled'] is False,
+                'Producer was not explicitly disabled')
+        for action,enabled in (('disable',False),('enable',True)):
+            request,response=record[action]['request'],record[action]['response']
+            require(request['enabled'] is enabled and response==dict(request,kind='depth_stream_controlled'),
+                    'Missing correlated capture state acknowledgement')
+        before,after=outage['before'],outage['after']
+        require(before['epoch']==after['epoch'] and before['epoch']==record['before_epoch'],'Producer outage crossed epoch')
+        advance=after['tick']-before['tick']
+        require(outage['wall_seconds']>=3 and advance>=1000 and set(outage['files_after'])<=set(outage['files_before']),
+                'Producer stop did not preserve independent physics/no-image boundary')
+        for endpoint in (before,after):
+            key=(endpoint['epoch'],endpoint['tick'])
+            require(key in committed and all((*key,uid) in truth for uid in (1,2)),'Outage endpoint lacks committed raw truth')
+        new_stream=record['restarted_first_frame']['metadata']['stream_id']
+        require(new_stream!=record['old_stream'] and new_stream in by_stream,'Producer restart retained old stream')
+        require(int(record['restarted_first_frame']['metadata']['step'])>=record['restart_tick'], 'Restart replayed old data')
+        require(record['after_epoch']!=record['before_epoch'] and record['after_generation']==record['before_generation']+1,
+                'Cold reset did not create next physical generation')
+        require([e['epoch'] for e in report['result']['epochs']]==[record['before_epoch'],record['after_epoch']],
+                'Cold reset evidence lacks two actual physical epochs')
+        for label,notification in (('old_producer_rejection',record['old_notification']),
+                                   ('old_epoch_rejection',record['before_reset_notification'])):
+            require(record[label]['notification']==notification and record[label]['rejected']>=1,'Missing retired notification rejection')
+            try:readers[new_stream]._read(notification)
+            except ValueError:pass
+            else:raise ValueError('Production parser accepted retired notification in final binding')
+        require(stopped['pids']['ue']==report['view_final']['pids']['ue']==loaded['pid'],
+                'Capture restart unexpectedly replaced the verified UE process')
+        require(any(f['metadata']['epoch']==record['after_epoch'] for f in report['frames']), 'No new-epoch native depth')
+        boundary=dict(producer_outage_tick_advance=advance,producer_streams=list(by_stream),
+            retired_notifications_rejected=True,epochs=[record['before_epoch'],record['after_epoch']])
+    else:
+        outage=report['consumer_outage'];reconnect=report['consumer_reconnect']
+        require(outage['wall_seconds']>=3 and outage['after_tick']-outage['before']['tick']>=1000,'Consumer outage stalled physics')
+        require(int(reconnect['first_frame']['metadata']['step'])>=reconnect['start_tick']>outage['before']['tick'],
+                'Consumer reconnect replayed earlier frames')
+        boundary=dict(consumer_outage_tick_advance=outage['after_tick']-outage['before']['tick'])
     return dict(status='pass',frames=checked,airborne_frame_steps=airborne,evidence_sha256=evidence,
-                report_sha256=sha(directory/'report.json'),consumer_outage_tick_advance=outage['after_tick']-outage['before']['tick'],
+                report_sha256=sha(directory/'report.json'),**boundary,
                 limitations=['Single 160x120 depth sensor only; no complete issue #31 acceptance.',
                              'Optical distance accuracy uses the separately executed native geometry fixtures.',
-                             'No producer restart/cold reset or required sensor failure policy acceptance.'])
+                             'Ground lifecycle and airborne consumer cases are separate; Full sensor fault modes remain separate obligations.'])
 
 
 if __name__=='__main__':
@@ -301,10 +419,11 @@ if __name__=='__main__':
     parser.add_argument('--manifest',type=Path)
     parser.add_argument('--output',required=True,type=Path)
     parser.add_argument('--audit-only',action='store_true')
+    parser.add_argument('--lifecycle',action='store_true',help='Ground producer restart and real cold-reset isolation; no flight task')
     args=parser.parse_args()
     if not args.audit_only:
         if args.manifest is None:parser.error('--manifest is required for a live run')
-        result=run(args.manifest,args.output)
+        result=run(args.manifest,args.output,args.lifecycle)
     else:result=read(args.output/'report.json')
     if result['status']=='pass':
         try:

@@ -88,6 +88,8 @@ private:
     FString DepthEpoch;
     int64 DepthLastStep = -1, DepthIntervalSteps = 100;
     int32 DepthNotifyPort = 0;
+    bool bDepthEnabled = true;
+    int64 LastDepthRequest = -1;
 };
 
 UCLASS()

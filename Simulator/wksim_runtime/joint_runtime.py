@@ -20,7 +20,7 @@ from .isolation import check_isolation,isolate_temporary_files,Reservation
 from .joint_actions import Mailbox
 from .joint_config import validate_joint_config
 from .joint_rate import JointRate,RateUnmet
-from .joint_evidence import verify_tasks
+from .joint_evidence import verify_tasks,final_run_status
 from .scene_clock import SceneClock,ClockPublisher
 from ..wksim_core.joint import JointPhysics,InputTimeout
 from ..wksim_core.joint_state_stream import JointStateWriter,hex_identity
@@ -637,7 +637,7 @@ def epoch_run(directory,epoch,generation=1):
         result['wall_seconds']=time.monotonic()-started
         try:
             if result['status'] in ('stopped','cold_reset'):
-                result['physical_task_proof']=verify_tasks(output,epoch,clock.tick,result['tasks'])
+                result['physical_task_proof']=verify_tasks(output,epoch,clock.tick,result['tasks'],config.get('task','public_position'))
                 result['flight_completed']=result['physical_task_proof'] is not None
         except (OSError,ValueError,KeyError) as error:
             result['status']='failed';result['error']='Independent truth verification: '+str(error)
@@ -830,10 +830,11 @@ def _run_joint(config,output_root,*,use_prepared_run=None):
                     dict(reset_request,state='failed',reason='New epoch failed',new_epoch=epoch))
             if result['status']!='cold_reset':
                 break
-        value=dict(status='pass' if any(row['result'].get('flight_completed') for row in epochs)
-                   and result['status']=='stopped' else result['status'],
+        value=dict(status=final_run_status(epochs),
                    kind='joint_scene',run_id=config['run_id'],instance_id=session['instance_id'],config=config,epochs=epochs,run_dir=str(directory),
                    host_boot_id=resource['host_boot_id'])
+        if value['status']=='failed' and result.get('authority',{}).get('fault'):
+            value['error']=result['authority']['fault']
         write_json(directory/'result.json',value)
         print(json.dumps(dict(status=value['status'],result=str(directory/'result.json'))),flush=True)
         return value
