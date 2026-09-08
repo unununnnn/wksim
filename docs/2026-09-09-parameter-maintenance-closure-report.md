@@ -6,7 +6,7 @@
 
 ## 可复现入口和白名单
 
-在WSL Ubuntu-22.04 root、项目根执行。每次使用新的run-id与不存在的/root/wksim-*输出根；该命令明确执行两次标准单航点任务，各自起飞、[2,3,3] ENU航点、持续到达核验、降落。以下示例配置与本次实际输入逐字节相同，仅CLI覆盖run-id：
+在WSL Ubuntu-22.04 root、项目根执行。每次使用新的run-id与不存在的/root/wksim-*输出根；该命令明确执行两次标准单航点任务，各自起飞、[2,3,3] ENU航点、持续到达核验、降落。以下示例配置与本次实际输入的JSON内容相同（行尾规范为LF），仅CLI覆盖run-id：
 
 ```sh
 bash tools/run-wksim-parameter-mission.sh \

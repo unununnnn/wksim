@@ -87,6 +87,3 @@ assert hashlib.sha256(runtime.read_bytes()).hexdigest()=='615f6ab01604bb9141a460
 source_hashes={str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for p in [ROOT/'Simulator/wksim_runtime/runtime.py',ROOT/'Simulator/wksim_runtime/parameter_protocol.py']}
 (OUT/'audit.json').write_text(json.dumps({'audited_unix':time.time(),'assertions':'pass','runs':summaries,'current_source_snapshot_only':source_hashes},indent=2)+'\n')
 print(json.dumps([{'run':x['run_id'],'probe':x['probe_status'],'result':x['result_status'],'truth':x['truth_recomputed']} for x in summaries],indent=2))
-
-
-
