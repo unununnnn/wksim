@@ -553,11 +553,12 @@ class Task:
         self.dwell('velocity_zero_hold', lambda: self.fresh()
                    and math.hypot(*self.state.velocity) <= 0.25
                    and math.dist(self.state.position, anchor) <= 1.0, 4)
-        yaw0, t0 = self.state.attitude[2], self.task_time()
+        motion_clock = self.task_time if self.use_sim_time else lambda: state_time(self.state)
+        yaw0, t0 = self.state.attitude[2], motion_clock()
         move_velocity((0.0, 0.0, 0.0), 0.5, 3, 'yaw_rate_accepted')
         def yaw_tracked():
             advance = (self.state.attitude[2] - yaw0 + math.pi) % (2 * math.pi) - math.pi
-            return self.fresh() and abs(advance - 0.5 * (self.task_time() - t0)) <= 0.35
+            return self.fresh() and abs(advance - 0.5 * (motion_clock() - t0)) <= 0.35
         self.dwell('yaw_rate_tracking', yaw_tracked, 4)
         if self.flight_stack == 'arducopter':
             move_velocity((0.0, 0.0, 0.0), 0.0, 4, 'velocity_rehold_accepted')
