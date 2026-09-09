@@ -77,6 +77,25 @@ readbacks/all frames remain in local validation; compact reports, hashes and
 selected actual PNGs are delivered in Git. UE module remains the pinned
 `15af1f6e400e77d6a8a207fd047b48b1d04c54260a5668312178051c119e6245`.
 
-#67 AP cold reset is the remaining #25 obligation. No three-axis-six-rotor,
-other vehicle, numerical R1/G6, Full, hardware, production-admission, or real-time
-rate result is implied. All prior failed experiments remain intact.
+## AP cold reset and parent acceptance
+
+The final AP cold rebuild `hex-ap-reset-observed-20260909-05` passed its strict
+`--require-cold-reset` audit in `validation/25-ap-reset/20260909-05/`.
+It pins the accepted AP04 result SHA256
+`d29308997ac1c71d7d89ad30ea5a0a8431164a19a12988f44efe188747531c86`, uses a new
+run/control epoch and process/storage lifetimes, starts at tick0, and passes
+all physical/native checks over 65,389 ticks. The recursive parent audit passes.
+The full report SHA256 is
+`0db3087a3f901a0c4be4abbc324bd7abc3df72ee8867ca13201930feabcef892`.
+
+Independent review reproduced that report byte-for-byte, verified all20 retained
+runtime source hashes match the accepted AP parent, checked all five process
+retirements, and confirmed unchanged visual sources/module. #67 explicitly
+permits reuse of accepted AP live display when no affected visual change exists;
+no new rendered-flight claim is made for the raw-only reset.
+
+`validation/hex-final-acceptance-review-20260909/report.md` checks each original
+#25 criterion and confirms parent #17/#24 and the other child prerequisites
+are closed. #67 and the frozen Hex X #25 scope are accepted. No three-axis-six-
+rotor, other vehicle, numerical R1/G6, Full, hardware, production-admission, or
+real-time rate result is implied. All prior failed experiments remain intact.
