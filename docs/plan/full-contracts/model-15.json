@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "issue": 149,
+  "stable_key": "full-model-15",
+  "title": "MultSILSwarm scene",
+  "source": {
+    "file": "docs/plan/full-scope-expansion.md",
+    "line": 60,
+    "ledger_id": "MODEL-15",
+    "ledger_file": "docs/plan/full-followup-tickets.json",
+    "parent_issues": [1]
+  },
+  "status": "defined",
+  "evidence_status": "partial-evidence",
+  "full_complete": false,
+  "current_gap": "The SIL swarm scene, its per-member identity and its shared-time mapping are uncovered; the dual-FC joint scene cannot automatically stand in for it.",
+  "atoms": [
+    {"id": "MODEL-15-A", "name": "swarm_scene_definition", "status": "blocked", "required": "SIL swarm scene with member count, spawn and topology declared", "owner": "runtime maintainer"},
+    {"id": "MODEL-15_B", "name": "member_identity", "status": "blocked", "required": "Per-member model/run identity resolvable in every record", "owner": "runtime maintainer"},
+    {"id": "MODEL-15-C", "name": "shared_time_mapping", "status": "blocked", "required": "All members mapped onto one authoritative timeline", "owner": "runtime maintainer"},
+    {"id": "MODEL-15-D", "name": "joint_scene_distinction", "status": "partial", "required": "Rule enforced: dual-FC joint-scene evidence never covers the SIL swarm", "owner": "validation maintainer"}
+  ],
+  "scene_required": ["scene_id", "member_count", "member_identities", "spawn_semantics", "topology", "shared_time_mapping", "epoch", "source_identity"],
+  "scope_rule": "a SIL swarm is a joint scene of model instances without FCs; dual-FC evidence covers two flight controllers, not a swarm",
+  "errors": ["accepted", "member_missing", "identity_ambiguous", "time_unmapped", "topology_invalid", "dual_fc_substitution_rejected"],
+  "followups": [
+    {"key": "model-15-swarm-definition", "files": ["docs/plan/<sil-swarm>.json"], "status": "proposed", "blocked_by": "Swarm scene and member identity schema"},
+    {"key": "model-15-swarm-slice", "files": ["Simulator/wksim_runtime/<sil-swarm>.py", "validation/<sil-swarm-audit>"], "status": "proposed", "blocked_by": "Scene definition and shared time mapping"}
+  ],
+  "preserved": {"dual_fc_scene": "joint dual-FC evidence keeps its separate identity", "full_complete": false}
+}
