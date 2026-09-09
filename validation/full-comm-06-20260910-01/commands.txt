@@ -1,0 +1,16 @@
+Working directory: C:/Users/PC/Documents/odid编译/wksim
+
+Read-only inputs:
+  Get-Content docs/plan/full-scope-expansion.md
+  Get-Content docs/plan/full-remaining-ledger.json
+  Get-Content docs/plan/full-followup-tickets.json
+  Get-Content Simulator/wksim_core/gnss_event.py
+  Get-Content docs/2026-09-09-gnss-event-report.md
+  gh issue view 133 --repo unununnnn/wksim --json number,title,body,state,labels,comments
+  gh issue view 45 --repo unununnnn/wksim --json number,title,body,state,labels,comments
+
+Validation:
+  python -B validation/full-comm-06-20260910-01/validate.py
+  git diff --check -- docs/plan/full-contracts/comm-06.md docs/plan/full-contracts/comm-06.json validation/full-comm-06-20260910-01
+
+No mode, sensor model or control change was implemented; no UE, FC, model, ROS, MATLAB or hardware process was started.
