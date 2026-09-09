@@ -1,0 +1,993 @@
+{
+  "run_id": "pid-px4-scalar-fix-20260909-01",
+  "trace_count": 2551,
+  "target_count": 1831,
+  "native_log": {
+    "path": "/root/wksim-pid-flight-pid-px4-scalar-fix-20260909-01/pid-px4-scalar-fix-20260909-01/log/2026-09-09/10_51_01.ulg",
+    "sha256": "3789110430ff42513b26089dbd70111950b331d197ee4ff2d79ac0c140780a20",
+    "dropout_durations_ms": [],
+    "decoder": {
+      "version": "1.2.2",
+      "path": "/root/wksim-attitude-audit-deps-g_2y8olg/pyulog/__init__.py",
+      "core_sha256": "130187f7676dd53582f984085a8659f6a2c0545fb627c7a683e7609807a6f2ef"
+    },
+    "topics": {
+      "actuator_motors": {
+        "samples": 936,
+        "fields": [
+          "timestamp",
+          "timestamp_sample",
+          "control[0]",
+          "control[1]",
+          "control[2]",
+          "control[3]",
+          "control[4]",
+          "control[5]",
+          "control[6]",
+          "control[7]",
+          "control[8]",
+          "control[9]",
+          "control[10]",
+          "control[11]",
+          "reversible_flags"
+        ]
+      },
+      "actuator_outputs": {
+        "samples": 936,
+        "fields": [
+          "timestamp",
+          "noutputs",
+          "output[0]",
+          "output[1]",
+          "output[2]",
+          "output[3]",
+          "output[4]",
+          "output[5]",
+          "output[6]",
+          "output[7]",
+          "output[8]",
+          "output[9]",
+          "output[10]",
+          "output[11]",
+          "output[12]",
+          "output[13]",
+          "output[14]",
+          "output[15]"
+        ]
+      },
+      "sensor_combined": {
+        "samples": 20305,
+        "fields": [
+          "timestamp",
+          "gyro_rad[0]",
+          "gyro_rad[1]",
+          "gyro_rad[2]",
+          "gyro_integral_dt",
+          "accelerometer_timestamp_relative",
+          "accelerometer_m_s2[0]",
+          "accelerometer_m_s2[1]",
+          "accelerometer_m_s2[2]",
+          "accelerometer_integral_dt",
+          "accelerometer_clipping",
+          "gyro_clipping",
+          "accel_calibration_count",
+          "gyro_calibration_count"
+        ]
+      },
+      "vehicle_attitude": {
+        "samples": 18647,
+        "fields": [
+          "timestamp",
+          "timestamp_sample",
+          "q[0]",
+          "q[1]",
+          "q[2]",
+          "q[3]",
+          "delta_q_reset[0]",
+          "delta_q_reset[1]",
+          "delta_q_reset[2]",
+          "delta_q_reset[3]",
+          "quat_reset_counter"
+        ]
+      },
+      "vehicle_attitude_setpoint": {
+        "samples": 1833,
+        "fields": [
+          "timestamp",
+          "yaw_sp_move_rate",
+          "q_d[0]",
+          "q_d[1]",
+          "q_d[2]",
+          "q_d[3]",
+          "thrust_body[0]",
+          "thrust_body[1]",
+          "thrust_body[2]"
+        ]
+      },
+      "vehicle_rates_setpoint": {
+        "samples": 4565,
+        "fields": [
+          "timestamp",
+          "roll",
+          "pitch",
+          "yaw",
+          "thrust_body[0]",
+          "thrust_body[1]",
+          "thrust_body[2]",
+          "reset_integral"
+        ]
+      },
+      "vehicle_thrust_setpoint": {
+        "samples": 4672,
+        "fields": [
+          "timestamp",
+          "timestamp_sample",
+          "xyz[0]",
+          "xyz[1]",
+          "xyz[2]"
+        ]
+      }
+    }
+  },
+  "requests": [
+    {
+      "request_id": 10,
+      "window": [
+        28.004,
+        28.02
+      ],
+      "public_monotonic": 279.033336829,
+      "attitude": [
+        -0.0005444142152555287,
+        -0.0031677770894020796,
+        0.0,
+        0.5313964486122131
+      ],
+      "targets": [
+        {
+          "time": 27.94,
+          "receiver_delta": -0.07620898700002954,
+          "quaternion_error": 0.0016071088854529383,
+          "thrust_error": 0.0003959536552429199
+        },
+        {
+          "time": 27.964,
+          "receiver_delta": -0.04011701000001722,
+          "quaternion_error": 0.0016071088854529383,
+          "thrust_error": 0.0003959536552429199
+        },
+        {
+          "time": 28.004,
+          "receiver_delta": -0.002296123999997235,
+          "quaternion_error": 0.0016071088854529383,
+          "thrust_error": 0.0003959536552429199
+        },
+        {
+          "time": 28.02,
+          "receiver_delta": 0.013824765999970623,
+          "quaternion_error": 5.826893156732643e-05,
+          "thrust_error": 4.470348358154297e-06
+        },
+        {
+          "time": 28.06,
+          "receiver_delta": 0.043772854999986066,
+          "quaternion_error": 6.754298144418654e-05,
+          "thrust_error": 9.042024612426758e-05
+        },
+        {
+          "time": 28.084,
+          "receiver_delta": 0.07396110100000897,
+          "quaternion_error": 0.00016504187658845197,
+          "thrust_error": 0.00012034177780151367
+        },
+        {
+          "time": 28.124,
+          "receiver_delta": 0.10368118399998139,
+          "quaternion_error": 0.00027109722981429627,
+          "thrust_error": 5.263090133666992e-05
+        },
+        {
+          "time": 28.14,
+          "receiver_delta": 0.1337851970000088,
+          "quaternion_error": 0.0004086897069281044,
+          "thrust_error": 4.5299530029296875e-06
+        },
+        {
+          "time": 28.18,
+          "receiver_delta": 0.16376265899998543,
+          "quaternion_error": 0.0005763399673945478,
+          "thrust_error": 5.179643630981445e-05
+        },
+        {
+          "time": 28.196,
+          "receiver_delta": 0.1940607450000016,
+          "quaternion_error": 0.0005729173247374359,
+          "thrust_error": 7.796287536621094e-05
+        }
+      ],
+      "native": [
+        {
+          "time": 27.94,
+          "quaternion_error": 0.0016071088854529383,
+          "thrust_error": 0.0003959536552429199
+        },
+        {
+          "time": 27.964,
+          "quaternion_error": 0.0016071088854529383,
+          "thrust_error": 0.0003959536552429199
+        },
+        {
+          "time": 28.02,
+          "quaternion_error": 5.826893156732643e-05,
+          "thrust_error": 4.470348358154297e-06
+        },
+        {
+          "time": 28.084,
+          "quaternion_error": 0.00016504187658845197,
+          "thrust_error": 0.00012034177780151367
+        },
+        {
+          "time": 28.14,
+          "quaternion_error": 0.0004086897069281044,
+          "thrust_error": 4.5299530029296875e-06
+        },
+        {
+          "time": 28.18,
+          "quaternion_error": 0.0005763399673945478,
+          "thrust_error": 5.179643630981445e-05
+        }
+      ]
+    },
+    {
+      "request_id": 11,
+      "window": [
+        28.02,
+        28.036
+      ],
+      "public_monotonic": 279.038082539,
+      "attitude": [
+        -0.0006400356651283801,
+        -0.003234392497688532,
+        0.0,
+        0.5314009189605713
+      ],
+      "targets": [
+        {
+          "time": 27.94,
+          "receiver_delta": -0.08095469700003832,
+          "quaternion_error": 0.0016485552369967166,
+          "thrust_error": 0.0004004240036010742
+        },
+        {
+          "time": 27.964,
+          "receiver_delta": -0.044862720000026,
+          "quaternion_error": 0.0016485552369967166,
+          "thrust_error": 0.0004004240036010742
+        },
+        {
+          "time": 28.004,
+          "receiver_delta": -0.00704183400000602,
+          "quaternion_error": 0.0016485552369967166,
+          "thrust_error": 0.0004004240036010742
+        },
+        {
+          "time": 28.02,
+          "receiver_delta": 0.009079055999961838,
+          "quaternion_error": 1.366620714398324e-08,
+          "thrust_error": 0.0
+        },
+        {
+          "time": 28.06,
+          "receiver_delta": 0.03902714499997728,
+          "quaternion_error": 6.693630059082965e-05,
+          "thrust_error": 9.489059448242188e-05
+        },
+        {
+          "time": 28.084,
+          "receiver_delta": 0.06921539100000018,
+          "quaternion_error": 0.00011697142627099516,
+          "thrust_error": 0.00011587142944335938
+        },
+        {
+          "time": 28.124,
+          "receiver_delta": 0.0989354739999726,
+          "quaternion_error": 0.00023075838528069587,
+          "thrust_error": 4.8160552978515625e-05
+        },
+        {
+          "time": 28.14,
+          "receiver_delta": 0.129039487,
+          "quaternion_error": 0.0003585013874542594,
+          "thrust_error": 9.000301361083984e-06
+        },
+        {
+          "time": 28.18,
+          "receiver_delta": 0.15901694899997665,
+          "quaternion_error": 0.0005198859279553109,
+          "thrust_error": 4.7326087951660156e-05
+        },
+        {
+          "time": 28.196,
+          "receiver_delta": 0.1893150349999928,
+          "quaternion_error": 0.0005146539828971754,
+          "thrust_error": 7.349252700805664e-05
+        }
+      ],
+      "native": [
+        {
+          "time": 27.94,
+          "quaternion_error": 0.0016485552369967166,
+          "thrust_error": 0.0004004240036010742
+        },
+        {
+          "time": 27.964,
+          "quaternion_error": 0.0016485552369967166,
+          "thrust_error": 0.0004004240036010742
+        },
+        {
+          "time": 28.02,
+          "quaternion_error": 1.366620714398324e-08,
+          "thrust_error": 0.0
+        },
+        {
+          "time": 28.084,
+          "quaternion_error": 0.00011697142627099516,
+          "thrust_error": 0.00011587142944335938
+        },
+        {
+          "time": 28.14,
+          "quaternion_error": 0.0003585013874542594,
+          "thrust_error": 9.000301361083984e-06
+        },
+        {
+          "time": 28.18,
+          "quaternion_error": 0.0005198859279553109,
+          "thrust_error": 4.7326087951660156e-05
+        }
+      ]
+    },
+    {
+      "request_id": 12,
+      "window": [
+        28.036,
+        28.06
+      ],
+      "public_monotonic": 279.058557485,
+      "attitude": [
+        -0.0006626503891311586,
+        -0.003102443879470229,
+        0.0,
+        0.5313060283660889
+      ],
+      "targets": [
+        {
+          "time": 27.964,
+          "receiver_delta": -0.0653376660000049,
+          "quaternion_error": 0.0015862109672113648,
+          "thrust_error": 0.00030553340911865234
+        },
+        {
+          "time": 28.004,
+          "receiver_delta": -0.02751677999998492,
+          "quaternion_error": 0.0015862109672113648,
+          "thrust_error": 0.00030553340911865234
+        },
+        {
+          "time": 28.02,
+          "receiver_delta": -0.011395890000017062,
+          "quaternion_error": 6.693631993023047e-05,
+          "thrust_error": 9.489059448242188e-05
+        },
+        {
+          "time": 28.06,
+          "receiver_delta": 0.01855219899999838,
+          "quaternion_error": 2.4876277773581224e-08,
+          "thrust_error": 0.0
+        },
+        {
+          "time": 28.084,
+          "receiver_delta": 0.04874044500002128,
+          "quaternion_error": 0.0001804746469335723,
+          "thrust_error": 0.00021076202392578125
+        },
+        {
+          "time": 28.124,
+          "receiver_delta": 0.0784605279999937,
+          "quaternion_error": 0.00029622392511421394,
+          "thrust_error": 0.0001430511474609375
+        },
+        {
+          "time": 28.14,
+          "receiver_delta": 0.10856454100002111,
+          "quaternion_error": 0.00041675808681306383,
+          "thrust_error": 8.589029312133789e-05
+        },
+        {
+          "time": 28.18,
+          "receiver_delta": 0.13854200299999775,
+          "quaternion_error": 0.0005654477974367119,
+          "thrust_error": 0.00014221668243408203
+        },
+        {
+          "time": 28.196,
+          "receiver_delta": 0.1688400890000139,
+          "quaternion_error": 0.00054728877778718,
+          "thrust_error": 0.00016838312149047852
+        },
+        {
+          "time": 28.244,
+          "receiver_delta": 0.19856040400003394,
+          "quaternion_error": 0.0005626421159085453,
+          "thrust_error": 7.617473602294922e-05
+        }
+      ],
+      "native": [
+        {
+          "time": 27.964,
+          "quaternion_error": 0.0015862109672113648,
+          "thrust_error": 0.00030553340911865234
+        },
+        {
+          "time": 28.02,
+          "quaternion_error": 6.693631993023047e-05,
+          "thrust_error": 9.489059448242188e-05
+        },
+        {
+          "time": 28.084,
+          "quaternion_error": 0.0001804746469335723,
+          "thrust_error": 0.00021076202392578125
+        },
+        {
+          "time": 28.14,
+          "quaternion_error": 0.00041675808681306383,
+          "thrust_error": 8.589029312133789e-05
+        },
+        {
+          "time": 28.18,
+          "quaternion_error": 0.0005654477974367119,
+          "thrust_error": 0.00014221668243408203
+        },
+        {
+          "time": 28.244,
+          "quaternion_error": 0.0005626421159085453,
+          "thrust_error": 7.617473602294922e-05
+        }
+      ]
+    },
+    {
+      "request_id": 13,
+      "window": [
+        28.06,
+        28.084
+      ],
+      "public_monotonic": 279.07840372,
+      "attitude": [
+        -0.0005607326747849584,
+        -0.0031122344080358744,
+        0.0,
+        0.5313854217529297
+      ],
+      "targets": [
+        {
+          "time": 28.004,
+          "receiver_delta": -0.04736301499997353,
+          "quaternion_error": 0.0015811721629739918,
+          "thrust_error": 0.00038492679595947266
+        },
+        {
+          "time": 28.02,
+          "receiver_delta": -0.03124212500000567,
+          "quaternion_error": 7.282096430541773e-05,
+          "thrust_error": 1.5497207641601562e-05
+        },
+        {
+          "time": 28.06,
+          "receiver_delta": -0.0012940359999902284,
+          "quaternion_error": 5.1193429326366934e-05,
+          "thrust_error": 7.939338684082031e-05
+        },
+        {
+          "time": 28.084,
+          "receiver_delta": 0.028894210000032672,
+          "quaternion_error": 0.0001871580133363494,
+          "thrust_error": 0.00013136863708496094
+        },
+        {
+          "time": 28.124,
+          "receiver_delta": 0.05861429300000509,
+          "quaternion_error": 0.0002965297160577689,
+          "thrust_error": 6.365776062011719e-05
+        },
+        {
+          "time": 28.14,
+          "receiver_delta": 0.0887183060000325,
+          "quaternion_error": 0.00043027304740296036,
+          "thrust_error": 6.496906280517578e-06
+        },
+        {
+          "time": 28.18,
+          "receiver_delta": 0.11869576800000914,
+          "quaternion_error": 0.0005922260161211137,
+          "thrust_error": 6.282329559326172e-05
+        },
+        {
+          "time": 28.196,
+          "receiver_delta": 0.1489938540000253,
+          "quaternion_error": 0.0005830974015050057,
+          "thrust_error": 8.89897346496582e-05
+        },
+        {
+          "time": 28.244,
+          "receiver_delta": 0.17871416900004533,
+          "quaternion_error": 0.0005959277361253821,
+          "thrust_error": 3.2186508178710938e-06
+        },
+        {
+          "time": 28.26,
+          "receiver_delta": 0.20887853400000722,
+          "quaternion_error": 0.0006156119414328976,
+          "thrust_error": 6.783008575439453e-05
+        }
+      ],
+      "native": [
+        {
+          "time": 28.02,
+          "quaternion_error": 7.282096430541773e-05,
+          "thrust_error": 1.5497207641601562e-05
+        },
+        {
+          "time": 28.084,
+          "quaternion_error": 0.0001871580133363494,
+          "thrust_error": 0.00013136863708496094
+        },
+        {
+          "time": 28.14,
+          "quaternion_error": 0.00043027304740296036,
+          "thrust_error": 6.496906280517578e-06
+        },
+        {
+          "time": 28.18,
+          "quaternion_error": 0.0005922260161211137,
+          "thrust_error": 6.282329559326172e-05
+        },
+        {
+          "time": 28.244,
+          "quaternion_error": 0.0005959277361253821,
+          "thrust_error": 3.2186508178710938e-06
+        },
+        {
+          "time": 28.26,
+          "quaternion_error": 0.0006156119414328976,
+          "thrust_error": 6.783008575439453e-05
+        }
+      ]
+    },
+    {
+      "request_id": 14,
+      "window": [
+        28.084,
+        28.1
+      ],
+      "public_monotonic": 279.098190295,
+      "attitude": [
+        -0.0006939801387488842,
+        -0.00346203101798892,
+        0.0,
+        0.5315167903900146
+      ],
+      "targets": [
+        {
+          "time": 28.004,
+          "receiver_delta": -0.06714958999998544,
+          "quaternion_error": 0.0017654505990740785,
+          "thrust_error": 0.0005162954330444336
+        },
+        {
+          "time": 28.02,
+          "receiver_delta": -0.05102870000001758,
+          "quaternion_error": 0.00011697144833969018,
+          "thrust_error": 0.00011587142944335938
+        },
+        {
+          "time": 28.06,
+          "receiver_delta": -0.021080611000002136,
+          "quaternion_error": 0.00018047471570663374,
+          "thrust_error": 0.00021076202392578125
+        },
+        {
+          "time": 28.084,
+          "receiver_delta": 0.009107635000020764,
+          "quaternion_error": 2.6238702365999927e-08,
+          "thrust_error": 0.0
+        },
+        {
+          "time": 28.124,
+          "receiver_delta": 0.03882771799999318,
+          "quaternion_error": 0.0001169285655921291,
+          "thrust_error": 6.771087646484375e-05
+        },
+        {
+          "time": 28.14,
+          "receiver_delta": 0.06893173100002059,
+          "quaternion_error": 0.00024364944442197586,
+          "thrust_error": 0.00012487173080444336
+        },
+        {
+          "time": 28.18,
+          "receiver_delta": 0.09890919299999723,
+          "quaternion_error": 0.00041869041146788965,
+          "thrust_error": 6.854534149169922e-05
+        },
+        {
+          "time": 28.196,
+          "receiver_delta": 0.1292072790000134,
+          "quaternion_error": 0.00043317438339714165,
+          "thrust_error": 4.2378902435302734e-05
+        },
+        {
+          "time": 28.244,
+          "receiver_delta": 0.15892759400003342,
+          "quaternion_error": 0.0004376750934699234,
+          "thrust_error": 0.00013458728790283203
+        },
+        {
+          "time": 28.26,
+          "receiver_delta": 0.1890919589999953,
+          "quaternion_error": 0.0004487203608524802,
+          "thrust_error": 6.35385513305664e-05
+        },
+        {
+          "time": 28.3,
+          "receiver_delta": 0.2191646620000256,
+          "quaternion_error": 0.00040348547771974525,
+          "thrust_error": 7.814168930053711e-05
+        }
+      ],
+      "native": [
+        {
+          "time": 28.02,
+          "quaternion_error": 0.00011697144833969018,
+          "thrust_error": 0.00011587142944335938
+        },
+        {
+          "time": 28.084,
+          "quaternion_error": 2.6238702365999927e-08,
+          "thrust_error": 0.0
+        },
+        {
+          "time": 28.14,
+          "quaternion_error": 0.00024364944442197586,
+          "thrust_error": 0.00012487173080444336
+        },
+        {
+          "time": 28.18,
+          "quaternion_error": 0.00041869041146788965,
+          "thrust_error": 6.854534149169922e-05
+        },
+        {
+          "time": 28.244,
+          "quaternion_error": 0.0004376750934699234,
+          "thrust_error": 0.00013458728790283203
+        },
+        {
+          "time": 28.26,
+          "quaternion_error": 0.0004487203608524802,
+          "thrust_error": 6.35385513305664e-05
+        }
+      ]
+    },
+    {
+      "request_id": 15,
+      "window": [
+        28.1,
+        28.124
+      ],
+      "public_monotonic": 279.118684362,
+      "attitude": [
+        -0.0006716839270666242,
+        -0.0036948227789252996,
+        0.0,
+        0.5314490795135498
+      ],
+      "targets": [
+        {
+          "time": 28.06,
+          "receiver_delta": -0.041574678000017684,
+          "quaternion_error": 0.0002962239025344198,
+          "thrust_error": 0.0001430511474609375
+        },
+        {
+          "time": 28.084,
+          "receiver_delta": -0.011386431999994784,
+          "quaternion_error": 0.00011692858787136358,
+          "thrust_error": 6.771087646484375e-05
+        },
+        {
+          "time": 28.124,
+          "receiver_delta": 0.018333650999977635,
+          "quaternion_error": 2.127309689784646e-08,
+          "thrust_error": 0.0
+        },
+        {
+          "time": 28.14,
+          "receiver_delta": 0.04843766400000504,
+          "quaternion_error": 0.00015735252403198649,
+          "thrust_error": 5.716085433959961e-05
+        },
+        {
+          "time": 28.18,
+          "receiver_delta": 0.07841512599998168,
+          "quaternion_error": 0.0003600637200566774,
+          "thrust_error": 8.344650268554688e-07
+        },
+        {
+          "time": 28.196,
+          "receiver_delta": 0.10871321199999784,
+          "quaternion_error": 0.0004081819643366213,
+          "thrust_error": 2.5331974029541016e-05
+        },
+        {
+          "time": 28.244,
+          "receiver_delta": 0.13843352700001788,
+          "quaternion_error": 0.00040173653127830263,
+          "thrust_error": 6.687641143798828e-05
+        },
+        {
+          "time": 28.26,
+          "receiver_delta": 0.16859789199997977,
+          "quaternion_error": 0.00039969882091388394,
+          "thrust_error": 4.172325134277344e-06
+        },
+        {
+          "time": 28.3,
+          "receiver_delta": 0.19867059500001005,
+          "quaternion_error": 0.0003491527574134474,
+          "thrust_error": 1.043081283569336e-05
+        }
+      ],
+      "native": [
+        {
+          "time": 28.084,
+          "quaternion_error": 0.00011692858787136358,
+          "thrust_error": 6.771087646484375e-05
+        },
+        {
+          "time": 28.14,
+          "quaternion_error": 0.00015735252403198649,
+          "thrust_error": 5.716085433959961e-05
+        },
+        {
+          "time": 28.18,
+          "quaternion_error": 0.0003600637200566774,
+          "thrust_error": 8.344650268554688e-07
+        },
+        {
+          "time": 28.244,
+          "quaternion_error": 0.00040173653127830263,
+          "thrust_error": 6.687641143798828e-05
+        },
+        {
+          "time": 28.26,
+          "quaternion_error": 0.00039969882091388394,
+          "thrust_error": 4.172325134277344e-06
+        }
+      ]
+    },
+    {
+      "request_id": 16,
+      "window": [
+        28.124,
+        28.14
+      ],
+      "public_monotonic": 279.138191154,
+      "attitude": [
+        -0.0007584377308376133,
+        -0.0038523301482200623,
+        0.0,
+        0.5314937829971313
+      ],
+      "targets": [
+        {
+          "time": 28.06,
+          "receiver_delta": -0.06108147000003328,
+          "quaternion_error": 0.0003779896420236922,
+          "thrust_error": 0.00018775463104248047
+        },
+        {
+          "time": 28.084,
+          "receiver_delta": -0.030893224000010377,
+          "quaternion_error": 0.00019779299877793763,
+          "thrust_error": 2.300739288330078e-05
+        },
+        {
+          "time": 28.124,
+          "receiver_delta": -0.0011731410000379583,
+          "quaternion_error": 8.990934694395997e-05,
+          "thrust_error": 4.470348358154297e-05
+        },
+        {
+          "time": 28.14,
+          "receiver_delta": 0.02893087199998945,
+          "quaternion_error": 8.018814623097488e-05,
+          "thrust_error": 0.00010186433792114258
+        },
+        {
+          "time": 28.18,
+          "receiver_delta": 0.05890833399996609,
+          "quaternion_error": 0.0002892255252904906,
+          "thrust_error": 4.553794860839844e-05
+        },
+        {
+          "time": 28.196,
+          "receiver_delta": 0.08920641999998224,
+          "quaternion_error": 0.0003588431028231941,
+          "thrust_error": 1.9371509552001953e-05
+        },
+        {
+          "time": 28.244,
+          "receiver_delta": 0.11892673500000228,
+          "quaternion_error": 0.000344828411887276,
+          "thrust_error": 0.00011157989501953125
+        },
+        {
+          "time": 28.26,
+          "receiver_delta": 0.14909109999996417,
+          "quaternion_error": 0.0003338295766235444,
+          "thrust_error": 4.0531158447265625e-05
+        },
+        {
+          "time": 28.3,
+          "receiver_delta": 0.17916380299999446,
+          "quaternion_error": 0.00028166161494786823,
+          "thrust_error": 5.513429641723633e-05
+        },
+        {
+          "time": 28.324,
+          "receiver_delta": 0.20894264499997917,
+          "quaternion_error": 0.0003563725627644098,
+          "thrust_error": 0.00023216009140014648
+        }
+      ],
+      "native": [
+        {
+          "time": 28.084,
+          "quaternion_error": 0.00019779299877793763,
+          "thrust_error": 2.300739288330078e-05
+        },
+        {
+          "time": 28.14,
+          "quaternion_error": 8.018814623097488e-05,
+          "thrust_error": 0.00010186433792114258
+        },
+        {
+          "time": 28.18,
+          "quaternion_error": 0.0002892255252904906,
+          "thrust_error": 4.553794860839844e-05
+        },
+        {
+          "time": 28.244,
+          "quaternion_error": 0.000344828411887276,
+          "thrust_error": 0.00011157989501953125
+        },
+        {
+          "time": 28.26,
+          "quaternion_error": 0.0003338295766235444,
+          "thrust_error": 4.0531158447265625e-05
+        },
+        {
+          "time": 28.324,
+          "quaternion_error": 0.0003563725627644098,
+          "thrust_error": 0.00023216009140014648
+        }
+      ]
+    },
+    {
+      "request_id": 17,
+      "window": [
+        28.14,
+        28.164
+      ],
+      "public_monotonic": 279.158340977,
+      "attitude": [
+        -0.0009122606716118753,
+        -0.0038977074436843395,
+        0.0,
+        0.5313919186592102
+      ],
+      "targets": [
+        {
+          "time": 28.084,
+          "receiver_delta": -0.05104304700000739,
+          "quaternion_error": 0.00024364956336318664,
+          "thrust_error": 0.00012487173080444336
+        },
+        {
+          "time": 28.124,
+          "receiver_delta": -0.021322964000034972,
+          "quaternion_error": 0.0001573525500977567,
+          "thrust_error": 5.716085433959961e-05
+        },
+        {
+          "time": 28.14,
+          "receiver_delta": 0.008781048999992436,
+          "quaternion_error": 6.329418328927255e-09,
+          "thrust_error": 0.0
+        },
+        {
+          "time": 28.18,
+          "receiver_delta": 0.038758510999969076,
+          "quaternion_error": 0.00020907614657564094,
+          "thrust_error": 5.632638931274414e-05
+        },
+        {
+          "time": 28.196,
+          "receiver_delta": 0.06905659699998523,
+          "quaternion_error": 0.00028356390564527635,
+          "thrust_error": 8.249282836914062e-05
+        },
+        {
+          "time": 28.244,
+          "receiver_delta": 0.09877691200000527,
+          "quaternion_error": 0.00026675990375782475,
+          "thrust_error": 9.715557098388672e-06
+        },
+        {
+          "time": 28.26,
+          "receiver_delta": 0.12894127699996716,
+          "quaternion_error": 0.00025380551753290354,
+          "thrust_error": 6.133317947387695e-05
+        },
+        {
+          "time": 28.3,
+          "receiver_delta": 0.15901397999999745,
+          "quaternion_error": 0.00020156852065882593,
+          "thrust_error": 4.673004150390625e-05
+        },
+        {
+          "time": 28.324,
+          "receiver_delta": 0.18879282199998215,
+          "quaternion_error": 0.0002965646432730015,
+          "thrust_error": 0.00033402442932128906
+        },
+        {
+          "time": 28.356,
+          "receiver_delta": 0.21878805099999,
+          "quaternion_error": 0.0003260625887952093,
+          "thrust_error": 0.00041115283966064453
+        }
+      ],
+      "native": [
+        {
+          "time": 28.084,
+          "quaternion_error": 0.00024364956336318664,
+          "thrust_error": 0.00012487173080444336
+        },
+        {
+          "time": 28.14,
+          "quaternion_error": 6.329418328927255e-09,
+          "thrust_error": 0.0
+        },
+        {
+          "time": 28.18,
+          "quaternion_error": 0.00020907614657564094,
+          "thrust_error": 5.632638931274414e-05
+        },
+        {
+          "time": 28.244,
+          "quaternion_error": 0.00026675990375782475,
+          "thrust_error": 9.715557098388672e-06
+        },
+        {
+          "time": 28.26,
+          "quaternion_error": 0.00025380551753290354,
+          "thrust_error": 6.133317947387695e-05
+        },
+        {
+          "time": 28.324,
+          "quaternion_error": 0.0002965646432730015,
+          "thrust_error": 0.00033402442932128906
+        }
+      ]
+    }
+  ]
+}

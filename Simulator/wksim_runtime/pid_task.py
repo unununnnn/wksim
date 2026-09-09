@@ -161,19 +161,40 @@ class PIDTask(AttitudeTask):
         if self.pid_pending is None:
             return True
         request = self.pid_pending
+        if (self.read_truth()['time']-request['physical_time'] > self.pid_config['timing']['ack_timeout_s']
+                or time.monotonic()-request['wall'] > 2):
+            raise TimeoutError('PID public/native observation acknowledgement deadline')
         matches = [e for e in self.events[request['events_start']:]
                    if e.get('request_id') == request['request_id']
                    and e.get('command_id') == request['command_id']
                    and e.get('event') == 'command_accepted']
         if matches:
+            # Public acceptance only stores the target. Keep it until the native
+            # outlet and two distinct FC telemetry samples actually expose it.
+            # This prevents the faster PID loop overwriting an unsent target.
+            targets = [t for t in self.native_targets[request['targets_start']:]
+                       if abs(t['thrust']-request['thrust']) < 1e-6
+                       and min(math.dist(t['quaternion_xyzw'], request['quaternion_xyzw']),
+                               math.dist(t['quaternion_xyzw'], [-v for v in request['quaternion_xyzw']])) < 1e-6]
+            if not targets:
+                return False
+            stamp = targets[0]['native_source_stamp']
+            native_stamp = (stamp['sec']+stamp['nanosec']/1e9 if isinstance(stamp, dict) else stamp/1e6)
+            samples = {s['native_boot_s'] for s in self.native_samples[request['samples_start']:]
+                       if native_stamp <= s['native_boot_s'] <= state_time(self.state)
+                       and abs(s['thrust']-request['thrust']) < 1e-6
+                       and min(math.dist(s['quaternion'], request['quaternion_ned']),
+                               math.dist(s['quaternion'], [-v for v in request['quaternion_ned']])) < 1e-6}
+            if len(samples) < 2:
+                return False
             self.record('pid_public_acknowledged', request_id=request['request_id'],
                         command_id=request['command_id'], event=matches[0], physical_cursor=self.cursor())
+            self.record('pid_native_observed', request_id=request['request_id'],
+                        native_target_stamp_s=native_stamp, telemetry_stamps_s=sorted(samples),
+                        scope='Observed target values; independent raw execution audit still required')
             self.pid_pending = None
             self.pending_request_id = None
             return True
-        if (self.read_truth()['time']-request['physical_time'] > self.pid_config['timing']['ack_timeout_s']
-                or time.monotonic()-request['wall'] > 2):
-            raise TimeoutError('PID public request acknowledgement deadline')
         return False
 
     def offer_pid(self):
@@ -212,8 +233,15 @@ class PIDTask(AttitudeTask):
         self.log.write(json.dumps(dict(wall=time.monotonic()-self.started, published='CommandRequest',
                                       message=envelope, request_envelope=True))+'\n')
         self.pending_request_id = self.request_id
+        r, p, y = (float(v)/2 for v in msg.att_ref[:3])
+        cr, sr, cp, sp, cy, sy = math.cos(r), math.sin(r), math.cos(p), math.sin(p), math.cos(y), math.sin(y)
+        w, x, yy, z = cr*cp*cy+sr*sp*sy, sr*cp*cy-cr*sp*sy, cr*sp*cy+sr*cp*sy, cr*cp*sy-sr*sp*cy
+        k = math.sqrt(.5)
         self.pid_pending = dict(request_id=self.request_id, command_id=self.command_number,
-            events_start=len(self.events), physical_time=physical_time, wall=time.monotonic())
+            events_start=len(self.events), physical_time=physical_time, wall=time.monotonic(),
+            targets_start=len(self.native_targets), samples_start=len(self.native_samples),
+            thrust=float(msg.att_ref[3]), quaternion_xyzw=[x, yy, z, w],
+            quaternion_ned=[k*(w+z), k*(x+yy), k*(x-yy), k*(w-z)])
         self.command_pub.publish(outgoing)
         self.pid_updates += 1
 

@@ -256,6 +256,7 @@ class PIDCandidateTests(unittest.TestCase):
         task.node = NS(get_clock=lambda: NS(now=lambda: NS(to_msg=lambda: 'wall-stamp')))
         task.convert, task.started = convert, 0.
         task.events, task.sent, task.envelopes = [], [], []
+        task.native_targets, task.native_samples = [], []
         task.pid_trace, task.log = io.StringIO(), io.StringIO()
         task.authority = lambda: True
         task.read_truth = lambda: {'time': 1.04}
@@ -276,9 +277,21 @@ class PIDCandidateTests(unittest.TestCase):
         self.assertEqual(len(published), 1)
         task.events.append(dict(event='command_accepted', request_id=21, command_id=11))
         task.offer_pid()
-        self.assertIsNone(task.pid_pending)
-        self.assertEqual(len(published), 1)  # Identical source stamp cannot integrate again.
+        self.assertIsNotNone(task.pid_pending)  # Public ACK cannot release native backpressure.
+        task.native_targets.append(dict(physical_time=1.05, quaternion_xyzw=[0., 0., 0., 1.],
+            thrust=row['normalized_collective'], native_source_stamp=dict(sec=1, nanosec=40000000)))
+        task.offer_pid()
+        self.assertIsNotNone(task.pid_pending)
+        sample = dict(native_boot_s=1.05, thrust=row['normalized_collective'],
+                      quaternion=[math.sqrt(.5), 0., 0., math.sqrt(.5)])
+        task.native_samples.extend([sample, copy.deepcopy(sample)])
+        task.offer_pid()
+        self.assertIsNotNone(task.pid_pending)  # Duplicate native time is not a second observation.
+        task.native_samples.append(dict(sample, native_boot_s=1.06))
         task.latest['state'].header.stamp.nanosec = 80000000
+        self.assertTrue(task.check_pending())
+        self.assertIsNone(task.pid_pending)
+        self.assertEqual(len(published), 1)
         task.offer_pid()
         self.assertEqual(len(published), 2)
         self.assertEqual(published[-1].request_id, 22)
