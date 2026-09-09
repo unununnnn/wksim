@@ -1,0 +1,613 @@
+diff --git a/ArduCopter/AP_ExternalControl_Copter.cpp b/ArduCopter/AP_ExternalControl_Copter.cpp
+index 4e8bc36..098c02c 100644
+--- a/ArduCopter/AP_ExternalControl_Copter.cpp
++++ b/ArduCopter/AP_ExternalControl_Copter.cpp
+@@ -7,6 +7,7 @@
+ #if AP_EXTERNAL_CONTROL_ENABLED
+ 
+ #include "Copter.h"
++#include <cmath>
+ 
+ /*
+   set linear velocity and yaw rate. Pass NaN for yaw_rate_rads to not control yaw
+@@ -33,6 +34,15 @@ bool AP_ExternalControl_Copter::set_global_position(const Location& loc)
+     return copter.set_target_location(loc);
+ }
+ 
++bool AP_ExternalControl_Copter::set_global_position_and_yaw(const Location& loc, float yaw_rad)
++{
++    if (!ready_for_external_control() || !std::isfinite(yaw_rad)) {
++        return false;
++    }
++    // Same destination/fence checks as the native guided command path.
++    return copter.mode_guided.set_destination(loc, true, yaw_rad, false, 0.0f, false);
++}
++
+ bool AP_ExternalControl_Copter::ready_for_external_control()
+ {
+     return copter.flightmode->in_guided_mode() && copter.motors->armed();
+diff --git a/ArduCopter/AP_ExternalControl_Copter.h b/ArduCopter/AP_ExternalControl_Copter.h
+index 694a560..058e080 100644
+--- a/ArduCopter/AP_ExternalControl_Copter.h
++++ b/ArduCopter/AP_ExternalControl_Copter.h
+@@ -21,6 +21,7 @@ public:
+       Sets the target global position for a loiter point.
+     */
+     bool set_global_position(const Location& loc) override WARN_IF_UNUSED;
++    bool set_global_position_and_yaw(const Location& loc, float yaw_rad) override WARN_IF_UNUSED;
+ private:
+     /*
+       Return true if Copter is ready to handle external control data.
+diff --git a/Tools/ros2/ardupilot_msgs/CMakeLists.txt b/Tools/ros2/ardupilot_msgs/CMakeLists.txt
+index 31ed1cd..e920456 100644
+--- a/Tools/ros2/ardupilot_msgs/CMakeLists.txt
++++ b/Tools/ros2/ardupilot_msgs/CMakeLists.txt
+@@ -16,6 +16,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
+   "msg/GlobalPosition.msg"
+   "msg/Rc.msg"
+   "msg/Status.msg"
++  "msg/WksimState.msg"
+   "msg/Airspeed.msg"
+   "srv/ArmMotors.srv"
+   "srv/ModeSwitch.srv"
+diff --git a/libraries/AP_DDS/AP_DDS_Client.cpp b/libraries/AP_DDS/AP_DDS_Client.cpp
+index c695728..bc903b8 100644
+--- a/libraries/AP_DDS/AP_DDS_Client.cpp
++++ b/libraries/AP_DDS/AP_DDS_Client.cpp
+@@ -50,6 +50,91 @@
+ 
+ #define STRCPY(D,S) strncpy(D, S, ARRAY_SIZE(D))
+ 
++#if AP_DDS_WKSIM_STATE_ENABLED
++void AP_DDS_Client::update_topic(ardupilot_msgs_msg_WksimState& msg)
++{
++    // Never retain a prior coordinate when a getter fails on this sample.
++    msg = {};
++    {
++        auto &ahrs = AP::ahrs();
++        WITH_SEMAPHORE(ahrs.get_semaphore());
++        msg.time_boot_us = AP_HAL::micros64();
++        msg.header.stamp.sec = msg.time_boot_us / 1000000ULL;
++        msg.header.stamp.nanosec = (msg.time_boot_us % 1000000ULL) * 1000UL;
++        STRCPY(msg.header.frame_id, "map");
++        nav_filter_status status{};
++        msg.filter_status_valid = ahrs.get_filter_status(status);
++        msg.filter_status = status.value;
++        msg.ahrs_healthy = ahrs.healthy();
++        const auto &home = ahrs.get_home();
++        msg.home_valid = ahrs.home_is_set() && home.get_alt_cm(Location::AltFrame::ABSOLUTE, msg.home_altitude_cm);
++        if (msg.home_valid) {
++            msg.home_latitude_e7 = home.lat;
++            msg.home_longitude_e7 = home.lng;
++        }
++        Vector3f position;
++        msg.position_valid = msg.home_valid && ahrs.get_relative_position_NED_home(position)
++            && msg.filter_status_valid && status.flags.horiz_pos_abs && status.flags.vert_pos
++            && !status.flags.const_pos_mode && !status.flags.dead_reckoning && !status.flags.gps_glitching;
++        if (msg.position_valid) {
++            msg.pose.position.x = position.y;
++            msg.pose.position.y = position.x;
++            msg.pose.position.z = -position.z;
++        }
++        Vector3f velocity;
++        msg.velocity_valid = ahrs.get_velocity_NED(velocity) && msg.filter_status_valid
++            && status.flags.horiz_vel && status.flags.vert_vel;
++        if (msg.velocity_valid) {
++            msg.twist.linear.x = velocity.y;
++            msg.twist.linear.y = velocity.x;
++            msg.twist.linear.z = -velocity.z;
++        }
++        Quaternion q;
++        msg.attitude_valid = ahrs.get_quaternion(q) && msg.filter_status_valid && status.flags.attitude;
++        if (msg.attitude_valid) {
++            const float k = sqrtF(0.5);
++            msg.pose.orientation.w = k * (q[0] + q[3]);
++            msg.pose.orientation.x = k * (q[1] + q[2]);
++            msg.pose.orientation.y = k * (q[1] - q[2]);
++            msg.pose.orientation.z = k * (q[0] - q[3]);
++            const Vector3f gyro = ahrs.get_gyro();
++            msg.twist.angular.x = gyro.x;
++            msg.twist.angular.y = -gyro.y;
++            msg.twist.angular.z = -gyro.z;
++        }
++        float delta;
++        Vector2f delta_ne;
++        msg.yaw_reset_ms = ahrs.getLastYawResetAngle(delta);
++        msg.position_ne_reset_ms = ahrs.getLastPosNorthEastReset(delta_ne);
++        msg.position_down_reset_ms = ahrs.getLastPosDownReset(delta);
++    }
++    {
++        auto &gps = AP::gps();
++        WITH_SEMAPHORE(gps.get_semaphore());
++        msg.gps_fix_type = gps.status();
++        msg.gps_num_sats = gps.num_sats();
++        const auto &location = gps.location();
++        msg.gps_latitude_e7 = location.lat;
++        msg.gps_longitude_e7 = location.lng;
++        msg.gps_altitude_cm = location.alt;
++    }
++}
++
++void AP_DDS_Client::write_wksim_state_topic()
++{
++    if (!connected) {
++        return;
++    }
++    ucdrBuffer ub{};
++    const uint32_t size = ardupilot_msgs_msg_WksimState_size_of_topic(&wksim_state_topic, 0);
++    if (uxr_prepare_output_stream(&session, reliable_out,
++            topics[to_underlying(TopicIndex::WKSIM_STATE_PUB)].dw_id, &ub, size)
++        && !ardupilot_msgs_msg_WksimState_serialize_topic(&ub, &wksim_state_topic)) {
++        GCS_SEND_TEXT(MAV_SEVERITY_ERROR, "%s WksimState serialize fail", msg_prefix);
++    }
++}
++#endif
++
+ // Enable DDS at runtime by default
+ static constexpr uint8_t ENABLED_BY_DEFAULT = 1;
+ #if AP_DDS_TIME_PUB_ENABLED
+@@ -1874,6 +1959,13 @@ void AP_DDS_Client::update()
+     }
+ #endif // AP_DDS_STATUS_PUB_ENABLED
+ 
++#if AP_DDS_WKSIM_STATE_ENABLED
++    if (cur_time_ms - last_wksim_state_ms >= 20) {
++        update_topic(wksim_state_topic);
++        last_wksim_state_ms = cur_time_ms;
++        write_wksim_state_topic();
++    }
++#endif
+     status_ok = uxr_run_session_time(&session, 1);
+ }
+ 
+diff --git a/libraries/AP_DDS/AP_DDS_Client.h b/libraries/AP_DDS/AP_DDS_Client.h
+index df02a26..5616caa 100644
+--- a/libraries/AP_DDS/AP_DDS_Client.h
++++ b/libraries/AP_DDS/AP_DDS_Client.h
+@@ -7,6 +7,10 @@
+ #include "uxr/client/client.h"
+ #include "ucdr/microcdr.h"
+ 
++#if AP_DDS_WKSIM_STATE_ENABLED
++#include "ardupilot_msgs/msg/WksimState.h"
++#endif
++
+ #if AP_DDS_GLOBAL_POS_CTRL_ENABLED
+ #include "ardupilot_msgs/msg/GlobalPosition.h"
+ #endif // AP_DDS_GLOBAL_POS_CTRL_ENABLED
+@@ -100,6 +104,13 @@ private:
+ 
+     // Outgoing Sensor and AHRS data
+ 
++#if AP_DDS_WKSIM_STATE_ENABLED
++    ardupilot_msgs_msg_WksimState wksim_state_topic;
++    uint32_t last_wksim_state_ms;
++    static void update_topic(ardupilot_msgs_msg_WksimState& msg);
++    void write_wksim_state_topic();
++#endif
++
+ #if AP_DDS_TIME_PUB_ENABLED
+     builtin_interfaces_msg_Time time_topic;
+     // The last ms timestamp AP_DDS wrote a Time message
+@@ -407,4 +418,3 @@ public:
+ 
+ #endif // AP_DDS_ENABLED
+ 
+-
+diff --git a/libraries/AP_DDS/AP_DDS_ExternalControl.cpp b/libraries/AP_DDS/AP_DDS_ExternalControl.cpp
+index 22e95e8..2f3214b 100644
+--- a/libraries/AP_DDS/AP_DDS_ExternalControl.cpp
++++ b/libraries/AP_DDS/AP_DDS_ExternalControl.cpp
+@@ -7,6 +7,7 @@
+ #include <AP_AHRS/AP_AHRS.h>
+ 
+ #include <AP_ExternalControl/AP_ExternalControl.h>
++#include <cmath>
+ 
+ bool AP_DDS_External_Control::handle_global_position_control(ardupilot_msgs_msg_GlobalPosition& cmd_pos)
+ {
+@@ -16,29 +17,37 @@ bool AP_DDS_External_Control::handle_global_position_control(ardupilot_msgs_msg_
+     }
+ 
+     if (strcmp(cmd_pos.header.frame_id, MAP_FRAME) == 0) {
+-        // Narrow the altitude
+-        const int32_t alt_cm  = static_cast<int32_t>(cmd_pos.altitude * 100);
++        constexpr uint16_t ignored_fields = GlobalPosition::IGNORE_VX |
++            GlobalPosition::IGNORE_VY | GlobalPosition::IGNORE_VZ |
++            GlobalPosition::IGNORE_AFX | GlobalPosition::IGNORE_AFY |
++            GlobalPosition::IGNORE_AFZ | GlobalPosition::IGNORE_YAW_RATE;
++        // This DDS path implements a complete position, optionally with yaw.
++        // Velocity/acceleration/partial-position/yaw-rate are not silently dropped.
++        if ((cmd_pos.type_mask & ignored_fields) != ignored_fields ||
++            (cmd_pos.type_mask & ~(ignored_fields | GlobalPosition::IGNORE_YAW)) != 0 ||
++            !std::isfinite(cmd_pos.latitude) || !std::isfinite(cmd_pos.longitude) ||
++            !std::isfinite(cmd_pos.altitude) ||
++            fabs(cmd_pos.latitude) > 90.0 || fabs(cmd_pos.longitude) > 180.0 ||
++            fabsf(cmd_pos.altitude) >= 21474836.0f) {
++            return false;
++        }
++        const bool use_yaw = (cmd_pos.type_mask & GlobalPosition::IGNORE_YAW) == 0;
++        if (use_yaw && !std::isfinite(cmd_pos.yaw)) {
++            return false;
++        }
++        const int32_t alt_cm = static_cast<int32_t>(double(cmd_pos.altitude) * 100.0);
+ 
+         Location::AltFrame alt_frame;
+         if (!convert_alt_frame(cmd_pos.coordinate_frame, alt_frame)) {
+             return false;
+         }
+ 
+-        constexpr uint32_t MASK_POS_IGNORE =
+-            GlobalPosition::IGNORE_LATITUDE |
+-            GlobalPosition::IGNORE_LONGITUDE |
+-            GlobalPosition::IGNORE_ALTITUDE;
+-
+-        if (!(cmd_pos.type_mask & MASK_POS_IGNORE)) {
+-            Location loc(cmd_pos.latitude * 1E7, cmd_pos.longitude * 1E7, alt_cm, alt_frame);
+-            if (!external_control->set_global_position(loc)) {
+-                return false; // Don't try sending other commands if this fails
+-            }
++        Location loc(cmd_pos.latitude * 1E7, cmd_pos.longitude * 1E7, alt_cm, alt_frame);
++        if (use_yaw) {
++            // map is ENU/FLU; Guided uses absolute NED yaw, radians.
++            return external_control->set_global_position_and_yaw(loc, wrap_PI(radians(90.0f) - cmd_pos.yaw));
+         }
+-
+-        // TODO add velocity and accel handling
+-
+-        return true;
++        return external_control->set_global_position(loc);
+     }
+ 
+     return false;
+@@ -127,4 +136,4 @@ bool AP_DDS_External_Control::convert_alt_frame(const uint8_t frame_in,  Locatio
+ }
+ 
+ 
+-#endif // AP_DDS_ENABLED
+\ No newline at end of file
++#endif // AP_DDS_ENABLED
+diff --git a/libraries/AP_DDS/AP_DDS_Topic_Table.h b/libraries/AP_DDS/AP_DDS_Topic_Table.h
+index 5c5fc8e..2b233ee 100644
+--- a/libraries/AP_DDS/AP_DDS_Topic_Table.h
++++ b/libraries/AP_DDS/AP_DDS_Topic_Table.h
+@@ -69,6 +69,9 @@ enum class TopicIndex: uint8_t {
+ #if AP_DDS_GLOBAL_POS_CTRL_ENABLED
+     GLOBAL_POSITION_SUB,
+ #endif // AP_DDS_GLOBAL_POS_CTRL_ENABLED
++#if AP_DDS_WKSIM_STATE_ENABLED
++    WKSIM_STATE_PUB,
++#endif
+ };
+ 
+ static inline constexpr uint8_t to_underlying(const TopicIndex index)
+@@ -403,4 +406,22 @@ constexpr struct AP_DDS_Client::Topic_table AP_DDS_Client::topics[] = {
+         },
+     },
+ #endif // AP_DDS_GLOBAL_POS_CTRL_ENABLED
++#if AP_DDS_WKSIM_STATE_ENABLED
++    {
++        .topic_id = to_underlying(TopicIndex::WKSIM_STATE_PUB),
++        .pub_id = to_underlying(TopicIndex::WKSIM_STATE_PUB),
++        .sub_id = to_underlying(TopicIndex::WKSIM_STATE_PUB),
++        .dw_id = uxrObjectId{.id=to_underlying(TopicIndex::WKSIM_STATE_PUB), .type=UXR_DATAWRITER_ID},
++        .dr_id = uxrObjectId{.id=to_underlying(TopicIndex::WKSIM_STATE_PUB), .type=UXR_DATAREADER_ID},
++        .topic_rw = Topic_rw::DataWriter,
++        .topic_name = "rt/ap/wksim/local_state_v1",
++        .type_name = "ardupilot_msgs::msg::dds_::WksimState_",
++        .qos = {
++            .durability = UXR_DURABILITY_VOLATILE,
++            .reliability = UXR_RELIABILITY_BEST_EFFORT,
++            .history = UXR_HISTORY_KEEP_LAST,
++            .depth = 5,
++        },
++    },
++#endif
+ };
+diff --git a/libraries/AP_DDS/AP_DDS_config.h b/libraries/AP_DDS/AP_DDS_config.h
+index 0a49a4a..336f3ef 100644
+--- a/libraries/AP_DDS/AP_DDS_config.h
++++ b/libraries/AP_DDS/AP_DDS_config.h
+@@ -171,8 +171,13 @@
+ // Whether to include Transform support
+ #define AP_DDS_NEEDS_TRANSFORMS AP_DDS_DYNAMIC_TF_SUB_ENABLED || AP_DDS_STATIC_TF_PUB_ENABLED
+ 
++// wksim's optional snapshot extension is validated for SITL only.
++#ifndef AP_DDS_WKSIM_STATE_ENABLED
++#define AP_DDS_WKSIM_STATE_ENABLED (CONFIG_HAL_BOARD == HAL_BOARD_SITL && AP_GPS_ENABLED)
++#endif
++
+ // Whether DDS needs GPS
+-#define AP_DDS_NEEDS_GPS AP_DDS_NAVSATFIX_PUB_ENABLED || AP_DDS_STATIC_TF_PUB_ENABLED
++#define AP_DDS_NEEDS_GPS AP_DDS_NAVSATFIX_PUB_ENABLED || AP_DDS_STATIC_TF_PUB_ENABLED || AP_DDS_WKSIM_STATE_ENABLED
+ 
+ #ifndef AP_DDS_DEFAULT_UDP_IP_ADDR
+ #if CONFIG_HAL_BOARD == HAL_BOARD_CHIBIOS
+diff --git a/libraries/AP_ExternalControl/AP_ExternalControl.h b/libraries/AP_ExternalControl/AP_ExternalControl.h
+index eac6119..806720c 100644
+--- a/libraries/AP_ExternalControl/AP_ExternalControl.h
++++ b/libraries/AP_ExternalControl/AP_ExternalControl.h
+@@ -40,6 +40,12 @@ public:
+         return false;
+     }
+ 
++    // Explicit position + absolute NED yaw. Unsupported vehicle types reject it
++    // instead of accepting a position while silently ignoring the requested yaw.
++    virtual bool set_global_position_and_yaw(const Location& loc, float yaw_rad) WARN_IF_UNUSED {
++        return false;
++    }
++
+     /*
+         Arm the vehicle
+     */
+diff --git a/libraries/AP_HAL_SITL/HAL_SITL_Class.cpp b/libraries/AP_HAL_SITL/HAL_SITL_Class.cpp
+index dde5270..ca393c9 100644
+--- a/libraries/AP_HAL_SITL/HAL_SITL_Class.cpp
++++ b/libraries/AP_HAL_SITL/HAL_SITL_Class.cpp
+@@ -285,10 +285,7 @@ void HAL_SITL::run(int argc, char * const argv[], Callbacks* callbacks) const
+     uint8_t fill_count = 0;
+ 
+     while (true) {
+-        if (HALSITL::Scheduler::_should_exit) {
+-            ::fprintf(stderr, "Exitting\n");
+-            exit(0);
+-        }
++        HALSITL::Scheduler::check_for_exit();
+         if (fill_count++ % 10 == 0) {
+             // only fill every 10 loops. This still gives us a lot of
+             // protection, but saves a lot of CPU
+diff --git a/libraries/AP_HAL_SITL/Scheduler.cpp b/libraries/AP_HAL_SITL/Scheduler.cpp
+index 329617d..b9a6e83 100644
+--- a/libraries/AP_HAL_SITL/Scheduler.cpp
++++ b/libraries/AP_HAL_SITL/Scheduler.cpp
+@@ -39,7 +39,16 @@ bool Scheduler::_in_timer_proc = false;
+ AP_HAL::MemberProc Scheduler::_io_proc[SITL_SCHEDULER_MAX_TIMER_PROCS] = {nullptr};
+ uint8_t Scheduler::_num_io_procs = 0;
+ bool Scheduler::_in_io_proc = false;
+-bool Scheduler::_should_exit = false;
++volatile sig_atomic_t Scheduler::_should_exit = 0;
++
++void Scheduler::check_for_exit()
++{
++    // Called in ordinary execution, never from the signal handler itself.
++    if (_should_exit) {
++        ::fprintf(stderr, "Exitting\n");
++        exit(0);
++    }
++}
+ 
+ bool Scheduler::_in_semaphore_take_wait = false;
+ 
+diff --git a/libraries/AP_HAL_SITL/Scheduler.h b/libraries/AP_HAL_SITL/Scheduler.h
+index 518cad4..195388d 100644
+--- a/libraries/AP_HAL_SITL/Scheduler.h
++++ b/libraries/AP_HAL_SITL/Scheduler.h
+@@ -5,6 +5,7 @@
+ #include "AP_HAL_SITL_Namespace.h"
+ #include <sys/time.h>
+ #include <pthread.h>
++#include <signal.h>
+ 
+ #define SITL_SCHEDULER_MAX_TIMER_PROCS 8
+ 
+@@ -50,7 +51,8 @@ public:
+     uint64_t stopped_clock_usec() const { return _stopped_clock_usec; }
+ 
+     static void _run_io_procs();
+-    static bool _should_exit;
++    static volatile sig_atomic_t _should_exit;
++    static void check_for_exit();
+ 
+     /*
+       create a new thread
+diff --git a/libraries/SITL/SIM_GPS.cpp b/libraries/SITL/SIM_GPS.cpp
+index 8ac0465..e857eab 100644
+--- a/libraries/SITL/SIM_GPS.cpp
++++ b/libraries/SITL/SIM_GPS.cpp
+@@ -7,6 +7,7 @@
+  */
+ 
+ #include "SIM_GPS.h"
++#include "SIM_WksimGNSS.h"
+ 
+ #if AP_SIM_GPS_ENABLED
+ 
+@@ -194,6 +195,7 @@ GPS::GPS(uint8_t _instance) :
+     SerialDevice(8192, 2048),
+     instance{_instance}
+ {
++    WksimGNSS::sensor_created(_instance);
+ }
+ 
+ uint32_t GPS::device_baud() const
+@@ -209,6 +211,14 @@ uint32_t GPS::device_baud() const
+  */
+ ssize_t GPS::write_to_autopilot(const char *p, size_t size) const
+ {
++    const bool suppressed = WksimGNSS::suppress(instance);
++    if (suppressed) {
++        WksimGNSS::written(instance, p, size, 0, true);
++        return 0;
++    }
++    if (!is_zero(_sitl->gps[instance].byteloss) || !_sitl->gps[instance].enabled) {
++        WksimGNSS::fail("unexpected_gps_configuration");
++    }
+     // the second GPS instance fails in a different way to the first;
+     // the first will start sending back 3 satellites, the second just
+     // stops responding when disabled.  This is not necessarily a good
+@@ -221,7 +231,9 @@ ssize_t GPS::write_to_autopilot(const char *p, size_t size) const
+ 
+     // shortcut if we're not doing byteloss:
+     if (!is_positive(byteloss)) {
+-        return SerialDevice::write_to_autopilot(p, size);
++        const ssize_t result = SerialDevice::write_to_autopilot(p, size);
++        WksimGNSS::written(instance, p, size, result, false);
++        return result;
+     }
+ 
+     size_t ret = 0;
+@@ -450,7 +462,7 @@ void GPS::update()
+     const double speedN = _sitl->state.speedN;
+     const double speedE = _sitl->state.speedE;
+     const double speedD = _sitl->state.speedD;
+-    const uint32_t now_ms = AP_HAL::millis();
++    const uint32_t now_ms = WksimGNSS::model_ms(_sitl->state.timestamp_us);
+ 
+     if (now_ms < 20000) {
+         // apply the init offsets for the first 20s. This allows for
+@@ -476,7 +488,8 @@ void GPS::update()
+     const auto &params = _sitl->gps[instance];
+ 
+     // Only let physics run and GPS write at configured GPS rate (default 5Hz).
+-    if ((now_ms - last_write_update_ms) < (uint32_t)(1000/params.hertz)) {
++    if (!is_equal(float(params.hertz.get()), 5.0f)) { WksimGNSS::fail("gps_rate_not_frozen"); }
++    if (now_ms % 200 != 0) {
+         // Reading runs every iteration.
+         // Beware- physics don't update every iteration with this approach.
+         // Currently, none of the drivers rely on quickly updated physics.
+@@ -564,7 +577,9 @@ void GPS::update()
+         simulate_jamming(d);
+     }
+ 
+-    backend->publish(&d);
++    if (WksimGNSS::sample(instance, d, AP_HAL::micros64())) {
++        backend->publish(&d);
++    }
+ }
+ 
+ void GPS_Backend::update_read()
+diff --git a/libraries/SITL/SIM_JSON.cpp b/libraries/SITL/SIM_JSON.cpp
+index dfa9223..8a23724 100644
+--- a/libraries/SITL/SIM_JSON.cpp
++++ b/libraries/SITL/SIM_JSON.cpp
+@@ -21,6 +21,7 @@
+ #if AP_SIM_JSON_ENABLED
+ 
+ #include "SIM_JSON.h"
++#include "SIM_WksimGNSS.h"
+ 
+ #include <stdio.h>
+ #include <arpa/inet.h>
+@@ -32,6 +33,10 @@
+ #include <SRV_Channel/SRV_Channel.h>
+ #include <AP_Filesystem/AP_Filesystem.h>
+ 
++#if CONFIG_HAL_BOARD == HAL_BOARD_SITL
++#include <AP_HAL_SITL/Scheduler.h>
++#endif
++
+ #define UDP_TIMEOUT_MS 100
+ 
+ extern const AP_HAL::HAL& hal;
+@@ -302,8 +307,14 @@ uint64_t JSON::parse_sensors(const char *json)
+ */
+ void JSON::recv_fdm(const struct sitl_input &input)
+ {
++#if CONFIG_HAL_BOARD == HAL_BOARD_SITL
++    HALSITL::Scheduler::check_for_exit();
++#endif
+     // Receive sensor packet
+     ssize_t ret = sock.recv(&sensor_buffer[sensor_buffer_len], sizeof(sensor_buffer)-sensor_buffer_len, UDP_TIMEOUT_MS);
++#if CONFIG_HAL_BOARD == HAL_BOARD_SITL
++    HALSITL::Scheduler::check_for_exit();
++#endif
+     uint32_t wait_ms = UDP_TIMEOUT_MS;
+ 
+     if (state.no_lockstep && ret <= 0) {
+@@ -321,6 +332,11 @@ void JSON::recv_fdm(const struct sitl_input &input)
+     while (ret <= 0) {
+         //printf("No JSON sensor message received - %s\n", strerror(errno));
+         ret = sock.recv(&sensor_buffer[sensor_buffer_len], sizeof(sensor_buffer)-sensor_buffer_len, UDP_TIMEOUT_MS);
++#if CONFIG_HAL_BOARD == HAL_BOARD_SITL
++        // A paused external simulator must not need another sensor packet
++        // (and another physics step) just to let this process exit.
++        HALSITL::Scheduler::check_for_exit();
++#endif
+         wait_ms += UDP_TIMEOUT_MS;
+         // if no sensor message is received after 10 second resend servos, this help cope with SITL and the physics getting out of sync
+         if (wait_ms > 1000) {
+@@ -346,7 +362,9 @@ void JSON::recv_fdm(const struct sitl_input &input)
+         return;
+     }
+ 
++    WksimGNSS::receive((const char *)(p1+1));
+     const uint64_t received_bitmask = parse_sensors((const char *)(p1+1));
++    WksimGNSS::timestamp(state.timestamp_s, state.no_lockstep, state.no_time_sync);
+     if (received_bitmask == 0) {
+         // did not receive one of the mandatory fields
+         printf("Did not contain all mandatory fields\n");
+@@ -496,18 +514,35 @@ void JSON::recv_fdm(const struct sitl_input &input)
+         battery_current = state.bat_amp; 
+     }
+ 
+-    double deltat;
++    // Quantize absolute JSON time once; never truncate each floating-point delta.
++    if (!isfinite(state.timestamp_s) || state.timestamp_s < 0 ||
++        state.timestamp_s >= double(UINT64_MAX) / 1.0e6) {
++        printf("Invalid JSON timestamp\n");
++        return;
++    }
++    const double rounded_us = round(state.timestamp_s * 1.0e6);
++    if (rounded_us >= double(UINT64_MAX)) {
++        printf("JSON timestamp overflow\n");
++        return;
++    }
++    const uint64_t timestamp_us = uint64_t(rounded_us);
++    uint64_t delta_us;
+     if (state.timestamp_s < last_timestamp_s) {
+         // Physics time has gone backwards, don't reset AP
+         printf("Detected physics reset\n");
+-        deltat = 0;
++        delta_us = 0;
+         last_received_bitmask = 0;
+     } else {
+-        deltat = state.timestamp_s - last_timestamp_s;
++        delta_us = timestamp_us - last_timestamp_us;
++    }
++    if (delta_us > UINT64_MAX - time_now_us) {
++        printf("JSON boot clock overflow\n");
++        return;
+     }
+-    time_now_us += deltat * 1.0e6;
++    time_now_us += delta_us;
+ 
+-    if (is_positive(deltat) && deltat < 0.1) {
++    if (delta_us > 0 && delta_us < 100000) {
++        const double deltat = delta_us * 1.0e-6;
+         // Only adjust frame time if we want lockstep
+         // When no_lockstep is true, skip adjust_frame_time to let SITL run free
+         if (use_time_sync && !state.no_lockstep) {
+@@ -518,6 +553,7 @@ void JSON::recv_fdm(const struct sitl_input &input)
+         time_advance();
+     }
+     last_timestamp_s = state.timestamp_s;
++    last_timestamp_us = timestamp_us;
+     frame_counter++;
+ 
+ #if 0
+@@ -615,4 +651,4 @@ void JSON::update(const struct sitl_input &input)
+ #endif
+ }
+ 
+-#endif  // AP_SIM_JSON_ENABLED
+\ No newline at end of file
++#endif  // AP_SIM_JSON_ENABLED
+diff --git a/libraries/SITL/SIM_JSON.h b/libraries/SITL/SIM_JSON.h
+index 48af85f..95d9851 100644
+--- a/libraries/SITL/SIM_JSON.h
++++ b/libraries/SITL/SIM_JSON.h
+@@ -71,6 +71,7 @@ private:
+ 
+     uint32_t frame_counter;
+     double last_timestamp_s;
++    uint64_t last_timestamp_us = 0;
+ 
+     void output_servos(const struct sitl_input &input);
+     void recv_fdm(const struct sitl_input &input);
+@@ -214,4 +215,4 @@ private:
+ 
+ }
+ 
+-#endif  // AP_SIM_JSON_ENABLED
+\ No newline at end of file
++#endif  // AP_SIM_JSON_ENABLED
