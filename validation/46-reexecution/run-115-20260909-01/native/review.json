@@ -1,0 +1,222 @@
+{
+  "status": "passed",
+  "commands": [
+    {
+      "label": "import",
+      "argv": [
+        "/usr/bin/python3",
+        "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/tools/reexecute_model.py",
+        "import",
+        "--source",
+        "/root/wksim-reexecution-114-20260909-03/source",
+        "--output",
+        "/root/wksim-reexecution-115-20260909-01/input"
+      ],
+      "exit_code": 0,
+      "expected_exit": 0
+    },
+    {
+      "label": "run",
+      "argv": [
+        "/usr/bin/python3",
+        "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/tools/reexecute_model.py",
+        "run",
+        "--input",
+        "/root/wksim-reexecution-115-20260909-01/input",
+        "--library",
+        "/root/wksim-reexecution-114-20260909-03/build/libwksim_configured.so",
+        "--output",
+        "/root/wksim-reexecution-115-20260909-01/run"
+      ],
+      "exit_code": 0,
+      "expected_exit": 0
+    },
+    {
+      "label": "audit",
+      "argv": [
+        "/usr/bin/python3",
+        "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/tools/reexecute_model.py",
+        "audit",
+        "--input",
+        "/root/wksim-reexecution-115-20260909-01/input",
+        "--run",
+        "/root/wksim-reexecution-115-20260909-01/run",
+        "--output",
+        "/root/wksim-reexecution-115-20260909-01/audit.json"
+      ],
+      "exit_code": 0,
+      "expected_exit": 0
+    },
+    {
+      "label": "missing-tick",
+      "argv": [
+        "/usr/bin/python3",
+        "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/tools/reexecute_model.py",
+        "run",
+        "--input",
+        "/root/wksim-reexecution-115-20260909-01/negative-missing-tick",
+        "--library",
+        "/root/wksim-reexecution-114-20260909-03/build/libwksim_configured.so",
+        "--output",
+        "/root/wksim-reexecution-115-20260909-01/refused-missing-tick"
+      ],
+      "exit_code": 2,
+      "expected_exit": 2
+    },
+    {
+      "label": "changed-input",
+      "argv": [
+        "/usr/bin/python3",
+        "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/tools/reexecute_model.py",
+        "run",
+        "--input",
+        "/root/wksim-reexecution-115-20260909-01/negative-changed-input",
+        "--library",
+        "/root/wksim-reexecution-114-20260909-03/build/libwksim_configured.so",
+        "--output",
+        "/root/wksim-reexecution-115-20260909-01/refused-changed-input"
+      ],
+      "exit_code": 2,
+      "expected_exit": 2
+    },
+    {
+      "label": "foreign-model",
+      "argv": [
+        "/usr/bin/python3",
+        "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/tools/reexecute_model.py",
+        "run",
+        "--input",
+        "/root/wksim-reexecution-115-20260909-01/negative-foreign-model",
+        "--library",
+        "/root/wksim-reexecution-114-20260909-03/build/libwksim_configured.so",
+        "--output",
+        "/root/wksim-reexecution-115-20260909-01/refused-foreign-model"
+      ],
+      "exit_code": 2,
+      "expected_exit": 2
+    },
+    {
+      "label": "changed-seed",
+      "argv": [
+        "/usr/bin/python3",
+        "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/tools/reexecute_model.py",
+        "run",
+        "--input",
+        "/root/wksim-reexecution-115-20260909-01/negative-changed-seed",
+        "--library",
+        "/root/wksim-reexecution-114-20260909-03/build/libwksim_configured.so",
+        "--output",
+        "/root/wksim-reexecution-115-20260909-01/refused-changed-seed"
+      ],
+      "exit_code": 2,
+      "expected_exit": 2
+    },
+    {
+      "label": "missing-initial",
+      "argv": [
+        "/usr/bin/python3",
+        "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/tools/reexecute_model.py",
+        "run",
+        "--input",
+        "/root/wksim-reexecution-115-20260909-01/negative-missing-initial",
+        "--library",
+        "/root/wksim-reexecution-114-20260909-03/build/libwksim_configured.so",
+        "--output",
+        "/root/wksim-reexecution-115-20260909-01/refused-missing-initial"
+      ],
+      "exit_code": 2,
+      "expected_exit": 2
+    },
+    {
+      "label": "stale-event",
+      "argv": [
+        "/usr/bin/python3",
+        "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/tools/reexecute_model.py",
+        "run",
+        "--input",
+        "/root/wksim-reexecution-115-20260909-01/negative-stale-event",
+        "--library",
+        "/root/wksim-reexecution-114-20260909-03/build/libwksim_configured.so",
+        "--output",
+        "/root/wksim-reexecution-115-20260909-01/refused-stale-event"
+      ],
+      "exit_code": 2,
+      "expected_exit": 2
+    },
+    {
+      "label": "missing-terminal",
+      "argv": [
+        "/usr/bin/python3",
+        "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/tools/reexecute_model.py",
+        "run",
+        "--input",
+        "/root/wksim-reexecution-115-20260909-01/negative-missing-terminal",
+        "--library",
+        "/root/wksim-reexecution-114-20260909-03/build/libwksim_configured.so",
+        "--output",
+        "/root/wksim-reexecution-115-20260909-01/refused-missing-terminal"
+      ],
+      "exit_code": 2,
+      "expected_exit": 2
+    },
+    {
+      "label": "truncated",
+      "argv": [
+        "/usr/bin/python3",
+        "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/tools/reexecute_model.py",
+        "run",
+        "--input",
+        "/root/wksim-reexecution-115-20260909-01/negative-truncated",
+        "--library",
+        "/root/wksim-reexecution-114-20260909-03/build/libwksim_configured.so",
+        "--output",
+        "/root/wksim-reexecution-115-20260909-01/refused-truncated"
+      ],
+      "exit_code": 2,
+      "expected_exit": 2
+    },
+    {
+      "label": "phase",
+      "argv": [
+        "/usr/bin/python3",
+        "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/tools/reexecute_model.py",
+        "run",
+        "--input",
+        "/root/wksim-reexecution-115-20260909-01/negative-phase",
+        "--library",
+        "/root/wksim-reexecution-114-20260909-03/build/libwksim_configured.so",
+        "--output",
+        "/root/wksim-reexecution-115-20260909-01/refused-phase"
+      ],
+      "exit_code": 2,
+      "expected_exit": 2
+    },
+    {
+      "label": "numerical-negative",
+      "argv": [
+        "/usr/bin/python3",
+        "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/tools/reexecute_model.py",
+        "audit",
+        "--input",
+        "/root/wksim-reexecution-115-20260909-01/input",
+        "--run",
+        "/root/wksim-reexecution-115-20260909-01/wrong-output-run",
+        "--output",
+        "/root/wksim-reexecution-115-20260909-01/numerical-negative.json"
+      ],
+      "exit_code": 1,
+      "expected_exit": 1
+    }
+  ],
+  "source_unchanged": true,
+  "build_unchanged": true,
+  "negative_admission_cases": 9,
+  "numerical_negative_cases": 1,
+  "source_files": {
+    "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/tools/reexecute_model.py": "dfad4554d8976bc0d32309831d6deae70fffa89ba7951254e07c51f633be9c64",
+    "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/validation/test_model_reexecution.py": "60704066bf8ae39d83f0504deb85134bcfced4726d86d9d8f653cac4b0ab5227",
+    "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/docs/plan/46-reexecution-contract.md": "54c93d120a9745bb9466b2b4279bafa0701b7b3c706f3728574a5797c719fac1",
+    "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/validation/46-reexecution/run-115-20260909-01/review.py": "72e81c1d30db861396380f027bdc1b8a43e45270dc8a820a4a166d9370e17239"
+  },
+  "process_cleanup": "all subprocess.run calls returned; no FC/ROS/UE launched"
+}
