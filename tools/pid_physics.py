@@ -17,7 +17,7 @@ import time
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO))
 from Simulator.wksim_core.model import Model
-from Simulator.wksim_runtime.pid_task import CONFIG_SHA256, event_for, load_config
+from Simulator.wksim_runtime.pid_task import protocol_sha256, event_for, load_config
 
 
 class Disturbance:
@@ -87,8 +87,8 @@ def observed_model(path, directory, run_id, config, packet_context, *, base_mode
             super().__init__(library)
             self.raw = Path(path).open('x', buffering=1024*1024)
             self.raw.write(json.dumps(dict(kind='start', run_id=run_id,
-                schema='wksim.pid.physics.v1', library=str(library),
-                library_sha256=config['model']['library_sha256'], protocol_sha256=CONFIG_SHA256,
+                schema='wksim.'+config['controller']+'.physics.v1', library=str(library),
+                library_sha256=config['model']['library_sha256'], protocol_sha256=protocol_sha256(config),
                 observer_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
                 initial_tick=0, dt_s=.001, mass_kg=config['model']['mass_kg'],
                 tick_semantics='step.tick is post-step; interval_tick is the applied input interval'))+'\n')

@@ -210,8 +210,12 @@ class PositionPID:
         return output
 
 
-def select_controller(name: str, config: PIDConfig) -> PositionPID:
-    """Only the implemented algorithm is selectable; a selection starts reset."""
-    if name != "pid":
-        raise ValueError(f"unsupported external position controller: {name!r}")
-    return PositionPID(config)
+def select_controller(name: str, config):
+    """Explicit typed selection; each instance starts with cleared state."""
+    if name == "pid":
+        return PositionPID(config)
+    if name == "ude":
+        # Local import avoids a cycle with UDE's shared state/reference types.
+        from .position_ude import PositionUDE
+        return PositionUDE(config)
+    raise ValueError(f"unsupported external position controller: {name!r}")

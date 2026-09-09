@@ -12,7 +12,7 @@ from pathlib import Path
 import time
 
 from Simulator.wksim_control.position_pid import (
-    PIDConfig, PIDReference, PIDState, NativeThrustConfig, select_controller)
+    PIDConfig, PIDReference, PIDState, NativeThrustConfig, select_controller, _finite)
 from .attitude_task import AttitudeTask, MODE_TRUE, MODE_FALSE, hover_median, within
 from .evidence import write_json
 from .task import Task, grounded, state_time
@@ -21,12 +21,36 @@ CONFIG_PATH = Path(__file__).with_name('pid-flight-v1.json')
 CONFIG_SHA256 = '25d50ddbbd44e658a72123e6d524a5c5021b355367a99e46a898ec9b9cecadc0'
 
 
+UDE_CONFIG_PATH = Path(__file__).with_name('ude-flight-v1.json')
+UDE_CONFIG_SHA256 = '4bca3479d61f73d2ab8253191bdc41938904a43877f6b688c0c55e32567c4590'
+
+
+def protocol_sha256(config):
+    return {'pid': CONFIG_SHA256, 'ude': UDE_CONFIG_SHA256}[config['controller']]
+
+
+def implementation(config):
+    return {'pid': 'Simulator.wksim_control.position_pid.PositionPID',
+            'ude': 'Simulator.wksim_control.position_ude.PositionUDE'}[config['controller']]
+
+
+def controller_config(config):
+    if config['controller'] == 'pid':
+        return PIDConfig(config['model']['mass_kg'], **config['pid'])
+    if config['controller'] == 'ude':
+        from Simulator.wksim_control.position_ude import UDEConfig
+        return UDEConfig(config['model']['mass_kg'], **config['ude'])
+    raise ValueError('Unsupported external position controller')
+
+
 def load_config(path):
     raw = Path(path).read_bytes()
-    if hashlib.sha256(raw).hexdigest() != CONFIG_SHA256:
-        raise ValueError('PID trial configuration differs from the pre-run frozen protocol')
+    if hashlib.sha256(raw).hexdigest() not in (CONFIG_SHA256, UDE_CONFIG_SHA256):
+        raise ValueError('Trial configuration differs from the pre-run frozen protocol')
     config = json.loads(raw)
-    select_controller(config['controller'], PIDConfig(config['model']['mass_kg'], **config['pid']))
+    if hashlib.sha256(raw).hexdigest() != protocol_sha256(config):
+        raise ValueError('Controller and frozen protocol identity differ')
+    select_controller(config['controller'], controller_config(config))
     return config
 
 
@@ -47,13 +71,15 @@ class PIDLoop:
     """No ROS or physics imports needed to check the actual timestamp boundary."""
     def __init__(self, config, stack, hover):
         self.config = config
-        self.pid = select_controller(config['controller'], PIDConfig(config['model']['mass_kg'], **config['pid']))
+        self.pid = select_controller(config['controller'], controller_config(config))
         self.thrust = NativeThrustConfig(stack, config['model']['identity'], config['model']['mass_kg'], hover)
+        self.resets = []
         self.reset('selection')
 
     def reset(self, reason, stamp=None):
         self.pid.reset(reason)
         self.stamp = stamp
+        self.resets.append(dict(reason=reason, native_state_stamp_s=stamp, integral=list(self.pid.integral)))
 
     def update(self, stamp, state, desired, *, active):
         if not active:
@@ -74,18 +100,21 @@ class PIDLoop:
         output = self.pid.update(state, desired, dt_s=dt, external_control_active=True)
         self.stamp = stamp
         collective = self.thrust.normalized_collective(output, model_identity=self.config['model']['identity'])
-        return dict(native_state_stamp_s=stamp, dt_s=dt, controller='pid',
+        row = dict(native_state_stamp_s=stamp, dt_s=dt, controller=self.config['controller'],
             state=asdict(state), reference=asdict(desired), output=asdict(output),
             normalized_collective=collective, native_thrust_convention=(
                 [0., 0., -collective] if self.thrust.stack == 'px4' else collective))
+        if self.config['controller'] == 'ude':
+            row.update(reset_count=len(self.resets), last_reset=self.resets[-1].copy())
+        return row
 
 
 def event_for(config, run_id, origin_tick):
     d = config['disturbance']
     start = origin_tick+d['lead_ticks']
     end = start+d['duration_ticks']
-    return dict(schema='wksim.pid-disturbance.v1', run_id=run_id,
-        protocol_sha256=CONFIG_SHA256, stage='pid_disturbance', declared_origin_tick=origin_tick,
+    return dict(schema='wksim.'+config['controller']+'-disturbance.v1', run_id=run_id,
+        protocol_sha256=protocol_sha256(config), stage='pid_disturbance', declared_origin_tick=origin_tick,
         permitted_start_tick=origin_tick, permitted_end_tick=end+round(d['return_deadline_s']*1000),
         start_tick=start, end_tick=end, multiplier=d['multiplier'], channels=d['channels'],
         tick_semantics='zero-based integration interval [tick,tick+1); start inclusive, end exclusive')
@@ -106,7 +135,7 @@ def freeze_event(directory, event):
 
 class PIDTask(AttitudeTask):
     def __init__(self, *args, pid_config, **kwargs):
-        if pid_config != load_config(CONFIG_PATH):
+        if pid_config != load_config({'pid': CONFIG_PATH, 'ude': UDE_CONFIG_PATH}[pid_config['controller']]):
             raise ValueError('PIDTask requires the exact frozen configuration')
         self.pid_config = pid_config
         self.pid_loop = None
@@ -120,10 +149,10 @@ class PIDTask(AttitudeTask):
         super().__init__(*args, **kwargs)
         # Reuse the observer's internal dictionary only. Never expose #34 step
         # completion or claim this task ran AttitudeTask.execute().
-        self.attitude_result.update(controller='pid', status='not_started', protocol_sha256=CONFIG_SHA256,
+        self.attitude_result.update(controller=pid_config['controller'], status='not_started', protocol_sha256=protocol_sha256(pid_config),
             configuration=pid_config, scope=pid_config['scope'],
             observer_reuse='AttitudeTask observation/entry/preparation helpers; no attitude-step experiment',
-            metrics=[], implementation='Simulator.wksim_control.position_pid.PositionPID')
+            metrics=[], implementation=implementation(pid_config))
         self.pid_trace = (self.directory/'pid-trace.jsonl').open('x', buffering=1)
 
     def mark(self, label, **data):
@@ -137,6 +166,12 @@ class PIDTask(AttitudeTask):
     def command(self, label, **kwargs):
         if self.pid_measuring:
             raise RuntimeError('Preparation/native position helper is forbidden during PID measurement')
+        # JSON numeric literals may be integers; ROS float fields require floats.
+        for name in ('position', 'attitude'):
+            if kwargs.get(name) is not None:
+                kwargs[name] = tuple(_finite(value, name) for value in kwargs[name])
+        if kwargs.get('attitude') is None:
+            kwargs['yaw'] = _finite(kwargs.get('yaw', 0.), 'yaw')
         return super().command(label, **kwargs)
 
     def authority(self):
@@ -234,7 +269,7 @@ class PIDTask(AttitudeTask):
             public_move_mode=int(msg.move_mode), public_envelope=envelope, stage=self.pid_kind,
             physical_time=physical_time, reference_origin_physical_s=self.pid_origin,
             model_identity=self.pid_config['model']['identity'], mass_kg=self.pid_config['model']['mass_kg'],
-            protocol_sha256=CONFIG_SHA256, calibration=self.pid_loop.thrust.hover_thrust)
+            protocol_sha256=protocol_sha256(self.pid_config), calibration=self.pid_loop.thrust.hover_thrust)
         self.pid_trace.write(json.dumps(row, allow_nan=False)+'\n')
         self.log.write(json.dumps(dict(wall=time.monotonic()-self.started, published='CommandRequest',
                                       message=envelope, request_envelope=True))+'\n')
@@ -333,11 +368,11 @@ class PIDTask(AttitudeTask):
             start = self.command('pid_level_calibration', attitude=(0., 0., yaw, hover))
             self.duration('pid_level_calibration', 2, lambda v: abs(v['position'][2]-height) <= .3
                 and abs(v['velocity'][2]) <= .2, start=start)
-            self.attitude_result['calibration']['status'] = 'same_run_level_validated_frozen_before_PID'
+            self.attitude_result['calibration']['status'] = 'same_run_level_validated_frozen_before_'+self.pid_config['controller'].upper()
             self.pid_loop = PIDLoop(self.pid_config, self.flight_stack, hover)
             write_json(self.directory/'pid-resolved-config.json', dict(configuration=self.pid_config,
-                protocol_sha256=CONFIG_SHA256, calibration=self.attitude_result['calibration'],
-                controller='pid', runtime_implementation='Simulator.wksim_control.position_pid.PositionPID'))
+                protocol_sha256=protocol_sha256(self.pid_config), calibration=self.attitude_result['calibration'],
+                controller=self.pid_config['controller'], runtime_implementation=implementation(self.pid_config)))
             self.recovery('native_calibration_recovery', point, yaw)
             self.stage('point', self.pid_config['point']['settle_s'], self.pid_config['point']['measure_s'])
             self.recovery('native_point_recovery', point, yaw)
@@ -371,10 +406,12 @@ class PIDTask(AttitudeTask):
             raise
         finally:
             self.attitude_result.update(pid_updates=self.pid_updates, duplicate_states_skipped=self.pid_duplicate_states)
+            if self.pid_config['controller'] == 'ude' and self.pid_loop is not None:
+                self.attitude_result['observer_resets'] = self.pid_loop.resets
             write_json(self.directory/'pid-progress.json', self.attitude_result)
 
     def report(self):
-        return dict(Task.report(self), external_pid=self.attitude_result)
+        return dict(Task.report(self), **{'external_'+self.pid_config['controller']: self.attitude_result})
 
     def close(self):
         try:

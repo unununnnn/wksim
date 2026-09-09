@@ -1,155 +1,190 @@
-# #90 UDE runtime candidate contract — BLOCKED
+# #90 UDE runtime and independent audit contract
 
-2026-09-09. This is a frozen design candidate, not runtime integration completion.
-At inspection, #89 was delivered at 1050001 and #35 remained OPEN. #90 explicitly
-depends on both, and owns only this document and `ude-flight-v1.json`, plus new
-ticket evidence. The user explicitly requires preserving those file boundaries.
-No existing runtime source was changed. #90 must remain OPEN / needs-triage.
+2026-09-09. #35 and #89 prerequisites are closed. The main agent explicitly
+expanded the former two-file design envelope to the four runtime edits below,
+one new independent UDE auditor, bounded shared-auditor parameterization,
+new tests, this document and fresh evidence. This supersedes the earlier blocked
+runtime design in this document; historical intake/evidence remains unchanged.
+The implementation is an offline-verified runnable candidate. Real installed-stack
+preflight has also passed for PX4 and ArduCopter. The first PX4 attempt failed
+before controller updates because integer JSON coordinates reached float-only
+ROS message fields; its raw evidence and clean teardown are retained.
+#91/#92 and the #36 physical acceptance remain separate scheduled work.
 
-## Frozen input and identities
+## Frozen inputs
 
-Candidate: `Simulator/wksim_runtime/ude-flight-v1.json`, raw SHA256
-`4bca3479d61f73d2ab8253191bdc41938904a43877f6b688c0c55e32567c4590`.
-UDE implementation: `Simulator/wksim_control/position_ude.py`, SHA256
+The original candidate file `Simulator/wksim_runtime/ude-flight-v1.json` is
+unchanged: SHA256 `4bca3479d61f73d2ab8253191bdc41938904a43877f6b688c0c55e32567c4590`.
+Its historical `scope` text is retained byte-for-byte for protocol compatibility;
+current implementation status comes from this contract and fresh evidence.
+`position_ude.py` remains unchanged at
 `811f7bab2ae022563035005a76b5475665f15e9f49380ee201a7a64e61c0787b`.
-Upstream commit `5dcd8cfa764d558f3e15dcb88aa7d49e32c54cce`; original UDE
-header working-byte SHA256 `ae0c9a300e435775b836f56667aadf90e4779db0b116218178d747bb50ce6699`.
-#89 raw comparison and identity evidence remain in
-`validation/lunar-89-astra-20260909-02/`; its report records 2446 original C++
-samples at abs=2e-6, rel=2e-7. This task did not rerun that oracle.
+Upstream is Prometheus `5dcd8cfa764d558f3e15dcb88aa7d49e32c54cce`,
+`Modules/uav_control/include/Position_Controller/pos_controller_UDE.h`, working
+bytes SHA256 `ae0c9a300e435775b836f56667aadf90e4779db0b116218178d747bb50ce6699`.
+The #89 original C++ oracle remains separate; this slice does not rerun or alter it.
 
-The candidate explicitly uses UDE Kp=.5, Kd=2, T=1s, disturbance limit=1 on
-each axis, with 8-degree per-axis tilt to retain the PID candidate setting.
-This differs from upstream's default 20 degrees; it is not post-flight tuning.
-Model library SHA256 is
-`cc0bc2d10790043251f38bb6a53f4d774379dd37a02b09cceba43ac1fafb02b3`, quad-X,
-mass 1.515kg, identity `sha256:` followed by that hash. This is parameter/source
-binding, not a runtime mass getter. No physical budget was changed.
-
-Every model, calibration, timing, point, circle, disturbance and envelope field
-is equal to the frozen PID protocol SHA256
+The quad-X library SHA256 is
+`cc0bc2d10790043251f38bb6a53f4d774379dd37a02b09cceba43ac1fafb02b3`, mass 1.515 kg,
+identity `sha256:` plus that hash. UDE uses per-axis Kp=.5, Kd=2, T=1 s,
+disturbance limit=1 and tilt=8 degrees; upstream default tilt=20 degrees is not
+the flight setting. Model/calibration/timing/point/circle/disturbance/envelope
+fields equal the PID protocol, whose bytes remain at
 `25d50ddbbd44e658a72123e6d524a5c5021b355367a99e46a898ec9b9cecadc0`.
-The offline check asserts that equality and records current source hashes.
 
-## Four exact runtime files requiring assigned ownership
+## Source ownership and interface
 
-These edits are proposed, NOT applied. The current two-file write scope cannot
-meet the ticket's requirement for an actually computing, runnable candidate.
+Exactly four runtime files change:
 
-1. `Simulator/wksim_control/position_pid.py:select_controller`: explicit typed
-   pid/PIDConfig and ude/UDEConfig dispatch; instantiate PositionUDE for UDE.
-   Empty/default/native/unknown or mismatched config rejects. No exception
-   handler may substitute PID. Every selection creates reset observer state.
-2. `Simulator/wksim_runtime/pid_task.py`: admit separately pinned protocols;
-   construct the selected config/algorithm in PIDLoop; propagate actual output
-   controller and implementation into trace, resolved config and task report;
-   bind event/protocol identity to the selected immutable bytes. Reuse public
-   XYZ_ATT, authority checks, lifecycle and preparation without another task
-   control interface. Current load_config, PIDLoop, PIDTask and event_for are
-   PID-specific, including hard-coded report labels and protocol hashes.
-3. `tools/run_pid_flight.py`: select the admitted algorithm/protocol, include UDE
-   source/config in pre/post source seals and run-source copies, bind actual
-   controller in admission/results, and route selected protocol to task and
-   physics. Keep the existing isolated shell wrapper, resources and watchdog.
-4. `tools/pid_physics.py`: bind start record and event checks to selected protocol
-   identity, preserving full actuator packets and every original/applied input,
-   1ms tick, immutable event, terminal row and latched revocation semantics.
+1. `Simulator/wksim_control/position_pid.py`: only `select_controller` changes.
+   `pid` requires PIDConfig and creates PositionPID; `ude` requires UDEConfig and
+   creates PositionUDE. Empty/default/native/NE/unknown values and wrong config
+   types reject. The local UDE import avoids the shared-state type import cycle.
+2. `Simulator/wksim_runtime/pid_task.py`: separately pins both protocols, builds
+   the selected typed controller, preserves PIDLoop/PIDTask signatures and
+   public XYZ_ATT publication, and binds controller/implementation/config to
+   report, trace, calibration and event. No PID computation is called for UDE.
+3. `tools/run_pid_flight.py`: the same CLI accepts the exact UDE config, admits
+   it before launch, retains UDE implementation/config in run-source and source
+   hashes, and records `external_ude` in admission/run config. Existing resource
+   reservation, process identity checks, before/after hashes and watchdog remain.
+4. `tools/pid_physics.py`: selected protocol and physics schema bind each run;
+   original actuator packet/input16, applied input16 and every 1 ms step remain.
 
-Required tests need explicit ownership too (existing test files or a separately
-assigned test file). Independent audit adaptation is additional verification
-work, not hidden inside the four runtime edits: `tools/audit_pid_flight.py`
-currently proves PID and cannot certify UDE by renaming the result.
+Verification ownership explicitly adds `tools/audit_ude_flight.py`,
+`validation/test_ude_runtime.py`, and bounded changes to `tools/audit_pid_flight.py`.
+The new auditor owns independent UDE equations. The shared auditor receives an
+explicit immutable caller-selected controller argument (PID default); it never
+chooses the expected algorithm from the run's claimed label and never mutates a
+global profile. Native decoding, request association, fixed metrics and physical
+budgets retain their existing semantics. Existing PID auditor CLI/schema/defaults
+remain compatible. Unknown audit profiles reject.
 
-## Lifecycle, timing and dual-stack requirements
+For outlet and evidence compatibility, `PIDLoop`, `PIDTask`, their internal
+`pid_*` members, `pid_` phase labels, `measured_external_pid` phase flag,
+`pid_updates`, `pid-protocol.json`, `pid-resolved-config.json`, `pid-progress.json`,
+`pid-trace.jsonl`, `pid-disturbance-revoked.json`, and the output directory prefix
+`/root/wksim-pid-flight-*` remain shared legacy names. They do not identify the
+algorithm. UDE is proved by `controller=ude`, PositionUDE implementation identity,
+`external_ude`, frozen UDE SHA, UDE nominal/disturbance output and independent
+recomputation. Event schema is `wksim.ude-disturbance.v1`, physics schema is
+`wksim.ude.physics.v1`, and audit schema is `wksim.ude.audit.v1`.
 
-Each stack/run independently measures 3s native ATTITUDE_TARGET collective median
-and validates 2s level attitude (height change <=.3m, vertical speed <=.2m/s).
-Reject missing/stale samples, wrong stack/model/mass or prior-run calibration.
-Record actual samples and resulting hover; no default hover value is admitted.
-NativeThrustConfig maps projected force using m*9.8/hover and clamps [.1,1].
-AP receives positive collective; PX4 FRD thrust_body is [0,0,-u].
+## State, calibration and timing
 
-Keep fresh armed state, unchanged control_epoch/native_generation and
-COMMAND_CONTROL. PX4 requires OFFBOARD with fresh attitude/rates/allocation true
-and position/velocity/altitude disabled. AP requires GUIDED, actual GUID_OPTIONS
-bit3 readback and native entry target observation. One stack proves no other.
+Each new selection constructs clean state. The loop resets integral, last_output
+and timestamp on selection/takeover/release/restart or native authority/timing
+failure. Successful task lifecycle records selection, takeover_point,
+release_point, takeover_circle, release_circle, takeover_disturbance,
+release_disturbance in `observer_resets`; each UDE trace retains reset_count and
+the last reset's reason, native baseline and zero integral. The independent audit
+starts each stage from zero and rejects a contaminated or mismatched history.
+Changing native generation/epoch fails; the task does not silently restart.
 
-Reset integral, last_output and timestamp baseline on selection, takeover,
-release, restart, authority loss or clock discontinuity. Duplicate native State
-stamp skips; first sample establishes baseline; nonpositive/nonfinite stamp or
-dt outside (0,.2] fails and clears state. Do not clamp dt or fabricate 200Hz.
-Reference time remains physical cursor elapsed, separately recorded from native
-State dt. At most one public request pending, ack deadlines .2 simulated/2 wall
-seconds. A generation change fails the run; it cannot resume with a silent reset.
+Duplicate State stamps skip without updating the observer. The first stamp
+establishes baseline; later dt must be actual native elapsed time in (0,.2] s.
+Nonfinite/nonpositive/backward/over-limit times clear state and fail. Reference
+elapsed time is separately taken from the model physical cursor. No fixed 200 Hz,
+wall-clock replacement, dt clamping or catch-up updates are introduced.
 
-UDE uses old integral in its observer, then updates/clears it according to the
-original abs(error)<.5 rule; moving reference does not clear history. Trace must
-contain nominal/disturbance acceleration, integral, force, body projection,
-normalized output, source state/reference/dt, reset reasons, request/command IDs,
-run/epoch/native generation, model and selected source/config/calibration hashes.
-Measured stages publish XYZ_ATT only. Native position is permitted only in
-labelled preparation/recovery/landing outside UDE measurements.
+UDE clamps position and velocity errors to [-3,3], computes nominal acceleration,
+uses the old integral for disturbance estimation, then accumulates e*dt only
+where abs(e)<.5 and otherwise clears that axis. Moving reference retains history.
+Nominal minus limited disturbance passes through original vertical force scaling,
+per-axis tilt limits, current-yaw rotation and current body-Z projection.
 
-## Frozen windows and failure acceptance
+Each stack independently collects native ATTITUDE_TARGET collective for 3 s,
+freezes its median, then validates level attitude for 2 s (height change <=.3 m,
+vertical speed <=.2 m/s). No previous-run/default hover is admitted. Mapping uses
+m*9.8/hover, clamp [.1,1]; AP uses positive collective and PX4 FRD [0,0,-u].
+Calibration samples, stack/model/mass and phase ordering are independently checked.
 
-Point [2,3,3], yaw0: 6s settling +4s measurement, error<=.3m, speed<=.3m/s,
-yaw<=.15rad. Circle center [1.4,3,3], radius .6m, period12s, yaw0: 12s settling
-+12s measurement, error<=.35m, yaw<=.15rad; analytic position/velocity/acceleration
-all feed the UDE algorithm. Disturbance: settle6s then multiply channels0..3 by
-.97 for exactly1000 ticks, start=origin+2000, loaded at least1000 ticks ahead.
-Other12 inputs unchanged. Maximum error .5m; recover within8s after event end,
-final fixed1.5s continuously error<=.3m, speed<=.3m/s, yaw<=.15rad.
-Envelope: distance<=4m, height1.5..4.5m, each tilt axis<=15deg. Model step1ms.
-Keep PID recovery budgets and 360s wall watchdog from the source contract.
-Any failure preserves raw data, revokes disturbance and uses bounded existing
-LAND/owned-child cleanup. No retry, retuning, native-position substitution or
-successful-flight claim follows a failed measured window.
+Fresh armed state, COMMAND_CONTROL, unchanged epoch/generation, AP GUIDED with
+GUID_OPTIONS bit3 readback/native entry target, or PX4 OFFBOARD with verified
+attitude/rates/allocation enabled and position/velocity/altitude disabled remain
+required. One public request stays pending until public ACK plus native outlet
+and two distinct native feedback stamps; timeout remains .2 simulated/2 wall s.
+Preparation/recovery/landing native position helpers remain outside measurements.
 
-## Command status and independent audit plan
+## Physical budgets and failure behavior
 
-Runnable now, offline only, from repository root:
+Point [2,3,3], yaw0: 6 s settling + 4 s measurement; position <=.3 m,
+speed <=.3 m/s, yaw <=.15 rad. Circle center [1.4,3,3], radius .6 m,
+period 12 s, yaw0: 12 s settling + 12 s measurement; position <=.35 m,
+yaw <=.15 rad. Analytic position/velocity/acceleration all feed UDE.
+Disturbance: settle 6 s, declare origin, start=origin+2000 ticks, load >=1000
+ticks before start; channels 0..3 multiply .97 for exactly 1000 ticks. Other
+12 inputs stay unchanged. Error <=.5 m, recover within 8 s after event end,
+final fixed 1.5 s continuously <=.3 m position/.3 m/s speed/.15 rad yaw.
+Envelope remains distance <=4 m, height 1.5..4.5 m, per-axis tilt <=15 degrees.
+Model step is .001 s; 360 s wall watchdog unchanged. No extra UDE overshoot gate
+or post-observation tolerance/physical tuning is introduced.
+
+Any failure retains original evidence, latches disturbance revocation and uses
+existing bounded LAND/owned-process teardown. No retry/fallback/retuning is part
+of a run. `observed` and online metrics remain insufficient for audited PASS.
+
+## Exact commands
+
+Offline verification from the repository root (no native processes):
 
 ```powershell
-python -B validation/lunar-90-astra-20260909-01/check.py
+python -B -m unittest validation.test_position_pid validation.test_position_ude validation.test_pid_flight validation.test_pid_flight_audit validation.test_ude_runtime -v
+python -B tools/run_pid_flight.py --help
+python -B tools/audit_ude_flight.py --help
+python -B validation/ude-runtime-implementation-20260909/check.py --output validation/ude-runtime-implementation-20260909/offline-run-01
 ```
 
-It computes a real UDE update, exercises reset and both synthetic thrust mappings,
-checks unchanged budgets, and proves the existing loader rejects this candidate.
-Synthetic hover=.5 in this check is not a run calibration.
+The check requires a new output directory, records commands/source identities,
+raw equation comparisons and unittest stdout/stderr. A Windows ROS message test
+may skip; this is reported, not counted as installed ROS proof.
 
-Following commands specify the proposed reuse interface, NOT currently runnable
-UDE commands. Do not launch #91/#92 until #35 and implementation, tests, source
-seals, stack-specific preflight and independent UDE audit prerequisites pass.
-Each command is a separate single run with unused ID and directory:
+Following commands are now implemented, but require main-agent resource release,
+the sealed WSL candidate resources and fresh stack preflight before actual flight.
+Execute from the repository root in Ubuntu-22.04; each command runs one stack.
+The IDs below must be unused. Preserve each stdout and every raw run artifact.
 
 ```bash
+bash tools/run-pid-flight.sh --stack px4 --run-id ude-px4-90-01 --config Simulator/wksim_runtime/ude-flight-v1.json --preflight
+bash tools/run-pid-flight.sh --stack arducopter --run-id ude-ap-90-01 --config Simulator/wksim_runtime/ude-flight-v1.json --preflight
 bash tools/run-pid-flight.sh --stack px4 --run-id ude-px4-90-01 --config Simulator/wksim_runtime/ude-flight-v1.json --output-root /root/wksim-pid-flight-ude-px4-90-01
 bash tools/run-pid-flight.sh --stack arducopter --run-id ude-ap-90-01 --config Simulator/wksim_runtime/ude-flight-v1.json --output-root /root/wksim-pid-flight-ude-ap-90-01
 ```
 
-Today both fail protocol admission before flight. After implementation, first
-check each with `--preflight` and a distinct fresh ID; preserve raw output and
-actual installed FC/control/model/overlay identities. Actual flight must seal
-all loaded code and before/after hashes and report cleanup/terminal status.
+For each independent audit, source the exact admitted overlay (the same list is
+returned as admission.setup_files), then execute the corresponding command:
 
-Independent audit must reconstruct UDE from original equations and recorded
-source state/reference/dt, not invoke the online loop or accept its metrics.
-Check observer state/reset history and force/mapping with the frozen #89
-abs/rel tolerance; separately trace public IDs/CDR to real AP/PX4 native attitude
-and actuator consumption. Recompute physical budgets over complete 1ms windows.
-Reject deleted/duplicate tick, missing terminal, wrong run/model/calibration,
-retagged PID output, stale authority, position help during measurement, changed
-event/input, wrong clock reference, retained observer after reset and a single
-over-budget sample. Audit output must distinguish algorithm/native/physics
-findings. observed/online_ok is not independent PASS. No UDE auditor CLI is
-claimed to exist yet.
+```bash
+source /opt/ros/humble/setup.bash
+source /root/wksim-dds-VxM6Ni/ros-install/local_setup.bash
+source /root/wksim-ros2-MUlZd0/install/local_setup.bash
+source /root/wksim-ap-attitude-msgs-qOmnF9fT/install/local_setup.bash
+source /root/wksim-attitude-control-x3_2v4wb/install/local_setup.bash
+export PYTHONPATH="/root/wksim-attitude-audit-deps-g_2y8olg:$PYTHONPATH"
+python3 -B tools/audit_ude_flight.py --run-dir /root/wksim-pid-flight-ude-px4-90-01/ude-px4-90-01 --output /root/ude-px4-90-01-audit.json
+python3 -B tools/audit_ude_flight.py --run-dir /root/wksim-pid-flight-ude-ap-90-01/ude-ap-90-01 --output /root/ude-ap-90-01-audit.json
+```
 
-## Current evidence and next action
+Audit output is exclusively created outside the sealed run. Exit0 means
+`recorded_evidence_pass`; exit1 means rejected/incomplete with completed checks
+and first failure retained. Expected double recomputation tolerance is 1e-10,
+wire tolerance 1e-6, exactly as the PID double audit; these do not relax physical
+budgets or replace the separate original C++ float oracle's abs2e-6/rel2e-7.
+Input file hashes plus retained run-source, admission/postflight, actual binaries,
+loaded model, installed Control, calibration samples and event bytes are sealed.
+Audit reports distinguish ude_recomputed, native associations, physics and metrics.
 
-`validation/lunar-90-astra-20260909-01/check.log`: 38 tests passed, zero skips,
-plus offline candidate assertions; loader rejects with
-`PID trial configuration differs from the pre-run frozen protocol`.
-No FC/model/ROS/UE process started. Existing runtime files unchanged.
-Runtime integration, source-sealed launch and UDE independent audit remain
-unproven. Resolve #35 and assign the four runtime files plus verification
-ownership before implementation. Configuration-only delivery does not close #90.
+## Remaining acceptance boundaries
+
+Offline implementation evidence is in `validation/ude-runtime-implementation-20260909/`.
+Real installed-stack preflight evidence is in
+`validation/ude-runtime-acceptance-20260909/`: PX4 and ArduCopter both returned
+exit0, `ok=true`, an empty reasons list and the exact UDE protocol/implementation.
+Both reported `children_created=0`, `ros_nodes_started=false` and `flown=false`;
+preflight admission does not establish flight or physical acceptance.
+UDE PX4/AP flights, native raw evidence, physical point/circle/disturbance budgets,
+actual hover values and stack-specific cleanup remain unverified; #91/#92 have
+not passed.
+No exact first native acceptance tick or activity between sampled native log
+observations is established. No Full/UI/joint rate/NE/motor-efficiency acceptance
+is claimed. #36 remains open and main review controls #90 disposition.

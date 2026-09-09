@@ -1,4 +1,4 @@
-"""Bounded #35 external PID run using the sealed #34 attitude candidate outlet."""
+"""Bounded explicit PID/UDE external position run using the sealed #34 attitude candidate outlet."""
 import argparse
 import hashlib
 import importlib.util
@@ -75,7 +75,7 @@ def run(admission, output, pid_config, config_path):
     resource = resources(config, directory)
     result = dict(status='failed', experimental=True, production_admitted=False,
         stack=config['stack'], run_id=config['run_id'],
-        config=dict(config, controller='pid', external_pid=pid_config), run_dir=str(directory),
+        config=dict(config, controller=pid_config['controller'], **{'external_'+pid_config['controller']: pid_config}), run_dir=str(directory),
         admission=admission, children={}, phases=[], safe_landing=False, resources=resource,
         scope=pid_config['scope'])
     (directory/'pid-protocol.json').write_bytes(Path(config_path).read_bytes())
@@ -95,6 +95,9 @@ def run(admission, output, pid_config, config_path):
         'Simulator/wksim_core/model.cpp','Simulator/wksim_core/ap_json.py',
         'Simulator/wksim_core/px4_mavlink.py','Simulator/wksim_core/state_stream.py',
         'Simulator/wksim_core/arducopter-quad-x.parm','Simulator/wksim_core/px4-rc.mavlink']
+    if pid_config['controller'] == 'ude':
+        source_names += ['Simulator/wksim_control/position_ude.py',
+                         'Simulator/wksim_runtime/ude-flight-v1.json']
     result['source_sha256']={name:digest(REPO/name) for name in source_names}
     for name in source_names:
         target=directory/'run-source'/name
@@ -224,18 +227,18 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--stack',required=True,choices=('px4','arducopter'))
     parser.add_argument('--run-id',required=True)
-    parser.add_argument('--config',required=True,type=Path,help='Exact frozen pid-flight-v1.json; no default controller')
+    parser.add_argument('--config',required=True,type=Path,help='Exact frozen pid-flight-v1.json or ude-flight-v1.json; no default controller')
     parser.add_argument('--output-root',type=Path)
     parser.add_argument('--preflight',action='store_true')
     parser.add_argument('--prepared',action='store_true',help=argparse.SUPPRESS)
     args=parser.parse_args()
-    from Simulator.wksim_runtime.pid_task import load_config, CONFIG_SHA256
+    from Simulator.wksim_runtime.pid_task import load_config, protocol_sha256, implementation
     pid_config=load_config(args.config)
     from attitude_candidate import admit
     admission=admit(args.stack,args.run_id)
-    admission['external_pid']=dict(configuration=pid_config,protocol_sha256=CONFIG_SHA256,
-        implementation='Simulator.wksim_control.position_pid.PositionPID',
-        hover='Must be independently observed and level-validated in this run before PID measurement')
+    admission['external_'+pid_config['controller']]=dict(configuration=pid_config,protocol_sha256=protocol_sha256(pid_config),
+        implementation=implementation(pid_config),
+        hover='Must be independently observed and level-validated in this run before '+pid_config['controller'].upper()+' measurement')
     if admission['ok'] and digest(admission['library']) != pid_config['model']['library_sha256']:
         raise ValueError('PID fixed model library identity differs from candidate admission')
     if not admission['ok'] or args.preflight:
