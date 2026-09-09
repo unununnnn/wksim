@@ -1,0 +1,36 @@
+    PID    PPID ELAPSED COMMAND
+      1       0      25 /sbin/init
+      2       1      25 /init
+      8       2      25 plan9 --control-socket 7 --log-level 4 --server-fd 8 --pipe-fd 10 --log-truncate
+     59       1      25 /lib/systemd/systemd-journald
+     86       1      25 /lib/systemd/systemd-udevd
+    166       1      24 /lib/systemd/systemd-resolved
+    167       1      24 /lib/systemd/systemd-timesyncd
+    188       1      24 /bin/bash /opt/actions-runner/aesim/runsvc.sh
+    190       1      24 /usr/sbin/cron -f -P
+    191       1      24 @dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only
+    198       1      24 /usr/bin/python3 /usr/bin/networkd-dispatcher --run-startup-triggers
+    199       1      24 /usr/sbin/rsyslogd -n -iNONE
+    203       1      24 /lib/systemd/systemd-logind
+    206     188      24 ./externals/node20/bin/node ./bin/RunnerService.js
+    209       1      24 /usr/bin/containerd
+    220       1      24 /sbin/agetty -o -p -- \u --noclear --keep-baud console 115200,38400,9600 vt220
+    224       1      24 /sbin/agetty -o -p -- \u --noclear tty1 linux
+    233       1      24 /usr/bin/python3 /usr/share/unattended-upgrades/unattended-upgrade-shutdown --wait-for-signal
+    304       1      24 /lib/systemd/systemd-timedated
+    314     206      24 /opt/actions-runner/aesim/bin/Runner.Listener run --startuptype service
+    326       1      24 /usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock
+    578       2      22 /init
+    579     578      22 /init
+    580     579      22 python3 -B /mnt/c/Users/PC/Documents/odid编译/wksim/tools/run_pid_flight.py --stack px4 --run-id pid-px4-20260909-02-7e3ce147 --config Simulator/wksim_runtime/pid-flight-v1.json --output-root /root/wksim-pid-flight-pid-px4-20260909-02-7e3ce147
+    581       2      22 /bin/login -f
+    623       1      22 /lib/systemd/systemd --user
+    624     623      22 (sd-pam)
+    636     581      22 -bash
+   1363      86       1 /lib/systemd/systemd-udevd
+   1364      86       1 /lib/systemd/systemd-udevd
+   1365      86       1 /lib/systemd/systemd-udevd
+   1366      86       1 /lib/systemd/systemd-udevd
+   1367      86       1 /lib/systemd/systemd-udevd
+   1371     578       0 /init
+   1372    1371       0 ps -eo pid,ppid,etimes,args

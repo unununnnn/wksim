@@ -1,0 +1,14 @@
+{
+  "schema": "wksim.gnss.readiness-review.v1",
+  "status": "blocked",
+  "flight_started": false,
+  "dependencies_closed": true,
+  "runtime_preflight_passed": false,
+  "full_flight_audit_passed": false,
+  "blockers": [
+    "AP candidate fixes outage at startup ticks [4000,6000) and rejects tick >60000; no post-readiness plan interface.",
+    "GNSS-specific physical envelope, validity-loss/recovery windows and native failsafe policy need an explicit reviewed contract; #22 covers Agent link only.",
+    "Seven runtime/config/audit/test deliverables are absent; no executable dual-stack flight entry."
+  ],
+  "verified_scope": "Existing PX4 send-boundary tests and archived AP ground raw audit only."
+}
