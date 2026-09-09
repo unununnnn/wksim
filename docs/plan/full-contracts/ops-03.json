@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "issue": 154,
+  "stable_key": "full-ops-03",
+  "title": "XML and model metadata",
+  "source": {
+    "file": "docs/plan/full-scope-expansion.md",
+    "line": 71,
+    "ledger_id": "OPS-03",
+    "ledger_file": "docs/plan/full-followup-tickets.json",
+    "parent_issue": 26,
+    "parent_state": "OPEN"
+  },
+  "status": "defined",
+  "evidence_status": "partial-evidence",
+  "full_complete": false,
+  "current_gap": "Vendor XML observations exist, but no owned versioned parser binds ModelInfo/HoverInfo/FrameInfo/ClassID, defaults, units and errors to an asset and model identity.",
+  "atoms": [
+    {"id": "OPS-03-A", "name": "ModelInfo", "status": "partial", "required": "Parsed typed fields, units, defaults, source/hash and model identity", "owner": "model-import maintainer"},
+    {"id": "OPS-03-B", "name": "HoverInfo", "status": "partial", "required": "Field semantics, reference condition, units and ranges", "owner": "model-import maintainer"},
+    {"id": "OPS-03-C", "name": "FrameInfo", "status": "partial", "required": "Rotor/arm order, geometry, signs, mixer and stack binding", "owner": "model-import maintainer"},
+    {"id": "OPS-03-D", "name": "ClassID", "status": "blocked", "required": "Explicit namespace-to-asset manifest binding and mismatch rejection", "owner": "asset/runtime maintainer"},
+    {"id": "OPS-03-E", "name": "defaults_units_errors", "status": "blocked", "required": "Versioned required fields, conversions, defaults and distinct error codes", "owner": "model-import maintainer"}
+  ],
+  "record_contract": {
+    "required": ["schema", "model_id", "source", "model_info", "hover_info", "frame_info", "class_id", "defaults", "units", "compatibility", "parser_identity"],
+    "source_rule": "explicit path and SHA-256; source remains read-only",
+    "accepted_means": "parsed, normalized and stored metadata only",
+    "class_id_rule": "ClassID=-1 is not an asset binding"
+  },
+  "errors": ["accepted", "parse_error", "unsupported_schema", "missing_field", "invalid_unit", "invalid_value", "frame_mismatch", "class_unbound", "source_mismatch", "asset_mismatch"],
+  "followups": [
+    {"key": "ops-03-metadata-reader", "files": ["Simulator/wksim_core/<metadata-reader>.py", "validation/<metadata-reader-tests>.py"], "status": "proposed", "blocked_by": "No owned XML schema/parser exists"},
+    {"key": "ops-03-frame-class-binding", "files": ["asset/runtime source reserved after #56/#58", "validation/<asset-binding-tests>.py"], "status": "proposed", "blocked_by": "Asset ownership and ClassID namespace decision"},
+    {"key": "ops-03-generated-import", "files": ["model-import source reserved under #26", "validation/<metadata-import-tests>.py"], "status": "proposed", "blocked_by": "#26 generation/source contract"},
+    {"key": "ops-03-negative-audit", "files": ["validation/<metadata-audit>.py"], "status": "proposed", "blocked_by": "Metadata reader and fixtures"}
+  ],
+  "preserved": {"vendor_material": "read-only local evidence; not redistributed", "r1": "numerical_failed", "full_complete": false}
+}
