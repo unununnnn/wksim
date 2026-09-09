@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "issue": 144,
+  "stable_key": "full-model-10",
+  "title": "CarNoCtrl model",
+  "source": {
+    "file": "docs/plan/full-scope-expansion.md",
+    "line": 55,
+    "ledger_id": "MODEL-10",
+    "ledger_file": "docs/plan/full-followup-tickets.json",
+    "parent_issues": [1]
+  },
+  "status": "defined",
+  "evidence_status": "no-evidence",
+  "full_complete": false,
+  "current_gap": "The no-controller car is uncovered; direct inputs and model observation are missing, and acceptance must not depend on a flight controller.",
+  "atoms": [
+    {"id": "MODEL-10-A", "name": "direct_input_interface", "status": "blocked", "required": "Direct vehicle inputs (no FC) with units, limits and identity", "owner": "model maintainer"},
+    {"id": "MODEL-10-B", "name": "model_observation", "status": "blocked", "required": "Truth observation outputs of the model under direct inputs", "owner": "physics maintainer"},
+    {"id": "MODEL-10-C", "name": "fc_independence", "status": "partial", "required": "Rule enforced: acceptance never starts or requires a flight controller", "owner": "validation maintainer"},
+    {"id": "MODEL-10-D", "name": "terrain_dependency", "status": "blocked", "required": "Ground contact via the OPS-07 environment contract", "owner": "physics maintainer"}
+  ],
+  "model_required": ["model_identity", "vehicle_class=car_noctrl", "input_schema", "observation_schema", "mass_kg", "inertia", "terrain_requirements", "source", "source_sha256"],
+  "scope_rule": "no-controller acceptance exercises the model directly; FC-based evidence is a different mode",
+  "errors": ["accepted", "model_not_found", "input_invalid", "observation_missing", "fc_required_rejected", "terrain_unavailable"],
+  "followups": [
+    {"key": "model-10-model-source", "files": ["docs/plan/<carnoctrl-source>.json"], "status": "proposed", "blocked_by": "Model source selection and OPS-07 static query seam"},
+    {"key": "model-10-observation-slice", "files": ["Simulator/wksim_core/<carnoctrl-model>.py", "validation/<carnoctrl-audit>"], "status": "proposed", "blocked_by": "Model source"}
+  ],
+  "preserved": {"fc_modes": "FC-based vehicle evidence stays a different mode", "full_complete": false}
+}
