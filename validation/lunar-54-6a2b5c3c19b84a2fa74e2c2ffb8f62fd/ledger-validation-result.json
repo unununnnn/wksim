@@ -1,0 +1,6 @@
+{
+  "command": "python -c \"import json; from pathlib import Path; x=json.loads(Path('docs/plan/full-remaining-ledger.json').read_text(encoding='utf-8')); assert x['scope']['entry_count']==96 and x['validation']['source_id_set_equals_ledger_id_set'] and not x['validation']['duplicate_source_ids'] and not x['validation']['duplicate_ledger_ids']; assert [v['count'] for v in x['source_sets'].values()]==[48,12,7,16,13]; assert all(e['gap'] for e in x['entries']); print('ledger validation passed: 96 entries; 48/12/7/16/13; IDs equal; no duplicates; all gaps explicit')\"",
+  "finished_utc": "2026-09-09T08:11:08.1272853Z",
+  "stdout_sha256": "dec02c7a26f7244b5f5dd43e93c7c06fd53b67d07fa6629609ea1cfff3f3948f",
+  "exit_code": 0
+}
