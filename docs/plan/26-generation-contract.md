@@ -79,4 +79,3 @@ Get-FileHash -Algorithm SHA256 -LiteralPath 'E:/rflysimtools/RflySimAPIs/4.RflyS
 失败时原件追加新目录保存，停止该链；不得覆盖、换源、修改pin或放宽预算后将原失败改成通过。当前文档提供阻塞合同，没有产生此新schema的运行结果。
 
 本次证据位于 `validation/lunar-70-source-20260909-01/`。仅hash/帮助命令，无模型/飞控/ROS/UE/MATLAB子进程。实际任务模型 `gpt-6-astra`、effort `low`，由当前 CODEX_THREAD_ID 对应session的最新turn_context核验；没有委派。
-
