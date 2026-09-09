@@ -66,3 +66,22 @@ substituted hover, native position during measurement, missed tick and altered
 disturbance bindings remain rejection cases. Native sampling limitations remain
 explicit; no exact unseen acceptance time is claimed. #95/#96 are complete for
 this NE physical slice; R1, RateUnmet and Full remain unchanged.
+
+## Recorded flight results
+
+PX4 run `ne-px4-acceptance-20260910-01` completed and landed with owned-child
+cleanup intact. Its first audit invocation was rejected by a missing auditor
+argument; that report remains preserved. The corrected independent audit is
+`validation/ne-runtime-acceptance-20260910/px4-boundary2-strict-audit-report.json`,
+SHA256 `5cd6eff3b8bdf817035e6d31b2f9579346be61c32e5c31102f369c6f090e4e48`.
+It checked 93,400 physical ticks, 850 native associations and NE recomputation
+counts point 167 / circle 399 / disturbance 284. Maximum position errors were
+0.104605 m, 0.142220 m and 0.119038 m for point, circle and disturbance.
+
+ArduCopter run `ne-arducopter-acceptance-20260910-01` also completed and landed
+with 659 native associations, 510 motor comparisons and 126,336 physical ticks.
+Its strict audit is `validation/ne-runtime-acceptance-20260910/arducopter-strict-audit-report.json`,
+SHA256 `c12fc18c3f95cc8bc62b371d0bf20833d662a3531a9feba7ca0ce1f9f76be688`.
+NE recomputation counts were point 132 / circle 307 / disturbance 220; maximum
+position errors were 0.163224 m, 0.158618 m and 0.160244 m. Both reports bind
+the same frozen protocol/model/source manifest and retain exact input hashes.
