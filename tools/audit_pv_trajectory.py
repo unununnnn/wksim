@@ -97,6 +97,7 @@ def truth_window(rows, start_ns, end_ns):
 
 
 def retained_identity(root, result):
+    candidate_initialization(root, result)
     if 'mixed_admission' in result:
         from audit_mixed_control import retained_identity as mixed_identity
         return mixed_identity(root, result, task_profile=PROFILE)
@@ -208,6 +209,33 @@ def retained_identity(root, result):
     return dict(source_files=len(sources), retained_control_files=len(actual), admitted_ap_source_files=verified['source_files'],
                 native_executable_sha256={s: v['sha256'] for s, v in expected_firmware.items()},
                 loaded_maps_verified=['running', 'completed'])
+
+
+def candidate_initialization(root, result):
+    if 'initialization' not in result:
+        return
+    value = result['initialization']
+    require(value['physical_tick']==0 and value['task_execution_requires_go'] is True
+            and set(value['tasks'])==set(value['models'])=={'arducopter','px4'}, 'Candidate startup scope differs')
+    for stack,uid in STACKS:
+        row=value['tasks'][stack]; model=value['models'][stack]
+        require(row==read(root/stack/'initialized.json') and row['version']==1
+                and row['run_id']==result['run_id'] and row['scene_epoch']==result['scene_epoch']
+                and row['uav_id']==uid and row['task_profile']==result['task_profile'] and row['ros_time_ns']==0
+                and model['epoch']==result['scene_epoch'] and type(model['tick']) is int
+                and model['tick']==0 and model['state'] is None, 'Candidate initialization advanced or crossed identity')
+        require(set(row['request_graph'])=={'setup','command'}, 'Missing initialized request graph')
+        for endpoints in row['request_graph'].values():
+            require(len(endpoints)==2 and {e['node_name'] for e in endpoints}=={
+                'wksim_joint_'+stack+'_control','wksim_joint_flight_clock'}
+                and len({e['endpoint_gid'] for e in endpoints})==2
+                and all(e['node_namespace']=='/' and int(e['endpoint_gid'],16)>0 for e in endpoints),
+                'Candidate initialized graph differs')
+    anchors=[r for r in lines(root/'rate.jsonl') if r['kind']=='rate_anchor']
+    require(anchors and value['completed_monotonic_ns']<=anchors[0]['anchor']['wall_ns']
+            and all(r['captured_monotonic_ns']<=value['completed_monotonic_ns']
+                    for r in result['native_runtime_maps']['running'].values()),
+            'Candidate startup mapping did not precede the initial rate anchor')
 
 
 def decode(root, result, *, admission_key='pv_admission', message_packages=None, wall_limit=900):

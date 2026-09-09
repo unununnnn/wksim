@@ -104,6 +104,8 @@ def control_profiles(result, *, require_pv=False):
 
 
 def retained_identity(root, result, *, task_profile=PROFILE):
+    from audit_pv_trajectory import candidate_initialization
+    candidate_initialization(root, result)
     require(task_profile in (PROFILE, PV_PROFILE), 'Unsupported task for mixed firmware audit')
     require(result['status'] == 'pass' and result['flight_completed'] and result['source_unchanged']
             and result['control_shutdown_clean'] and not result['cleanup_errors'], 'Candidate run/cleanup did not pass')

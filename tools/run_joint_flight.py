@@ -102,6 +102,16 @@ def task_main(args):
             while task.task_time() == 0:
                 health()
                 rclpy.spin_once(task.node, timeout_sec=.02)
+        elif args.task_profile in (PV_PROFILE, MIXED_PROFILE):
+            deadline = time.monotonic()+15
+            while not task.request_graph_ready():
+                health()
+                if time.monotonic()>=deadline:
+                    raise TimeoutError('Candidate task transport initialization exceeded 15 wall seconds')
+                rclpy.spin_once(task.node, timeout_sec=.02)
+            save(root/'initialized.json',dict(version=1,run_id=args.run_id,scene_epoch=args.scene_epoch,
+                uav_id=args.uav_id,task_profile=args.task_profile,request_graph=task.pv_request_graph,
+                ros_time_ns=task.node.get_clock().now().nanoseconds))
         task.wait('joint_public_ready', lambda: (task.recovery_transport_fresh() if args.task_mode=='recover' else task.fresh())
                   and (task.request_graph_ready() if args.task_profile in (PV_PROFILE, MIXED_PROFILE) else
                        task.setup_pub.get_subscription_count() == task.command_pub.get_subscription_count() == 1), 55)
@@ -577,6 +587,29 @@ def run(args):
                 launch(stack+'-control',command,directory,control_environment(control))
                 launch_task(stack,uid,directory)
             save(live/'children-start.json',result['children'])
+            if candidate:
+                deadline = time.monotonic()+15
+                while not all((live/stack/'initialized.json').is_file() for stack in ('arducopter','px4')):
+                    physics_health()
+                    if time.monotonic()>=deadline:
+                        raise TimeoutError('Candidate transport initialization exceeded 15 wall seconds before clock start')
+                    time.sleep(.002)
+                initialized = {}
+                for stack,uid in (('arducopter',1),('px4',2)):
+                    record = json.loads((live/stack/'initialized.json').read_text())
+                    if (record['version']!=1 or record['run_id']!=result['run_id']
+                            or record['scene_epoch']!=clock.epoch or record['uav_id']!=uid
+                            or record['task_profile']!=args.task_profile or record['ros_time_ns']!=0):
+                        raise ValueError('Candidate startup identity or zero clock differs')
+                    initialized[stack] = record
+                from Simulator.wksim_core.worker import receive_worker
+                snapshots = {stack:receive_worker(worker,dict(version=1,epoch=clock.epoch,snapshot=True),clock.epoch)
+                             for stack,worker in workers.items()}
+                if clock.tick!=0 or any(row['tick']!=0 or row['state'] is not None for row in snapshots.values()):
+                    raise ValueError('Candidate startup advanced the model clock')
+                record_native_maps('running')
+                result['initialization'] = dict(physical_tick=0,tasks=initialized,models=snapshots,
+                    task_execution_requires_go=True,completed_monotonic_ns=time.monotonic_ns())
             physics.connect()
             summaries = {name:dict(max_height_m=0., min_waypoint_error_m=1e30) for name in workers}
             land_pacing_next = None
@@ -608,7 +641,7 @@ def run(args):
                 if dds_pending is not None and not dds_handled:
                     recover_agent(advance)
                 states = advance()
-                if clock.tick==5000:
+                if clock.tick==5000 and not candidate:
                     record_native_maps('running')
                 if not (live/'go.json').exists() and all((live/name/'ready.json').exists() for name in workers):
                     save(live/'go.json', clock.snapshot())
