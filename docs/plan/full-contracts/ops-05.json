@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "issue": 156,
+  "stable_key": "full-ops-05",
+  "title": "Network and remote operation",
+  "source": {
+    "file": "docs/plan/full-scope-expansion.md",
+    "line": 73,
+    "ledger_id": "OPS-05",
+    "ledger_file": "docs/plan/full-followup-tickets.json",
+    "parent_issues": [13, 19]
+  },
+  "status": "defined",
+  "evidence_status": "partial-evidence",
+  "full_complete": false,
+  "current_gap": "Same-host independent and joint-scene isolation is evidenced only for bounded cases; broadcast, remote host, full JSON/UDP modes and cross-host distributed operation are not accepted.",
+  "atoms": [
+    {"id": "OPS-05-A", "name": "udp_broadcast_discovery", "status": "blocked", "required": "Source-backed scope, identity, timeout/retry and refusal rules", "owner": "transport maintainer"},
+    {"id": "OPS-05-B", "name": "designated_host_unicast", "status": "partial", "required": "Host allowlist, route/MTU, loss/reconnect and end-to-end evidence", "owner": "transport maintainer"},
+    {"id": "OPS-05-C", "name": "json_online_link", "status": "partial", "required": "Framing, auth, replay/epoch, timeout and compatibility contract", "owner": "control/API maintainer"},
+    {"id": "OPS-05-D", "name": "port_allocation", "status": "partial", "required": "Per-instance allocation/collision/release across address families", "owner": "runtime maintainer"},
+    {"id": "OPS-05-E", "name": "run_transport_identity", "status": "partial", "required": "Identity propagation and foreign/duplicate/old rejection", "owner": "runtime maintainer"},
+    {"id": "OPS-05-F", "name": "same_host_multiple_instances", "status": "partial", "required": "N-instance isolation and failure independence", "owner": "runtime maintainer"},
+    {"id": "OPS-05-G", "name": "cross_host_distributed", "status": "blocked", "required": "Authorized two-host transport, security, clock, recovery and audit", "owner": "integration maintainer"}
+  ],
+  "manifest_required": ["run_id", "instance_id", "vehicle_id", "epoch", "stack", "protocol", "source_host", "destination_host", "address_family", "bind_address", "port", "namespace_or_domain", "native_identity", "output_root", "timeout_policy"],
+  "identity_rule": "foreign run/epoch/vehicle/sequence is rejected before state mutation",
+  "connection_not_completion": true,
+  "errors": ["accepted", "bound", "connected", "timed_out", "rejected_foreign", "port_collision", "host_not_allowed", "authentication_failed", "stale_epoch", "transport_lost", "remote_failed", "cleanup_failed", "completed"],
+  "followups": [
+    {"key": "ops-05-local-identity-ports", "files": ["Simulator/wksim_runtime/isolation.py", "Simulator/wksim_runtime/config.py", "validation/<local-network-matrix>"], "status": "proposed", "blocked_by": "Complete same-host matrix not yet run"},
+    {"key": "ops-05-json-link", "files": ["existing local HTTP/JSON boundary reserved", "validation/<json-link-contract>"], "status": "proposed", "blocked_by": "Framing/auth/replay decision"},
+    {"key": "ops-05-udp-transport", "files": ["transport source reserved after contract", "validation/<udp-transport-audit>"], "status": "proposed", "blocked_by": "Broadcast/designated-host source contract"},
+    {"key": "ops-05-cross-host", "files": ["remote integration source reserved after authorization", "validation/<cross-host-audit>"], "status": "proposed", "blocked_by": "Host/network/security/clock resources"}
+  ],
+  "preserved": {"parent_13": "bounded same-host independent experiments", "parent_19": "bounded same-host joint scene", "remote_action": "none", "full_complete": false}
+}
