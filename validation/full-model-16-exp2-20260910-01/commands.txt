@@ -1,0 +1,15 @@
+Working directory: C:/Users/PC/Documents/odid编译/wksim
+
+Read-only inputs:
+  Get-Content docs/plan/full-scope-expansion.md
+  Get-Content docs/plan/full-remaining-ledger.json
+  Get-Content docs/plan/full-followup-tickets.json
+  Get-Content tools/probe_model_reference_readiness.py
+  gh issue view 151 --repo unununnnn/wksim --json number,title,body,state,labels,comments
+  gh issue view 26 --repo unununnnn/wksim --json number,title,body,state,labels,comments
+
+Validation:
+  python -B validation/full-model-16-exp2-20260910-01/validate.py
+  git diff --check -- docs/plan/full-contracts/model-16-exp2.md docs/plan/full-contracts/model-16-exp2.json validation/full-model-16-exp2-20260910-01
+
+No generation, build, import or run was performed and no material was fabricated; no UE, FC, model, ROS, MATLAB or hardware process was started.

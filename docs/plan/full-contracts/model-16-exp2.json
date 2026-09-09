@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "issue": 151,
+  "stable_key": "full-model-16-exp2",
+  "title": "Exp2_MaxModelTemp generated-model template",
+  "source": {
+    "file": "docs/plan/full-scope-expansion.md",
+    "line": 61,
+    "ledger_id": "MODEL-16",
+    "ledger_file": "docs/plan/full-followup-tickets.json",
+    "parent_issues": [26]
+  },
+  "status": "defined",
+  "evidence_status": "no-evidence",
+  "full_complete": false,
+  "current_gap": "Each template's I/O, generation, build, import and run flow is separate; Exp2_MaxModelTemp has no pinned editable material in this checkout, so it is explicitly blocked until material exists.",
+  "atoms": [
+    {"id": "MODEL-16-E2-A", "name": "template_io", "status": "blocked", "required": "Template input/output schema pinned from the .slx and init file", "owner": "model maintainer"},
+    {"id": "MODEL-16-E2-B", "name": "generation_flow", "status": "blocked", "required": "Code generation flow with fixed tool versions and hashes", "owner": "build maintainer"},
+    {"id": "MODEL-16-E2-C", "name": "build_import", "status": "blocked", "required": "Build and import into the owned host with manifest identity", "owner": "build maintainer"},
+    {"id": "MODEL-16-E2-D", "name": "run_flow", "status": "blocked", "required": "Run flow with init/step/stop and result identity", "owner": "runtime maintainer"},
+    {"id": "MODEL-16-E2-E", "name": "editable_material", "status": "blocked", "required": "Exp2_MaxModelTemp editable material pinned by SHA256; currently absent from the readiness probe and repository", "owner": "release maintainer"}
+  ],
+  "template_required": ["template_id", "template_sha256", "io_schema", "generation_toolchain", "build_manifest", "import_identity", "run_semantics", "editable_material_status", "source_identity"],
+  "scope_rule": "Exp1 material or build evidence never covers Exp2; absent material is an explicit blocker, not a reason to guess the template",
+  "errors": ["accepted", "template_missing", "material_local_only", "io_unpinned", "generation_mismatch", "build_failed", "import_identity_mismatch", "run_failed"],
+  "followups": [
+    {"key": "model-16-exp2-material", "files": ["docs/plan/<exp2-material>.json"], "status": "proposed", "blocked_by": "Obtaining and pinning the Exp2 editable material"},
+    {"key": "model-16-exp2-build-run", "files": ["validation/<exp2-build-run-audit>"], "status": "proposed", "blocked_by": "Material pin and I/O freeze"}
+  ],
+  "preserved": {"issue_26": "open generated-model build import", "exp1": "Exp1 pinned material never substitutes for Exp2", "full_complete": false}
+}
