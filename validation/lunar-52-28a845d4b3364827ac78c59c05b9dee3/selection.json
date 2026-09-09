@@ -1,0 +1,45 @@
+{
+  "status": "ready",
+  "number": 52,
+  "url": "https://github.com/unununnnn/wksim/issues/52",
+  "key": "25-physics-core",
+  "tier": "luna",
+  "working_directory": "C:\\Users\\PC\\Documents\\odid编译\\wksim",
+  "title": "[Luna] 实现 Hex 逐毫秒输入/时钟检查器（两文件）",
+  "definition": {
+    "key": "25-physics-core",
+    "parent": 25,
+    "title": "实现 Hex 逐毫秒输入/时钟检查器（两文件）",
+    "tier": "luna",
+    "owned_files": [
+      "tools/hex_physics_evidence.py (new)",
+      "validation/test_hex_physics_evidence.py (new)"
+    ],
+    "known_input_reports": [
+      "tools/hex_physics.py",
+      "tools/build_hex_model_candidate.py",
+      "Simulator/wksim_runtime/hex-flight-v1.json",
+      "docs/2026-09-09-hex-round-handoff.md"
+    ],
+    "concrete_actions": [
+      "逐行只读physics-1ms.jsonl：唯一start→initialized(tick0)→连续step→terminal，绑定run_id/model_identity",
+      "验证每步120值有限、tick对应output120[2]、group/substep完整、组内input16相同、6..15为0及六RPM字段；保留允许的初始零输入/held_packet=None边界",
+      "从实际held_packet按已给AP decoder/PX4 actuator_commands语义重新求六路输入，比较input16；区分重发与真正推进",
+      "暴露只读check(root)结果与明确错误，写删tick/改输入/换绑定/缺terminal反例；输出文件由调用者指定在原run外"
+    ],
+    "verifiable_completion": "两个文件完成，正例读取真实PX4-03，负例均拒绝；只交付物理记录基础检查，不给整场PASS。",
+    "prerequisite_keys": [],
+    "parent_dependencies": [
+      17,
+      24
+    ],
+    "targeted_test_command": null,
+    "command_status": "implementation_contract",
+    "readiness": "ready_when_explicit_dependencies_closed",
+    "failure_escalation_boundary": "保存新证据；未达到完成条件保持OPEN并标needs-triage。身份、预算或写入范围变化交Astra复核。",
+    "blocking_issue_numbers": [],
+    "priority": 3,
+    "dependency_rationale": "父票原Blocked by保留；本票源码/纯检查只按自身实际前置派发，父票最终关闭仍检查全部原依赖。"
+  },
+  "next_action": "先完整读取此GitHub子票；只做本票写入范围。真实运行使用新ID/目录，完成后再取下一票。"
+}
