@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "issue": 122,
+  "stable_key": "full-sim-02",
+  "title": "PX4_SITL mode",
+  "source": {
+    "file": "docs/plan/full-scope-expansion.md",
+    "line": 14,
+    "ledger_id": "SIM-02",
+    "ledger_file": "docs/plan/full-followup-tickets.json",
+    "parent_issues": [1, 12, 48]
+  },
+  "status": "defined",
+  "evidence_status": "partial-evidence",
+  "full_complete": false,
+  "current_gap": "The fixed-PX4 standalone DDS product mission is verified; the frozen PX4_SITL TCP mode selection, interfaces and stop/reconnect mapping are not itemized against the reference.",
+  "atoms": [
+    {"id": "SIM-02-A", "name": "owned_px4_physics", "status": "partial", "required": "Owned physics driving fixed PX4 SITL with recorded thresholds, hashes and results", "owner": "physics maintainer"},
+    {"id": "SIM-02-B", "name": "native_dds_mission", "status": "partial", "required": "Native DDS product mission on the fixed PX4 build; verified slice stays bounded", "owner": "runtime maintainer"},
+    {"id": "SIM-02-C", "name": "tcp_mode_selection", "status": "blocked", "required": "Frozen PX4_SITL TCP mode selection and interface mapping verified item by item", "owner": "protocol maintainer"},
+    {"id": "SIM-02-D", "name": "stop_reconnect_mapping", "status": "blocked", "required": "Stop/reconnect semantics mapped against the reference mode", "owner": "runtime maintainer"},
+    {"id": "SIM-02-E", "name": "product_entry", "status": "partial", "required": "Formal product entry for this mode; the owned path's entry is not the reference mode mapping", "owner": "validation maintainer"}
+  ],
+  "mode_required": ["mode_id", "transport", "firmware_identity", "model_identity", "interface_map", "stop_semantics", "reconnect_semantics", "epoch", "source_identity"],
+  "scope_rule": "owned-path success is not the reference mode's operation mapping; every mode item needs its own verification",
+  "errors": ["accepted", "mode_unsupported", "firmware_mismatch", "interface_unmapped", "stop_failed", "reconnect_failed", "foreign_epoch"],
+  "followups": [
+    {"key": "sim-02-mode-itemization", "files": ["docs/plan/<px4-sitl-mode-map>.json", "validation/<px4-sitl-mode-audit>"], "status": "proposed", "blocked_by": "Reference mode operation list"},
+    {"key": "sim-02-stop-reconnect", "files": ["Simulator/wksim_runtime/<px4-sitl-lifecycle>.py", "validation/<px4-sitl-lifecycle-audit>"], "status": "proposed", "blocked_by": "Mode itemization"}
+  ],
+  "preserved": {"issue_12": "closed dual-stack capability slice", "issue_48": "bounded product evidence", "owned_validation": "validate_sitl_physics.py --stack px4 on record", "full_complete": false}
+}
