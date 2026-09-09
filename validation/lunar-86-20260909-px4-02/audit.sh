@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -eo pipefail
+source /opt/ros/humble/setup.bash
+source /root/wksim-dds-VxM6Ni/ros-install/local_setup.bash
+source /root/wksim-ros2-MUlZd0/install/local_setup.bash
+source /root/wksim-ap-attitude-msgs-qOmnF9fT/install/local_setup.bash
+source /root/wksim-attitude-control-x3_2v4wb/install/local_setup.bash
+export PYTHONDONTWRITEBYTECODE=1
+exec python3 -B tools/audit_pid_flight.py \
+    --run-dir /root/wksim-pid-flight-pid-px4-20260909-02-7e3ce147/pid-px4-20260909-02-7e3ce147 \
+    --output validation/lunar-86-20260909-px4-02/audit.json
