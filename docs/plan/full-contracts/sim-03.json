@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "issue": 123,
+  "stable_key": "full-sim-03",
+  "title": "PX4_SITL_RFLY mode",
+  "source": {
+    "file": "docs/plan/full-scope-expansion.md",
+    "line": 15,
+    "ledger_id": "SIM-03",
+    "ledger_file": "docs/plan/full-followup-tickets.json",
+    "parent_issues": [1]
+  },
+  "status": "defined",
+  "evidence_status": "no-evidence",
+  "full_complete": false,
+  "current_gap": "The local custom RFly firmware, its protocol differences and its use conditions are unpinned; a standard PX4 pass cannot be recorded as this mode passing.",
+  "atoms": [
+    {"id": "SIM-03-A", "name": "custom_firmware_identity", "status": "blocked", "required": "Local RFly-custom PX4 firmware pinned by source, commit and SHA256", "owner": "build maintainer"},
+    {"id": "SIM-03-B", "name": "protocol_differences", "status": "blocked", "required": "UDP protocol differences versus standard PX4 SITL pinned per field", "owner": "protocol maintainer"},
+    {"id": "SIM-03-C", "name": "use_conditions", "status": "blocked", "required": "License/permission and configuration conditions for the custom firmware", "owner": "release maintainer"},
+    {"id": "SIM-03-D", "name": "standard_not_substitute", "status": "partial", "required": "Rule enforced: standard PX4 SITL evidence is never recorded as this mode", "owner": "validation maintainer"}
+  ],
+  "mode_required": ["mode_id", "transport=UDP", "custom_firmware_identity", "protocol_delta", "use_conditions", "model_identity", "epoch", "source_identity"],
+  "scope_rule": "only the pinned RFly-custom firmware on its pinned protocol can evidence this mode",
+  "errors": ["accepted", "firmware_unpinned", "protocol_delta_unknown", "conditions_unmet", "standard_substitution_rejected", "foreign_epoch"],
+  "followups": [
+    {"key": "sim-03-firmware-pin", "files": ["docs/plan/<rfly-firmware>.json"], "status": "proposed", "blocked_by": "Local custom firmware source and license determination"},
+    {"key": "sim-03-protocol-delta", "files": ["docs/plan/<rfly-protocol-delta>.json", "validation/<rfly-protocol-audit>"], "status": "proposed", "blocked_by": "Firmware pin and UDP observation"}
+  ],
+  "preserved": {"standard_px4": "fixed PX4 d6f12ad1 evidence remains standard-mode only", "full_complete": false}
+}
