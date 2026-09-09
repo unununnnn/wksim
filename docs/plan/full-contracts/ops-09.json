@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "issue": 160,
+  "stable_key": "full-ops-09",
+  "title": "Faults",
+  "source": {
+    "file": "docs/plan/full-scope-expansion.md",
+    "line": 77,
+    "ledger_id": "OPS-09",
+    "ledger_file": "docs/plan/full-followup-tickets.json",
+    "parent_issues": [44, 45]
+  },
+  "status": "defined",
+  "evidence_status": "partial-evidence",
+  "full_complete": false,
+  "current_gap": "Single-motor efficiency and GNSS interruption each cover one event; motor stuck/shutdown, sensor bias/freeze, environment disturbance and the public communication-anomaly scope are not accepted.",
+  "atoms": [
+    {"id": "OPS-09-A", "name": "motor_fault", "status": "partial", "required": "Stuck/shutdown/efficiency events on explicit motors with truth and FC feedback reflecting the change and clean reset", "owner": "model maintainer"},
+    {"id": "OPS-09-B", "name": "sensor_bias_freeze_loss", "status": "partial", "required": "Bias/freeze/loss per sensor with envelope identity; GNSS signal-loss seam alone is one loss event", "owner": "model maintainer"},
+    {"id": "OPS-09-C", "name": "environment_disturbance", "status": "blocked", "required": "Owned wind/gust/disturbance source, budget and vehicle response evidence; an actuator-command multiplier is not an environment disturbance", "owner": "physics maintainer"},
+    {"id": "OPS-09-D", "name": "communication_anomaly", "status": "partial", "required": "Public per-link delay/loss/corruption anomaly scope with distinct results; current barrier/fault semantics cover input loss only", "owner": "runtime maintainer"},
+    {"id": "OPS-09-E", "name": "fault_plan_identity", "status": "partial", "required": "Run/epoch/vehicle-bound fault plans over authoritative tick intervals without retroactive or duplicate injection; GNSS plan proves one seam", "owner": "runtime maintainer"},
+    {"id": "OPS-09-F", "name": "fault_recovery_reset", "status": "partial", "required": "Explicit recovery/reset clearing fault state per event type; GNSS reset-by-new-epoch and SceneClock recoverable path exist, motor reset pending", "owner": "runtime maintainer"}
+  ],
+  "event_required": ["fault_id", "fault_type", "target_identity", "run_id", "epoch", "vehicle_id", "start_tick", "end_tick", "magnitude", "injection_point", "decision_tick", "result", "reason", "reset_semantics", "source_identity"],
+  "scope_rule": "a fault decision record is not a physical effect; only truth and FC feedback proving the target change count",
+  "errors": ["accepted", "fault_not_found", "foreign_epoch", "stale_plan", "duplicate_plan", "retroactive_tick", "invalid_target", "magnitude_out_of_range", "recovery_required", "reset_rejected", "unsupported_fault"],
+  "followups": [
+    {"key": "ops-09-motor-fault-slice", "files": ["Simulator/wksim_core/<motor-fault>.py", "validation/<motor-fault-audit>"], "status": "proposed", "blocked_by": "Approved safety/lost-link and numerical budget per #44; child tickets #105-#108"},
+    {"key": "ops-09-sensor-fault-model", "files": ["Simulator/wksim_core/<sensor-fault>.py", "validation/<sensor-fault-tests>.py"], "status": "proposed", "blocked_by": "OPS-08 per-sensor calibration/noise/latency budget"},
+    {"key": "ops-09-disturbance-slice", "files": ["physics source reserved after disturbance decision", "validation/<disturbance-audit>"], "status": "proposed", "blocked_by": "Owned wind/disturbance source and budget decision"},
+    {"key": "ops-09-comm-anomaly-audit", "files": ["Simulator/wksim_runtime/scene_clock.py", "validation/<comm-anomaly-audit>"], "status": "proposed", "blocked_by": "Per-link anomaly scope definition"}
+  ],
+  "preserved": {"issue_44": "open; children #105-#108 pending", "issue_45": "open; GNSS seam is offline plus native injection candidates", "pid_disturbance": "actuator-command multiplier for controller evaluation, not an environment disturbance", "full_complete": false}
+}
