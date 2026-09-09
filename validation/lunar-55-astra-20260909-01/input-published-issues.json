@@ -1,0 +1,715 @@
+{
+  "status": "pass",
+  "date": "2026-09-05",
+  "spec": {
+    "html_url": "https://github.com/unununnnn/wksim/issues/10",
+    "id": 5357667700,
+    "number": 10,
+    "title": "规格：Prometheus 到 wksim 完整仿真工具链移植"
+  },
+  "issue_count": 38,
+  "native_blocking_edge_count": 87,
+  "original_parent_modified": false,
+  "issues": [
+    {
+      "local_id": 1,
+      "number": 11,
+      "id": 5357674738,
+      "title": "实验能力预检与候选身份核验",
+      "url": "https://github.com/unununnnn/wksim/issues/11",
+      "blocked_by": []
+    },
+    {
+      "local_id": 2,
+      "number": 12,
+      "id": 5357674936,
+      "title": "正式入口启动与停止一次双栈可选实验",
+      "url": "https://github.com/unununnnn/wksim/issues/12",
+      "blocked_by": []
+    },
+    {
+      "local_id": 3,
+      "number": 13,
+      "id": 5357675172,
+      "title": "两个独立实验同时运行且互不干扰",
+      "url": "https://github.com/unununnnn/wksim/issues/13",
+      "blocked_by": [
+        11,
+        12
+      ]
+    },
+    {
+      "local_id": 4,
+      "number": 14,
+      "id": 5357675735,
+      "title": "控制节点重启后的旧命令隔离",
+      "url": "https://github.com/unununnnn/wksim/issues/14",
+      "blocked_by": [
+        12
+      ]
+    },
+    {
+      "local_id": 5,
+      "number": 15,
+      "id": 5357675973,
+      "title": "单机多航点任务与取消闭环",
+      "url": "https://github.com/unununnnn/wksim/issues/15",
+      "blocked_by": [
+        12,
+        14
+      ]
+    },
+    {
+      "local_id": 6,
+      "number": 16,
+      "id": 5357676225,
+      "title": "已有任务记录的离线回看",
+      "url": "https://github.com/unununnnn/wksim/issues/16",
+      "blocked_by": []
+    },
+    {
+      "local_id": 7,
+      "number": 17,
+      "id": 5357676714,
+      "title": "单载具产品状态流接入UE5.5",
+      "url": "https://github.com/unununnnn/wksim/issues/17",
+      "blocked_by": []
+    },
+    {
+      "local_id": 8,
+      "number": 18,
+      "id": 5357677083,
+      "title": "wksim界面配置到任务结果的完整流程",
+      "url": "https://github.com/unununnnn/wksim/issues/18",
+      "blocked_by": [
+        11,
+        15,
+        16,
+        17
+      ]
+    },
+    {
+      "local_id": 9,
+      "number": 19,
+      "id": 5357677355,
+      "title": "双飞控联合场景最小权威时间闭环",
+      "url": "https://github.com/unununnnn/wksim/issues/19",
+      "blocked_by": [
+        12,
+        14,
+        8
+      ]
+    },
+    {
+      "local_id": 10,
+      "number": 20,
+      "id": 5357677577,
+      "title": "联合场景暂停单步与冷重置",
+      "url": "https://github.com/unununnnn/wksim/issues/20",
+      "blocked_by": [
+        19,
+        8
+      ]
+    },
+    {
+      "local_id": 11,
+      "number": 21,
+      "id": 5357677951,
+      "title": "联合场景双载具显示与切换观察",
+      "url": "https://github.com/unununnnn/wksim/issues/21",
+      "blocked_by": [
+        17,
+        19
+      ]
+    },
+    {
+      "local_id": 12,
+      "number": 22,
+      "id": 5357678322,
+      "title": "悬停期间DDS断连与显式恢复",
+      "url": "https://github.com/unununnnn/wksim/issues/22",
+      "blocked_by": [
+        12,
+        14,
+        8
+      ]
+    },
+    {
+      "local_id": 13,
+      "number": 23,
+      "id": 5357678545,
+      "title": "四旋翼固定工况数值对照",
+      "url": "https://github.com/unununnnn/wksim/issues/23",
+      "blocked_by": [
+        6
+      ]
+    },
+    {
+      "local_id": 14,
+      "number": 24,
+      "id": 5357678909,
+      "title": "四旋翼参数保存导入与真实运行",
+      "url": "https://github.com/unununnnn/wksim/issues/24",
+      "blocked_by": [
+        12,
+        23
+      ]
+    },
+    {
+      "local_id": 15,
+      "number": 25,
+      "id": 5357679121,
+      "title": "六旋翼从参数配置到双栈运行",
+      "url": "https://github.com/unununnnn/wksim/issues/25",
+      "blocked_by": [
+        17,
+        24
+      ]
+    },
+    {
+      "local_id": 16,
+      "number": 26,
+      "id": 5357679524,
+      "title": "生成模型构建导入与无MATLAB运行",
+      "url": "https://github.com/unununnnn/wksim/issues/26",
+      "blocked_by": [
+        24,
+        9
+      ]
+    },
+    {
+      "local_id": 17,
+      "number": 27,
+      "id": 5357679848,
+      "title": "可选旧ABI模型DLL生命周期闭环",
+      "url": "https://github.com/unununnnn/wksim/issues/27",
+      "blocked_by": [
+        12,
+        23,
+        9
+      ]
+    },
+    {
+      "local_id": 18,
+      "number": 28,
+      "id": 5357680180,
+      "title": "可选新ABI模型DLL与扩展输出",
+      "url": "https://github.com/unununnnn/wksim/issues/28",
+      "blocked_by": [
+        27,
+        9
+      ]
+    },
+    {
+      "local_id": 19,
+      "number": 29,
+      "id": 5357680388,
+      "title": "坡面与障碍场景的物理反馈",
+      "url": "https://github.com/unununnnn/wksim/issues/29",
+      "blocked_by": [
+        17,
+        23,
+        9
+      ]
+    },
+    {
+      "local_id": 20,
+      "number": 30,
+      "id": 5357680650,
+      "title": "带时间与标定的真实RGB相机",
+      "url": "https://github.com/unununnnn/wksim/issues/30",
+      "blocked_by": [
+        17,
+        9
+      ]
+    },
+    {
+      "local_id": 21,
+      "number": 31,
+      "id": 5357680992,
+      "title": "深度相机与由深度生成的点云",
+      "url": "https://github.com/unununnnn/wksim/issues/31",
+      "blocked_by": [
+        30,
+        9
+      ]
+    },
+    {
+      "local_id": 22,
+      "number": 32,
+      "id": 5357681363,
+      "title": "双栈速度与偏航控制能力",
+      "url": "https://github.com/unununnnn/wksim/issues/32",
+      "blocked_by": [
+        12,
+        14,
+        6
+      ]
+    },
+    {
+      "local_id": 23,
+      "number": 33,
+      "id": 5357681732,
+      "title": "双栈混合轴与轨迹跟随",
+      "url": "https://github.com/unununnnn/wksim/issues/33",
+      "blocked_by": [
+        32,
+        6
+      ]
+    },
+    {
+      "local_id": 24,
+      "number": 34,
+      "id": 5357681945,
+      "title": "双栈姿态与推力出口",
+      "url": "https://github.com/unununnnn/wksim/issues/34",
+      "blocked_by": [
+        12,
+        14,
+        23
+      ]
+    },
+    {
+      "local_id": 25,
+      "number": 35,
+      "id": 5357682315,
+      "title": "Prometheus PID控制器选择与闭环",
+      "url": "https://github.com/unununnnn/wksim/issues/35",
+      "blocked_by": [
+        34
+      ]
+    },
+    {
+      "local_id": 26,
+      "number": 36,
+      "id": 5357682700,
+      "title": "Prometheus UDE控制器闭环",
+      "url": "https://github.com/unununnnn/wksim/issues/36",
+      "blocked_by": [
+        35
+      ]
+    },
+    {
+      "local_id": 27,
+      "number": 37,
+      "id": 5357682929,
+      "title": "Prometheus NE控制器闭环",
+      "url": "https://github.com/unununnnn/wksim/issues/37",
+      "blocked_by": [
+        35
+      ]
+    },
+    {
+      "local_id": 28,
+      "number": 38,
+      "id": 5357683183,
+      "title": "RC位置控制与任务显式交接",
+      "url": "https://github.com/unununnnn/wksim/issues/38",
+      "blocked_by": [
+        12,
+        14,
+        6
+      ]
+    },
+    {
+      "local_id": 29,
+      "number": 39,
+      "id": 5357683732,
+      "title": "单机规划绕障到真实飞行",
+      "url": "https://github.com/unununnnn/wksim/issues/39",
+      "blocked_by": [
+        15,
+        29,
+        33,
+        6
+      ]
+    },
+    {
+      "local_id": 30,
+      "number": 40,
+      "id": 5357684115,
+      "title": "真实相机驱动ArUco目标跟踪",
+      "url": "https://github.com/unununnnn/wksim/issues/40",
+      "blocked_by": [
+        30,
+        32,
+        6
+      ]
+    },
+    {
+      "local_id": 31,
+      "number": 41,
+      "id": 5357684362,
+      "title": "MATLAB TCP/JSON可选桥闭环",
+      "url": "https://github.com/unununnnn/wksim/issues/41",
+      "blocked_by": [
+        14,
+        15,
+        16,
+        5
+      ]
+    },
+    {
+      "local_id": 32,
+      "number": 42,
+      "id": 5357684575,
+      "title": "地面站查看与显式控制权交接",
+      "url": "https://github.com/unununnnn/wksim/issues/42",
+      "blocked_by": [
+        12,
+        14
+      ]
+    },
+    {
+      "local_id": 33,
+      "number": 43,
+      "id": 5357684902,
+      "title": "仿真参数操作与飞控重启恢复",
+      "url": "https://github.com/unununnnn/wksim/issues/43",
+      "blocked_by": [
+        12,
+        14,
+        6
+      ]
+    },
+    {
+      "local_id": 34,
+      "number": 44,
+      "id": 5357685300,
+      "title": "单电机效率故障的可复现实验",
+      "url": "https://github.com/unununnnn/wksim/issues/44",
+      "blocked_by": [
+        22,
+        24
+      ]
+    },
+    {
+      "local_id": 35,
+      "number": 45,
+      "id": 5357685658,
+      "title": "GNSS中断与状态有效性恢复",
+      "url": "https://github.com/unununnnn/wksim/issues/45",
+      "blocked_by": [
+        22,
+        23
+      ]
+    },
+    {
+      "local_id": 36,
+      "number": 46,
+      "id": 5357685875,
+      "title": "固定输入实验的确定性重新运行",
+      "url": "https://github.com/unununnnn/wksim/issues/46",
+      "blocked_by": [
+        16,
+        20,
+        24
+      ]
+    },
+    {
+      "local_id": 37,
+      "number": 47,
+      "id": 5357686087,
+      "title": "双栈全球航点与home基准",
+      "url": "https://github.com/unununnnn/wksim/issues/47",
+      "blocked_by": [
+        12,
+        14,
+        23
+      ]
+    },
+    {
+      "local_id": 38,
+      "number": 48,
+      "id": 5357686594,
+      "title": "首期SITL产品流程集成验收",
+      "url": "https://github.com/unununnnn/wksim/issues/48",
+      "blocked_by": [
+        11,
+        13,
+        15,
+        16,
+        17,
+        18,
+        22,
+        42,
+        6
+      ]
+    }
+  ],
+  "verified": [
+    {
+      "number": 11,
+      "blocked_by": []
+    },
+    {
+      "number": 12,
+      "blocked_by": []
+    },
+    {
+      "number": 13,
+      "blocked_by": [
+        11,
+        12
+      ]
+    },
+    {
+      "number": 14,
+      "blocked_by": [
+        12
+      ]
+    },
+    {
+      "number": 15,
+      "blocked_by": [
+        12,
+        14
+      ]
+    },
+    {
+      "number": 16,
+      "blocked_by": []
+    },
+    {
+      "number": 17,
+      "blocked_by": []
+    },
+    {
+      "number": 18,
+      "blocked_by": [
+        11,
+        15,
+        16,
+        17
+      ]
+    },
+    {
+      "number": 19,
+      "blocked_by": [
+        8,
+        12,
+        14
+      ]
+    },
+    {
+      "number": 20,
+      "blocked_by": [
+        8,
+        19
+      ]
+    },
+    {
+      "number": 21,
+      "blocked_by": [
+        17,
+        19
+      ]
+    },
+    {
+      "number": 22,
+      "blocked_by": [
+        8,
+        12,
+        14
+      ]
+    },
+    {
+      "number": 23,
+      "blocked_by": [
+        6
+      ]
+    },
+    {
+      "number": 24,
+      "blocked_by": [
+        12,
+        23
+      ]
+    },
+    {
+      "number": 25,
+      "blocked_by": [
+        17,
+        24
+      ]
+    },
+    {
+      "number": 26,
+      "blocked_by": [
+        9,
+        24
+      ]
+    },
+    {
+      "number": 27,
+      "blocked_by": [
+        9,
+        12,
+        23
+      ]
+    },
+    {
+      "number": 28,
+      "blocked_by": [
+        9,
+        27
+      ]
+    },
+    {
+      "number": 29,
+      "blocked_by": [
+        9,
+        17,
+        23
+      ]
+    },
+    {
+      "number": 30,
+      "blocked_by": [
+        9,
+        17
+      ]
+    },
+    {
+      "number": 31,
+      "blocked_by": [
+        9,
+        30
+      ]
+    },
+    {
+      "number": 32,
+      "blocked_by": [
+        6,
+        12,
+        14
+      ]
+    },
+    {
+      "number": 33,
+      "blocked_by": [
+        6,
+        32
+      ]
+    },
+    {
+      "number": 34,
+      "blocked_by": [
+        12,
+        14,
+        23
+      ]
+    },
+    {
+      "number": 35,
+      "blocked_by": [
+        34
+      ]
+    },
+    {
+      "number": 36,
+      "blocked_by": [
+        35
+      ]
+    },
+    {
+      "number": 37,
+      "blocked_by": [
+        35
+      ]
+    },
+    {
+      "number": 38,
+      "blocked_by": [
+        6,
+        12,
+        14
+      ]
+    },
+    {
+      "number": 39,
+      "blocked_by": [
+        6,
+        15,
+        29,
+        33
+      ]
+    },
+    {
+      "number": 40,
+      "blocked_by": [
+        6,
+        30,
+        32
+      ]
+    },
+    {
+      "number": 41,
+      "blocked_by": [
+        5,
+        14,
+        15,
+        16
+      ]
+    },
+    {
+      "number": 42,
+      "blocked_by": [
+        12,
+        14
+      ]
+    },
+    {
+      "number": 43,
+      "blocked_by": [
+        6,
+        12,
+        14
+      ]
+    },
+    {
+      "number": 44,
+      "blocked_by": [
+        22,
+        24
+      ]
+    },
+    {
+      "number": 45,
+      "blocked_by": [
+        22,
+        23
+      ]
+    },
+    {
+      "number": 46,
+      "blocked_by": [
+        16,
+        20,
+        24
+      ]
+    },
+    {
+      "number": 47,
+      "blocked_by": [
+        12,
+        14,
+        23
+      ]
+    },
+    {
+      "number": 48,
+      "blocked_by": [
+        6,
+        11,
+        13,
+        15,
+        16,
+        17,
+        18,
+        22,
+        42
+      ]
+    }
+  ]
+}
