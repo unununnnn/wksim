@@ -1,0 +1,28 @@
+{
+  "schema": "wksim.pid.audit.v1",
+  "status": "rejected",
+  "run_dir": "C:\\Users\\PC\\Documents\\odid\u7f16\u8bd1\\wksim\\validation\\lunar-85-af17a075d7174ee296cb2922c3455643\\observed-only.synthetic",
+  "checks": {},
+  "protocol_sha256": "25d50ddbbd44e658a72123e6d524a5c5021b355367a99e46a898ec9b9cecadc0",
+  "auditor_sha256": "1fb12c0d3e6b9d8fafe459e7ff111159bddac48ae4cee3ebb269036e4939ef3d",
+  "limitations": [
+    "No exact first native acceptance tick or per-message publisher GID.",
+    "Native logs and mode messages are sampled; absence between samples is unverified.",
+    "Mass is source/hash bound, not a runtime parameter getter.",
+    "No Full, UI, joint rate, UDE/NE, or motor-efficiency acceptance."
+  ],
+  "run_id": "synthetic-only",
+  "stack": "px4",
+  "failure": {
+    "type": "FileNotFoundError",
+    "message": "[Errno 2] No such file or directory: 'C:\\\\Users\\\\PC\\\\Documents\\\\odid\u7f16\u8bd1\\\\wksim\\\\validation\\\\lunar-85-af17a075d7174ee296cb2922c3455643\\\\observed-only.synthetic\\\\pid-protocol.json'"
+  },
+  "command": [
+    "D:\\date\\miniconda\\python.exe",
+    "tools/audit_pid_flight.py",
+    "--run-dir",
+    "C:\\Users\\PC\\Documents\\odid\u7f16\u8bd1\\wksim\\validation\\lunar-85-af17a075d7174ee296cb2922c3455643\\observed-only.synthetic",
+    "--output",
+    "C:\\Users\\PC\\Documents\\odid\u7f16\u8bd1\\wksim\\validation\\lunar-85-af17a075d7174ee296cb2922c3455643\\observed-rejection.json"
+  ]
+}

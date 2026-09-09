@@ -1,0 +1,98 @@
+[
+  {
+    "label": "windows-tests",
+    "argv": [
+      "D:\\date\\miniconda\\python.exe",
+      "-B",
+      "-m",
+      "unittest",
+      "validation.test_pid_flight_audit",
+      "validation.test_pid_flight",
+      "validation.test_position_pid",
+      "-v"
+    ],
+    "cwd": "C:\\Users\\PC\\Documents\\odid\u7f16\u8bd1\\wksim",
+    "started_utc": "2026-09-09T08:24:16.920957+00:00",
+    "returncode": 0,
+    "expected_returncode": 0
+  },
+  {
+    "label": "wsl-tests",
+    "argv": [
+      "wsl",
+      "-d",
+      "Ubuntu-22.04",
+      "-u",
+      "root",
+      "--",
+      "python3",
+      "-B",
+      "-m",
+      "unittest",
+      "validation.test_pid_flight_audit",
+      "validation.test_pid_flight",
+      "validation.test_position_pid",
+      "-v"
+    ],
+    "cwd": "C:\\Users\\PC\\Documents\\odid\u7f16\u8bd1\\wksim",
+    "started_utc": "2026-09-09T08:24:19.719649+00:00",
+    "returncode": 0,
+    "expected_returncode": 0
+  },
+  {
+    "label": "cli-help",
+    "argv": [
+      "D:\\date\\miniconda\\python.exe",
+      "-B",
+      "tools/audit_pid_flight.py",
+      "--help"
+    ],
+    "cwd": "C:\\Users\\PC\\Documents\\odid\u7f16\u8bd1\\wksim",
+    "started_utc": "2026-09-09T08:24:25.501770+00:00",
+    "returncode": 0,
+    "expected_returncode": 0
+  },
+  {
+    "label": "git-whitespace",
+    "argv": [
+      "git",
+      "diff",
+      "--check",
+      "--",
+      "tools/audit_pid_flight.py",
+      "validation/test_pid_flight_audit.py"
+    ],
+    "cwd": "C:\\Users\\PC\\Documents\\odid\u7f16\u8bd1\\wksim",
+    "started_utc": "2026-09-09T08:24:25.635322+00:00",
+    "returncode": 0,
+    "expected_returncode": 0
+  },
+  {
+    "label": "head",
+    "argv": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "cwd": "C:\\Users\\PC\\Documents\\odid\u7f16\u8bd1\\wksim",
+    "started_utc": "2026-09-09T08:24:25.669813+00:00",
+    "returncode": 0,
+    "expected_returncode": 0
+  },
+  {
+    "label": "cli-observed-rejection",
+    "argv": [
+      "D:\\date\\miniconda\\python.exe",
+      "-B",
+      "tools/audit_pid_flight.py",
+      "--run-dir",
+      "C:\\Users\\PC\\Documents\\odid\u7f16\u8bd1\\wksim\\validation\\lunar-85-af17a075d7174ee296cb2922c3455643\\observed-only.synthetic",
+      "--output",
+      "C:\\Users\\PC\\Documents\\odid\u7f16\u8bd1\\wksim\\validation\\lunar-85-af17a075d7174ee296cb2922c3455643\\observed-rejection.json"
+    ],
+    "cwd": "C:\\Users\\PC\\Documents\\odid\u7f16\u8bd1\\wksim",
+    "started_utc": "2026-09-09T08:24:26.891179+00:00",
+    "returncode": 1,
+    "expected_returncode": 1
+  }
+]
