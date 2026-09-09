@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "issue": 127,
+  "stable_key": "full-sim-11",
+  "title": "PX4_SIH_SITL mode",
+  "source": {
+    "file": "docs/plan/full-scope-expansion.md",
+    "line": 23,
+    "ledger_id": "SIM-11",
+    "ledger_file": "docs/plan/full-followup-tickets.json",
+    "parent_issues": [1]
+  },
+  "status": "defined",
+  "evidence_status": "no-evidence",
+  "full_complete": false,
+  "current_gap": "The fixed PX4's SIH mode and interface are unchecked; unique physics authority and time remapping are unverified; the current external-physics SITL does not cover this mode.",
+  "atoms": [
+    {"id": "SIM-11-A", "name": "sih_mode_availability", "status": "blocked", "required": "The pinned PX4 build's SIH mode existence and interface verified in source", "owner": "build maintainer"},
+    {"id": "SIM-11-B", "name": "unique_physics_authority", "status": "partial", "required": "Exactly one physics authority; with SIH the FC-internal model is authoritative and no second physics core runs", "owner": "physics maintainer"},
+    {"id": "SIM-11-C", "name": "time_remapping", "status": "blocked", "required": "Display/mission time remapped onto the FC-internal timeline instead of a second physics clock", "owner": "runtime maintainer"},
+    {"id": "SIM-11-D", "name": "interface_contract", "status": "blocked", "required": "SIH interface map (state, actuators, sensors) pinned per message/field", "owner": "protocol maintainer"},
+    {"id": "SIM-11_E", "name": "external_sitl_distinction", "status": "partial", "required": "Rule enforced: external-physics SITL evidence never covers SIH modes", "owner": "validation maintainer"}
+  ],
+  "mode_required": ["mode_id", "firmware_identity", "sih_interface_map", "physics_authority", "time_mapping", "display_identity", "epoch", "source_identity"],
+  "scope_rule": "in SIH the flight-controller-internal model is the only physics authority; external-physics SITL evidence is a different mode",
+  "errors": ["accepted", "sih_unavailable", "interface_unmapped", "dual_physics_rejected", "time_unmapped", "firmware_mismatch", "foreign_epoch"],
+  "followups": [
+    {"key": "sim-11-sih-source-audit", "files": ["docs/plan/<px4-sih-audit>.md"], "status": "proposed", "blocked_by": "Source audit of the pinned PX4 build for SIH"},
+    {"key": "sim-11-time-mapping", "files": ["Simulator/wksim_runtime/<sih-time-map>.py", "validation/<sih-time-audit>"], "status": "proposed", "blocked_by": "SIH availability and interface map"},
+    {"key": "sim-11-live-slice", "files": ["validation/<sih-live-audit>"], "status": "proposed", "blocked_by": "Time mapping and interface contract"}
+  ],
+  "preserved": {"external_sitl": "owned external-physics SITL evidence stays a different mode", "full_complete": false}
+}
