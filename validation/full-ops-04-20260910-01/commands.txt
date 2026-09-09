@@ -1,0 +1,16 @@
+Working directory: C:/Users/PC/Documents/odid编译/wksim
+
+Read-only inputs:
+  Get-Content docs/plan/full-scope-expansion.md
+  Get-Content docs/plan/full-remaining-ledger.json
+  Get-Content docs/plan/full-followup-tickets.json
+  Get-Content docs/2026-09-08-console-ui-closure-report.md
+  Get-Content docs/plan/tickets/08-wksim-run-workflow.md
+  gh issue view 155 --repo unununnnn/wksim --json number,title,body,state,labels,comments
+  gh issue view 18 --repo unununnnn/wksim --json number,title,body,state,labels,comments
+
+Validation:
+  python -B validation/full-ops-04-20260910-01/validate.py
+  git diff --check -- docs/plan/full-contracts/ops-04.md docs/plan/full-contracts/ops-04.json validation/full-ops-04-20260910-01
+
+No FC, model, ROS, UE, MATLAB, browser, external service or hardware process was started by this contract slice.
