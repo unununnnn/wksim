@@ -13,6 +13,7 @@ import time
 from pymavlink.dialects.v20 import common as mavlink
 from .model import Model
 from .state_stream import StateWriter, add_arguments
+from .gnss_event import GnssSample
 
 
 def actuator_commands(message):
@@ -39,12 +40,73 @@ def gps_arguments(state):
 class Sender:
     def __init__(self, connection):
         self.connection = connection
+        self.capture = None
 
     def write(self, packet):
+        if self.capture is not None:
+            self.capture.append(bytes(packet).hex())
         self.connection.sendall(packet)
 
 
-def serve(library, port, trace_path, duration=180, speedup=3, *, state_socket=None, run_id=None, vehicle_id=1):
+class GnssSendGate:
+    """Optional synchronous HIL_GPS seam; recorder must persist JSON records.
+
+    Raw frames are bytes offered to sendall, not peer receipt or FC acceptance.
+    A send exception can mean partial TCP delivery; never retry the old sample.
+    Recorder errors propagate and stop the caller rather than losing evidence.
+    """
+    def __init__(self, controller, record):
+        self.controller = controller
+        self.record = record
+
+    def send(self, protocol, gps, *, tick, identity):
+        if not isinstance(protocol.file, Sender) or protocol.file.capture is not None:
+            raise ValueError("GNSS gate requires an idle raw-capturing Sender")
+        entry = {"schema": "wksim-px4-gnss-send-v1", "identity": list(identity),
+                 "tick": tick, "original_gps": list(gps), "decision": None,
+                 "attempted": False, "success": False, "error": None,
+                 "raw_frames_hex": []}
+        try:
+            # Use the original model GPS clock, never the arrival tick. Ceiling
+            # maps sub-ms source time to its enclosing 1 ms acquisition tick;
+            # decide also checks age against the untouched microsecond field.
+            sample = GnssSample(*identity, tick, (gps[0] + 999) // 1000, gps)
+            decision = self.controller.decide(sample, tick=tick)
+            entry["decision"] = decision.record()
+            if decision.outbound_gps is not None:
+                entry["attempted"] = True
+                self.record(dict(entry, phase="attempt", raw_frames_hex=[]))
+                protocol.file.capture = entry["raw_frames_hex"]
+                try:
+                    protocol.hil_gps_send(*decision.outbound_gps)
+                    entry["success"] = True
+                finally:
+                    protocol.file.capture = None
+        except Exception as error:
+            entry["error"] = {"type": type(error).__name__, "message": str(error)}
+            raise
+        finally:
+            self.record(dict(entry, phase="result"))
+        return entry
+
+
+def send_sensors(protocol, state, tick, *, gnss_gate=None, identity=None):
+    """Keep IMU cadence/resends; optional gate only controls the GPS call."""
+    sensor = state[60:90]
+    protocol.hil_sensor_send(round(sensor[0]), *sensor[1:14], round(sensor[14]))
+    if tick % 100 == 0:
+        gps = gps_arguments(state)
+        if gnss_gate is None:
+            protocol.hil_gps_send(*gps)
+        else:
+            return gnss_gate.send(protocol, gps, tick=tick, identity=identity)
+
+
+def serve(library, port, trace_path, duration=180, speedup=3, *, state_socket=None, run_id=None, vehicle_id=1,
+          gnss_gate=None, gnss_epoch=None):
+    identity = (run_id, gnss_epoch, vehicle_id)
+    if gnss_gate is not None and identity != gnss_gate.controller.identity:
+        raise ValueError("GNSS gate must match the explicit runtime run/epoch/vehicle")
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as listener:
         listener.bind(("127.0.0.1", port))
         listener.listen(1)
@@ -61,19 +123,13 @@ def serve(library, port, trace_path, duration=180, speedup=3, *, state_socket=No
         duplicates = 0
         started = time.monotonic()
 
-        def send_sensors(state):
-            sensor = state[60:90]
-            protocol.hil_sensor_send(round(sensor[0]), *sensor[1:14], round(sensor[14]))
-            if model.ticks % 100 == 0:
-                protocol.hil_gps_send(*gps_arguments(state))
-
         while duration is None or model.ticks * 0.001 < duration:
             delay = model.ticks * 0.001 / speedup - (time.monotonic() - started)
             if delay > 0:
                 time.sleep(delay)
             state = model.step(commands, 4)
             state_writer.emit(state)
-            send_sensors(state)
+            send_sensors(protocol, state, model.ticks, gnss_gate=gnss_gate, identity=identity)
             frames += 1
             if frames == 1 or frames % 5 == 0:
                 trace.write(json.dumps({"time": state[2], "actuator_time_usec": actuator_time,
@@ -103,7 +159,7 @@ def serve(library, port, trace_path, duration=180, speedup=3, *, state_socket=No
                         raise RuntimeError("This profile requires PX4 lockstep support")
                     if message.time_usec == actuator_time:
                         duplicates += 1
-                        send_sensors(state)
+                        send_sensors(protocol, state, model.ticks, gnss_gate=gnss_gate, identity=identity)
                         continue
                     if actuator_time is not None and message.time_usec < actuator_time:
                         raise RuntimeError("PX4 actuator clock moved backwards")

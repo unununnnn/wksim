@@ -94,6 +94,11 @@ class GnssDecision:
 
 
 class GnssEventController:
+    @property
+    def identity(self):
+        """Current immutable run/epoch/vehicle binding for the send boundary."""
+        return self._run_id, self._epoch, self._vehicle_id
+
     def __init__(self, run_id, epoch, vehicle_id, *, max_age_ticks, plan=None):
         _identity(run_id, epoch, vehicle_id)
         _integer(max_age_ticks, "max_age_ticks")
