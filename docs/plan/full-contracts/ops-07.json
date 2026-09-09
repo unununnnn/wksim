@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "issue": 158,
+  "stable_key": "full-ops-07",
+  "title": "Environment feedback",
+  "source": {
+    "file": "docs/plan/full-scope-expansion.md",
+    "line": 75,
+    "ledger_id": "OPS-07",
+    "ledger_file": "docs/plan/full-followup-tickets.json",
+    "parent_issue": 29,
+    "parent_state": "OPEN"
+  },
+  "status": "defined",
+  "evidence_status": "partial-evidence",
+  "full_complete": false,
+  "current_gap": "The environment/visual authority decision is approved, but static queries, contact response, dynamic changes and an environment-specific raw freeze/recovery audit are not implemented.",
+  "atoms": [
+    {"id": "OPS-07-A", "name": "static_terrain_scene", "status": "partial", "required": "Versioned scene/hash, ENU/metre geometry, origin, query and startup rejection", "owner": "physics/environment maintainer"},
+    {"id": "OPS-07-B", "name": "collision_contact_feedback", "status": "blocked", "required": "Contact/normal/penetration/force semantics and physical response", "owner": "physics maintainer"},
+    {"id": "OPS-07-C", "name": "dynamic_environment_changes", "status": "blocked", "required": "Authority-time updates, ordering, validity and collision behavior", "owner": "joint-runtime maintainer"},
+    {"id": "OPS-07-D", "name": "feedback_freshness_expiry", "status": "partial", "required": "Step/epoch/interval validity and explicit stale result", "owner": "joint-runtime maintainer"},
+    {"id": "OPS-07-E", "name": "joint_freeze_recovery", "status": "partial", "required": "Environment-specific freeze at committed boundary and explicit recovery", "owner": "joint-runtime maintainer"},
+    {"id": "OPS-07-F", "name": "ue_rgb_mirror_separation", "status": "partial", "required": "Shared manifest and proof display loss cannot alter physics", "owner": "UE/validation maintainer"}
+  ],
+  "decision": {
+    "accepted_file": "docs/2026-09-07_environment-contract-accepted.md",
+    "physics_authority": "WSL static terrain/collision and authoritative physics step",
+    "visual_mirror": "UE same manifest/hash, asynchronous RGB with epoch/step/time/pose/calibration",
+    "expiry": "required dynamic feedback expiry freezes affected joint scene and requires explicit recovery",
+    "epoch_mutation": "static configuration is immutable within an epoch"
+  },
+  "feedback_required": ["scene_id", "scene_hash", "epoch", "step", "sim_time_ns", "valid_from_step", "valid_until_step", "body_id", "geometry_id", "contact_point_enu_m", "normal_enu", "penetration_m", "source_identity"],
+  "errors": ["scene_not_found", "scene_hash_mismatch", "invalid_geometry", "unsupported_query", "foreign_epoch", "stale_feedback", "future_feedback", "out_of_order", "contact_invalid", "feedback_unavailable", "scene_frozen", "recovery_required", "display_stale", "physics_completed"],
+  "followups": [
+    {"key": "ops-07-static-query", "files": ["Simulator/wksim_core/<environment-query>.py", "validation/<geometry-query-tests>.py"], "status": "proposed", "blocked_by": "Exact source ownership and query implementation"},
+    {"key": "ops-07-contact-response", "files": ["Simulator/wksim_core/<contact-response>.py", "validation/<contact-audit>"], "status": "proposed", "blocked_by": "Frozen contact/force/friction source and budget"},
+    {"key": "ops-07-dynamic-expiry", "files": ["Simulator/wksim_runtime/scene_clock.py", "Simulator/wksim_core/joint.py", "validation/<environment-expiry-audit>"], "status": "proposed", "blocked_by": "Static query and joint integration"},
+    {"key": "ops-07-mirror-audit", "files": ["Simulator/ue55/<environment-mirror>.py", "validation/<environment-mirror-audit>"], "status": "proposed", "blocked_by": "Shared scene manifest and real scene input"}
+  ],
+  "preserved": {"approved_design": true, "implementation": false, "parent_29": "open; #23 numerical prerequisite retained", "full_complete": false}
+}
