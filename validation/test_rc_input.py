@@ -90,6 +90,10 @@ class RCInputTests(unittest.TestCase):
         self.assertEqual(rc.state, "REVOKED")
 
     def test_expiry_dt_pause_and_switch_revoke_without_output(self):
+        self.assertIsNotNone(validate_frame(frame(), expected=IDENTITY,
+                                            now_ns=1_000_000_000 + MAX_AGE_NS))
+        with self.assertRaises(RCError):
+            validate_frame(frame(), expected=IDENTITY, now_ns=1_000_000_000 + MAX_AGE_NS + 1)
         rc = active()
         rc.receive(frame(sequence=2, produced=1_010_000_000), GID, received_ns=1_010_000_100)
         self.assertIsNone(rc.step(now_ns=1_010_000_100, operation_mode="paused"))
