@@ -510,8 +510,6 @@ def run(args):
                     progress['native_dds_restart'].append(event)
                     lifecycle.record('native_dds_client_restarted',observation=event)
             offers = {}
-            if candidate:
-                result['manager_scheduling'] = scheduling(0,'manager')
             for stack, uid in (('arducopter',1),('px4',2)):
                 directory = live/(stack+'-recovery')
                 directory.mkdir()
@@ -574,6 +572,8 @@ def run(args):
                 from joint_lifecycle import JointLifecycle
                 lifecycle = JointLifecycle(node, clock, publisher, live, result['run_id'], started, pause_probe)
                 resources.callback(lifecycle.close)
+            if candidate:
+                result['manager_scheduling'] = scheduling(0,'manager')
             for stack, uid in (('arducopter',1),('px4',2)):
                 directory = live/stack
                 directory.mkdir()
