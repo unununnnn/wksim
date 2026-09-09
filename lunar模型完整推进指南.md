@@ -13,7 +13,7 @@ Set-Location -LiteralPath 'C:\Users\PC\Documents\odid编译\wksim'
 codex -m gpt-5.6-luna -c 'model_reasoning_effort="medium"' '先完整阅读 lunar模型完整推进指南.md。运行 tools/lunar_queue.py next，只执行返回的一个 Luna 子票；按原始证据判定，完成后更新子票并继续取下一票。遇到专家前置或真实失败，保留证据并按指南处理。'
 ```
 
-这是启动新Luna主任务的示例，本次交接没有擅自切换当前任务模型。仓库现有AGENTS对子代理要求 `gpt-6-astra`；该规则没有被本指南改写。**Luna按单主任务执行即可，不派发子代理。** 需要Astra的条目交给相应专家任务，得到规定产物后再继续其后继子票。
+这是启动新Luna主任务的示例，不改变当前主任务模型。派发设置遵循本项目 `AGENTS.md` 的 Subagent model policy：非 Astra 派发者的子代理统一为 `gpt-5.6-luna`、`xhigh`（极高）、Fast；Astra 派发者按任务分流：非困难且非强探索 → Luna xhigh + Fast；困难或强探索 → Astra，保留原 Astra 推理档和速度规则。不以确定性作为分流条件。Luna可以单主任务执行，也可按该规则派发边界明确的工作；专家票的能力要求和前置不因模型派发规则改变，取得规定产物后再继续后继子票。
 
 开工先运行：
 
