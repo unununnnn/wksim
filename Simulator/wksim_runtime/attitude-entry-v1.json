@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "scope": "Independent candidate preconditioning and scoped recovery configuration; not production admission",
+  "original_budget_sha256": "9a13e03abb5c9caf56d75ca4c5e4fd73d709037add7ec527405eee4d471d318f",
+  "px4": {
+    "stages": ["before_full_2s_level_calibration", "before_first_5deg_step_after_position_recovery", "before_full_0.2s_thrust_baseline"],
+    "public_command": "XYZ_ATT(0,0,entry_yaw,frozen_hover)",
+    "physical_timeout_seconds": 2,
+    "wall_timeout_seconds": 10,
+    "control_mode_topic_max_rate_hz": 50,
+    "required_true": ["flag_armed", "flag_control_offboard_enabled", "flag_control_attitude_enabled", "flag_control_rates_enabled", "flag_control_allocation_enabled"],
+    "required_false": ["flag_control_position_enabled", "flag_control_velocity_enabled", "flag_control_altitude_enabled", "flag_control_climb_rate_enabled", "flag_control_acceleration_enabled", "flag_multicopter_position_control_enabled", "flag_control_manual_enabled", "flag_control_auto_enabled", "flag_control_termination_enabled"],
+    "control_mode_native_timestamp": "at least this neutral request's observed native input timestamp; new observation only",
+    "actual_attitude_target_timestamp": "MAVLink time_boot_ms converted to microseconds strictly after accepted VehicleControlMode timestamp",
+    "message_numeric_tolerance": 0.00001,
+    "control_mode_max_receiver_age_seconds": 0.75,
+    "actual_target_max_receiver_age_seconds": 0.25,
+    "abort_envelope": "original unchanged and active throughout preconditioning"
+  },
+  "arducopter": {
+    "neutral_control_mode_gate": false,
+    "baseline_PSC_ANGLE_MAX": 0,
+    "candidate_PSC_ANGLE_MAX": 10,
+    "required_ATC_ANGLE_MAX": 30,
+    "parameter_access_from_task": "read-only readback before flight; runner owns isolated candidate parameter file"
+  },
+  "unchanged": ["hover median", "physical error budgets", "5 degree step origin", "all original durations", "8 second recovery", "15 degree abort envelope", "old failed evidence", "production defaults and pins"]
+}
