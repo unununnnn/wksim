@@ -14,6 +14,10 @@ assert stack in ('px4', 'arducopter')
 attempt = sys.argv[2] if len(sys.argv) > 2 else '01'
 assert attempt in ('01', '02')
 label = stack + ('' if attempt == '01' else '-' + attempt)
+if len(sys.argv) > 3:
+    revision = sys.argv[3]
+    assert revision.isalnum()
+    label += '-' + revision
 run_id = 'ude-' + stack + '-acceptance-20260909-' + attempt
 root = '/root/wksim-pid-flight-' + run_id + '/' + run_id
 result = json.loads(Path('//wsl.localhost/Ubuntu-22.04' + root + '/result.json').read_text())

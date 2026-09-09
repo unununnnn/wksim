@@ -9,7 +9,9 @@ The implementation is an offline-verified runnable candidate. Real installed-sta
 preflight has also passed for PX4 and ArduCopter. The first PX4 attempt failed
 before controller updates because integer JSON coordinates reached float-only
 ROS message fields; its raw evidence and clean teardown are retained.
-#91/#92 and the #36 physical acceptance remain separate scheduled work.
+The second PX4 attempt passed a new complete strict audit after the documented
+native recovery boundary repair. AP and #36 acceptance remain pending; see
+`docs/2026-09-10-ude-flight-acceptance.md` for current flight evidence.
 
 ## Frozen inputs
 
@@ -182,9 +184,10 @@ Real installed-stack preflight evidence is in
 exit0, `ok=true`, an empty reasons list and the exact UDE protocol/implementation.
 Both reported `children_created=0`, `ros_nodes_started=false` and `flown=false`;
 preflight admission does not establish flight or physical acceptance.
-UDE PX4/AP flights, native raw evidence, physical point/circle/disturbance budgets,
-actual hover values and stack-specific cleanup remain unverified; #91/#92 have
-not passed.
+The second PX4 UDE flight has passed full native, physical, equation, calibration
+and cleanup auditing. AP is scheduled and still requires its independent audit.
+Earlier failed attempts/reports remain unchanged. See the dated flight acceptance
+document for exact report hashes and remaining boundaries.
 No exact first native acceptance tick or activity between sampled native log
 observations is established. No Full/UI/joint rate/NE/motor-efficiency acceptance
 is claimed. #36 remains open and main review controls #90 disposition.

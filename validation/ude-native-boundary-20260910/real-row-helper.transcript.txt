@@ -1,0 +1,28 @@
+Conversation tool-output transcription, NOT an original process output file.
+The original read-only probe sourced the run's admitted ROS overlays, decoded
+only trajectory/offboard/public-command/text-info CDR records with receiver
+monotonic time in (165.98,166.04), and selected attitude-native.jsonl line38605.
+It called tools.audit_pid_flight.recovery_boundary(raw, message, 'point',
+phases, result, data). It did not run the complete audit.
+
+Transcribed helper stdout:
+{
+  "stage": "point",
+  "source_stamp_s": 37.78,
+  "stage_end_monotonic_s": 165.989128546,
+  "trajectory_monotonic_s": 166.01189523,
+  "source_timestamp": 1788966097462272575,
+  "request_id": 177,
+  "command_id": 174,
+  "classification": "source_end_stamp_with_proven_post_stage_recovery"
+}
+exit 0
+
+The tool output also contained WSL's localhost-proxy/NAT warning. This file
+retains the relevant stdout as a transcription, not the original stderr bytes.
+
+Raw evidence remains unchanged at:
+/root/wksim-pid-flight-ude-px4-acceptance-20260909-02/ude-px4-acceptance-20260909-02
+- attitude-native.jsonl: line38605 trajectory; line38593 recovery command;
+  line38603 position-only offboard declaration.
+- pid-progress.json: pid_point_end and native_point_recovery_offered/accepted.

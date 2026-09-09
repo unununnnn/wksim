@@ -468,8 +468,56 @@ def trace_audit(config, rows, phases, result, hover, data, *, controller='pid'):
     return matched, counts
 
 
+def recovery_boundary(raw, target, kind, phases, result, data):
+    """Only a source stamp exactly at end may belong to proven later recovery."""
+    end = phases['pid_'+kind+'_end']
+    offered = phases.get('native_'+kind+'_recovery_offered', {})
+    accepted = phases.get('native_'+kind+'_recovery_accepted', {})
+    require(target['timestamp']/1e6 == end['physical_cursor']['final_time']
+            and end['observed_monotonic_s'] < offered.get('observed_monotonic_s', -1)
+            <= accepted.get('observed_monotonic_s', -1) < raw['monotonic']
+            and raw['source_timestamp'] > end['observed_unix_ns']
+            and raw['received_timestamp'] > end['observed_unix_ns'], 'Native trajectory override')
+    candidates = [(r, p) for r, p in data['/uav1/prometheus/v2/command']
+        if offered['observed_monotonic_s'] <= r['monotonic'] <= accepted['observed_monotonic_s']
+        and r['source_timestamp'] > end['observed_unix_ns']
+        and p['run_id'] == result['run_id'] and p['control_epoch'] == result['task']['control_epoch']
+        and p['request_id'] > end['final_request_id']
+        and p['command']['command_id'] == offered['command_id']]
+    require(len(candidates) == 1, 'Boundary trajectory lacks unique later recovery request')
+    request_raw, request = candidates[0]; command = request['command']
+    require(command['agent_cmd'] == 4 and command['move_mode'] == 0 and not command['yaw_rate_mode']
+            and all(command[k] == v for k, v in offered['payload'].items() if k != 'header'),
+            'Boundary recovery is not the recorded XYZ_POS command')
+    ack = [json.loads(m['message']) for r, m in data['/uav1/prometheus/text_info']
+           if request_raw['monotonic'] <= r['monotonic'] <= accepted['observed_monotonic_s']]
+    require(any(e.get('event') == 'command_accepted' and e.get('run_id') == request['run_id']
+                and e.get('control_epoch') == request['control_epoch']
+                and e.get('request_id') == request['request_id']
+                and e.get('command_id') == command['command_id'] for e in ack),
+            'Boundary recovery lacks raw command acknowledgement')
+    x, y, z = command['position_ref']
+    require(near(target['position'], [y, x, -z], 1e-6)
+            and abs(wire.angle(target['yaw']-(math.pi/2-command['yaw_ref']))) <= 1e-6
+            and all(len(target[k]) == 3 and all(math.isnan(v) for v in target[k])
+                    for k in ('velocity', 'acceleration', 'jerk')) and math.isnan(target['yawspeed']),
+            'Boundary native trajectory differs from recovery target')
+    modes = [(r, m) for name, rows in data.items() if '/in/offboard_control_mode' in name
+             for r, m in rows if m['timestamp'] == target['timestamp']
+             and request_raw['monotonic'] <= r['monotonic'] <= raw['monotonic']
+             and r['source_timestamp'] > end['observed_unix_ns']]
+    require(modes and all(m['position'] and not any(m[k] for k in
+            ('velocity', 'acceleration', 'attitude', 'body_rate', 'thrust_and_torque', 'direct_actuator'))
+            for _, m in modes), 'Boundary recovery native axis declaration differs')
+    return dict(stage=kind, source_stamp_s=target['timestamp']/1e6,
+        stage_end_monotonic_s=end['observed_monotonic_s'], trajectory_monotonic_s=raw['monotonic'],
+        source_timestamp=raw['source_timestamp'], request_id=request['request_id'],
+        command_id=command['command_id'], classification='source_end_stamp_with_proven_post_stage_recovery')
+
+
 def native_audit(root, result, data, matched, phases, states, originals):
     stack = result['stack']; is_px4 = stack == 'px4'
+    recovery_boundaries = []
     def in_stage(time):
         return any(phases['pid_'+k+'_begin']['physical_start'] <= time <=
                    phases['pid_'+k+'_end']['physical_cursor']['final_time'] for k in ('point', 'circle', 'disturbance'))
@@ -510,7 +558,11 @@ def native_audit(root, result, data, matched, phases, states, originals):
                         'Missing/faded native control-mode evidence')
         for name, rows in data.items():
             if '/in/trajectory_setpoint' in name:
-                require(not any(in_stage(m['timestamp']/1e6) for _, m in rows), 'Native trajectory override')
+                for raw, message in rows:
+                    for kind in ('point', 'circle', 'disturbance'):
+                        if (phases['pid_'+kind+'_begin']['physical_start'] <= message['timestamp']/1e6
+                                <= phases['pid_'+kind+'_end']['physical_cursor']['final_time']):
+                            recovery_boundaries.append(recovery_boundary(raw, message, kind, phases, result, data))
     else:
         from pymavlink import mavutil
         paths = list(root.rglob('*.BIN')); require(len(paths) == 1, 'Expected one native AP BIN')
@@ -569,8 +621,11 @@ def native_audit(root, result, data, matched, phases, states, originals):
         if in_stage(t):
             require(any(abs(t-nt) <= .2 and nt <= t and wire.q_distance(q, nq) < 1e-6 and abs(u-nu) < 1e-6
                         for _, nt, nq, nu in normalized_targets), 'Unexplained native attitude/thrust target')
-    return dict(log=log_identity, request_associations=associations, motor_comparisons=comparisons,
-                exact_first_acceptance_tick_known=False, sampled_native_logs=True)
+    report = dict(log=log_identity, request_associations=associations, motor_comparisons=comparisons,
+                  exact_first_acceptance_tick_known=False, sampled_native_logs=True)
+    if recovery_boundaries:
+        report['recovery_boundaries'] = recovery_boundaries
+    return report
 
 
 def audit(root, *, controller='pid'):

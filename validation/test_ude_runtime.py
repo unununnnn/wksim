@@ -280,6 +280,49 @@ class UDEAuditTests(unittest.TestCase):
         self.assertEqual(admitted['external_ude']['implementation'], 'Simulator.wksim_control.position_ude.PositionUDE')
         self.assertNotIn('external_pid', admitted)
 
+    def test_exact_end_recovery_requires_source_order_request_ack_and_target(self):
+        # Frozen shape of real PX4 run02: native timestamp37.78 equals the
+        # sparse physical end, while all recovery publications follow end.
+        end = dict(physical_cursor=dict(final_time=37.78), observed_monotonic_s=165.989128546,
+                   observed_unix_ns=1788966097446077056, final_request_id=176)
+        command = dict(agent_cmd=4,move_mode=0,command_id=174,position_ref=[2.,3.,3.],yaw_ref=0.,yaw_rate_mode=False)
+        phases = dict(pid_point_end=end,
+            native_point_recovery_offered=dict(observed_monotonic_s=165.995378224,command_id=174,payload=command.copy()),
+            native_point_recovery_accepted=dict(observed_monotonic_s=166.001352548))
+        result = dict(run_id='fixture',task=dict(control_epoch='epoch'))
+        request = dict(run_id='fixture',control_epoch='epoch',request_id=177,command=command)
+        request_raw = dict(monotonic=166.000830148,source_timestamp=1788966097457176980)
+        raw = dict(monotonic=166.011895230,source_timestamp=1788966097462272575,
+                   received_timestamp=1788966097462307771)
+        target = dict(timestamp=37780000,position=[3.,2.,-3.],velocity=[math.nan]*3,
+            acceleration=[math.nan]*3,jerk=[math.nan]*3,yaw=math.pi/2,yawspeed=math.nan)
+        event = dict(event='command_accepted',run_id='fixture',control_epoch='epoch',request_id=177,command_id=174)
+        mode = dict(timestamp=37780000,position=True,velocity=False,acceleration=False,attitude=False,
+                    body_rate=False,thrust_and_torque=False,direct_actuator=False)
+        data = {'/uav1/prometheus/v2/command':[(request_raw,request)],
+                '/uav1/prometheus/text_info':[(dict(monotonic=166.001),dict(message=json.dumps(event)))],
+                '/in/offboard_control_mode':[(dict(monotonic=166.011836646,source_timestamp=1788966097462175340),mode)]}
+        proof = shared.recovery_boundary(raw,target,'point',phases,result,data)
+        self.assertEqual((proof['request_id'],proof['command_id']), (177,174))
+        cases = {
+            'inside_source_window': lambda r,t,p,d: t.update(timestamp=37779999),
+            'received_during_stage': lambda r,t,p,d: r.update(monotonic=165.98),
+            'delayed_old_publication': lambda r,t,p,d: r.update(source_timestamp=end['observed_unix_ns']),
+            'missing_request': lambda r,t,p,d: d['/uav1/prometheus/v2/command'].clear(),
+            'wrong_request_id': lambda r,t,p,d: d['/uav1/prometheus/v2/command'][0][1].update(request_id=176),
+            'wrong_command_id': lambda r,t,p,d: d['/uav1/prometheus/v2/command'][0][1]['command'].update(command_id=175),
+            'wrong_epoch': lambda r,t,p,d: d['/uav1/prometheus/v2/command'][0][1].update(control_epoch='other'),
+            'missing_raw_ack': lambda r,t,p,d: d['/uav1/prometheus/text_info'].clear(),
+            'wrong_position': lambda r,t,p,d: t['position'].__setitem__(0,3.1),
+            'active_velocity': lambda r,t,p,d: t['velocity'].__setitem__(0,0.),
+            'missing_mode': lambda r,t,p,d: d['/in/offboard_control_mode'].clear(),
+            'wrong_mode_axis': lambda r,t,p,d: d['/in/offboard_control_mode'][0][1].update(attitude=True),
+            'missing_recovery_phase': lambda r,t,p,d: p.pop('native_point_recovery_offered')}
+        for name, change in cases.items():
+            r,t,p,d = copy.deepcopy((raw,target,phases,data)); change(r,t,p,d)
+            with self.subTest(case=name), self.assertRaises(ValueError):
+                shared.recovery_boundary(r,t,'point',p,result,d)
+
     def test_event_and_audit_fail_closed(self):
         event = event_for(CONFIG, 'test', 0)
         raw = (json.dumps(event, sort_keys=True, separators=(',', ':'))+'\n').encode()
