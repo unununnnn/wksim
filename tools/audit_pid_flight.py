@@ -497,12 +497,14 @@ def trace_audit(config, rows, phases, result, hover, data, *, controller='pid'):
     return matched, counts
 
 
-def recovery_boundary(raw, target, kind, phases, result, data):
+def recovery_boundary(raw, target, kind, phases, result, data, *, source_lag_s=0.0):
     """Only a source stamp exactly at end may belong to proven later recovery."""
     end = phases['pid_'+kind+'_end']
     offered = phases.get('native_'+kind+'_recovery_offered', {})
     accepted = phases.get('native_'+kind+'_recovery_accepted', {})
-    require(target['timestamp']/1e6 == end['physical_cursor']['final_time']
+    target_time = target['timestamp']/1e6
+    end_time = end['physical_cursor']['final_time']
+    require(0 <= end_time-target_time <= source_lag_s+1e-9
             and end['observed_monotonic_s'] < offered.get('observed_monotonic_s', -1)
             <= accepted.get('observed_monotonic_s', -1) < raw['monotonic']
             and raw['source_timestamp'] > end['observed_unix_ns']
@@ -544,7 +546,7 @@ def recovery_boundary(raw, target, kind, phases, result, data):
         command_id=command['command_id'], classification='source_end_stamp_with_proven_post_stage_recovery')
 
 
-def native_audit(root, result, data, matched, phases, states, originals):
+def native_audit(root, result, data, matched, phases, states, originals, *, controller='pid'):
     stack = result['stack']; is_px4 = stack == 'px4'
     recovery_boundaries = []
     def in_stage(time):
@@ -591,7 +593,9 @@ def native_audit(root, result, data, matched, phases, states, originals):
                     for kind in ('point', 'circle', 'disturbance'):
                         if (phases['pid_'+kind+'_begin']['physical_start'] <= message['timestamp']/1e6
                                 <= phases['pid_'+kind+'_end']['physical_cursor']['final_time']):
-                            recovery_boundaries.append(recovery_boundary(raw, message, kind, phases, result, data))
+                            recovery_boundaries.append(recovery_boundary(
+                                raw, message, kind, phases, result, data,
+                                source_lag_s=.0041 if controller == 'ne' else 0.0))
     else:
         from pymavlink import mavutil
         paths = list(root.rglob('*.BIN')); require(len(paths) == 1, 'Expected one native AP BIN')
@@ -720,7 +724,8 @@ def audit(root, *, controller='pid'):
         require(len(trace_rows) == progress['pid_updates'], 'PID update trace count differs')
         matched, counts = trace_audit(config, trace_rows, phases, result, cal['hover'], data, controller=controller)
         report['checks'][controller+'_recomputed'] = counts
-        report['checks']['native'] = native_audit(root, result, data, matched, phases, states, originals)
+        report['checks']['native'] = native_audit(root, result, data, matched, phases, states, originals,
+                                                  controller=controller)
         require(result['safe_landing'] and result['children_reaped'] and not result['cleanup_errors']
                 and all(x['returncode'] is not None for x in result['children'].values())
                 and result['stop_kind'] == 'landed_stop' and abs(states[-1]['position'][2]) < .3,
