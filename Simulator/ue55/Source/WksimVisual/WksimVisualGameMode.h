@@ -48,9 +48,13 @@ public:
     UPROPERTY() TArray<FWksimJointVehicle> JointVehicles;
     int32 SelectedVehicleId = 1;
     int64 JointGeneration = 0;
+    bool IsHexConfiguration() const { return bHexConfiguration; }
 private:
     bool ApplyPacket(const uint8* Bytes, int32 Count, FString& Ack);
     bool ApplyJointPacket(const TSharedPtr<class FJsonObject>& Object, FString& Ack);
+    bool ApplyHexPacket(const TSharedPtr<class FJsonObject>& Object, FString& Ack);
+    bool CreateHexGeometry(AActor* Model, class UMaterialInterface* BodyMaterial, class UMaterialInterface* RotorMaterial);
+    void HexActorAck(FString& Ack, int64 Request = -1) const;
     bool LoadRgbConfig(const FString& Path);
     void TickRgb();
     bool LoadDepthConfig(const FString& Path);
@@ -61,6 +65,12 @@ private:
     UPROPERTY() TObjectPtr<ACameraActor> Camera;
     UPROPERTY() TArray<TObjectPtr<UStaticMeshComponent>> Rotors;
     TArray<double> RotorRpm;
+    TArray<double> HexRotorPhase;
+    FString ExpectedModelIdentity;
+    bool bHexConfiguration = false;
+    int64 HexStep = -1;
+    int64 HexPreviousStep = -1;
+    double HexSourceMonotonic = -1.0;
     FString InstanceId;
     FString JointEpoch;
     int64 JointStep = -1;

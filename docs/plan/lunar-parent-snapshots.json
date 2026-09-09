@@ -1,0 +1,200 @@
+{
+  "1": {
+    "id": 5355184102,
+    "title": "Wayfinder：Prometheus 双飞控 SITL 移植（UE5.5 / ROS2 / DDS）",
+    "body": "## Destination\n\n实施 [Prometheus](https://github.com/amov-lab/Prometheus) 到 wksim 的移植：Windows UE5.5 显示，WSL Ubuntu22.04 + ROS2/DDS，PX4 与 ArduCopter 双飞控。终态为 CopterSim 公开完整版完整功能与操作流程复刻、自主核心取代 Gazebo，首期仍先做 SITL。用户已要求按照 Wayfinder 快速推进实现；文档、索引、单模型测试均不等于交付完成，最终需要逐项功能与运行证据。\n\n## Notes\n\n- 用户已确认：移植主体必须是 Prometheus；AeroTwinSim 仅作为已有工具、环境与产物的复用候选，不能替换主体。\n- 上游调研基准 main commit：5dcd8cfa764d558f3e15dcb88aa7d49e32c54cce。实施基准由调研票确定。\n- UE5.5（本机5.5.4）替代此前UE5.6要求；优先利用现有环境，不重新搭建已可复用的组件。\n- 充分复用 E:/rflysimtools 的 SDK、模型、模板、参数、脚本及架构预览；二进制可用于本地兼容性分析和对照。用户要求核心自主构建运行，原版DLL只作为可选导入，功能和流程完整、界面按wksim重做。细节在[运行边界决策](https://github.com/unununnnn/wksim/issues/4)中记录。\n- 2026-09-05 用户明确确定取代 Gazebo，覆盖此前“本机比较后再选”的选型状态。Gazebo不作为最终物理后端或必需依赖，不卸载已有环境；本机验证继续用于证明新方案，而非重新决定是否替代。\n- 用户进一步确认：冻结当前公开完整版全部功能，定制版专属能力单列扩展；数值按固定工况与明确误差阈值验收，不要求跨平台逐位一致。文档快照与模型独立构建证据由[运行边界决策](https://github.com/unununnnn/wksim/issues/4)记录。\n- 先重建SITL，PX4和ArduPilot都是首期目标，不能仅以接口占位宣称支持第二飞控。\n- ROS2/DDS用于模块通信组织；飞控原生链路和UE边界协议由证据选型，不预设全部链路强制改成DDS。\n- MATLAB最小运行接口不变；用户接受构建期由MATLAB/Simulink生成C/C++，日常仿真运行不依赖MATLAB。模型生成可行性和许可需按实际模板核实。\n- 初始环境盘点为Ubuntu22.04.5、Gazebo Harmonic、PX4 v1.17.0、ArduCopter V4.7.0和UE5.5.4；当时缺少ROS2/DDS Agent。现已按安装计划补齐Humble和隔离DDS工具链，保留旧构建与用户进程，具体版本/结果见验证任务。\n- 2026-09-05 用户明确要求快速推进实现，本图范围扩展为决策、代码实现与本机验证同步推进。优先完成已确认边界内的真实物理闭环，再接双原生DDS与Prometheus任务；必要依赖先检查复用与安装计划。创建Issue或完成索引不表示完成软件移植。遵循wayfinder、ponytail(full)、domain-modeling；研究使用research技能。\n- 自主模型、双物理接口、同图双原生DDS及UE5.5真实显示/断流恢复已完成本机前置验证，21项自动检查通过；详见Decisions so far中的验证结论。Prometheus业务迁移、正式状态分发、空中DDS失联和完整功能终态仍未完成，不能用基础验证替代交付。\n- 既有AeroTwinSim ADR仅作参考，不自动成为Prometheus移植约束。\n- 首期验收候选：同一任务入口分别在两个飞控执行解锁、起飞、悬停、航点、降落，UE显示真实状态；记录断连/超时、坐标/时间戳、多实例隔离和可复现证据。具体门槛由决策票确定。\n\n## Decisions so far\n\n- [Prometheus 移植基线与 ROS2 最小迁移面调研](https://github.com/unununnnn/wksim/issues/2#issuecomment-5548979004)：明确首期消息、控制和单机实验迁移面，以及ROS1、仿真后端与资产依赖；后续实现须保留Prometheus来源可追溯性。\n- [PX4 与 ArduPilot 的 ROS2 DDS 接入及共同任务能力调研](https://github.com/unununnnn/wksim/issues/3#issuecomment-5548993903)：双原生DDS加薄适配具备选型依据，建议先独立Agent同ROS2图；后续本机运行证据由验证任务记录，共享Agent尚未验证。\n- [本机双原生 DDS 与 UE5.5 SITL 运行边界验证](https://github.com/unununnnn/wksim/issues/7#issuecomment-5550010644)：自主物理、同图双原生DDS、顺序双栈UE真实画面与显示断流恢复通过，解除运行边界决策的前置阻塞；未定型的诊断桥和完整产品范围继续保留。\n- [RflySim 模块组织与 UE5.5 SITL 运行边界决策](https://github.com/unununnnn/wksim/issues/4#issuecomment-5550138622)：用户确认WSL核心/双DDS/Prometheus与Windows UE/可选DLL分工、联合场景共享权威时间；完整范围不缩减，接口包迁移证据及未实现边界记录在决议中。\n\n## Not yet specified\n\n公开完整版下的逐项功能验收清单、数值工况与具体误差门槛、全机型与HIL分批顺序、多机规模/性能阈值，以及未保留资源的独立实现与授权边界。必要的Prometheus规划/感知demo和场景资产转换仍待细化。\n\n## Out of scope\n\n不推送混合工作区，不修改厂商原安装或绕过授权，不发布未确认许可的厂商源码/二进制。首期SITL不包含HIL/真机验收，不能据此删去完整功能终态的后续相关需求。UE5.6升级与Prometheus所有算法一次性迁移仍不在首期；不重复安装已有引擎或大型套件。实现过程保留未完成项，不以单项测试替代完整验收。\n",
+    "body_sha256": "2ae7e4572b06d81e9af2cc1418a84debc65f7f50f35ef5c53da89f6038d1d2f1",
+    "blocked_by": []
+  },
+  "9": {
+    "id": 5356319106,
+    "title": "可选模型插件与场景反馈接口决策",
+    "body": "## Question\n\n在已定WSL自主核心、Windows UE5.5与可选DLL宿主边界下，如何定义模型插件生命周期/ABI和环境反馈时间契约，使旧/新原版DLL、可构建SO以及地形/碰撞/视觉传感器等Full能力能够接入，而不让显示帧率决定物理推进？核对本地SDK旧/新导出、参数类型与数组布局，区分可靠源码、待验证SDK调用疑点和需要本地二进制对照的缺口。明确初始化/重置/步进/卸载、故障与扩展I/O、跨系统消息、有效时间、失败隔离与数值对照方法。\n\n继承[RflySim 模块组织与 UE5.5 SITL 运行边界决策](https://github.com/unununnnn/wksim/issues/4#issuecomment-5550138622)。原DLL为可选运行组件，但导入能力在完整范围内；显示异步不表示取消场景反馈。现有一个本地模型的独立C ABI与UE位姿诊断桥不证明原DLL ABI兼容或物理环境反馈。不得修改厂商安装、绕过授权或将未确认许可的厂商源码/二进制发布到仓库。\n\n## Working mode\n\nHITL decision：根据有界源码/运行证据与用户确定插件和环境反馈契约。具体数值预算须在对照运行之前确定；不以静态导出名或原版能启动代替兼容性验收。\n",
+    "body_sha256": "cd16e06a80524afc62975f2bbb01a0951495b11c36c597fc02f12b5cd6256580",
+    "blocked_by": [
+      4
+    ]
+  },
+  "10": {
+    "id": 5357667700,
+    "title": "规格：Prometheus 到 wksim 完整仿真工具链移植",
+    "body": "# wksim 完整移植规格（已批准）\n\n2026-09-05。由当前会话与[Wayfinder：Prometheus 双飞控 SITL 移植（UE5.5 / ROS2 / DDS）](https://github.com/unununnnn/wksim/issues/1)综合生成。用户以“确认开始”批准测试接缝、38张实施票据及阻塞拆分；本规格不代替既有决策票。\n\n## Problem Statement\n\n用户需要把Prometheus迁移为可持续开发、可独立构建的wksim仿真工具链：保留任务、控制和实验来源，支持PX4及ArduCopter，以UE5.5显示载具和场景，以WSL Ubuntu22.04、ROS2与DDS组织运行。现有单机闭环与显示验证已经证明部分边界可行，但还不是统一可操作的产品，也没有覆盖已冻结的CopterSim公开完整版全部功能。\n\n本机保留RflySim工具、SDK、模板、生成模型和预览资料，却没有当前完整应用源码。项目不能把启动原版程序当作自主实现，也不能以Gazebo作为最终必需后端。多个独立实验同时运行不等于联合场景；报文存在、命令受理、飞控ACK与动作完成必须分别验证。\n\n## Solution\n\n建立以Prometheus为主体的wksim工具链。WSL承担自主仿真核心、原生双飞控DDS适配、任务和ROS2编排；Windows承担UE5.5异步显示及可选模型DLL宿主。工具链提供模型/场景/飞控配置、启动停止、任务执行、实时状态、记录回看、故障与兼容性验证的完整操作路径。\n\n优先交付一个可复现的双飞控SITL产品闭环，再沿冻结的公开完整版逐项扩展模型、工具、通信模式、其他仿真模式和实验。核心在没有原版CopterSim程序、闭源DLL、Gazebo或MATLAB运行时参与的情况下仍须独立构建运行；可选DLL导入能力仍在完整终态内。保留原功能与操作流程，采用wksim界面，不复制品牌或像素布局。\n\n## User Stories\n\n1. 作为迁移维护者，我希望每个迁移行为都能追溯到固定Prometheus基线，以便确认主体未被其他项目替换。\n2. 作为使用者，我希望从一份实验配置选择PX4或ArduCopter，以便不必重写任务逻辑。\n3. 作为使用者，我希望先看到环境、版本和端口检查结果，以便在飞行开始前发现不可运行的配置。\n4. 作为使用者，我希望启动后明确看到模型、飞控、Agent、定位和任务接管各自的状态，以便知道系统正在等待什么。\n5. 作为使用者，我希望通过同一Prometheus入口正常解锁、起飞、悬停、飞航点和降落，以便比较两套飞控的实际行为。\n6. 作为使用者，我希望未支持的模式在命令受理前明确拒绝，以便不会悄悄执行另一种动作。\n7. 作为使用者，我希望分别看到命令受理、飞控确认和动作完成，以便不会把发送成功误认为飞行成功。\n8. 作为使用者，我希望重复、过期、旧运行代次和错误载具的命令被拒绝，以便重连后不会重放旧运动。\n9. 作为使用者，我希望暂停、步进、继续和倍速具有明确时间语义，以便实验可复现且不由显示帧率决定。\n10. 作为多机实验者，我希望同一联合场景的全部载具共享一条权威仿真时间线，以便相互作用发生在一致时间上。\n11. 作为多机实验者，我希望独立实验明确标识不同环境与时间线，以便不会被误报为联合场景。\n12. 作为多机实验者，我希望命名空间、身份、端口和输出目录互不冲突，以便同时运行多个实例。\n13. 作为使用者，我希望故意断开DDS时得到可验证的失联行为，以便知道飞控和任务层各自如何处理异常。\n14. 作为使用者，我希望外部切换飞行模式或状态重置后任务层不自动抢回控制，以便控制权边界明确。\n15. 作为使用者，我希望停止一次实验只收尾该实验创建的进程，以便不会影响已有飞控或其他用户工作。\n16. 作为使用者，我希望UE5.5显示真实载具位置、姿态与旋翼，以便画面与物理状态一致。\n17. 作为使用者，我希望视景断流时显示陈旧提示，恢复时显示当前状态，以便不会误读旧画面。\n18. 作为使用者，我希望关闭UE也不停止物理或飞控保活，以便能执行无界面的实验。\n19. 作为场景作者，我希望载具、场景、坐标、单位与原点绑定清晰，以便导入资产后不发生比例或位置错位。\n20. 作为场景作者，我希望地形和碰撞反馈带有明确有效时间，以便物理环境耦合不被异步显示破坏。\n21. 作为感知开发者，我希望视觉传感器数据关联真实位姿、时间和标定，以便使用Prometheus感知与规划实验。\n22. 作为使用者，我希望在wksim界面完成配置、启动、任务执行和结果查看，以便复现原工具的完整操作流程。\n23. 作为批量实验者，我希望同一配置能够从CLI或NoUI运行，以便自动化不依赖人工点击界面。\n24. 作为模型开发者，我希望加载一个有明确构建来源的模型并验证输入输出，以便核心自主性可以被独立证明。\n25. 作为模型开发者，我希望修改模型参数后可导出、重载并观察实际动力学变化，以便参数工具不是空表单。\n26. 作为模型开发者，我希望按已冻结范围接入多旋翼及其他构型，以便首个四旋翼不会被误认为全部机型。\n27. 作为模型开发者，我希望可选导入经过ABI验证的原版DLL，以便复用本地资源而不把DLL变成必需依赖。\n28. 作为模型开发者，我希望模型初始化、重置、步进、终止和故障都有可观测结果，以便定位插件兼容性问题。\n29. 作为模型开发者，我希望可选Windows DLL宿主崩溃时隔离失败，以便不破坏其他实验或原厂安装。\n30. 作为模型开发者，我希望构建期可使用现有MATLAB/Simulink模板生成模型，以便复用工具而不要求日常仿真启动MATLAB。\n31. 作为MATLAB用户，我希望使用基础tcpclient和JSON接入可选桥，以便不强制购买或依赖额外通信工具箱。\n32. 作为MATLAB用户，我希望读取状态/日志及发送允许命令的具体范围被明确列出，以便接口不会被含糊的“支持MATLAB”替代。\n33. 作为MATLAB用户，我希望断开连接不影响主仿真，以便接口保持可选；写入操作必须经过能力、时效和运行身份检查。\n34. 作为地面站用户，我希望查看状态、参数和必要控制，并明确控制权转移，以便与任务节点协同而不争抢控制。\n35. 作为SDK用户，我希望冻结范围内的报文、字段、操作和错误行为经过对照，以便现有脚本能有依据地迁移。\n36. 作为实验者，我希望传感器、执行器和环境故障可按固定事件注入并记录，以便评估控制与恢复行为。\n37. 作为实验者，我希望配置、模型、飞控、消息类型、工具和运行结果有版本与哈希记录，以便复现差异。\n38. 作为实验者，我希望记录和回看能还原当时的状态、命令与异常，以便失败不会仅剩一张截图。\n39. 作为验证者，我希望数值对照在运行前固定初态、输入、种子和误差阈值，以便不会事后放宽标准。\n40. 作为验证者，我希望以物理真值和持续驻留验证动作完成，以便瞬间越过目标不被算作成功。\n41. 作为验证者，我希望每个公开完整版功能都关联参考依据、实现和测试，以便无法观测或尚未实现的项目不会被隐藏。\n42. 作为验证者，我希望不同通信和仿真模式逐项声明已验证范围，以便发现一个端口不被当作全协议兼容。\n43. 作为后续HIL使用者，我希望硬件连接、安全操作和验收场景单独明确，以便软件代理不会在未经授权的硬件上执行测试。\n44. 作为维护者，我希望优先复用已有环境、库、模板和工具，以便不重复安装大型套件或维护多余基础设施。\n45. 作为维护者，我希望本地可用资源和可公开分发资源分别记录，以便不误发布许可不清的厂商源码或二进制。\n46. 作为维护者，我希望Codebase Memory按实际源码变更更新并注明未覆盖范围，以便图索引不会替代源代码核对。\n47. 作为项目负责人，我希望实施票据有真实阻塞关系和完成证据，以便多个代理可并行而不改同一边界。\n48. 作为项目负责人，我希望阶段完成与项目完整完成有不同判据，以便创建规格、运行单个模型或通过单次演示不会提前结束Goal。\n\n## Implementation Decisions\n\n- **已确认主体与平台**：Prometheus固定上游基线为5dcd8cfa764d558f3e15dcb88aa7d49e32c54cce；Windows UE5.5，本机5.5.4；WSL Ubuntu22.04与ROS2/DDS；PX4和ArduCopter均为首期真实SITL目标。AeroTwinSim只提供复用参考。\n- **已确认物理边界**：自主核心取代Gazebo，核心不依赖原版CopterSim程序或闭源DLL；不卸载已有环境。WSL负责外部物理SITL核心与双原生DDS，Windows负责视景及可选DLL宿主。SIH等后续模式须分别映射其物理权威，不能套用错误的外部物理假设。\n- **已确认完整范围**：冻结2026-09-05公开Full文档范围，仿真模式标识0–11、通信模式标识0–6只是盘点锚点，不是完整功能总数。定制版Redis与厂商品牌定制服务不自动纳入；wksim自有界面仍必须实现。\n- **已确认时间边界**：联合场景共享唯一权威仿真时间；UE异步消费状态，不成为物理节拍来源。独立实验不能冒充联合场景。不同飞控频率、掉队、重置和暂停行为的具体策略仍由既有时间决策票确定。\n- **已有接口基础**：保留Prometheus消息语义和来源，ROS2命名变化有映射。复用已迁移命令处理、输出修整与原生适配，保持ENU/FLU和SI语义；飞控及UE坐标转换限于各自适配边界，高度基准必须明示。\n- **已有双栈能力边界**：共同位置任务已经通过真实SITL。ArduCopter当前使用显式可选偏航与状态候选及匹配消息层，不能泛化成原版固件都支持；未支持模式继续拒绝，不静默降级或回退为另一种控制传输。\n- **已有控制生命周期边界**：定位就绪、命令受理、原生ACK和任务接管分别建模；正常解锁检查保留。初始原生起飞的偏航对齐不等于活动任务任意重置都可忽略；离开外部模式不自动重获控制。\n- **已确认MATLAB传输**：基础tcpclient加JSON，可选桥接ROS2，不要求ROS或Instrument Control Toolbox；MATLAB原生ROS2直连须另行联测。读取状态/日志、白名单配置与高层任务命令为范围候选，不冒充用户已确认的功能集合。\n- **已批准的实施组织**：优先复用已有标准库、ROS2 launch、消息及验证器，按可独立演示的纵向切片推进；不新造统一万能中间件。生产运行入口与验证器共享配置和行为，观察器不得暗中代发控制。\n- **待决策而非默认批准**：正式数值预算、首期最终验收矩阵、联合场景调度与掉队策略、插件ABI及环境反馈契约、MATLAB操作范围、后续硬件/性能规模。各实施票只依赖真正阻塞它的决策；一个未定接口不应阻塞无关已确认工作。\n- **资源与发布边界**：可以在本机范围复用和兼容性分析，但不修改原厂安装、不绕过许可、不发布未确认授权资源。源代码提交/远程推送另按用户授权办理，不把混合工作区整体推送。\n- **领域约束**：AeroTwinSim的Gazebo物理权威、NED公共边界、特定机型规模及控制屏障ADR不自动继承到wksim；与本项目冲突时服从本项目已确认决议，不静默套用。\n\n## Testing Decisions\n\n以下最高层验收接缝已获用户确认，作为实施票据的共同准入条件。\n\n1. **主黑盒接缝：一次实验的用户操作路径。** 配置运行→环境预检→启动→同一Prometheus任务入口→两套真实飞控分别或联合执行→UE观察真实状态→停止→读取机器可检验的证据包。CLI与界面只是同一操作行为的不同入口，不分别维护两套飞行逻辑。\n2. **必要跨边界接缝。** 固定消息/坐标/时间/身份契约、模型插件输入输出与MATLAB TCP/JSON是确实跨系统的边界。对它们增加精确边界测试，不给每个内部类制造新的测试接口。\n3. **真实闭环标准。** 主验收使用真实PX4、ArduCopter、自主物理与安装后的产品节点；同时保存独立真值。禁止观察脚本代发原生命令，禁止mock飞控、预置轨迹或原版程序替代产品成功。\n4. **既有测试先例。** 保留47个接口、52个生成类型、104次CDR检查及现有51项自动检查；保留命令102组、输出修整332组原C++对照及候选偏航接入层111条断言的适用范围。计数是当前基线，不是未来用测试数量衡量完整度的目标。\n5. **已通过的控制集成门槛。** 起飞至少2.5m；5飞控秒保持窗口高度误差不超过0.6m、倾角不超过0.35rad；航点误差不超过0.5m且速度不超过0.5m/s并驻留2飞控秒；降落高度绝对值不超过0.3m且解除解锁。真值另作检查。这些门槛不得当作动力学等价预算。\n6. **时间和恢复。** 联合场景核验单一时钟、运行代次和步编号的一致性；暂停/单步/倍速、迟到输入和重置应有预先声明的预期。墙钟安全超时不因ROS时钟暂停而消失；重连不得重放旧运动。\n7. **异常和隔离。** 地面重连已有证据，空中DDS失联、模式外切、飞控退出、插件崩溃、显示断流和输出阻塞须分别测试。每次仅操作本次创建的进程，硬件测试另行授权。\n8. **模型与数值。** 固定来源、模型、初态、输入、种子和参数，比较完整约定量和误差包络。正式阈值必须在运行前锁定；既有同构建重复性、有限数值检查不能代替物理精度验收。\n9. **资源与产品。** 在没有原版应用、闭源DLL、Gazebo及MATLAB运行时的配置下证明核心仍可构建运行；可选扩展单独启用、禁用并测试失败路径。UI人工可视检查必须伴随状态/坐标证据，截图不能独自证明动作完成。\n10. **证据资格。** 每票记录命令、配置、版本/哈希、预期、实际、日志和残留进程检查；保留失败案例。没有实际执行的构建、协议、场景或硬件不能记为通过。最终覆盖矩阵中未知、阻塞和未实现必须可见。\n\n## Out of Scope\n\n- 此规格不要求恢复当前厂商完整应用源码、复制品牌、像素级原界面或跨平台浮点逐位相同。\n- 不以UE5.6升级、Gazebo回退、替换Prometheus主体或重装现有大型环境作为实施捷径。\n- 不修改厂商安装、绕过许可、发布权限不明资源或未经授权向真实硬件发送命令。\n- 首期SITL验收不包含真机/HIL通过承诺，但Full范围内相关模式仍是后续项目义务，不能从终态删除。\n- 定制版专属扩展另行立项。未取得公开定义或可观测依据的能力不得靠猜测宣称等价。\n\n## Further Notes\n\n当前基线：两栈已通过同一Prometheus公开入口的隔离位置任务和地面DDS重连；UE真实显示与断流恢复另有前置证据。当前UE边界仍为诊断路径，联合场景权威时间、完整控制模式和工具链尚未完成。\n\n既有决策继续保留：[MATLAB 最小接口边界决策](https://github.com/unununnnn/wksim/issues/5)、[双飞控 SITL 首期验收与迁移顺序决策](https://github.com/unununnnn/wksim/issues/6)、[联合场景权威时间与双飞控步进策略决策](https://github.com/unununnnn/wksim/issues/8)、[可选模型插件与场景反馈接口决策](https://github.com/unununnnn/wksim/issues/9)。本规格不关闭或改写父图，不代替用户回答这些HITL问题。\n\n规格按to-spec发布为ready-for-agent；实施票据按to-tickets逐票发布并建立原生阻塞关系。被既有决策阻塞的票不会进入代理可执行前沿。详情写在对应票据，父图只作为来源引用。\n\n完成定义是全部已确认范围的行为与证据齐备，不是规格发布、索引增长或一次演示成功。详细Goal已建立；用户确认已解除规格与拆票审批门，执行中的阶段成果不等于项目完整完成。\n",
+    "body_sha256": "384335c180e7f7fca6d87332318e5defe94caf3969ec93ffeda277d004350542",
+    "blocked_by": []
+  },
+  "20": {
+    "id": 5357677577,
+    "title": "联合场景暂停单步与冷重置",
+    "body": "# 10 · 联合场景暂停单步与冷重置\n\n状态：2026-09-05用户“确认开始”批准；ready-for-agent。阻塞未清除前不进入执行前沿。\n\n## Parent\n\n[规格：Prometheus 到 wksim 完整仿真工具链移植](https://github.com/unununnnn/wksim/issues/10)；来源：[Wayfinder：Prometheus 双飞控 SITL 移植（UE5.5 / ROS2 / DDS）](https://github.com/unununnnn/wksim/issues/1)。不改写或关闭父图。\n\n## What to build\n\n用户对联合场景执行暂停、单步、继续、倍速和冷重置，得到预先定义的时间与控制行为。\n\n## Acceptance criteria\n\n- [ ] 暂停时物理状态不推进，单步只推进已批准的权威时间量；显示是否刷新不改变物理步数。\n- [ ] 暂停期间保活、墙钟看门狗和飞控处理遵循批准策略并有真实记录。\n- [ ] 冷重置产生新代次并重新就绪，不恢复旧任务；不把热复位或全部模式重置混入本票。\n- [ ] 倍速和恢复没有补发历史动作，时间偏差在预先批准的门槛内。\n- [ ] 交付实际命令、版本/身份、预期与结果、失败/未验证边界；主代理复核后才能关闭。\n\n## Blocked by\n\n- [双飞控联合场景最小权威时间闭环](https://github.com/unununnnn/wksim/issues/19)\n- [联合场景权威时间与双飞控步进策略决策](https://github.com/unununnnn/wksim/issues/8)\n\n## Parallel boundary\n\n本票建议归属：联合调度。每个阶段只分配一个写入者；共享消息、调度或生命周期的修改由主代理分配，不能与另一子代理覆盖同一区域。真实SITL/UE测试通过主代理预约隔离资源。模型与推理强度显式gpt-6-astra/low，未经允许不再嵌套委派。\n",
+    "body_sha256": "0f7bb7118eed92b8eecbbfb2c78ee5bc1b11a24abb1ec9a4700400fca39c1cd7",
+    "blocked_by": [
+      19,
+      8
+    ]
+  },
+  "25": {
+    "id": 5357679121,
+    "title": "六旋翼从参数配置到双栈运行",
+    "body": "# 15 · 六旋翼从参数配置到双栈运行\n\n状态：2026-09-05用户“确认开始”批准；ready-for-agent。阻塞未清除前不进入执行前沿。\n\n## Parent\n\n[规格：Prometheus 到 wksim 完整仿真工具链移植](https://github.com/unununnnn/wksim/issues/10)；来源：[Wayfinder：Prometheus 双飞控 SITL 移植（UE5.5 / ROS2 / DDS）](https://github.com/unununnnn/wksim/issues/1)。不改写或关闭父图。\n\n## What to build\n\n用户选择六旋翼构型，配置、运行并在UE观察正确数量与方向的旋翼。\n\n## Acceptance criteria\n\n- [ ] 冻结这一构型的模型、参数、质量惯量、电机编号和旋向以及适用飞控配置。\n- [ ] 独立模型及适用双栈配置完成起飞、保持、航点、降落和重置证据。\n- [ ] UE几何与旋翼表达符合构型，不能仍显示四旋翼占位模型。\n- [ ] 不适用的飞控组合列明依据，缺少实现的组合保持未完成；不推断三轴六旋翼等其他构型同样通过。\n- [ ] 交付实际命令、版本/身份、预期与结果、失败/未验证边界；主代理复核后才能关闭。\n\n## Blocked by\n\n- [单载具产品状态流接入UE5.5](https://github.com/unununnnn/wksim/issues/17)\n- [四旋翼参数保存导入与真实运行](https://github.com/unununnnn/wksim/issues/24)\n\n## Parallel boundary\n\n本票建议归属：模型/机型。每个阶段只分配一个写入者；共享消息、调度或生命周期的修改由主代理分配，不能与另一子代理覆盖同一区域。真实SITL/UE测试通过主代理预约隔离资源。模型与推理强度显式gpt-6-astra/low，未经允许不再嵌套委派。\n",
+    "body_sha256": "e41b1db37e55086003c9832a2eae6a4a0b1e68682f849b04e2b6cb0875828990",
+    "blocked_by": [
+      17,
+      24
+    ]
+  },
+  "26": {
+    "id": 5357679524,
+    "title": "生成模型构建导入与无MATLAB运行",
+    "body": "# 16 · 生成模型构建导入与无MATLAB运行\n\n状态：2026-09-05用户“确认开始”批准；ready-for-agent。阻塞未清除前不进入执行前沿。\n\n## Parent\n\n[规格：Prometheus 到 wksim 完整仿真工具链移植](https://github.com/unununnnn/wksim/issues/10)；来源：[Wayfinder：Prometheus 双飞控 SITL 移植（UE5.5 / ROS2 / DDS）](https://github.com/unununnnn/wksim/issues/1)。不改写或关闭父图。\n\n## What to build\n\n模型开发者从现有可编辑模板或明确来源生成产物构建模型，导入后运行与重置。\n\n## Acceptance criteria\n\n- [ ] 完整记录可编辑材料、生成产物、编译工具、导入模型和运行证据的来源链。\n- [ ] 复用本机MATLAB/Simulink构建工具时实际检查可用性，不把文件存在当作许可检出成功。\n- [ ] 生成后关闭MATLAB，核心仍独立加载、运行、重置和终止该模型。\n- [ ] 厂商材料留在受控本地来源，不提交授权不明生成源码；不把旧ZIP直接编译称为已验证完整生成流程。\n- [ ] 交付实际命令、版本/身份、预期与结果、失败/未验证边界；主代理复核后才能关闭。\n\n## Blocked by\n\n- [四旋翼参数保存导入与真实运行](https://github.com/unununnnn/wksim/issues/24)\n- [可选模型插件与场景反馈接口决策](https://github.com/unununnnn/wksim/issues/9)\n\n## Parallel boundary\n\n本票建议归属：模型/生成。每个阶段只分配一个写入者；共享消息、调度或生命周期的修改由主代理分配，不能与另一子代理覆盖同一区域。真实SITL/UE测试通过主代理预约隔离资源。模型与推理强度显式gpt-6-astra/low，未经允许不再嵌套委派。\n",
+    "body_sha256": "653ed26e609514747d12f073606288888bcca475b7525d56c8df1a00f1952d63",
+    "blocked_by": [
+      24,
+      9
+    ]
+  },
+  "27": {
+    "id": 5357679848,
+    "title": "可选旧ABI模型DLL生命周期闭环",
+    "body": "# 17 · 可选旧ABI模型DLL生命周期闭环\n\n状态：2026-09-05用户“确认开始”批准；ready-for-agent。阻塞未清除前不进入执行前沿。\n\n## Parent\n\n[规格：Prometheus 到 wksim 完整仿真工具链移植](https://github.com/unununnnn/wksim/issues/10)；来源：[Wayfinder：Prometheus 双飞控 SITL 移植（UE5.5 / ROS2 / DDS）](https://github.com/unununnnn/wksim/issues/1)。不改写或关闭父图。\n\n## What to build\n\n用户选择一个合法可用的旧ABI DLL，在独立Windows宿主中加载、步进、重置和卸载。\n\n## Acceptance criteria\n\n- [ ] 按批准ABI核对导出、签名、数组布局和单位，以输入输出对照验证而非只查导出名。\n- [ ] 同一固定工况下完成初始化、步进、重置、终止和卸载，错误有确定反馈。\n- [ ] 宿主崩溃或不兼容DLL被隔离，不影响原厂安装或其他运行。\n- [ ] 禁用/移除DLL后自主模型流程仍运行；本票不自动宣称新ABI兼容。\n- [ ] 交付实际命令、版本/身份、预期与结果、失败/未验证边界；主代理复核后才能关闭。\n\n## Blocked by\n\n- [正式入口启动与停止一次双栈可选实验](https://github.com/unununnnn/wksim/issues/12)\n- [四旋翼固定工况数值对照](https://github.com/unununnnn/wksim/issues/23)\n- [可选模型插件与场景反馈接口决策](https://github.com/unununnnn/wksim/issues/9)\n\n## Parallel boundary\n\n本票建议归属：模型插件。每个阶段只分配一个写入者；共享消息、调度或生命周期的修改由主代理分配，不能与另一子代理覆盖同一区域。真实SITL/UE测试通过主代理预约隔离资源。模型与推理强度显式gpt-6-astra/low，未经允许不再嵌套委派。\n",
+    "body_sha256": "8b5b623ac34bb487e5aae5b92f7dff4c765c7cadf220d3787a93cf8691c38513",
+    "blocked_by": [
+      12,
+      23,
+      9
+    ]
+  },
+  "28": {
+    "id": 5357680180,
+    "title": "可选新ABI模型DLL与扩展输出",
+    "body": "# 18 · 可选新ABI模型DLL与扩展输出\n\n状态：2026-09-05用户“确认开始”批准；ready-for-agent。阻塞未清除前不进入执行前沿。\n\n## Parent\n\n[规格：Prometheus 到 wksim 完整仿真工具链移植](https://github.com/unununnnn/wksim/issues/10)；来源：[Wayfinder：Prometheus 双飞控 SITL 移植（UE5.5 / ROS2 / DDS）](https://github.com/unununnnn/wksim/issues/1)。不改写或关闭父图。\n\n## What to build\n\n用户选择一个合法可用的新ABI模型，运行并获取经过布局验证的传感器/载具与扩展输出。\n\n## Acceptance criteria\n\n- [ ] 明确区分旧/新命名和真实ABI，不依靠函数名相近猜测可互换。\n- [ ] 验证该样本全部已声明输入输出长度、单位、有效性及生命周期。\n- [ ] 按批准预算与固定输入完成新ABI对照，非法布局明确拒绝。\n- [ ] 旧ABI回归保持通过，新旧DLL均不成为核心必需依赖；未测扩展I/O单列后续。\n- [ ] 交付实际命令、版本/身份、预期与结果、失败/未验证边界；主代理复核后才能关闭。\n\n## Blocked by\n\n- [可选旧ABI模型DLL生命周期闭环](https://github.com/unununnnn/wksim/issues/27)\n- [可选模型插件与场景反馈接口决策](https://github.com/unununnnn/wksim/issues/9)\n\n## Parallel boundary\n\n本票建议归属：模型插件。每个阶段只分配一个写入者；共享消息、调度或生命周期的修改由主代理分配，不能与另一子代理覆盖同一区域。真实SITL/UE测试通过主代理预约隔离资源。模型与推理强度显式gpt-6-astra/low，未经允许不再嵌套委派。\n",
+    "body_sha256": "d5376cbd0c7696b9583a1e1344176b5bc828dd284dce64886af9bdbf2f9cb7fc",
+    "blocked_by": [
+      27,
+      9
+    ]
+  },
+  "29": {
+    "id": 5357680388,
+    "title": "坡面与障碍场景的物理反馈",
+    "body": "# 19 · 坡面与障碍场景的物理反馈\n\n状态：2026-09-05用户“确认开始”批准；ready-for-agent。阻塞未清除前不进入执行前沿。\n\n## Parent\n\n[规格：Prometheus 到 wksim 完整仿真工具链移植](https://github.com/unununnnn/wksim/issues/10)；来源：[Wayfinder：Prometheus 双飞控 SITL 移植（UE5.5 / ROS2 / DDS）](https://github.com/unununnnn/wksim/issues/1)。不改写或关闭父图。\n\n## What to build\n\n载具在可见坡面或障碍场景中运行，地形/碰撞反馈与权威状态及画面一致。\n\n## Acceptance criteria\n\n- [ ] 冻结一个可核验场景的物理表示、视觉表示、坐标和反馈有效时间。\n- [ ] 在坡面/接触工况中检查高度、接触位置与模型反应，重置后按批准预算可复核。\n- [ ] 显示断开及反馈过期按批准契约处理，不能永久复用旧反馈或依赖渲染帧推进物理。\n- [ ] 保留动态地形/对象变化等额外能力行，不把视觉地面偏移当作碰撞实现。\n- [ ] 交付实际命令、版本/身份、预期与结果、失败/未验证边界；主代理复核后才能关闭。\n\n## Blocked by\n\n- [单载具产品状态流接入UE5.5](https://github.com/unununnnn/wksim/issues/17)\n- [四旋翼固定工况数值对照](https://github.com/unununnnn/wksim/issues/23)\n- [可选模型插件与场景反馈接口决策](https://github.com/unununnnn/wksim/issues/9)\n\n## Parallel boundary\n\n本票建议归属：环境/UE。每个阶段只分配一个写入者；共享消息、调度或生命周期的修改由主代理分配，不能与另一子代理覆盖同一区域。真实SITL/UE测试通过主代理预约隔离资源。模型与推理强度显式gpt-6-astra/low，未经允许不再嵌套委派。\n",
+    "body_sha256": "cca1ca813e19447b742e23eff7669abbc33aa010ac1223fc01d65a6b854192c1",
+    "blocked_by": [
+      17,
+      23,
+      9
+    ]
+  },
+  "33": {
+    "id": 5357681732,
+    "title": "双栈混合轴与轨迹跟随",
+    "body": "# 23 · 双栈混合轴与轨迹跟随\n\n状态：2026-09-05用户“确认开始”批准；ready-for-agent。阻塞未清除前不进入执行前沿。\n\n## Parent\n\n[规格：Prometheus 到 wksim 完整仿真工具链移植](https://github.com/unununnnn/wksim/issues/10)；来源：[Wayfinder：Prometheus 双飞控 SITL 移植（UE5.5 / ROS2 / DDS）](https://github.com/unununnnn/wksim/issues/1)。不改写或关闭父图。\n\n## What to build\n\n使用者执行混合位置/速度目标和一条固定轨迹，未激活轴不会变成零目标。\n\n## Acceptance criteria\n\n- [ ] 分别验证速度XY/位置Z等批准组合及轨迹位置/速度/偏航语义。\n- [ ] 加速度前馈是否执行必须显式声明，不能因消息带字段就声称生效。\n- [ ] 固定轨迹的误差、驻留和恢复门槛预先确定，两栈保存真值证据。\n- [ ] 模式切换、静止轴保持和停止信号不复用旧锚点；原命令/输出差分回归保持通过。\n- [ ] 交付实际命令、版本/身份、预期与结果、失败/未验证边界；主代理复核后才能关闭。\n\n## Blocked by\n\n- [双栈速度与偏航控制能力](https://github.com/unununnnn/wksim/issues/32)\n- [双飞控 SITL 首期验收与迁移顺序决策](https://github.com/unununnnn/wksim/issues/6)\n\n## Parallel boundary\n\n本票建议归属：原生控制。每个阶段只分配一个写入者；共享消息、调度或生命周期的修改由主代理分配，不能与另一子代理覆盖同一区域。真实SITL/UE测试通过主代理预约隔离资源。模型与推理强度显式gpt-6-astra/low，未经允许不再嵌套委派。\n",
+    "body_sha256": "f6ecb45996a2f57f4e2ba985678bf86a602a7b68f2536980c3b678edf19e3ed7",
+    "blocked_by": [
+      32,
+      6
+    ]
+  },
+  "35": {
+    "id": 5357682315,
+    "title": "Prometheus PID控制器选择与闭环",
+    "body": "# 25 · Prometheus PID控制器选择与闭环\n\n状态：2026-09-05用户“确认开始”批准；ready-for-agent。阻塞未清除前不进入执行前沿。\n\n## Parent\n\n[规格：Prometheus 到 wksim 完整仿真工具链移植](https://github.com/unununnnn/wksim/issues/10)；来源：[Wayfinder：Prometheus 双飞控 SITL 移植（UE5.5 / ROS2 / DDS）](https://github.com/unununnnn/wksim/issues/1)。不改写或关闭父图。\n\n## What to build\n\n用户选择迁移的Prometheus PID外部位置控制器，经姿态/推力出口执行定点与固定轨迹。\n\n## Acceptance criteria\n\n- [ ] 保留固定上游来源，记录初始化、重置、质量和推力映射。\n- [ ] 界面/配置和结果显示实际使用PID，不能仅修改标签仍使用飞控位置环。\n- [ ] 双栈定点、轨迹和预先声明扰动工况按冻结指标通过。\n- [ ] 建立实际需要的控制器选择/复位契约，供后续UDE与NE复用，原ROS1代码保持不变。\n- [ ] 交付实际命令、版本/身份、预期与结果、失败/未验证边界；主代理复核后才能关闭。\n\n## Blocked by\n\n- [双栈姿态与推力出口](https://github.com/unununnnn/wksim/issues/34)\n\n## Parallel boundary\n\n本票建议归属：控制算法。每个阶段只分配一个写入者；共享消息、调度或生命周期的修改由主代理分配，不能与另一子代理覆盖同一区域。真实SITL/UE测试通过主代理预约隔离资源。模型与推理强度显式gpt-6-astra/low，未经允许不再嵌套委派。\n",
+    "body_sha256": "fd79927b3018a126388923fd955d3b1f19513d083aa34ad5760061a3a2ad1a68",
+    "blocked_by": [
+      34
+    ]
+  },
+  "36": {
+    "id": 5357682700,
+    "title": "Prometheus UDE控制器闭环",
+    "body": "# 26 · Prometheus UDE控制器闭环\n\n状态：2026-09-05用户“确认开始”批准；ready-for-agent。阻塞未清除前不进入执行前沿。\n\n## Parent\n\n[规格：Prometheus 到 wksim 完整仿真工具链移植](https://github.com/unununnnn/wksim/issues/10)；来源：[Wayfinder：Prometheus 双飞控 SITL 移植（UE5.5 / ROS2 / DDS）](https://github.com/unununnnn/wksim/issues/1)。不改写或关闭父图。\n\n## What to build\n\n用户在同一任务中选择UDE控制器，运行并比较已声明扰动下的响应。\n\n## Acceptance criteria\n\n- [ ] 迁移实际UDE方法和所需状态，记录与上游的必要差异。\n- [ ] 复用已落地的控制器选择与姿态出口，不另造任务控制入口。\n- [ ] 双栈完成定点、轨迹和约定扰动，按预定超调/稳态/恢复指标判断。\n- [ ] 切换与重置不保留旧观测器状态，失败时不回退成PID却报告UDE成功。\n- [ ] 交付实际命令、版本/身份、预期与结果、失败/未验证边界；主代理复核后才能关闭。\n\n## Blocked by\n\n- [Prometheus PID控制器选择与闭环](https://github.com/unununnnn/wksim/issues/35)\n\n## Parallel boundary\n\n本票建议归属：控制算法。每个阶段只分配一个写入者；共享消息、调度或生命周期的修改由主代理分配，不能与另一子代理覆盖同一区域。真实SITL/UE测试通过主代理预约隔离资源。模型与推理强度显式gpt-6-astra/low，未经允许不再嵌套委派。\n",
+    "body_sha256": "93d217038a7f23c25b5df1ebda6c175a7a3299b03fba7b6e3824026dca525173",
+    "blocked_by": [
+      35
+    ]
+  },
+  "37": {
+    "id": 5357682929,
+    "title": "Prometheus NE控制器闭环",
+    "body": "# 27 · Prometheus NE控制器闭环\n\n状态：2026-09-05用户“确认开始”批准；ready-for-agent。阻塞未清除前不进入执行前沿。\n\n## Parent\n\n[规格：Prometheus 到 wksim 完整仿真工具链移植](https://github.com/unununnnn/wksim/issues/10)；来源：[Wayfinder：Prometheus 双飞控 SITL 移植（UE5.5 / ROS2 / DDS）](https://github.com/unununnnn/wksim/issues/1)。不改写或关闭父图。\n\n## What to build\n\n用户选择NE控制器，经相同任务和姿态出口验证其实际响应。\n\n## Acceptance criteria\n\n- [ ] 迁移实际NE方法及必要状态，保留来源与初始化/复位差异。\n- [ ] 配置、事件和证据标识实际控制器，拒绝不满足标定/周期条件的运行。\n- [ ] 双栈完成预先定义的定点、轨迹和扰动工况。\n- [ ] 退出、失联和新代次不复用旧算法状态，其他控制器回归通过。\n- [ ] 交付实际命令、版本/身份、预期与结果、失败/未验证边界；主代理复核后才能关闭。\n\n## Blocked by\n\n- [Prometheus PID控制器选择与闭环](https://github.com/unununnnn/wksim/issues/35)\n\n## Parallel boundary\n\n本票建议归属：控制算法。每个阶段只分配一个写入者；共享消息、调度或生命周期的修改由主代理分配，不能与另一子代理覆盖同一区域。真实SITL/UE测试通过主代理预约隔离资源。模型与推理强度显式gpt-6-astra/low，未经允许不再嵌套委派。\n",
+    "body_sha256": "2f91bc2500eac5e2cde8205f2e70470f8bcddbfff804c1b15636fc6169ac2bbf",
+    "blocked_by": [
+      35
+    ]
+  },
+  "38": {
+    "id": 5357683183,
+    "title": "RC位置控制与任务显式交接",
+    "body": "# 28 · RC位置控制与任务显式交接\n\n状态：2026-09-05用户“确认开始”批准；ready-for-agent。阻塞未清除前不进入执行前沿。\n\n## Parent\n\n[规格：Prometheus 到 wksim 完整仿真工具链移植](https://github.com/unununnnn/wksim/issues/10)；来源：[Wayfinder：Prometheus 双飞控 SITL 移植（UE5.5 / ROS2 / DDS）](https://github.com/unununnnn/wksim/issues/1)。不改写或关闭父图。\n\n## What to build\n\n使用者通过已确认RC输入进行位置/偏航控制，并在RC与任务控制之间显式交接。\n\n## Acceptance criteria\n\n- [ ] 先明确输入设备/模拟源、通道、死区、有效期和失联动作，不以伪RC规避原生解锁检查。\n- [ ] 真实双栈验证移动、回中保持、偏航和控制权交接。\n- [ ] 断流或外部模式切走后不自动抢回，反馈区分输入失效与飞控模式拒绝。\n- [ ] 本票仅位置RC闭环，其他RC/手动模式按来源矩阵继续跟踪。\n- [ ] 交付实际命令、版本/身份、预期与结果、失败/未验证边界；主代理复核后才能关闭。\n\n## Blocked by\n\n- [正式入口启动与停止一次双栈可选实验](https://github.com/unununnnn/wksim/issues/12)\n- [控制节点重启后的旧命令隔离](https://github.com/unununnnn/wksim/issues/14)\n- [双飞控 SITL 首期验收与迁移顺序决策](https://github.com/unununnnn/wksim/issues/6)\n\n## Parallel boundary\n\n本票建议归属：RC/控制。每个阶段只分配一个写入者；共享消息、调度或生命周期的修改由主代理分配，不能与另一子代理覆盖同一区域。真实SITL/UE测试通过主代理预约隔离资源。模型与推理强度显式gpt-6-astra/low，未经允许不再嵌套委派。\n",
+    "body_sha256": "38bf8b6d3ebe34f7965a84d1597a1b8daa6ad621b3cdd7970da1ec5cffaf6ded",
+    "blocked_by": [
+      12,
+      14,
+      6
+    ]
+  },
+  "39": {
+    "id": 5357683732,
+    "title": "单机规划绕障到真实飞行",
+    "body": "# 29 · 单机规划绕障到真实飞行\n\n状态：2026-09-05用户“确认开始”批准；ready-for-agent。阻塞未清除前不进入执行前沿。\n\n## Parent\n\n[规格：Prometheus 到 wksim 完整仿真工具链移植](https://github.com/unununnnn/wksim/issues/10)；来源：[Wayfinder：Prometheus 双飞控 SITL 移植（UE5.5 / ROS2 / DDS）](https://github.com/unununnnn/wksim/issues/1)。不改写或关闭父图。\n\n## What to build\n\n用户在固定地图中指定目标，选定Prometheus规划器生成并执行轨迹绕过障碍。\n\n## Acceptance criteria\n\n- [ ] 先冻结一个上游规划器、输入地图和任务profile，不把全部规划算法合在一票。\n- [ ] 规划目标到真实飞行的完整路径经过公开控制入口，真值检查到达、碰撞和净空。\n- [ ] 无路、取消和重规划不继续旧轨迹；输出命令ID在会话内严格递增。\n- [ ] 迁移时修正已核对的上游停止参考被后续轨迹覆盖及每次新建命令导致ID重复的问题，并记录有意差异。\n- [ ] 交付实际命令、版本/身份、预期与结果、失败/未验证边界；主代理复核后才能关闭。\n\n## Blocked by\n\n- [单机多航点任务与取消闭环](https://github.com/unununnnn/wksim/issues/15)\n- [坡面与障碍场景的物理反馈](https://github.com/unununnnn/wksim/issues/29)\n- [双栈混合轴与轨迹跟随](https://github.com/unununnnn/wksim/issues/33)\n- [双飞控 SITL 首期验收与迁移顺序决策](https://github.com/unununnnn/wksim/issues/6)\n\n## Parallel boundary\n\n本票建议归属：规划。每个阶段只分配一个写入者；共享消息、调度或生命周期的修改由主代理分配，不能与另一子代理覆盖同一区域。真实SITL/UE测试通过主代理预约隔离资源。模型与推理强度显式gpt-6-astra/low，未经允许不再嵌套委派。\n",
+    "body_sha256": "324a778e198a72a794796a39a1234e087916e433f392b65c0aeec9495613b4ae",
+    "blocked_by": [
+      15,
+      29,
+      33,
+      6
+    ]
+  },
+  "40": {
+    "id": 5357684115,
+    "title": "真实相机驱动ArUco目标跟踪",
+    "body": "# 30 · 真实相机驱动ArUco目标跟踪\n\n状态：2026-09-05用户“确认开始”批准；ready-for-agent。阻塞未清除前不进入执行前沿。\n\n## Parent\n\n[规格：Prometheus 到 wksim 完整仿真工具链移植](https://github.com/unununnnn/wksim/issues/10)；来源：[Wayfinder：Prometheus 双飞控 SITL 移植（UE5.5 / ROS2 / DDS）](https://github.com/unununnnn/wksim/issues/1)。不改写或关闭父图。\n\n## What to build\n\n使用者在真实相机场景中指定一个标记目标，运行Prometheus感知与跟踪闭环。\n\n## Acceptance criteria\n\n- [ ] 先冻结标记场景、标定、外参、有效期和遮挡策略；不把推荐ArUco默认扩大为所有感知demo。\n- [ ] 图像采集、检测、机体系目标与双栈飞行关联同一运行证据。\n- [ ] 目标出现、移动、遮挡和恢复分别验证距离/速度/突跳门槛。\n- [ ] 回放可做接口测试，但只有真实传感器到实际飞行闭环通过才关闭本票。\n- [ ] 交付实际命令、版本/身份、预期与结果、失败/未验证边界；主代理复核后才能关闭。\n\n## Blocked by\n\n- [带时间与标定的真实RGB相机](https://github.com/unununnnn/wksim/issues/30)\n- [双栈速度与偏航控制能力](https://github.com/unununnnn/wksim/issues/32)\n- [双飞控 SITL 首期验收与迁移顺序决策](https://github.com/unununnnn/wksim/issues/6)\n\n## Parallel boundary\n\n本票建议归属：感知。每个阶段只分配一个写入者；共享消息、调度或生命周期的修改由主代理分配，不能与另一子代理覆盖同一区域。真实SITL/UE测试通过主代理预约隔离资源。模型与推理强度显式gpt-6-astra/low，未经允许不再嵌套委派。\n",
+    "body_sha256": "a9201b5c48fef2e80e9fa14905544b45fd6b061671948fd93cb937c7e027b4a5",
+    "blocked_by": [
+      30,
+      32,
+      6
+    ]
+  },
+  "44": {
+    "id": 5357685300,
+    "title": "单电机效率故障的可复现实验",
+    "body": "# 34 · 单电机效率故障的可复现实验\n\n状态：2026-09-05用户“确认开始”批准；ready-for-agent。阻塞未清除前不进入执行前沿。\n\n## Parent\n\n[规格：Prometheus 到 wksim 完整仿真工具链移植](https://github.com/unununnnn/wksim/issues/10)；来源：[Wayfinder：Prometheus 双飞控 SITL 移植（UE5.5 / ROS2 / DDS）](https://github.com/unununnnn/wksim/issues/1)。不改写或关闭父图。\n\n## What to build\n\n用户在固定模型任务中按事件计划降低一个电机效率并观察实际响应。\n\n## Acceptance criteria\n\n- [ ] 故障时刻、持续时间、目标电机和幅值进入运行配置及记录。\n- [ ] 事件映射到实际模型执行器路径，真值和飞控反馈反映该电机变化。\n- [ ] 使用预先批准的安全/失联与数值预算，重置后故障状态清除。\n- [ ] 无故障回归和相同种子重复实验通过；卡死/关闭及其他电气故障继续列为独立扩展。\n- [ ] 交付实际命令、版本/身份、预期与结果、失败/未验证边界；主代理复核后才能关闭。\n\n## Blocked by\n\n- [悬停期间DDS断连与显式恢复](https://github.com/unununnnn/wksim/issues/22)\n- [四旋翼参数保存导入与真实运行](https://github.com/unununnnn/wksim/issues/24)\n\n## Parallel boundary\n\n本票建议归属：故障/模型。每个阶段只分配一个写入者；共享消息、调度或生命周期的修改由主代理分配，不能与另一子代理覆盖同一区域。真实SITL/UE测试通过主代理预约隔离资源。模型与推理强度显式gpt-6-astra/low，未经允许不再嵌套委派。\n",
+    "body_sha256": "b7b518e4caa5adbd1ba5b095a8584d3c6f5558bec81fe56b277beda944b897e6",
+    "blocked_by": [
+      22,
+      24
+    ]
+  },
+  "45": {
+    "id": 5357685658,
+    "title": "GNSS中断与状态有效性恢复",
+    "body": "# 35 · GNSS中断与状态有效性恢复\n\n状态：2026-09-05用户“确认开始”批准；ready-for-agent。阻塞未清除前不进入执行前沿。\n\n## Parent\n\n[规格：Prometheus 到 wksim 完整仿真工具链移植](https://github.com/unununnnn/wksim/issues/10)；来源：[Wayfinder：Prometheus 双飞控 SITL 移植（UE5.5 / ROS2 / DDS）](https://github.com/unununnnn/wksim/issues/1)。不改写或关闭父图。\n\n## What to build\n\n用户按计划中断GNSS输入，观察定位有效性、飞控和任务控制恢复行为。\n\n## Acceptance criteria\n\n- [ ] 注入位置在真实传感器链，不仅修改显示标志；保留原始GPS质量与源时间。\n- [ ] 定位失效、失联和过期数据不同事件分别可观察，旧坐标不能因新时间戳变成有效。\n- [ ] 按已批准策略验证任务撤销、飞控动作和恢复后显式接管。\n- [ ] 故障计划、真实传感器/状态/真值及固定预算一并记录，其他传感器故障不自动算通过。\n- [ ] 交付实际命令、版本/身份、预期与结果、失败/未验证边界；主代理复核后才能关闭。\n\n## Blocked by\n\n- [悬停期间DDS断连与显式恢复](https://github.com/unununnnn/wksim/issues/22)\n- [四旋翼固定工况数值对照](https://github.com/unununnnn/wksim/issues/23)\n\n## Parallel boundary\n\n本票建议归属：故障/传感器。每个阶段只分配一个写入者；共享消息、调度或生命周期的修改由主代理分配，不能与另一子代理覆盖同一区域。真实SITL/UE测试通过主代理预约隔离资源。模型与推理强度显式gpt-6-astra/low，未经允许不再嵌套委派。\n",
+    "body_sha256": "e145c6b8f5991d32e87465ffdf103e8cb02ce972219eced8fe11d8a71f95c812",
+    "blocked_by": [
+      22,
+      23
+    ]
+  },
+  "46": {
+    "id": 5357685875,
+    "title": "固定输入实验的确定性重新运行",
+    "body": "# 36 · 固定输入实验的确定性重新运行\n\n状态：2026-09-05用户“确认开始”批准；ready-for-agent。阻塞未清除前不进入执行前沿。\n\n## Parent\n\n[规格：Prometheus 到 wksim 完整仿真工具链移植](https://github.com/unununnnn/wksim/issues/10)；来源：[Wayfinder：Prometheus 双飞控 SITL 移植（UE5.5 / ROS2 / DDS）](https://github.com/unununnnn/wksim/issues/1)。不改写或关闭父图。\n\n## What to build\n\n使用者用已记录配置和执行器输入重新运行自主模型，得到约定容差内的状态轨迹。\n\n## Acceptance criteria\n\n- [ ] 区别离线状态回放与重新计算物理，输入、种子、模型和时间条件完整可得。\n- [ ] 源运行记录不足时拒绝声称可重演，不对降采样缺口自行插值成真值。\n- [ ] 同一受控构建的重演满足预先预算，并记录平台差异而非要求跨平台位级一致。\n- [ ] 异常事件、暂停/单步与重置身份可追溯，重演不向真实飞控或原运行发送控制。\n- [ ] 交付实际命令、版本/身份、预期与结果、失败/未验证边界；主代理复核后才能关闭。\n\n## Blocked by\n\n- [已有任务记录的离线回看](https://github.com/unununnnn/wksim/issues/16)\n- [联合场景暂停单步与冷重置](https://github.com/unununnnn/wksim/issues/20)\n- [四旋翼参数保存导入与真实运行](https://github.com/unununnnn/wksim/issues/24)\n\n## Parallel boundary\n\n本票建议归属：复现/记录。每个阶段只分配一个写入者；共享消息、调度或生命周期的修改由主代理分配，不能与另一子代理覆盖同一区域。真实SITL/UE测试通过主代理预约隔离资源。模型与推理强度显式gpt-6-astra/low，未经允许不再嵌套委派。\n",
+    "body_sha256": "1d6ed0a74ef30adb670830dfebb205302942e86c5c4898b7cc3fe4aa1b6fc762",
+    "blocked_by": [
+      16,
+      20,
+      24
+    ]
+  },
+  "47": {
+    "id": 5357686087,
+    "title": "双栈全球航点与home基准",
+    "body": "# 37 · 双栈全球航点与home基准\n\n状态：2026-09-05用户“确认开始”批准；ready-for-agent。阻塞未清除前不进入执行前沿。\n\n## Parent\n\n[规格：Prometheus 到 wksim 完整仿真工具链移植](https://github.com/unununnnn/wksim/issues/10)；来源：[Wayfinder：Prometheus 双飞控 SITL 移植（UE5.5 / ROS2 / DDS）](https://github.com/unununnnn/wksim/issues/1)。不改写或关闭父图。\n\n## What to build\n\n使用者以经纬度和明确home相对高度给出航点，两套飞控执行同义目标。\n\n## Acceptance criteria\n\n- [ ] 补齐并验证PX4全球位置适配，保持AP已明确的home与局部转换边界。\n- [ ] 经纬度、AMSL/相对高度、ENU/NED之间的转换有显式基准与数值检查。\n- [ ] 全球目标真实飞行、越界拒绝和home变化后的旧目标失效在两栈分别通过。\n- [ ] 不能把EKF origin当home，也不能将未校验的全球目标静默改成局部位置。\n- [ ] 交付实际命令、版本/身份、预期与结果、失败/未验证边界；主代理复核后才能关闭。\n\n## Blocked by\n\n- [正式入口启动与停止一次双栈可选实验](https://github.com/unununnnn/wksim/issues/12)\n- [控制节点重启后的旧命令隔离](https://github.com/unununnnn/wksim/issues/14)\n- [四旋翼固定工况数值对照](https://github.com/unununnnn/wksim/issues/23)\n\n## Parallel boundary\n\n本票建议归属：原生控制。每个阶段只分配一个写入者；共享消息、调度或生命周期的修改由主代理分配，不能与另一子代理覆盖同一区域。真实SITL/UE测试通过主代理预约隔离资源。模型与推理强度显式gpt-6-astra/low，未经允许不再嵌套委派。\n",
+    "body_sha256": "c9232d4b3521ad3e641d9052055dd8c8924a922a9f445ef9852426690dd4aa3c",
+    "blocked_by": [
+      12,
+      14,
+      23
+    ]
+  }
+}

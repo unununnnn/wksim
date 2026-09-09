@@ -15,6 +15,8 @@ For task scope and decisions, read the [Wayfinder map](https://github.com/ununun
 
 The user-selected target is UE5.5 display, WSL Ubuntu22.04 with ROS2/DDS, PX4 and ArduCopter SITL, RflySim-inspired module organization, and a minimal MATLAB interface. Consult `docs/sitl-runtime-proposal.md` when changing runtime boundaries; it distinguishes proposals from accepted requirements.
 
+For the 2026-09-09 Luna handoff or a bounded low-cost execution slice, read [lunar模型完整推进指南.md](lunar模型完整推进指南.md), then select one ready child with `python tools/lunar_queue.py next`. Original parent acceptance/dependencies and the existing subagent model policy remain in force.
+
 ## Standalone project boundary
 
 Use this directory as the project root and `origin` (`https://github.com/unununnnn/wksim.git`) as its only project remote. Read this repository's `CONTEXT.md`; parent and sibling project context is not an implementation dependency. For local build/runtime resources use the project-owned locations in `docs/project-isolation.md`. Preserve upstream attribution and historical evidence, while keeping new code and builds independent of sibling working copies.

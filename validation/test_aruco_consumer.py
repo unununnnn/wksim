@@ -12,10 +12,16 @@ from pathlib import Path
 import tempfile
 import unittest
 
-import cv2
-import numpy as np
+try:
+    import cv2
+    import numpy as np
+except ModuleNotFoundError as error:
+    if error.name not in ('cv2', 'numpy'):
+        raise
+    cv2 = np = None
 
-from Simulator.wksim_perception.aruco import Consumer
+if cv2 is not None:
+    from Simulator.wksim_perception.aruco import Consumer
 from Simulator.ue55.rgb import Reader
 
 
@@ -72,6 +78,7 @@ def fixture(directory, *, step=1000, frame_id=1, translation=(0.12,0.04,2.0),
     return dict(metadata=m,notification=event,image_path=str(path),metadata_path=str(metadata_path))
 
 
+@unittest.skipUnless(cv2 is not None and np is not None, 'Optional vision suite requires project-private aruco-python; run its 12 tests there')
 class ArucoConsumerTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory(prefix='aruco-')

@@ -1,0 +1,28 @@
+{
+  "schema": "wksim.pid-flight.v1",
+  "controller": "pid",
+  "model": {
+    "identity": "sha256:cc0bc2d10790043251f38bb6a53f4d774379dd37a02b09cceba43ac1fafb02b3",
+    "library_sha256": "cc0bc2d10790043251f38bb6a53f4d774379dd37a02b09cceba43ac1fafb02b3",
+    "mass_kg": 1.515,
+    "profile": "quad_x"
+  },
+  "pid": {
+    "kp": [2.0, 2.0, 2.0],
+    "kv": [2.0, 2.0, 2.0],
+    "ki": [0.3, 0.3, 0.3],
+    "integral_limit": [0.5, 0.5, 0.5],
+    "tilt_limit_deg": 8.0
+  },
+  "hover_calibration": {
+    "arducopter": "same_run_native_ATTITUDE_TARGET_3s_median_then_2s_level_validation",
+    "px4": "same_run_native_ATTITUDE_TARGET_3s_median_then_2s_level_validation",
+    "reuse_previous_run": false
+  },
+  "timing": {"maximum_native_dt_s": 0.2, "ack_timeout_s": 0.2, "model_dt_s": 0.001},
+  "point": {"position_enu_m": [2.0, 3.0, 3.0], "yaw_rad": 0.0, "settle_s": 6.0, "measure_s": 4.0, "max_error_m": 0.3, "max_speed_mps": 0.3, "max_yaw_error_rad": 0.15},
+  "circle": {"center_enu_m": [1.4, 3.0, 3.0], "radius_m": 0.6, "period_s": 12.0, "yaw_rad": 0.0, "settle_s": 12.0, "measure_s": 12.0, "max_error_m": 0.35, "max_yaw_error_rad": 0.15},
+  "disturbance": {"kind": "effective_actuator_command_multiplier", "channels": [0, 1, 2, 3], "multiplier": 0.97, "settle_s": 6.0, "lead_ticks": 2000, "minimum_load_lead_ticks": 1000, "duration_ticks": 1000, "max_error_m": 0.5, "return_error_m": 0.3, "return_speed_mps": 0.3, "return_yaw_error_rad": 0.15, "return_deadline_s": 8.0, "return_dwell_s": 1.5},
+  "envelope": {"max_axis_tilt_deg": 15.0, "minimum_height_m": 1.5, "maximum_height_m": 4.5, "max_distance_from_point_m": 4.0},
+  "scope": "Independent external PID candidate; measured stages use public XYZ_ATT only; preparation/recovery/land use native position. Full 1ms raw audit required. No UI, joint-rate, UDE/NE or motor-efficiency acceptance."
+}
