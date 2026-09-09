@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "issue": 134,
+  "stable_key": "full-comm-07",
+  "title": "Mavlink_Vision positioning output",
+  "source": {
+    "file": "docs/plan/full-scope-expansion.md",
+    "line": 38,
+    "ledger_id": "COMM-07",
+    "ledger_file": "docs/plan/full-followup-tickets.json",
+    "parent_issues": [1]
+  },
+  "status": "defined",
+  "evidence_status": "partial-evidence",
+  "full_complete": false,
+  "current_gap": "The vision positioning message, its frame/covariance/sample-time semantics and the estimator integration contract are missing; the #30 real-camera image path is not evidence for this mode.",
+  "atoms": [
+    {"id": "COMM-07-A", "name": "vision_message_set", "status": "blocked", "required": "Pinned vision positioning message(s) with field map from a fixed dialect source", "owner": "protocol maintainer"},
+    {"id": "COMM-07-B", "name": "coordinate_covariance", "status": "blocked", "required": "Frame, units and covariance semantics pinned and validated", "owner": "protocol maintainer"},
+    {"id": "COMM-07-C", "name": "sampling_time", "status": "blocked", "required": "Sample time versus authoritative sim time semantics; capture time is not estimate time", "owner": "runtime maintainer"},
+    {"id": "COMM-07-D", "name": "estimator_integration", "status": "blocked", "required": "Estimator input contract per supported stack with acceptance/rejection evidence", "owner": "control maintainer"},
+    {"id": "COMM-07-E", "name": "capture_path_distinction", "status": "partial", "required": "The #30 RGB capture path stays image evidence; it never substitutes for a vision-position message", "owner": "UE/validation maintainer"}
+  ],
+  "message_required": ["message_id", "message_name", "dialect", "dialect_sha256", "coordinate_frame", "units", "covariance", "sample_time_ns", "sample_timebase", "estimator_target", "vehicle_id", "epoch", "source_identity"],
+  "scope_rule": "a camera image with pose metadata is not a vision-position estimate; estimator acceptance is proven per stack, not assumed",
+  "errors": ["accepted", "unknown_message", "frame_mismatch", "covariance_invalid", "time_semantics_unknown", "estimator_rejected", "stale_sample", "image_not_estimate"],
+  "followups": [
+    {"key": "comm-07-message-freeze", "files": ["docs/plan/<mavlink-vision>.json"], "status": "proposed", "blocked_by": "Fixed dialect source and message choice"},
+    {"key": "comm-07-estimator-contract", "files": ["docs/plan/<vision-estimator>.md", "validation/<vision-estimator-audit>"], "status": "proposed", "blocked_by": "Per-stack estimator input requirements"},
+    {"key": "comm-07-live-slice", "files": ["Simulator/ue55/rgb.py", "Simulator/wksim_perception/<vision-output>.py", "validation/<vision-live-audit>"], "status": "proposed", "blocked_by": "Frozen message and estimator contract"}
+  ],
+  "preserved": {"issue_30": "closed RGB capture slice; image evidence only", "full_complete": false}
+}
