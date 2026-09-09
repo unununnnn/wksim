@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "issue": 148,
+  "stable_key": "full-model-14",
+  "title": "CopterSILVelCtrl workflow",
+  "source": {
+    "file": "docs/plan/full-scope-expansion.md",
+    "line": 59,
+    "ledger_id": "MODEL-14",
+    "ledger_file": "docs/plan/full-followup-tickets.json",
+    "parent_issues": [1]
+  },
+  "status": "defined",
+  "evidence_status": "partial-evidence",
+  "full_complete": false,
+  "current_gap": "The pure-model SIL velocity-control workflow is uncovered; it is not equivalent to the real-FC velocity ticket (#32).",
+  "atoms": [
+    {"id": "MODEL-14-A", "name": "sil_velocity_workflow", "status": "blocked", "required": "Pure-model velocity control loop: reference input, controller, model, truth feedback, no FC", "owner": "control maintainer"},
+    {"id": "MODEL-14-B", "name": "fc_velocity_distinction", "status": "partial", "required": "Rule enforced: #32 real-FC velocity/yaw evidence never covers this workflow", "owner": "validation maintainer"},
+    {"id": "MODEL-14-C", "name": "controller_reuse", "status": "partial", "required": "Owned PID/UDE/NE modules are candidates for the loop; reuse keeps their identity and budgets", "owner": "control maintainer"},
+    {"id": "MODEL-14_D", "name": "workflow_acceptance", "status": "blocked", "required": "Defined input/response conditions and pass criteria for the SIL loop", "owner": "validation maintainer"}
+  ],
+  "workflow_required": ["workflow_id", "model_identity", "controller_identity", "reference_input_schema", "truth_feedback_schema", "conditions", "pass_criteria", "epoch", "source_identity"],
+  "scope_rule": "SIL velocity control closes the loop around the model without a flight controller; real-FC velocity evidence is a different ticket",
+  "errors": ["accepted", "model_not_found", "controller_unbound", "condition_undefined", "criteria_unmet", "fc_substitution_rejected"],
+  "followups": [
+    {"key": "model-14-sil-loop", "files": ["Simulator/wksim_control/<sil-vel-loop>.py", "validation/<sil-vel-tests>.py"], "status": "proposed", "blocked_by": "Workflow conditions and pass criteria freeze"},
+    {"key": "model-14-acceptance-audit", "files": ["validation/<sil-vel-audit>"], "status": "proposed", "blocked_by": "SIL loop implementation"}
+  ],
+  "preserved": {"issue_32": "closed real-FC velocity/yaw slice; different ticket", "controllers": "position_pid/ude/ne keep their identities", "full_complete": false}
+}
