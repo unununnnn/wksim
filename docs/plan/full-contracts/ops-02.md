@@ -66,4 +66,3 @@ These are proposed successors; no executable performance command exists in the c
 - #23 remains closed for its original comparison-delivery scope, while `R1=numerical_failed` and G6 remain unchanged.
 - This ticket does not modify the model, control path, native adapter, vendor resources, hardware or external FlyEval service.
 - `full_complete` remains `false` for OPS-02 and for the project.
-
