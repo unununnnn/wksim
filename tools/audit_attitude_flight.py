@@ -16,6 +16,8 @@ import sys
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO))
 BUDGET_SHA = '9a13e03abb5c9caf56d75ca4c5e4fd73d709037add7ec527405eee4d471d318f'
+ENTRY_SHA = 'debd99a2b8c245608dd04bdaee61a9b9bc0e2c7240771c973eedec7c673c03c3'
+ENTRY_PATH = 'Simulator/wksim_runtime/attitude-entry-v1.json'
 
 
 def require(value, message):
@@ -156,8 +158,11 @@ def retained_identity(root, result):
     if stack == 'arducopter':
         argv = result['children']['fc']['argv']
         require(argv[argv.index('--speedup')+1] == '1'
-                and (root/'attitude.parm').read_text() == 'GUID_OPTIONS 8\nGUID_TIMEOUT 3\nLOG_DISARMED 1\n',
+                and (root/'attitude.parm').read_text() == 'GUID_OPTIONS 8\nGUID_TIMEOUT 3\nLOG_DISARMED 1\n'
+                    + ('PSC_ANGLE_MAX 10\n' if result['task']['attitude_thrust'].get('entry_contract_sha256') else ''),
                 'AP candidate explicit parameter/speedup differs')
+        if result['task']['attitude_thrust'].get('entry_contract_sha256'):
+            candidate_parameters(root,result)
     else:
         require(result['launch_plan']['fc_environment']['PX4_SIM_SPEED_FACTOR'] == '1', 'PX4 speedup differs')
     return dict(source_files=len(sources), firmware=firmware, control_manifest=identities['control']['manifest_sha256'],
@@ -259,6 +264,12 @@ def fixed_metrics(states, phases, calibration):
     if 'thrust_step_begin' in phases:
         lo,hi = fixed('thrust_step')
         require(abs(hi-lo-.5) < 1e-8, 'Thrust duration differs')
+        baseline=phases['thrust_baseline_begin'];baseline_end=phases['thrust_baseline_end']
+        require(baseline['duration_seconds']==.2
+                and baseline_end['physical_cursor']['final_time']>=baseline['physical_start']+.2-1e-9
+                and baseline_end['physical_cursor']['final_time']<=lo
+                and baseline_end['observed_monotonic_s']<phases['thrust_step_offered']['observed_monotonic_s'],
+                'Original full preceding thrust baseline differs')
         before = window(states,lo-.2,lo)
         after = window(states,hi-.1,hi)
         delta = statistics.mean(s['velocity'][2] for s in after)-statistics.mean(s['velocity'][2] for s in before)
@@ -337,7 +348,7 @@ def decode_native(root,result):
     from rosidl_runtime_py.set_message import set_message_fields
     from prometheus_msgs.msg import TextInfo
     from wksim_msgs.msg import CommandRequest, SetupRequest, SessionState
-    from px4_msgs.msg import VehicleAttitudeSetpoint, OffboardControlMode, VehicleAttitude, TrajectorySetpoint
+    from px4_msgs.msg import VehicleAttitudeSetpoint, OffboardControlMode, VehicleAttitude, TrajectorySetpoint, VehicleControlMode
     from ardupilot_msgs.msg import WksimAttitudeTarget, WksimState, GlobalPosition
     from Simulator.wksim_runtime.telemetry_dialect import load_dialect
     from Simulator.wksim_runtime.evidence import json_value
@@ -361,7 +372,7 @@ def decode_native(root,result):
         types['/uav1/prometheus/'+suffix] = cls
     for direction,name,cls in [('in','vehicle_attitude_setpoint',VehicleAttitudeSetpoint),
         ('in','offboard_control_mode',OffboardControlMode),('out','vehicle_attitude',VehicleAttitude),
-        ('in','trajectory_setpoint',TrajectorySetpoint)]:
+        ('in','trajectory_setpoint',TrajectorySetpoint),('out','vehicle_control_mode',VehicleControlMode)]:
         version = getattr(cls,'MESSAGE_VERSION',0)
         types['/wksim_px4_21/fmu/'+direction+'/'+name+(f'_v{version}' if version else '')] = cls
     dialect, identity = load_dialect(result['stack'])
@@ -429,6 +440,184 @@ def px4_parameter_value(message):
             if message['param_type']==6 else message['param_value'])
 
 
+def entry_contract(root,result):
+    """A missing report field cannot downgrade a run whose retained source uses the gate."""
+    claimed=result['task']['attitude_thrust'].get('entry_contract_sha256')
+    retained=root/'run-source'/ENTRY_PATH
+    task=root/'run-source/Simulator/wksim_runtime/attitude_task.py'
+    present=claimed is not None or retained.exists() or 'ENTRY_CONTRACT_SHA' in task.read_text()
+    if not present:
+        return dict(status='historical_without_entry_contract',required=False)
+    require(claimed==ENTRY_SHA and result['source_sha256'].get(ENTRY_PATH)==ENTRY_SHA
+            and digest(retained)==ENTRY_SHA, 'Entry contract report/run-source seal differs')
+    contract=read(retained)
+    require(contract['original_budget_sha256']==BUDGET_SHA, 'Entry changed original budget')
+    return dict(status='sealed',required=True,sha256=ENTRY_SHA,contract=contract)
+
+
+def candidate_parameters(root,result):
+    expected={'GUID_OPTIONS':8,'GUID_TIMEOUT':3,'LOG_DISARMED':1,'PSC_ANGLE_MAX':10}
+    actual={}
+    for line in (root/'attitude.parm').read_text().splitlines():
+        name,value=line.split()
+        require(name not in actual,'Duplicate candidate parameter')
+        actual[name]=float(value)
+    require(actual==expected==result['experimental_parameters'],'Recorded candidate parameter file differs')
+    argv=result['children']['fc']['argv']
+    defaults=argv[argv.index('--defaults')+1].split(',')
+    require(defaults.count(str(root/'attitude.parm'))==1
+            and defaults[-2:]==[str(root/'attitude.parm'),str(root/'dds.parm')],
+            'Actual AP defaults do not load candidate file before DDS file')
+    require((root/'dds.parm').read_text()=='DDS_ENABLE 1\nDDS_UDP_PORT 12019\nDDS_DOMAIN_ID 77\n',
+            'Later AP defaults override candidate parameters')
+    # Inspect every actual earlier defaults file; candidate overrides are explicit,
+    # and baseline position-angle configuration must remain the original zero.
+    for filename in defaults[:-2]:
+        for line in Path(filename).read_text().splitlines():
+            fields=line.split('#',1)[0].replace(',',' ').split()
+            if fields and fields[0] in ('PSC_ANGLE_MAX','ATC_ANGLE_MAX'):
+                require(float(fields[1])==(0 if fields[0]=='PSC_ANGLE_MAX' else 30),
+                        'Original AP angle baseline was changed')
+    return dict(candidate=actual,actual_defaults=defaults)
+
+
+def entry_gate_evidence(result,data,recorded,phases,states,discovery,contract):
+    """Rebuild the declared gate from decoded wire records, never scan a better window."""
+    if result['stack']!='px4':
+        require(not any('_preconditioning_' in name for name in phases),'AP acquired a PX4-only gate')
+        return dict(status='not_applicable',stages=[])
+    calibration=result['task']['attitude_thrust']['calibration']
+    completed=result['task']['attitude_thrust']['status']=='completed_pending_raw_audit'
+    gates=(('level_calibration_entry','hover_candidate_frozen','level_calibration','level_calibration',2),
+           ('attitude_step_entry','calibration_recovery_recovered_end','attitude_step','attitude_settling',.5),
+           ('thrust_baseline_entry','attitude_recovery_recovered_end','thrust_baseline','thrust_baseline',.2))
+    mode_topics=[name for name in data if '/out/vehicle_control_mode' in name]
+    mode_topic=mode_topics[0] if mode_topics else None
+    modes=data.get(mode_topic,[])
+    require(all(a['timestamp']<b['timestamp'] for (_,a),(_,b) in zip(modes,modes[1:])),
+            'Raw VehicleControlMode timestamp did not advance')
+    targets=[pair for name,rows in data.items() if '/in/vehicle_attitude_setpoint' in name for pair in rows]
+    offboard=[pair for name,rows in data.items() if '/in/offboard_control_mode' in name for pair in rows]
+    public=data.get('/uav1/prometheus/v2/command',[])
+    reports=[]
+    for label,previous,next_label,duration_label,duration in gates:
+        begin=phases.get(label+'_preconditioning_begin')
+        complete=phases.get(label+'_preconditioning_complete')
+        require(begin is not None or next_label+'_offered' not in phases,'Required entry gate missing: '+label)
+        if begin is None:
+            reports.append(dict(label=label,status='not_reached'));continue
+        require(previous in phases and phases[previous]['observed_monotonic_s']<begin['observed_monotonic_s'],
+                'Entry occurred before required previous phase: '+label)
+        start=begin['physical_start']; wall_start=begin['observed_monotonic_s']
+        require(start==begin['physical_cursor']['final_time'] and begin['physical_deadline']==start+2
+                and begin['wall_timeout_seconds']==10,'Entry deadline declaration differs')
+        require(calibration and len(begin['neutral_attitude'])==4
+                and all(abs(a-b)<1e-9 for a,b in zip(begin['neutral_attitude'],(0,0,calibration['yaw'],calibration['hover']))),
+                'Entry changed frozen neutral target')
+        if complete is None:
+            require(next_label+'_offered' not in phases,'Task continued after incomplete entry')
+            reports.append(dict(label=label,status='incomplete'));continue
+        end=complete['physical_cursor']['final_time']; wall_end=complete['observed_monotonic_s']
+        require(0<=end-start<=2 and 0<wall_end-wall_start<10,'Entry completion exceeded frozen deadline')
+        offered=phases[label+'_neutral_offered']
+        observed=phases[label+'_neutral_native_observed']
+        requests=[(row,value) for row,value in public if value['command']['command_id']==offered['command_id']]
+        require(len(requests)==1,'Neutral raw public request missing/ambiguous')
+        request_row,request=requests[0]
+        frozen_command('level_calibration',request['command'],calibration)
+        require(wall_start<=offered['observed_monotonic_s']<=request_row['monotonic']
+                <=observed['observed_monotonic_s']<wall_end,'Neutral public/native phase order differs')
+        q=native_q(q_from_euler(0,0,calibration['yaw'])); hover=calibration['hover']
+        raw_inputs=[(row,m) for row,m in targets if request_row['monotonic']<=row['monotonic']<=observed['observed_monotonic_s']
+                    and q_distance(m['q_d'],q)<1e-5 and abs(-m['thrust_body'][2]-hover)<1e-5]
+        require(raw_inputs,'No new raw neutral native publication')
+        input_row,native=raw_inputs[0]
+        stamp=native['timestamp']
+        require(complete['offered_native_stamp']==stamp==observed['native_target']['native_source_stamp']
+                and observed['native_target']['physical_time']==input_row['physical_cursor']['final_time']
+                and native['thrust_body'][:2]==[0.,0.], 'Declared neutral native observation differs')
+        ocm=[m for row,m in offboard if m['timestamp']==stamp and wall_start<=row['monotonic']<=wall_end]
+        require(len(ocm)==1 and ocm[0]['attitude'] and not any(ocm[0][key] for key in
+                ('position','velocity','acceleration','body_rate','thrust_and_torque','direct_actuator')),
+                'Raw neutral OffboardControlMode axes differ')
+        declared=complete['control_mode']
+        selected=[(row,m) for row,m in modes if wall_start<=row['monotonic']<=wall_end
+                  and m['timestamp']==declared['native_source_stamp']]
+        require(len(selected)==1,'Declared control mode absent from new raw CDR')
+        mode_row,mode=selected[0]
+        available_modes=[pair for pair in modes if wall_start<=pair[0]['monotonic']<=wall_end]
+        require(selected[0]==available_modes[-1],'Entry selected an older passing control mode')
+        require(mode==declared['flags'] and mode['timestamp']>=stamp
+                and mode_row['source_timestamp']==declared['source_timestamp']
+                and mode_row['received_timestamp']==declared['received_timestamp']
+                and mode_row['physical_cursor']['final_time']==declared['physical_time']
+                and 0<=end-declared['physical_time']<=.75
+                and all(mode.get(k) is True for k in contract['required_true'])
+                and all(mode.get(k) is False for k in contract['required_false']),
+                'Raw control-mode flags/timestamp/freshness differ')
+        selected_targets=[r for r in recorded if r['message']['mavpackettype']=='ATTITUDE_TARGET'
+            and wall_start<=r['monotonic']<=wall_end and
+            dict(physical_time=r['physical_time'],native_boot_s=r['message']['time_boot_ms']/1000,
+                 thrust=r['message']['thrust'],quaternion=r['message']['q'])==complete['actual_attitude_target']]
+        require(len(selected_targets)==1,'Declared actual target absent from raw MAVLink')
+        target=selected_targets[0]; message=target['message']
+        require(message['time_boot_ms']*1000>mode['timestamp'] and q_distance(message['q'],q)<1e-5
+                and abs(message['thrust']-hover)<1e-5 and 0<=end-target['physical_time']<=.25,
+                'Actual neutral target is stale, wrong, or not strictly after control mode')
+        eligible=[r for r in recorded if r['message']['mavpackettype']=='ATTITUDE_TARGET'
+            and wall_start<=r['monotonic']<=wall_end and r['message']['time_boot_ms']*1000>mode['timestamp']
+            and 0<=end-r['physical_time']<=.25 and abs(r['message']['thrust']-hover)<1e-5
+            and q_distance(r['message']['q'],q)<1e-5]
+        require(target==eligible[0],'Entry did not retain first eligible raw target')
+        graphs=[r for r in discovery if r['monotonic']<=wall_end]
+        require(graphs,'Control-mode publisher discovery missing')
+        active=[r for r in graphs if r['monotonic']>=wall_start]
+        prior=[r for r in graphs if r['monotonic']<wall_start]
+        if prior:active.insert(0,prior[-1])
+        endpoints=complete['publisher_endpoints']
+        require(len(endpoints)==1 and bool(bytes.fromhex(endpoints[0]['endpoint_gid']))
+                and any(bytes.fromhex(endpoints[0]['endpoint_gid']))
+                and all(r['publishers'].get(mode_topic)==endpoints for r in active),
+                'Control-mode discovery identity is missing, competing, or changed')
+        samples=window(states,start,end)
+        require(all(1.5<=s['position'][2]<=4.5 and math.dist(s['position'],calibration['anchor'])<=4
+                    and max(abs(a) for a in s['attitude'][:2])<=math.radians(15) for s in samples),
+                'Original abort envelope violated during entry')
+        if next_label+'_offered' in phases:
+            next_offer=phases[next_label+'_offered']
+            require(wall_end<next_offer['observed_monotonic_s']
+                    and end<=next_offer['physical_cursor']['final_time'],'Original case began before gate complete')
+        if duration_label+'_begin' in phases:
+            original=phases[duration_label+'_begin']
+            require(original['physical_start']>=end and original['duration_seconds']==duration,
+                    'Preconditioning consumed the original full window')
+            if next_label!='thrust_baseline':
+                require(original['physical_start']==phases[next_label+'_native_observed']['native_target']['physical_time'],
+                        'Original attitude case origin shifted from native observation')
+        if completed:
+            require(all(name in phases for name in (next_label+'_offered',next_label+'_native_observed',
+                duration_label+'_begin',duration_label+'_end')), 'Completed task omitted original full window')
+            original=phases[duration_label+'_begin']; terminal=phases[duration_label+'_end']
+            require(terminal['physical_cursor']['final_time']>=original['physical_start']+duration-1e-9,
+                    'Original full window ended early')
+            if next_label=='thrust_baseline':
+                require(terminal['observed_monotonic_s']<phases['thrust_step_offered']['observed_monotonic_s']
+                        and terminal['physical_cursor']['final_time']<=phases['thrust_step_begin']['physical_start'],
+                        'Thrust step consumed the full preceding baseline')
+            if next_label=='attitude_step':
+                require('attitude_remaining_begin' in phases and 'attitude_remaining_end' in phases,
+                        'Completed attitude step omitted the full one-second duration')
+                require(phases['attitude_remaining_end']['physical_cursor']['final_time']
+                        >=original['physical_start']+1.-1e-9, 'Original one-second attitude step ended early')
+        reports.append(dict(label=label,status='verified',physical_start=start,physical_end=end,
+            wall_elapsed_s=wall_end-wall_start,neutral_native_stamp=stamp,control_mode_stamp=mode['timestamp'],
+            actual_target_stamp=message['time_boot_ms']*1000,physical_samples=len(samples),
+            publisher_discovery=endpoints,per_message_publisher_gid_available=False))
+    if completed:
+        require(all(r['status']=='verified' for r in reports),'Completed task lacks all three verified gates')
+    return dict(status='verified_reached_stages',stages=reports)
+
+
 def parameters(root,result,messages):
     values = result['task']['attitude_thrust']['parameter_readback']
     if result['stack'] != 'px4':
@@ -444,7 +633,23 @@ def parameters(root,result,messages):
             decoded[row['name']]=p.integer_value if p.type==2 else p.double_value
         require(decoded==values and decoded['GUID_OPTIONS']==8 and decoded['GUID_TIMEOUT']==3,
                 'AP actual parameter response differs')
+        native_parms={}
+        if result['task']['attitude_thrust'].get('entry_contract_sha256'):
+            require(decoded.get('PSC_ANGLE_MAX')==10 and decoded.get('ATC_ANGLE_MAX')==30,
+                    'Actual AP recovery parameter readback differs')
+            from pymavlink import mavutil
+            for path in root.rglob('*.BIN'):
+                log=mavutil.mavlink_connection(str(path))
+                while True:
+                    row=log.recv_match(type='PARM')
+                    if row is None:break
+                    value=row.to_dict();name=value['Name']
+                    if name in ('PSC_ANGLE_MAX','ATC_ANGLE_MAX'):
+                        require(value['Value']==decoded[name],'Native BIN PARM differs from actual response')
+                        native_parms.setdefault(name,[]).append(value)
+                log.close()
         return dict(decoded=decoded,encoding='rcl_interfaces ParameterValue type 2=int64, 3=float64',
+                    native_bin_angle_parameters=native_parms,
                     limitation='Client-returned response serialization; not a captured DDS service packet')
     decoded = {}
     for name,expected in values.items():
@@ -483,8 +688,10 @@ def frozen_command(label,command,calibration):
     expected_roll=math.radians(5) if label=='attitude_step' else 0.
     expected_thrust=calibration['hover']+(.03 if label=='thrust_step' else 0.)
     expected=(expected_roll,0.,calibration['yaw'],expected_thrust)
-    require(label in ('level_calibration','attitude_step','thrust_baseline','thrust_step')
+    require(label in ('level_calibration','attitude_step','thrust_baseline','thrust_step',
+                     'level_calibration_entry_neutral','attitude_step_entry_neutral','thrust_baseline_entry_neutral')
             and command['agent_cmd']==4 and command['move_mode']==7
+            and len(command['att_ref'])==4
             and all(abs(a-b)<1e-6 for a,b in zip(command['att_ref'],expected)),
             'Public command differs from frozen attitude/thrust case: '+label)
 
@@ -561,6 +768,30 @@ def px4_effects(root,result,data,phases,trace,motors,states):
         'Receiver cursor is an observation time; logged setpoint membership proves native uORB observation, not exact acceptance tick.'])
 
 
+def ap_guided_transition(timeline,raw_targets,physical_start,first_new_stamp):
+    """Only explain pre-window old targets using actual preceding native input."""
+    transitions=[]
+    for row in timeline:
+        if row['matches_public']:continue
+        require(row['physical_s']<physical_start,'AP wrong guided target inside frozen physical window')
+        preceding=[m for _,m in raw_targets if m['header']['stamp']['sec']
+                   +m['header']['stamp']['nanosec']/1e9<=row['native_boot_s']]
+        require(preceding,'AP pre-window target has no preceding actual native CDR')
+        previous=max(preceding,key=lambda m:(m['header']['stamp']['sec'],m['header']['stamp']['nanosec']))
+        stamp=previous['header']['stamp']['sec']+previous['header']['stamp']['nanosec']/1e9
+        q=native_q([previous['orientation'][k] for k in ('w','x','y','z')])
+        logged=q_from_euler(*(math.radians(row[k]) for k in ('roll_deg','pitch_deg','yaw_deg')))
+        require(stamp<first_new_stamp and q_distance(q,logged)<1e-6
+                and abs(previous['normalized_thrust']-row['normalized_thrust'])<1e-6
+                and previous['header']['frame_id']=='map', 'AP pre-window target differs from preceding actual native CDR')
+        transitions.append(dict(logged_native_boot_s=row['native_boot_s'],preceding_native_cdr_stamp_s=stamp,
+            normalized_thrust=row['normalized_thrust'],frozen_physical_start_s=physical_start,
+            explanation='Previous actual native input; public offered time is not native acceptance'))
+    require(any(row['physical_s']>=physical_start and row['matches_public'] for row in timeline),
+            'AP actual target absent from frozen physical window')
+    return transitions
+
+
 def ap_effects(root,result,data,phases,trace,motors,states):
     import importlib.metadata
     from pymavlink import mavutil
@@ -618,11 +849,32 @@ def ap_effects(root,result,data,phases,trace,motors,states):
             and abs(math.degrees(angle(math.radians(row['Yaw'])-(math.pi/2-y))))<1e-4
             and abs(row['Thrust']-thrust)<1e-6 and row['ClimbRt']==0
             and row['RollRt']==row['PitchRt']==row['YawRt']==0) for row in gui]
-        require(timeline and all(row['matches_public'] for row in timeline),'AP logged guided target differs')
+        require(timeline,'AP logged guided target missing')
+        label=phase['phase'][:-8]
+        native_phase=phases[label+'_native_observed']['native_target']
+        actual_first=targets[0][1]['header']['stamp']
+        require(native_phase['native_source_stamp']==actual_first
+                and native_phase['physical_time']==targets[0][0]['physical_cursor']['final_time'],
+                'AP original native observation differs from raw CDR')
+        physical_start=native_phase['physical_time']
+        original_label='attitude_settling' if label=='attitude_step' else label
+        require(phases[original_label+'_begin']['physical_start']>=physical_start
+                and (label=='thrust_baseline' or phases[original_label+'_begin']['physical_start']==physical_start),
+                'AP frozen original physical window origin differs')
+        physical_start=phases[original_label+'_begin']['physical_start']
+        transitions=ap_guided_transition(timeline,data['/ap/wksim/attitude_target_v1'],physical_start,
+                                         actual_first['sec']+actual_first['nanosec']/1e9)
         tracking_start=phases.get('attitude_tracking_begin',{}).get('physical_start',math.inf)
         tracking=[s for s in timeline if tracking_start<=s['physical_s']<=tracking_start+.4]
+        source_times=[m['header']['stamp']['sec']+m['header']['stamp']['nanosec']/1e9 for _,m in targets]
+        publisher_times=[row['source_timestamp']/1e9 for row,_ in targets]
         cases.append(dict(label=phase['phase'][:-8],command_id=cid,public_att_ref=command['att_ref'],
             native_cdr_count=len(targets),native_setpoint_timeline=timeline,
+            pre_window_transitions=transitions,frozen_physical_start_s=physical_start,
+            first_native_cdr_stamp_s=source_times[0],last_native_cdr_stamp_s=source_times[-1],
+            max_native_cdr_gap_s=max((b-a for a,b in zip(source_times,source_times[1:])),default=0),
+            measured_native_mean_hz=(len(targets)-1)/(source_times[-1]-source_times[0]) if len(targets)>1 else None,
+            measured_dds_source_mean_hz=(len(targets)-1)/(publisher_times[-1]-publisher_times[0]) if len(targets)>1 else None,
             frozen_tracking_native_samples=len(tracking) if phase['phase']=='attitude_step_offered' else None,
             frozen_tracking_native_verified=(bool(tracking) and all(s['matches_public'] for s in tracking))
                 if phase['phase']=='attitude_step_offered' else None,
@@ -653,6 +905,7 @@ def audit(root):
             report['errors'].append(dict(check=name,error=f'{type(error).__name__}: {error}'))
             return None
     check('identity',lambda:retained_identity(root,result))
+    entry=check('entry_contract',lambda:entry_contract(root,result))
     check('observer_equivalence',lambda:observer_equivalence(root,result))
     physical=check('physics_read',lambda:physical_evidence(root,result['stack']))
     if physical:
@@ -666,6 +919,10 @@ def audit(root):
             data,messages,recorded,meta=decoded; report['checks']['raw_decode']=meta
             check('parameters',lambda:parameters(root,result,messages))
             if phases:
+                if entry and entry['required']:
+                    discovery=[row for row in lines(root/'attitude-native.jsonl') if row['kind']=='dds_discovery_publishers']
+                    check('entry_gates',lambda:entry_gate_evidence(result,data,recorded,phases,states,
+                                                                  discovery,entry['contract']['px4']))
                 check('calibration',lambda:calibration_evidence(result,recorded,phases))
                 calibration=result['task']['attitude_thrust']['calibration']
                 if calibration:
@@ -702,6 +959,9 @@ def main():
     parser.add_argument('--output',type=Path)
     parser.add_argument('--decoder-path',type=Path)
     args=parser.parse_args()
+    if args.output:
+        require(not args.output.resolve().is_relative_to(args.root.resolve()),
+                'Audit output must be new and outside the original run directory')
     if args.decoder_path:
         sys.path.insert(0,str(args.decoder_path))
     value=audit(args.root)

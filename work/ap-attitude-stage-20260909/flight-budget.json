@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "status": "frozen-before-flight-unexecuted",
+  "issue": 34,
+  "profile": "attitude_thrust_v1",
+  "clock": "authoritative simulation seconds",
+  "output_rate_hz": 40,
+  "command_max_age_seconds_ap": 0.25,
+  "native_guid_timeout_seconds_ap": 3.0,
+  "entry": {
+    "height_m": 3.0,
+    "position_dwell_seconds": 2.0,
+    "position_error_max_m": 0.25,
+    "speed_max_mps": 0.15,
+    "level_tilt_max_deg": 2.0,
+    "hover_demand_source": "median native collective demand over preceding 3 s of stable position hold, separately for each stack",
+    "hover_demand_range": [0.15, 0.8],
+    "level_thrust_calibration_seconds": 2.0,
+    "calibration_vertical_drift_max_m": 0.3,
+    "calibration_vertical_speed_max_mps": 0.2,
+    "failed_calibration_action": "mark not calibrated; do not run steps or tune acceptance limits"
+  },
+  "attitude_step": {
+    "command_enu_flu_roll_deg": 5.0,
+    "command_enu_flu_pitch_deg": 0.0,
+    "yaw": "entry yaw held",
+    "thrust": "per-stack calibrated hover demand",
+    "duration_seconds": 1.0,
+    "settling_allowance_seconds": 0.5,
+    "roll_error_max_deg_after_settling": 2.0,
+    "pitch_error_max_deg_after_settling": 2.0,
+    "yaw_error_max_deg_after_settling": 3.0,
+    "required_dwell_seconds": 0.4
+  },
+  "thrust_step": {
+    "orientation": "level at entry yaw",
+    "increment_above_hover": 0.03,
+    "duration_seconds": 0.5,
+    "up_velocity_increase_min_mps": 0.05,
+    "velocity_comparison": "mean final 0.1 s minus mean preceding 0.2 s",
+    "record": "commanded demand, native accepted GUA/PX4 setpoint, actual motor outputs and truth up velocity; no equal acceleration claim"
+  },
+  "recovery_after_each_step": {
+    "command": "existing full position+yaw path at pre-step anchor, not zero thrust",
+    "timeout_seconds": 8.0,
+    "position_error_max_m": 0.4,
+    "speed_max_mps": 0.3,
+    "tilt_max_deg": 3.0,
+    "yaw_error_max_deg": 3.0,
+    "dwell_seconds": 1.5
+  },
+  "abort_envelope": {
+    "displacement_from_anchor_max_m": 4.0,
+    "height_min_m": 1.5,
+    "height_max_m": 4.5,
+    "tilt_max_deg": 15.0,
+    "action": "stop attitude stream and invoke existing hold/land failure path; fail the run"
+  },
+  "required_prerequisites": [
+    "main RUN RELEASE and exclusive flight resources",
+    "separate source/build and ardupilot_msgs overlay identities verified",
+    "GUID_OPTIONS bit 3 explicitly set in candidate parameters and read back; preserve every other bit",
+    "GUID_TIMEOUT 3.0 read back; no mode/timeout parameter changes hidden in adapters",
+    "record AP ATC angle boost, throttle filtering, motor thrust mapping/hover-learning settings and PX4 hover/thrust-model parameters with model mass/rotor/battery identity",
+    "default-closed, finite/non-unit, wrong frame, stale/future native input, CDR and existing PV/mixed/position/velocity regressions pass",
+    "freeze exact calibration value in per-run record before attitude/thrust steps"
+  ]
+}
