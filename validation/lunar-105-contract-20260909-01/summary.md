@@ -7,6 +7,7 @@
 - `boundary.json`：只读检查退出0，固定ZIP/生成cpp哈希通过；实际质量配置加入 motor_efficiency 后被拒绝，错误为 `configuration fields, fixed mapping, units, source or identity differ`。导出接口只有create/destroy/step，没有效率写入读回。这是阻塞证据，不是效率验收PASS。
 - `windows-tests.log`：现有质量配置6项unittest通过、0跳过，退出0。
 - `wsl-tests.log`：同6项通过、0跳过，退出0。WSL启动伴随本机localhost代理提示，原始输出完整保留。
+- 提交前默认 `git diff --cached --check` 将原始Windows CRLF输出报为行尾空白；WSL日志含启动提示的NUL字节，被Git视为二进制。为保留真实输出未转换这些日志。合同与检查脚本无空白错误；以 `core.whitespace=cr-at-eol` 检查CRLF记录。
 - 当前PID协议SHA256仍为 `25d50ddbbd44e658a72123e6d524a5c5021b355367a99e46a898ec9b9cecadc0`。源身份逐项记录于boundary.json；未修改物理预算或生产源码。
 - Codebase Memory原生index_status读到ready、50865节点/165157边；检索仅作导航。生成源码和实际模块已直接阅读，没有依赖新增代码的结构查询。
 
