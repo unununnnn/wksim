@@ -6,7 +6,7 @@
 
 `Modules/uav_control/include/rc_input.h::handle_rc_data` 的执行代码决定通道顺序，不能使用其中 roll/pitch/yaw/thrust 注释替代实际映射。`Modules/uav_control/src/uav_controller.cpp::set_hover_pose_with_rc` 使用公共世界坐标积分，`px4_rc_cb` 保留已解锁/定位/OFFBOARD 前提；原 1.5s 断流检查被 sim_mode 豁免，迁移明确取消这项豁免。
 
-实际 ROS2 文件是 `ros2/src/prometheus_control/prometheus_control/command.py` 与 `node.py`，不在 Simulator/wksim_control。前者 RC step 仅返回 hover，后者 on_setup 拒绝非 COMMAND_CONTROL，activate/drive 也只处理 COMMAND_CONTROL。`session.py::RunSession` 负责 run/epoch、递增 setup/command ID 以及原生请求持久身份；RC 不替代或重置这些保护。AP 原生 position_yaw 默认关闭，能力必须由实际安装配置和原生反馈证明。
+实际 ROS2 文件是 `ros2/src/prometheus_control/prometheus_control/command.py` 与 `node.py`，不在 Simulator/wksim_control。`command.py` 现在提供了受校验 `Desired` 的 `set_rc_desired`/`clear_rc_desired` 共享接缝，RC step 可返回该目标并在解锁清除时归零；`node.py` 仍未接入 String 回调、GID 绑定、显式 RC setup 或原生交接，不能把这段接缝当作 RC 飞行支持。`session.py::RunSession` 负责 run/epoch、递增 setup/command ID 以及原生请求持久身份；RC 不替代或重置这些保护。AP 原生 position_yaw 默认关闭，能力必须由实际安装配置和原生反馈证明。
 
 ## 唯一软件来源与信封
 
