@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "issue": 136,
+  "stable_key": "full-model-03",
+  "title": "Tricopter model",
+  "source": {
+    "file": "docs/plan/full-scope-expansion.md",
+    "line": 48,
+    "ledger_id": "MODEL-03",
+    "ledger_file": "docs/plan/full-followup-tickets.json",
+    "parent_issues": [1]
+  },
+  "status": "defined",
+  "evidence_status": "no-evidence",
+  "full_complete": false,
+  "current_gap": "The tricopter is not covered by the quadrotor or hexarotor tickets; its separate configuration, drive/servo, model and test definitions are missing.",
+  "atoms": [
+    {"id": "MODEL-03-A", "name": "configuration_definition", "status": "blocked", "required": "Separate tricopter configuration: three rotors plus tail servo geometry, mass and inertia", "owner": "model maintainer"},
+    {"id": "MODEL-03-B", "name": "drive_servo_mapping", "status": "blocked", "required": "Motor and tail-servo actuation mapping with units, signs and limits", "owner": "model maintainer"},
+    {"id": "MODEL-03-C", "name": "model_test_definition", "status": "blocked", "required": "Owned dynamics model and its test definition with expected responses", "owner": "physics maintainer"},
+    {"id": "MODEL-03-D", "name": "non_coverage_rule", "status": "partial", "required": "Rule enforced: quadrotor and hexarotor evidence never covers the tricopter", "owner": "validation maintainer"}
+  ],
+  "model_required": ["model_identity", "configuration", "rotor_geometry", "servo_mapping", "mass_kg", "inertia", "source", "source_sha256", "applicable_stacks", "test_definition"],
+  "scope_rule": "rotor count similarity never substitutes for a separate configuration; the tail servo is part of the actuation contract",
+  "errors": ["accepted", "model_not_found", "configuration_invalid", "servo_unmapped", "inertia_invalid", "stack_unsupported", "substitution_rejected"],
+  "followups": [
+    {"key": "model-03-configuration", "files": ["Simulator/wksim_core/<tricopter-model>.py", "validation/<tricopter-tests>.py"], "status": "proposed", "blocked_by": "Pinned tricopter source and parameters"},
+    {"key": "model-03-servo-slice", "files": ["validation/<tricopter-servo-audit>"], "status": "proposed", "blocked_by": "Configuration and servo mapping freeze"}
+  ],
+  "preserved": {"quad_hex": "Quad X and Hex evidence stays separate", "full_complete": false}
+}
