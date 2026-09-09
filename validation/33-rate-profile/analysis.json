@@ -1,0 +1,544 @@
+{
+  "schema": 1,
+  "runs": [
+    {
+      "run": "joint-public-flight-z5ediqxp",
+      "error": "RateUnmet('rate_unmet/resource_insufficient')",
+      "live": "/root/wksim-joint-flight-7zct0l7l",
+      "hashes": {
+        "result.json": "4968b104644aefa122a17322fbc825abfbd8056ffc88607da4931f9a342318a6",
+        "rate.jsonl": "e4cae609802302a5375dc1d48856f0071b59db67cf056e37e78e78b3505b828e",
+        "joint-wire.jsonl": "47aeb1ccefb4980d443aa2b295253f5feaeb70e8adf4a072d54f39e9b4dd01af"
+      },
+      "manifests": {
+        "ap-build.json": "1e6250eff8873d6b2e52017b613c223ac29f8260fdf92aac2cf0c7cdcc6ce94c",
+        "control-build.json": "d9fdfc74f4f241440dd1186ef38d0bde56026cd28e4b55897f38a11e7311909e"
+      },
+      "manager_scheduling": null,
+      "initialization": null,
+      "failure": {
+        "kind": "rate_unmet",
+        "epoch": "c0e542e9470e4453aed1eb2ec3f5c2be",
+        "tick": 49804,
+        "issued_monotonic_ns": 154323738205,
+        "reason": "resource_insufficient",
+        "lateness_ns": 100107132,
+        "requested_rate": 0.5,
+        "request_id": "config",
+        "segment_id": 1,
+        "latched": true,
+        "anchor": {
+          "tick": 40,
+          "wall_ns": 54695620516,
+          "transition": false
+        },
+        "measured_rate": 0.49951416374540286,
+        "measurement": "timed_segment",
+        "completed_groups": 12441,
+        "worst_lateness_ns": 100107132,
+        "steady_after_ns": 56695620516
+      },
+      "groups": 12441,
+      "sums": {
+        "release_excess_ns": 99791421,
+        "work_over_period_ns": 6108357,
+        "outside_work_excess_ns": 93683064
+      },
+      "top_release_excess": [
+        {
+          "tick": 4996,
+          "work_ns": 3572998,
+          "release_excess_ns": 23010532,
+          "work_over_period_ns": 0,
+          "outside_work_excess_ns": 23010532
+        },
+        {
+          "tick": 1924,
+          "work_ns": 11010285,
+          "release_excess_ns": 3286337,
+          "work_over_period_ns": 3010285,
+          "outside_work_excess_ns": 276052
+        },
+        {
+          "tick": 5500,
+          "work_ns": 9754993,
+          "release_excess_ns": 2042148,
+          "work_over_period_ns": 1754993,
+          "outside_work_excess_ns": 287155
+        },
+        {
+          "tick": 1996,
+          "work_ns": 9343079,
+          "release_excess_ns": 1628643,
+          "work_over_period_ns": 1343079,
+          "outside_work_excess_ns": 285564
+        },
+        {
+          "tick": 45160,
+          "work_ns": 3846061,
+          "release_excess_ns": 879653,
+          "work_over_period_ns": 0,
+          "outside_work_excess_ns": 879653
+        },
+        {
+          "tick": 3600,
+          "work_ns": 4635837,
+          "release_excess_ns": 429619,
+          "work_over_period_ns": 0,
+          "outside_work_excess_ns": 429619
+        },
+        {
+          "tick": 43744,
+          "work_ns": 4329215,
+          "release_excess_ns": 421985,
+          "work_over_period_ns": 0,
+          "outside_work_excess_ns": 421985
+        },
+        {
+          "tick": 39960,
+          "work_ns": 4073391,
+          "release_excess_ns": 420153,
+          "work_over_period_ns": 0,
+          "outside_work_excess_ns": 420153
+        },
+        {
+          "tick": 41920,
+          "work_ns": 3232052,
+          "release_excess_ns": 415333,
+          "work_over_period_ns": 0,
+          "outside_work_excess_ns": 415333
+        },
+        {
+          "tick": 29344,
+          "work_ns": 3375651,
+          "release_excess_ns": 404933,
+          "work_over_period_ns": 0,
+          "outside_work_excess_ns": 404933
+        }
+      ],
+      "limitations": "Work includes physics, health, publication and recording. Outside-work includes release wait, callbacks, task supervision and scheduler delays; no CPU attribution is implied."
+    },
+    {
+      "run": "joint-public-flight-h6jijdzn",
+      "error": "RateUnmet('rate_unmet/resource_insufficient')",
+      "live": "/root/wksim-joint-flight-kmjhantu",
+      "hashes": {
+        "result.json": "78ef696b8ac1f6e90475eca4f4ce24afce537a84cf1fc0e4cb2e2254b2d3e19c",
+        "rate.jsonl": "9589f939c934240d1feff6c4bf81e8a92d6ffe8227544b21321d8409be222200",
+        "joint-wire.jsonl": "459b48c8ef5a1b52b803dab33ef4bc18debfca333aa16a8c9c1bc6b079373098"
+      },
+      "manifests": {
+        "ap-build.json": "1e6250eff8873d6b2e52017b613c223ac29f8260fdf92aac2cf0c7cdcc6ce94c",
+        "control-build.json": "d9fdfc74f4f241440dd1186ef38d0bde56026cd28e4b55897f38a11e7311909e"
+      },
+      "manager_scheduling": null,
+      "initialization": {
+        "physical_tick": 0,
+        "tasks": {
+          "arducopter": {
+            "version": 1,
+            "run_id": "joint-public-flight-h6jijdzn",
+            "scene_epoch": "bb18700d913d4acfba97e1cd9117e602",
+            "uav_id": 1,
+            "task_profile": "full_xyz_pv_yaw_v1",
+            "request_graph": {
+              "setup": [
+                {
+                  "node_name": "wksim_joint_flight_clock",
+                  "node_namespace": "/",
+                  "endpoint_gid": "010f7f014f026e1900000000000015040000000000000000"
+                },
+                {
+                  "node_name": "wksim_joint_arducopter_control",
+                  "node_namespace": "/",
+                  "endpoint_gid": "010f7f018a07419b00000000000021040000000000000000"
+                }
+              ],
+              "command": [
+                {
+                  "node_name": "wksim_joint_flight_clock",
+                  "node_namespace": "/",
+                  "endpoint_gid": "010f7f014f026e1900000000000014040000000000000000"
+                },
+                {
+                  "node_name": "wksim_joint_arducopter_control",
+                  "node_namespace": "/",
+                  "endpoint_gid": "010f7f018a07419b00000000000022040000000000000000"
+                }
+              ]
+            },
+            "ros_time_ns": 0
+          },
+          "px4": {
+            "version": 1,
+            "run_id": "joint-public-flight-h6jijdzn",
+            "scene_epoch": "bb18700d913d4acfba97e1cd9117e602",
+            "uav_id": 2,
+            "task_profile": "full_xyz_pv_yaw_v1",
+            "request_graph": {
+              "setup": [
+                {
+                  "node_name": "wksim_joint_flight_clock",
+                  "node_namespace": "/",
+                  "endpoint_gid": "010f7f014f026e190000000000001a040000000000000000"
+                },
+                {
+                  "node_name": "wksim_joint_px4_control",
+                  "node_namespace": "/",
+                  "endpoint_gid": "010f7f018f07eebb00000000000023040000000000000000"
+                }
+              ],
+              "command": [
+                {
+                  "node_name": "wksim_joint_flight_clock",
+                  "node_namespace": "/",
+                  "endpoint_gid": "010f7f014f026e1900000000000019040000000000000000"
+                },
+                {
+                  "node_name": "wksim_joint_px4_control",
+                  "node_namespace": "/",
+                  "endpoint_gid": "010f7f018f07eebb00000000000024040000000000000000"
+                }
+              ]
+            },
+            "ros_time_ns": 0
+          }
+        },
+        "models": {
+          "arducopter": {
+            "version": 1,
+            "epoch": "bb18700d913d4acfba97e1cd9117e602",
+            "tick": 0,
+            "state": null
+          },
+          "px4": {
+            "version": 1,
+            "epoch": "bb18700d913d4acfba97e1cd9117e602",
+            "tick": 0,
+            "state": null
+          }
+        },
+        "task_execution_requires_go": true,
+        "completed_monotonic_ns": 54346802603
+      },
+      "failure": {
+        "kind": "rate_unmet",
+        "epoch": "bb18700d913d4acfba97e1cd9117e602",
+        "tick": 59240,
+        "issued_monotonic_ns": 173085951850,
+        "reason": "resource_insufficient",
+        "lateness_ns": 100021679,
+        "requested_rate": 0.5,
+        "request_id": "config",
+        "segment_id": 1,
+        "latched": true,
+        "anchor": {
+          "tick": 40,
+          "wall_ns": 54585918343,
+          "transition": false
+        },
+        "measured_rate": 0.49959664836737483,
+        "measurement": "timed_segment",
+        "completed_groups": 14800,
+        "worst_lateness_ns": 100021679,
+        "steady_after_ns": 56585918343
+      },
+      "groups": 14800,
+      "sums": {
+        "release_excess_ns": 99754497,
+        "work_over_period_ns": 10851004,
+        "outside_work_excess_ns": 88903493
+      },
+      "top_release_excess": [
+        {
+          "tick": 1924,
+          "work_ns": 12769690,
+          "release_excess_ns": 5140807,
+          "work_over_period_ns": 4769690,
+          "outside_work_excess_ns": 371117
+        },
+        {
+          "tick": 1996,
+          "work_ns": 11860744,
+          "release_excess_ns": 4189011,
+          "work_over_period_ns": 3860744,
+          "outside_work_excess_ns": 328267
+        },
+        {
+          "tick": 5500,
+          "work_ns": 10220570,
+          "release_excess_ns": 2529231,
+          "work_over_period_ns": 2220570,
+          "outside_work_excess_ns": 308661
+        },
+        {
+          "tick": 27496,
+          "work_ns": 4181394,
+          "release_excess_ns": 457688,
+          "work_over_period_ns": 0,
+          "outside_work_excess_ns": 457688
+        },
+        {
+          "tick": 2424,
+          "work_ns": 3587570,
+          "release_excess_ns": 441550,
+          "work_over_period_ns": 0,
+          "outside_work_excess_ns": 441550
+        },
+        {
+          "tick": 33368,
+          "work_ns": 3797193,
+          "release_excess_ns": 435736,
+          "work_over_period_ns": 0,
+          "outside_work_excess_ns": 435736
+        },
+        {
+          "tick": 2536,
+          "work_ns": 3949877,
+          "release_excess_ns": 433983,
+          "work_over_period_ns": 0,
+          "outside_work_excess_ns": 433983
+        },
+        {
+          "tick": 49264,
+          "work_ns": 3764810,
+          "release_excess_ns": 429204,
+          "work_over_period_ns": 0,
+          "outside_work_excess_ns": 429204
+        },
+        {
+          "tick": 1992,
+          "work_ns": 4024783,
+          "release_excess_ns": 421714,
+          "work_over_period_ns": 0,
+          "outside_work_excess_ns": 421714
+        },
+        {
+          "tick": 19960,
+          "work_ns": 3560137,
+          "release_excess_ns": 417713,
+          "work_over_period_ns": 0,
+          "outside_work_excess_ns": 417713
+        }
+      ],
+      "limitations": "Work includes physics, health, publication and recording. Outside-work includes release wait, callbacks, task supervision and scheduler delays; no CPU attribution is implied."
+    },
+    {
+      "run": "joint-public-flight-jo7l_p0b",
+      "error": "RateUnmet('rate_unmet/resource_insufficient')",
+      "live": "/root/wksim-joint-flight-ci3wwb9c",
+      "hashes": {
+        "result.json": "53b8d4b3b64a6042199f1e1ebcfb217d6738311e8c366daeb35d0f8418b2bcd1",
+        "rate.jsonl": "d51c63a01ed3e54a87f14733064e87d5b5479947e26c4589d48837f21c165d32",
+        "joint-wire.jsonl": "0696493a7d92e42697fcb650e927cdf48e0576196c019bf6b0dd3bf914a33c17"
+      },
+      "manifests": {
+        "ap-build.json": "1e6250eff8873d6b2e52017b613c223ac29f8260fdf92aac2cf0c7cdcc6ce94c",
+        "control-build.json": "d9fdfc74f4f241440dd1186ef38d0bde56026cd28e4b55897f38a11e7311909e"
+      },
+      "manager_scheduling": {
+        "target_nice": -10,
+        "actual_nice": -10,
+        "target_fifo_priority": 50,
+        "actual_policy": 1,
+        "actual_priority": 50
+      },
+      "initialization": {
+        "physical_tick": 0,
+        "tasks": {
+          "arducopter": {
+            "version": 1,
+            "run_id": "joint-public-flight-jo7l_p0b",
+            "scene_epoch": "952d04c687fa4d70aba21f3d1ad392be",
+            "uav_id": 1,
+            "task_profile": "full_xyz_pv_yaw_v1",
+            "request_graph": {
+              "setup": [
+                {
+                  "node_name": "wksim_joint_flight_clock",
+                  "node_namespace": "/",
+                  "endpoint_gid": "010f7f014202ca1300000000000015040000000000000000"
+                },
+                {
+                  "node_name": "wksim_joint_arducopter_control",
+                  "node_namespace": "/",
+                  "endpoint_gid": "010f7f018507745600000000000021040000000000000000"
+                }
+              ],
+              "command": [
+                {
+                  "node_name": "wksim_joint_flight_clock",
+                  "node_namespace": "/",
+                  "endpoint_gid": "010f7f014202ca1300000000000014040000000000000000"
+                },
+                {
+                  "node_name": "wksim_joint_arducopter_control",
+                  "node_namespace": "/",
+                  "endpoint_gid": "010f7f018507745600000000000022040000000000000000"
+                }
+              ]
+            },
+            "ros_time_ns": 0
+          },
+          "px4": {
+            "version": 1,
+            "run_id": "joint-public-flight-jo7l_p0b",
+            "scene_epoch": "952d04c687fa4d70aba21f3d1ad392be",
+            "uav_id": 2,
+            "task_profile": "full_xyz_pv_yaw_v1",
+            "request_graph": {
+              "setup": [
+                {
+                  "node_name": "wksim_joint_flight_clock",
+                  "node_namespace": "/",
+                  "endpoint_gid": "010f7f014202ca130000000000001a040000000000000000"
+                },
+                {
+                  "node_name": "wksim_joint_px4_control",
+                  "node_namespace": "/",
+                  "endpoint_gid": "010f7f018a072af000000000000023040000000000000000"
+                }
+              ],
+              "command": [
+                {
+                  "node_name": "wksim_joint_flight_clock",
+                  "node_namespace": "/",
+                  "endpoint_gid": "010f7f014202ca1300000000000019040000000000000000"
+                },
+                {
+                  "node_name": "wksim_joint_px4_control",
+                  "node_namespace": "/",
+                  "endpoint_gid": "010f7f018a072af000000000000024040000000000000000"
+                }
+              ]
+            },
+            "ros_time_ns": 0
+          }
+        },
+        "models": {
+          "arducopter": {
+            "version": 1,
+            "epoch": "952d04c687fa4d70aba21f3d1ad392be",
+            "tick": 0,
+            "state": null
+          },
+          "px4": {
+            "version": 1,
+            "epoch": "952d04c687fa4d70aba21f3d1ad392be",
+            "tick": 0,
+            "state": null
+          }
+        },
+        "task_execution_requires_go": true,
+        "completed_monotonic_ns": 54089398109
+      },
+      "failure": {
+        "kind": "rate_unmet",
+        "epoch": "952d04c687fa4d70aba21f3d1ad392be",
+        "tick": 74792,
+        "issued_monotonic_ns": 203934922563,
+        "reason": "resource_insufficient",
+        "lateness_ns": 103155822,
+        "requested_rate": 0.5,
+        "request_id": "config",
+        "segment_id": 1,
+        "latched": true,
+        "anchor": {
+          "tick": 40,
+          "wall_ns": 54327737510,
+          "transition": false
+        },
+        "measured_rate": 0.4996799089888105,
+        "measurement": "timed_segment",
+        "completed_groups": 18688,
+        "worst_lateness_ns": 103155822,
+        "steady_after_ns": 56327737510
+      },
+      "groups": 18688,
+      "sums": {
+        "release_excess_ns": 99066328,
+        "work_over_period_ns": 8607917,
+        "outside_work_excess_ns": 90458411
+      },
+      "top_release_excess": [
+        {
+          "tick": 1924,
+          "work_ns": 11554838,
+          "release_excess_ns": 3829654,
+          "work_over_period_ns": 3554838,
+          "outside_work_excess_ns": 274816
+        },
+        {
+          "tick": 18096,
+          "work_ns": 8958166,
+          "release_excess_ns": 1525543,
+          "work_over_period_ns": 958166,
+          "outside_work_excess_ns": 567377
+        },
+        {
+          "tick": 39120,
+          "work_ns": 9012696,
+          "release_excess_ns": 1418760,
+          "work_over_period_ns": 1012696,
+          "outside_work_excess_ns": 406064
+        },
+        {
+          "tick": 1996,
+          "work_ns": 8846653,
+          "release_excess_ns": 1300897,
+          "work_over_period_ns": 846653,
+          "outside_work_excess_ns": 454244
+        },
+        {
+          "tick": 71032,
+          "work_ns": 8003695,
+          "release_excess_ns": 1177269,
+          "work_over_period_ns": 3695,
+          "outside_work_excess_ns": 1173574
+        },
+        {
+          "tick": 39100,
+          "work_ns": 8688471,
+          "release_excess_ns": 1023165,
+          "work_over_period_ns": 688471,
+          "outside_work_excess_ns": 334694
+        },
+        {
+          "tick": 5500,
+          "work_ns": 8839826,
+          "release_excess_ns": 1014713,
+          "work_over_period_ns": 839826,
+          "outside_work_excess_ns": 174887
+        },
+        {
+          "tick": 71016,
+          "work_ns": 8578456,
+          "release_excess_ns": 947226,
+          "work_over_period_ns": 578456,
+          "outside_work_excess_ns": 368770
+        },
+        {
+          "tick": 17888,
+          "work_ns": 4080161,
+          "release_excess_ns": 573315,
+          "work_over_period_ns": 0,
+          "outside_work_excess_ns": 573315
+        },
+        {
+          "tick": 20136,
+          "work_ns": 3809092,
+          "release_excess_ns": 555205,
+          "work_over_period_ns": 0,
+          "outside_work_excess_ns": 555205
+        }
+      ],
+      "limitations": "Work includes physics, health, publication and recording. Outside-work includes release wait, callbacks, task supervision and scheduler delays; no CPU attribution is implied."
+    }
+  ],
+  "current_source_hashes": {
+    "tools/run_joint_flight.py": "f8ec4afe68e8c9a2a4b94caa01866434ed6937aef3aaedc032a21b2cec09ee01",
+    "tools/run-joint-flight.sh": "ea012da68bd8fcb3e25383197bf5a9f076aecfe5d3fd9a966675aa0d69fdc883",
+    "Simulator/wksim_core/joint.py": "86ff46357e827e16553da019b9aaa53b4f8d47d67d9c5d41d303da87635e6f9e",
+    "Simulator/wksim_runtime/joint_rate.py": "59e329db948802e545fa5167b2430ae18bf3bdb6e1c534a374a82dafcc70da6c"
+  }
+}
