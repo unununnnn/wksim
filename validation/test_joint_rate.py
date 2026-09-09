@@ -68,6 +68,23 @@ class RateTests(unittest.TestCase):
         rate.reanchor(8,'recover_requested',recovery=True,transition=True)
         self.assertFalse(rate.latched)
 
+    def test_wait_oversleep_fails_before_the_next_group_or_physics(self):
+        class AdvancingWall(FakeWall):
+            def now(self):
+                self.ns+=1000
+                return self.ns
+            def sleep(self,seconds):
+                self.ns+=round(seconds*1e9)+150_000_000
+        wall=AdvancingWall();events=[]
+        rate=JointRate('a'*32,.5,lambda kind,**fields:events.append(kind),wall.now,wall.sleep)
+        rate.reanchor(4,'test')
+        rate.begin_group(4,lambda:None);wall.ns+=1_000_000;rate.end_group(8)
+        with self.assertRaises(RateUnmet): rate.begin_group(8,lambda:None)
+        self.assertTrue(rate.latched)
+        self.assertIsNone(rate.group)
+        self.assertEqual(rate.completed,1)
+        self.assertEqual(events.count('rate_group_start'),1)
+
     def test_slow_group_faults_only_after_complete_four_ticks(self):
         rate=self.rate()
         rate.begin_group(4,lambda:None)
