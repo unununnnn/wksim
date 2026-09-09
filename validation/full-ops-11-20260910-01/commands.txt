@@ -1,0 +1,19 @@
+Working directory: C:/Users/PC/Documents/odid编译/wksim
+
+Read-only inputs:
+  Get-Content docs/plan/full-scope-expansion.md
+  Get-Content docs/plan/full-remaining-ledger.json
+  Get-Content docs/plan/full-followup-tickets.json
+  Get-Content docs/wksim-offline-replay.md
+  Get-Content docs/2026-09-08-replay-integrity-report.md
+  Get-Content Simulator/wksim_runtime/replay.py
+  Get-Content validation/test_wksim_replay.py
+  Get-Content validation/offline-replay-20260905/result.json
+  gh issue view 162 --repo unununnnn/wksim --json number,title,body,state,labels,comments
+  gh issue view 16 --repo unununnnn/wksim --json number,title,body,state,labels,comments
+
+Validation:
+  python -B validation/full-ops-11-20260910-01/validate.py
+  git diff --check -- docs/plan/full-contracts/ops-11.md docs/plan/full-contracts/ops-11.json validation/full-ops-11-20260910-01
+
+No recorder, bag integration, event stream or re-simulation was implemented; no run was replayed; no UE, FC, model, ROS, MATLAB or hardware process was started.
