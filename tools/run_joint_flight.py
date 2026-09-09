@@ -40,6 +40,25 @@ from tools.mixed_control_task import PROFILE as MIXED_PROFILE
 WALL_LIMIT, MAX_TICKS = 900, 180000
 
 
+def scheduling(pid, role):
+    """Same own-process policy as the formal joint manager; record actual results."""
+    value = dict(target_nice=-10 if role in ('manager','model','fc') else -5)
+    try:
+        os.setpriority(os.PRIO_PROCESS,pid,value['target_nice'])
+        value['actual_nice'] = os.getpriority(os.PRIO_PROCESS,pid)
+    except OSError as error:
+        value['nice_error'] = repr(error)
+    if role in ('manager','model','fc'):
+        value['target_fifo_priority'] = 50 if role=='manager' else 40
+        try:
+            os.sched_setscheduler(pid,os.SCHED_FIFO,os.sched_param(value['target_fifo_priority']))
+            value['actual_policy'] = os.sched_getscheduler(pid)
+            value['actual_priority'] = os.sched_getparam(pid).sched_priority
+        except OSError as error:
+            value['scheduler_error'] = repr(error)
+    return value
+
+
 def save(path, data):
     def evidence(value):
         if isinstance(value, float) and not math.isfinite(value):
@@ -352,6 +371,8 @@ def run(args):
             child_specs[child.pid] = dict(role=role or name.rsplit('-',1)[-1], directory=Path(cwd),
                                           result_key=result_key or name[:-5], env=env)
             result['children'][name] = dict(identity=json_identity(child.pid), argv=argv, cwd=str(cwd))
+            if candidate:
+                result['children'][name]['scheduling'] = scheduling(child.pid,child_specs[child.pid]['role'])
             return child
 
         def launch_task(stack, uid, directory, task_mode='initial', start_token=None):
@@ -489,6 +510,8 @@ def run(args):
                     progress['native_dds_restart'].append(event)
                     lifecycle.record('native_dds_client_restarted',observation=event)
             offers = {}
+            if candidate:
+                result['manager_scheduling'] = scheduling(0,'manager')
             for stack, uid in (('arducopter',1),('px4',2)):
                 directory = live/(stack+'-recovery')
                 directory.mkdir()
@@ -563,6 +586,8 @@ def run(args):
                 children.append((stack+'-model',child,log)); workers[stack]=child
                 child_specs[child.pid] = dict(role='model',directory=directory,result_key=stack,env=None)
                 result['children'][stack+'-model'] = dict(identity=json_identity(child.pid),argv=argv,cwd=str(directory))
+                if candidate:
+                    result['children'][stack+'-model']['scheduling'] = scheduling(child.pid,'model')
                 plan = launch_spec(configs[stack], directory, library)
                 launch(stack+'-agent',plan['agent'],directory)
                 launch(stack+'-fc',plan['fc'],directory,dict(os.environ,**plan['fc_environment']))
