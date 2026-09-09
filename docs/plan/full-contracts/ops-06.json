@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "issue": 157,
+  "stable_key": "full-ops-06",
+  "title": "Vehicle and scene assets",
+  "source": {
+    "file": "docs/plan/full-scope-expansion.md",
+    "line": 74,
+    "ledger_id": "OPS-06",
+    "ledger_file": "docs/plan/full-followup-tickets.json",
+    "parent_issues": [1, 25, 48]
+  },
+  "status": "defined",
+  "evidence_status": "partial-evidence",
+  "full_complete": false,
+  "current_gap": "P450 visual and Hex/native evidence cover bounded slices; a complete vehicle/scene catalog, selection/import workflow and ClassID-to-asset binding are not accepted.",
+  "atoms": [
+    {"id": "OPS-06-A", "name": "vehicle_geometry", "status": "partial", "required": "Per-vehicle geometry/source/license/hash, scale/frame and real readback", "owner": "asset maintainer"},
+    {"id": "OPS-06-B", "name": "rotor_actuator_arrangement", "status": "partial", "required": "Cross-domain rotor count/order/origin/axis/sign/mapping identity", "owner": "model/runtime maintainer"},
+    {"id": "OPS-06-C", "name": "scene_selection", "status": "blocked", "required": "Versioned selectable scenes with source/hash/origin/scale and errors", "owner": "UE/asset maintainer"},
+    {"id": "OPS-06-D", "name": "asset_import", "status": "partial", "required": "Owned import/validate/save/reload workflow and license manifest", "owner": "UE/asset maintainer"},
+    {"id": "OPS-06-E", "name": "class_id_mapping", "status": "blocked", "required": "Explicit ClassID namespace-to-asset binding and mismatch rejection", "owner": "UE/runtime maintainer"},
+    {"id": "OPS-06-F", "name": "vehicle_scene_physics_identity", "status": "partial", "required": "Common identity without mixing visual and physics scopes", "owner": "validation maintainer"}
+  ],
+  "manifest_required": ["asset_id", "vehicle_id", "scene_id", "source", "source_sha256", "import_sha256", "engine_version", "coordinate_frame", "unit_scale", "origin", "model_identity", "class_id", "rotor_mapping", "sensor_attachments", "physics_scope", "supported_stacks", "license", "validation_status"],
+  "scope_rule": "visual assets mirror authoritative physics unless a manifest explicitly declares otherwise",
+  "class_id_rule": "ClassID=-1 is not an asset binding",
+  "errors": ["accepted", "asset_not_found", "source_mismatch", "license_unknown", "engine_mismatch", "frame_mismatch", "mapping_mismatch", "class_unbound", "scene_unsupported", "physics_scope_mismatch"],
+  "followups": [
+    {"key": "ops-06-vehicle-catalog", "files": ["Simulator/ue55/<asset-catalog>.json", "validation/<asset-catalog-audit>"], "status": "proposed", "blocked_by": "Catalog schema and source ownership"},
+    {"key": "ops-06-frame-binding", "files": ["model/runtime source reserved", "validation/<frame-binding-audit>"], "status": "proposed", "blocked_by": "Cross-domain rotor/frame mapping"},
+    {"key": "ops-06-scene-import", "files": ["UE/asset source reserved after resource decision", "validation/<scene-import-audit>"], "status": "proposed", "blocked_by": "Owned scene and license inputs"},
+    {"key": "ops-06-class-id-audit", "files": ["UE/runtime source reserved", "validation/<class-id-live-audit>"], "status": "proposed", "blocked_by": "Explicit ClassID namespace and asset manifest"}
+  ],
+  "preserved": {"p450": "visual geometry on Quad X dynamics; no P450 physics claim", "hex": "native model/plan evidence, not UE asset binding", "full_complete": false}
+}
