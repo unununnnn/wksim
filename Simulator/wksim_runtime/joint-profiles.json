@@ -40,7 +40,55 @@
         "/root/wksim-ap-dds-yaw-state-4Wr27s/ros-install/local_setup.bash",
         "/root/wksim-ros2-MUlZd0/install/local_setup.bash",
         "/root/wksim-joint-control-FVMjak/install/local_setup.bash"
+      ],
+      "control_source": "sealed_legacy",
+      "capabilities": [
+        "public_position",
+        "public_velocity_yaw"
       ]
+    },
+    {
+      "id": "joint_quad_dds_mixed_pv_v1",
+      "dds_workspace": "/root/wksim-dds-VxM6Ni",
+      "ap_message_workspace": "/root/wksim-ap-dds-yaw-state-4Wr27s",
+      "message_workspace": "/root/wksim-ros2-MUlZd0",
+      "control_workspace": "/root/wksim-joint-control-OEvS3W",
+      "model_library": "/root/wksim-private-tmp-bhi18a3s/artifacts/wksim-model-qhdy93lm/libwksim_model.so",
+      "manifests": {
+        "ap": {
+          "path": "/root/wksim-ap-mixed-fhuf05l9/mixed-build.json",
+          "sha256": "1e6250eff8873d6b2e52017b613c223ac29f8260fdf92aac2cf0c7cdcc6ce94c"
+        },
+        "px4": {
+          "path": "/root/wksim-px4-state-ONa1Kw/wksim-build.json",
+          "sha256": "d7e905b35250d184e185ada70e3fe43f0223f1c605832d81c3c58eeb123d4cb6"
+        },
+        "control": {
+          "path": "/root/wksim-joint-control-OEvS3W/build.json",
+          "sha256": "d9fdfc74f4f241440dd1186ef38d0bde56026cd28e4b55897f38a11e7311909e"
+        }
+      },
+      "evidence": [],
+      "setup_files": [
+        "/opt/ros/humble/setup.bash",
+        "/root/wksim-dds-VxM6Ni/ros-install/local_setup.bash",
+        "/root/wksim-ap-dds-yaw-state-4Wr27s/ros-install/local_setup.bash",
+        "/root/wksim-ros2-MUlZd0/install/local_setup.bash",
+        "/root/wksim-joint-control-OEvS3W/install/local_setup.bash"
+      ],
+      "control_source": "current",
+      "capabilities": [
+        "public_position",
+        "public_velocity_yaw",
+        "full_xyz_pv_yaw_v1",
+        "xy_velocity_z_position_yaw_v1"
+      ],
+      "manifest_kinds": {
+        "ap": "ap_mixed_v1",
+        "px4": "wksim_build_v1",
+        "control": "joint_control_v1"
+      },
+      "evidence_schema": "joint_mixed_pv_v1"
     }
   ]
 }
