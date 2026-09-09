@@ -1,0 +1,215 @@
+{
+  "config": {
+    "components": {
+      "airframe": "fixed Quad X",
+      "input": "16 normalized commands [0,1]; indices 4..15 must be zero",
+      "motor_count": 4,
+      "motor_count_basis": "uavType=3 selects generated d[2]=4; no named uavMotNumbs parameter",
+      "motors": [
+        {
+          "angle_deg": 45,
+          "input_index": 0,
+          "motor": "fixed shared motor",
+          "position_FRD": "front-right",
+          "rotor": "fixed shared rotor",
+          "source_rotation_sign": -1
+        },
+        {
+          "angle_deg": 225,
+          "input_index": 1,
+          "motor": "fixed shared motor",
+          "position_FRD": "rear-left",
+          "rotor": "fixed shared rotor",
+          "source_rotation_sign": -1
+        },
+        {
+          "angle_deg": 315,
+          "input_index": 2,
+          "motor": "fixed shared motor",
+          "position_FRD": "front-left",
+          "rotor": "fixed shared rotor",
+          "source_rotation_sign": 1
+        },
+        {
+          "angle_deg": 135,
+          "input_index": 3,
+          "motor": "fixed shared motor",
+          "position_FRD": "rear-right",
+          "rotor": "fixed shared rotor",
+          "source_rotation_sign": 1
+        }
+      ],
+      "rotation_sign_convention": "generated source: -1 anticlockwise, +1 clockwise"
+    },
+    "fixed_parameters": {
+      "ModelInit_AngEuler": {
+        "unit": "rad; roll,pitch,yaw",
+        "value": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "ModelInit_PosE": {
+        "unit": "m; NED",
+        "value": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "ModelInit_RPM": {
+        "unit": "source-native motor initial speed; fixed zero",
+        "value": 0.0
+      },
+      "ModelInit_RateB": {
+        "unit": "rad/s; FRD",
+        "value": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "ModelInit_VelB": {
+        "unit": "m/s; FRD",
+        "value": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "ModelParam_3DType": {
+        "unit": "source enum",
+        "value": 3
+      },
+      "ModelParam_GPSLatLong": {
+        "unit": "degree; latitude,longitude",
+        "value": [
+          40.1540302,
+          116.2593683
+        ]
+      },
+      "ModelParam_envAltitude": {
+        "unit": "m; source altitude parameter",
+        "value": -50.0
+      },
+      "ModelParam_motorCr": {
+        "unit": "rad/s per normalized command",
+        "value": 842.1
+      },
+      "ModelParam_motorJm": {
+        "unit": "kg*m^2",
+        "value": 0.0001287
+      },
+      "ModelParam_motorMinThr": {
+        "unit": "normalized command",
+        "value": 0.05
+      },
+      "ModelParam_motorT": {
+        "unit": "s",
+        "value": 0.0214
+      },
+      "ModelParam_motorWb": {
+        "unit": "rad/s",
+        "value": 22.83
+      },
+      "ModelParam_rotorCm": {
+        "unit": "N*m/(rad/s)^2",
+        "value": 2.783e-07
+      },
+      "ModelParam_rotorCt": {
+        "unit": "N/(rad/s)^2",
+        "value": 1.681e-05
+      },
+      "ModelParam_uavCCm": {
+        "unit": "N*m/(rad/s)^2; FRD",
+        "value": [
+          0.0035,
+          0.0039,
+          0.0034
+        ]
+      },
+      "ModelParam_uavCd": {
+        "unit": "N/(m/s)^2",
+        "value": 0.055
+      },
+      "ModelParam_uavDearo": {
+        "unit": "m; downward aero-center offset",
+        "value": 0.12
+      },
+      "ModelParam_uavJ": {
+        "unit": "kg*m^2; 3x3 diagonal",
+        "value": [
+          0.0211,
+          0.0,
+          0.0,
+          0.0,
+          0.0219,
+          0.0,
+          0.0,
+          0.0,
+          0.0366
+        ]
+      },
+      "ModelParam_uavR": {
+        "unit": "m; center to rotor",
+        "value": 0.225
+      },
+      "ModelParam_uavType": {
+        "unit": "source enum; Quad X",
+        "value": 3
+      }
+    },
+    "mass": {
+      "default": 1.515,
+      "source_parameter": "ModelParam_uavMass",
+      "unit": "kg",
+      "value": 1.515
+    },
+    "model_identity": "sha256:9a0592896161ac99ed9defa9f5616a8463dc5d4d459cace3bf3115d18548501b",
+    "name": "reexecution-native-fixture",
+    "schema": "wksim.quad-mass.v1",
+    "source": {
+      "archive_sha256": "d528b5d247e13d943f1eaa7a37fd3cb4d15c7e9bb7a6b0e5988a1423e59d05ed",
+      "base_wrapper_sha256": "3f325678b1d85c9aa3fd07bd644d82935aa26d82885926defeced139f02ddf2c",
+      "model_version": "11.0 / R2022b",
+      "raw_members_sha256": {
+        "Exp1_MinModelTemp.cpp": "a35d7c8f39c94f2db8c27b19affee5b66c1b001c63ded334ba83c99f8be54019",
+        "Exp1_MinModelTemp.h": "2d89ad1b492c5e70e80682a9f53896e0538260946a0180a2ca44e500ba1589bd",
+        "rtw_continuous.h": "8f2c78fdc5a097552078484c738aefcc944463c8834d2ca6319b76cedf526b18",
+        "rtw_solver.h": "359ff69aa94a137e8b246721ead52e056dd4fdf11c35a7f92ebb9f14e0cda674",
+        "rtwtypes.h": "9d5bd1a47f06fd3f6cb124a96d407a6296875763759ab9fb388296e6199a1716"
+      },
+      "recipe": "quad-mass-initializer-v1; g++ c++17 O2 no-fast-math"
+    }
+  },
+  "archive": "/mnt/e/rflysimtools/RflySimAPIs/4.RflySimModel/1.BasicExps/e0_MinModelTemp/MulticopterModel.zip",
+  "argv": [
+    "g++",
+    "-std=c++17",
+    "-O2",
+    "-fno-fast-math",
+    "-fPIC",
+    "-shared",
+    "-Wl,--no-undefined",
+    "-I",
+    "/tmp/wksim-model-0qy1t76r",
+    "/tmp/wksim-model-0qy1t76r/Exp1_MinModelTemp.cpp",
+    "/tmp/wksim-model-0qy1t76r/configured_wrapper.cpp",
+    "-o",
+    "/tmp/wksim-model-0qy1t76r/libwksim_configured.so"
+  ],
+  "compiler": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0",
+  "builder_sha256": "b339ae24a7b359a0eb656dccf703a0c004e0b216f1d9f870363e69a1f12e7b05",
+  "files_sha256": {
+    "Exp1_MinModelTemp.cpp": "a35d7c8f39c94f2db8c27b19affee5b66c1b001c63ded334ba83c99f8be54019",
+    "Exp1_MinModelTemp.h": "2d89ad1b492c5e70e80682a9f53896e0538260946a0180a2ca44e500ba1589bd",
+    "rtwtypes.h": "9d5bd1a47f06fd3f6cb124a96d407a6296875763759ab9fb388296e6199a1716",
+    "rtw_continuous.h": "8f2c78fdc5a097552078484c738aefcc944463c8834d2ca6319b76cedf526b18",
+    "rtw_solver.h": "359ff69aa94a137e8b246721ead52e056dd4fdf11c35a7f92ebb9f14e0cda674",
+    "Exp1_MinModelTemp.original.cpp": "a35d7c8f39c94f2db8c27b19affee5b66c1b001c63ded334ba83c99f8be54019",
+    "configured_wrapper.cpp": "4827dfaa257670ab9ab9e03d68ba180fe6bebefaf10ace01c2d4a7bbfbe00b6f",
+    "libwksim_configured.so": "9ff51f3ee927ada7fa598692ccf42f56a218bf42714bed39bec96fac233745a6",
+    "config.json": "05c281f51d2aa8357b8833568378c36bc5216427d30bfa7e06324a59829b8838"
+  }
+}
