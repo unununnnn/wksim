@@ -1,0 +1,21 @@
+Working directory: C:/Users/PC/Documents/odid编译/wksim
+
+Read-only inputs:
+  Get-Content docs/plan/full-scope-expansion.md
+  Get-Content docs/plan/full-remaining-ledger.json
+  Get-Content docs/plan/full-followup-tickets.json
+  Get-Content docs/2026-09-09-aruco-consumer-report.md
+  Get-Content docs/rgb-capture-component.md
+  Get-Content docs/rgb-geometry-fixture.md
+  Get-Content Simulator/ue55/rgb.py
+  Get-Content Simulator/ue55/depth.py
+  Get-Content Simulator/wksim_perception/aruco.py
+  gh issue view 159 --repo unununnnn/wksim --json number,title,body,state,labels,comments
+  gh issue view 30 --repo unununnnn/wksim --json number,title,body,state,labels,comments
+  gh issue view 31 --repo unununnnn/wksim --json number,title,body,state,labels,comments
+
+Validation:
+  python -B validation/full-ops-08-20260910-01/validate.py
+  git diff --check -- docs/plan/full-contracts/ops-08.md docs/plan/full-contracts/ops-08.json validation/full-ops-08-20260910-01
+
+No sensor model, LiDAR or segmentation was implemented; no UE, FC, model, ROS, MATLAB or hardware process was started.
