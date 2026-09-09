@@ -1,0 +1,12 @@
+# #143 / full-model-09 summary
+
+The four MODEL-09 CarR1Diff atoms were mapped to the frozen row, current ledger, the multicopter-only core and the OPS-07 environment contract. The contract is complete; the Full row remains a gap.
+
+- Files: `docs/plan/full-contracts/model-09.md`, `docs/plan/full-contracts/model-09.json`.
+- Exact check: `python -B validation/full-model-09-20260910-01/validate.py` — 17 assertions passed, 0 skipped.
+- Inputs and source identities: `hashes.json`; the validator checked 5 SHA-256 values.
+- Current result: one partial atom (non-coverage rule) and three blocked atoms (wheel mapping, motion, reset).
+- Pivot behavior is an explicit test condition; reset returns to a declared state; OPS-07 terrain is a prerequisite.
+- No model implementation, UE/FC/ROS/MATLAB process, hardware command or numerical-budget change occurred.
+
+This is a contract-definition delivery only. CarR1Diff completion requires a pinned source, the wheel mapping freeze and the conditions audit.

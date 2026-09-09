@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "issue": 143,
+  "stable_key": "full-model-09",
+  "title": "CarR1Diff model",
+  "source": {
+    "file": "docs/plan/full-scope-expansion.md",
+    "line": 54,
+    "ledger_id": "MODEL-09",
+    "ledger_file": "docs/plan/full-followup-tickets.json",
+    "parent_issues": [1]
+  },
+  "status": "defined",
+  "evidence_status": "no-evidence",
+  "full_complete": false,
+  "current_gap": "The differential-drive car is uncovered; the differential mapping and its motion/reset conditions are missing.",
+  "atoms": [
+    {"id": "MODEL-09-A", "name": "differential_mapping", "status": "blocked", "required": "Left/right wheel drive mapping with units, signs and limits", "owner": "model maintainer"},
+    {"id": "MODEL-09-B", "name": "motion_conditions", "status": "blocked", "required": "Motion conditions (straight, turn, pivot) with expected responses", "owner": "physics maintainer"},
+    {"id": "MODEL-09-C", "name": "reset_conditions", "status": "blocked", "required": "Reset semantics returning the vehicle to a declared state", "owner": "runtime maintainer"},
+    {"id": "MODEL-09-D", "name": "non_coverage_rule", "status": "partial", "required": "Rule enforced: Ackermann or aerial evidence never covers differential drive", "owner": "validation maintainer"}
+  ],
+  "model_required": ["model_identity", "vehicle_class=car_r1_diff", "wheel_mapping", "wheel_geometry", "mass_kg", "inertia", "reset_semantics", "terrain_requirements", "source", "source_sha256"],
+  "scope_rule": "differential drive is defined by its wheel mapping and reset conditions; steering-geometry (Ackermann) evidence never substitutes",
+  "errors": ["accepted", "model_not_found", "wheel_mapping_invalid", "condition_undefined", "reset_failed", "terrain_unavailable", "substitution_rejected"],
+  "followups": [
+    {"key": "model-09-model-source", "files": ["docs/plan/<r1diff-source>.json"], "status": "proposed", "blocked_by": "Model source selection and OPS-07 static query seam"},
+    {"key": "model-09-conditions", "files": ["docs/plan/<r1diff-conditions>.md", "validation/<r1diff-audit>"], "status": "proposed", "blocked_by": "Model source and wheel mapping freeze"}
+  ],
+  "preserved": {"ops07_dependency": "terrain/contact feedback contract defined under OPS-07, not implemented", "full_complete": false}
+}
