@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "issue": 125,
+  "stable_key": "full-sim-07",
+  "title": "EXT_SIM_NET external simulation system",
+  "source": {
+    "file": "docs/plan/full-scope-expansion.md",
+    "line": 19,
+    "ledger_id": "SIM-07",
+    "ledger_file": "docs/plan/full-followup-tickets.json",
+    "parent_issues": [1]
+  },
+  "status": "defined",
+  "evidence_status": "no-evidence",
+  "full_complete": false,
+  "current_gap": "No reference external system, physics authority, clock relationship or failure semantics are pinned; a single-system end-to-end ticket comes only after those are fixed.",
+  "atoms": [
+    {"id": "SIM-07-A", "name": "reference_system_identity", "status": "blocked", "required": "One explicit external reference system pinned by name, version and source", "owner": "integration maintainer"},
+    {"id": "SIM-07-B", "name": "physics_authority", "status": "blocked", "required": "Declared physics authority boundary between wksim and the external system", "owner": "physics maintainer"},
+    {"id": "SIM-07-C", "name": "clock_relationship", "status": "blocked", "required": "Pinned clock mapping and deviation handling between both timelines", "owner": "runtime maintainer"},
+    {"id": "SIM-07_D", "name": "failure_semantics", "status": "blocked", "required": "Disconnect/timeout/freeze semantics on both sides", "owner": "runtime maintainer"},
+    {"id": "SIM-07-E", "name": "owned_joint_time_seam", "status": "partial", "required": "Existing SceneClock joint authority semantics remain the wksim-side base; not external-system evidence", "owner": "runtime maintainer"}
+  ],
+  "link_required": ["link_id", "external_system_identity", "external_version", "physics_authority", "clock_mapping", "deviation_budget_ns", "failure_semantics", "epoch", "source_identity"],
+  "scope_rule": "no external interop claim exists until one reference system with authority, clock and failure semantics is pinned and observed",
+  "errors": ["accepted", "reference_unpinned", "authority_conflict", "clock_unmapped", "deviation_exceeded", "link_lost", "foreign_epoch"],
+  "followups": [
+    {"key": "sim-07-reference-pin", "files": ["docs/plan/<ext-sim-reference>.json"], "status": "proposed", "blocked_by": "Reference system selection and access"},
+    {"key": "sim-07-authority-clock", "files": ["docs/plan/<ext-sim-authority>.md", "validation/<ext-sim-clock-audit>"], "status": "proposed", "blocked_by": "Reference pin"},
+    {"key": "sim-07-e2e-slice", "files": ["runtime source reserved after authority decision", "validation/<ext-sim-e2e>"], "status": "proposed", "blocked_by": "Authority and clock contract"}
+  ],
+  "preserved": {"scene_clock": "owned joint time/fault seam; internal only", "full_complete": false}
+}

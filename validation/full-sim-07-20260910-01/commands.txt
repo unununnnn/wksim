@@ -1,0 +1,15 @@
+Working directory: C:/Users/PC/Documents/odid编译/wksim
+
+Read-only inputs:
+  Get-Content docs/plan/full-scope-expansion.md
+  Get-Content docs/plan/full-remaining-ledger.json
+  Get-Content docs/plan/full-followup-tickets.json
+  Get-Content Simulator/wksim_runtime/scene_clock.py
+  gh issue view 125 --repo unununnnn/wksim --json number,title,body,state,labels,comments
+  gh issue view 1 --repo unununnnn/wksim --json number,title,body,state,labels,comments
+
+Validation:
+  python -B validation/full-sim-07-20260910-01/validate.py
+  git diff --check -- docs/plan/full-contracts/sim-07.md docs/plan/full-contracts/sim-07.json validation/full-sim-07-20260910-01
+
+No external link was implemented or opened; no UE, FC, model, ROS, MATLAB or hardware process was started.
