@@ -200,6 +200,37 @@ class PIDCandidateTests(unittest.TestCase):
             task.command('native', position=(2., 3., 3.))
 
     def test_actual_pid_offer_uses_public_attitude_envelope_and_waits_for_ack(self):
+        state = NS(header=NS(stamp=NS(sec=1, nanosec=40000000)),
+            position=(2., 3., 2.9), velocity=(0., 0., 0.), attitude_q=NS(w=1., x=0., y=0., z=0.))
+        self.check_pid_offer(state)
+
+    def test_actual_ros_float32_state_reaches_pid_public_outlet(self):
+        try:
+            from prometheus_msgs.msg import UAVState
+        except ImportError:
+            self.skipTest('Requires installed ROS prometheus_msgs; run in sourced WSL')
+        state = UAVState()
+        state.header.stamp.sec, state.header.stamp.nanosec = 1, 40000000
+        state.position, state.velocity = [2., 3., 2.9], [0., 0., 0.]
+        state.attitude_q.w = 1.
+        self.assertEqual(type(state.position[0]).__name__, 'float32')
+        self.check_pid_offer(state)
+
+    def test_numpy_real_scalars_preserve_pid_validation(self):
+        try:
+            import numpy as np
+        except ImportError:
+            self.skipTest('Requires ROS numpy dependency')
+        for scalar in (np.float32, np.float64, np.int32):
+            state = PIDState(tuple(scalar(x) for x in (2, 3, 3)),
+                             (scalar(0),)*3, (1., 0., 0., 0.))
+            self.assertTrue(all(type(x) is float for x in state.position_enu + state.velocity_enu))
+        for bad in (np.float32('nan'), np.float32('inf'), np.float32('-inf'),
+                    np.bool_(True), True, '2', 2+0j):
+            with self.subTest(bad=repr(bad)), self.assertRaises(ValueError):
+                PIDState((bad, 0., 0.), (0., 0., 0.), (1., 0., 0., 0.))
+
+    def check_pid_offer(self, state):
         class Message:
             MOVE, XYZ_ATT = 4, 5
             def __init__(self, **values):
@@ -220,8 +251,7 @@ class PIDCandidateTests(unittest.TestCase):
         task.pid_updates = task.pid_duplicate_states = 0
         task.command_number, task.request_id = 10, 20
         task.run_id, task.epoch, task.native_generation = 'run', 'a'*32, 7
-        task.latest = {'state': NS(header=NS(stamp=NS(sec=1, nanosec=40000000)),
-            position=(2., 3., 2.9), velocity=(0., 0., 0.), attitude_q=NS(w=1., x=0., y=0., z=0.))}
+        task.latest = {'state': state}
         task.Cmd, task.CommandRequest = Message, Message
         task.node = NS(get_clock=lambda: NS(now=lambda: NS(to_msg=lambda: 'wall-stamp')))
         task.convert, task.started = convert, 0.

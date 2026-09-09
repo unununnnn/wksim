@@ -19,6 +19,27 @@ from Simulator.wksim_control.position_pid import PIDState
 CONFIG = json.loads((audit.REPO/'Simulator/wksim_runtime/pid-flight-v1.json').read_text())
 
 
+class ProgressEncodingTests(unittest.TestCase):
+    def test_optional_telemetry_encoding_only(self):
+        optional = ('range', 'rel_alt', 'battery_state', 'battery_percetage')
+        raw = dict(phases=[dict(state=dict(position=[1., 2., 3.],
+            **dict.fromkeys(optional, float('nan'))))], pid_updates=3)
+        encoded = copy.deepcopy(raw)
+        for key in optional:
+            encoded['phases'][0]['state'][key] = {'nonfinite_number': 'nan'}
+        self.assertTrue(audit.same_progress(encoded, raw))
+        self.assertTrue(math.isnan(raw['phases'][0]['state']['range']))
+        for key, value in (('range', 1.), ('range', float('inf')), ('position', [1., 2., float('nan')])):
+            changed = copy.deepcopy(raw)
+            changed['phases'][0]['state'][key] = value
+            self.assertFalse(audit.same_progress(encoded, changed))
+        changed = copy.deepcopy(encoded)
+        changed['pid_updates'] = 4
+        self.assertFalse(audit.same_progress(encoded, changed))
+        bad = dict(phases=[dict(state=dict(position=[float('nan'), 2., 3.]))])
+        self.assertFalse(audit.same_progress(bad, bad))
+
+
 def event_fixture():
     event = event_for(CONFIG, 'fixture', 0)
     raw = (json.dumps(event, sort_keys=True, separators=(',', ':'))+'\n').encode()
@@ -284,6 +305,16 @@ class PIDFlightAuditTests(unittest.TestCase):
         rows, phases, result, data = trace_fixture()
         matched, counts = audit.trace_audit(CONFIG,rows,phases,result,.5,data)
         self.assertEqual(len(matched),3); self.assertEqual(sum(counts.values()),3)
+
+    def test_trace_ros_float32_envelope_uses_wire_tolerance(self):
+        rows, phases, result, data = trace_fixture()
+        for row in rows:
+            att = row['public_envelope']['command']['att_ref']
+            row['public_envelope']['command']['att_ref'] = list(struct.unpack('<4f', struct.pack('<4f', *att)))
+        audit.trace_audit(CONFIG, rows, phases, result, .5, data)
+        rows[0]['public_envelope']['command']['att_ref'][3] += 2e-6
+        with self.assertRaisesRegex(ValueError, 'envelope differs'):
+            audit.trace_audit(CONFIG, rows, phases, result, .5, data)
 
     def test_trace_negative_mutations(self):
         mutations = {

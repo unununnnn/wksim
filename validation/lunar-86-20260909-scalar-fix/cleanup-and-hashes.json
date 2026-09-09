@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "wsl",
+    "-d",
+    "Ubuntu-22.04",
+    "-u",
+    "root",
+    "--",
+    "/usr/bin/python3",
+    "-c",
+    "import hashlib,json,pathlib,sys\nroot=pathlib.Path(sys.argv[1]); result=json.loads((root/'result.json').read_text())\nowned={}\nfor name,child in result['children'].items():\n p=pathlib.Path('/proc')/str(child['pid'])/'stat'\n owned[name]={'pid':child['pid'],'pid_exists':p.exists(),'same_proc_stat':p.exists() and p.read_text()==child['proc_stat']}\nhashes={}\nfor name in ('result.json','physics-1ms.jsonl','pid-trace.jsonl','pid-progress.json','pid-resolved-config.json','disturbance-event.json'):\n p=root/name\n if p.exists():\n  h=hashlib.sha256()\n  with p.open('rb') as f:\n   for chunk in iter(lambda:f.read(1048576),b''):h.update(chunk)\n  hashes[name]=h.hexdigest()\nprint(json.dumps({'owned_processes':owned,'raw_sha256':hashes},indent=2))\n",
+    "/root/wksim-pid-flight-pid-px4-scalar-fix-20260909-01/pid-px4-scalar-fix-20260909-01"
+  ],
+  "cwd": "C:\\Users\\PC\\Documents\\odid\u7f16\u8bd1\\wksim",
+  "started_unix_s": 1788951196.9612982,
+  "ended_unix_s": 1788951197.1658971,
+  "returncode": 0
+}

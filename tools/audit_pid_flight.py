@@ -11,6 +11,7 @@ tolerance applies to physical budgets. Sampled native logs cannot establish the
 exact first acceptance tick or absence of activity between native observations.
 """
 import argparse
+import copy
 import hashlib
 import json
 import math
@@ -26,6 +27,26 @@ from tools import audit_attitude_flight as wire
 PROTOCOL = '25d50ddbbd44e658a72123e6d524a5c5021b355367a99e46a898ec9b9cecadc0'
 MODEL = 'cc0bc2d10790043251f38bb6a53f4d774379dd37a02b09cceba43ac1fafb02b3'
 require, digest, read, lines = wire.require, wire.digest, wire.read, wire.lines
+
+
+def same_progress(left, right):
+    """Compare the two evidence encodings of optional public State telemetry."""
+    encoded = []
+    for value in (left, right):
+        value = copy.deepcopy(value)
+        for phase in value.get('phases', []):
+            state = phase.get('state')
+            if not isinstance(state, dict):
+                continue
+            for key in ('range', 'rel_alt', 'battery_state', 'battery_percetage'):
+                number = state.get(key)
+                if isinstance(number, float) and not math.isfinite(number):
+                    state[key] = {'nonfinite_number': repr(number)}
+        try:
+            encoded.append(json.dumps(value, sort_keys=True, allow_nan=False))
+        except ValueError:
+            return False  # Nonfinite required fields never gain equivalence.
+    return encoded[0] == encoded[1]
 
 
 def near(actual, expected, tolerance=1e-10):
@@ -377,7 +398,7 @@ def trace_audit(config, rows, phases, result, hover, data):
         require(envelope['run_id'] == row['run_id'] and envelope['request_id'] == rid
                 and envelope['control_epoch'] == row['control_epoch']
                 and envelope['command']['command_id'] == cid and envelope['command']['move_mode'] == 7
-                and near(envelope['command']['att_ref'], [*output['roll_pitch_yaw_enu_rad'], collective]),
+                and near(envelope['command']['att_ref'], [*output['roll_pitch_yaw_enu_rad'], collective], 1e-6),
                 'PID trace envelope differs from recomputed output')
         require(public['run_id'] == row['run_id'] and public['control_epoch'] == row['control_epoch']
                 and command['command_id'] == cid and command['move_mode'] == row['public_move_mode'] == 7
@@ -536,7 +557,7 @@ def audit(root):
             'attitude-native.jsonl', 'physics-actuator-packets.jsonl', 'physics-1ms.jsonl', 'truth.jsonl',
             'disturbance-event.json')}
         progress = read(root/'pid-progress.json')
-        require(progress == result['task']['external_pid'], 'Final PID progress differs from result')
+        require(same_progress(progress, result['task']['external_pid']), 'Final PID progress differs from result')
         phases = {p['phase']: p for p in progress['phases']}
         require(len(phases) == len(progress['phases']), 'Duplicate phase declarations')
         event_raw = (root/'disturbance-event.json').read_bytes(); event = json.loads(event_raw)

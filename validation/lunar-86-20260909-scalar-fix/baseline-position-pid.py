@@ -6,7 +6,6 @@ owns its integral; the caller owns timing, mode admission and lifecycle resets.
 
 from dataclasses import dataclass
 import math
-from numbers import Real
 from typing import Literal
 
 Vec3 = tuple[float, float, float]
@@ -18,8 +17,7 @@ UPSTREAM_PID_SHA256 = "4f75efa91ead6518cf778a2b3294621944e842274a4c1826577fd32c6
 
 
 def _finite(value: float, name: str) -> float:
-    # ROS fixed float arrays yield real scalars such as numpy.float32.
-    if isinstance(value, bool) or not isinstance(value, Real) or not math.isfinite(value):
+    if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value):
         raise ValueError(f"{name} must be a finite number")
     return float(value)
 
