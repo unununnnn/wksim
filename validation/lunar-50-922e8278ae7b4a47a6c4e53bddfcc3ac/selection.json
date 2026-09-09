@@ -1,0 +1,40 @@
+{
+  "status": "ready",
+  "number": 50,
+  "url": "https://github.com/unununnnn/wksim/issues/50",
+  "key": "35-preflight",
+  "tier": "luna",
+  "working_directory": "C:\\Users\\PC\\Documents\\odid编译\\wksim",
+  "title": "[Luna] 执行一次 PX4 PID 只读准入",
+  "definition": {
+    "key": "35-preflight",
+    "parent": 35,
+    "title": "执行一次 PX4 PID 只读准入",
+    "tier": "luna",
+    "prerequisite_keys": [],
+    "parent_dependencies": [
+      34
+    ],
+    "owned_files": [
+      "validation/35-pid-preflight/ (new evidence)"
+    ],
+    "known_input_reports": [
+      "docs/2026-09-09-pid-controller-port.md",
+      "docs/2026-09-09-pid-flight-plan.md"
+    ],
+    "concrete_actions": [
+      "Read final PID handoff and verify frozen config SHA plus actual installed identities",
+      "Execute existing PX4 --preflight once with explicit config and a new run ID",
+      "Save original stdout/exit/hash and confirm no FC/model/ROS child launched"
+    ],
+    "verifiable_completion": "PX4 read-only preflight genuinely passes; any mismatch produces a small exact blocker, not a rebuild. AP requires its own one-run preflight child before its flight.",
+    "targeted_test_command": "bash tools/run-pid-flight.sh --stack px4 --run-id pid-px4-preflight --config Simulator/wksim_runtime/pid-flight-v1.json --output-root /root/wksim-pid-flight-preflight-px4 --preflight",
+    "command_status": "known_existing_command_shape_recheck_source_before_execution",
+    "failure_escalation_boundary": "仅一次只读准入。缺资源/导入不符保持OPEN，记录精确错误，不进入飞行。",
+    "readiness": "ready_after_parent_dependency_and_resource_check",
+    "blocking_issue_numbers": [],
+    "priority": 1,
+    "dependency_rationale": "父票原Blocked by保留；本票源码/纯检查只按自身实际前置派发，父票最终关闭仍检查全部原依赖。"
+  },
+  "next_action": "先完整读取此GitHub子票；只做本票写入范围。真实运行使用新ID/目录，完成后再取下一票。"
+}
