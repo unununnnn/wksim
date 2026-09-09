@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "issue": 124,
+  "stable_key": "full-sim-04",
+  "title": "Simulink and DLL SIL",
+  "source": {
+    "file": "docs/plan/full-scope-expansion.md",
+    "line": 16,
+    "ledger_id": "SIM-04",
+    "ledger_file": "docs/plan/full-followup-tickets.json",
+    "parent_issues": [26]
+  },
+  "status": "defined",
+  "evidence_status": "partial-evidence",
+  "full_complete": false,
+  "current_gap": "The owned model has local build evidence; the complete selection, initialization, run, reset and export flow is accepted separately, and daily runs are not required to start Simulink.",
+  "atoms": [
+    {"id": "SIM-04-A", "name": "owned_model_build", "status": "partial", "required": "Repeatable local build from the vendor ZIP to the owned .so with hashes on record", "owner": "build maintainer"},
+    {"id": "SIM-04-B", "name": "no_controller_run", "status": "partial", "required": "Pure model run without a flight controller in bounded slices", "owner": "physics maintainer"},
+    {"id": "SIM-04-C", "name": "selection_initialization", "status": "blocked", "required": "Complete model selection and initialization flow with identity and errors", "owner": "runtime maintainer"},
+    {"id": "SIM-04-D", "name": "reset_export", "status": "blocked", "required": "Reset and export flow with state identity and file evidence", "owner": "runtime maintainer"},
+    {"id": "SIM-04-E", "name": "original_dll_plugin", "status": "blocked", "required": "Original DLL as an optional plugin under a verified ABI; #9 remains open", "owner": "plugin maintainer"},
+    {"id": "SIM-04-F", "name": "simulink_not_required", "status": "partial", "required": "Daily operation never requires Simulink; MATLAB stays a minimal interface", "owner": "build maintainer"}
+  ],
+  "run_required": ["model_identity", "model_sha256", "build_manifest", "init_state", "step_rate", "reset_semantics", "export_schema", "epoch", "source_identity"],
+  "scope_rule": "a local build is not the complete select/init/run/reset/export flow; an original DLL is an optional plugin, never a core prerequisite",
+  "errors": ["accepted", "model_not_found", "build_mismatch", "init_invalid", "reset_failed", "export_failed", "dll_abi_unverified", "simulink_required_rejected"],
+  "followups": [
+    {"key": "sim-04-flow-itemization", "files": ["docs/plan/<sil-flow>.json", "validation/<sil-flow-audit>"], "status": "proposed", "blocked_by": "Reference flow item list"},
+    {"key": "sim-04-reset-export", "files": ["Simulator/wksim_core/<model-lifecycle>.py", "validation/<model-lifecycle-tests>.py"], "status": "proposed", "blocked_by": "Flow itemization"},
+    {"key": "sim-04-dll-abi", "files": ["plugin source reserved after #9 decision", "validation/<dll-abi-audit>"], "status": "proposed", "blocked_by": "#9 plugin/ABI decision"}
+  ],
+  "preserved": {"issue_26": "open generated-model build import", "issue_9": "plugin/ABI undecided", "matlab": "minimal interface only", "full_complete": false}
+}
