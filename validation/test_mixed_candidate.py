@@ -77,6 +77,28 @@ class MixedCandidateTests(unittest.TestCase):
             report = mixed.admit(str(self.path), 'a'*64, str(self.control_path), self.control_sha, '../bad')
             self.assertFalse(report['ok']); self.assertEqual(report['configs'], {})
 
+    def test_pv_task_keeps_true_mixed_verification_and_exact_final_pins(self):
+        p = mixed.joint.select_profile('joint_quad_dds_v1')
+        native = dict(candidate=self.record, baseline_verification=dict(baseline_manifest_sha256=p['manifests']['ap']['sha256']))
+        with patch.object(mixed, 'verify', return_value=native) as verify, \
+                patch.object(mixed, '_fixed_resources', return_value={}), \
+                patch.object(mixed, 'checked_json'), patch.object(mixed, 'check_control', return_value=self.control):
+            report = mixed.admit(str(self.path), mixed.FINAL_AP_SHA, str(self.control_path), mixed.FINAL_CONTROL_SHA,
+                                 'pv-mixed-unit', task_profile=mixed.PV_PROFILE)
+            self.assertTrue(report['ok'], report['reasons'])
+            self.assertEqual(report['task_profile'], mixed.PV_PROFILE)
+            self.assertEqual(report['candidate']['profile'], mixed.PROFILE)
+            self.assertIs(report['identities']['ap_mixed'], native)
+            self.assertNotIn('ap_pv', report['identities'])
+            self.assertEqual(report['capability']['arducopter_type_mask'], 2496)
+            for task, ap_sha, control_sha in ((mixed.PV_PROFILE, 'a'*64, mixed.FINAL_CONTROL_SHA),
+                    (mixed.PV_PROFILE, mixed.FINAL_AP_SHA, 'a'*64), ('position', mixed.FINAL_AP_SHA, mixed.FINAL_CONTROL_SHA)):
+                verify.reset_mock()
+                rejected = mixed.admit(str(self.path), ap_sha, str(self.control_path), control_sha,
+                                       'pv-mixed-unit', task_profile=task)
+                self.assertFalse(rejected['ok']); self.assertEqual(rejected['children_created'], 0)
+                verify.assert_not_called()
+
 
 if __name__ == '__main__':
     unittest.main()

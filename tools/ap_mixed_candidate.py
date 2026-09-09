@@ -17,6 +17,10 @@ from ap_pv_candidate import _fixed_resources
 from Simulator.wksim_runtime import joint_profile as joint
 from joint_control_candidate import check as check_control
 
+PV_PROFILE = 'full_xyz_pv_yaw_v1'
+FINAL_AP_SHA = '1e6250eff8873d6b2e52017b613c223ac29f8260fdf92aac2cf0c7cdcc6ce94c'
+FINAL_CONTROL_SHA = 'd9fdfc74f4f241440dd1186ef38d0bde56026cd28e4b55897f38a11e7311909e'
+
 
 def verify(manifest, checksum):
     path = Path(manifest)
@@ -76,10 +80,14 @@ def verify(manifest, checksum):
         scope='Current mixed build bytes only; no native behavior, experimental admission or flight proof')
 
 
-def admit(manifest, checksum, control_manifest, control_checksum, run_id):
+def admit(manifest, checksum, control_manifest, control_checksum, run_id, *, task_profile=PROFILE):
     result = dict(ok=False, experimental=True, production_admitted=False, flown=False, children_created=0,
-        task_profile=PROFILE, reasons=[], configs={}, model_library='', control_candidate=None, identities={})
+        task_profile=task_profile, reasons=[], configs={}, model_library='', control_candidate=None, identities={})
     try:
+        if task_profile not in (PROFILE, PV_PROFILE):
+            raise ValueError('Unsupported task for mixed firmware')
+        if task_profile == PV_PROFILE and (checksum != FINAL_AP_SHA or control_checksum != FINAL_CONTROL_SHA):
+            raise ValueError('P+V compatibility requires the exact final mixed/control manifests')
         p = joint.select_profile('joint_quad_dds_v1')
         base = dict(schema_version=1, run_id=run_id, vehicle_id=1, model_profile='quad_x',
             communication='native_dds', control_protocol='session_v1', capabilities=['native_position_mission'],
@@ -112,6 +120,10 @@ def admit(manifest, checksum, control_manifest, control_checksum, run_id):
                 yaw_rate=False, acceleration=False, terrain=False, arducopter_type_mask=2531,
                 native_submode=7, vertical_velocity_avoidance=False),
             scope='Bounded mixed XY velocity/Z position/yaw trial only; full PV/native boundaries/production remain separate')
+        if task_profile == PV_PROFILE:
+            result.update(capability=dict(profile=PV_PROFILE, position_axes='xyz', velocity_axes='xyz', yaw=True,
+                acceleration=False, yaw_rate=False, mixed_axes=False, arducopter_type_mask=2496),
+                scope='Bounded full XYZ P+V/yaw task on final mixed firmware with both control profiles enabled; production remains separate')
     except (OSError, ValueError, KeyError, TypeError, ImportError, subprocess.CalledProcessError) as error:
         result['reasons'].append(dict(code='ap_mixed_candidate_rejected', message=str(error)))
     return result
@@ -127,10 +139,12 @@ if __name__ == '__main__':
         command.add_argument('--ap-mixed-sha256', required=True)
     for field in ('control-manifest', 'control-sha256', 'run-id'):
         admission.add_argument('--'+field, required=True)
+    admission.add_argument('--task-profile', choices=(PROFILE, PV_PROFILE), default=PROFILE)
     args = parser.parse_args()
     if args.command == 'verify':
         print(json.dumps(verify(args.ap_mixed_manifest, args.ap_mixed_sha256), indent=2))
     else:
-        report = admit(args.ap_mixed_manifest, args.ap_mixed_sha256, args.control_manifest, args.control_sha256, args.run_id)
+        report = admit(args.ap_mixed_manifest, args.ap_mixed_sha256, args.control_manifest, args.control_sha256, args.run_id,
+                       task_profile=args.task_profile)
         print(json.dumps(report, indent=2))
         raise SystemExit(0 if report['ok'] else 2)

@@ -4,6 +4,8 @@ import json
 import math
 import os
 import unittest
+from pathlib import Path
+from unittest.mock import patch
 
 from tools.audit_pv_trajectory import analytic, tracking, truth_window, native_targets, wire_request, rejected_bootstrap_ack
 
@@ -48,6 +50,35 @@ def native_fixture():
 
 
 class PVRawAuditBoundaries(unittest.TestCase):
+    def test_mixed_identity_is_dispatched_without_relabeling(self):
+        from tools import audit_pv_trajectory as audit
+        result = dict(mixed_admission=dict(task_profile=audit.PROFILE))
+        with patch('audit_mixed_control.retained_identity', return_value={'checked': 'mixed'}) as checker:
+            self.assertEqual(audit.retained_identity(Path('/unused'), result), {'checked': 'mixed'})
+            checker.assert_called_once_with(Path('/unused'), result, task_profile=audit.PROFILE)
+        self.assertNotIn('pv_admission', result)
+
+    def test_control_flags_distinguish_old_mixed_and_final_dual_profile(self):
+        from tools.audit_mixed_control import control_profiles, PROFILE, PV_PROFILE
+        result = dict(children={stack+'-control': dict(argv=['python', '--ros-args'])
+                                for stack in ('arducopter', 'px4')})
+        argv = result['children']['arducopter-control']['argv']
+        argv += ['-p', 'arducopter_mixed_profile:='+PROFILE]
+        self.assertEqual(control_profiles(result), {'arducopter_mixed_profile': PROFILE})
+        with self.assertRaisesRegex(ValueError, 'was not enabled'):
+            control_profiles(result, require_pv=True)
+        argv += ['-p', 'arducopter_pv_profile:='+PV_PROFILE]
+        self.assertEqual(len(control_profiles(result, require_pv=True)), 2)
+        for bad in ('arducopter_pv_profile:=wrong', 'arducopter_pv_profile:='+PV_PROFILE):
+            changed = copy.deepcopy(result)
+            changed['children']['arducopter-control']['argv'] += ['-p', bad]
+            with self.assertRaises(ValueError):
+                control_profiles(changed, require_pv=True)
+        changed = copy.deepcopy(result)
+        changed['children']['px4-control']['argv'] += ['-p', 'arducopter_pv_profile:='+PV_PROFILE]
+        with self.assertRaises(ValueError):
+            control_profiles(changed, require_pv=True)
+
     def test_unsolicited_bootstrap_ack_does_not_allow_a_failed_task_request(self):
         event = dict(event='native_input_rejected', reason='unmatched_ack', source='ack',
                      request_id=0, command=211, request_identity=[51, 80])

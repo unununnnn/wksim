@@ -97,6 +97,9 @@ def truth_window(rows, start_ns, end_ns):
 
 
 def retained_identity(root, result):
+    if 'mixed_admission' in result:
+        from audit_mixed_control import retained_identity as mixed_identity
+        return mixed_identity(root, result, task_profile=PROFILE)
     require(result['status'] == 'pass' and result['flight_completed'] and result['source_unchanged']
             and result['control_shutdown_clean'] and not result['cleanup_errors'], 'Candidate run/cleanup did not pass')
     require(result['task_profile'] == PROFILE and result['unowned_ap_before'] == result['unowned_ap_after'],
@@ -207,7 +210,7 @@ def retained_identity(root, result):
                 loaded_maps_verified=['running', 'completed'])
 
 
-def decode(root, result, *, admission_key='pv_admission'):
+def decode(root, result, *, admission_key='pv_admission', message_packages=None, wall_limit=900):
     from rclpy.serialization import deserialize_message
     from rosidl_runtime_py.convert import message_to_ordereddict
     from prometheus_msgs.msg import TextInfo
@@ -216,7 +219,11 @@ def decode(root, result, *, admission_key='pv_admission'):
     from ardupilot_msgs.msg import GlobalPosition, WksimState
     from px4_msgs.msg import TrajectorySetpoint, OffboardControlMode, VehicleLocalPosition, VehicleStatus
     from Simulator.wksim_runtime.joint_profile import package_digest
-    for name, pin in result[admission_key]['identities']['baseline']['message_packages'].items():
+    packages = (result[admission_key]['identities']['baseline']['message_packages']
+                if message_packages is None else message_packages)
+    require(packages and {'prometheus_msgs','wksim_msgs','px4_msgs','ardupilot_msgs'} <= packages.keys(),
+            'Missing raw decoder message identities')
+    for name, pin in packages.items():
         require(package_digest(pin['prefix'], complete=pin.get('complete_snapshot', False)) == pin['sha256'],
                 'Raw CDR message schema package differs: '+name)
     types = {'/ap/cmd_gps_pose': GlobalPosition, '/ap/wksim/local_state_v1': WksimState}
@@ -233,7 +240,7 @@ def decode(root, result, *, admission_key='pv_admission'):
     for number, row in enumerate(lines(root/'pv-dds.jsonl'), 1):
         require(row['sequence'] == number and row['epoch'] == result['scene_epoch']
                 and previous_tick <= row['tick'] <= result['final_authority']['tick']
-                and math.isfinite(row['wall']) and previous_wall <= row['wall'] <= 900
+                and math.isfinite(row['wall']) and previous_wall <= row['wall'] <= wall_limit
                 and row['topic'] in types, 'Invalid raw DDS chronology/topic/identity')
         raw = bytes.fromhex(row['cdr_hex'])
         require(len(raw) > 4, 'Truncated raw CDR')
@@ -244,11 +251,12 @@ def decode(root, result, *, admission_key='pv_admission'):
     return data
 
 
-def task_evidence(root, result, data):
+def task_evidence(root, result, data, *, recorder_name='wksim_joint_flight_clock', task_root=None):
+    task_root = root if task_root is None else task_root
     tasks, phases, requests = {}, {}, {}
     tokens = set()
     for stack, uid in STACKS:
-        report = read(root/stack/'result.json')
+        report = read(task_root/stack/'result.json')
         require(report == result['tasks'][stack] and report['status'] == 'pass' and report['run_id'] == result['run_id']
                 and report['scene_epoch'] == result['scene_epoch'] and report['uav_id'] == uid and report['use_sim_time']
                 and report['task_profile'] == PROFILE, 'Task report identity differs')
@@ -257,7 +265,8 @@ def task_evidence(root, result, data):
         require(set(graph) == {'setup', 'command'}, 'Missing named passive-observer graph proof')
         for endpoints in graph.values():
             require(len(endpoints) == 2 and {e['node_name'] for e in endpoints} == {
-                'wksim_joint_'+stack+'_control', 'wksim_joint_flight_clock'}
+                'wksim_joint_'+stack+'_control', recorder_name}
+                and len({e['endpoint_gid'] for e in endpoints}) == 2
                 and all(e['node_namespace'] == '/' and re.fullmatch('[0-9a-f]+', e['endpoint_gid'])
                         and int(e['endpoint_gid'], 16) != 0 for e in endpoints),
                 'Unexpected control/observer subscriber graph')
@@ -343,7 +352,7 @@ def task_evidence(root, result, data):
         require(final['connected'] and final['odom_valid'] and not final['armed'] and abs(final['position'][2]) < .3,
                 'Task did not finish freshly grounded')
         for leg, record in enumerate(task['pv_legs'], 1):
-            ready = read(root/stack/f'pv-ready-{leg}.json'); go = read(root/f'pv-go-{leg}.json')
+            ready = read(task_root/stack/f'pv-ready-{leg}.json'); go = read(task_root/f'pv-go-{leg}.json')
             require(ready == record['ready'] == go['tasks'][stack] and go == record['offer'], 'Ready/go echo differs')
             require(ready['version'] == go['version'] == 1 and ready['profile'] == go['profile'] == PROFILE
                     and ready['leg'] == go['leg'] == leg and ready['run_id'] == go['run_id'] == result['run_id']
@@ -407,8 +416,8 @@ def task_evidence(root, result, data):
     return tasks, phases, requests
 
 
-def physical(root, result, tasks, phases):
-    timeline, _ = audit_timeline(root, result, phases)
+def physical(root, result, tasks, phases, *, wire_name='joint-wire.jsonl'):
+    timeline, _ = audit_timeline(root, result, phases, wire_name=wire_name)
     output = {}
     for stack, _ in STACKS:
         rows = [row['state'] for row in lines(root/(stack+'-truth.jsonl'))]
@@ -548,12 +557,12 @@ def native_targets(data, requests):
     return reports
 
 
-def rate_windows(root, result):
+def rate_windows(root, result, *, wire_name='joint-wire.jsonl'):
     reports = []
     segments = schedule(root/'rate.jsonl', result['scene_epoch'])
     require(len(segments) == 1, 'P+V flight must have one uninterrupted active rate segment')
     synchronized = None
-    for row in lines(root/'joint-wire.jsonl'):
+    for row in lines(root/wire_name):
         if row['kind'] == 'barrier':
             if synchronized is not None:
                 require(row['synchronized'], 'Native synchronization was lost during the rate segment')
@@ -591,7 +600,7 @@ def audit(root):
     root = Path(root)
     result = read(root/'result.json')
     identity = retained_identity(root, result)
-    raw = decode(root, result)
+    raw = decode(root, result, admission_key='mixed_admission' if 'mixed_admission' in result else 'pv_admission')
     tasks, phases, requests = task_evidence(root, result, raw)
     native = native_targets(raw, requests)
     physics = physical(root, result, tasks, phases)
@@ -607,6 +616,8 @@ def audit(root):
                 identity=identity, raw_dds_channels={name:len(rows) for name, rows in raw.items()}, native_targets=native,
                 **physics, rate_segments=rates, result_sha256=digest(root/'result.json'), evidence_sha256=artifacts,
                 audit_source_sha256=digest(__file__),
+                **(dict(mixed_identity_audit_source_sha256=digest(REPO/'tools/audit_mixed_control.py'))
+                   if 'mixed_admission' in result else {}),
                 audit_evidence_formatter_sha256=digest(REPO/'Simulator/wksim_runtime/evidence.py'),
                 outstanding_checks=[], limitations=[
                     'Bounded experimental full XYZ P+V+yaw only; production and mixed axes remain unadmitted.',

@@ -79,7 +79,7 @@ def verify_px4_candidate(root, result):
                 production_admitted=False,loaded_maps_verified=['running','completed'])
 
 
-def audit_timeline(root,r,windows=None,*,require_flight=True,require_ground=True,pending_model_tick=None):
+def audit_timeline(root,r,windows=None,*,require_flight=True,require_ground=True,pending_model_tick=None,wire_name='joint-wire.jsonl'):
     """Raw two-model/native-input/clock audit, shared by distinct public workflows."""
     from pymavlink.dialects.v20 import common
     total=r['final_authority']['tick']; epoch=r['scene_epoch']
@@ -128,7 +128,7 @@ def audit_timeline(root,r,windows=None,*,require_flight=True,require_ground=True
     require(not require_flight or overlap>0,'No simultaneous true flight interval')
 
     ap_current=None; ap_frames=[]; ap_duplicates=0; px_current=[0.]*16; px_time=None; pending={}; counts={'ap_sensor':0,'px_sensor':0,'gps':0,'step':0,'barrier':0}
-    for e in lines(root/'joint-wire.jsonl'):
+    for e in lines(root/wire_name):
         tick=e['tick']; require(e['epoch']==epoch and 0<=tick<=total,'Wire epoch or tick differs')
         if e['kind']=='actuator' and e['stack']=='arducopter':
             frame,rate,pwm,commands=decode_servos(bytes.fromhex(e['raw_hex']))

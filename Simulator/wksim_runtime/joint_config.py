@@ -6,6 +6,8 @@ from pathlib import PurePosixPath
 from .config import ConfigError
 from .joint_rate import validate_rate
 
+FIXED_TASKS = ('full_xyz_pv_yaw_v1', 'xy_velocity_z_position_yaw_v1')
+
 
 def validate_joint_config(data):
     required={'schema_version','kind','run_id','runtime_profile'}
@@ -17,8 +19,11 @@ def validate_joint_config(data):
         raise ConfigError('Invalid joint run_id')
     if not isinstance(data['runtime_profile'],str) or not re.fullmatch(r'[a-z][a-z0-9_]{0,63}',data['runtime_profile']):
         raise ConfigError('Invalid joint runtime_profile')
-    if data.get('task','public_position') not in ('public_position','public_velocity_yaw'):
-        raise ConfigError('Only the Prometheus public_position/public_velocity_yaw tasks are implemented for this joint profile')
+    task = data.get('task','public_position')
+    if task not in ('public_position','public_velocity_yaw',*FIXED_TASKS):
+        raise ConfigError('Unknown public joint task')
+    if task in FIXED_TASKS and data['runtime_profile'] != 'joint_quad_dds_mixed_pv_v1':
+        raise ConfigError('P+V/mixed tasks require joint_quad_dds_mixed_pv_v1')
     if 'display_socket' in data:
         path=data['display_socket']
         if not isinstance(path,str):raise ConfigError('display_socket must be a Linux pathname')
@@ -34,5 +39,7 @@ def validate_joint_config(data):
             or any(type(value) not in (int,float) or not math.isfinite(value)
                    or not {'hold':5,'waypoint':2}[key]<=value<=600 for key,value in dwell.items())):
         raise ConfigError('task_dwell_seconds accepts hold in 5..600 and waypoint in 2..600 finite seconds')
-    return dict(data,task=data.get('task','public_position'),requested_rate=rate,
+    if task in FIXED_TASKS and (rate != .5 or ({'hold':5,'waypoint':2}|dwell) != {'hold':5,'waypoint':2}):
+        raise ConfigError('P+V/mixed tasks require the frozen 0.5 rate and hold=5/waypoint=2 dwell')
+    return dict(data,task=task,requested_rate=rate,
                 task_dwell_seconds={'hold':5,'waypoint':2}|dwell)

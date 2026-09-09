@@ -18,7 +18,8 @@ import uuid
 from .evidence import write_json,json_identity,group_members,host_boot_id
 from .isolation import check_isolation,isolate_temporary_files,Reservation
 from .joint_actions import Mailbox
-from .joint_config import validate_joint_config
+from .joint_config import validate_joint_config,FIXED_TASKS
+from .joint_trajectory import supported_actions,validate_initialized,coordinate_legs
 from .joint_rate import JointRate,RateUnmet
 from .joint_evidence import verify_tasks,final_run_status
 from .scene_clock import SceneClock,ClockPublisher
@@ -74,6 +75,7 @@ def epoch_run(directory,epoch,generation=1):
     import rclpy
     check_isolation()
     config=validate_joint_config(json.loads((directory/'config.json').read_text()))
+    fixed_task=config['task'] in FIXED_TASKS
     session=json.loads((directory/'session.json').read_text())
     if (set(session)!={'version','run_id','instance_id'} or session['version']!=1
             or session['run_id']!=config['run_id'] or not hex_identity(session['instance_id'])
@@ -83,7 +85,7 @@ def epoch_run(directory,epoch,generation=1):
     output.mkdir(parents=True)
     result=dict(version=1,run_id=config['run_id'],epoch=epoch,status='failed',children={},tasks={},
                 action_results=[],host_boot_id=host_boot_id(),flight_completed=False,
-                instance_id=session['instance_id'],generation=generation)
+                instance_id=session['instance_id'],generation=generation,task_profile=config['task'])
     view=JointStateWriter(None,config['run_id'],session['instance_id'],epoch,generation)
     physics=None
     clock=SceneClock(epoch)
@@ -97,7 +99,7 @@ def epoch_run(directory,epoch,generation=1):
     result['task_dwell_seconds']=config['task_dwell_seconds']
     mailbox=Mailbox(directory,config['run_id'],epoch)
     children=[]; specs={}; expected=set(); model_workers={}; agents={}
-    monitor=lifecycle=None
+    monitor=lifecycle=probe=None
     task_group=None; task_state='idle'; ever_started=False; needs_recovery_task=False
     offer=uuid.uuid4().hex; previous_offer=None; next_status=0.; pending=None; busy_phase=None
     pending_task_reanchor=False
@@ -125,6 +127,7 @@ def epoch_run(directory,epoch,generation=1):
     signal.signal(signal.SIGINT,interrupted)
     def status(allowed,phase=None):
         nonlocal offer,previous_offer,next_status
+        allowed=supported_actions(config['task'],allowed)
         identity=(clock.last_request,mailbox.last_command,phase or clock.phase,task_state,tuple(allowed))
         if identity!=previous_offer:
             offer=uuid.uuid4().hex;previous_offer=identity
@@ -195,6 +198,7 @@ def epoch_run(directory,epoch,generation=1):
         # permission and operator-request checks above still run every call.
         if now>=last_child_poll+.001:
             last_child_poll=now
+            if probe is not None: probe.pump()
             for name,child,_ in children:
                 if child.poll() is not None and child.pid not in expected and specs[child.pid]['role'] in ('model','fc','control'):
                     expected.add(child.pid)
@@ -230,6 +234,8 @@ def epoch_run(directory,epoch,generation=1):
         return clock.request(dict(version=1,epoch=epoch,request_id=clock.last_request+1,action=action))
     def start_tasks(mode,prepare_only=False):
         nonlocal task_group,task_state,ever_started
+        if fixed_task and mode!='initial':
+            raise ValueError('Fixed trajectory recovery is unsupported; use cold-reset')
         if mode=='initial' and task_group is not None and not ever_started and not prepare_only:
             task_state='preparing';ever_started=True
             return
@@ -266,6 +272,8 @@ def epoch_run(directory,epoch,generation=1):
         write_json(output/'preflight.json',admission)
         if not admission['ok']:
             raise RuntimeError('Joint profile rejected: '+str(admission['reasons']))
+        if config['task'] not in admission['capabilities']:
+            raise ValueError('Selected joint task is not an admitted capability')
         stop=mailbox.poll(offer,['stop'])
         if stop is not None:
             clock_action('stop');result['stop_request']=stop
@@ -279,6 +287,30 @@ def epoch_run(directory,epoch,generation=1):
         result['source_sha256']={str(path.relative_to(REPO)):digest(path) for folder in
             (REPO/'Simulator/wksim_runtime',REPO/'Simulator/wksim_core') for path in folder.glob('*.py')}
         result['source_sha256']['Simulator/wksim_core/model.cpp']=digest(REPO/'Simulator/wksim_core/model.cpp')
+        if fixed_task:
+            for name in ('pv_trajectory_task.py','mixed_control_task.py','audit_joint_trajectory.py',
+                         'audit_pv_trajectory.py','audit_mixed_control.py','audit_joint_flight.py',
+                         'audit_joint_rate.py','audit_joint_product.py','audit_joint_product_lifecycle.py',
+                         'ap_mixed_candidate.py','ap_pv_candidate.py','prepare_ap_mixed_candidate.py',
+                         'verify_ap_pv_candidate.py','prepare_ap_pv_candidate.py','joint_control_candidate.py'):
+                result['source_sha256']['tools/'+name]=digest(REPO/'tools'/name)
+            for name in ('tools/run-wksim.sh','Simulator/wksim_core/arducopter-quad-x.parm',
+                         'Simulator/wksim_runtime/joint-profiles.json'):
+                result['source_sha256'][name]=digest(REPO/name)
+            native=Path(admission['configs']['arducopter']['ap_candidate'])/'src/ArduCopter/Log.cpp'
+            target=output/'native-source/ArduCopter/Log.cpp';target.parent.mkdir(parents=True)
+            target.write_bytes(native.read_bytes())
+            result['native_source_sha256']={'ArduCopter/Log.cpp':digest(target)}
+            source_manifest=native.parents[2]/'mixed-source.json'
+            (output/'mixed-source.json').write_bytes(source_manifest.read_bytes())
+            for key,pin in admission['profile']['manifests'].items():
+                target=output/(key+'-build.json');target.write_bytes(Path(pin['path']).read_bytes())
+                if digest(target)!=pin['sha256']: raise ValueError('Admitted build changed during retention: '+key)
+            control=json.loads((output/'control-build.json').read_text())
+            for name,sha in control['python_sha256'].items():
+                target=output/'control-source'/name;target.parent.mkdir(parents=True,exist_ok=True)
+                target.write_bytes((Path(admission['control_package'])/name).read_bytes())
+                if digest(target)!=sha: raise ValueError('Admitted control source changed during retention: '+name)
         for name,expected_sha in result['source_sha256'].items():
             snapshot=output/'source'/name;snapshot.parent.mkdir(parents=True,exist_ok=True)
             snapshot.write_bytes((REPO/name).read_bytes())
@@ -290,6 +322,9 @@ def epoch_run(directory,epoch,generation=1):
             resources.callback(node.destroy_node)
             publisher=ClockPublisher(node);resources.callback(publisher.close)
             monitor=JointMonitor(node,output,clock);resources.callback(monitor.close)
+            if fixed_task:
+                from tools.pv_trajectory_task import PVProbe
+                probe=PVProbe(node,clock,output,started);resources.callback(probe.close)
             wire=resources.enter_context((output/'wire.jsonl').open('x',buffering=65536))
             clocks=resources.enter_context((output/'clock.jsonl').open('x',buffering=65536))
             def record(kind,**fields):
@@ -310,7 +345,8 @@ def epoch_run(directory,epoch,generation=1):
                 specs[child.pid]=dict(name=name,role='model',cwd=folder,argv=argv)
                 result['children'][name]=dict(identity=json_identity(child.pid),argv=argv,cwd=str(folder),
                                               priority=child_priority(child,'model'))
-                plan=launch_spec(admission['configs'][stack],folder,library)
+                plan=launch_spec(admission['configs'][stack],folder,library,
+                                 admitted_capabilities=admission['capabilities'])
                 agents[stack]=launch(stack+'-agent',plan['agent'],folder,'agent')
                 log=(output/(stack+'-fc.log')).open('x')
                 child=subprocess.Popen(plan['fc'],cwd=folder,env=dict(os.environ,**plan['fc_environment']),
@@ -338,9 +374,7 @@ def epoch_run(directory,epoch,generation=1):
             for stack in ('arducopter','px4'):
                 initialized=json.loads((task_group/stack/'initialized.json').read_text())
                 settings=json.loads((task_group/stack/'task-config.json').read_text())
-                if initialized!=dict(version=1,run_id=config['run_id'],epoch=epoch,stack=stack,
-                                      token=settings['token'],control_subscriptions=[1,1]):
-                    raise ValueError('Staged task transport identity differs')
+                validate_initialized(initialized,settings)
             initial_models=lifecycle.snapshot(physics)
             if clock.tick!=0 or any(value['tick']!=0 for value in initial_models['models'].values()):
                 raise RuntimeError('Startup observation advanced the physical clock')
@@ -508,6 +542,8 @@ def epoch_run(directory,epoch,generation=1):
                         write_json(task_group/'go.json',dict(run_id=config['run_id'],epoch=epoch,tasks=records))
                         task_state='running'
                 if task_group is not None and task_state=='running':
+                    if config['task']==FIXED_TASKS[0]:
+                        coordinate_legs(task_group,config['run_id'],epoch,clock.tick)
                     reports=[task_group/stack/'result.json' for stack in ('arducopter','px4')]
                     task_processes=[child for _,child,_ in children if specs[child.pid]['role']=='task'
                                     and specs[child.pid]['cwd'].parent==task_group]
@@ -543,6 +579,7 @@ def epoch_run(directory,epoch,generation=1):
                         elif task_state=='running' and monitor.can_pause(config['run_id']): allowed+=['pause']
                     elif clock.phase=='paused' and lifecycle.acknowledged():
                         allowed+=['step','resume','set-rate']
+                allowed=supported_actions(config['task'],allowed)
                 if time.monotonic()>=next_status and (clock.phase in ('paused','faulted') or clock.tick%4==0):
                     status(allowed)
                     request=mailbox.poll(offer,allowed)
@@ -550,11 +587,16 @@ def epoch_run(directory,epoch,generation=1):
                         action=request['action']
                         if action!='start-recovery-task': pending_task_reanchor=False
                         if action in ('stop','cold-reset'):
+                            if fixed_task and clock.phase=='running' and rate.anchor is not None and rate.group is None:
+                                try: rate.check_boundary(clock.tick)
+                                except (OSError,RuntimeError,ValueError) as error: latch_failure(error)
                             rate.close_segment(action,clock.tick)
                             if pending is not None:
                                 mailbox.respond(pending,'failed',reason='Superseded by '+action,authority=clock.snapshot())
                                 pending=None
                             clock_action('stop');lifecycle.set_phase('stopped')
+                            result['terminal_transition']=dict(action=action,phase=clock.phase,tick=clock.tick,
+                                                               issued_monotonic_ns=time.monotonic_ns())
                             result['stop_request']=request
                             result['status']='cold_reset' if action=='cold-reset' else 'stopped'
                             record_images('stopping')
@@ -635,11 +677,14 @@ def epoch_run(directory,epoch,generation=1):
         if result['host_boot_id']!=host_boot_id():
             result['status']='failed';result['error']='Host boot identity changed'
         result['wall_seconds']=time.monotonic()-started
+        result['changed_sources']=[name for name,sha in result.get('source_sha256',{}).items()
+            if not (REPO/name).is_file() or digest(REPO/name)!=sha]
         try:
             if result['status'] in ('stopped','cold_reset'):
-                result['physical_task_proof']=verify_tasks(output,epoch,clock.tick,result['tasks'],config.get('task','public_position'))
+                result['physical_task_proof']=verify_tasks(output,epoch,clock.tick,result['tasks'],config.get('task','public_position'),
+                                                          **({'formal_result':result} if fixed_task else {}))
                 result['flight_completed']=result['physical_task_proof'] is not None
-        except (OSError,ValueError,KeyError) as error:
+        except (OSError,ValueError,KeyError,TypeError,ImportError,AssertionError) as error:
             result['status']='failed';result['error']='Independent truth verification: '+str(error)
         result['changed_sources']=[name for name,sha in result.get('source_sha256',{}).items()
             if not (REPO/name).is_file() or digest(REPO/name)!=sha]

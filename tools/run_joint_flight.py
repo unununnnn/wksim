@@ -160,6 +160,7 @@ def run(args):
     live = Path(tempfile.mkdtemp(prefix='wksim-joint-flight-', dir='/root'))
     pv = args.task_profile == PV_PROFILE
     mixed = args.task_profile == MIXED_PROFILE
+    mixed_firmware = bool(args.ap_mixed_manifest)
     candidate = pv or mixed
     result = dict(status='failed', run_id=archive.name, scene_epoch=uuid.uuid4().hex, task_profile=args.task_profile,
                   pause_probe_requested=args.pause_probe,
@@ -203,10 +204,12 @@ def run(args):
                     'Simulator/wksim_runtime/joint-profiles.json','Simulator/wksim_runtime/build_identity.py']
     if pv:
         sources += ['docs/2026-09-09-pv-flight-plan.md']
-    if mixed:
+    if mixed_firmware:
         sources += ['tools/ap_mixed_candidate.py','tools/prepare_ap_mixed_candidate.py',
                     'docs/2026-09-09-mixed-flight-plan.md',
                     'patches/arducopter/0005-dds-mixed-xy-velocity-z-position.patch']
+        if pv:
+            sources += ['docs/2026-09-09-final-combo-pv-plan.md']
     if args.px4_manifest:
         sources += ['tools/px4_state_candidate.py','tools/build-px4-state-cadence.sh',
                     'patches/px4/0001-estimator-status-cadence.patch',
@@ -217,17 +220,18 @@ def run(args):
     try:
         result['private_temporary_files']=isolate_temporary_files()
         if candidate:
-            if pv:
+            if not mixed_firmware:
                 from ap_pv_candidate import admit as admit_candidate
                 ap_manifest, ap_sha = args.ap_pv_manifest, args.ap_pv_sha256
             else:
                 from ap_mixed_candidate import admit as admit_candidate
                 ap_manifest, ap_sha = args.ap_mixed_manifest, args.ap_mixed_sha256
-            admission = admit_candidate(ap_manifest, ap_sha, args.control_manifest, args.control_sha256, result['run_id'])
+            admission = admit_candidate(ap_manifest, ap_sha, args.control_manifest, args.control_sha256, result['run_id'],
+                **({'task_profile': args.task_profile} if mixed_firmware else {}))
             save(live/'experimental-admission.json', admission)
             if not admission['ok']:
                 raise ValueError('Explicit experimental admission rejected: '+str(admission['reasons']))
-            result['pv_admission' if pv else 'mixed_admission'] = admission
+            result['mixed_admission' if mixed_firmware else 'pv_admission'] = admission
             configs, control = admission['configs'], admission['control_candidate']
             library = Path(admission['model_library'])
         else:
@@ -266,7 +270,7 @@ def run(args):
             shutil.copyfile(args.px4_manifest, live/'px4-build.json')
         shutil.copyfile(ap_manifest if candidate else args.ap_manifest, live/'ap-build.json')
         shutil.copyfile(args.control_manifest, live/'control-build.json')
-        if mixed:
+        if mixed_firmware:
             from verify_ap_pv_candidate import checked_json
             native_root = Path(ap_manifest).parent
             prepared = checked_json(native_root/'mixed-source.json', admission['candidate']['source_manifest_sha256'])
@@ -557,9 +561,9 @@ def run(args):
                     if value.startswith('uav_id:='): plan['control'][index] = 'uav_id:='+str(uid)
                     if value.startswith('run_id:='): plan['control'][index] = 'run_id:='+result['run_id']
                 plan['control'] += ['-p','use_sim_time:=true','-r','__node:=wksim_joint_'+stack+'_control']
-                if pv and stack == 'arducopter':
+                if (pv or mixed_firmware) and stack == 'arducopter':
                     plan['control'] += ['-p','arducopter_pv_profile:='+PV_PROFILE]
-                if mixed and stack == 'arducopter':
+                if mixed_firmware and stack == 'arducopter':
                     plan['control'] += ['-p','arducopter_mixed_profile:='+MIXED_PROFILE]
                 if args.scene_lifecycle:
                     plan['control'] += ['-p', 'scene_epoch:='+clock.epoch]
@@ -742,7 +746,7 @@ def run(args):
     return 0 if result['status'] in ('pass', 'observed') else 1
 
 
-if __name__=='__main__':
+def main(argv=None):
     parser=argparse.ArgumentParser(description=__doc__)
     sub=parser.add_subparsers(dest='role',required=True)
     runner=sub.add_parser('run')
@@ -777,16 +781,17 @@ if __name__=='__main__':
     task.add_argument('--task-profile', choices=('position', PV_PROFILE, MIXED_PROFILE), default='position')
     task.add_argument('--start-token')
     for name in ('run-id','scene-epoch','output'): task.add_argument('--'+name,required=True)
-    args=parser.parse_args()
+    args=parser.parse_args(argv)
     if args.role == 'run':
         pv = args.task_profile == PV_PROFILE
         mixed = args.task_profile == MIXED_PROFILE
         if pv:
-            if (not args.ap_pv_manifest or not args.ap_pv_sha256 or args.ap_manifest or args.ap_sha256
-                    or args.ap_mixed_manifest or args.ap_mixed_sha256
+            pv_pair = bool(args.ap_pv_manifest and args.ap_pv_sha256 and not args.ap_mixed_manifest and not args.ap_mixed_sha256)
+            mixed_pair = bool(args.ap_mixed_manifest and args.ap_mixed_sha256 and not args.ap_pv_manifest and not args.ap_pv_sha256)
+            if (not (pv_pair or mixed_pair) or args.ap_manifest or args.ap_sha256
                     or args.px4_manifest or args.px4_sha256 or args.pause_probe or args.scene_lifecycle
                     or args.scene_lease_loss or args.dds_loss or args.native_state_trace or args.probe_land_freshness):
-                parser.error('P+V requires its own explicit AP manifest/SHA and fixed experiment without other probes')
+                parser.error('P+V requires exactly one explicit PV or mixed AP manifest/SHA pair and no alternate probes')
         elif mixed:
             if (not args.ap_mixed_manifest or not args.ap_mixed_sha256 or args.ap_manifest or args.ap_sha256
                     or args.ap_pv_manifest or args.ap_pv_sha256 or args.px4_manifest or args.px4_sha256
@@ -814,4 +819,8 @@ if __name__=='__main__':
         parser.error('Optional PX4 candidate requires both manifest and external SHA256')
     if args.role == 'task' and args.task_mode == 'recover' and (not args.scene_lifecycle or not args.start_token):
         parser.error('New recovery task requires a scene and explicit start token')
-    raise SystemExit(task_main(args) if args.role=='task' else run(args))
+    return task_main(args) if args.role=='task' else run(args)
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())

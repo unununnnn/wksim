@@ -29,7 +29,7 @@ def digest(path):
     return value.hexdigest()
 
 
-def launch_spec(config, directory, library, *, fc_directory=None, physics_duration=600):
+def launch_spec(config, directory, library, *, fc_directory=None, physics_duration=600, admitted_capabilities=()):
     """Pinned launch semantics; no subprocesses or filesystem writes here."""
     ap = config['stack'] == 'arducopter'
     dds, px4 = Path(config['dds_workspace']), Path(config['px4_root'])
@@ -48,6 +48,11 @@ def launch_spec(config, directory, library, *, fc_directory=None, physics_durati
                '-p', 'flight_stack:=' + config['stack'], '-p', 'uav_id:=1',
                '-p', 'native_prefix:=' + ('/ap' if ap else '/wksim_px4_21'),
                '-p', 'native_system_id:=22', '-p', 'arducopter_position_yaw:=true']
+    if ap:
+        for capability, parameter in (('full_xyz_pv_yaw_v1', 'arducopter_pv_profile'),
+                                      ('xy_velocity_z_position_yaw_v1', 'arducopter_mixed_profile')):
+            if capability in admitted_capabilities:
+                control += ['-p', parameter+':='+capability]
     if config.get('control_protocol', 'legacy_v1') == 'session_v1':
         control += ['-p', 'run_id:=' + config['run_id']]
     overrides = {}

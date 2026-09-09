@@ -19,6 +19,7 @@ from audit_pv_trajectory import (read, stamp, angle, f32, wire_command, wire_req
 from Simulator.wksim_runtime.evidence import json_value
 
 PROFILE = 'xy_velocity_z_position_yaw_v1'
+PV_PROFILE = 'full_xyz_pv_yaw_v1'
 STACKS = (('arducopter', 1), ('px4', 2))
 AP_SHA = '1e6250eff8873d6b2e52017b613c223ac29f8260fdf92aac2cf0c7cdcc6ce94c'
 CONTROL_SHA = 'd9fdfc74f4f241440dd1186ef38d0bde56026cd28e4b55897f38a11e7311909e'
@@ -82,10 +83,31 @@ def validate_build(ap, verified):
             and pv['flown'] is False, 'Mixed -> PV -> fixed AP chain differs')
 
 
-def retained_identity(root, result):
+def control_profiles(result, *, require_pv=False):
+    """Read actual launch arguments; a historical single flag is not dual-flag evidence."""
+    profiles = {}
+    allowed = {'arducopter_pv_profile': PV_PROFILE, 'arducopter_mixed_profile': PROFILE}
+    for stack, _ in STACKS:
+        argv = result['children'][stack+'-control']['argv']
+        for index, value in enumerate(argv):
+            key, separator, selected = value.partition(':=')
+            if key not in allowed:
+                continue
+            require(stack == 'arducopter' and index > 0 and argv[index-1] == '-p'
+                    and separator and selected == allowed[key] and key not in profiles,
+                    'Control profile argument differs or is duplicated')
+            profiles[key] = selected
+    require(profiles.get('arducopter_mixed_profile') == PROFILE
+            and (not require_pv or profiles.get('arducopter_pv_profile') == PV_PROFILE),
+            'Required mixed/P+V control profile was not enabled')
+    return profiles
+
+
+def retained_identity(root, result, *, task_profile=PROFILE):
+    require(task_profile in (PROFILE, PV_PROFILE), 'Unsupported task for mixed firmware audit')
     require(result['status'] == 'pass' and result['flight_completed'] and result['source_unchanged']
             and result['control_shutdown_clean'] and not result['cleanup_errors'], 'Candidate run/cleanup did not pass')
-    require(result['task_profile'] == PROFILE and result['unowned_ap_before'] == result['unowned_ap_after'],
+    require(result['task_profile'] == task_profile and result['unowned_ap_before'] == result['unowned_ap_after'],
             'Wrong task profile or unrelated process changed')
     require(result['bounds'] == dict(wall_seconds=900, simulation_ticks=180000, task_position_error_m=.5,
             task_speed_m_s=.5, takeoff_min_height_m=2.5, ground_abs_height_m=.3), 'Frozen run bounds changed')
@@ -104,6 +126,8 @@ def retained_identity(root, result):
                  'tools/ap_pv_candidate.py', 'tools/prepare_ap_mixed_candidate.py',
                  'tools/verify_ap_pv_candidate.py', 'Simulator/wksim_runtime/task.py',
                  'Simulator/wksim_runtime/joint_rate.py', 'docs/2026-09-09-mixed-flight-plan.md', 'patches/arducopter/0005-dds-mixed-xy-velocity-z-position.patch'}
+    if task_profile == PV_PROFILE:
+        mandatory |= {'docs/2026-09-09-pv-flight-plan.md', 'docs/2026-09-09-final-combo-pv-plan.md'}
     require(mandatory <= sources.keys(), 'Missing executed source identity')
     expected_names = {'source__'+name.replace('/', '__')+'.txt' for name in sources}
     require({p.name for p in root.glob('source__*')} == expected_names, 'Missing/extra retained source file')
@@ -112,11 +136,15 @@ def retained_identity(root, result):
     admission = read(root/'experimental-admission.json')
     require(admission == result['mixed_admission'] and admission['ok'] and admission['experimental']
             and not admission['production_admitted'] and not admission['flown']
-            and admission['children_created'] == 0 and not admission['reasons'] and admission['task_profile'] == PROFILE,
+            and admission['children_created'] == 0 and not admission['reasons'] and admission['task_profile'] == task_profile
+            and 'pv_admission' not in result,
             'Experimental admission identity/scope differs')
-    require(admission['capability'] == dict(profile=PROFILE, position_axes='z', velocity_axes='xy', yaw=True,
+    capability = (dict(profile=PV_PROFILE, position_axes='xyz', velocity_axes='xyz', yaw=True,
+            acceleration=False, yaw_rate=False, mixed_axes=False, arducopter_type_mask=2496)
+        if task_profile == PV_PROFILE else dict(profile=PROFILE, position_axes='z', velocity_axes='xy', yaw=True,
             yaw_rate=False, acceleration=False, terrain=False, arducopter_type_mask=2531,
-            native_submode=7, vertical_velocity_avoidance=False), 'Mixed capability scope changed')
+            native_submode=7, vertical_velocity_avoidance=False))
+    require(admission['capability'] == capability, 'Mixed firmware task capability scope changed')
     require(admission['manifest_sha256'] == AP_SHA and admission['control_manifest_sha256'] == CONTROL_SHA,
             'Frozen mixed build/control selection changed')
     for name, expected in admission['identities']['source_sha256'].items():
@@ -209,6 +237,7 @@ def retained_identity(root, result):
                 and observed[0]['executable_sha256'] == observed[1]['executable_sha256'], 'Physical model executable changed during run')
     return dict(source_files=len(sources), retained_control_files=len(actual), admitted_ap_source_files=verified['source_files'],
                 native_executable_sha256={s: v['sha256'] for s, v in expected_firmware.items()},
+                control_profiles=control_profiles(result, require_pv=task_profile == PV_PROFILE),
                 loaded_maps_verified=['running', 'completed'])
 
 
@@ -292,10 +321,11 @@ def command_contract(commands, stack):
     return result
 
 
-def task_evidence(root, result, data):
+def task_evidence(root, result, data, *, recorder_name='wksim_joint_flight_clock', task_root=None):
+    task_root = root if task_root is None else task_root
     tasks, phases, requests, references = {}, {}, {}, {}
     for stack, uid in STACKS:
-        report = read(root/stack/'result.json')
+        report = read(task_root/stack/'result.json')
         require(report == result['tasks'][stack] and report['status'] == 'pass' and report['run_id'] == result['run_id']
                 and report['scene_epoch'] == result['scene_epoch'] and report['uav_id'] == uid and report['use_sim_time']
                 and report['task_profile'] == PROFILE, 'Task identity differs')
@@ -305,7 +335,7 @@ def task_evidence(root, result, data):
         require(set(graph) == {'setup', 'command'}, 'Missing passive subscriber proof')
         for endpoints in graph.values():
             require(len(endpoints) == 2 and {e['node_name'] for e in endpoints} == {
-                'wksim_joint_'+stack+'_control', 'wksim_joint_flight_clock'}
+                'wksim_joint_'+stack+'_control', recorder_name}
                 and len({e['endpoint_gid'] for e in endpoints}) == 2
                 and all(e['node_namespace'] == '/' and re.fullmatch('[0-9a-f]+', e['endpoint_gid'])
                         and int(e['endpoint_gid'], 16) != 0 for e in endpoints), 'Unexpected subscriber graph')
@@ -477,8 +507,8 @@ def physical_metrics(state, name, reference, anchor=None):
     return metrics
 
 
-def physical(root, result, tasks, phases):
-    timeline, _ = audit_timeline(root, result, phases)
+def physical(root, result, tasks, phases, *, wire_name='joint-wire.jsonl'):
+    timeline, _ = audit_timeline(root, result, phases, wire_name=wire_name)
     output = {}
     for stack, _ in STACKS:
         rows = [row['state'] for row in lines(root/(stack+'-truth.jsonl'))]

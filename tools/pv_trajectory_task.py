@@ -27,6 +27,8 @@ def reference(elapsed, position, yaw, leg):
 
 
 class PVTask(Task):
+    recorder_name = 'wksim_joint_flight_clock'
+
     def __init__(self, directory, *args, trajectory_epoch, **kwargs):
         super().__init__(directory, *args, **kwargs)
         self.directory = Path(directory)
@@ -37,13 +39,14 @@ class PVTask(Task):
 
     def request_graph_ready(self):
         """Exactly one controller plus this experiment's named passive recorder."""
-        expected = {'wksim_joint_'+self.flight_stack+'_control', 'wksim_joint_flight_clock'}
+        expected = {'wksim_joint_'+self.flight_stack+'_control', self.recorder_name}
         observations = {}
         for kind, publisher in (('setup', self.setup_pub), ('command', self.command_pub)):
             endpoints = self.node.get_subscriptions_info_by_topic(self.topic_root+'v2/'+kind)
             if (publisher.get_subscription_count() != 2 or len(endpoints) != 2
                     or {info.node_name for info in endpoints} != expected
-                    or any(info.node_namespace != '/' for info in endpoints)):
+                    or any(info.node_namespace != '/' or not any(info.endpoint_gid) for info in endpoints)
+                    or len({bytes(info.endpoint_gid) for info in endpoints}) != 2):
                 return False
             observations[kind] = [dict(node_name=info.node_name, node_namespace=info.node_namespace,
                                        endpoint_gid=bytes(info.endpoint_gid).hex()) for info in endpoints]

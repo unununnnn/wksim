@@ -11,6 +11,23 @@ from tools.mixed_control_task import MixedTask, PROFILE
 
 
 class MixedTaskTests(unittest.TestCase):
+    def test_pv_selector_accepts_one_firmware_schema_before_any_run(self):
+        from tools import run_joint_flight as runner
+        command = ['run', '--control-manifest', 'unopened.json', '--control-sha256', 'a'*64,
+                   '--task-profile', runner.PV_PROFILE]
+        for prefix in ('ap-pv', 'ap-mixed'):
+            pair = ['--'+prefix+'-manifest', 'unopened.json', '--'+prefix+'-sha256', 'b'*64]
+            with patch.object(runner, 'run', return_value=0) as run:
+                self.assertEqual(runner.main(command+pair), 0)
+                self.assertEqual(run.call_args.args[0].task_profile, runner.PV_PROFILE)
+            for extra in (pair[:2], pair+['--ap-manifest', 'old.json'],
+                          pair+['--'+('ap-mixed' if prefix == 'ap-pv' else 'ap-pv')+'-sha256', 'c'*64],
+                          pair+['--scene-lifecycle'], pair+['--pause-probe']):
+                with patch.object(runner, 'run') as run, self.assertRaises(SystemExit) as error:
+                    runner.main(command+extra)
+                self.assertEqual(error.exception.code, 2)
+                run.assert_not_called()
+
     def test_hold_readiness_resets_after_relapse_and_has_wall_bound(self):
         task = MixedTask.__new__(MixedTask)
         seconds = [0., .5, 1., 1.5, 2., 2.5, 3.]

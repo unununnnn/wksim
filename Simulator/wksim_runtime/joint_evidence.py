@@ -11,7 +11,19 @@ def final_run_status(epochs):
     return final['status']
 
 
-def verify_tasks(directory,epoch,total_ticks,reports,task_type='public_position'):
+def verify_tasks(directory,epoch,total_ticks,reports,task_type='public_position',*,formal_result=None):
+    from .joint_config import FIXED_TASKS
+    if task_type in FIXED_TASKS:
+        if formal_result is not None and formal_result['status']=='cold_reset':
+            return None  # Cold reset retires this fixed task; it is not flight completion.
+        completed=[report for report in reports.values() if report['status']=='pass']
+        if {report['stack'] for report in completed} != {'arducopter','px4'}:
+            return None
+        if (formal_result is None or formal_result['tasks'] != reports or formal_result['epoch'] != epoch
+                or formal_result['authority']['tick'] != total_ticks or formal_result['task_profile'] != task_type):
+            raise ValueError('Trajectory proof requires its actual formal epoch result')
+        from tools.audit_joint_trajectory import verify_epoch
+        return verify_epoch(directory,formal_result)
     if task_type not in ('public_position','public_velocity_yaw'):
         raise ValueError('Unknown public task audit type')
     completed=[report for report in reports.values() if report['status']=='pass']
