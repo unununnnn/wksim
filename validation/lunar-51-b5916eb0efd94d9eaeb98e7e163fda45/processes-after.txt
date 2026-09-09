@@ -1,0 +1,33 @@
+    PID    PPID                  STARTED COMMAND
+      1       0 Wed Sep  9 16:43:54 2026 /sbin/init
+      2       1 Wed Sep  9 16:43:54 2026 /init
+      8       2 Wed Sep  9 16:43:55 2026 plan9 --control-socket 7 --log-level 4 --server-fd 8 --pipe-fd 10 --log-truncate
+     62       1 Wed Sep  9 16:43:55 2026 /lib/systemd/systemd-journald
+     86       1 Wed Sep  9 16:43:55 2026 /lib/systemd/systemd-udevd
+    183       1 Wed Sep  9 16:43:55 2026 /lib/systemd/systemd-resolved
+    184       1 Wed Sep  9 16:43:55 2026 /lib/systemd/systemd-timesyncd
+    192       1 Wed Sep  9 16:43:55 2026 /bin/bash /opt/actions-runner/aesim/runsvc.sh
+    194       1 Wed Sep  9 16:43:55 2026 /usr/sbin/cron -f -P
+    196       1 Wed Sep  9 16:43:55 2026 @dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only
+    202       1 Wed Sep  9 16:43:55 2026 /usr/bin/python3 /usr/bin/networkd-dispatcher --run-startup-triggers
+    203       1 Wed Sep  9 16:43:55 2026 /usr/sbin/rsyslogd -n -iNONE
+    206     192 Wed Sep  9 16:43:55 2026 ./externals/node20/bin/node ./bin/RunnerService.js
+    209       1 Wed Sep  9 16:43:55 2026 /lib/systemd/systemd-logind
+    212       1 Wed Sep  9 16:43:55 2026 /usr/libexec/wsl-pro-service
+    217       1 Wed Sep  9 16:43:55 2026 /usr/bin/containerd
+    225       1 Wed Sep  9 16:43:55 2026 /sbin/agetty -o -p -- \u --noclear --keep-baud console 115200,38400,9600 vt220
+    228       1 Wed Sep  9 16:43:55 2026 /sbin/agetty -o -p -- \u --noclear tty1 linux
+    242       1 Wed Sep  9 16:43:55 2026 /usr/bin/python3 /usr/share/unattended-upgrades/unattended-upgrade-shutdown --wait-for-signal
+    319     206 Wed Sep  9 16:43:56 2026 /opt/actions-runner/aesim/bin/Runner.Listener run --startuptype service
+    335       1 Wed Sep  9 16:43:56 2026 /usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock
+    589       2 Wed Sep  9 16:43:57 2026 /bin/login -f
+    631       1 Wed Sep  9 16:43:57 2026 /lib/systemd/systemd --user
+    632     631 Wed Sep  9 16:43:57 2026 (sd-pam)
+    646     589 Wed Sep  9 16:43:57 2026 -bash
+   2205      86 Wed Sep  9 16:44:53 2026 /lib/systemd/systemd-udevd
+   2206      86 Wed Sep  9 16:44:53 2026 /lib/systemd/systemd-udevd
+   2207      86 Wed Sep  9 16:44:53 2026 /lib/systemd/systemd-udevd
+   2208       2 Wed Sep  9 16:44:53 2026 /init
+   2209    2208 Wed Sep  9 16:44:53 2026 /init
+   2210      86 Wed Sep  9 16:44:53 2026 /lib/systemd/systemd-udevd
+   2211    2209 Wed Sep  9 16:44:53 2026 ps -eo pid,ppid,lstart,args
