@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "issue": 139,
+  "stable_key": "full-model-06",
+  "title": "Octorotor model",
+  "source": {
+    "file": "docs/plan/full-scope-expansion.md",
+    "line": 51,
+    "ledger_id": "MODEL-06",
+    "ledger_file": "docs/plan/full-followup-tickets.json",
+    "parent_issues": [1]
+  },
+  "status": "defined",
+  "evidence_status": "no-evidence",
+  "full_complete": false,
+  "current_gap": "The octorotor is uncovered; its independent configuration and applicable flight-controller validation are missing.",
+  "atoms": [
+    {"id": "MODEL-06-A", "name": "configuration", "status": "blocked", "required": "Independent planar octorotor configuration with geometry, mass and inertia", "owner": "model maintainer"},
+    {"id": "MODEL-06-B", "name": "applicable_fc_validation", "status": "blocked", "required": "Which flight stacks support the configuration, validated per stack", "owner": "validation maintainer"},
+    {"id": "MODEL-06-C", "name": "non_coverage_rule", "status": "partial", "required": "Rule enforced: quadrotor/hexarotor/X8 evidence never covers the planar octorotor", "owner": "validation maintainer"}
+  ],
+  "model_required": ["model_identity", "configuration", "rotor_geometry", "allocation_matrix", "mass_kg", "inertia", "source", "source_sha256", "applicable_stacks"],
+  "scope_rule": "rotor-count adjacency never substitutes for the octorotor's own configuration and stack validation",
+  "errors": ["accepted", "model_not_found", "configuration_invalid", "stack_unsupported", "substitution_rejected"],
+  "followups": [
+    {"key": "model-06-configuration", "files": ["Simulator/wksim_core/<octo-model>.py", "validation/<octo-tests>.py"], "status": "proposed", "blocked_by": "Pinned octorotor source and parameters"},
+    {"key": "model-06-stack-audit", "files": ["validation/<octo-stack-audit>"], "status": "proposed", "blocked_by": "Configuration freeze"}
+  ],
+  "preserved": {"other_multicopters": "Quad X, Hex and X8 evidence stays separate", "full_complete": false}
+}
