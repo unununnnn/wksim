@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "issue": 142,
+  "stable_key": "full-model-08",
+  "title": "CarAckerman model",
+  "source": {
+    "file": "docs/plan/full-scope-expansion.md",
+    "line": 53,
+    "ledger_id": "MODEL-08",
+    "ledger_file": "docs/plan/full-followup-tickets.json",
+    "parent_issues": [1]
+  },
+  "status": "defined",
+  "evidence_status": "no-evidence",
+  "full_complete": false,
+  "current_gap": "The Ackermann car is uncovered; steering/drive interfaces, trajectory and terrain conditions are missing.",
+  "atoms": [
+    {"id": "MODEL-08-A", "name": "steering_drive_interface", "status": "blocked", "required": "Ackermann steering and drive interfaces with units, limits and rate semantics", "owner": "model maintainer"},
+    {"id": "MODEL-08-B", "name": "trajectory_conditions", "status": "blocked", "required": "Trajectory conditions with expected responses on record", "owner": "physics maintainer"},
+    {"id": "MODEL-08-C", "name": "terrain_conditions", "status": "blocked", "required": "Terrain interaction conditions tied to the environment contract (OPS-07)", "owner": "physics maintainer"},
+    {"id": "MODEL-08-D", "name": "ground_contact_dependency", "status": "partial", "required": "Rule recorded: a ground vehicle requires contact/terrain feedback; aerial-model evidence never covers it", "owner": "validation maintainer"}
+  ],
+  "model_required": ["model_identity", "vehicle_class=car_ackerman", "steering_interface", "drive_interface", "wheel_geometry", "mass_kg", "inertia", "terrain_requirements", "source", "source_sha256"],
+  "scope_rule": "a ground vehicle's acceptance requires terrain/contact feedback; aerial multicopter evidence never substitutes",
+  "errors": ["accepted", "model_not_found", "interface_unmapped", "trajectory_undefined", "terrain_unavailable", "substitution_rejected"],
+  "followups": [
+    {"key": "model-08-model-source", "files": ["docs/plan/<ackerman-source>.json"], "status": "proposed", "blocked_by": "Model source selection and OPS-07 static query seam"},
+    {"key": "model-08-conditions", "files": ["docs/plan/<ackerman-conditions>.md", "validation/<ackerman-audit>"], "status": "proposed", "blocked_by": "Model source and terrain query"}
+  ],
+  "preserved": {"ops07_dependency": "terrain/contact feedback contract defined under OPS-07, not implemented", "full_complete": false}
+}
