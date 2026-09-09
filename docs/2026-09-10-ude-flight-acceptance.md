@@ -41,8 +41,29 @@ axis declaration. Interior timestamps or missing evidence still reject.
 The native stamp comes from the latest position sample; physical cursor samples
 are discrete. Neither establishes an exact native acceptance time.
 
-AP is now scheduled with the same frozen configuration; its acceptance and #36
-remain pending.
+ArduCopter `ude-arducopter-acceptance-20260909-01` also completed, landed and
+disarmed, with 663 UDE updates, 126,308 physical ticks, 512 motor comparisons,
+no cleanup errors, and unchanged source/candidate identities. Its independent
+strict audit is `validation/ude-runtime-acceptance-20260909/arducopter-strict-audit-report.json`,
+SHA256 `ad6dd90aeb77ecc93f0ab1b6620fc2512a4f25033dcf3195c486cca22db5ede7`.
+
+| Window | Maximum position error | Maximum speed | Maximum yaw error |
+| --- | ---: | ---: | ---: |
+| Point | 0.037068 m | 0.017254 m/s | 0.009827 rad |
+| Circle | 0.078154 m | 0.338624 m/s | 0.002078 rad |
+| Disturbance | 0.119856 m | 0.166462 m/s | 0.004016 rad |
+
+ArduCopter native evidence contains 663 distinct request associations and 512
+motor comparisons. The two stack runs therefore satisfy the scheduled UDE
+point, circle and disturbance acceptance slices; #90, #91 and #92 can be closed
+with their preserved commands, reports and failure boundaries. The UDE parent
+#36 can then be closed against its original acceptance criteria.
+
+The read-only dual-stack source check passed with status
+`source_protocol_consistent` after both runs. It confirms the same frozen UDE
+protocol, model identity, selected runtime source manifest and retained
+run-source bytes for both stacks. Its result is
+`validation/ude-native-boundary-20260910/dual-stack-sources.json`.
 Full, hardware, joint real-time rate, NE and motor-efficiency acceptance are
 outside the evidence established here.
 

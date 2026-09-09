@@ -184,10 +184,11 @@ Real installed-stack preflight evidence is in
 exit0, `ok=true`, an empty reasons list and the exact UDE protocol/implementation.
 Both reported `children_created=0`, `ros_nodes_started=false` and `flown=false`;
 preflight admission does not establish flight or physical acceptance.
-The second PX4 UDE flight has passed full native, physical, equation, calibration
-and cleanup auditing. AP is scheduled and still requires its independent audit.
-Earlier failed attempts/reports remain unchanged. See the dated flight acceptance
-document for exact report hashes and remaining boundaries.
+Both PX4 and ArduCopter UDE flights have passed full native, physical, equation,
+calibration and cleanup auditing. Earlier failed attempts/reports remain
+unchanged. See the dated flight acceptance document for exact report hashes and
+remaining boundaries.
 No exact first native acceptance tick or activity between sampled native log
 observations is established. No Full/UI/joint rate/NE/motor-efficiency acceptance
-is claimed. #36 remains open and main review controls #90 disposition.
+is claimed. The UDE runtime and dual-stack physical slice are accepted; the
+remaining product work is tracked outside #36.
