@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "issue": 150,
+  "stable_key": "full-model-16-exp1",
+  "title": "Exp1_MinModelTemp generated-model template",
+  "source": {
+    "file": "docs/plan/full-scope-expansion.md",
+    "line": 61,
+    "ledger_id": "MODEL-16",
+    "ledger_file": "docs/plan/full-followup-tickets.json",
+    "parent_issues": [26]
+  },
+  "status": "defined",
+  "evidence_status": "partial-evidence",
+  "full_complete": false,
+  "current_gap": "Each template's I/O, generation, build, import and run flow is separate; generated-model slices verify only selected samples. Exp1 material is pinned but local-only.",
+  "atoms": [
+    {"id": "MODEL-16-E1-A", "name": "template_io", "status": "blocked", "required": "Template input/output schema pinned from the .slx and init file", "owner": "model maintainer"},
+    {"id": "MODEL-16-E1-B", "name": "generation_flow", "status": "blocked", "required": "Code generation flow with fixed tool versions and hashes", "owner": "build maintainer"},
+    {"id": "MODEL-16-E1-C", "name": "build_import", "status": "blocked", "required": "Build and import into the owned host with manifest identity", "owner": "build maintainer"},
+    {"id": "MODEL-16-E1-D", "name": "run_flow", "status": "blocked", "required": "Run flow with init/step/stop and result identity", "owner": "runtime maintainer"},
+    {"id": "MODEL-16-E1-E", "name": "editable_material", "status": "partial", "required": "Exp1_MinModelTemp.slx and init .m pinned by SHA256 in the readiness probe; local-only material is not redistributable", "owner": "release maintainer"}
+  ],
+  "template_required": ["template_id", "template_sha256", "io_schema", "generation_toolchain", "build_manifest", "import_identity", "run_semantics", "editable_material_status", "source_identity"],
+  "scope_rule": "a generated-model slice verifies only the selected sample; each template carries its own I/O and flow contract",
+  "errors": ["accepted", "template_missing", "material_local_only", "io_unpinned", "generation_mismatch", "build_failed", "import_identity_mismatch", "run_failed"],
+  "followups": [
+    {"key": "model-16-exp1-io-freeze", "files": ["docs/plan/<exp1-io>.json"], "status": "proposed", "blocked_by": "Reading the pinned Exp1 material"},
+    {"key": "model-16-exp1-build-run", "files": ["validation/<exp1-build-run-audit>"], "status": "proposed", "blocked_by": "I/O freeze and generation toolchain"}
+  ],
+  "preserved": {"issue_26": "open generated-model build import", "material": "pinned local-only; redistribution unresolved", "full_complete": false}
+}
