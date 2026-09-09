@@ -1,0 +1,43 @@
+{
+  "status": "ready",
+  "number": 53,
+  "url": "https://github.com/unununnnn/wksim/issues/53",
+  "key": "40-target-command",
+  "tier": "luna",
+  "working_directory": "C:\\Users\\PC\\Documents\\odid编译\\wksim",
+  "title": "[Luna] 实现新鲜ArUco目标到公共速度意图（两文件）",
+  "definition": {
+    "key": "40-target-command",
+    "parent": 40,
+    "title": "实现新鲜ArUco目标到公共速度意图（两文件）",
+    "tier": "luna",
+    "prerequisite_keys": [],
+    "parent_dependencies": [
+      30,
+      32,
+      6
+    ],
+    "owned_files": [
+      "Simulator/wksim_perception/target_intent.py (new)",
+      "validation/test_target_intent.py (new)"
+    ],
+    "known_input_reports": [
+      "docs/2026-09-09-aruco-consumer-report.md"
+    ],
+    "concrete_actions": [
+      "定义显式Config：desired_body_flu_m、gain_per_s、max_speed_mps，无飞行默认参数",
+      "消费既有ArUco Consumer输出并校验外部绑定run/epoch/stream与valid_until_step；用body FLU误差×gain后按向量范数限速",
+      "只返回XYZ_VEL_BODY、velocity_ref、yaw_rate_mode=true/yaw_rate_ref=0的意图；失效返回hold并清历史，不发布ROS",
+      "用轴向/斜向限速、未来/过期/外来/丢失后重获夹具验证；测试配置仅为夹具，真实飞行预算由集成前置冻结"
+    ],
+    "verifiable_completion": "两个纯模块/测试文件通过，输入坐标与新鲜度可复查；不会把目标诊断速度直接当命令。",
+    "targeted_test_command": null,
+    "command_status": "implementation_contract",
+    "failure_escalation_boundary": "Astra resolves flight gain/latency/occlusion budgets first; unknown timing policy is not a Luna decision.",
+    "readiness": "ready_when_explicit_dependencies_closed",
+    "blocking_issue_numbers": [],
+    "priority": 4,
+    "dependency_rationale": "父票原Blocked by保留；本票源码/纯检查只按自身实际前置派发，父票最终关闭仍检查全部原依赖。"
+  },
+  "next_action": "先完整读取此GitHub子票；只做本票写入范围。真实运行使用新ID/目录，完成后再取下一票。"
+}
