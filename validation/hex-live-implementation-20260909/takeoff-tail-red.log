@@ -1,0 +1,20 @@
+test_autonomous_takeoff_before_20ms_control_ready_tail (__main__.HexLive.test_autonomous_takeoff_before_20ms_control_ready_tail) ... ERROR
+
+======================================================================
+ERROR: test_autonomous_takeoff_before_20ms_control_ready_tail (__main__.HexLive.test_autonomous_takeoff_before_20ms_control_ready_tail)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\PC\Documents\odid编译\wksim\validation\test_hex_live.py", line 102, in test_autonomous_takeoff_before_20ms_control_ready_tail
+    self.assertEqual(live.audit(self.directory)['phase_ack_counts']['takeoff'],1)
+                     ~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\Documents\odid编译\wksim\tools\audit_hex_live.py", line 165, in audit
+    require(coverage[name] > 0, 'No actual display evidence during ' + name)
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\Documents\odid编译\wksim\tools\audit_hex_live.py", line 31, in require
+    raise ValueError(message)
+ValueError: No actual display evidence during takeoff
+
+----------------------------------------------------------------------
+Ran 1 test in 0.019s
+
+FAILED (errors=1)
