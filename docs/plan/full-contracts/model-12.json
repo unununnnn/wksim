@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "issue": 146,
+  "stable_key": "full-model-12",
+  "title": "MulticopterNoCtrl model",
+  "source": {
+    "file": "docs/plan/full-scope-expansion.md",
+    "line": 57,
+    "ledger_id": "MODEL-12",
+    "ledger_file": "docs/plan/full-followup-tickets.json",
+    "parent_issues": [1]
+  },
+  "status": "defined",
+  "evidence_status": "partial-evidence",
+  "full_complete": false,
+  "current_gap": "The no-controller multicopter is uncovered; direct model inputs, motion and reset definitions are missing.",
+  "atoms": [
+    {"id": "MODEL-12-A", "name": "direct_model_inputs", "status": "blocked", "required": "Direct rotor/actuator inputs to the multicopter model without an FC", "owner": "model maintainer"},
+    {"id": "MODEL-12-B", "name": "motion_definition", "status": "blocked", "required": "Motion conditions under direct inputs with expected truth responses", "owner": "physics maintainer"},
+    {"id": "MODEL-12-C", "name": "reset_definition", "status": "blocked", "required": "Reset semantics returning the model to a declared state", "owner": "runtime maintainer"},
+    {"id": "MODEL-12_D", "name": "owned_multicopter_base", "status": "partial", "required": "Owned multicopter dynamics exist as the base; FC-driven evidence stays a different mode", "owner": "model maintainer"}
+  ],
+  "model_required": ["model_identity", "vehicle_class=multicopter_noctrl", "input_schema", "motion_conditions", "reset_semantics", "mass_kg", "inertia", "source", "source_sha256"],
+  "scope_rule": "no-controller mode drives the model directly; FC-driven flight evidence never substitutes",
+  "errors": ["accepted", "model_not_found", "input_invalid", "condition_undefined", "reset_failed", "fc_required_rejected"],
+  "followups": [
+    {"key": "model-12-direct-input", "files": ["Simulator/wksim_core/<multicopter-direct>.py", "validation/<multicopter-direct-tests>.py"], "status": "proposed", "blocked_by": "Direct input schema on the owned model"},
+    {"key": "model-12-reset-slice", "files": ["validation/<multicopter-reset-audit>"], "status": "proposed", "blocked_by": "Direct input implementation"}
+  ],
+  "preserved": {"fc_modes": "FC-driven multicopter evidence stays a different mode", "full_complete": false}
+}
