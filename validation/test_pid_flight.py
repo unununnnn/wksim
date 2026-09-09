@@ -9,6 +9,7 @@ import struct
 import subprocess
 import sys
 import tempfile
+import time
 from types import SimpleNamespace as NS
 import unittest
 from unittest.mock import patch
@@ -314,6 +315,29 @@ class PIDCandidateTests(unittest.TestCase):
         flags['flag_control_position_enabled'] = False
         task.native_generation = 8
         self.assertFalse(task.authority())
+
+    def test_ap_shaped_feedback_requires_current_raw_target_and_thrust(self):
+        def candidate(stack='arducopter', stamp=1.04, thrust=.5):
+            task = object.__new__(PIDTask)
+            task.flight_stack, task.pid_config = stack, self.config
+            task.latest = {'state': NS(header=NS(stamp=NS(sec=1, nanosec=80000000)))}
+            task.pid_pending = dict(request_id=1, command_id=1, events_start=0,
+                physical_time=1.04, wall=time.monotonic(), targets_start=0,
+                samples_start=0, thrust=.5, quaternion_xyzw=[0., 0., 0., 1.],
+                quaternion_ned=[math.sqrt(.5), 0., 0., math.sqrt(.5)], native_state_stamp_s=1.04)
+            task.events = [dict(event='command_accepted', request_id=1, command_id=1)]
+            task.native_targets = [dict(quaternion_xyzw=[0., 0., 0., 1.], thrust=.5,
+                native_source_stamp=dict(sec=1, nanosec=round((stamp-1)*1e9)))]
+            task.native_samples = [dict(native_boot_s=t, thrust=thrust,
+                quaternion=[math.cos(.1)*math.sqrt(.5), math.sin(.1), 0., math.cos(.1)*math.sqrt(.5)])
+                for t in (1.05, 1.06)]
+            task.read_truth, task.cursor = lambda: {'time': 1.08}, lambda: {}
+            task.record = lambda *a, **kw: None
+            return task
+        self.assertTrue(candidate().check_pending())
+        self.assertFalse(candidate('px4').check_pending())
+        self.assertFalse(candidate(stamp=1.02).check_pending())
+        self.assertFalse(candidate(thrust=.51).check_pending())
 
     def test_online_metrics_fail_an_excursion_and_require_final_return_dwell(self):
         rows = []

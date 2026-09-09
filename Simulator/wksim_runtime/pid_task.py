@@ -172,19 +172,25 @@ class PIDTask(AttitudeTask):
             # Public acceptance only stores the target. Keep it until the native
             # outlet and two distinct FC telemetry samples actually expose it.
             # This prevents the faster PID loop overwriting an unsent target.
+            def source_stamp(target):
+                stamp = target['native_source_stamp']
+                return stamp['sec']+stamp['nanosec']/1e9 if isinstance(stamp, dict) else stamp/1e6
             targets = [t for t in self.native_targets[request['targets_start']:]
-                       if abs(t['thrust']-request['thrust']) < 1e-6
+                       if source_stamp(t) >= request['native_state_stamp_s']
+                       and abs(t['thrust']-request['thrust']) < 1e-6
                        and min(math.dist(t['quaternion_xyzw'], request['quaternion_xyzw']),
                                math.dist(t['quaternion_xyzw'], [-v for v in request['quaternion_xyzw']])) < 1e-6]
             if not targets:
                 return False
-            stamp = targets[0]['native_source_stamp']
-            native_stamp = (stamp['sec']+stamp['nanosec']/1e9 if isinstance(stamp, dict) else stamp/1e6)
+            native_stamp = source_stamp(targets[0])
             samples = {s['native_boot_s'] for s in self.native_samples[request['samples_start']:]
                        if native_stamp <= s['native_boot_s'] <= state_time(self.state)
                        and abs(s['thrust']-request['thrust']) < 1e-6
-                       and min(math.dist(s['quaternion'], request['quaternion_ned']),
-                               math.dist(s['quaternion'], [-v for v in request['quaternion_ned']])) < 1e-6}
+                       # AP reports the shaped attitude target; its raw GUIA
+                       # request quaternion is verified by the offline auditor.
+                       and (self.flight_stack == 'arducopter' or
+                            min(math.dist(s['quaternion'], request['quaternion_ned']),
+                                math.dist(s['quaternion'], [-v for v in request['quaternion_ned']])) < 1e-6)}
             if len(samples) < 2:
                 return False
             self.record('pid_public_acknowledged', request_id=request['request_id'],
@@ -240,6 +246,7 @@ class PIDTask(AttitudeTask):
         self.pid_pending = dict(request_id=self.request_id, command_id=self.command_number,
             events_start=len(self.events), physical_time=physical_time, wall=time.monotonic(),
             targets_start=len(self.native_targets), samples_start=len(self.native_samples),
+            native_state_stamp_s=stamp,
             thrust=float(msg.att_ref[3]), quaternion_xyzw=[x, yy, z, w],
             quaternion_ned=[k*(w+z), k*(x+yy), k*(x-yy), k*(w-z)])
         self.command_pub.publish(outgoing)
