@@ -1,0 +1,15 @@
+Working directory: C:/Users/PC/Documents/odid编译/wksim
+
+Read-only inputs:
+  Get-Content docs/plan/full-scope-expansion.md
+  Get-Content docs/plan/full-remaining-ledger.json
+  Get-Content docs/plan/full-followup-tickets.json
+  Get-Content Simulator/wksim_core/model_parameters.py
+  gh issue view 138 --repo unununnnn/wksim --json number,title,body,state,labels,comments
+  gh issue view 1 --repo unununnnn/wksim --json number,title,body,state,labels,comments
+
+Validation:
+  python -B validation/full-model-05-20260910-01/validate.py
+  git diff --check -- docs/plan/full-contracts/model-05.md docs/plan/full-contracts/model-05.json validation/full-model-05-20260910-01
+
+No X8 model or test was implemented; no UE, FC, model, ROS, MATLAB or hardware process was started.

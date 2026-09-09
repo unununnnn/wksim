@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "issue": 138,
+  "stable_key": "full-model-05",
+  "title": "Quad-axis octorotor (X8) model",
+  "source": {
+    "file": "docs/plan/full-scope-expansion.md",
+    "line": 50,
+    "ledger_id": "MODEL-05",
+    "ledger_file": "docs/plan/full-followup-tickets.json",
+    "parent_issues": [1]
+  },
+  "status": "defined",
+  "evidence_status": "no-evidence",
+  "full_complete": false,
+  "current_gap": "The quad-axis octorotor is uncovered; its independent configuration, propulsion and mixing validation are missing.",
+  "atoms": [
+    {"id": "MODEL-05-A", "name": "configuration", "status": "blocked", "required": "Independent X8 configuration: eight rotors on four axes with geometry", "owner": "model maintainer"},
+    {"id": "MODEL-05-B", "name": "propulsion", "status": "blocked", "required": "Propulsion model and parameters with source and hash", "owner": "physics maintainer"},
+    {"id": "MODEL-05-C", "name": "mixing_validation", "status": "blocked", "required": "Mixing/allocation validation for eight rotors on four axes", "owner": "validation maintainer"},
+    {"id": "MODEL-05-D", "name": "non_coverage_rule", "status": "partial", "required": "Rule enforced: quadrotor and planar octorotor evidence never covers X8", "owner": "validation maintainer"}
+  ],
+  "model_required": ["model_identity", "configuration", "rotor_geometry", "propulsion_parameters", "allocation_matrix", "mass_kg", "inertia", "source", "source_sha256", "applicable_stacks"],
+  "scope_rule": "eight rotors on four axes is a distinct configuration, not a quadrotor with doubled motors",
+  "errors": ["accepted", "model_not_found", "configuration_invalid", "propulsion_invalid", "mixing_unvalidated", "substitution_rejected"],
+  "followups": [
+    {"key": "model-05-configuration", "files": ["Simulator/wksim_core/<x8-model>.py", "validation/<x8-tests>.py"], "status": "proposed", "blocked_by": "Pinned X8 source and parameters"},
+    {"key": "model-05-mixing-audit", "files": ["validation/<x8-mixing-audit>"], "status": "proposed", "blocked_by": "Configuration freeze"}
+  ],
+  "preserved": {"quad": "Quad X evidence stays separate", "full_complete": false}
+}
