@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "issue": 128,
+  "stable_key": "full-comm-01",
+  "title": "UDP_Full reference protocol",
+  "source": {
+    "file": "docs/plan/full-scope-expansion.md",
+    "line": 32,
+    "ledger_id": "COMM-01",
+    "ledger_file": "docs/plan/full-followup-tickets.json",
+    "parent_issues": [1]
+  },
+  "status": "defined",
+  "evidence_status": "no-evidence",
+  "full_complete": false,
+  "current_gap": "Exact fields, layout, endianness, rate, target address and full-mode control/feedback behavior are unpinned; the manual's 168-byte SOut2Simulator listing is a reference target, not an owned implementation.",
+  "atoms": [
+    {"id": "COMM-01-A", "name": "reference_layout_identity", "status": "blocked", "required": "Pinned 168-byte SOut2Simulator field map with offsets, types, units and endianness from a fixed source", "owner": "protocol maintainer"},
+    {"id": "COMM-01-B", "name": "owned_udp_datagram_paths", "status": "partial", "required": "Owned UDP datagram paths with run/epoch identity and rate; AP JSON lockstep and the telemetry observer are not the reference layout", "owner": "runtime maintainer"},
+    {"id": "COMM-01-C", "name": "rate_and_target_address", "status": "blocked", "required": "Reference rate and target-address semantics pinned and observed", "owner": "protocol maintainer"},
+    {"id": "COMM-01-D", "name": "full_mode_control_feedback", "status": "blocked", "required": "Complete-mode control/feedback behavior implemented per the frozen layout", "owner": "runtime maintainer"},
+    {"id": "COMM-01-E", "name": "sdk_interop_capture", "status": "blocked", "required": "Local SDK interop and packet-capture comparison against the frozen layout", "owner": "validation maintainer"}
+  ],
+  "datagram_required": ["layout_id", "byte_length", "endianness", "field_map", "rate_hz", "source_identity", "target_address", "direction", "version", "sequence", "epoch", "source_sha256"],
+  "scope_rule": "an owned datagram path is not the reference protocol; a manual byte count is not a frozen layout",
+  "errors": ["accepted", "layout_mismatch", "wrong_length", "unknown_field", "endianness_error", "rate_unmet", "address_mismatch", "unsupported_mode", "stale_datagram"],
+  "followups": [
+    {"key": "comm-01-layout-freeze", "files": ["docs/plan/<udp-full-layout>.json", "validation/<layout-audit>"], "status": "proposed", "blocked_by": "Fixed manual/SDK source for the 168-byte field map"},
+    {"key": "comm-01-owned-udp-bridge", "files": ["Simulator/wksim_runtime/<udp-full>.py", "validation/<udp-full-tests>.py"], "status": "proposed", "blocked_by": "Frozen layout"},
+    {"key": "comm-01-capture-comparison", "files": ["validation/<udp-full-capture>"], "status": "proposed", "blocked_by": "Local SDK observation and capture tooling"}
+  ],
+  "preserved": {"manual_listing": "168-byte SOut2Simulator is reference material", "owned_udp": "AP JSON lockstep and telemetry observer keep separate identities", "full_complete": false}
+}
