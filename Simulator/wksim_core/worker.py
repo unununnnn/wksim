@@ -115,10 +115,11 @@ def model_worker(library, trace, epoch):
             response = dict(version=1, epoch=epoch, tick=model.ticks, state=state)
             if commands is not None:
                 # Preserve the exact accepted input, as well as decoded fields.
-                log.write(encoded(dict(**response, commands=commands, input=line,
-                                       request=request)) + '\n')
+                response_json = encoded(response)
+                extras_json = encoded(dict(commands=commands, input=line, request=request))
+                log.write(response_json[:-1] + ',' + extras_json[1:] + '\n')
             validate_response(response, epoch, model.ticks)
-            output = encoded(response) + '\n'
+            output = (response_json if commands is not None else encoded(response)) + '\n'
             if len(output.encode('utf-8')) > RESPONSE_LIMIT:
                 raise ValueError('Oversized response')
             sys.stdout.write(output)

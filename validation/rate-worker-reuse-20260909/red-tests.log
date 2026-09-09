@@ -1,0 +1,21 @@
+test_extras_serialization_failure_has_no_trace_or_response (__main__.SerializationReuse.test_extras_serialization_failure_has_no_trace_or_response) ... ok
+test_invalid_state_preserves_trace_before_validation_failure (__main__.SerializationReuse.test_invalid_state_preserves_trace_before_validation_failure) ... ok
+test_log_write_failure_propagates_before_response (__main__.SerializationReuse.test_log_write_failure_propagates_before_response) ... ok
+test_nonfinite_state_serialization_failure_has_no_trace_or_response (__main__.SerializationReuse.test_nonfinite_state_serialization_failure_has_no_trace_or_response) ... ok
+test_output_limit_still_prevents_publication_after_log (__main__.SerializationReuse.test_output_limit_still_prevents_publication_after_log) ... ok
+test_second_lifetime_still_rejected (__main__.SerializationReuse.test_second_lifetime_still_rejected) ... ok
+test_step_and_snapshots_preserve_bytes_with_one_state_encode_per_response (__main__.SerializationReuse.test_step_and_snapshots_preserve_bytes_with_one_state_encode_per_response) ... FAIL
+
+======================================================================
+FAIL: test_step_and_snapshots_preserve_bytes_with_one_state_encode_per_response (__main__.SerializationReuse.test_step_and_snapshots_preserve_bytes_with_one_state_encode_per_response)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\PC\Documents\odid编译\wksim\validation\test_worker_serialization_reuse.py", line 65, in test_step_and_snapshots_preserve_bytes_with_one_state_encode_per_response
+    self.assertEqual(sum(isinstance(r.get('state'),list) for r in self.calls),2)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 3 != 2
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.002s
+
+FAILED (failures=1)
