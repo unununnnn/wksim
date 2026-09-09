@@ -497,6 +497,9 @@ def run(args):
                 health()
                 if clock.tick%4 == 0 and clock.synchronized:
                     if rate.anchor is None:
+                        maps('running')
+                        result['startup_maps_boundary'] = dict(tick=clock.tick,phase=clock.phase,
+                            completed_monotonic_ns=time.monotonic_ns(),before_rate_anchor=True)
                         rate.reanchor(clock.tick,'synchronized_boundary')
                     rate.begin_group(clock.tick,health)
                 states = physics.advance()
@@ -544,7 +547,6 @@ def run(args):
                         endpoints = recorder.publishers()['/ap/cmd_gps_pose']
                         require(len(endpoints)==1,'Diagnostic requires one discovered native target publisher')
                         result['diagnostic_publisher'] = endpoints[0]
-                        maps('running')
                         parameter_child = launch('native-parameters',[sys.executable,'-B',str(Path(__file__)),
                             'parameters',str(root)],root)
                         transition('parameters')
@@ -767,6 +769,13 @@ def audit(root):
                 require(admission['model_library'] in path.read_text(),'Loaded model library differs')
     timeline,model = audit_timeline(root,result,require_flight=False,require_ground=True)
     rate_report = rate_windows(root,result)
+    startup = result['startup_maps_boundary']
+    anchors = [row for row in lines(root/'rate.jsonl') if row['kind']=='rate_anchor']
+    require(len(anchors)==1 and startup['before_rate_anchor'] is True and startup['phase']=='running'
+            and startup['tick']==anchors[0]['tick']==40
+            and max(row['captured_monotonic_ns'] for row in result['runtime_maps']['running'].values())
+                <=startup['completed_monotonic_ns']<=anchors[0]['issued_monotonic_ns'],
+            'Initial loaded identity mapping did not finish before the first rate anchor')
     phases = {row['phase']:row for row in result['phases']}
     require([row['phase'] for row in result['phases']]==['preflight','parameters','guided','armed','takeoff_ack',
         'takeoff','mixed_prepare','mixed_baseline','terminal_burst','silence','stop_prepare','stop_dwell',

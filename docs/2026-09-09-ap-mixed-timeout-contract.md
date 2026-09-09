@@ -130,3 +130,15 @@ rate sample, source-clock/freshness condition or 100ms/10s/60s threshold changes
 This removes redundant inspection work; a new real run must establish whether
 it provides sufficient headroom. No cause is attributed to an unrelated host
 process without evidence.
+
+Revision before trial05: `aqv11hdg` completed the native stop dwell but failed
+at tick67980 with100691161ns lateness during new public-node startup. Raw rate
+records identify a36.95ms jump at the synchronous loaded-file hashes near
+tick42904, then ~55ms accumulated before recovery and further startup costs.
+The loaded FC/model mapping is now captured as startup initialization at the
+first complete synchronized boundary tick40, before the sole rate anchor is
+created. Both models/FCs are already alive and loaded; mapping timing and
+anchor ordering are retained and independently checked. The one continuous
+0.5× segment still runs from tick40 to final stop, with no mid-flight pause,
+new anchor, dropped group or relaxed gate. Startup time remains inside the
+900wall-second watchdog. No new ControlNode is prepared or published early.
