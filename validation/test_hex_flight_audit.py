@@ -18,6 +18,16 @@ REAL = Path(os.environ.get('WK_HEX_AUDIT_RUN', '/root/wksim-hex-flight-px4-03/he
 
 
 class PureGuards(unittest.TestCase):
+    def test_legacy_compatibility_requires_both_exact_pins_and_px4(self):
+        for name, pairs in audit.LEGACY_PX4_SOURCE_PAIRS.items():
+            for old, reviewed in pairs:
+                with self.subTest(name=name, old=old, reviewed=reviewed):
+                    self.assertTrue(audit.compatible_source('px4', name, old, reviewed))
+                    self.assertFalse(audit.compatible_source('px4', name, old, 'f'*64))
+                    self.assertFalse(audit.compatible_source('px4', name, 'f'*64, reviewed))
+                    self.assertFalse(audit.compatible_source('arducopter', name, old, reviewed))
+                    self.assertTrue(audit.compatible_source('arducopter', name, reviewed, reviewed))
+
     def test_duplicate_keys_and_nonfinite_rejected(self):
         for raw in ('{"a":1,"a":2}', '{"a":NaN}', '{"a":Infinity}'):
             with self.subTest(raw=raw), self.assertRaises(ValueError):
@@ -217,6 +227,13 @@ class RealEvidence(unittest.TestCase):
             if kind == 'storage': bad['run_dir'] = parent['run_dir']
             with self.subTest(kind=kind), self.assertRaises(ValueError):
                 audit.reset_links(bad, parent, 'a'*64)
+
+    def test_legacy_recipe_rejects_unreviewed_current_source(self):
+        actual_digest = audit.digest
+        target = audit.REPO/'tools/hex_launch_plan.py'
+        with patch.object(audit, 'digest', side_effect=lambda p: 'f'*64 if Path(p) == target else actual_digest(p)):
+            with self.assertRaisesRegex(ValueError, 'Shared decoding/identity recipe changed: tools/hex_launch_plan.py'):
+                audit.identity(REAL, self.result)
 
     def test_live_process_is_not_retired(self):
         pid = os.getpid(); text = Path(f'/proc/{pid}/stat').read_text()

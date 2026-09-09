@@ -1,0 +1,85 @@
+--- a/tools/hex_launch_plan.py
++++ b/tools/hex_launch_plan.py
+@@ -20,8 +20,9 @@
+           "ARMING_CHECK": 1, "SR0_POSITION": 10, "SR0_EXTRA1": 10, "SR0_EXTRA3": 5}
+     if stack == 'arducopter':
+         # Pinned AP 4.7 renamed CHECK=1 (all enabled) to SKIPCHK=0.
+-        ap = {('ARMING_SKIPCHK' if k == 'ARMING_CHECK' else k): (0 if k == 'ARMING_CHECK' else v)
+-              for k, v in ap.items()}
++        renamed = {'ARMING_CHECK': 'ARMING_SKIPCHK', 'SR0_POSITION': 'MAV1_POSITION',
++                   'SR0_EXTRA1': 'MAV1_EXTRA1', 'SR0_EXTRA3': 'MAV1_EXTRA3'}
++        ap = {renamed.get(k, k): (0 if k == 'ARMING_CHECK' else v) for k, v in ap.items()}
+     for channel in range(1, 7):
+         ap.update({f"SERVO{channel}_FUNCTION": channel + 32,
+                    f"SERVO{channel}_MIN": 1000, f"SERVO{channel}_MAX": 2000})
+--- a/tools/hex_candidate.py
++++ b/tools/hex_candidate.py
+@@ -20,7 +20,7 @@
+ LIBRARY = Path('/root/wksim-hex-candidate-private/build-ihnane6f/libwksim_hex_candidate.so')
+ BUILD_SHA = '1f6534d11b5634723fa1c3c2e4d518ee11a281d5a28f24149c836eb56199834c'
+ PLAN_IDENTITY = 'sha256:319c5cba50eb11b81f70ac3ade707879c2fdba252335aa039674e93b9168e1a0'
+-AP47_PLAN_IDENTITY = 'sha256:27d3b397feace63eb308365aee3d034733ea136f956bce797a0545219600f8fc'
++AP47_PLAN_IDENTITY = 'sha256:5c07a2d5c1e4b13580ae8b3ba43ce686324ec340adf2c12e9b4ffaabbba8486a'
+ 
+ 
+ def plan_identity(stack):
+--- a/Simulator/wksim_runtime/hex_task.py
++++ b/Simulator/wksim_runtime/hex_task.py
+@@ -12,12 +12,12 @@
+ 
+ PROTOCOL = Path(__file__).with_name('hex-flight-v1.json')
+ PROTOCOL_SHA256 = '33748c4374d5f297ae928d1682bc9ef00dde95030249fe5c7ff0dce21363ddcc'
+-AP47_PROTOCOL_SHA256 = 'cf9bfe890cc0a5e3c04d72dd0df5d1f9fd5bb18a2c60c588393266c542fac464'
++AP47_PROTOCOL_SHA256 = 'ce4f0aeb3c2de250aaf10c224f3fa43c326fcfcf8140c3746770879558f9df37'
+ 
+ 
+ def protocol_for(stack):
+     if stack == 'arducopter':
+-        return PROTOCOL.with_name('hex-flight-ap47-v1.json'), AP47_PROTOCOL_SHA256
++        return PROTOCOL.with_name('hex-flight-ap47-v2.json'), AP47_PROTOCOL_SHA256
+     if stack == 'px4':
+         return PROTOCOL, PROTOCOL_SHA256
+     raise ValueError('Unknown Hex stack')
+--- a/tools/audit_hex_flight.py
++++ b/tools/audit_hex_flight.py
+@@ -29,17 +29,20 @@
+ 
+ PROTOCOL_SHA = '33748c4374d5f297ae928d1682bc9ef00dde95030249fe5c7ff0dce21363ddcc'
+ PROTOCOL_PATH = 'Simulator/wksim_runtime/hex-flight-v1.json'
+-LEGACY_PX4_SOURCE_PAIRS = {
+-    'tools/hex_launch_plan.py': (
+-        '5576dc5326261d9edd5d68352189ac2923d1ff9c2a868f9e28bc6b4be612dd0f',
+-        '9e2a4762033d9e188eff09e469c5e1c526910b5b2b6847975854e1f2122da2cb'),
+-    'tools/hex_candidate.py': (
+-        '337ed9fb3ff0423c7ec2da9c5e02530e413575c357349615408036830af31bbe',
+-        'ae6e03d5098dae3e258b3c49f3c42eb32036e283ee55a2c389bff45d42e335e5'),
+-    'Simulator/wksim_core/px4_mavlink.py': (
+-        '08b3d5fbf6754822572240ceb6beb289341bd0c6653455a35b60b3fb3d85ab3d',
+-        'e8c903f2b4c84a261adf6f512c8437c51364143dc048d1ac2cb873e7cfb53260'),
+-}
++LEGACY_PX4_SOURCE_PAIRS = {'tools/hex_launch_plan.py': (('5576dc5326261d9edd5d68352189ac2923d1ff9c2a868f9e28bc6b4be612dd0f',
++                               '9e2a4762033d9e188eff09e469c5e1c526910b5b2b6847975854e1f2122da2cb'),
++                              ('5576dc5326261d9edd5d68352189ac2923d1ff9c2a868f9e28bc6b4be612dd0f',
++                               '79f245859060c3ed9ac344938cf2ffa581598a53ba463e403536baa550071a6d'),
++                              ('9e2a4762033d9e188eff09e469c5e1c526910b5b2b6847975854e1f2122da2cb',
++                               '79f245859060c3ed9ac344938cf2ffa581598a53ba463e403536baa550071a6d')),
++ 'tools/hex_candidate.py': (('337ed9fb3ff0423c7ec2da9c5e02530e413575c357349615408036830af31bbe',
++                             'ae6e03d5098dae3e258b3c49f3c42eb32036e283ee55a2c389bff45d42e335e5'),
++                            ('337ed9fb3ff0423c7ec2da9c5e02530e413575c357349615408036830af31bbe',
++                             '6bf746ed0b0620d0bb02cae951581cd745f482cb9fe8e75c119e86a7cbfd7103'),
++                            ('ae6e03d5098dae3e258b3c49f3c42eb32036e283ee55a2c389bff45d42e335e5',
++                             '6bf746ed0b0620d0bb02cae951581cd745f482cb9fe8e75c119e86a7cbfd7103')),
++ 'Simulator/wksim_core/px4_mavlink.py': (('08b3d5fbf6754822572240ceb6beb289341bd0c6653455a35b60b3fb3d85ab3d',
++                                          'e8c903f2b4c84a261adf6f512c8437c51364143dc048d1ac2cb873e7cfb53260'),)}
+ PUBLIC = '/uav1/prometheus/'
+ 
+ 
+@@ -50,7 +53,7 @@
+ 
+ def compatible_source(stack, name, archived, current):
+     return archived == current or (stack == 'px4' and
+-        LEGACY_PX4_SOURCE_PAIRS.get(name) == (archived, current))
++        (archived, current) in LEGACY_PX4_SOURCE_PAIRS.get(name, ()))
+ 
+ 
+ def digest(path):

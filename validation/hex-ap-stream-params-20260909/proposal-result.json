@@ -1,0 +1,59 @@
+{
+  "scope": "Proposal only: frozen production files untouched; no DDS or native execution",
+  "ap_plan_identity": "sha256:5c07a2d5c1e4b13580ae8b3ba43ce686324ec340adf2c12e9b4ffaabbba8486a",
+  "ap_protocol_sha256": "ce4f0aeb3c2de250aaf10c224f3fa43c326fcfcf8140c3746770879558f9df37",
+  "preserve_ap47v1_sha256": "cf9bfe890cc0a5e3c04d72dd0df5d1f9fd5bb18a2c60c588393266c542fac464",
+  "legacy_px4_plan_identity": "sha256:319c5cba50eb11b81f70ac3ade707879c2fdba252335aa039674e93b9168e1a0",
+  "proposed_source_sha256": {
+    "tools/hex_launch_plan.py": "79f245859060c3ed9ac344938cf2ffa581598a53ba463e403536baa550071a6d",
+    "tools/hex_candidate.py": "6bf746ed0b0620d0bb02cae951581cd745f482cb9fe8e75c119e86a7cbfd7103",
+    "Simulator/wksim_runtime/hex_task.py": "db34d6c750cf9d9a073496e2117c63722a6e8ce96e8ab67f1db620dd05ddca0c",
+    "tools/audit_hex_flight.py": "bf05c8c1c6e2cdbefd04f99542e37af61d48283ad36b9cba364961ab5108beed"
+  },
+  "full_legacy_plan_equal": true,
+  "px4_native_parameters_equal": 77,
+  "all_proposed_ap_names_in_actual_BIN": 33,
+  "matching_current_values": 30,
+  "renamed_stream_rates": {
+    "MAV1_POSITION": 10,
+    "MAV1_EXTRA1": 10,
+    "MAV1_EXTRA3": 5
+  },
+  "explicit_compatibility_pairs": {
+    "tools/hex_launch_plan.py": [
+      [
+        "5576dc5326261d9edd5d68352189ac2923d1ff9c2a868f9e28bc6b4be612dd0f",
+        "9e2a4762033d9e188eff09e469c5e1c526910b5b2b6847975854e1f2122da2cb"
+      ],
+      [
+        "5576dc5326261d9edd5d68352189ac2923d1ff9c2a868f9e28bc6b4be612dd0f",
+        "79f245859060c3ed9ac344938cf2ffa581598a53ba463e403536baa550071a6d"
+      ],
+      [
+        "9e2a4762033d9e188eff09e469c5e1c526910b5b2b6847975854e1f2122da2cb",
+        "79f245859060c3ed9ac344938cf2ffa581598a53ba463e403536baa550071a6d"
+      ]
+    ],
+    "tools/hex_candidate.py": [
+      [
+        "337ed9fb3ff0423c7ec2da9c5e02530e413575c357349615408036830af31bbe",
+        "ae6e03d5098dae3e258b3c49f3c42eb32036e283ee55a2c389bff45d42e335e5"
+      ],
+      [
+        "337ed9fb3ff0423c7ec2da9c5e02530e413575c357349615408036830af31bbe",
+        "6bf746ed0b0620d0bb02cae951581cd745f482cb9fe8e75c119e86a7cbfd7103"
+      ],
+      [
+        "ae6e03d5098dae3e258b3c49f3c42eb32036e283ee55a2c389bff45d42e335e5",
+        "6bf746ed0b0620d0bb02cae951581cd745f482cb9fe8e75c119e86a7cbfd7103"
+      ]
+    ],
+    "Simulator/wksim_core/px4_mavlink.py": [
+      [
+        "08b3d5fbf6754822572240ceb6beb289341bd0c6653455a35b60b3fb3d85ab3d",
+        "e8c903f2b4c84a261adf6f512c8437c51364143dc048d1ac2cb873e7cfb53260"
+      ]
+    ]
+  },
+  "compatibility_requirement": "Add explicit old5576/current9e2a -> proposed plan pair and old337e/currentae6e -> proposed candidate pair; keep adapter exact pair. Re-audit both PX4 lifetimes after parent release."
+}

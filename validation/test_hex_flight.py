@@ -11,9 +11,10 @@ from unittest.mock import patch
 
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO))
-from tools.hex_candidate import native_parameters, admit
+from tools.hex_candidate import native_parameters, admit, plan_identity, PLAN_IDENTITY, AP47_PLAN_IDENTITY
+from tools.hex_launch_plan import launch_plan as parameter_plan
 from tools.run_hex_flight import launch_plan, prior_result, initial_model
-from Simulator.wksim_runtime.hex_task import parameter_value, wire_payload, HexTask, PROTOCOL, PROTOCOL_SHA256
+from Simulator.wksim_runtime.hex_task import parameter_value, wire_payload, HexTask, PROTOCOL, PROTOCOL_SHA256, protocol_for
 
 
 def config(stack):
@@ -27,6 +28,26 @@ def parameter(value, kind):
 
 
 class HexFlightTests(unittest.TestCase):
+    def test_ap47_contract_keeps_native_checks_and_px4_identity(self):
+        legacy = parameter_plan()
+        self.assertEqual(legacy, parameter_plan('px4'))
+        self.assertEqual(legacy['plan_identity'], PLAN_IDENTITY)
+        current = parameter_plan('arducopter')
+        self.assertEqual(current['plan_identity'], AP47_PLAN_IDENTITY)
+        self.assertEqual(native_parameters('arducopter')['ARMING_SKIPCHK'], 0)
+        self.assertNotIn('ARMING_CHECK', native_parameters('arducopter'))
+        self.assertEqual({k:v for k,v in native_parameters('arducopter').items() if k.startswith('MAV1_')},
+                         {'MAV1_POSITION':10,'MAV1_EXTRA1':10,'MAV1_EXTRA3':5})
+        self.assertFalse(any(k.startswith('SR0_') for k in native_parameters('arducopter')))
+        self.assertEqual(current['px4_parameters'], legacy['px4_parameters'])
+        self.assertEqual(current['px4_environment'], legacy['px4_environment'])
+        ap_path, ap_sha = protocol_for('arducopter')
+        self.assertEqual(hashlib.sha256(ap_path.read_bytes()).hexdigest(), ap_sha)
+        ap_budget, px4_budget = json.loads(ap_path.read_text()), json.loads(PROTOCOL.read_text())
+        self.assertEqual({k:v for k,v in ap_budget.items() if k not in ('schema','plan_identity')},
+                         {k:v for k,v in px4_budget.items() if k not in ('schema','plan_identity')})
+        self.assertEqual(ap_budget['plan_identity'], plan_identity('arducopter'))
+        self.assertEqual(protocol_for('px4'), (PROTOCOL, PROTOCOL_SHA256))
     @unittest.skipUnless(sys.platform == 'linux', 'Exact generated native dialect is sealed in WSL')
     def test_actual_mavlink2_parameter_payload_excludes_header(self):
         from Simulator.wksim_runtime.telemetry_dialect import load_dialect
@@ -121,7 +142,7 @@ class HexFlightTests(unittest.TestCase):
                 initial_model(path)
 
     def test_cold_reset_refuses_live_prior_identity_and_keeps_original(self):
-        admission = dict(configuration_identity='same', config=dict(run_id='new'))
+        admission = dict(configuration_identity='same', config=dict(run_id='new', stack='px4'))
         child = dict(pid=1234, returncode=0, identity=dict(boot_id='old-boot', starttime_ticks=100))
         previous = dict(model_profile='hex_x', status='observed', safe_landing=True, children_reaped=True,
             cleanup_errors=[], processes_absent_after_stop=True, admission=dict(configuration_identity='same'),

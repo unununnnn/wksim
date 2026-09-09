@@ -1,0 +1,429 @@
+{
+  "ok": true,
+  "experimental": true,
+  "production_admitted": false,
+  "model_profile": "hex_x",
+  "flown": false,
+  "children_created": 0,
+  "reasons": [],
+  "config": {
+    "schema_version": 1,
+    "run_id": "hex-ap-live-observed-20260909-04",
+    "vehicle_id": 1,
+    "stack": "arducopter",
+    "model_profile": "hex_x",
+    "communication": "native_dds",
+    "control_protocol": "session_v1",
+    "capabilities": [
+      "native_position_mission"
+    ],
+    "dds_workspace": "/root/wksim-dds-VxM6Ni",
+    "prometheus_workspace": "/root/wksim-joint-control-FVMjak",
+    "ap_candidate": "/root/wksim-ap-clock-stop-OXQqdR",
+    "px4_root": "/root/wksim-px4-state-ONa1Kw/src",
+    "model_library": "/root/wksim-hex-candidate-private/build-ihnane6f/libwksim_hex_candidate.so",
+    "hex_config": "/root/wksim-hex-candidate-private/build-ihnane6f/config.json"
+  },
+  "library": "/root/wksim-hex-candidate-private/build-ihnane6f/libwksim_hex_candidate.so",
+  "setup_files": [
+    "/opt/ros/humble/setup.bash",
+    "/root/wksim-dds-VxM6Ni/ros-install/local_setup.bash",
+    "/root/wksim-ap-dds-yaw-state-4Wr27s/ros-install/local_setup.bash",
+    "/root/wksim-ros2-MUlZd0/install/local_setup.bash",
+    "/root/wksim-joint-control-FVMjak/install/local_setup.bash"
+  ],
+  "parameters": {
+    "FRAME_CLASS": 2,
+    "FRAME_TYPE": 1,
+    "MOT_PWM_MIN": 1000,
+    "MOT_PWM_MAX": 2000,
+    "MOT_BAT_VOLT_MIN": 0,
+    "MOT_BAT_VOLT_MAX": 0,
+    "SIM_RATE_HZ": 1000,
+    "ARMING_SKIPCHK": 0,
+    "MAV1_POSITION": 10,
+    "MAV1_EXTRA1": 10,
+    "MAV1_EXTRA3": 5,
+    "SERVO1_FUNCTION": 33,
+    "SERVO1_MIN": 1000,
+    "SERVO1_MAX": 2000,
+    "SERVO2_FUNCTION": 34,
+    "SERVO2_MIN": 1000,
+    "SERVO2_MAX": 2000,
+    "SERVO3_FUNCTION": 35,
+    "SERVO3_MIN": 1000,
+    "SERVO3_MAX": 2000,
+    "SERVO4_FUNCTION": 36,
+    "SERVO4_MIN": 1000,
+    "SERVO4_MAX": 2000,
+    "SERVO5_FUNCTION": 37,
+    "SERVO5_MIN": 1000,
+    "SERVO5_MAX": 2000,
+    "SERVO6_FUNCTION": 38,
+    "SERVO6_MIN": 1000,
+    "SERVO6_MAX": 2000,
+    "DDS_ENABLE": 1,
+    "DDS_UDP_PORT": 12019,
+    "DDS_DOMAIN_ID": 77,
+    "LOG_DISARMED": 1
+  },
+  "parameter_types": {
+    "FRAME_CLASS": "native GetParameters numeric",
+    "FRAME_TYPE": "native GetParameters numeric",
+    "MOT_PWM_MIN": "native GetParameters numeric",
+    "MOT_PWM_MAX": "native GetParameters numeric",
+    "MOT_BAT_VOLT_MIN": "native GetParameters numeric",
+    "MOT_BAT_VOLT_MAX": "native GetParameters numeric",
+    "SIM_RATE_HZ": "native GetParameters numeric",
+    "ARMING_SKIPCHK": "native GetParameters numeric",
+    "MAV1_POSITION": "native GetParameters numeric",
+    "MAV1_EXTRA1": "native GetParameters numeric",
+    "MAV1_EXTRA3": "native GetParameters numeric",
+    "SERVO1_FUNCTION": "native GetParameters numeric",
+    "SERVO1_MIN": "native GetParameters numeric",
+    "SERVO1_MAX": "native GetParameters numeric",
+    "SERVO2_FUNCTION": "native GetParameters numeric",
+    "SERVO2_MIN": "native GetParameters numeric",
+    "SERVO2_MAX": "native GetParameters numeric",
+    "SERVO3_FUNCTION": "native GetParameters numeric",
+    "SERVO3_MIN": "native GetParameters numeric",
+    "SERVO3_MAX": "native GetParameters numeric",
+    "SERVO4_FUNCTION": "native GetParameters numeric",
+    "SERVO4_MIN": "native GetParameters numeric",
+    "SERVO4_MAX": "native GetParameters numeric",
+    "SERVO5_FUNCTION": "native GetParameters numeric",
+    "SERVO5_MIN": "native GetParameters numeric",
+    "SERVO5_MAX": "native GetParameters numeric",
+    "SERVO6_FUNCTION": "native GetParameters numeric",
+    "SERVO6_MIN": "native GetParameters numeric",
+    "SERVO6_MAX": "native GetParameters numeric",
+    "DDS_ENABLE": "native GetParameters numeric",
+    "DDS_UDP_PORT": "native GetParameters numeric",
+    "DDS_DOMAIN_ID": "native GetParameters numeric",
+    "LOG_DISARMED": "native GetParameters numeric"
+  },
+  "configuration_identity": "sha256:94664f7e98b51ee2d55beadd3a7a9af0a06579f86dd8390f0e6912d267b0127e",
+  "identities": {
+    "baseline": {
+      "ap": {
+        "path": "/root/wksim-ap-clock-stop-OXQqdR/build/sitl/bin/arducopter",
+        "sha256": "083971caff8883188488b02ec18a8ef17141fe948b520b3c597a6109e8c2d7de",
+        "commit": "1511f27194f1dcc3728270883047bdf022b3fd53",
+        "source_files": 24593
+      },
+      "px4": {
+        "path": "/root/wksim-px4-state-ONa1Kw/src/build/px4_sitl_default/bin/px4",
+        "sha256": "93b4ebe0d83a5897131ec24ee58d732c8999972bb7730f429fc396bc8d10602a",
+        "commit": "d6f12ad1c4f70ad3230afd7d86e971421e02fef4",
+        "source_files": 42012
+      },
+      "manifests": {
+        "ap": {
+          "path": "/root/wksim-ap-clock-stop-OXQqdR/wksim-build.json",
+          "sha256": "f347ba252fbfc33bc92baffba08660f33c3a0e4462e90177ba84bdc11408660a"
+        },
+        "px4": {
+          "path": "/root/wksim-px4-state-ONa1Kw/wksim-build.json",
+          "sha256": "d7e905b35250d184e185ada70e3fe43f0223f1c605832d81c3c58eeb123d4cb6"
+        },
+        "control": {
+          "path": "/root/wksim-joint-control-FVMjak/build.json",
+          "sha256": "f02edf158bf9b4d75cfd2221412bdbe83a10b21bc1642c97259294e12ef487a7"
+        }
+      },
+      "sealed_control": {
+        "version": 1,
+        "root": "/root/wksim-joint-control-FVMjak",
+        "package": "/root/wksim-joint-control-FVMjak/install/prometheus_control/local/lib/python3.10/dist-packages/prometheus_control",
+        "python_sha256": {
+          "__init__.py": "9a4edb373583bcf6f3d7eaa2522ad1544f63965b0e7f81167f858a0d09d44746",
+          "command.py": "5a37a7e1a00fe3764796ec3e5c1688d681a4ab30edc8a95b6c603324577d0d2f",
+          "frames.py": "24086553882b31f0666159a1c9bf2929219420a0184dbb2b6683559d12e809b0",
+          "native_arducopter.py": "63255819c43e2683c3125c0e7e07e5622f676c78bc83ce744cd60e9d9caa42dc",
+          "native_px4.py": "de40ae6175c7e1b23908a791b077b310da81a8d5c264ff4af2620a733a4b2fe6",
+          "node.py": "5dac263055de8ffcfaec16ffb69b91e652a406ae4193c0eabc9fd53eaedec4ab",
+          "scene.py": "370770a02fdde5e94fc54bed6f7e0d63a4c98c6dcadd0c3616ac1c14529cd333",
+          "session.py": "da64efa299288738d4520c6a23834c3201c34334f861a8de542fcaa91930b126",
+          "shaping.py": "56782d96f9fc6f7df3ddadf80cd8c09f474af81c5c183d20d3d26c2f9e66bc69"
+        },
+        "build_inputs": {
+          "CMakeLists.txt": "821a496b17b94ab4aca47ef699414e0c79a09196cc94907c55d57cd34e1174e0",
+          "package.xml": "e7527638b3ec0c74884fa77a5fcf9fd9b11e3b77ee011c9ef477927902bd81b6",
+          "scripts/prometheus_control_node": "b73f77d5e2b74ea999fdd3174280c31d311061de20e2c2c7e8c56d44e4e6dcfc"
+        },
+        "build_log_sha256": "412d27c375dcebc85c3c6d3d1bfc1cea317217512685759a2e533d775726feb0",
+        "build_script_sha256": "cee40ea5324de3f38613fd3e8f05bbfde2a5814b1c76e038ec26917795e3365c",
+        "scope": "experimental continuous joint ROS-time operations; no production admission"
+      },
+      "sealed_control_package": "/root/wksim-joint-control-FVMjak/install/prometheus_control/local/lib/python3.10/dist-packages/prometheus_control",
+      "model": {
+        "archive": "/mnt/e/rflysimtools/RflySimAPIs/4.RflySimModel/1.BasicExps/e0_MinModelTemp/MulticopterModel.zip",
+        "archive_sha256": "d528b5d247e13d943f1eaa7a37fd3cb4d15c7e9bb7a6b0e5988a1423e59d05ed",
+        "wrapper_sha256": "3f325678b1d85c9aa3fd07bd644d82935aa26d82885926defeced139f02ddf2c",
+        "library": "/root/wksim-private-tmp-bhi18a3s/artifacts/wksim-model-qhdy93lm/libwksim_model.so",
+        "library_sha256": "cc0bc2d10790043251f38bb6a53f4d774379dd37a02b09cceba43ac1fafb02b3",
+        "argv": [
+          "g++",
+          "-std=c++17",
+          "-O2",
+          "-fno-fast-math",
+          "-fPIC",
+          "-shared",
+          "-Wl,--no-undefined",
+          "-I",
+          "/root/wksim-private-tmp-bhi18a3s/artifacts/wksim-model-qhdy93lm",
+          "/root/wksim-private-tmp-bhi18a3s/artifacts/wksim-model-qhdy93lm/Exp1_MinModelTemp.cpp",
+          "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/Simulator/wksim_core/model.cpp",
+          "-o",
+          "/root/wksim-private-tmp-bhi18a3s/artifacts/wksim-model-qhdy93lm/libwksim_model.so"
+        ],
+        "compiler": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0",
+        "profile": "generated-quad-x-1ms; local use; vendor redistribution not granted"
+      },
+      "message_packages": {
+        "px4_msgs": {
+          "prefix": "/root/wksim-dds-VxM6Ni/ros-install/px4_msgs",
+          "sha256": "4e925a5917bce0442f487b93c39763ee49a6c07662ef3b23560207a15f37ee3e"
+        },
+        "ardupilot_msgs": {
+          "prefix": "/root/wksim-ap-dds-yaw-state-4Wr27s/ros-install/ardupilot_msgs",
+          "sha256": "5ff82c59c182e5b904ce227ede45d6e9e046c6882d0f82a7453df231a9dac0aa"
+        },
+        "prometheus_msgs": {
+          "prefix": "/root/wksim-ros2-MUlZd0/install/prometheus_msgs",
+          "sha256": "fc5f25cd3bd19b3dae4c1c58ea303cd85c484dbf6e9c065ec082058ff987b806",
+          "complete_snapshot": true
+        },
+        "wksim_msgs": {
+          "prefix": "/root/wksim-ros2-MUlZd0/install/wksim_msgs",
+          "sha256": "fa5fadcb39d83bd1d2412b3b1d58955423a698236f19d9cf208956c120fdabe3",
+          "complete_snapshot": true
+        }
+      },
+      "arducopter_agent": {
+        "path": "/root/wksim-dds-VxM6Ni/ros-install/micro_ros_agent/lib/micro_ros_agent/micro_ros_agent",
+        "sha256": "aa4f7a2a861958d7ae76ce6c8a866558b8baf73b5aad0a7b7fed1f8e17af9791"
+      },
+      "px4_agent": {
+        "path": "/root/wksim-dds-VxM6Ni/agent-install/bin/MicroXRCEAgent",
+        "sha256": "c61334626f2b625fdee68f7326ca1dabdf788b16d991a0e6879903cf24edb4b7"
+      },
+      "flight_evidence": [
+        {
+          "result": {
+            "path": "validation/joint-public-flight-_cs_wxw_/result.json",
+            "sha256": "11ba582724292470177f4514043293d8e68717e8e64b7edfbd168f6bb056447d"
+          },
+          "audit": {
+            "path": "validation/joint-public-flight-_cs_wxw_/audit.json",
+            "sha256": "c2db43e16120f05032a67543a9d57216d8a199008b076d0a3fec0ae2ce0446ec"
+          }
+        }
+      ]
+    },
+    "hex_build_sha256": "1f6534d11b5634723fa1c3c2e4d518ee11a281d5a28f24149c836eb56199834c",
+    "hex_library_sha256": "b10ef333129b44ce41d2d8d944a1e3d1161db9201bb1aea9eca88e726a5a7c9c",
+    "hex_config": {
+      "basis": "Original Quad X mass/inertia/motor/rotor/environment template; no physical Hex aircraft calibration",
+      "geometry": {
+        "airframe": "Hex X",
+        "angles_deg": [
+          90,
+          270,
+          330,
+          150,
+          30,
+          210
+        ],
+        "motor_count": 6,
+        "motor_count_basis": "generated d[4]=6; no writable motor-count parameter",
+        "rpm_output_indices": [
+          16,
+          17,
+          18,
+          19,
+          20,
+          21
+        ],
+        "source_spin": [
+          1,
+          -1,
+          1,
+          -1,
+          -1,
+          1
+        ],
+        "spin_convention": "+1 CW, -1 CCW viewed from above; body yaw moment has opposite sign",
+        "unused_input_indices": [
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15
+        ]
+      },
+      "model_identity": "sha256:d703da7f888e7110e402aa32ff911cabcb24e0b01afb8bbf4c9ec1ccb897276a",
+      "name": "hex-x-source-template",
+      "parameters": {
+        "ModelInit_AngEuler": {
+          "unit": "rad; roll,pitch,yaw",
+          "value": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "ModelInit_PosE": {
+          "unit": "m; NED",
+          "value": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "ModelInit_RPM": {
+          "unit": "source-native motor initial speed; fixed zero",
+          "value": 0.0
+        },
+        "ModelInit_RateB": {
+          "unit": "rad/s; FRD",
+          "value": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "ModelInit_VelB": {
+          "unit": "m/s; FRD",
+          "value": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "ModelParam_3DType": {
+          "unit": "source enum",
+          "value": 3
+        },
+        "ModelParam_GPSLatLong": {
+          "unit": "degree; latitude,longitude",
+          "value": [
+            40.1540302,
+            116.2593683
+          ]
+        },
+        "ModelParam_envAltitude": {
+          "unit": "m; source altitude parameter",
+          "value": -50.0
+        },
+        "ModelParam_motorCr": {
+          "unit": "rad/s per normalized command",
+          "value": 842.1
+        },
+        "ModelParam_motorJm": {
+          "unit": "kg*m^2",
+          "value": 0.0001287
+        },
+        "ModelParam_motorMinThr": {
+          "unit": "normalized command",
+          "value": 0.05
+        },
+        "ModelParam_motorT": {
+          "unit": "s",
+          "value": 0.0214
+        },
+        "ModelParam_motorWb": {
+          "unit": "rad/s",
+          "value": 22.83
+        },
+        "ModelParam_rotorCm": {
+          "unit": "N*m/(rad/s)^2",
+          "value": 2.783e-07
+        },
+        "ModelParam_rotorCt": {
+          "unit": "N/(rad/s)^2",
+          "value": 1.681e-05
+        },
+        "ModelParam_uavCCm": {
+          "unit": "N*m/(rad/s)^2; FRD",
+          "value": [
+            0.0035,
+            0.0039,
+            0.0034
+          ]
+        },
+        "ModelParam_uavCd": {
+          "unit": "N/(m/s)^2",
+          "value": 0.055
+        },
+        "ModelParam_uavDearo": {
+          "unit": "m; downward aero-center offset",
+          "value": 0.12
+        },
+        "ModelParam_uavJ": {
+          "unit": "kg*m^2; 3x3 diagonal",
+          "value": [
+            0.0211,
+            0.0,
+            0.0,
+            0.0,
+            0.0219,
+            0.0,
+            0.0,
+            0.0,
+            0.0366
+          ]
+        },
+        "ModelParam_uavMass": {
+          "unit": "kg",
+          "value": 1.515
+        },
+        "ModelParam_uavR": {
+          "unit": "m; center to rotor",
+          "value": 0.225
+        },
+        "ModelParam_uavType": {
+          "unit": "source enum; Hex X",
+          "value": 5
+        }
+      },
+      "profile": {
+        "dt_s": 0.001,
+        "hex_visual_3DType": null,
+        "input_count": 16,
+        "lifetime": "one vehicle per fresh process; no in-process reset",
+        "output_count": 120,
+        "source_3DType": 3
+      },
+      "schema": "wksim.hex-source-template.v1",
+      "source": {
+        "archive_sha256": "d528b5d247e13d943f1eaa7a37fd3cb4d15c7e9bb7a6b0e5988a1423e59d05ed",
+        "base_wrapper_sha256": "3f325678b1d85c9aa3fd07bd644d82935aa26d82885926defeced139f02ddf2c",
+        "raw_members_sha256": {
+          "Exp1_MinModelTemp.cpp": "a35d7c8f39c94f2db8c27b19affee5b66c1b001c63ded334ba83c99f8be54019",
+          "Exp1_MinModelTemp.h": "2d89ad1b492c5e70e80682a9f53896e0538260946a0180a2ca44e500ba1589bd",
+          "rtw_continuous.h": "8f2c78fdc5a097552078484c738aefcc944463c8834d2ca6319b76cedf526b18",
+          "rtw_solver.h": "359ff69aa94a137e8b246721ead52e056dd4fdf11c35a7f92ebb9f14e0cda674",
+          "rtwtypes.h": "9d5bd1a47f06fd3f6cb124a96d407a6296875763759ab9fb388296e6199a1716"
+        },
+        "recipe": "hex-x-template-uavType-initializer-v1"
+      }
+    },
+    "plan_identity": "sha256:5c07a2d5c1e4b13580ae8b3ba43ce686324ec340adf2c12e9b4ffaabbba8486a",
+    "parameters_xml_sha256": "639ef45050f77593983c94a37b15bb9a87c089a0533ac62f11c0b2756d827d7b",
+    "setup_sha256": {
+      "/opt/ros/humble/setup.bash": "12556a2725a823c3841f8fbab50892c8b8c69df9654d2a74761407226ecca4df",
+      "/root/wksim-dds-VxM6Ni/ros-install/local_setup.bash": "0e10d666bbf43cf559467b11b75cf6d26cf8d210e7f94e79dfe5a7dddb2fe91c",
+      "/root/wksim-ap-dds-yaw-state-4Wr27s/ros-install/local_setup.bash": "0e10d666bbf43cf559467b11b75cf6d26cf8d210e7f94e79dfe5a7dddb2fe91c",
+      "/root/wksim-ros2-MUlZd0/install/local_setup.bash": "0e10d666bbf43cf559467b11b75cf6d26cf8d210e7f94e79dfe5a7dddb2fe91c",
+      "/root/wksim-joint-control-FVMjak/install/local_setup.bash": "0e10d666bbf43cf559467b11b75cf6d26cf8d210e7f94e79dfe5a7dddb2fe91c"
+    }
+  }
+}
+w s l :   ÀhKm0R  l o c a l h o s t   ãNtM‘nÿFO*g\•ÏP0R  W S L 0N A T   !j_N„v  W S L   N/ec  l o c a l h o s t   ãNt0 
+ 

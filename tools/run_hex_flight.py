@@ -16,10 +16,19 @@ sys.path.insert(0, str(REPO))
 from tools.hex_candidate import admit, clean_environment, digest, require, native_parameters
 from tools.hex_launch_plan import launch_plan as hex_plan
 from Simulator.wksim_runtime.isolation import Reservation, check_isolation, resources, isolate_temporary_files
-from Simulator.wksim_runtime.runtime import launch_spec, stop_children, truth_summary, udp_listening
+from Simulator.wksim_runtime.runtime import launch_spec, stop_children as stop_runtime_children, truth_summary, udp_listening
 from Simulator.wksim_runtime.evidence import write_json
+from Simulator.wksim_runtime.hex_task import protocol_for
 
 PROTOCOL = REPO/'Simulator/wksim_runtime/hex-flight-v1.json'
+
+
+def stop_children(children):
+    """Flush the owned physical terminal before FC retirement closes its socket."""
+    return stop_runtime_children([row for row in children if row[0] != 'physics']
+                                 + [row for row in children if row[0] == 'physics'])
+
+
 SOURCE_NAMES = ['tools/hex_candidate.py', 'tools/run_hex_flight.py', 'tools/run-hex-flight.sh',
     'tools/hex_physics.py', 'tools/hex_launch_plan.py', 'tools/build_hex_model_candidate.py',
     'Simulator/wksim_runtime/hex_task.py', 'Simulator/wksim_runtime/hex-flight-v1.json',
@@ -75,7 +84,8 @@ def prior_result(path, admission):
         'Cold reset requires a completed, safely landed, reaped previous Hex observation')
     require(previous['admission']['configuration_identity'] == admission['configuration_identity']
         and previous['run_id'] != admission['config']['run_id'], 'Cold reset requires same config and a new run id')
-    require(previous.get('protocol_sha256') == digest(PROTOCOL), 'Cold reset protocol identity differs')
+    selected, _ = protocol_for(admission['config']['stack'])
+    require(previous.get('protocol_sha256') == digest(selected), 'Cold reset protocol identity differs')
     require('supervisor' in previous, 'Missing previous supervisor identity')
     owners = list(previous['children'].values())+[dict(pid=previous['supervisor']['pid'],
                 returncode=0, identity=previous['supervisor'])]
@@ -117,19 +127,21 @@ def run(admission, output, parent=None):
     directory = output/config['run_id']
     directory.mkdir(mode=0o700)
     resource = resources(config, directory)
-    budget = json.loads(PROTOCOL.read_text())
-    from Simulator.wksim_runtime.hex_task import PROTOCOL_SHA256
-    require(digest(PROTOCOL) == PROTOCOL_SHA256, 'Frozen Hex protocol differs before launch')
+    selected, protocol_sha = protocol_for(config['stack'])
+    budget = json.loads(selected.read_text())
+    require(digest(selected) == protocol_sha, 'Frozen Hex protocol differs before launch')
+    source_names = [selected.relative_to(REPO).as_posix() if name == PROTOCOL.relative_to(REPO).as_posix() else name
+                    for name in SOURCE_NAMES]
     result = dict(status='failed', model_profile='hex_x', experimental=True, production_admitted=False,
         stack=config['stack'], run_id=config['run_id'], config=config, run_dir=str(directory),
         admission=admission, children={}, phases=[], safe_landing=False, resources=resource,
         supervisor=process_identity(os.getpid()),
-        cold_reset_from=parent_record, protocol=budget, protocol_sha256=digest(PROTOCOL),
+        cold_reset_from=parent_record, protocol=budget, protocol_sha256=protocol_sha,
         scope='Source-template Hex public position task; all flight claims pending independent raw audit')
     for name,value in [('admission', admission), ('config', config), ('isolation', resource), ('protocol', budget)]:
         (directory/(name+'.json')).write_text(json.dumps(value, indent=2)+'\n')
-    result['source_sha256'] = {name:digest(REPO/name) for name in SOURCE_NAMES}
-    for name in SOURCE_NAMES:
+    result['source_sha256'] = {name:digest(REPO/name) for name in source_names}
+    for name in source_names:
         target = directory/'run-source'/name
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_bytes((REPO/name).read_bytes())
@@ -183,7 +195,7 @@ def run(admission, output, parent=None):
             plan = launch_plan(config, directory, admission['library'])
             result['launch_plan'] = plan
             if config['stack'] == 'arducopter':
-                (directory/'hex.parm').write_text(hex_plan()['ap_parameter_file']+'LOG_DISARMED 1\n')
+                (directory/'hex.parm').write_text(hex_plan(config['stack'])['ap_parameter_file']+'LOG_DISARMED 1\n')
                 (directory/'dds.parm').write_text('DDS_ENABLE 1\nDDS_UDP_PORT 12019\nDDS_DOMAIN_ID 77\n')
             firmware = fixed['ap' if config['stack'] == 'arducopter' else 'px4']
             agent = fixed[config['stack']+'_agent']
