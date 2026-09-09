@@ -25,13 +25,18 @@ UDE_CONFIG_PATH = Path(__file__).with_name('ude-flight-v1.json')
 UDE_CONFIG_SHA256 = '4bca3479d61f73d2ab8253191bdc41938904a43877f6b688c0c55e32567c4590'
 
 
+NE_CONFIG_PATH = Path(__file__).with_name('ne-flight-v1.json')
+NE_CONFIG_SHA256 = '3b09761ad60976aa971f43e81edc0de9bb4ede7065a10b5d512c57c22a478e18'
+
+
 def protocol_sha256(config):
-    return {'pid': CONFIG_SHA256, 'ude': UDE_CONFIG_SHA256}[config['controller']]
+    return {'pid': CONFIG_SHA256, 'ude': UDE_CONFIG_SHA256, 'ne': NE_CONFIG_SHA256}[config['controller']]
 
 
 def implementation(config):
     return {'pid': 'Simulator.wksim_control.position_pid.PositionPID',
-            'ude': 'Simulator.wksim_control.position_ude.PositionUDE'}[config['controller']]
+            'ude': 'Simulator.wksim_control.position_ude.PositionUDE',
+            'ne': 'Simulator.wksim_control.position_ne.PositionNE'}[config['controller']]
 
 
 def controller_config(config):
@@ -40,12 +45,15 @@ def controller_config(config):
     if config['controller'] == 'ude':
         from Simulator.wksim_control.position_ude import UDEConfig
         return UDEConfig(config['model']['mass_kg'], **config['ude'])
+    if config['controller'] == 'ne':
+        from Simulator.wksim_control.position_ne import NEConfig
+        return NEConfig(config['model']['mass_kg'], **config['ne'])
     raise ValueError('Unsupported external position controller')
 
 
 def load_config(path):
     raw = Path(path).read_bytes()
-    if hashlib.sha256(raw).hexdigest() not in (CONFIG_SHA256, UDE_CONFIG_SHA256):
+    if hashlib.sha256(raw).hexdigest() not in (CONFIG_SHA256, UDE_CONFIG_SHA256, NE_CONFIG_SHA256):
         raise ValueError('Trial configuration differs from the pre-run frozen protocol')
     config = json.loads(raw)
     if hashlib.sha256(raw).hexdigest() != protocol_sha256(config):
@@ -69,17 +77,25 @@ def reference(config, kind, elapsed):
 
 class PIDLoop:
     """No ROS or physics imports needed to check the actual timestamp boundary."""
-    def __init__(self, config, stack, hover):
+    def __init__(self, config, stack, hover, *, initial_position=None):
         self.config = config
         self.pid = select_controller(config['controller'], controller_config(config))
         self.thrust = NativeThrustConfig(stack, config['model']['identity'], config['model']['mass_kg'], hover)
         self.resets = []
-        self.reset('selection')
+        self.reset('selection', initial_position=initial_position)
 
-    def reset(self, reason, stamp=None):
-        self.pid.reset(reason)
+    def reset(self, reason, stamp=None, *, initial_position=None):
+        if self.config['controller'] == 'ne':
+            self.pid.reset(reason, initial_position_enu=initial_position or (0., 0., 0.))
+            integral = self.pid.memory.integral
+        else:
+            self.pid.reset(reason)
+            integral = self.pid.integral
         self.stamp = stamp
-        self.resets.append(dict(reason=reason, native_state_stamp_s=stamp, integral=list(self.pid.integral)))
+        row = dict(reason=reason, native_state_stamp_s=stamp, integral=list(integral))
+        if self.config['controller'] == 'ne':
+            row['initial_position_enu'] = list(self.pid.initial_position_enu)
+        self.resets.append(row)
 
     def update(self, stamp, state, desired, *, active):
         if not active:
@@ -104,7 +120,7 @@ class PIDLoop:
             state=asdict(state), reference=asdict(desired), output=asdict(output),
             normalized_collective=collective, native_thrust_convention=(
                 [0., 0., -collective] if self.thrust.stack == 'px4' else collective))
-        if self.config['controller'] == 'ude':
+        if self.config['controller'] in ('ude', 'ne'):
             row.update(reset_count=len(self.resets), last_reset=self.resets[-1].copy())
         return row
 
@@ -135,7 +151,7 @@ def freeze_event(directory, event):
 
 class PIDTask(AttitudeTask):
     def __init__(self, *args, pid_config, **kwargs):
-        if pid_config != load_config({'pid': CONFIG_PATH, 'ude': UDE_CONFIG_PATH}[pid_config['controller']]):
+        if pid_config != load_config({'pid': CONFIG_PATH, 'ude': UDE_CONFIG_PATH, 'ne': NE_CONFIG_PATH}[pid_config['controller']]):
             raise ValueError('PIDTask requires the exact frozen configuration')
         self.pid_config = pid_config
         self.pid_loop = None
@@ -295,7 +311,8 @@ class PIDTask(AttitudeTask):
         self.command('pid_'+kind+'_neutral', attitude=(0., 0., point['yaw_rad'], hover))
         self.pid_identity = (self.epoch, self.native_generation)
         self.pid_kind, self.pid_origin = kind, self.read_truth()['time']
-        self.pid_loop.reset('takeover_'+kind, state_time(self.state))
+        self.pid_loop.reset('takeover_'+kind, state_time(self.state),
+                            initial_position=tuple(self.state.position))
         self.pid_measuring = True
         self.mark('pid_'+kind+'_begin', physical_start=self.pid_origin, settle_s=settle,
                   measure_s=measure, reference_clock='model physical reception cursor')
@@ -369,7 +386,8 @@ class PIDTask(AttitudeTask):
             self.duration('pid_level_calibration', 2, lambda v: abs(v['position'][2]-height) <= .3
                 and abs(v['velocity'][2]) <= .2, start=start)
             self.attitude_result['calibration']['status'] = 'same_run_level_validated_frozen_before_'+self.pid_config['controller'].upper()
-            self.pid_loop = PIDLoop(self.pid_config, self.flight_stack, hover)
+            self.pid_loop = PIDLoop(self.pid_config, self.flight_stack, hover,
+                                    initial_position=tuple(self.state.position))
             write_json(self.directory/'pid-resolved-config.json', dict(configuration=self.pid_config,
                 protocol_sha256=protocol_sha256(self.pid_config), calibration=self.attitude_result['calibration'],
                 controller=self.pid_config['controller'], runtime_implementation=implementation(self.pid_config)))
@@ -406,7 +424,7 @@ class PIDTask(AttitudeTask):
             raise
         finally:
             self.attitude_result.update(pid_updates=self.pid_updates, duplicate_states_skipped=self.pid_duplicate_states)
-            if self.pid_config['controller'] == 'ude' and self.pid_loop is not None:
+            if self.pid_config['controller'] in ('ude', 'ne') and self.pid_loop is not None:
                 self.attitude_result['observer_resets'] = self.pid_loop.resets
             write_json(self.directory/'pid-progress.json', self.attitude_result)
 

@@ -25,6 +25,7 @@ sys.path.insert(0, str(REPO))
 from tools import audit_attitude_flight as wire
 
 PROTOCOL = '25d50ddbbd44e658a72123e6d524a5c5021b355367a99e46a898ec9b9cecadc0'
+NE_PROTOCOL = '3b09761ad60976aa971f43e81edc0de9bb4ede7065a10b5d512c57c22a478e18'
 MODEL = 'cc0bc2d10790043251f38bb6a53f4d774379dd37a02b09cceba43ac1fafb02b3'
 require, digest, read, lines = wire.require, wire.digest, wire.read, wire.lines
 
@@ -36,6 +37,9 @@ def audit_profile(controller):
     if controller == 'ude':
         from tools.audit_ude_flight import PROTOCOL as ude_protocol, recompute as ude_recompute
         return ude_protocol, 'Simulator.wksim_control.position_ude.PositionUDE', ude_recompute
+    if controller == 'ne':
+        from tools.audit_ne_flight import PROTOCOL as ne_protocol, recompute as ne_recompute
+        return ne_protocol, 'Simulator.wksim_control.position_ne.PositionNE', ne_recompute
     raise ValueError('Unsupported audit controller')
 
 
@@ -60,6 +64,9 @@ def same_progress(left, right):
 
 
 def near(actual, expected, tolerance=1e-10):
+    if isinstance(expected, dict):
+        return (isinstance(actual, dict) and set(actual) == set(expected)
+                and all(near(actual[key], expected[key], tolerance) for key in expected))
     if isinstance(expected, (list, tuple)):
         return (isinstance(actual, (list, tuple)) and len(actual) == len(expected)
                 and all(near(a, b, tolerance) for a, b in zip(actual, expected)))
@@ -290,15 +297,17 @@ def identity(root, result, *, controller='pid'):
     seals = result['source_sha256']
     required = ('tools/run_pid_flight.py', 'tools/pid_physics.py', 'Simulator/wksim_runtime/pid_task.py',
                 'Simulator/wksim_control/position_pid.py', 'Simulator/wksim_runtime/'+controller+'-flight-v1.json')
-    if controller == 'ude':
-        required = ('Simulator/wksim_control/position_ude.py', *required)
-        declared = admission['external_ude']
+    if controller in ('ude', 'ne'):
+        key = controller
+        source_name = 'position_' + controller + '.py'
+        required = ('Simulator/wksim_control/' + source_name, *required)
+        declared = admission['external_'+key]
         require(declared['configuration'] == config and declared['protocol_sha256'] == protocol
                 and declared['implementation'] == implementation
-                and result['task']['external_ude']['implementation'] == implementation
-                and result['task']['external_ude']['controller'] == controller
-                and result['task']['external_ude']['protocol_sha256'] == protocol,
-                'UDE admission/implementation identity differs')
+                and result['task']['external_'+key]['implementation'] == implementation
+                and result['task']['external_'+key]['controller'] == controller
+                and result['task']['external_'+key]['protocol_sha256'] == protocol,
+                controller.upper() + ' admission/implementation identity differs')
     require(all(name in seals for name in required), 'Required executed source seal absent')
     for name, sha in seals.items():
         path = (root/'run-source'/name).resolve()
@@ -339,10 +348,10 @@ def calibration(config, resolved, result, recorded, phases, states, *, controlle
             and resolved['controller'] == controller and cal == result['task']['external_'+controller]['calibration']
             and cal['stack'] == result['stack'] and cal['mass_kg'] == 1.515
             and cal['model_identity'] == 'sha256:'+MODEL, 'Calibration run/model/controller differs')
-    if controller == 'ude':
+    if controller in ('ude', 'ne'):
         require(resolved['runtime_implementation'] == implementation
-                and cal['status'] == 'same_run_level_validated_frozen_before_UDE',
-                'UDE calibration implementation/status differs')
+                and cal['status'] == 'same_run_level_validated_frozen_before_'+controller.upper(),
+                controller.upper() + ' calibration implementation/status differs')
     lo = phases['hover_observation_begin']['physical_start']
     hi = phases['hover_observation_end']['physical_cursor']['final_time']
     require(hi >= lo+3, 'Hover calibration shorter than three seconds')
@@ -388,6 +397,7 @@ def trace_audit(config, rows, phases, result, hover, data, *, controller='pid'):
     sessions = data['/uav1/prometheus/v2/state']
     events = [json.loads(v['message']) for _, v in data['/uav1/prometheus/text_info']]
     previous_stage = None; last_request = last_command = -1; counts = {}; matched = []; generation = None
+    memory = None
     for row in rows:
         kind = row['stage']
         require(kind in ('point', 'circle', 'disturbance'), 'Unknown PID stage')
@@ -397,7 +407,7 @@ def trace_audit(config, rows, phases, result, hover, data, *, controller='pid'):
                 require(0 <= phases['pid_'+previous_stage+'_end']['native_boot_s']-previous_stamp <= .2,
                         'PID trace missing final native-time coverage')
             require(kind not in counts, 'PID stage reentered without new run')
-            integral = [0.]*3; previous_stamp = begin['native_boot_s']; counts[kind] = 0
+            integral = [0.]*3; memory = None; previous_stamp = begin['native_boot_s']; counts[kind] = 0
             previous_stage = kind
         if generation is None:
             generation = row['native_generation']
@@ -408,22 +418,41 @@ def trace_audit(config, rows, phases, result, hover, data, *, controller='pid'):
                 and row['control_epoch'] == result['task']['control_epoch'], 'PID trace identity/calibration differs')
         require(begin['physical_start'] <= row['physical_time'] <= end['physical_cursor']['final_time']
                 and row['reference_origin_physical_s'] == begin['physical_start'], 'Reference clock/stage differs')
-        if controller == 'ude':
+        if controller in ('ude', 'ne'):
+            reset = row['last_reset']
             require(row['reset_count'] == 2*len(counts)
-                    and row['last_reset'] == dict(reason='takeover_'+kind,
-                        native_state_stamp_s=begin['native_boot_s'], integral=[0., 0., 0.]),
-                    'UDE observer reset identity/history differs')
+                    and reset['reason'] == 'takeover_'+kind
+                    and near(reset['native_state_stamp_s'], begin['native_boot_s'])
+                    and reset['integral'] == [0., 0., 0.],
+                    controller.upper() + ' observer reset identity/history differs')
+            if controller == 'ne':
+                initial = reset.get('initial_position_enu')
+                require(isinstance(initial, list) and len(initial) == 3 and all(math.isfinite(v) for v in initial),
+                        'NE initial-position binding differs')
+                if memory is None:
+                    memory = dict(integral=[0., 0., 0.], velocity_integral=[0., 0., 0.],
+                                  lpf=[0., 0., 0.], hpf=[0., 0., 0.], hpf_input=[0., 0., 0.],
+                                  llf=[0., 0., 0.], llf_input=[0., 0., 0.],
+                                  initial_position_enu=initial)
         ref = desired(config, kind, row['physical_time']-begin['physical_start'])
         require(all(near(row['reference'][k], v) for k, v in ref.items()), 'Circle/point reference differs')
         dt = row['native_state_stamp_s']-previous_stamp
         require(near(row['dt_s'], dt) and 0 < dt <= .2, 'PID native dt/reset discontinuity')
-        output, collective = equations(config, row['state'], ref, dt, integral, hover)
+        output, collective = equations(config, row['state'], ref, dt, memory if controller == 'ne' else integral, hover)
+        if controller == 'ne':
+            next_initial = output.pop('_initial_position_enu')
+        else:
+            next_initial = None
         require(row['output']['controller'] == controller and all(near(row['output'][k], v)
                 for k, v in output.items() if k != 'controller')
                 and near(row['normalized_collective'], collective), 'Independent PID integral/force/projection differs')
         require(near(row['native_thrust_convention'], [0., 0., -collective] if result['stack'] == 'px4' else collective),
                 'Native thrust sign differs')
-        integral, previous_stamp = output['integral'], row['native_state_stamp_s']
+        if controller == 'ne':
+            memory = dict(output['memory'], initial_position_enu=next_initial)
+        else:
+            integral = output['integral']
+        previous_stamp = row['native_state_stamp_s']
         rid, cid = row['public_request_id'], row['public_command_id']
         require(rid > last_request and cid > last_command and rid in requests, 'Missing/reused public identity')
         raw, public = requests[rid]; command = public['command']
@@ -637,10 +666,10 @@ def audit(root, *, controller='pid'):
                      'Native logs and mode messages are sampled; absence between samples is unverified.',
                      'Mass is source/hash bound, not a runtime parameter getter.',
                      'No Full, UI, joint rate, UDE/NE, or motor-efficiency acceptance.'])
-    if controller == 'ude':
-        report['auditor_sha256'] = digest(REPO/'tools/audit_ude_flight.py')
+    if controller in ('ude', 'ne'):
+        report['auditor_sha256'] = digest(REPO/('tools/audit_'+controller+'_flight.py'))
         report['shared_auditor_sha256'] = digest(__file__)
-        report['limitations'][-1] = 'No Full, UI, joint rate, NE, or motor-efficiency acceptance.'
+        report['limitations'][-1] = 'No Full, UI, joint rate, UDE/NE sibling, or motor-efficiency acceptance.'
     try:
         result = read(root/'result.json'); report['run_id'] = result['run_id']; report['stack'] = result['stack']
         config = identity(root, result, controller=controller); report['checks']['identity'] = result['source_sha256']
@@ -651,14 +680,14 @@ def audit(root, *, controller='pid'):
             'disturbance-event.json')}
         progress = read(root/'pid-progress.json')
         require(same_progress(progress, result['task']['external_'+controller]), 'Final PID progress differs from result')
-        if controller == 'ude':
+        if controller in ('ude', 'ne'):
             resets = progress['observer_resets']
             expected_reasons = ['selection']
             for kind in ('point', 'circle', 'disturbance'):
                 expected_reasons += ['takeover_'+kind, 'release_'+kind]
             require([r['reason'] for r in resets] == expected_reasons
                     and all(r['integral'] == [0., 0., 0.] for r in resets),
-                    'Missing or contaminated UDE lifecycle resets')
+                    'Missing or contaminated '+controller.upper()+' lifecycle resets')
         phases = {p['phase']: p for p in progress['phases']}
         require(len(phases) == len(progress['phases']), 'Duplicate phase declarations')
         event_raw = (root/'disturbance-event.json').read_bytes(); event = json.loads(event_raw)

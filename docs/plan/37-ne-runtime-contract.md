@@ -1,23 +1,38 @@
-# #94 NE runtime integration review — blocked
+# #94 NE runtime integration and flight contract — v1
 
-2026-09-09. This is a source-grounded integration contract, not a runnable NE release. #93 is complete; #35 remains OPEN. #94 currently allows only this document, a new `Simulator/wksim_runtime/ne-flight-v1.json`, and new ticket evidence. Its requirement that the candidate actually computes NE cannot be met by those two deliverables alone. No candidate JSON is published as runnable.
+2026-09-10. #93 and #35 are complete. This document records the bounded NE
+runtime integration implemented in the same external XYZ_ATT task seam as
+PID/UDE, plus the fresh stack flight runs and independent audits. The frozen
+configuration is `Simulator/wksim_runtime/ne-flight-v1.json`, SHA256
+`3b09761ad60976aa971f43e81edc0de9bb4ede7065a10b5d512c57c22a478e18`.
 
 ## Exact integration scope requiring assignment
 
-The PID report's selector is in the external Python task, not the installed ROS Control node. The installed node consumes public XYZ_ATT. `position_pid.select_controller` rejects NE, and `pid_task.load_config` pins the exact PID bytes before selecting anything. Four runtime edits are required and currently outside this ticket's allowed paths:
+The installed Control node already consumes public XYZ_ATT. The selected
+external task binds NE explicitly while preserving PID/UDE defaults. The
+bounded runtime change covers four existing files plus one independent auditor:
 
-1. `Simulator/wksim_runtime/pid_task.py`: explicit PID/NE dispatch with typed NEConfig and PositionNE; per-controller immutable protocol hash; NE trace/output/reset identity; initialize NE from the first fresh stage state after authority confirmation. Keep PID protocol behavior intact. Unknown/missing selections reject. Do not pass NE through PIDConfig or relabel PID output.
+1. `Simulator/wksim_runtime/pid_task.py`: explicit PID/UDE/NE dispatch with typed NEConfig and PositionNE; per-controller immutable protocol hash; NE trace/output/reset identity; bind initial position at stage takeover. PID and UDE behavior remains unchanged.
 2. `tools/run_pid_flight.py`: seal selected configuration, NE algorithm and all imported dependencies; pass the selected protocol to task/physics; emit actual controller identity in admission/result/source copies. Preserve pre/post identity and cleanup gates.
-3. `tools/pid_physics.py`: validate the selected frozen protocol/event binding, while retaining exact source packets, held inputs, every 1ms tick and latched revocation. Its current import and loader bind PID only.
-4. `tools/audit_pid_flight.py`: independently recompute NE filters, both integrals, discarded LLF contribution, nominal/disturbance terms, force, attitude and native output from raw evidence. Current PID equations and protocol pin cannot audit NE. Never import the online NE update as the oracle.
+3. `tools/pid_physics.py`: selected protocol/event binding, exact source packets,
+held inputs, every 1ms tick and latched revocation are retained.
+4. `tools/audit_pid_flight.py` plus `tools/audit_ne_flight.py`: independently
+recompute NE filters, both integrals, discarded LLF contribution,
+nominal/disturbance terms, force, attitude and native output from raw evidence.
+The NE oracle never imports the online NE update.
 
-Tests for these changes also require explicit ownership of the corresponding test files. The existing shell wrapper can retain its name and isolation behavior; no installed Control modification is needed for its existing public attitude outlet. This document does not authorize edits outside #94's allowlist.
+Tests are `validation/test_ne_runtime.py` plus the existing PID/UDE suites. The
+shell wrapper and installed Control package remain unchanged; no installed
+Control modification is needed for the existing public attitude outlet.
 
 ## Proposed frozen run requirements
 
-Reuse the PID physical budgets byte-for-value: quad-X library `cc0bc2d10790043251f38bb6a53f4d774379dd37a02b09cceba43ac1fafb02b3`, mass 1.515 kg, physics step .001 s; timing maximum native dt .2 s and ACK .2 simulated s / 2 wall s, whole-run watchdog 360 wall s. These remain proposed NE admission limits until implemented and tested; no control-rate achievement is implied.
+Reuse the PID physical budgets byte-for-value: quad-X library `cc0bc2d10790043251f38bb6a53f4d774379dd37a02b09cceba43ac1fafb02b3`, mass 1.515 kg, physics step .001 s; timing maximum native dt .2 s and ACK .2 simulated s / 2 wall s, whole-run watchdog 360 wall s. These are the frozen NE admission limits used by the runs; no control-rate achievement is implied.
 
-NE parameter proposal: kp=(.5,.5,.5), kd=(2,2,2), disturbance_limit=(1,1,1), t_ude_s=1, t_ne_s=1, per-axis tilt=8 degrees. Source semantics come from #93, upstream `5dcd8cfa764d558f3e15dcb88aa7d49e32c54cce`, NE header hash `759e3296ea32eb34050ed8764c75e4bd88f6ba8cdb52da82c5e10b745f45fe7f`. These parameters are not tuned or flight validated.
+NE parameters are kp=(.5,.5,.5), kd=(2,2,2), disturbance_limit=(1,1,1),
+t_ude=1, t_ne=1 and per-axis tilt=8 degrees. Source semantics come from #93,
+upstream `5dcd8cfa764d558f3e15dcb88aa7d49e32c54cce`, NE header hash
+`759e3296ea32eb34050ed8764c75e4bd88f6ba8cdb52da82c5e10b745f45fe7f`.
 
 Each stack/run must independently measure 3 s native ATTITUDE_TARGET median collective and pass the existing 2 s level validation before measurement. No previous/default hover. Validate model hash/mass and stack binding. AP positive collective and PX4 FRD negative Z mapping remain distinct. Calibration samples, model, source/config hashes, run ID, native generation, control epoch and installed paths must be recorded together.
 
@@ -29,13 +44,25 @@ On selection, stage entry/release, loss, invalid time or epoch change, clear bot
 
 ## Commands and acceptance gap
 
-The only currently executable checks for this review are:
+The implementation and independent audit commands are:
 
 ```powershell
 python -B -m unittest validation.test_position_ne validation.test_pid_flight -q
-python -B validation/lunar-94-astra-20260909-01/check_boundaries.py
+python -B -m unittest validation.test_ne_runtime validation.test_ude_runtime validation.test_pid_flight_audit -q
+bash tools/run-pid-flight.sh --stack px4 --run-id ne-px4-acceptance-20260910-01 --config Simulator/wksim_runtime/ne-flight-v1.json --preflight
+bash tools/run-pid-flight.sh --stack arducopter --run-id ne-arducopter-acceptance-20260910-01 --config Simulator/wksim_runtime/ne-flight-v1.json --preflight
 ```
 
-There are no valid NE stack-specific flight commands today: the existing `run-pid-flight.sh --stack px4` and `--stack arducopter` paths both load the PID-only protocol. Supplying an NE JSON cannot satisfy them. After the four integrations and tests, publish separate one-run argv with new IDs and fresh `/root/wksim-pid-flight-*` directories, explicit config, per-stack preflight, and separate new audit outputs. Do not execute guessed commands or claim the proposed interface exists.
+The same isolated runner accepts the exact frozen NE configuration. Each flight
+uses a fresh `/root/wksim-pid-flight-*` directory and a separate audit output;
+retained command records and reports are under
+`validation/ne-runtime-acceptance-20260910/`.
 
-Independent acceptance must cover raw source/config identities, same-run calibration, every NE update/reset and initial-position binding, public request/command IDs through raw CDR/MAVLink native targets, and every 1ms physics input/output across fixed windows. Required rejection cases: PID mislabelled NE, changed filter/integral, stale/duplicate/backwards time, retained reset memory, wrong model/stack/run, substituted hover, native position during measurement, missed tick, altered disturbance/event binding and missing terminal/cleanup. Preserve native sampling limitations rather than claiming exact unseen acceptance times. `observed` and `online_ok` remain provisional. #95/#96 cannot be released from this review; R1, RateUnmet and Full remain unchanged.
+Independent acceptance covers raw source/config identities, same-run calibration,
+every NE update/reset and initial-position binding, public request/command IDs,
+native targets, every 1ms physics input/output, fixed windows and owned cleanup.
+PID-mislabel, changed memory, stale/duplicate/backwards time, wrong model/stack,
+substituted hover, native position during measurement, missed tick and altered
+disturbance bindings remain rejection cases. Native sampling limitations remain
+explicit; no exact unseen acceptance time is claimed. #95/#96 are complete for
+this NE physical slice; R1, RateUnmet and Full remain unchanged.

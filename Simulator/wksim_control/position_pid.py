@@ -218,4 +218,7 @@ def select_controller(name: str, config):
         # Local import avoids a cycle with UDE's shared state/reference types.
         from .position_ude import PositionUDE
         return PositionUDE(config)
+    if name == "ne":
+        from .position_ne import PositionNE
+        return PositionNE(config)
     raise ValueError(f"unsupported external position controller: {name!r}")

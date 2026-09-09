@@ -335,7 +335,10 @@ class UDEAuditTests(unittest.TestCase):
             self.assertEqual((result['status'], result['schema'], result['protocol_sha256']),
                              ('rejected', 'wksim.ude.audit.v1', audit.PROTOCOL))
             self.assertIn('shared_auditor_sha256', result)
-        with self.assertRaises(ValueError): shared.audit_profile('ne')
+        protocol, implementation, _ = shared.audit_profile('ne')
+        self.assertEqual((protocol, implementation),
+                         ('3b09761ad60976aa971f43e81edc0de9bb4ede7065a10b5d512c57c22a478e18',
+                          'Simulator.wksim_control.position_ne.PositionNE'))
 
 
 if __name__ == '__main__': unittest.main()

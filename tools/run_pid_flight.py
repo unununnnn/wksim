@@ -95,9 +95,9 @@ def run(admission, output, pid_config, config_path):
         'Simulator/wksim_core/model.cpp','Simulator/wksim_core/ap_json.py',
         'Simulator/wksim_core/px4_mavlink.py','Simulator/wksim_core/state_stream.py',
         'Simulator/wksim_core/arducopter-quad-x.parm','Simulator/wksim_core/px4-rc.mavlink']
-    if pid_config['controller'] == 'ude':
-        source_names += ['Simulator/wksim_control/position_ude.py',
-                         'Simulator/wksim_runtime/ude-flight-v1.json']
+    if pid_config['controller'] in ('ude', 'ne'):
+        source_names += ['Simulator/wksim_control/position_'+pid_config['controller']+'.py',
+                         'Simulator/wksim_runtime/'+pid_config['controller']+'-flight-v1.json']
     result['source_sha256']={name:digest(REPO/name) for name in source_names}
     for name in source_names:
         target=directory/'run-source'/name
