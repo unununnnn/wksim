@@ -49,8 +49,13 @@ def episode_ready(shared,state,run_id):
         row=read(path)
         if (row['run_id']!=run_id or row['scene_epoch']!=state['epoch']
                 or row['stack']!=stack or row['uav_id']!=uid
-                or row['authority_tick']>state['authority']['tick']):
+                or type(row.get('authority_tick')) is not int or row['authority_tick']<0):
             raise ValueError('Tracking readiness identity differs')
+        # Workers publish readiness independently of the supervisor's periodic
+        # status snapshot. Wait for a snapshot that has caught up; never use
+        # the marker to advance the coordinator's authority time.
+        if row['authority_tick']>state['authority']['tick']:
+            return None
         result[stack]=row
     return result
 

@@ -125,6 +125,10 @@ class CoordinatorInterfaceTests(unittest.TestCase):
             coordinator.unc = lambda path: shared / "epochs" / REAL_EPOCH  # remap retained identity test
             try:
                 state["epoch_dir"] = str(shared / "epochs" / REAL_EPOCH)
+                state["authority"]["tick"] = 99
+                self.assertIsNone(episode_ready(shared, state, REAL_RUN))
+                self.assertEqual(state["authority"]["tick"], 99)
+                state["authority"]["tick"] = 200
                 ready = episode_ready(shared, state, REAL_RUN)
             finally:
                 coordinator.unc = original
