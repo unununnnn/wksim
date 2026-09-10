@@ -4,6 +4,7 @@
 
 1. `0001-estimator-status-cadence.patch`：`EKF2::PublishStatusFlags` 周期由1仿真秒改为200ms，与已有DDS `rate_limit: 5.` 对齐；状态/故障变化仍立即发布。健康标志内容、原生时钟、状态有效性判断和2秒墙钟新鲜度均不改。
 2. `0002-independent-sitl-without-gazebo.patch`：在副本的SITL板配置中去掉gz_msgs/gz_bridge/gz_plugins。参考二进制实际链接libgz；自主物理使用的MAVLink仿真接入仍保留，新候选不得链接或加载Gazebo/ignition/MATLAB库。
+3. `0004-land-observation-cadence.patch`：在已封存的 ONa1Kw 源码副本上将 LandDetector 的最长发布间隔从 1s 改为 200ms，与 DDS 5Hz 上限一致；状态变化仍立即发布，检测计算、原生时间戳和消费端 2s 新鲜度不变。`tools/build-px4-land-cadence.sh` 生成独立 `/root/wksim-px4-land-*`，`px4_land_candidate.py` 要求目标文件逐字节等于基线加唯一补丁。已构建候选 `7RjMjQ` 的清单 SHA256 为 `45c5332cf06a84952189fcf2eabc5d2e15fde9236c704a5c3d6318e7f5dcb3ac`；构建与依赖证据见 `validation/px4-land-cadence-01`。这不是默认资源提升或飞行验收。
 
 首个仅带补丁1的构建 `/root/wksim-px4-state-cNIif6` 仍链接libgz，作为依赖发现记录保留，未用于飞行；新准入要求两个补丁及独立运行库，拒绝该旧候选。空 `etc/init.d/rc.serial` 是此SITL目标的合法生成物，按实际哈希记录；固件与alias文件仍要求非空。
 

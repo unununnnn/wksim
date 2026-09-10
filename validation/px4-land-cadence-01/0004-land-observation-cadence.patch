@@ -1,0 +1,18 @@
+diff --git a/src/modules/land_detector/LandDetector.cpp b/src/modules/land_detector/LandDetector.cpp
+index 4ae554f1b8cbf9971668c656a4b7ba0ad5270d8c..348c790c18595714f4ada57369c4256159417e3d 100755
+--- a/src/modules/land_detector/LandDetector.cpp
++++ b/src/modules/land_detector/LandDetector.cpp
+@@ -152,8 +152,11 @@ void LandDetector::Run()
+ 
+ 	const bool at_rest = landDetected && _at_rest;
+ 
+-	// publish at 1 Hz, very first time, or when the result has changed
+-	if ((hrt_elapsed_time(&_land_detected.timestamp) >= 1_s) ||
++	// wksim SITL candidate: the same owner re-observes/publishes VehicleLandDetected
++	// every 200 ms (5 Hz), matching the existing DDS rate_limit. Any land-state change
++	// below still publishes immediately; detection, native timestamp and the 2 s
++	// consumer freshness check are unchanged.
++	if ((hrt_elapsed_time(&_land_detected.timestamp) >= 200_ms) ||
+ 	    (_land_detected.landed != landDetected) ||
+ 	    (_land_detected.freefall != freefallDetected) ||
+ 	    (_land_detected.maybe_landed != maybe_landedDetected) ||
