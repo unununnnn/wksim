@@ -1,0 +1,53 @@
+{
+  "python": "3.10.12 (main, Jun 22 2026, 18:55:27) [GCC 11.4.0]",
+  "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+  "streams": {
+    "rate": {
+      "calls": 2436,
+      "characters": 934757,
+      "slow_calls": [
+        {
+          "call": 2386,
+          "tick": 4764,
+          "wall_ns": 10180203,
+          "raw_before": 841653,
+          "raw_after": 906753,
+          "observed_raw_after": 906753,
+          "offset_matches": true,
+          "characters_match": true,
+          "underlying_writes": [
+            {
+              "call": 2386,
+              "bytes": 65100,
+              "before": 841653
+            }
+          ]
+        }
+      ]
+    },
+    "wire": {
+      "calls": 18266,
+      "characters": 7711683,
+      "slow_calls": [
+        {
+          "call": 18219,
+          "tick": 4848,
+          "wall_ns": 3168110,
+          "raw_before": 7620226,
+          "raw_after": 7683876,
+          "observed_raw_after": 7683876,
+          "offset_matches": true,
+          "characters_match": true,
+          "underlying_writes": [
+            {
+              "call": 18219,
+              "bytes": 63650,
+              "before": 7620226
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "scope": "Controlled CPython text/buffered write replay; matching offsets constrain whether a slow call flushed, not its OS cause"
+}
