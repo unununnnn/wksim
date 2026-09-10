@@ -148,5 +148,14 @@ class RCNodeTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'native_failsafe_control_released'):
             ControlNode.drive(node)
 
+    def test_command_navigation_loss_withdraws_before_cached_position_output(self):
+        node=self.node();node.scene=None;node.native.generation=1
+        node.state.odom_valid=False
+        node.native.send=Mock()
+        with self.assertRaisesRegex(ValueError,'native_navigation_invalid_control_released'):
+            ControlNode.drive(node)
+        node.native.send.assert_not_called()
+        node.native.request.assert_not_called()
+
 
 if __name__ == '__main__': unittest.main()

@@ -85,3 +85,9 @@ SHA和进程清单；不会启动 FC/模型/ROS。每条实际 argv/cwd/时间/�
 | 准确证据、范围、失败交接 | 本轮收尾的交付；不足以关闭 #121 |
 
 R1、RateUnmet、#45原AC和Full结论保持其原有证据边界。
+
+2026-09-10 implementation follow-up: the scheduled AP native prerequisite now
+exists and passed long ground/serial/DDS invalidity-recovery checks. See
+[AP GNSS scheduled report](../2026-09-10-ap-gnss-scheduled-report.md) for the new
+candidate/seal and exact evidence. The seven whole-flight deliverables listed
+above are still outstanding; the old fixed-window candidate remains unchanged.

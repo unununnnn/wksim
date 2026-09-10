@@ -704,6 +704,8 @@ class ControlNode(Node):
             return  # Publish invalid startup state; do not feed synthetic pose to the processor.
         if self.processor.control_state == Control.RC_POS_CONTROL and (not self.state.armed or not self.state.odom_valid):
             raise ValueError('rc_armed_or_navigation_lost')
+        if self.processor.control_state == Control.COMMAND_CONTROL and not self.state.odom_valid:
+            raise ValueError('native_navigation_invalid_control_released')
         self.processor.update_state(self.state)
         if active and not self.state.connected:
             raise ValueError('native_state_stale')
