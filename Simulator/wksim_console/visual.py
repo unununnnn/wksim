@@ -102,8 +102,8 @@ class View:
         self.run_id, self.state_socket = run_id, state_socket
         self.joint_instance=joint_instance
         self.rgb_config=None
-        if rgb_fixture_case is not None and (type(rgb_fixture_case) is not int or not 0<=rgb_fixture_case<=4 or rgb_config is None):
-            raise ValueError('RGB calibration fixture needs a configured camera and case 0..4')
+        if rgb_fixture_case is not None and (type(rgb_fixture_case) is not int or not 0<=rgb_fixture_case<=5 or rgb_config is None):
+            raise ValueError('RGB calibration fixture needs a configured camera and case 0..5')
         self.rgb_fixture_case=rgb_fixture_case
         if rgb_config is not None:
             from Simulator.ue55.rgb import config
@@ -132,7 +132,7 @@ class View:
         self.depth_stream_id = uuid.uuid4().hex
         self.depth_enabled = depth_config is not None
         self.rgb_stream_id = self._attempt
-        self.rgb_enabled = rgb_config is not None
+        self.rgb_enabled = rgb_config is not None and self.rgb_fixture_case != 5
         self._root = self.directory / ('view-' + self._attempt)
         self.readback_path = self._root / 'actor.jsonl'
         self.frames_directory = self._root / 'frames'

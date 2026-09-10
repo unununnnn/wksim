@@ -28,8 +28,16 @@ TArray<TSharedPtr<FJsonValue>> VectorJson(const FVector& V)
 
 bool AWksimRgbFixture::Configure(int32 Case, FString& Error)
 {
-    if (CaseId != -1 || Case < 0 || Case > 4) { Error = TEXT("Fixture case must be 0..4 and configured once"); return false; }
+    if (CaseId != -1 || Case < 0 || Case > 5) { Error = TEXT("Fixture case must be 0..5 and configured once"); return false; }
     if (Case == 4) return ConfigureArUco(Error);
+    if (Case == 5)
+    {
+        // Flight candidate: same marker geometry as case 4, but the actor keeps
+        // its spawn transform until the first real capture request solves the
+        // SceneAnchor from the actual camera pose. Capture starts disabled.
+        if (!BuildArUcoGeometry(Error)) return false;
+        CaseId = 5; return true;
+    }
 #if WITH_EDITOR
     UStaticMesh* Cube = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Cube.Cube"));
     if (!Cube) { Error = TEXT("Engine cube unavailable"); return false; }
@@ -82,6 +90,12 @@ bool AWksimRgbFixture::IsReady() const
 
 bool AWksimRgbFixture::ConfigureArUco(FString& Error)
 {
+    if (!BuildArUcoGeometry(Error)) return false;
+    CaseId = 4; return true;
+}
+
+bool AWksimRgbFixture::BuildArUcoGeometry(FString& Error)
+{
 #if WITH_EDITOR
     UStaticMesh* Cube = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Cube.Cube"));
     if (!Cube || Cube->GetBoundingBox().GetSize().GetMin() <= 0)
@@ -115,28 +129,54 @@ bool AWksimRgbFixture::ConfigureArUco(FString& Error)
             FVector(.1,6.25,6.25), ArUcoBits[Row*8+Column] == '1' ? 1 : 0);
     AddPart(TEXT("ArUcoOccluder"),FVector(205.05,32,6),FVector(.1,100,100),1);
     Parts.Last()->SetVisibility(false);
-    CaseId = 4; return true;
+    return true;
 #else
     Error = TEXT("ArUco scene requires the installed editor material compiler"); return false;
 #endif
 }
 
-bool AWksimRgbFixture::AdvanceArUco(const FWksimRgbRequest& Request, int64 Generation, const FString& Directory)
+bool AWksimRgbFixture::AdvanceArUco(const FWksimRgbRequest& Request, int64 Generation, const FString& Directory,
+                                    const FTransform& CameraInVehicle)
 {
     if (!IsArUco() || !IsReady() || Request.Step < 0 || Generation < 0) return false;
     if (SceneEpoch != Request.Epoch)
     {
         if (SceneGeneration >= 0 && Generation <= SceneGeneration) return false;
         SceneEpoch = Request.Epoch; SceneGeneration = Generation; SceneFirstStep = Request.Step; SceneStep = -1;
+        SceneAnchorValid = false;
     }
     if (Generation != SceneGeneration || Request.Step <= SceneStep) return false;
     SceneStep = Request.Step;
     SceneRun = Request.RunId; SceneInstance = Request.InstanceId; SceneStream = Request.StreamId;
     SceneCamera = Request.CameraWorldPose;
     const int64 Elapsed = SceneStep - SceneFirstStep;
-    const double Offset = FMath::Clamp(static_cast<double>(Elapsed-1000),0.,1000.) * .025;
-    SetActorLocation(FVector(0,Offset,0));
-    Parts.Last()->SetVisibility(Elapsed >= 2000 && Elapsed < 3000);
+    if (IsFlightArUco())
+    {
+        if (!SceneAnchorValid)
+        {
+            // First actual capture request of this epoch (capture is enabled and
+            // current; TickRgb gates otherwise): solve the initial vehicle
+            // transform from the real camera world pose and the fixed mount.
+            // CameraWorldPose = CameraInVehicle * VehicleTransform, so
+            // VehicleTransform = CameraInVehicle^-1 * CameraWorldPose.
+            SceneAnchor = CameraInVehicle.Inverse() * SceneCamera;
+            SceneAnchor.SetScale3D(FVector::OneVector);
+            SceneAnchorValid = true;
+            SetActorTransform(SceneAnchor);
+        }
+        // Authority-step timeline (1ms steps; never wall clock or DeltaTime):
+        // 0-2s static, 2-6s +Y at 0.25m/s (1m total), 6-8s fully occluded,
+        // 8-12s recovered static, held thereafter.
+        const double Offset = FMath::Clamp(static_cast<double>(Elapsed-2000),0.,4000.) * .025;
+        SetActorLocation(SceneAnchor.GetLocation() + FVector(0,Offset,0));
+        Parts.Last()->SetVisibility(Elapsed >= 6000 && Elapsed < 8000);
+    }
+    else
+    {
+        const double Offset = FMath::Clamp(static_cast<double>(Elapsed-1000),0.,1000.) * .025;
+        SetActorLocation(FVector(0,Offset,0));
+        Parts.Last()->SetVisibility(Elapsed >= 2000 && Elapsed < 3000);
+    }
     // Saved before CaptureScene, on the same game thread. Only completed RGB
     // records with this exact identity/step admit a scene record to the audit.
     const FString Path = FPaths::Combine(Directory,FString::Printf(TEXT("aruco-%s-%lld.json"),*SceneEpoch,SceneStep));
@@ -164,6 +204,33 @@ bool AWksimRgbFixture::WriteManifest(const FString& Path) const
         const FQuat CameraQ = SceneCamera.GetRotation();
         Json->SetArrayField(TEXT("camera_quaternion_xyzw"),{MakeShared<FJsonValueNumber>(CameraQ.X),MakeShared<FJsonValueNumber>(CameraQ.Y),
             MakeShared<FJsonValueNumber>(CameraQ.Z),MakeShared<FJsonValueNumber>(CameraQ.W)});
+        if (IsFlightArUco())
+        {
+            Json->SetNumberField(TEXT("scene_case"), 5);
+            Json->SetBoolField(TEXT("anchor_valid"), SceneAnchorValid);
+            if (SceneAnchorValid)
+            {
+                Json->SetArrayField(TEXT("anchor_position_cm"), VectorJson(SceneAnchor.GetLocation()));
+                const FQuat AnchorQ = SceneAnchor.GetRotation();
+                Json->SetArrayField(TEXT("anchor_quaternion_xyzw"),{MakeShared<FJsonValueNumber>(AnchorQ.X),
+                    MakeShared<FJsonValueNumber>(AnchorQ.Y),MakeShared<FJsonValueNumber>(AnchorQ.Z),
+                    MakeShared<FJsonValueNumber>(AnchorQ.W)});
+            }
+            // Phase boundaries in authority steps relative to first_step.
+            const int64 Elapsed = SceneStep - SceneFirstStep;
+            const TCHAR* Phase = TEXT("pending_enable");
+            int64 PhaseStart = SceneFirstStep;
+            if (SceneAnchorValid && Elapsed >= 0)
+            {
+                if (Elapsed < 2000) { Phase = TEXT("static_initial"); }
+                else if (Elapsed < 6000) { Phase = TEXT("moving"); PhaseStart = SceneFirstStep + 2000; }
+                else if (Elapsed < 8000) { Phase = TEXT("occluded"); PhaseStart = SceneFirstStep + 6000; }
+                else if (Elapsed < 12000) { Phase = TEXT("recovered"); PhaseStart = SceneFirstStep + 8000; }
+                else { Phase = TEXT("settled"); PhaseStart = SceneFirstStep + 12000; }
+            }
+            Json->SetStringField(TEXT("phase"), Phase);
+            Json->SetNumberField(TEXT("phase_start_step"), PhaseStart);
+        }
     }
 #if PLATFORM_WINDOWS
     // Query the loaded image containing this module's data address, without

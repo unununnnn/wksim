@@ -287,6 +287,10 @@ def epoch_run(directory,epoch,generation=1):
         result['source_sha256']={str(path.relative_to(REPO)):digest(path) for folder in
             (REPO/'Simulator/wksim_runtime',REPO/'Simulator/wksim_core') for path in folder.glob('*.py')}
         result['source_sha256']['Simulator/wksim_core/model.cpp']=digest(REPO/'Simulator/wksim_core/model.cpp')
+        observe_px4_setup=os.environ.get('WKSIM_OBSERVE_PX4_SETUP')=='1'
+        if observe_px4_setup:
+            result['source_sha256']['tools/observe_px4_setup.py']=digest(REPO/'tools/observe_px4_setup.py')
+            result['diagnostics']=dict(px4_setup_observer=True,scope='receiver/setup observations only; no decision replacement')
         if fixed_task:
             for name in ('pv_trajectory_task.py','mixed_control_task.py','audit_joint_trajectory.py',
                          'audit_pv_trajectory.py','audit_mixed_control.py','audit_joint_flight.py',
@@ -359,6 +363,11 @@ def epoch_run(directory,epoch,generation=1):
                 argv=[f'uav_id:={uid}' if value.startswith('uav_id:=') else value for value in argv]
                 argv+=['-p','use_sim_time:=true','-p','scene_epoch:='+epoch,
                        '-r','__node:=wksim_joint_'+stack+'_control']
+                if observe_px4_setup and stack=='px4':
+                    if argv[1:3]!=['-m','prometheus_control.node']:
+                        raise ValueError('Unexpected Control launch shape for setup observer')
+                    argv=[sys.executable,'-B','-m','tools.observe_px4_setup',str(output/'px4-setup-observer.jsonl'),
+                        admission['control_package'],*argv[3:]]
                 launch(stack+'-control',argv,folder,'control')
             # Process startup, DDS discovery and binary hashing belong before
             # paced physics. The staged Task workers cannot execute without
