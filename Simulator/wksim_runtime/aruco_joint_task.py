@@ -210,7 +210,9 @@ class JointArUcoTask(Task):
         native = [(self.topic_root+'v2/state', SessionState), (self.topic_root+'text_info', TextInfo)]
         if self.flight_stack == 'arducopter':
             from ardupilot_msgs.msg import GlobalPosition, WksimState, Status
-            native += [('/ap/cmd_gps_pose', GlobalPosition), ('/ap/wksim/local_state_v1', WksimState), ('/ap/status', Status)]
+            from geometry_msgs.msg import TwistStamped
+            native += [('/ap/cmd_gps_pose', GlobalPosition), ('/ap/cmd_vel', TwistStamped),
+                       ('/ap/wksim/local_state_v1', WksimState), ('/ap/status', Status)]
         else:
             from px4_msgs.msg import TrajectorySetpoint, VehicleLocalPosition, VehicleStatus, VehicleControlMode, VehicleCommand
             native += [(topic('/wksim_px4_21', direction, name, cls), cls) for direction, name, cls in (

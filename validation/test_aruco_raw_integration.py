@@ -50,5 +50,24 @@ class RawIntegrationTests(unittest.TestCase):
         task.raw_capture=S(drain=lambda:(_ for _ in ()).throw(OSError('disk full')))
         with self.assertRaises(OSError):task.pump()
 
+    def test_actual_ap_velocity_message_is_in_the_raw_channels(self):
+        try:
+            from geometry_msgs.msg import TwistStamped
+            from wksim_msgs.msg import CommandRequest
+        except ImportError:
+            self.skipTest('Actual ROS message workspace required')
+        from pathlib import Path
+        task=JointArUcoTask.__new__(JointArUcoTask)
+        task.flight_stack='arducopter';task.uav_id=1
+        task.directory=Path('/unused-test-output');task.run_id='channel-test';task.scene_epoch='a'*32
+        task.ros=S()
+        with patch('Simulator.wksim_runtime.aruco_raw_capture.ArucoRawCapture') as capture:
+            task._open_raw_capture()
+        kwargs=capture.call_args.kwargs
+        channels={c.topic:c.msg_type for c in kwargs['channels']}
+        self.assertIs(channels['/ap/cmd_vel'],TwistStamped)
+        self.assertIs(channels['/uav1/prometheus/v2/command'],CommandRequest)
+        self.assertIsNone(kwargs.get('convert'))
+
 
 if __name__=='__main__':unittest.main()
