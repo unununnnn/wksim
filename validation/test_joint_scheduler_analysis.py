@@ -1,6 +1,6 @@
 """Offline proof cases for trace parsing and scheduler attribution."""
 import unittest
-from tools.analyze_joint_scheduler import parse,pair,explain,native_wait
+from tools.analyze_joint_scheduler import parse,pair,explain,native_wait,recorded_native_waits
 from tools.profile_joint_scheduler import epoch_groups_retired
 
 
@@ -58,6 +58,28 @@ class SchedulerAnalysisTests(unittest.TestCase):
         self.assertIn('not separated',native_wait(timing,intervals)['native_path'])
         timing['wall_end_ns']+=1
         with self.assertRaisesRegex(ValueError,'Stage timestamps'):native_wait(timing,intervals)
+
+    def test_recorded_waits_keep_sampling_and_capture_boundaries(self):
+        def sample(tick,start,model,wait):
+            return dict(tick=tick,wall_start_ns=start,wall_end_ns=start+model+wait,
+                stages={'health_and_models':dict(wall_ns=model,thread_cpu_ns=model),
+                    'encode_send':dict(wall_ns=0,thread_cpu_ns=0),
+                    'native_inputs':dict(wall_ns=wait,thread_cpu_ns=10)})
+        rows=[sample(1,0,0,100),sample(2,100,3_000_000,100),
+              sample(4,3_000_200,0,3_000_000),sample(5,6_000_200,0,100)]
+        intervals=[dict(start_ns=3_000_300,end_ns=5_000_300,state='S',wake_ns=5_000_200)]
+        result=recorded_native_waits(rows,intervals,100,6_000_200)
+        self.assertEqual((result['inside_capture'],result['excluded_capture_boundary']),(2,2))
+        paths={row['native_path']:row for row in result['by_native_path']}
+        self.assertEqual(paths['AP input only']['recorded_waits_over_2ms'],0)
+        self.assertEqual(sum(row['recorded_waits_over_2ms'] for row in paths.values()),1)
+        longest=result['longest_recorded_waits'][0]
+        self.assertEqual(longest['tick'],4)
+        self.assertEqual(longest['supervisor_scheduler']['runnable_ns'],100)
+        self.assertEqual(longest['supervisor_scheduler']['blocked_before_wake_ns'],1_999_900)
+        self.assertEqual(recorded_native_waits([],[],1,2)['inside_capture'],0)
+        with self.assertRaisesRegex(ValueError,'Overlapping'):
+            recorded_native_waits(rows,intervals+intervals,100,6_000_200)
 
 
 if __name__=='__main__':unittest.main()

@@ -102,8 +102,8 @@ class View:
         self.run_id, self.state_socket = run_id, state_socket
         self.joint_instance=joint_instance
         self.rgb_config=None
-        if rgb_fixture_case is not None and (type(rgb_fixture_case) is not int or not 0<=rgb_fixture_case<=3 or rgb_config is None):
-            raise ValueError('RGB calibration fixture needs a configured camera and case 0..3')
+        if rgb_fixture_case is not None and (type(rgb_fixture_case) is not int or not 0<=rgb_fixture_case<=4 or rgb_config is None):
+            raise ValueError('RGB calibration fixture needs a configured camera and case 0..4')
         self.rgb_fixture_case=rgb_fixture_case
         if rgb_config is not None:
             from Simulator.ue55.rgb import config

@@ -1,11 +1,19 @@
-# #121 GNSS 运行入口准入与待交付边界
+# #121 GNSS 运行入口与历史准入记录
 
 2026-09-10最新状态：双栈运行器、冻结v3工况和原始整场审计已交付并通过实际飞行。
 当前入口/完整身份与失败历史见[飞行报告](../2026-09-10-gnss-flight-report.md)及
 `validation/45-gnss-flight/final-matrix.json`。以下保留实现前的历史检查点；不再作为当前缺件清单。
 
+2026-09-10 `514743f` 后主复核：OMP 从两场 `/root` 原始目录重新执行审计，结果均复现 PASS。两个最终审计输出的原始 JSON 已逐字节复制到 `validation/45-gnss-flight/px4-05-audit-final-v3.json` 和 `ap-05-audit-final-v3.json`，与最终矩阵内嵌值逐项相等。矩阵中的 `audit_sha256` 是审计器源码散列；审计输出文件自身散列见 `validation/coordination/gnss-audit-output-copies-514743f.json`。
+
+当前完整命令、冻结 v3 配置、Control 候选身份、实际传感器注入和失败退出边界以[整场飞行报告](../2026-09-10-gnss-flight-report.md)为准。`tools/run-gnss-flight.sh --help` 及两个原始预检已被独立核对。原子票拟定的 `validation/lunar-45-*-run/` 已由主会话采用统一 `validation/45-gnss-flight/` 保存实际证据，不重复复制成另一场运行。
+
+本次确认实现/命令/运行证据交付。父票 #45 关于 GNSS 专属失效动作与包线的批准来源单独核对，不把 #22 的 Agent 链路策略自动扩展为 GNSS 策略，不把本文件当新的策略批准。
+
+## 2026-09-09 历史检查点（以下状态已由上述交付更新）
+
 2026-09-09。状态：**实现前置不完整；本票保持 OPEN / needs-triage**。
-这是当前可复查的准入交接，不是已完成的双栈飞行 runbook。
+这是当时的准入交接，不是当时已完成的双栈飞行 runbook。
 本轮只读核验与准确命令保存在
 `validation/lunar-121-20260909-closeout-01/`。本票禁止提前运行 #111/#112 飞行。
 
@@ -90,7 +98,7 @@ SHA和进程清单；不会启动 FC/模型/ROS。每条实际 argv/cwd/时间/�
 
 R1、RateUnmet、#45原AC和Full结论保持其原有证据边界。
 
-2026-09-10 implementation follow-up: the scheduled AP native prerequisite now
+Historical intermediate follow-up (superseded by the completed v3 delivery above): the scheduled AP native prerequisite
 exists and passed long ground/serial/DDS invalidity-recovery checks. See
 [AP GNSS scheduled report](../2026-09-10-ap-gnss-scheduled-report.md) for the new
 candidate/seal and exact evidence. The seven whole-flight deliverables listed

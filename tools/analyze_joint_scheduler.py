@@ -107,6 +107,46 @@ def native_wait(timing,intervals):
         limitation='Supervisor blocking/runnable time does not identify the native FC or host cause')
 
 
+def recorded_native_waits(timings,intervals,capture_start,capture_end):
+    """Summarize the retained slow/periodic samples, never a full step census."""
+    require(capture_start<capture_end,'Invalid capture window')
+    intervals=sorted(intervals,key=lambda value:value['start_ns'])
+    ends=[value['end_ns'] for value in intervals]
+    require(all(a['end_ns']<=b['start_ns'] for a,b in zip(intervals,intervals[1:])),
+            'Overlapping supervisor scheduler intervals')
+    samples=[]
+    excluded=0
+    for timing in timings:
+        # Validate the stage sum even when the sample lies outside the capture.
+        span=native_wait(timing,[])
+        if span['ns']<capture_start or span['end_ns']>capture_end:
+            excluded+=1
+            continue
+        first=bisect_right(ends,span['ns'])
+        selected=[]
+        for value in intervals[first:]:
+            if value['start_ns']>=span['end_ns']:break
+            selected.append(value)
+        samples.append(native_wait(timing,selected))
+    summaries=[]
+    for path in sorted({sample['native_path'] for sample in samples}):
+        rows=[sample for sample in samples if sample['native_path']==path]
+        durations=sorted(row['duration_ns'] for row in rows)
+        summaries.append(dict(native_path=path,recorded_samples=len(rows),
+            median_recorded_ns=statistics.median(durations),maximum_recorded_ns=max(durations),
+            recorded_waits_over_2ms=sum(value>2_000_000 for value in durations),
+            recorded_wall_ns=sum(durations),
+            recorded_thread_cpu_ns=sum(row['thread_cpu_ns'] for row in rows),
+            scheduler_totals={key:sum(row['supervisor_scheduler'][key] for row in rows)
+                for key in ('off_cpu_ns','runnable_ns','blocked_before_wake_ns','unknown_off_cpu_ns')}))
+    return dict(recorded_samples=len(timings),inside_capture=len(samples),
+        excluded_capture_boundary=excluded,by_native_path=summaries,
+        longest_recorded_waits=sorted(samples,key=lambda row:row['duration_ns'],reverse=True)[:20],
+        limitation='Biased retained samples: whole-step wall time >2ms or tick divisible by 250. '
+            'Counts/medians are not population rates; unpaired boundary intervals remain unaccounted. '
+            'AP-only waits do not identify an AP function, thread, or host cause.')
+
+
 def analyze(root):
     report=json.loads((root/'report.json').read_text());meta=report['capture']
     require(meta['complete'] and meta['loss_free'] and meta['global_controls_unchanged'] and meta['instance_removed'],
@@ -125,8 +165,8 @@ def analyze(root):
     require(groups,'No completed rate group in retained run')
     largest=max(groups,key=lambda g:g['actual_end_ns']-g['actual_start_ns'])
     with (epoch/'wire.jsonl').open() as stream:
-        timing=[row for line in stream if (row:=json.loads(line))['kind']=='diagnostic_step_cpu_timing'
-                and largest['start_tick']<row['tick']<=largest['end_tick']]
+        recorded_timing=[row for line in stream if (row:=json.loads(line))['kind']=='diagnostic_step_cpu_timing']
+    timing=[row for row in recorded_timing if largest['start_tick']<row['tick']<=largest['end_tick']]
     starts=[g['actual_start_ns'] for g in groups]
     summary=[]
     for role in ('ap_worker','px4_worker'):
@@ -152,6 +192,8 @@ def analyze(root):
         analyzer_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
         epoch=report['epoch'],pid_mapping=meta['pid_mapping'],trace_sha256=meta['trace_sha256'],
         event_counts=dict(Counter(e['kind'] for e in events)),boundary_counts=boundaries,writes=summary,
+        recorded_native_waits=recorded_native_waits(recorded_timing,off[pids['supervisor']],
+            meta['started_monotonic_ns'],meta['stopped_monotonic_ns']),
         largest_group=dict(group=largest,timings=timing,
             native_waits=[native_wait(row,off[pids['supervisor']]) for row in timing],
             inside_capture=meta['started_monotonic_ns']<=largest['actual_start_ns']

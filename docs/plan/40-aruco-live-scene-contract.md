@@ -1,6 +1,8 @@
 # #103 · ArUco UE live scene candidate contract
 
-Status: NOT ACQUIRED / NOT CALIBRATED. Frozen before any new rendering, 2026-09-09.
+2026-09-10 update: actual ground acquisition and calibration passed. See [live scene report](../2026-09-10-aruco-scene-report.md), run `aruco-scene-267899ace7`, and `validation/40-aruco-live-scene/run-514743f-03/audit-final.json`. The budgets below were frozen before rendering and remain unchanged. Runtime Engine Cube cells plus two transient unlit materials implement the marker; no persistent texture/material/map asset was needed. The implementation scope was resolved by the continuing parent task. The old NOT ACQUIRED state and implementation gaps below describe the 2026-09-09 inspection only. #104 still owns actual sensor-to-flight validation.
+
+Historical status: NOT ACQUIRED / NOT CALIBRATED. Frozen before any new rendering, 2026-09-09.
 Scope: #103 / `40-real-scene`; parent #40 remains subject to #30, #32 and #6.
 This contract is a reviewable candidate, not evidence of a created scene.
 

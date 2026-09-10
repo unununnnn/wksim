@@ -1,0 +1,44 @@
+test_actual_capture (validation.test_aruco_scene_audit.ArUcoSceneAuditTests.test_actual_capture) ... ERROR
+test_missing_occlusion_phase (validation.test_aruco_scene_audit.ArUcoSceneAuditTests.test_missing_occlusion_phase) ... FAIL
+test_scene_identity_relabelled (validation.test_aruco_scene_audit.ArUcoSceneAuditTests.test_scene_identity_relabelled) ... ok
+test_stale_frame (validation.test_aruco_scene_audit.ArUcoSceneAuditTests.test_stale_frame) ... ok
+test_wrong_material_with_updated_hash (validation.test_aruco_scene_audit.ArUcoSceneAuditTests.test_wrong_material_with_updated_hash) ... ok
+test_wrong_physical_size_with_updated_hash (validation.test_aruco_scene_audit.ArUcoSceneAuditTests.test_wrong_physical_size_with_updated_hash) ... ok
+
+======================================================================
+ERROR: test_actual_capture (validation.test_aruco_scene_audit.ArUcoSceneAuditTests.test_actual_capture)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\PC\Documents\odid编译\wksim\validation\test_aruco_scene_audit.py", line 23, in test_actual_capture
+    def test_actual_capture(self):self.assertEqual(audit(self.source())['status'],'pass')
+                                                   ~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\PC\Documents\odid编译\wksim\tools\audit_aruco_scene.py", line 114, in audit
+    require(target['velocity_world_ue_mps'] is not None and np.max(np.abs(
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        np.asarray(target['velocity_world_ue_mps'])-[0,.25,0]))<=.12,'Motion velocity gate failed')
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\Documents\odid编译\wksim\tools\audit_aruco_scene.py", line 12, in require
+    if not value:raise ValueError(reason)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: Motion velocity gate failed
+
+======================================================================
+FAIL: test_missing_occlusion_phase (validation.test_aruco_scene_audit.ArUcoSceneAuditTests.test_missing_occlusion_phase)
+----------------------------------------------------------------------
+ValueError: Motion velocity gate failed
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\PC\Documents\odid编译\wksim\validation\test_aruco_scene_audit.py", line 48, in test_missing_occlusion_phase
+    self.changed(change,'Insufficient samples')
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\Documents\odid编译\wksim\validation\test_aruco_scene_audit.py", line 21, in changed
+    with self.assertRaisesRegex(ValueError,reason):audit(root)
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+AssertionError: "Insufficient samples" does not match "Motion velocity gate failed"
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.179s
+
+FAILED (failures=1, errors=1)

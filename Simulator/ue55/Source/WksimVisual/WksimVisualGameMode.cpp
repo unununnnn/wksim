@@ -282,6 +282,8 @@ void AWksimVisualGameMode::BeginPlay()
         RgbFixture = GetWorld()->SpawnActor<AWksimRgbFixture>();
         if (!RgbFixture->Configure(FixtureCase, Error) || !RgbFixture->WriteManifest(ManifestPath))
         { UE_LOG(LogTemp, Error, TEXT("WKSIM_RGB_FIXTURE %s"), *Error); FPlatformMisc::RequestExitWithStatus(true, 24); return; }
+        if (FixtureCase == 4 && (!RgbSensor || !RgbSensor->UseCalibrationRendering()))
+        { FPlatformMisc::RequestExitWithStatus(true, 24); return; }
         // The fixture has its own known visual occlusion scene. Never use it
         // as proof of terrain/collision physics in the decorative city map.
         for (TActorIterator<AStaticMeshActor> It(GetWorld()); It; ++It) It->SetActorHiddenInGame(true);
@@ -1016,6 +1018,8 @@ void AWksimVisualGameMode::TickRgb()
     Request.Step = JointStep;
     Request.SimTimeSeconds = SourceTime;
     Request.CameraWorldPose = RgbConfig.CameraInVehicle * JointVehicles[Index].Actor->GetActorTransform();
+    if (RgbFixture && RgbFixture->IsArUco() && !RgbFixture->AdvanceArUco(Request,JointGeneration,RgbConfig.OutputDirectory))
+    { UE_LOG(LogTemp, Error, TEXT("WKSIM ArUco scene identity/manifest rejected")); return; }
     if (RgbSensor->RequestCapture(Request, Error)) RgbLastStep = JointStep;
     else if (!Error.IsEmpty()) UE_LOG(LogTemp, Warning, TEXT("WKSIM_RGB %s"), *Error);
 }
