@@ -6,7 +6,7 @@ import math
 def task_group_completed(workers,reports,*,defer_report_reads=False):
     """A trusted task entry exits zero only after its full result is written.
 
-    ArUco reports can be megabytes. During the paced loop use process outcomes;
+    Camera/trajectory reports can be large. During the paced loop use process outcomes;
     the final retirement path must still load and validate those reports.
     """
     if len(workers)!=2 or any(worker.poll()!=0 for worker in workers):return False

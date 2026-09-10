@@ -78,6 +78,7 @@ def epoch_run(directory,epoch,generation=1):
     config=validate_joint_config(json.loads((directory/'config.json').read_text()))
     fixed_task=config['task'] in FIXED_TASKS
     aruco_task=config['task'] == ARUCO_TASK
+    defer_task_reports=aruco_task or fixed_task
     async_evidence=os.environ.get('WKSIM_JOINT_ASYNC_EVIDENCE')=='1'
     async_model_evidence=os.environ.get('WKSIM_JOINT_ASYNC_MODEL_EVIDENCE')=='1'
     if (async_evidence or async_model_evidence) and not aruco_task:
@@ -602,8 +603,8 @@ def epoch_run(directory,epoch,generation=1):
                             lifecycle.communication_fault(name+'_exited',[1 if name.startswith('arducopter') else 2])
                         task_state='failed';needs_recovery_task=True
                     elif role=='task':
-                        if aruco_task:
-                            # Do not parse multi-megabyte camera action reports
+                        if defer_task_reports:
+                            # Do not parse camera or fixed-trajectory reports
                             # on the rate deadline. Final retirement loads them.
                             report=dict(error=name+' exited with code '+str(code))
                         else:
@@ -633,7 +634,7 @@ def epoch_run(directory,epoch,generation=1):
                     reports=[task_group/stack/'result.json' for stack in ('arducopter','px4')]
                     task_processes=[child for _,child,_ in children if specs[child.pid]['role']=='task'
                                     and specs[child.pid]['cwd'].parent==task_group]
-                    if task_group_completed(task_processes,reports,defer_report_reads=aruco_task):
+                    if task_group_completed(task_processes,reports,defer_report_reads=defer_task_reports):
                         task_state='completed'
                 if pending is not None:
                     action=pending['action']
@@ -780,7 +781,7 @@ def epoch_run(directory,epoch,generation=1):
         result['cleanup_errors']=stop_processes(children)
         for name,child,_ in children:
             result['children'][name]['returncode']=child.poll()
-            if aruco_task and specs[child.pid]['role']=='task':
+            if defer_task_reports and specs[child.pid]['role']=='task':
                 path=specs[child.pid]['cwd']/'result.json'
                 try:
                     if path.is_file():

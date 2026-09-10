@@ -46,3 +46,5 @@ r2 校正：此前"exit≠0+pass 反向拒绝缺口"已过时——当前
 
 未改 runtime、未跑测试/构建、未刷新索引、未 nested/commit。#82 三场失败与
 tracking-08/14 的 failed 判定保持原状；#83 前置不变。
+
+主会话已接手第1步：joint_runtime的任务退出、组完成和最终报告加载三处统一使用defer_task_reports=aruco_task or fixed_task。固定mixed/PV任务同样在退出码0后认定任务执行结束，在全组停止后读取报告并校验run/epoch/stack与退出码/状态双向一致。async/scheduler默认门控未推广，原倍率/物理审计不变。26项相关WSL检查通过，2项显式private ROS测试未启用；尚不宣称正式mixed/PV真实倍率通过。
