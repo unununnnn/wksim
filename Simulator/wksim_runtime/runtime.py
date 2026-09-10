@@ -55,6 +55,11 @@ def launch_spec(config, directory, library, *, fc_directory=None, physics_durati
                 control += ['-p', parameter+':='+capability]
     if config.get('control_protocol', 'legacy_v1') == 'session_v1':
         control += ['-p', 'run_id:=' + config['run_id']]
+    if 'global_reference' in config:
+        if 'global_home_v1' not in admitted_capabilities:
+            raise ValueError('Global reference requires explicit candidate admission')
+        # ROS parses parameter values as YAML; quote JSON as a scalar string.
+        control += ['-p', 'global_reference_profile:='+json.dumps(json.dumps(config['global_reference'], separators=(',', ':')))]
     overrides = {}
     if ap:
         candidate = Path(config['ap_candidate'])

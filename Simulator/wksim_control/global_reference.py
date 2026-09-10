@@ -215,7 +215,7 @@ def _snapshots(home, origin, now, previous_home=None, previous_origin=None):
             integer(value)
     if home.identity.stack == 'px4':
         integer(home.update_count)
-        require(home.update_count <= 255 and type(home.manual_home) is bool and home.ap_raw is None, 'home_native_invalid')
+        require(home.update_count <= 4294967295 and type(home.manual_home) is bool and home.ap_raw is None, 'home_native_invalid')
     else:
         require(home.update_count is None and home.manual_home is None, 'home_native_invalid')
         require(type(home.ap_raw) is tuple and len(home.ap_raw) == 3, 'home_native_invalid')
@@ -225,6 +225,11 @@ def _snapshots(home, origin, now, previous_home=None, previous_origin=None):
                 home.ap_raw[2]/100 == home.alt_amsl_m, 'home_native_mismatch')
     _fresh(home, now, previous_home)
     _fresh(origin, now, previous_origin)
+
+
+def validate_observations(home, origin, *, now):
+    """Validate a reference advertisement before exposing it as ready."""
+    _snapshots(home, origin, now)
 
 
 def _home_key(home):

@@ -1,4 +1,14 @@
-# #118 全球航点原生接入运行合同（待实现）
+# #118 全球航点原生接入运行合同
+
+## 2026-09-10 主任务继续实施
+
+用户本轮授权从 `e075d0d` 推进完整工具链。原有子票的文档范围仅限制那次有界派发，不作为当前主任务停止实现的依据。本轮由主代理独占以下改动：控制包 `global_native.py`、`node.py`、`native_px4.py`、`native_arducopter.py`；`Simulator/wksim_control/global_profile.py`；runtime 的 `config.py`、`runtime.py` 与新增全球任务/配置；全球运行/物理/审计工具和 `validation/47-global-flight/`、`test_global_native.py`。没有并行写入者。尚未修改线上票据或提升生产准入。
+
+实现采用独立的 `/uav1/prometheus/v2/global_command` JSON 信封，包含原生快照身份、命令有效期、显式高度基准与公共 ENU yaw，复用现有 RunSession 请求序号；`global_reference` 提供可绑定快照。公共旧 `LAT_LON_ALT` 命令在启用此 profile 后拒绝未绑定输入。控制 epoch 的原始 hex32 保留在外层信封，纯转换合同中的整数 epoch 使用无损 `int(hex32,16)`，不另生成代次。
+
+PX4 读取版本匹配的 HomePosition、VehicleGlobalPosition 和 VehicleLocalPosition；AP 读取 WksimState 权威 home，独立场景参考明确命名 `ap-scene-reference`，不伪称已暴露 AP 内部 EKF origin。消息的真实 MessageInfo GID 绑定观测；新 GID、源时间回退及重复戳篡改使当前全球会话失效。每条原生消息跟踪 home/origin 代次，变化后又恢复原值也不能复活旧命令。局部控制/激活/撤权清理旧全球目标。
+
+当前状态：v2两栈全球飞行、固定模型原点、真实home修改撤权、旧命令拒绝及显式新请求恢复已通过独立原始审计，见[验收报告](../2026-09-10-global-flight-report.md)与[最终矩阵](../../validation/47-global-flight/final-matrix.json)。默认生产配置未提升，父票#23数值前置仍保留。下文保留2026-09-09受限子票审查原件，其`blocked_scope`和“尚未实现”描述不代表本轮最终状态。
 
 2026-09-09。前置 #116/#117 已关闭；审阅基线 fd4d45d。状态为 blocked_scope，不能据本文派发真实飞行或关闭 #118。
 

@@ -1,0 +1,20 @@
+diff --git a/src/modules/commander/HomePosition.cpp b/src/modules/commander/HomePosition.cpp
+--- a/src/modules/commander/HomePosition.cpp
++++ b/src/modules/commander/HomePosition.cpp
+@@ -314,6 +314,16 @@ void HomePosition::update(bool set_automatically, bool check_if_changed)
+ 	_local_position_sub.update();
+ 	_global_position_sub.update();
+ 	_attitude_sub.update();
++
++	// wksim SITL candidate: the authoritative owner confirms its current home
++	// every 500 ms. Coordinates, validity and update_count remain unchanged;
++	// actual home updates below retain their original counter semantics.
++	// This is a native observation heartbeat, never an adapter-restamped cache.
++	if (_home_position_pub.get().timestamp != 0
++	    && hrt_elapsed_time(&_home_position_pub.get().timestamp) >= 500_ms) {
++		_home_position_pub.get().timestamp = hrt_absolute_time();
++		_home_position_pub.update();
++	}
+ 
+ 	if (_vehicle_air_data_sub.updated()) {
+ 		vehicle_air_data_s baro_data;

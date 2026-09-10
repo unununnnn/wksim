@@ -320,6 +320,20 @@ class ArduCopterLink:
         stamp_us(msg.header, local.time_boot_us)
         self.position_pub.publish(msg)
 
+    def send_global(self, target, yaw):
+        from Simulator.wksim_control.global_reference import ResolvedTarget, coordinates, f32, require
+        require(type(target) is ResolvedTarget and target.native_kind == 'FRAME_GLOBAL_REL_ALT'
+                and target.original.identity.stack == 'arducopter', 'global_target_wrong_stack')
+        require(self.position_yaw and self.navigation_valid and self.fresh('local'), 'global_navigation_invalid')
+        lat, lon = coordinates(target.original.latitude_deg, target.original.longitude_deg)
+        alt = f32(target.height_relative_m)
+        require((int(lat*1e7), int(lon*1e7), int(alt*100)) == target.native_target, 'global_quantization_changed')
+        msg = GlobalPosition(coordinate_frame=GlobalPosition.FRAME_GLOBAL_REL_ALT, type_mask=0x9F8,
+            latitude=lat, longitude=lon, altitude=alt, yaw=wrap_pi(scalar(yaw)))
+        msg.header.frame_id = 'map'
+        stamp_us(msg.header, self.latest['local'].time_boot_us)
+        self.position_pub.publish(msg)
+
     def request(self, action, value=None):
         self._now()
         if self.clock_invalid:

@@ -29,6 +29,7 @@ from .session import RunSession
 
 class ControlNode(Node):
     scene = scene_hold = scene_recovery = None
+    global_control = None
     def __init__(self):
         super().__init__('prometheus_native_control')
         def parameter(name, default):
@@ -89,6 +90,10 @@ class ControlNode(Node):
         self.legacy_command_sub = self.create_subscription(Cmd, root + '/command',
             lambda msg: self.event('command_rejected', error=True, reason='legacy_input_requires_session', request_id=0), 1)
         self.session = RunSession(parameter('run_id', ''), self.uav_id)
+        global_profile = parameter('global_reference_profile', '')
+        if global_profile:
+            from .global_native import GlobalNative
+            self.global_control = GlobalNative(self, stack, json.loads(global_profile))
         self.rc_input = None
         self.rc_receiver = None
         rc_boot_id = parameter('rc_boot_id', '')
@@ -390,6 +395,8 @@ class ControlNode(Node):
             self.revoke('rc_input_revoked:' + str(self.rc_input.last_rejection))
 
     def revoke(self, reason):
+        if getattr(self, 'global_control', None) is not None:
+            self.global_control.clear()
         request_id = (self.operation or {}).get('request_id', self.command_request_id)
         self.processor.enter_control(Control.INIT)
         self.shaper.reset()
@@ -512,6 +519,8 @@ class ControlNode(Node):
                 if msg.px4_mode not in ('POSCTL', 'AUTO.LOITER', 'AUTO.LAND', 'AUTO.RTL', 'BRAKE'):
                     raise ValueError('native_mode_not_implemented')
                 self.native.request('mode', msg.px4_mode)
+                if getattr(self, 'global_control', None) is not None:
+                    self.global_control.clear()
                 if self.processor.control_state == Control.RC_POS_CONTROL:
                     self.rc_input.revoke('explicit_native_mode_exit')
                     self.revoked = True
@@ -535,6 +544,9 @@ class ControlNode(Node):
                 raise ValueError('out_of_order_command_stamp')
             if msg.agent_cmd == Cmd.MOVE and msg.command_id <= self.last_move_id:
                 raise ValueError('command_id_not_increasing')
+            if (getattr(self, 'global_control', None) is not None
+                    and msg.agent_cmd == Cmd.MOVE and msg.move_mode == Cmd.LAT_LON_ALT):
+                raise ValueError('global_command_requires_bound_reference_envelope')
             reason = self.native.supports(msg)
             if reason:
                 raise ValueError(reason)
@@ -544,6 +556,8 @@ class ControlNode(Node):
             if not answer.accepted:
                 raise ValueError(answer.reason)
             self.last_command_stamp = stamp
+            if getattr(self, 'global_control', None) is not None:
+                self.global_control.clear()
             if msg.agent_cmd == Cmd.MOVE:
                 self.last_move_id = msg.command_id
             self.command_request_id = self.request_context
@@ -552,6 +566,8 @@ class ControlNode(Node):
             self.event('command_rejected', error=True, command_id=int(msg.command_id), reason=str(error))
 
     def activate(self):
+        if getattr(self, 'global_control', None) is not None:
+            self.global_control.clear()
         request_id = (self.operation or {}).get('request_id', self.request_context)
         if not self.native.ready_external:
             raise ValueError('external_heading_alignment_not_ready')
@@ -636,6 +652,11 @@ class ControlNode(Node):
             self.operation = None
 
     def tick(self):
+        if self.global_control is not None:
+            try:
+                self.global_control.poll()
+            except (ValueError, RuntimeError) as error:
+                self.revoke(str(error))
         if self.rc_receiver is not None:
             try:
                 for _ in range(10):
@@ -655,6 +676,8 @@ class ControlNode(Node):
                 self.revoke(str(error))
         else:
             try:
+                if self.global_control is not None:
+                    self.global_control.observe()
                 if self.scene is not None and not self.scene_native_endpoints and self.state.connected and self.state.odom_valid:
                     self.scene_native_endpoints=self.scene_endpoints()
                     self.event('scene_native_sources_bound',scene_epoch=self.scene.epoch,
@@ -743,6 +766,15 @@ class ControlNode(Node):
                                                                   yaw=float(rc_out['yaw'])))
                 if not rc_answer.accepted:
                     raise ValueError(rc_answer.reason)
+        if getattr(self, 'global_control', None) is not None and self.global_control.target is not None:
+            # Validate even between paced sends; no local reference may replay
+            # when a global lease expires or task ownership changes.
+            if self.wall()-self.last_output >= self.output_period:
+                self.global_control.publish()
+                self.last_output = self.wall()
+            else:
+                self.global_control.running()
+            return
         rc_age = 0.0
         if self.processor.control_state == Control.RC_POS_CONTROL and self.rc_input is not None \
                 and self.rc_input.received_ns is not None:
@@ -778,6 +810,8 @@ class ControlNode(Node):
                 self.last_output = self.wall()
 
     def destroy_node(self):
+        if self.global_control is not None:
+            self.global_control.close()
         if self.rc_receiver is not None:
             self.rc_receiver.destroy_node()
         self.native.cancel_request()

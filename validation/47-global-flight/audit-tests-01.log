@@ -1,0 +1,39 @@
+test_changed_budget_rejected (validation.test_global_audit.GlobalAuditTests) ... ok
+test_decoded_native_output_tampering_rejected (validation.test_global_audit.GlobalAuditTests) ... ERROR
+test_missing_physical_terminal_rejected (validation.test_global_audit.GlobalAuditTests) ... ERROR
+test_missing_raw_global_request_rejected (validation.test_global_audit.GlobalAuditTests) ... ERROR
+
+======================================================================
+ERROR: test_decoded_native_output_tampering_rejected (validation.test_global_audit.GlobalAuditTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/Users/PC/Documents/odid编译/wksim/validation/test_global_audit.py", line 52, in test_decoded_native_output_tampering_rejected
+    with self.assertRaisesRegex(ValueError, 'Raw DDS differs'): audit(root)
+  File "/mnt/c/Users/PC/Documents/odid编译/wksim/tools/audit_global_flight.py", line 65, in audit
+    from rosidl_runtime_py.utilities import get_message
+ModuleNotFoundError: No module named 'rosidl_runtime_py'
+
+======================================================================
+ERROR: test_missing_physical_terminal_rejected (validation.test_global_audit.GlobalAuditTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/Users/PC/Documents/odid编译/wksim/validation/test_global_audit.py", line 63, in test_missing_physical_terminal_rejected
+    with self.assertRaisesRegex(ValueError, 'terminal/hold incomplete'): audit(root)
+  File "/mnt/c/Users/PC/Documents/odid编译/wksim/tools/audit_global_flight.py", line 65, in audit
+    from rosidl_runtime_py.utilities import get_message
+ModuleNotFoundError: No module named 'rosidl_runtime_py'
+
+======================================================================
+ERROR: test_missing_raw_global_request_rejected (validation.test_global_audit.GlobalAuditTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/Users/PC/Documents/odid编译/wksim/validation/test_global_audit.py", line 38, in test_missing_raw_global_request_rejected
+    with self.assertRaisesRegex(ValueError, 'without raw accepted command'): audit(root)
+  File "/mnt/c/Users/PC/Documents/odid编译/wksim/tools/audit_global_flight.py", line 65, in audit
+    from rosidl_runtime_py.utilities import get_message
+ModuleNotFoundError: No module named 'rosidl_runtime_py'
+
+----------------------------------------------------------------------
+Ran 4 tests in 1.241s
+
+FAILED (errors=3)

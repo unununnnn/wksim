@@ -21,7 +21,7 @@ def validate_config(data):
                 'communication', 'dds_workspace', 'prometheus_workspace', 'px4_root'}
     optional = {'ap_candidate', 'capabilities', 'model_library', 'display_socket', 'control_protocol',
                 'restart_control_on_ground', 'mission', 'telemetry_socket', 'runtime_profile', 'gcs_udp_forward',
-                'promotion_flight'}
+                'promotion_flight', 'global_reference'}
     if required - data.keys():
         raise ConfigError('Missing fields: ' + ', '.join(sorted(required - data.keys())))
     if data.keys() - required - optional:
@@ -49,6 +49,16 @@ def validate_config(data):
     if 'runtime_profile' in data:
         if data['runtime_profile'] != 'independent_quad_dds_v1' or data.get('control_protocol') != 'session_v1':
             raise ConfigError('Independent runtime_profile requires independent_quad_dds_v1 and session_v1')
+    if 'global_reference' in data:
+        if data.get('control_protocol') != 'session_v1':
+            raise ConfigError('global_reference requires explicit session_v1')
+        from Simulator.wksim_control.global_profile import validate_profile
+        try:
+            validate_profile(data['global_reference'])
+        except ValueError as error:
+            raise ConfigError(str(error)) from error
+        if data['stack'] == 'arducopter' and data['global_reference']['require_same_value_home_reset']:
+            raise ConfigError('ap_same_value_home_reset_unsupported')
     if 'restart_control_on_ground' in data:
         if type(data['restart_control_on_ground']) is not bool:
             raise ConfigError('restart_control_on_ground must be a boolean')
