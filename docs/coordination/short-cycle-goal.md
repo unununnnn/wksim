@@ -14,9 +14,9 @@
 
 | 代理 | 此轮交付 | 写入边界 |
 | --- | --- | --- |
-| Oh My Pi | #104 相机控制接入修正：实际 run_id、step 上界、重绑定/退役流、明确公共 HOLD | `aruco_tracking_input.py`、其测试、`40-aruco-run-contract.md` 与自己的协调记录 |
-| agy | #70 生成驱动路径隔离负例及一次真实 SDK dry-prepare；不运行 MATLAB | `generate_model_e0.py/.m`、其测试与新 prepare 证据/自己的报告 |
-| Claude Code | #20/#33 原生 AP 与 PX4 输入等待分别计时，默认关闭时无额外计时开销 | `Simulator/wksim_core/joint.py`、`validation/test_native_input_timing.py`、自己的诊断交接 |
+| Oh My Pi | #104 公共发送器首次 HOLD、当前权威时间、内层命令号与 ACK 失败记录修正 | `aruco_task.py`、`test_aruco_public_commands.py`、自己的报告；主会话已冻结接缝/TargetIntent |
+| agy | #59 同源 11.8 major 采样记录器，允许一次已预约的 Linux 构建/原生采样，不运行 MATLAB 对照 | `build_generated_e0_major.py`、`test_generated_e0_major.py`、自己的报告/新证据；生成/普通构建工具已冻结 |
+| Claude Code | #20/#33 固定原生源码中 PX4 两个慢等待时刻的候选工作调查，只读，不按相位证明因果 | `claude-native-wait-next-probe.md` 与自己的候选源 JSON；计时生产者/分析器已由主会话冻结 |
 | 主会话 | 三路结果独立复核、契约/集成、真实运行与票据收口 | 其它已预约接入位置；不与上述写入者并发改同一文件 |
 
 真实 SITL/UE/MATLAB/tracefs 共用资源串行预约；每场唯一输出，只清理自有进程。纯代码/离线测试并行。下一实际运行优先选择依赖齐全且已通过代码复核的一条，不用模拟成功替代真实验收。
@@ -29,6 +29,6 @@
 - [agy](codex://threads/9ef3a71a-c4fb-4b72-8950-1df2dae018de)
 - [Claude Code](codex://threads/f0e405df-5143-41d8-a5e5-422b0a295c7f)
 
-前轮大型推送已成功：远端分支到 `24317bb`，push 进程 `33870` 已退出 0，不再等待该进程。本轮协调记录及后续已验证提交继续增量推送，未验证代理工作不随提交混入。
+前轮大型推送已成功，push 进程 `33870` 已退出 0，不再等待该进程。后续仅增量推送已验证提交，未验证代理工作不随提交混入。
 
-原 32 张开放票据和 Full 未完成条件继续保留。#45 专属策略批准出处、ABI 样本合同、G6 数值预算和硬件条件必须按真实证据处理；只阻塞各自分支。原步长、权威时间、输入屏障、100ms 门槛、误差预算与失败原件不变。用户 `docs/Prometheus.gitmodules.reference` 的修改不属于本轮。
+2026-09-11 本轮：`50897b8` 完成真实 SLX 11.8 生成、Linux 构建与核心冷重置/冷重建，#70/#71/#72 已逐票关闭；`f240694` 修正相机反馈与重放边界，并取得分栈原生等待真实记录。详见 `docs/2026-09-11-short-cycle-results.md`。当前剩余 29 张开放票据，Full 未完成。#45 专属策略批准出处、ABI 样本合同、G6 数值预算和硬件条件必须按真实证据处理；只阻塞各自分支。原步长、权威时间、输入屏障、100ms 门槛、误差预算与失败原件不变。用户 `docs/Prometheus.gitmodules.reference` 的修改不属于本轮。
