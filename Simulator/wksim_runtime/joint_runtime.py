@@ -22,7 +22,7 @@ from .joint_config import validate_joint_config,FIXED_TASKS
 from .joint_aruco_profile import TASK as ARUCO_TASK
 from .joint_trajectory import supported_actions,validate_initialized,coordinate_legs
 from .joint_rate import JointRate,RateUnmet
-from .joint_evidence import verify_tasks,final_run_status
+from .joint_evidence import verify_tasks,final_run_status,task_group_completed,load_retired_task_report
 from .scene_clock import SceneClock,ClockPublisher
 from ..wksim_core.joint import JointPhysics,InputTimeout
 from ..wksim_core.joint_state_stream import JointStateWriter,hex_identity
@@ -573,8 +573,13 @@ def epoch_run(directory,epoch,generation=1):
                             lifecycle.communication_fault(name+'_exited',[1 if name.startswith('arducopter') else 2])
                         task_state='failed';needs_recovery_task=True
                     elif role=='task':
-                        report=json.loads((specs[child.pid]['cwd']/'result.json').read_text())
-                        result['tasks'][name]=report
+                        if aruco_task:
+                            # Do not parse multi-megabyte camera action reports
+                            # on the rate deadline. Final retirement loads them.
+                            report=dict(error=name+' exited with code '+str(code))
+                        else:
+                            report=json.loads((specs[child.pid]['cwd']/'result.json').read_text())
+                            result['tasks'][name]=report
                         if code!=0:
                             rate.close_segment('task_fault',clock.tick)
                             task_state='failed';needs_recovery_task=True
@@ -599,8 +604,7 @@ def epoch_run(directory,epoch,generation=1):
                     reports=[task_group/stack/'result.json' for stack in ('arducopter','px4')]
                     task_processes=[child for _,child,_ in children if specs[child.pid]['role']=='task'
                                     and specs[child.pid]['cwd'].parent==task_group]
-                    if (len(task_processes)==2 and all(child.poll()==0 for child in task_processes)
-                            and all(path.is_file() and json.loads(path.read_text())['status']=='pass' for path in reports)):
+                    if task_group_completed(task_processes,reports,defer_report_reads=aruco_task):
                         task_state='completed'
                 if pending is not None:
                     action=pending['action']
@@ -747,6 +751,18 @@ def epoch_run(directory,epoch,generation=1):
         result['cleanup_errors']=stop_processes(children)
         for name,child,_ in children:
             result['children'][name]['returncode']=child.poll()
+            if aruco_task and specs[child.pid]['role']=='task':
+                path=specs[child.pid]['cwd']/'result.json'
+                try:
+                    if path.is_file():
+                        result['tasks'][name]=load_retired_task_report(path,config['run_id'],epoch,
+                            name.split('-task-',1)[0],child.poll())
+                    elif child.poll()==0:
+                        raise ValueError('Successful task exited without its result')
+                except (OSError,ValueError,TypeError) as error:
+                    result.setdefault('task_report_errors',[]).append(dict(task=name,error=str(error)))
+                    result['status']='failed'
+                    result.setdefault('error','Deferred task report validation failed')
         if result['host_boot_id']!=host_boot_id():
             result['status']='failed';result['error']='Host boot identity changed'
         result['wall_seconds']=time.monotonic()-started

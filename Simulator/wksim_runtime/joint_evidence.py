@@ -3,6 +3,25 @@ import json
 import math
 
 
+def task_group_completed(workers,reports,*,defer_report_reads=False):
+    """A trusted task entry exits zero only after its full result is written.
+
+    ArUco reports can be megabytes. During the paced loop use process outcomes;
+    the final retirement path must still load and validate those reports.
+    """
+    if len(workers)!=2 or any(worker.poll()!=0 for worker in workers):return False
+    return defer_report_reads or all(path.is_file() and json.loads(path.read_text())['status']=='pass'
+                                    for path in reports)
+
+
+def load_retired_task_report(path,run_id,epoch,stack,returncode):
+    report=json.loads(path.read_text())
+    if (report.get('run_id')!=run_id or report.get('scene_epoch')!=epoch or report.get('stack')!=stack
+            or (returncode==0)!=(report.get('status')=='pass')):
+        raise ValueError('Retired task report identity/status differs')
+    return report
+
+
 def final_run_status(epochs):
     """Completed windows cannot clear an active fault; recovered history can."""
     final=epochs[-1]['result']
