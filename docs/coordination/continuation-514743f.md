@@ -24,3 +24,16 @@ agy 首次新建会话因 `PARENT_THREAD_AMBIGUOUS` 拒绝；显式指定本会�
 扩展显式 fixture case 4：OpenCV 固定字典的 64 个黑白格用 Engine Cube 和两个临时 unlit 材质创建；不存在新持久 uasset，也不改厂商资产。原 case 0..3 保留。每个 RGB 捕获请求前按该请求的权威 step 计算世界 Y 位移和遮挡状态，保存全部组件实际位置、网格边界、缩放及相机世界变换。场景记录只有与已完成的原始 RGB 身份/step 配对才可进入审计。
 
 首次独立候选 `E:/ue5.5/build/wksim-native-aruco-20260910-01` 编译退出 0，耗时约45秒，清单位于 `validation/ue55-build-a599e317034a4f5e8407e4a48ca5be6c/candidate-manifest.json`。ArUco/RGB/View 原有 29 项测试通过。编译和回归不等于实际标定通过，真实采集及原始审计另记；#104 双栈跟踪仍未完成。
+
+## 当前接力检查点（24317bb 后）
+
+最终 ArUco 第三候选已实际通过：39 帧，最大角点误差 0.48664px、最大平移误差 4.297mm，35 项回归/真实证据负例通过；详见新场景报告。RC/效率本轮核验 18 个归档、979 成员，8 项原始审计正/负例通过。主会话已关闭 15 票：#99/#38/#105/#106/#107/#108/#44/#118/#119/#120/#47/#121/#111/#112/#103；逐票原生依赖、AC正文hash、评论URL及关闭读回见 `validation/coordination/closures-24317bb.json`。关闭后实查 32 张开放票，#45/Full 仍开放。
+
+主成果已提交 `24317bb`。第一次 `git push origin codex/independent-rgb-integration` 正在传输此前积累的 56 个提交，工具进程 session_id 为 `33870`。未收到成功前不得声称推送完成；先查看这个进程或核对远端 ref，勿并发启动第二次 push。其开始时目标是 `24317bb`；后续接力记录提交需在这次完成后再增量推送。大对象已检查，未发现未推送 blob 超过 100MiB；最大约 75.3MB，主要为既有原始证据压缩件。没有改写历史或丢弃证据。
+
+下一批真实分工已启动，保持各自单一写入者：
+
+- OMP：同 thread `71b28520-5317-4b44-aab5-0f3b8329ae9f`，turn `43537c69-5f28-40f2-85fa-f47e0cc64d20`，#104 的 `aruco_tracking_input.py`、相应纯测试与 `40-aruco-run-contract.md`；不启动 ROS/SITL/UE。主会话尚未接受其最终实现。初读注意真实 run_id 允许 `aruco-scene-*` 等字符串，不能强制所有身份 hex32；step 上界/重绑定/过期目标与公共 HOLD 行为都需检查。
+- agy：同 thread `9ef3a71a-c4fb-4b72-8950-1df2dae018de`，初实现 turn `3d2e64d6-9032-4b1e-8817-ba4512aa8e2e`，修正 turn `e1a545d4-8611-4db4-9cd1-00e2d9efea5f`。独占 `tools/generate_model_e0.py/.m`、`validation/test_generate_model_e0.py` 与自己的交接报告。12 项 mock 编排测试曾通过，但主会话拒收首版：私有输入变化未参与通过门槛、进程清理/裸PID身份不可靠、ODE4/normal未实检、Embedded Coder feature未核验、异常丢证据等，已逐项要求修复。**不得运行 MATLAB，直到修正版独立审查通过**；不能把 mock 通过当代码生成或运行期脱离 MATLAB 的证据。
+
+持续任务已建立并实读为 ACTIVE：automationId `wksim`，每 10 分钟在本任务继续协调。不要新增重复自动任务；现有 prompt 要求无实质变化时安静，完成原目标或没有任何可推进分支且必须用户输入时才停止/暂停。计算机和桌面应用需保持可运行。首轮分工曾出现 agy 超出原指定检查范围写入 ArUco `audit-01.json` 的输出碰撞，已保留该失败结果并要求不再读取/运行另一写入者正在编辑的脚本；后续严格按文件和运行资源隔离。
