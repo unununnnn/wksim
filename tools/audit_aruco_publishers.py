@@ -185,10 +185,10 @@ def audit_raw_capture_file(path: Path) -> Dict[str, Any]:
 
             rows.append(row)
 
-            if row.get("role") == "capture_start" or (line_num == 1 and "node_name" in row and "type" not in row):
+            if row.get("kind") == "aruco_raw_capture_start":
                 start_record = row
                 continue
-            if row.get("role") == "capture_end":
+            if row.get("kind") == "aruco_raw_capture_end":
                 end_record = row
                 continue
 
@@ -204,7 +204,7 @@ def audit_raw_capture_file(path: Path) -> Dict[str, Any]:
     hash_valid = False
     hash_msg = "verify_raw_capture_not_available"
 
-    if verify_raw_capture is not None and start_record:
+    if start_record:
         run_id = start_record.get("run_id")
         epoch = start_record.get("epoch")
         stack = start_record.get("stack")
@@ -805,6 +805,7 @@ def audit_run(run_root: Path) -> Dict[str, Any]:
             "status": (
                 "snapshots_verified_and_bound"
                 if all_bound and all_snap_exclusive
+                else "snapshot_validation_failed" if any(s['snapshots_audit']['available'] for s in stack_results.values())
                 else "investigation_completed_no_snapshots_retained"
             ),
         },
