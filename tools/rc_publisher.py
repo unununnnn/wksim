@@ -1,20 +1,24 @@
 """Software RC publisher for #99 RC_POS_CONTROL verifications.
 
-Publishes strict `wksim.rc-input` frames (the schema enforced by
+Publishes strict `wksim-software-rc-v1` frames (the schema enforced by
 Simulator/wksim_control/rc_input.py) to the control node's RC topic and
-records every published frame raw. Profile-driven; neutral first frame so
-the node can bind a candidate. No flight controller is contacted directly.
+records every published frame raw. Start a normal profile with a neutral segment
+to offer a candidate. Probe profiles are published exactly as supplied.
 """
 import argparse
 import json
+import hashlib
+import math
+import os
+from pathlib import Path
+import sys
 import time
 
 import rclpy
 from std_msgs.msg import String
 
-VERSION = 1
-SOURCE = "wksim.rc-input"
-MAX_SEQUENCE = 9007199254
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from Simulator.wksim_control.rc_input import VERSION, SOURCE, MAX_SEQUENCE
 
 
 def frame(run_id, control_epoch, uav_id, boot_id, stream_id, sequence, produced_ns, channels):
@@ -44,18 +48,25 @@ def main():
     parser.add_argument("--out", required=True)
     parser.add_argument("--ready-file", default=None)
     args = parser.parse_args()
-    profile = json.loads(open(args.profile, "r", encoding="utf-8").read())
-    assert isinstance(profile, list) and profile, "profile must be a non-empty segment list"
-    neutral = [1500, 1500, 1500, 1500, 1000, 1500, 1000, 1000]
+    profile_bytes = Path(args.profile).read_bytes()
+    profile = json.loads(profile_bytes)
+    if not isinstance(profile, list) or not profile:
+        raise ValueError('profile must be a non-empty segment list')
     for index, segment in enumerate(profile):
         channels = segment["channels_us"]
-        assert isinstance(channels, list) and len(channels) == 8, index
-        assert all(type(v) is int and 1000 <= v <= 2000 for v in channels), index
-        assert segment["hold_s"] >= 0, index
+        if (not isinstance(channels, list) or len(channels) != 8
+                or not all(type(v) is int and 1000 <= v <= 2000 for v in channels)
+                or type(segment['hold_s']) not in (int, float)
+                or not math.isfinite(segment['hold_s']) or segment['hold_s'] < 0):
+            raise ValueError('invalid profile segment '+str(index))
     rclpy.init()
     node = rclpy.create_node("wksim_rc_publisher")
     pub = node.create_publisher(String, args.topic, 1)
-    out = open(args.out, "w", encoding="utf-8", newline="\n")
+    out = open(args.out, "x", encoding="utf-8", newline="\n")
+    out.write(json.dumps(dict(kind='publisher_identity', argv=sys.argv, pid=os.getpid(),
+        proc_stat=Path('/proc/self/stat').read_text(), actual_boot_id=Path('/proc/sys/kernel/random/boot_id').read_text().strip(),
+        source_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+        profile_sha256=hashlib.sha256(profile_bytes).hexdigest(), arguments=vars(args)))+'\n')
     sequence = 0
     started = time.monotonic()
     if args.ready_file:
@@ -68,9 +79,10 @@ def main():
             while first or time.monotonic() < deadline:
                 first = False
                 sequence += 1
-                assert sequence <= MAX_SEQUENCE
+                if sequence > MAX_SEQUENCE:
+                    raise ValueError('RC sequence exhausted')
                 produced = time.monotonic_ns()
-                channels = neutral if index == 0 else segment["channels_us"]
+                channels = segment['channels_us']
                 payload = frame(args.run_id, args.control_epoch, args.uav_id, args.boot_id,
                                 args.stream_id, sequence, produced, channels)
                 pub.publish(String(data=json.dumps(payload)))

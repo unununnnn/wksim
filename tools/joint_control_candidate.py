@@ -42,13 +42,14 @@ def snapshot(root):
     source = files(PACKAGE / 'prometheus_control')
     if not source or source != files(staged / 'prometheus_control') or source != files(installed):
         raise ValueError('Repository, staged and installed control sources differ')
-    config = {name: digest(PACKAGE / name) for name in ('CMakeLists.txt', 'package.xml', 'scripts/prometheus_control_node')}
+    config = {name: digest(PACKAGE / name) for name in ('CMakeLists.txt', 'package.xml', 'scripts/prometheus_control_node', 'src/rc_take.cpp')}
     if config != {name: digest(staged / name) for name in config}:
         raise ValueError('Staged control build inputs differ')
     if not (root / 'build.log').stat().st_size:
         raise ValueError('Missing build evidence')
     return dict(version=1, root=str(root), package=str(installed), python_sha256=source,
                 build_inputs=config, build_log_sha256=digest(root / 'build.log'),
+                rc_transport_sha256=digest(root/'install/prometheus_control/lib/libwksim_rc_take.so'),
                 build_script_sha256=digest(REPO / 'tools/build-joint-control.sh'),
                 scope='experimental continuous joint ROS-time operations; no production admission')
 

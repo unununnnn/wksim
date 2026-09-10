@@ -113,7 +113,8 @@ class RealSceneNodeTests(unittest.TestCase):
             operation=dict(stage='simple',action='mode',value='AUTO.LOITER'),revoked=True,
             native=NS(generation=0,failed=True,external_mode='OFFBOARD',send=Mock()),native_generation=0,
             state=NS(connected=True,odom_valid=False),advance=Mock(),
-            processor=NS(control_state=0,update_state=Mock(),step=lambda:None,local_position=lambda:(0,0,0)),
+            processor=NS(control_state=0,update_state=Mock(),step=lambda **kwargs:None,
+                         command=NS(agent_cmd=0),local_position=lambda:(0,0,0)),
             shaper=NS(shape=lambda *args:None),warmup_target=None,wall=lambda:1,last_output=0,output_period=.025)
         ControlNode.drive(node)
         node.advance.assert_called_once()

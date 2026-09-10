@@ -98,7 +98,12 @@ def _control(record, *, sealed=False):
                 actual[path.relative_to(directory).as_posix()] = digest(path)
         if not actual or actual != record['python_sha256']:
             raise ValueError('Control source or installed file set differs')
-    for base in (REPO/'ros2/src/prometheus_control', root/'src/prometheus_control'):
+    # A sealed historical installation is checked against its own build inputs.
+    # The current candidate has separate source/stage/install admission; evolving
+    # its CMake targets cannot alter the bytes used to build the old installation.
+    build_bases = (root/'src/prometheus_control',) if sealed else (
+        REPO/'ros2/src/prometheus_control', root/'src/prometheus_control')
+    for base in build_bases:
         for name, expected in record['build_inputs'].items():
             if digest(base/name) != expected:
                 raise ValueError('Control build input differs')

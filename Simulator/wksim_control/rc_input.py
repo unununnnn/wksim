@@ -64,6 +64,8 @@ def _json_constant(value):
 
 def decode_frame(value):
     """Decode strict JSON or return a mapping without changing its values."""
+    if isinstance(value, (str, bytes, bytearray)) and len(value.encode('utf-8') if isinstance(value, str) else value) > 4096:
+        raise RCError('frame_too_large')
     if isinstance(value, (bytes, bytearray)):
         try:
             value = bytes(value).decode("utf-8")
@@ -204,7 +206,7 @@ class RCInput:
 
     @staticmethod
     def _neutral(frame):
-        return frame["channels_us"][0:4] == (1500, 1500, 1500, 1500) and frame["channels_us"][5] == 1500
+        return not any(frame['normalized']) and frame["channels_us"][5] == 1500
 
     def _record_rejection(self, reason):
         self.last_rejection = reason
@@ -236,7 +238,7 @@ class RCInput:
             gid = self._gid(publisher_gid)
         except RCError as error:
             return self._record_rejection(error.reason)
-        if self.state == "UNBOUND":
+        if self.state not in ('CANDIDATE', 'ACTIVE_RC'):
             return self._record_rejection("stream_unbound")
         if gid != self.owner_gid:
             return self._record_rejection("publisher_not_owner")
@@ -247,13 +249,15 @@ class RCInput:
                 raise RCError("receive_time_regressed")
         except RCError as error:
             # The owner cannot extend its own lifetime with malformed input.
-            self.revoke(error.reason)
+            if not (error.reason.startswith('wrong_') or error.reason in (
+                    'sequence_not_increasing', 'produced_time_not_increasing')):
+                self.revoke(error.reason)
             return self._record_rejection(error.reason)
         self._frame = frame
         self.sequence, self.produced_ns, self.received_ns = frame["sequence"], frame["produced_monotonic_ns"], received_ns
         return dict(accepted=True, state=self.state, sequence=self.sequence)
 
-    def activate(self, *, now_ns, position, yaw, setup_id=None):
+    def activate(self, *, now_ns, position, yaw, setup_id=None, operation_ns=None):
         """Turn a neutral candidate into active RC control after explicit setup."""
         if self.state != "CANDIDATE":
             return self._record_rejection("candidate_required")
@@ -265,19 +269,21 @@ class RCInput:
             _integer(now_ns, "now_monotonic_ns", 1, MAX_SEQUENCE)
             if now_ns < self.received_ns:
                 raise RCError("operation_time_regressed")
-            if now_ns - self.received_ns > MAX_AGE_NS:
+            if now_ns - self.received_ns > MAX_AGE_NS or now_ns - self.produced_ns > MAX_AGE_NS:
                 raise RCError("input_expired")
+            if position[2] < .2:
+                raise RCError('airborne_position_required')
             if not self._neutral(self._frame):
                 raise RCError("candidate_not_neutral")
         except RCError as error:
             return self._record_rejection(error.reason)
         self.state = "ACTIVE_RC"
         self.target = dict(position=position, yaw=yaw)
-        self.last_step_ns = now_ns
+        self.last_step_ns = now_ns if operation_ns is None else _integer(operation_ns, 'operation_ns', 1, MAX_SEQUENCE)
         self._first_step = True
         return dict(accepted=True, state=self.state, setup_id=setup_id)
 
-    def step(self, *, now_ns, running=True, operation_mode="running"):
+    def step(self, *, now_ns, running=True, operation_mode="running", operation_ns=None):
         """Integrate one fresh frame in public ENU coordinates."""
         if type(running) is not bool or not isinstance(operation_mode, str):
             raise RCError("operation_state_invalid")
@@ -287,7 +293,8 @@ class RCInput:
             self.revoke("operation_paused")
             return None
         _integer(now_ns, "now_monotonic_ns", 1, MAX_SEQUENCE)
-        if now_ns < self.last_step_ns:
+        operation_ns = now_ns if operation_ns is None else _integer(operation_ns, 'operation_ns', 1, MAX_SEQUENCE)
+        if operation_ns < self.last_step_ns:
             self.revoke("operation_time_regressed")
             return None
         if now_ns - self.received_ns > MAX_AGE_NS or now_ns - self.produced_ns > MAX_AGE_NS:
@@ -300,25 +307,28 @@ class RCInput:
         if channels[5] == 1000:
             self.revoke("channel_release")
             return None
-        if channels[5] == 2000:
-            self.revoke("command_intent_requires_explicit_handoff")
-            return None
-        dt_ns = 0 if self._first_step else now_ns - self.last_step_ns
+        dt_ns = 0 if self._first_step else operation_ns - self.last_step_ns
         if dt_ns > MAX_DT_NS:
             self.revoke("dt_exceeded")
             return None
         dt = dt_ns / 1e9
-        d1, d2, d3, d4 = self._frame["normalized"]
+        d1, d2, d3, d4 = self._frame["normalized"] if channels[5] == 1500 else (0., 0., 0., 0.)
         self.target["y"] = self.target["position"][1] - d1 * 1.5 * dt
         self.target["x"] = self.target["position"][0] + d2 * 1.5 * dt
         self.target["z"] = max(.2, self.target["position"][2] + d3 * 1.3 * dt)
         self.target["position"] = (self.target.pop("x"), self.target.pop("y"), self.target.pop("z"))
         self.target["yaw"] -= d4 * 1.5 * dt
-        self.last_step_ns = now_ns
+        self.last_step_ns = operation_ns
         self._first_step = False
         return dict(state=self.state, sequence=self.sequence, stream_id=self.stream_id,
                     dt_s=dt, position=list(self.target["position"]), yaw=self.target["yaw"],
-                    normalized=list(self._frame["normalized"]), intent="rc")
+                    normalized=list(self._frame["normalized"]), intent="rc" if channels[5] == 1500 else 'command')
+
+    def command_handoff_ready(self, now_ns):
+        return (self.state == 'ACTIVE_RC' and self._frame['channels_us'][5] == 2000
+                and not any(self._frame['normalized'])
+                and 0 <= now_ns - self.received_ns <= MAX_AGE_NS
+                and 0 <= now_ns - self.produced_ns <= MAX_AGE_NS)
 
     def revoke(self, reason="revoked"):
         if not isinstance(reason, str) or not reason:
@@ -337,6 +347,8 @@ class RCInput:
 
     def reset(self):
         """Clear the stream and return to UNBOUND; retired stream IDs stay retired."""
+        if self.stream_id is not None:
+            self._retired_streams.add(self.stream_id)
         self.state = "UNBOUND"
         self.owner_gid = None
         self.stream_id = None

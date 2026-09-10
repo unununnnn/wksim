@@ -3,7 +3,7 @@
 """Prometheus setup/command/control-state node using native flight-stack DDS.
 
 Source behavior: uav_controller.cpp setup callback, mainloop and the migrated
-CommandProcessor/SetpointShaper. RC integration, embedded PID/UDE/NE and reboot
+CommandProcessor/SetpointShaper. Embedded PID/UDE/NE and reboot
 are not implemented here. Native requests and observed completion are distinct.
 """
 from copy import deepcopy
@@ -90,6 +90,7 @@ class ControlNode(Node):
             lambda msg: self.event('command_rejected', error=True, reason='legacy_input_requires_session', request_id=0), 1)
         self.session = RunSession(parameter('run_id', ''), self.uav_id)
         self.rc_input = None
+        self.rc_receiver = None
         rc_boot_id = parameter('rc_boot_id', '')
         if rc_boot_id:
             from Simulator.wksim_control.rc_input import RCInput
@@ -97,7 +98,12 @@ class ControlNode(Node):
                 raise ValueError('rc_boot_id must be 32 lowercase hex characters')
             self.rc_input = RCInput({'run_id': self.session.run_id, 'control_epoch': self.session.epoch,
                                      'uav_id': self.uav_id, 'boot_id': rc_boot_id})
-            self.rc_sub = self.create_subscription(String, root + '/v2/rc_input', self.on_rc, 1)
+            from rclpy.qos import qos_profile_sensor_data, QoSProfile
+            from .rc_transport import RCTake
+            self.rc_take = RCTake()
+            self.rc_receiver = rclpy.create_node('wksim_rc_receiver', namespace=f'/uav{self.uav_id}')
+            self.rc_sub = self.rc_receiver.create_subscription(String, root + '/v2/rc_input', lambda msg: None,
+                QoSProfile(depth=1, reliability=qos_profile_sensor_data.reliability))
         self.scene = self.scene_hold = self.scene_recovery = None
         self.scene_native_endpoints = {}
         self.retired_native_endpoints = set()
@@ -127,6 +133,7 @@ class ControlNode(Node):
         msg = TextInfo(message_type=TextInfo.ERROR if error else TextInfo.INFO,
                        message=json.dumps(dict(event=event, event_id=self.event_id,
                            version=RunSession.VERSION, run_id=self.session.run_id,
+                           emitted_monotonic_ns=time.monotonic_ns(), emitted_unix_ns=time.time_ns(),
                            control_epoch=self.session.epoch, **fields), allow_nan=False))
         msg.header.stamp = self.get_clock().now().to_msg()
         self.info_pub.publish(msg)
@@ -363,9 +370,11 @@ class ControlNode(Node):
     def on_rc(self, msg, info):
         if self.rc_input is None:
             return
-        gid = bytes(info.get_gid())
+        gid = bytes(info.publisher_gid)
         try:
-            now_ns = self.operation_ns()
+            now_ns = time.monotonic_ns()
+            if self.rc_input.state == 'REVOKED':
+                self.rc_input.reset()
             if self.rc_input.state == 'UNBOUND':
                 answer = self.rc_input.bind(msg.data, gid, now_ns=now_ns)
             else:
@@ -373,7 +382,12 @@ class ControlNode(Node):
         except (ValueError, RuntimeError) as error:
             answer = {'accepted': False, 'reason': str(error)}
         self.event('rc_frame', accepted=bool(answer.get('accepted')), state=self.rc_input.state,
-                   reason=answer.get('reason'), sequence=answer.get('sequence', 0))
+                   reason=answer.get('reason'), sequence=answer.get('sequence', 0),
+                   publisher_gid=gid.hex(), received_monotonic_ns=now_ns,
+                   cdr_hex=getattr(info, 'cdr_hex', None),
+                   raw=msg.data, native_generation=self.native_generation, native_mode=self.state.mode)
+        if self.rc_input.state == 'REVOKED' and self.processor.control_state == Control.RC_POS_CONTROL:
+            self.revoke('rc_input_revoked:' + str(self.rc_input.last_rejection))
 
     def revoke(self, reason):
         request_id = (self.operation or {}).get('request_id', self.command_request_id)
@@ -415,6 +429,34 @@ class ControlNode(Node):
                     return
                 if self.processor.home is None or self.native.flying is None:
                     raise ValueError('missing_home_or_landed_state')
+                if msg.control_state == 'RC_POS_CONTROL':
+                    if (self.native.flying is not True or self.processor.local_position()[2] < .2
+                            or self.state.mode != self.native.external_mode or not self.native.ready_external):
+                        raise ValueError('rc_requires_airborne_external_mode')
+                    writers = self.get_publishers_info_by_topic(self.rc_sub.topic_name)
+                    if len(writers) != 1 or bytes(writers[0].endpoint_gid) != self.rc_input.owner_gid:
+                        raise ValueError('rc_requires_one_bound_publisher')
+                    # RC never starts native takeoff or changes the FC mode.
+                    self.operation = dict(request_id=self.request_context, requested_mode='RC_POS_CONTROL')
+                    try:
+                        self.activate()
+                    except (ValueError, RuntimeError):
+                        self.operation = None
+                        raise
+                    return
+                if self.processor.control_state == Control.RC_POS_CONTROL:
+                    if (self.state.mode != self.native.external_mode or not self.native.ready_external
+                            or not self.rc_input.command_handoff_ready(time.monotonic_ns())):
+                        raise ValueError('rc_to_command_requires_neutral_intent')
+                    answer = self.processor.enter_control(Control.COMMAND_CONTROL,
+                        initial_hover=Desired('position', position=self.processor.local_position(), yaw=self.processor.yaw))
+                    if not answer.accepted:
+                        raise ValueError(answer.reason)
+                    self.rc_input.revoke('explicit_command_handoff')
+                    self.shaper.reset()
+                    self.command_request_id = self.request_context
+                    self.event('setup_completed', control_state='COMMAND_CONTROL', native_mode=self.state.mode)
+                    return
                 if self.native.flying is False:
                     # AP may update home while arming; bind only the current frame.
                     self.processor.home = self.processor.local_position()
@@ -470,6 +512,10 @@ class ControlNode(Node):
                 if msg.px4_mode not in ('POSCTL', 'AUTO.LOITER', 'AUTO.LAND', 'AUTO.RTL', 'BRAKE'):
                     raise ValueError('native_mode_not_implemented')
                 self.native.request('mode', msg.px4_mode)
+                if self.processor.control_state == Control.RC_POS_CONTROL:
+                    self.rc_input.revoke('explicit_native_mode_exit')
+                    self.revoked = True
+                    self.event('control_revoked', reason='explicit_native_mode_exit', requested_mode=msg.px4_mode)
                 self.processor.enter_control(Control.INIT)
                 self.shaper.reset()
                 self.operation = dict(stage='simple', action='mode', value=msg.px4_mode, deadline=self.operation_time()+10, ack=False)
@@ -511,7 +557,7 @@ class ControlNode(Node):
             raise ValueError('external_heading_alignment_not_ready')
         requested = (self.operation or {}).get('requested_mode', 'COMMAND_CONTROL')
         if requested == 'RC_POS_CONTROL':
-            rc_answer = self.rc_input.activate(now_ns=self.operation_ns(),
+            rc_answer = self.rc_input.activate(now_ns=time.monotonic_ns(), operation_ns=self.operation_ns(),
                                                position=self.processor.local_position(),
                                                yaw=self.processor.yaw, setup_id=request_id)
             if not rc_answer.get('accepted'):
@@ -521,8 +567,12 @@ class ControlNode(Node):
                 raise ValueError(answer.reason)
             self.operation = self.warmup_target = None
             self.revoked = False
+            self.shaper.reset()
+            self.command_request_id = request_id
             self.event('setup_completed', control_state='RC_POS_CONTROL', native_mode=self.state.mode,
-                       request_id=request_id, rc_stream_bound=True)
+                       request_id=request_id, rc_stream_bound=True, rc_stream_id=self.rc_input.stream_id,
+                       publisher_gid=self.rc_input.owner_gid.hex(),
+                       position_enu_m=self.rc_input.target['position'], yaw_enu_rad=self.rc_input.target['yaw'])
             return
         answer = self.processor.enter_control(Control.COMMAND_CONTROL,
                                               initial_hover=(self.operation or {}).get('initial_hover'))
@@ -574,6 +624,15 @@ class ControlNode(Node):
             self.operation = None
 
     def tick(self):
+        if self.rc_receiver is not None:
+            try:
+                for _ in range(10):
+                    sample = self.rc_take.take(self.rc_sub)
+                    if sample is None:
+                        break
+                    self.on_rc(*sample)
+            except (ValueError, RuntimeError) as error:
+                self.revoke(str(error))
         for rejected in self.native.consume_rejections():
             self.event('native_input_rejected', error=True, **rejected)
         try:
@@ -630,10 +689,12 @@ class ControlNode(Node):
                 raise ValueError('native_clock_or_origin_reset')
         if not active and not self.state.odom_valid:
             return  # Publish invalid startup state; do not feed synthetic pose to the processor.
+        if self.processor.control_state == Control.RC_POS_CONTROL and (not self.state.armed or not self.state.odom_valid):
+            raise ValueError('rc_armed_or_navigation_lost')
         self.processor.update_state(self.state)
         if active and not self.state.connected:
             raise ValueError('native_state_stale')
-        observing_operator_hold = (self.scene is not None and self.revoked
+        observing_operator_hold = (self.revoked
             and self.processor.control_state == Control.INIT and self.native.external_mode == 'OFFBOARD'
             and self.operation is not None and self.operation.get('stage')=='simple'
             and self.operation.get('action')=='mode' and self.operation.get('value')=='AUTO.LOITER')
@@ -651,12 +712,18 @@ class ControlNode(Node):
             if not self.native.ready_external:
                 raise ValueError('external_heading_alignment_lost')
             scene_running = self.scene is None or (self.scene_hold is None and self.scene_recovery is None)
-            rc_out = self.rc_input.step(now_ns=self.operation_ns(), running=scene_running,
+            rc_out = self.rc_input.step(now_ns=time.monotonic_ns(), operation_ns=self.operation_ns(), running=scene_running,
                                         operation_mode='running' if scene_running else 'paused')
             if self.rc_input.state == 'REVOKED':
                 self.processor.clear_rc_desired()
                 raise ValueError('rc_input_revoked:' + str(self.rc_input.last_rejection))
             if rc_out is not None:
+                self.event('rc_integrated', **rc_out, operation_ns=self.rc_input.last_step_ns,
+                           produced_monotonic_ns=self.rc_input.produced_ns,
+                           received_monotonic_ns=self.rc_input.received_ns,
+                           serviced_monotonic_ns=time.monotonic_ns(),
+                           publisher_gid=self.rc_input.owner_gid.hex(), native_generation=self.native_generation,
+                           native_mode=self.state.mode)
                 rc_answer = self.processor.set_rc_desired(Desired('position', position=tuple(rc_out['position']),
                                                                   yaw=float(rc_out['yaw'])))
                 if not rc_answer.accepted:
@@ -664,7 +731,7 @@ class ControlNode(Node):
         rc_age = 0.0
         if self.processor.control_state == Control.RC_POS_CONTROL and self.rc_input is not None \
                 and self.rc_input.received_ns is not None:
-            rc_age = max(0.0, (self.operation_ns() - self.rc_input.received_ns) / 1_000_000_000)
+            rc_age = max(0.0, (time.monotonic_ns() - self.rc_input.received_ns) / 1_000_000_000)
         command = self.processor.command
         capture_mixed_body = (command.agent_cmd == Cmd.MOVE and command.move_mode == Cmd.XY_VEL_Z_POS_BODY
                               and not command.yaw_rate_mode and self.processor.body_reference is None)
@@ -696,6 +763,8 @@ class ControlNode(Node):
                 self.last_output = self.wall()
 
     def destroy_node(self):
+        if self.rc_receiver is not None:
+            self.rc_receiver.destroy_node()
         self.native.cancel_request()
         self.session.close()
         return super().destroy_node()

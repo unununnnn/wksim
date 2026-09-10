@@ -83,11 +83,12 @@ class RCInputTests(unittest.TestCase):
         self.assertEqual(rc.receive(frame(sequence=1), "02" * 16, received_ns=1_005_000_000)["reason"], "publisher_not_owner")
         self.assertEqual(rc.received_ns, old_received)
         self.assertEqual(rc.receive(frame(sequence=1), GID, received_ns=1_005_000_000)["reason"], "sequence_not_increasing")
-        self.assertEqual(rc.state, "REVOKED")
+        self.assertEqual(rc.state, "ACTIVE_RC")
+        self.assertEqual(rc.received_ns, old_received)
         rc.reset()
         rc.bind(frame(stream="d" * 32), GID, now_ns=1_000_000_100)
         self.assertEqual(rc.receive(frame(stream="c" * 32), GID, received_ns=1_005_000_000)["reason"], "wrong_stream_id")
-        self.assertEqual(rc.state, "REVOKED")
+        self.assertEqual(rc.state, "CANDIDATE")
 
     def test_expiry_dt_pause_and_switch_revoke_without_output(self):
         self.assertIsNotNone(validate_frame(frame(), expected=IDENTITY,
@@ -98,8 +99,7 @@ class RCInputTests(unittest.TestCase):
         rc.receive(frame(sequence=2, produced=1_010_000_000), GID, received_ns=1_010_000_100)
         self.assertIsNone(rc.step(now_ns=1_010_000_100, operation_mode="paused"))
         self.assertEqual(rc.state, "REVOKED")
-        for channels, reason in (([1500, 1500, 1500, 1500, 1000, 1000, 1000, 1000], "channel_release"),
-                                 ([1500, 1500, 1500, 1500, 1000, 2000, 1000, 1000], "command_intent_requires_explicit_handoff")):
+        for channels, reason in (([1500, 1500, 1500, 1500, 1000, 1000, 1000, 1000], "channel_release"),):
             rc = active()
             rc.receive(frame(sequence=2, produced=1_010_000_000, channels=channels), GID, received_ns=1_010_000_100)
             self.assertIsNone(rc.step(now_ns=1_010_000_100))
@@ -116,6 +116,43 @@ class RCInputTests(unittest.TestCase):
         self.assertEqual(rc.reset()["state"], "UNBOUND")
         self.assertEqual(rc.bind(frame(), GID, now_ns=1_000_000_100)["reason"], "retired_stream")
         self.assertEqual(rc.bind(frame(stream="d" * 32), GID, now_ns=1_000_000_100)["state"], "CANDIDATE")
+
+    def test_sim_clock_integrates_but_wall_clock_expires(self):
+        rc = RCInput(IDENTITY)
+        rc.bind(frame(), GID, now_ns=1_000_000_100)
+        rc.activate(now_ns=1_000_000_200, operation_ns=100_000, position=(1., 2., 3.), yaw=0.)
+        rc.receive(frame(sequence=2, produced=1_010_000_000,
+                         channels=[1500, 2000, 1500, 1500, 1000, 1500, 1000, 1000]), GID,
+                   received_ns=1_010_000_100)
+        rc.step(now_ns=1_010_000_200, operation_ns=100_000)
+        value = rc.step(now_ns=1_020_000_200, operation_ns=50_100_000)
+        self.assertAlmostEqual(value['position'][0], 1.075)
+        self.assertIsNone(rc.step(now_ns=2_510_000_101, operation_ns=50_100_000))
+        self.assertEqual(rc.last_rejection, 'input_expired')
+
+    def test_command_intent_holds_until_explicit_handoff(self):
+        rc = active()
+        rc.receive(frame(sequence=2, produced=1_010_000_000,
+                         channels=[1500, 2000, 1500, 1500, 1000, 2000, 1000, 1000]), GID,
+                   received_ns=1_010_000_100)
+        self.assertEqual(rc.step(now_ns=1_010_000_200)['position'], [1., 2., .3])
+        self.assertFalse(rc.command_handoff_ready(1_010_000_200))
+        rc.receive(frame(sequence=3, produced=1_020_000_000,
+                         channels=[1475, 1525, 1500, 1500, 1000, 2000, 1000, 1000]), GID,
+                   received_ns=1_020_000_100)
+        self.assertTrue(rc.command_handoff_ready(1_020_000_200))
+        self.assertFalse(rc.command_handoff_ready(2_520_000_001))
+
+    def test_retired_receive_size_and_produced_age_activation(self):
+        rc = active()
+        rc.reset()
+        self.assertEqual(rc.bind(frame(), GID, now_ns=1_020_000_000)['reason'], 'retired_stream')
+        self.assertFalse(rc.receive(frame(sequence=2), GID, received_ns=1_020_000_000)['accepted'])
+        with self.assertRaises(RCError):
+            validate_frame(' ' * 4097 + json.dumps(frame()))
+        rc = RCInput(IDENTITY)
+        rc.bind(frame(), GID, now_ns=2_400_000_000)
+        self.assertEqual(rc.activate(now_ns=2_500_000_001, position=(0., 0., 3.), yaw=0.)['reason'], 'input_expired')
 
 
 if __name__ == "__main__": unittest.main()

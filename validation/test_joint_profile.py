@@ -66,6 +66,33 @@ class JointProfileTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError,'source snapshot'):
                     profile._firmware(record,'ap')
 
+    def test_sealed_build_inputs_belong_to_historical_install(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory).resolve()
+            repo=root/'repo'; candidate=root/'candidate'
+            package=candidate/'install/prometheus_control'/profile.PYTHON/'prometheus_control'
+            staged=candidate/'src/prometheus_control'
+            current=repo/'ros2/src/prometheus_control'
+            for base in (package, staged/'prometheus_control', current/'prometheus_control'):
+                base.mkdir(parents=True)
+                (base/'__init__.py').write_text('same')
+            (staged/'CMakeLists.txt').write_text('historical build')
+            (current/'CMakeLists.txt').write_text('new candidate build')
+            (candidate/'build.log').write_text('built')
+            (repo/'tools').mkdir(); (repo/'tools/build-joint-control.sh').write_text('builder')
+            record=dict(root=str(candidate),package=str(package),
+                python_sha256={'__init__.py':profile.digest(package/'__init__.py')},
+                build_inputs={'CMakeLists.txt':profile.digest(staged/'CMakeLists.txt')},
+                build_log_sha256=profile.digest(candidate/'build.log'),
+                build_script_sha256=profile.digest(repo/'tools/build-joint-control.sh'))
+            with patch.object(profile,'REPO',repo):
+                self.assertEqual(profile._control(record,sealed=True),str(package))
+                with self.assertRaisesRegex(ValueError,'build input'):
+                    profile._control(record,sealed=False)
+                (staged/'CMakeLists.txt').write_text('tampered historical build')
+                with self.assertRaisesRegex(ValueError,'build input'):
+                    profile._control(record,sealed=True)
+
 
 if __name__=='__main__':
     unittest.main()

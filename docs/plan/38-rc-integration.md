@@ -1,5 +1,12 @@
 # #99 RC integration status — bounded shared seam
 
+2026-09-10 latest follow-up: the flight runner, actual Humble CDR/GID receiver,
+and independent raw auditor are implemented. Six scenarios on each of PX4 and
+ArduCopter passed on the installed WjBuqN control candidate. See
+[the flight report](../2026-09-10-rc-flight-report.md) and
+`validation/38-rc-flight/final-matrix.json`. Earlier checkpoints below remain
+historical records. Formal default promotion, other RC modes and Full are separate.
+
 2026-09-10. #98 is complete; #12, #14 and #6 are closed. This slice adds only
 the smallest shared handoff needed before touching the ROS node: the existing
 `CommandProcessor` accepts a validated `Desired('position', ...)` from the
