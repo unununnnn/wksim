@@ -1,0 +1,24 @@
+Working directory: C:/Users/PC/Documents/odid编译/wksim
+
+Prerequisite entries:
+  Simulator/wksim_core/static_contact.py  sha256 6affc8a60fe46be5b8c1e94dca2f06cd4208039b45e25954a1d7ba828d77b35e
+  Simulator/wksim_runtime/static-scene-v1.json  sha256 f2972aa228484be202f94327d7f8d932946e7d893283f7b1f4f6036c0357371e
+
+Recorded truth input (read-only):
+  validation/arducopter-physics-4yynssup/truth.jsonl  sha256 b366396be2d60052bbed9f29f1689556b791be2cc5fffb0a917f4b6f3aa1a467
+
+Run (fresh evidence directory):
+  python -B validation/lunar-29-live-contact/run.py
+    -> exit 0; 3253 rows; freeze frame 30019 reason stale_feedback boundary step 29999; recover frame 30039
+  python -B validation/lunar-29-live-contact/audit.py
+    -> {"assertions": 30895, "rows": 3253, "skipped": 0, "status": "pass"}
+
+Identities:
+  run-config.json sha256 9138102d17b8bce3dc39e207d2d1ad91647de45b6506142057c1b01a8ed1e597
+  run.py sha256 2be96bf2c66f54034334b8fed6c7970f7eb1db28e1f0842d48447b6c7aa394e2
+  audit.py sha256 abf32b73f43c1450960443aa3bf756dd647556222cf71e26b15cf25d7cdace20
+  records.jsonl sha256 c2e11826115b75b675989179dbd8eb84e72c20e556ea91937bad1fe6017e8a00
+  events.json sha256 e2ad5891ea90ace568c95c917872a975120bb155588e5cdbb47470981599fa41
+  display-manifest.json sha256 3beef8834c838328f6c7ecfd2764accdbdc9c0f6002135ce906ef1d0989b03c9
+
+No UE, FC, model, ROS, MATLAB or hardware process was started; no new physics was computed; nothing was sent to a flight controller; no wall-clock input was used.

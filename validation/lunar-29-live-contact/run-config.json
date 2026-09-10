@@ -1,0 +1,11 @@
+{
+  "schema": "wksim.live-contact-run.v1",
+  "run_id": "lunar-29-live-contact-20260910",
+  "epoch": "c3d4e5f60718293a4b5c6d7e8f90a1b2",
+  "body_id": "ap_quad_1",
+  "truth_source": "validation/arducopter-physics-4yynssup/truth.jsonl",
+  "truth_layout": "vehicle[3]=x_enu_m, vehicle[4]=y_enu_m, vehicle[5]=z_ned_m (down positive); z_enu = -vehicle[5]; step = frame (1 ms tick)",
+  "feedback_gap": {"after_frame": 30000, "resume_frame": 30020,
+                   "meaning": "required environment feedback withheld for rows with 30000 < frame <= 30020; the last envelope is stale at resume and the joint scene freezes at that completed boundary; a fresh query is the explicit recovery"},
+  "notes": "Recorded real ArduCopter truth from a previous physics validation run; no new physics is computed and nothing is sent to a flight controller."
+}
