@@ -89,6 +89,15 @@ class ControlNode(Node):
         self.legacy_command_sub = self.create_subscription(Cmd, root + '/command',
             lambda msg: self.event('command_rejected', error=True, reason='legacy_input_requires_session', request_id=0), 1)
         self.session = RunSession(parameter('run_id', ''), self.uav_id)
+        self.rc_input = None
+        rc_boot_id = parameter('rc_boot_id', '')
+        if rc_boot_id:
+            from Simulator.wksim_control.rc_input import RCInput
+            if not re.fullmatch(r'[0-9a-f]{32}', rc_boot_id):
+                raise ValueError('rc_boot_id must be 32 lowercase hex characters')
+            self.rc_input = RCInput({'run_id': self.session.run_id, 'control_epoch': self.session.epoch,
+                                     'uav_id': self.uav_id, 'boot_id': rc_boot_id})
+            self.rc_sub = self.create_subscription(String, root + '/v2/rc_input', self.on_rc, 1)
         self.scene = self.scene_hold = self.scene_recovery = None
         self.scene_native_endpoints = {}
         self.retired_native_endpoints = set()
@@ -348,6 +357,24 @@ class ControlNode(Node):
         self.last_operation_time = now
         return now
 
+    def operation_ns(self):
+        return int(self.operation_time() * 1_000_000_000)
+
+    def on_rc(self, msg, info):
+        if self.rc_input is None:
+            return
+        gid = bytes(info.get_gid())
+        try:
+            now_ns = self.operation_ns()
+            if self.rc_input.state == 'UNBOUND':
+                answer = self.rc_input.bind(msg.data, gid, now_ns=now_ns)
+            else:
+                answer = self.rc_input.receive(msg.data, gid, received_ns=now_ns)
+        except (ValueError, RuntimeError) as error:
+            answer = {'accepted': False, 'reason': str(error)}
+        self.event('rc_frame', accepted=bool(answer.get('accepted')), state=self.rc_input.state,
+                   reason=answer.get('reason'), sequence=answer.get('sequence', 0))
+
     def revoke(self, reason):
         request_id = (self.operation or {}).get('request_id', self.command_request_id)
         self.processor.enter_control(Control.INIT)
@@ -357,6 +384,8 @@ class ControlNode(Node):
         self.revoked = True
         # Clearing observation is not cancelling a command already inside the FC.
         self.native.cancel_request()
+        if self.rc_input is not None and self.rc_input.state != 'REVOKED':
+            self.rc_input.revoke('control_revoked')
         self.event('control_revoked', error=True, reason=reason, request_id=request_id)
 
     def on_setup(self, msg):
@@ -368,14 +397,21 @@ class ControlNode(Node):
             if not self.state.connected or not self.native.available():
                 raise ValueError('native_link_not_ready')
             if msg.cmd == UAVSetup.SET_CONTROL_MODE:
-                if msg.control_state != 'COMMAND_CONTROL':
+                if msg.control_state not in ('COMMAND_CONTROL', 'RC_POS_CONTROL'):
                     raise ValueError('control_setup_mode_not_implemented')
+                if msg.control_state == 'RC_POS_CONTROL' and self.rc_input is None:
+                    raise ValueError('rc_input_not_configured')
                 if not self.state.armed or not self.state.odom_valid:
                     raise ValueError('command_control_requires_armed_valid_state')
                 if not self.native.position_yaw:
                     raise ValueError('firmware_position_yaw_not_enabled')
-                if self.processor.control_state == Control.COMMAND_CONTROL and not self.revoked:
+                if self.processor.control_state == Control.COMMAND_CONTROL and not self.revoked \
+                        and msg.control_state == 'COMMAND_CONTROL':
                     self.event('setup_completed', cmd=int(msg.cmd), control_state='COMMAND_CONTROL', unchanged=True)
+                    return
+                if self.processor.control_state == Control.RC_POS_CONTROL and not self.revoked \
+                        and msg.control_state == 'RC_POS_CONTROL':
+                    self.event('setup_completed', cmd=int(msg.cmd), control_state='RC_POS_CONTROL', unchanged=True)
                     return
                 if self.processor.home is None or self.native.flying is None:
                     raise ValueError('missing_home_or_landed_state')
@@ -408,6 +444,7 @@ class ControlNode(Node):
                     self.native.request('mode', 'OFFBOARD')
                     self.operation = dict(stage='external', deadline=self.operation_time()+10, ack=False)
                 self.operation['initial_hover'] = initial_hover
+                self.operation['requested_mode'] = msg.control_state
                 self.shaper.reset()
                 self.event('takeover_reference', airborne=initial_hover is not None,
                            position_enu_m=target.position, yaw_enu_rad=target.yaw,
@@ -472,6 +509,21 @@ class ControlNode(Node):
         request_id = (self.operation or {}).get('request_id', self.request_context)
         if not self.native.ready_external:
             raise ValueError('external_heading_alignment_not_ready')
+        requested = (self.operation or {}).get('requested_mode', 'COMMAND_CONTROL')
+        if requested == 'RC_POS_CONTROL':
+            rc_answer = self.rc_input.activate(now_ns=self.operation_ns(),
+                                               position=self.processor.local_position(),
+                                               yaw=self.processor.yaw, setup_id=request_id)
+            if not rc_answer.get('accepted'):
+                raise ValueError(rc_answer.get('reason', 'rc_activate_rejected'))
+            answer = self.processor.enter_control(Control.RC_POS_CONTROL)
+            if not answer.accepted:
+                raise ValueError(answer.reason)
+            self.operation = self.warmup_target = None
+            self.revoked = False
+            self.event('setup_completed', control_state='RC_POS_CONTROL', native_mode=self.state.mode,
+                       request_id=request_id, rc_stream_bound=True)
+            return
         answer = self.processor.enter_control(Control.COMMAND_CONTROL,
                                               initial_hover=(self.operation or {}).get('initial_hover'))
         if not answer.accepted:
@@ -593,10 +645,30 @@ class ControlNode(Node):
             raise ValueError('external_mode_left_no_automatic_reacquisition')
         elif self.processor.control_state == Control.COMMAND_CONTROL and not self.native.ready_external:
             raise ValueError('external_heading_alignment_lost')
+        elif self.processor.control_state == Control.RC_POS_CONTROL:
+            if self.state.mode != self.native.external_mode:
+                raise ValueError('external_mode_left_no_automatic_reacquisition')
+            if not self.native.ready_external:
+                raise ValueError('external_heading_alignment_lost')
+            scene_running = self.scene is None or (self.scene_hold is None and self.scene_recovery is None)
+            rc_out = self.rc_input.step(now_ns=self.operation_ns(), running=scene_running,
+                                        operation_mode='running' if scene_running else 'paused')
+            if self.rc_input.state == 'REVOKED':
+                self.processor.clear_rc_desired()
+                raise ValueError('rc_input_revoked:' + str(self.rc_input.last_rejection))
+            if rc_out is not None:
+                rc_answer = self.processor.set_rc_desired(Desired('position', position=tuple(rc_out['position']),
+                                                                  yaw=float(rc_out['yaw'])))
+                if not rc_answer.accepted:
+                    raise ValueError(rc_answer.reason)
+        rc_age = 0.0
+        if self.processor.control_state == Control.RC_POS_CONTROL and self.rc_input is not None \
+                and self.rc_input.received_ns is not None:
+            rc_age = max(0.0, (self.operation_ns() - self.rc_input.received_ns) / 1_000_000_000)
         command = self.processor.command
         capture_mixed_body = (command.agent_cmd == Cmd.MOVE and command.move_mode == Cmd.XY_VEL_Z_POS_BODY
                               and not command.yaw_rate_mode and self.processor.body_reference is None)
-        reference = self.processor.step()
+        reference = self.processor.step(rc_age=rc_age)
         target = self.shaper.shape(reference, self.processor.local_position())
         if capture_mixed_body and reference is not None and reference is self.processor.body_reference:
             # Capture is a resolved reference, not proof of native publication/ACK.
