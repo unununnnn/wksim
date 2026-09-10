@@ -710,9 +710,9 @@ class ControlNode(Node):
         if active and not self.state.connected:
             raise ValueError('native_state_stale')
         observing_operator_hold = (self.revoked
-            and self.processor.control_state == Control.INIT and self.native.external_mode == 'OFFBOARD'
+            and self.processor.control_state == Control.INIT and self.native.external_mode in ('OFFBOARD','GUIDED')
             and self.operation is not None and self.operation.get('stage')=='simple'
-            and self.operation.get('action')=='mode' and self.operation.get('value')=='AUTO.LOITER')
+            and self.operation.get('action')=='mode' and self.operation.get('value') in ('AUTO.LOITER','AUTO.LAND'))
         if active and self.native.failed and not observing_operator_hold:
             raise ValueError('native_failsafe_control_released')
         if self.operation is not None:

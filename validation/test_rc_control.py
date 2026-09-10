@@ -144,6 +144,9 @@ class RCNodeTests(unittest.TestCase):
         node.advance=Mock(); node.wall=lambda:1.; node.last_output=0.; node.output_period=.025
         ControlNode.drive(node)
         node.advance.assert_called_once()
+        node.native.external_mode='GUIDED';node.operation['value']='AUTO.LAND'
+        ControlNode.drive(node)
+        self.assertEqual(node.processor.control_state,Control.INIT)
         node.operation=dict(stage='simple',action='arm',value=True)
         with self.assertRaisesRegex(ValueError,'native_failsafe_control_released'):
             ControlNode.drive(node)

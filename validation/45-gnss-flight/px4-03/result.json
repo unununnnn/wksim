@@ -1,0 +1,2231 @@
+{
+  "status": "observed",
+  "experimental": true,
+  "production_admitted": false,
+  "stack": "px4",
+  "run_id": "dd44e38bbcb54c51a72fb17b90b8d4c8",
+  "config": {
+    "schema_version": 1,
+    "run_id": "dd44e38bbcb54c51a72fb17b90b8d4c8",
+    "vehicle_id": 1,
+    "stack": "px4",
+    "model_profile": "quad_x",
+    "communication": "native_dds",
+    "control_protocol": "session_v1",
+    "capabilities": [
+      "native_position_mission"
+    ],
+    "dds_workspace": "/root/wksim-dds-VxM6Ni",
+    "prometheus_workspace": "/root/wksim-joint-control-hy8WVw",
+    "px4_root": "/root/wksim-px4-state-ONa1Kw/src",
+    "model_library": "/root/wksim-private-tmp-bhi18a3s/artifacts/wksim-model-qhdy93lm/libwksim_model.so"
+  },
+  "run_dir": "/root/wksim-gnss-flight-px4-03/dd44e38bbcb54c51a72fb17b90b8d4c8",
+  "admission": {
+    "ok": true,
+    "config": {
+      "schema_version": 1,
+      "run_id": "dd44e38bbcb54c51a72fb17b90b8d4c8",
+      "vehicle_id": 1,
+      "stack": "px4",
+      "model_profile": "quad_x",
+      "communication": "native_dds",
+      "control_protocol": "session_v1",
+      "capabilities": [
+        "native_position_mission"
+      ],
+      "dds_workspace": "/root/wksim-dds-VxM6Ni",
+      "prometheus_workspace": "/root/wksim-joint-control-hy8WVw",
+      "px4_root": "/root/wksim-px4-state-ONa1Kw/src",
+      "model_library": "/root/wksim-private-tmp-bhi18a3s/artifacts/wksim-model-qhdy93lm/libwksim_model.so"
+    },
+    "library": "/root/wksim-private-tmp-bhi18a3s/artifacts/wksim-model-qhdy93lm/libwksim_model.so",
+    "baseline": {
+      "ok": true,
+      "reasons": [],
+      "children_created": 0,
+      "profile": {
+        "id": "joint_quad_dds_v1",
+        "dds_workspace": "/root/wksim-dds-VxM6Ni",
+        "ap_message_workspace": "/root/wksim-ap-dds-yaw-state-4Wr27s",
+        "message_workspace": "/root/wksim-ros2-MUlZd0",
+        "control_workspace": "/root/wksim-joint-control-FVMjak",
+        "model_library": "/root/wksim-private-tmp-bhi18a3s/artifacts/wksim-model-qhdy93lm/libwksim_model.so",
+        "manifests": {
+          "ap": {
+            "path": "/root/wksim-ap-clock-stop-OXQqdR/wksim-build.json",
+            "sha256": "f347ba252fbfc33bc92baffba08660f33c3a0e4462e90177ba84bdc11408660a"
+          },
+          "px4": {
+            "path": "/root/wksim-px4-state-ONa1Kw/wksim-build.json",
+            "sha256": "d7e905b35250d184e185ada70e3fe43f0223f1c605832d81c3c58eeb123d4cb6"
+          },
+          "control": {
+            "path": "/root/wksim-joint-control-FVMjak/build.json",
+            "sha256": "f02edf158bf9b4d75cfd2221412bdbe83a10b21bc1642c97259294e12ef487a7"
+          }
+        },
+        "evidence": [
+          {
+            "result": {
+              "path": "validation/joint-public-flight-_cs_wxw_/result.json",
+              "sha256": "11ba582724292470177f4514043293d8e68717e8e64b7edfbd168f6bb056447d"
+            },
+            "audit": {
+              "path": "validation/joint-public-flight-_cs_wxw_/audit.json",
+              "sha256": "c2db43e16120f05032a67543a9d57216d8a199008b076d0a3fec0ae2ce0446ec"
+            }
+          }
+        ],
+        "setup_files": [
+          "/opt/ros/humble/setup.bash",
+          "/root/wksim-dds-VxM6Ni/ros-install/local_setup.bash",
+          "/root/wksim-ap-dds-yaw-state-4Wr27s/ros-install/local_setup.bash",
+          "/root/wksim-ros2-MUlZd0/install/local_setup.bash",
+          "/root/wksim-joint-control-FVMjak/install/local_setup.bash"
+        ],
+        "control_source": "sealed_legacy",
+        "capabilities": [
+          "public_position",
+          "public_velocity_yaw"
+        ]
+      },
+      "model_library": "/root/wksim-private-tmp-bhi18a3s/artifacts/wksim-model-qhdy93lm/libwksim_model.so",
+      "control_package": "/root/wksim-joint-control-FVMjak/install/prometheus_control/local/lib/python3.10/dist-packages/prometheus_control",
+      "identities": {
+        "px4": {
+          "path": "/root/wksim-px4-state-ONa1Kw/src/build/px4_sitl_default/bin/px4",
+          "sha256": "93b4ebe0d83a5897131ec24ee58d732c8999972bb7730f429fc396bc8d10602a",
+          "commit": "d6f12ad1c4f70ad3230afd7d86e971421e02fef4",
+          "source_files": 42012
+        },
+        "manifests": {
+          "ap": {
+            "path": "/root/wksim-ap-clock-stop-OXQqdR/wksim-build.json",
+            "sha256": "f347ba252fbfc33bc92baffba08660f33c3a0e4462e90177ba84bdc11408660a"
+          },
+          "px4": {
+            "path": "/root/wksim-px4-state-ONa1Kw/wksim-build.json",
+            "sha256": "d7e905b35250d184e185ada70e3fe43f0223f1c605832d81c3c58eeb123d4cb6"
+          },
+          "control": {
+            "path": "/root/wksim-joint-control-FVMjak/build.json",
+            "sha256": "f02edf158bf9b4d75cfd2221412bdbe83a10b21bc1642c97259294e12ef487a7"
+          }
+        },
+        "model": {
+          "archive": "/mnt/e/rflysimtools/RflySimAPIs/4.RflySimModel/1.BasicExps/e0_MinModelTemp/MulticopterModel.zip",
+          "archive_sha256": "d528b5d247e13d943f1eaa7a37fd3cb4d15c7e9bb7a6b0e5988a1423e59d05ed",
+          "wrapper_sha256": "3f325678b1d85c9aa3fd07bd644d82935aa26d82885926defeced139f02ddf2c",
+          "library": "/root/wksim-private-tmp-bhi18a3s/artifacts/wksim-model-qhdy93lm/libwksim_model.so",
+          "library_sha256": "cc0bc2d10790043251f38bb6a53f4d774379dd37a02b09cceba43ac1fafb02b3",
+          "argv": [
+            "g++",
+            "-std=c++17",
+            "-O2",
+            "-fno-fast-math",
+            "-fPIC",
+            "-shared",
+            "-Wl,--no-undefined",
+            "-I",
+            "/root/wksim-private-tmp-bhi18a3s/artifacts/wksim-model-qhdy93lm",
+            "/root/wksim-private-tmp-bhi18a3s/artifacts/wksim-model-qhdy93lm/Exp1_MinModelTemp.cpp",
+            "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/Simulator/wksim_core/model.cpp",
+            "-o",
+            "/root/wksim-private-tmp-bhi18a3s/artifacts/wksim-model-qhdy93lm/libwksim_model.so"
+          ],
+          "compiler": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0",
+          "profile": "generated-quad-x-1ms; local use; vendor redistribution not granted"
+        },
+        "message_packages": {
+          "px4_msgs": {
+            "prefix": "/root/wksim-dds-VxM6Ni/ros-install/px4_msgs",
+            "sha256": "4e925a5917bce0442f487b93c39763ee49a6c07662ef3b23560207a15f37ee3e"
+          },
+          "ardupilot_msgs": {
+            "prefix": "/root/wksim-ap-dds-yaw-state-4Wr27s/ros-install/ardupilot_msgs",
+            "sha256": "5ff82c59c182e5b904ce227ede45d6e9e046c6882d0f82a7453df231a9dac0aa"
+          },
+          "prometheus_msgs": {
+            "prefix": "/root/wksim-ros2-MUlZd0/install/prometheus_msgs",
+            "sha256": "fc5f25cd3bd19b3dae4c1c58ea303cd85c484dbf6e9c065ec082058ff987b806",
+            "complete_snapshot": true
+          },
+          "wksim_msgs": {
+            "prefix": "/root/wksim-ros2-MUlZd0/install/wksim_msgs",
+            "sha256": "fa5fadcb39d83bd1d2412b3b1d58955423a698236f19d9cf208956c120fdabe3",
+            "complete_snapshot": true
+          }
+        },
+        "px4_agent": {
+          "path": "/root/wksim-dds-VxM6Ni/agent-install/bin/MicroXRCEAgent",
+          "sha256": "c61334626f2b625fdee68f7326ca1dabdf788b16d991a0e6879903cf24edb4b7"
+        }
+      },
+      "capabilities": [
+        "public_position",
+        "public_velocity_yaw"
+      ],
+      "scope": "Pinned AP/PX4 quad-X joint DDS public tasks and approved recovery; admission is not flight readiness or complete G2/Full acceptance"
+    },
+    "control": {
+      "version": 1,
+      "root": "/root/wksim-joint-control-hy8WVw",
+      "package": "/root/wksim-joint-control-hy8WVw/install/prometheus_control/local/lib/python3.10/dist-packages/prometheus_control",
+      "python_sha256": {
+        "__init__.py": "9a4edb373583bcf6f3d7eaa2522ad1544f63965b0e7f81167f858a0d09d44746",
+        "command.py": "5c23492d761444346a41707cd6027c2fe76acd47db7bd972686fc09ef5f8b25d",
+        "frames.py": "24086553882b31f0666159a1c9bf2929219420a0184dbb2b6683559d12e809b0",
+        "native_arducopter.py": "00b634da7b3e29b87251020fe1d5d74f88d2039c1312081dea67614eda4dcb2a",
+        "native_px4.py": "de40ae6175c7e1b23908a791b077b310da81a8d5c264ff4af2620a733a4b2fe6",
+        "node.py": "0425b501a4498d5675d99ee2bb36f3e38cb04d6735e1f4d2ead0d4ba03f4a059",
+        "rc_transport.py": "e618c33ba687520160c8d2cfb79b0da30e5047f3036549c47ca357f1c26dc38f",
+        "scene.py": "370770a02fdde5e94fc54bed6f7e0d63a4c98c6dcadd0c3616ac1c14529cd333",
+        "session.py": "da64efa299288738d4520c6a23834c3201c34334f861a8de542fcaa91930b126",
+        "shaping.py": "56782d96f9fc6f7df3ddadf80cd8c09f474af81c5c183d20d3d26c2f9e66bc69"
+      },
+      "build_inputs": {
+        "CMakeLists.txt": "8e8791201c0bb04806fe68f729288e57fe2f0552aee8c38e85e0acd8e2abd591",
+        "package.xml": "6c7b9f84953ec2a9726c87e888ee72a3bf045724c0585558ba413f400f0a38b4",
+        "scripts/prometheus_control_node": "b73f77d5e2b74ea999fdd3174280c31d311061de20e2c2c7e8c56d44e4e6dcfc",
+        "src/rc_take.cpp": "d6969f1d872a904c794b8c045652946fa1bf5285401ac3ee747a24beee9c6ee6"
+      },
+      "build_log_sha256": "a90501186945adf428897cfab0008a15431f5a896a8b7a1cc311c5db509c0174",
+      "rc_transport_sha256": "f00ccb7da8da348e33e8dbb1200dd3244a73c3cf4f658024372009de06f9107c",
+      "build_script_sha256": "cee40ea5324de3f38613fd3e8f05bbfde2a5814b1c76e038ec26917795e3365c",
+      "scope": "experimental continuous joint ROS-time operations; no production admission"
+    },
+    "control_manifest": "/root/wksim-joint-control-hy8WVw/build.json",
+    "control_sha256": "151389198b8719ff443db41cd24260d75f239c6d5fe016399589818231698f2a",
+    "setup_files": [
+      "/opt/ros/humble/setup.bash",
+      "/root/wksim-dds-VxM6Ni/ros-install/local_setup.bash",
+      "/root/wksim-ap-dds-yaw-state-4Wr27s/ros-install/local_setup.bash",
+      "/root/wksim-ros2-MUlZd0/install/local_setup.bash",
+      "/root/wksim-joint-control-hy8WVw/install/local_setup.bash"
+    ]
+  },
+  "children": {
+    "physics": {
+      "argv": [
+        "/usr/bin/python3",
+        "-B",
+        "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/tools/gnss_physics.py",
+        "--stack",
+        "px4",
+        "--library",
+        "/root/wksim-private-tmp-bhi18a3s/artifacts/wksim-model-qhdy93lm/libwksim_model.so",
+        "--port",
+        "4581",
+        "--trace",
+        "/root/wksim-gnss-flight-px4-03/dd44e38bbcb54c51a72fb17b90b8d4c8/truth.jsonl",
+        "--profile",
+        "/root/wksim-gnss-flight-px4-03/dd44e38bbcb54c51a72fb17b90b8d4c8/gnss-profile.json",
+        "--run-id",
+        "dd44e38bbcb54c51a72fb17b90b8d4c8",
+        "--scene-epoch",
+        "810c06e3334c4242a49089f6617fc7a7"
+      ],
+      "cwd": "/root/wksim-gnss-flight-px4-03/dd44e38bbcb54c51a72fb17b90b8d4c8",
+      "pid": 1073,
+      "pgid": 1073,
+      "proc_stat": "1073 (python3) R 584 1073 1073 0 -1 4194304 24 0 0 0 0 0 0 0 20 0 1 0 24186 6725632 120 18446744073709551615 97016361598976 97016364423213 140725558058144 0 0 0 0 0 0 0 0 0 17 17 0 0 0 0 0 97016366786576 97016367070616 97017435947008 140725558063842 140725558064308 140725558064308 140725558071271 0\n",
+      "executable": "/usr/bin/python3.10",
+      "returncode": 1
+    },
+    "agent": {
+      "argv": [
+        "/root/wksim-dds-VxM6Ni/agent-install/bin/MicroXRCEAgent",
+        "udp4",
+        "-p",
+        "18888",
+        "-v",
+        "4"
+      ],
+      "cwd": "/root/wksim-gnss-flight-px4-03/dd44e38bbcb54c51a72fb17b90b8d4c8",
+      "pid": 1074,
+      "pgid": 1074,
+      "proc_stat": "1074 (MicroXRCEAgent) R 584 1074 1074 0 -1 4194304 15 0 0 0 0 0 0 0 20 0 1 0 24210 425984 40 18446744073709551615 102857484951552 102857484952153 140724365374768 0 0 0 0 0 0 0 0 0 17 18 0 0 0 0 0 102857484963160 102857484963856 102857603674112 140724365378626 140724365378701 140724365378701 140724365385664 0\n",
+      "executable": "/root/wksim-dds-VxM6Ni/agent-install/bin/MicroXRCEAgent",
+      "returncode": -15
+    },
+    "fc": {
+      "argv": [
+        "/root/wksim-px4-state-ONa1Kw/src/build/px4_sitl_default/bin/px4",
+        "-d",
+        "/root/wksim-px4-state-ONa1Kw/src/build/px4_sitl_default/etc",
+        "-t",
+        "/root/wksim-px4-state-ONa1Kw/src/test_data",
+        "-i",
+        "21",
+        "-w",
+        "/root/wksim-gnss-flight-px4-03/dd44e38bbcb54c51a72fb17b90b8d4c8"
+      ],
+      "cwd": "/root/wksim-gnss-flight-px4-03/dd44e38bbcb54c51a72fb17b90b8d4c8",
+      "pid": 1081,
+      "pgid": 1081,
+      "proc_stat": "1081 (px4) R 584 1081 1081 0 -1 4194304 21 0 0 0 0 0 0 0 20 0 1 0 24212 5459968 80 18446744073709551615 104544179232768 104544184125960 140726370948912 0 0 0 0 0 0 0 0 0 17 6 0 0 0 0 0 104544184131776 104544184242760 104544669786112 140726370951108 140726370951354 140726370951354 140726370959288 0\n",
+      "executable": "/root/wksim-px4-state-ONa1Kw/src/build/px4_sitl_default/bin/px4",
+      "returncode": 0
+    },
+    "control": {
+      "argv": [
+        "/usr/bin/python3",
+        "-m",
+        "prometheus_control.node",
+        "--ros-args",
+        "-p",
+        "flight_stack:=px4",
+        "-p",
+        "uav_id:=1",
+        "-p",
+        "native_prefix:=/wksim_px4_21",
+        "-p",
+        "native_system_id:=22",
+        "-p",
+        "arducopter_position_yaw:=true",
+        "-p",
+        "run_id:=dd44e38bbcb54c51a72fb17b90b8d4c8"
+      ],
+      "cwd": "/root/wksim-gnss-flight-px4-03/dd44e38bbcb54c51a72fb17b90b8d4c8",
+      "pid": 1302,
+      "pgid": 1302,
+      "proc_stat": "1302 (python3) R 584 1302 1302 0 -1 4194304 13 0 0 0 0 0 0 0 20 0 1 0 24243 6606848 0 18446744073709551615 106000210817024 106000213641261 140734036107888 0 0 0 0 0 0 0 0 0 17 18 0 0 0 0 0 106000216004624 106000216288664 106000223367168 140734036116438 140734036116660 140734036116660 140734036123623 0\n",
+      "executable": "/usr/bin/python3.10",
+      "returncode": 0
+    }
+  },
+  "phases": [
+    {
+      "phase": "physics_listening",
+      "wall_s": 0.29406066100000317
+    },
+    {
+      "phase": "agent_listening",
+      "wall_s": 0.3149457680000012
+    },
+    {
+      "phase": "physics_fc_coupled",
+      "wall_s": 0.619092672000022
+    },
+    {
+      "phase": "public_ready",
+      "wall_s": 3.2077598450000266
+    },
+    {
+      "phase": "native_observers_ready",
+      "wall_s": 3.2166243700000052
+    },
+    {
+      "phase": "initial_native_hold",
+      "wall_s": 3.236400248000024
+    },
+    {
+      "phase": "native_prearm_ready",
+      "wall_s": 4.123403865
+    },
+    {
+      "phase": "initial_arm",
+      "wall_s": 4.156639050000024
+    },
+    {
+      "phase": "initial_takeoff",
+      "wall_s": 14.092599790000008
+    },
+    {
+      "phase": "initial_point_accepted",
+      "wall_s": 14.094035893000012
+    },
+    {
+      "phase": "initial_stable_hold",
+      "wall_s": 24.34293028799999
+    },
+    {
+      "phase": "gnss_plan_committed",
+      "wall_s": 24.356811711000034
+    },
+    {
+      "phase": "gnss_outage_planned",
+      "wall_s": 24.35690444200003
+    },
+    {
+      "phase": "gnss_control_withdrawn",
+      "wall_s": 27.46802285900003
+    },
+    {
+      "phase": "gnss_outage_finished",
+      "wall_s": 41.40281644200002
+    },
+    {
+      "phase": "native_navigation_returned",
+      "wall_s": 42.66359032400004
+    },
+    {
+      "phase": "no_automatic_reacquisition",
+      "wall_s": 43.667251133000036
+    },
+    {
+      "phase": "explicit_recovery_hold",
+      "wall_s": 43.706060431000026
+    },
+    {
+      "phase": "recovery_public_ready",
+      "wall_s": 43.706922077
+    },
+    {
+      "phase": "recovery_disarmed_ground",
+      "wall_s": 43.71642750699999
+    },
+    {
+      "phase": "recovery_prearm_ready",
+      "wall_s": 44.203414764
+    },
+    {
+      "phase": "explicit_recovery_arm",
+      "wall_s": 44.237201571000014
+    },
+    {
+      "phase": "explicit_new_takeover",
+      "wall_s": 54.67310918800001
+    },
+    {
+      "phase": "new_point_accepted",
+      "wall_s": 54.67542077600001
+    },
+    {
+      "phase": "recovery_point_completed",
+      "wall_s": 59.003308316000016
+    },
+    {
+      "phase": "final_land",
+      "wall_s": 59.03606629800004
+    },
+    {
+      "phase": "landed_disarmed",
+      "wall_s": 66.90077090800003
+    },
+    {
+      "phase": "ground_hold_completed",
+      "wall_s": 67.06636763699998
+    },
+    {
+      "phase": "landed_stop",
+      "wall_s": 67.09776377100002
+    }
+  ],
+  "safe_landing": true,
+  "resources": {
+    "experiment_kind": "independent",
+    "run_id": "dd44e38bbcb54c51a72fb17b90b8d4c8",
+    "output": "/root/wksim-gnss-flight-px4-03/dd44e38bbcb54c51a72fb17b90b8d4c8",
+    "network_namespace": "net:[4026532232]",
+    "ipc_namespace": "ipc:[4026532231]",
+    "shm_device": 83,
+    "vehicle_id": 1,
+    "ros_domain": 77,
+    "public_namespace": "/uav1/prometheus",
+    "native_prefix": "/wksim_px4_21",
+    "native_system_id": 22,
+    "xrce_client_key": 22,
+    "ports": [
+      {
+        "protocol": "udp",
+        "port": 18888
+      },
+      {
+        "protocol": "udp",
+        "port": 18591
+      },
+      {
+        "protocol": "udp",
+        "port": 14661
+      },
+      {
+        "protocol": "tcp",
+        "port": 4581
+      }
+    ],
+    "display_socket": null,
+    "telemetry_socket": null,
+    "independent_clock": true,
+    "dds_transport": "private network and private /dev/shm"
+  },
+  "scene_epoch": "810c06e3334c4242a49089f6617fc7a7",
+  "scope": "Independent GNSS fault; native failsafe and explicit new task recovery",
+  "source_sha256": {
+    "tools/run_gnss_flight.py": "92ceed45535f9e1effa683094eeefe26b7a69ac309a5096cd747668b2a3aaf8c",
+    "tools/run-gnss-flight.sh": "ab11b1a6a2f97f9c5be2d42a198e55db781bfc9a21cdd8e5dc1872cfc3b769c7",
+    "tools/gnss_physics.py": "7ec06a5d9fe66349d06482a2df587b54cde14f45ebf394affedd126f84c77375",
+    "tools/gnss_candidate.py": "2fbabaa5b827faec64b379f95e26c2130702ab4280eece092199458b0e6f1b22",
+    "tools/rc_candidate.py": "485bbcfad0cccb0db883abd97f61595fe7bd73ac5bfeed10581531ef156fb0ec",
+    "tools/joint_control_candidate.py": "ca621094342f02a9f2784de3caf105d738c401717c5ace63b68d802f7c453885",
+    "tools/audit_gnss_flight.py": "8128ea771a26354f8e62d38384cc3c65439de713b17374d0a1c916f9f7d41f8d",
+    "tools/pid_physics.py": "5c57811dc2b1f86282b409ca59bc3bdd0cfec6a6a2981620d784e500c80dad78",
+    "Simulator/wksim_runtime/gnss_task.py": "89b09c9823678bf3dc5611c846c18e33de25fbb24aaf5f368b86a6333790ec04",
+    "Simulator/wksim_runtime/gnss-flight-v2.json": "5449a73ccfec0e13ddcadde14411fc65f015264c5841e39de10664fa3bb06617",
+    "Simulator/wksim_runtime/rc_task.py": "8f32769548d3325bd63b78528cfa373f2ea4cb3ccce94047b00293ca7120bfac",
+    "Simulator/wksim_runtime/efficiency_task.py": "ebd16f429b6fcefe5b9809ef45d34272ff9e1ad5cf02c6edec9682ff65062010",
+    "Simulator/wksim_runtime/task.py": "9791913df7ad61d229a151d4d1d0e5c2b3f32d127a7545096b43a32638f0dbbc",
+    "Simulator/wksim_runtime/runtime.py": "7853410a294cd0d41356ff49a5976c001a78c3cc89e0722f7bd7e47147ca4d3c",
+    "Simulator/wksim_runtime/isolation.py": "92466d6e736f671031b5d53f01d8ebcfd2ab1aa6c28c9946e2f891087bb61c99",
+    "Simulator/wksim_runtime/config.py": "ab57bcd9723707857f212432e8be093209dd578b9eb6c453340027e4871861eb",
+    "Simulator/wksim_runtime/joint_profile.py": "9b4fdafff268c576e42c5dfac2f3d3ed0f814b99fb85c6569a98a0edab3cac42",
+    "Simulator/wksim_runtime/build_identity.py": "9581d7085f3fb37629969e19635d1299fd40ca0a0f65ea7f4af6b85a5d6e8286",
+    "Simulator/wksim_core/gnss_event.py": "b26953276fe1fbca0f073ee4807796e294194a33acbbd0f5140fecb63d81f75b",
+    "Simulator/wksim_core/motor_efficiency_event.py": "52972153618cc91a16d4ce6cc698db3d3108ed600c37235787a4d49ab77b1383",
+    "Simulator/wksim_core/model.py": "af767e9299e4282da8da168998605c02039ea64d9cc27bb33e9dce24d1a6b77a",
+    "Simulator/wksim_core/model.cpp": "3f325678b1d85c9aa3fd07bd644d82935aa26d82885926defeced139f02ddf2c",
+    "Simulator/wksim_core/px4_mavlink.py": "e8c903f2b4c84a261adf6f512c8437c51364143dc048d1ac2cb873e7cfb53260",
+    "Simulator/wksim_core/ap_json.py": "db3498d5df50aa3ab46601a8e899c6739e613d431a7d221ac57d2a86e1846469",
+    "Simulator/wksim_core/state_stream.py": "d0bf4534885170bc281394657558afbfa143d76360ac1157e1c0e60d9719a76e",
+    "Simulator/wksim_core/arducopter-quad-x.parm": "823e8e3ca9d5648aa36de40c34aa3d6af0e52c8155909620ab1958b1302703e1",
+    "Simulator/wksim_core/px4-rc.mavlink": "2c3cea474c5669b6c9ae241072a1c5f813f06ff771233e0f81721397c903d214"
+  },
+  "launch_plan": {
+    "agent": [
+      "/root/wksim-dds-VxM6Ni/agent-install/bin/MicroXRCEAgent",
+      "udp4",
+      "-p",
+      "18888",
+      "-v",
+      "4"
+    ],
+    "physics": [
+      "/usr/bin/python3",
+      "-B",
+      "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/tools/gnss_physics.py",
+      "--stack",
+      "px4",
+      "--library",
+      "/root/wksim-private-tmp-bhi18a3s/artifacts/wksim-model-qhdy93lm/libwksim_model.so",
+      "--port",
+      "4581",
+      "--trace",
+      "/root/wksim-gnss-flight-px4-03/dd44e38bbcb54c51a72fb17b90b8d4c8/truth.jsonl",
+      "--profile",
+      "/root/wksim-gnss-flight-px4-03/dd44e38bbcb54c51a72fb17b90b8d4c8/gnss-profile.json",
+      "--run-id",
+      "dd44e38bbcb54c51a72fb17b90b8d4c8",
+      "--scene-epoch",
+      "810c06e3334c4242a49089f6617fc7a7"
+    ],
+    "fc": [
+      "/root/wksim-px4-state-ONa1Kw/src/build/px4_sitl_default/bin/px4",
+      "-d",
+      "/root/wksim-px4-state-ONa1Kw/src/build/px4_sitl_default/etc",
+      "-t",
+      "/root/wksim-px4-state-ONa1Kw/src/test_data",
+      "-i",
+      "21",
+      "-w",
+      "/root/wksim-gnss-flight-px4-03/dd44e38bbcb54c51a72fb17b90b8d4c8"
+    ],
+    "control": [
+      "/usr/bin/python3",
+      "-m",
+      "prometheus_control.node",
+      "--ros-args",
+      "-p",
+      "flight_stack:=px4",
+      "-p",
+      "uav_id:=1",
+      "-p",
+      "native_prefix:=/wksim_px4_21",
+      "-p",
+      "native_system_id:=22",
+      "-p",
+      "arducopter_position_yaw:=true",
+      "-p",
+      "run_id:=dd44e38bbcb54c51a72fb17b90b8d4c8"
+    ],
+    "fc_environment": {
+      "PX4_SYS_AUTOSTART": "10016",
+      "PX4_SIM_MODEL": "none_iris",
+      "PX4_SIM_HOST_ADDR": "127.0.0.1",
+      "PX4_SIM_SPEED_FACTOR": "1",
+      "PX4_UXRCE_DDS_PORT": "18888",
+      "PX4_UXRCE_DDS_NS": "wksim_px4_21",
+      "ROS_DOMAIN_ID": "77",
+      "WKSIM_MAVLINK_LOCAL_PORT": "18591",
+      "WKSIM_MAVLINK_REMOTE_PORT": "14661",
+      "PX4_PARAM_SIM_GZ_EN": "0",
+      "PX4_PARAM_SIM_BAT_ENABLE": "1",
+      "PX4_PARAM_UXRCE_DDS_SYNCT": "0",
+      "PX4_PARAM_CA_ROTOR0_PX": "0.15909902576697318",
+      "PX4_PARAM_CA_ROTOR0_PY": "0.15909902576697318",
+      "PX4_PARAM_CA_ROTOR0_KM": "0.016555621653777514",
+      "PX4_PARAM_CA_ROTOR1_PX": "-0.15909902576697318",
+      "PX4_PARAM_CA_ROTOR1_PY": "-0.15909902576697318",
+      "PX4_PARAM_CA_ROTOR1_KM": "0.016555621653777514",
+      "PX4_PARAM_CA_ROTOR2_PX": "0.15909902576697318",
+      "PX4_PARAM_CA_ROTOR2_PY": "-0.15909902576697318",
+      "PX4_PARAM_CA_ROTOR2_KM": "-0.016555621653777514",
+      "PX4_PARAM_CA_ROTOR3_PX": "-0.15909902576697318",
+      "PX4_PARAM_CA_ROTOR3_PY": "0.15909902576697318",
+      "PX4_PARAM_CA_ROTOR3_KM": "-0.016555621653777514",
+      "PATH": "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/Simulator/wksim_core:/root/wksim-px4-state-ONa1Kw/src/build/px4_sitl_default/bin:/opt/ros/humble/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:/mnt/c/Users/PC/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/powershell:/mnt/c/Users/PC/.codex/tmp/arg0/codex-arg03jSCaO:/mnt/c/Users/PC/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/libheif/libheif/bin:/mnt/c/Users/PC/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/jxrlib/jxrlib/bin:/mnt/c/Users/PC/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/poppler/Library/bin:/mnt/c/Users/PC/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/mnt/c/Program Files (x86)/STMicroelectronics/stlink_server:/mnt/d/install2/a2/STM32CubeCLT_1.22.0:/mnt/d/install2/a2/STM32CubeCLT_1.22.0/Make/bin:/mnt/d/install2/a2/STM32CubeCLT_1.22.0/CMake/bin:/mnt/d/install2/a2/STM32CubeCLT_1.22.0/st-arm-clang/bin:/mnt/d/install2/a2/STM32CubeCLT_1.22.0/Ninja/bin:/mnt/d/install2/a2/STM32CubeCLT_1.22.0/GNU-tools-for-STM32/bin:/mnt/d/install2/a2/STM32CubeCLT_1.22.0/STLink-gdb-server/bin:/mnt/d/install2/a2/STM32CubeCLT_1.22.0/STM32CubeProgrammer/bin:/mnt/c/Program Files/Microsoft MPI/Bin/:/mnt/c/Windows/system32:/mnt/c/Windows:/mnt/c/Windows/System32/Wbem:/mnt/c/Windows/System32/WindowsPowerShell/v1.0/:/mnt/c/Windows/System32/OpenSSH/:/mnt/c/Program Files/NVIDIA Corporation/NVIDIA App/NvDLISR:/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common:/mnt/d/date/mingw64/bin:/mnt/c/Program Files/nodejs/:/mnt/d/matlab/install date/runtime/win64:/mnt/d/matlab/install date/bin:/mnt/d/install/Git/cmd:/mnt/d/date/miniconda:/mnt/d/date/miniconda/Library/bin:/mnt/d/date/miniconda/Scripts:/mnt/c/Program Files/usbipd-win/:/mnt/c/Windows/system32/downlevel:/mnt/d/viov\u5957\u4ef6/pcsuite/:/mnt/c/Program Files/Gtk-Runtime/bin:/mnt/c/Program Files/Tailscale/:/mnt/c/Program Files/GitHub CLI/:/mnt/c/Program Files/PuTTY/:/mnt/c/Program Files (x86)/MAVProxy:/mnt/c/Program Files (x86)/Windows Kits/10/Windows Performance Toolkit/:/mnt/e/MATLAB/MATLAB_Runtime/v93/runtime/win64:/mnt/d/matlab/v93/runtime/win64:/mnt/c/Program Files/dotnet/:/mnt/c/Program Files (x86)/cloudflared/:/mnt/c/Users/PC/AppData/Local/agy/bin:/mnt/c/Users/PC/.kimi-code/bin:/mnt/c/Users/PC/.grok/bin:/mnt/c/Users/PC/AppData/Local/Programs/cursor/resources/app/codeBin:/mnt/c/Users/PC/.local/bin:/mnt/c/Users/PC/.local/bin:/mnt/c/Users/PC/AppData/Local/pnpm:/mnt/c/Users/PC/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/powershell:/mnt/c/Users/PC/AppData/Local/Microsoft/WindowsApps:/mnt/d/install/Microsoft VS Code/bin:/mnt/c/Users/PC/AppData/Local/Python/bin:/mnt/c/Users/PC/AppData/Roaming/npm:/mnt/c/Users/PC/AppData/Local/GitHubDesktop/bin:/mnt/c/Users/PC/.dotnet/tools:/mnt/c/Users/PC/AppData/Local/Programs/Ollama:/mnt/c/Users/PC/AppData/Local/Microsoft/WinGet/Packages/Gyan.FFmpeg_Microsoft.Winget.Source_8wekyb3d8bbwe/ffmpeg-8.1-full_build/bin:/mnt/c/Users/PC/AppData/Local/PowerToys/DSCModules/:/mnt/c/Users/PC/AppData/Local/Microsoft/WinGet/Packages/jqlang.jq_Microsoft.Winget.Source_8wekyb3d8bbwe:/mnt/c/Users/PC/AppData/Local/Microsoft/WinGet/Packages/JohnMacFarlane.Pandoc_Microsoft.Winget.Source_8wekyb3d8bbwe/pandoc-3.9.0.2:/mnt/c/Users/PC/AppData/Local/Microsoft/WinGet/Packages/BurntSushi.ripgrep.MSVC_Microsoft.Winget.Source_8wekyb3d8bbwe/ripgrep-15.1.0-x86_64-pc-windows-msvc:/mnt/c/Users/PC/AppData/Local/Programs/cursor/resources/app/bin:/mnt/c/Users/PC/AppData/Roaming/Python/Python313/Scripts:/mnt/c/Users/PC/.dotnet/tools:/mnt/c/Users/PC/.dotnet/tools:/mnt/c/Users/PC/AppData/Local/ai-memory:/mnt/c/Users/PC/.dotnet/tools:/mnt/c/Users/PC/AppData/Local/omp:/mnt/c/Users/PC/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/mnt/c/Users/PC/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin:/mnt/c/Users/PC/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/git/cmd:/mnt/c/Users/PC/AppData/Local/OpenAI/Codex/bin/c0252f2c8d5faf9a:/mnt/c/Users/PC/AppData/Roaming/npm/node_modules/@codexhost/cli/node_modules/@codexhost/cli-win32-x64/libexec",
+      "PX4_PARAM_COM_OBL_RC_ACT": "4"
+    }
+  },
+  "private_temporary_files": {
+    "root": "/root/wksim-private-tmp-a754gfmq",
+    "mount_namespace": "mnt:[4026532230]",
+    "device": 80,
+    "lower_device": 2096,
+    "artifact_directory": "/root/wksim-private-tmp-a754gfmq/artifacts",
+    "command": [
+      "mount",
+      "-t",
+      "overlay",
+      "overlay",
+      "-o",
+      "lowerdir=/tmp,upperdir=/root/wksim-private-tmp-a754gfmq/upper,workdir=/root/wksim-private-tmp-a754gfmq/work",
+      "/tmp"
+    ],
+    "consumer_directories": []
+  },
+  "launched_binary_sha256": "93b4ebe0d83a5897131ec24ee58d732c8999972bb7730f429fc396bc8d10602a",
+  "launched_agent_sha256": "c61334626f2b625fdee68f7326ca1dabdf788b16d991a0e6879903cf24edb4b7",
+  "actual_control_sha256": {
+    "frames.py": "24086553882b31f0666159a1c9bf2929219420a0184dbb2b6683559d12e809b0",
+    "node.py": "0425b501a4498d5675d99ee2bb36f3e38cb04d6735e1f4d2ead0d4ba03f4a059",
+    "session.py": "da64efa299288738d4520c6a23834c3201c34334f861a8de542fcaa91930b126",
+    "native_px4.py": "de40ae6175c7e1b23908a791b077b310da81a8d5c264ff4af2620a733a4b2fe6",
+    "command.py": "5c23492d761444346a41707cd6027c2fe76acd47db7bd972686fc09ef5f8b25d",
+    "scene.py": "370770a02fdde5e94fc54bed6f7e0d63a4c98c6dcadd0c3616ac1c14529cd333",
+    "shaping.py": "56782d96f9fc6f7df3ddadf80cd8c09f474af81c5c183d20d3d26c2f9e66bc69",
+    "rc_transport.py": "e618c33ba687520160c8d2cfb79b0da30e5047f3036549c47ca357f1c26dc38f",
+    "native_arducopter.py": "00b634da7b3e29b87251020fe1d5d74f88d2039c1312081dea67614eda4dcb2a",
+    "__init__.py": "9a4edb373583bcf6f3d7eaa2522ad1544f63965b0e7f81167f858a0d09d44746"
+  },
+  "truth": {
+    "records": 3325,
+    "max_height_m": 3.1258941199920525,
+    "min_waypoint_error_m": 0.04348073509306671,
+    "final_height_m": -2.2405694442891422e-06,
+    "final_time": 66.48
+  },
+  "task": {
+    "sent": [
+      {
+        "header": {
+          "stamp": {
+            "sec": 1789019671,
+            "nanosec": 686074770
+          },
+          "frame_id": "map"
+        },
+        "cmd": 1,
+        "arming": false,
+        "px4_mode": "AUTO.LOITER",
+        "control_state": ""
+      },
+      {
+        "header": {
+          "stamp": {
+            "sec": 1789019672,
+            "nanosec": 592844934
+          },
+          "frame_id": "map"
+        },
+        "cmd": 0,
+        "arming": true,
+        "px4_mode": "",
+        "control_state": ""
+      },
+      {
+        "header": {
+          "stamp": {
+            "sec": 1789019672,
+            "nanosec": 626052446
+          },
+          "frame_id": "map"
+        },
+        "cmd": 3,
+        "arming": false,
+        "px4_mode": "",
+        "control_state": "COMMAND_CONTROL"
+      },
+      {
+        "header": {
+          "stamp": {
+            "sec": 1789019682,
+            "nanosec": 562070669
+          },
+          "frame_id": "map"
+        },
+        "agent_cmd": 4,
+        "control_level": 0,
+        "move_mode": 0,
+        "position_ref": [
+          2.0,
+          3.0,
+          3.0
+        ],
+        "velocity_ref": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "acceleration_ref": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "yaw_ref": 0.0,
+        "yaw_rate_mode": false,
+        "yaw_rate_ref": 0.0,
+        "att_ref": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "latitude": 0.0,
+        "longitude": 0.0,
+        "altitude": 0.0,
+        "command_id": 1
+      },
+      {
+        "header": {
+          "stamp": {
+            "sec": 1789019712,
+            "nanosec": 136675642
+          },
+          "frame_id": "map"
+        },
+        "cmd": 1,
+        "arming": false,
+        "px4_mode": "AUTO.LOITER",
+        "control_state": ""
+      },
+      {
+        "header": {
+          "stamp": {
+            "sec": 1789019712,
+            "nanosec": 672840315
+          },
+          "frame_id": "map"
+        },
+        "cmd": 0,
+        "arming": true,
+        "px4_mode": "",
+        "control_state": ""
+      },
+      {
+        "header": {
+          "stamp": {
+            "sec": 1789019712,
+            "nanosec": 706617648
+          },
+          "frame_id": "map"
+        },
+        "cmd": 3,
+        "arming": false,
+        "px4_mode": "",
+        "control_state": "COMMAND_CONTROL"
+      },
+      {
+        "header": {
+          "stamp": {
+            "sec": 1789019723,
+            "nanosec": 142612972
+          },
+          "frame_id": "map"
+        },
+        "agent_cmd": 4,
+        "control_level": 0,
+        "move_mode": 0,
+        "position_ref": [
+          3.0,
+          2.0,
+          3.0
+        ],
+        "velocity_ref": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "acceleration_ref": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "yaw_ref": 0.0,
+        "yaw_rate_mode": false,
+        "yaw_rate_ref": 0.0,
+        "att_ref": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "latitude": 0.0,
+        "longitude": 0.0,
+        "altitude": 0.0,
+        "command_id": 2
+      },
+      {
+        "header": {
+          "stamp": {
+            "sec": 1789019727,
+            "nanosec": 472737338
+          },
+          "frame_id": "map"
+        },
+        "cmd": 1,
+        "arming": false,
+        "px4_mode": "AUTO.LAND",
+        "control_state": ""
+      },
+      {
+        "header": {
+          "stamp": {
+            "sec": 1789019735,
+            "nanosec": 370205348
+          },
+          "frame_id": "map"
+        },
+        "cmd": 1,
+        "arming": false,
+        "px4_mode": "AUTO.LOITER",
+        "control_state": ""
+      }
+    ],
+    "events": [
+      {
+        "event": "native_input_rejected",
+        "event_id": 2,
+        "version": 1,
+        "run_id": "dd44e38bbcb54c51a72fb17b90b8d4c8",
+        "emitted_monotonic_ns": 242929690350,
+        "emitted_unix_ns": 1789019669584604881,
+        "control_epoch": "99d26459cd4742f080e2a424b1c81fce",
+        "reason": "unmatched_ack",
+        "source": "ack",
+        "request_identity": [
+          0,
+          118
+        ],
+        "command": 211,
+        "request_id": 0
+      },
+      {
+        "event": "native_reset_observed",
+        "event_id": 3,
+        "version": 1,
+        "run_id": "dd44e38bbcb54c51a72fb17b90b8d4c8",
+        "emitted_monotonic_ns": 243279823798,
+        "emitted_unix_ns": 1789019669934738396,
+        "control_epoch": "99d26459cd4742f080e2a424b1c81fce",
+        "kinds": [
+          "position"
+        ],
+        "active": false,
+        "request_id": 0
+      },
+      {
+        "event": "native_reset_observed",
+        "event_id": 4,
+        "version": 1,
+        "run_id": "dd44e38bbcb54c51a72fb17b90b8d4c8",
+        "emitted_monotonic_ns": 243579958537,
+        "emitted_unix_ns": 1789019670234873094,
+        "control_epoch": "99d26459cd4742f080e2a424b1c81fce",
+        "kinds": [
+          "position"
+        ],
+        "active": false,
+        "request_id": 0
+      },
+      {
+        "event": "native_input_rejected",
+        "event_id": 5,
+        "version": 1,
+        "run_id": "dd44e38bbcb54c51a72fb17b90b8d4c8",
+        "emitted_monotonic_ns": 243989706748,
+        "emitted_unix_ns": 1789019670644621434,
+        "control_epoch": "99d26459cd4742f080e2a424b1c81fce",
+        "reason": "unmatched_ack",
+        "source": "ack",
+        "request_identity": [
+          0,
+          118
+        ],
+        "command": 211,
+        "request_id": 0
+      },
+      {
+        "event": "native_reset_observed",
+        "event_id": 6,
+        "version": 1,
+        "run_id": "dd44e38bbcb54c51a72fb17b90b8d4c8",
+        "emitted_monotonic_ns": 244879919075,
+        "emitted_unix_ns": 1789019671534833635,
+        "control_epoch": "99d26459cd4742f080e2a424b1c81fce",
+        "kinds": [
+          "yaw"
+        ],
+        "active": false,
+        "request_id": 0
+      },
+      {
+        "event": "native_reset_observed",
+        "event_id": 7,
+        "version": 1,
+        "run_id": "dd44e38bbcb54c51a72fb17b90b8d4c8",
+        "emitted_monotonic_ns": 244889873132,
+        "emitted_unix_ns": 1789019671544787574,
+        "control_epoch": "99d26459cd4742f080e2a424b1c81fce",
+        "kinds": [
+          "yaw"
+        ],
+        "active": false,
+        "request_id": 0
+      },
+      {
+        "event": "setup_received",
+        "event_id": 8,
+        "version": 1,
+        "run_id": "dd44e38bbcb54c51a72fb17b90b8d4c8",
+        "emitted_monotonic_ns": 245038238218,
+        "emitted_unix_ns": 1789019671693153114,
+        "control_epoch": "99d26459cd4742f080e2a424b1c81fce",
+        "cmd": 1,
+        "stage": "simple",
+        "request_id": 1
+      },
+      {
+        "event": "native_ack",
+        "event_id": 9,
+        "version": 1,
+        "run_id": "dd44e38bbcb54c51a72fb17b90b8d4c8",
+        "emitted_monotonic_ns": 245050037571,
+        "emitted_unix_ns": 1789019671704952112,
+        "control_epoch": "99d26459cd4742f080e2a424b1c81fce",
+        "accepted": true,
+        "reason": "native_result_0",
+        "stage": "simple",
+        "request_id": 1
+      },
+      {
+        "event": "setup_completed",
+        "event_id": 10,
+        "version": 1,
+        "run_id": "dd44e38bbcb54c51a72fb17b90b8d4c8",
+        "emitted_monotonic_ns": 245050448323,
+        "emitted_unix_ns": 1789019671705362533,
+        "control_epoch": "99d26459cd4742f080e2a424b1c81fce",
+        "action": "mode",
+        "value": "AUTO.LOITER",
+        "native_mode": "AUTO.LOITER",
+        "request_id": 1
+      },
+      {
+        "event": "setup_received",
+        "event_id": 11,
+        "version": 1,
+        "run_id": "dd44e38bbcb54c51a72fb17b90b8d4c8",
+        "emitted_monotonic_ns": 245947546394,
+        "emitted_unix_ns": 1789019672602461308,
+        "control_epoch": "99d26459cd4742f080e2a424b1c81fce",
+        "cmd": 0,
+        "stage": "simple",
+        "request_id": 2
+      },
+      {
+        "event": "native_ack",
+        "event_id": 12,
+        "version": 1,
+        "run_id": "dd44e38bbcb54c51a72fb17b90b8d4c8",
+        "emitted_monotonic_ns": 245970013504,
+        "emitted_unix_ns": 1789019672624927947,
+        "control_epoch": "99d26459cd4742f080e2a424b1c81fce",
+        "accepted": true,
+        "reason": "native_result_0",
+        "stage": "simple",
+        "request_id": 2
+      },
+      {
+        "event": "setup_completed",
+        "event_id": 13,
+        "version": 1,
+        "run_id": "dd44e38bbcb54c51a72fb17b90b8d4c8",
+        "emitted_monotonic_ns": 245970347245,
+        "emitted_unix_ns": 1789019672625261282,
+        "control_epoch": "99d26459cd4742f080e2a424b1c81fce",
+        "action": "arm",
+        "value": true,
+        "native_mode": "AUTO.LOITER",
+        "request_id": 2
+      },
+      {
+        "event": "takeover_reference",
+        "event_id": 14,
+        "version": 1,
+        "run_id": "dd44e38bbcb54c51a72fb17b90b8d4c8",
+        "emitted_monotonic_ns": 245977831346,
+        "emitted_unix_ns": 1789019672632745984,
+        "control_epoch": "99d26459cd4742f080e2a424b1c81fce",
+        "airborne": false,
+        "position_enu_m": [
+          0.00392182357609272,
+          -0.011090109124779701,
+          2.9565582275390625
+        ],
+        "yaw_enu_rad": 0.0,
+        "source_boot_ns": 3540000000,
+        "native_generation": 4,
+        "request_id": 3
+      },
+      {
+        "event": "setup_received",
+        "event_id": 15,
+        "version": 1,
+        "run_id": "dd44e38bbcb54c51a72fb17b90b8d4c8",
+        "emitted_monotonic_ns": 245978152496,
+        "emitted_unix_ns": 1789019672633066524,
+        "control_epoch": "99d26459cd4742f080e2a424b1c81fce",
+        "cmd": 3,
+        "stage": "takeoff",
+        "request_id": 3
+      },
+      {
+        "event": "native_ack",
+        "event_id": 16,
+        "version": 1,
+        "run_id": "dd44e38bbcb54c51a72fb17b90b8d4c8",
+        "emitted_monotonic_ns": 245989907811,
+        "emitted_unix_ns": 1789019672644822330,
+        "control_epoch": "99d26459cd4742f080e2a424b1c81fce",
+        "accepted": true,
+        "reason": "native_result_0",
+        "stage": "takeoff",
+        "request_id": 3
+      },
+      {
+        "event": "native_reset_observed",
+        "event_id": 17,
+        "version": 1,
+        "run_id": "dd44e38bbcb54c51a72fb17b90b8d4c8",
+        "emitted_monotonic_ns": 252100027338,
+        "emitted_unix_ns": 1789019678754941898,
+        "control_epoch": "99d26459cd4742f080e2a424b1c81fce",
+        "kinds": [
+          "yaw"
+        ],
+        "active": true,
+        "request_id": 3
+      },
+      {
+        "event": "native_ack",
+        "event_id": 18,
+        "version": 1,
+        "run_id": "dd44e38bbcb54c51a72fb17b90b8d4c8",
+        "emitted_monotonic_ns": 255709977588,
+        "emitted_unix_ns": 1789019682364891973,
+        "control_epoch": "99d26459cd4742f080e2a424b1c81fce",
+        "accepted": true,
+        "reason": "native_result_0",
+        "stage": "external",
+        "request_id": 3
+      },
+      {
+        "event": "setup_completed",
+        "event_id": 19,
+        "version": 1,
+        "run_id": "dd44e38bbcb54c51a72fb17b90b8d4c8",
+        "emitted_monotonic_ns": 255899960678,
+        "emitted_unix_ns": 1789019682554875108,
+        "control_epoch": "99d26459cd4742f080e2a424b1c81fce",
+        "control_state": "COMMAND_CONTROL",
+        "native_mode": "OFFBOARD",
+        "request_id": 3
+      },
+      {
+        "event": "command_accepted",
+        "event_id": 20,
+        "version": 1,
+        "run_id": "dd44e38bbcb54c51a72fb17b90b8d4c8",
+        "emitted_monotonic_ns": 255907831345,
+        "emitted_unix_ns": 1789019682562745583,
+        "control_epoch": "99d26459cd4742f080e2a424b1c81fce",
+        "command_id": 1,
+        "agent_cmd": 4,
+        "request_id": 4
+      },
+      {
+        "event": "control_revoked",
+        "event_id": 21,
+        "version": 1,
+        "run_id": "dd44e38bbcb54c51a72fb17b90b8d4c8",
+        "emitted_monotonic_ns": 269279832935,
+        "emitted_unix_ns": 1789019695934747459,
+        "control_epoch": "99d26459cd4742f080e2a424b1c81fce",
+        "reason": "native_navigation_invalid_control_released",
+        "request_id": 4
+      },
+      {
+        "event": "native_input_rejected",
+        "event_id": 22,
+        "version": 1,
+        "run_id": "dd44e38bbcb54c51a72fb17b90b8d4c8",
+        "emitted_monotonic_ns": 270699673309,
+        "emitted_unix_ns": 1789019697354587770,
+        "control_epoch": "99d26459cd4742f080e2a424b1c81fce",
+        "reason": "duplicate_source",
+        "source": "status",
+        "source_stamp": 28156000,
+        "request_id": 4
+      },
+      {
+        "event": "native_reset_observed",
+        "event_id": 23,
+        "version": 1,
+        "run_id": "dd44e38bbcb54c51a72fb17b90b8d4c8",
+        "emitted_monotonic_ns": 276240058733,
+        "emitted_unix_ns": 1789019702894973386,
+        "control_epoch": "99d26459cd4742f080e2a424b1c81fce",
+        "kinds": [
+          "position"
+        ],
+        "active": false,
+        "request_id": 4
+      },
+      {
+        "event": "native_reset_observed",
+        "event_id": 24,
+        "version": 1,
+        "run_id": "dd44e38bbcb54c51a72fb17b90b8d4c8",
+        "emitted_monotonic_ns": 284479816313,
+        "emitted_unix_ns": 1789019711134731227,
+        "control_epoch": "99d26459cd4742f080e2a424b1c81fce",
+        "kinds": [
+          "position"
+        ],
+        "active": false,
+        "request_id": 4
+      },
+      {
+        "event": "setup_received",
+        "event_id": 25,
+        "version": 1,
+        "run_id": "dd44e38bbcb54c51a72fb17b90b8d4c8",
+        "emitted_monotonic_ns": 285491841675,
+        "emitted_unix_ns": 1789019712146756437,
+        "control_epoch": "99d26459cd4742f080e2a424b1c81fce",
+        "cmd": 1,
+        "stage": "simple",
+        "request_id": 5
+      },
+      {
+        "event": "native_ack",
+        "event_id": 26,
+        "version": 1,
+        "run_id": "dd44e38bbcb54c51a72fb17b90b8d4c8",
+        "emitted_monotonic_ns": 285509926088,
+        "emitted_unix_ns": 1789019712164840874,
+        "control_epoch": "99d26459cd4742f080e2a424b1c81fce",
+        "accepted": true,
+        "reason": "native_result_0",
+        "stage": "simple",
+        "request_id": 5
+      },
+      {
+        "event": "setup_completed",
+        "event_id": 27,
+        "version": 1,
+        "run_id": "dd44e38bbcb54c51a72fb17b90b8d4c8",
+        "emitted_monotonic_ns": 285519963267,
+        "emitted_unix_ns": 1789019712174877590,
+        "control_epoch": "99d26459cd4742f080e2a424b1c81fce",
+        "action": "mode",
+        "value": "AUTO.LOITER",
+        "native_mode": "AUTO.LOITER",
+        "request_id": 5
+      },
+      {
+        "event": "setup_received",
+        "event_id": 28,
+        "version": 1,
+        "run_id": "dd44e38bbcb54c51a72fb17b90b8d4c8",
+        "emitted_monotonic_ns": 286025267115,
+        "emitted_unix_ns": 1789019712680181706,
+        "control_epoch": "99d26459cd4742f080e2a424b1c81fce",
+        "cmd": 0,
+        "stage": "simple",
+        "request_id": 6
+      },
+      {
+        "event": "native_ack",
+        "event_id": 29,
+        "version": 1,
+        "run_id": "dd44e38bbcb54c51a72fb17b90b8d4c8",
+        "emitted_monotonic_ns": 286049897726,
+        "emitted_unix_ns": 1789019712704812347,
+        "control_epoch": "99d26459cd4742f080e2a424b1c81fce",
+        "accepted": true,
+        "reason": "native_result_0",
+        "stage": "simple",
+        "request_id": 6
+      },
+      {
+        "event": "setup_completed",
+        "event_id": 30,
+        "version": 1,
+        "run_id": "dd44e38bbcb54c51a72fb17b90b8d4c8",
+        "emitted_monotonic_ns": 286050245163,
+        "emitted_unix_ns": 1789019712705159215,
+        "control_epoch": "99d26459cd4742f080e2a424b1c81fce",
+        "action": "arm",
+        "value": true,
+        "native_mode": "AUTO.LOITER",
+        "request_id": 6
+      },
+      {
+        "event": "takeover_reference",
+        "event_id": 31,
+        "version": 1,
+        "run_id": "dd44e38bbcb54c51a72fb17b90b8d4c8",
+        "emitted_monotonic_ns": 286058772349,
+        "emitted_unix_ns": 1789019712713687365,
+        "control_epoch": "99d26459cd4742f080e2a424b1c81fce",
+        "airborne": false,
+        "position_enu_m": [
+          1.9893265962600708,
+          2.9878170490264893,
+          2.9698486328125
+        ],
+        "yaw_enu_rad": 0.0,
+        "source_boot_ns": 43620000000,
+        "native_generation": 8,
+        "request_id": 7
+      },
+      {
+        "event": "setup_received",
+        "event_id": 32,
+        "version": 1,
+        "run_id": "dd44e38bbcb54c51a72fb17b90b8d4c8",
+        "emitted_monotonic_ns": 286059152274,
+        "emitted_unix_ns": 1789019712714066382,
+        "control_epoch": "99d26459cd4742f080e2a424b1c81fce",
+        "cmd": 3,
+        "stage": "takeoff",
+        "request_id": 7
+      },
+      {
+        "event": "native_ack",
+        "event_id": 33,
+        "version": 1,
+        "run_id": "dd44e38bbcb54c51a72fb17b90b8d4c8",
+        "emitted_monotonic_ns": 286069915863,
+        "emitted_unix_ns": 1789019712724830224,
+        "control_epoch": "99d26459cd4742f080e2a424b1c81fce",
+        "accepted": true,
+        "reason": "native_result_0",
+        "stage": "takeoff",
+        "request_id": 7
+      },
+      {
+        "event": "native_reset_observed",
+        "event_id": 34,
+        "version": 1,
+        "run_id": "dd44e38bbcb54c51a72fb17b90b8d4c8",
+        "emitted_monotonic_ns": 292419819026,
+        "emitted_unix_ns": 1789019719074733823,
+        "control_epoch": "99d26459cd4742f080e2a424b1c81fce",
+        "kinds": [
+          "yaw"
+        ],
+        "active": true,
+        "request_id": 7
+      },
+      {
+        "event": "native_reset_observed",
+        "event_id": 35,
+        "version": 1,
+        "run_id": "dd44e38bbcb54c51a72fb17b90b8d4c8",
+        "emitted_monotonic_ns": 292429967169,
+        "emitted_unix_ns": 1789019719084881603,
+        "control_epoch": "99d26459cd4742f080e2a424b1c81fce",
+        "kinds": [
+          "yaw"
+        ],
+        "active": true,
+        "request_id": 7
+      },
+      {
+        "event": "native_ack",
+        "event_id": 36,
+        "version": 1,
+        "run_id": "dd44e38bbcb54c51a72fb17b90b8d4c8",
+        "emitted_monotonic_ns": 296289864602,
+        "emitted_unix_ns": 1789019722944779166,
+        "control_epoch": "99d26459cd4742f080e2a424b1c81fce",
+        "accepted": true,
+        "reason": "native_result_0",
+        "stage": "external",
+        "request_id": 7
+      },
+      {
+        "event": "setup_completed",
+        "event_id": 37,
+        "version": 1,
+        "run_id": "dd44e38bbcb54c51a72fb17b90b8d4c8",
+        "emitted_monotonic_ns": 296479948667,
+        "emitted_unix_ns": 1789019723134863304,
+        "control_epoch": "99d26459cd4742f080e2a424b1c81fce",
+        "control_state": "COMMAND_CONTROL",
+        "native_mode": "OFFBOARD",
+        "request_id": 7
+      },
+      {
+        "event": "command_accepted",
+        "event_id": 38,
+        "version": 1,
+        "run_id": "dd44e38bbcb54c51a72fb17b90b8d4c8",
+        "emitted_monotonic_ns": 296488403570,
+        "emitted_unix_ns": 1789019723143318093,
+        "control_epoch": "99d26459cd4742f080e2a424b1c81fce",
+        "command_id": 2,
+        "agent_cmd": 4,
+        "request_id": 8
+      },
+      {
+        "event": "setup_received",
+        "event_id": 39,
+        "version": 1,
+        "run_id": "dd44e38bbcb54c51a72fb17b90b8d4c8",
+        "emitted_monotonic_ns": 300824472829,
+        "emitted_unix_ns": 1789019727479387517,
+        "control_epoch": "99d26459cd4742f080e2a424b1c81fce",
+        "cmd": 1,
+        "stage": "simple",
+        "request_id": 9
+      },
+      {
+        "event": "native_ack",
+        "event_id": 40,
+        "version": 1,
+        "run_id": "dd44e38bbcb54c51a72fb17b90b8d4c8",
+        "emitted_monotonic_ns": 300839987028,
+        "emitted_unix_ns": 1789019727494901555,
+        "control_epoch": "99d26459cd4742f080e2a424b1c81fce",
+        "accepted": true,
+        "reason": "native_result_0",
+        "stage": "simple",
+        "request_id": 9
+      },
+      {
+        "event": "setup_completed",
+        "event_id": 41,
+        "version": 1,
+        "run_id": "dd44e38bbcb54c51a72fb17b90b8d4c8",
+        "emitted_monotonic_ns": 300849904437,
+        "emitted_unix_ns": 1789019727504818884,
+        "control_epoch": "99d26459cd4742f080e2a424b1c81fce",
+        "action": "mode",
+        "value": "AUTO.LAND",
+        "native_mode": "AUTO.LAND",
+        "request_id": 9
+      },
+      {
+        "event": "setup_received",
+        "event_id": 42,
+        "version": 1,
+        "run_id": "dd44e38bbcb54c51a72fb17b90b8d4c8",
+        "emitted_monotonic_ns": 308722680200,
+        "emitted_unix_ns": 1789019735377594973,
+        "control_epoch": "99d26459cd4742f080e2a424b1c81fce",
+        "cmd": 1,
+        "stage": "simple",
+        "request_id": 10
+      },
+      {
+        "event": "native_ack",
+        "event_id": 43,
+        "version": 1,
+        "run_id": "dd44e38bbcb54c51a72fb17b90b8d4c8",
+        "emitted_monotonic_ns": 308739885662,
+        "emitted_unix_ns": 1789019735394800211,
+        "control_epoch": "99d26459cd4742f080e2a424b1c81fce",
+        "accepted": true,
+        "reason": "native_result_0",
+        "stage": "simple",
+        "request_id": 10
+      },
+      {
+        "event": "setup_completed",
+        "event_id": 44,
+        "version": 1,
+        "run_id": "dd44e38bbcb54c51a72fb17b90b8d4c8",
+        "emitted_monotonic_ns": 308879889451,
+        "emitted_unix_ns": 1789019735534804021,
+        "control_epoch": "99d26459cd4742f080e2a424b1c81fce",
+        "action": "mode",
+        "value": "AUTO.LOITER",
+        "native_mode": "AUTO.LOITER",
+        "request_id": 10
+      }
+    ],
+    "protocol": "session_v1",
+    "run_id": "dd44e38bbcb54c51a72fb17b90b8d4c8",
+    "control_epoch": "99d26459cd4742f080e2a424b1c81fce",
+    "request_envelopes": [
+      {
+        "version": 1,
+        "run_id": "dd44e38bbcb54c51a72fb17b90b8d4c8",
+        "control_epoch": "99d26459cd4742f080e2a424b1c81fce",
+        "request_id": 1,
+        "setup": {
+          "header": {
+            "stamp": {
+              "sec": 1789019671,
+              "nanosec": 686074770
+            },
+            "frame_id": "map"
+          },
+          "cmd": 1,
+          "arming": false,
+          "px4_mode": "AUTO.LOITER",
+          "control_state": ""
+        }
+      },
+      {
+        "version": 1,
+        "run_id": "dd44e38bbcb54c51a72fb17b90b8d4c8",
+        "control_epoch": "99d26459cd4742f080e2a424b1c81fce",
+        "request_id": 2,
+        "setup": {
+          "header": {
+            "stamp": {
+              "sec": 1789019672,
+              "nanosec": 592844934
+            },
+            "frame_id": "map"
+          },
+          "cmd": 0,
+          "arming": true,
+          "px4_mode": "",
+          "control_state": ""
+        }
+      },
+      {
+        "version": 1,
+        "run_id": "dd44e38bbcb54c51a72fb17b90b8d4c8",
+        "control_epoch": "99d26459cd4742f080e2a424b1c81fce",
+        "request_id": 3,
+        "setup": {
+          "header": {
+            "stamp": {
+              "sec": 1789019672,
+              "nanosec": 626052446
+            },
+            "frame_id": "map"
+          },
+          "cmd": 3,
+          "arming": false,
+          "px4_mode": "",
+          "control_state": "COMMAND_CONTROL"
+        }
+      },
+      {
+        "version": 1,
+        "run_id": "dd44e38bbcb54c51a72fb17b90b8d4c8",
+        "control_epoch": "99d26459cd4742f080e2a424b1c81fce",
+        "request_id": 4,
+        "command": {
+          "header": {
+            "stamp": {
+              "sec": 1789019682,
+              "nanosec": 562070669
+            },
+            "frame_id": "map"
+          },
+          "agent_cmd": 4,
+          "control_level": 0,
+          "move_mode": 0,
+          "position_ref": [
+            2.0,
+            3.0,
+            3.0
+          ],
+          "velocity_ref": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "acceleration_ref": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "yaw_ref": 0.0,
+          "yaw_rate_mode": false,
+          "yaw_rate_ref": 0.0,
+          "att_ref": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "latitude": 0.0,
+          "longitude": 0.0,
+          "altitude": 0.0,
+          "command_id": 1
+        }
+      },
+      {
+        "version": 1,
+        "run_id": "dd44e38bbcb54c51a72fb17b90b8d4c8",
+        "control_epoch": "99d26459cd4742f080e2a424b1c81fce",
+        "request_id": 5,
+        "setup": {
+          "header": {
+            "stamp": {
+              "sec": 1789019712,
+              "nanosec": 136675642
+            },
+            "frame_id": "map"
+          },
+          "cmd": 1,
+          "arming": false,
+          "px4_mode": "AUTO.LOITER",
+          "control_state": ""
+        }
+      },
+      {
+        "version": 1,
+        "run_id": "dd44e38bbcb54c51a72fb17b90b8d4c8",
+        "control_epoch": "99d26459cd4742f080e2a424b1c81fce",
+        "request_id": 6,
+        "setup": {
+          "header": {
+            "stamp": {
+              "sec": 1789019712,
+              "nanosec": 672840315
+            },
+            "frame_id": "map"
+          },
+          "cmd": 0,
+          "arming": true,
+          "px4_mode": "",
+          "control_state": ""
+        }
+      },
+      {
+        "version": 1,
+        "run_id": "dd44e38bbcb54c51a72fb17b90b8d4c8",
+        "control_epoch": "99d26459cd4742f080e2a424b1c81fce",
+        "request_id": 7,
+        "setup": {
+          "header": {
+            "stamp": {
+              "sec": 1789019712,
+              "nanosec": 706617648
+            },
+            "frame_id": "map"
+          },
+          "cmd": 3,
+          "arming": false,
+          "px4_mode": "",
+          "control_state": "COMMAND_CONTROL"
+        }
+      },
+      {
+        "version": 1,
+        "run_id": "dd44e38bbcb54c51a72fb17b90b8d4c8",
+        "control_epoch": "99d26459cd4742f080e2a424b1c81fce",
+        "request_id": 8,
+        "command": {
+          "header": {
+            "stamp": {
+              "sec": 1789019723,
+              "nanosec": 142612972
+            },
+            "frame_id": "map"
+          },
+          "agent_cmd": 4,
+          "control_level": 0,
+          "move_mode": 0,
+          "position_ref": [
+            3.0,
+            2.0,
+            3.0
+          ],
+          "velocity_ref": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "acceleration_ref": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "yaw_ref": 0.0,
+          "yaw_rate_mode": false,
+          "yaw_rate_ref": 0.0,
+          "att_ref": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "latitude": 0.0,
+          "longitude": 0.0,
+          "altitude": 0.0,
+          "command_id": 2
+        }
+      },
+      {
+        "version": 1,
+        "run_id": "dd44e38bbcb54c51a72fb17b90b8d4c8",
+        "control_epoch": "99d26459cd4742f080e2a424b1c81fce",
+        "request_id": 9,
+        "setup": {
+          "header": {
+            "stamp": {
+              "sec": 1789019727,
+              "nanosec": 472737338
+            },
+            "frame_id": "map"
+          },
+          "cmd": 1,
+          "arming": false,
+          "px4_mode": "AUTO.LAND",
+          "control_state": ""
+        }
+      },
+      {
+        "version": 1,
+        "run_id": "dd44e38bbcb54c51a72fb17b90b8d4c8",
+        "control_epoch": "99d26459cd4742f080e2a424b1c81fce",
+        "request_id": 10,
+        "setup": {
+          "header": {
+            "stamp": {
+              "sec": 1789019735,
+              "nanosec": 370205348
+            },
+            "frame_id": "map"
+          },
+          "cmd": 1,
+          "arming": false,
+          "px4_mode": "AUTO.LOITER",
+          "control_state": ""
+        }
+      }
+    ],
+    "control_restarts": [],
+    "final": {
+      "state": {
+        "header": {
+          "stamp": {
+            "sec": 66,
+            "nanosec": 436000000
+          },
+          "frame_id": "map"
+        },
+        "uav_id": 1,
+        "connected": true,
+        "armed": false,
+        "mode": "OFFBOARD",
+        "location_source": 4,
+        "odom_valid": true,
+        "gps_status": 3,
+        "gps_num": 10,
+        "position": [
+          2.92592191696167,
+          2.0789661407470703,
+          -0.03814697265625
+        ],
+        "range": NaN,
+        "latitude": 40.154048919677734,
+        "longitude": 116.2593994140625,
+        "altitude": 50.108001708984375,
+        "rel_alt": NaN,
+        "velocity": [
+          -0.0022966284304857254,
+          -0.015963247045874596,
+          -0.011132018640637398
+        ],
+        "attitude": [
+          -0.00012168407556600869,
+          0.0016916269669309258,
+          0.0010448021348565817
+        ],
+        "attitude_q": {
+          "x": -6.128386027910028e-05,
+          "y": 0.0008457814634738123,
+          "z": 0.0005224523041278614,
+          "w": 0.9999995039706742
+        },
+        "attitude_rate": [
+          -0.00016227629384957254,
+          0.0005302095087245107,
+          -0.0009164357907138765
+        ],
+        "battery_state": NaN,
+        "battery_percetage": NaN
+      },
+      "control_state": {
+        "header": {
+          "stamp": {
+            "sec": 66,
+            "nanosec": 436000000
+          },
+          "frame_id": "map"
+        },
+        "uav_id": 1,
+        "control_state": 0,
+        "pos_controller": 0,
+        "failsafe": false
+      }
+    },
+    "gnss": {
+      "scene_epoch": "810c06e3334c4242a49089f6617fc7a7",
+      "profile": {
+        "schema": "wksim.gnss-flight.v2",
+        "point_enu_m": [
+          2.0,
+          3.0,
+          3.0
+        ],
+        "recovery_point_enu_m": [
+          3.0,
+          2.0,
+          3.0
+        ],
+        "yaw_enu_rad": 0.0,
+        "stable_seconds": 6.0,
+        "position_error_m": 0.3,
+        "speed_mps": 0.3,
+        "yaw_error_rad": 0.15,
+        "lead_ticks": 2000,
+        "outage_ticks": 15000,
+        "maximum_tick": 180000,
+        "max_gps_age_ticks": 500,
+        "recovery_timeout_s": 45.0,
+        "maximum_height_m": 4.5,
+        "minimum_height_m": -0.3,
+        "maximum_axis_tilt_deg": 15.0,
+        "maximum_distance_m": 4.0,
+        "ap_root": "/root/wksim-ap-gnss-flight-20260910-01",
+        "ap_seal_sha256": "c567520ea2204afdc1e9f4eae5fa3fe3782ede825d476517c8a459aab2ed0517",
+        "policy": "withdraw task outputs on native navigation loss; PX4 offboard-loss action explicitly LAND; AP native EKF failsafe retained; fresh native eligibility and a new explicit request required for recovery",
+        "scope": "independent GNSS sensor-chain outage; no Agent-link, hardware, G6 or joint-rate claim",
+        "native_parameters": {
+          "px4": {
+            "COM_OBL_RC_ACT": 4
+          },
+          "arducopter": {}
+        }
+      },
+      "withdrawal": {
+        "event": "control_revoked",
+        "event_id": 21,
+        "version": 1,
+        "run_id": "dd44e38bbcb54c51a72fb17b90b8d4c8",
+        "emitted_monotonic_ns": 269279832935,
+        "emitted_unix_ns": 1789019695934747459,
+        "control_epoch": "99d26459cd4742f080e2a424b1c81fce",
+        "reason": "native_navigation_invalid_control_released",
+        "request_id": 4
+      },
+      "phases": [
+        {
+          "phase": "public_ready",
+          "monotonic_ns": 245022202778,
+          "truth": {
+            "time": 2.6,
+            "position": [
+              0.0,
+              0.0,
+              -0.0
+            ],
+            "velocity": [
+              0.0,
+              0.0,
+              -0.0
+            ],
+            "yaw": 1.5707963267948966
+          },
+          "stream_id": "7567ab1720da4d6bbe690d1598adae91"
+        },
+        {
+          "phase": "native_observers_ready",
+          "monotonic_ns": 245031082828,
+          "truth": {
+            "time": 2.6,
+            "position": [
+              0.0,
+              0.0,
+              -0.0
+            ],
+            "velocity": [
+              0.0,
+              0.0,
+              -0.0
+            ],
+            "yaw": 1.5707963267948966
+          },
+          "stream_id": "7567ab1720da4d6bbe690d1598adae91"
+        },
+        {
+          "phase": "initial_native_hold",
+          "monotonic_ns": 245050858997,
+          "truth": {
+            "time": 2.62,
+            "position": [
+              0.0,
+              0.0,
+              -0.0
+            ],
+            "velocity": [
+              0.0,
+              0.0,
+              -0.0
+            ],
+            "yaw": 1.5707963267948966
+          },
+          "stream_id": "7567ab1720da4d6bbe690d1598adae91"
+        },
+        {
+          "phase": "native_prearm_ready",
+          "monotonic_ns": 245937851190,
+          "truth": {
+            "time": 3.52,
+            "position": [
+              0.0,
+              0.0,
+              -0.0
+            ],
+            "velocity": [
+              0.0,
+              0.0,
+              -0.0
+            ],
+            "yaw": 1.5707963267948966
+          },
+          "stream_id": "7567ab1720da4d6bbe690d1598adae91"
+        },
+        {
+          "phase": "initial_arm",
+          "monotonic_ns": 245971094801,
+          "truth": {
+            "time": 3.54,
+            "position": [
+              0.0,
+              0.0,
+              -0.0
+            ],
+            "velocity": [
+              0.0,
+              0.0,
+              -0.0
+            ],
+            "yaw": 1.5707963267948966
+          },
+          "stream_id": "7567ab1720da4d6bbe690d1598adae91"
+        },
+        {
+          "phase": "initial_takeoff",
+          "monotonic_ns": 255907040674,
+          "truth": {
+            "time": 13.48,
+            "position": [
+              -0.014791479455583276,
+              -0.006082841222759247,
+              2.8905500593977167
+            ],
+            "velocity": [
+              -0.011686093278023576,
+              -0.0012333168706056652,
+              0.44653683560990004
+            ],
+            "yaw": 1.15145339609023
+          },
+          "stream_id": "7567ab1720da4d6bbe690d1598adae91"
+        },
+        {
+          "phase": "initial_point_accepted",
+          "monotonic_ns": 255908493815,
+          "truth": {
+            "time": 13.48,
+            "position": [
+              -0.014791479455583276,
+              -0.006082841222759247,
+              2.8905500593977167
+            ],
+            "velocity": [
+              -0.011686093278023576,
+              -0.0012333168706056652,
+              0.44653683560990004
+            ],
+            "yaw": 1.15145339609023
+          },
+          "stream_id": "7567ab1720da4d6bbe690d1598adae91"
+        },
+        {
+          "phase": "initial_stable_hold",
+          "monotonic_ns": 266157382726,
+          "truth": {
+            "time": 23.740000000000002,
+            "position": [
+              1.8961759254621913,
+              3.001810282574822,
+              3.0574373803928463
+            ],
+            "velocity": [
+              0.0070538230928281825,
+              -0.00959259724282676,
+              0.006916449425031344
+            ],
+            "yaw": -0.0046670253729026445
+          },
+          "stream_id": "7567ab1720da4d6bbe690d1598adae91"
+        },
+        {
+          "phase": "gnss_plan_committed",
+          "monotonic_ns": 266171267648,
+          "truth": {
+            "time": 23.740000000000002,
+            "position": [
+              1.8961759254621913,
+              3.001810282574822,
+              3.0574373803928463
+            ],
+            "velocity": [
+              0.0070538230928281825,
+              -0.00959259724282676,
+              0.006916449425031344
+            ],
+            "yaw": -0.0046670253729026445
+          },
+          "stream_id": "7567ab1720da4d6bbe690d1598adae91"
+        },
+        {
+          "phase": "gnss_outage_planned",
+          "monotonic_ns": 266171361942,
+          "truth": {
+            "time": 23.740000000000002,
+            "position": [
+              1.8961759254621913,
+              3.001810282574822,
+              3.0574373803928463
+            ],
+            "velocity": [
+              0.0070538230928281825,
+              -0.00959259724282676,
+              0.006916449425031344
+            ],
+            "yaw": -0.0046670253729026445
+          },
+          "stream_id": "7567ab1720da4d6bbe690d1598adae91",
+          "plan": {
+            "control_epoch": "99d26459cd4742f080e2a424b1c81fce",
+            "end_tick": 40800,
+            "origin_tick": 23744,
+            "profile_sha256": "5449a73ccfec0e13ddcadde14411fc65f015264c5841e39de10664fa3bb06617",
+            "run_id": "dd44e38bbcb54c51a72fb17b90b8d4c8",
+            "scene_epoch": "810c06e3334c4242a49089f6617fc7a7",
+            "start_tick": 25800,
+            "vehicle_id": 1
+          }
+        },
+        {
+          "phase": "gnss_control_withdrawn",
+          "monotonic_ns": 269282466197,
+          "truth": {
+            "time": 26.86,
+            "position": [
+              1.9464518097424688,
+              2.992442028554446,
+              3.0163666197799976
+            ],
+            "velocity": [
+              0.011894174341527095,
+              -0.01960701052176615,
+              -0.015039175143601702
+            ],
+            "yaw": -0.00679356451057167
+          },
+          "stream_id": "7567ab1720da4d6bbe690d1598adae91"
+        },
+        {
+          "phase": "gnss_outage_finished",
+          "monotonic_ns": 283217268473,
+          "truth": {
+            "time": 40.800000000000004,
+            "position": [
+              1.8415795576023084,
+              2.761058246909995,
+              -3.380799481472321e-08
+            ],
+            "velocity": [
+              7.813334465519732e-27,
+              5.336835076070628e-27,
+              3.406791230367349e-08
+            ],
+            "yaw": -0.005132345931792903
+          },
+          "stream_id": "7567ab1720da4d6bbe690d1598adae91"
+        },
+        {
+          "phase": "native_navigation_returned",
+          "monotonic_ns": 284478040974,
+          "truth": {
+            "time": 42.06,
+            "position": [
+              1.8415795576023084,
+              2.761058246909995,
+              -9.497325754739566e-09
+            ],
+            "velocity": [
+              8.756969456640518e-28,
+              7.102536893548579e-28,
+              9.570341651767598e-09
+            ],
+            "yaw": -0.005132345931792903
+          },
+          "stream_id": "7567ab1720da4d6bbe690d1598adae91"
+        },
+        {
+          "phase": "no_automatic_reacquisition",
+          "monotonic_ns": 285481700523,
+          "truth": {
+            "time": 43.06,
+            "position": [
+              1.8415795576023084,
+              2.761058246909995,
+              -3.4671125386263543e-09
+            ],
+            "velocity": [
+              1.028279094582933e-28,
+              3.8368228898071146e-29,
+              3.493767866508211e-09
+            ],
+            "yaw": -0.005132345931792903
+          },
+          "stream_id": "7567ab1720da4d6bbe690d1598adae91"
+        },
+        {
+          "phase": "explicit_recovery_hold",
+          "monotonic_ns": 285520513491,
+          "truth": {
+            "time": 43.1,
+            "position": [
+              1.8415795576023084,
+              2.761058246909995,
+              -3.3301408513323035e-09
+            ],
+            "velocity": [
+              1.2146959025239052e-28,
+              4.8782737202062657e-29,
+              3.35574313324464e-09
+            ],
+            "yaw": -0.005132345931792903
+          },
+          "stream_id": "7567ab1720da4d6bbe690d1598adae91"
+        },
+        {
+          "phase": "recovery_public_ready",
+          "monotonic_ns": 285521379952,
+          "truth": {
+            "time": 43.1,
+            "position": [
+              1.8415795576023084,
+              2.761058246909995,
+              -3.3301408513323035e-09
+            ],
+            "velocity": [
+              1.2146959025239052e-28,
+              4.8782737202062657e-29,
+              3.35574313324464e-09
+            ],
+            "yaw": -0.005132345931792903
+          },
+          "stream_id": "7567ab1720da4d6bbe690d1598adae91"
+        },
+        {
+          "phase": "recovery_disarmed_ground",
+          "monotonic_ns": 285530881934,
+          "truth": {
+            "time": 43.1,
+            "position": [
+              1.8415795576023084,
+              2.761058246909995,
+              -3.3301408513323035e-09
+            ],
+            "velocity": [
+              1.2146959025239052e-28,
+              4.8782737202062657e-29,
+              3.35574313324464e-09
+            ],
+            "yaw": -0.005132345931792903
+          },
+          "stream_id": "7567ab1720da4d6bbe690d1598adae91"
+        },
+        {
+          "phase": "recovery_prearm_ready",
+          "monotonic_ns": 286017869628,
+          "truth": {
+            "time": 43.6,
+            "position": [
+              1.8415795576023084,
+              2.761058246909995,
+              -2.0120830608847887e-09
+            ],
+            "velocity": [
+              2.947802380348018e-29,
+              2.9739126489475786e-29,
+              2.0275520538663157e-09
+            ],
+            "yaw": -0.005132345931792903
+          },
+          "stream_id": "7567ab1720da4d6bbe690d1598adae91"
+        },
+        {
+          "phase": "explicit_recovery_arm",
+          "monotonic_ns": 286051654836,
+          "truth": {
+            "time": 43.62,
+            "position": [
+              1.8415795576023084,
+              2.761058246909995,
+              -1.9719379130995964e-09
+            ],
+            "velocity": [
+              2.816697219643745e-29,
+              3.0262909468925353e-29,
+              1.9870982670113065e-09
+            ],
+            "yaw": -0.005132345931792903
+          },
+          "stream_id": "7567ab1720da4d6bbe690d1598adae91"
+        },
+        {
+          "phase": "explicit_new_takeover",
+          "monotonic_ns": 296487542276,
+          "truth": {
+            "time": 54.06,
+            "position": [
+              1.9311992724803055,
+              3.0083700941168177,
+              2.8116319625519726
+            ],
+            "velocity": [
+              0.004288893531842167,
+              0.01659911587515277,
+              0.11311060502581706
+            ],
+            "yaw": -0.003444522809670003
+          },
+          "stream_id": "7567ab1720da4d6bbe690d1598adae91"
+        },
+        {
+          "phase": "new_point_accepted",
+          "monotonic_ns": 296489876173,
+          "truth": {
+            "time": 54.06,
+            "position": [
+              1.9311992724803055,
+              3.0083700941168177,
+              2.8116319625519726
+            ],
+            "velocity": [
+              0.004288893531842167,
+              0.01659911587515277,
+              0.11311060502581706
+            ],
+            "yaw": -0.003444522809670003
+          },
+          "stream_id": "7567ab1720da4d6bbe690d1598adae91"
+        },
+        {
+          "phase": "recovery_point_completed",
+          "monotonic_ns": 300817760653,
+          "truth": {
+            "time": 58.4,
+            "position": [
+              2.964458265146862,
+              2.0296309055903854,
+              3.0015895757338362
+            ],
+            "velocity": [
+              -0.0580993502357185,
+              0.07514478378566378,
+              0.015648623963966598
+            ],
+            "yaw": 0.007879448718157711
+          },
+          "stream_id": "7567ab1720da4d6bbe690d1598adae91"
+        },
+        {
+          "phase": "final_land",
+          "monotonic_ns": 300850521072,
+          "truth": {
+            "time": 58.42,
+            "position": [
+              2.9633203930891105,
+              2.0311077116559844,
+              3.001906238564279
+            ],
+            "velocity": [
+              -0.05569190121561357,
+              0.07253608588091016,
+              0.016009938238013784
+            ],
+            "yaw": 0.007909498119292424
+          },
+          "stream_id": "7567ab1720da4d6bbe690d1598adae91"
+        },
+        {
+          "phase": "landed_disarmed",
+          "monotonic_ns": 308715206498,
+          "truth": {
+            "time": 66.28,
+            "position": [
+              2.9058485730478156,
+              2.118521104515628,
+              -2.7408488625972934e-06
+            ],
+            "velocity": [
+              6.05304418001184e-21,
+              2.2161894865148176e-20,
+              2.7619206382875193e-06
+            ],
+            "yaw": 0.006845017703346112
+          },
+          "stream_id": "7567ab1720da4d6bbe690d1598adae91"
+        },
+        {
+          "phase": "ground_hold_completed",
+          "monotonic_ns": 308880818579,
+          "truth": {
+            "time": 66.46000000000001,
+            "position": [
+              2.9058485730478156,
+              2.118521104515628,
+              -2.286183452097405e-06
+            ],
+            "velocity": [
+              2.9194303724809503e-21,
+              1.0690045220315612e-20,
+              2.303759738903797e-06
+            ],
+            "yaw": 0.00684501770353374
+          },
+          "stream_id": "7567ab1720da4d6bbe690d1598adae91"
+        }
+      ]
+    }
+  },
+  "cleanup_errors": [],
+  "children_reaped": true,
+  "source_unchanged": true,
+  "candidate_unchanged": true,
+  "wall_seconds": 67.74128055900002,
+  "stop_kind": "landed_stop"
+}

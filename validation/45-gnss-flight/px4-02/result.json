@@ -1,0 +1,1493 @@
+{
+  "status": "failed",
+  "experimental": true,
+  "production_admitted": false,
+  "stack": "px4",
+  "run_id": "9630fa0eded04fd3b67c56cbe6eae748",
+  "config": {
+    "schema_version": 1,
+    "run_id": "9630fa0eded04fd3b67c56cbe6eae748",
+    "vehicle_id": 1,
+    "stack": "px4",
+    "model_profile": "quad_x",
+    "communication": "native_dds",
+    "control_protocol": "session_v1",
+    "capabilities": [
+      "native_position_mission"
+    ],
+    "dds_workspace": "/root/wksim-dds-VxM6Ni",
+    "prometheus_workspace": "/root/wksim-joint-control-hy8WVw",
+    "px4_root": "/root/wksim-px4-state-ONa1Kw/src",
+    "model_library": "/root/wksim-private-tmp-bhi18a3s/artifacts/wksim-model-qhdy93lm/libwksim_model.so"
+  },
+  "run_dir": "/root/wksim-gnss-flight-px4-02/9630fa0eded04fd3b67c56cbe6eae748",
+  "admission": {
+    "ok": true,
+    "config": {
+      "schema_version": 1,
+      "run_id": "9630fa0eded04fd3b67c56cbe6eae748",
+      "vehicle_id": 1,
+      "stack": "px4",
+      "model_profile": "quad_x",
+      "communication": "native_dds",
+      "control_protocol": "session_v1",
+      "capabilities": [
+        "native_position_mission"
+      ],
+      "dds_workspace": "/root/wksim-dds-VxM6Ni",
+      "prometheus_workspace": "/root/wksim-joint-control-hy8WVw",
+      "px4_root": "/root/wksim-px4-state-ONa1Kw/src",
+      "model_library": "/root/wksim-private-tmp-bhi18a3s/artifacts/wksim-model-qhdy93lm/libwksim_model.so"
+    },
+    "library": "/root/wksim-private-tmp-bhi18a3s/artifacts/wksim-model-qhdy93lm/libwksim_model.so",
+    "baseline": {
+      "ok": true,
+      "reasons": [],
+      "children_created": 0,
+      "profile": {
+        "id": "joint_quad_dds_v1",
+        "dds_workspace": "/root/wksim-dds-VxM6Ni",
+        "ap_message_workspace": "/root/wksim-ap-dds-yaw-state-4Wr27s",
+        "message_workspace": "/root/wksim-ros2-MUlZd0",
+        "control_workspace": "/root/wksim-joint-control-FVMjak",
+        "model_library": "/root/wksim-private-tmp-bhi18a3s/artifacts/wksim-model-qhdy93lm/libwksim_model.so",
+        "manifests": {
+          "ap": {
+            "path": "/root/wksim-ap-clock-stop-OXQqdR/wksim-build.json",
+            "sha256": "f347ba252fbfc33bc92baffba08660f33c3a0e4462e90177ba84bdc11408660a"
+          },
+          "px4": {
+            "path": "/root/wksim-px4-state-ONa1Kw/wksim-build.json",
+            "sha256": "d7e905b35250d184e185ada70e3fe43f0223f1c605832d81c3c58eeb123d4cb6"
+          },
+          "control": {
+            "path": "/root/wksim-joint-control-FVMjak/build.json",
+            "sha256": "f02edf158bf9b4d75cfd2221412bdbe83a10b21bc1642c97259294e12ef487a7"
+          }
+        },
+        "evidence": [
+          {
+            "result": {
+              "path": "validation/joint-public-flight-_cs_wxw_/result.json",
+              "sha256": "11ba582724292470177f4514043293d8e68717e8e64b7edfbd168f6bb056447d"
+            },
+            "audit": {
+              "path": "validation/joint-public-flight-_cs_wxw_/audit.json",
+              "sha256": "c2db43e16120f05032a67543a9d57216d8a199008b076d0a3fec0ae2ce0446ec"
+            }
+          }
+        ],
+        "setup_files": [
+          "/opt/ros/humble/setup.bash",
+          "/root/wksim-dds-VxM6Ni/ros-install/local_setup.bash",
+          "/root/wksim-ap-dds-yaw-state-4Wr27s/ros-install/local_setup.bash",
+          "/root/wksim-ros2-MUlZd0/install/local_setup.bash",
+          "/root/wksim-joint-control-FVMjak/install/local_setup.bash"
+        ],
+        "control_source": "sealed_legacy",
+        "capabilities": [
+          "public_position",
+          "public_velocity_yaw"
+        ]
+      },
+      "model_library": "/root/wksim-private-tmp-bhi18a3s/artifacts/wksim-model-qhdy93lm/libwksim_model.so",
+      "control_package": "/root/wksim-joint-control-FVMjak/install/prometheus_control/local/lib/python3.10/dist-packages/prometheus_control",
+      "identities": {
+        "px4": {
+          "path": "/root/wksim-px4-state-ONa1Kw/src/build/px4_sitl_default/bin/px4",
+          "sha256": "93b4ebe0d83a5897131ec24ee58d732c8999972bb7730f429fc396bc8d10602a",
+          "commit": "d6f12ad1c4f70ad3230afd7d86e971421e02fef4",
+          "source_files": 42012
+        },
+        "manifests": {
+          "ap": {
+            "path": "/root/wksim-ap-clock-stop-OXQqdR/wksim-build.json",
+            "sha256": "f347ba252fbfc33bc92baffba08660f33c3a0e4462e90177ba84bdc11408660a"
+          },
+          "px4": {
+            "path": "/root/wksim-px4-state-ONa1Kw/wksim-build.json",
+            "sha256": "d7e905b35250d184e185ada70e3fe43f0223f1c605832d81c3c58eeb123d4cb6"
+          },
+          "control": {
+            "path": "/root/wksim-joint-control-FVMjak/build.json",
+            "sha256": "f02edf158bf9b4d75cfd2221412bdbe83a10b21bc1642c97259294e12ef487a7"
+          }
+        },
+        "model": {
+          "archive": "/mnt/e/rflysimtools/RflySimAPIs/4.RflySimModel/1.BasicExps/e0_MinModelTemp/MulticopterModel.zip",
+          "archive_sha256": "d528b5d247e13d943f1eaa7a37fd3cb4d15c7e9bb7a6b0e5988a1423e59d05ed",
+          "wrapper_sha256": "3f325678b1d85c9aa3fd07bd644d82935aa26d82885926defeced139f02ddf2c",
+          "library": "/root/wksim-private-tmp-bhi18a3s/artifacts/wksim-model-qhdy93lm/libwksim_model.so",
+          "library_sha256": "cc0bc2d10790043251f38bb6a53f4d774379dd37a02b09cceba43ac1fafb02b3",
+          "argv": [
+            "g++",
+            "-std=c++17",
+            "-O2",
+            "-fno-fast-math",
+            "-fPIC",
+            "-shared",
+            "-Wl,--no-undefined",
+            "-I",
+            "/root/wksim-private-tmp-bhi18a3s/artifacts/wksim-model-qhdy93lm",
+            "/root/wksim-private-tmp-bhi18a3s/artifacts/wksim-model-qhdy93lm/Exp1_MinModelTemp.cpp",
+            "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/Simulator/wksim_core/model.cpp",
+            "-o",
+            "/root/wksim-private-tmp-bhi18a3s/artifacts/wksim-model-qhdy93lm/libwksim_model.so"
+          ],
+          "compiler": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0",
+          "profile": "generated-quad-x-1ms; local use; vendor redistribution not granted"
+        },
+        "message_packages": {
+          "px4_msgs": {
+            "prefix": "/root/wksim-dds-VxM6Ni/ros-install/px4_msgs",
+            "sha256": "4e925a5917bce0442f487b93c39763ee49a6c07662ef3b23560207a15f37ee3e"
+          },
+          "ardupilot_msgs": {
+            "prefix": "/root/wksim-ap-dds-yaw-state-4Wr27s/ros-install/ardupilot_msgs",
+            "sha256": "5ff82c59c182e5b904ce227ede45d6e9e046c6882d0f82a7453df231a9dac0aa"
+          },
+          "prometheus_msgs": {
+            "prefix": "/root/wksim-ros2-MUlZd0/install/prometheus_msgs",
+            "sha256": "fc5f25cd3bd19b3dae4c1c58ea303cd85c484dbf6e9c065ec082058ff987b806",
+            "complete_snapshot": true
+          },
+          "wksim_msgs": {
+            "prefix": "/root/wksim-ros2-MUlZd0/install/wksim_msgs",
+            "sha256": "fa5fadcb39d83bd1d2412b3b1d58955423a698236f19d9cf208956c120fdabe3",
+            "complete_snapshot": true
+          }
+        },
+        "px4_agent": {
+          "path": "/root/wksim-dds-VxM6Ni/agent-install/bin/MicroXRCEAgent",
+          "sha256": "c61334626f2b625fdee68f7326ca1dabdf788b16d991a0e6879903cf24edb4b7"
+        }
+      },
+      "capabilities": [
+        "public_position",
+        "public_velocity_yaw"
+      ],
+      "scope": "Pinned AP/PX4 quad-X joint DDS public tasks and approved recovery; admission is not flight readiness or complete G2/Full acceptance"
+    },
+    "control": {
+      "version": 1,
+      "root": "/root/wksim-joint-control-hy8WVw",
+      "package": "/root/wksim-joint-control-hy8WVw/install/prometheus_control/local/lib/python3.10/dist-packages/prometheus_control",
+      "python_sha256": {
+        "__init__.py": "9a4edb373583bcf6f3d7eaa2522ad1544f63965b0e7f81167f858a0d09d44746",
+        "command.py": "5c23492d761444346a41707cd6027c2fe76acd47db7bd972686fc09ef5f8b25d",
+        "frames.py": "24086553882b31f0666159a1c9bf2929219420a0184dbb2b6683559d12e809b0",
+        "native_arducopter.py": "00b634da7b3e29b87251020fe1d5d74f88d2039c1312081dea67614eda4dcb2a",
+        "native_px4.py": "de40ae6175c7e1b23908a791b077b310da81a8d5c264ff4af2620a733a4b2fe6",
+        "node.py": "0425b501a4498d5675d99ee2bb36f3e38cb04d6735e1f4d2ead0d4ba03f4a059",
+        "rc_transport.py": "e618c33ba687520160c8d2cfb79b0da30e5047f3036549c47ca357f1c26dc38f",
+        "scene.py": "370770a02fdde5e94fc54bed6f7e0d63a4c98c6dcadd0c3616ac1c14529cd333",
+        "session.py": "da64efa299288738d4520c6a23834c3201c34334f861a8de542fcaa91930b126",
+        "shaping.py": "56782d96f9fc6f7df3ddadf80cd8c09f474af81c5c183d20d3d26c2f9e66bc69"
+      },
+      "build_inputs": {
+        "CMakeLists.txt": "8e8791201c0bb04806fe68f729288e57fe2f0552aee8c38e85e0acd8e2abd591",
+        "package.xml": "6c7b9f84953ec2a9726c87e888ee72a3bf045724c0585558ba413f400f0a38b4",
+        "scripts/prometheus_control_node": "b73f77d5e2b74ea999fdd3174280c31d311061de20e2c2c7e8c56d44e4e6dcfc",
+        "src/rc_take.cpp": "d6969f1d872a904c794b8c045652946fa1bf5285401ac3ee747a24beee9c6ee6"
+      },
+      "build_log_sha256": "a90501186945adf428897cfab0008a15431f5a896a8b7a1cc311c5db509c0174",
+      "rc_transport_sha256": "f00ccb7da8da348e33e8dbb1200dd3244a73c3cf4f658024372009de06f9107c",
+      "build_script_sha256": "cee40ea5324de3f38613fd3e8f05bbfde2a5814b1c76e038ec26917795e3365c",
+      "scope": "experimental continuous joint ROS-time operations; no production admission"
+    },
+    "control_manifest": "/root/wksim-joint-control-hy8WVw/build.json",
+    "control_sha256": "151389198b8719ff443db41cd24260d75f239c6d5fe016399589818231698f2a",
+    "setup_files": [
+      "/opt/ros/humble/setup.bash",
+      "/root/wksim-dds-VxM6Ni/ros-install/local_setup.bash",
+      "/root/wksim-ap-dds-yaw-state-4Wr27s/ros-install/local_setup.bash",
+      "/root/wksim-ros2-MUlZd0/install/local_setup.bash",
+      "/root/wksim-joint-control-hy8WVw/install/local_setup.bash"
+    ]
+  },
+  "children": {
+    "physics": {
+      "argv": [
+        "/usr/bin/python3",
+        "-B",
+        "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/tools/gnss_physics.py",
+        "--stack",
+        "px4",
+        "--library",
+        "/root/wksim-private-tmp-bhi18a3s/artifacts/wksim-model-qhdy93lm/libwksim_model.so",
+        "--port",
+        "4581",
+        "--trace",
+        "/root/wksim-gnss-flight-px4-02/9630fa0eded04fd3b67c56cbe6eae748/truth.jsonl",
+        "--profile",
+        "/root/wksim-gnss-flight-px4-02/9630fa0eded04fd3b67c56cbe6eae748/gnss-profile.json",
+        "--run-id",
+        "9630fa0eded04fd3b67c56cbe6eae748",
+        "--scene-epoch",
+        "73f90348e01c49418e95fc4b319357e7"
+      ],
+      "cwd": "/root/wksim-gnss-flight-px4-02/9630fa0eded04fd3b67c56cbe6eae748",
+      "pid": 1095,
+      "pgid": 1095,
+      "proc_stat": "1095 (python3) R 605 1095 1095 0 -1 4194304 12 0 0 0 0 0 0 0 20 0 1 0 3341 6606848 40 18446744073709551615 98047730180096 98047733004333 140723073415104 0 0 0 0 0 0 0 0 0 17 10 0 0 0 0 0 98047735367696 98047735651736 98048344666112 140723073417954 140723073418420 140723073418420 140723073425383 0\n",
+      "executable": "/usr/bin/python3.10",
+      "returncode": 1
+    },
+    "agent": {
+      "argv": [
+        "/root/wksim-dds-VxM6Ni/agent-install/bin/MicroXRCEAgent",
+        "udp4",
+        "-p",
+        "18888",
+        "-v",
+        "4"
+      ],
+      "cwd": "/root/wksim-gnss-flight-px4-02/9630fa0eded04fd3b67c56cbe6eae748",
+      "pid": 1096,
+      "pgid": 1096,
+      "proc_stat": "1096 (MicroXRCEAgent) R 605 1096 1096 0 -1 4456448 19 0 0 0 0 0 0 0 20 0 1 0 3366 434176 40 18446744073709551615 103878288969728 103878288970329 140724355413264 0 0 0 0 0 0 0 0 0 17 11 0 0 0 0 0 103878288981336 103878288982032 103878659293184 140724355417154 140724355417229 140724355417229 140724355424192 0\n",
+      "executable": "/root/wksim-dds-VxM6Ni/agent-install/bin/MicroXRCEAgent",
+      "returncode": -15
+    },
+    "fc": {
+      "argv": [
+        "/root/wksim-px4-state-ONa1Kw/src/build/px4_sitl_default/bin/px4",
+        "-d",
+        "/root/wksim-px4-state-ONa1Kw/src/build/px4_sitl_default/etc",
+        "-t",
+        "/root/wksim-px4-state-ONa1Kw/src/test_data",
+        "-i",
+        "21",
+        "-w",
+        "/root/wksim-gnss-flight-px4-02/9630fa0eded04fd3b67c56cbe6eae748"
+      ],
+      "cwd": "/root/wksim-gnss-flight-px4-02/9630fa0eded04fd3b67c56cbe6eae748",
+      "pid": 1103,
+      "pgid": 1103,
+      "proc_stat": "1103 (px4) R 605 1103 1103 0 -1 4194304 12 0 0 0 0 0 0 0 20 0 1 0 3368 5451776 0 18446744073709551615 100516531965952 100516536859144 140731534543856 0 0 0 0 0 0 0 0 0 17 19 0 0 0 0 0 100516536864960 100516536975944 100516951916544 140731534544836 140731534545082 140731534545082 140731534553016 0\n",
+      "executable": "/root/wksim-px4-state-ONa1Kw/src/build/px4_sitl_default/bin/px4",
+      "returncode": 0
+    },
+    "control": {
+      "argv": [
+        "/usr/bin/python3",
+        "-m",
+        "prometheus_control.node",
+        "--ros-args",
+        "-p",
+        "flight_stack:=px4",
+        "-p",
+        "uav_id:=1",
+        "-p",
+        "native_prefix:=/wksim_px4_21",
+        "-p",
+        "native_system_id:=22",
+        "-p",
+        "arducopter_position_yaw:=true",
+        "-p",
+        "run_id:=9630fa0eded04fd3b67c56cbe6eae748"
+      ],
+      "cwd": "/root/wksim-gnss-flight-px4-02/9630fa0eded04fd3b67c56cbe6eae748",
+      "pid": 1320,
+      "pgid": 1320,
+      "proc_stat": "1320 (python3) R 605 1320 1320 0 -1 4194304 17 0 0 0 0 0 0 0 20 0 1 0 3396 6606848 80 18446744073709551615 102953058267136 102953061091373 140730016770864 0 0 0 0 0 0 0 0 0 17 18 0 0 0 0 0 102953063454736 102953063738776 102953505312768 140730016773078 140730016773300 140730016773300 140730016780263 0\n",
+      "executable": "/usr/bin/python3.10",
+      "returncode": 0
+    }
+  },
+  "phases": [
+    {
+      "phase": "physics_listening",
+      "wall_s": 0.2989620510000037
+    },
+    {
+      "phase": "agent_listening",
+      "wall_s": 0.3197723400000001
+    },
+    {
+      "phase": "physics_fc_coupled",
+      "wall_s": 0.603054917999998
+    },
+    {
+      "phase": "public_ready",
+      "wall_s": 3.800576608
+    },
+    {
+      "phase": "initial_native_hold",
+      "wall_s": 3.819144837000003
+    },
+    {
+      "phase": "native_prearm_ready",
+      "wall_s": 4.763381313000004
+    },
+    {
+      "phase": "initial_arm",
+      "wall_s": 4.788945955999999
+    },
+    {
+      "phase": "initial_takeoff",
+      "wall_s": 14.814852103
+    },
+    {
+      "phase": "initial_point_accepted",
+      "wall_s": 14.816228901999999
+    },
+    {
+      "phase": "initial_stable_hold",
+      "wall_s": 25.058651492000003
+    },
+    {
+      "phase": "gnss_plan_committed",
+      "wall_s": 25.078865664
+    },
+    {
+      "phase": "gnss_outage_planned",
+      "wall_s": 25.078945281000003
+    },
+    {
+      "phase": "gnss_control_withdrawn",
+      "wall_s": 28.250150474
+    },
+    {
+      "phase": "gnss_outage_finished",
+      "wall_s": 42.195354077000005
+    },
+    {
+      "phase": "failure_land",
+      "wall_s": 87.277797265
+    },
+    {
+      "phase": "failure_ground",
+      "wall_s": 87.28007933800001
+    }
+  ],
+  "safe_landing": false,
+  "resources": {
+    "experiment_kind": "independent",
+    "run_id": "9630fa0eded04fd3b67c56cbe6eae748",
+    "output": "/root/wksim-gnss-flight-px4-02/9630fa0eded04fd3b67c56cbe6eae748",
+    "network_namespace": "net:[4026532232]",
+    "ipc_namespace": "ipc:[4026532231]",
+    "shm_device": 85,
+    "vehicle_id": 1,
+    "ros_domain": 77,
+    "public_namespace": "/uav1/prometheus",
+    "native_prefix": "/wksim_px4_21",
+    "native_system_id": 22,
+    "xrce_client_key": 22,
+    "ports": [
+      {
+        "protocol": "udp",
+        "port": 18888
+      },
+      {
+        "protocol": "udp",
+        "port": 18591
+      },
+      {
+        "protocol": "udp",
+        "port": 14661
+      },
+      {
+        "protocol": "tcp",
+        "port": 4581
+      }
+    ],
+    "display_socket": null,
+    "telemetry_socket": null,
+    "independent_clock": true,
+    "dds_transport": "private network and private /dev/shm"
+  },
+  "scene_epoch": "73f90348e01c49418e95fc4b319357e7",
+  "scope": "Independent GNSS fault; native failsafe and explicit new task recovery",
+  "source_sha256": {
+    "tools/run_gnss_flight.py": "92ceed45535f9e1effa683094eeefe26b7a69ac309a5096cd747668b2a3aaf8c",
+    "tools/run-gnss-flight.sh": "ab11b1a6a2f97f9c5be2d42a198e55db781bfc9a21cdd8e5dc1872cfc3b769c7",
+    "tools/gnss_physics.py": "7ec06a5d9fe66349d06482a2df587b54cde14f45ebf394affedd126f84c77375",
+    "tools/gnss_candidate.py": "2fbabaa5b827faec64b379f95e26c2130702ab4280eece092199458b0e6f1b22",
+    "tools/rc_candidate.py": "485bbcfad0cccb0db883abd97f61595fe7bd73ac5bfeed10581531ef156fb0ec",
+    "tools/joint_control_candidate.py": "ca621094342f02a9f2784de3caf105d738c401717c5ace63b68d802f7c453885",
+    "tools/audit_gnss_flight.py": "8128ea771a26354f8e62d38384cc3c65439de713b17374d0a1c916f9f7d41f8d",
+    "tools/pid_physics.py": "5c57811dc2b1f86282b409ca59bc3bdd0cfec6a6a2981620d784e500c80dad78",
+    "Simulator/wksim_runtime/gnss_task.py": "557535be2dd73bd400f839ff028f57b2708581466c1fa4a6078e98eb5a70e3a1",
+    "Simulator/wksim_runtime/gnss-flight-v2.json": "5449a73ccfec0e13ddcadde14411fc65f015264c5841e39de10664fa3bb06617",
+    "Simulator/wksim_runtime/rc_task.py": "8f32769548d3325bd63b78528cfa373f2ea4cb3ccce94047b00293ca7120bfac",
+    "Simulator/wksim_runtime/efficiency_task.py": "ebd16f429b6fcefe5b9809ef45d34272ff9e1ad5cf02c6edec9682ff65062010",
+    "Simulator/wksim_runtime/task.py": "9791913df7ad61d229a151d4d1d0e5c2b3f32d127a7545096b43a32638f0dbbc",
+    "Simulator/wksim_runtime/runtime.py": "7853410a294cd0d41356ff49a5976c001a78c3cc89e0722f7bd7e47147ca4d3c",
+    "Simulator/wksim_runtime/isolation.py": "92466d6e736f671031b5d53f01d8ebcfd2ab1aa6c28c9946e2f891087bb61c99",
+    "Simulator/wksim_runtime/config.py": "ab57bcd9723707857f212432e8be093209dd578b9eb6c453340027e4871861eb",
+    "Simulator/wksim_runtime/joint_profile.py": "9b4fdafff268c576e42c5dfac2f3d3ed0f814b99fb85c6569a98a0edab3cac42",
+    "Simulator/wksim_runtime/build_identity.py": "9581d7085f3fb37629969e19635d1299fd40ca0a0f65ea7f4af6b85a5d6e8286",
+    "Simulator/wksim_core/gnss_event.py": "b26953276fe1fbca0f073ee4807796e294194a33acbbd0f5140fecb63d81f75b",
+    "Simulator/wksim_core/motor_efficiency_event.py": "52972153618cc91a16d4ce6cc698db3d3108ed600c37235787a4d49ab77b1383",
+    "Simulator/wksim_core/model.py": "af767e9299e4282da8da168998605c02039ea64d9cc27bb33e9dce24d1a6b77a",
+    "Simulator/wksim_core/model.cpp": "3f325678b1d85c9aa3fd07bd644d82935aa26d82885926defeced139f02ddf2c",
+    "Simulator/wksim_core/px4_mavlink.py": "e8c903f2b4c84a261adf6f512c8437c51364143dc048d1ac2cb873e7cfb53260",
+    "Simulator/wksim_core/ap_json.py": "db3498d5df50aa3ab46601a8e899c6739e613d431a7d221ac57d2a86e1846469",
+    "Simulator/wksim_core/state_stream.py": "d0bf4534885170bc281394657558afbfa143d76360ac1157e1c0e60d9719a76e",
+    "Simulator/wksim_core/arducopter-quad-x.parm": "823e8e3ca9d5648aa36de40c34aa3d6af0e52c8155909620ab1958b1302703e1",
+    "Simulator/wksim_core/px4-rc.mavlink": "2c3cea474c5669b6c9ae241072a1c5f813f06ff771233e0f81721397c903d214"
+  },
+  "launch_plan": {
+    "agent": [
+      "/root/wksim-dds-VxM6Ni/agent-install/bin/MicroXRCEAgent",
+      "udp4",
+      "-p",
+      "18888",
+      "-v",
+      "4"
+    ],
+    "physics": [
+      "/usr/bin/python3",
+      "-B",
+      "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/tools/gnss_physics.py",
+      "--stack",
+      "px4",
+      "--library",
+      "/root/wksim-private-tmp-bhi18a3s/artifacts/wksim-model-qhdy93lm/libwksim_model.so",
+      "--port",
+      "4581",
+      "--trace",
+      "/root/wksim-gnss-flight-px4-02/9630fa0eded04fd3b67c56cbe6eae748/truth.jsonl",
+      "--profile",
+      "/root/wksim-gnss-flight-px4-02/9630fa0eded04fd3b67c56cbe6eae748/gnss-profile.json",
+      "--run-id",
+      "9630fa0eded04fd3b67c56cbe6eae748",
+      "--scene-epoch",
+      "73f90348e01c49418e95fc4b319357e7"
+    ],
+    "fc": [
+      "/root/wksim-px4-state-ONa1Kw/src/build/px4_sitl_default/bin/px4",
+      "-d",
+      "/root/wksim-px4-state-ONa1Kw/src/build/px4_sitl_default/etc",
+      "-t",
+      "/root/wksim-px4-state-ONa1Kw/src/test_data",
+      "-i",
+      "21",
+      "-w",
+      "/root/wksim-gnss-flight-px4-02/9630fa0eded04fd3b67c56cbe6eae748"
+    ],
+    "control": [
+      "/usr/bin/python3",
+      "-m",
+      "prometheus_control.node",
+      "--ros-args",
+      "-p",
+      "flight_stack:=px4",
+      "-p",
+      "uav_id:=1",
+      "-p",
+      "native_prefix:=/wksim_px4_21",
+      "-p",
+      "native_system_id:=22",
+      "-p",
+      "arducopter_position_yaw:=true",
+      "-p",
+      "run_id:=9630fa0eded04fd3b67c56cbe6eae748"
+    ],
+    "fc_environment": {
+      "PX4_SYS_AUTOSTART": "10016",
+      "PX4_SIM_MODEL": "none_iris",
+      "PX4_SIM_HOST_ADDR": "127.0.0.1",
+      "PX4_SIM_SPEED_FACTOR": "1",
+      "PX4_UXRCE_DDS_PORT": "18888",
+      "PX4_UXRCE_DDS_NS": "wksim_px4_21",
+      "ROS_DOMAIN_ID": "77",
+      "WKSIM_MAVLINK_LOCAL_PORT": "18591",
+      "WKSIM_MAVLINK_REMOTE_PORT": "14661",
+      "PX4_PARAM_SIM_GZ_EN": "0",
+      "PX4_PARAM_SIM_BAT_ENABLE": "1",
+      "PX4_PARAM_UXRCE_DDS_SYNCT": "0",
+      "PX4_PARAM_CA_ROTOR0_PX": "0.15909902576697318",
+      "PX4_PARAM_CA_ROTOR0_PY": "0.15909902576697318",
+      "PX4_PARAM_CA_ROTOR0_KM": "0.016555621653777514",
+      "PX4_PARAM_CA_ROTOR1_PX": "-0.15909902576697318",
+      "PX4_PARAM_CA_ROTOR1_PY": "-0.15909902576697318",
+      "PX4_PARAM_CA_ROTOR1_KM": "0.016555621653777514",
+      "PX4_PARAM_CA_ROTOR2_PX": "0.15909902576697318",
+      "PX4_PARAM_CA_ROTOR2_PY": "-0.15909902576697318",
+      "PX4_PARAM_CA_ROTOR2_KM": "-0.016555621653777514",
+      "PX4_PARAM_CA_ROTOR3_PX": "-0.15909902576697318",
+      "PX4_PARAM_CA_ROTOR3_PY": "0.15909902576697318",
+      "PX4_PARAM_CA_ROTOR3_KM": "-0.016555621653777514",
+      "PATH": "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/Simulator/wksim_core:/root/wksim-px4-state-ONa1Kw/src/build/px4_sitl_default/bin:/opt/ros/humble/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:/mnt/c/Users/PC/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/powershell:/mnt/c/Users/PC/.codex/tmp/arg0/codex-arg03jSCaO:/mnt/c/Users/PC/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/libheif/libheif/bin:/mnt/c/Users/PC/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/jxrlib/jxrlib/bin:/mnt/c/Users/PC/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/poppler/Library/bin:/mnt/c/Users/PC/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/mnt/c/Program Files (x86)/STMicroelectronics/stlink_server:/mnt/d/install2/a2/STM32CubeCLT_1.22.0:/mnt/d/install2/a2/STM32CubeCLT_1.22.0/Make/bin:/mnt/d/install2/a2/STM32CubeCLT_1.22.0/CMake/bin:/mnt/d/install2/a2/STM32CubeCLT_1.22.0/st-arm-clang/bin:/mnt/d/install2/a2/STM32CubeCLT_1.22.0/Ninja/bin:/mnt/d/install2/a2/STM32CubeCLT_1.22.0/GNU-tools-for-STM32/bin:/mnt/d/install2/a2/STM32CubeCLT_1.22.0/STLink-gdb-server/bin:/mnt/d/install2/a2/STM32CubeCLT_1.22.0/STM32CubeProgrammer/bin:/mnt/c/Program Files/Microsoft MPI/Bin/:/mnt/c/Windows/system32:/mnt/c/Windows:/mnt/c/Windows/System32/Wbem:/mnt/c/Windows/System32/WindowsPowerShell/v1.0/:/mnt/c/Windows/System32/OpenSSH/:/mnt/c/Program Files/NVIDIA Corporation/NVIDIA App/NvDLISR:/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common:/mnt/d/date/mingw64/bin:/mnt/c/Program Files/nodejs/:/mnt/d/matlab/install date/runtime/win64:/mnt/d/matlab/install date/bin:/mnt/d/install/Git/cmd:/mnt/d/date/miniconda:/mnt/d/date/miniconda/Library/bin:/mnt/d/date/miniconda/Scripts:/mnt/c/Program Files/usbipd-win/:/mnt/c/Windows/system32/downlevel:/mnt/d/viov\u5957\u4ef6/pcsuite/:/mnt/c/Program Files/Gtk-Runtime/bin:/mnt/c/Program Files/Tailscale/:/mnt/c/Program Files/GitHub CLI/:/mnt/c/Program Files/PuTTY/:/mnt/c/Program Files (x86)/MAVProxy:/mnt/c/Program Files (x86)/Windows Kits/10/Windows Performance Toolkit/:/mnt/e/MATLAB/MATLAB_Runtime/v93/runtime/win64:/mnt/d/matlab/v93/runtime/win64:/mnt/c/Program Files/dotnet/:/mnt/c/Program Files (x86)/cloudflared/:/mnt/c/Users/PC/AppData/Local/agy/bin:/mnt/c/Users/PC/.kimi-code/bin:/mnt/c/Users/PC/.grok/bin:/mnt/c/Users/PC/AppData/Local/Programs/cursor/resources/app/codeBin:/mnt/c/Users/PC/.local/bin:/mnt/c/Users/PC/.local/bin:/mnt/c/Users/PC/AppData/Local/pnpm:/mnt/c/Users/PC/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/powershell:/mnt/c/Users/PC/AppData/Local/Microsoft/WindowsApps:/mnt/d/install/Microsoft VS Code/bin:/mnt/c/Users/PC/AppData/Local/Python/bin:/mnt/c/Users/PC/AppData/Roaming/npm:/mnt/c/Users/PC/AppData/Local/GitHubDesktop/bin:/mnt/c/Users/PC/.dotnet/tools:/mnt/c/Users/PC/AppData/Local/Programs/Ollama:/mnt/c/Users/PC/AppData/Local/Microsoft/WinGet/Packages/Gyan.FFmpeg_Microsoft.Winget.Source_8wekyb3d8bbwe/ffmpeg-8.1-full_build/bin:/mnt/c/Users/PC/AppData/Local/PowerToys/DSCModules/:/mnt/c/Users/PC/AppData/Local/Microsoft/WinGet/Packages/jqlang.jq_Microsoft.Winget.Source_8wekyb3d8bbwe:/mnt/c/Users/PC/AppData/Local/Microsoft/WinGet/Packages/JohnMacFarlane.Pandoc_Microsoft.Winget.Source_8wekyb3d8bbwe/pandoc-3.9.0.2:/mnt/c/Users/PC/AppData/Local/Microsoft/WinGet/Packages/BurntSushi.ripgrep.MSVC_Microsoft.Winget.Source_8wekyb3d8bbwe/ripgrep-15.1.0-x86_64-pc-windows-msvc:/mnt/c/Users/PC/AppData/Local/Programs/cursor/resources/app/bin:/mnt/c/Users/PC/AppData/Roaming/Python/Python313/Scripts:/mnt/c/Users/PC/.dotnet/tools:/mnt/c/Users/PC/.dotnet/tools:/mnt/c/Users/PC/AppData/Local/ai-memory:/mnt/c/Users/PC/.dotnet/tools:/mnt/c/Users/PC/AppData/Local/omp:/mnt/c/Users/PC/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/mnt/c/Users/PC/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin:/mnt/c/Users/PC/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/git/cmd:/mnt/c/Users/PC/AppData/Local/OpenAI/Codex/bin/c0252f2c8d5faf9a:/mnt/c/Users/PC/AppData/Roaming/npm/node_modules/@codexhost/cli/node_modules/@codexhost/cli-win32-x64/libexec",
+      "PX4_PARAM_COM_OBL_RC_ACT": "4"
+    }
+  },
+  "private_temporary_files": {
+    "root": "/root/wksim-private-tmp-gfzkopob",
+    "mount_namespace": "mnt:[4026532230]",
+    "device": 82,
+    "lower_device": 2096,
+    "artifact_directory": "/root/wksim-private-tmp-gfzkopob/artifacts",
+    "command": [
+      "mount",
+      "-t",
+      "overlay",
+      "overlay",
+      "-o",
+      "lowerdir=/tmp,upperdir=/root/wksim-private-tmp-gfzkopob/upper,workdir=/root/wksim-private-tmp-gfzkopob/work",
+      "/tmp"
+    ],
+    "consumer_directories": []
+  },
+  "launched_binary_sha256": "93b4ebe0d83a5897131ec24ee58d732c8999972bb7730f429fc396bc8d10602a",
+  "launched_agent_sha256": "c61334626f2b625fdee68f7326ca1dabdf788b16d991a0e6879903cf24edb4b7",
+  "actual_control_sha256": {
+    "frames.py": "24086553882b31f0666159a1c9bf2929219420a0184dbb2b6683559d12e809b0",
+    "node.py": "0425b501a4498d5675d99ee2bb36f3e38cb04d6735e1f4d2ead0d4ba03f4a059",
+    "session.py": "da64efa299288738d4520c6a23834c3201c34334f861a8de542fcaa91930b126",
+    "native_px4.py": "de40ae6175c7e1b23908a791b077b310da81a8d5c264ff4af2620a733a4b2fe6",
+    "command.py": "5c23492d761444346a41707cd6027c2fe76acd47db7bd972686fc09ef5f8b25d",
+    "scene.py": "370770a02fdde5e94fc54bed6f7e0d63a4c98c6dcadd0c3616ac1c14529cd333",
+    "shaping.py": "56782d96f9fc6f7df3ddadf80cd8c09f474af81c5c183d20d3d26c2f9e66bc69",
+    "rc_transport.py": "e618c33ba687520160c8d2cfb79b0da30e5047f3036549c47ca357f1c26dc38f",
+    "native_arducopter.py": "00b634da7b3e29b87251020fe1d5d74f88d2039c1312081dea67614eda4dcb2a",
+    "__init__.py": "9a4edb373583bcf6f3d7eaa2522ad1544f63965b0e7f81167f858a0d09d44746"
+  },
+  "error": "TimeoutError: native_navigation_returned",
+  "task": {
+    "sent": [
+      {
+        "header": {
+          "stamp": {
+            "sec": 1789019463,
+            "nanosec": 817231171
+          },
+          "frame_id": "map"
+        },
+        "cmd": 1,
+        "arming": false,
+        "px4_mode": "AUTO.LOITER",
+        "control_state": ""
+      },
+      {
+        "header": {
+          "stamp": {
+            "sec": 1789019464,
+            "nanosec": 780020879
+          },
+          "frame_id": "map"
+        },
+        "cmd": 0,
+        "arming": true,
+        "px4_mode": "",
+        "control_state": ""
+      },
+      {
+        "header": {
+          "stamp": {
+            "sec": 1789019464,
+            "nanosec": 805584458
+          },
+          "frame_id": "map"
+        },
+        "cmd": 3,
+        "arming": false,
+        "px4_mode": "",
+        "control_state": "COMMAND_CONTROL"
+      },
+      {
+        "header": {
+          "stamp": {
+            "sec": 1789019474,
+            "nanosec": 831571165
+          },
+          "frame_id": "map"
+        },
+        "agent_cmd": 4,
+        "control_level": 0,
+        "move_mode": 0,
+        "position_ref": [
+          2.0,
+          3.0,
+          3.0
+        ],
+        "velocity_ref": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "acceleration_ref": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "yaw_ref": 0.0,
+        "yaw_rate_mode": false,
+        "yaw_rate_ref": 0.0,
+        "att_ref": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "latitude": 0.0,
+        "longitude": 0.0,
+        "altitude": 0.0,
+        "command_id": 1
+      },
+      {
+        "header": {
+          "stamp": {
+            "sec": 1789019547,
+            "nanosec": 215520176
+          },
+          "frame_id": "map"
+        },
+        "cmd": 1,
+        "arming": false,
+        "px4_mode": "AUTO.LAND",
+        "control_state": ""
+      }
+    ],
+    "events": [
+      {
+        "event": "native_reset_observed",
+        "event_id": 3,
+        "version": 1,
+        "run_id": "9630fa0eded04fd3b67c56cbe6eae748",
+        "emitted_monotonic_ns": 34809110258,
+        "emitted_unix_ns": 1789019461464024630,
+        "control_epoch": "3eb32327e241464fad73373aac8d87ad",
+        "kinds": [
+          "position"
+        ],
+        "active": false,
+        "request_id": 0
+      },
+      {
+        "event": "native_reset_observed",
+        "event_id": 4,
+        "version": 1,
+        "run_id": "9630fa0eded04fd3b67c56cbe6eae748",
+        "emitted_monotonic_ns": 35009206387,
+        "emitted_unix_ns": 1789019461664120733,
+        "control_epoch": "3eb32327e241464fad73373aac8d87ad",
+        "kinds": [
+          "position"
+        ],
+        "active": false,
+        "request_id": 0
+      },
+      {
+        "event": "native_input_rejected",
+        "event_id": 5,
+        "version": 1,
+        "run_id": "9630fa0eded04fd3b67c56cbe6eae748",
+        "emitted_monotonic_ns": 35549019331,
+        "emitted_unix_ns": 1789019462203933799,
+        "control_epoch": "3eb32327e241464fad73373aac8d87ad",
+        "reason": "unmatched_ack",
+        "source": "ack",
+        "request_identity": [
+          0,
+          118
+        ],
+        "command": 211,
+        "request_id": 0
+      },
+      {
+        "event": "native_reset_observed",
+        "event_id": 6,
+        "version": 1,
+        "run_id": "9630fa0eded04fd3b67c56cbe6eae748",
+        "emitted_monotonic_ns": 35629300183,
+        "emitted_unix_ns": 1789019462284214818,
+        "control_epoch": "3eb32327e241464fad73373aac8d87ad",
+        "kinds": [
+          "position"
+        ],
+        "active": false,
+        "request_id": 0
+      },
+      {
+        "event": "native_reset_observed",
+        "event_id": 7,
+        "version": 1,
+        "run_id": "9630fa0eded04fd3b67c56cbe6eae748",
+        "emitted_monotonic_ns": 37109436324,
+        "emitted_unix_ns": 1789019463764350674,
+        "control_epoch": "3eb32327e241464fad73373aac8d87ad",
+        "kinds": [
+          "position",
+          "yaw"
+        ],
+        "active": false,
+        "request_id": 0
+      },
+      {
+        "event": "setup_received",
+        "event_id": 8,
+        "version": 1,
+        "run_id": "9630fa0eded04fd3b67c56cbe6eae748",
+        "emitted_monotonic_ns": 37169847498,
+        "emitted_unix_ns": 1789019463824762565,
+        "control_epoch": "3eb32327e241464fad73373aac8d87ad",
+        "cmd": 1,
+        "stage": "simple",
+        "request_id": 1
+      },
+      {
+        "event": "native_ack",
+        "event_id": 9,
+        "version": 1,
+        "run_id": "9630fa0eded04fd3b67c56cbe6eae748",
+        "emitted_monotonic_ns": 37179359652,
+        "emitted_unix_ns": 1789019463834274250,
+        "control_epoch": "3eb32327e241464fad73373aac8d87ad",
+        "accepted": true,
+        "reason": "native_result_0",
+        "stage": "simple",
+        "request_id": 1
+      },
+      {
+        "event": "setup_completed",
+        "event_id": 10,
+        "version": 1,
+        "run_id": "9630fa0eded04fd3b67c56cbe6eae748",
+        "emitted_monotonic_ns": 37179788689,
+        "emitted_unix_ns": 1789019463834702755,
+        "control_epoch": "3eb32327e241464fad73373aac8d87ad",
+        "action": "mode",
+        "value": "AUTO.LOITER",
+        "native_mode": "AUTO.LOITER",
+        "request_id": 1
+      },
+      {
+        "event": "setup_received",
+        "event_id": 11,
+        "version": 1,
+        "run_id": "9630fa0eded04fd3b67c56cbe6eae748",
+        "emitted_monotonic_ns": 38132815767,
+        "emitted_unix_ns": 1789019464787730648,
+        "control_epoch": "3eb32327e241464fad73373aac8d87ad",
+        "cmd": 0,
+        "stage": "simple",
+        "request_id": 2
+      },
+      {
+        "event": "native_ack",
+        "event_id": 12,
+        "version": 1,
+        "run_id": "9630fa0eded04fd3b67c56cbe6eae748",
+        "emitted_monotonic_ns": 38149185079,
+        "emitted_unix_ns": 1789019464804099443,
+        "control_epoch": "3eb32327e241464fad73373aac8d87ad",
+        "accepted": true,
+        "reason": "native_result_0",
+        "stage": "simple",
+        "request_id": 2
+      },
+      {
+        "event": "setup_completed",
+        "event_id": 13,
+        "version": 1,
+        "run_id": "9630fa0eded04fd3b67c56cbe6eae748",
+        "emitted_monotonic_ns": 38149509174,
+        "emitted_unix_ns": 1789019464804423204,
+        "control_epoch": "3eb32327e241464fad73373aac8d87ad",
+        "action": "arm",
+        "value": true,
+        "native_mode": "AUTO.LOITER",
+        "request_id": 2
+      },
+      {
+        "event": "takeover_reference",
+        "event_id": 14,
+        "version": 1,
+        "run_id": "9630fa0eded04fd3b67c56cbe6eae748",
+        "emitted_monotonic_ns": 38157876432,
+        "emitted_unix_ns": 1789019464812791357,
+        "control_epoch": "3eb32327e241464fad73373aac8d87ad",
+        "airborne": false,
+        "position_enu_m": [
+          0.04727809876203537,
+          -0.01133427582681179,
+          2.9714508056640625
+        ],
+        "yaw_enu_rad": 0.0,
+        "source_boot_ns": 4188000000,
+        "native_generation": 5,
+        "request_id": 3
+      },
+      {
+        "event": "setup_received",
+        "event_id": 15,
+        "version": 1,
+        "run_id": "9630fa0eded04fd3b67c56cbe6eae748",
+        "emitted_monotonic_ns": 38158245393,
+        "emitted_unix_ns": 1789019464813159444,
+        "control_epoch": "3eb32327e241464fad73373aac8d87ad",
+        "cmd": 3,
+        "stage": "takeoff",
+        "request_id": 3
+      },
+      {
+        "event": "native_ack",
+        "event_id": 16,
+        "version": 1,
+        "run_id": "9630fa0eded04fd3b67c56cbe6eae748",
+        "emitted_monotonic_ns": 38179269112,
+        "emitted_unix_ns": 1789019464834183460,
+        "control_epoch": "3eb32327e241464fad73373aac8d87ad",
+        "accepted": true,
+        "reason": "native_result_0",
+        "stage": "takeoff",
+        "request_id": 3
+      },
+      {
+        "event": "native_reset_observed",
+        "event_id": 17,
+        "version": 1,
+        "run_id": "9630fa0eded04fd3b67c56cbe6eae748",
+        "emitted_monotonic_ns": 44309113296,
+        "emitted_unix_ns": 1789019470964027719,
+        "control_epoch": "3eb32327e241464fad73373aac8d87ad",
+        "kinds": [
+          "yaw"
+        ],
+        "active": true,
+        "request_id": 3
+      },
+      {
+        "event": "native_reset_observed",
+        "event_id": 18,
+        "version": 1,
+        "run_id": "9630fa0eded04fd3b67c56cbe6eae748",
+        "emitted_monotonic_ns": 44319165105,
+        "emitted_unix_ns": 1789019470974079612,
+        "control_epoch": "3eb32327e241464fad73373aac8d87ad",
+        "kinds": [
+          "yaw"
+        ],
+        "active": true,
+        "request_id": 3
+      },
+      {
+        "event": "native_ack",
+        "event_id": 19,
+        "version": 1,
+        "run_id": "9630fa0eded04fd3b67c56cbe6eae748",
+        "emitted_monotonic_ns": 47989213169,
+        "emitted_unix_ns": 1789019474644127583,
+        "control_epoch": "3eb32327e241464fad73373aac8d87ad",
+        "accepted": true,
+        "reason": "native_result_0",
+        "stage": "external",
+        "request_id": 3
+      },
+      {
+        "event": "setup_completed",
+        "event_id": 20,
+        "version": 1,
+        "run_id": "9630fa0eded04fd3b67c56cbe6eae748",
+        "emitted_monotonic_ns": 48169364184,
+        "emitted_unix_ns": 1789019474824278579,
+        "control_epoch": "3eb32327e241464fad73373aac8d87ad",
+        "control_state": "COMMAND_CONTROL",
+        "native_mode": "OFFBOARD",
+        "request_id": 3
+      },
+      {
+        "event": "command_accepted",
+        "event_id": 21,
+        "version": 1,
+        "run_id": "9630fa0eded04fd3b67c56cbe6eae748",
+        "emitted_monotonic_ns": 48177338533,
+        "emitted_unix_ns": 1789019474832253066,
+        "control_epoch": "3eb32327e241464fad73373aac8d87ad",
+        "command_id": 1,
+        "agent_cmd": 4,
+        "request_id": 4
+      },
+      {
+        "event": "control_revoked",
+        "event_id": 22,
+        "version": 1,
+        "run_id": "9630fa0eded04fd3b67c56cbe6eae748",
+        "emitted_monotonic_ns": 61609190506,
+        "emitted_unix_ns": 1789019488264104912,
+        "control_epoch": "3eb32327e241464fad73373aac8d87ad",
+        "reason": "native_navigation_invalid_control_released",
+        "request_id": 4
+      },
+      {
+        "event": "native_reset_observed",
+        "event_id": 23,
+        "version": 1,
+        "run_id": "9630fa0eded04fd3b67c56cbe6eae748",
+        "emitted_monotonic_ns": 68609150706,
+        "emitted_unix_ns": 1789019495264065171,
+        "control_epoch": "3eb32327e241464fad73373aac8d87ad",
+        "kinds": [
+          "position"
+        ],
+        "active": false,
+        "request_id": 4
+      },
+      {
+        "event": "native_reset_observed",
+        "event_id": 24,
+        "version": 1,
+        "run_id": "9630fa0eded04fd3b67c56cbe6eae748",
+        "emitted_monotonic_ns": 76809180042,
+        "emitted_unix_ns": 1789019503464094419,
+        "control_epoch": "3eb32327e241464fad73373aac8d87ad",
+        "kinds": [
+          "position"
+        ],
+        "active": false,
+        "request_id": 4
+      },
+      {
+        "event": "setup_received",
+        "event_id": 25,
+        "version": 1,
+        "run_id": "9630fa0eded04fd3b67c56cbe6eae748",
+        "emitted_monotonic_ns": 120567738016,
+        "emitted_unix_ns": 1789019547222652561,
+        "control_epoch": "3eb32327e241464fad73373aac8d87ad",
+        "cmd": 1,
+        "stage": "simple",
+        "request_id": 5
+      },
+      {
+        "event": "native_ack",
+        "event_id": 26,
+        "version": 1,
+        "run_id": "9630fa0eded04fd3b67c56cbe6eae748",
+        "emitted_monotonic_ns": 120589337806,
+        "emitted_unix_ns": 1789019547244252314,
+        "control_epoch": "3eb32327e241464fad73373aac8d87ad",
+        "accepted": true,
+        "reason": "native_result_0",
+        "stage": "simple",
+        "request_id": 5
+      },
+      {
+        "event": "setup_completed",
+        "event_id": 27,
+        "version": 1,
+        "run_id": "9630fa0eded04fd3b67c56cbe6eae748",
+        "emitted_monotonic_ns": 120609234601,
+        "emitted_unix_ns": 1789019547264149039,
+        "control_epoch": "3eb32327e241464fad73373aac8d87ad",
+        "action": "mode",
+        "value": "AUTO.LAND",
+        "native_mode": "AUTO.LAND",
+        "request_id": 5
+      }
+    ],
+    "protocol": "session_v1",
+    "run_id": "9630fa0eded04fd3b67c56cbe6eae748",
+    "control_epoch": "3eb32327e241464fad73373aac8d87ad",
+    "request_envelopes": [
+      {
+        "version": 1,
+        "run_id": "9630fa0eded04fd3b67c56cbe6eae748",
+        "control_epoch": "3eb32327e241464fad73373aac8d87ad",
+        "request_id": 1,
+        "setup": {
+          "header": {
+            "stamp": {
+              "sec": 1789019463,
+              "nanosec": 817231171
+            },
+            "frame_id": "map"
+          },
+          "cmd": 1,
+          "arming": false,
+          "px4_mode": "AUTO.LOITER",
+          "control_state": ""
+        }
+      },
+      {
+        "version": 1,
+        "run_id": "9630fa0eded04fd3b67c56cbe6eae748",
+        "control_epoch": "3eb32327e241464fad73373aac8d87ad",
+        "request_id": 2,
+        "setup": {
+          "header": {
+            "stamp": {
+              "sec": 1789019464,
+              "nanosec": 780020879
+            },
+            "frame_id": "map"
+          },
+          "cmd": 0,
+          "arming": true,
+          "px4_mode": "",
+          "control_state": ""
+        }
+      },
+      {
+        "version": 1,
+        "run_id": "9630fa0eded04fd3b67c56cbe6eae748",
+        "control_epoch": "3eb32327e241464fad73373aac8d87ad",
+        "request_id": 3,
+        "setup": {
+          "header": {
+            "stamp": {
+              "sec": 1789019464,
+              "nanosec": 805584458
+            },
+            "frame_id": "map"
+          },
+          "cmd": 3,
+          "arming": false,
+          "px4_mode": "",
+          "control_state": "COMMAND_CONTROL"
+        }
+      },
+      {
+        "version": 1,
+        "run_id": "9630fa0eded04fd3b67c56cbe6eae748",
+        "control_epoch": "3eb32327e241464fad73373aac8d87ad",
+        "request_id": 4,
+        "command": {
+          "header": {
+            "stamp": {
+              "sec": 1789019474,
+              "nanosec": 831571165
+            },
+            "frame_id": "map"
+          },
+          "agent_cmd": 4,
+          "control_level": 0,
+          "move_mode": 0,
+          "position_ref": [
+            2.0,
+            3.0,
+            3.0
+          ],
+          "velocity_ref": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "acceleration_ref": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "yaw_ref": 0.0,
+          "yaw_rate_mode": false,
+          "yaw_rate_ref": 0.0,
+          "att_ref": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "latitude": 0.0,
+          "longitude": 0.0,
+          "altitude": 0.0,
+          "command_id": 1
+        }
+      },
+      {
+        "version": 1,
+        "run_id": "9630fa0eded04fd3b67c56cbe6eae748",
+        "control_epoch": "3eb32327e241464fad73373aac8d87ad",
+        "request_id": 5,
+        "setup": {
+          "header": {
+            "stamp": {
+              "sec": 1789019547,
+              "nanosec": 215520176
+            },
+            "frame_id": "map"
+          },
+          "cmd": 1,
+          "arming": false,
+          "px4_mode": "AUTO.LAND",
+          "control_state": ""
+        }
+      }
+    ],
+    "control_restarts": [],
+    "final": {
+      "state": {
+        "header": {
+          "stamp": {
+            "sec": 86,
+            "nanosec": 644000000
+          },
+          "frame_id": "map"
+        },
+        "uav_id": 1,
+        "connected": true,
+        "armed": false,
+        "mode": "AUTO.LAND",
+        "location_source": 4,
+        "odom_valid": true,
+        "gps_status": 3,
+        "gps_num": 10,
+        "position": [
+          1.8976606130599976,
+          2.7684857845306396,
+          -0.01650238037109375
+        ],
+        "range": NaN,
+        "latitude": 40.154056549072266,
+        "longitude": 116.25939178466797,
+        "altitude": 49.98099899291992,
+        "rel_alt": NaN,
+        "velocity": [
+          -0.0013658682582899928,
+          0.0024650604464113712,
+          0.0062260753475129604
+        ],
+        "attitude": [
+          -7.003321661613882e-05,
+          0.0010867636883631349,
+          0.00021988422668073326
+        ],
+        "attitude_q": {
+          "x": -3.507634386532987e-05,
+          "y": 0.0005433779504798303,
+          "z": 0.00010996112658436999,
+          "w": 0.9999998457092899
+        },
+        "attitude_rate": [
+          0.0007226208690553904,
+          0.002080043777823448,
+          0.004341157618910074
+        ],
+        "battery_state": NaN,
+        "battery_percetage": NaN
+      },
+      "control_state": {
+        "header": {
+          "stamp": {
+            "sec": 86,
+            "nanosec": 644000000
+          },
+          "frame_id": "map"
+        },
+        "uav_id": 1,
+        "control_state": 0,
+        "pos_controller": 0,
+        "failsafe": true
+      }
+    },
+    "gnss": {
+      "scene_epoch": "73f90348e01c49418e95fc4b319357e7",
+      "profile": {
+        "schema": "wksim.gnss-flight.v2",
+        "point_enu_m": [
+          2.0,
+          3.0,
+          3.0
+        ],
+        "recovery_point_enu_m": [
+          3.0,
+          2.0,
+          3.0
+        ],
+        "yaw_enu_rad": 0.0,
+        "stable_seconds": 6.0,
+        "position_error_m": 0.3,
+        "speed_mps": 0.3,
+        "yaw_error_rad": 0.15,
+        "lead_ticks": 2000,
+        "outage_ticks": 15000,
+        "maximum_tick": 180000,
+        "max_gps_age_ticks": 500,
+        "recovery_timeout_s": 45.0,
+        "maximum_height_m": 4.5,
+        "minimum_height_m": -0.3,
+        "maximum_axis_tilt_deg": 15.0,
+        "maximum_distance_m": 4.0,
+        "ap_root": "/root/wksim-ap-gnss-flight-20260910-01",
+        "ap_seal_sha256": "c567520ea2204afdc1e9f4eae5fa3fe3782ede825d476517c8a459aab2ed0517",
+        "policy": "withdraw task outputs on native navigation loss; PX4 offboard-loss action explicitly LAND; AP native EKF failsafe retained; fresh native eligibility and a new explicit request required for recovery",
+        "scope": "independent GNSS sensor-chain outage; no Agent-link, hardware, G6 or joint-rate claim",
+        "native_parameters": {
+          "px4": {
+            "COM_OBL_RC_ACT": 4
+          },
+          "arducopter": {}
+        }
+      },
+      "withdrawal": {
+        "event": "control_revoked",
+        "event_id": 22,
+        "version": 1,
+        "run_id": "9630fa0eded04fd3b67c56cbe6eae748",
+        "emitted_monotonic_ns": 61609190506,
+        "emitted_unix_ns": 1789019488264104912,
+        "control_epoch": "3eb32327e241464fad73373aac8d87ad",
+        "reason": "native_navigation_invalid_control_released",
+        "request_id": 4
+      },
+      "phases": [
+        {
+          "phase": "public_ready",
+          "monotonic_ns": 37162247452,
+          "truth": {
+            "time": 3.2,
+            "position": [
+              0.0,
+              0.0,
+              -0.0
+            ],
+            "velocity": [
+              0.0,
+              0.0,
+              -0.0
+            ],
+            "yaw": 1.5707963267948966
+          },
+          "stream_id": "91059eaa0349466ab6029621e3d98c05"
+        },
+        {
+          "phase": "initial_native_hold",
+          "monotonic_ns": 37180819951,
+          "truth": {
+            "time": 3.22,
+            "position": [
+              0.0,
+              0.0,
+              -0.0
+            ],
+            "velocity": [
+              0.0,
+              0.0,
+              -0.0
+            ],
+            "yaw": 1.5707963267948966
+          },
+          "stream_id": "91059eaa0349466ab6029621e3d98c05"
+        },
+        {
+          "phase": "native_prearm_ready",
+          "monotonic_ns": 38125056075,
+          "truth": {
+            "time": 4.16,
+            "position": [
+              0.0,
+              0.0,
+              -0.0
+            ],
+            "velocity": [
+              0.0,
+              0.0,
+              -0.0
+            ],
+            "yaw": 1.5707963267948966
+          },
+          "stream_id": "91059eaa0349466ab6029621e3d98c05"
+        },
+        {
+          "phase": "initial_arm",
+          "monotonic_ns": 38150619103,
+          "truth": {
+            "time": 4.18,
+            "position": [
+              0.0,
+              0.0,
+              -0.0
+            ],
+            "velocity": [
+              0.0,
+              0.0,
+              -0.0
+            ],
+            "yaw": 1.5707963267948966
+          },
+          "stream_id": "91059eaa0349466ab6029621e3d98c05"
+        },
+        {
+          "phase": "initial_takeoff",
+          "monotonic_ns": 48176511532,
+          "truth": {
+            "time": 14.22,
+            "position": [
+              0.009247122968932087,
+              -0.002020291876721149,
+              2.867873255677508
+            ],
+            "velocity": [
+              -0.022816690810970437,
+              -0.010028978668155625,
+              0.4794855873621279
+            ],
+            "yaw": 1.065641695176354
+          },
+          "stream_id": "91059eaa0349466ab6029621e3d98c05"
+        },
+        {
+          "phase": "initial_point_accepted",
+          "monotonic_ns": 48177905130,
+          "truth": {
+            "time": 14.22,
+            "position": [
+              0.009247122968932087,
+              -0.002020291876721149,
+              2.867873255677508
+            ],
+            "velocity": [
+              -0.022816690810970437,
+              -0.010028978668155625,
+              0.4794855873621279
+            ],
+            "yaw": 1.065641695176354
+          },
+          "stream_id": "91059eaa0349466ab6029621e3d98c05"
+        },
+        {
+          "phase": "initial_stable_hold",
+          "monotonic_ns": 58420325425,
+          "truth": {
+            "time": 24.46,
+            "position": [
+              1.9096260092389132,
+              2.9986390057180077,
+              3.039627063577758
+            ],
+            "velocity": [
+              0.011350622776865882,
+              -0.0020144424465899117,
+              -0.018234190951305632
+            ],
+            "yaw": -0.00444325994708894
+          },
+          "stream_id": "91059eaa0349466ab6029621e3d98c05"
+        },
+        {
+          "phase": "gnss_plan_committed",
+          "monotonic_ns": 58440540662,
+          "truth": {
+            "time": 24.48,
+            "position": [
+              1.9098545308782335,
+              2.998602340635422,
+              3.0392608507058476
+            ],
+            "velocity": [
+              0.011499692602152922,
+              -0.0016480314528957072,
+              -0.01836329139490162
+            ],
+            "yaw": -0.004446590363795577
+          },
+          "stream_id": "91059eaa0349466ab6029621e3d98c05"
+        },
+        {
+          "phase": "gnss_outage_planned",
+          "monotonic_ns": 58440618298,
+          "truth": {
+            "time": 24.48,
+            "position": [
+              1.9098545308782335,
+              2.998602340635422,
+              3.0392608507058476
+            ],
+            "velocity": [
+              0.011499692602152922,
+              -0.0016480314528957072,
+              -0.01836329139490162
+            ],
+            "yaw": -0.004446590363795577
+          },
+          "stream_id": "91059eaa0349466ab6029621e3d98c05",
+          "plan": {
+            "control_epoch": "3eb32327e241464fad73373aac8d87ad",
+            "end_tick": 41600,
+            "origin_tick": 24468,
+            "profile_sha256": "5449a73ccfec0e13ddcadde14411fc65f015264c5841e39de10664fa3bb06617",
+            "run_id": "9630fa0eded04fd3b67c56cbe6eae748",
+            "scene_epoch": "73f90348e01c49418e95fc4b319357e7",
+            "start_tick": 26600,
+            "vehicle_id": 1
+          }
+        },
+        {
+          "phase": "gnss_control_withdrawn",
+          "monotonic_ns": 61611804216,
+          "truth": {
+            "time": 27.64,
+            "position": [
+              1.9472869483391564,
+              2.97109001411632,
+              3.0091820202837
+            ],
+            "velocity": [
+              -0.0030201359394259604,
+              -0.030287415334297484,
+              -0.006353985484116383
+            ],
+            "yaw": -0.006886002452305862
+          },
+          "stream_id": "91059eaa0349466ab6029621e3d98c05"
+        },
+        {
+          "phase": "gnss_outage_finished",
+          "monotonic_ns": 75557013460,
+          "truth": {
+            "time": 41.6,
+            "position": [
+              1.8608609301515515,
+              2.7908195588048303,
+              -6.801224390261748e-09
+            ],
+            "velocity": [
+              3.932361449333925e-27,
+              4.0304739058978494e-27,
+              6.853512530333493e-09
+            ],
+            "yaw": -0.005282156570177499
+          },
+          "stream_id": "91059eaa0349466ab6029621e3d98c05"
+        },
+        {
+          "phase": "failure_land",
+          "monotonic_ns": 120639448695,
+          "truth": {
+            "time": 86.68,
+            "position": [
+              1.8608609301515515,
+              2.7908195588048303,
+              -4.028603743571439e-15
+            ],
+            "velocity": [
+              1.3506394489908855e-66,
+              6.941829857240378e-67,
+              4.059852732971216e-15
+            ],
+            "yaw": -0.005282156570177499
+          },
+          "stream_id": "91059eaa0349466ab6029621e3d98c05"
+        },
+        {
+          "phase": "failure_ground",
+          "monotonic_ns": 120641750220,
+          "truth": {
+            "time": 86.68,
+            "position": [
+              1.8608609301515515,
+              2.7908195588048303,
+              -4.028603743571439e-15
+            ],
+            "velocity": [
+              1.3506394489908855e-66,
+              6.941829857240378e-67,
+              4.059852732971216e-15
+            ],
+            "yaw": -0.005282156570177499
+          },
+          "stream_id": "91059eaa0349466ab6029621e3d98c05"
+        }
+      ]
+    }
+  },
+  "cleanup_errors": [],
+  "children_reaped": true,
+  "source_unchanged": true,
+  "candidate_unchanged": true,
+  "wall_seconds": 87.930264032,
+  "stop_kind": "unsuccessful_isolated_teardown"
+}
