@@ -1,0 +1,33 @@
+{
+  "issue": 105,
+  "date": "2026-09-10",
+  "verdict": "injection_path_exists",
+  "vendor_zip": "/mnt/e/rflysimtools/RflySimAPIs/4.RflySimModel/1.BasicExps/e0_MinModelTemp/MulticopterModel.zip",
+  "generated_cpp_sha256": "a35d7c8f39c94f2db8c27b19affee5b66c1b001c63ded334ba83c99f8be54019",
+  "hash_matches_contract": true,
+  "loop_structure": "for (rtb_Sum_i=0; rtb_Sum_i<s297_iter; rtb_Sum_i++) rotor loop; s305_iter=(10*rtb_Sum_i+uavType)-1 indexes angle/dir vectors; rtb_Gain1_i[rtb_Sum_i]=per-rotor omega",
+  "injection_points": [
+    {
+      "symbol": "rtb_Sum_e2_idx_0",
+      "meaning": "PropT = rotorCt*omega^2 per rotor",
+      "line_region": "~4833-4834"
+    },
+    {
+      "symbol": "rotorCm*omega^2 term in rtb_Switch_o",
+      "meaning": "PropM yaw moment per rotor",
+      "line_region": "~4850-4852"
+    }
+  ],
+  "patch_semantics": "multiply PropT and PropM by eta[rtb_Sum_i] before Fb/Mb accumulation; derivative function is re-evaluated per ODE4 substep so all substeps read the same eta within an interval",
+  "native_readback": "new wrapper exports wk_model_set_efficiency(handle,idx,eta)/wk_model_get_efficiency(handle,eta4_out) in Simulator/wksim_core/model.cpp; patch applied post-extraction per build since ZIP is re-unpacked each build",
+  "remaining_prerequisites": [
+    "model/sensor seed readback seam missing (repeat-run blocker per 44-motor-efficiency-contract.md)",
+    "runner not delivered",
+    "budget applicability review before any flight"
+  ],
+  "not_done": [
+    "no source modified",
+    "no build run",
+    "no efficiency event implemented"
+  ]
+}
