@@ -78,6 +78,9 @@ def epoch_run(directory,epoch,generation=1):
     config=validate_joint_config(json.loads((directory/'config.json').read_text()))
     fixed_task=config['task'] in FIXED_TASKS
     aruco_task=config['task'] == ARUCO_TASK
+    async_evidence=os.environ.get('WKSIM_JOINT_ASYNC_EVIDENCE')=='1'
+    if async_evidence and not aruco_task:
+        raise ValueError('Background evidence writes require the explicit ArUco experiment')
     session=json.loads((directory/'session.json').read_text())
     if (set(session)!={'version','run_id','instance_id'} or session['version']!=1
             or session['run_id']!=config['run_id'] or not hex_identity(session['instance_id'])
@@ -91,7 +94,15 @@ def epoch_run(directory,epoch,generation=1):
     view=JointStateWriter(None,config['run_id'],session['instance_id'],epoch,generation)
     physics=None
     clock=SceneClock(epoch)
-    rate_log=(output/'rate.jsonl').open('x',buffering=65536)
+    evidence_streams=[]
+    def open_evidence(path,buffering):
+        if async_evidence:
+            from .evidence_stream import AsyncEvidenceStream
+            stream=AsyncEvidenceStream(path)
+            evidence_streams.append((Path(path).name,stream))
+            return stream
+        return Path(path).open('x',buffering=buffering)
+    rate_log=open_evidence(output/'rate.jsonl',65536)
     write_probe=write_log=None
     if os.environ.get('WKSIM_JOINT_WRITE_TIMING')=='1':
         from .write_timing import WriteTiming
@@ -190,6 +201,8 @@ def epoch_run(directory,epoch,generation=1):
         return child
     def physics_health():
         nonlocal last_child_poll
+        for _,stream in evidence_streams:
+            stream.check()
         if lifecycle is not None:
             lifecycle.periodic()
         now=time.monotonic()
@@ -348,12 +361,13 @@ def epoch_run(directory,epoch,generation=1):
             node=rclpy.create_node('wksim_joint_supervisor')
             resources.callback(node.destroy_node)
             publisher=ClockPublisher(node);resources.callback(publisher.close)
-            monitor=JointMonitor(node,output,clock,write_probe=write_probe);resources.callback(monitor.close)
+            monitor=JointMonitor(node,output,clock,write_probe=write_probe,
+                                 log_factory=open_evidence if async_evidence else None);resources.callback(monitor.close)
             if fixed_task:
                 from tools.pv_trajectory_task import PVProbe
                 probe=PVProbe(node,clock,output,started);resources.callback(probe.close)
-            wire=resources.enter_context((output/'wire.jsonl').open('x',buffering=65536))
-            clocks=resources.enter_context((output/'clock.jsonl').open('x',buffering=65536))
+            wire=resources.enter_context(open_evidence(output/'wire.jsonl',65536))
+            clocks=resources.enter_context(open_evidence(output/'clock.jsonl',65536))
             def record(kind,**fields):
                 text=json.dumps(dict(kind=kind,epoch=epoch,tick=clock.tick,
                     issued_monotonic_s=time.monotonic(),**fields),separators=(',',':'))+'\n'
@@ -364,7 +378,8 @@ def epoch_run(directory,epoch,generation=1):
                 else: clocks.write(text)
             physics=JointPhysics(resources,clock,model_workers,physics_health,record)
             publisher.publish(clock);record_clock(json.dumps(clock.snapshot())+'\n')
-            lifecycle=JointLifecycle(node,clock,publisher,output,config['run_id'],started,monitor,write_probe=write_probe)
+            lifecycle=JointLifecycle(node,clock,publisher,output,config['run_id'],started,monitor,
+                                     write_probe=write_probe,log_factory=open_evidence if async_evidence else None)
             resources.callback(lifecycle.close)
             for stack,uid in (('arducopter',1),('px4',2)):
                 folder=output/stack;folder.mkdir()
@@ -703,13 +718,31 @@ def epoch_run(directory,epoch,generation=1):
         result['display_stream']=dict(sent=view.sent,dropped=view.dropped,sequence=view.sequence,
                                       setup_error=view.setup_error,last_error=view.last_error)
         view.close()
-        rate.close_segment('epoch_retired',clock.tick)
+        evidence_errors=[]
+        try:
+            rate.close_segment('epoch_retired',clock.tick)
+        except Exception as error:
+            evidence_errors.append(dict(stream='rate',phase='final_record',error=repr(error)))
         result['rate']=rate.snapshot(clock.tick)
         result['rate']['last_segment']=rate.last_summary
-        rate_log.close()
+        for name,stream in (evidence_streams if async_evidence else [('rate',rate_log)]):
+            try: stream.close()
+            except Exception as error:
+                evidence_errors.append(dict(stream=name,phase='close',error=repr(error)))
         if write_probe:
             result['write_timing']=write_probe.summary()
-            write_log.close()
+            try: write_log.close()
+            except Exception as error:
+                evidence_errors.append(dict(stream='write-timing',phase='close',error=repr(error)))
+        if async_evidence:
+            result['async_evidence']={name:stream.summary() for name,stream in evidence_streams}
+            for name,summary in result['async_evidence'].items():
+                if summary.get('complete') is not True:
+                    evidence_errors.append(dict(stream=name,phase='completion',error='Evidence writer did not fully retire'))
+        if evidence_errors:
+            result['evidence_errors']=evidence_errors
+            result['status']='failed'
+            result.setdefault('error','Evidence logging failed')
         for sig in (signal.SIGINT,signal.SIGTERM): signal.signal(sig,signal.SIG_IGN)
         result['cleanup_errors']=stop_processes(children)
         for name,child,_ in children:

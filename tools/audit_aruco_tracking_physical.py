@@ -16,6 +16,24 @@ from tools.audit_aruco_flight_scene import audit as audit_geometry
 def digest(path):return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
+def verify_async_evidence(directory,records):
+    names={'wire.jsonl','rate.jsonl','clock.jsonl','public-dds.jsonl','scene-lifecycle.jsonl'}
+    require(isinstance(records,dict) and set(records)==names,'Background evidence stream set differs')
+    result={}
+    for name,record in records.items():
+        size=(directory/name).stat().st_size
+        require(record.get('complete') is True and record.get('closed') is True
+                and record.get('alive') is False and record.get('error') is None,
+                'Background evidence writer did not retire: '+name)
+        require(type(record.get('submitted_bytes')) is int and type(record.get('written_bytes')) is int
+                and record['submitted_bytes']==record['written_bytes']==size,
+                'Background evidence byte counts differ: '+name)
+        require(type(record.get('queue_highwater')) is int and 0<=record['queue_highwater']<=8,
+                'Background evidence queue exceeded the configured bound')
+        result[name]=dict(bytes=size,sha256=digest(directory/name))
+    return result
+
+
 def evaluate_trace(path,epoch,first,end,anchor,anchor_rotation,profile,selected):
     """Every committed physics tick participates; no task/vision estimates used."""
     mission=profile['mission'];desired=np.asarray(profile['controller']['desired_body_flu_m'])
@@ -73,6 +91,11 @@ def audit(root):
             and not result['flight_completed'] and not result['changed_sources'] and not result['cleanup_errors'],
             'Candidate scope or source/cleanup integrity differs')
     require(result['authority']['fault'] is None,'Candidate retained an unresolved authority/rate fault')
+    asynchronous=None
+    if report.get('async_evidence') is True:
+        asynchronous=verify_async_evidence(directory,result.get('async_evidence'))
+    else:
+        require('async_evidence' not in result,'Unexpected background evidence writer mode')
     require(result['source_sha256']['Simulator/wksim_runtime/aruco-tracking-v1.json']==report['profile_sha256'],
             'Coordinator and actual runtime used different tracking budgets')
     tasks=list(result['tasks'].values())
@@ -94,7 +117,8 @@ def audit(root):
            for stack in ('arducopter','px4')}
     return dict(status='pass' if geometry['status']=='pass' and all(v['status']=='pass' for v in proof.values()) else 'failed',
         scope='Physical per-tick tracking, image geometry and camera loss/recovery only; raw DDS/public/native chain remains required',
-        report_sha256=digest(root/'report.json'),auditor_sha256=digest(__file__),geometry=geometry,physics=proof)
+        report_sha256=digest(root/'report.json'),auditor_sha256=digest(__file__),geometry=geometry,physics=proof,
+        asynchronous_evidence=asynchronous)
 
 
 if __name__=='__main__':

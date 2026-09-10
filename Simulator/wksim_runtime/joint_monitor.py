@@ -7,7 +7,7 @@ from .task import valid_state
 
 
 class JointMonitor:
-    def __init__(self,node,directory,clock,*,write_probe=None):
+    def __init__(self,node,directory,clock,*,write_probe=None,log_factory=None):
         import rclpy
         from rclpy.serialization import serialize_message
         from rclpy.qos import QoSProfile,ReliabilityPolicy
@@ -17,7 +17,8 @@ class JointMonitor:
         self.sessions,self.received,self.subscriptions={},{},[]
         self.phase='starting'
         self.write_probe=write_probe
-        self.log=(directory/'public-dds.jsonl').open('x',buffering=65536)
+        self.log=(log_factory(directory/'public-dds.jsonl',65536) if log_factory else
+                  (directory/'public-dds.jsonl').open('x',buffering=65536))
         for uid in (1,2):
             for suffix,cls in (('v2/state',SessionState),('text_info',TextInfo)):
                 name=f'/uav{uid}/prometheus/{suffix}'

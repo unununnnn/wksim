@@ -1,0 +1,206 @@
+"""Experimental opt-in asynchronous evidence writer (never the default).
+
+The default production evidence path stays synchronous; this module exists
+only for explicit experiment opt-in (tracking-07/02 evidence showed real
+synchronous writes of 401/491 characters costing 10.18/3.17 ms).
+
+Deep module behind a small interface: ``write(str) -> int``, ``check()``,
+``close()``, ``summary()`` and the context manager. The main thread only
+buffers and does bounded ``queue.put_nowait``; a single daemon thread owns the
+file descriptor and performs raw ``os.write`` with partial-write handling.
+
+Invariants:
+- UTF-8/LF bytes and call order are preserved exactly; accepted bytes are
+  fully written before a normal close returns.
+- A full queue fails the write immediately and explicitly; records are never
+  dropped, overwritten, or silently backlogged, and the main thread never
+  blocks to hide a slow disk.
+- One single write larger than queue_blocks * block_size fails at once.
+- The file is created with O_EXCL: existing originals are never overwritten
+  or deleted, including failed runs.
+- A background I/O error is raised at the next write/check/close.
+- close is bounded (close_timeout) and never joins forever; on timeout the
+  daemon thread still holds only a raw os fd (no Python buffered-IO
+  finalization lock), so process exit is never blocked. The main thread never
+  closes the fd while the background thread may still write to it.
+- summary() reports submitted/written bytes, queue high-water, alive, error,
+  closed; ``complete`` is true only after every accepted byte is written and
+  the writer thread has exited.
+
+No ROS, no commands, no clocks. Test seam (internal, not for callers):
+``_writer`` replaces os.write and ``_opener`` replaces os.open.
+"""
+import os
+import queue
+import threading
+
+
+class EvidenceStreamError(RuntimeError):
+    """Explicit evidence-stream failure: full queue, I/O error, close timeout."""
+
+
+class AsyncEvidenceStream:
+    def __init__(self, path, block_size=65536, queue_blocks=8, close_timeout=5,
+                 *, _writer=None, _opener=None):
+        for value, name in ((block_size, 'block_size'), (queue_blocks, 'queue_blocks')):
+            if not isinstance(value, int) or isinstance(value, bool) or value < 1:
+                raise ValueError(f'{name} must be a positive integer')
+        if (not isinstance(close_timeout, (int, float)) or isinstance(close_timeout, bool)
+                or not 0 <= close_timeout):
+            raise ValueError('close_timeout must be a non-negative number')
+        self._block_size = block_size
+        self._close_timeout = float(close_timeout)
+        self._capacity = block_size * queue_blocks
+        opener = _opener or os.open
+        self._writer = _writer or os.write
+        fd = opener(os.fspath(path), os.O_WRONLY | os.O_CREAT | os.O_EXCL
+                    | getattr(os, 'O_BINARY', 0), 0o600)
+        self._queue = queue.Queue(maxsize=queue_blocks)
+        self._pending = bytearray()
+        self._submitted = 0
+        self._written = 0
+        self._highwater = 0
+        self._error = None        # Background I/O error, raised at next contact.
+        self._failed = None       # Main-thread failure (full queue, oversize).
+        self._alive = True
+        self._closed = False
+        self._close_latched = None
+        try:
+            self._thread = threading.Thread(target=self._run, args=(fd,),
+                                            name='wksim-evidence-writer', daemon=True)
+            self._thread.start()
+        except BaseException:
+            os.close(fd)
+            raise
+
+    def _run(self, fd):
+        """The only writer of the file; owns and always closes the fd."""
+        try:
+            while True:
+                block = self._queue.get()
+                if block is None:
+                    break
+                view = memoryview(block)
+                while view:
+                    written = self._writer(fd, view)
+                    if not isinstance(written, int) or written < 0 or written > len(view):
+                        raise EvidenceStreamError('writer returned an invalid byte count')
+                    if written == 0:
+                        raise EvidenceStreamError('writer made no progress')
+                    view = view[written:]
+                self._written += len(block)
+        except BaseException as error:
+            self._error = error
+            # The stream is broken; drain without writing so close can finish.
+            while True:
+                try:
+                    item = self._queue.get_nowait()
+                except queue.Empty:
+                    break
+                if item is None:
+                    break
+        finally:
+            try:
+                os.close(fd)
+            finally:
+                self._alive = False
+
+    def _raise_failed(self):
+        if self._failed is not None:
+            raise self._failed
+        if self._error is not None:
+            raise self._error
+
+    def write(self, text):
+        """Queue one record; returns its byte count or raises explicitly."""
+        if self._closed:
+            raise ValueError('evidence stream is closed')
+        self._raise_failed()
+        if not isinstance(text, str):
+            raise TypeError('evidence records are str')
+        data = text.encode('utf-8')  # Strict: surrogates raise here.
+        if len(data) > self._capacity:
+            failure = EvidenceStreamError(
+                f'single write of {len(data)} bytes exceeds the {self._capacity}-byte stream capacity')
+            self._failed = failure
+            raise failure
+        self._pending += data
+        self._submitted += len(data)
+        while len(self._pending) >= self._block_size:
+            self._enqueue(bytes(self._pending[:self._block_size]))
+            del self._pending[:self._block_size]
+        return len(data)
+
+    def _enqueue(self, block):
+        try:
+            self._queue.put_nowait(block)
+        except queue.Full:
+            failure = EvidenceStreamError('evidence queue is full; refusing to drop or block')
+            self._failed = failure
+            raise failure
+        if self._queue.qsize() > self._highwater:
+            self._highwater = self._queue.qsize()
+
+    def check(self):
+        """Raise any latched write/I/O failure; otherwise return None."""
+        self._raise_failed()
+
+    def close(self):
+        """Bounded drain and shutdown; idempotent (latched outcome is repeated)."""
+        if self._close_latched is not None:
+            if self._close_latched is not True:
+                raise self._close_latched
+            return
+        deadline = threading.Event()
+        timer = threading.Timer(self._close_timeout, deadline.set)
+        timer.start()
+        error = None
+        try:
+            if not self._closed:
+                try:
+                    if self._failed is None and self._pending:
+                        self._enqueue(bytes(self._pending))
+                        self._pending = bytearray()
+                    self._queue.put(self._sentinel(), timeout=self._close_timeout)
+                except queue.Full:
+                    error = EvidenceStreamError('evidence close could not enqueue terminator in time')
+                self._closed = True
+            if error is None:
+                while not deadline.is_set():
+                    self._thread.join(timeout=0.05)
+                    if not self._thread.is_alive():
+                        break
+                if self._thread.is_alive():
+                    error = EvidenceStreamError('evidence close timed out; accepted bytes may be unwritten')
+            if self._failed is not None:
+                error = self._failed
+            if self._error is not None:
+                error = self._error
+        finally:
+            timer.cancel()
+        self._close_latched = error if error is not None else True
+        if error is not None:
+            raise error
+
+    @staticmethod
+    def _sentinel():
+        return None
+
+    def summary(self):
+        return {
+            'submitted_bytes': self._submitted,
+            'written_bytes': self._written,
+            'queue_highwater': self._highwater,
+            'alive': self._alive,
+            'error': None if self._error is None else repr(self._error),
+            'closed': self._closed,
+            'complete': (self._closed and not self._alive and self._error is None
+                         and self._failed is None and self._written == self._submitted),
+        }
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc, trace):
+        self.close()
+        return False

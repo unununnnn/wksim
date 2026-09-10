@@ -77,7 +77,7 @@ def observation(binding,frame,target,sequence):
         target=target,image_sha256=hashlib.sha256(Path(frame['image_path']).read_bytes()).hexdigest())
 
 
-def run(manifest,output,candidate,*,cpu_timing=False,write_timing=False):
+def run(manifest,output,candidate,*,cpu_timing=False,write_timing=False,async_evidence=False):
     candidate=validate_experiment(candidate)
     output=output.resolve();output.mkdir(parents=True,exist_ok=False)
     profile_path=ROOT/'Simulator/wksim_runtime/aruco-tracking-v1.json'
@@ -91,7 +91,7 @@ def run(manifest,output,candidate,*,cpu_timing=False,write_timing=False):
     report=dict(status='failed',scope=__doc__,config=config,settings=settings,profile=profile,
         profile_sha256=hashlib.sha256(profile_raw).hexdigest(),frames=[],observations=[],
         started_unix_s=time.time(),manifest=str(manifest.resolve()),source_sha256={},cpu_timing=cpu_timing,
-        write_timing=write_timing)
+        write_timing=write_timing,async_evidence=async_evidence)
     names=['tools/run_aruco_tracking.py','Simulator/ue55/rgb.py',
            'Simulator/wksim_console/visual.py','Simulator/wksim_perception/aruco.py',
            'Simulator/wksim_perception/target_intent.py','Simulator/wksim_runtime/aruco-tracking-v1.json']
@@ -112,6 +112,7 @@ def run(manifest,output,candidate,*,cpu_timing=False,write_timing=False):
            wsl_path(output/'config.json'),'--output-root',runs]
     if cpu_timing:entry.insert(2,'WKSIM_JOINT_CPU_TIMING=1')
     if write_timing:entry.insert(2,'WKSIM_JOINT_WRITE_TIMING=1')
+    if async_evidence:entry.insert(2,'WKSIM_JOINT_ASYNC_EVIDENCE=1')
     manager=view=reader=None;binding=None
     def action(name):
         state=read(shared/'status.json')
@@ -238,7 +239,8 @@ if __name__=='__main__':
     parser.add_argument('--candidate',type=Path,required=True,help='Explicit selected stack and Control/PX4 build manifest pins')
     parser.add_argument('--cpu-timing',action='store_true',help='Opt-in existing per-stage and per-stack wait timing probe')
     parser.add_argument('--write-timing',action='store_true',help='Measure actual synchronous evidence write calls')
+    parser.add_argument('--async-evidence',action='store_true',help='Explicit bounded background JSONL evidence writer experiment')
     args=parser.parse_args();result=run(args.manifest,args.output,read(args.candidate),cpu_timing=args.cpu_timing,
-                                      write_timing=args.write_timing)
+                                      write_timing=args.write_timing,async_evidence=args.async_evidence)
     print(json.dumps({key:result.get(key) for key in ('status','error','cleanup_error','manager_returncode')}))
     raise SystemExit(result['status']!='captured_pending_independent_audit')

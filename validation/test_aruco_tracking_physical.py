@@ -4,13 +4,27 @@ from pathlib import Path
 import tempfile
 import unittest
 import numpy as np
-from tools.audit_aruco_tracking_physical import evaluate_trace
+from tools.audit_aruco_tracking_physical import evaluate_trace,verify_async_evidence
 
 PROFILE=json.loads((Path(__file__).resolve().parents[1]/'Simulator/wksim_runtime/aruco-tracking-v1.json').read_text())
 EPOCH='a'*32
 
 
 class PhysicalAuditTests(unittest.TestCase):
+    def test_async_completion_cannot_hide_truncated_file_or_live_writer(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp);records={}
+            for name in ('wire.jsonl','rate.jsonl','clock.jsonl','public-dds.jsonl','scene-lifecycle.jsonl'):
+                (root/name).write_bytes(b'{}\n')
+                records[name]=dict(complete=True,closed=True,alive=False,error=None,
+                                   submitted_bytes=3,written_bytes=3,queue_highwater=1)
+            self.assertEqual(len(verify_async_evidence(root,records)),5)
+            (root/'wire.jsonl').write_bytes(b'{}')
+            with self.assertRaisesRegex(ValueError,'byte counts'):verify_async_evidence(root,records)
+            (root/'wire.jsonl').write_bytes(b'{}\n')
+            records['wire.jsonl']['alive']=True
+            with self.assertRaisesRegex(ValueError,'did not retire'):verify_async_evidence(root,records)
+
     def run_trace(self,change=None):
         with tempfile.TemporaryDirectory() as tmp:
             path=Path(tmp)/'truth.jsonl'

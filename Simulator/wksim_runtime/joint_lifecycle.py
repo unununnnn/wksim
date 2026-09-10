@@ -13,7 +13,7 @@ from prometheus_control.scene import TOPIC, PERIOD_SECONDS, LEASE_SECONDS
 
 
 class JointLifecycle:
-    def __init__(self, node, clock, publisher, directory, run_id, started, observer, *, write_probe=None):
+    def __init__(self, node, clock, publisher, directory, run_id, started, observer, *, write_probe=None,log_factory=None):
         import rclpy
         from std_msgs.msg import String
         from rclpy.serialization import serialize_message
@@ -25,7 +25,8 @@ class JointLifecycle:
         self.write_probe = write_probe
         self.faulted_uav_ids = []
         self.acks, self.events, self.completed = {}, [], False
-        self.log = (directory/'scene-lifecycle.jsonl').open('x', buffering=1)
+        self.log = (log_factory(directory/'scene-lifecycle.jsonl',1) if log_factory else
+                    (directory/'scene-lifecycle.jsonl').open('x', buffering=1))
         self.publisher = node.create_publisher(String, TOPIC, 1)
         self.subscriptions = [node.create_subscription(String, TOPIC+f'/control/uav{uid}',
             lambda message, uid=uid: self.receive(uid, message), 1) for uid in (1, 2)]

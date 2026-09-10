@@ -27,9 +27,12 @@ def replay(directory):
     for name in sorted({r['stream'] for r in measurements}):
         selected={r['call']:r for r in measurements if r['stream']==name}
         raw=RawSink()
-        stream=io.TextIOWrapper(io.BufferedWriter(raw,buffer_size=65536),encoding='utf-8',newline=None)
+        line_buffered=name=='lifecycle'
+        stream=io.TextIOWrapper(io.BufferedWriter(raw,buffer_size=io.DEFAULT_BUFFER_SIZE if line_buffered else 65536),
+                               encoding='utf-8',newline=None,line_buffering=line_buffered)
         rows=[];characters=0
-        with (directory/(name+'.jsonl')).open(encoding='utf-8',newline='') as source:
+        filename='scene-lifecycle.jsonl' if line_buffered else name+'.jsonl'
+        with (directory/filename).open(encoding='utf-8',newline='') as source:
             for ordinal,line in enumerate(source,1):
                 raw.call=ordinal;before=raw.position;old_count=len(raw.writes)
                 stream.write(line);characters+=len(line)
