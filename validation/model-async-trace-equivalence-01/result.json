@@ -1,0 +1,63 @@
+{
+  "status": "verified",
+  "scope": "Same-build RPC and accepted-input trace equivalence; not a flight/G6 accuracy gate",
+  "samples": 1000,
+  "epoch": "ddee91c219cf41348d8c6b528c7dcd78",
+  "library": "/root/wksim-private-tmp-bhi18a3s/artifacts/wksim-model-qhdy93lm/libwksim_model.so",
+  "library_sha256": "cc0bc2d10790043251f38bb6a53f4d774379dd37a02b09cceba43ac1fafb02b3",
+  "results": {
+    "sync": {
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "-m",
+        "Simulator.wksim_core.worker",
+        "--library",
+        "/root/wksim-private-tmp-bhi18a3s/artifacts/wksim-model-qhdy93lm/libwksim_model.so",
+        "--trace",
+        "/root/wksim-model-trace-jrdii_0j/sync.jsonl",
+        "--epoch",
+        "ddee91c219cf41348d8c6b528c7dcd78"
+      ],
+      "returncode": 0,
+      "trace_path": "/root/wksim-model-trace-jrdii_0j/sync.jsonl",
+      "trace_sha256": "c86f758d695f566952b5049e082bd5eac5319bb27e428ab7d60223b1e8239ba9",
+      "response_sha256": "5739301fbadee365b65e4c0499a1d41ed5c628935ca195b3afac0040973dc6b7"
+    },
+    "async": {
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "-m",
+        "Simulator.wksim_core.worker",
+        "--library",
+        "/root/wksim-private-tmp-bhi18a3s/artifacts/wksim-model-qhdy93lm/libwksim_model.so",
+        "--trace",
+        "/root/wksim-model-trace-jrdii_0j/async.jsonl",
+        "--epoch",
+        "ddee91c219cf41348d8c6b528c7dcd78",
+        "--async-evidence"
+      ],
+      "returncode": 0,
+      "trace_path": "/root/wksim-model-trace-jrdii_0j/async.jsonl",
+      "trace_sha256": "c86f758d695f566952b5049e082bd5eac5319bb27e428ab7d60223b1e8239ba9",
+      "response_sha256": "5739301fbadee365b65e4c0499a1d41ed5c628935ca195b3afac0040973dc6b7"
+    }
+  },
+  "writer": {
+    "submitted_bytes": 1861612,
+    "written_bytes": 1861612,
+    "queue_highwater": 2,
+    "alive": false,
+    "closed": true,
+    "error": null,
+    "io_calls": 29,
+    "max_io_wall_ns": 1482403,
+    "complete": true
+  },
+  "sources": {
+    "Simulator/wksim_core/worker.py": "ede00972fb2014703af74d02455bf1c5166aa8a50fb6bb59d476f13d2d4054d6",
+    "Simulator/wksim_runtime/evidence_stream.py": "5da11def8fb881293cfd77c54f5aaa6d66a39045fd602d8c5d02bc257f911de7",
+    "tools/check_model_trace_stream.py": "37189ecce161c0de410e5179cf47a8940b450a31319180707882546e3b6ea098"
+  }
+}

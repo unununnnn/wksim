@@ -95,19 +95,35 @@ def validate_response(response, epoch, tick):
     return response
 
 
-def model_worker(library, trace, epoch):
+def model_worker(library, trace, epoch, *, async_evidence=False):
     """Run exactly one Model; EOF closes normally, invalid input raises."""
     global _started
     _epoch(epoch)
     if _started:
         raise RuntimeError('Only one Model lifetime is allowed per worker process')
     _started = True
-    with Path(trace).open('x', encoding='utf-8', buffering=1) as log, Model(library) as model:
+    if async_evidence:
+        from Simulator.wksim_runtime.evidence_stream import AsyncEvidenceStream
+        log = AsyncEvidenceStream(trace, close_timeout=2)
+    else:
+        log = Path(trace).open('x', encoding='utf-8', buffering=1)
+    try:
+        return _worker_loop(library, log, epoch, async_evidence)
+    finally:
+        if async_evidence:
+            with Path(str(trace)+'.writer.json').open('x', encoding='utf-8') as output:
+                json.dump(log.summary(), output, indent=2)
+
+
+def _worker_loop(library, log, epoch, async_evidence):
+    with log, Model(library) as model:
         state = None
         while True:
             line = sys.stdin.readline(REQUEST_LIMIT + 1)
             if not line:
                 return
+            if async_evidence:
+                log.check()
             request = parse_frame(line, REQUEST_LIMIT)
             commands = step_request(request, model.ticks, epoch)
             if commands is not None:
@@ -252,5 +268,6 @@ if __name__ == '__main__':
     parser.add_argument('--library', type=Path, required=True)
     parser.add_argument('--trace', type=Path, required=True)
     parser.add_argument('--epoch', required=True)
+    parser.add_argument('--async-evidence', action='store_true')
     args = parser.parse_args()
-    model_worker(args.library, args.trace, args.epoch)
+    model_worker(args.library, args.trace, args.epoch, async_evidence=args.async_evidence)

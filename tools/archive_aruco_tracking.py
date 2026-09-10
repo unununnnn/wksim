@@ -22,6 +22,7 @@ def archive(root):
     files.extend(p for p in (root/'run').iterdir() if p.is_file() and p.suffix=='.json')
     names={'wire.jsonl','rate.jsonl','clock.jsonl','write-timing.jsonl','public-dds.jsonl','scene-lifecycle.jsonl',
            'arducopter-truth.jsonl','px4-truth.jsonl','children.json','preflight.json','result.json',
+           'arducopter-truth.jsonl.writer.json','px4-truth.jsonl.writer.json',
            'px4-setup-observer.jsonl','px4-control.log','arducopter-control.log','px4-fc.log','arducopter-fc.log'}
     for epoch in (root/'run/epochs').iterdir():
         files.extend(p for p in epoch.iterdir() if p.is_file() and (p.name in names or p.name.endswith('-maps.txt')))

@@ -96,6 +96,24 @@ def audit(root):
         asynchronous=verify_async_evidence(directory,result.get('async_evidence'))
     else:
         require('async_evidence' not in result,'Unexpected background evidence writer mode')
+    model_writers=None
+    if report.get('async_model_evidence') is True:
+        records=result.get('async_model_evidence')
+        require(isinstance(records,dict) and set(records)=={'arducopter','px4'},'Missing model trace writer records')
+        model_writers={}
+        for stack,record in records.items():
+            path=directory/(stack+'-truth.jsonl')
+            require(json.loads(Path(str(path)+'.writer.json').read_text())==record,'Model writer summary changed')
+            require(record.get('complete') is True and record.get('alive') is False
+                    and record.get('closed') is True and record.get('error') is None,
+                    'Model trace writer did not retire')
+            require(type(record.get('written_bytes')) is int and type(record.get('submitted_bytes')) is int
+                    and record['written_bytes']==record['submitted_bytes']==path.stat().st_size
+                    and type(record.get('queue_highwater')) is int and 0<=record['queue_highwater']<=8,
+                    'Model trace writer byte counts/queue bound differ')
+            model_writers[stack]=dict(bytes=record['written_bytes'],sha256=digest(path))
+    else:
+        require('async_model_evidence' not in result,'Unexpected background model trace writer mode')
     require(result['source_sha256']['Simulator/wksim_runtime/aruco-tracking-v1.json']==report['profile_sha256'],
             'Coordinator and actual runtime used different tracking budgets')
     tasks=list(result['tasks'].values())
@@ -118,7 +136,7 @@ def audit(root):
     return dict(status='pass' if geometry['status']=='pass' and all(v['status']=='pass' for v in proof.values()) else 'failed',
         scope='Physical per-tick tracking, image geometry and camera loss/recovery only; raw DDS/public/native chain remains required',
         report_sha256=digest(root/'report.json'),auditor_sha256=digest(__file__),geometry=geometry,physics=proof,
-        asynchronous_evidence=asynchronous)
+        asynchronous_evidence=asynchronous,asynchronous_model_evidence=model_writers)
 
 
 if __name__=='__main__':

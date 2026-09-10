@@ -79,7 +79,8 @@ def epoch_run(directory,epoch,generation=1):
     fixed_task=config['task'] in FIXED_TASKS
     aruco_task=config['task'] == ARUCO_TASK
     async_evidence=os.environ.get('WKSIM_JOINT_ASYNC_EVIDENCE')=='1'
-    if async_evidence and not aruco_task:
+    async_model_evidence=os.environ.get('WKSIM_JOINT_ASYNC_MODEL_EVIDENCE')=='1'
+    if (async_evidence or async_model_evidence) and not aruco_task:
         raise ValueError('Background evidence writes require the explicit ArUco experiment')
     session=json.loads((directory/'session.json').read_text())
     if (set(session)!={'version','run_id','instance_id'} or session['version']!=1
@@ -189,8 +190,11 @@ def epoch_run(directory,epoch,generation=1):
         # the applied policy is recorded, never silently assumed.
         if role in ('model','fc'):
             try:
-                os.sched_setscheduler(child.pid,os.SCHED_FIFO,os.sched_param(40))
+                reset_model_threads=role=='model' and async_model_evidence
+                policy=os.SCHED_FIFO | (os.SCHED_RESET_ON_FORK if reset_model_threads else 0)
+                os.sched_setscheduler(child.pid,policy,os.sched_param(40))
                 record['scheduler']=dict(policy='SCHED_FIFO',priority=40,
+                                         reset_on_fork=reset_model_threads,
                                          actual_policy=os.sched_getscheduler(child.pid))
             except OSError as error:
                 record['scheduler']=dict(policy='SCHED_FIFO',priority=40,error=repr(error))
@@ -396,6 +400,7 @@ def epoch_run(directory,epoch,generation=1):
                 (folder/'dds.parm').write_text('DDS_ENABLE 1\nDDS_UDP_PORT 12019\nDDS_DOMAIN_ID 77\n')
                 argv=[sys.executable,'-B','-m','Simulator.wksim_core.worker','--library',str(library),
                       '--trace',str(output/(stack+'-truth.jsonl')),'--epoch',epoch]
+                if async_model_evidence: argv.append('--async-evidence')
                 log=(output/(stack+'-model.log')).open('x')
                 child=subprocess.Popen(argv,cwd=folder,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=log,text=True)
                 name=stack+'-model';children.append((name,child,log));model_workers[stack]=child
@@ -787,6 +792,22 @@ def epoch_run(directory,epoch,generation=1):
                     result.setdefault('task_report_errors',[]).append(dict(task=name,error=str(error)))
                     result['status']='failed'
                     result.setdefault('error','Deferred task report validation failed')
+        if async_model_evidence:
+            result['async_model_evidence']={}
+            for stack in ('arducopter','px4'):
+                try:
+                    path=output/(stack+'-truth.jsonl.writer.json')
+                    summary=json.loads(path.read_text())
+                    if (summary.get('complete') is not True or summary.get('alive') is not False
+                            or summary.get('error') is not None or summary.get('closed') is not True
+                            or summary.get('submitted_bytes')!=summary.get('written_bytes')
+                            or summary.get('written_bytes')!=(output/(stack+'-truth.jsonl')).stat().st_size):
+                        raise ValueError('Model trace writer did not retire with complete bytes')
+                    result['async_model_evidence'][stack]=summary
+                except (OSError,ValueError,TypeError) as error:
+                    result.setdefault('model_evidence_errors',[]).append(dict(stack=stack,error=str(error)))
+                    result['status']='failed'
+                    result.setdefault('error','Model trace evidence incomplete')
         if result['host_boot_id']!=host_boot_id():
             result['status']='failed';result['error']='Host boot identity changed'
         result['wall_seconds']=time.monotonic()-started
