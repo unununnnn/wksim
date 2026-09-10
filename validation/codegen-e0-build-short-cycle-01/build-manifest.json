@@ -1,0 +1,105 @@
+{
+  "build_id": "short-cycle-01",
+  "generation_run_id": "short-cycle-codegen-01",
+  "staged_sources": {
+    "Exp1_MinModelTemp.cpp": {
+      "source_path": "C:\\Users\\PC\\Documents\\odid编译\\wksim\\work\\codegen-e0\\short-cycle-codegen-01\\codegen\\Exp1_MinModelTemp_ert_rtw\\Exp1_MinModelTemp.cpp",
+      "wsl_staged_path": "/root/wksim-codegen-e0-build-short-cycle-01/Exp1_MinModelTemp.cpp",
+      "sha256": "2c25b3fa08c996c8f2ed1a7feae5558062cd722ae5d350cc8a25caf2be10b274",
+      "size_bytes": 327598
+    },
+    "Exp1_MinModelTemp.h": {
+      "source_path": "C:\\Users\\PC\\Documents\\odid编译\\wksim\\work\\codegen-e0\\short-cycle-codegen-01\\codegen\\Exp1_MinModelTemp_ert_rtw\\Exp1_MinModelTemp.h",
+      "wsl_staged_path": "/root/wksim-codegen-e0-build-short-cycle-01/Exp1_MinModelTemp.h",
+      "sha256": "7601dbd721f0502e4bd67758d86cc21abf8e5c9568a31fb3160283df1df8c4bc",
+      "size_bytes": 141379
+    },
+    "rtwtypes.h": {
+      "source_path": "C:\\Users\\PC\\Documents\\odid编译\\wksim\\work\\codegen-e0\\short-cycle-codegen-01\\codegen\\Exp1_MinModelTemp_ert_rtw\\rtwtypes.h",
+      "wsl_staged_path": "/root/wksim-codegen-e0-build-short-cycle-01/rtwtypes.h",
+      "sha256": "1b08664b70d40d08ee2952ca47254bd16a9e045be8b5edc9781fe620fb7c199f",
+      "size_bytes": 4520
+    },
+    "model.cpp": {
+      "source_path": "C:\\Users\\PC\\Documents\\odid编译\\wksim\\Simulator\\wksim_core\\model.cpp",
+      "wsl_staged_path": "/root/wksim-codegen-e0-build-short-cycle-01/model.cpp",
+      "sha256": "3f325678b1d85c9aa3fd07bd644d82935aa26d82885926defeced139f02ddf2c",
+      "size_bytes": 1864
+    },
+    "rtw_continuous.h": {
+      "source_path": "D:\\matlab\\install date\\simulink\\include\\rtw_continuous.h",
+      "wsl_staged_path": "/root/wksim-codegen-e0-build-short-cycle-01/rtw_continuous.h",
+      "sha256": "8f2c78fdc5a097552078484c738aefcc944463c8834d2ca6319b76cedf526b18",
+      "size_bytes": 4353
+    },
+    "rtw_solver.h": {
+      "source_path": "D:\\matlab\\install date\\simulink\\include\\rtw_solver.h",
+      "wsl_staged_path": "/root/wksim-codegen-e0-build-short-cycle-01/rtw_solver.h",
+      "sha256": "359ff69aa94a137e8b246721ead52e056dd4fdf11c35a7f92ebb9f14e0cda674",
+      "size_bytes": 10634
+    }
+  },
+  "excluded_files": [
+    "ert_main.cpp"
+  ],
+  "toolchain": {
+    "compiler": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0",
+    "flags": [
+      "-std=c++17",
+      "-O2",
+      "-fno-fast-math",
+      "-fPIC",
+      "-shared",
+      "-Wl,--no-undefined"
+    ],
+    "compile_command": "cd '/root/wksim-codegen-e0-build-short-cycle-01' && g++ -std=c++17 -O2 -fno-fast-math -fPIC -shared -Wl,--no-undefined -I. Exp1_MinModelTemp.cpp model.cpp -o 'libwksim_e0.so'"
+  },
+  "output_library": {
+    "filename": "libwksim_e0.so",
+    "sha256": "7da6853201b89238c273f2e1360ad21fe479e267d0ed08cf3500f98bf535505e",
+    "size_bytes": 87312
+  },
+  "ldd_audit": {
+    "clean": true,
+    "dependencies": [
+      "linux-vdso.so.1",
+      "libstdc++.so.6",
+      "libm.so.6",
+      "libc.so.6",
+      "/lib64/ld-linux-x86-64.so.2",
+      "libgcc_s.so.1"
+    ],
+    "violations": []
+  },
+  "test_probe": {
+    "success": true,
+    "steps_evaluated": 100,
+    "step_size_seconds": 0.001,
+    "sim_time_seconds": 0.1,
+    "all_outputs_finite": true,
+    "non_finite_step": null,
+    "output_dimension": 120,
+    "copter_id": 1.0,
+    "vehicle_type": 3.0,
+    "sample_head": [
+      1.0,
+      3.0,
+      0.1,
+      2.58138994201342e-18,
+      1.218553033219928e-18,
+      0.016527135654665414,
+      4.897896590435587e-20,
+      2.356513974321344e-20
+    ],
+    "sample_tail": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ]
+  }
+}
