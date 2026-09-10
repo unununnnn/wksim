@@ -188,6 +188,9 @@ class JointArUcoTask(Task):
         self._last_clock_ns = None
         self._episode_completed = False
         self.observation_links = []
+        self.publisher_snapshots = []
+        self.publisher_guard = None
+        self._last_publisher_snapshot_ns = 0
         self.raw_capture = None
         try:
             self._open_raw_capture()
@@ -226,6 +229,22 @@ class JointArUcoTask(Task):
             # second full diagnostic object here adds CPU and log traffic to
             # every sample without adding evidence to that raw byte stream.
             ros=self.ros, node_name=self.recorder_name)
+        from .aruco_publisher_guard import ArucoPublisherGuard
+        guarded = {spec.topic:spec.type_name for spec in self.raw_capture.channel_specs
+                   if spec.topic == self.topic_root+'v2/state' or spec.topic in
+                   ('/ap/cmd_gps_pose','/ap/cmd_vel','/wksim_px4_21/fmu/in/trajectory_setpoint',
+                    '/wksim_px4_21/fmu/in/vehicle_command')}
+        self.publisher_guard = ArucoPublisherGuard(self.node,self.flight_stack,guarded)
+        def validate_sample(topic_name,gid):
+            if self.publisher_guard.is_bound and topic_name in guarded:
+                self.publisher_guard.validate_sample(topic_name,gid)
+        self.raw_capture.sample_validator = validate_sample
+
+    def _publisher_snapshot(self, reason):
+        snapshot = self.publisher_guard.snapshot()
+        snapshot.update(reason=reason,authority_tick=self._authority_step())
+        self.publisher_snapshots.append(snapshot)
+        self._last_publisher_snapshot_ns = snapshot['monotonic_ns']
 
     def request_graph_ready(self):
         expected = {'wksim_joint_'+self.flight_stack+'_control', self.recorder_name}
@@ -240,6 +259,11 @@ class JointArUcoTask(Task):
             observations[kind] = [dict(node_name=info.node_name, node_namespace=info.node_namespace,
                                        endpoint_gid=bytes(info.endpoint_gid).hex()) for info in endpoints]
         self.aruco_request_graph = observations
+        if not self.publisher_guard.is_bound:
+            if any(not self.node.get_publishers_info_by_topic(name)
+                   for name in self.publisher_guard.expected_topics):
+                return False
+            self._publisher_snapshot('ready')
         return True
 
     def pump(self):
@@ -250,6 +274,10 @@ class JointArUcoTask(Task):
             super().pump()
         finally:
             self.raw_capture.drain()
+        guard = getattr(self,'publisher_guard',None)
+        if (guard is not None and guard.is_bound
+                and time.monotonic_ns()-self._last_publisher_snapshot_ns >= 1_000_000_000):
+            self._publisher_snapshot('periodic')
 
     def close(self):
         try:
@@ -261,6 +289,9 @@ class JointArUcoTask(Task):
     # The profile acceptance timeout applies only to visual tracking commands;
     # every other call keeps the Task default/explicit timeouts unchanged.
     def send(self, msg, label, timeout=None):
+        guard = getattr(self,'publisher_guard',None)
+        if guard is not None and guard.is_bound:
+            self._publisher_snapshot('before-public-send:'+label)
         if timeout is None and label.startswith(VISUAL_LABEL_PREFIX):
             timeout = self.aruco['profile']['mission']['command_acceptance_timeout_s']
         if timeout is None:
@@ -489,6 +520,8 @@ class JointArUcoTask(Task):
 
     def report(self):
         capture = None
+        if self.publisher_guard is not None and self.publisher_guard.is_bound:
+            self._publisher_snapshot('report')
         if self.raw_capture is not None:
             self.raw_capture.drain()
             capture = self.raw_capture.close()
@@ -496,6 +529,7 @@ class JointArUcoTask(Task):
                 raise RuntimeError('Raw capture did not close cleanly: '+str(capture))
         return dict(Task.report(self), aruco=dict(
             selected=self.selected, profile_sha256=self.aruco['profile_sha256'],
+            publisher_snapshots=self.publisher_snapshots,
             binding=(None if self.binding is None else
                      {k: self.binding[k] for k in ('first_step', 'stream_id', 'episode_end_step')}),
             observation_links=self.observation_links,

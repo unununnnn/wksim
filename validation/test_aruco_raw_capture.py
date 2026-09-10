@@ -95,6 +95,24 @@ def create_sample_info(
 
 
 class TestArucoRawCapture(unittest.TestCase):
+    def test_sample_guard_rejection_preserves_raw_record_and_propagates(self):
+        topic = self.channels[0].topic
+        take = MockRCTake({topic:[({},create_sample_info(gid_bytes=VALID_GID_24))]})
+        capture = ArucoRawCapture(self.output_path,run_id='guard-test',epoch=VALID_EPOCH,
+            stack='arducopter',uav_id=1,channels=self.channels,raw_node=self.node,rc_take=take)
+        def reject(name,gid):
+            self.assertEqual(name,topic)
+            self.assertEqual(gid,VALID_GID_24.hex())
+            raise ValueError('Unexpected writer')
+        capture.sample_validator=reject
+        try:
+            with self.assertRaisesRegex(ValueError,'Unexpected writer'):capture.drain()
+            rows=[json.loads(line) for line in self.output_path.read_text().splitlines()]
+            self.assertEqual(rows[-1]['publisher_gid'],VALID_GID_24.hex())
+            self.assertEqual(capture.latest_samples[topic]['record_sha256'],rows[-1]['record_sha256'])
+        finally:
+            capture.close()
+
     def setUp(self):
         try:
             from wksim_msgs.msg import SetupRequest, CommandRequest

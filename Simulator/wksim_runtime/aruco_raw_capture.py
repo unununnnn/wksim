@@ -165,6 +165,7 @@ class ArucoRawCapture:
         self.current_hash = INITIAL_HASH_SEED
         self.samples_per_topic: Dict[str, int] = defaultdict(int)
         self.latest_samples: Dict[str, dict] = {}
+        self.sample_validator = None
         self.write_failures = 0
         self.write_failure_reports: List[Dict[str, Any]] = []
 
@@ -375,6 +376,8 @@ class ArucoRawCapture:
                 }
                 self._write_canonical_record(record)
                 self.latest_samples[topic_name] = record
+                if self.sample_validator is not None:
+                    self.sample_validator(topic_name, gid_hex)
                 total_drained += 1
             else:
                 raise RuntimeError(
