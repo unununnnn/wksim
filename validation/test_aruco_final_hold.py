@@ -7,7 +7,7 @@ from tools.audit_aruco_native_holds import state_for_sample, expected_ap, f32, y
 try:
     from rclpy.serialization import serialize_message
     from wksim_msgs.msg import SessionState
-    from prometheus_msgs.msg import UAVControlState
+    from prometheus_msgs.msg import UAVControlState, UAVState
     ROS = True
 except ImportError:
     ROS = False
@@ -32,7 +32,7 @@ class HoldAuditBoundaries(unittest.TestCase):
 
 @unittest.skipUnless(ROS,'Needs installed ROS message classes')
 class FinalHoldNative(unittest.TestCase):
-    def task(self, stack, stages, fresh=True):
+    def task(self, stack, stages, fresh=True, command_control=True):
         task=JointArUcoTask.__new__(JointArUcoTask)
         task.request_id=90;task.epoch='a'*32;task.run_id='aruco-test'
         task.flight_stack=stack;task.uav_id=1 if stack=='arducopter' else 2
@@ -44,7 +44,9 @@ class FinalHoldNative(unittest.TestCase):
             for state_stamp,native_stamp,rid in stages:
                 msg=SessionState(version=1,run_id=task.run_id,control_epoch=task.epoch,
                                  sequence=state_stamp,last_request_id=rid,
-                                 control=UAVControlState(control_state=2))
+                                 state=UAVState(armed=True),
+                                 control=UAVControlState(control_state=(UAVControlState.COMMAND_CONTROL
+                                                          if command_control else UAVControlState.INIT)))
                 samples={task.topic_root+'v2/state':{'source_timestamp':state_stamp,
                           'cdr_hex':serialize_message(msg).hex()}}
                 topic='/ap/cmd_gps_pose' if stack=='arducopter' else '/wksim_px4_21/fmu/in/trajectory_setpoint'
@@ -73,6 +75,10 @@ class FinalHoldNative(unittest.TestCase):
 
     def test_stale_public_state_cannot_pass(self):
         task=self.task('px4',[(100,99,90),(103,101,90)],fresh=False)
+        with self.assertRaises(TimeoutError):task._wait_final_hold_native()
+
+    def test_control_release_cannot_pass(self):
+        task=self.task('px4',[(100,99,90),(103,101,90)],command_control=False)
         with self.assertRaises(TimeoutError):task._wait_final_hold_native()
 
 

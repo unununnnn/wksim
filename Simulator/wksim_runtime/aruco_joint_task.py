@@ -457,6 +457,7 @@ class JointArUcoTask(Task):
         expected_request = self.request_id
         from rclpy.serialization import deserialize_message
         from wksim_msgs.msg import SessionState
+        from prometheus_msgs.msg import UAVControlState
         state_topic = self.topic_root+'v2/state'
         target_topic = ('/ap/cmd_gps_pose' if self.flight_stack == 'arducopter' else
                         '/wksim_px4_21/fmu/in/trajectory_setpoint')
@@ -470,7 +471,8 @@ class JointArUcoTask(Task):
             current = deserialize_message(bytes.fromhex(state_record['cdr_hex']), SessionState)
             if (current is None or current.last_request_id != expected_request
                     or current.run_id != self.run_id or current.control_epoch != self.epoch
-                    or current.control.failsafe or not self.fresh()):
+                    or current.control.control_state != UAVControlState.COMMAND_CONTROL
+                    or current.control.failsafe or not current.state.armed or not self.fresh()):
                 return False
             state_stamp = state_record['source_timestamp']
             if boundary is None:
