@@ -74,3 +74,13 @@ tracking-03已退出1且所有运行组已清理：run aruco-track-556a1b0366 / 
 83a8f90及此前已全部推送：f319760两场72/74条MOVE精确原生关联主验收；35927e8具体writer图与样本GID守卫、22ca026末尾HOLD armed/COMMAND_CONTROL；83a8f90离线snapshot严格审计与Claude独立最终HOLD两负例。Claude缩片cd1988f6完成、无阻断项；publisher主审去optional hash fallback、严格raw/provenance/Task身份、完整类型集合，AP peer未行使cmd_vel标not_exercised；15项原publisher+12项独立负例及最终HOLD独立2项已验证（review中把RTPS16byte诊断误当24byte绑定的负例已修，绑定仍严格24bytes）。OMP已完成空闲，agy只代码review并禁止运行测试；runtime只归主会话。第14场AP新验证已启动validation/40-aruco-tracking-14-ap，采用async-evidence/async-model-evidence/write-timing，加末尾HOLD等待与native publisher snapshots；不要并行重测试/归档/推送，不要重复启动。运行结果未知，#104/Full仍未完成。
 
 第14场工具session为36716，已确认运行中；先poll该session，禁止另启副本。OMP下一片仅只读#82倍率复用路径与一页报告，不跑测试/建图/构建；当前runtime源码冻结。
+
+第14场已retire，session36716退出1、manager0、55帧、tick65452 rate_unmet 100.165787ms，无残留/cleanup错误；完整442文件6分片与诊断已推送fefc501。实际publisher图AP177/PX4135次全部通过，同场具体writer+rawGID证明闭合；末尾HOLD未到达。两模型writer完整，AP底层一次23.225556ms异步写不等于模型主线程阻塞；write-timing主流无慢记录。rate重放精确RED，14场14个组>8ms，总前组超额49.799ms（13场9个/17.619ms），最大20.037ms在arm附近47312组，RGB前；无CPU探针故未指认具体模块。当前新15场validation/40-aruco-tracking-15-ap-cpu已启动，同源码资源参数加既有--cpu-timing定位峰值，禁止并行测试/压缩/推送与重复运行。OMP下一rate一页报告有陈旧反向拒绝描述（实际双向已修）且漏scheduler/model异步门控，已退修2e005ff6；Claude只读native完成合同02f67c85。#104及Full未完成。
+
+第15场Tool session=61502；run_id=aruco-track-aa766cf3f8。下一接续先poll61502并读该run小status；仍运行时禁止重启、重测试、归档/推送。第14场36716与push9456均已终态，不要继续等待。
+
+第15场61502已退出0，aruco-track-aa766cf3f8/epochd342bbd7a8c449e19aa63c9dc268c50e，90帧、双机落地、无fault/cleanup。0241d17及全部证据已推送（push59227终态0）。物理几何pass（APmax .472222570m/恢复末窗.148149505m），rate最坏97.970542ms、15个10s窗/首60s通过但无完整airborne60s。raw loss14周期闭合；72MOVE精确原生关联；15段HOLD173样本，末尾request91有1真实native位置样本，首次补齐terminalHOLD；AP229/PX4161图快照及GID全部验证。仍待payload timestamp独立审计以及PX4新修复对应场。15峰值转到57500附近：native_inputs样本wall53.861ms/线程CPU7.202ms，AP wait最高9.584750ms/CPU1.081238ms，不能直接归因AP或Windows；GCmax.300441ms。OMP820688ed仅代码实现有界外部/proc线程采样器（无当前实测/测试），Claude4b13ded4仅代码写payload时间戳审计，runtime冻结。当前第16场PX4对应验证validation/40-aruco-tracking-16-px4-cpu已启动，同async/模型async/write/cpu探针参数与15一致，仅selected_stack变PX4；禁止并发测试/压缩/推送和重复启动。
+
+第16场Tool session=16857，run_id=aruco-track-8e056c491a。接续先poll16857；15场61502与push59227均终态，不要再等或重启。16运行期间禁止所有测试/构建/归档/推送；OMP/Claude均仅代码。Goal保持active，#104/Full未完成。
+
+第16场16857已终态1，manager0；aruco-track-8e056c491a/epochd47cb442efcb48bcae670c0c7a246f6b，tick27956起飞前rate失败121.048875ms、0RGB。完整205文件3分片已归档，重放精确复现。6979组中位3.312ms/最大29.6425ms；失败窗阶段CPU/墙钟分布不同于15，仍未唯一归因，不能盲改AP。当前无实际SITL/UE；等待OMP有界外部线程采样器主审后再决定下一诊断。Claude旧4b13切片长时间读查无文件，已取消旧turn，转新任务586cc873-65e7-4d1e-975b-3de9bbac446e/turn44f0f8f1仅2文件compact时间戳审计；保留外部默认model+auto thinking（工具回执已验证），非nested。运行合同40-aruco-run-contract.md更新为实际已实现入口、冻结值和准确审计范围；不改变门槛。#104/Full仍OPEN。
