@@ -1,6 +1,6 @@
 # #104 · ArUco 相机闭环运行合同
 
-状态：2026-09-11。运行入口与独立审计已实现。AP第15场已完成真实图像→公共命令→原生MOVE/HOLD→物理轨迹与退场核验；PX4对应新修复第16场在起飞前倍率失败，仍需完整场验证。原生载荷时间戳审计仍在补充。#104/#40及Full保持OPEN，不能把单项通过或普通飞行采集当作完整闭环验收。
+状态：2026-09-11。运行入口与独立审计已实现。AP第15场已完成真实图像→公共命令→原生MOVE/HOLD→物理轨迹与退场核验；PX4对应新修复第16场在起飞前倍率失败，仍需完整场验证。原生载荷时间戳已在AP第15场和PX4第10场补证；PX4修复后的完整场仍待通过。#104/#40及Full保持OPEN，不能把单项通过或普通飞行采集当作完整闭环验收。
 
 ## 实际接口与执行边界
 
@@ -63,7 +63,7 @@ PX4改用 `validation/aruco-tracking-candidate-01/candidate.json` 和另一个�
 | `tools/audit_aruco_publishers.py --run-root <capture-root> --output <new.json>` | 完整raw/Task/源码身份、具体writer、图快照与收到的样本；只声明采样时刻排他 |
 | `tools/archive_aruco_tracking.py <capture-root>` | 原件逐成员SHA校验与有序32MiB分片，不纳入依赖二进制/厂商资产 |
 
-物理审计使用包含OpenCV的Python；原生CDR审计在实际固定ROS overlay中执行（当前 `source /root/wksim-joint-control-FWBLNX/install/setup.bash`）。所有输出必须是新文件，保留失败；原生载荷时间戳审计补齐前不关闭本票。
+物理审计使用包含OpenCV的Python；原生CDR审计在实际固定ROS overlay中执行（当前 `source /root/wksim-joint-control-FWBLNX/install/setup.bash`）。所有输出必须是新文件，保留失败；由 `tools/audit_aruco_native_timestamps.py <capture-root> --output <new.json>` 补原生载荷时间戳核对；全部同场门未闭合前不关闭本票。
 
 连续DDS setpoint没有原生ACK通道。公共受理、原生下发、离散服务/VehicleCommand的原生ACK和实际动作完成分别报告；以原生字段、飞控反馈与物理真值共同证明闭环，不新增不可能的setpoint ACK要求。
 
