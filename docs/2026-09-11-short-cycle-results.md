@@ -12,7 +12,7 @@
 
 主会话读取固定 Prometheus `aruco_tracking.cpp:175–180` 后修正 TargetIntent 方向为“观测相对位置减期望位置”，并用静止目标的三轴相对运动检查验证误差减小。丢失/坏帧不清掉去重高水位；接缝支持同 epoch 的显式相机重连和保留 stream 的冷重置，拒绝退役流/旧帧、绑定前目标和不一致配置。36 项相关检查通过。
 
-这仍是 #104 的接入前置；公共发送器尚在独立修正首次 HOLD、实时有效期、内层 command_id 高水位和 ACK 失败记录，未启动跟踪飞行，也未把接缝测试替代 #104/父 #40 验收。
+这仍是 #104 的接入前置。`071c7fc` 已完成公共命令发送器的首次 HOLD、当前权威时间、内层 command_id 高水位和公共受理未定记录；主会话另外修正缓存 MOVE 到期不能被去重跳过、ACK 未定后重新悬停、畸形消息与 uint32 回绕拒绝。19 项 Windows 编排及 WSL 真实消息构造检查通过，记录在 `validation/coordination/parent-aruco-public-command-tests.log` 和 `parent-aruco-public-command-types.log`。尚未启动跟踪飞行，联合 profile/任务工厂与实时图像输入接线继续推进，不把这些测试替代 #104/父 #40 验收。
 
 ## 新的真实输入等待证据
 
