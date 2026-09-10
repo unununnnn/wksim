@@ -338,6 +338,18 @@ def epoch_run(directory,epoch,generation=1):
                 result['source_sha256'][name]=digest(REPO/name)
             result['experimental']=True
             result['production_admitted']=False
+            if admission.get('native_component_timing'):
+                candidate=admission['identities']['px4_candidate']
+                result['native_component_timing']=dict(environment=candidate['environment'],
+                                                       parent_manifest=candidate['parent_manifest'])
+                for name in ('tools/px4_component_candidate.py','tools/build-px4-component-timing.sh',
+                             'patches/px4/0005-component-wait-tracing.patch'):
+                    result['source_sha256'][name]=digest(REPO/name)
+                result['native_px4_source_sha256']=candidate['expected_sources']
+                for name,checksum in candidate['expected_sources'].items():
+                    path=output/'source/native_px4'/name;path.parent.mkdir(parents=True,exist_ok=True)
+                    path.write_bytes((Path(candidate['root'])/'src'/name).read_bytes())
+                    if digest(path)!=checksum:raise ValueError('Native diagnostic source changed during retention')
         observe_px4_setup=os.environ.get('WKSIM_OBSERVE_PX4_SETUP')=='1'
         if observe_px4_setup:
             result['source_sha256']['tools/observe_px4_setup.py']=digest(REPO/'tools/observe_px4_setup.py')
@@ -412,6 +424,8 @@ def epoch_run(directory,epoch,generation=1):
                                               priority=child_priority(child,'model'))
                 plan=launch_spec(admission['configs'][stack],folder,library,
                                  admitted_capabilities=admission['capabilities'])
+                if stack=='px4' and admission.get('native_component_timing'):
+                    plan['fc_environment'].update(admission['identities']['px4_candidate']['environment'])
                 agents[stack]=launch(stack+'-agent',plan['agent'],folder,'agent')
                 log=(output/(stack+'-fc.log')).open('x')
                 child=subprocess.Popen(plan['fc'],cwd=folder,env=dict(os.environ,**plan['fc_environment']),
@@ -420,6 +434,8 @@ def epoch_run(directory,epoch,generation=1):
                 specs[child.pid]=dict(name=name,role='fc',cwd=folder,argv=plan['fc'])
                 result['children'][name]=dict(identity=json_identity(child.pid),argv=plan['fc'],cwd=str(folder),
                                               priority=child_priority(child,'fc'))
+                if stack=='px4' and admission.get('native_component_timing'):
+                    result['children'][name]['explicit_environment']=dict(plan['fc_environment'])
                 argv=plan['control']
                 argv=[f'uav_id:={uid}' if value.startswith('uav_id:=') else value for value in argv]
                 argv+=['-p','use_sim_time:=true','-p','scene_epoch:='+epoch,
@@ -533,7 +549,7 @@ def epoch_run(directory,epoch,generation=1):
                     if clock.tick%4==0:
                         if rate.group is not None: rate.end_group(clock.tick)
                         else: record_rate('untimed_group_end',classification='transition' if lifecycle.phase in ('resuming','recovering')
-                                          else 'single_step' if clock.phase=='stepping' else 'bootstrap',actual_end_ns=time.monotonic_ns())
+                                          else 'single_step' if lifecycle.phase=='stepping' else 'bootstrap',actual_end_ns=time.monotonic_ns())
                         view.emit(states,clock.tick,'running' if clock.phase=='stepping' else clock.phase)
                     step_complete=True
                     return states

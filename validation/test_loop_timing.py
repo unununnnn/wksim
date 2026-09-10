@@ -31,14 +31,14 @@ class LoopTimingTests(unittest.TestCase):
         self.assertEqual(rows[0]['stages']['clock_publish']['thread_cpu_ns'],3_000_010)
 
 
-def advance_fixture(enabled, *, tick=0, failure=None, fail_record=False):
+def advance_fixture(enabled, *, tick=0, failure=None, fail_record=False, untimed=False):
     source=Path(__file__).resolve().parents[1]/'Simulator/wksim_runtime/joint_runtime.py'
     tree=ast.parse(source.read_text())
     fn=next(n for n in ast.walk(tree) if isinstance(n,ast.FunctionDef) and n.name=='advance')
     fn.body=[ast.copy_location(ast.Global(names=n.names),n) if isinstance(n,ast.Nonlocal) else n
              for n in fn.body]
     events=[];records=[];result={}
-    clock=NS(tick=tick,phase='running',synchronized=True,snapshot=lambda:{'tick':clock.tick})
+    clock=NS(tick=tick,phase='stepping' if untimed else 'running',synchronized=True,snapshot=lambda:{'tick':clock.tick})
     def pacing(*a):
         events.append('pacing')
         if failure=='pacing':raise RateUnmet(100_000_001)
@@ -53,16 +53,24 @@ def advance_fixture(enabled, *, tick=0, failure=None, fail_record=False):
     counter=iter(range(0,100_000_000,1_000_000))
     scope=dict(loop_timing=LoopTiming(enabled,record,lambda:next(counter),lambda:next(counter)),
         clock=clock,physics_wait_started=None,pending_task_reanchor=False,
-        rate=NS(anchor={},latched=False,group=True,begin_group=pacing,end_group=group_end),
-        lifecycle=NS(phase='running'),physics_health=lambda:None,
+        rate=NS(anchor={},latched=False,group=None if untimed else True,begin_group=pacing,end_group=group_end),
+        lifecycle=NS(phase='paused' if untimed else 'running'),physics_health=lambda:None,
         physics=NS(advance=physics),publisher=NS(publish=lambda c:events.append('clock')),
         record_clock=lambda value:events.append(('clock_evidence',value)),
-        view=NS(emit=lambda *a:events.append('view')),time=NS(monotonic=lambda:10),result=result,json=json)
+        view=NS(emit=lambda *a:events.append('view')),time=NS(monotonic=lambda:10,monotonic_ns=lambda:10_000_000_000),result=result,json=json,
+        record_rate=lambda kind,**fields:events.append((kind,fields)))
     exec(compile(ast.fix_missing_locations(ast.Module(body=[fn],type_ignores=[])),str(source),'exec'),scope)
     return scope['advance'],events,records,result
 
 
 class AdvanceOrderTests(unittest.TestCase):
+    def test_existing_untimed_end_classification_is_preserved(self):
+        fn,events,records,result=advance_fixture(False,tick=3,untimed=True)
+        fn()
+        end=next(fields for item in events if isinstance(item,tuple) and item[0]=='untimed_group_end'
+                 for fields in [item[1]])
+        self.assertEqual(end['classification'],'bootstrap')
+
     def test_disabled_and_enabled_keep_operation_order_and_payload(self):
         traces=[]
         for enabled in (False,True):

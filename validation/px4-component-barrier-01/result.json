@@ -1,0 +1,39 @@
+{
+  "status": "pass",
+  "scope": "Compile actual candidate barrier source against POSIX semaphore shims; not a flight test.",
+  "results": [
+    {
+      "mode": "off",
+      "complete": true,
+      "clock_reads": 0,
+      "last_component": 2
+    },
+    {
+      "mode": "on",
+      "complete": true,
+      "clock_reads": 3,
+      "last_component": 2
+    },
+    {
+      "mode": "invalid",
+      "complete": true,
+      "clock_reads": 0,
+      "last_component": 2
+    }
+  ],
+  "compiler_command": [
+    "g++",
+    "-std=c++17",
+    "-pthread",
+    "-I/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/validation/px4-component-barrier-01/include",
+    "-I/root/wksim-px4-component-q0zJqx/src/platforms/posix/src/px4/common/lockstep_scheduler/include",
+    "/root/wksim-px4-component-q0zJqx/src/platforms/posix/src/px4/common/lockstep_scheduler/src/lockstep_components.cpp",
+    "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/validation/px4-component-barrier-01/test.cpp",
+    "-Wl,--wrap=syscall",
+    "-o",
+    "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/validation/px4-component-barrier-01/test"
+  ],
+  "source_sha256": "7c564beeca06d1ba33affa050d79519aa040dbb50d00f94105369c183176bcc3",
+  "header_sha256": "7d1ef294af986833fc6a20cab3b0bf1b6c86c8f9664c821a7bdfc182b81e1840",
+  "checker_sha256": "6a7b32c8da0e035b39b555eb3d7edf444d0002d6dd31f841a499fd9cdc868e01"
+}

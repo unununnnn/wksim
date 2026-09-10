@@ -25,8 +25,12 @@ def validate_experiment(value):
                 or not re.fullmatch('[0-9a-f]{64}', pin['sha256'])):
             raise ValueError('Invalid ArUco '+key+' manifest pin')
         path = PurePosixPath(pin['path'])
+        variant = (re.fullmatch(pattern,path.parent.name) and re.fullmatch(filename,path.name))
+        if key == 'px4':
+            variant = variant or (re.fullmatch(r'wksim-px4-component-[A-Za-z0-9]+',path.parent.name)
+                                  and path.name == 'component-build.json')
         if (str(path) != pin['path'] or path.parent.parent != PurePosixPath('/root')
-                or not re.fullmatch(pattern, path.parent.name) or not re.fullmatch(filename, path.name)):
+                or not variant):
             raise ValueError('ArUco candidate must have a private, canonical manifest path')
     return copy.deepcopy(value)
 
@@ -73,8 +77,12 @@ def check(config):
         if not old['ok']:
             raise ValueError('ArUco baseline rejected: '+str(old['reasons']))
         from tools.joint_control_candidate import check as check_control
-        from tools.px4_land_candidate import check as check_px4
         candidate = config['aruco_experiment']
+        component_timing = PurePosixPath(candidate['px4']['path']).name == 'component-build.json'
+        if component_timing:
+            from tools.px4_component_candidate import check as check_px4
+        else:
+            from tools.px4_land_candidate import check as check_px4
         control = check_control(candidate['control']['path'], candidate['control']['sha256'])
         px4 = check_px4(candidate['px4']['path'], candidate['px4']['sha256'])
         _overlay('prometheus_control', Path(control['root'])/'install/prometheus_control')
@@ -97,6 +105,7 @@ def check(config):
                                    sha256=px4['binary_sha256'], commit=baseline_px4['commit'],
                                    source_files=len(px4['source']['files'])))
         result.update(ok=True, profile=profile, configs=configs, capabilities=[TASK],
+                      native_component_timing=component_timing,
                       model_library=old['model_library'], control_package=control['package'],
                       identities=identities, baseline_admission=old)
     except (OSError, ValueError, KeyError, TypeError, ImportError, subprocess.SubprocessError) as error:

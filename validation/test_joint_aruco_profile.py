@@ -20,6 +20,19 @@ def candidate():
 
 
 class ArUcoProfileTests(unittest.TestCase):
+    def test_component_observation_requires_its_exact_path_pair(self):
+        data=candidate()
+        data['aruco_experiment']['px4']['path']='/root/wksim-px4-component-ABC123/component-build.json'
+        value=validate_joint_config(data)
+        selected=select_config(value)
+        self.assertEqual(selected['manifests']['px4'],data['aruco_experiment']['px4'])
+        self.assertFalse(selected['production_admitted'])
+        for path in ('/root/wksim-px4-land-ABC123/component-build.json',
+                     '/root/wksim-px4-component-ABC123/land-build.json',
+                     '/root/wksim-px4-component-ABC123/../component-build.json'):
+            data['aruco_experiment']['px4']['path']=path
+            with self.assertRaises(ConfigError):validate_joint_config(data)
+
     def test_selection_changes_only_explicit_resources(self):
         baseline=select_profile(LEGACY_PROFILE)
         value=validate_joint_config(candidate()); selected=select_config(value)

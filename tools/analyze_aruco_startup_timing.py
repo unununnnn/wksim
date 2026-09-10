@@ -40,7 +40,7 @@ def analyze(epoch_dir, windows):
     groups = sorted((r for r in rate if r["kind"] == "rate_group_end"),
                     key=lambda r: r["end_tick"])
     unmet = [r for r in rate if r["kind"] == "rate_unmet"]
-    waits, stages, gcs = [], [], []
+    waits, stages, gcs, loops = [], [], [], []
     for r in wire:
         kind = r["kind"]
         if kind == "diagnostic_native_input_timing":
@@ -55,10 +55,14 @@ def analyze(epoch_dir, windows):
             gcs.append(dict(tick=r["tick"], start=r["wall_start_ns"], end=r["wall_end_ns"],
                             wall_ns=r["wall_end_ns"] - r["wall_start_ns"],
                             thread_cpu_ns=r["thread_cpu_ns"], collected=r["collected"]))
+        elif kind == 'diagnostic_runtime_loop_timing':
+            if r['observed_tick'] != r['tick']:
+                raise ValueError('Runtime timing tick differs from its wire identity')
+            loops.append(r)
     gc_max_wall = max((g["wall_ns"] for g in gcs), default=0)
     result = {"schema": "wksim.aruco-startup-timing.v1", "epoch_dir": str(epoch_dir),
               "groups": len(groups), "gc_max_wall_ns": gc_max_wall,
-              "rate_unmet": unmet, "windows": []}
+              "rate_unmet": unmet, "runtime_loop_samples": len(loops), "windows": []}
     previous = None
     rows = []
     for g in groups:
@@ -100,10 +104,22 @@ def analyze(epoch_dir, windows):
                 w_gc.append(g)
         gap_total = sum(max(0, r["gap_before_ns"]) for r in span[1:])
         work_total = sum(r["work_ns"] for r in span)
+        runtime_samples=[r for r in loops if low <= r['tick'] <= high]
+        runtime_totals={}
+        for sample in runtime_samples:
+            for name,value in sample['stages'].items():
+                total=runtime_totals.setdefault(name,dict(wall_ns=0,thread_cpu_ns=0,max_wall_ns=0))
+                total['wall_ns']+=value['wall_ns']
+                total['thread_cpu_ns']+=value['thread_cpu_ns']
+                total['max_wall_ns']=max(total['max_wall_ns'],value['wall_ns'])
         result["windows"].append({
             "window": [low, high], "groups": len(span),
             "work_total_ns": work_total, "gap_before_total_ns": gap_total,
             "native_waits": w_native, "stage_totals": stage_totals,
+            "core_stage_samples": w_stage,
+            "runtime_stage_totals": runtime_totals,
+            "runtime_stage_samples": runtime_samples,
+            "timing_scope": "Sampled intervals only; core timings nest within runtime physics. Do not add them together. Pacing includes intended waits.",
             "gc_events": w_gc,
             "group_rows": [{k: v for k, v in r.items()
                             if k not in ("actual_start_ns", "actual_end_ns")} for r in span],
@@ -137,6 +153,8 @@ def main():
         print(f"  top gap_before: {[(r['start_tick'], r['gap_before_ns']) for r in top_gaps]}")
         print(f"  stage wall totals: "
               f"{ {k: v['wall_ns'] for k, v in w['stage_totals'].items()} }")
+        if w['runtime_stage_totals']:
+            print(f"  runtime wall totals: { {k:v['wall_ns'] for k,v in w['runtime_stage_totals'].items()} }")
         print(f"  native waits >2ms: {native}; gc in window: "
               f"{[(g['tick'], g['wall_ns']) for g in w['gc_events']]}")
     print(f"gc max wall_ns overall: {result['gc_max_wall_ns']}; "

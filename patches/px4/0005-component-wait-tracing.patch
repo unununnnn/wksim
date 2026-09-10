@@ -1,0 +1,171 @@
+diff --git a/platforms/posix/src/px4/common/lockstep_scheduler/include/lockstep_scheduler/lockstep_components.h b/platforms/posix/src/px4/common/lockstep_scheduler/include/lockstep_scheduler/lockstep_components.h
+--- a/platforms/posix/src/px4/common/lockstep_scheduler/include/lockstep_scheduler/lockstep_components.h
++++ b/platforms/posix/src/px4/common/lockstep_scheduler/include/lockstep_scheduler/lockstep_components.h
+@@ -75,4 +75,8 @@
+ 
+ 	std::atomic_int _components_used_bitset{0};
+ 	std::atomic_int _components_progress_bitset{0};
++
++	// Separate diagnostic observations. Never used by the barrier algorithm.
++	std::atomic_int _trace_last_release_component{0};
++	std::atomic<long long> _trace_last_release_ns{0};
+ };
+diff --git a/platforms/posix/src/px4/common/lockstep_scheduler/src/lockstep_components.cpp b/platforms/posix/src/px4/common/lockstep_scheduler/src/lockstep_components.cpp
+--- a/platforms/posix/src/px4/common/lockstep_scheduler/src/lockstep_components.cpp
++++ b/platforms/posix/src/px4/common/lockstep_scheduler/src/lockstep_components.cpp
+@@ -42,6 +42,31 @@
+ #include <px4_platform_common/tasks.h>
+ #include <limits.h>
+ 
++#include <sys/syscall.h>
++#include <time.h>
++#include <unistd.h>
++#include <cstdio>
++#include <cstdlib>
++#include <cstring>
++
++namespace {
++bool wksim_wait_trace()
++{
++	static const bool enabled = []() {
++		const char *value = std::getenv("WKSIM_PX4_COMPONENT_TIMING");
++		return value != nullptr && std::strcmp(value, "1") == 0;
++	}();
++	return enabled;
++}
++
++long long wksim_wall_ns()
++{
++	struct timespec ts {};
++	if (::syscall(SYS_clock_gettime, CLOCK_MONOTONIC, &ts) != 0) { return 0; }
++	return static_cast<long long>(ts.tv_sec) * 1000000000LL + ts.tv_nsec;
++}
++} // namespace
++
+ LockstepComponents::LockstepComponents(bool no_cleanup_on_destroy)
+ 	: _no_cleanup_on_destroy(no_cleanup_on_destroy)
+ {
+@@ -69,6 +94,10 @@
+ 
+ 			if (_components_used_bitset.compare_exchange_weak(expected, expected | (1 << component))) {
+ 				PX4_DEBUG("%s: got lockstep component %i", px4_get_taskname(), component);
++				if (wksim_wait_trace()) {
++					std::fprintf(stderr, "WKSIM_PX4_REGISTER {\"component\":%d,\"tid\":%ld,\"task\":\"%s\"}\n",
++						1 << component, static_cast<long>(::syscall(SYS_gettid)), px4_get_taskname());
++				}
+ 				return 1 << component;
+ 			}
+ 		}
+@@ -117,6 +146,10 @@
+ 		int value;
+ 
+ 		if (px4_sem_getvalue(&_components_sem, &value) == 0 && value < 1) {
++			if (wksim_wait_trace()) {
++				_trace_last_release_component.store(component, std::memory_order_relaxed);
++				_trace_last_release_ns.store(wksim_wall_ns(), std::memory_order_release);
++			}
+ 			px4_sem_post(&_components_sem);
+ 		}
+ 	}
+@@ -128,5 +161,21 @@
+ 		return;
+ 	}
+ 
++	const bool trace = wksim_wait_trace();
++	const long long start_ns = trace ? wksim_wall_ns() : 0;
++	const int used = trace ? _components_used_bitset.load() : 0;
++	const int progress = trace ? _components_progress_bitset.load() : 0;
++
+ 	while (px4_sem_wait(&_components_sem) != 0) {}
++
++	if (trace) {
++		const long long end_ns = wksim_wall_ns();
++		if (end_ns - start_ns > 2000000LL) {
++			const long long release_ns = _trace_last_release_ns.load(std::memory_order_acquire);
++			const int release_component = _trace_last_release_component.load(std::memory_order_relaxed);
++			std::fprintf(stderr, "WKSIM_PX4_COMPONENT {\"start_mono_ns\":%lld,\"end_mono_ns\":%lld,\"wait_ns\":%lld,\"used\":%d,\"progress\":%d,\"missing\":%d,\"observed_release_component\":%d,\"observed_release_mono_ns\":%lld}\n",
++				start_ns, end_ns, end_ns - start_ns, used, progress, used & ~progress,
++				release_component, release_ns);
++		}
++	}
+ }
+diff --git a/src/modules/simulation/simulator_mavlink/SimulatorMavlink.cpp b/src/modules/simulation/simulator_mavlink/SimulatorMavlink.cpp
+--- a/src/modules/simulation/simulator_mavlink/SimulatorMavlink.cpp
++++ b/src/modules/simulation/simulator_mavlink/SimulatorMavlink.cpp
+@@ -58,6 +58,31 @@
+ 
+ #include <limits>
+ 
++#include <sys/syscall.h>
++#include <time.h>
++#include <unistd.h>
++#include <cstdio>
++#include <cstdlib>
++#include <cstring>
++
++namespace {
++bool wksim_wait_trace()
++{
++	static const bool enabled = []() {
++		const char *value = std::getenv("WKSIM_PX4_COMPONENT_TIMING");
++		return value != nullptr && std::strcmp(value, "1") == 0;
++	}();
++	return enabled;
++}
++
++long long wksim_wall_ns()
++{
++	struct timespec ts {};
++	if (::syscall(SYS_clock_gettime, CLOCK_MONOTONIC, &ts) != 0) { return 0; }
++	return static_cast<long long>(ts.tv_sec) * 1000000000LL + ts.tv_nsec;
++}
++} // namespace
++
+ static int _fd;
+ static unsigned char _buf[2048];
+ static sockaddr_in _srcaddr;
+@@ -1024,6 +1049,8 @@
+ 	pthread_setname_np(pthread_self(), "sim_send");
+ #endif
+ 
++	const bool trace = wksim_wait_trace();
++
+ 	// Subscribe to topics.
+ 	// Only subscribe to the first actuator_outputs to fill a single HIL_ACTUATOR_CONTROLS.
+ 	_actuator_outputs_sub = orb_subscribe_multi(ORB_ID(actuator_outputs_sim), 0);
+@@ -1041,7 +1068,13 @@
+ 	while (true) {
+ 
+ 		// Wait for up to 100ms for data.
++		const long long t0 = trace ? wksim_wall_ns() : 0;
+ 		int pret = px4_poll(&fds_actuator_outputs[0], 1, 100);
++		const long long t1 = trace ? wksim_wall_ns() : 0;
++		if (trace && pret <= 0 && t1 - t0 > 20000000LL) {
++			std::fprintf(stderr, "WKSIM_PX4_SEND {\"start_mono_ns\":%lld,\"end_mono_ns\":%lld,\"poll_ns\":%lld,\"prepare_ns\":0,\"component_ns\":0,\"send_ns\":0,\"pret\":%d,\"revents\":0,\"hrt_us\":%llu}\n",
++				t0, t1, t1 - t0, pret, static_cast<unsigned long long>(hrt_absolute_time()));
++		}
+ 
+ 		if (pret == 0) {
+ 			// Timed out, try again.
+@@ -1061,9 +1094,21 @@
+ 			_battery_status_sub.update(&_battery_status);
+ 
+ 			// Wait for other modules, such as logger or ekf2
++			const long long t2 = trace ? wksim_wall_ns() : 0;
++			const unsigned long long sim_us = trace ? hrt_absolute_time() : 0;
+ 			px4_lockstep_wait_for_components();
++			const long long t3 = trace ? wksim_wall_ns() : 0;
+ 
+ 			send_controls();
++			if (trace) {
++				const long long t4 = wksim_wall_ns();
++				// Ordinary poll includes the supervisor's intended paced interval.
++				if (t1 - t0 > 20000000LL || t4 - t1 > 2000000LL) {
++					std::fprintf(stderr, "WKSIM_PX4_SEND {\"start_mono_ns\":%lld,\"end_mono_ns\":%lld,\"poll_ns\":%lld,\"prepare_ns\":%lld,\"component_ns\":%lld,\"send_ns\":%lld,\"pret\":%d,\"revents\":%d,\"hrt_us\":%llu}\n",
++						t0, t4, t1 - t0, t2 - t1, t3 - t2, t4 - t3, pret,
++						static_cast<int>(fds_actuator_outputs[0].revents), sim_us);
++				}
++			}
+ 		}
+ 	}
+ 
