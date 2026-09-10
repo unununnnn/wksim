@@ -52,3 +52,10 @@ actuator packets, prove input16 unchanged, validate exact event/epoch/timing,
 recompute eta force/torque per substage, and enforce physical budgets per1ms.
 Do not turn the seven native bench results into flight acceptance. Failed runs
 remain failed even if coefficient restoration or subsequent landing succeeds.
+
+Latest execution: the native-position baseline/fault/repeat matrices on both
+stacks are implemented and passed; see
+[the flight report](../2026-09-10-motor-efficiency-flight-report.md).
+The original stable-hold, 1000-interval event and final 1500-interval recovery
+budgets were enforced by raw independent audits. This file preserves the design
+and ownership record; it is no longer a statement that the runner is missing.

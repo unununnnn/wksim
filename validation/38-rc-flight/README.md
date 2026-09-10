@@ -49,3 +49,14 @@ No physical/G6/RateUnmet budget or old result has been changed. This matrix does
 not complete Full, the other RC/manual modes, or hardware/HIL acceptance. Final
 matrix results are in final-matrix.json; all 12 runs passed the same auditor.
 The full report is docs/2026-09-10-rc-flight-report.md.
+
+Current-source note (2026-09-10): a later AP takeoff-settling fix uses Control
+8EMCw6 (`e61239c514c45d6c65222277066a7ca629e6e2638b9877a040bdfc99643e7e2e`).
+Build a current candidate with `bash tools/build-joint-control.sh` and use its
+returned manifest/SHA for a new RC run. WjBuqN commands above identify the sealed
+historical matrix at commit 0ae940d; new source must not be silently substituted
+for that old installed identity. The later fix preserves native reset rejection.
+
+The AP takeoff-settling follow-up was also exercised with a fresh RC movement
+run on 8EMCw6: `rc-ap-settle-regression`, independent raw audit PASS, +X 1.2176m.
+Its original result, audit and raw archive are retained beside the original matrix.

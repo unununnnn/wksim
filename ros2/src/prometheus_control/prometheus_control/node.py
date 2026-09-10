@@ -606,9 +606,21 @@ class ControlNode(Node):
                 op.update(stage='takeoff', ack=False, deadline=self.operation_time()+25)
             elif self.native.flying is not None:
                 self.activate()
-        elif (op['stage'] == 'takeoff' and self.state.odom_valid and self.native.flying is True
-              and self.native.ready_external and self.operation_time() >= op.get('settled_after', 0)
-              and self.state.position[2] >= self.warmup_target.position[2]-0.3):
+        elif op['stage'] == 'takeoff':
+            ready = (self.state.odom_valid and self.native.flying is True and self.native.ready_external
+                     and self.state.position[2] >= self.warmup_target.position[2]-0.3)
+            if self.native.external_mode == 'GUIDED':
+                # AP can publish a last takeoff yaw reset just after first
+                # crossing the height threshold. Keep native takeoff ownership
+                # until its observed velocity has settled continuously.
+                ready = ready and math.hypot(*self.state.velocity) <= .3
+                if not ready:
+                    op.pop('takeoff_stable_since', None)
+                else:
+                    op.setdefault('takeoff_stable_since', self.operation_time())
+                    ready = self.operation_time()-op['takeoff_stable_since'] >= .5
+            if not ready or self.operation_time() < op.get('settled_after', 0):
+                return
             if self.native.external_mode == 'OFFBOARD':
                 op.update(stage='warmup', started=self.operation_time(), deadline=self.operation_time()+10, ack=False)
             else:
@@ -685,6 +697,7 @@ class ControlNode(Node):
                 and self.operation['stage'] == 'takeoff' and self.processor.control_state == Control.INIT)
             if takeoff_yaw_alignment:
                 self.operation['settled_after'] = self.operation_time()+0.5
+                self.operation.pop('takeoff_stable_since', None)
             if active and not (arm_home_change or takeoff_yaw_alignment):
                 raise ValueError('native_clock_or_origin_reset')
         if not active and not self.state.odom_valid:

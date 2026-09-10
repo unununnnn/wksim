@@ -58,3 +58,7 @@ WKSIM_EFFICIENCY_NATIVE_AUDIT=1 python3 -B -m unittest validation.test_motor_eff
 每次原生 probe 使用新输出目录和新进程。完整七角色审计参数及源/原始结果已保存；
 参考与候选的原始轨迹不能用结果摘要替代。早期 `/tmp` 构建随 WSL 临时文件回收不可持久，
 候选构建已改用独立 `/root/wksim-efficiency-model-*` 目录。
+
+2026-09-10 后续：真实双栈 baseline/fault/repeat 六场已通过，见
+[飞行报告](2026-09-10-motor-efficiency-flight-report.md)。本报告的原生 bench
+结论仍保留为独立层次；不把 bench 或飞行结果改写为 G6 通过。
