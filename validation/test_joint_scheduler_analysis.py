@@ -1,6 +1,6 @@
 """Offline proof cases for trace parsing and scheduler attribution."""
 import unittest
-from tools.analyze_joint_scheduler import parse,pair,explain
+from tools.analyze_joint_scheduler import parse,pair,explain,native_wait
 from tools.profile_joint_scheduler import epoch_groups_retired
 
 
@@ -42,6 +42,22 @@ class SchedulerAnalysisTests(unittest.TestCase):
         self.assertEqual(len(writes),1)
         self.assertEqual(boundaries['exit_without_entry'],1)
         self.assertEqual(explain(writes[0],off[1011])['unknown_off_cpu_ns'],60)
+
+    def test_native_wait_excludes_model_and_encoding_and_preserves_stack_boundary(self):
+        timing=dict(tick=6,wall_start_ns=10,wall_end_ns=117,stages={
+            'health_and_models':dict(wall_ns=5,thread_cpu_ns=4),
+            'encode_send':dict(wall_ns=2,thread_cpu_ns=2),
+            'native_inputs':dict(wall_ns=100,thread_cpu_ns=20)})
+        intervals=[dict(start_ns=20,end_ns=100,state='S',wake_ns=80)]
+        result=native_wait(timing,intervals)
+        self.assertEqual((result['ns'],result['end_ns'],result['duration_ns']),(17,117,100))
+        self.assertEqual(result['native_path'],'AP input only')
+        self.assertEqual(result['supervisor_scheduler']['blocked_before_wake_ns'],60)
+        self.assertEqual(result['supervisor_scheduler']['runnable_ns'],20)
+        timing['tick']=8
+        self.assertIn('not separated',native_wait(timing,intervals)['native_path'])
+        timing['wall_end_ns']+=1
+        with self.assertRaisesRegex(ValueError,'Stage timestamps'):native_wait(timing,intervals)
 
 
 if __name__=='__main__':unittest.main()

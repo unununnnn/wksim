@@ -93,6 +93,20 @@ def explain(write,intervals):
     return result
 
 
+def native_wait(timing,intervals):
+    """Attribute only the observed supervisor wait, not an untraced FC thread."""
+    stages=timing['stages']
+    require(timing['wall_end_ns']-timing['wall_start_ns']==sum(
+        stages[name]['wall_ns'] for name in ('health_and_models','encode_send','native_inputs')),
+        'Stage timestamps do not cover the recorded step')
+    begin=timing['wall_start_ns']+stages['health_and_models']['wall_ns']+stages['encode_send']['wall_ns']
+    span=dict(ns=begin,end_ns=timing['wall_end_ns'],duration_ns=stages['native_inputs']['wall_ns'])
+    return dict(tick=timing['tick'],**span,thread_cpu_ns=stages['native_inputs']['thread_cpu_ns'],
+        native_path='AP input only' if timing['tick']%4 else 'AP then PX4 inputs; not separated',
+        supervisor_scheduler=explain(span,intervals),
+        limitation='Supervisor blocking/runnable time does not identify the native FC or host cause')
+
+
 def analyze(root):
     report=json.loads((root/'report.json').read_text());meta=report['capture']
     require(meta['complete'] and meta['loss_free'] and meta['global_controls_unchanged'] and meta['instance_removed'],
@@ -139,6 +153,7 @@ def analyze(root):
         epoch=report['epoch'],pid_mapping=meta['pid_mapping'],trace_sha256=meta['trace_sha256'],
         event_counts=dict(Counter(e['kind'] for e in events)),boundary_counts=boundaries,writes=summary,
         largest_group=dict(group=largest,timings=timing,
+            native_waits=[native_wait(row,off[pids['supervisor']]) for row in timing],
             inside_capture=meta['started_monotonic_ns']<=largest['actual_start_ns']
                 and largest['actual_end_ns']<=meta['stopped_monotonic_ns']),
         rate=replay(epoch/'rate.jsonl'),limits=['10-second ground diagnostic, not flight/rate acceptance.',
