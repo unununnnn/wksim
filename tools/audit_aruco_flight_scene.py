@@ -28,6 +28,11 @@ def audit(root, *, experiment=False):
         require(report['manager_returncode']==0 and report['result']['status']=='pass','Mission/retirement incomplete')
     require(report['result']['epochs'] and all(not e['remaining_group_members'] for e in report['result']['epochs']),'Live epoch groups')
     require(not report.get('cleanup_error') and not report.get('retention_error'),'Cleanup/retention failed')
+    return inspect_geometry(root,report,experiment=experiment)
+
+
+def inspect_geometry(root,report,*,experiment=False):
+    """Content-only measurement; callers still owe lifecycle/rate acceptance."""
     initial=report['initial_scene']
     require(initial['case_id']==5 and not initial['anchor_valid'] and initial['first_step']==-1,'Capture consumed before enable')
     enabled=report['enable_state']
