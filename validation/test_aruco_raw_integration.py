@@ -41,14 +41,19 @@ class RawIntegrationTests(unittest.TestCase):
         bad=copy.deepcopy(record);bad['control_subscriptions']=[1,1]
         with self.assertRaises(ValueError):validate_initialized(bad,settings)
 
-    def test_task_pump_drains_on_both_sides_and_propagates_failure(self):
+    def test_task_pump_captures_even_on_callback_failure(self):
         task,_=self.make_task();calls=[]
         task.raw_capture=S(drain=lambda:calls.append('raw'))
         with patch('Simulator.wksim_runtime.task.Task.pump',side_effect=lambda:calls.append('pump')):
             task.pump()
-        self.assertEqual(calls,['raw','pump','raw'])
+        self.assertEqual(calls,['pump','raw'])
+        calls.clear()
+        with patch('Simulator.wksim_runtime.task.Task.pump',side_effect=RuntimeError('callback failed')):
+            with self.assertRaisesRegex(RuntimeError,'callback failed'):task.pump()
+        self.assertEqual(calls,['raw'])
         task.raw_capture=S(drain=lambda:(_ for _ in ()).throw(OSError('disk full')))
-        with self.assertRaises(OSError):task.pump()
+        with patch('Simulator.wksim_runtime.task.Task.pump'):
+            with self.assertRaises(OSError):task.pump()
 
     def test_actual_ap_velocity_message_is_in_the_raw_channels(self):
         try:

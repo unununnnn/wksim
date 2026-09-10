@@ -243,9 +243,13 @@ class JointArUcoTask(Task):
         return True
 
     def pump(self):
-        self.raw_capture.drain()
-        super().pump()
-        self.raw_capture.drain()
+        # Consecutive pumps already meet here: taking every subscription both
+        # after one pump and before the next repeated the same empty RMW work.
+        # Still drain on a callback failure so its final event is retained.
+        try:
+            super().pump()
+        finally:
+            self.raw_capture.drain()
 
     def close(self):
         try:
