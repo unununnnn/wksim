@@ -208,10 +208,9 @@ class ArucoPublisherGuard:
                 "endpoint_gid": gid_hex,
             }
 
-        self._snapshot_count += 1
-
         # Initial binding on first snapshot
         if self._bound_snapshot is None:
+            self._snapshot_count += 1
             self._bound_snapshot = {
                 "node_name": self._expected_node_name,
                 "stack": self._stack,
@@ -244,6 +243,7 @@ class ArucoPublisherGuard:
                     f"bound={bound_ep['type_name']!r}, current={curr_ep['type_name']!r}"
                 )
 
+        self._snapshot_count += 1
         return {
             "node_name": self._expected_node_name,
             "stack": self._stack,

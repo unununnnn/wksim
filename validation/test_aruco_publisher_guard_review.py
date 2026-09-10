@@ -225,9 +225,8 @@ class TestArucoPublisherGuardReview(unittest.TestCase):
             guard.snapshot()
         self.assertIn("publisher GID changed across snapshots", str(ctx.exception))
 
-        # AUDIT FINDING: Notice that _snapshot_count was incremented to 2 despite failure!
-        self.assertEqual(guard._snapshot_count, 2)
-        # Fix recommendation: increment _snapshot_count only after all invariant checks succeed.
+        # Failed discovery must not consume an accepted snapshot sequence.
+        self.assertEqual(guard._snapshot_count, 1)
 
 
 if __name__ == "__main__":
