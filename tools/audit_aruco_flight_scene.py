@@ -16,10 +16,16 @@ from tools.audit_aruco_scene import rotation,require
 def digest(path):return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
-def audit(root):
+def audit(root, *, experiment=False):
     report=json.loads((root/'report.json').read_text())
-    require(report['status']=='acquired_airborne_scene' and report['flight_scene'],'Not an acquired flight scene')
-    require(report['manager_returncode']==0 and report['result']['status']=='pass','Mission/retirement incomplete')
+    if experiment:
+        from Simulator.wksim_runtime.joint_aruco_profile import TASK
+        require(report['status']=='captured_pending_independent_audit' and report['config']['task']==TASK,
+                'Not an acquired tracking experiment')
+        require(report['manager_returncode']==0 and report['result']['status']=='stopped','Candidate retirement incomplete')
+    else:
+        require(report['status']=='acquired_airborne_scene' and report['flight_scene'],'Not an acquired flight scene')
+        require(report['manager_returncode']==0 and report['result']['status']=='pass','Mission/retirement incomplete')
     require(report['result']['epochs'] and all(not e['remaining_group_members'] for e in report['result']['epochs']),'Live epoch groups')
     require(not report.get('cleanup_error') and not report.get('retention_error'),'Cleanup/retention failed')
     initial=report['initial_scene']
@@ -44,6 +50,12 @@ def audit(root):
         for key,value in (('run_id',report['config']['run_id']),('instance_id',report['session']['instance_id']),
                           ('stream_id',report['stream_id']),('epoch',enabled['epoch'])):
             require(m[key]==s[key]==value,'Capture identity differs: '+key)
+        if experiment:
+            notice=frame['notification']
+            require(notice.get('schema')=='wksim.rgb-ready.v2' and type(notice.get('generation')) is int
+                and notice['generation']==enabled['generation']
+                and all(notice.get(key)==m[key] for key in ('run_id','instance_id','stream_id','epoch'))
+                and notice.get('metadata')==Path(frame['metadata_path']).name,'Raw RGB notification binding differs')
         require(step==s['step'] and s['generation']==enabled['generation'],'Scene step/generation differs')
         require(m.get('render_show_flags')==dict.fromkeys(('post_processing','anti_aliasing','bloom',
             'depth_of_field','eye_adaptation','motion_blur','temporal_aa'),False),'Uncontrolled image postprocessing')
@@ -148,7 +160,13 @@ def audit(root):
             item.update(pixel_error=error,translation_error_m=translation,world_error_m=world_error,body_error_m=body_error)
         counts[phase]+=1;results.append(item)
     require(all(counts[k]>=5 for k in ('static_initial','moving','occluded','recovered')),'Insufficient phase samples')
-    require(results[-1]['elapsed']>=12000,'Incomplete 12-second scene')
+    if experiment:
+        # Capture ends on the authority deadline. The last async image must
+        # cover that deadline within its already frozen 300-step freshness.
+        require(report['disable_state']['authority']['tick']>=first_step+12000
+                and results[-1]['elapsed']>=12000-300,'Incomplete tracking scene coverage')
+    else:
+        require(results[-1]['elapsed']>=12000,'Incomplete 12-second scene')
     return dict(status='failed' if failures else 'pass',scope='Real airborne case5 rendering/geometry/occlusion only; no camera-driven flight claim',
         counts=dict(counts),failures=failures,report_sha256=digest(root/'report.json'),auditor_sha256=digest(__file__),frames=results)
 

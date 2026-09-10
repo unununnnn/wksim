@@ -481,7 +481,9 @@ def main():
             if config.get('kind')=='joint_scene' or config.get('runtime_profile'):
                 if config.get('kind')=='joint_scene':
                     from .joint_profile import select_profile
-                    profile=select_profile(config['runtime_profile'])
+                    from .joint_aruco_profile import PROFILE as ARUCO_PROFILE, select_config as select_aruco
+                    profile=(select_aruco(config) if config['runtime_profile']==ARUCO_PROFILE
+                             else select_profile(config['runtime_profile']))
                 else:
                     from .independent_profile import select_config
                     _,profile=select_config(config)

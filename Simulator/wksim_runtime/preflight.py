@@ -159,7 +159,10 @@ def preflight(config):
             if platform.system()=='Linux':
                 errors=consumer_rejections(normalized)
                 if errors:return dict(ok=False,reasons=errors,children_created=0,config=normalized)
-            return dict(check_profile(normalized['runtime_profile'],normalized['run_id']),config=normalized)
+            from .joint_aruco_profile import PROFILE as ARUCO_PROFILE, check as check_aruco
+            admission = (check_aruco(normalized) if normalized['runtime_profile'] == ARUCO_PROFILE
+                         else check_profile(normalized['runtime_profile'],normalized['run_id']))
+            return dict(admission,config=normalized)
         except (OSError,ValueError,TypeError) as error:
             return dict(ok=False,reasons=[dict(code='invalid_config',message=str(error))],children_created=0)
     result = dict(ok=False, reasons=[], identities={}, capabilities=[], children_created=0)

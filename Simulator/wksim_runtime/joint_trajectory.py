@@ -5,27 +5,30 @@ import re
 
 from .evidence import write_json
 from .joint_config import FIXED_TASKS
+from .joint_aruco_profile import TASK as ARUCO_TASK
 
 RECORDER = 'wksim_joint_supervisor'
 
 
 def supported_actions(task_type, actions):
-    if task_type in FIXED_TASKS:
+    if task_type in (*FIXED_TASKS,ARUCO_TASK):
         return [action for action in actions if action in ('start-task', 'stop', 'cold-reset')]
     return actions
 
 
 def validate_initialized(record, settings):
     fixed = settings['task_type'] in FIXED_TASKS
+    aruco = settings['task_type'] == ARUCO_TASK
     expected = dict(version=1,run_id=settings['run_id'],epoch=settings['epoch'],stack=settings['stack'],
-                    token=settings['token'],control_subscriptions=[2,2] if fixed else [1,1])
+                    token=settings['token'],control_subscriptions=[2,2] if fixed or aruco else [1,1])
     graph = record.get('request_graph')
-    if fixed:
+    if fixed or aruco:
         if not isinstance(graph, dict) or set(graph) != {'setup', 'command'}:
             raise ValueError('Missing fixed task transport graph')
         for endpoints in graph.values():
             if (len(endpoints) != 2 or {e['node_name'] for e in endpoints} != {
-                    'wksim_joint_'+settings['stack']+'_control', RECORDER}
+                    'wksim_joint_'+settings['stack']+'_control',
+                    'wksim_aruco_raw_'+settings['stack'] if aruco else RECORDER}
                     or len({e['endpoint_gid'] for e in endpoints}) != 2
                     or any(e['node_namespace'] != '/' or not re.fullmatch('[0-9a-f]+', e['endpoint_gid'])
                            or int(e['endpoint_gid'], 16) == 0 for e in endpoints)):

@@ -19,6 +19,7 @@ from .evidence import write_json,json_identity,group_members,host_boot_id
 from .isolation import check_isolation,isolate_temporary_files,Reservation
 from .joint_actions import Mailbox
 from .joint_config import validate_joint_config,FIXED_TASKS
+from .joint_aruco_profile import TASK as ARUCO_TASK
 from .joint_trajectory import supported_actions,validate_initialized,coordinate_legs
 from .joint_rate import JointRate,RateUnmet
 from .joint_evidence import verify_tasks,final_run_status
@@ -76,6 +77,7 @@ def epoch_run(directory,epoch,generation=1):
     check_isolation()
     config=validate_joint_config(json.loads((directory/'config.json').read_text()))
     fixed_task=config['task'] in FIXED_TASKS
+    aruco_task=config['task'] == ARUCO_TASK
     session=json.loads((directory/'session.json').read_text())
     if (set(session)!={'version','run_id','instance_id'} or session['version']!=1
             or session['run_id']!=config['run_id'] or not hex_identity(session['instance_id'])
@@ -234,7 +236,7 @@ def epoch_run(directory,epoch,generation=1):
         return clock.request(dict(version=1,epoch=epoch,request_id=clock.last_request+1,action=action))
     def start_tasks(mode,prepare_only=False):
         nonlocal task_group,task_state,ever_started
-        if fixed_task and mode!='initial':
+        if (fixed_task or aruco_task) and mode!='initial':
             raise ValueError('Fixed trajectory recovery is unsupported; use cold-reset')
         if mode=='initial' and task_group is not None and not ever_started and not prepare_only:
             task_state='preparing';ever_started=True
@@ -247,6 +249,13 @@ def epoch_run(directory,epoch,generation=1):
             settings=dict(run_id=config['run_id'],epoch=epoch,stack=stack,uav_id=uid,mode=mode,
                           token=uuid.uuid4().hex,parent=json_identity(os.getpid()),control_package=admission['control_package'],
                           task_dwell_seconds=config['task_dwell_seconds'],task_type=config['task'])
+            if aruco_task:
+                profile=json.loads((Path(__file__).with_name('aruco-tracking-v1.json')).read_text())
+                scene=output/'aruco';scene.mkdir(exist_ok=True)
+                settings['aruco_settings']=dict(profile=profile,scene_directory=str(scene),
+                    binding_path=str(scene/'binding.json'),observation_path=str(scene/'observation.json'),
+                    selected_stack=config['aruco_experiment']['selected_stack'],
+                    instance_id=session['instance_id'],generation=generation)
             write_json(folder/'task-config.json',settings)
             launch(stack+'-task-'+task_id,[sys.executable,'-B','-m','Simulator.wksim_runtime.joint_task',
                                          str(folder/'task-config.json')],folder,'task')
@@ -287,6 +296,13 @@ def epoch_run(directory,epoch,generation=1):
         result['source_sha256']={str(path.relative_to(REPO)):digest(path) for folder in
             (REPO/'Simulator/wksim_runtime',REPO/'Simulator/wksim_core') for path in folder.glob('*.py')}
         result['source_sha256']['Simulator/wksim_core/model.cpp']=digest(REPO/'Simulator/wksim_core/model.cpp')
+        if aruco_task:
+            for name in ('Simulator/wksim_runtime/aruco-tracking-v1.json',
+                         'Simulator/wksim_perception/aruco.py','Simulator/wksim_perception/target_intent.py',
+                         'tools/joint_control_candidate.py','tools/px4_land_candidate.py'):
+                result['source_sha256'][name]=digest(REPO/name)
+            result['experimental']=True
+            result['production_admitted']=False
         observe_px4_setup=os.environ.get('WKSIM_OBSERVE_PX4_SETUP')=='1'
         if observe_px4_setup:
             result['source_sha256']['tools/observe_px4_setup.py']=digest(REPO/'tools/observe_px4_setup.py')

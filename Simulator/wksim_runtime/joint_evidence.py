@@ -13,6 +13,12 @@ def final_run_status(epochs):
 
 def verify_tasks(directory,epoch,total_ticks,reports,task_type='public_position',*,formal_result=None):
     from .joint_config import FIXED_TASKS
+    from .joint_aruco_profile import TASK as ARUCO_TASK
+    if task_type == ARUCO_TASK:
+        # Candidate capture is evaluated with the retained Windows RGB/readback
+        # evidence by its independent auditor. Worker completion alone is not
+        # a physical or camera-flight proof and cannot set flight_completed.
+        return None
     if task_type in FIXED_TASKS:
         if formal_result is not None and formal_result['status']=='cold_reset':
             return None  # Cold reset retires this fixed task; it is not flight completion.
