@@ -392,6 +392,8 @@ def epoch_run(directory,epoch,generation=1):
                 if write_probe: write_probe.write(clocks,'clock',text)
                 else: clocks.write(text)
             physics=JointPhysics(resources,clock,model_workers,physics_health,record)
+            from .loop_timing import LoopTiming
+            loop_timing=LoopTiming(physics.cpu_timing,record)
             publisher.publish(clock);record_clock(json.dumps(clock.snapshot())+'\n')
             lifecycle=JointLifecycle(node,clock,publisher,output,config['run_id'],started,monitor,
                                      write_probe=write_probe,log_factory=open_evidence if async_evidence else None)
@@ -500,35 +502,50 @@ def epoch_run(directory,epoch,generation=1):
                 if pending is not None:
                     mailbox.respond(pending,'failed',reason=str(error),authority=clock.snapshot());pending=None
                 status(['stop','cold-reset'],'faulted')
-            def advance():
+            def advance(loop_origin=None):
                 nonlocal physics_wait_started,pending_task_reanchor
-                if clock.tick%4==0:
-                    if clock.phase=='running' and clock.synchronized:
-                        if rate.anchor is None:
-                            rate.reanchor(clock.tick,'synchronized_boundary',
-                                          transition=lifecycle.phase in ('recovering','resuming'))
-                        elif pending_task_reanchor:
-                            # Deferred from a mid-group start-recovery-task request:
-                            # fire at this complete boundary before pacing resumes.
-                            pending_task_reanchor=False
-                            if not rate.latched:
-                                rate.reanchor(clock.tick,'start-recovery-task',transition=True)
-                        rate.begin_group(clock.tick,physics_health)
-                    else:
-                        record_rate('untimed_group_start',classification='single_step' if clock.phase=='stepping' else 'bootstrap',
-                                    start_tick=clock.tick,end_tick=clock.tick+4,actual_start_ns=time.monotonic_ns())
-                physics_wait_started=time.monotonic()
+                loop_timing.start(loop_origin)
+                loop_timing.mark('administration')
+                stage='pacing';step_complete=False
                 try:
-                    states=physics.advance();publisher.publish(clock)
+                    if clock.tick%4==0:
+                        if clock.phase=='running' and clock.synchronized:
+                            if rate.anchor is None:
+                                rate.reanchor(clock.tick,'synchronized_boundary',
+                                              transition=lifecycle.phase in ('recovering','resuming'))
+                            elif pending_task_reanchor:
+                                # Preserve the explicitly authorized recovery boundary.
+                                pending_task_reanchor=False
+                                if not rate.latched:
+                                    rate.reanchor(clock.tick,'start-recovery-task',transition=True)
+                            rate.begin_group(clock.tick,physics_health)
+                        else:
+                            record_rate('untimed_group_start',classification='single_step' if clock.phase=='stepping' else 'bootstrap',
+                                        start_tick=clock.tick,end_tick=clock.tick+4,actual_start_ns=time.monotonic_ns())
+                    loop_timing.mark(stage);stage='physics'
+                    physics_wait_started=time.monotonic()
+                    states=physics.advance()
+                    loop_timing.mark(stage);stage='clock_publish'
+                    publisher.publish(clock)
+                    loop_timing.mark(stage);stage='clock_evidence'
                     record_clock(json.dumps(clock.snapshot(),separators=(',',':'))+'\n')
+                    loop_timing.mark(stage);stage='group_end_and_view'
                     if clock.tick%4==0:
                         if rate.group is not None: rate.end_group(clock.tick)
                         else: record_rate('untimed_group_end',classification='transition' if lifecycle.phase in ('resuming','recovering')
-                                          else 'single_step' if lifecycle.phase=='stepping' else 'bootstrap',actual_end_ns=time.monotonic_ns())
+                                          else 'single_step' if clock.phase=='stepping' else 'bootstrap',actual_end_ns=time.monotonic_ns())
                         view.emit(states,clock.tick,'running' if clock.phase=='stepping' else clock.phase)
+                    step_complete=True
                     return states
                 finally:
                     physics_wait_started=None
+                    try:
+                        loop_timing.mark(stage)
+                        loop_timing.finish(clock.tick,complete=step_complete)
+                    except Exception as diagnostic_error:
+                        result.setdefault('evidence_errors',[]).append(dict(
+                            stream='runtime-timing',phase=stage,error=repr(diagnostic_error)))
+                        if step_complete:raise
             def recover(request):
                 nonlocal task_state,needs_recovery_task,busy_phase,ever_started
                 recovery_started=time.monotonic()
@@ -584,6 +601,7 @@ def epoch_run(directory,epoch,generation=1):
                 complete(request,effect='physics_recovered_new_task_required',observation=observation)
                 busy_phase=None
             while clock.phase!='stopped':
+                loop_origin=(time.monotonic_ns(),time.thread_time_ns()) if loop_timing.enabled else None
                 try: physics_health()
                 except OperatorRetirement: raise
                 except (OSError,RuntimeError,ValueError) as error: latch_failure(error)
@@ -726,7 +744,7 @@ def epoch_run(directory,epoch,generation=1):
                                 status(['stop','cold-reset'])
                             except (OSError,RuntimeError,ValueError) as error: latch_failure(error)
                 if clock.phase in ('running','stepping'):
-                    try: advance()
+                    try: advance(loop_origin)
                     except OperatorRetirement: raise
                     except (OSError,RuntimeError,ValueError) as error: latch_failure(error)
                 else:
@@ -752,7 +770,7 @@ def epoch_run(directory,epoch,generation=1):
         result['display_stream']=dict(sent=view.sent,dropped=view.dropped,sequence=view.sequence,
                                       setup_error=view.setup_error,last_error=view.last_error)
         view.close()
-        evidence_errors=[]
+        evidence_errors=list(result.get('evidence_errors',[]))
         try:
             rate.close_segment('epoch_retired',clock.tick)
         except Exception as error:
