@@ -136,9 +136,13 @@ def epoch_run(directory,epoch,generation=1):
     # Real-time scheduling bounds preemption by ordinary processes; RT
     # throttling and host jitter still apply and are not claimed away.
     try:
-        os.sched_setscheduler(0,os.SCHED_FIFO,os.sched_param(50))
+        # Explicit camera experiment: ordinary children and background threads
+        # must not inherit the supervisor's FIFO/50 policy. Native model/FC
+        # leaders are still explicitly configured by child_priority below.
+        scheduler_policy=os.SCHED_FIFO | (os.SCHED_RESET_ON_FORK if aruco_task else 0)
+        os.sched_setscheduler(0,scheduler_policy,os.sched_param(50))
         result['manager_scheduler']=dict(policy='SCHED_FIFO',priority=50,
-                                         actual_policy=os.sched_getscheduler(0))
+                                         reset_on_fork=aruco_task,actual_policy=os.sched_getscheduler(0))
     except OSError as error:
         result['manager_scheduler']=dict(policy='SCHED_FIFO',priority=50,error=repr(error))
     def interrupted(signum,frame):
@@ -190,6 +194,12 @@ def epoch_run(directory,epoch,generation=1):
                                          actual_policy=os.sched_getscheduler(child.pid))
             except OSError as error:
                 record['scheduler']=dict(policy='SCHED_FIFO',priority=40,error=repr(error))
+        if aruco_task:
+            try:
+                record['observed_scheduler']=dict(policy=os.sched_getscheduler(child.pid),
+                    priority=os.sched_getparam(child.pid).sched_priority)
+            except OSError as error:
+                record['observed_scheduler']=dict(error=repr(error))
         return record
     def launch(name,argv,cwd,role):
         log=(output/(name+'.log')).open('x')
@@ -431,6 +441,20 @@ def epoch_run(directory,epoch,generation=1):
             if clock.tick!=0 or any(value['tick']!=0 for value in initial_models['models'].values()):
                 raise RuntimeError('Startup observation advanced the physical clock')
             record_images('ready')
+            if aruco_task:
+                scheduler_snapshot={}
+                processes=[('supervisor',os.getpid())]+[(name,child.pid) for name,child,_ in children if child.poll() is None]
+                for name,pid in processes:
+                    threads=[]
+                    for entry in (Path('/proc')/str(pid)/'task').iterdir():
+                        try:
+                            tid=int(entry.name)
+                            threads.append(dict(tid=tid,name=(entry/'comm').read_text().strip(),
+                                policy=os.sched_getscheduler(tid),priority=os.sched_getparam(tid).sched_priority))
+                        except (OSError,ValueError) as error:
+                            threads.append(dict(tid=entry.name,error=repr(error)))
+                    scheduler_snapshot[name]=dict(pid=pid,threads=threads)
+                result['scheduler_snapshot']=scheduler_snapshot
             result['initialization']=dict(physical_tick=0,models=initial_models,
                                           task_execution_requires_explicit_go=True)
             record_rate('transport_initialized',physical_tick=0,task_execution_requires_explicit_go=True)
