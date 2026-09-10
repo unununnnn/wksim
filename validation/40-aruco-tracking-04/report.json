@@ -1,0 +1,3253 @@
+{
+  "status": "failed",
+  "scope": "Real camera/public-task candidate capture; independent audit grants the verdict.",
+  "config": {
+    "schema_version": 1,
+    "kind": "joint_scene",
+    "run_id": "aruco-track-a47a3e996a",
+    "runtime_profile": "joint_quad_dds_aruco_experimental_v1",
+    "requested_rate": 0.5,
+    "task": "aruco_tracking_experimental_v1",
+    "aruco_experiment": {
+      "selected_stack": "px4",
+      "control": {
+        "path": "/root/wksim-joint-control-FWBLNX/build.json",
+        "sha256": "6d82332c80e753ef6d22e8860dda75b3685c39facd7fd3c78da10f26be099586"
+      },
+      "px4": {
+        "path": "/root/wksim-px4-land-7RjMjQ/land-build.json",
+        "sha256": "45c5332cf06a84952189fcf2eabc5d2e15fde9236c704a5c3d6318e7f5dcb3ac"
+      }
+    },
+    "display_socket": "/tmp/wksim-aruco-track-a47a3e996a/state.sock"
+  },
+  "settings": {
+    "version": 1,
+    "sensor_id": "front_rgb",
+    "width": 1920,
+    "height": 1440,
+    "horizontal_fov_degrees": 90,
+    "position_cm": [
+      30,
+      20,
+      10
+    ],
+    "quaternion_xyzw": [
+      0,
+      0,
+      0,
+      1
+    ],
+    "interval_steps": 100,
+    "notify_port": 19072,
+    "vehicle_id": 2
+  },
+  "profile": {
+    "schema": "wksim.aruco-tracking-profile.v1",
+    "camera": {
+      "version": 1,
+      "sensor_id": "front_rgb",
+      "width": 1920,
+      "height": 1440,
+      "horizontal_fov_degrees": 90,
+      "position_cm": [
+        30,
+        20,
+        10
+      ],
+      "quaternion_xyzw": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "interval_steps": 100,
+      "notify_port": 19072
+    },
+    "target": {
+      "dictionary": "DICT_6X6_250",
+      "marker_id": 23,
+      "side_length_m": 0.5,
+      "max_age_steps": 300,
+      "max_distance_m": 8,
+      "max_speed_mps": 2,
+      "max_jump_m": 0.5,
+      "max_reprojection_px": 1
+    },
+    "controller": {
+      "desired_body_flu_m": [
+        2.3,
+        -0.32,
+        0.06
+      ],
+      "gain_per_s": 0.6,
+      "max_speed_mps": 0.5
+    },
+    "scene": {
+      "fixture_case": 5,
+      "initial_steps": 2000,
+      "moving_steps": 4000,
+      "occluded_steps": 2000,
+      "recovery_steps": 4000,
+      "world_velocity_mps": [
+        0,
+        0.25,
+        0
+      ]
+    },
+    "mission": {
+      "initial_hold_s": 5,
+      "binding_timeout_s": 30,
+      "command_acceptance_timeout_s": 0.5,
+      "maximum_position_radius_m": 5,
+      "altitude_min_m": 2.4,
+      "altitude_max_m": 3.6,
+      "maximum_tilt_rad": 0.35,
+      "tracking_error_m": 0.65,
+      "recovery_error_m": 0.3,
+      "recovery_hold_steps": 1000
+    }
+  },
+  "profile_sha256": "2b435df3fda4f7d7b1f8f3e902122037ac4ed07c86dbb385a5b9a0ed8d5f2b93",
+  "frames": [],
+  "observations": [],
+  "started_unix_s": 1789063122.9252393,
+  "manifest": "C:\\Users\\PC\\Documents\\odid\u7f16\u8bd1\\wksim\\validation\\ue55-build-f0409a874ed243cdbad4ac9cb38d886d\\candidate-manifest.json",
+  "source_sha256": {
+    "tools/run_aruco_tracking.py": "4ed5762f9f5a1bcc5fa6a2cf39798ae98ef9f3569922c85ab910206cc6ef8844",
+    "Simulator/ue55/rgb.py": "295d59827f6f7ec2fa4a8a97f13a125fed66c58612d8459b3bf83a57cdcb5d0b",
+    "Simulator/wksim_console/visual.py": "7795480f952b22d550cdfd61ed3acf46e8d064e8e6671a4e7b747f12dcedf0b0",
+    "Simulator/wksim_perception/aruco.py": "8e51688ad16fe929ae01a27294805cdf2aa54372d88bcb31a7d260fb38e2ae0b",
+    "Simulator/wksim_perception/target_intent.py": "afa76931eaf5ff52dfe37aa681da697d88e27bf89e98045311118335c30a3781",
+    "Simulator/wksim_runtime/aruco-tracking-v1.json": "2b435df3fda4f7d7b1f8f3e902122037ac4ed07c86dbb385a5b9a0ed8d5f2b93"
+  },
+  "cpu_timing": false,
+  "runtime_directory": "/root/wksim-aruco-track-4yeM6Ksk/aruco-track-a47a3e996a",
+  "preparation": {
+    "returncode": 0,
+    "stdout": "{\"status\": \"prepared\", \"kind\": \"joint_scene\", \"run_id\": \"aruco-track-a47a3e996a\", \"run_dir\": \"/root/wksim-aruco-track-4yeM6Ksk/aruco-track-a47a3e996a\", \"instance_id\": \"e2ee16d3d8db41afa56df0e0db49d606\", \"session\": \"/root/wksim-aruco-track-4yeM6Ksk/aruco-track-a47a3e996a/session.json\", \"scope\": \"identity and empty run directory only; no flight processes or clock steps\", \"flight_ready\": false, \"resources_reserved\": false}\n",
+    "stderr": ""
+  },
+  "session": {
+    "version": 1,
+    "run_id": "aruco-track-a47a3e996a",
+    "instance_id": "e2ee16d3d8db41afa56df0e0db49d606"
+  },
+  "loaded_module": {
+    "path": "E:\\ue5.5\\build\\wksim-native-aruco-flight-20260911-01\\Binaries\\Win64\\UnrealEditor-WksimVisual.dll",
+    "pid": 50700,
+    "sha256": "eec17b8dfcdf0e7099161c2cca3cb92288e5cef48881c4b9a5b28a2b7dc9da5f"
+  },
+  "initial_scene": {
+    "schema": "wksim.rgb-calibration-visual.v1",
+    "case_id": 5,
+    "scene_schema": "wksim.aruco-scene.v1",
+    "dictionary": "DICT_6X6_250",
+    "marker_id": 23,
+    "row_major_bits": "0000000001001100010010100001111000110010011001100110011000000000",
+    "run_id": "",
+    "instance_id": "",
+    "stream_id": "",
+    "epoch": "",
+    "generation": -1,
+    "first_step": -1,
+    "step": -1,
+    "camera_position_cm": [
+      0,
+      0,
+      0
+    ],
+    "camera_quaternion_xyzw": [
+      0,
+      0,
+      0,
+      1
+    ],
+    "scene_case": 5,
+    "anchor_valid": false,
+    "phase": "pending_enable",
+    "phase_start_step": -1,
+    "module_path": "E:\\ue5.5\\build\\wksim-native-aruco-flight-20260911-01\\Binaries\\Win64\\UnrealEditor-WksimVisual.dll",
+    "process_id": 50700,
+    "physics_authority": false,
+    "coordinates": "UE world centimeters; X forward Y right Z up",
+    "objects": [
+      {
+        "name": "ArUcoWhiteMargin",
+        "visible": true,
+        "collision_enabled": false,
+        "simulating_physics": false,
+        "material_name": "M_ArUco23_White",
+        "material_unlit": true,
+        "material_opaque": true,
+        "material_emissive_rgba": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "position_cm": [
+          230.15,
+          32,
+          6
+        ],
+        "scale": [
+          0.001,
+          0.625,
+          0.625
+        ],
+        "mesh_bounds_min": [
+          -50,
+          -50,
+          -50
+        ],
+        "mesh_bounds_max": [
+          50,
+          50,
+          50
+        ],
+        "quaternion_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name": "ArUcoCell_0_0",
+        "visible": true,
+        "collision_enabled": false,
+        "simulating_physics": false,
+        "material_name": "M_ArUco23_Black",
+        "material_unlit": true,
+        "material_opaque": true,
+        "material_emissive_rgba": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "position_cm": [
+          230.05,
+          10.125,
+          27.875
+        ],
+        "scale": [
+          0.001,
+          0.0625,
+          0.0625
+        ],
+        "mesh_bounds_min": [
+          -50,
+          -50,
+          -50
+        ],
+        "mesh_bounds_max": [
+          50,
+          50,
+          50
+        ],
+        "quaternion_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name": "ArUcoCell_0_1",
+        "visible": true,
+        "collision_enabled": false,
+        "simulating_physics": false,
+        "material_name": "M_ArUco23_Black",
+        "material_unlit": true,
+        "material_opaque": true,
+        "material_emissive_rgba": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "position_cm": [
+          230.05,
+          16.375,
+          27.875
+        ],
+        "scale": [
+          0.001,
+          0.0625,
+          0.0625
+        ],
+        "mesh_bounds_min": [
+          -50,
+          -50,
+          -50
+        ],
+        "mesh_bounds_max": [
+          50,
+          50,
+          50
+        ],
+        "quaternion_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name": "ArUcoCell_0_2",
+        "visible": true,
+        "collision_enabled": false,
+        "simulating_physics": false,
+        "material_name": "M_ArUco23_Black",
+        "material_unlit": true,
+        "material_opaque": true,
+        "material_emissive_rgba": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "position_cm": [
+          230.05,
+          22.625,
+          27.875
+        ],
+        "scale": [
+          0.001,
+          0.0625,
+          0.0625
+        ],
+        "mesh_bounds_min": [
+          -50,
+          -50,
+          -50
+        ],
+        "mesh_bounds_max": [
+          50,
+          50,
+          50
+        ],
+        "quaternion_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name": "ArUcoCell_0_3",
+        "visible": true,
+        "collision_enabled": false,
+        "simulating_physics": false,
+        "material_name": "M_ArUco23_Black",
+        "material_unlit": true,
+        "material_opaque": true,
+        "material_emissive_rgba": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "position_cm": [
+          230.05,
+          28.875,
+          27.875
+        ],
+        "scale": [
+          0.001,
+          0.0625,
+          0.0625
+        ],
+        "mesh_bounds_min": [
+          -50,
+          -50,
+          -50
+        ],
+        "mesh_bounds_max": [
+          50,
+          50,
+          50
+        ],
+        "quaternion_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name": "ArUcoCell_0_4",
+        "visible": true,
+        "collision_enabled": false,
+        "simulating_physics": false,
+        "material_name": "M_ArUco23_Black",
+        "material_unlit": true,
+        "material_opaque": true,
+        "material_emissive_rgba": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "position_cm": [
+          230.05,
+          35.125,
+          27.875
+        ],
+        "scale": [
+          0.001,
+          0.0625,
+          0.0625
+        ],
+        "mesh_bounds_min": [
+          -50,
+          -50,
+          -50
+        ],
+        "mesh_bounds_max": [
+          50,
+          50,
+          50
+        ],
+        "quaternion_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name": "ArUcoCell_0_5",
+        "visible": true,
+        "collision_enabled": false,
+        "simulating_physics": false,
+        "material_name": "M_ArUco23_Black",
+        "material_unlit": true,
+        "material_opaque": true,
+        "material_emissive_rgba": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "position_cm": [
+          230.05,
+          41.375,
+          27.875
+        ],
+        "scale": [
+          0.001,
+          0.0625,
+          0.0625
+        ],
+        "mesh_bounds_min": [
+          -50,
+          -50,
+          -50
+        ],
+        "mesh_bounds_max": [
+          50,
+          50,
+          50
+        ],
+        "quaternion_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name": "ArUcoCell_0_6",
+        "visible": true,
+        "collision_enabled": false,
+        "simulating_physics": false,
+        "material_name": "M_ArUco23_Black",
+        "material_unlit": true,
+        "material_opaque": true,
+        "material_emissive_rgba": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "position_cm": [
+          230.05,
+          47.625,
+          27.875
+        ],
+        "scale": [
+          0.001,
+          0.0625,
+          0.0625
+        ],
+        "mesh_bounds_min": [
+          -50,
+          -50,
+          -50
+        ],
+        "mesh_bounds_max": [
+          50,
+          50,
+          50
+        ],
+        "quaternion_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name": "ArUcoCell_0_7",
+        "visible": true,
+        "collision_enabled": false,
+        "simulating_physics": false,
+        "material_name": "M_ArUco23_Black",
+        "material_unlit": true,
+        "material_opaque": true,
+        "material_emissive_rgba": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "position_cm": [
+          230.05,
+          53.875,
+          27.875
+        ],
+        "scale": [
+          0.001,
+          0.0625,
+          0.0625
+        ],
+        "mesh_bounds_min": [
+          -50,
+          -50,
+          -50
+        ],
+        "mesh_bounds_max": [
+          50,
+          50,
+          50
+        ],
+        "quaternion_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name": "ArUcoCell_1_0",
+        "visible": true,
+        "collision_enabled": false,
+        "simulating_physics": false,
+        "material_name": "M_ArUco23_Black",
+        "material_unlit": true,
+        "material_opaque": true,
+        "material_emissive_rgba": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "position_cm": [
+          230.05,
+          10.125,
+          21.625
+        ],
+        "scale": [
+          0.001,
+          0.0625,
+          0.0625
+        ],
+        "mesh_bounds_min": [
+          -50,
+          -50,
+          -50
+        ],
+        "mesh_bounds_max": [
+          50,
+          50,
+          50
+        ],
+        "quaternion_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name": "ArUcoCell_1_1",
+        "visible": true,
+        "collision_enabled": false,
+        "simulating_physics": false,
+        "material_name": "M_ArUco23_White",
+        "material_unlit": true,
+        "material_opaque": true,
+        "material_emissive_rgba": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "position_cm": [
+          230.05,
+          16.375,
+          21.625
+        ],
+        "scale": [
+          0.001,
+          0.0625,
+          0.0625
+        ],
+        "mesh_bounds_min": [
+          -50,
+          -50,
+          -50
+        ],
+        "mesh_bounds_max": [
+          50,
+          50,
+          50
+        ],
+        "quaternion_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name": "ArUcoCell_1_2",
+        "visible": true,
+        "collision_enabled": false,
+        "simulating_physics": false,
+        "material_name": "M_ArUco23_Black",
+        "material_unlit": true,
+        "material_opaque": true,
+        "material_emissive_rgba": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "position_cm": [
+          230.05,
+          22.625,
+          21.625
+        ],
+        "scale": [
+          0.001,
+          0.0625,
+          0.0625
+        ],
+        "mesh_bounds_min": [
+          -50,
+          -50,
+          -50
+        ],
+        "mesh_bounds_max": [
+          50,
+          50,
+          50
+        ],
+        "quaternion_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name": "ArUcoCell_1_3",
+        "visible": true,
+        "collision_enabled": false,
+        "simulating_physics": false,
+        "material_name": "M_ArUco23_Black",
+        "material_unlit": true,
+        "material_opaque": true,
+        "material_emissive_rgba": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "position_cm": [
+          230.05,
+          28.875,
+          21.625
+        ],
+        "scale": [
+          0.001,
+          0.0625,
+          0.0625
+        ],
+        "mesh_bounds_min": [
+          -50,
+          -50,
+          -50
+        ],
+        "mesh_bounds_max": [
+          50,
+          50,
+          50
+        ],
+        "quaternion_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name": "ArUcoCell_1_4",
+        "visible": true,
+        "collision_enabled": false,
+        "simulating_physics": false,
+        "material_name": "M_ArUco23_White",
+        "material_unlit": true,
+        "material_opaque": true,
+        "material_emissive_rgba": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "position_cm": [
+          230.05,
+          35.125,
+          21.625
+        ],
+        "scale": [
+          0.001,
+          0.0625,
+          0.0625
+        ],
+        "mesh_bounds_min": [
+          -50,
+          -50,
+          -50
+        ],
+        "mesh_bounds_max": [
+          50,
+          50,
+          50
+        ],
+        "quaternion_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name": "ArUcoCell_1_5",
+        "visible": true,
+        "collision_enabled": false,
+        "simulating_physics": false,
+        "material_name": "M_ArUco23_White",
+        "material_unlit": true,
+        "material_opaque": true,
+        "material_emissive_rgba": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "position_cm": [
+          230.05,
+          41.375,
+          21.625
+        ],
+        "scale": [
+          0.001,
+          0.0625,
+          0.0625
+        ],
+        "mesh_bounds_min": [
+          -50,
+          -50,
+          -50
+        ],
+        "mesh_bounds_max": [
+          50,
+          50,
+          50
+        ],
+        "quaternion_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name": "ArUcoCell_1_6",
+        "visible": true,
+        "collision_enabled": false,
+        "simulating_physics": false,
+        "material_name": "M_ArUco23_Black",
+        "material_unlit": true,
+        "material_opaque": true,
+        "material_emissive_rgba": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "position_cm": [
+          230.05,
+          47.625,
+          21.625
+        ],
+        "scale": [
+          0.001,
+          0.0625,
+          0.0625
+        ],
+        "mesh_bounds_min": [
+          -50,
+          -50,
+          -50
+        ],
+        "mesh_bounds_max": [
+          50,
+          50,
+          50
+        ],
+        "quaternion_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name": "ArUcoCell_1_7",
+        "visible": true,
+        "collision_enabled": false,
+        "simulating_physics": false,
+        "material_name": "M_ArUco23_Black",
+        "material_unlit": true,
+        "material_opaque": true,
+        "material_emissive_rgba": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "position_cm": [
+          230.05,
+          53.875,
+          21.625
+        ],
+        "scale": [
+          0.001,
+          0.0625,
+          0.0625
+        ],
+        "mesh_bounds_min": [
+          -50,
+          -50,
+          -50
+        ],
+        "mesh_bounds_max": [
+          50,
+          50,
+          50
+        ],
+        "quaternion_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name": "ArUcoCell_2_0",
+        "visible": true,
+        "collision_enabled": false,
+        "simulating_physics": false,
+        "material_name": "M_ArUco23_Black",
+        "material_unlit": true,
+        "material_opaque": true,
+        "material_emissive_rgba": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "position_cm": [
+          230.05,
+          10.125,
+          15.375
+        ],
+        "scale": [
+          0.001,
+          0.0625,
+          0.0625
+        ],
+        "mesh_bounds_min": [
+          -50,
+          -50,
+          -50
+        ],
+        "mesh_bounds_max": [
+          50,
+          50,
+          50
+        ],
+        "quaternion_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name": "ArUcoCell_2_1",
+        "visible": true,
+        "collision_enabled": false,
+        "simulating_physics": false,
+        "material_name": "M_ArUco23_White",
+        "material_unlit": true,
+        "material_opaque": true,
+        "material_emissive_rgba": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "position_cm": [
+          230.05,
+          16.375,
+          15.375
+        ],
+        "scale": [
+          0.001,
+          0.0625,
+          0.0625
+        ],
+        "mesh_bounds_min": [
+          -50,
+          -50,
+          -50
+        ],
+        "mesh_bounds_max": [
+          50,
+          50,
+          50
+        ],
+        "quaternion_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name": "ArUcoCell_2_2",
+        "visible": true,
+        "collision_enabled": false,
+        "simulating_physics": false,
+        "material_name": "M_ArUco23_Black",
+        "material_unlit": true,
+        "material_opaque": true,
+        "material_emissive_rgba": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "position_cm": [
+          230.05,
+          22.625,
+          15.375
+        ],
+        "scale": [
+          0.001,
+          0.0625,
+          0.0625
+        ],
+        "mesh_bounds_min": [
+          -50,
+          -50,
+          -50
+        ],
+        "mesh_bounds_max": [
+          50,
+          50,
+          50
+        ],
+        "quaternion_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name": "ArUcoCell_2_3",
+        "visible": true,
+        "collision_enabled": false,
+        "simulating_physics": false,
+        "material_name": "M_ArUco23_Black",
+        "material_unlit": true,
+        "material_opaque": true,
+        "material_emissive_rgba": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "position_cm": [
+          230.05,
+          28.875,
+          15.375
+        ],
+        "scale": [
+          0.001,
+          0.0625,
+          0.0625
+        ],
+        "mesh_bounds_min": [
+          -50,
+          -50,
+          -50
+        ],
+        "mesh_bounds_max": [
+          50,
+          50,
+          50
+        ],
+        "quaternion_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name": "ArUcoCell_2_4",
+        "visible": true,
+        "collision_enabled": false,
+        "simulating_physics": false,
+        "material_name": "M_ArUco23_White",
+        "material_unlit": true,
+        "material_opaque": true,
+        "material_emissive_rgba": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "position_cm": [
+          230.05,
+          35.125,
+          15.375
+        ],
+        "scale": [
+          0.001,
+          0.0625,
+          0.0625
+        ],
+        "mesh_bounds_min": [
+          -50,
+          -50,
+          -50
+        ],
+        "mesh_bounds_max": [
+          50,
+          50,
+          50
+        ],
+        "quaternion_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name": "ArUcoCell_2_5",
+        "visible": true,
+        "collision_enabled": false,
+        "simulating_physics": false,
+        "material_name": "M_ArUco23_Black",
+        "material_unlit": true,
+        "material_opaque": true,
+        "material_emissive_rgba": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "position_cm": [
+          230.05,
+          41.375,
+          15.375
+        ],
+        "scale": [
+          0.001,
+          0.0625,
+          0.0625
+        ],
+        "mesh_bounds_min": [
+          -50,
+          -50,
+          -50
+        ],
+        "mesh_bounds_max": [
+          50,
+          50,
+          50
+        ],
+        "quaternion_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name": "ArUcoCell_2_6",
+        "visible": true,
+        "collision_enabled": false,
+        "simulating_physics": false,
+        "material_name": "M_ArUco23_White",
+        "material_unlit": true,
+        "material_opaque": true,
+        "material_emissive_rgba": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "position_cm": [
+          230.05,
+          47.625,
+          15.375
+        ],
+        "scale": [
+          0.001,
+          0.0625,
+          0.0625
+        ],
+        "mesh_bounds_min": [
+          -50,
+          -50,
+          -50
+        ],
+        "mesh_bounds_max": [
+          50,
+          50,
+          50
+        ],
+        "quaternion_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name": "ArUcoCell_2_7",
+        "visible": true,
+        "collision_enabled": false,
+        "simulating_physics": false,
+        "material_name": "M_ArUco23_Black",
+        "material_unlit": true,
+        "material_opaque": true,
+        "material_emissive_rgba": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "position_cm": [
+          230.05,
+          53.875,
+          15.375
+        ],
+        "scale": [
+          0.001,
+          0.0625,
+          0.0625
+        ],
+        "mesh_bounds_min": [
+          -50,
+          -50,
+          -50
+        ],
+        "mesh_bounds_max": [
+          50,
+          50,
+          50
+        ],
+        "quaternion_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name": "ArUcoCell_3_0",
+        "visible": true,
+        "collision_enabled": false,
+        "simulating_physics": false,
+        "material_name": "M_ArUco23_Black",
+        "material_unlit": true,
+        "material_opaque": true,
+        "material_emissive_rgba": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "position_cm": [
+          230.05,
+          10.125,
+          9.125
+        ],
+        "scale": [
+          0.001,
+          0.0625,
+          0.0625
+        ],
+        "mesh_bounds_min": [
+          -50,
+          -50,
+          -50
+        ],
+        "mesh_bounds_max": [
+          50,
+          50,
+          50
+        ],
+        "quaternion_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name": "ArUcoCell_3_1",
+        "visible": true,
+        "collision_enabled": false,
+        "simulating_physics": false,
+        "material_name": "M_ArUco23_Black",
+        "material_unlit": true,
+        "material_opaque": true,
+        "material_emissive_rgba": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "position_cm": [
+          230.05,
+          16.375,
+          9.125
+        ],
+        "scale": [
+          0.001,
+          0.0625,
+          0.0625
+        ],
+        "mesh_bounds_min": [
+          -50,
+          -50,
+          -50
+        ],
+        "mesh_bounds_max": [
+          50,
+          50,
+          50
+        ],
+        "quaternion_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name": "ArUcoCell_3_2",
+        "visible": true,
+        "collision_enabled": false,
+        "simulating_physics": false,
+        "material_name": "M_ArUco23_Black",
+        "material_unlit": true,
+        "material_opaque": true,
+        "material_emissive_rgba": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "position_cm": [
+          230.05,
+          22.625,
+          9.125
+        ],
+        "scale": [
+          0.001,
+          0.0625,
+          0.0625
+        ],
+        "mesh_bounds_min": [
+          -50,
+          -50,
+          -50
+        ],
+        "mesh_bounds_max": [
+          50,
+          50,
+          50
+        ],
+        "quaternion_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name": "ArUcoCell_3_3",
+        "visible": true,
+        "collision_enabled": false,
+        "simulating_physics": false,
+        "material_name": "M_ArUco23_White",
+        "material_unlit": true,
+        "material_opaque": true,
+        "material_emissive_rgba": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "position_cm": [
+          230.05,
+          28.875,
+          9.125
+        ],
+        "scale": [
+          0.001,
+          0.0625,
+          0.0625
+        ],
+        "mesh_bounds_min": [
+          -50,
+          -50,
+          -50
+        ],
+        "mesh_bounds_max": [
+          50,
+          50,
+          50
+        ],
+        "quaternion_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name": "ArUcoCell_3_4",
+        "visible": true,
+        "collision_enabled": false,
+        "simulating_physics": false,
+        "material_name": "M_ArUco23_White",
+        "material_unlit": true,
+        "material_opaque": true,
+        "material_emissive_rgba": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "position_cm": [
+          230.05,
+          35.125,
+          9.125
+        ],
+        "scale": [
+          0.001,
+          0.0625,
+          0.0625
+        ],
+        "mesh_bounds_min": [
+          -50,
+          -50,
+          -50
+        ],
+        "mesh_bounds_max": [
+          50,
+          50,
+          50
+        ],
+        "quaternion_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name": "ArUcoCell_3_5",
+        "visible": true,
+        "collision_enabled": false,
+        "simulating_physics": false,
+        "material_name": "M_ArUco23_White",
+        "material_unlit": true,
+        "material_opaque": true,
+        "material_emissive_rgba": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "position_cm": [
+          230.05,
+          41.375,
+          9.125
+        ],
+        "scale": [
+          0.001,
+          0.0625,
+          0.0625
+        ],
+        "mesh_bounds_min": [
+          -50,
+          -50,
+          -50
+        ],
+        "mesh_bounds_max": [
+          50,
+          50,
+          50
+        ],
+        "quaternion_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name": "ArUcoCell_3_6",
+        "visible": true,
+        "collision_enabled": false,
+        "simulating_physics": false,
+        "material_name": "M_ArUco23_White",
+        "material_unlit": true,
+        "material_opaque": true,
+        "material_emissive_rgba": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "position_cm": [
+          230.05,
+          47.625,
+          9.125
+        ],
+        "scale": [
+          0.001,
+          0.0625,
+          0.0625
+        ],
+        "mesh_bounds_min": [
+          -50,
+          -50,
+          -50
+        ],
+        "mesh_bounds_max": [
+          50,
+          50,
+          50
+        ],
+        "quaternion_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name": "ArUcoCell_3_7",
+        "visible": true,
+        "collision_enabled": false,
+        "simulating_physics": false,
+        "material_name": "M_ArUco23_Black",
+        "material_unlit": true,
+        "material_opaque": true,
+        "material_emissive_rgba": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "position_cm": [
+          230.05,
+          53.875,
+          9.125
+        ],
+        "scale": [
+          0.001,
+          0.0625,
+          0.0625
+        ],
+        "mesh_bounds_min": [
+          -50,
+          -50,
+          -50
+        ],
+        "mesh_bounds_max": [
+          50,
+          50,
+          50
+        ],
+        "quaternion_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name": "ArUcoCell_4_0",
+        "visible": true,
+        "collision_enabled": false,
+        "simulating_physics": false,
+        "material_name": "M_ArUco23_Black",
+        "material_unlit": true,
+        "material_opaque": true,
+        "material_emissive_rgba": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "position_cm": [
+          230.05,
+          10.125,
+          2.875
+        ],
+        "scale": [
+          0.001,
+          0.0625,
+          0.0625
+        ],
+        "mesh_bounds_min": [
+          -50,
+          -50,
+          -50
+        ],
+        "mesh_bounds_max": [
+          50,
+          50,
+          50
+        ],
+        "quaternion_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name": "ArUcoCell_4_1",
+        "visible": true,
+        "collision_enabled": false,
+        "simulating_physics": false,
+        "material_name": "M_ArUco23_Black",
+        "material_unlit": true,
+        "material_opaque": true,
+        "material_emissive_rgba": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "position_cm": [
+          230.05,
+          16.375,
+          2.875
+        ],
+        "scale": [
+          0.001,
+          0.0625,
+          0.0625
+        ],
+        "mesh_bounds_min": [
+          -50,
+          -50,
+          -50
+        ],
+        "mesh_bounds_max": [
+          50,
+          50,
+          50
+        ],
+        "quaternion_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name": "ArUcoCell_4_2",
+        "visible": true,
+        "collision_enabled": false,
+        "simulating_physics": false,
+        "material_name": "M_ArUco23_White",
+        "material_unlit": true,
+        "material_opaque": true,
+        "material_emissive_rgba": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "position_cm": [
+          230.05,
+          22.625,
+          2.875
+        ],
+        "scale": [
+          0.001,
+          0.0625,
+          0.0625
+        ],
+        "mesh_bounds_min": [
+          -50,
+          -50,
+          -50
+        ],
+        "mesh_bounds_max": [
+          50,
+          50,
+          50
+        ],
+        "quaternion_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name": "ArUcoCell_4_3",
+        "visible": true,
+        "collision_enabled": false,
+        "simulating_physics": false,
+        "material_name": "M_ArUco23_White",
+        "material_unlit": true,
+        "material_opaque": true,
+        "material_emissive_rgba": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "position_cm": [
+          230.05,
+          28.875,
+          2.875
+        ],
+        "scale": [
+          0.001,
+          0.0625,
+          0.0625
+        ],
+        "mesh_bounds_min": [
+          -50,
+          -50,
+          -50
+        ],
+        "mesh_bounds_max": [
+          50,
+          50,
+          50
+        ],
+        "quaternion_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name": "ArUcoCell_4_4",
+        "visible": true,
+        "collision_enabled": false,
+        "simulating_physics": false,
+        "material_name": "M_ArUco23_Black",
+        "material_unlit": true,
+        "material_opaque": true,
+        "material_emissive_rgba": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "position_cm": [
+          230.05,
+          35.125,
+          2.875
+        ],
+        "scale": [
+          0.001,
+          0.0625,
+          0.0625
+        ],
+        "mesh_bounds_min": [
+          -50,
+          -50,
+          -50
+        ],
+        "mesh_bounds_max": [
+          50,
+          50,
+          50
+        ],
+        "quaternion_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name": "ArUcoCell_4_5",
+        "visible": true,
+        "collision_enabled": false,
+        "simulating_physics": false,
+        "material_name": "M_ArUco23_Black",
+        "material_unlit": true,
+        "material_opaque": true,
+        "material_emissive_rgba": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "position_cm": [
+          230.05,
+          41.375,
+          2.875
+        ],
+        "scale": [
+          0.001,
+          0.0625,
+          0.0625
+        ],
+        "mesh_bounds_min": [
+          -50,
+          -50,
+          -50
+        ],
+        "mesh_bounds_max": [
+          50,
+          50,
+          50
+        ],
+        "quaternion_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name": "ArUcoCell_4_6",
+        "visible": true,
+        "collision_enabled": false,
+        "simulating_physics": false,
+        "material_name": "M_ArUco23_White",
+        "material_unlit": true,
+        "material_opaque": true,
+        "material_emissive_rgba": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "position_cm": [
+          230.05,
+          47.625,
+          2.875
+        ],
+        "scale": [
+          0.001,
+          0.0625,
+          0.0625
+        ],
+        "mesh_bounds_min": [
+          -50,
+          -50,
+          -50
+        ],
+        "mesh_bounds_max": [
+          50,
+          50,
+          50
+        ],
+        "quaternion_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name": "ArUcoCell_4_7",
+        "visible": true,
+        "collision_enabled": false,
+        "simulating_physics": false,
+        "material_name": "M_ArUco23_Black",
+        "material_unlit": true,
+        "material_opaque": true,
+        "material_emissive_rgba": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "position_cm": [
+          230.05,
+          53.875,
+          2.875
+        ],
+        "scale": [
+          0.001,
+          0.0625,
+          0.0625
+        ],
+        "mesh_bounds_min": [
+          -50,
+          -50,
+          -50
+        ],
+        "mesh_bounds_max": [
+          50,
+          50,
+          50
+        ],
+        "quaternion_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name": "ArUcoCell_5_0",
+        "visible": true,
+        "collision_enabled": false,
+        "simulating_physics": false,
+        "material_name": "M_ArUco23_Black",
+        "material_unlit": true,
+        "material_opaque": true,
+        "material_emissive_rgba": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "position_cm": [
+          230.05,
+          10.125,
+          -3.375
+        ],
+        "scale": [
+          0.001,
+          0.0625,
+          0.0625
+        ],
+        "mesh_bounds_min": [
+          -50,
+          -50,
+          -50
+        ],
+        "mesh_bounds_max": [
+          50,
+          50,
+          50
+        ],
+        "quaternion_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name": "ArUcoCell_5_1",
+        "visible": true,
+        "collision_enabled": false,
+        "simulating_physics": false,
+        "material_name": "M_ArUco23_White",
+        "material_unlit": true,
+        "material_opaque": true,
+        "material_emissive_rgba": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "position_cm": [
+          230.05,
+          16.375,
+          -3.375
+        ],
+        "scale": [
+          0.001,
+          0.0625,
+          0.0625
+        ],
+        "mesh_bounds_min": [
+          -50,
+          -50,
+          -50
+        ],
+        "mesh_bounds_max": [
+          50,
+          50,
+          50
+        ],
+        "quaternion_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name": "ArUcoCell_5_2",
+        "visible": true,
+        "collision_enabled": false,
+        "simulating_physics": false,
+        "material_name": "M_ArUco23_White",
+        "material_unlit": true,
+        "material_opaque": true,
+        "material_emissive_rgba": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "position_cm": [
+          230.05,
+          22.625,
+          -3.375
+        ],
+        "scale": [
+          0.001,
+          0.0625,
+          0.0625
+        ],
+        "mesh_bounds_min": [
+          -50,
+          -50,
+          -50
+        ],
+        "mesh_bounds_max": [
+          50,
+          50,
+          50
+        ],
+        "quaternion_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name": "ArUcoCell_5_3",
+        "visible": true,
+        "collision_enabled": false,
+        "simulating_physics": false,
+        "material_name": "M_ArUco23_Black",
+        "material_unlit": true,
+        "material_opaque": true,
+        "material_emissive_rgba": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "position_cm": [
+          230.05,
+          28.875,
+          -3.375
+        ],
+        "scale": [
+          0.001,
+          0.0625,
+          0.0625
+        ],
+        "mesh_bounds_min": [
+          -50,
+          -50,
+          -50
+        ],
+        "mesh_bounds_max": [
+          50,
+          50,
+          50
+        ],
+        "quaternion_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name": "ArUcoCell_5_4",
+        "visible": true,
+        "collision_enabled": false,
+        "simulating_physics": false,
+        "material_name": "M_ArUco23_Black",
+        "material_unlit": true,
+        "material_opaque": true,
+        "material_emissive_rgba": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "position_cm": [
+          230.05,
+          35.125,
+          -3.375
+        ],
+        "scale": [
+          0.001,
+          0.0625,
+          0.0625
+        ],
+        "mesh_bounds_min": [
+          -50,
+          -50,
+          -50
+        ],
+        "mesh_bounds_max": [
+          50,
+          50,
+          50
+        ],
+        "quaternion_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name": "ArUcoCell_5_5",
+        "visible": true,
+        "collision_enabled": false,
+        "simulating_physics": false,
+        "material_name": "M_ArUco23_White",
+        "material_unlit": true,
+        "material_opaque": true,
+        "material_emissive_rgba": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "position_cm": [
+          230.05,
+          41.375,
+          -3.375
+        ],
+        "scale": [
+          0.001,
+          0.0625,
+          0.0625
+        ],
+        "mesh_bounds_min": [
+          -50,
+          -50,
+          -50
+        ],
+        "mesh_bounds_max": [
+          50,
+          50,
+          50
+        ],
+        "quaternion_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name": "ArUcoCell_5_6",
+        "visible": true,
+        "collision_enabled": false,
+        "simulating_physics": false,
+        "material_name": "M_ArUco23_White",
+        "material_unlit": true,
+        "material_opaque": true,
+        "material_emissive_rgba": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "position_cm": [
+          230.05,
+          47.625,
+          -3.375
+        ],
+        "scale": [
+          0.001,
+          0.0625,
+          0.0625
+        ],
+        "mesh_bounds_min": [
+          -50,
+          -50,
+          -50
+        ],
+        "mesh_bounds_max": [
+          50,
+          50,
+          50
+        ],
+        "quaternion_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name": "ArUcoCell_5_7",
+        "visible": true,
+        "collision_enabled": false,
+        "simulating_physics": false,
+        "material_name": "M_ArUco23_Black",
+        "material_unlit": true,
+        "material_opaque": true,
+        "material_emissive_rgba": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "position_cm": [
+          230.05,
+          53.875,
+          -3.375
+        ],
+        "scale": [
+          0.001,
+          0.0625,
+          0.0625
+        ],
+        "mesh_bounds_min": [
+          -50,
+          -50,
+          -50
+        ],
+        "mesh_bounds_max": [
+          50,
+          50,
+          50
+        ],
+        "quaternion_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name": "ArUcoCell_6_0",
+        "visible": true,
+        "collision_enabled": false,
+        "simulating_physics": false,
+        "material_name": "M_ArUco23_Black",
+        "material_unlit": true,
+        "material_opaque": true,
+        "material_emissive_rgba": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "position_cm": [
+          230.05,
+          10.125,
+          -9.625
+        ],
+        "scale": [
+          0.001,
+          0.0625,
+          0.0625
+        ],
+        "mesh_bounds_min": [
+          -50,
+          -50,
+          -50
+        ],
+        "mesh_bounds_max": [
+          50,
+          50,
+          50
+        ],
+        "quaternion_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name": "ArUcoCell_6_1",
+        "visible": true,
+        "collision_enabled": false,
+        "simulating_physics": false,
+        "material_name": "M_ArUco23_White",
+        "material_unlit": true,
+        "material_opaque": true,
+        "material_emissive_rgba": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "position_cm": [
+          230.05,
+          16.375,
+          -9.625
+        ],
+        "scale": [
+          0.001,
+          0.0625,
+          0.0625
+        ],
+        "mesh_bounds_min": [
+          -50,
+          -50,
+          -50
+        ],
+        "mesh_bounds_max": [
+          50,
+          50,
+          50
+        ],
+        "quaternion_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name": "ArUcoCell_6_2",
+        "visible": true,
+        "collision_enabled": false,
+        "simulating_physics": false,
+        "material_name": "M_ArUco23_White",
+        "material_unlit": true,
+        "material_opaque": true,
+        "material_emissive_rgba": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "position_cm": [
+          230.05,
+          22.625,
+          -9.625
+        ],
+        "scale": [
+          0.001,
+          0.0625,
+          0.0625
+        ],
+        "mesh_bounds_min": [
+          -50,
+          -50,
+          -50
+        ],
+        "mesh_bounds_max": [
+          50,
+          50,
+          50
+        ],
+        "quaternion_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name": "ArUcoCell_6_3",
+        "visible": true,
+        "collision_enabled": false,
+        "simulating_physics": false,
+        "material_name": "M_ArUco23_Black",
+        "material_unlit": true,
+        "material_opaque": true,
+        "material_emissive_rgba": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "position_cm": [
+          230.05,
+          28.875,
+          -9.625
+        ],
+        "scale": [
+          0.001,
+          0.0625,
+          0.0625
+        ],
+        "mesh_bounds_min": [
+          -50,
+          -50,
+          -50
+        ],
+        "mesh_bounds_max": [
+          50,
+          50,
+          50
+        ],
+        "quaternion_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name": "ArUcoCell_6_4",
+        "visible": true,
+        "collision_enabled": false,
+        "simulating_physics": false,
+        "material_name": "M_ArUco23_Black",
+        "material_unlit": true,
+        "material_opaque": true,
+        "material_emissive_rgba": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "position_cm": [
+          230.05,
+          35.125,
+          -9.625
+        ],
+        "scale": [
+          0.001,
+          0.0625,
+          0.0625
+        ],
+        "mesh_bounds_min": [
+          -50,
+          -50,
+          -50
+        ],
+        "mesh_bounds_max": [
+          50,
+          50,
+          50
+        ],
+        "quaternion_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name": "ArUcoCell_6_5",
+        "visible": true,
+        "collision_enabled": false,
+        "simulating_physics": false,
+        "material_name": "M_ArUco23_White",
+        "material_unlit": true,
+        "material_opaque": true,
+        "material_emissive_rgba": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "position_cm": [
+          230.05,
+          41.375,
+          -9.625
+        ],
+        "scale": [
+          0.001,
+          0.0625,
+          0.0625
+        ],
+        "mesh_bounds_min": [
+          -50,
+          -50,
+          -50
+        ],
+        "mesh_bounds_max": [
+          50,
+          50,
+          50
+        ],
+        "quaternion_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name": "ArUcoCell_6_6",
+        "visible": true,
+        "collision_enabled": false,
+        "simulating_physics": false,
+        "material_name": "M_ArUco23_White",
+        "material_unlit": true,
+        "material_opaque": true,
+        "material_emissive_rgba": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "position_cm": [
+          230.05,
+          47.625,
+          -9.625
+        ],
+        "scale": [
+          0.001,
+          0.0625,
+          0.0625
+        ],
+        "mesh_bounds_min": [
+          -50,
+          -50,
+          -50
+        ],
+        "mesh_bounds_max": [
+          50,
+          50,
+          50
+        ],
+        "quaternion_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name": "ArUcoCell_6_7",
+        "visible": true,
+        "collision_enabled": false,
+        "simulating_physics": false,
+        "material_name": "M_ArUco23_Black",
+        "material_unlit": true,
+        "material_opaque": true,
+        "material_emissive_rgba": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "position_cm": [
+          230.05,
+          53.875,
+          -9.625
+        ],
+        "scale": [
+          0.001,
+          0.0625,
+          0.0625
+        ],
+        "mesh_bounds_min": [
+          -50,
+          -50,
+          -50
+        ],
+        "mesh_bounds_max": [
+          50,
+          50,
+          50
+        ],
+        "quaternion_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name": "ArUcoCell_7_0",
+        "visible": true,
+        "collision_enabled": false,
+        "simulating_physics": false,
+        "material_name": "M_ArUco23_Black",
+        "material_unlit": true,
+        "material_opaque": true,
+        "material_emissive_rgba": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "position_cm": [
+          230.05,
+          10.125,
+          -15.875
+        ],
+        "scale": [
+          0.001,
+          0.0625,
+          0.0625
+        ],
+        "mesh_bounds_min": [
+          -50,
+          -50,
+          -50
+        ],
+        "mesh_bounds_max": [
+          50,
+          50,
+          50
+        ],
+        "quaternion_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name": "ArUcoCell_7_1",
+        "visible": true,
+        "collision_enabled": false,
+        "simulating_physics": false,
+        "material_name": "M_ArUco23_Black",
+        "material_unlit": true,
+        "material_opaque": true,
+        "material_emissive_rgba": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "position_cm": [
+          230.05,
+          16.375,
+          -15.875
+        ],
+        "scale": [
+          0.001,
+          0.0625,
+          0.0625
+        ],
+        "mesh_bounds_min": [
+          -50,
+          -50,
+          -50
+        ],
+        "mesh_bounds_max": [
+          50,
+          50,
+          50
+        ],
+        "quaternion_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name": "ArUcoCell_7_2",
+        "visible": true,
+        "collision_enabled": false,
+        "simulating_physics": false,
+        "material_name": "M_ArUco23_Black",
+        "material_unlit": true,
+        "material_opaque": true,
+        "material_emissive_rgba": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "position_cm": [
+          230.05,
+          22.625,
+          -15.875
+        ],
+        "scale": [
+          0.001,
+          0.0625,
+          0.0625
+        ],
+        "mesh_bounds_min": [
+          -50,
+          -50,
+          -50
+        ],
+        "mesh_bounds_max": [
+          50,
+          50,
+          50
+        ],
+        "quaternion_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name": "ArUcoCell_7_3",
+        "visible": true,
+        "collision_enabled": false,
+        "simulating_physics": false,
+        "material_name": "M_ArUco23_Black",
+        "material_unlit": true,
+        "material_opaque": true,
+        "material_emissive_rgba": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "position_cm": [
+          230.05,
+          28.875,
+          -15.875
+        ],
+        "scale": [
+          0.001,
+          0.0625,
+          0.0625
+        ],
+        "mesh_bounds_min": [
+          -50,
+          -50,
+          -50
+        ],
+        "mesh_bounds_max": [
+          50,
+          50,
+          50
+        ],
+        "quaternion_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name": "ArUcoCell_7_4",
+        "visible": true,
+        "collision_enabled": false,
+        "simulating_physics": false,
+        "material_name": "M_ArUco23_Black",
+        "material_unlit": true,
+        "material_opaque": true,
+        "material_emissive_rgba": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "position_cm": [
+          230.05,
+          35.125,
+          -15.875
+        ],
+        "scale": [
+          0.001,
+          0.0625,
+          0.0625
+        ],
+        "mesh_bounds_min": [
+          -50,
+          -50,
+          -50
+        ],
+        "mesh_bounds_max": [
+          50,
+          50,
+          50
+        ],
+        "quaternion_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name": "ArUcoCell_7_5",
+        "visible": true,
+        "collision_enabled": false,
+        "simulating_physics": false,
+        "material_name": "M_ArUco23_Black",
+        "material_unlit": true,
+        "material_opaque": true,
+        "material_emissive_rgba": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "position_cm": [
+          230.05,
+          41.375,
+          -15.875
+        ],
+        "scale": [
+          0.001,
+          0.0625,
+          0.0625
+        ],
+        "mesh_bounds_min": [
+          -50,
+          -50,
+          -50
+        ],
+        "mesh_bounds_max": [
+          50,
+          50,
+          50
+        ],
+        "quaternion_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name": "ArUcoCell_7_6",
+        "visible": true,
+        "collision_enabled": false,
+        "simulating_physics": false,
+        "material_name": "M_ArUco23_Black",
+        "material_unlit": true,
+        "material_opaque": true,
+        "material_emissive_rgba": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "position_cm": [
+          230.05,
+          47.625,
+          -15.875
+        ],
+        "scale": [
+          0.001,
+          0.0625,
+          0.0625
+        ],
+        "mesh_bounds_min": [
+          -50,
+          -50,
+          -50
+        ],
+        "mesh_bounds_max": [
+          50,
+          50,
+          50
+        ],
+        "quaternion_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name": "ArUcoCell_7_7",
+        "visible": true,
+        "collision_enabled": false,
+        "simulating_physics": false,
+        "material_name": "M_ArUco23_Black",
+        "material_unlit": true,
+        "material_opaque": true,
+        "material_emissive_rgba": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "position_cm": [
+          230.05,
+          53.875,
+          -15.875
+        ],
+        "scale": [
+          0.001,
+          0.0625,
+          0.0625
+        ],
+        "mesh_bounds_min": [
+          -50,
+          -50,
+          -50
+        ],
+        "mesh_bounds_max": [
+          50,
+          50,
+          50
+        ],
+        "quaternion_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name": "ArUcoOccluder",
+        "visible": false,
+        "collision_enabled": false,
+        "simulating_physics": false,
+        "material_name": "M_ArUco23_White",
+        "material_unlit": true,
+        "material_opaque": true,
+        "material_emissive_rgba": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "position_cm": [
+          205.05,
+          32,
+          6
+        ],
+        "scale": [
+          0.001,
+          1,
+          1
+        ],
+        "mesh_bounds_min": [
+          -50,
+          -50,
+          -50
+        ],
+        "mesh_bounds_max": [
+          50,
+          50,
+          50
+        ],
+        "quaternion_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      }
+    ]
+  },
+  "command": [
+    "wsl.exe",
+    "-d",
+    "Ubuntu-22.04",
+    "-u",
+    "root",
+    "--cd",
+    "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim",
+    "--exec",
+    "env",
+    "WKSIM_OBSERVE_PX4_SETUP=1",
+    "bash",
+    "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/tools/run-wksim.sh",
+    "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/validation/40-aruco-tracking-04/config.json",
+    "--output-root",
+    "/root/wksim-aruco-track-4yeM6Ksk",
+    "--use-prepared-run",
+    "/root/wksim-aruco-track-4yeM6Ksk/aruco-track-a47a3e996a"
+  ],
+  "start_request": {
+    "state": "submitted",
+    "request": {
+      "version": 1,
+      "run_id": "aruco-track-a47a3e996a",
+      "epoch": "7a9b3628953148b5b395a4dd3ab6ee73",
+      "command_id": 184343622022,
+      "action": "start-task",
+      "offer_token": "ddb83e91c7a4459095294a091e10245d",
+      "token": "72c95892dc1742c3b6df3109c16dc7e6"
+    },
+    "result_file": "/root/wksim-aruco-track-4yeM6Ksk/aruco-track-a47a3e996a/action-results/7a9b3628953148b5b395a4dd3ab6ee73/72c95892dc1742c3b6df3109c16dc7e6.json"
+  },
+  "error": "ValueError('Tracking readiness identity differs')",
+  "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\PC\\Documents\\odid\u7f16\u8bd1\\wksim\\tools\\run_aruco_tracking.py\", line 159, in run\n    ready=episode_ready(shared,state,run_id) if task_started else None\n          ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\PC\\Documents\\odid\u7f16\u8bd1\\wksim\\tools\\run_aruco_tracking.py\", line 53, in episode_ready\n    raise ValueError('Tracking readiness identity differs')\nValueError: Tracking readiness identity differs\n",
+  "stop_request": {
+    "state": "submitted",
+    "request": {
+      "version": 1,
+      "run_id": "aruco-track-a47a3e996a",
+      "epoch": "7a9b3628953148b5b395a4dd3ab6ee73",
+      "command_id": 207912974342,
+      "action": "stop",
+      "offer_token": "1d70b3353dde4cf5b91fcfbaed509a31",
+      "token": "b1e89a71318a46a9ba195df27d59a050"
+    },
+    "result_file": "/root/wksim-aruco-track-4yeM6Ksk/aruco-track-a47a3e996a/action-results/7a9b3628953148b5b395a4dd3ab6ee73/b1e89a71318a46a9ba195df27d59a050.json"
+  },
+  "view_final": {
+    "state": "stopped",
+    "error": null,
+    "run_id": "aruco-track-a47a3e996a",
+    "joint_instance": "e2ee16d3d8db41afa56df0e0db49d606",
+    "transport_ready": true,
+    "display_fps": 15,
+    "state_socket": "/tmp/wksim-aruco-track-a47a3e996a/state.sock",
+    "pids": {
+      "ue": 50700,
+      "socket-directory": 47004,
+      "bridge": 35408
+    },
+    "processes": [
+      {
+        "name": "ue",
+        "argv": [
+          "E:\\ue5.5\\files\\UE_5.5\\Engine\\Binaries\\Win64\\UnrealEditor.exe",
+          "E:\\ue5.5\\build\\wksim-native-aruco-flight-20260911-01\\WksimVisual.uproject",
+          "/Game/Maps/UrbanBlock?game=/Script/WksimVisual.WksimVisualGameMode",
+          "-game",
+          "-windowed",
+          "-ResX=1280",
+          "-ResY=720",
+          "-NoSound",
+          "-NoSplash",
+          "-unattended",
+          "-ExecCmds=t.IdleWhenNotForeground 0,t.MaxFPS 15,sg.ShadowQuality 1,sg.GlobalIlluminationQuality 1,sg.ReflectionQuality 1,sg.TextureQuality 1",
+          "-WksimVehicle=joint",
+          "-WksimRunId=aruco-track-a47a3e996a",
+          "-WksimPort=19060",
+          "-abslog=C:\\Users\\PC\\Documents\\odid\u7f16\u8bd1\\wksim\\validation\\40-aruco-tracking-04\\view\\view-3a4cee2a6d7b4989941c5faae306c4bf\\ue.log",
+          "-WksimCaptureDir=C:\\Users\\PC\\Documents\\odid\u7f16\u8bd1\\wksim\\validation\\40-aruco-tracking-04\\view\\view-3a4cee2a6d7b4989941c5faae306c4bf\\frames",
+          "-WksimInstance=e2ee16d3d8db41afa56df0e0db49d606",
+          "-WksimRgbConfig=C:\\Users\\PC\\Documents\\odid\u7f16\u8bd1\\wksim\\validation\\40-aruco-tracking-04\\view\\view-3a4cee2a6d7b4989941c5faae306c4bf\\rgb-config.json",
+          "-WksimRgbFixtureCase=5",
+          "-WksimRgbFixtureManifest=C:\\Users\\PC\\Documents\\odid\u7f16\u8bd1\\wksim\\validation\\40-aruco-tracking-04\\view\\view-3a4cee2a6d7b4989941c5faae306c4bf\\rgb-fixture.json"
+        ],
+        "pid": 50700,
+        "returncode": 1
+      },
+      {
+        "name": "socket-directory",
+        "argv": [
+          "wsl.exe",
+          "-d",
+          "Ubuntu-22.04",
+          "--exec",
+          "python3",
+          "-c",
+          "import os, pathlib, stat, subprocess, sys\n# WSL can return an exec process before systemd finishes its boot-time /tmp clear.\n# Wait before creating/binding the admitted socket, without changing host services.\nif pathlib.Path(\"/run/systemd/system\").is_dir():\n    state = subprocess.run([\"systemctl\", \"is-system-running\", \"--wait\"], capture_output=True, text=True, timeout=30)\n    if state.stdout.strip() not in (\"running\", \"degraded\"):\n        raise RuntimeError(\"WSL host initialization did not settle: \" + state.stdout.strip())\np = pathlib.Path(sys.argv[1])\nassert str(p) == sys.argv[1] and p.name == 'state.sock' and p.parent.parent == pathlib.Path('/tmp')\ntry:\n    p.parent.mkdir(mode=0o700)\nexcept FileExistsError:\n    pass\ns = p.parent.lstat()\nassert stat.S_ISDIR(s.st_mode) and s.st_uid == os.getuid() and stat.S_IMODE(s.st_mode) == 0o700\nassert p.parent.resolve() == p.parent and not p.exists() and not p.is_symlink()\n",
+          "/tmp/wksim-aruco-track-a47a3e996a/state.sock"
+        ],
+        "pid": 47004,
+        "returncode": 0
+      },
+      {
+        "name": "bridge",
+        "argv": [
+          "C:\\Users\\PC\\Documents\\odid\u7f16\u8bd1\\wksim\\work\\dependencies\\aruco-python\\Scripts\\python.exe",
+          "-X",
+          "utf8",
+          "-m",
+          "Simulator.wksim_console.visual",
+          "--bridge-helper",
+          "--relay-record",
+          "C:\\Users\\PC\\Documents\\odid\u7f16\u8bd1\\wksim\\validation\\40-aruco-tracking-04\\view\\view-3a4cee2a6d7b4989941c5faae306c4bf\\relay.json",
+          "--wsl-repo",
+          "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim",
+          "--state-socket",
+          "/tmp/wksim-aruco-track-a47a3e996a/state.sock",
+          "--run-id",
+          "aruco-track-a47a3e996a",
+          "--vehicle-id",
+          "1",
+          "--port",
+          "19060",
+          "--readback",
+          "C:\\Users\\PC\\Documents\\odid\u7f16\u8bd1\\wksim\\validation\\40-aruco-tracking-04\\view\\view-3a4cee2a6d7b4989941c5faae306c4bf\\actor.jsonl",
+          "--instance-id",
+          "e2ee16d3d8db41afa56df0e0db49d606"
+        ],
+        "pid": 35408,
+        "returncode": 0
+      }
+    ],
+    "readback_path": "C:\\Users\\PC\\Documents\\odid\u7f16\u8bd1\\wksim\\validation\\40-aruco-tracking-04\\view\\view-3a4cee2a6d7b4989941c5faae306c4bf\\actor.jsonl",
+    "frames_directory": "C:\\Users\\PC\\Documents\\odid\u7f16\u8bd1\\wksim\\validation\\40-aruco-tracking-04\\view\\view-3a4cee2a6d7b4989941c5faae306c4bf\\frames",
+    "depth_directory": "C:\\Users\\PC\\Documents\\odid\u7f16\u8bd1\\wksim\\validation\\40-aruco-tracking-04\\view\\view-3a4cee2a6d7b4989941c5faae306c4bf\\depth",
+    "depth_config": null,
+    "depth_stream_id": "db8ba9c0722143df8630a6a4a41e53e7",
+    "depth_enabled": false,
+    "rgb_directory": "C:\\Users\\PC\\Documents\\odid\u7f16\u8bd1\\wksim\\validation\\40-aruco-tracking-04\\view\\view-3a4cee2a6d7b4989941c5faae306c4bf\\rgb",
+    "rgb_config": {
+      "version": 1,
+      "sensor_id": "front_rgb",
+      "width": 1920,
+      "height": 1440,
+      "horizontal_fov_degrees": 90,
+      "position_cm": [
+        30,
+        20,
+        10
+      ],
+      "quaternion_xyzw": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "interval_steps": 100,
+      "notify_port": 19072,
+      "vehicle_id": 2
+    },
+    "rgb_stream_id": "3a4cee2a6d7b4989941c5faae306c4bf",
+    "rgb_enabled": false,
+    "rgb_fixture_case": 5,
+    "rgb_fixture_manifest": "C:\\Users\\PC\\Documents\\odid\u7f16\u8bd1\\wksim\\validation\\40-aruco-tracking-04\\view\\view-3a4cee2a6d7b4989941c5faae306c4bf\\rgb-fixture.json",
+    "latest_actor": {
+      "ack": {
+        "version": 3,
+        "kind": "joint_actor",
+        "run_id": "aruco-track-a47a3e996a",
+        "instance_id": "e2ee16d3d8db41afa56df0e0db49d606",
+        "epoch": "7a9b3628953148b5b395a4dd3ab6ee73",
+        "generation": 1,
+        "sequence": 1889,
+        "step": 52816,
+        "sim_time_ns": 52816000000,
+        "selected_vehicle_id": 1,
+        "vehicles": [
+          {
+            "vehicle_id": 1,
+            "ue_position_cm": [
+              1.913387253177089,
+              -2.338138969880952,
+              296.6665098873596
+            ],
+            "ue_quaternion_xyzw": [
+              -0.00043002565110719,
+              0.00014400928232089134,
+              0.7139553798695462,
+              0.700191052423978
+            ],
+            "rotor_rpm": [
+              4418.698041052016,
+              4414.28141466039,
+              4554.431448216961,
+              4559.711242951146
+            ],
+            "rotor_yaw_deg": [
+              -113.71671815137701,
+              -117.38862412772194,
+              75.70980793389214,
+              132.38457327254716
+            ]
+          },
+          {
+            "vehicle_id": 2,
+            "ue_position_cm": [
+              -0.17459110896951802,
+              -1.9531890872324134,
+              299.0935937156665
+            ],
+            "ue_quaternion_xyzw": [
+              1.2049232767520081e-05,
+              0.0009909911566908078,
+              0.7168903308547313,
+              0.6971852489248013
+            ],
+            "rotor_rpm": [
+              4597.275287888893,
+              4597.577694026373,
+              4292.164367249607,
+              4305.414299003652
+            ],
+            "rotor_yaw_deg": [
+              -139.0237008115051,
+              80.13862466432238,
+              99.08296989940372,
+              100.74411954079852
+            ]
+          }
+        ],
+        "observed_vehicles": [
+          {
+            "vehicle_id": 1,
+            "step": 52816,
+            "stale": true,
+            "visible": true
+          },
+          {
+            "vehicle_id": 2,
+            "step": 52816,
+            "stale": true,
+            "visible": true
+          }
+        ],
+        "camera_position_cm": [
+          -258.06781180409416,
+          -302.3778868542998,
+          436.6756648044061
+        ]
+      },
+      "packet": {
+        "position_frame": "NED",
+        "position_unit": "m",
+        "quaternion_order": "WXYZ",
+        "body_frame": "FRD",
+        "rotor_unit": "rpm",
+        "rotor_order": [
+          "FR",
+          "RL",
+          "FL",
+          "RR"
+        ],
+        "configuration": "quad-X",
+        "version": 3,
+        "kind": "joint_state",
+        "run_id": "aruco-track-a47a3e996a",
+        "instance_id": "e2ee16d3d8db41afa56df0e0db49d606",
+        "epoch": "7a9b3628953148b5b395a4dd3ab6ee73",
+        "generation": 1,
+        "sequence": 1889,
+        "step": 52816,
+        "sim_time_ns": 52816000000,
+        "phase": "stopped",
+        "source_wall_time_s": 1789063333.001273,
+        "vehicles": [
+          {
+            "vehicle_id": 1,
+            "stack": "arducopter",
+            "position_ned_m": [
+              0.01913387253177089,
+              -0.02338138969880952,
+              -2.9666650988735963
+            ],
+            "quaternion_wxyz": [
+              0.7001910524239782,
+              0.0004300256511070343,
+              -0.00014400928232073868,
+              0.7139553798695462
+            ],
+            "rotor_rpm": [
+              4418.698041052016,
+              4414.28141466039,
+              4554.431448216961,
+              4559.711242951146
+            ],
+            "model_time_s": 52.816
+          },
+          {
+            "vehicle_id": 2,
+            "stack": "px4",
+            "position_ned_m": [
+              -0.00174591108969518,
+              -0.019531890872324133,
+              -2.990935937156665
+            ],
+            "quaternion_wxyz": [
+              0.6971852489248013,
+              -1.2049232767386916e-05,
+              -0.0009909911566906853,
+              0.7168903308547312
+            ],
+            "rotor_rpm": [
+              4597.275287888893,
+              4597.577694026373,
+              4292.164367249607,
+              4305.414299003652
+            ],
+            "model_time_s": 52.816
+          }
+        ],
+        "display_wall_time_s": 1789063333.0010488,
+        "display_clock": "windows_utc_bound",
+        "transport_age_bound_s": 0.005770631483756006
+      },
+      "age_s": 1.7341558933258057,
+      "errors": {
+        "1": {
+          "position_cm": 0.0,
+          "quaternion_l2": 2.446825003135619e-16,
+          "sim_time_s": 0.0
+        },
+        "2": {
+          "position_cm": 0.0,
+          "quaternion_l2": 2.1216817933432228e-16,
+          "sim_time_s": 0.0
+        }
+      },
+      "clock": "windows_utc_bound"
+    },
+    "cleanup_pending": true,
+    "relay": {
+      "argv": [
+        "wsl.exe",
+        "-d",
+        "Ubuntu-22.04",
+        "--cd",
+        "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim",
+        "--exec",
+        "python3",
+        "-m",
+        "Simulator.ue55.state_relay",
+        "--state-socket",
+        "/tmp/wksim-aruco-track-a47a3e996a/state.sock",
+        "--run-id",
+        "aruco-track-a47a3e996a",
+        "--vehicle-id",
+        "1",
+        "--instance-id",
+        "e2ee16d3d8db41afa56df0e0db49d606"
+      ],
+      "pid": 63800,
+      "returncode": 0
+    },
+    "resource_held": false,
+    "cleanup_scope": "Created Popen handles only; UE wrapper descendants and bridge-owned WSL relay reaping unverified"
+  },
+  "manager_returncode": 0,
+  "changed_sources": [],
+  "finished_unix_s": 1789063341.9912694
+}

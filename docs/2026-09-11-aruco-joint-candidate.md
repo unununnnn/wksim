@@ -29,3 +29,9 @@
 ```powershell
 & work/dependencies/aruco-python/Scripts/python.exe -B tools/run_aruco_tracking.py --manifest validation/ue55-build-f0409a874ed243cdbad4ac9cb38d886d/candidate-manifest.json --candidate validation/aruco-tracking-candidate-01/candidate.json --output <新目录>
 ```
+
+## 第四场跟进
+
+`validation/40-aruco-tracking-04`（run `aruco-track-a47a3e996a` / epoch `7a9b3628953148b5b395a4dd3ab6ee73`）在安静执行窗口完成双机起飞，记录的最坏迟到53.195421ms、段倍率0.49977008697，未触发倍率保护。协调器在ArduCopter就绪tick52676时将比周期状态快照更新的ready文件误判为异身份，随后于tick52816停止，RGB尚未启用；这仍是失败，原件与无残留退场完整保留。`0ed3d30`将同身份而领先旧快照的ready改为等待下一快照，回归验证既不推进权威时间也不提前就绪。
+
+另核实ArduCopter纯速度原生入口为`geometry_msgs/TwistStamped`的`/ap/cmd_vel`，已加入raw频道；此前仅记录`cmd_gps_pose`不足以证明AP速度指令。新候选还在显式stop关闭倍率段前检查原100ms边界，防止收尾遗漏。执行器微基准不支持持久执行器优化，未改变当前执行器策略。

@@ -612,7 +612,7 @@ def epoch_run(directory,epoch,generation=1):
                         action=request['action']
                         if action!='start-recovery-task': pending_task_reanchor=False
                         if action in ('stop','cold-reset'):
-                            if fixed_task and clock.phase=='running' and rate.anchor is not None and rate.group is None:
+                            if (fixed_task or aruco_task) and clock.phase=='running' and rate.anchor is not None and rate.group is None:
                                 try: rate.check_boundary(clock.tick)
                                 except (OSError,RuntimeError,ValueError) as error: latch_failure(error)
                             rate.close_segment(action,clock.tick)
