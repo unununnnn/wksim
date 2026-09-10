@@ -92,9 +92,16 @@ def epoch_run(directory,epoch,generation=1):
     physics=None
     clock=SceneClock(epoch)
     rate_log=(output/'rate.jsonl').open('x',buffering=65536)
+    write_probe=write_log=None
+    if os.environ.get('WKSIM_JOINT_WRITE_TIMING')=='1':
+        from .write_timing import WriteTiming
+        write_log=(output/'write-timing.jsonl').open('x',buffering=1)
+        write_probe=WriteTiming(write_log,epoch,lambda:clock.tick)
     def record_rate(kind,**fields):
-        rate_log.write(json.dumps(dict(kind=kind,epoch=epoch,tick=clock.tick,
-            issued_monotonic_ns=time.monotonic_ns(),**fields),allow_nan=False,separators=(',',':'))+'\n')
+        text=json.dumps(dict(kind=kind,epoch=epoch,tick=clock.tick,
+            issued_monotonic_ns=time.monotonic_ns(),**fields),allow_nan=False,separators=(',',':'))+'\n'
+        if write_probe: write_probe.write(rate_log,'rate',text)
+        else: rate_log.write(text)
     rate=JointRate(epoch,config['requested_rate'],record_rate)
     record_rate('rate_bootstrap',classification='untimed_until_first_synchronized_barrier')
     result['requested_rate']=config['requested_rate']
@@ -341,18 +348,23 @@ def epoch_run(directory,epoch,generation=1):
             node=rclpy.create_node('wksim_joint_supervisor')
             resources.callback(node.destroy_node)
             publisher=ClockPublisher(node);resources.callback(publisher.close)
-            monitor=JointMonitor(node,output,clock);resources.callback(monitor.close)
+            monitor=JointMonitor(node,output,clock,write_probe=write_probe);resources.callback(monitor.close)
             if fixed_task:
                 from tools.pv_trajectory_task import PVProbe
                 probe=PVProbe(node,clock,output,started);resources.callback(probe.close)
             wire=resources.enter_context((output/'wire.jsonl').open('x',buffering=65536))
             clocks=resources.enter_context((output/'clock.jsonl').open('x',buffering=65536))
             def record(kind,**fields):
-                wire.write(json.dumps(dict(kind=kind,epoch=epoch,tick=clock.tick,
-                    issued_monotonic_s=time.monotonic(),**fields),separators=(',',':'))+'\n')
+                text=json.dumps(dict(kind=kind,epoch=epoch,tick=clock.tick,
+                    issued_monotonic_s=time.monotonic(),**fields),separators=(',',':'))+'\n'
+                if write_probe: write_probe.write(wire,'wire',text)
+                else: wire.write(text)
+            def record_clock(text):
+                if write_probe: write_probe.write(clocks,'clock',text)
+                else: clocks.write(text)
             physics=JointPhysics(resources,clock,model_workers,physics_health,record)
-            publisher.publish(clock);clocks.write(json.dumps(clock.snapshot())+'\n')
-            lifecycle=JointLifecycle(node,clock,publisher,output,config['run_id'],started,monitor)
+            publisher.publish(clock);record_clock(json.dumps(clock.snapshot())+'\n')
+            lifecycle=JointLifecycle(node,clock,publisher,output,config['run_id'],started,monitor,write_probe=write_probe)
             resources.callback(lifecycle.close)
             for stack,uid in (('arducopter',1),('px4',2)):
                 folder=output/stack;folder.mkdir()
@@ -415,7 +427,7 @@ def epoch_run(directory,epoch,generation=1):
                 # failed. Publish that real tick once; never publish a partial RPC.
                 if (clock.pending is None and clock.phase in ('running','stepping')
                         and publisher.last_tick is not None and clock.tick==publisher.last_tick+1):
-                    publisher.publish(clock);clocks.write(json.dumps(clock.snapshot())+'\n')
+                    publisher.publish(clock);record_clock(json.dumps(clock.snapshot())+'\n')
                 if isinstance(error,RateUnmet):
                     # The rate supervisor is called only outside model groups.
                     # No rollback and no partially completed barrier is hidden.
@@ -463,7 +475,7 @@ def epoch_run(directory,epoch,generation=1):
                 physics_wait_started=time.monotonic()
                 try:
                     states=physics.advance();publisher.publish(clock)
-                    clocks.write(json.dumps(clock.snapshot(),separators=(',',':'))+'\n')
+                    record_clock(json.dumps(clock.snapshot(),separators=(',',':'))+'\n')
                     if clock.tick%4==0:
                         if rate.group is not None: rate.end_group(clock.tick)
                         else: record_rate('untimed_group_end',classification='transition' if lifecycle.phase in ('resuming','recovering')
@@ -695,6 +707,9 @@ def epoch_run(directory,epoch,generation=1):
         result['rate']=rate.snapshot(clock.tick)
         result['rate']['last_segment']=rate.last_summary
         rate_log.close()
+        if write_probe:
+            result['write_timing']=write_probe.summary()
+            write_log.close()
         for sig in (signal.SIGINT,signal.SIGTERM): signal.signal(sig,signal.SIG_IGN)
         result['cleanup_errors']=stop_processes(children)
         for name,child,_ in children:

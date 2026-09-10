@@ -7,7 +7,8 @@ from pathlib import Path
 import time
 import traceback
 
-from .evidence import write_json,json_identity
+from .evidence import write_json
+from .joint_parent import DirectParentGuard
 from .task import Task
 from .joint_config import FIXED_TASKS
 from .joint_aruco_profile import TASK as ARUCO_TASK
@@ -64,10 +65,7 @@ def run(path):
         package=Path(importlib.util.find_spec('prometheus_control').origin).parent.resolve()
         if str(package)!=settings['control_package']:
             raise RuntimeError('Task did not resolve the admitted installed Control package')
-        def health():
-            parent=json_identity(settings['parent']['pid'])
-            if parent is None or parent['start_ticks']!=settings['parent']['start_ticks']:
-                raise RuntimeError('Joint supervisor retired; no automatic task recovery')
+        health=DirectParentGuard(settings['parent'])
         def phase(name):
             row=dict(phase=name,wall_seconds=time.monotonic()-started,
                      ros_time_ns=task.node.get_clock().now().nanoseconds,

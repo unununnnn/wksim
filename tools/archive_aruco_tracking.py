@@ -20,7 +20,7 @@ def archive(root):
     for folder in ('view','sources'):
         files.extend(p for p in (root/folder).rglob('*') if p.is_file())
     files.extend(p for p in (root/'run').iterdir() if p.is_file() and p.suffix=='.json')
-    names={'wire.jsonl','rate.jsonl','clock.jsonl','public-dds.jsonl','scene-lifecycle.jsonl',
+    names={'wire.jsonl','rate.jsonl','clock.jsonl','write-timing.jsonl','public-dds.jsonl','scene-lifecycle.jsonl',
            'arducopter-truth.jsonl','px4-truth.jsonl','children.json','preflight.json','result.json',
            'px4-setup-observer.jsonl','px4-control.log','arducopter-control.log','px4-fc.log','arducopter-fc.log'}
     for epoch in (root/'run/epochs').iterdir():

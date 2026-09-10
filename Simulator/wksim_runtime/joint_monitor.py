@@ -7,7 +7,7 @@ from .task import valid_state
 
 
 class JointMonitor:
-    def __init__(self,node,directory,clock):
+    def __init__(self,node,directory,clock,*,write_probe=None):
         import rclpy
         from rclpy.serialization import serialize_message
         from rclpy.qos import QoSProfile,ReliabilityPolicy
@@ -16,6 +16,7 @@ class JointMonitor:
         self.node,self.clock,self.ros,self.serialize=node,clock,rclpy,serialize_message
         self.sessions,self.received,self.subscriptions={},{},[]
         self.phase='starting'
+        self.write_probe=write_probe
         self.log=(directory/'public-dds.jsonl').open('x',buffering=65536)
         for uid in (1,2):
             for suffix,cls in (('v2/state',SessionState),('text_info',TextInfo)):
@@ -26,8 +27,10 @@ class JointMonitor:
 
     def receive(self,uid,name,message):
         now=time.monotonic()
-        self.log.write(json.dumps(dict(topic=name,epoch=self.clock.epoch,tick=self.clock.tick,
-            received_monotonic_s=now,cdr_hex=self.serialize(message).hex()),separators=(',',':'))+'\n')
+        text=json.dumps(dict(topic=name,epoch=self.clock.epoch,tick=self.clock.tick,
+            received_monotonic_s=now,cdr_hex=self.serialize(message).hex()),separators=(',',':'))+'\n'
+        if self.write_probe: self.write_probe.write(self.log,'public-dds',text)
+        else: self.log.write(text)
         if name.endswith('/v2/state'):
             old=self.sessions.get(uid)
             if (message.version!=1 or not re.fullmatch('[0-9a-f]{32}',message.control_epoch)
