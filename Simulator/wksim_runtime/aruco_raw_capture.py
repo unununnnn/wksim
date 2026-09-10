@@ -164,6 +164,7 @@ class ArucoRawCapture:
         self.take_sequence = 0
         self.current_hash = INITIAL_HASH_SEED
         self.samples_per_topic: Dict[str, int] = defaultdict(int)
+        self.latest_samples: Dict[str, dict] = {}
         self.write_failures = 0
         self.write_failure_reports: List[Dict[str, Any]] = []
 
@@ -373,6 +374,7 @@ class ArucoRawCapture:
                     "message": decoded_msg,
                 }
                 self._write_canonical_record(record)
+                self.latest_samples[topic_name] = record
                 total_drained += 1
             else:
                 raise RuntimeError(

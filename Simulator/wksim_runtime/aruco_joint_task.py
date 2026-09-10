@@ -413,6 +413,43 @@ class JointArUcoTask(Task):
         if self.adapter is not None and self.adapter._last_sent != 'hover':
             record = self.seam.update(None, authority_step=now_step)
             self.adapter.process(record, authority_step=now_step)
+        if self.adapter is not None:
+            self._wait_final_hold_native()
+
+    def _wait_final_hold_native(self):
+        """Do not let immediate LAND replace the final accepted HOLD before output.
+
+        Observe its accepted SessionState, then a newer raw native target and
+        the following raw SessionState. These are native RMW source timestamps,
+        not a guessed sleep. Independent offline audit still verifies payloads.
+        """
+        expected_request = self.request_id
+        from rclpy.serialization import deserialize_message
+        from wksim_msgs.msg import SessionState
+        state_topic = self.topic_root+'v2/state'
+        target_topic = ('/ap/cmd_gps_pose' if self.flight_stack == 'arducopter' else
+                        '/wksim_px4_21/fmu/in/trajectory_setpoint')
+        boundary = None
+        def observed():
+            nonlocal boundary
+            samples = self.raw_capture.latest_samples
+            state_record = samples.get(state_topic)
+            if state_record is None:
+                return False
+            current = deserialize_message(bytes.fromhex(state_record['cdr_hex']), SessionState)
+            if (current is None or current.last_request_id != expected_request
+                    or current.run_id != self.run_id or current.control_epoch != self.epoch
+                    or current.control.failsafe or not self.fresh()):
+                return False
+            state_stamp = state_record['source_timestamp']
+            if boundary is None:
+                if state_stamp > 0:
+                    boundary = state_stamp
+                return False
+            native_stamp = samples.get(target_topic, {}).get('source_timestamp', 0)
+            return boundary < native_stamp < state_stamp
+        self.wait('aruco-final-hold-native-observed', observed,
+                  self.aruco['profile']['mission']['command_acceptance_timeout_s'])
 
     def _land_tail(self):
         if self.adapter is not None:

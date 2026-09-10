@@ -1,0 +1,139 @@
+{
+  "status": "pending",
+  "unresolved": [
+    {
+      "request_id": 90,
+      "agent_cmd": 2,
+      "reason": "No SessionState carried accepted command"
+    }
+  ],
+  "scope": "Offline post-MOVE HOLD targets; requires the separate public/provenance audit.\n\nControl tick resolves CURRENT_POS_HOVER from that tick's state, caches it,\npublishes native output if due, then SessionState. Native samples therefore\nbelong to the immediately following continuous SessionState, not the preceding\none. The first state carrying a HOLD supplies its frozen position and heading.\nOnly HOLDs following an executed MOVE are covered; initial takeover is separate.\nNo ROS nodes, physical tolerance, or flight-completion verdict is introduced.\n",
+  "epoch": "3662bc056ae74e0abed662214a8010bd",
+  "stack": "arducopter",
+  "holds": {
+    "7": {
+      "position": [
+        0.03403300791978836,
+        0.022263769060373306,
+        2.9800000190734863
+      ],
+      "yaw": -0.0006609760969710518,
+      "sequence": 11761,
+      "samples": 2
+    },
+    "11": {
+      "position": [
+        0.0425412580370903,
+        0.03339565545320511,
+        2.9800000190734863
+      ],
+      "yaw": -0.0009333432376596479,
+      "sequence": 11852,
+      "samples": 2
+    },
+    "20": {
+      "position": [
+        0.05955776572227478,
+        0.04452753812074661,
+        2.9700000286102295
+      ],
+      "yaw": -0.0012296334836845038,
+      "sequence": 12069,
+      "samples": 2
+    },
+    "24": {
+      "position": [
+        0.0425412580370903,
+        0.04452753812074661,
+        2.9700000286102295
+      ],
+      "yaw": -0.0016223845106645054,
+      "sequence": 12165,
+      "samples": 2
+    },
+    "34": {
+      "position": [
+        0.15314851701259613,
+        0.07792319357395172,
+        2.990000009536743
+      ],
+      "yaw": -0.0018101798455434004,
+      "sequence": 12409,
+      "samples": 2
+    },
+    "38": {
+      "position": [
+        0.22121453285217285,
+        0.07792319357395172,
+        2.990000009536743
+      ],
+      "yaw": -0.0017942195618465386,
+      "sequence": 12500,
+      "samples": 2
+    },
+    "46": {
+      "position": [
+        0.34883829951286316,
+        0.07792319357395172,
+        2.9800000190734863
+      ],
+      "yaw": -0.0022906382151984925,
+      "sequence": 12686,
+      "samples": 3
+    },
+    "51": {
+      "position": [
+        0.4679538309574127,
+        0.07792319357395172,
+        2.9800000190734863
+      ],
+      "yaw": -0.00270064585872922,
+      "sequence": 12811,
+      "samples": 2
+    },
+    "54": {
+      "position": [
+        0.5275115966796875,
+        0.07792319357395172,
+        2.9800000190734863
+      ],
+      "yaw": -0.002773445600255081,
+      "sequence": 12879,
+      "samples": 2
+    },
+    "57": {
+      "position": [
+        0.5785610675811768,
+        0.07792319357395172,
+        2.9800000190734863
+      ],
+      "yaw": -0.0030405437391078775,
+      "sequence": 12931,
+      "samples": 147
+    },
+    "80": {
+      "position": [
+        0.9869572520256042,
+        0.04452753812074661,
+        2.9600000381469727
+      ],
+      "yaw": -0.003628982117510474,
+      "sequence": 13914,
+      "samples": 3
+    }
+  },
+  "failures": [],
+  "observed_gid": "010f7f01f624c70700000000000014030000000000000000",
+  "provenance": {
+    "builder_sha256": "1472819bddd5a80f42f94fb067322b72ade6c2387b28b856c426dc905bf3ba55",
+    "rc_take_source_sha256": "e618c33ba687520160c8d2cfb79b0da30e5047f3036549c47ca357f1c26dc38f",
+    "rc_take_lib_sha256": "f00ccb7da8da348e33e8dbb1200dd3244a73c3cf4f658024372009de06f9107c"
+  },
+  "raw_sha256": "fb3f39cd082f90775dca366bb5ec1d51d5ba3c23d716bf5e543b23a28e731e3f",
+  "auditor_sha256": "8b50aaec3c0a7a56f67dca68a19a262e01ff2ff20e38736783ff5f6520e63c68",
+  "uncovered": [
+    "Initial takeover HOLD",
+    "Public request acceptance and loss causality require raw audit",
+    "Graph-wide native publisher identity/exclusivity requires separate proof"
+  ]
+}
