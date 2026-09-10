@@ -8,15 +8,26 @@ raw publication, no native FC ACK or action completion is inferred, and public
 acceptance requires an actual raw TextInfo terminal event. Recorder provenance is
 reconciled against the retained epoch source and the pinned control build; 'mock'
 provenance is rejected. Clock/wire reuse audit_product_timeline with its defaults
-(the 100 ms / rate thresholds are not relaxed). Loss/occlusion→HOLD causality and
-native setpoint closure are not retained in evidence, so a fully clean audit
-reports 'pending' with the explicit uncovered list, never 'pass'.
+(the 100 ms / rate thresholds are not relaxed). When the capture report retains
+binding/frames/observations, an independent loss-HOLD gate runs a temporal state
+machine over actual consumption and the adapter's own step invariants: frames and
+observations reconcile pairwise against both bindings and the frozen profile file
+(real Consumer contract — sensor_id is a string, target step/frame_id are decimal
+strings, valid_until_step an int), every retained PNG is rehashed inside the
+capture-root boundary, link-less HOLDs are legal only as the real task's initial /
+cached-MOVE-expiry / final-boundary shapes, and the gate closes only after a full
+null/expired-invalidation -> TTL withdrawal -> recovery cycle is proven; otherwise
+it reports not_exercised. Native setpoint closure is not retained in evidence, so
+a fully clean audit reports 'pending' with the explicit uncovered list, never
+'pass'. A public ACK is never treated as action completion.
 """
 import argparse
 import hashlib
 import json
 import math
+import os
 from pathlib import Path
+import re
 import struct
 import sys
 
@@ -39,7 +50,13 @@ ACTION_SCHEMA = 'wksim.aruco-public-command.v1'
 RAW_NAME = 'aruco-raw-dds.jsonl'
 BUILDER_PATH = 'Simulator/wksim_runtime/aruco_raw_capture.py'
 REJECT_EVENTS = ('setup_rejected', 'command_rejected', 'control_revoked')
+BINDING_SCHEMA = 'wksim.aruco-binding.v1'          # run_aruco_tracking.py / aruco_joint_task.py
+OBSERVATION_SCHEMA = 'wksim.aruco-observation.v1'  # run_aruco_tracking.py:74
+TARGET_SCHEMA = 'wksim.aruco-target.v1'            # wksim_perception/target_intent.py:8
+RGB_NOTICE_SCHEMA = 'wksim.rgb-ready.v2'
+RGB_METADATA_SCHEMA = 'wksim.rgb.v2'
 _HEX64 = frozenset('0123456789abcdef')
+_WINDOWS_ABS = re.compile(r'^([A-Za-z]):[\\/](.*)$')
 
 # This slice proves the raw public chain only; while these stay open the audit
 # outcome is 'pending' even when every check below passes.
@@ -312,6 +329,370 @@ def adapter_chain(chain, report, *, run_id, epoch, selected):
     return dict(actions=len(actions), sent=sent)
 
 
+PROFILE_REL = 'Simulator/wksim_runtime/aruco-tracking-v1.json'
+MAX_AUTHORITY_STEP = 9007199254  # aruco_tracking_input.MAX_STEP
+SCENE_STEP_KEYS = ('initial_steps', 'moving_steps', 'occluded_steps', 'recovery_steps')
+_STEP_STRING = re.compile(r'0|[1-9][0-9]{0,18}')
+_SENSOR_ID = re.compile(r'[A-Za-z0-9_-]{1,96}')
+
+
+def _basename(path_text):
+    """Basename of a stored Windows path on any host (both separators split)."""
+    return re.split(r'[\\/]', str(path_text))[-1]
+
+
+def _stepish(value, name, high=MAX_AUTHORITY_STEP):
+    """Strict authority-step parse mirroring aruco_joint_task._stepish: Consumer
+    metadata and targets carry decimal strings; lax int() coercions and bools reject."""
+    if isinstance(value, str):
+        require(_STEP_STRING.fullmatch(value) is not None,
+                name + ' is not a strict decimal step: ' + repr(value))
+        value = int(value)
+    require(type(value) is int and 0 <= value <= high,
+            name + ' is outside the authority step budget: ' + repr(value))
+    return value
+
+
+def _frame_file(path_text, root):
+    """Map a retained Windows-absolute frame path into this host; bound to the capture root.
+
+    On WSL a C:\\... path converts to /mnt/c/...; the report's original path is
+    kept for the record while the converted path must resolve inside the capture
+    root being audited. On Windows the path is used as-is. Either way the file
+    must exist and resolve (symlinks followed) within the boundary.
+    """
+    require(isinstance(path_text, str) and _WINDOWS_ABS.match(path_text),
+            'Frame image path is not an absolute Windows path: ' + str(path_text))
+    if os.name == 'nt':
+        candidate = Path(path_text)
+    else:
+        match = _WINDOWS_ABS.match(path_text)
+        candidate = Path('/mnt')/match.group(1).lower()/match.group(2).replace('\\', '/')
+    require(candidate.is_file(), 'Frame image is not retained: ' + path_text)
+    resolved = candidate.resolve()
+    require(resolved.is_relative_to(Path(root).resolve()),
+            'Frame image escapes the capture-root boundary: ' + path_text)
+    return resolved
+
+
+def _verify_frames(root, frames, observations, binding, camera, epoch):
+    """Pairwise frame/observation identity plus a byte rehash of every retained PNG.
+
+    Real contract (validated against 40-aruco-flight-scene-03 retained frames):
+    Consumer metadata and targets carry step/frame_id as DECIMAL STRINGS and
+    valid_until_step as an int; sensor_id is a string ('front_rgb'); vehicle_id
+    is an int in the binding camera and its decimal string in metadata/target.
+    The frame entry's target must equal the published observation target
+    field-by-field; both are checked here, not separately.
+    """
+    require(len(frames) == len(observations), 'Report frames/observations diverge')
+    verified = []
+    for index, (entry, row) in enumerate(zip(frames, observations), 1):
+        require(row.get('schema') == OBSERVATION_SCHEMA and row.get('sequence') == index
+                and all(row.get(k) == binding[k]
+                        for k in ('run_id', 'epoch', 'instance_id', 'generation', 'stream_id')),
+                'Published observation identity differs from the binding')
+        capture_step = _stepish(row.get('capture_step'), 'observation.capture_step')
+        frame_id = _stepish(row.get('frame_id'), 'observation.frame_id', 2**63 - 1)
+        require(_hex64(row.get('image_sha256')), 'Observation image identity invalid')
+        frame = entry.get('frame') or {}
+        notice, metadata = frame.get('notification') or {}, frame.get('metadata') or {}
+        require(notice.get('schema') == RGB_NOTICE_SCHEMA
+                and all(notice.get(k) == binding[k]
+                        for k in ('run_id', 'epoch', 'instance_id', 'generation', 'stream_id'))
+                and notice.get('metadata') == _basename(frame.get('metadata_path')),
+                'RGB notification identity differs from the binding')
+        require(metadata.get('schema') == RGB_METADATA_SCHEMA
+                and all(metadata.get(k) == binding[k]
+                        for k in ('run_id', 'epoch', 'instance_id', 'stream_id'))
+                and _stepish(metadata.get('step'), 'metadata.step') == capture_step
+                and _stepish(metadata.get('frame_id'), 'metadata.frame_id', 2**63 - 1) == frame_id
+                and metadata.get('vehicle_id') == str(camera['vehicle_id'])
+                and metadata.get('sensor_id') == camera['sensor_id']
+                and metadata.get('image') == _basename(frame.get('image_path')),
+                'RGB metadata identity/step differs from the observation')
+        authority = entry.get('authority') or {}
+        require(entry.get('image_sha256') == row['image_sha256']
+                and authority.get('epoch') == epoch
+                and type(entry.get('now_step')) is int
+                and entry.get('now_step') == authority.get('tick'),
+                'Frame entry image/authority identity differs')
+        require(entry.get('target') == row.get('target'),
+                'Frame entry target differs from the published observation target')
+        resolved = _frame_file(frame.get('image_path'), root)
+        require(hashlib.sha256(resolved.read_bytes()).hexdigest() == row['image_sha256'],
+                'Frame PNG rehash differs from the recorded image_sha256')
+        verified.append(dict(sequence=index, image_sha256=row['image_sha256'],
+                             report_path=str(frame.get('image_path')),
+                             resolved=str(resolved)))
+        target = row.get('target')
+        if target is not None:
+            require(isinstance(target, dict) and target.get('schema') == TARGET_SCHEMA
+                    and all(target.get(k) == binding[k]
+                            for k in ('run_id', 'epoch', 'instance_id', 'generation', 'stream_id'))
+                    and target.get('vehicle_id') == str(camera['vehicle_id'])
+                    and isinstance(target.get('sensor_id'), str)
+                    and target.get('sensor_id') == camera['sensor_id'],
+                    'Observation target identity differs')
+            target_step = _stepish(target.get('step'), 'target.step')
+            require(target_step == capture_step
+                    and _stepish(target.get('frame_id'), 'target.frame_id', 2**63 - 1) == frame_id,
+                    'Observation target step/frame differs from its capture')
+            require(_stepish(target.get('valid_until_step'), 'target.valid_until_step') >= target_step,
+                    'Target validity ends before its capture step')
+    return verified
+
+
+def _target_verdict(target, at_step, *, first_step, last_accepted_step):
+    """Why one consumed target cannot produce a MOVE, or None when it is fresh+valid.
+
+    Mirrors the provable TargetIntent/seam rejection shapes only: null, from the
+    authority future, expired at consumption, captured before the binding, or a
+    duplicate/regressing step. Anything else must have produced a MOVE.
+    """
+    if target is None:
+        return 'null'
+    target_step = _stepish(target.get('step'), 'target.step')
+    valid_until = _stepish(target.get('valid_until_step'), 'target.valid_until_step')
+    if target_step > at_step:
+        return 'future'
+    if at_step > valid_until:
+        return 'expired'
+    if target_step < first_step:
+        return 'before_binding'
+    if last_accepted_step is not None and target_step <= last_accepted_step:
+        return 'duplicate'
+    return None
+
+
+def loss_hold_chain(root, case_report, *, run_id, epoch, reports, chains):
+    """Temporal loss-HOLD gate over the retained frames, links and adapter actions.
+
+    Only the consumed latest sequences are required; Windows-side frame merging is
+    allowed, so not every published observation must appear in observation_links.
+    Justification comes from a time state machine over actual consumption and
+    action.authority_step/authority_now_step against target.valid_until_step and
+    the binding/profile episode boundary — never from seam_reason text. A link-less
+    HOLD is legal exactly as the real task produces it: the initial HOLD (binding
+    loaded, no observation and no consumed valid target yet), the cached-MOVE
+    expiry HOLD (authority_now past the persisted intent's valid_until_step), and
+    the final HOLD (authority step at/past binding.first_step + profile scene
+    steps, after which no MOVE may follow). A consumed non-null but already
+    expired target justifies HOLD exactly like a null. The gate closes only after
+    at least one full cycle is proven: null/expired invalidation while a MOVE was
+    active -> real HOLD send withdrawing it per TTL -> recovery MOVE on a fresh
+    valid target; otherwise it reports not_exercised and stays on the uncovered
+    list. An accepted public ACK is never treated as action completion.
+    """
+    frames = case_report['frames']
+    observations = case_report['observations']
+    binding = case_report.get('binding')
+    session = case_report.get('session') or {}
+    selected = next(s for s in STACK_UAV
+                    if (reports[s]['task'].get('aruco') or {}).get('selected'))
+    aruco = reports[selected]['task']['aruco']
+    peer = next(s for s in STACK_UAV if s != selected)
+    peer_aruco = reports[peer]['task']['aruco']
+    task_binding = aruco.get('binding') or {}
+    actions = aruco.get('adapter_actions') or []
+    links = aruco.get('observation_links') or []
+    sent = [a for a in actions if a.get('command_id') is not None]
+    if not observations and not frames and not sent:
+        return dict(gate='not_exercised',
+                    reason='no published observations/frames and no adapter sends; '
+                           'the loss-HOLD gate was not exercised by this run')
+    require(isinstance(binding, dict) and binding.get('schema') == BINDING_SCHEMA
+            and binding.get('run_id') == run_id and binding.get('epoch') == epoch
+            and binding.get('instance_id') == session.get('instance_id')
+            and binding.get('stream_id') == case_report.get('stream_id'),
+            'Report binding identity differs from the run/session')
+    profile = case_report.get('profile')
+    require(isinstance(profile, dict), 'Capture report lacks the frozen profile content')
+    profile_path = root / 'sources' / Path(PROFILE_REL)
+    require(profile_path.is_file(), 'Frozen profile file is not retained in the capture')
+    raw_profile = profile_path.read_bytes()
+    require(_hex64(case_report.get('profile_sha256'))
+            and hashlib.sha256(raw_profile).hexdigest() == case_report['profile_sha256']
+            and json.loads(raw_profile.decode('utf-8')) == profile
+            and (case_report.get('source_sha256') or {}).get(PROFILE_REL)
+            == case_report['profile_sha256'],
+            'Frozen profile identity differs across report/sources')
+    scene = profile.get('scene')
+    require(isinstance(scene, dict), 'Frozen profile lacks the scene step plan')
+    episode_steps = sum(_stepish(scene.get(k), 'profile.scene.' + k) for k in SCENE_STEP_KEYS)
+    camera = binding.get('camera') or {}
+    require(type(camera.get('vehicle_id')) is int
+            and camera.get('vehicle_id') == STACK_UAV[selected]
+            and isinstance(camera.get('sensor_id'), str)
+            and _SENSOR_ID.fullmatch(camera['sensor_id']) is not None
+            and camera['sensor_id'] == (profile.get('camera') or {}).get('sensor_id'),
+            'Binding camera identity differs from the selected stack/profile')
+    first_step = _stepish(binding.get('first_step'), 'binding.first_step')
+    require(aruco.get('profile_sha256') == case_report['profile_sha256']
+            and peer_aruco.get('profile_sha256') == case_report['profile_sha256']
+            and binding.get('profile_sha256') == case_report['profile_sha256'],
+            'Profile identity differs across report/binding/tasks')
+    require(task_binding.get('first_step') == first_step
+            and task_binding.get('stream_id') == binding['stream_id']
+            and type(task_binding.get('episode_end_step')) is int
+            and task_binding['episode_end_step'] == first_step + episode_steps
+            and task_binding['episode_end_step'] <= MAX_AUTHORITY_STEP,
+            'Task binding differs from the report binding/profile boundary')
+    episode_end = task_binding['episode_end_step']
+    verified_frames = _verify_frames(root, frames, observations, binding, camera, epoch)
+    capture_steps = [_stepish(r.get('capture_step'), 'observation.capture_step')
+                     for r in observations]
+    frame_ids = [_stepish(r.get('frame_id'), 'observation.frame_id', 2**63 - 1)
+                 for r in observations]
+    # Consumption: only the consumed latest sequences are audited; merging is allowed.
+    previous_sequence, previous_frame = 0, -1
+    for link in links:
+        sequence = link.get('sequence')
+        require(type(sequence) is int and 1 <= sequence <= len(observations)
+                and sequence > previous_sequence, 'Consumed observation sequence regressed')
+        previous_sequence = sequence
+        link_step = _stepish(link.get('authority_step'), 'link.authority_step')
+        link_frame = _stepish(link.get('frame_id'), 'link.frame_id', 2**63 - 1)
+        require(_stepish(link.get('capture_step'), 'link.capture_step') == capture_steps[sequence - 1]
+                and link_frame == frame_ids[sequence - 1]
+                and link.get('image_sha256') == observations[sequence - 1]['image_sha256'],
+                'Consumed observation link differs from the published record')
+        require(link_step >= capture_steps[sequence - 1],
+                'Consumed observation is from the authority future')
+        require(link_frame > previous_frame, 'Old frame re-fed to the seam')
+        previous_frame = link_frame
+    link_by_command = {l.get('command_id'): l for l in links if l.get('command_id') is not None}
+    idle_links = {}
+    for link in links:
+        if link.get('command_id') is None:
+            require(link.get('action') in ('suppressed_hold', 'duplicate_record'),
+                    'Consumed link without command identity must be a suppression')
+            idle_links.setdefault((link['action'], _stepish(link.get('authority_step'),
+                                                            'link.authority_step')), []).append(link)
+    # Temporal state machine with the adapter's own invariants: authority_now_step
+    # and record steps never regress, a record step is never in the future, and a
+    # duplicate/suppressed record inherits nothing from an expired MOVE.
+    moves = holds = cycles = 0
+    last_now = last_step = -1
+    last_accepted_step = None
+    active = None           # dict(step, target_step, valid_until) of the persisted MOVE record
+    hover_confirmed = False
+    last_hover_now = None
+    loss_open = False       # Invalidation withdrew the active MOVE; recovery pending.
+    for position, action in enumerate(actions):
+        act = action.get('action')
+        now = _stepish(action.get('authority_now_step'), 'action.authority_now_step')
+        step = _stepish(action.get('authority_step'), 'action.authority_step')
+        require(step <= now, 'Adapter action record step is in the authority future')
+        require(now >= last_now and step >= last_step, 'Adapter action steps regressed')
+        last_now, last_step = now, step
+        if now >= episode_end:
+            require(act == 'hover' and action.get('command_id') is not None
+                    and position == len(actions) - 1
+                    and link_by_command.get(action['command_id']) is None,
+                    'Actions at/past the episode end must be the single final HOLD')
+        if act == 'move':
+            moves += 1
+            link = link_by_command.get(action['command_id'])
+            require(link is not None and link.get('action') == 'move'
+                    and _stepish(link.get('authority_step'), 'link.authority_step') == step,
+                    'Adapter MOVE without its consumed observation link')
+            target = observations[link['sequence'] - 1].get('target')
+            require(isinstance(target, dict), 'MOVE consumed a null observation')
+            target_step = _stepish(target.get('step'), 'target.step')
+            valid_until = _stepish(target.get('valid_until_step'), 'target.valid_until_step')
+            require(target_step <= step <= valid_until and now <= valid_until,
+                    'MOVE published after the intent validity expired')
+            require(last_accepted_step is None or target_step > last_accepted_step,
+                    'MOVE target step did not advance past the last accepted target')
+            if loss_open:
+                cycles += 1  # Recovery after a proven TTL withdrawal.
+                loss_open = False
+            last_accepted_step = target_step
+            active = dict(step=step, target_step=target_step, valid_until=valid_until)
+            hover_confirmed = False
+        elif act == 'hover':
+            holds += 1
+            require(not action.get('send_failed'),
+                    'HOLD send failure leaves the persisted MOVE withdrawal unproven')
+            link = link_by_command.get(action['command_id'])
+            if link is not None:
+                require(link.get('action') == 'hover'
+                        and _stepish(link.get('authority_step'), 'link.authority_step') == step,
+                        'HOLD link/action step differs')
+                verdict = _target_verdict(observations[link['sequence'] - 1].get('target'),
+                                          step, first_step=first_step,
+                                          last_accepted_step=last_accepted_step)
+                require(verdict is not None, 'HOLD consumed a fresh valid target')
+                if active is not None:
+                    loss_open = True  # Consumed null/expired record withdrew the MOVE.
+                active = None
+            elif step >= episode_end:
+                active = None  # Final HOLD at the binding.first_step + scene-steps boundary.
+            elif active is not None:
+                require(active['valid_until'] < now,
+                        'Link-less HOLD without invalidation, expiry or boundary justification')
+                loss_open = True  # Cached MOVE expired per TTL before any new consumption.
+                active = None
+            else:
+                require(last_accepted_step is None and not hover_confirmed
+                        and not any(a.get('action') == 'move' for a in actions[:position]),
+                        'Link-less HOLD without invalidation, expiry or boundary justification')
+            hover_confirmed = True
+            last_hover_now = now
+        elif act == 'suppressed_hold':
+            require(hover_confirmed, 'suppressed_hold without a prior confirmed hover')
+            require(active is None, 'suppressed_hold while a MOVE is still active')
+            group = idle_links.get(('suppressed_hold', step))
+            link = group.pop(0) if group else None
+            if link is not None:
+                verdict = _target_verdict(observations[link['sequence'] - 1].get('target'),
+                                          step, first_step=first_step,
+                                          last_accepted_step=last_accepted_step)
+                require(verdict is not None, 'suppressed_hold absorbed a fresh valid target')
+            require(not any(_stepish(l.get('authority_step'), 'link.authority_step') > last_hover_now
+                            and _stepish(l.get('authority_step'), 'link.authority_step') <= now
+                            and _target_verdict(observations[l['sequence'] - 1].get('target'),
+                                                _stepish(l.get('authority_step'),
+                                                         'link.authority_step'),
+                                                first_step=first_step,
+                                                last_accepted_step=last_accepted_step) is None
+                            for l in links),
+                    'suppressed_hold after a fresh target was consumed in the hold window')
+        elif act == 'duplicate_record':
+            require(position > 0 and active is not None and active['step'] == step
+                    and actions[position - 1].get('action') in ('move', 'duplicate_record')
+                    and _stepish(actions[position - 1].get('authority_step'),
+                                 'action.authority_step') == step,
+                    'duplicate_record without its still-active MOVE record')
+            require(now <= active['valid_until'], 'duplicate_record kept an expired MOVE active')
+            group = idle_links.get(('duplicate_record', step))
+            link = group.pop(0) if group else None
+            if link is not None:  # A fresh target consumed at the same step; no re-send.
+                target = observations[link['sequence'] - 1].get('target')
+                require(isinstance(target, dict)
+                        and _target_verdict(target, step, first_step=first_step,
+                                            last_accepted_step=last_accepted_step) is None,
+                        'duplicate_record absorbed an invalid target')
+                last_accepted_step = _stepish(target.get('step'), 'target.step')
+                active.update(target_step=last_accepted_step,
+                              valid_until=_stepish(target.get('valid_until_step'),
+                                                   'target.valid_until_step'))
+        else:
+            require(False, 'Unknown adapter action ' + str(act))
+    require(all(not group for group in idle_links.values()),
+            'Consumed link lacks its suppressing adapter action')
+    require(active is None, 'Active MOVE persisted past the episode end without the final HOLD')
+    base = dict(observations=len(observations), consumed=len(links), moves=moves, holds=holds,
+                frames_verified=len(verified_frames))
+    if not cycles:
+        return dict(base, gate='not_exercised',
+                    reason='no complete null/expired invalidation -> TTL withdrawal -> '
+                           'recovery cycle observed; loss-HOLD causality stays uncovered')
+    return dict(base, gate='closed', cycles=cycles, frames=verified_frames,
+                note='public send+acceptance only; ACK is not action completion')
+
+
 def audit(root, *, run_root=None, deserialize=None, product_timeline=audit_product_timeline):
     root = Path(root)
     if deserialize is None:
@@ -347,6 +728,7 @@ def audit(root, *, run_root=None, deserialize=None, product_timeline=audit_produ
             'Original preflight differs')
     timeline, strict, life = product_timeline(directory, epoch_result)
     stacks = {}
+    reports, chains = {}, {}
     selected_count = 0
     for stack, uav_id in STACK_UAV.items():
         matches = sorted(directory.glob('tasks/*/' + stack + '/result.json'))
@@ -365,17 +747,33 @@ def audit(root, *, run_root=None, deserialize=None, product_timeline=audit_produ
         adapter = adapter_chain(chain, report, run_id=run_id, epoch=epoch, selected=selected)
         require(report['status'] == 'pass',
                 stack + ' task did not pass; a failed task cannot yield a clean pending')
+        reports[stack], chains[stack] = report, chain
         stacks[stack] = dict(samples=capture['end']['total_samples'],
                              counts=capture['counts'], session_states=chain['session_states'],
                              selected=selected, provenance=pins, adapter=adapter)
     require(selected_count == 1, 'Exactly one stack must own the bound camera')
+    uncovered = list(UNCOVERED)
+    loss_hold = None
+    if case_report is not None:
+        require(isinstance(case_report.get('frames'), list)
+                and isinstance(case_report.get('observations'), list),
+                'Capture report lacks frames/observations lists')
+        loss_hold = loss_hold_chain(root, case_report, run_id=run_id, epoch=epoch,
+                                    reports=reports, chains=chains)
+        if loss_hold['gate'] == 'closed':
+            uncovered = [u for u in uncovered if not u.startswith('loss_hold_correlation')]
+    limitations = ['Raw public chain and shared product timeline only; native setpoint '
+                   'closure, native ACK/action completion and publisher exclusivity are '
+                   'not certified.']
+    if loss_hold is None or loss_hold.get('gate') != 'closed':
+        limitations.append('Loss-HOLD causality is not certified by this capture '
+                           + ('(gate not exercised).' if loss_hold is not None
+                              else '(no capture report layer).'))
     return dict(status='pending', entry=entry or {'run_root': str(run_root)},
-                run_id=run_id, epoch=epoch, stacks=stacks,
+                run_id=run_id, epoch=epoch, stacks=stacks, loss_hold=loss_hold,
                 strict_native_barriers=strict, lifecycle=life, timeline=timeline,
-                uncovered=list(UNCOVERED),
-                limitations=['Raw public chain and shared product timeline only; '
-                             'loss-HOLD causality, native setpoint closure, native ACK and '
-                             'publisher exclusivity are not certified.'],
+                uncovered=uncovered,
+                limitations=limitations,
                 evidence_sha256={p.relative_to(run_root).as_posix(): digest(p)
                                  for p in sorted(run_root.rglob('*')) if p.is_file()})
 
