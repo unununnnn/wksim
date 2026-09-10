@@ -57,3 +57,18 @@ Remaining for #99: software-RC publisher with recorded profiles, the
 scenario task runner, and the separate PX4/AP one-run verifications
 (movement/recenter/yaw/stream-stall/mode-out/new-takeover) with
 independent audits. No RC flight has been started; #99/#38 remain open.
+
+# #99 publisher/task status — 2026-09-10 (second checkpoint)
+
+- `Simulator/wksim_runtime/rc_task.py` (new): `RCTask` scenario driver on the
+  session_v1 Task harness. The task node itself owns the software-RC
+  publisher (in-process GID/epoch binding), keeps the neutral stream alive
+  through arming, native takeoff and activation (`send_with_rc`), and
+  implements six scenarios: movement, recenter, yaw, stream-stall,
+  mode-out, new-takeover, each ending in a public AUTO.LAND + disarm.
+- `tools/rc_publisher.py` (new): standalone profile-driven software-RC
+  publisher (raw frame log), for negative/third-party publisher probes.
+- Compiles clean under Windows and WSL `py_compile`.
+- Not yet delivered: the flight runner (`run_rc_flight.py`), the
+  independent audit and the six PX4/AP one-run verifications. No RC
+  flight has been started; #99/#38 remain open.
