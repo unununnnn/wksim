@@ -31,7 +31,7 @@ class TargetIntentTests(unittest.TestCase):
     def test_axis_limit_and_public_body_velocity_shape(self):
         result = intent().update(target(position_body_flu_m=[-5.0, 0.0, 0.0]), authority_step=100)
         self.assertEqual(result["move_mode"], "XYZ_VEL_BODY")
-        self.assertEqual(result["velocity_ref"], [2.0, 0.0, 0.0])
+        self.assertEqual(result["velocity_ref"], [-2.0, 0.0, 0.0])
         self.assertTrue(result["yaw_rate_mode"])
         self.assertEqual(result["yaw_rate_ref"], 0.0)
         self.assertNotIn("velocity_world_ue_mps", result)
@@ -40,8 +40,8 @@ class TargetIntentTests(unittest.TestCase):
         result = intent(max_speed_mps=5.0).update(
             target(position_body_flu_m=[-3.0, -4.0, 0.0], velocity_world_ue_mps=[.01, .02, .03]),
             authority_step=100)
-        self.assertAlmostEqual(result["velocity_ref"][0], 3.0)
-        self.assertAlmostEqual(result["velocity_ref"][1], 4.0)
+        self.assertAlmostEqual(result["velocity_ref"][0], -3.0)
+        self.assertAlmostEqual(result["velocity_ref"][1], -4.0)
         self.assertAlmostEqual(sum(v * v for v in result["velocity_ref"]) ** .5, 5.0)
 
     def test_future_expired_foreign_and_missing_targets_hold_and_clear(self):
@@ -97,6 +97,24 @@ class TargetIntentTests(unittest.TestCase):
         self.assertEqual(foreign["move_mode"], "HOLD")
         fresh = copy.deepcopy(target(run_id="new-run", epoch="new-epoch", stream_id="new-stream"))
         self.assertEqual(c.update(fresh, authority_step=100)["move_mode"], "XYZ_VEL_BODY")
+
+    def test_stationary_target_relative_error_decreases_in_all_body_axes(self):
+        desired = [2., .2, -.1]
+        observed = [3.5, -1.3, .7]
+        command = intent(desired_body_flu_m=desired, gain_per_s=.6).update(
+            target(position_body_flu_m=observed), authority_step=100)
+        # Independent kinematics: a stationary target's body-relative position
+        # decreases by the vehicle displacement when attitude is held fixed.
+        after = [r - .1*v for r,v in zip(observed,command['velocity_ref'])]
+        for actual, next_actual, expected in zip(observed,after,desired):
+            self.assertLess(abs(next_actual-expected),abs(actual-expected))
+
+    def test_loss_or_bad_frame_cannot_erase_replay_watermark(self):
+        for invalid in (None,target(run_id='foreign'),target(position_body_flu_m=[float('nan'),0,0])):
+            c=intent();c.update(target(),authority_step=100)
+            c.update(invalid,authority_step=110)
+            self.assertIn('duplicate',c.update(target(),authority_step=120)['reason'])
+            self.assertEqual(c.update(target(step='121'),authority_step=121)['move_mode'],'XYZ_VEL_BODY')
 
 
 if __name__ == "__main__":

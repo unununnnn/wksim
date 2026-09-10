@@ -1,5 +1,7 @@
 # #59 G6 来源一致数值验收路线
 
+2026-09-11 实施进展：固定 e0 SLX 11.8 已由真实 MATLAB/Embedded Coder 生成并在 Linux 独立构建，核心 Model 冷重置与冷重建通过（`50897b8`、`docs/2026-09-10-generated-e0-lifecycle.md`）。下文“同源候选尚未生成”的缺口已解除。新 11.8 major 采集入口正在实施；逐量物理精度预算、normal/native 同源数值比较和 G6/Full 仍未通过，不把生命周期字节重复性当作物理精度。
+
 主任务材料补充：[G6材料索引](../g6-material-index.md)已定位本机厂家开发/生成说明和传感器标定教材、MWLOG/MAT示例数据。它们是继续实现和误差分析的输入，尚未建立与当前e0模型全部验收量的计量/工况绑定，不能直接改填本合同缺失的精度预算；R1旧结果保持不变。
 
 2026-09-09。状态：`blocked_budget_and_same_source_entry`；本文件为可审阅设计，尚未冻结新的物理精度合同。#59 保持 OPEN / needs-triage。父 #10、G6、Full 开放；R1 继续 `numerical_failed`。

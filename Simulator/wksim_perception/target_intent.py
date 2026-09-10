@@ -64,10 +64,13 @@ class TargetIntent:
                                     _identity(stream_id, "stream_id"))
         changed = (run_id, epoch, stream_id) != (self.run_id, self.epoch, self.stream_id)
         self.run_id, self.epoch, self.stream_id = run_id, epoch, stream_id
-        self._clear("awaiting_fresh_target" if changed else self.reason)
+        self._clear("awaiting_fresh_target" if changed else self.reason, reset_history=changed)
 
-    def _clear(self, reason):
-        self._last_step = None
+    def _clear(self, reason, *, reset_history=False):
+        # Losing a target clears the motion intent, not the epoch's replay
+        # watermark. Only a new binding may accept a fresh sequence from zero.
+        if reset_history:
+            self._last_step = None
         self.reason = reason
 
     def _hold(self, authority_step, reason):
@@ -116,7 +119,9 @@ class TargetIntent:
             if (not isinstance(observed, list) or len(observed) != 3
                     or any(not _finite(value) for value in observed)):
                 raise ValueError("target body position is invalid")
-            error = [desired - actual for desired, actual in zip(self.config.desired_body_flu_m, observed)]
+            # For a stationary world target, relative_position_dot = -vehicle_velocity.
+            # Moving toward observed - desired therefore reduces the relative error.
+            error = [actual - desired for desired, actual in zip(self.config.desired_body_flu_m, observed)]
             velocity = [self.config.gain_per_s * value for value in error]
             norm = math.sqrt(sum(value * value for value in velocity))
             if not _finite(norm):

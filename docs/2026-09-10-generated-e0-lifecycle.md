@@ -9,7 +9,7 @@
 | 默认准备 | `short-cycle-prepare-01`，真实 SDK 三文件复制/散列匹配；不启动 MATLAB |
 | 真实生成 | `short-cycle-codegen-01`，MATLAB R2022b 退出 0；SIMULINK、Real-Time_Workshop、RTW_Embedded_Coder、Aerospace_Blockset、Aerospace_Toolbox 的 test 与 checkout 全部为 1 |
 | 生成配置 | 原模型 ODE4/0.001s 读回；只在内存切 normal、ert.tlc、C++、GenCodeOnly；9 个阶段全部成功，关闭模型不保存 |
-| 输入与产物 | 原厂与私有输入均未改变；主会话独立重算 6 个输入副本及 4 个生成文件 SHA，一致；新头文件版本 11.8，16 输入/60+30+30 输出 |
+| 输入与产物 | 原厂与私有输入均未改变；主会话独立重算 6 个输入副本及 4 个生成文件 SHA，一致；新头文件版本 11.8，模型根输入为 inPWMs[16] 与 TerrainIn15d[15]，输出 60+30+30；本次复用的 Model 包装器只驱动 16 路执行器，TerrainIn15d 保持零 |
 | Linux 首构建 | GNU g++ 11.4，独立 `/root/wksim-codegen-e0-build-short-cycle-01`；共享库 87,312 字节，SHA256 `7da6853201b89238c273f2e1360ad21fe479e267d0ed08cf3500f98bf535505e` |
 | 独立冷重建 | 主会话从核验后的 6 个源码/头文件重新建新目录，没有复制库；新编译库 SHA 与第一次一致 |
 | 核心生命周期 | 两个独立 Python 进程各创建/步进/销毁两次；每次 1000 步、1ms、120 输出；共 480,000 个输出值和四份原始 JSONL 字节完全一致 |

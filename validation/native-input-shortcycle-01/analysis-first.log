@@ -1,0 +1,14 @@
+Traceback (most recent call last):
+  File "/mnt/c/Users/PC/Documents/odid编译/wksim/tools/analyze_native_input_waits.py", line 151, in <module>
+    result = analyze(args.root)
+  File "/mnt/c/Users/PC/Documents/odid编译/wksim/tools/analyze_native_input_waits.py", line 129, in analyze
+    summary = summarize(rows, off[pids['supervisor']],
+  File "/mnt/c/Users/PC/Documents/odid编译/wksim/tools/analyze_native_input_waits.py", line 73, in summarize
+    check_record(row, epoch)  # validate every record, even one partly outside the window
+  File "/mnt/c/Users/PC/Documents/odid编译/wksim/tools/analyze_native_input_waits.py", line 49, in check_record
+    check_segment(segment)
+  File "/mnt/c/Users/PC/Documents/odid编译/wksim/tools/analyze_native_input_waits.py", line 31, in check_segment
+    require(0 <= segment['thread_cpu_ns'] <= segment['wall_ns'],
+  File "/mnt/c/Users/PC/Documents/odid编译/wksim/tools/analyze_joint_scheduler.py", line 21, in require
+    if not value:raise ValueError(reason)
+ValueError: Native wait thread CPU outside its wall bracket
