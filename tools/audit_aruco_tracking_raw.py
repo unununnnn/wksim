@@ -571,13 +571,19 @@ def loss_hold_chain(root, case_report, *, run_id, epoch, reports, chains):
                                                             'link.authority_step')), []).append(link)
     # Temporal state machine with the adapter's own invariants: authority_now_step
     # and record steps never regress, a record step is never in the future, and a
-    # duplicate/suppressed record inherits nothing from an expired MOVE.
+    # duplicate/suppressed record inherits nothing from an expired MOVE. Processing
+    # order is the action list order (never a wall of authority steps alone): a
+    # fresh target consumed by a move clears hover_confirmed, a duplicate with a
+    # fresh link keeps the MOVE active, and every command_id-less link is verdict-
+    # checked when its suppressing action consumes it, so a suppression can never
+    # follow an earlier fresh consumption — while a fresh consumption at the SAME
+    # authority step but LATER in processing order (real 08 run, pos 1686 vs the
+    # recovery MOVE at now 59252) must not invalidate the earlier suppression.
     moves = holds = cycles = 0
     last_now = last_step = -1
     last_accepted_step = None
     active = None           # dict(step, target_step, valid_until) of the persisted MOVE record
     hover_confirmed = False
-    last_hover_now = None
     loss_open = False       # Invalidation withdrew the active MOVE; recovery pending.
     for position, action in enumerate(actions):
         act = action.get('action')
@@ -639,7 +645,6 @@ def loss_hold_chain(root, case_report, *, run_id, epoch, reports, chains):
                         and not any(a.get('action') == 'move' for a in actions[:position]),
                         'Link-less HOLD without invalidation, expiry or boundary justification')
             hover_confirmed = True
-            last_hover_now = now
         elif act == 'suppressed_hold':
             require(hover_confirmed, 'suppressed_hold without a prior confirmed hover')
             require(active is None, 'suppressed_hold while a MOVE is still active')
@@ -650,15 +655,6 @@ def loss_hold_chain(root, case_report, *, run_id, epoch, reports, chains):
                                           step, first_step=first_step,
                                           last_accepted_step=last_accepted_step)
                 require(verdict is not None, 'suppressed_hold absorbed a fresh valid target')
-            require(not any(_stepish(l.get('authority_step'), 'link.authority_step') > last_hover_now
-                            and _stepish(l.get('authority_step'), 'link.authority_step') <= now
-                            and _target_verdict(observations[l['sequence'] - 1].get('target'),
-                                                _stepish(l.get('authority_step'),
-                                                         'link.authority_step'),
-                                                first_step=first_step,
-                                                last_accepted_step=last_accepted_step) is None
-                            for l in links),
-                    'suppressed_hold after a fresh target was consumed in the hold window')
         elif act == 'duplicate_record':
             require(position > 0 and active is not None and active['step'] == step
                     and actions[position - 1].get('action') in ('move', 'duplicate_record')

@@ -40,6 +40,11 @@ FIRST_STEP = 10
 EPISODE_STEPS = dict(initial_steps=100, moving_steps=100, occluded_steps=100,
                      recovery_steps=100)
 EPISODE_END = FIRST_STEP + sum(EPISODE_STEPS.values())  # 410
+# Real-08-regression scale: record steps around 59016/now 59252 with a scene plan
+# whose step sum puts the episode end past the recovery target's validity.
+SAME_STEP_SCENE = dict(initial_steps=1000, moving_steps=40000, occluded_steps=10000,
+                       recovery_steps=8500)
+SAME_STEP_EPISODE_END = FIRST_STEP + sum(SAME_STEP_SCENE.values())  # 59510
 PROFILE = dict(schema='wksim.aruco-tracking-profile.v1',
                camera=dict(version=1, sensor_id=SENSOR, width=1920, height=1440,
                            horizontal_fov_degrees=90, position_cm=[30, 20, 10],
@@ -143,7 +148,7 @@ def move_fields():
 
 def make_stack(root, stack, uav_id, cdr_base, *, selected, requests, terminal_events,
                adapter_actions, links, envelopes, status='pass', start_overrides=None,
-               binding_override=None):
+               binding_override=None, profile_sha=PROFILE_SHA):
     directory = root / 'run' / 'epochs' / EPOCH / 'tasks' / TID / stack
     directory.mkdir(parents=True)
     messages, samples = {}, []
@@ -183,7 +188,7 @@ def make_stack(root, stack, uav_id, cdr_base, *, selected, requests, terminal_ev
                   task=dict(run_id=RUN, control_epoch=CE, protocol='session_v1', sent=[],
                             events=[], control_restarts=[], final={},
                             request_envelopes=envelopes,
-                            aruco=dict(selected=selected, profile_sha256=PROFILE_SHA,
+                            aruco=dict(selected=selected, profile_sha256=profile_sha,
                                        binding=task_binding,
                                        observation_links=links,
                                        adapter_actions=adapter_actions, raw_capture=None)))
@@ -287,7 +292,7 @@ def make_run(case, *, peer_move=False, drop_hover_raw=False, drop_move_terminal=
              expired_duplicate=False, with_duplicate=False, final_early=False,
              move_past_end=False, no_loss=False, no_recovery=False, lax_step=False,
              entry_target_drift=False, bad_task_binding=False, bad_profile_file=False,
-             bad_sensor_type=False):
+             bad_sensor_type=False, same_step_recovery=False, suppressed_fresh=False):
     tmp = _host_temp_root()
     case.addCleanup(shutil.rmtree, tmp, True)
     root = tmp / 'case'
@@ -370,6 +375,54 @@ def make_run(case, *, peer_move=False, drop_hover_raw=False, drop_move_terminal=
                        action('hover', 6, seam_reason='target_missing',
                               authority_step=EPISODE_END, authority_now_step=EPISODE_END,
                               public_fields=hover_fields)]
+        elif same_step_recovery:
+            # Real 08 run regression (px4 adapter action pos 1686): two
+            # suppressed_hold records at record step 59016 (now 59250/59252)
+            # precede the recovery MOVE (real command_id 14) that sits at the
+            # SAME authority step 59252 but LATER in processing order. A
+            # wall-of-time window scan over every link wrongly counted that
+            # fresh target as consumed before the suppression.
+            frames.pop()        # The shared preamble's small-step f1/obs1 pair
+            observations.pop()  # does not fit this real-scale scene plan.
+            target1 = target_dict(valid_until=59220, step=58920, frame_id=1010)
+            target4 = target_dict(valid_until=59444, step=59144, frame_id=1013)
+            # Real contract: target.step/frame_id equal the capturing frame's.
+            for seq, name, step, fid, target in ((1, 'f1', 58920, 1010, target1),
+                                                 (2, 'f2', 59016, 1011, None),
+                                                 (3, 'f3', 59016, 1012, None),
+                                                 (4, 'f4', 59144, 1013, target4)):
+                entry = frame_entry(root, name, step, fid, target, step)
+                frames.append(entry)
+                observations.append(observation_row(seq, step, fid,
+                                                    entry['image_sha256'], target))
+            links += [link(1, 58920, 1010, observations[0]['image_sha256'], 59016,
+                           'move', 2),
+                      link(2, 59016, 1011, observations[1]['image_sha256'], 59016,
+                           'suppressed_hold', None),
+                      link(3, 59016, 1012, observations[2]['image_sha256'], 59016,
+                           'suppressed_hold', None),
+                      link(4, 59144, 1013, observations[3]['image_sha256'], 59252,
+                           'move', 4)]
+            actions = [action('hover', 1, seam_reason='target_missing',
+                              authority_step=58900, authority_now_step=58900,
+                              public_fields=hover_fields),
+                       action('move', 2, authority_step=59016, authority_now_step=59016,
+                              public_fields=move_fields()),
+                       action('hover', 3, seam_reason='cached_move_expiry',
+                              authority_step=59016, authority_now_step=59221,
+                              public_fields=hover_fields),
+                       action('suppressed_hold', None,
+                              seam_reason='expired_move:target_accepted',
+                              authority_step=59016, authority_now_step=59250),
+                       action('suppressed_hold', None,
+                              seam_reason='expired_move:target_accepted',
+                              authority_step=59016, authority_now_step=59252),
+                       action('move', 4, authority_step=59252, authority_now_step=59252,
+                              public_fields=move_fields()),
+                       action('hover', 5, seam_reason='target_missing',
+                              authority_step=SAME_STEP_EPISODE_END,
+                              authority_now_step=SAME_STEP_EPISODE_END,
+                              public_fields=hover_fields)]
         else:
             target2 = (target_dict(valid_until=150, step=140, frame_id=6)
                        if consume_expired else None)  # Consumed at 200: already expired.
@@ -378,8 +431,12 @@ def make_run(case, *, peer_move=False, drop_hover_raw=False, drop_move_terminal=
             obs2 = observation_row(2, 140 if consume_expired else 200, 6,
                                    entry2['image_sha256'], target2)
             frame3_id = 6 if old_frame else 7
-            entry3 = frame_entry(root, 'f3', 210, frame3_id, None, 210)
-            obs3 = observation_row(3, 210, frame3_id, entry3['image_sha256'], None)
+            # suppressed_fresh: the suppressed_hold absorbs a still-fresh valid
+            # target — a genuine prior fresh consumption forbids suppression.
+            target3 = (target_dict(valid_until=510, step=210, frame_id=7)
+                       if suppressed_fresh else None)
+            entry3 = frame_entry(root, 'f3', 210, frame3_id, target3, 210)
+            obs3 = observation_row(3, 210, frame3_id, entry3['image_sha256'], target3)
             target4 = target_dict(valid_until=300, step=250, frame_id=8)
             entry4 = frame_entry(root, 'f4', 250, 8, target4, 250)
             obs4 = observation_row(4, 250, 8, entry4['image_sha256'], target4)
@@ -432,14 +489,26 @@ def make_run(case, *, peer_move=False, drop_hover_raw=False, drop_move_terminal=
             outside = tmp / 'f1.png'
             outside.write_bytes(b'outside')
             entry1['frame']['image_path'] = _stored_path(outside)
+    profile_bytes, profile_sha = PROFILE_BYTES, PROFILE_SHA
+    if same_step_recovery:  # Real-scale scene plan so the recomputed boundary matches.
+        profile = json.loads(PROFILE_BYTES)
+        profile['scene'].update(SAME_STEP_SCENE)
+        profile_bytes = json.dumps(profile, sort_keys=True,
+                                   separators=(',', ':')).encode('utf-8')
+        profile_sha = hashlib.sha256(profile_bytes).hexdigest()
+    binding_override = None
+    if bad_task_binding:
+        binding_override = dict(episode_end_step=EPISODE_END + 1)
+    if same_step_recovery:
+        binding_override = dict(episode_end_step=SAME_STEP_EPISODE_END)
     px4_report, messages = make_stack(root, 'px4', 2, 16, selected=True,
                                       requests=px4_requests, terminal_events=px4_events,
                                       adapter_actions=actions, links=links,
                                       envelopes=px4_envelopes,
                                       status='failed' if failed_task else 'pass',
                                       start_overrides=px4_start_overrides,
-                                      binding_override=(dict(episode_end_step=EPISODE_END + 1)
-                                                        if bad_task_binding else None))
+                                      binding_override=binding_override,
+                                      profile_sha=profile_sha)
     ap_requests = [('setup', NS(cmd=1))]
     ap_events = {1: (150, dict(event='setup_completed'))}
     ap_envelopes = [dict(version=1, run_id=RUN, control_epoch=CE, request_id=1,
@@ -458,7 +527,8 @@ def make_run(case, *, peer_move=False, drop_hover_raw=False, drop_move_terminal=
                                               yaw_rate_mode=False, yaw_rate_ref=0)))
     ap_report, ap_messages = make_stack(root, 'arducopter', 1, 100, selected=False,
                                         requests=ap_requests, terminal_events=ap_events,
-                                        adapter_actions=None, links=[], envelopes=ap_envelopes)
+                                        adapter_actions=None, links=[], envelopes=ap_envelopes,
+                                        profile_sha=profile_sha)
     messages.update(ap_messages)
     if bad_state_epoch:
         key = cdr(16 + 30)
@@ -483,11 +553,13 @@ def make_run(case, *, peer_move=False, drop_hover_raw=False, drop_move_terminal=
         encoding='utf-8')
     profile_file = root / 'sources' / Path(PROFILE_REL)
     profile_file.parent.mkdir(parents=True, exist_ok=True)
-    profile_file.write_bytes(b'{"tampered":true}' if bad_profile_file else PROFILE_BYTES)
+    profile_file.write_bytes(b'{"tampered":true}' if bad_profile_file else profile_bytes)
+    binding = BINDING if profile_sha == PROFILE_SHA else dict(BINDING,
+                                                              profile_sha256=profile_sha)
     report_top = dict(session=dict(version=1, run_id=RUN, instance_id=INST),
-                      profile=json.loads(PROFILE_BYTES), profile_sha256=PROFILE_SHA,
-                      source_sha256={PROFILE_REL: PROFILE_SHA},
-                      stream_id=STREAM, binding=BINDING, frames=frames,
+                      profile=json.loads(profile_bytes), profile_sha256=profile_sha,
+                      source_sha256={PROFILE_REL: profile_sha},
+                      stream_id=STREAM, binding=binding, frames=frames,
                       observations=observations)
     if bad_sensor_type:
         report_top['binding'] = dict(BINDING, camera=dict(vehicle_id=2, sensor_id=7))
@@ -514,9 +586,9 @@ class ArucoRawAuditTest(unittest.TestCase):
         self.assertEqual(report['stacks']['px4']['provenance']['builder_sha256'], BUILDER_SHA)
         self.assertIn('capture_report_sha256', report['entry'])
         # Full cycle proven: null invalidation -> TTL withdrawal HOLD -> recovery MOVE.
-        # The suppressed_hold at step 210 followed by the recovery MOVE at 250 is also
-        # the regression for the bounded hold window (a future recovery must not
-        # invalidate an earlier occlusion hover).
+        # The suppressed_hold at step 210 ahead of the recovery MOVE at 250 stays
+        # legal; the same-authority-step processing-order regression (real 08 run,
+        # px4 action pos 1686) is test_same_step_recovery_after_suppression_closes.
         gate = report['loss_hold']
         self.assertEqual(gate['gate'], 'closed')
         self.assertEqual((gate['cycles'], gate['moves'], gate['holds']), (1, 2, 3))
@@ -577,6 +649,28 @@ class ArucoRawAuditTest(unittest.TestCase):
     def test_expired_duplicate_record_fails(self):
         root, inject = make_run(self, expired_duplicate=True)
         with self.assertRaisesRegex(ValueError, 'duplicate_record kept an expired MOVE'):
+            audit(root, **inject)
+
+    def test_same_step_recovery_after_suppression_closes(self):
+        # Real 08 run, px4 adapter action pos 1686: suppressed_hold records at
+        # record step 59016 (now 59250/59252) precede the recovery MOVE (real
+        # command_id 14) at the SAME authority step 59252, later in processing
+        # order. The fresh target that MOVE consumes must not invalidate the
+        # earlier suppression; the null-consumption -> cached-TTL withdrawal ->
+        # recovery cycle closes the gate.
+        root, inject = make_run(self, same_step_recovery=True)
+        report = audit(root, **inject)
+        gate = report['loss_hold']
+        self.assertEqual(gate['gate'], 'closed')
+        self.assertEqual((gate['cycles'], gate['moves'], gate['holds']), (1, 2, 3))
+        self.assertEqual(gate['frames_verified'], 4)
+        self.assertFalse(any(u.startswith('loss_hold_correlation')
+                             for u in report['uncovered']))
+
+    def test_suppressed_hold_absorbing_fresh_target_fails(self):
+        root, inject = make_run(self, suppressed_fresh=True)
+        with self.assertRaisesRegex(ValueError,
+                                    'suppressed_hold absorbed a fresh valid target'):
             audit(root, **inject)
 
     def test_final_hold_before_boundary_fails(self):

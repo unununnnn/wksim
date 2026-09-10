@@ -53,14 +53,18 @@
 （整审 fail 的首个抛出点是共享 timeline/物理阶段——`audit_product_timeline` 原样默认、
 100ms/rate 未放宽——失败 run 本就该在此被拒；分阶段驱动证明 raw 链与身份对账先行通过。）
 
-## 测试（45 项：本 turn 已执行，Windows 与 WSL ROS 双环境通过）
+## 测试（48 项：本 turn 已执行，Windows 与 WSL ROS 双环境通过）
 
 本 turn 执行结果（第六场 rate_unmet 退场后、无 SITL 运行；仅离线测试与真实消息
-反序列化，未起节点/构建/压缩）：**Windows 45 项 44 过 + 1 skip（ROS round-trip）；
-WSL ROS 环境 45 项全过**（含真实 rclpy round-trip 与真实 scene-03 帧验证）。
-真实失败 run 回归（tracking-01/02 只读）：两栈 CHAIN_OK + IDENTITY_OK、PUBLIC_FAIL
+反序列化，未起节点/构建/压缩）：**Windows 48 项 47 过 + 1 skip（ROS round-trip）；
+WSL ROS 环境 48 项全过**（含真实 rclpy round-trip 与真实 scene-03 帧验证）。
+新增 same_step_recovery 真实刻度回归（门 closed，cycles=1/moves=2/holds=3/
+frames=4）与 suppressed 吸收新鲜 target 负例。真实失败 run 回归（tracking-01/02
+只读，修复后复核一致）：两栈 CHAIN_OK + IDENTITY_OK、PUBLIC_FAIL
 （control_revoked）、整审 **fail**（共享 timeline 先拒）——失败 run 依旧 fail 而非
-pending。
+pending。真实 08 复核（修复后）：整审跑通为 **pending**，loss-HOLD 门
+**closed，14 周期**（85 帧/84 消费/69 MOVE/16 HOLD），独立吸收序复算交叉核对
+一致；原 run 仍 failed（收尾 rate_unmet），详见 claude-aruco-08-inspection.md。
 
 夹具按真实 schema 重建：sensor_id=`'front_rgb'` 字符串；target/metadata 的
 step/frame_id 十进制字符串、valid_until_step int；happy 路径是一整条
@@ -75,7 +79,9 @@ aruco-tracking-v1.json 形状，`PROFILE_SHA` 由内容动态算出并写入
 suppressed_hold、MOVE 消费 null 观测、观测身份篡改、**宽松步字符串拒收**（`' 100'`）、
 **entry.target 漂移**、**task binding 边界不符**（episode_end 411≠410）、**profile
 文件锚篡改**、**sensor_id 类型错**（int 7）、**过期 duplicate_record**（now=200>150）、
-新鲜 duplicate 合法、消费时已过期 target 合法 HOLD、无失效不关门（no_loss）、
+新鲜 duplicate 合法、**suppressed 吸收新鲜有效 target 拒收**（suppressed_fresh）、
+**同 authority step 后序恢复不否决更早 suppressed**（same_step_recovery，真实 08
+pos 1686 刻度）、消费时已过期 target 合法 HOLD、无失效不关门（no_loss）、
 撤回无恢复不关门（no_recovery）、过期 MOVE 无新 link 关门（expire_hold）、
 最终 HOLD 越界前发（final_early@300）、边界处 MOVE（move_past_end@420）。
 既有负例（链篡改/缺 end/计数/sequence 空洞/write_failed、hover 无 raw、peer MOVE、
@@ -120,9 +126,16 @@ frame_id str、valid_until int、sensor_id str）；target.step 篡改即 fail�
 3. **消费时已过期的非空 target 同样合法触发 HOLD**（`_target_verdict` 返回
    null/future/expired/before_binding/duplicate 之一即合法；新鲜有效 target 被
    HOLD 消费 = fail）。与 TargetIntent.update 的可证拒绝形状一一对应。
-4. **suppressed_hold 窗口已加上界**：`last_hover_now < link.authority_step <=
-   action.authority_now_step` 内不得消费新鲜有效 target；未来恢复 MOVE 不再误否
-   更早的遮挡悬停（happy 夹具本身就是回归：suppressed@210 后接 recovery MOVE@250）。
+4. **suppressed_hold 按处理序吸收判定（真实 08 复核后修订）**：原"对全部 links 做
+   时间窗扫描"在真实 08 数据上误判——恢复 MOVE 与 suppressed_hold 同 authority
+   step 59252、动作序更靠后（px4 pos 1686 vs 1687），其新鲜 target 被窗口误计为
+   "已消费"。已删除该 O(actions×links) 窗口，安全改由处理序结构性保证：MOVE 消费
+   新鲜 target 会保持 MOVE 活动（其后 suppressed 即 fail）；duplicate 带新鲜 link
+   时 MOVE 保持活动；每个无 command_id link 在其抑制动作消费时做
+   `_target_verdict`；结尾要求 idle links 全部被消费。新鲜有效 target 被
+   suppressed 吸收 = fail（负例保留）。回归以真实刻度复刻 pos 1686
+   （test_same_step_recovery_after_suppression_closes：record step 59016、now
+   59250/59252 两次 suppressed 后接同 step 59252 的恢复 MOVE）。
 5. **关门需要完整周期**：时间状态机按实际消费与 action.now 推进（now/record step
    单调、record step 不在未来——adapter 自身不变量）；只有观测到
    **null/过期失效（有活动 MOVE）→ 真实 HOLD 发送按 TTL 撤回 → 新鲜有效 target 的
@@ -146,10 +159,11 @@ frame_id str、valid_until int、sensor_id str）；target.step 篡改即 fail�
 
 ## 主会话后续
 
-45 项测试双环境已过，工具就绪。下一场真实成功录制产出后，在 WSL ROS 环境运行：
+48 项测试双环境已过，工具就绪。下一场真实成功录制产出后，在 WSL ROS 环境运行：
 `python3 tools/audit_aruco_tracking_raw.py <capture root 的 WSL 路径> --output <root 外新文件>`
 （或 `--run-root <run 目录>`，该入口无 report 层、loss-HOLD 门不运行且 uncovered 保留）。
 本工具只读；schema_version≠1 即 fail-closed 待复核。成功录制若保留
 binding/frames/observations 且观测到完整 失效→撤回→恢复 周期，门关闭后 uncovered
-只剩 native 三项（setpoint 关联/ACK/排他性），整体仍 pending。真实运行至今无 RGB
-帧产出的成功录制；不声称任何 flight 通过。
+只剩 native 三项（setpoint 关联/ACK/排他性），整体仍 pending。真实 08 为首份完整
+相机闭环留存（85 帧）但整场 failed（收尾 rate_unmet）；修复后该门在其真实数据上
+closed（14 周期）、整审 pending，原判不改。不声称任何 flight 通过。
