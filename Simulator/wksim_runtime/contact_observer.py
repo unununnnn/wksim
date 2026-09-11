@@ -137,6 +137,7 @@ class ContactObserver:
 
         try:
             query_res = self.scene.query(epoch, step, body_id, point_enu_m)
+            terrain_height = self.scene.support_height_enu_m(point_enu_m)
             if query_res["result"] == "contact":
                 envelope = query_res["envelope"]
                 self._validate_contact_envelope(envelope, step, epoch)
@@ -151,6 +152,8 @@ class ContactObserver:
                     "step": step,
                     "epoch": epoch,
                     "body_id": body_id,
+                    "terrain_height_enu_m": terrain_height,
+                    "vertical_heightfield_only": True,
                 }
             else:
                 self.last_envelope = None
@@ -166,6 +169,8 @@ class ContactObserver:
                     "body_id": body_id,
                     "scene_id": self.scene.scene_id,
                     "scene_hash": self.scene.scene_sha256,
+                    "terrain_height_enu_m": terrain_height,
+                    "vertical_heightfield_only": True,
                 }
         except ContactError as exc:
             return self._trigger_freeze(exc.reason, step, body_id=body_id)
@@ -217,6 +222,7 @@ class ContactObserver:
         envelope = evidence["envelope"]
         if envelope is not None:
             self._validate_contact_envelope(envelope, current_step, self.epoch)
+        terrain_height = self.scene.support_height_enu_m(point_enu_m)
         prev_reason = self.freeze_reason
         self.frozen = False
         self.freeze_reason = None
@@ -234,6 +240,8 @@ class ContactObserver:
             "previous_reason": prev_reason,
             "result": evidence["result"],
             "envelope": envelope,
+            "terrain_height_enu_m": terrain_height,
+            "vertical_heightfield_only": True,
         }
 
     def get_display_manifest(self):

@@ -6,7 +6,7 @@ box in ENU/metres with explicit origin. Every result is a
 ``wksim.contact.v1`` envelope valid for exactly the queried authority step
 (1 ms tick); expired required feedback is a typed error, never silently
 reused. This module is a pure query seam: no I/O, no wall clock, no
-threads, no UE dependency. Wiring it into the model worker requires a
+threads, no UE dependency. Wiring the query into ``JointPhysics`` requires a
 separately owned edit ticket.
 """
 
@@ -186,6 +186,44 @@ class StaticScene:
             raise ContactError("stale_feedback")
         return True
 
+    def support_height_enu_m(self, x, y=None):
+        """Pure deterministic query for highest load-bearing support z elevation.
+
+        Given a horizontal point in world ENU (metres), returns the highest
+        load-bearing z elevation in world ENU.
+        Inside box footprint: max(plane_z, box_top).
+        Outside box footprint: plane_z.
+        Footprint boundary is inclusive.
+        Applies origin_enu_m so both input and output are world ENU.
+        Rejects bool, non-finite (NaN, inf), and wrong-dimension inputs.
+        Does not confuse box side walls with vertical heightfield elevations.
+        """
+        if y is None:
+            if not isinstance(x, (tuple, list)) or len(x) not in (2, 3):
+                raise ContactError("invalid_geometry")
+            qx = _finite(x[0], "x")
+            qy = _finite(x[1], "y")
+            if len(x) == 3:
+                _finite(x[2], "z")
+        else:
+            qx = _finite(x, "x")
+            qy = _finite(y, "y")
+
+        lx = qx - self.origin[0]
+        ly = qy - self.origin[1]
+
+        cx, cy, cz = self.box_center
+        sx, sy, sz = (v / 2.0 for v in self.box_size)
+
+        box_top_local = cz + sz
+        plane_z_local = self.plane_z
+
+        if abs(lx - cx) <= sx and abs(ly - cy) <= sy:
+            support_local = max(plane_z_local, box_top_local)
+        else:
+            support_local = plane_z_local
+
+        return float(support_local + self.origin[2])
 
 def load_scene(path):
     with open(path, "r", encoding="utf-8") as handle:

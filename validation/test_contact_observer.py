@@ -5,6 +5,7 @@ import unittest
 
 from Simulator.wksim_core.static_contact import ContactError
 from Simulator.wksim_runtime.contact_observer import (
+    CONTACT_FIELDS,
     ContactObserver,
     DEFAULT_SCENE_PATH,
     FROZEN_SCENE_SHA256,
@@ -51,6 +52,8 @@ class ContactObserverTests(unittest.TestCase):
         self.assertIsNone(self.observer.last_envelope)
         self.assertEqual(self.observer.last_step, 1)
         self.assertFalse(self.observer.frozen)
+        self.assertEqual(res["terrain_height_enu_m"], 0.0)
+        self.assertTrue(res["vertical_heightfield_only"])
 
     def test_observe_plane_contact(self):
         res = self.observer.observe_step(step=2, body_id="uav1", point_enu_m=[0.0, 0.0, -0.05])
@@ -65,6 +68,8 @@ class ContactObserverTests(unittest.TestCase):
         self.assertEqual(env["epoch"], EPOCH)
         self.assertAlmostEqual(env["penetration_m"], 0.05)
         self.assertEqual(env["normal_enu"], [0.0, 0.0, 1.0])
+        self.assertEqual(res["terrain_height_enu_m"], 0.0)
+        self.assertTrue(res["vertical_heightfield_only"])
 
     def test_observe_box_contact(self):
         res = self.observer.observe_step(step=3, body_id="uav1", point_enu_m=[2.0, 0.0, 0.5])
@@ -72,9 +77,12 @@ class ContactObserverTests(unittest.TestCase):
         self.assertFalse(res["freeze"])
         self.assertEqual(res["result"], "contact")
         env = res["envelope"]
+        self.assertIsNotNone(env)
         self.assertEqual(env["geometry_id"], "box_0")
         self.assertEqual(env["step"], 3)
         self.assertAlmostEqual(env["penetration_m"], 0.5)
+        self.assertEqual(res["terrain_height_enu_m"], 1.0)
+        self.assertTrue(res["vertical_heightfield_only"])
 
     def test_foreign_epoch_triggers_freeze(self):
         res = self.observer.observe_step(step=4, body_id="uav1", point_enu_m=[0.0, 0.0, 5.0], epoch=FOREIGN_EPOCH)
@@ -125,6 +133,8 @@ class ContactObserverTests(unittest.TestCase):
         self.assertIsNone(self.observer.freeze_reason)
         self.assertEqual(rec["result"], "no_contact")
         self.assertIsNone(rec["envelope"])
+        self.assertEqual(rec["terrain_height_enu_m"], 0.0)
+        self.assertTrue(rec["vertical_heightfield_only"])
 
         # Fresh step 21 should now succeed
         res = self.observer.observe_step(step=21, body_id="uav1", point_enu_m=[0.0, 0.0, 5.0])
@@ -204,6 +214,71 @@ class ContactObserverTests(unittest.TestCase):
         for forbidden in ("force", "contact_force", "impulse", "stiffness", "damping", "torque", "wrench"):
             self.assertNotIn(forbidden, res)
             self.assertNotIn(forbidden, env)
+
+    def test_terrain_height_on_contact_no_contact_and_recovery(self):
+        # 1. no_contact above box
+        res1 = self.observer.observe_step(step=1, body_id="uav1", point_enu_m=[2.0, 0.0, 5.0])
+        self.assertEqual(res1["result"], "no_contact")
+        self.assertEqual(res1["terrain_height_enu_m"], 1.0)
+        self.assertTrue(res1["vertical_heightfield_only"])
+
+        # 2. contact with box top
+        res2 = self.observer.observe_step(step=2, body_id="uav1", point_enu_m=[2.0, 0.0, 0.9])
+        self.assertEqual(res2["result"], "contact")
+        self.assertEqual(res2["envelope"]["geometry_id"], "box_0")
+        self.assertEqual(res2["terrain_height_enu_m"], 1.0)
+        self.assertTrue(res2["vertical_heightfield_only"])
+
+        # 3. contact near box side wall: vertical heightfield is box top (1.0), NOT the side wall position
+        res3 = self.observer.observe_step(step=3, body_id="uav1", point_enu_m=[1.6, 0.0, 0.5])
+        self.assertEqual(res3["result"], "contact")
+        self.assertEqual(res3["envelope"]["normal_enu"], [-1.0, 0.0, 0.0])
+        self.assertEqual(res3["terrain_height_enu_m"], 1.0)
+        self.assertTrue(res3["vertical_heightfield_only"])
+
+        # 4. contact with plane
+        res4 = self.observer.observe_step(step=4, body_id="uav1", point_enu_m=[0.0, 0.0, -0.2])
+        self.assertEqual(res4["result"], "contact")
+        self.assertEqual(res4["envelope"]["geometry_id"], "plane_z0")
+        self.assertEqual(res4["terrain_height_enu_m"], 0.0)
+        self.assertTrue(res4["vertical_heightfield_only"])
+
+        # 5. trigger freeze then recover over box
+        self.observer.observe_step(step=5, body_id="uav1", point_enu_m=[0.0, 0.0, 5.0], epoch=FOREIGN_EPOCH)
+        self.assertTrue(self.observer.frozen)
+        rec = self.observer.recover(current_step=10, body_id="uav1", point_enu_m=[2.0, 0.0, 2.0], reason="test_recovery")
+        self.assertEqual(rec["status"], "recovered")
+        self.assertEqual(rec["terrain_height_enu_m"], 1.0)
+        self.assertTrue(rec["vertical_heightfield_only"])
+
+    def test_freeze_and_error_never_provide_terrain_height(self):
+        # Freeze by foreign epoch
+        res = self.observer.observe_step(step=1, body_id="uav1", point_enu_m=[2.0, 0.0, 5.0], epoch=FOREIGN_EPOCH)
+        self.assertEqual(res["status"], "freeze")
+        self.assertNotIn("terrain_height_enu_m", res)
+        self.assertNotIn("vertical_heightfield_only", res)
+
+        # Subsequent call while frozen
+        res_frozen = self.observer.observe_step(step=2, body_id="uav1", point_enu_m=[2.0, 0.0, 5.0])
+        self.assertEqual(res_frozen["status"], "frozen")
+        self.assertNotIn("terrain_height_enu_m", res_frozen)
+        self.assertNotIn("vertical_heightfield_only", res_frozen)
+
+        # Rejection on non-finite input triggers freeze without height
+        obs = ContactObserver(DEFAULT_SCENE_PATH, run_epoch=EPOCH)
+        res_nan = obs.observe_step(step=1, body_id="uav1", point_enu_m=[float("nan"), 0.0, 0.0])
+        self.assertEqual(res_nan["status"], "freeze")
+        self.assertNotIn("terrain_height_enu_m", res_nan)
+        self.assertNotIn("vertical_heightfield_only", res_nan)
+
+    def test_contact_envelope_exact_schema_fields_preserved(self):
+        res = self.observer.observe_step(step=1, body_id="uav1", point_enu_m=[2.0, 0.0, 0.5])
+        env = res["envelope"]
+        self.assertIsNotNone(env)
+        self.assertEqual(set(env.keys()), CONTACT_FIELDS)
+        self.assertEqual(env["schema"], "wksim.contact.v1")
+        self.assertNotIn("terrain_height_enu_m", env)
+        self.assertNotIn("vertical_heightfield_only", env)
 
 
 if __name__ == "__main__":
