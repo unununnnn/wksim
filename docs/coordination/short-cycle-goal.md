@@ -2,6 +2,8 @@
 
 ## 最新检查点（优先于下方历史记录）
 
+2026-09-12用户明确要求新目标与3个Luna+agy/Claude/Oh My Pi持续推进，当前主计划改为[next-acceptance-goal.md](next-acceptance-goal.md)。已实际派发三个Luna/xhigh：luna_ceiling_bounds独占grid_map.cpp/native test修虚拟顶索引；luna_planner_build_readiness只读准备完整EGO构建；luna_scheduler_shutdown_review只读复核EOF/预检清理。Claude18w继续launcher，OMP21t继续collector，agy17y写acceptance-frontier.json。旧“三个Luna已完成/不能续派”不再代表当前状态；Fast未宣称核验。create_goal因旧unfinished记录被拒，新目标以执行计划与ACTIVE heartbeat持续落实，不能将旧Full虚假结案。一次独立复核后优先实际验收，减少重复审计和盲测。
+
 `2dbcef6`已推送统一三轴GridMap膨胀：clear逐轴先验、scan死代码删除、cloud逐候选位置有限/界内检查后转int，保留界外邻近点向内膨胀；camera/maps/range先验与reset边界夹取。三端28项通过（Windows2native skip）；新`/root/wksim-gridmap-inflation-6zuJJw`完整plan_env构建通过，库SHA42cd98bdbc1077991b0363620eb96be5b73cb0e1d9dda3ba7837c9ed73df5458，日志/源码hash已封存。仍无真实11000点云/完整planner/clearance/飞行验收。AGY17x正在独立只读复核这切片；下一规划器工作可准备完整EGO构建/实际点云测试，勿重复只做plan_env编译。
 
 Windows launcher仍未提交：AGY17w已修默认distro/root/cwd/文件日志/失败EOF，Claude18v只读GO；主会话删除浅层product_result_clean副本并复用递归检查、严格JSON，补capture.errors回归，13项过。当前Claude18w只写launcher及测试，修失败日志不能仅凭Linux exit就声称need_cleanup=False，须区分cleanup_verified；OMP21t仍写collector及夹具；主会话profile EOF已在daa1b18。当前无真实运行，待collector/launcher联调与主审后再启动全新scheduler目录。
