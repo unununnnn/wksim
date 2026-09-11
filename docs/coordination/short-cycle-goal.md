@@ -2,6 +2,10 @@
 
 ## 最新检查点（优先于下方历史记录）
 
+`2dbcef6`已推送统一三轴GridMap膨胀：clear逐轴先验、scan死代码删除、cloud逐候选位置有限/界内检查后转int，保留界外邻近点向内膨胀；camera/maps/range先验与reset边界夹取。三端28项通过（Windows2native skip）；新`/root/wksim-gridmap-inflation-6zuJJw`完整plan_env构建通过，库SHA42cd98bdbc1077991b0363620eb96be5b73cb0e1d9dda3ba7837c9ed73df5458，日志/源码hash已封存。仍无真实11000点云/完整planner/clearance/飞行验收。AGY17x正在独立只读复核这切片；下一规划器工作可准备完整EGO构建/实际点云测试，勿重复只做plan_env编译。
+
+Windows launcher仍未提交：AGY17w已修默认distro/root/cwd/文件日志/失败EOF，Claude18v只读GO；主会话删除浅层product_result_clean副本并复用递归检查、严格JSON，补capture.errors回归，13项过。当前Claude18w只写launcher及测试，修失败日志不能仅凭Linux exit就声称need_cleanup=False，须区分cleanup_verified；OMP21t仍写collector及夹具；主会话profile EOF已在daa1b18。当前无真实运行，待collector/launcher联调与主审后再启动全新scheduler目录。
+
 Linux profile宿主接入已提交：支持--exchange-dir/--watch-host-stdin，EOF给自身SIGTERM但仅设置取消事件，在已记录子进程handle/identity后的明确检查点进入finally；static preflight改独立session、可取消等待、核验并清理自有group，清理错误禁止启动manager。新test_scheduler_host_lifetime六项在两WSL全过（真实EOF→preflight group回收），Windows相关60项过3skip。尚未完整集成collector/Windows启动器，不可实跑scheduler。AGY17w正在修launcher默认Ubuntu错误、cwd/root、严格report、spawn/interrupt清理与PIPE积压；OMP21t写collector；Claude18u已进入测试实现，有进展。
 
 `db0afb0`已推送root snapshot工具、Windows服务和`validation/wsl-snapshot-service-smoke-20260912/run-01`真实六canary两阶段证据。五子进程+模拟collector身份均核验，两个phase成功、子进程退出0，约7.9s，非SITL/tracefs。服务硬链接计数拒绝与原子publisher短暂nlink=2合法状态冲突已由主会话修复。snapshot测试绑定正确distro，最新25项Windows/Rfly全过，Ubuntu最新批次1项因interop状态跳过（先前真实通过已见）；不混称每批均实跑。OMP21s读码GO。当前OMP21t只写collector及对应测试，实施pre-bootstrap leader与post-capture完整线程证明；AGY17v只写Windows launcher及测试；主会话负责profile_joint_scheduler.py接入--exchange-dir/--watch-host-stdin（stdin EOF须触发Linux自身SIGTERM进入既有cleanup，不能kill wsl.exe替代）。Claude18u仍写三维膨胀，已有行尾匹配问题但有新进度。collector/driver集成未完成前不得实跑scheduler。
