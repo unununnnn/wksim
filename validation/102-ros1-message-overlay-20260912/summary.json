@@ -1,0 +1,100 @@
+{
+  "schema": "wksim.ros1-message-overlay-build.v1",
+  "issue": 102,
+  "date": "2026-09-12",
+  "status": "message_overlay_pass",
+  "transport_pass": false,
+  "planner_pass": false,
+  "flight_pass": false,
+  "distro": "RflySim-20.04",
+  "git_head": "f627d19b763d6fdfc9f6b34bc17fa2edfb452548",
+  "source": {
+    "prometheus_msgs_cmake_sha256": "16ddcccd3f7d162c3ab3d568b6664488a72f73d74c0c115995312ee41d161ee7",
+    "prometheus_msgs_package_sha256": "ab3240027d6b18d22257ac05b620ca5376729bc67def5be5eaa1491765d85094",
+    "prometheus_msgs_bspline_sha256": "08ab59c600038eaff054bab381c48f3bf16c693a34007c64b8ba98b8a44ee706",
+    "traj_utils_cmake_sha256": "09b1c2fc882dc923ccb968f59a02d538712b6a5b28e63227046da3fc1e75e1f3",
+    "traj_utils_package_sha256": "b44a281c965f2a0b700e6575fa45254e335faa0fe9f43615adaf35afccfbdb55",
+    "traj_utils_bspline_sha256": "08ab59c600038eaff054bab381c48f3bf16c693a34007c64b8ba98b8a44ee706"
+  },
+  "attempts": [
+    {
+      "workspace": "/root/wksim-msg-overlay-20260912-01",
+      "command": "catkin_make -DCMAKE_BUILD_TYPE=Release",
+      "exit_code": 2,
+      "classification": "default_full_target_failed_after_message_generation",
+      "log": {
+        "path": "/root/wksim-msg-overlay-20260912-01/build.log",
+        "size_bytes": 50790,
+        "sha256": "a083142e17bf808590ebf361ed029b14f11437b2f6fb5eeb4c2888bb368a8a91"
+      },
+      "message_generation_completed": true,
+      "failure_targets": [
+        "traj_utils/src/planning_visualization.cpp",
+        "traj_utils/src/polynomial_traj.cpp"
+      ],
+      "failure_boundaries": [
+        "C++11 versus Jammy log4cxx std::shared_mutex",
+        "Eigen 3.4 IndexedView scalar assignment"
+      ]
+    },
+    {
+      "workspace": "/root/wksim-msg-overlay-20260912-msgonly-01",
+      "command": "catkin_make -DCMAKE_BUILD_TYPE=Release prometheus_msgs_generate_messages traj_utils_generate_messages",
+      "exit_code": 0,
+      "classification": "message_targets_pass",
+      "log": {
+        "path": "/root/wksim-msg-overlay-20260912-msgonly-01/build.log",
+        "size_bytes": 40219,
+        "sha256": "a483164a04dd3c7a43b02ed649f58cd1fe610efbb5edff0bd003175d5eb922ed"
+      },
+      "built_targets": [
+        "prometheus_msgs_generate_messages",
+        "traj_utils_generate_messages"
+      ],
+      "generated_header_counts": {
+        "prometheus_msgs": 59,
+        "traj_utils": 3
+      },
+      "products": {
+        "prometheus_msgs_cpp_bspline": {
+          "path": "devel/include/prometheus_msgs/Bspline.h",
+          "sha256": "fd27dcf66d5fc24a2a46bf237956d7451b88bdf65de8b3e7ced1443e52026660"
+        },
+        "traj_utils_cpp_bspline": {
+          "path": "devel/include/traj_utils/Bspline.h",
+          "sha256": "8c47fe4530264c6af5ff0e6854bd0c2538cda1c80a4ddae14d29a8ff2bcdd6f1"
+        },
+        "prometheus_msgs_python_bspline": {
+          "path": "devel/lib/python3/dist-packages/prometheus_msgs/msg/_Bspline.py",
+          "sha256": "576741b947924ee9c3ac509d4cef848acd4d9b75df8233be3f1a028dac66266b"
+        },
+        "traj_utils_python_bspline": {
+          "path": "devel/lib/python3/dist-packages/traj_utils/msg/_Bspline.py",
+          "sha256": "240553fe4a41de6e73b01007ea7d0d843e3115b6d37478e912eb60c33706fb5a"
+        }
+      },
+      "runtime_checks": {
+        "rospack_prometheus_msgs": "pass",
+        "rospack_traj_utils": "pass",
+        "python_import_and_instantiation": "pass",
+        "result_marker": "MSGONLY_ACCEPTANCE_SUCCESS"
+      }
+    }
+  ],
+  "cleanup": {
+    "checked_exact_process_names": [
+      "make",
+      "cc1plus",
+      "catkin_make",
+      "roscore"
+    ],
+    "residual_processes": []
+  },
+  "non_claims": [
+    "no ros1_bridge or ROS1-to-ROS2 transport was built or run",
+    "no shared simulation clock was exercised",
+    "no EGO planner or ControlNode acknowledgement was exercised",
+    "no SITL, UE, MATLAB, obstacle-avoidance or flight acceptance was exercised",
+    "the default traj_utils C++ library target did not pass"
+  ]
+}
