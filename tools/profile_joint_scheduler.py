@@ -17,6 +17,7 @@ import time
 import uuid
 import shutil
 import tempfile
+import threading
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
@@ -192,10 +193,13 @@ def _validate_instance_owner(owner,active,supervisor_proof,collector_identity,ex
     return owner
 
 
-def install_cleanup_signal_handlers():
+def install_cleanup_signal_handlers(cancelled=None):
     """Convert termination into a handled interrupt so run() reaches cleanup."""
     previous={}
     def interrupt(signum,frame):
+        if cancelled is not None:
+            cancelled.set()
+            return
         raise KeyboardInterrupt()
     for signum in (signal.SIGINT,signal.SIGTERM):
         previous[signum]=signal.signal(signum,interrupt)
@@ -205,6 +209,76 @@ def install_cleanup_signal_handlers():
 def restore_cleanup_signal_handlers(previous):
     for signum,handler in previous.items():
         signal.signal(signum,handler)
+
+
+def watch_host_input(stream, on_eof=None):
+    """Signal this Linux runner once on host EOF; never signal its children."""
+    stopped = threading.Event()
+    callback = on_eof or (lambda: os.kill(os.getpid(), signal.SIGTERM))
+    def watch():
+        try:
+            while stream.read(1):
+                pass
+        except (OSError, ValueError):
+            pass
+        if not stopped.is_set():
+            callback()
+    threading.Thread(target=watch, name='wksim-host-stdin', daemon=True).start()
+    return stopped
+
+
+def check_host_cancelled(cancelled):
+    if cancelled is not None and cancelled.is_set():
+        raise KeyboardInterrupt('Scheduler termination requested')
+
+
+def wait_owned_process(process, timeout, cancelled=None):
+    deadline = time.monotonic() + timeout
+    while True:
+        check_host_cancelled(cancelled)
+        code = process.poll()
+        if code is not None:
+            return code
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            raise subprocess.TimeoutExpired(process.args, timeout)
+        time.sleep(min(.05, remaining))
+
+
+def run_owned_preflight(command, stream, result, cancelled=None):
+    """Track the static preflight separately so host loss cannot orphan it."""
+    process = subprocess.Popen(command, cwd=ROOT, stdout=stream, stderr=subprocess.STDOUT,
+                               stdin=subprocess.DEVNULL, start_new_session=True)
+    expected = json_identity(process.pid)
+    result['preflight_identity'] = expected
+    snapshot = None
+    try:
+        code = wait_owned_process(process, 180, cancelled)
+        result['preflight_returncode'] = code
+        return code
+    finally:
+        if process.poll() is None:
+            try:
+                snapshot = manager_group_snapshot(process, expected)
+                kill_collector_group(process, expected)
+            except BaseException as error:
+                result['preflight_cleanup_error'] = repr(error)
+            try:
+                process.wait(timeout=10)
+            except subprocess.TimeoutExpired as error:
+                result['preflight_cleanup_error'] = repr(error)
+        result['preflight_returncode'] = process.poll()
+        if isinstance(expected, dict):
+            try:
+                if snapshot is not None:
+                    kill_manager_group_after_leader(expected, snapshot)
+                result['remaining_preflight_group'] = group_members(expected['pgid'])
+                if result['remaining_preflight_group']:
+                    result['preflight_cleanup_error'] = 'Owned preflight group remains'
+            except BaseException as error:
+                result['preflight_cleanup_error'] = repr(error)
+        elif process.returncode is None:
+            result['preflight_cleanup_error'] = 'Preflight identity unavailable while still live'
 
 
 def epoch_groups_retired(product_result):
@@ -863,7 +937,14 @@ def retire_manager(manager,directory,result):
         result['remaining_manager_group']=[True]
 
 
-def run(output):
+def run(output, *, exchange_dir=None, watch_host_stdin=False):
+    if exchange_dir is not None:
+        exchange_dir = Path(exchange_dir)
+        if (not exchange_dir.is_absolute() or exchange_dir.is_symlink()
+                or not exchange_dir.is_dir() or exchange_dir.resolve() != exchange_dir):
+            raise ValueError('Use an existing canonical shared exchange directory')
+    if watch_host_stdin and exchange_dir is None:
+        raise ValueError('Host stdin monitoring requires an exchange directory')
     if output.parent != Path('/root') or not output.name.startswith('wksim-scheduler-probe-') or output.exists():
         raise ValueError('Use a fresh /root/wksim-scheduler-probe-* directory')
     output.mkdir(mode=0o700)
@@ -891,13 +972,25 @@ def run(output):
             ROOT/'Simulator/wksim_core/joint.py', ROOT/'Simulator/wksim_runtime/joint_rate.py',
             ROOT/'Simulator/wksim_runtime/joint_runtime.py')})
     manager = collector = None
-    cleanup_handlers = install_cleanup_signal_handlers()
+    # Defer signal exceptions to explicit checkpoints, so child handles and
+    # identities are recorded before cancellation enters the finally block.
+    cancelled = threading.Event()
+    host_watch = None
+    if exchange_dir is not None:
+        result['exchange_directory'] = str(exchange_dir)
+        for name in ('tools/wsl_root_task_snapshot.py', 'tools/wsl_snapshot_exchange.py',
+                     'tools/serve_wsl_snapshot_requests.py', 'tools/run_joint_scheduler_windows.py'):
+            result['source_sha256'][name] = digest(ROOT/name)
+    cleanup_handlers = install_cleanup_signal_handlers(cancelled)
     try:
+        if watch_host_stdin:
+            host_watch = watch_host_input(sys.stdin.buffer)
+            check_host_cancelled(cancelled)
         with (output/'preflight.log').open('x') as stream:
-            checked = subprocess.run(command+['--preflight'], cwd=ROOT, stdout=stream,
-                stderr=subprocess.STDOUT, timeout=180)
-        result['preflight_returncode'] = checked.returncode
-        if checked.returncode: raise RuntimeError('Resource preflight rejected probe')
+            code = run_owned_preflight(command+['--preflight'], stream, result, cancelled)
+        if code or result.get('preflight_cleanup_error'):
+            raise RuntimeError('Resource preflight rejected probe or did not retire cleanly')
+        check_host_cancelled(cancelled)
         with (output/'service.log').open('x') as service, (output/'collector.log').open('x') as trace_log:
             environment = dict(os.environ, WKSIM_JOINT_CPU_TIMING='1', WKSIM_TRACE_RUN=run_id,
                 WKSIM_TRACE_HOOK_OUTPUT=str(hook), WKSIM_TRACE_GATE_READY=str(gate_ready),
@@ -923,6 +1016,7 @@ def run(output):
             deadline = time.monotonic()+180
             child_owners=None
             while True:
+                check_host_cancelled(cancelled)
                 if manager.poll() is not None: raise RuntimeError('Manager exited before native targets were ready')
                 if time.monotonic() >= deadline: raise TimeoutError('Native target startup')
                 status_path = directory/'status.json'
@@ -958,6 +1052,8 @@ def run(output):
                     '--output', str(capture_output)]
             for role, identity in owners.items():
                 argv += ['--'+role.replace('_', '-'), f"{identity['pid']}:{identity['start_ticks']}"]
+            if exchange_dir is not None:
+                argv += ['--exchange-dir', str(exchange_dir)]
             result['collector_command'] = argv
             collector = subprocess.Popen(argv, cwd=ROOT, stdout=trace_log,
                 stderr=subprocess.STDOUT, start_new_session=True)
@@ -968,8 +1064,10 @@ def run(output):
                 collector_identity=result['collector'],supervisor_identity=owners['supervisor'],
                 expected_owners=owners,token_schema=BOOTSTRAP_SCHEMA,
                 token_state='bootstrap_active',token_phase='bootstrap_sched_switch')
+            check_host_cancelled(cancelled)
             result['gate_ready'] = wait_gate_ready(gate_ready,run_id,state['epoch'],
                 owners['supervisor'],manager=manager)
+            check_host_cancelled(cancelled)
             result['startup_readiness']=publish_startup_readiness(
                 output/'startup-readiness.json',state,owners,result['gate_ready'])
             result['gate_release'] = wait_gate_release(
@@ -977,14 +1075,16 @@ def run(output):
                 manager=manager,collector_identity=result['collector'],expected_owners=owners,
                 token_schema=BOOTSTRAP_SCHEMA,token_state='bootstrap_active',
                 token_phase='bootstrap_sched_switch')
+            check_host_cancelled(cancelled)
             result['capture_active'] = wait_capture_active(
                 active_token,collector,run_id,state['epoch'],manager=manager,
                 collector_identity=result['collector'],supervisor_identity=owners['supervisor'],
                 expected_owners=owners,token_phase='filtered')
+            check_host_cancelled(cancelled)
             result['capture_active_status'] = validate_capture_started_early(
                 directory/'status.json',run_id,state['epoch'],result['capture_active'],
                 manager=manager,collector=collector,bootstrap=result['capture_bootstrap'])
-            collector.wait(timeout=40)
+            wait_owned_process(collector, 40, cancelled)
             result['collector_returncode'] = collector.returncode
             result['capture_owner_final'] = validate_capture_owner_final(
                 active_token,result['gate_ready'],result['collector'],owners,gate_release,
@@ -994,6 +1094,8 @@ def run(output):
     except (Exception, KeyboardInterrupt) as error:
         result['error'] = f'{type(error).__name__}: {error}'
     finally:
+        if host_watch is not None:
+            host_watch.set()
         try:
             try:
                 retire_collector(collector,result)
@@ -1025,6 +1127,8 @@ def run(output):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--exchange-dir', type=Path)
+    parser.add_argument('--watch-host-stdin', action='store_true')
     args = parser.parse_args()
-    result = run(args.output)
+    result = run(args.output, exchange_dir=args.exchange_dir, watch_host_stdin=args.watch_host_stdin)
     raise SystemExit(0 if result['status'] == 'diagnostic_captured_and_retired' else 1)
