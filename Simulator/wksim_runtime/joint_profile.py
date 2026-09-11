@@ -166,6 +166,8 @@ def _mixed_proofs(p, records, identities):
         if set(pin) != {'task_profile', 'result', 'audit', 'admission'}:
             raise ValueError('Mixed capability proof descriptor schema differs')
         flight, audit, admission = (_pinned_json(pin[key]) for key in ('result', 'audit', 'admission'))
+        if 'rate_timing_probe' in flight:
+            raise ValueError('Formal mixed/PV evidence cannot include rate_timing_probe')
         task = pin['task_profile']
         if (flight['status'] != 'pass' or flight['flight_completed'] is not True
                 or flight['source_unchanged'] is not True or flight['control_shutdown_clean'] is not True

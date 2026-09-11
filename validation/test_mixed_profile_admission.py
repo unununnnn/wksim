@@ -133,6 +133,34 @@ class MixedProfileAdmissionTests(unittest.TestCase):
                 pins[key] = dict(path=str(path), sha256=joint.digest(path))
             p['evidence'].append(pins)
 
+    def test_mixed_result_with_rate_timing_probe_is_rejected(self):
+        markers = (None, {}, False, 'enabled', {'diagnostic': 'anything'})
+        for marker in markers:
+            with self.subTest(marker=marker), tempfile.TemporaryDirectory() as directory:
+                p, records, identities, packets = self.proof_fixture(Path(directory).resolve())
+                packets[0][2]['rate_timing_probe'] = marker
+                self.seal(p, packets)
+                with patch.object(
+                    joint,
+                    '_raw_proof',
+                    side_effect=lambda pin, audit: Path(pin['result']['path']).parent,
+                ) as raw:
+                    with self.assertRaisesRegex(ValueError, 'rate_timing_probe'):
+                        joint._mixed_proofs(p, records, identities)
+                raw.assert_not_called()
+    def test_mixed_result_without_rate_timing_probe_uses_existing_path(self):
+        with tempfile.TemporaryDirectory() as directory:
+            p, records, identities, packets = self.proof_fixture(Path(directory).resolve())
+            self.seal(p, packets)
+            with patch.object(
+                joint,
+                '_raw_proof',
+                side_effect=lambda pin, audit: Path(pin['result']['path']).parent,
+            ):
+                healthy, resources = joint._mixed_proofs(p, records, identities)
+            self.assertEqual(healthy['task_profile'], joint.MIXED_TASKS[-1])
+            self.assertEqual(resources['px4'], identities['px4'])
+
     def test_cross_capability_identity_and_source_rejections(self):
         with tempfile.TemporaryDirectory() as directory:
             base = self.proof_fixture(Path(directory).resolve())
