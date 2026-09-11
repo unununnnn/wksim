@@ -17,6 +17,42 @@ class FakeWall:
     def now(self): return self.ns
     def sleep(self,seconds): self.ns+=round(seconds*1e9)
 
+class EdgeClock:
+    def __init__(self):
+        self.anchor_ns = 1_000_000_000
+        self.ns = self.anchor_ns
+        self.now_calls = 0
+        self.sleep_requests = []
+
+    def now(self):
+        self.now_calls += 1
+        value = self.ns
+        self.ns += 100_000
+        return value
+
+    def sleep(self, seconds):
+        requested_ns = round(seconds * 1e9)
+        self.sleep_requests.append(requested_ns)
+        self.ns += requested_ns
+
+
+class SequenceClock:
+    def __init__(self, *values):
+        self.values = list(values)
+        self.last = values[-1]
+        self.now_calls = 0
+        self.sleep_requests = []
+
+    def now(self):
+        self.now_calls += 1
+        if self.values:
+            self.last = self.values.pop(0)
+        return self.last
+
+    def sleep(self, seconds):
+        self.sleep_requests.append(round(seconds * 1e9))
+
+
 
 class RateTests(unittest.TestCase):
     def rate(self,value=.5):
@@ -202,6 +238,95 @@ class RateTests(unittest.TestCase):
         self.assertEqual(task.now,20)
         self.assertEqual(task.completed,'hold_completed')
         with self.assertRaises(RuntimeError): JointTask.dwell(task,'waypoint_completed',lambda:False,2)
+
+    def test_final_millisecond_spin_uses_clock_only_until_release(self):
+        clock = EdgeClock()
+        events = []
+        rate = JointRate('a'*32, .5, lambda kind, **row: events.append(dict(kind=kind, **row)),
+                         clock.now, clock.sleep)
+        rate.reanchor(4, 'test')
+        rate.begin_group(4, lambda: None)
+        clock.ns += 1_000_000
+        rate.end_group(8)
+        clock.ns = rate.previous_start + rate.period_ns - 1_500_000
+        checks = []
+        original_check = rate.check
+
+        def counted_check(lateness):
+            checks.append(lateness)
+            original_check(lateness)
+            clock.ns += 400_000  # Costly checks expose full-loop quantization.
+
+        rate.check = counted_check
+        health_calls = []
+        rate.begin_group(8, lambda: health_calls.append(clock.ns))
+        start = [row for row in events if row['kind'] == 'rate_group_start'][-1]
+
+        self.assertGreaterEqual(start['actual_start_ns'], start['earliest_start_ns'])
+        self.assertEqual(start['actual_start_ns'], start['earliest_start_ns'])
+        self.assertEqual(len(checks), 2)
+        self.assertEqual(len(health_calls), 1)
+        self.assertEqual(clock.sleep_requests, [400_000])
+
+    def test_previous_actual_start_constrains_next_group(self):
+        anchor = 1_000_000_000
+        clock = SequenceClock(
+            anchor,
+            anchor,
+            anchor + 8_200_000,
+            anchor + 9_200_000,
+            anchor + 9_200_000,
+            anchor + 16_000_000,
+            anchor + 16_250_000,
+        )
+        events = []
+        rate = JointRate('a'*32, .5, lambda kind, **row: events.append(dict(kind=kind, **row)),
+                         clock.now, clock.sleep)
+        rate.reanchor(4, 'test')
+        rate.begin_group(4, lambda: None)
+        rate.end_group(8)
+        rate.begin_group(8, lambda: None)
+        starts = [row for row in events if row['kind'] == 'rate_group_start']
+
+        self.assertGreaterEqual(starts[0]['actual_start_ns'], starts[0]['earliest_start_ns'])
+        self.assertEqual(starts[1]['ideal_start_ns'], anchor + 8_000_000)
+        self.assertEqual(
+            starts[1]['earliest_start_ns'],
+            starts[0]['actual_start_ns'] + rate.period_ns,
+        )
+        self.assertGreaterEqual(
+            starts[1]['actual_start_ns'],
+            starts[0]['actual_start_ns'] + rate.period_ns,
+        )
+
+    def test_final_spin_crossing_budget_fails_before_physics(self):
+        anchor = 1_000_000_000
+        clock = SequenceClock(
+            anchor,
+            anchor + 99_900_000,
+            anchor + 99_900_000,
+            anchor + 99_900_000,
+            anchor + 103_400_000,
+            anchor + 103_400_000,
+            anchor + 104_100_000,
+        )
+        events = []
+        rate = JointRate('a'*32, 1, lambda kind, **row: events.append(dict(kind=kind, **row)),
+                         clock.now, clock.sleep)
+        rate.reanchor(4, 'test')
+        rate.begin_group(4, lambda: None)
+        rate.end_group(8)
+
+        with self.assertRaises(RateUnmet) as failure:
+            rate.begin_group(8, lambda: None)
+
+        self.assertEqual(failure.exception.lateness_ns, LATE_LIMIT_NS + 100_000)
+        self.assertEqual(rate.completed, 1)
+        self.assertIsNone(rate.group)
+        self.assertEqual(
+            len([row for row in events if row['kind'] == 'rate_group_start']),
+            1,
+        )
 
     def test_release_guard_contract_pinned(self):
         """Pin the unchanged release guard: sleep(min(remaining-1ms, 2ms)) only

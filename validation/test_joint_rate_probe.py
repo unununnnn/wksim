@@ -23,7 +23,7 @@ from Simulator.wksim_runtime.joint_rate_probe import (
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
 from tools import run_joint_flight as runner
-JOINT_RATE_SHA256 = "59e329db948802e545fa5167b2430ae18bf3bdb6e1c534a374a82dafcc70da6c"
+JOINT_RATE_SHA256 = "0b53a16acd65138b4623a9a8573ec8d643a2b78f4e27e8122c65efb9a6da25c4"
 
 
 class FakeClock:

@@ -95,21 +95,32 @@ class JointRate:
         next_health=self.now()+2_000_000
         while True:
             now=self.now()
+            remaining=earliest-now
+            if remaining<=1_000_000:
+                while now<earliest:
+                    now=self.now()
+                self.check(max(0,now-ideal))
+                break
             self.check(max(0,now-ideal))
             if now>=earliest: break
-            # Avoid scheduling a callback on the group's exact release edge.
-            # The next physical step immediately services health again.
             if now>=next_health and earliest-now>1_000_000:
                 health()
                 now=self.now()
                 next_health=now+2_000_000
-            self.check(max(0,now-ideal))
-            if now>=earliest: break
-            # Final 1ms uses the monotonic clock: sleep overshoot on every
-            # group otherwise accumulates even when the FCs meet their budget.
-            # Long waits service health every 2ms; the release guard adds at
-            # most 1ms, far below the unchanged 100ms permission cadence.
-            remaining=earliest-now
+                if now>=earliest:
+                    self.check(max(0,now-ideal))
+                    break
+                remaining=earliest-now
+                if remaining<=1_000_000:
+                    while now<earliest:
+                        now=self.now()
+                    self.check(max(0,now-ideal))
+                    break
+                self.check(max(0,now-ideal))
+            # Avoid scheduling a callback on the group's exact release edge.
+            # The next physical step immediately services health again.
+            # Final 1ms uses only the monotonic clock; it adds no health,
+            # sleep, or record work before the release edge.
             if remaining>1_000_000: self.sleep(min((remaining-1_000_000)/1e9,.002))
         self.group=dict(start_tick=tick,end_tick=tick+4,ideal_start_ns=ideal,
                         ideal_end_ns=ideal+self.period_ns,earliest_start_ns=earliest,actual_start_ns=now)
