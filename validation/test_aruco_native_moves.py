@@ -239,6 +239,15 @@ class AuditTests(unittest.TestCase):
             result = audit_epoch(epoch_dir(tmp, {"px4": rebuilt, "arducopter": []}))
             self.assertEqual(result["stacks"]["px4"]["moves"][0]["status"], "unresolved")
 
+    def test_state_only_coordination_stack_uses_its_observed_epoch(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            rows = [state(0, 14, 900_000_000, uav=1),
+                    state(0, 15, 1_100_000_000, uav=1)]
+            result = audit_epoch(epoch_dir(tmp, {"px4": [], "arducopter": rows}))
+            self.assertEqual(result["failures"], [])
+            self.assertEqual(result["stacks"]["arducopter"]["moves"], [])
+            self.assertEqual(result["status"], "unresolved")  # PX4 capture is empty.
+
     def test_state_sequence_gap_is_a_failure(self):
         with tempfile.TemporaryDirectory() as tmp:
             import numpy as np

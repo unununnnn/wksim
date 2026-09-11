@@ -191,7 +191,13 @@ def audit_stack(path, stack, failures, unresolved):
     # control_epoch is the control-session epoch, deliberately NOT the scene
     # epoch: run identity is run_id; control_epoch must be consistent within
     # this stack's commands and states.
-    control_epoch = commands[0][1].control_epoch if commands else None
+    # A coordination stack can publish SessionState without receiving any
+    # public command (for example, the non-tracking vehicle in an ArUco run).
+    # Anchor that stack to its observed state epoch instead of comparing every
+    # state against None.  When commands exist they remain authoritative, so a
+    # command/state epoch mismatch is still rejected below.
+    control_epoch = (commands[0][1].control_epoch if commands else
+                     states[0][1].control_epoch if states else None)
     for row, message in commands:
         if message.run_id != run_id or message.control_epoch != control_epoch:
             fail(failures, "command_identity_differs", stack=stack,

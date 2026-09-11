@@ -178,9 +178,11 @@ def receive_workers(requests, epoch, timeout=3.0, *, health=None):
                 raise RuntimeError('Worker channel must be retired')
             commands = step_request(request, rpc['tick'], epoch)
             frame = encoded(request) + '\n'
-            parse_frame(frame, REQUEST_LIMIT)
+            outgoing = frame.encode('utf-8')
+            if len(outgoing) > REQUEST_LIMIT:
+                raise ValueError('Missing newline or oversized JSON frame')
             channel.update(reader=child.stdout.fileno(), writer=child.stdin.fileno(),
-                           outgoing=memoryview(frame.encode('utf-8')), incoming=bytearray(),
+                           outgoing=memoryview(outgoing), incoming=bytearray(),
                            tick=rpc['tick'] + (commands is not None))
         transmitting = True
         for channel in channels:

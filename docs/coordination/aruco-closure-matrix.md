@@ -1,6 +1,6 @@
 # ArUco 双栈闭环收尾矩阵（#104 子票 / #40 父票）
 
-状态：2026-09-11。把 #104 与父票 #40 的验收要求映射到已存证据与剩余缺口。run19 已以原倍率门失败；PX4 原生诊断 v2 候选已构建和准入，但尚未飞行，**不计入闭环通过证据**。
+状态：2026-09-11。把 #104 与父票 #40 的验收要求映射到已存证据与剩余缺口。run20 已使用 PX4 原生诊断 v2 候选飞行，但仍以原倍率门失败，**不计入闭环通过证据**。
 
 ## 依赖状态（与验收证据分开判定）
 
@@ -16,7 +16,8 @@
 | tracking-10 | PX4 | 旧成功场；785 载荷时间戳通过，**末尾 HOLD 缺口 + writer 图缺口保持原判** | `validation/40-aruco-tracking-10` |
 | run16–18 | PX4 | 修复线均为**倍率失败** | 各场快照（原判不放宽） |
 | run19 | PX4 | 原生组件计时 v1，tick 60168 在 100.119728ms 失败；15 帧 | `validation/40-aruco-tracking-19-px4-component`；归档 SHA256 `0c42c2c…10bb` |
-| component-candidate-02 | PX4 | v2 构建、封存、准入和有界原生冒烟通过；**未飞行** | `validation/px4-component-candidate-02`；manifest SHA256 `9806c6cb…2b80` |
+| component-candidate-02 | PX4 | v2 构建、封存、准入和同实例两批 WorkQueue 冒烟通过；已用于 run20 | `validation/px4-component-candidate-02`；manifest SHA256 `9806c6cb…2b80` |
+| run20 | PX4 | 55 帧、43 MOVE 原生字段及 publisher 图通过；tick 65440 在 `101.021467ms` 倍率迟到失败，未完成终态 HOLD/降落 | `validation/40-aruco-tracking-20-px4-workqueue`；归档 SHA256 `06bf9c53…76c9c`；分析见 `docs/2026-09-11-aruco-tracking-20.md` |
 
 ## #104 子票完成条件
 
@@ -45,7 +46,7 @@
 
 ## PX4 闭合子票所需的确切新证据
 
-一场新的 PX4 v2 诊断候选运行（下一编号 run20），在**单一 run/epoch** 内通过 AP15 已过的全部同场门，且全部取自该场自身：
+一场基于下一项已验证减负改动的新 PX4 运行，在**单一 run/epoch** 内通过 AP15 已过的全部同场门，且全部取自该场自身。run20 已补到 43 条精确 MOVE 与离散 publisher 图证据，但倍率提前停止，不能抵扣以下完整场要求：
 
 - physical：几何/逐 tick 跟踪/恢复/包线/两机落地 — `tools/audit_aruco_tracking_physical.py`
 - rate：单锚/累计迟到/完整倍率窗 — `tools/audit_aruco_rate.py`（run16–18 在此失败）
@@ -55,7 +56,7 @@
 - publisher/writer 图（记录时刻排他 + writer 完整退场）— `tools/audit_aruco_publishers.py`（PX4-10 缺）
 - 原生载荷时间戳 — `tools/audit_aruco_native_timestamps.py`（须取新场自身样本，非 PX4-10 旧值）
 
-真实运行非回放；v2 的构建、准入和原生冒烟不能代替 run20 的完整同场结果。
+真实运行非回放；v2 的构建、准入、原生冒烟及 run20 局部通过项都不能代替完整同场结果。
 
 ## 仍 OPEN
 
