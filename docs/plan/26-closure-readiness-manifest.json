@@ -1,0 +1,153 @@
+{
+  "schema": "wksim.26-closure-readiness.v1",
+  "kind": "closure_readiness_manifest",
+  "issue": 26,
+  "date": "2026-09-12",
+  "claim": "Historical #26 evidence is retained for review; current-checkout provenance, wrapper and lifecycle artifacts must be revalidated before readiness can be claimed, and closure remains blocked by the formal Blocked-by on open issue #9",
+  "closure_blocker": {
+    "type": "formal_dependency",
+    "issue": 9,
+    "relation": "blocked-by",
+    "state": "OPEN",
+    "state_source": "pinned_github_issue_snapshot",
+    "realtime_check": "not_performed_by_local_audit",
+    "rule": "Parent ticket closes only when the original AC and the original Blocked-by are both satisfied; #9 is OPEN",
+    "machine_decidable": true
+  },
+  "acceptance_evidence": {
+    "source_chain": {
+      "ac": "Complete provenance chain of editable material, generated products, toolchain, imported model and run evidence",
+      "pins": [
+        {
+          "path": "docs/2026-09-10-generated-e0-lifecycle.md",
+          "sha256": "60a223620e7fc96b519bfa383fd1712c40386b99ed5812f6d2262c3b644a3d7a"
+        },
+        {
+          "path": "validation/codegen-e0/short-cycle-codegen-01/generated-sources-manifest.json",
+          "sha256": "85c40213cec0f349d36664c5621bb53c46ad96f9756cdd4eaa2bb97a7b2acc67"
+        }
+      ]
+    },
+    "matlab_license_actual_checkout": {
+      "ac": "Actual toolbox license test+checkout, not file existence",
+      "pins": [
+        {
+          "path": "validation/codegen-e0/short-cycle-codegen-01/codegen-report.json",
+          "sha256": "e5f32bd2890137591b61eba72fe0b21893fef578fd0a57094baf8fe92398f822",
+          "requires": "stages[license_verification].status == 'ok'"
+        }
+      ]
+    },
+    "matlab_free_lifecycle": {
+      "ac": "Core loads, runs, resets and terminates the model with MATLAB closed",
+      "pins": [
+        {
+          "path": "validation/codegen-e0-lifecycle-01/audit.json",
+          "sha256": "3d5c7896de10d10521ff4a1881eaffc8c96e73b196be72f9a044f2fc1aed346d",
+          "requires": "status == 'pass', two independent runs with distinct process identities"
+        }
+      ],
+      "requirements": {
+        "status": "pass",
+        "schema": "wksim.generated-e0-lifecycle.v1",
+        "cycles": 4,
+        "library_sha256": "7da6853201b89238c273f2e1360ad21fe479e267d0ed08cf3500f98bf535505e",
+        "source_sha256": {
+          "Exp1_MinModelTemp.cpp": "2c25b3fa08c996c8f2ed1a7feae5558062cd722ae5d350cc8a25caf2be10b274",
+          "Exp1_MinModelTemp.h": "7601dbd721f0502e4bd67758d86cc21abf8e5c9568a31fb3160283df1df8c4bc",
+          "rtwtypes.h": "1b08664b70d40d08ee2952ca47254bd16a9e045be8b5edc9781fe620fb7c199f",
+          "model.cpp": "3f325678b1d85c9aa3fd07bd644d82935aa26d82885926defeced139f02ddf2c",
+          "rtw_continuous.h": "8f2c78fdc5a097552078484c738aefcc944463c8834d2ca6319b76cedf526b18",
+          "rtw_solver.h": "359ff69aa94a137e8b246721ead52e056dd4fdf11c35a7f92ebb9f14e0cda674"
+        },
+        "raw_sha256": {
+          "original/cycle-0.jsonl": "0979200da666f80d679203f07c47effd5d7385d3a0ddb1fe2b30e1bbc70b7553",
+          "original/cycle-1.jsonl": "0979200da666f80d679203f07c47effd5d7385d3a0ddb1fe2b30e1bbc70b7553",
+          "cold/cycle-0.jsonl": "0979200da666f80d679203f07c47effd5d7385d3a0ddb1fe2b30e1bbc70b7553",
+          "cold/cycle-1.jsonl": "0979200da666f80d679203f07c47effd5d7385d3a0ddb1fe2b30e1bbc70b7553"
+        },
+        "run_bindings": [
+          {
+            "name": "original",
+            "pid": 693,
+            "pgid": 693,
+            "start_ticks": 525,
+            "argv": [
+              "/usr/bin/python3",
+              "-B",
+              "/mnt/c/Users/PC/Documents/odid编译/wksim/tools/validate_generated_e0_lifecycle.py",
+              "--probe",
+              "/root/wksim-codegen-e0-build-short-cycle-01/libwksim_e0.so",
+              "--output",
+              "/mnt/c/Users/PC/Documents/odid编译/wksim/validation/codegen-e0-lifecycle-01/original"
+            ],
+            "returncode": 0,
+            "cycles": 2,
+            "library_sha256": "7da6853201b89238c273f2e1360ad21fe479e267d0ed08cf3500f98bf535505e",
+            "source_sha256": {
+              "Exp1_MinModelTemp.cpp": "2c25b3fa08c996c8f2ed1a7feae5558062cd722ae5d350cc8a25caf2be10b274",
+              "Exp1_MinModelTemp.h": "7601dbd721f0502e4bd67758d86cc21abf8e5c9568a31fb3160283df1df8c4bc",
+              "rtwtypes.h": "1b08664b70d40d08ee2952ca47254bd16a9e045be8b5edc9781fe620fb7c199f",
+              "model.cpp": "3f325678b1d85c9aa3fd07bd644d82935aa26d82885926defeced139f02ddf2c",
+              "rtw_continuous.h": "8f2c78fdc5a097552078484c738aefcc944463c8834d2ca6319b76cedf526b18",
+              "rtw_solver.h": "359ff69aa94a137e8b246721ead52e056dd4fdf11c35a7f92ebb9f14e0cda674"
+            },
+            "raw_sha256": {
+              "original/cycle-0.jsonl": "0979200da666f80d679203f07c47effd5d7385d3a0ddb1fe2b30e1bbc70b7553",
+              "original/cycle-1.jsonl": "0979200da666f80d679203f07c47effd5d7385d3a0ddb1fe2b30e1bbc70b7553"
+            }
+          },
+          {
+            "name": "cold",
+            "pid": 694,
+            "pgid": 694,
+            "start_ticks": 552,
+            "argv": [
+              "/usr/bin/python3",
+              "-B",
+              "/mnt/c/Users/PC/Documents/odid编译/wksim/tools/validate_generated_e0_lifecycle.py",
+              "--probe",
+              "/root/wksim-codegen-e0-cold-c96e30e01ec6/libwksim_e0.so",
+              "--output",
+              "/mnt/c/Users/PC/Documents/odid编译/wksim/validation/codegen-e0-lifecycle-01/cold"
+            ],
+            "returncode": 0,
+            "cycles": 2,
+            "library_sha256": "7da6853201b89238c273f2e1360ad21fe479e267d0ed08cf3500f98bf535505e",
+            "source_sha256": {
+              "Exp1_MinModelTemp.cpp": "2c25b3fa08c996c8f2ed1a7feae5558062cd722ae5d350cc8a25caf2be10b274",
+              "Exp1_MinModelTemp.h": "7601dbd721f0502e4bd67758d86cc21abf8e5c9568a31fb3160283df1df8c4bc",
+              "rtwtypes.h": "1b08664b70d40d08ee2952ca47254bd16a9e045be8b5edc9781fe620fb7c199f",
+              "model.cpp": "3f325678b1d85c9aa3fd07bd644d82935aa26d82885926defeced139f02ddf2c",
+              "rtw_continuous.h": "8f2c78fdc5a097552078484c738aefcc944463c8834d2ca6319b76cedf526b18",
+              "rtw_solver.h": "359ff69aa94a137e8b246721ead52e056dd4fdf11c35a7f92ebb9f14e0cda674"
+            },
+            "raw_sha256": {
+              "cold/cycle-0.jsonl": "0979200da666f80d679203f07c47effd5d7385d3a0ddb1fe2b30e1bbc70b7553",
+              "cold/cycle-1.jsonl": "0979200da666f80d679203f07c47effd5d7385d3a0ddb1fe2b30e1bbc70b7553"
+            }
+          }
+        ]
+      }
+    },
+    "vendor_materials_controlled": {
+      "ac": "Vendor materials stay in controlled local sources; no unclear-license generated source committed",
+      "rule": "No tracked repository file may be a vendor DLL/ZIP or a generated/private source from the pinned build",
+      "pins": [
+        {
+          "path": "validation/codegen-e0/short-cycle-codegen-01/summary.json",
+          "sha256": "42bc11a2a55fc26542cb52d34fc22d7ae8b3c6fc66deec19708aa232eb910f7c"
+        }
+      ]
+    },
+    "delivery_identity": {
+      "ac": "Actual commands, versions/identities, expected vs observed, failure boundaries",
+      "pins": [
+        {
+          "path": "validation/codegen-e0-build-short-cycle-01/build-manifest.json",
+          "sha256": "0669730aeff54012e70c55e8fc1d103cfeb00cc33ec5b3147144df847fc7aa1c"
+        }
+      ]
+    }
+  }
+}
