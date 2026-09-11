@@ -208,8 +208,51 @@ def model_evidence_identity(root, result):
                 stacks=checked)
 
 
+def message_evidence_identity(root, result):
+    """Validate an explicit message overlay while accepting historical archives."""
+    candidate = result.get('message_candidate')
+    manifest_sha = result.get('manifest_sha256', {}).get('message')
+    archived = Path(root) / 'message-build.json'
+    admission = result.get('mixed_admission', result.get('pv_admission'))
+    admitted = admission.get('message_candidate') if isinstance(admission, dict) else None
+    admitted_identity = (admission.get('identities', {}).get('message_candidate')
+                         if isinstance(admission, dict) else None)
+    admitted_path = admission.get('message_manifest_path') if isinstance(admission, dict) else None
+    admitted_sha = admission.get('message_manifest_sha256') if isinstance(admission, dict) else None
+    present = (candidate is not None, manifest_sha is not None, archived.exists(),
+               admitted is not None, admitted_identity is not None,
+               admitted_path is not None, admitted_sha is not None)
+    if not any(present):
+        return dict(requested=False, legacy=True)
+    require(all(present) and archived.is_file() and not archived.is_symlink()
+            and archived.resolve() == archived,
+            'Explicit message candidate evidence is incomplete')
+    require(result.get('message_unchanged') is True,
+            'Explicit message candidate was not revalidated after the run')
+    require('tools/joint_message_candidate.py' in result.get('source_sha256', {}),
+            'Message candidate verifier source identity is missing')
+    require(re.fullmatch('[0-9a-f]{64}', manifest_sha) is not None
+            and digest(archived) == manifest_sha,
+            'Retained message candidate manifest changed')
+    from joint_message_candidate import check
+    original = Path(candidate['root']) / 'message-build.json'
+    require(Path(admitted_path) == original and admitted_sha == manifest_sha,
+            'Message candidate admission manifest identity differs')
+    verified = check(original, manifest_sha)
+    require(read(archived) == verified == candidate == admitted == admitted_identity,
+            'Message candidate admission/result/archive identity differs')
+    expected_roots = {name: str(Path(value['prefix'])/'local/lib/python3.10/dist-packages'/name)
+                      for name, value in verified['packages'].items()}
+    require(result.get('candidate_import_roots', {}).get('prometheus_control')
+            == result['control_candidate']['package']
+            and {name: result['candidate_import_roots'].get(name) for name in expected_roots} == expected_roots,
+            'Manager message/control module origins differ from explicit candidates')
+    return dict(requested=True, legacy=False, manifest_sha256=manifest_sha,
+                packages=sorted(verified['packages']))
+
+
 def retained_identity(root, result):
-    candidate_initialization(root, result)
+    message_identity = candidate_initialization(root, result)
     if 'mixed_admission' in result:
         from audit_mixed_control import retained_identity as mixed_identity
         return mixed_identity(root, result, task_profile=PROFILE)
@@ -320,13 +363,14 @@ def retained_identity(root, result):
                 and observed[0]['executable_sha256'] == observed[1]['executable_sha256'], 'Physical model executable changed during run')
     return dict(source_files=len(sources), retained_control_files=len(actual), admitted_ap_source_files=verified['source_files'],
                 native_executable_sha256={s: v['sha256'] for s, v in expected_firmware.items()},
-                loaded_maps_verified=['running', 'completed'])
+                loaded_maps_verified=['running', 'completed'], message_candidate=message_identity)
 
 
 def candidate_initialization(root, result):
     model_evidence_identity(root, result)
+    message_identity = message_evidence_identity(root, result)
     if 'initialization' not in result:
-        return
+        return message_identity
     value = result['initialization']
     require(value['physical_tick']==0 and value['task_execution_requires_go'] is True
             and set(value['tasks'])==set(value['models'])=={'arducopter','px4'}, 'Candidate startup scope differs')
@@ -349,6 +393,19 @@ def candidate_initialization(root, result):
             and all(r['captured_monotonic_ns']<=value['completed_monotonic_ns']
                     for r in result['native_runtime_maps']['running'].values()),
             'Candidate startup mapping did not precede the initial rate anchor')
+    return message_identity
+
+
+def decoder_message_packages(result, admission_key):
+    packages = dict(result[admission_key]['identities']['baseline']['message_packages'])
+    candidate = result.get('message_candidate')
+    if candidate is not None:
+        require(set(candidate['packages']) == {'prometheus_msgs', 'wksim_msgs'},
+                'Explicit message candidate package set differs')
+        packages.update({name: dict(prefix=value['prefix'], sha256=value['installed_sha256'],
+                                    complete_snapshot=True)
+                         for name, value in candidate['packages'].items()})
+    return packages
 
 
 def decode(root, result, *, admission_key='pv_admission', message_packages=None, wall_limit=900):
@@ -360,10 +417,18 @@ def decode(root, result, *, admission_key='pv_admission', message_packages=None,
     from ardupilot_msgs.msg import GlobalPosition, WksimState
     from px4_msgs.msg import TrajectorySetpoint, OffboardControlMode, VehicleLocalPosition, VehicleStatus
     from Simulator.wksim_runtime.joint_profile import package_digest
-    packages = (result[admission_key]['identities']['baseline']['message_packages']
+    packages = (decoder_message_packages(result, admission_key)
                 if message_packages is None else message_packages)
     require(packages and {'prometheus_msgs','wksim_msgs','px4_msgs','ardupilot_msgs'} <= packages.keys(),
             'Missing raw decoder message identities')
+    if result.get('message_candidate') is not None and message_packages is None:
+        import importlib.util
+        for name, value in result['message_candidate']['packages'].items():
+            spec = importlib.util.find_spec(name)
+            expected = Path(value['prefix'])/'local/lib/python3.10/dist-packages'/name
+            require(spec is not None and spec.origin is not None
+                    and Path(spec.origin).resolve().parent == expected.resolve(),
+                    'Offline decoder did not load the explicit message candidate: '+name)
     for name, pin in packages.items():
         require(package_digest(pin['prefix'], complete=pin.get('complete_snapshot', False)) == pin['sha256'],
                 'Raw CDR message schema package differs: '+name)

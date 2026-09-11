@@ -102,7 +102,8 @@ class PVReferenceTests(unittest.TestCase):
         base = [sys.executable, '-B', str(root/'tools/run_joint_flight.py'), 'run',
                 '--control-manifest', 'unopened-build.json', '--control-sha256', 'a'*64]
         pv = ['--task-profile', 'full_xyz_pv_yaw_v1', '--ap-pv-manifest', 'unopened-pv.json',
-              '--ap-pv-sha256', 'b'*64]
+              '--ap-pv-sha256', 'b'*64, '--message-manifest', 'unopened-message.json',
+              '--message-sha256', 'c'*64]
         for extra in ([], ['--ap-pv-manifest', 'unopened-pv.json'],
                       pv+['--ap-manifest', 'old.json'], pv+['--scene-lifecycle'], pv+['--px4-manifest', 'other.json']):
             with self.subTest(extra=extra):

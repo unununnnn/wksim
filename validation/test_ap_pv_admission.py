@@ -25,6 +25,7 @@ class PVAdmissionTests(unittest.TestCase):
         self.control = dict(root=str(self.control_root), package=str(self.control_root / 'installed-control'))
         self.control_manifest.write_text(json.dumps(self.control))
         self.control_sha = pv.joint.digest(self.control_manifest)
+        self.messages = dict(root='/root/wksim-ros2-Test12', packages={})
         self.profile = pv.joint.select_profile('joint_quad_dds_v1')
         self.record = dict(status='built-not-admitted', candidate_root=str(self.root),
                            binary=str(self.root / 'build/sitl/bin/arducopter'),
@@ -39,13 +40,16 @@ class PVAdmissionTests(unittest.TestCase):
         self.sha = pv.joint.digest(self.manifest)
 
     def admit(self, run_id='pv-admission-test'):
-        return pv.admit(str(self.manifest), self.sha, str(self.control_manifest), self.control_sha, run_id)
+        return pv.admit(str(self.manifest), self.sha, str(self.control_manifest), self.control_sha, run_id,
+                        message_manifest='/root/wksim-ros2-Test12/message-build.json',
+                        message_checksum='b'*64)
 
     def expensive_checks(self):
         """Only source/resource verification is stubbed; selectors/JSON/config stay real."""
         mocks = {}
         for name, value in (('verify', dict(baseline_manifest_sha256=self.record['baseline_manifest_sha256'])),
-                            ('_fixed_resources', {'verified_baseline': True}), ('check_control', self.control)):
+                            ('_fixed_resources', {'verified_baseline': True}), ('check_control', self.control),
+                            ('check_messages', self.messages)):
             mocks[name] = self.files.enter_context(patch.object(pv, name, return_value=value))
         return mocks
 
@@ -103,6 +107,9 @@ class PVAdmissionTests(unittest.TestCase):
         self.assertEqual(result['configs']['px4']['px4_root'], str(Path(self.profile['manifests']['px4']['path']).parent / 'src'))
         self.assertEqual(result['model_library'], self.profile['model_library'])
         self.assertEqual(result['control_candidate'], self.control)
+        self.assertEqual(result['message_candidate'], self.messages)
+        self.assertEqual(result['identities']['message_candidate'], self.messages)
+        self.assertEqual(result['message_manifest_sha256'], 'b'*64)
         for config in result['configs'].values():
             self.assertNotIn('runtime_profile', config)
             self.assertEqual(config['dds_workspace'], self.profile['dds_workspace'])
@@ -112,6 +119,7 @@ class PVAdmissionTests(unittest.TestCase):
         mocks['verify'].assert_called_once_with(str(self.manifest), self.sha)
         mocks['_fixed_resources'].assert_called_once_with(self.profile)
         mocks['check_control'].assert_called_once_with(str(self.control_manifest), self.control_sha)
+        mocks['check_messages'].assert_called_once_with('/root/wksim-ros2-Test12/message-build.json', 'b'*64)
 
     def test_every_identity_failure_refuses_all_launch_configs(self):
         mocks = self.expensive_checks()

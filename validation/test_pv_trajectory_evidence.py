@@ -157,6 +157,69 @@ class PVRawAuditBoundaries(unittest.TestCase):
                                                         {'async_model_evidence_requested': False}),
                          dict(requested=False, legacy=False))
 
+    def test_explicit_message_candidate_is_bound_to_admission_archive_and_recheck(self):
+        from tools import audit_pv_trajectory as audit
+        candidate = dict(root='/root/wksim-ros2-Test12', packages={name: {
+            'prefix': '/root/wksim-ros2-Test12/install/'+name}
+            for name in ('prometheus_msgs', 'wksim_msgs')})
+        with TemporaryDirectory(prefix='pv-message-evidence-') as directory:
+            root = Path(directory)
+            archived = root/'message-build.json'
+            archived.write_text(json.dumps(candidate))
+            checksum = hashlib.sha256(archived.read_bytes()).hexdigest()
+            admission = dict(message_candidate=candidate,
+                             message_manifest_path=str(Path(candidate['root'])/'message-build.json'),
+                             message_manifest_sha256=checksum,
+                             identities=dict(message_candidate=candidate))
+            result = dict(message_candidate=candidate, message_unchanged=True,
+                          manifest_sha256={'message': checksum}, pv_admission=admission,
+                          control_candidate={'package': '/root/control/prometheus_control'},
+                          candidate_import_roots={
+                              'prometheus_control': '/root/control/prometheus_control',
+                              'prometheus_msgs': str(Path('/root/wksim-ros2-Test12/install/prometheus_msgs/local/lib/python3.10/dist-packages/prometheus_msgs')),
+                              'wksim_msgs': str(Path('/root/wksim-ros2-Test12/install/wksim_msgs/local/lib/python3.10/dist-packages/wksim_msgs'))},
+                          source_sha256={'tools/joint_message_candidate.py': 'a'*64})
+            with patch('joint_message_candidate.check', return_value=candidate) as checker:
+                checked = audit.message_evidence_identity(root, result)
+            self.assertTrue(checked['requested'])
+            checker.assert_called_once_with(Path(candidate['root'])/'message-build.json', checksum)
+            for change in (
+                    lambda value: value.update(message_unchanged=False),
+                    lambda value: value['manifest_sha256'].update(message='b'*64),
+                    lambda value: value['pv_admission'].update(message_manifest_path='/root/wrong.json'),
+                    lambda value: value['pv_admission']['identities'].update(message_candidate={}),
+                    lambda value: value['source_sha256'].clear()):
+                altered = copy.deepcopy(result)
+                change(altered)
+                with self.subTest(change=change), patch('joint_message_candidate.check', return_value=candidate), \
+                        self.assertRaises(ValueError):
+                    audit.message_evidence_identity(root, altered)
+
+    def test_missing_message_fields_are_legacy_only_when_all_are_absent(self):
+        from tools import audit_pv_trajectory as audit
+        self.assertEqual(audit.message_evidence_identity(Path('/unused'), {}),
+                         dict(requested=False, legacy=True))
+        with self.assertRaisesRegex(ValueError, 'incomplete'):
+            audit.message_evidence_identity(Path('/unused'),
+                                            {'message_candidate': {'root': '/root/wksim-ros2-Test12'}})
+
+    def test_explicit_message_candidate_replaces_only_its_decoder_packages(self):
+        from tools import audit_pv_trajectory as audit
+        baseline = {name: {'prefix': '/old/'+name, 'sha256': name}
+                    for name in ('prometheus_msgs', 'wksim_msgs', 'px4_msgs', 'ardupilot_msgs')}
+        current = {name: {'prefix': '/new/'+name, 'installed_sha256': 'new-'+name}
+                   for name in ('prometheus_msgs', 'wksim_msgs')}
+        result = dict(pv_admission={'identities': {'baseline': {'message_packages': baseline}}},
+                      message_candidate={'packages': current})
+        packages = audit.decoder_message_packages(result, 'pv_admission')
+        self.assertEqual(packages['px4_msgs'], baseline['px4_msgs'])
+        for name in current:
+            self.assertEqual(packages[name], dict(prefix='/new/'+name, sha256='new-'+name,
+                                                  complete_snapshot=True))
+        result['message_candidate']['packages'].pop('wksim_msgs')
+        with self.assertRaisesRegex(ValueError, 'package set'):
+            audit.decoder_message_packages(result, 'pv_admission')
+
     def test_mixed_identity_is_dispatched_without_relabeling(self):
         from tools import audit_pv_trajectory as audit
         result = dict(mixed_admission=dict(task_profile=audit.PROFILE))

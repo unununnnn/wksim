@@ -28,6 +28,7 @@ class MixedCandidateTests(unittest.TestCase):
         self.control = dict(root=str(self.control_root), package=str(self.control_root/'package'))
         self.control_path.write_text(json.dumps(self.control))
         self.control_sha = mixed.sha(self.control_path.read_bytes())
+        self.messages = dict(root='/root/wksim-ros2-Test12', packages={})
 
     def write(self, value):
         self.path.write_text(json.dumps(value))
@@ -82,22 +83,39 @@ class MixedCandidateTests(unittest.TestCase):
         native = dict(candidate=self.record, baseline_verification=dict(baseline_manifest_sha256=p['manifests']['ap']['sha256']))
         with patch.object(mixed, 'verify', return_value=native) as verify, \
                 patch.object(mixed, '_fixed_resources', return_value={}), \
-                patch.object(mixed, 'checked_json'), patch.object(mixed, 'check_control', return_value=self.control):
+                patch.object(mixed, 'checked_json'), patch.object(mixed, 'check_control', return_value=self.control), \
+                patch.object(mixed, 'check_messages', return_value=self.messages):
             report = mixed.admit(str(self.path), mixed.FINAL_AP_SHA, str(self.control_path), mixed.FINAL_CONTROL_SHA,
-                                 'pv-mixed-unit', task_profile=mixed.PV_PROFILE)
+                                 'pv-mixed-unit', task_profile=mixed.PV_PROFILE,
+                                 message_manifest='/root/wksim-ros2-Test12/message-build.json',
+                                 message_checksum=mixed.FINAL_MESSAGE_SHA)
             self.assertTrue(report['ok'], report['reasons'])
             self.assertEqual(report['task_profile'], mixed.PV_PROFILE)
             self.assertEqual(report['candidate']['profile'], mixed.PROFILE)
             self.assertIs(report['identities']['ap_mixed'], native)
+            self.assertIs(report['identities']['message_candidate'], self.messages)
+            self.assertIs(report['message_candidate'], self.messages)
+            self.assertEqual(report['message_manifest_sha256'], mixed.FINAL_MESSAGE_SHA)
             self.assertNotIn('ap_pv', report['identities'])
             self.assertEqual(report['capability']['arducopter_type_mask'], 2496)
-            for task, ap_sha, control_sha in ((mixed.PV_PROFILE, 'a'*64, mixed.FINAL_CONTROL_SHA),
-                    (mixed.PV_PROFILE, mixed.FINAL_AP_SHA, 'a'*64), ('position', mixed.FINAL_AP_SHA, mixed.FINAL_CONTROL_SHA)):
+            for task, ap_sha, control_sha, message_sha in (
+                    (mixed.PV_PROFILE, 'a'*64, mixed.FINAL_CONTROL_SHA, mixed.FINAL_MESSAGE_SHA),
+                    (mixed.PV_PROFILE, mixed.FINAL_AP_SHA, 'a'*64, mixed.FINAL_MESSAGE_SHA),
+                    (mixed.PV_PROFILE, mixed.FINAL_AP_SHA, mixed.FINAL_CONTROL_SHA, 'a'*64),
+                    ('position', mixed.FINAL_AP_SHA, mixed.FINAL_CONTROL_SHA, mixed.FINAL_MESSAGE_SHA)):
                 verify.reset_mock()
                 rejected = mixed.admit(str(self.path), ap_sha, str(self.control_path), control_sha,
-                                       'pv-mixed-unit', task_profile=task)
+                                       'pv-mixed-unit', task_profile=task,
+                                       message_manifest='/root/wksim-ros2-Test12/message-build.json',
+                                       message_checksum=message_sha)
                 self.assertFalse(rejected['ok']); self.assertEqual(rejected['children_created'], 0)
                 verify.assert_not_called()
+            verify.reset_mock()
+            rejected = mixed.admit(str(self.path), 'a'*64, str(self.control_path), self.control_sha,
+                                   'mixed-unit', message_manifest='/root/wksim-ros2-Test12/message-build.json',
+                                   message_checksum=mixed.FINAL_MESSAGE_SHA)
+            self.assertFalse(rejected['ok'])
+            verify.assert_not_called()
 
 
 if __name__ == '__main__':

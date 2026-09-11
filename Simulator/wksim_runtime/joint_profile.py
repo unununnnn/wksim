@@ -19,6 +19,14 @@ SCOPE = 'Pinned AP/PX4 quad-X joint DDS public tasks and approved recovery; admi
 LEGACY_PROFILE = 'joint_quad_dds_v1'
 MIXED_PROFILE = 'joint_quad_dds_mixed_pv_v1'
 MIXED_TASKS = ('full_xyz_pv_yaw_v1', 'xy_velocity_z_position_yaw_v1')
+LEGACY_CONTROL_BUILD_SCRIPTS = frozenset((
+    'cee40ea5324de3f38613fd3e8f05bbfde2a5814b1c76e038ec26917795e3365c',
+))
+CONTROL_SIMULATOR_FILES = {
+    'wksim_runtime': ('__init__.py', 'task.py', 'trajectory_bridge.py'),
+    'wksim_planning': ('ego_bspline_bridge.py', 'ego_evaluator.py',
+                       'ego_trajectory_adapter.py', 'trajectory_session.py'),
+}
 
 
 def select_profile(profile_id):
@@ -98,6 +106,27 @@ def _control(record, *, sealed=False):
                 actual[path.relative_to(directory).as_posix()] = digest(path)
         if not actual or actual != record['python_sha256']:
             raise ValueError('Control source or installed file set differs')
+    if record.get('version') == 2:
+        simulator_bases = [root/'Simulator', root/'install/prometheus_control'/PYTHON/'Simulator']
+        if not sealed:
+            simulator_bases.insert(0, REPO/'Simulator')
+        for base in simulator_bases:
+            actual = {}
+            for namespace, names in CONTROL_SIMULATOR_FILES.items():
+                directory = base/namespace
+                if not directory.is_dir() or directory.is_symlink():
+                    raise ValueError('Missing or symlinked Simulator support package')
+                paths = ((directory/name for name in names) if base == REPO/'Simulator'
+                         else directory.rglob('*'))
+                for path in paths:
+                    if path.is_symlink() or not path.resolve().is_relative_to(directory.resolve()):
+                        raise ValueError('Simulator support path escapes source boundary')
+                    if path.is_file() and '__pycache__' not in path.parts:
+                        if path.suffix != '.py':
+                            raise ValueError('Unexpected non-Python Simulator support content')
+                        actual[namespace+'/'+path.relative_to(directory).as_posix()] = digest(path)
+            if actual != record['simulator_python_sha256']:
+                raise ValueError('Simulator support source or installed file set differs')
     # A sealed historical installation is checked against its own build inputs.
     # The current candidate has separate source/stage/install admission; evolving
     # its CMake targets cannot alter the bytes used to build the old installation.
@@ -107,8 +136,27 @@ def _control(record, *, sealed=False):
         for name, expected in record['build_inputs'].items():
             if digest(base/name) != expected:
                 raise ValueError('Control build input differs')
+    if record.get('version') == 2:
+        installed = {name:digest(root/'install/prometheus_control'/target) for name,target in {
+            'scripts/prometheus_control_node':'lib/prometheus_control/prometheus_control_node',
+            'scripts/trajectory_bridge_node':'lib/prometheus_control/trajectory_bridge_node',
+            'launch/trajectory_bridge.launch.py':'share/prometheus_control/launch/trajectory_bridge.launch.py',
+        }.items()}
+        if installed != record['installed_inputs']:
+            raise ValueError('Installed control entry points differ')
+    builder_paths = []
+    if record.get('version') == 2:
+        builder_paths.append(root/'build-joint-control.sh')
+        if not sealed:
+            builder_paths.append(REPO/'tools/build-joint-control.sh')
+    elif sealed and record.get('version') == 1:
+        # These are the exact builders recorded by immutable pre-v2 candidates.
+        if record['build_script_sha256'] not in LEGACY_CONTROL_BUILD_SCRIPTS:
+            raise ValueError('Unknown legacy control build script')
+    else:
+        builder_paths.append(REPO/'tools/build-joint-control.sh')
     for path, expected in ((root/'build.log',record['build_log_sha256']),
-                           (REPO/'tools/build-joint-control.sh',record['build_script_sha256'])):
+                           *((path,record['build_script_sha256']) for path in builder_paths)):
         if digest(path) != expected:
             raise ValueError('Control build evidence differs')
     return str(package)

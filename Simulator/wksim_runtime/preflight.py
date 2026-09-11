@@ -220,7 +220,7 @@ def control_sources(config, index, evidence):
     from . import joint_profile
     p = joint_profile.select_profile('joint_quad_dds_v1')
     record = joint_profile._pinned_json(p['manifests']['control'])
-    joint_profile._control(record)
+    joint_profile._control(record, sealed=True)
     pin = index['control_profiles']['session_v1']['installed_packages']['prometheus_control']
     prefix = Path(config['prometheus_workspace']) / 'install/prometheus_control'
     if (prefix != Path(pin['prefix']) or not pin.get('complete_snapshot')

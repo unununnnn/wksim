@@ -140,7 +140,7 @@ class PromotionFlightTests(unittest.TestCase):
                 patch.object(joint_profile, '_control') as build, \
                 patch.object(preflight, 'package_digest', return_value='snapshot') as snapshot:
             self.assertEqual(preflight.control_sources(data, index, evidence), record['python_sha256'])
-            build.assert_called_once_with(record)
+            build.assert_called_once_with(record, sealed=True)
             self.assertEqual(snapshot.call_args.kwargs, dict(complete=True))
             for mutation in (dict(sha256='wrong'), dict(complete_snapshot=False), dict(prefix='/wrong')):
                 changed = copy.deepcopy(index)

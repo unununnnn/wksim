@@ -13,6 +13,7 @@ sys.path.insert(0, str(REPO))
 from Simulator.wksim_runtime import joint_profile as joint
 from Simulator.wksim_runtime.config import validate_config
 from joint_control_candidate import check as check_control
+from joint_message_candidate import check as check_messages
 from verify_ap_pv_candidate import checked_json, verify
 
 PROFILE = 'full_xyz_pv_yaw_v1'
@@ -119,10 +120,12 @@ def _fixed_resources(p):
     return identities
 
 
-def admit(manifest, sha, control_manifest, control_sha, run_id):
+def admit(manifest, sha, control_manifest, control_sha, run_id, *, message_manifest=None,
+          message_checksum=None):
     result = dict(ok=False, experimental=True, production_admitted=False, flown=False,
                   children_created=0, reasons=[], configs={}, model_library='',
-                  control_candidate=None, identities={}, task_profile=PROFILE, scope=SCOPE)
+                  control_candidate=None, message_candidate=None, identities={},
+                  task_profile=PROFILE, scope=SCOPE)
     try:
         p = joint.select_profile('joint_quad_dds_v1')
         # Validate run identity and selectors before expensive full source walks.
@@ -140,20 +143,25 @@ def admit(manifest, sha, control_manifest, control_sha, run_id):
             raise ValueError('PV base differs from the pinned joint AP')
         baseline = _fixed_resources(p)
         control = check_control(control_manifest, control_sha)
+        messages = check_messages(message_manifest, message_checksum)
         if control['root'] == p['control_workspace']:
             raise ValueError('PV requires a separate experimental control candidate')
         configs = {stack: validate_config(dict(base, stack=stack, **(
             {'ap_candidate': record['candidate_root']} if stack == 'arducopter' else {})))
             for stack in ('arducopter', 'px4')}
         sources = ('tools/ap_pv_candidate.py', 'tools/verify_ap_pv_candidate.py',
-                   'tools/joint_control_candidate.py', 'tools/run_joint_flight.py',
+                   'tools/joint_control_candidate.py', 'tools/joint_message_candidate.py',
+                   'tools/run_joint_flight.py',
                    'Simulator/wksim_runtime/joint_profile.py', 'Simulator/wksim_runtime/config.py',
                    'Simulator/wksim_runtime/runtime.py', 'Simulator/wksim_runtime/build_identity.py')
         result.update(ok=True, configs=configs, model_library=p['model_library'], control_candidate=control,
+                      message_candidate=messages,
                       manifest_path=str(manifest), manifest_sha256=sha,
                       control_manifest_path=str(control_manifest), control_manifest_sha256=control_sha,
+                      message_manifest_path=str(message_manifest), message_manifest_sha256=message_checksum,
                       candidate=record, candidate_verification=verified, baseline_profile=p,
                       identities=dict(baseline=baseline, ap_pv=verified, control_candidate=control,
+                                      message_candidate=messages,
                                       source_sha256={name: joint.digest(REPO / name) for name in sources}),
                       capability=dict(profile=PROFILE, position_axes='xyz', velocity_axes='xyz',
                                       yaw=True, acceleration=False, yaw_rate=False, mixed_axes=False,
@@ -170,9 +178,12 @@ def main():
     parser.add_argument('--ap-pv-sha256', required=True)
     parser.add_argument('--control-manifest', required=True)
     parser.add_argument('--control-sha256', required=True)
+    parser.add_argument('--message-manifest', required=True)
+    parser.add_argument('--message-sha256', required=True)
     parser.add_argument('--run-id', required=True)
     args = parser.parse_args()
-    report = admit(args.ap_pv_manifest, args.ap_pv_sha256, args.control_manifest, args.control_sha256, args.run_id)
+    report = admit(args.ap_pv_manifest, args.ap_pv_sha256, args.control_manifest, args.control_sha256, args.run_id,
+                   message_manifest=args.message_manifest, message_checksum=args.message_sha256)
     print(json.dumps(report, indent=2, allow_nan=False))
     return 0 if report['ok'] else 2
 

@@ -40,6 +40,7 @@ from Simulator.wksim_runtime.joint_rate_probe import (
 )
 from ap_clock_candidate import admit
 from joint_control_candidate import check as check_control, environment as control_environment
+from joint_message_candidate import check as check_messages, environment as message_environment
 from probe_joint_clock import json_identity, group_members
 from joint_pause_probe import PauseProbe, PauseProbeComplete
 from pv_trajectory_task import PROFILE as PV_PROFILE
@@ -58,6 +59,34 @@ def candidate_rate_sources(_diagnostic):
         "Simulator/wksim_runtime/joint_rate.py",
         "Simulator/wksim_runtime/joint_rate_probe.py",
     ]
+
+
+def candidate_environment(control, messages=None):
+    env = control_environment(control)
+    return message_environment(messages, env) if messages is not None else env
+
+
+def activate_candidate_imports(control, messages):
+    env = candidate_environment(control, messages)
+    for name in ('PYTHONPATH', 'AMENT_PREFIX_PATH', 'LD_LIBRARY_PATH'):
+        if name in env:
+            os.environ[name] = env[name]
+    for path in reversed([value for value in env.get('PYTHONPATH', '').split(os.pathsep) if value]):
+        while path in sys.path:
+            sys.path.remove(path)
+        sys.path.insert(0, path)
+    expected = dict(prometheus_control=control['package'])
+    expected.update({name: str(Path(value['prefix'])/'local/lib/python3.10/dist-packages'/name)
+                     for name, value in messages['packages'].items()})
+    observed = {}
+    for name, directory in expected.items():
+        spec = importlib.util.find_spec(name)
+        if spec is None or spec.origin is None:
+            raise RuntimeError('Candidate Python module is unavailable: '+name)
+        observed[name] = str(Path(spec.origin).resolve().parent)
+        if observed[name] != str(Path(directory).resolve()):
+            raise RuntimeError('Candidate Python module origin differs: '+name)
+    return observed
 
 
 def scheduling(pid, role, *, async_model_evidence=False):
@@ -295,7 +324,7 @@ def run(args):
     children, expected_exits = [], set()
     child_specs, dds_pending, dds_injection, dds_handled = {}, None, None, False
     clock, started = SceneClock(result['scene_epoch']), time.monotonic()
-    pause_probe = lifecycle = rate = None
+    pause_probe = lifecycle = rate = messages = None
     sources = ['tools/run_joint_flight.py','tools/run-joint-flight.sh','tools/joint_control_candidate.py',
                'tools/pv_trajectory_task.py','tools/mixed_control_task.py',
                'tools/ap_clock_candidate.py','Simulator/wksim_core/joint.py','Simulator/wksim_core/worker.py',
@@ -313,7 +342,8 @@ def run(args):
     if args.native_state_trace:
         sources += ['tools/debug_px4_native_state.py']
     if candidate:
-        sources += ['tools/ap_pv_candidate.py','tools/verify_ap_pv_candidate.py','tools/prepare_ap_pv_candidate.py']
+        sources += ['tools/ap_pv_candidate.py','tools/verify_ap_pv_candidate.py','tools/prepare_ap_pv_candidate.py',
+                    'tools/joint_message_candidate.py']
         sources += candidate_rate_sources(timing_probe)
         sources += ['Simulator/wksim_runtime/joint_profile.py',
                     'Simulator/wksim_runtime/joint-profiles.json','Simulator/wksim_runtime/build_identity.py']
@@ -344,12 +374,19 @@ def run(args):
                 from ap_mixed_candidate import admit as admit_candidate
                 ap_manifest, ap_sha = args.ap_mixed_manifest, args.ap_mixed_sha256
             admission = admit_candidate(ap_manifest, ap_sha, args.control_manifest, args.control_sha256, result['run_id'],
+                message_manifest=args.message_manifest, message_checksum=args.message_sha256,
                 **({'task_profile': args.task_profile} if mixed_firmware else {}))
             save(live/'experimental-admission.json', admission)
             if not admission['ok']:
                 raise ValueError('Explicit experimental admission rejected: '+str(admission['reasons']))
             result['mixed_admission' if mixed_firmware else 'pv_admission'] = admission
             configs, control = admission['configs'], admission['control_candidate']
+            messages = admission.get('message_candidate')
+            if messages is not None:
+                result['message_candidate'] = messages
+                result.setdefault('manifest_sha256', {})['message'] = args.message_sha256
+                shutil.copyfile(args.message_manifest, live/'message-build.json')
+                result['candidate_import_roots'] = activate_candidate_imports(control, messages)
             library = Path(admission['model_library'])
         else:
             library = build_model()
@@ -400,6 +437,8 @@ def run(args):
                 target.parent.mkdir(parents=True, exist_ok=True)
                 target.write_bytes(source.read_bytes())
         result['manifest_sha256'] = dict(ap=ap_sha if candidate else args.ap_sha256, control=args.control_sha256)
+        if messages is not None:
+            result['manifest_sha256']['message'] = args.message_sha256
         if args.px4_manifest:
             result['manifest_sha256']['px4'] = args.px4_sha256
             shutil.copyfile(args.px4_manifest, live/'px4-build.json')
@@ -492,7 +531,8 @@ def run(args):
             if start_token is not None:
                 command += ['--start-token',start_token]
             name = stack+('-recovery-task' if task_mode == 'recover' else '-task')
-            return launch(name,command,directory,control_environment(control) if args.scene_lifecycle or candidate else None,
+            return launch(name,command,directory,candidate_environment(control, messages)
+                          if args.scene_lifecycle or candidate else None,
                           role='task',result_key=stack)
 
         def record_native_maps(label):
@@ -715,12 +755,18 @@ def run(args):
                     plan['control'] += ['-p', 'scene_epoch:='+clock.epoch]
                 verifier = ('import importlib.util,pathlib; '
                     'assert pathlib.Path(importlib.util.find_spec("prometheus_control").origin).parent == pathlib.Path('
-                    +repr(control['package'])+'); import prometheus_control.node as n; n.main()')
+                    +repr(control['package'])+'); ')
+                if messages is not None:
+                    module_roots = {name: str(Path(value['prefix'])/'local/lib/python3.10/dist-packages'/name)
+                                    for name, value in messages['packages'].items()}
+                    verifier += ('roots='+repr(module_roots)+'; assert all(pathlib.Path(importlib.util.find_spec(name).origin).parent '
+                                 '== pathlib.Path(path) for name,path in roots.items()); ')
+                verifier += 'import prometheus_control.node as n; n.main()'
                 if args.native_state_trace and stack == 'px4':
                     verifier = ('from tools.debug_px4_native_state import install; install('
                         +repr(str(live/'px4-native-state-trace.jsonl'))+'); '+verifier)
                 command = [sys.executable,'-B','-c',verifier,*plan['control'][3:]]
-                launch(stack+'-control',command,directory,control_environment(control))
+                launch(stack+'-control',command,directory,candidate_environment(control, messages))
                 launch_task(stack,uid,directory)
             save(live/'children-start.json',result['children'])
             if candidate:
@@ -906,6 +952,12 @@ def run(args):
                 digest(Path(result['native_source_root'])/name) == expected
                 and digest(live/'native-source'/name) == expected
                 for name, expected in result['native_source_sha256'].items())
+        if result.get('message_candidate'):
+            try:
+                result['message_unchanged'] = (check_messages(args.message_manifest, args.message_sha256)
+                                               == result['message_candidate'])
+            except (OSError, ValueError, KeyError, TypeError, ImportError):
+                result['message_unchanged'] = False
         if result.get('model_promotion_flight_requested') and result.get('model_build'):
             try:
                 model_library=Path(result['model_build']['library'])
@@ -920,6 +972,7 @@ def run(args):
             result['status'], result['error'] = 'failed', 'Control nodes did not stop normally'
         if (result['cleanup_errors'] or any(v['remaining_group_members'] for v in result['children'].values())
                 or not result['source_unchanged'] or result['unowned_ap_before']!=result['unowned_ap_after']
+                or result.get('message_candidate') and not result.get('message_unchanged')
                 or result.get('model_promotion_flight_requested') and not result.get('model_unchanged')):
             result['status']='failed'
         result['flight_completed'] = result['status']=='pass'
@@ -957,6 +1010,8 @@ def main(argv=None):
         runner.add_argument('--'+name,required=True)
     for name in ('ap-manifest','ap-sha256','ap-pv-manifest','ap-pv-sha256','ap-mixed-manifest','ap-mixed-sha256'):
         runner.add_argument('--'+name)
+    runner.add_argument('--message-manifest')
+    runner.add_argument('--message-sha256')
     runner.add_argument('--task-profile', choices=('position', PV_PROFILE, MIXED_PROFILE), default='position')
     runner.add_argument('--px4-manifest')
     runner.add_argument('--px4-sha256')
@@ -979,18 +1034,20 @@ def main(argv=None):
         if pv:
             pv_pair = bool(args.ap_pv_manifest and args.ap_pv_sha256 and not args.ap_mixed_manifest and not args.ap_mixed_sha256)
             mixed_pair = bool(args.ap_mixed_manifest and args.ap_mixed_sha256 and not args.ap_pv_manifest and not args.ap_pv_sha256)
-            if (not (pv_pair or mixed_pair) or args.ap_manifest or args.ap_sha256
+            if (not (pv_pair or mixed_pair) or not args.message_manifest or not args.message_sha256
+                    or args.ap_manifest or args.ap_sha256
                     or args.px4_manifest or args.px4_sha256 or args.pause_probe or args.scene_lifecycle
                     or args.scene_lease_loss or args.dds_loss or args.native_state_trace or args.probe_land_freshness):
                 parser.error('P+V requires exactly one explicit PV or mixed AP manifest/SHA pair and no alternate probes')
         elif mixed:
             if (not args.ap_mixed_manifest or not args.ap_mixed_sha256 or args.ap_manifest or args.ap_sha256
                     or args.ap_pv_manifest or args.ap_pv_sha256 or args.px4_manifest or args.px4_sha256
+                    or args.message_manifest or args.message_sha256
                     or args.pause_probe or args.scene_lifecycle or args.scene_lease_loss or args.dds_loss
                     or args.native_state_trace or args.probe_land_freshness):
                 parser.error('Mixed profile requires its own AP manifest/SHA and no alternate probes')
         elif (not args.ap_manifest or not args.ap_sha256 or args.ap_pv_manifest or args.ap_pv_sha256
-                or args.ap_mixed_manifest or args.ap_mixed_sha256):
+                or args.ap_mixed_manifest or args.ap_mixed_sha256 or args.message_manifest or args.message_sha256):
             parser.error('Position experiment requires the existing AP clock manifest/SHA')
         if args.model_promotion_flight and (args.task_profile != 'position' or args.pause_probe
                 or args.repeat_paused_clock or args.scene_lifecycle or args.scene_lease_loss
@@ -1012,6 +1069,8 @@ def main(argv=None):
         parser.error('--probe-land-freshness requires --native-state-trace and --dds-loss')
     if args.role == 'run' and (args.px4_manifest is None)!=(args.px4_sha256 is None):
         parser.error('Optional PX4 candidate requires both manifest and external SHA256')
+    if args.role == 'run' and (args.message_manifest is None)!=(args.message_sha256 is None):
+        parser.error('Explicit message candidate requires both manifest and external SHA256')
     if args.role == 'task' and args.task_mode == 'recover' and (not args.scene_lifecycle or not args.start_token):
         parser.error('New recovery task requires a scene and explicit start token')
     return task_main(args) if args.role=='task' else run(args)

@@ -9,6 +9,19 @@ import re
 REPO = Path(__file__).resolve().parents[1]
 PACKAGE = REPO / 'ros2/src/prometheus_control'
 PYTHON = 'local/lib/python3.10/dist-packages'
+SIMULATOR_FILES = {
+    'wksim_runtime': ('__init__.py', 'task.py', 'trajectory_bridge.py'),
+    'wksim_planning': ('ego_bspline_bridge.py', 'ego_evaluator.py',
+                       'ego_trajectory_adapter.py', 'trajectory_session.py'),
+}
+BUILD_INPUTS = ('CMakeLists.txt', 'package.xml', 'scripts/prometheus_control_node',
+                'scripts/trajectory_bridge_node', 'launch/trajectory_bridge.launch.py',
+                'src/rc_take.cpp')
+INSTALLED_INPUTS = {
+    'scripts/prometheus_control_node': 'lib/prometheus_control/prometheus_control_node',
+    'scripts/trajectory_bridge_node': 'lib/prometheus_control/trajectory_bridge_node',
+    'launch/trajectory_bridge.launch.py': 'share/prometheus_control/launch/trajectory_bridge.launch.py',
+}
 
 
 def digest(path):
@@ -42,15 +55,30 @@ def snapshot(root):
     source = files(PACKAGE / 'prometheus_control')
     if not source or source != files(staged / 'prometheus_control') or source != files(installed):
         raise ValueError('Repository, staged and installed control sources differ')
-    config = {name: digest(PACKAGE / name) for name in ('CMakeLists.txt', 'package.xml', 'scripts/prometheus_control_node', 'src/rc_take.cpp')}
+    simulator = {}
+    for package, names in SIMULATOR_FILES.items():
+        expected = {name: digest(REPO / 'Simulator' / package / name) for name in names}
+        if (expected != files(root / 'Simulator' / package)
+                or expected != files(root / 'install/prometheus_control' / PYTHON / 'Simulator' / package)):
+            raise ValueError('Repository, staged and installed Simulator sources differ: ' + package)
+        simulator.update({package + '/' + name: value for name, value in expected.items()})
+    config = {name: digest(PACKAGE / name) for name in BUILD_INPUTS}
     if config != {name: digest(staged / name) for name in config}:
         raise ValueError('Staged control build inputs differ')
+    installed_inputs = {name: digest(root / 'install/prometheus_control' / target)
+                        for name, target in INSTALLED_INPUTS.items()}
+    if installed_inputs != {name: config[name] for name in INSTALLED_INPUTS}:
+        raise ValueError('Installed control entry points differ')
     if not (root / 'build.log').stat().st_size:
         raise ValueError('Missing build evidence')
-    return dict(version=1, root=str(root), package=str(installed), python_sha256=source,
-                build_inputs=config, build_log_sha256=digest(root / 'build.log'),
+    staged_builder = root / 'build-joint-control.sh'
+    if digest(staged_builder) != digest(REPO / 'tools/build-joint-control.sh'):
+        raise ValueError('Staged control build script differs')
+    return dict(version=2, root=str(root), package=str(installed), python_sha256=source,
+                simulator_python_sha256=simulator, build_inputs=config,
+                installed_inputs=installed_inputs, build_log_sha256=digest(root / 'build.log'),
                 rc_transport_sha256=digest(root/'install/prometheus_control/lib/libwksim_rc_take.so'),
-                build_script_sha256=digest(REPO / 'tools/build-joint-control.sh'),
+                build_script_sha256=digest(staged_builder),
                 scope='experimental continuous joint ROS-time operations; no production admission')
 
 

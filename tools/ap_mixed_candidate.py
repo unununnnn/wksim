@@ -16,10 +16,12 @@ from verify_ap_pv_candidate import checked_json
 from ap_pv_candidate import _fixed_resources
 from Simulator.wksim_runtime import joint_profile as joint
 from joint_control_candidate import check as check_control
+from joint_message_candidate import check as check_messages
 
 PV_PROFILE = 'full_xyz_pv_yaw_v1'
 FINAL_AP_SHA = '1e6250eff8873d6b2e52017b613c223ac29f8260fdf92aac2cf0c7cdcc6ce94c'
-FINAL_CONTROL_SHA = '25edbf816e1b417028be73f409b211b48a1579cce4d63b0d9c6c9b5277e6d610'
+FINAL_CONTROL_SHA = '060f9677ed9ba2234c16fa7543319014cd3bb335f480af562780d79772be4080'
+FINAL_MESSAGE_SHA = '29969da0702451e3fc6f1de40bc301a67284c4e7d5fae8f88c64773d27a96219'
 
 
 def verify(manifest, checksum):
@@ -80,13 +82,18 @@ def verify(manifest, checksum):
         scope='Current mixed build bytes only; no native behavior, experimental admission or flight proof')
 
 
-def admit(manifest, checksum, control_manifest, control_checksum, run_id, *, task_profile=PROFILE):
+def admit(manifest, checksum, control_manifest, control_checksum, run_id, *, task_profile=PROFILE,
+          message_manifest=None, message_checksum=None):
     result = dict(ok=False, experimental=True, production_admitted=False, flown=False, children_created=0,
-        task_profile=task_profile, reasons=[], configs={}, model_library='', control_candidate=None, identities={})
+        task_profile=task_profile, reasons=[], configs={}, model_library='', control_candidate=None,
+        message_candidate=None, identities={})
     try:
         if task_profile not in (PROFILE, PV_PROFILE):
             raise ValueError('Unsupported task for mixed firmware')
-        if task_profile == PV_PROFILE and (checksum != FINAL_AP_SHA or control_checksum != FINAL_CONTROL_SHA):
+        if task_profile != PV_PROFILE and (message_manifest is not None or message_checksum is not None):
+            raise ValueError('Message candidate is only valid for the P+V task')
+        if task_profile == PV_PROFILE and (checksum != FINAL_AP_SHA or control_checksum != FINAL_CONTROL_SHA
+                or message_checksum != FINAL_MESSAGE_SHA):
             raise ValueError('P+V compatibility requires the exact final mixed/control manifests')
         p = joint.select_profile('joint_quad_dds_v1')
         base = dict(schema_version=1, run_id=run_id, vehicle_id=1, model_profile='quad_x',
@@ -100,6 +107,7 @@ def admit(manifest, checksum, control_manifest, control_checksum, run_id, *, tas
         fixed = _fixed_resources(p)
         checked_json(Path(control_manifest), control_checksum)
         control = check_control(control_manifest, control_checksum)
+        messages = check_messages(message_manifest, message_checksum) if task_profile == PV_PROFILE else None
         if control['root'] == p['control_workspace']:
             raise ValueError('Mixed experiment requires a separately built control candidate')
         configs = {stack: validate_config(dict(base, stack=stack, **(
@@ -107,14 +115,19 @@ def admit(manifest, checksum, control_manifest, control_checksum, run_id, *, tas
             for stack in ('arducopter', 'px4')}
         sources = ('tools/ap_mixed_candidate.py', 'tools/prepare_ap_mixed_candidate.py',
             'tools/ap_pv_candidate.py', 'tools/verify_ap_pv_candidate.py', 'tools/joint_control_candidate.py',
+            'tools/joint_message_candidate.py',
             'tools/run_joint_flight.py', 'Simulator/wksim_runtime/joint_profile.py',
             'Simulator/wksim_runtime/config.py', 'Simulator/wksim_runtime/runtime.py',
             'Simulator/wksim_runtime/build_identity.py')
         result.update(ok=True, configs=configs, model_library=p['model_library'], control_candidate=control,
+            message_candidate=messages,
             candidate=native['candidate'], candidate_verification=native, baseline_profile=p,
             manifest_path=str(manifest), manifest_sha256=checksum,
             control_manifest_path=str(control_manifest), control_manifest_sha256=control_checksum,
+            **(dict(message_manifest_path=str(message_manifest), message_manifest_sha256=message_checksum)
+               if messages is not None else {}),
             identities=dict(baseline=fixed, ap_mixed=native, control_candidate=control,
+                **(dict(message_candidate=messages) if messages is not None else {}),
                 source_sha256={name:joint.digest(REPO/name) for name in sources}),
             capability=dict(profile=PROFILE, position_axes='z', velocity_axes='xy', yaw=True,
                 yaw_rate=False, acceleration=False, terrain=False, arducopter_type_mask=2531,
@@ -139,12 +152,15 @@ if __name__ == '__main__':
         command.add_argument('--ap-mixed-sha256', required=True)
     for field in ('control-manifest', 'control-sha256', 'run-id'):
         admission.add_argument('--'+field, required=True)
+    admission.add_argument('--message-manifest')
+    admission.add_argument('--message-sha256')
     admission.add_argument('--task-profile', choices=(PROFILE, PV_PROFILE), default=PROFILE)
     args = parser.parse_args()
     if args.command == 'verify':
         print(json.dumps(verify(args.ap_mixed_manifest, args.ap_mixed_sha256), indent=2))
     else:
         report = admit(args.ap_mixed_manifest, args.ap_mixed_sha256, args.control_manifest, args.control_sha256, args.run_id,
-                       task_profile=args.task_profile)
+                       task_profile=args.task_profile, message_manifest=args.message_manifest,
+                       message_checksum=args.message_sha256)
         print(json.dumps(report, indent=2))
         raise SystemExit(0 if report['ok'] else 2)

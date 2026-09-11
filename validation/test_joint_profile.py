@@ -93,6 +93,83 @@ class JointProfileTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError,'build input'):
                     profile._control(record,sealed=True)
 
+    def test_v2_control_checks_named_repo_support_and_complete_candidate_trees(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory).resolve()
+            repo=root/'repo'; candidate=root/'candidate'
+            package=candidate/'install/prometheus_control'/profile.PYTHON/'prometheus_control'
+            staged=candidate/'src/prometheus_control'
+            current=repo/'ros2/src/prometheus_control'
+            for base in (package, staged/'prometheus_control', current/'prometheus_control'):
+                base.mkdir(parents=True)
+                (base/'__init__.py').write_text('same')
+            simulator={}
+            for namespace,names in profile.CONTROL_SIMULATOR_FILES.items():
+                for base in (repo/'Simulator', candidate/'Simulator',
+                             candidate/'install/prometheus_control'/profile.PYTHON/'Simulator'):
+                    (base/namespace).mkdir(parents=True,exist_ok=True)
+                    for name in names:
+                        (base/namespace/name).write_text(namespace+'/'+name)
+                for name in names:
+                    simulator[namespace+'/'+name]=profile.digest(repo/'Simulator'/namespace/name)
+            # The repository owns many runtime modules outside the installed candidate subset.
+            (repo/'Simulator/wksim_runtime/unrelated.py').write_text('not a candidate input')
+            installed_targets={
+                'scripts/prometheus_control_node':'lib/prometheus_control/prometheus_control_node',
+                'scripts/trajectory_bridge_node':'lib/prometheus_control/trajectory_bridge_node',
+                'launch/trajectory_bridge.launch.py':'share/prometheus_control/launch/trajectory_bridge.launch.py',
+            }
+            build_inputs={}
+            for name,target in installed_targets.items():
+                for base in (current,staged):
+                    path=base/name; path.parent.mkdir(parents=True,exist_ok=True); path.write_text(name)
+                installed=candidate/'install/prometheus_control'/target
+                installed.parent.mkdir(parents=True,exist_ok=True); installed.write_text(name)
+                build_inputs[name]=profile.digest(current/name)
+            (candidate/'build.log').write_text('built')
+            (repo/'tools').mkdir(); (repo/'tools/build-joint-control.sh').write_text('builder')
+            (candidate/'build-joint-control.sh').write_text('builder')
+            record=dict(version=2,root=str(candidate),package=str(package),
+                python_sha256={'__init__.py':profile.digest(package/'__init__.py')},
+                simulator_python_sha256=simulator,build_inputs=build_inputs,
+                installed_inputs={name:profile.digest(candidate/'install/prometheus_control'/target)
+                                  for name,target in installed_targets.items()},
+                build_log_sha256=profile.digest(candidate/'build.log'),
+                build_script_sha256=profile.digest(candidate/'build-joint-control.sh'))
+            with patch.object(profile,'REPO',repo):
+                self.assertEqual(profile._control(record,sealed=False),str(package))
+                self.assertEqual(profile._control(record,sealed=True),str(package))
+                (repo/'Simulator/wksim_runtime/task.py').write_text('tampered')
+                with self.assertRaisesRegex(ValueError,'Simulator support'):
+                    profile._control(record,sealed=False)
+                (repo/'Simulator/wksim_runtime/task.py').write_text('wksim_runtime/task.py')
+                (candidate/'Simulator/wksim_runtime/extra.py').write_text('extra')
+                with self.assertRaisesRegex(ValueError,'Simulator support'):
+                    profile._control(record,sealed=True)
+                (candidate/'Simulator/wksim_runtime/extra.py').unlink()
+                (candidate/'install/prometheus_control/lib/prometheus_control/trajectory_bridge_node').write_text('tampered')
+                with self.assertRaisesRegex(ValueError,'entry points'):
+                    profile._control(record,sealed=True)
+
+    def test_v1_sealed_control_requires_known_historical_builder(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory).resolve(); candidate=root/'candidate'
+            package=candidate/'install/prometheus_control'/profile.PYTHON/'prometheus_control'
+            staged=candidate/'src/prometheus_control'
+            for base in (package, staged/'prometheus_control'):
+                base.mkdir(parents=True); (base/'__init__.py').write_text('same')
+            (staged/'CMakeLists.txt').write_text('historical')
+            (candidate/'build.log').write_text('built')
+            record=dict(version=1,root=str(candidate),package=str(package),
+                python_sha256={'__init__.py':profile.digest(package/'__init__.py')},
+                build_inputs={'CMakeLists.txt':profile.digest(staged/'CMakeLists.txt')},
+                build_log_sha256=profile.digest(candidate/'build.log'),
+                build_script_sha256=next(iter(profile.LEGACY_CONTROL_BUILD_SCRIPTS)))
+            self.assertEqual(profile._control(record,sealed=True),str(package))
+            record['build_script_sha256']='0'*64
+            with self.assertRaisesRegex(ValueError,'Unknown legacy'):
+                profile._control(record,sealed=True)
+
 
 if __name__=='__main__':
     unittest.main()
