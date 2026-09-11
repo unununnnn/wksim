@@ -1,4 +1,119 @@
+#include <algorithm>
+#include <cmath>
+#include <exception>
+#include <limits>
+#include <string>
+
 #include "plan_env/grid_map.h"
+
+namespace {
+
+const std::string kGridMapParamPrefix = "/uav1_ego_planner_node/grid_map/";
+// Keep 2 * inf_step + 1 <= 65, so the temporary inflation cube stays <= 65^3.
+constexpr int kGridMapMaxInflationSteps = 32;
+
+const std::unordered_set<std::string> kGridMapInitializationOnly = {
+    "uav_id", "resolution", "map_size_x", "map_size_y", "map_size_z", "map_origin_x", "map_origin_y",
+    "depth_filter_margin", "skip_pixel", "pose_type", "fx", "fy", "cx", "cy",
+    "k_depth_scaling_factor", "p_hit", "p_miss", "p_min", "p_max", "p_occ",
+    "ground_height", "virtual_ceil_height", "virtual_ceil_yp", "virtual_ceil_yn"};
+
+bool parseGridMapInt(const std::string& text, int& value) {
+  std::size_t consumed = 0;
+  try {
+    const long parsed = std::stol(text, &consumed, 10);
+    if (consumed != text.size() || parsed < std::numeric_limits<int>::min() ||
+        parsed > std::numeric_limits<int>::max()) {
+      return false;
+    }
+    value = static_cast<int>(parsed);
+    return true;
+  } catch (const std::exception&) {
+    return false;
+  }
+}
+
+bool parseGridMapDouble(const std::string& text, double& value) {
+  std::size_t consumed = 0;
+  try {
+    const double parsed = std::stod(text, &consumed);
+    if (consumed != text.size() || !std::isfinite(parsed)) {
+      return false;
+    }
+    value = parsed;
+    return true;
+  } catch (const std::exception&) {
+    return false;
+  }
+}
+
+bool parseGridMapBool(const std::string& text, bool& value) {
+  if (text == "0") {
+    value = false;
+    return true;
+  }
+  if (text == "1") {
+    value = true;
+    return true;
+  }
+  return false;
+}
+
+double gridMapDistanceLimit(const MappingParameters& params) {
+  double squared = 0.0;
+  for (int axis = 0; axis < 3; ++axis) {
+    const double size = params.map_size_(axis);
+    if (!std::isfinite(size) || size <= 0.0 || size > std::sqrt(std::numeric_limits<double>::max() / 3.0)) {
+      return 0.0;
+    }
+    squared += size * size;
+  }
+  if (!std::isfinite(squared) || squared <= 0.0) {
+    return 0.0;
+  }
+  return std::sqrt(squared);
+}
+
+int gridMapLocalMapMarginLimit(const MappingParameters& params) {
+  const long long int_max = std::numeric_limits<int>::max();
+  long long limit = int_max - 5;
+  for (int axis = 0; axis < 3; ++axis) {
+    const int voxel_num = params.map_voxel_num_(axis);
+    if (voxel_num <= 0) {
+      return -1;
+    }
+    limit = std::min(limit, static_cast<long long>(voxel_num));
+    limit = std::min(limit, int_max - static_cast<long long>(voxel_num) - 5);
+  }
+  return limit < 0 ? -1 : static_cast<int>(limit);
+}
+
+int gridMapInflationStepLimit(const MappingParameters& params) {
+  if (!std::isfinite(params.resolution_) || params.resolution_ <= 0.0) {
+    return -1;
+  }
+  int limit = kGridMapMaxInflationSteps;
+  double min_map_size = std::numeric_limits<double>::max();
+  for (int axis = 0; axis < 3; ++axis) {
+    const int voxel_num = params.map_voxel_num_(axis);
+    const double map_size = params.map_size_(axis);
+    if (voxel_num <= 0 || !std::isfinite(map_size) || map_size <= 0.0) {
+      return -1;
+    }
+    limit = std::min(limit, voxel_num);
+    min_map_size = std::min(min_map_size, map_size);
+  }
+  const double half_map_steps = 0.5 * min_map_size / params.resolution_;
+  if (!std::isfinite(half_map_steps) || half_map_steps < 0.0) {
+    return -1;
+  }
+  if (half_map_steps < static_cast<double>(limit)) {
+    limit = static_cast<int>(std::floor(half_map_steps));
+  }
+  return std::max(limit, 0);
+}
+
+}  // namespace
 
 void GridMap::initMap(ros::NodeHandle &nh)
 {
@@ -181,44 +296,167 @@ void GridMap::initMap(ros::NodeHandle &nh)
   md_.flag_use_depth_fusion = false;
   // 订阅参数服务器内ego相关的参数
   gridparam_sub_ = nh.subscribe("/uav1/prometheus/param_settings", 1, &GridMap::gridparam_Callback, this);
-  grid_params_get_i = {&uav_id,&mp_.depth_filter_margin_,&mp_.skip_pixel_,&mp_.pose_type_,&mp_.local_map_margin_};
-  grid_params_get_d = {&mp_.resolution_,&x_size,&y_size,&z_size,&x_origin,&y_origin,&mp_.local_update_range_(0),&mp_.local_update_range_(1),
-                       &mp_.local_update_range_(2),&mp_.obstacles_inflation_,&mp_.fx_,&mp_.fy_,&mp_.cx_,&mp_.cy_,&mp_.depth_filter_tolerance_,
-                       &mp_.depth_filter_maxdist_,&mp_.depth_filter_mindist_,&mp_.k_depth_scaling_factor_,&mp_.p_hit_,&mp_.p_miss_,&mp_.p_min_,
-                       &mp_.p_max_,&mp_.p_occ_,&mp_.min_ray_length_,&mp_.max_ray_length_,&mp_.visualization_truncate_height_,&mp_.ground_height_,
-                       &mp_.virtual_ceil_height_,&mp_.virtual_ceil_yp_,&mp_.virtual_ceil_yn_,&mp_.odom_depth_timeout_ };
-  grid_params_get_b = {&mp_.use_depth_filter_,&mp_.show_occ_time_};
 }
 
 void GridMap::gridparam_Callback(const prometheus_msgs::ParamSettingsConstPtr &msg)
 {
-  pre_grid_params_compare(grid_params_compare, grid_params_compare_all);
-  // 遍历 param_name 和 param_value，更新参数
-  for (size_t i = 0; i < grid_params_compare_all.size(); ++i) 
-  {
-    auto it = std::find(( grid_params_compare_all.begin()),(grid_params_compare_all.end()), msg->param_name[0]);
-    if (it != grid_params_compare_all.end()) 
-    {
-      size_t index = std::distance(grid_params_compare_all.begin(), it);
-      if(index < 5)
-      {
-        *grid_params_get_i[index] = std::stoi(msg->param_value[0]);
-      }else if(index < 36)
-      {
-        *grid_params_get_d[index - 5] = std::stod(msg->param_value[0]);
-      }else if(index < 38)
-      { 
-        if(msg->param_value[0] == "0"){
-          *grid_params_get_b[index - 36] = false ; 
-        }else{
-          *grid_params_get_b[index - 36] = true ;          
-        }
-      }else
-      {
-        mp_.frame_id_ = msg->param_value[0];
-      }
-    }
+  if (!msg) {
+    ROS_WARN("GridMap parameter update ignored: null message");
+    return;
   }
+  if (msg->param_name.size() != 1 || msg->param_value.size() != 1) {
+    ROS_WARN_STREAM("GridMap parameter update ignored: expected exactly one name/value, got "
+                    << msg->param_name.size() << "/" << msg->param_value.size());
+    return;
+  }
+
+  const std::string& name = msg->param_name.front();
+  const std::string& value = msg->param_value.front();
+  if (name.compare(0, kGridMapParamPrefix.size(), kGridMapParamPrefix) != 0) {
+    ROS_WARN_STREAM("GridMap parameter update ignored: unexpected parameter name " << name);
+    return;
+  }
+
+  const std::string short_name = name.substr(kGridMapParamPrefix.size());
+  if (kGridMapInitializationOnly.count(short_name) != 0) {
+    ROS_WARN_STREAM("GridMap parameter " << name
+                    << " is initialization-only and was ignored after map setup");
+    return;
+  }
+
+  if (short_name == "local_update_range_x" || short_name == "local_update_range_y" ||
+      short_name == "local_update_range_z") {
+    double parsed = 0.0;
+    const int axis = short_name.back() == 'x' ? 0 : short_name.back() == 'y' ? 1 : 2;
+    if (!parseGridMapDouble(value, parsed) || parsed < 0.0 ||
+        !std::isfinite(mp_.map_size_(axis)) || mp_.map_size_(axis) <= 0.0 ||
+        parsed > mp_.map_size_(axis)) {
+      ROS_WARN_STREAM("GridMap parameter update ignored: range must be finite, non-negative, and no larger than "
+                      << "initialized map_size_[" << axis << "] for " << name);
+      return;
+    }
+    mp_.local_update_range_(axis) = parsed;
+    return;
+  }
+
+  if (short_name == "local_map_margin") {
+    int parsed = 0;
+    const int margin_limit = gridMapLocalMapMarginLimit(mp_);
+    if (!parseGridMapInt(value, parsed) || parsed < 0 || margin_limit < 0 || parsed > margin_limit) {
+      ROS_WARN_STREAM("GridMap parameter update ignored: margin must be within the safe initialized map_voxel_num_ "
+                      << "bound (" << margin_limit << ") for " << name);
+      return;
+    }
+    mp_.local_map_margin_ = parsed;
+    return;
+  }
+
+  if (short_name == "obstacles_inflation") {
+    double parsed = 0.0;
+    const int inflation_step_limit = gridMapInflationStepLimit(mp_);
+    if (!parseGridMapDouble(value, parsed) || parsed < 0.0 || inflation_step_limit < 0 ||
+        !std::isfinite(mp_.resolution_) || mp_.resolution_ <= 0.0) {
+      ROS_WARN_STREAM("GridMap parameter update ignored: invalid finite inflation for " << name);
+      return;
+    }
+    const double inflation_steps = parsed / mp_.resolution_;
+    if (!std::isfinite(inflation_steps) || inflation_steps > static_cast<double>(inflation_step_limit)) {
+      ROS_WARN_STREAM("GridMap parameter update ignored: inflation exceeds safe initialized resolution/map_size "
+                      << "bound (" << inflation_step_limit << " steps) for " << name);
+      return;
+    }
+    mp_.obstacles_inflation_ = parsed;
+    return;
+  }
+
+  if (short_name == "depth_filter_tolerance" || short_name == "depth_filter_maxdist" ||
+      short_name == "depth_filter_mindist" ||
+      short_name == "min_ray_length" || short_name == "max_ray_length" ||
+      short_name == "visualization_truncate_height" || short_name == "odom_depth_timeout") {
+    double parsed = 0.0;
+    if (!parseGridMapDouble(value, parsed)) {
+      ROS_WARN_STREAM("GridMap parameter update ignored: invalid finite double for " << name);
+      return;
+    }
+    if (short_name == "depth_filter_tolerance") {
+      if (parsed < 0.0) {
+        ROS_WARN_STREAM("GridMap parameter update ignored: tolerance must be non-negative for " << name);
+        return;
+      }
+      mp_.depth_filter_tolerance_ = parsed;
+    }
+    else if (short_name == "depth_filter_maxdist") {
+      const double distance_limit = gridMapDistanceLimit(mp_);
+      if (parsed < 0.0 || distance_limit <= 0.0 || parsed > distance_limit ||
+          !std::isfinite(mp_.depth_filter_mindist_) || parsed < mp_.depth_filter_mindist_) {
+        ROS_WARN_STREAM("GridMap parameter update ignored: max depth distance must stay within the map and >= min "
+                        << "for " << name);
+        return;
+      }
+      mp_.depth_filter_maxdist_ = parsed;
+    }
+    else if (short_name == "depth_filter_mindist") {
+      const double distance_limit = gridMapDistanceLimit(mp_);
+      if (parsed < 0.0 || distance_limit <= 0.0 || parsed > distance_limit ||
+          !std::isfinite(mp_.depth_filter_maxdist_) || parsed > mp_.depth_filter_maxdist_) {
+        ROS_WARN_STREAM("GridMap parameter update ignored: min depth distance must stay within the map and <= max "
+                        << "for " << name);
+        return;
+      }
+      mp_.depth_filter_mindist_ = parsed;
+    }
+    else if (short_name == "min_ray_length") {
+      const double distance_limit = gridMapDistanceLimit(mp_);
+      if (parsed < 0.0 || distance_limit <= 0.0 || parsed > distance_limit ||
+          !std::isfinite(mp_.max_ray_length_) || parsed > mp_.max_ray_length_) {
+        ROS_WARN_STREAM("GridMap parameter update ignored: min ray length must stay within the map and <= max for "
+                        << name);
+        return;
+      }
+      mp_.min_ray_length_ = parsed;
+    }
+    else if (short_name == "max_ray_length") {
+      const double distance_limit = gridMapDistanceLimit(mp_);
+      if (parsed < 0.0 || distance_limit <= 0.0 || parsed > distance_limit ||
+          !std::isfinite(mp_.min_ray_length_) || parsed < mp_.min_ray_length_) {
+        ROS_WARN_STREAM("GridMap parameter update ignored: max ray length must stay within the map and >= min for "
+                        << name);
+        return;
+      }
+      mp_.max_ray_length_ = parsed;
+    }
+    else if (short_name == "visualization_truncate_height") mp_.visualization_truncate_height_ = parsed;
+    else if (short_name == "odom_depth_timeout") {
+      if (parsed < 0.0) {
+        ROS_WARN_STREAM("GridMap parameter update ignored: timeout must be non-negative for " << name);
+        return;
+      }
+      mp_.odom_depth_timeout_ = parsed;
+    }
+    return;
+  }
+
+  if (short_name == "use_depth_filter" || short_name == "show_occ_time") {
+    bool parsed = false;
+    if (!parseGridMapBool(value, parsed)) {
+      ROS_WARN_STREAM("GridMap parameter update ignored: expected boolean 0 or 1 for " << name);
+      return;
+    }
+    if (short_name == "use_depth_filter") mp_.use_depth_filter_ = parsed;
+    else mp_.show_occ_time_ = parsed;
+    return;
+  }
+
+  if (short_name == "frame_id") {
+    if (value.empty()) {
+      ROS_WARN_STREAM("GridMap parameter update ignored: frame_id cannot be empty");
+      return;
+    }
+    mp_.frame_id_ = value;
+    return;
+  }
+
+  ROS_WARN_STREAM("GridMap parameter update ignored: unsupported parameter " << name);
 }
 
 // 膨胀地图全部重置

@@ -149,15 +149,6 @@ public:
   ~GridMap() {}
 
   enum { POSE_STAMPED = 1, ODOMETRY = 2, INVALID_IDX = -10000 };
-  std::vector<std::string> grid_params_compare ={ "uav_id","depth_filter_margin","skip_pixel","pose_type","local_map_margin","resolution","map_size_x","map_size_y","map_size_z",
-                                                  "map_origin_x","map_origin_y","local_update_range_x","local_update_range_y","local_update_range_z","obstacles_inflation","fx",
-                                                  "fy","cx","cy","depth_filter_tolerance","depth_filter_maxdist","depth_filter_mindist","k_depth_scaling_factor","p_hit","p_miss",
-                                                  "p_min","p_max","p_occ","min_ray_length","max_ray_length","visualization_truncate_height","ground_height","virtual_ceil_height",
-                                                  "virtual_ceil_yp","virtual_ceil_yn","odom_depth_timeout","use_depth_filter","show_occ_time","frame_id"}; 
-  std::vector<std::string> grid_params_compare_all;
-  std::vector<int*> grid_params_get_i;
-  std::vector<bool*> grid_params_get_b;
-  std::vector<double*> grid_params_get_d;
   bool stop_publishMapInflate,no_depth,no_cloud;
   // occupancy map management
   void resetBuffer();
@@ -181,17 +172,6 @@ public:
   inline bool isUnknown(const Eigen::Vector3d& pos);
   inline bool isKnownFree(const Eigen::Vector3i& id);
   inline bool isKnownOccupied(const Eigen::Vector3i& id);
-  inline void pre_grid_params_compare(std::vector<std::string>& grid_params_compare, std::vector<std::string>& grid_params_compare_all)
-  {
-      // 确保 grid_params_compare_all 的大小足够大
-      grid_params_compare_all.resize(grid_params_compare.size());
-      
-      // 遍历 grid_params_compare，将每个元素添加前缀，并赋值给 grid_params_compare_all
-      for (size_t i = 0; i < grid_params_compare.size(); ++i) 
-      {
-          grid_params_compare_all[i] = "/uav1_ego_planner_node/grid_map/" + grid_params_compare[i]; 
-      }
-  }
   void initMap(ros::NodeHandle& nh);
 
   void publishMap();

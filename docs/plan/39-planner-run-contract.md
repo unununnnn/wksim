@@ -1,15 +1,17 @@
 # #39/#102 规划运行合同 — ego-single-box-v1 离线入口与 B-spline 适配接缝
 
-2026-09-12。本合同现在覆盖两个相互独立的离线前置接缝：profile 关闭的 EGO ROS1 launch 入口，以及显式供给的 EGO uniform B-spline 到 `TrajectorySession` 的纯 Python 适配。它们只冻结输入、参数和静态边界，**不声明真实规划器、ROS 传输、物理飞行或验收已经完成**。
+2026-09-12。本合同现在覆盖三个相互独立的离线前置接缝：profile 关闭的 EGO ROS1 launch 入口、显式供给的 EGO uniform B-spline 到 `TrajectorySession` 的纯 Python 适配，以及 GridMap 动态参数回调的生命周期安全边界。它们只冻结输入、参数和静态边界，**不声明真实规划器、ROS 传输、物理飞行或验收已经完成**。
 
-## 本次 launch/profile 切片（仅 4 个文件）
+## 本次 launch/profile 与 GridMap 参数安全静态切片
 
 - `Modules/ego_planner_swarm/plan_manage/launch_for_prometheus/advanced_param_wksim_single_box.xml` — 从现有 `advanced_param.xml` 的参数语义派生，关闭 `ego-single-box-v1` 的地图、唯一点云输入、预设目标和实际生效的速度/加速度限制；不暴露可覆盖这些值的 launch arg。
 - `Modules/ego_planner_swarm/plan_manage/launch_for_prometheus/sitl_ego_planner_wksim_single_box.launch` — 只 include 上述 planner 参数和上游 `traj_server_for_prometheus`；不启动 ROS bridge、飞控、SITL、UE 或地图生产器。
 - `validation/test_39_planner_launch_contract.py` — XML well-formed、参数/输入唯一性、profile 数值和 profile hash 交叉合同测试；纯 Python。
+- `Modules/ego_planner_swarm/plan_env/src/grid_map.cpp` / `Modules/ego_planner_swarm/plan_env/include/plan_env/grid_map.h` — 修复 GridMap 动态参数回调的局部地址逃逸，并将初始化期结构参数与运行期安全参数分开处理。
+- `validation/test_grid_map_param_safety.py` — 对地址不逃逸、fail-closed 解析、初始化期拒绝和运行期字段边界做纯静态合同检查。
 - 本文档。
 
-这四个文件只做静态合同。未改 sender/receiver、pump、上游 planner 源码或保护文件，也未提交。
+这些 launch/profile 与 GridMap 参数边界只做静态合同。未改 sender/receiver、pump 或保护文件，也未提交。
 
 ## ego-single-box-v1 固定值与坐标边界
 
@@ -38,7 +40,7 @@ profile 来源是 `Simulator/wksim_planning/scene_profile.py` 的 `EGO_SINGLE_BO
 
 - 上游通用 `advanced_param.xml` 的 `obstacles_inflation=0.2`、local range `5.5/5.5/4.5` 和通用 map 默认值不符合本 profile；本切片只在新 overlay 中关闭这些差异，不修改上游源。
 - `GridMap::cloudCallback` 当前源码把 z 方向膨胀步数写死为 2 个 voxel，而 XY 使用参数 `obstacles_inflation/resolution`；因此 overlay 不能单独证明真实实现已经满足 profile 对三维碰撞包络的要求。这是 P1 上游实现差异，必须由 #29 的物理几何/clearance 证据解决或另行修复。
-- **范围外上游 P1，当前未解决**：`GridMap::initMap` 把局部变量 `uav_id`、`x_size`、`y_size`、`z_size`、`x_origin`、`y_origin` 的地址保存进 `grid_params_get_i/d`；`/uav1/prometheus/param_settings` 后续回调可能通过这些已失效地址写入。这个四文件静态切片未修改上游源码，也不宣称解决该动态参数悬空问题；真实运行必须把它作为独立阻塞处理。
+- **GridMap 参数回调 P1，静态修复已覆盖**：`GridMap::initMap` 仍使用局部变量读取启动期的 `uav_id`、尺寸和原点，但这些变量的地址不再保存到成员指针容器；`/uav1/prometheus/param_settings` 回调对 `param_name/param_value` 数量、前缀和解析结果做 fail-closed 校验。分辨率、尺寸、原点、`pose_type`、相机内参、深度比例、`skip_pixel`、概率、地面/虚拟顶等初始化期参数明确告警并忽略；局部更新范围按初始化 `map_size_` 逐轴限幅，`local_map_margin` 按 `map_voxel_num_` 和整数算术余量限幅，膨胀距离按初始化分辨率/地图尺寸限到最多 32 个 voxel（`65^3` 个候选），深度/射线 min/max 不能越过地图对角线或形成 `min>max`。深度过滤、射线范围、超时、布尔开关和 `frame_id` 只通过显式解析与域约束更新，不重建或改写地图边界、体素数量、buffer 或订阅结构。该结论是源码/静态合同证据，尚未做 catkin/ROS 构建或运行期参数事件验证。
 - `map_generator/global_cloud` 只是仓库已有 topic 名称；没有静态测试能证明其内容等于 profile 点云。发布者必须提供 11,000 点、frame、profile/voxel hash 和时间戳证据。
 - `flight_type=2` 使用预设 waypoint；在当前 `realworld_experiment=false` 仿真语义下，FSM 将 `have_trigger` 初值设为 `true`，免除外部 `/uav1/ego_trigger` 等待，但仍必须有真实 odom 和 `/uav1/prometheus/control_state` 的 `control_state==2` 才能离开 `WAIT_TARGET` 并进入规划。起点只来自真实 odom，参数本身不能当作已经接管或已经起飞。
 
