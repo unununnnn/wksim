@@ -1,0 +1,175 @@
+{
+  "schema": "wksim.29-terrain-evidence.v1",
+  "kind": "terrain_evidence_manifest",
+  "issue": 29,
+  "title": "坡面与障碍场景的物理反馈",
+  "date": "2026-09-12",
+  "status": "partial_open",
+  "acceptance": false,
+  "blocking_issue": 9,
+  "claim": "Provenance and partial verification boundary of #29 terrain evidence; parent ticket remains OPEN blocked by #9, #17, #23",
+  "scene_identities": {
+    "visual_static_scene": {
+      "scene_id": "static-plane-box-v1",
+      "scene_sha256": "60ae50970e23d35e0a28b22694d61ca85c4e10af1f574a6ca9f07c79f7e03514",
+      "box_center_enu_m": [2.0, 0.0, 0.5],
+      "box_size_m": [1.0, 1.0, 1.0],
+      "plane_z_m": 0.0,
+      "description": "Frozen static contact fixture (#80) and display manifest (#81) with box center [2,0,0.5]"
+    },
+    "real_terrain_scene": {
+      "scene_id": "static-plane-box-v1-real-tick0",
+      "scene_sha256": "4889e2ea32146b734a816281915842da1da27c0df78c588d688cd2656f2bb300",
+      "box_center_enu_m": [0.0, 0.0, 0.5],
+      "box_size_m": [1.0, 1.0, 1.0],
+      "plane_z_m": 0.0,
+      "description": "Real generated model probe with tick-0 ENU origin and box center [0,0,0.5]"
+    },
+    "scene_identity_rule": "The visual/static fixture scene (60ae5097...) and the real generated model probe scene (4889e2ea...) are distinct and must never be conflated or substituted for one another."
+  },
+  "unproven_boundaries": {
+    "missing_real_ue_physics_colocation": "No real UE5.5 display running co-located with authoritative physics; display-manifest binding is display-only contract, not UE runtime proof",
+    "missing_fc_closed_loop": "Probe native-I/O is a deterministic stub (AP ACK + 4 ms PX4 barrier), not actual flight controller closed loop",
+    "missing_slope_contact_force_dynamics": "No terrain slope dynamics, contact forces/stiffness/damping/friction, side-impact collision dynamics, or dynamic terrain/objects"
+  },
+  "evidence_pins": {
+    "report": {
+      "path": "docs/plan/29-terrain-closure-report.md",
+      "sha256": "edff1cd2d9a77ea218937616b512a964deb40e42d47a91b6c7a24392ff1cfcd6"
+    },
+    "static_contact_80": {
+      "scene": "visual_static_scene",
+      "expected_audit": {
+        "assertions": 85,
+        "cases": 13,
+        "skipped": 0,
+        "status": "pass"
+      },
+      "pins": [
+        {
+          "path": "validation/lunar-29-static-contact/cases.json",
+          "sha256": "b4385d96951e12264082fbeacc1900f8fa477ec6eca142943635d8e998b81ed5"
+        },
+        {
+          "path": "validation/lunar-29-static-contact/commands.txt",
+          "sha256": "6ebd1569c6b15e1108adb5bca6577d2fd3e81781a984782ad25ec6471106837b"
+        },
+        {
+          "path": "validation/lunar-29-static-contact/results.jsonl",
+          "sha256": "4746d075eb22787e9390b916183b73fa1e4228fae72566c5c682c8447800bb7f"
+        },
+        {
+          "path": "validation/lunar-29-static-contact/audit.py",
+          "sha256": "a2b20a621a4aaff7258e34ec8a1051b97fff655e8d8befc5f8984d1a473dc239"
+        }
+      ]
+    },
+    "live_contact_81": {
+      "scene": "visual_static_scene",
+      "expected_audit": {
+        "assertions": 30895,
+        "rows": 3253,
+        "skipped": 0,
+        "status": "pass"
+      },
+      "pins": [
+        {
+          "path": "validation/lunar-29-live-contact/commands.txt",
+          "sha256": "2ef00fd1809df49cb25c49f5db07d8dd7489bf375cb9665848a18b58670b3332"
+        },
+        {
+          "path": "validation/lunar-29-live-contact/display-manifest.json",
+          "sha256": "3beef8834c838328f6c7ecfd2764accdbdc9c0f6002135ce906ef1d0989b03c9"
+        },
+        {
+          "path": "validation/lunar-29-live-contact/events.json",
+          "sha256": "e2ad5891ea90ace568c95c917872a975120bb155588e5cdbb47470981599fa41"
+        },
+        {
+          "path": "validation/lunar-29-live-contact/run-config.json",
+          "sha256": "9138102d17b8bce3dc39e207d2d1ad91647de45b6506142057c1b01a8ed1e597"
+        },
+        {
+          "path": "validation/lunar-29-live-contact/records.jsonl",
+          "sha256": "c2e11826115b75b675989179dbd8eb84e72c20e556ea91937bad1fe6017e8a00",
+          "size_bytes": 1594243
+        },
+        {
+          "path": "validation/lunar-29-live-contact/audit.py",
+          "sha256": "abf32b73f43c1450960443aa3bf756dd647556222cf71e26b15cf25d7cdace20"
+        }
+      ]
+    },
+    "terrain_reset_probe": {
+      "scene": "real_terrain_scene",
+      "ticks": 50,
+      "state_dimension": 120,
+      "terrain_dimension": 15,
+      "workers_count": 6,
+      "reaped_count": 6,
+      "archive_sha256": "d528b5d247e13d943f1eaa7a37fd3cb4d15c7e9bb7a6b0e5988a1423e59d05ed",
+      "wrapper_sha256": "150ddf3bab66e9e59701791392f6d792a14346e0b75ecdfe94872095e72d0290",
+      "library_sha256": "e59ab914e3ff8225ff303e05a885f8fa1eaedb05a95443f097920ca60a7f1c0b",
+      "pins": [
+        {
+          "path": "validation/lunar-29-terrain-reset-c8f05c6e/result.json",
+          "sha256": "2c55cc62ae594210bbd5189015b3acbcbf3d35f295a23cb25e923871f3a08fe8"
+        },
+        {
+          "path": "validation/lunar-29-terrain-reset-c8f05c6e/model-build.json",
+          "sha256": "2b2d522661fab935a66bf3a950d496e110cdfae3d84853d06d9ed52e24d4250d"
+        },
+        {
+          "path": "validation/lunar-29-terrain-reset-c8f05c6e/elevated-scene.json",
+          "sha256": "a74690a6e337cfb1f9ed0cac2465c2b7a988b9c0eb45dd8a6b450e613a6cf8ec"
+        },
+        {
+          "path": "validation/lunar-29-terrain-reset-c8f05c6e/elevated_reset-scene.json",
+          "sha256": "a74690a6e337cfb1f9ed0cac2465c2b7a988b9c0eb45dd8a6b450e613a6cf8ec"
+        },
+        {
+          "path": "validation/lunar-29-terrain-reset-c8f05c6e/baseline-arducopter-truth.jsonl",
+          "sha256": "6dd80e03dd4b50648758bf65327c2e86fec2bd7d92a2db751f904d23c9179dfd"
+        },
+        {
+          "path": "validation/lunar-29-terrain-reset-c8f05c6e/baseline-px4-truth.jsonl",
+          "sha256": "6dd80e03dd4b50648758bf65327c2e86fec2bd7d92a2db751f904d23c9179dfd"
+        },
+        {
+          "path": "validation/lunar-29-terrain-reset-c8f05c6e/elevated-arducopter-truth.jsonl",
+          "sha256": "e23ac330fb85904fa20e562aabdb8d3b2492768ff59e27b988b22ca644565121"
+        },
+        {
+          "path": "validation/lunar-29-terrain-reset-c8f05c6e/elevated-px4-truth.jsonl",
+          "sha256": "e23ac330fb85904fa20e562aabdb8d3b2492768ff59e27b988b22ca644565121"
+        },
+        {
+          "path": "validation/lunar-29-terrain-reset-c8f05c6e/elevated_reset-arducopter-truth.jsonl",
+          "sha256": "ad0772c4151b1fd5d419a12dc31d68ff88362454446484caa8357e7b863a19e5"
+        },
+        {
+          "path": "validation/lunar-29-terrain-reset-c8f05c6e/elevated_reset-px4-truth.jsonl",
+          "sha256": "ad0772c4151b1fd5d419a12dc31d68ff88362454446484caa8357e7b863a19e5"
+        }
+      ]
+    },
+    "real_terrain_initial_probe": {
+      "scene": "real_terrain_scene",
+      "library_sha256": "e59ab914e3ff8225ff303e05a885f8fa1eaedb05a95443f097920ca60a7f1c0b",
+      "pins": [
+        {
+          "path": "validation/lunar-29-real-terrain-9d3a7c21/result.json",
+          "sha256": "ff307331d31ba99048d1700f353a95b4f5359fb4eeb5ff980db51e4c2a948513"
+        },
+        {
+          "path": "validation/lunar-29-real-terrain-9d3a7c21/model-build.json",
+          "sha256": "2b2d522661fab935a66bf3a950d496e110cdfae3d84853d06d9ed52e24d4250d"
+        },
+        {
+          "path": "validation/lunar-29-real-terrain-9d3a7c21/elevated-scene.json",
+          "sha256": "a74690a6e337cfb1f9ed0cac2465c2b7a988b9c0eb45dd8a6b450e613a6cf8ec"
+        }
+      ]
+    }
+  }
+}
