@@ -1,0 +1,74 @@
+{
+  "schema": "wksim.worker-rpc-trim-benchmark.v1",
+  "candidate": "33-rate-worker-rpc-trim-v1",
+  "commit": "26aa4ebbd4dc8fb1b1d00ae0c80765801fba13f4",
+  "source": {
+    "path": "Simulator/wksim_core/worker.py",
+    "sha256": "164d6ebac4910c95a6b98bee3ae9524286b3f9aed446defca71d87886ddba081"
+  },
+  "environment": {
+    "distro": "Ubuntu-22.04",
+    "python": "python3",
+    "number_per_repeat": 200000,
+    "repeats": 7
+  },
+  "input": {
+    "source_run": "aruco-track-405ebd92a0",
+    "source_epoch": "59e79980b4f849c082559e73108e63de",
+    "selection": "median encoded input byte length per stack",
+    "arducopter_frame_bytes": 147,
+    "px4_frame_bytes": 147
+  },
+  "arducopter": {
+    "old_parse_then_encode_ns": [
+      2295.000225000052,
+      2375.5883900000185,
+      2333.956949999987,
+      2389.569420000015,
+      2297.2006050000005,
+      2308.731205000072,
+      2299.8892050000563
+    ],
+    "new_encode_then_len_ns": [
+      59.979359999999815,
+      58.971084999939194,
+      61.13597999998888,
+      60.40142499998069,
+      60.49249499994857,
+      56.910210000040706,
+      57.28688999994347
+    ],
+    "saved_ns_per_request_from_medians": 2248.751845000072
+  },
+  "px4": {
+    "old_parse_then_encode_ns": [
+      2328.2656400000687,
+      2410.5952099999686,
+      2335.734930000086,
+      2349.8706550000747,
+      2363.6501400000043,
+      2361.573029999988,
+      2404.5400050000862
+    ],
+    "new_encode_then_len_ns": [
+      57.41561999997202,
+      57.08554500003516,
+      61.872335000003886,
+      62.03962000000729,
+      58.965589999928625,
+      61.86830999993731,
+      56.549735000004375
+    ],
+    "saved_ns_per_request_from_medians": 2302.60744000006
+  },
+  "saved_ns_per_two_worker_four_tick_group": 18205.437140000526,
+  "scope": "isolated serialization hot-path measurement only; not a flight or cumulative rate proof",
+  "invariants": [
+    "step_request validation retained",
+    "single JSON encoding retained",
+    "4096-byte request limit retained",
+    "child-side request parse retained",
+    "parent-side response parse and validation retained",
+    "fixed 1ms step, native barriers, per-tick clock, no catch-up and 100ms gate unchanged"
+  ]
+}

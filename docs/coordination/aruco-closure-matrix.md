@@ -51,4 +51,4 @@ run21 在单一 run/epoch 内通过 physical、rate、公共 raw/loss-HOLD、nat
 
 ## 关闭判定
 
-#104 与 #40 的技术验收和前置依赖均已满足；证据提交推送后分别按自身范围关闭。Full 继续 **OPEN**。R1、RateUnmet 和所有旧失败记录保持原判。
+#104 与 #40 已在证据提交 `d86efb3` 推送后分别按自身范围关闭。Full 继续 **OPEN**。R1、RateUnmet 和所有旧失败记录保持原判。

@@ -1,5 +1,24 @@
 # #82 最终 mixed/PV 倍率候选与失败边界
 
+## 2026-09-11 可执行减负候选
+
+候选 `33-rate-worker-rpc-trim-v1` 已由提交 `26aa4eb` 实现：`Simulator/wksim_core/worker.py::receive_workers()` 保留 `step_request()`、唯一 JSON 编码、4096 字节上限和接收端完整 `parse_frame()`/响应校验，只删除对主进程刚刚编码的每个出站请求再次 JSON 反序列化。当前源码 SHA256 为 `164d6ebac4910c95a6b98bee3ae9524286b3f9aed446defca71d87886ddba081`。55 项 WSL transport/worker 检查通过，两个真实模型的 1000 tick 状态与 trace 对照一致；不改变 1ms 物理、4 tick 输入屏障、每 tick `/clock`、单锚、无追赶或 100ms 门。
+
+正式 mixed/PV 路径由 `JointPhysics.advance()` 每 tick 调用同一 `receive_workers()`，双模型没有旁路。使用 run21 封存的实际中位请求帧（AP/PX4 均 147 字节）在 Ubuntu-22.04 各做 7×200,000 次隔离调用，旧 `parse_frame()+encode` 中位为 2308.7/2361.6ns，新 `encode+len` 为 60.0/59.0ns；按两 worker、四 tick 计算，中位减少约 18.205µs/组。该微基准只证明候选减少固定热路径工作，不把节省量直接当作累计迟到改善。run21 在相关双模型 0.5× 真实闭环中完成 78,716 tick、最坏迟到 67.207ms，证明当前实现可在完整飞行中工作；因任务、PX4候选和诊断开关不同，不把 run20→run21 当作本候选单变量 A/B。
+
+候选身份与原始微基准数组保存于 `validation/33-rate-profile/worker-rpc-trim-20260911.json`。最终组合仍须用本文件既有的 mixed/OEvS3W 双开关身份运行一次并交给 `tools/audit_pv_trajectory.py`；只有新场全门通过才关闭 #83。运行命令保持：
+
+```bash
+bash tools/run-joint-flight.sh \
+  --task-profile full_xyz_pv_yaw_v1 \
+  --ap-mixed-manifest /root/wksim-ap-mixed-fhuf05l9/mixed-build.json \
+  --ap-mixed-sha256 1e6250eff8873d6b2e52017b613c223ac29f8260fdf92aac2cf0c7cdcc6ce94c \
+  --control-manifest /root/wksim-joint-control-OEvS3W/build.json \
+  --control-sha256 d9fdfc74f4f241440dd1186ef38d0bde56026cd28e4b55897f38a11e7311909e
+```
+
+下文保留 2026-09-09 三场失败诊断及当时仅计时的旧候选；旧结果不改判。当前候选已经满足 #82 对一个有测量依据的源码变化、准确身份、冻结边界和唯一后续命令的交付要求，#83 的真实结果仍未知。
+
 2026-09-09。结论：三场最终组合真实倍率失败成立；未证明修复，#82 保持 OPEN / needs-triage，#83 不据此解除前置。本文是诊断交付，不是预检或最终飞行通过。
 
 ## 身份与复核
