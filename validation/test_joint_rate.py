@@ -9,6 +9,7 @@ from Simulator.wksim_runtime.joint_config import validate_joint_config
 from Simulator.wksim_runtime.joint_actions import validate_request,submit,Mailbox
 from Simulator.wksim_runtime.evidence import write_json
 from Simulator.wksim_runtime.joint_task import JointTask
+from tools.benchmark_joint_rate_release import simulate_creep
 
 
 class FakeWall:
@@ -202,5 +203,55 @@ class RateTests(unittest.TestCase):
         self.assertEqual(task.completed,'hold_completed')
         with self.assertRaises(RuntimeError): JointTask.dwell(task,'waypoint_completed',lambda:False,2)
 
+    def test_release_guard_contract_pinned(self):
+        """Pin the unchanged release guard: sleep(min(remaining-1ms, 2ms)) only
+        when remaining > 1ms, and the group never starts before its edge."""
+        class InstrumentedWall(FakeWall):
+            def __init__(self):
+                super().__init__(); self.sleeps = []
+            def now(self):
+                self.ns += 1000
+                return self.ns
+            def sleep(self, seconds):
+                self.sleeps.append(seconds)
+                self.ns += round(seconds * 1e9)  # Perfect sleep: no overshoot.
+        wall = InstrumentedWall(); events = []
+        rate = JointRate('a'*32, .5, lambda kind, **row: events.append(dict(kind=kind, **row)), wall.now, wall.sleep)
+        rate.reanchor(4, 'test')
+        for group in range(6):
+            rate.begin_group(4 + group * 4, lambda: None)
+            wall.ns += 1_000_000  # 1ms of physics work.
+            rate.end_group(8 + group * 4)
+            start = [row for row in events if row['kind'] == 'rate_group_start'][-1]
+            self.assertGreaterEqual(start['actual_start_ns'], start['earliest_start_ns'])
+        # Each group: work 1ms + spin overhead; sleep argument pinned.
+        self.assertTrue(wall.sleeps)
+        for seconds in wall.sleeps:
+            self.assertLessEqual(seconds, .002)
+            self.assertGreater(seconds, 0)
+        self.assertFalse(rate.latched)
 
-if __name__=='__main__': unittest.main()
+    def test_release_guard_never_sleeps_past_the_edge(self):
+        """A sub-guard sleep overshoot still starts on or before the edge."""
+        class OvershootingWall(FakeWall):
+            def sleep(self, seconds):
+                self.ns += round(seconds * 1e9) + 900_000  # 0.9ms overshoot stays inside.
+        wall = OvershootingWall()
+        rate = JointRate('a'*32, .5, lambda kind, **row: None, wall.now, wall.sleep)
+        rate.reanchor(4, 'test')
+        rate.begin_group(4, lambda: None)
+        wall.ns += 1_000_000
+        rate.end_group(8)
+        self.assertFalse(rate.latched)
+        self.assertEqual(rate.completed, 1)
+
+    def test_release_simulation_replays_repeated_sleep_calls(self):
+        work = [1_000_000, 1_000_000]
+        one = simulate_creep(work, [2_500_000], 1_000_000)
+        two = simulate_creep(work, [2_500_000], 2_000_000)
+        self.assertEqual(one['creep_ns'], 1_500_000)
+        self.assertEqual(two['creep_ns'], 500_000)
+        self.assertEqual(one['sleep_calls'], 2)
+        self.assertEqual(two['sleep_calls'], 2)
+
+if __name__=="__main__": unittest.main()
