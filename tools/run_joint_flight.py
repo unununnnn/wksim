@@ -30,6 +30,14 @@ from Simulator.wksim_runtime.isolation import check_isolation, isolate_temporary
 from Simulator.wksim_runtime.config import load_config
 from Simulator.wksim_runtime.preflight import preflight
 from Simulator.wksim_runtime.runtime import launch_spec, stop_children, digest
+from Simulator.wksim_runtime.joint_rate import JointRate
+from Simulator.wksim_runtime.joint_rate_probe import (
+    JointRateTimingProbe,
+    TIMING_PROBE_ENV,
+    add_timing_probe_identity,
+    timing_probe_enabled,
+    timing_probe_identity,
+)
 from ap_clock_candidate import admit
 from joint_control_candidate import check as check_control, environment as control_environment
 from probe_joint_clock import json_identity, group_members
@@ -38,6 +46,18 @@ from pv_trajectory_task import PROFILE as PV_PROFILE
 from tools.mixed_control_task import PROFILE as MIXED_PROFILE
 
 WALL_LIMIT, MAX_TICKS = 900, 180000
+
+
+def make_joint_rate(epoch, requested_rate, record, *, diagnostic):
+    rate_type = JointRateTimingProbe if diagnostic else JointRate
+    return rate_type(epoch, requested_rate, record)
+
+
+def candidate_rate_sources(_diagnostic):
+    return [
+        "Simulator/wksim_runtime/joint_rate.py",
+        "Simulator/wksim_runtime/joint_rate_probe.py",
+    ]
 
 
 def scheduling(pid, role):
@@ -179,6 +199,10 @@ def task_main(args):
 
 
 def run(args):
+    timing_probe = timing_probe_enabled()
+    if timing_probe and args.task_profile not in (PV_PROFILE, MIXED_PROFILE):
+        raise ValueError(f"{TIMING_PROBE_ENV}=1 is only allowed for candidate/PV task profiles")
+    diagnostic_identity = timing_probe_identity() if timing_probe else None
     check_isolation()
     def interrupted(signum, frame):
         raise InterruptedError('Owned joint validation interrupted; not a production airborne stop policy')
@@ -206,6 +230,8 @@ def run(args):
                               task_position_error_m=.5, task_speed_m_s=.5,
                               takeoff_min_height_m=2.5, ground_abs_height_m=.3),
                   scope=__doc__)
+    if diagnostic_identity is not None:
+        result['rate_timing_probe'] = dict(diagnostic_identity)
     print(json.dumps(dict(archive=str(archive), live=str(live))), flush=True)
     children, expected_exits = [], set()
     child_specs, dds_pending, dds_injection, dds_handled = {}, None, None, False
@@ -228,8 +254,9 @@ def run(args):
     if args.native_state_trace:
         sources += ['tools/debug_px4_native_state.py']
     if candidate:
-        sources += ['tools/ap_pv_candidate.py','tools/verify_ap_pv_candidate.py','tools/prepare_ap_pv_candidate.py',
-                    'Simulator/wksim_runtime/joint_rate.py','Simulator/wksim_runtime/joint_profile.py',
+        sources += ['tools/ap_pv_candidate.py','tools/verify_ap_pv_candidate.py','tools/prepare_ap_pv_candidate.py']
+        sources += candidate_rate_sources(timing_probe)
+        sources += ['Simulator/wksim_runtime/joint_profile.py',
                     'Simulator/wksim_runtime/joint-profiles.json','Simulator/wksim_runtime/build_identity.py']
     if pv:
         sources += ['docs/2026-09-09-pv-flight-plan.md']
@@ -545,14 +572,15 @@ def run(args):
             resources.callback(publisher.close)
             if candidate:
                 from pv_trajectory_task import PVProbe
-                from Simulator.wksim_runtime.joint_rate import JointRate
                 pause_probe = PVProbe(node, clock, live, started)
                 resources.callback(pause_probe.close)
                 rate_log = resources.enter_context((live/'rate.jsonl').open('x', buffering=65536))
                 def record_rate(kind, **fields):
+                    if diagnostic_identity is not None:
+                        fields = add_timing_probe_identity(fields, diagnostic_identity)
                     rate_log.write(json.dumps(dict(kind=kind, epoch=clock.epoch, tick=clock.tick,
                         issued_monotonic_ns=time.monotonic_ns(), **fields), separators=(',', ':'))+'\n')
-                rate = JointRate(clock.epoch, .5, record_rate)
+                rate = make_joint_rate(clock.epoch, .5, record_rate, diagnostic=timing_probe)
                 record_rate('rate_bootstrap', classification='untimed_until_first_synchronized_barrier')
             elif args.pause_probe or args.scene_lifecycle:
                 pause_probe = PauseProbe(node, clock, live, started, args.repeat_paused_clock)

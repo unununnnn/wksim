@@ -1,20 +1,50 @@
 """Explicit opt-in timing diagnostics for :mod:`joint_rate`.
 
-This module is never imported by the production runtime.  The probe adds
-clock reads, callback wrappers, sample aggregation, and an extra record event;
-its timings are diagnostic evidence, not production performance.
+The real runner imports this module only to validate an explicit opt-in
+environment setting.  Probe timings are diagnostic evidence, not production
+performance.
 """
 from dataclasses import asdict, dataclass
+import os
 import time
 
 from .joint_rate import JointRate, RateUnmet
 
 
+TIMING_PROBE_ENV = "WKSIM_JOINT_RATE_TIMING_PROBE"
+TIMING_PROBE_PROFILE = "joint_rate_timing_probe"
 INSTRUMENTATION_OVERHEAD = (
     "opt-in probe overhead: extra monotonic clock reads, health/sleep wrapper "
     "dispatch, sample aggregation, and rate_timing_probe recording; not a "
     "production performance measurement"
 )
+
+
+def timing_probe_enabled(environ=None):
+    environ = os.environ if environ is None else environ
+    value = environ.get(TIMING_PROBE_ENV)
+    if value is None or value == "0":
+        return False
+    if value == "1":
+        return True
+    raise ValueError(f"{TIMING_PROBE_ENV} must be unset, 0 or 1; got {value!r}")
+
+
+def timing_probe_identity():
+    return dict(
+        diagnostic=TIMING_PROBE_PROFILE,
+        classification="diagnostic_only",
+        production_performance=False,
+        instrumentation_overhead=INSTRUMENTATION_OVERHEAD,
+    )
+
+
+def add_timing_probe_identity(fields, identity):
+    if identity is None:
+        return fields
+    result = dict(fields)
+    result["rate_timing_probe"] = dict(identity)
+    return result
 
 
 @dataclass(frozen=True)
@@ -43,9 +73,8 @@ class TimingSample:
 
     def as_dict(self):
         result = asdict(self)
-        result["instrumentation_overhead"] = INSTRUMENTATION_OVERHEAD
+        result["rate_timing_probe"] = timing_probe_identity()
         return result
-
 
 @dataclass
 class _ActiveSample:

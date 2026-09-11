@@ -14,13 +14,38 @@ from audit_joint_product import audit_epoch
 from audit_joint_product_lifecycle import retained_identity
 
 
+TIMING_PROBE_IDENTITY = {
+    'diagnostic': 'joint_rate_timing_probe',
+    'classification': 'diagnostic_only',
+    'production_performance': False,
+    'instrumentation_overhead': (
+        'opt-in probe overhead: extra monotonic clock reads, health/sleep wrapper '
+        'dispatch, sample aggregation, and rate_timing_probe recording; not a '
+        'production performance measurement'
+    ),
+}
+
+
 def read(path):return json.loads(Path(path).read_text())
+
+
+def timing_probe_identity(record):
+    """Validate explicit diagnostic identity without changing legacy event handling."""
+    identity=record.get('rate_timing_probe')
+    if identity is None:
+        require(record.get('kind')!='rate_timing_probe',
+                'Timing probe row lacks its diagnostic-only identity')
+        return False
+    require(type(identity) is dict and identity==TIMING_PROBE_IDENTITY,
+            'Timing probe identity differs from the sealed diagnostic-only contract')
+    return True
 
 
 def schedule(path,epoch,*,allow_failure=False):
     segments={};active=None;pending=None;previous_end=None
     for row in lines(path):
         require(row['epoch']==epoch,'Rate trace crossed epoch')
+        timing_probe_identity(row)
         kind=row['kind']
         if kind=='rate_anchor':
             require(pending is None and row['segment_id'] not in segments,'Anchor interrupted or reused a group')
@@ -93,6 +118,7 @@ def audit_failure(root):
     require(wrapper_path.exists(),'Missing wrapper.json')
     require(run_path.exists(),'Missing run/result.json')
     wrapper=read(wrapper_path);run=read(run_path)
+    timing_probe_identity(run)
     require(not wrapper.get('remaining_manager_group'),'Lingering processes after failure')
     require(type(wrapper.get('manager_returncode')) is int
             and wrapper['manager_returncode'] != 0,'Failure manager must exit nonzero')
@@ -159,6 +185,7 @@ def audit_failure(root):
 
 def audit_steady(root):
     root=Path(root);wrapper=read(root/'wrapper.json');flow=read(root/'flow.json');run=read(root/'run/result.json')
+    timing_probe_identity(run)
     require(wrapper['driver_returncode']==wrapper['manager_returncode']==0 and not wrapper['remaining_manager_group']
             and flow['status']=='behavior_pass' and flow['mode']=='steady' and flow['result']==run
             and run['status']=='pass' and len(run['epochs'])==1,'Steady formal flight/cleanup did not pass')

@@ -1,13 +1,28 @@
-"""Opt-in JointRate timing probe tests; no SITL or production-path changes."""
+"""Opt-in JointRate timing probe and runtime-entry tests; no SITL/UE starts."""
 import hashlib
+import json
+import os
 import unittest
+import sys
 from pathlib import Path
+from types import SimpleNamespace
+from unittest.mock import patch
 
 from Simulator.wksim_runtime.joint_rate import JointRate, LATE_LIMIT_NS, RateUnmet
-from Simulator.wksim_runtime.joint_rate_probe import JointRateTimingProbe
+from Simulator.wksim_runtime.joint_rate_probe import (
+    INSTRUMENTATION_OVERHEAD,
+    TIMING_PROBE_ENV,
+    TIMING_PROBE_PROFILE,
+    JointRateTimingProbe,
+    add_timing_probe_identity,
+    timing_probe_enabled,
+    timing_probe_identity,
+)
 
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "tools"))
+from tools import run_joint_flight as runner
 JOINT_RATE_SHA256 = "59e329db948802e545fa5167b2430ae18bf3bdb6e1c534a374a82dafcc70da6c"
 
 
@@ -146,6 +161,143 @@ class JointRateProbeTests(unittest.TestCase):
         self.assertEqual(rate.completed, 1)
         self.assertEqual(start["actual_start_ns"], start["ideal_start_ns"])
         self.assertEqual(start["earliest_start_ns"], start["ideal_start_ns"])
+
+
+class JointRuntimeTimingProbeEntryTests(unittest.TestCase):
+    def test_environment_is_strictly_three_state(self):
+        self.assertFalse(timing_probe_enabled({}))
+        self.assertFalse(timing_probe_enabled({TIMING_PROBE_ENV: "0"}))
+        self.assertTrue(timing_probe_enabled({TIMING_PROBE_ENV: "1"}))
+        for value in ("", "00", "01", "2", "true", " 1"):
+            with self.subTest(value=value):
+                with self.assertRaisesRegex(ValueError, TIMING_PROBE_ENV):
+                    timing_probe_enabled({TIMING_PROBE_ENV: value})
+
+    def test_real_runner_uses_exact_default_or_probe_class(self):
+        default_events = []
+        enabled_events = []
+        default = runner.make_joint_rate(
+            "a" * 32, .5,
+            lambda kind, **fields: default_events.append(dict(kind=kind, **fields)),
+            diagnostic=False,
+        )
+        enabled = runner.make_joint_rate(
+            "a" * 32, .5,
+            lambda kind, **fields: enabled_events.append(dict(kind=kind, **fields)),
+            diagnostic=True,
+        )
+        self.assertIs(type(default), JointRate)
+        self.assertIs(type(enabled), JointRateTimingProbe)
+        for rate in (default, enabled):
+            rate.reanchor(4, "test")
+            rate.begin_group(4, lambda: None)
+            rate.end_group(8)
+        self.assertNotIn("rate_timing_probe", [event["kind"] for event in default_events])
+        for event in default_events:
+            self.assertNotIn("rate_timing_probe", event)
+        probe_event = next(event for event in enabled_events if event["kind"] == "rate_timing_probe")
+        self.assertEqual(probe_event["rate_timing_probe"]["diagnostic"], TIMING_PROBE_PROFILE)
+
+    def test_diagnostic_identity_is_nested_without_overwriting_rate_fields(self):
+        identity = timing_probe_identity()
+        self.assertEqual(identity["diagnostic"], TIMING_PROBE_PROFILE)
+        self.assertFalse(identity["production_performance"])
+        self.assertEqual(identity["instrumentation_overhead"], INSTRUMENTATION_OVERHEAD)
+        bootstrap = dict(kind="rate_bootstrap", classification="untimed_until_first_synchronized_barrier")
+        self.assertEqual(add_timing_probe_identity(bootstrap, None), bootstrap)
+        marked = add_timing_probe_identity(bootstrap, identity)
+        self.assertEqual(marked["classification"], bootstrap["classification"])
+        self.assertEqual(marked["rate_timing_probe"], identity)
+
+    def test_candidate_source_manifest_always_retains_runtime_probe_sources(self):
+        sources = [
+            "Simulator/wksim_runtime/joint_rate.py",
+            "Simulator/wksim_runtime/joint_rate_probe.py",
+        ]
+        self.assertEqual(runner.candidate_rate_sources(False), sources)
+        self.assertEqual(runner.candidate_rate_sources(True), sources)
+
+    def test_real_runner_source_manifest_and_source_unchanged_follow_probe_state(self):
+        probe = "Simulator/wksim_runtime/joint_rate_probe.py"
+        args = SimpleNamespace(
+            task_profile=runner.PV_PROFILE,
+            pause_probe=False,
+            scene_lifecycle=False,
+            scene_lease_loss=False,
+            dds_loss=False,
+            native_state_trace=False,
+            probe_land_freshness=False,
+            ap_mixed_manifest=None,
+            px4_manifest=None,
+            repeat_paused_clock=False,
+        )
+        for value, enabled in (("0", False), ("1", True)):
+            with self.subTest(value=value), runner.tempfile.TemporaryDirectory() as root:
+                archive = Path(root) / "archive"
+                live = Path(root) / "live"
+                archive.mkdir()
+                live.mkdir()
+                with patch.dict(os.environ, {TIMING_PROBE_ENV: value}, clear=False), \
+                        patch.object(runner, "check_isolation"), \
+                        patch.object(runner.signal, "signal"), \
+                        patch.object(runner.os, "readlink",
+                                     side_effect=lambda path: "private" if "/proc/self/" in path else "init"), \
+                        patch.object(runner.tempfile, "mkdtemp",
+                                     side_effect=[str(archive), str(live)]), \
+                        patch.object(runner, "isolate_temporary_files",
+                                     side_effect=RuntimeError("stop before flight")):
+                    self.assertEqual(runner.run(args), 1)
+                evidence = json.loads((archive / "result.json").read_text())
+                self.assertTrue(evidence["source_unchanged"])
+                expected = hashlib.sha256((ROOT / probe).read_bytes()).hexdigest()
+                self.assertEqual(evidence["source_sha256"][probe], expected)
+                if enabled:
+                    self.assertIn("rate_timing_probe", evidence)
+                else:
+                    self.assertNotIn("rate_timing_probe", evidence)
+
+    def test_enabled_probe_rejects_non_candidate_before_runtime_side_effects(self):
+        args = SimpleNamespace(task_profile="position")
+        with patch.dict(os.environ, {TIMING_PROBE_ENV: "1"}, clear=False), \
+                patch.object(runner, "check_isolation") as isolate, \
+                patch.object(runner.signal, "signal") as install_signal, \
+                patch.object(runner.os, "readlink",
+                             side_effect=lambda path: "private" if "/proc/self/" in path else "init") as readlink, \
+                patch.object(runner.tempfile, "mkdtemp") as mkdtemp, \
+                patch.object(runner.subprocess, "Popen") as spawn:
+            with self.assertRaisesRegex(ValueError, TIMING_PROBE_ENV):
+                runner.run(args)
+        isolate.assert_not_called()
+        install_signal.assert_not_called()
+        readlink.assert_not_called()
+        mkdtemp.assert_not_called()
+        spawn.assert_not_called()
+        for value in ("0",):
+            with patch.dict(os.environ, {TIMING_PROBE_ENV: value}, clear=False), \
+                    patch.object(runner, "check_isolation",
+                                 side_effect=RuntimeError("reached legacy entry")) as isolate:
+                with self.assertRaisesRegex(RuntimeError, "reached legacy entry"):
+                    runner.run(args)
+            isolate.assert_called_once()
+        with patch.dict(os.environ, {}, clear=True), \
+                patch.object(runner, "check_isolation",
+                             side_effect=RuntimeError("reached legacy entry")) as isolate:
+            with self.assertRaisesRegex(RuntimeError, "reached legacy entry"):
+                runner.run(args)
+        isolate.assert_called_once()
+
+    def test_invalid_environment_fails_before_isolation_tempfile_or_children(self):
+        for value in ("2", "true", "01"):
+            with self.subTest(value=value):
+                with patch.dict(os.environ, {TIMING_PROBE_ENV: value}, clear=False), \
+                        patch.object(runner, "check_isolation") as isolate, \
+                        patch.object(runner.tempfile, "mkdtemp") as mkdtemp, \
+                        patch.object(runner.subprocess, "Popen") as spawn:
+                    with self.assertRaisesRegex(ValueError, TIMING_PROBE_ENV):
+                        runner.run(object())
+                isolate.assert_not_called()
+                mkdtemp.assert_not_called()
+                spawn.assert_not_called()
 
 
 if __name__ == "__main__":

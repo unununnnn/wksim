@@ -19,7 +19,15 @@ import unittest
 
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO))
-from tools.audit_joint_rate import audit, audit_failure, schedule, measurement
+from tools.audit_joint_rate import (
+    TIMING_PROBE_IDENTITY,
+    audit,
+    audit_failure,
+    measurement,
+    schedule,
+    timing_probe_identity,
+)
+from Simulator.wksim_runtime.joint_rate_probe import timing_probe_identity as runtime_probe_identity
 
 
 def make_synthetic_case(root, epoch="a" * 32, requested_rate=1.0, lateness_ns=105_000_000,
@@ -120,6 +128,66 @@ def make_synthetic_case(root, epoch="a" * 32, requested_rate=1.0, lateness_ns=10
 
 
 class TestAuditJointRate(unittest.TestCase):
+
+    def test_timing_probe_identity_is_exact_and_opt_in(self):
+        self.assertEqual(TIMING_PROBE_IDENTITY, runtime_probe_identity())
+        self.assertFalse(timing_probe_identity({"kind": "rate_group_start"}))
+        self.assertTrue(timing_probe_identity({
+            "kind": "rate_group_start",
+            "rate_timing_probe": dict(TIMING_PROBE_IDENTITY),
+        }))
+
+        for record in (
+            {"kind": "rate_timing_probe"},
+            {"kind": "rate_timing_probe", "rate_timing_probe": {}},
+            {"kind": "rate_group_start", "rate_timing_probe": {
+                **TIMING_PROBE_IDENTITY,
+                "production_performance": True,
+            }},
+            {"kind": "rate_group_start", "rate_timing_probe": {
+                **TIMING_PROBE_IDENTITY,
+                "classification": "production",
+            }},
+        ):
+            with self.subTest(record=record), self.assertRaises((AssertionError, ValueError)):
+                timing_probe_identity(record)
+
+    def test_schedule_validates_probe_identity_without_rejecting_other_events(self):
+        epoch = "d" * 32
+        rows = [
+            {"kind": "unrelated_diagnostic", "epoch": epoch},
+            {"kind": "rate_anchor", "epoch": epoch, "segment_id": 1,
+             "requested_rate": 1.0, "request_id": "config",
+             "anchor": {"tick": 40, "wall_ns": 1_000_000_000, "transition": False},
+             "steady_after_ns": 3_000_000_000},
+            {"kind": "rate_group_start", "epoch": epoch, "segment_id": 1,
+             "request_id": "config", "requested_rate": 1.0, "transition": False,
+             "tick": 40, "start_tick": 40, "end_tick": 44,
+             "ideal_start_ns": 1_000_000_000, "ideal_end_ns": 1_004_000_000,
+             "earliest_start_ns": 1_000_000_000, "actual_start_ns": 1_000_000_000,
+             "lateness_ns": 0},
+            {"kind": "rate_timing_probe", "epoch": epoch,
+             "rate_timing_probe": dict(TIMING_PROBE_IDENTITY)},
+            {"kind": "rate_group_end", "epoch": epoch, "segment_id": 1,
+             "request_id": "config", "requested_rate": 1.0, "transition": False,
+             "tick": 44, "start_tick": 40, "end_tick": 44,
+             "ideal_start_ns": 1_000_000_000, "ideal_end_ns": 1_004_000_000,
+             "earliest_start_ns": 1_000_000_000, "actual_start_ns": 1_000_000_000,
+             "actual_end_ns": 1_004_000_000, "lateness_ns": 0},
+            {"kind": "rate_segment_end", "epoch": epoch, "segment_id": 1,
+             "completed_groups": 1, "worst_lateness_ns": 0, "reason": "completed"},
+        ]
+        with tempfile.NamedTemporaryFile("w+", delete=False) as handle:
+            handle.write("".join(json.dumps(row) + "\n" for row in rows))
+            path = Path(handle.name)
+        try:
+            self.assertEqual(len(schedule(path, epoch)), 1)
+            rows[3]["rate_timing_probe"]["production_performance"] = True
+            path.write_text("".join(json.dumps(row) + "\n" for row in rows))
+            with self.assertRaises((AssertionError, ValueError)):
+                schedule(path, epoch)
+        finally:
+            path.unlink(missing_ok=True)
 
     def test_genuine_rate_unmet_failure_audit_synthetic(self):
         with tempfile.TemporaryDirectory() as temp_dir:
