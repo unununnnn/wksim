@@ -36,10 +36,25 @@
 
 所有拒绝经 `Reject` 异常映射为非通过结果；解析层不执行任何模型。
 
+## 纯离线逐量比较层（不执行 MATLAB/native）
+
+`compare_aligned(aligned, observables)` 只消费 `align()` 已对齐的逐标量 `(reference[501], native[501])` 对，绝不读取引擎输出、绝不启动 MATLAB/native。
+
+**冻结的唯一公式标识**：`metric` 字段必须恰为 `abs_le_a_plus_r_absref_with_rms_cap_v1`（`FROZEN_METRIC`）。任何其他 metric 标识在 `validate_contract` 即阻塞、在 `compare_aligned` 即 `Reject`。该标识对逐标量 `i` 冻结的判定为 `docs/plan/10-g6-remediation-contract.md` §49 已写公式：
+
+- 逐点（pointwise）：`abs(x - r) <= A_i + R_i*abs(r)`，其中 `A_i=abs_budget`、`R_i=rel_budget`；
+- 独立的 RMS 上限：`rms(errors) <= rms_budget`（rms_budget 与逐点预算彼此独立，逐点全过但 RMS 超上限仍判失败）。
+
+逐标量输出：`max_abs_error`、`rms_error`、`first_pointwise_failure_k`、`pointwise_failed_count`、`rms_failed`、`failed_count`；汇总 `failed_values`（逐点失败值数）、`failed_conditions`（逐点失败值数加 RMS 失败条件数）与 `failed_scalars`。**aggregate 只能是 `numerical_failed` 或 `declared_cases_pass`**，且恒带 `physical_accuracy=False`、`g6_acceptance=False`——该数值标签不是 G6/物理精度通过。
+
+严格 `Reject`：metric 非冻结标识；任一预算缺失/非有限/为负；reference 或 native 值非有限或为布尔；序列长度 ≠ 501；observable 或 aligned 重复映射同一 `(array,index)`；aligned 标量无对应预算或 observable 身份不符。两侧覆盖必须恰为同一组 120 个标量。
+
+**入口仍未接线**：`run()` 不调用 `compare_aligned`；合同完全 approved 后仍返回 `execution_not_implemented`、退出码 3。合成比较结果绝不作为 G6/physical pass。
+
 ## 本切片未交付 / 禁止边界
 
 - **未冻结任何预算**：`abs_budget`/`rel_budget`/`rms_budget` 仍全部待有依据推导。禁止用旧 R1 观测差值或本次候选差值乘系数反推；禁止套用 RK4 O(h^4) 阶数或网格收敛作预算。
-- **未实现**参考/候选执行与逐量预算比较阶段；该阶段需在新合同 approved 后另行分配写入范围，且仍须满足原合同的拒绝边界（缺身份/错格点/少样/非有限/布尔伪数值/缺终态/随机相位未证/预算未冻结均不得通过）。
+- **已交付**纯离线逐量比较层（见上节），但**未实现**参考/候选执行阶段：没有从引擎产出 `.f64`/`record.jsonl` 的真实运行入口接进 `run()`。该执行阶段需在新合同 approved 后另行分配写入范围，且仍须满足原合同的拒绝边界（缺身份/错格点/少样/非有限/布尔伪数值/缺终态/随机相位未证/预算未冻结均不得通过）。
 - 不改 `numerical-conformance-v1.json`、不改 `run_numerical_conformance.py`、不改 `build_generated_e0_major.py`、`export_model_reference.m`。
 - 本接缝通过 ≠ 物理精度通过 ≠ G6/Full 通过；`physical_accuracy` 恒为 False。
 - 未 git 提交/推送/issue 写入；未启动 MATLAB/build/仿真。
@@ -50,4 +65,4 @@
 python -B -m unittest validation.test_e0_same_source_conformance -v
 ```
 
-26 项全部通过（纯解析/对齐/入口；无 MATLAB/build/真实模型）。
+48 项全部通过（合同校验/入口 fail-closed/解析/对齐 + 16 项逐量比较：正例、pointwise 负例、RMS 负例、边界等号、非有限/布尔/错 metric/缺预算、两侧重复映射/无预算标量/身份错配；无 MATLAB/build/真实模型）。

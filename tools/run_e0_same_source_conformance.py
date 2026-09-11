@@ -58,10 +58,20 @@ NATIVE_SOURCE_REQUIRED_FIELDS = (
     'output_order', 'root_inputs', 'insertion_line',
 )
 
+# The single frozen comparison metric. Any other metric identifier is rejected, so a
+# contract cannot silently switch the pass rule. Frozen in
+# docs/plan/59-e0-same-source-command.md.
+FROZEN_METRIC = 'abs_le_a_plus_r_absref_with_rms_cap_v1'
+
 # Status vocabulary (never "pass" from this seam; the execution/compare stage that
 # could yield declared_cases_pass is intentionally not implemented here).
 STATUS_BLOCKED = 'blocked'
 STATUS_NOT_IMPLEMENTED = 'execution_not_implemented'
+
+# Aggregate outcomes of the pure offline comparison layer (compare_aligned). These are
+# deliberate, evidence-backed labels only — never a G6 or physical-accuracy pass.
+STATUS_NUMERICAL_FAILED = 'numerical_failed'
+STATUS_DECLARED_CASES_PASS = 'declared_cases_pass'
 
 
 class Reject(Exception):
@@ -187,6 +197,10 @@ def validate_contract(contract_path):
         if obs.get('approval') != 'approved':
             reasons.append('%s (%s) approval is %r, must be approved'
                            % (label, name, obs.get('approval')))
+        # The comparison metric must be exactly the one frozen formula identifier.
+        if 'metric' in obs and obs.get('metric') != FROZEN_METRIC:
+            reasons.append('%s (%s) metric is %r, must be the frozen %r'
+                           % (label, name, obs.get('metric'), FROZEN_METRIC))
         # Coverage accounting so a missing scalar is itself blocking.
         array = obs.get('array')
         indices = obs.get('indices')
@@ -392,6 +406,131 @@ def align(reference_by_array, native_by_array, observables):
              'observable coverage is %d scalars, must be exactly %d'
              % (len(covered), TOTAL_SCALARS))
     return aligned
+
+
+# --------------------------------------------------------------------------- #
+# Pure offline per-quantity comparison (NO execution of MATLAB/native).
+# --------------------------------------------------------------------------- #
+def compare_aligned(aligned, observables):
+    """Apply the single frozen per-quantity budget to already-aligned scalar pairs.
+
+    For each scalar the pointwise rule is exactly
+        abs(x - r) <= A_i + R_i * abs(r)
+    and, independently, the RMS of the errors must satisfy rms <= rms_budget.
+    Pure: this never launches MATLAB or the native recorder and never reads engine
+    outputs; it only consumes the aligned pairs produced by align().
+
+    Strictly Rejects: an observable whose metric is not FROZEN_METRIC; a missing or
+    non-finite/negative budget; a non-finite or boolean reference/native value; a
+    wrong-length series; or a duplicate observable mapping.
+
+    Returns a result dict with per-scalar stats and an aggregate status that is only
+    ever STATUS_NUMERICAL_FAILED or STATUS_DECLARED_CASES_PASS. That aggregate is a
+    numerical label only: it is NOT a G6 or physical-accuracy pass.
+    """
+    _require(isinstance(aligned, list), 'aligned must be a list')
+    _require(isinstance(observables, list), 'observables must be a list')
+    by_key = {}
+    for obs in observables:
+        _require(isinstance(obs, dict), 'observable must be an object')
+        _require(obs.get('metric') == FROZEN_METRIC,
+                 'observable metric %r is not the frozen %r' % (obs.get('metric'), FROZEN_METRIC))
+        for budget in ('abs_budget', 'rel_budget', 'rms_budget'):
+            value = obs.get(budget)
+            _require(_is_finite_number(value) and value >= 0,
+                     'observable %s budget %s must be a finite non-negative number'
+                     % (obs.get('observable'), budget))
+        array = obs.get('array')
+        _require(array in ARRAY_LENGTHS and isinstance(obs.get('indices'), list),
+                 'observable array/indices invalid')
+        for index in obs['indices']:
+            _require(type(index) is int and 0 <= index < ARRAY_LENGTHS[array],
+                     'observable index out of range')
+            key = (array, index)
+            _require(key not in by_key, 'duplicate observable mapping for %s[%d]' % key)
+            by_key[key] = obs
+    _require(len(by_key) == TOTAL_SCALARS,
+             'observable budget coverage is %d scalars, must be exactly %d'
+             % (len(by_key), TOTAL_SCALARS))
+
+    scalars = []
+    seen_aligned = set()
+    pointwise_failed_values = 0
+    failed_conditions = 0
+    for entry in aligned:
+        _require(isinstance(entry, dict), 'aligned scalar must be an object')
+        array = entry.get('array')
+        index = entry.get('index')
+        _require(array in ARRAY_LENGTHS and type(index) is int
+                 and 0 <= index < ARRAY_LENGTHS[array],
+                 'aligned scalar array/index invalid')
+        key = (array, index)
+        _require(key not in seen_aligned,
+                 'duplicate aligned scalar for %s[%d]' % key)
+        seen_aligned.add(key)
+        obs = by_key.get(key)
+        _require(obs is not None, 'aligned scalar %s[%d] has no observable budget' % key)
+        _require(entry.get('observable') == obs.get('observable'),
+                 'aligned scalar %s[%d] observable identity mismatch' % key)
+        reference = entry.get('reference')
+        native = entry.get('native')
+        _require(isinstance(reference, (list, tuple))
+                 and isinstance(native, (list, tuple)),
+                 'aligned reference/native series must be arrays')
+        _require(len(reference) == SAMPLES and len(native) == SAMPLES,
+                 'aligned series length mismatch (%d vs %d, expected %d)'
+                 % (len(reference), len(native), SAMPLES))
+        abs_budget = obs['abs_budget']
+        rel_budget = obs['rel_budget']
+        rms_budget = obs['rms_budget']
+        errors = []
+        pointwise_failures = []
+        for k in range(SAMPLES):
+            r = reference[k]
+            x = native[k]
+            _require(_is_finite_number(r) and _is_finite_number(x),
+                     'non-finite or boolean value at %s[%d] k=%d' % (key[0], key[1], k))
+            error = abs(x - r)
+            errors.append(error)
+            if error > abs_budget + rel_budget * abs(r):
+                pointwise_failures.append(k)
+        # Independent RMS cap, computed in a numerically stable scaled form.
+        maximum = max(errors)
+        rms = (maximum * math.sqrt(math.fsum((e / maximum) ** 2 for e in errors) / SAMPLES)
+               if maximum else 0.0)
+        rms_failed = rms > rms_budget
+        failed_count = len(pointwise_failures) + (1 if rms_failed else 0)
+        pointwise_failed_values += len(pointwise_failures)
+        failed_conditions += failed_count
+        scalars.append(dict(
+            observable=entry.get('observable'), array=key[0], index=key[1],
+            sample_count=SAMPLES, max_abs_error=maximum, rms_error=rms,
+            abs_budget=abs_budget, rel_budget=rel_budget, rms_budget=rms_budget,
+            pointwise_failed_count=len(pointwise_failures),
+            first_pointwise_failure_k=pointwise_failures[0] if pointwise_failures else None,
+            rms_failed=rms_failed, failed_count=failed_count))
+
+    _require(seen_aligned == set(by_key),
+             'aligned scalar coverage does not exactly match observable budgets')
+    _require(len(scalars) == TOTAL_SCALARS,
+             'comparison covered %d scalars, must be exactly %d' % (len(scalars), TOTAL_SCALARS))
+    status = STATUS_NUMERICAL_FAILED if failed_conditions else STATUS_DECLARED_CASES_PASS
+    return {
+        'status': status,
+        'aggregate': status,
+        'scalar_count': len(scalars),
+        'comparisons': len(scalars) * SAMPLES,
+        'failed_values': pointwise_failed_values,
+        'failed_conditions': failed_conditions,
+        'failed_scalars': sum(1 for s in scalars if s['failed_count'] > 0),
+        'scalars': scalars,
+        # Hard guardrails: this offline label is never a G6/physical verdict.
+        'physical_accuracy': False,
+        'g6_acceptance': False,
+        'scope': ('Pure offline per-quantity budget comparison of pre-aligned pairs; '
+                  'never executes MATLAB/native; aggregate is numerical only, never a '
+                  'G6 or physical-accuracy pass.'),
+    }
 
 
 # --------------------------------------------------------------------------- #

@@ -24,9 +24,11 @@ sys.path.insert(0, str(ROOT))
 from tools.run_e0_same_source_conformance import (
     ARRAY_LENGTHS,
     FORBIDDEN_CONTRACT,
+    FROZEN_METRIC,
     Reject,
     SAMPLES,
     align,
+    compare_aligned,
     parse_native_record,
     parse_reference_f64,
     main,
@@ -93,7 +95,7 @@ def _valid_observables():
             obs.append(dict(
                 observable='%s[%d]' % (array, index), array=array, indices=[index],
                 source_mapping='cpp:0', unit='1', frame='body', datum='model',
-                sample_phase='major', metric='pointwise', abs_budget=0.0, rel_budget=0.0,
+                sample_phase='major', metric=FROZEN_METRIC, abs_budget=0.0, rel_budget=0.0,
                  rms_budget=0.0, derivation='test-fixture', domain='ground_idle',
                  approval='approved', contract_sha256='c' * 64))
     return obs
@@ -176,6 +178,16 @@ class ContractValidationTests(unittest.TestCase):
         contract['contract_id'] = 'wksim-e0-fixed-reference-native-preservation-v1'
         _, reasons = validate_contract(self._write(contract))
         self.assertTrue(any('collides' in r for r in reasons), reasons)
+
+    def test_non_frozen_metric_blocks_entry(self):
+        obs = _valid_observables()
+        obs[0]['metric'] = 'pointwise'  # not the frozen formula identifier
+        contract, reasons = validate_contract(self._write(_valid_contract(observables=obs)))
+        self.assertTrue(any('metric' in r for r in reasons), reasons)
+        result = run(self._write(_valid_contract(observables=obs)))
+        self.assertEqual(result['status'], 'blocked')
+        self.assertFalse(result['matlab_launched'])
+        self.assertFalse(result['native_launched'])
 
 
 class FailClosedEntryTests(unittest.TestCase):
@@ -379,6 +391,162 @@ class AlignTests(unittest.TestCase):
         ref = {a: [(0.0,) * w] * SAMPLES for a, w in ARRAY_LENGTHS.items()}
         with self.assertRaises(Reject):
             align(ref, ref, _valid_observables()[:-1])
+
+
+def _aligned_pairs(native_fn):
+    """Build aligned (reference=0, native=native_fn(k)) pairs for all 120 scalars."""
+    obs = _valid_observables()
+    ref = {a: [(0.0,) * w] * SAMPLES for a, w in ARRAY_LENGTHS.items()}
+    nat = {a: [tuple(native_fn(k, i) for i in range(w)) for k in range(SAMPLES)]
+           for a, w in ARRAY_LENGTHS.items()}
+    return align(ref, nat, obs), obs
+
+
+class CompareAlignedTests(unittest.TestCase):
+    """The pure offline per-quantity comparison: frozen formula, RMS cap, strict Reject."""
+
+    def test_identical_zero_is_declared_cases_pass(self):
+        aligned, obs = _aligned_pairs(lambda k, i: 0.0)
+        result = compare_aligned(aligned, obs)
+        self.assertEqual(result['status'], 'declared_cases_pass')
+        self.assertEqual(result['aggregate'], 'declared_cases_pass')
+        self.assertEqual(result['failed_values'], 0)
+        self.assertEqual(result['failed_scalars'], 0)
+        self.assertEqual(result['scalar_count'], 120)
+        self.assertEqual(result['comparisons'], 120 * SAMPLES)
+        self.assertFalse(result['physical_accuracy'])
+        self.assertFalse(result['g6_acceptance'])
+
+    def test_pointwise_breach_is_numerical_failed(self):
+        # abs_budget=0 everywhere; inject a single nonzero native value -> pointwise fail.
+        aligned, obs = _aligned_pairs(lambda k, i: 1e-9 if (k == 5 and i == 0) else 0.0)
+        result = compare_aligned(aligned, obs)
+        self.assertEqual(result['status'], 'numerical_failed')
+        self.assertGreater(result['failed_values'], 0)
+        self.assertGreater(result['failed_scalars'], 0)
+        # Locate the Vehicle60[0] scalar and check first-failure bookkeeping.
+        scalar = next(s for s in result['scalars']
+                      if s['array'] == 'Vehicle60' and s['index'] == 0)
+        self.assertEqual(scalar['pointwise_failed_count'], 1)
+        self.assertEqual(scalar['first_pointwise_failure_k'], 5)
+        self.assertAlmostEqual(scalar['max_abs_error'], 1e-9)
+
+    def test_pointwise_within_abs_budget_passes(self):
+        aligned, obs = _aligned_pairs(lambda k, i: 0.5 if i == 0 else 0.0)
+        for o in obs:
+            o['abs_budget'] = 1.0  # A_i = 1.0 covers the constant 0.5 pointwise error
+            o['rms_budget'] = 1.0  # and the independent RMS cap must also cover 0.5
+        result = compare_aligned(aligned, obs)
+        self.assertEqual(result['status'], 'declared_cases_pass')
+        self.assertEqual(result['failed_values'], 0)
+
+    def test_relative_budget_uses_abs_reference(self):
+        # r=2.0, x=2.4 -> err 0.4; R_i*|r| = 0.1*2 = 0.2; A_i=0 -> fail.
+        obs = _valid_observables()
+        for o in obs:
+            o['rel_budget'] = 0.1
+            o['abs_budget'] = 0.0
+        ref = {a: [tuple(2.0 for _ in range(w)) for _ in range(SAMPLES)]
+               for a, w in ARRAY_LENGTHS.items()}
+        nat = {a: [tuple(2.4 if i == 0 else 2.0 for i in range(w)) for _ in range(SAMPLES)]
+               for a, w in ARRAY_LENGTHS.items()}
+        aligned = align(ref, nat, obs)
+        result = compare_aligned(aligned, obs)
+        self.assertEqual(result['status'], 'numerical_failed')
+
+    def test_rms_cap_independent_of_pointwise(self):
+        # Many tiny errors each within abs_budget, but RMS exceeds a tiny rms_budget.
+        aligned, obs = _aligned_pairs(lambda k, i: 0.01 if i == 0 else 0.0)
+        for o in obs:
+            o['abs_budget'] = 0.1   # each pointwise error 0.01 passes
+            o['rms_budget'] = 0.001  # but RMS 0.01 exceeds this
+        result = compare_aligned(aligned, obs)
+        self.assertEqual(result['status'], 'numerical_failed')
+        scalar = next(s for s in result['scalars']
+                      if s['array'] == 'Vehicle60' and s['index'] == 0)
+        self.assertEqual(scalar['pointwise_failed_count'], 0)  # no pointwise breach
+        self.assertTrue(scalar['rms_failed'])                  # RMS cap tripped
+        self.assertEqual(scalar['failed_count'], 1)
+
+    def test_boundary_equality_is_pass(self):
+        # err exactly equal to A_i + R_i*|r| must pass (rule is <=).
+        obs = _valid_observables()
+        for o in obs:
+            o['abs_budget'] = 0.3
+            o['rel_budget'] = 0.1
+            o['rms_budget'] = 1.0
+        # r=1.0, budget boundary = 0.3 + 0.1*1.0 = 0.4; x=1.4 -> err exactly 0.4.
+        ref = {a: [tuple(1.0 for _ in range(w)) for _ in range(SAMPLES)]
+               for a, w in ARRAY_LENGTHS.items()}
+        nat = {a: [tuple(1.4 if i == 0 else 1.0 for i in range(w)) for _ in range(SAMPLES)]
+               for a, w in ARRAY_LENGTHS.items()}
+        aligned = align(ref, nat, obs)
+        result = compare_aligned(aligned, obs)
+        self.assertEqual(result['status'], 'declared_cases_pass')
+
+    def test_nonfinite_native_rejected(self):
+        aligned, obs = _aligned_pairs(lambda k, i: float('nan') if (k == 2 and i == 0) else 0.0)
+        with self.assertRaises(Reject):
+            compare_aligned(aligned, obs)
+
+    def test_boolean_native_rejected(self):
+        # Booleans slip past align (which only checks shape); compare must Reject.
+        obs = _valid_observables()
+        ref = {a: [(0.0,) * w] * SAMPLES for a, w in ARRAY_LENGTHS.items()}
+        nat = {a: [tuple(True if i == 0 else 0.0 for i in range(w)) for _ in range(SAMPLES)]
+               for a, w in ARRAY_LENGTHS.items()}
+        aligned = align(ref, nat, obs)
+        with self.assertRaises(Reject):
+            compare_aligned(aligned, obs)
+
+    def test_wrong_metric_rejected(self):
+        aligned, obs = _aligned_pairs(lambda k, i: 0.0)
+        obs[0]['metric'] = 'some_other_formula'
+        with self.assertRaises(Reject):
+            compare_aligned(aligned, obs)
+
+    def test_missing_budget_rejected(self):
+        aligned, obs = _aligned_pairs(lambda k, i: 0.0)
+        del obs[0]['rms_budget']
+        with self.assertRaises(Reject):
+            compare_aligned(aligned, obs)
+
+    def test_negative_budget_rejected(self):
+        aligned, obs = _aligned_pairs(lambda k, i: 0.0)
+        obs[0]['abs_budget'] = -1.0
+        with self.assertRaises(Reject):
+            compare_aligned(aligned, obs)
+
+    def test_duplicate_mapping_rejected(self):
+        obs = _valid_observables()
+        # Give two observables the same (array, index) -> duplicate mapping.
+        obs[1]['array'] = obs[0]['array']
+        obs[1]['indices'] = list(obs[0]['indices'])
+        aligned, _ = _aligned_pairs(lambda k, i: 0.0)
+        with self.assertRaises(Reject):
+            compare_aligned(aligned, obs)
+
+    def test_duplicate_aligned_scalar_rejected(self):
+        aligned, obs = _aligned_pairs(lambda k, i: 0.0)
+        aligned[-1] = dict(aligned[0])
+        with self.assertRaises(Reject):
+            compare_aligned(aligned, obs)
+
+    def test_aligned_observable_identity_mismatch_rejected(self):
+        aligned, obs = _aligned_pairs(lambda k, i: 0.0)
+        aligned[0]['observable'] = 'wrong-observable'
+        with self.assertRaises(Reject):
+            compare_aligned(aligned, obs)
+
+    def test_unbudgeted_aligned_scalar_rejected(self):
+        # aligned covers all 120 but observables budget only 119 -> orphan scalar Reject.
+        obs = _valid_observables()[:-1]
+        ref = {a: [(0.0,) * w] * SAMPLES for a, w in ARRAY_LENGTHS.items()}
+        nat = ref
+        # align requires full coverage, so build aligned directly from full observables
+        aligned, full_obs = _aligned_pairs(lambda k, i: 0.0)
+        with self.assertRaises(Reject):
+            compare_aligned(aligned, obs)
 
 
 if __name__ == '__main__':
