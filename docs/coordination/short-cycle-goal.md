@@ -2,6 +2,8 @@
 
 ## 最新检查点（优先于下方历史记录）
 
+最新实跑：`69d65bf` 已推送 `validation/lunar-27-core-without-dll/run-ec40ec2-01` 全新目录证据，**#75 已关闭**。沿用 #72 真实入口，冷构建与原库两独立进程退出0、四轮各1000步、480000值精确一致；主会话独立重读raw/hash/输入/时钟/加载映射，未发现厂商DLL，模型组残留0。输出不含厂商源码/二进制。#75 GitHub票面和原生依赖已将误绑的#74改为已关闭#72；#27父AC/依赖/ABI限制不变。OMP Task21n仍负责四份本地队列/文档同步，尚未交付；勿重复实跑或重新关闭#75。当前无真实执行线占用。
+
 后继检查：`ec40ec2` 已推送 #75 AST 修复，OMP 终审 GO，三端各 70 项通过；当前 OMP Task21m 只读核验 #75/#74/#73 的真实运行依赖。agy Task17m 已恢复可见读证据进度，线程不变，检查 scheduler 准入。Claude 原18r连续多次无进度且无改动，经工具确认取消为 interrupted，已在同线程续派18s，仅编辑 grid_map.cpp/test_grid_map_param_safety.py 的初始化数值边界；三轴膨胀算法留给下一片。三个 Luna 仍为已完成状态。
 
 **真实 scheduler 仍 NO-GO**：主会话重读旧 trace，arducopter 存在 kernel PID4449（192次）与4770（2次），当前 FC 严格映射仍将失败；当前 Ubuntu WSL 只读 proc 实查 Pid/Tgid/NSpid 均736，self/init namespace均 pid:[4026532242]，未暴露外层 PID。不能把本机 NSpid[0] 未经证明当成 kernel-global ID。下一片必须解决可信外层身份绑定与 AP leader 的同名启动线程，不能盲跑或放宽身份检查。新发现已评论 #33；旧测试的双层 NSpid 合成假设不代表本机 procfs。
