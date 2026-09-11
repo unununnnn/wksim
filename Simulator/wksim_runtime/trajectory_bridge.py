@@ -85,6 +85,7 @@ class TrajectoryBridgeNode(Node):
 
     def __init__(self, *, run_id=None, mission_id=None, uav_id=None,
                  fallback_yaw=None, authority_anchor_ns=None,
+                 bspline_topic=None,
                  publisher_factory=None, clock_ns=None, monotonic_s=None):
         super().__init__("wksim_trajectory_bridge")
         descriptor = ParameterDescriptor(read_only=True)
@@ -106,6 +107,12 @@ class TrajectoryBridgeNode(Node):
                 parameter("mission_id", mission_id), "mission_id"
             )
             uav_id = parameter("uav_id", uav_id)
+            bspline_topic = self.declare_parameter(
+                "bspline_topic",
+                f"/uav{uav_id}/planning/bspline"
+                if bspline_topic is None else bspline_topic,
+                descriptor,
+            ).value
             fallback_yaw = _explicit_float(
                 parameter("fallback_yaw", fallback_yaw), "fallback_yaw"
             )
@@ -118,6 +125,7 @@ class TrajectoryBridgeNode(Node):
                 raise ValueError("run_id exceeds the CommandRequest wire limit")
             if type(uav_id) is not int or uav_id != 1:
                 raise ValueError("trajectory bridge only supports uav_id=1")
+            bspline_topic = _explicit_text(bspline_topic, "bspline_topic")
             if authority_anchor_ns % TICK_NS:
                 raise ValueError("authority_anchor_ns must land on the 1 ms grid")
             if clock_ns is None and not self.get_parameter("use_sim_time").value:
@@ -130,6 +138,7 @@ class TrajectoryBridgeNode(Node):
         self.run_id = run_id
         self.mission_id = mission_id
         self.uav_id = uav_id
+        self.bspline_topic = bspline_topic
         self.fallback_yaw = fallback_yaw
         self.authority_anchor_ns = authority_anchor_ns
         self._clock_ns = clock_ns or (lambda: self.get_clock().now().nanoseconds)
@@ -155,7 +164,7 @@ class TrajectoryBridgeNode(Node):
         self.command_pub = publisher(CommandRequest, topic_root + "/v2/command", 10)
         self._trajectory_subscriptions = [
             self.create_subscription(
-                Bspline, f"/uav{uav_id}/planning/bspline", self.on_bspline, 10
+                Bspline, self.bspline_topic, self.on_bspline, 10
             ),
             self.create_subscription(
                 SessionState, topic_root + "/v2/state", self.on_session_state, 10
