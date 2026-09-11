@@ -1,0 +1,5609 @@
+{
+  "schema": "wksim.scheduler-write-analysis.v2",
+  "acceptance_eligible": false,
+  "run_id": "scheduler-4598ca8a747b",
+  "analyzer_sha256": "0e405ffe5eb76ed34ebeccb5ae51753068817a8735f2f6531d808b138b456c8d",
+  "epoch": "e91fd8e50550468bbbe6b29f06bffe64",
+  "pid_mapping": {
+    "names": {
+      "ap_worker": "wke91fd8e5055a",
+      "px4_worker": "wke91fd8e5055p",
+      "supervisor": "wke91fd8e5055s",
+      "ap_fc/arducopter": "arducopter",
+      "ap_fc/log_io": "log_io",
+      "ap_fc/DDS": "DDS",
+      "px4_fc/sim_send": "sim_send",
+      "px4_fc/logger": "logger",
+      "px4_fc/wq:lp_default": "wq:lp_default"
+    },
+    "kernel_pids": {
+      "ap_worker": 9160,
+      "px4_worker": 9164,
+      "supervisor": 8552,
+      "ap_fc/arducopter": 9162,
+      "ap_fc/log_io": 9485,
+      "ap_fc/DDS": 9631,
+      "px4_fc/sim_send": 9465,
+      "px4_fc/logger": 9624,
+      "px4_fc/wq:lp_default": 9185
+    },
+    "local_threads": {
+      "ap_fc/arducopter": {
+        "local_tid": 2048,
+        "comm": "arducopter",
+        "start_ticks": 60534
+      },
+      "ap_fc/log_io": {
+        "local_tid": 2371,
+        "comm": "log_io",
+        "start_ticks": 60617
+      },
+      "ap_fc/DDS": {
+        "local_tid": 2517,
+        "comm": "DDS",
+        "start_ticks": 60827
+      },
+      "px4_fc/sim_send": {
+        "local_tid": 2351,
+        "comm": "sim_send",
+        "start_ticks": 60613
+      },
+      "px4_fc/logger": {
+        "local_tid": 2510,
+        "comm": "logger",
+        "start_ticks": 60645
+      },
+      "px4_fc/wq:lp_default": {
+        "local_tid": 2071,
+        "comm": "wq:lp_default",
+        "start_ticks": 60535
+      }
+    },
+    "inventories_before": {
+      "ap_fc": [
+        {
+          "local_tid": 2048,
+          "comm": "arducopter",
+          "start_ticks": 60534
+        },
+        {
+          "local_tid": 2371,
+          "comm": "log_io",
+          "start_ticks": 60617
+        },
+        {
+          "local_tid": 2517,
+          "comm": "DDS",
+          "start_ticks": 60827
+        }
+      ],
+      "px4_fc": [
+        {
+          "local_tid": 2052,
+          "comm": "px4",
+          "start_ticks": 60535
+        },
+        {
+          "local_tid": 2054,
+          "comm": "px4",
+          "start_ticks": 60535
+        },
+        {
+          "local_tid": 2057,
+          "comm": "hpwork",
+          "start_ticks": 60535
+        },
+        {
+          "local_tid": 2058,
+          "comm": "lpwork",
+          "start_ticks": 60535
+        },
+        {
+          "local_tid": 2059,
+          "comm": "wkr_hrt",
+          "start_ticks": 60535
+        },
+        {
+          "local_tid": 2060,
+          "comm": "wq:manager",
+          "start_ticks": 60535
+        },
+        {
+          "local_tid": 2071,
+          "comm": "wq:lp_default",
+          "start_ticks": 60535
+        },
+        {
+          "local_tid": 2268,
+          "comm": "dataman",
+          "start_ticks": 60559
+        },
+        {
+          "local_tid": 2350,
+          "comm": "sim_rcv",
+          "start_ticks": 60612
+        },
+        {
+          "local_tid": 2351,
+          "comm": "sim_send",
+          "start_ticks": 60613
+        },
+        {
+          "local_tid": 2358,
+          "comm": "wq:hp_default",
+          "start_ticks": 60614
+        },
+        {
+          "local_tid": 2369,
+          "comm": "wq:manager",
+          "start_ticks": 60616
+        },
+        {
+          "local_tid": 2370,
+          "comm": "wq:rate_ctrl",
+          "start_ticks": 60616
+        },
+        {
+          "local_tid": 2372,
+          "comm": "wq:INS0",
+          "start_ticks": 60617
+        },
+        {
+          "local_tid": 2373,
+          "comm": "wq:INS1",
+          "start_ticks": 60619
+        },
+        {
+          "local_tid": 2374,
+          "comm": "wq:INS2",
+          "start_ticks": 60621
+        },
+        {
+          "local_tid": 2377,
+          "comm": "commander",
+          "start_ticks": 60634
+        },
+        {
+          "local_tid": 2410,
+          "comm": "navigator",
+          "start_ticks": 60638
+        },
+        {
+          "local_tid": 2415,
+          "comm": "uxrce_dds_clien",
+          "start_ticks": 60638
+        },
+        {
+          "local_tid": 2482,
+          "comm": "mavlink_if0",
+          "start_ticks": 60641
+        },
+        {
+          "local_tid": 2484,
+          "comm": "mavlink_rcv_if0",
+          "start_ticks": 60641
+        },
+        {
+          "local_tid": 2510,
+          "comm": "logger",
+          "start_ticks": 60645
+        },
+        {
+          "local_tid": 2512,
+          "comm": "log_writer_file",
+          "start_ticks": 60645
+        }
+      ]
+    },
+    "inventories_after": {
+      "ap_fc": [
+        {
+          "local_tid": 2048,
+          "comm": "arducopter",
+          "start_ticks": 60534
+        },
+        {
+          "local_tid": 2371,
+          "comm": "log_io",
+          "start_ticks": 60617
+        },
+        {
+          "local_tid": 2517,
+          "comm": "DDS",
+          "start_ticks": 60827
+        }
+      ],
+      "px4_fc": [
+        {
+          "local_tid": 2052,
+          "comm": "px4",
+          "start_ticks": 60535
+        },
+        {
+          "local_tid": 2054,
+          "comm": "px4",
+          "start_ticks": 60535
+        },
+        {
+          "local_tid": 2057,
+          "comm": "hpwork",
+          "start_ticks": 60535
+        },
+        {
+          "local_tid": 2058,
+          "comm": "lpwork",
+          "start_ticks": 60535
+        },
+        {
+          "local_tid": 2059,
+          "comm": "wkr_hrt",
+          "start_ticks": 60535
+        },
+        {
+          "local_tid": 2060,
+          "comm": "wq:manager",
+          "start_ticks": 60535
+        },
+        {
+          "local_tid": 2071,
+          "comm": "wq:lp_default",
+          "start_ticks": 60535
+        },
+        {
+          "local_tid": 2268,
+          "comm": "dataman",
+          "start_ticks": 60559
+        },
+        {
+          "local_tid": 2350,
+          "comm": "sim_rcv",
+          "start_ticks": 60612
+        },
+        {
+          "local_tid": 2351,
+          "comm": "sim_send",
+          "start_ticks": 60613
+        },
+        {
+          "local_tid": 2358,
+          "comm": "wq:hp_default",
+          "start_ticks": 60614
+        },
+        {
+          "local_tid": 2369,
+          "comm": "wq:manager",
+          "start_ticks": 60616
+        },
+        {
+          "local_tid": 2370,
+          "comm": "wq:rate_ctrl",
+          "start_ticks": 60616
+        },
+        {
+          "local_tid": 2372,
+          "comm": "wq:INS0",
+          "start_ticks": 60617
+        },
+        {
+          "local_tid": 2373,
+          "comm": "wq:INS1",
+          "start_ticks": 60619
+        },
+        {
+          "local_tid": 2374,
+          "comm": "wq:INS2",
+          "start_ticks": 60621
+        },
+        {
+          "local_tid": 2377,
+          "comm": "commander",
+          "start_ticks": 60634
+        },
+        {
+          "local_tid": 2410,
+          "comm": "navigator",
+          "start_ticks": 60638
+        },
+        {
+          "local_tid": 2415,
+          "comm": "uxrce_dds_clien",
+          "start_ticks": 60638
+        },
+        {
+          "local_tid": 2482,
+          "comm": "mavlink_if0",
+          "start_ticks": 60641
+        },
+        {
+          "local_tid": 2484,
+          "comm": "mavlink_rcv_if0",
+          "start_ticks": 60641
+        },
+        {
+          "local_tid": 2510,
+          "comm": "logger",
+          "start_ticks": 60645
+        },
+        {
+          "local_tid": 2512,
+          "comm": "log_writer_file",
+          "start_ticks": 60645
+        }
+      ]
+    },
+    "comm_owners_before": {
+      "matches": {
+        "wke91fd8e5055a": [
+          {
+            "tgid": 2046,
+            "tid": 2046
+          }
+        ],
+        "wke91fd8e5055p": [
+          {
+            "tgid": 2050,
+            "tid": 2050
+          }
+        ],
+        "wke91fd8e5055s": [
+          {
+            "tgid": 1438,
+            "tid": 1438
+          }
+        ],
+        "arducopter": [
+          {
+            "tgid": 2048,
+            "tid": 2048
+          }
+        ],
+        "log_io": [
+          {
+            "tgid": 2048,
+            "tid": 2371
+          }
+        ],
+        "DDS": [
+          {
+            "tgid": 2048,
+            "tid": 2517
+          }
+        ],
+        "sim_send": [
+          {
+            "tgid": 2052,
+            "tid": 2351
+          }
+        ],
+        "logger": [
+          {
+            "tgid": 2052,
+            "tid": 2510
+          }
+        ],
+        "wq:lp_default": [
+          {
+            "tgid": 2052,
+            "tid": 2071
+          }
+        ]
+      },
+      "scan_attempts": 1,
+      "ignored_races": []
+    },
+    "comm_owners_after": {
+      "matches": {
+        "wke91fd8e5055a": [
+          {
+            "tgid": 2046,
+            "tid": 2046
+          }
+        ],
+        "wke91fd8e5055p": [
+          {
+            "tgid": 2050,
+            "tid": 2050
+          }
+        ],
+        "wke91fd8e5055s": [
+          {
+            "tgid": 1438,
+            "tid": 1438
+          }
+        ],
+        "arducopter": [
+          {
+            "tgid": 2048,
+            "tid": 2048
+          }
+        ],
+        "log_io": [
+          {
+            "tgid": 2048,
+            "tid": 2371
+          }
+        ],
+        "DDS": [
+          {
+            "tgid": 2048,
+            "tid": 2517
+          }
+        ],
+        "sim_send": [
+          {
+            "tgid": 2052,
+            "tid": 2351
+          }
+        ],
+        "logger": [
+          {
+            "tgid": 2052,
+            "tid": 2510
+          }
+        ],
+        "wq:lp_default": [
+          {
+            "tgid": 2052,
+            "tid": 2071
+          }
+        ]
+      },
+      "scan_attempts": 1,
+      "ignored_races": []
+    },
+    "method": "owned exact comm names observed in a bounded private sched_switch window",
+    "mapping_source": "private_sched_switch",
+    "mapping_timeout_s": 3.0,
+    "mapping_sha256": "66d38782994c84c36e8adedfddcbb38d863c8f4fe5514895ce564df9140c31ce",
+    "mapping_trace_bytes": 27919,
+    "limitation": "A missing, multiply observed or snapshot-visible foreign owner fails closed; a transient foreign same-comm task absent from both /proc snapshots cannot be excluded"
+  },
+  "trace_sha256": "484c4f2f31f56612c6fcf55f21a077104c4ca74551a1996eb6aa4fd008366a7b",
+  "event_counts": {
+    "switch": 118538,
+    "wakeup": 56115,
+    "write_enter": 23665,
+    "write_exit": 23665
+  },
+  "boundary_counts": {
+    "switch_in_without_out": 8,
+    "open_writes_at_end": 0,
+    "open_syncs_at_end": 0,
+    "open_syscalls_at_end": 0,
+    "open_off_cpu_at_end": 9
+  },
+  "writes": [
+    {
+      "role": "ap_worker",
+      "kind": "trace_file",
+      "complete_writes": 5901,
+      "short_or_failed_writes": 0,
+      "median_ns": 6000,
+      "p99_ns": 65000,
+      "maximum_ns": 393000,
+      "over_1ms": 0,
+      "top": [
+        {
+          "kind": "write_enter",
+          "syscall": "write",
+          "pid": 9160,
+          "ns": 613002940000,
+          "fd": 3,
+          "count": 1531,
+          "end_ns": 613003333000,
+          "duration_ns": 393000,
+          "ret": 1531,
+          "scheduler": {
+            "off_cpu_ns": 87000,
+            "runnable_ns": 87000,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 613003243000,
+                "state": "R+",
+                "wake_ns": null,
+                "end_ns": 613003330000
+              }
+            ]
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "e91fd8e50550468bbbe6b29f06bffe64",
+            "tick": 6596,
+            "issued_monotonic_ns": 613004672660,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 613004669455,
+            "lateness_ns": 81617076,
+            "start_tick": 6592,
+            "end_tick": 6596,
+            "ideal_start_ns": 612919052379,
+            "ideal_end_ns": 612923052379,
+            "earliest_start_ns": 613001457456,
+            "actual_start_ns": 613001457480
+          }
+        },
+        {
+          "kind": "write_enter",
+          "syscall": "write",
+          "pid": 9160,
+          "ns": 612303544000,
+          "fd": 3,
+          "count": 1532,
+          "end_ns": 612303905000,
+          "duration_ns": 361000,
+          "ret": 1532,
+          "scheduler": {
+            "off_cpu_ns": 27000,
+            "runnable_ns": 27000,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 612303866000,
+                "state": "R+",
+                "wake_ns": null,
+                "end_ns": 612303893000
+              }
+            ]
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "e91fd8e50550468bbbe6b29f06bffe64",
+            "tick": 5900,
+            "issued_monotonic_ns": 612306463969,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 612306460644,
+            "lateness_ns": 79408265,
+            "start_tick": 5896,
+            "end_tick": 5900,
+            "ideal_start_ns": 612223052379,
+            "ideal_end_ns": 612227052379,
+            "earliest_start_ns": 612302529074,
+            "actual_start_ns": 612302529088
+          }
+        },
+        {
+          "kind": "write_enter",
+          "syscall": "write",
+          "pid": 9160,
+          "ns": 609010011000,
+          "fd": 3,
+          "count": 1535,
+          "end_ns": 609010341000,
+          "duration_ns": 330000,
+          "ret": 1535,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "e91fd8e50550468bbbe6b29f06bffe64",
+            "tick": 2644,
+            "issued_monotonic_ns": 609012549302,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 609012545310,
+            "lateness_ns": 41492931,
+            "start_tick": 2640,
+            "end_tick": 2644,
+            "ideal_start_ns": 608967052379,
+            "ideal_end_ns": 608971052379,
+            "earliest_start_ns": 609009044034,
+            "actual_start_ns": 609009199853
+          }
+        },
+        {
+          "kind": "write_enter",
+          "syscall": "write",
+          "pid": 9160,
+          "ns": 610749148000,
+          "fd": 3,
+          "count": 1533,
+          "end_ns": 610749379000,
+          "duration_ns": 231000,
+          "ret": 1533,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "e91fd8e50550468bbbe6b29f06bffe64",
+            "tick": 4360,
+            "issued_monotonic_ns": 610751003314,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 610750999771,
+            "lateness_ns": 63947392,
+            "start_tick": 4356,
+            "end_tick": 4360,
+            "ideal_start_ns": 610683052379,
+            "ideal_end_ns": 610687052379,
+            "earliest_start_ns": 610747359735,
+            "actual_start_ns": 610747359761
+          }
+        },
+        {
+          "kind": "write_enter",
+          "syscall": "write",
+          "pid": 9160,
+          "ns": 608829934000,
+          "fd": 3,
+          "count": 1534,
+          "end_ns": 608830096000,
+          "duration_ns": 162000,
+          "ret": 1534,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "e91fd8e50550468bbbe6b29f06bffe64",
+            "tick": 2464,
+            "issued_monotonic_ns": 608830991471,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 608830987686,
+            "lateness_ns": 39935307,
+            "start_tick": 2460,
+            "end_tick": 2464,
+            "ideal_start_ns": 608787052379,
+            "ideal_end_ns": 608791052379,
+            "earliest_start_ns": 608827448945,
+            "actual_start_ns": 608827709581
+          }
+        },
+        {
+          "kind": "write_enter",
+          "syscall": "write",
+          "pid": 9160,
+          "ns": 610844639000,
+          "fd": 3,
+          "count": 1533,
+          "end_ns": 610844782000,
+          "duration_ns": 143000,
+          "ret": 1533,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "e91fd8e50550468bbbe6b29f06bffe64",
+            "tick": 4456,
+            "issued_monotonic_ns": 610847962614,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 610847958863,
+            "lateness_ns": 64906484,
+            "start_tick": 4452,
+            "end_tick": 4456,
+            "ideal_start_ns": 610779052379,
+            "ideal_end_ns": 610783052379,
+            "earliest_start_ns": 610843944261,
+            "actual_start_ns": 610843944295
+          }
+        },
+        {
+          "kind": "write_enter",
+          "syscall": "write",
+          "pid": 9160,
+          "ns": 609915076000,
+          "fd": 3,
+          "count": 1531,
+          "end_ns": 609915216000,
+          "duration_ns": 140000,
+          "ret": 1531,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "e91fd8e50550468bbbe6b29f06bffe64",
+            "tick": 3536,
+            "issued_monotonic_ns": 609916263500,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 609916259331,
+            "lateness_ns": 53206952,
+            "start_tick": 3532,
+            "end_tick": 3536,
+            "ideal_start_ns": 609859052379,
+            "ideal_end_ns": 609863052379,
+            "earliest_start_ns": 609912160602,
+            "actual_start_ns": 609912160627
+          }
+        },
+        {
+          "kind": "write_enter",
+          "syscall": "write",
+          "pid": 9160,
+          "ns": 609944533000,
+          "fd": 3,
+          "count": 1529,
+          "end_ns": 609944666000,
+          "duration_ns": 133000,
+          "ret": 1529,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "e91fd8e50550468bbbe6b29f06bffe64",
+            "tick": 3568,
+            "issued_monotonic_ns": 609947494424,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 609947490544,
+            "lateness_ns": 52438165,
+            "start_tick": 3564,
+            "end_tick": 3568,
+            "ideal_start_ns": 609891052379,
+            "ideal_end_ns": 609895052379,
+            "earliest_start_ns": 609944300954,
+            "actual_start_ns": 609944313963
+          }
+        },
+        {
+          "kind": "write_enter",
+          "syscall": "write",
+          "pid": 9160,
+          "ns": 614483431000,
+          "fd": 3,
+          "count": 1564,
+          "end_ns": 614483548000,
+          "duration_ns": 117000,
+          "ret": 1564,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "e91fd8e50550468bbbe6b29f06bffe64",
+            "tick": 8060,
+            "issued_monotonic_ns": 614485016196,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 614485012485,
+            "lateness_ns": 97960106,
+            "start_tick": 8056,
+            "end_tick": 8060,
+            "ideal_start_ns": 614383052379,
+            "ideal_end_ns": 614387052379,
+            "earliest_start_ns": 614480718349,
+            "actual_start_ns": 614480915120
+          }
+        },
+        {
+          "kind": "write_enter",
+          "syscall": "write",
+          "pid": 9160,
+          "ns": 610689427000,
+          "fd": 3,
+          "count": 1525,
+          "end_ns": 610689543000,
+          "duration_ns": 116000,
+          "ret": 1525,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "e91fd8e50550468bbbe6b29f06bffe64",
+            "tick": 4300,
+            "issued_monotonic_ns": 610690480657,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 610690477791,
+            "lateness_ns": 63425412,
+            "start_tick": 4296,
+            "end_tick": 4300,
+            "ideal_start_ns": 610623052379,
+            "ideal_end_ns": 610627052379,
+            "earliest_start_ns": 610686922012,
+            "actual_start_ns": 610686922039
+          }
+        }
+      ]
+    },
+    {
+      "role": "ap_worker",
+      "kind": "rpc_stdout",
+      "complete_writes": 5901,
+      "short_or_failed_writes": 0,
+      "median_ns": 3000,
+      "p99_ns": 16000,
+      "maximum_ns": 96000,
+      "over_1ms": 0,
+      "top": [
+        {
+          "kind": "write_enter",
+          "syscall": "write",
+          "pid": 9160,
+          "ns": 609215017000,
+          "fd": 1,
+          "count": 910,
+          "end_ns": 609215113000,
+          "duration_ns": 96000,
+          "ret": 910,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "e91fd8e50550468bbbe6b29f06bffe64",
+            "tick": 2848,
+            "issued_monotonic_ns": 609218196864,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 609218193329,
+            "lateness_ns": 43140950,
+            "start_tick": 2844,
+            "end_tick": 2848,
+            "ideal_start_ns": 609171052379,
+            "ideal_end_ns": 609175052379,
+            "earliest_start_ns": 609214594508,
+            "actual_start_ns": 609214594523
+          }
+        },
+        {
+          "kind": "write_enter",
+          "syscall": "write",
+          "pid": 9160,
+          "ns": 614002463000,
+          "fd": 1,
+          "count": 944,
+          "end_ns": 614002531000,
+          "duration_ns": 68000,
+          "ret": 944,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "e91fd8e50550468bbbe6b29f06bffe64",
+            "tick": 7584,
+            "issued_monotonic_ns": 614003607282,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 614003603869,
+            "lateness_ns": 92551490,
+            "start_tick": 7580,
+            "end_tick": 7584,
+            "ideal_start_ns": 613907052379,
+            "ideal_end_ns": 613911052379,
+            "earliest_start_ns": 613997454497,
+            "actual_start_ns": 613998082780
+          }
+        },
+        {
+          "kind": "write_enter",
+          "syscall": "write",
+          "pid": 9160,
+          "ns": 614212915000,
+          "fd": 1,
+          "count": 913,
+          "end_ns": 614212969000,
+          "duration_ns": 54000,
+          "ret": 913,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "e91fd8e50550468bbbe6b29f06bffe64",
+            "tick": 7796,
+            "issued_monotonic_ns": 614216806989,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 614216803352,
+            "lateness_ns": 93750973,
+            "start_tick": 7792,
+            "end_tick": 7796,
+            "ideal_start_ns": 614119052379,
+            "ideal_end_ns": 614123052379,
+            "earliest_start_ns": 614212413501,
+            "actual_start_ns": 614212413511
+          }
+        },
+        {
+          "kind": "write_enter",
+          "syscall": "write",
+          "pid": 9160,
+          "ns": 610615263000,
+          "fd": 1,
+          "count": 911,
+          "end_ns": 610615310000,
+          "duration_ns": 47000,
+          "ret": 911,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "e91fd8e50550468bbbe6b29f06bffe64",
+            "tick": 4228,
+            "issued_monotonic_ns": 610617967676,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 610617964849,
+            "lateness_ns": 62912470,
+            "start_tick": 4224,
+            "end_tick": 4228,
+            "ideal_start_ns": 610551052379,
+            "ideal_end_ns": 610555052379,
+            "earliest_start_ns": 610614914072,
+            "actual_start_ns": 610614914103
+          }
+        },
+        {
+          "kind": "write_enter",
+          "syscall": "write",
+          "pid": 9160,
+          "ns": 613183472000,
+          "fd": 1,
+          "count": 910,
+          "end_ns": 613183519000,
+          "duration_ns": 47000,
+          "ret": 910,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "e91fd8e50550468bbbe6b29f06bffe64",
+            "tick": 6776,
+            "issued_monotonic_ns": 613185263696,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 613185261392,
+            "lateness_ns": 82209013,
+            "start_tick": 6772,
+            "end_tick": 6776,
+            "ideal_start_ns": 613099052379,
+            "ideal_end_ns": 613103052379,
+            "earliest_start_ns": 613182319836,
+            "actual_start_ns": 613182319846
+          }
+        },
+        {
+          "kind": "write_enter",
+          "syscall": "write",
+          "pid": 9160,
+          "ns": 609506769000,
+          "fd": 1,
+          "count": 916,
+          "end_ns": 609506803000,
+          "duration_ns": 34000,
+          "ret": 916,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "e91fd8e50550468bbbe6b29f06bffe64",
+            "tick": 3136,
+            "issued_monotonic_ns": 609509201510,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 609509197251,
+            "lateness_ns": 46144872,
+            "start_tick": 3132,
+            "end_tick": 3136,
+            "ideal_start_ns": 609459052379,
+            "ideal_end_ns": 609463052379,
+            "earliest_start_ns": 609505454362,
+            "actual_start_ns": 609505454385
+          }
+        },
+        {
+          "kind": "write_enter",
+          "syscall": "write",
+          "pid": 9160,
+          "ns": 609982168000,
+          "fd": 1,
+          "count": 915,
+          "end_ns": 609982201000,
+          "duration_ns": 33000,
+          "ret": 915,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "e91fd8e50550468bbbe6b29f06bffe64",
+            "tick": 3604,
+            "issued_monotonic_ns": 609984588118,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 609984583227,
+            "lateness_ns": 53530848,
+            "start_tick": 3600,
+            "end_tick": 3604,
+            "ideal_start_ns": 609927052379,
+            "ideal_end_ns": 609931052379,
+            "earliest_start_ns": 609980350081,
+            "actual_start_ns": 609980350091
+          }
+        },
+        {
+          "kind": "write_enter",
+          "syscall": "write",
+          "pid": 9160,
+          "ns": 612983520000,
+          "fd": 1,
+          "count": 936,
+          "end_ns": 612983553000,
+          "duration_ns": 33000,
+          "ret": 936,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "e91fd8e50550468bbbe6b29f06bffe64",
+            "tick": 6576,
+            "issued_monotonic_ns": 612984284494,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 612984281527,
+            "lateness_ns": 81229148,
+            "start_tick": 6572,
+            "end_tick": 6576,
+            "ideal_start_ns": 612899052379,
+            "ideal_end_ns": 612903052379,
+            "earliest_start_ns": 612981110713,
+            "actual_start_ns": 612981110720
+          }
+        },
+        {
+          "kind": "write_enter",
+          "syscall": "write",
+          "pid": 9160,
+          "ns": 610608094000,
+          "fd": 1,
+          "count": 912,
+          "end_ns": 610608125000,
+          "duration_ns": 31000,
+          "ret": 912,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "e91fd8e50550468bbbe6b29f06bffe64",
+            "tick": 4220,
+            "issued_monotonic_ns": 610610870927,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 610610867581,
+            "lateness_ns": 63815202,
+            "start_tick": 4216,
+            "end_tick": 4220,
+            "ideal_start_ns": 610543052379,
+            "ideal_end_ns": 610547052379,
+            "earliest_start_ns": 610606829969,
+            "actual_start_ns": 610606829972
+          }
+        },
+        {
+          "kind": "write_enter",
+          "syscall": "write",
+          "pid": 9160,
+          "ns": 609119359000,
+          "fd": 1,
+          "count": 913,
+          "end_ns": 609119388000,
+          "duration_ns": 29000,
+          "ret": 913,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "e91fd8e50550468bbbe6b29f06bffe64",
+            "tick": 2752,
+            "issued_monotonic_ns": 609122104430,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 609122100694,
+            "lateness_ns": 43048315,
+            "start_tick": 2748,
+            "end_tick": 2752,
+            "ideal_start_ns": 609075052379,
+            "ideal_end_ns": 609079052379,
+            "earliest_start_ns": 609118500191,
+            "actual_start_ns": 609118500221
+          }
+        }
+      ]
+    },
+    {
+      "role": "px4_worker",
+      "kind": "trace_file",
+      "complete_writes": 5901,
+      "short_or_failed_writes": 0,
+      "median_ns": 6000,
+      "p99_ns": 66000,
+      "maximum_ns": 293000,
+      "over_1ms": 0,
+      "top": [
+        {
+          "kind": "write_enter",
+          "syscall": "write",
+          "pid": 9164,
+          "ns": 612538771000,
+          "fd": 3,
+          "count": 1562,
+          "end_ns": 612539064000,
+          "duration_ns": 293000,
+          "ret": 1562,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "e91fd8e50550468bbbe6b29f06bffe64",
+            "tick": 6132,
+            "issued_monotonic_ns": 612539694147,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 612539690746,
+            "lateness_ns": 80638367,
+            "start_tick": 6128,
+            "end_tick": 6132,
+            "ideal_start_ns": 612455052379,
+            "ideal_end_ns": 612459052379,
+            "earliest_start_ns": 612535384560,
+            "actual_start_ns": 612535384577
+          }
+        },
+        {
+          "kind": "write_enter",
+          "syscall": "write",
+          "pid": 9164,
+          "ns": 610129482000,
+          "fd": 3,
+          "count": 1532,
+          "end_ns": 610129694000,
+          "duration_ns": 212000,
+          "ret": 1532,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "e91fd8e50550468bbbe6b29f06bffe64",
+            "tick": 3748,
+            "issued_monotonic_ns": 610130711698,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 610130708827,
+            "lateness_ns": 55656448,
+            "start_tick": 3744,
+            "end_tick": 3748,
+            "ideal_start_ns": 610071052379,
+            "ideal_end_ns": 610075052379,
+            "earliest_start_ns": 610126568902,
+            "actual_start_ns": 610126865023
+          }
+        },
+        {
+          "kind": "write_enter",
+          "syscall": "write",
+          "pid": 9164,
+          "ns": 609648129000,
+          "fd": 3,
+          "count": 1532,
+          "end_ns": 609648280000,
+          "duration_ns": 151000,
+          "ret": 1532,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "e91fd8e50550468bbbe6b29f06bffe64",
+            "tick": 3276,
+            "issued_monotonic_ns": 609650772749,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 609650768255,
+            "lateness_ns": 47715876,
+            "start_tick": 3272,
+            "end_tick": 3276,
+            "ideal_start_ns": 609599052379,
+            "ideal_end_ns": 609603052379,
+            "earliest_start_ns": 609646557057,
+            "actual_start_ns": 609646557066
+          }
+        },
+        {
+          "kind": "write_enter",
+          "syscall": "write",
+          "pid": 9164,
+          "ns": 611503291000,
+          "fd": 3,
+          "count": 1534,
+          "end_ns": 611503435000,
+          "duration_ns": 144000,
+          "ret": 1534,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "e91fd8e50550468bbbe6b29f06bffe64",
+            "tick": 5112,
+            "issued_monotonic_ns": 611506390346,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 611506386997,
+            "lateness_ns": 67334618,
+            "start_tick": 5108,
+            "end_tick": 5112,
+            "ideal_start_ns": 611435052379,
+            "ideal_end_ns": 611439052379,
+            "earliest_start_ns": 611502945183,
+            "actual_start_ns": 611502945191
+          }
+        },
+        {
+          "kind": "write_enter",
+          "syscall": "write",
+          "pid": 9164,
+          "ns": 611976537000,
+          "fd": 3,
+          "count": 1535,
+          "end_ns": 611976651000,
+          "duration_ns": 114000,
+          "ret": 1535,
+          "scheduler": {
+            "off_cpu_ns": 28000,
+            "runnable_ns": 28000,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 611976620000,
+                "state": "R+",
+                "wake_ns": null,
+                "end_ns": 611976648000
+              }
+            ]
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "e91fd8e50550468bbbe6b29f06bffe64",
+            "tick": 5576,
+            "issued_monotonic_ns": 611980424143,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 611980420333,
+            "lateness_ns": 77367954,
+            "start_tick": 5572,
+            "end_tick": 5576,
+            "ideal_start_ns": 611899052379,
+            "ideal_end_ns": 611903052379,
+            "earliest_start_ns": 611976129833,
+            "actual_start_ns": 611976129859
+          }
+        },
+        {
+          "kind": "write_enter",
+          "syscall": "write",
+          "pid": 9164,
+          "ns": 609148497000,
+          "fd": 3,
+          "count": 1530,
+          "end_ns": 609148609000,
+          "duration_ns": 112000,
+          "ret": 1530,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "e91fd8e50550468bbbe6b29f06bffe64",
+            "tick": 2780,
+            "issued_monotonic_ns": 609149968587,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 609149965297,
+            "lateness_ns": 42912918,
+            "start_tick": 2776,
+            "end_tick": 2780,
+            "ideal_start_ns": 609103052379,
+            "ideal_end_ns": 609107052379,
+            "earliest_start_ns": 609146500335,
+            "actual_start_ns": 609146500341
+          }
+        },
+        {
+          "kind": "write_enter",
+          "syscall": "write",
+          "pid": 9164,
+          "ns": 613765129000,
+          "fd": 3,
+          "count": 1563,
+          "end_ns": 613765232000,
+          "duration_ns": 103000,
+          "ret": 1563,
+          "scheduler": {
+            "off_cpu_ns": 20000,
+            "runnable_ns": 20000,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 613765206000,
+                "state": "R+",
+                "wake_ns": null,
+                "end_ns": 613765226000
+              }
+            ]
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "e91fd8e50550468bbbe6b29f06bffe64",
+            "tick": 7352,
+            "issued_monotonic_ns": 613767519538,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 613767516179,
+            "lateness_ns": 88463800,
+            "start_tick": 7348,
+            "end_tick": 7352,
+            "ideal_start_ns": 613675052379,
+            "ideal_end_ns": 613679052379,
+            "earliest_start_ns": 613763936372,
+            "actual_start_ns": 613763936407
+          }
+        },
+        {
+          "kind": "write_enter",
+          "syscall": "write",
+          "pid": 9164,
+          "ns": 611843372000,
+          "fd": 3,
+          "count": 1532,
+          "end_ns": 611843473000,
+          "duration_ns": 101000,
+          "ret": 1532,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "e91fd8e50550468bbbe6b29f06bffe64",
+            "tick": 5448,
+            "issued_monotonic_ns": 611844918872,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 611844915722,
+            "lateness_ns": 69863343,
+            "start_tick": 5444,
+            "end_tick": 5448,
+            "ideal_start_ns": 611771052379,
+            "ideal_end_ns": 611775052379,
+            "earliest_start_ns": 611841115945,
+            "actual_start_ns": 611841115946
+          }
+        },
+        {
+          "kind": "write_enter",
+          "syscall": "write",
+          "pid": 9164,
+          "ns": 609628783000,
+          "fd": 3,
+          "count": 1542,
+          "end_ns": 609628881000,
+          "duration_ns": 98000,
+          "ret": 1542,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "e91fd8e50550468bbbe6b29f06bffe64",
+            "tick": 3256,
+            "issued_monotonic_ns": 609629825311,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 609629820591,
+            "lateness_ns": 46768212,
+            "start_tick": 3252,
+            "end_tick": 3256,
+            "ideal_start_ns": 609579052379,
+            "ideal_end_ns": 609583052379,
+            "earliest_start_ns": 609626556999,
+            "actual_start_ns": 609626557026
+          }
+        },
+        {
+          "kind": "write_enter",
+          "syscall": "write",
+          "pid": 9164,
+          "ns": 609572839000,
+          "fd": 3,
+          "count": 1535,
+          "end_ns": 609572931000,
+          "duration_ns": 92000,
+          "ret": 1535,
+          "scheduler": {
+            "off_cpu_ns": 24000,
+            "runnable_ns": 24000,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 609572904000,
+                "state": "R+",
+                "wake_ns": null,
+                "end_ns": 609572928000
+              }
+            ]
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "e91fd8e50550468bbbe6b29f06bffe64",
+            "tick": 3200,
+            "issued_monotonic_ns": 609573912527,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 609573908945,
+            "lateness_ns": 46856566,
+            "start_tick": 3196,
+            "end_tick": 3200,
+            "ideal_start_ns": 609523052379,
+            "ideal_end_ns": 609527052379,
+            "earliest_start_ns": 609570305742,
+            "actual_start_ns": 609570305781
+          }
+        }
+      ]
+    },
+    {
+      "role": "px4_worker",
+      "kind": "rpc_stdout",
+      "complete_writes": 5901,
+      "short_or_failed_writes": 0,
+      "median_ns": 2000,
+      "p99_ns": 16000,
+      "maximum_ns": 97000,
+      "over_1ms": 0,
+      "top": [
+        {
+          "kind": "write_enter",
+          "syscall": "write",
+          "pid": 9164,
+          "ns": 609215016000,
+          "fd": 1,
+          "count": 910,
+          "end_ns": 609215113000,
+          "duration_ns": 97000,
+          "ret": 910,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "e91fd8e50550468bbbe6b29f06bffe64",
+            "tick": 2848,
+            "issued_monotonic_ns": 609218196864,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 609218193329,
+            "lateness_ns": 43140950,
+            "start_tick": 2844,
+            "end_tick": 2848,
+            "ideal_start_ns": 609171052379,
+            "ideal_end_ns": 609175052379,
+            "earliest_start_ns": 609214594508,
+            "actual_start_ns": 609214594523
+          }
+        },
+        {
+          "kind": "write_enter",
+          "syscall": "write",
+          "pid": 9164,
+          "ns": 609982139000,
+          "fd": 1,
+          "count": 915,
+          "end_ns": 609982201000,
+          "duration_ns": 62000,
+          "ret": 915,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "e91fd8e50550468bbbe6b29f06bffe64",
+            "tick": 3604,
+            "issued_monotonic_ns": 609984588118,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 609984583227,
+            "lateness_ns": 53530848,
+            "start_tick": 3600,
+            "end_tick": 3604,
+            "ideal_start_ns": 609927052379,
+            "ideal_end_ns": 609931052379,
+            "earliest_start_ns": 609980350081,
+            "actual_start_ns": 609980350091
+          }
+        },
+        {
+          "kind": "write_enter",
+          "syscall": "write",
+          "pid": 9164,
+          "ns": 610615264000,
+          "fd": 1,
+          "count": 911,
+          "end_ns": 610615310000,
+          "duration_ns": 46000,
+          "ret": 911,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "e91fd8e50550468bbbe6b29f06bffe64",
+            "tick": 4228,
+            "issued_monotonic_ns": 610617967676,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 610617964849,
+            "lateness_ns": 62912470,
+            "start_tick": 4224,
+            "end_tick": 4228,
+            "ideal_start_ns": 610551052379,
+            "ideal_end_ns": 610555052379,
+            "earliest_start_ns": 610614914072,
+            "actual_start_ns": 610614914103
+          }
+        },
+        {
+          "kind": "write_enter",
+          "syscall": "write",
+          "pid": 9164,
+          "ns": 610552168000,
+          "fd": 1,
+          "count": 934,
+          "end_ns": 610552206000,
+          "duration_ns": 38000,
+          "ret": 934,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "e91fd8e50550468bbbe6b29f06bffe64",
+            "tick": 4164,
+            "issued_monotonic_ns": 610553193473,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 610553189986,
+            "lateness_ns": 62137607,
+            "start_tick": 4160,
+            "end_tick": 4164,
+            "ideal_start_ns": 610487052379,
+            "ideal_end_ns": 610491052379,
+            "earliest_start_ns": 610549523125,
+            "actual_start_ns": 610549523142
+          }
+        },
+        {
+          "kind": "write_enter",
+          "syscall": "write",
+          "pid": 9164,
+          "ns": 608716236000,
+          "fd": 1,
+          "count": 910,
+          "end_ns": 608716271000,
+          "duration_ns": 35000,
+          "ret": 910,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "e91fd8e50550468bbbe6b29f06bffe64",
+            "tick": 2352,
+            "issued_monotonic_ns": 608717997731,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 608717995256,
+            "lateness_ns": 38942877,
+            "start_tick": 2348,
+            "end_tick": 2352,
+            "ideal_start_ns": 608675052379,
+            "ideal_end_ns": 608679052379,
+            "earliest_start_ns": 608714841769,
+            "actual_start_ns": 608714841776
+          }
+        },
+        {
+          "kind": "write_enter",
+          "syscall": "write",
+          "pid": 9164,
+          "ns": 612682823000,
+          "fd": 1,
+          "count": 909,
+          "end_ns": 612682857000,
+          "duration_ns": 34000,
+          "ret": 909,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "e91fd8e50550468bbbe6b29f06bffe64",
+            "tick": 6276,
+            "issued_monotonic_ns": 612683594922,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 612683592961,
+            "lateness_ns": 80540582,
+            "start_tick": 6272,
+            "end_tick": 6276,
+            "ideal_start_ns": 612599052379,
+            "ideal_end_ns": 612603052379,
+            "earliest_start_ns": 612680301965,
+            "actual_start_ns": 612680301965
+          }
+        },
+        {
+          "kind": "write_enter",
+          "syscall": "write",
+          "pid": 9164,
+          "ns": 614215268000,
+          "fd": 1,
+          "count": 914,
+          "end_ns": 614215298000,
+          "duration_ns": 30000,
+          "ret": 914,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "e91fd8e50550468bbbe6b29f06bffe64",
+            "tick": 7796,
+            "issued_monotonic_ns": 614216806989,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 614216803352,
+            "lateness_ns": 93750973,
+            "start_tick": 7792,
+            "end_tick": 7796,
+            "ideal_start_ns": 614119052379,
+            "ideal_end_ns": 614123052379,
+            "earliest_start_ns": 614212413501,
+            "actual_start_ns": 614212413511
+          }
+        },
+        {
+          "kind": "write_enter",
+          "syscall": "write",
+          "pid": 9164,
+          "ns": 610608094000,
+          "fd": 1,
+          "count": 912,
+          "end_ns": 610608123000,
+          "duration_ns": 29000,
+          "ret": 912,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "e91fd8e50550468bbbe6b29f06bffe64",
+            "tick": 4220,
+            "issued_monotonic_ns": 610610870927,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 610610867581,
+            "lateness_ns": 63815202,
+            "start_tick": 4216,
+            "end_tick": 4220,
+            "ideal_start_ns": 610543052379,
+            "ideal_end_ns": 610547052379,
+            "earliest_start_ns": 610606829969,
+            "actual_start_ns": 610606829972
+          }
+        },
+        {
+          "kind": "write_enter",
+          "syscall": "write",
+          "pid": 9164,
+          "ns": 613261179000,
+          "fd": 1,
+          "count": 916,
+          "end_ns": 613261208000,
+          "duration_ns": 29000,
+          "ret": 916,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "e91fd8e50550468bbbe6b29f06bffe64",
+            "tick": 6852,
+            "issued_monotonic_ns": 613262019745,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 613262016711,
+            "lateness_ns": 82964332,
+            "start_tick": 6848,
+            "end_tick": 6852,
+            "ideal_start_ns": 613175052379,
+            "ideal_end_ns": 613179052379,
+            "earliest_start_ns": 613258555353,
+            "actual_start_ns": 613258555380
+          }
+        },
+        {
+          "kind": "write_enter",
+          "syscall": "write",
+          "pid": 9164,
+          "ns": 610793548000,
+          "fd": 1,
+          "count": 934,
+          "end_ns": 610793571000,
+          "duration_ns": 23000,
+          "ret": 934,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "e91fd8e50550468bbbe6b29f06bffe64",
+            "tick": 4404,
+            "issued_monotonic_ns": 610794804009,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 610794801429,
+            "lateness_ns": 63749050,
+            "start_tick": 4400,
+            "end_tick": 4404,
+            "ideal_start_ns": 610727052379,
+            "ideal_end_ns": 610731052379,
+            "earliest_start_ns": 610791742183,
+            "actual_start_ns": 610791742196
+          }
+        }
+      ]
+    }
+  ],
+  "fc_storage": [
+    {
+      "role": "ap_fc/log_io",
+      "owner": "ap_fc",
+      "operations": [
+        {
+          "syscall": "write",
+          "complete_calls": 61,
+          "failed_or_short": 0,
+          "median_ns": 12000,
+          "p99_ns": 75000,
+          "maximum_ns": 87000,
+          "over_1ms": 0,
+          "top": [
+            {
+              "kind": "write_enter",
+              "syscall": "write",
+              "pid": 9485,
+              "ns": 610816874000,
+              "fd": 14,
+              "count": 4096,
+              "end_ns": 610816961000,
+              "duration_ns": 87000,
+              "ret": 4096,
+              "scheduler": {
+                "off_cpu_ns": 0,
+                "runnable_ns": 0,
+                "blocked_before_wake_ns": 0,
+                "unknown_off_cpu_ns": 0,
+                "intervals": []
+              },
+              "fd_before": {
+                "target": "/root/wksim-scheduler-probe-eventmap-01/runs/scheduler-4598ca8a747b/epochs/e91fd8e50550468bbbe6b29f06bffe64/arducopter/logs/00000001.BIN",
+                "fdinfo": "pos:\t90112\nflags:\t02100001\nmnt_id:\t502\nino:\t1864716\n"
+              },
+              "rate_group": {
+                "kind": "rate_group_end",
+                "epoch": "e91fd8e50550468bbbe6b29f06bffe64",
+                "tick": 4428,
+                "issued_monotonic_ns": 610819296945,
+                "segment_id": 1,
+                "request_id": "config",
+                "requested_rate": 1.0,
+                "transition": false,
+                "actual_end_ns": 610819293488,
+                "lateness_ns": 64241109,
+                "start_tick": 4424,
+                "end_tick": 4428,
+                "ideal_start_ns": 610751052379,
+                "ideal_end_ns": 610755052379,
+                "earliest_start_ns": 610815944122,
+                "actual_start_ns": 610815944142
+              }
+            },
+            {
+              "kind": "write_enter",
+              "syscall": "write",
+              "pid": 9485,
+              "ns": 609769994000,
+              "fd": 14,
+              "count": 4096,
+              "end_ns": 609770069000,
+              "duration_ns": 75000,
+              "ret": 4096,
+              "scheduler": {
+                "off_cpu_ns": 0,
+                "runnable_ns": 0,
+                "blocked_before_wake_ns": 0,
+                "unknown_off_cpu_ns": 0,
+                "intervals": []
+              },
+              "fd_before": {
+                "target": "/root/wksim-scheduler-probe-eventmap-01/runs/scheduler-4598ca8a747b/epochs/e91fd8e50550468bbbe6b29f06bffe64/arducopter/logs/00000001.BIN",
+                "fdinfo": "pos:\t90112\nflags:\t02100001\nmnt_id:\t502\nino:\t1864716\n"
+              },
+              "rate_group": {
+                "kind": "rate_group_end",
+                "epoch": "e91fd8e50550468bbbe6b29f06bffe64",
+                "tick": 3392,
+                "issued_monotonic_ns": 609770501072,
+                "segment_id": 1,
+                "request_id": "config",
+                "requested_rate": 1.0,
+                "transition": false,
+                "actual_end_ns": 609770496924,
+                "lateness_ns": 51444545,
+                "start_tick": 3388,
+                "end_tick": 3392,
+                "ideal_start_ns": 609715052379,
+                "ideal_end_ns": 609719052379,
+                "earliest_start_ns": 609766754893,
+                "actual_start_ns": 609766754902
+              }
+            },
+            {
+              "kind": "write_enter",
+              "syscall": "write",
+              "pid": 9485,
+              "ns": 608801367000,
+              "fd": 14,
+              "count": 4096,
+              "end_ns": 608801434000,
+              "duration_ns": 67000,
+              "ret": 4096,
+              "scheduler": {
+                "off_cpu_ns": 0,
+                "runnable_ns": 0,
+                "blocked_before_wake_ns": 0,
+                "unknown_off_cpu_ns": 0,
+                "intervals": []
+              },
+              "fd_before": {
+                "target": "/root/wksim-scheduler-probe-eventmap-01/runs/scheduler-4598ca8a747b/epochs/e91fd8e50550468bbbe6b29f06bffe64/arducopter/logs/00000001.BIN",
+                "fdinfo": "pos:\t90112\nflags:\t02100001\nmnt_id:\t502\nino:\t1864716\n"
+              },
+              "rate_group": {
+                "kind": "rate_group_end",
+                "epoch": "e91fd8e50550468bbbe6b29f06bffe64",
+                "tick": 2436,
+                "issued_monotonic_ns": 608802263492,
+                "segment_id": 1,
+                "request_id": "config",
+                "requested_rate": 1.0,
+                "transition": false,
+                "actual_end_ns": 608802259968,
+                "lateness_ns": 39207589,
+                "start_tick": 2432,
+                "end_tick": 2436,
+                "ideal_start_ns": 608759052379,
+                "ideal_end_ns": 608763052379,
+                "earliest_start_ns": 608799434539,
+                "actual_start_ns": 608799448865
+              }
+            },
+            {
+              "kind": "write_enter",
+              "syscall": "write",
+              "pid": 9485,
+              "ns": 613135284000,
+              "fd": 14,
+              "count": 4096,
+              "end_ns": 613135345000,
+              "duration_ns": 61000,
+              "ret": 4096,
+              "scheduler": {
+                "off_cpu_ns": 0,
+                "runnable_ns": 0,
+                "blocked_before_wake_ns": 0,
+                "unknown_off_cpu_ns": 0,
+                "intervals": []
+              },
+              "fd_before": {
+                "target": "/root/wksim-scheduler-probe-eventmap-01/runs/scheduler-4598ca8a747b/epochs/e91fd8e50550468bbbe6b29f06bffe64/arducopter/logs/00000001.BIN",
+                "fdinfo": "pos:\t90112\nflags:\t02100001\nmnt_id:\t502\nino:\t1864716\n"
+              },
+              "rate_group": {
+                "kind": "rate_group_end",
+                "epoch": "e91fd8e50550468bbbe6b29f06bffe64",
+                "tick": 6728,
+                "issued_monotonic_ns": 613137790349,
+                "segment_id": 1,
+                "request_id": "config",
+                "requested_rate": 1.0,
+                "transition": false,
+                "actual_end_ns": 613137787624,
+                "lateness_ns": 82735245,
+                "start_tick": 6724,
+                "end_tick": 6728,
+                "ideal_start_ns": 613051052379,
+                "ideal_end_ns": 613055052379,
+                "earliest_start_ns": 613134319611,
+                "actual_start_ns": 613134319629
+              }
+            },
+            {
+              "kind": "write_enter",
+              "syscall": "write",
+              "pid": 9485,
+              "ns": 612738489000,
+              "fd": 14,
+              "count": 4096,
+              "end_ns": 612738547000,
+              "duration_ns": 58000,
+              "ret": 4096,
+              "scheduler": {
+                "off_cpu_ns": 0,
+                "runnable_ns": 0,
+                "blocked_before_wake_ns": 0,
+                "unknown_off_cpu_ns": 0,
+                "intervals": []
+              },
+              "fd_before": {
+                "target": "/root/wksim-scheduler-probe-eventmap-01/runs/scheduler-4598ca8a747b/epochs/e91fd8e50550468bbbe6b29f06bffe64/arducopter/logs/00000001.BIN",
+                "fdinfo": "pos:\t90112\nflags:\t02100001\nmnt_id:\t502\nino:\t1864716\n"
+              },
+              "rate_group": {
+                "kind": "rate_group_end",
+                "epoch": "e91fd8e50550468bbbe6b29f06bffe64",
+                "tick": 6332,
+                "issued_monotonic_ns": 612739293547,
+                "segment_id": 1,
+                "request_id": "config",
+                "requested_rate": 1.0,
+                "transition": false,
+                "actual_end_ns": 612739290460,
+                "lateness_ns": 80238081,
+                "start_tick": 6328,
+                "end_tick": 6332,
+                "ideal_start_ns": 612655052379,
+                "ideal_end_ns": 612659052379,
+                "earliest_start_ns": 612736302167,
+                "actual_start_ns": 612736302171
+              }
+            },
+            {
+              "kind": "write_enter",
+              "syscall": "write",
+              "pid": 9485,
+              "ns": 611118974000,
+              "fd": 14,
+              "count": 4096,
+              "end_ns": 611119025000,
+              "duration_ns": 51000,
+              "ret": 4096,
+              "scheduler": {
+                "off_cpu_ns": 0,
+                "runnable_ns": 0,
+                "blocked_before_wake_ns": 0,
+                "unknown_off_cpu_ns": 0,
+                "intervals": []
+              },
+              "fd_before": {
+                "target": "/root/wksim-scheduler-probe-eventmap-01/runs/scheduler-4598ca8a747b/epochs/e91fd8e50550468bbbe6b29f06bffe64/arducopter/logs/00000001.BIN",
+                "fdinfo": "pos:\t90112\nflags:\t02100001\nmnt_id:\t502\nino:\t1864716\n"
+              },
+              "rate_group": {
+                "kind": "rate_group_end",
+                "epoch": "e91fd8e50550468bbbe6b29f06bffe64",
+                "tick": 4728,
+                "issued_monotonic_ns": 611120598831,
+                "segment_id": 1,
+                "request_id": "config",
+                "requested_rate": 1.0,
+                "transition": false,
+                "actual_end_ns": 611120595900,
+                "lateness_ns": 65543521,
+                "start_tick": 4724,
+                "end_tick": 4728,
+                "ideal_start_ns": 611051052379,
+                "ideal_end_ns": 611055052379,
+                "earliest_start_ns": 611117370898,
+                "actual_start_ns": 611117391051
+              }
+            },
+            {
+              "kind": "write_enter",
+              "syscall": "write",
+              "pid": 9485,
+              "ns": 612548928000,
+              "fd": 14,
+              "count": 4096,
+              "end_ns": 612548967000,
+              "duration_ns": 39000,
+              "ret": 4096,
+              "scheduler": {
+                "off_cpu_ns": 24000,
+                "runnable_ns": 24000,
+                "blocked_before_wake_ns": 0,
+                "unknown_off_cpu_ns": 0,
+                "intervals": [
+                  {
+                    "start_ns": 612548940000,
+                    "state": "R+",
+                    "wake_ns": null,
+                    "end_ns": 612548964000
+                  }
+                ]
+              },
+              "fd_before": {
+                "target": "/root/wksim-scheduler-probe-eventmap-01/runs/scheduler-4598ca8a747b/epochs/e91fd8e50550468bbbe6b29f06bffe64/arducopter/logs/00000001.BIN",
+                "fdinfo": "pos:\t90112\nflags:\t02100001\nmnt_id:\t502\nino:\t1864716\n"
+              },
+              "rate_group": {
+                "kind": "rate_group_end",
+                "epoch": "e91fd8e50550468bbbe6b29f06bffe64",
+                "tick": 6144,
+                "issued_monotonic_ns": 612551420781,
+                "segment_id": 1,
+                "request_id": "config",
+                "requested_rate": 1.0,
+                "transition": false,
+                "actual_end_ns": 612551417500,
+                "lateness_ns": 80365121,
+                "start_tick": 6140,
+                "end_tick": 6144,
+                "ideal_start_ns": 612467052379,
+                "ideal_end_ns": 612471052379,
+                "earliest_start_ns": 612547775570,
+                "actual_start_ns": 612547775571
+              }
+            },
+            {
+              "kind": "write_enter",
+              "syscall": "write",
+              "pid": 9485,
+              "ns": 611985774000,
+              "fd": 14,
+              "count": 4096,
+              "end_ns": 611985805000,
+              "duration_ns": 31000,
+              "ret": 4096,
+              "scheduler": {
+                "off_cpu_ns": 18000,
+                "runnable_ns": 18000,
+                "blocked_before_wake_ns": 0,
+                "unknown_off_cpu_ns": 0,
+                "intervals": [
+                  {
+                    "start_ns": 611985785000,
+                    "state": "R+",
+                    "wake_ns": null,
+                    "end_ns": 611985803000
+                  }
+                ]
+              },
+              "fd_before": {
+                "target": "/root/wksim-scheduler-probe-eventmap-01/runs/scheduler-4598ca8a747b/epochs/e91fd8e50550468bbbe6b29f06bffe64/arducopter/logs/00000001.BIN",
+                "fdinfo": "pos:\t90112\nflags:\t02100001\nmnt_id:\t502\nino:\t1864716\n"
+              },
+              "rate_group": {
+                "kind": "rate_group_end",
+                "epoch": "e91fd8e50550468bbbe6b29f06bffe64",
+                "tick": 5584,
+                "issued_monotonic_ns": 611988384463,
+                "segment_id": 1,
+                "request_id": "config",
+                "requested_rate": 1.0,
+                "transition": false,
+                "actual_end_ns": 611988380869,
+                "lateness_ns": 77328490,
+                "start_tick": 5580,
+                "end_tick": 5584,
+                "ideal_start_ns": 611907052379,
+                "ideal_end_ns": 611911052379,
+                "earliest_start_ns": 611984795270,
+                "actual_start_ns": 611984795291
+              }
+            },
+            {
+              "kind": "write_enter",
+              "syscall": "write",
+              "pid": 9485,
+              "ns": 614398877000,
+              "fd": 14,
+              "count": 4096,
+              "end_ns": 614398899000,
+              "duration_ns": 22000,
+              "ret": 4096,
+              "scheduler": {
+                "off_cpu_ns": 0,
+                "runnable_ns": 0,
+                "blocked_before_wake_ns": 0,
+                "unknown_off_cpu_ns": 0,
+                "intervals": []
+              },
+              "fd_before": {
+                "target": "/root/wksim-scheduler-probe-eventmap-01/runs/scheduler-4598ca8a747b/epochs/e91fd8e50550468bbbe6b29f06bffe64/arducopter/logs/00000001.BIN",
+                "fdinfo": "pos:\t90112\nflags:\t02100001\nmnt_id:\t502\nino:\t1864716\n"
+              },
+              "rate_group": {
+                "kind": "rate_group_end",
+                "epoch": "e91fd8e50550468bbbe6b29f06bffe64",
+                "tick": 7976,
+                "issued_monotonic_ns": 614399028181,
+                "segment_id": 1,
+                "request_id": "config",
+                "requested_rate": 1.0,
+                "transition": false,
+                "actual_end_ns": 614399024035,
+                "lateness_ns": 95971656,
+                "start_tick": 7972,
+                "end_tick": 7976,
+                "ideal_start_ns": 614299052379,
+                "ideal_end_ns": 614303052379,
+                "earliest_start_ns": 614395211036,
+                "actual_start_ns": 614395211057
+              }
+            },
+            {
+              "kind": "write_enter",
+              "syscall": "write",
+              "pid": 9485,
+              "ns": 613236068000,
+              "fd": 14,
+              "count": 4096,
+              "end_ns": 613236086000,
+              "duration_ns": 18000,
+              "ret": 4096,
+              "scheduler": {
+                "off_cpu_ns": 0,
+                "runnable_ns": 0,
+                "blocked_before_wake_ns": 0,
+                "unknown_off_cpu_ns": 0,
+                "intervals": []
+              },
+              "fd_before": {
+                "target": "/root/wksim-scheduler-probe-eventmap-01/runs/scheduler-4598ca8a747b/epochs/e91fd8e50550468bbbe6b29f06bffe64/arducopter/logs/00000001.BIN",
+                "fdinfo": "pos:\t90112\nflags:\t02100001\nmnt_id:\t502\nino:\t1864716\n"
+              },
+              "rate_group": {
+                "kind": "rate_group_end",
+                "epoch": "e91fd8e50550468bbbe6b29f06bffe64",
+                "tick": 6828,
+                "issued_monotonic_ns": 613237816603,
+                "segment_id": 1,
+                "request_id": "config",
+                "requested_rate": 1.0,
+                "transition": false,
+                "actual_end_ns": 613237813892,
+                "lateness_ns": 82761513,
+                "start_tick": 6824,
+                "end_tick": 6828,
+                "ideal_start_ns": 613151052379,
+                "ideal_end_ns": 613155052379,
+                "earliest_start_ns": 613234555270,
+                "actual_start_ns": 613234555286
+              }
+            }
+          ]
+        },
+        {
+          "syscall": "fsync",
+          "complete_calls": 0,
+          "failed_or_short": 0,
+          "median_ns": null,
+          "p99_ns": null,
+          "maximum_ns": null,
+          "over_1ms": 0,
+          "top": []
+        },
+        {
+          "syscall": "fdatasync",
+          "complete_calls": 0,
+          "failed_or_short": 0,
+          "median_ns": null,
+          "p99_ns": null,
+          "maximum_ns": null,
+          "over_1ms": 0,
+          "top": []
+        }
+      ]
+    },
+    {
+      "role": "px4_fc/logger",
+      "owner": "px4_fc",
+      "operations": [
+        {
+          "syscall": "write",
+          "complete_calls": 0,
+          "failed_or_short": 0,
+          "median_ns": null,
+          "p99_ns": null,
+          "maximum_ns": null,
+          "over_1ms": 0,
+          "top": []
+        },
+        {
+          "syscall": "fsync",
+          "complete_calls": 0,
+          "failed_or_short": 0,
+          "median_ns": null,
+          "p99_ns": null,
+          "maximum_ns": null,
+          "over_1ms": 0,
+          "top": []
+        },
+        {
+          "syscall": "fdatasync",
+          "complete_calls": 0,
+          "failed_or_short": 0,
+          "median_ns": null,
+          "p99_ns": null,
+          "maximum_ns": null,
+          "over_1ms": 0,
+          "top": []
+        }
+      ]
+    }
+  ],
+  "recorded_native_waits": {
+    "recorded_samples": 54,
+    "inside_capture": 28,
+    "excluded_capture_boundary": 26,
+    "by_native_path": [
+      {
+        "native_path": "AP input only",
+        "recorded_samples": 11,
+        "median_recorded_ns": 190259,
+        "maximum_recorded_ns": 427015,
+        "recorded_waits_over_2ms": 0,
+        "recorded_wall_ns": 2405238,
+        "recorded_thread_cpu_ns": 1591067,
+        "scheduler_totals": {
+          "off_cpu_ns": 916000,
+          "runnable_ns": 63000,
+          "blocked_before_wake_ns": 853000,
+          "unknown_off_cpu_ns": 0
+        },
+        "correlated_thread_totals": {
+          "ap_fc/arducopter": {
+            "off_cpu_ns": 1343416,
+            "runnable_ns": 37000,
+            "blocked_before_wake_ns": 1306416,
+            "unknown_off_cpu_ns": 0
+          },
+          "ap_fc/log_io": {
+            "off_cpu_ns": 2396238,
+            "runnable_ns": 6000,
+            "blocked_before_wake_ns": 2390238,
+            "unknown_off_cpu_ns": 0
+          },
+          "ap_fc/DDS": {
+            "off_cpu_ns": 2393238,
+            "runnable_ns": 4000,
+            "blocked_before_wake_ns": 2389238,
+            "unknown_off_cpu_ns": 0
+          },
+          "px4_fc/sim_send": {
+            "off_cpu_ns": 2405238,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 2405238,
+            "unknown_off_cpu_ns": 0
+          },
+          "px4_fc/logger": {
+            "off_cpu_ns": 2405238,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 2405238,
+            "unknown_off_cpu_ns": 0
+          },
+          "px4_fc/wq:lp_default": {
+            "off_cpu_ns": 2405238,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 2405238,
+            "unknown_off_cpu_ns": 0
+          }
+        }
+      },
+      {
+        "native_path": "AP then PX4 inputs; not separated",
+        "recorded_samples": 17,
+        "median_recorded_ns": 353212,
+        "maximum_recorded_ns": 6573279,
+        "recorded_waits_over_2ms": 1,
+        "recorded_wall_ns": 14827042,
+        "recorded_thread_cpu_ns": 5555064,
+        "scheduler_totals": {
+          "off_cpu_ns": 9379000,
+          "runnable_ns": 471000,
+          "blocked_before_wake_ns": 8908000,
+          "unknown_off_cpu_ns": 0
+        },
+        "correlated_thread_totals": {
+          "ap_fc/arducopter": {
+            "off_cpu_ns": 14291534,
+            "runnable_ns": 480624,
+            "blocked_before_wake_ns": 13810910,
+            "unknown_off_cpu_ns": 0
+          },
+          "ap_fc/log_io": {
+            "off_cpu_ns": 14741042,
+            "runnable_ns": 81000,
+            "blocked_before_wake_ns": 14660042,
+            "unknown_off_cpu_ns": 0
+          },
+          "ap_fc/DDS": {
+            "off_cpu_ns": 14677313,
+            "runnable_ns": 97000,
+            "blocked_before_wake_ns": 14580313,
+            "unknown_off_cpu_ns": 0
+          },
+          "px4_fc/sim_send": {
+            "off_cpu_ns": 13163042,
+            "runnable_ns": 128000,
+            "blocked_before_wake_ns": 13035042,
+            "unknown_off_cpu_ns": 0
+          },
+          "px4_fc/logger": {
+            "off_cpu_ns": 14478042,
+            "runnable_ns": 67277,
+            "blocked_before_wake_ns": 14410765,
+            "unknown_off_cpu_ns": 0
+          },
+          "px4_fc/wq:lp_default": {
+            "off_cpu_ns": 14255042,
+            "runnable_ns": 15000,
+            "blocked_before_wake_ns": 14240042,
+            "unknown_off_cpu_ns": 0
+          }
+        }
+      }
+    ],
+    "longest_recorded_waits": [
+      {
+        "tick": 5504,
+        "ns": 611900703146,
+        "end_ns": 611907276425,
+        "duration_ns": 6573279,
+        "thread_cpu_ns": 717249,
+        "native_path": "AP then PX4 inputs; not separated",
+        "supervisor_scheduler": {
+          "off_cpu_ns": 5878000,
+          "runnable_ns": 49000,
+          "blocked_before_wake_ns": 5829000,
+          "unknown_off_cpu_ns": 0,
+          "intervals": [
+            {
+              "start_ns": 611900874000,
+              "state": "R",
+              "wake_ns": null,
+              "end_ns": 611900895000
+            },
+            {
+              "start_ns": 611900898000,
+              "state": "R",
+              "wake_ns": null,
+              "end_ns": 611900914000
+            },
+            {
+              "start_ns": 611901002000,
+              "state": "S",
+              "wake_ns": 611903003000,
+              "end_ns": 611903007000
+            },
+            {
+              "start_ns": 611903064000,
+              "state": "S",
+              "wake_ns": 611905080000,
+              "end_ns": 611905087000
+            },
+            {
+              "start_ns": 611905316000,
+              "state": "S",
+              "wake_ns": 611907128000,
+              "end_ns": 611907129000
+            }
+          ]
+        },
+        "limitation": "Supervisor blocking/runnable time does not identify the native FC or host cause",
+        "correlated_threads": {
+          "ap_fc/arducopter": {
+            "off_cpu_ns": 6573279,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 6573279,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 611900675000,
+                "state": "S",
+                "wake_ns": 611908257000,
+                "end_ns": 611908261000
+              }
+            ]
+          },
+          "ap_fc/log_io": {
+            "off_cpu_ns": 6548279,
+            "runnable_ns": 29000,
+            "blocked_before_wake_ns": 6519279,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 611900298000,
+                "state": "S",
+                "wake_ns": 611901310000,
+                "end_ns": 611901315000
+              },
+              {
+                "start_ns": 611901321000,
+                "state": "S",
+                "wake_ns": 611902327000,
+                "end_ns": 611902332000
+              },
+              {
+                "start_ns": 611902335000,
+                "state": "S",
+                "wake_ns": 611903348000,
+                "end_ns": 611903352000
+              },
+              {
+                "start_ns": 611903356000,
+                "state": "S",
+                "wake_ns": 611904369000,
+                "end_ns": 611904374000
+              },
+              {
+                "start_ns": 611904378000,
+                "state": "S",
+                "wake_ns": 611905399000,
+                "end_ns": 611905403000
+              },
+              {
+                "start_ns": 611905408000,
+                "state": "S",
+                "wake_ns": 611906409000,
+                "end_ns": 611906415000
+              },
+              {
+                "start_ns": 611906418000,
+                "state": "S",
+                "wake_ns": 611907436000,
+                "end_ns": 611907472000
+              }
+            ]
+          },
+          "ap_fc/DDS": {
+            "off_cpu_ns": 6524279,
+            "runnable_ns": 66000,
+            "blocked_before_wake_ns": 6458279,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 611900385000,
+                "state": "S",
+                "wake_ns": 611901392000,
+                "end_ns": 611901396000
+              },
+              {
+                "start_ns": 611901416000,
+                "state": "S",
+                "wake_ns": 611901518000,
+                "end_ns": 611901520000
+              },
+              {
+                "start_ns": 611901527000,
+                "state": "S",
+                "wake_ns": 611902533000,
+                "end_ns": 611902537000
+              },
+              {
+                "start_ns": 611902542000,
+                "state": "S",
+                "wake_ns": 611903557000,
+                "end_ns": 611903565000
+              },
+              {
+                "start_ns": 611903568000,
+                "state": "S",
+                "wake_ns": 611904582000,
+                "end_ns": 611904594000
+              },
+              {
+                "start_ns": 611904598000,
+                "state": "S",
+                "wake_ns": 611905610000,
+                "end_ns": 611905614000
+              },
+              {
+                "start_ns": 611905618000,
+                "state": "S",
+                "wake_ns": 611906621000,
+                "end_ns": 611906653000
+              },
+              {
+                "start_ns": 611906659000,
+                "state": "S",
+                "wake_ns": 611907682000,
+                "end_ns": 611907685000
+              }
+            ]
+          },
+          "px4_fc/sim_send": {
+            "off_cpu_ns": 6532279,
+            "runnable_ns": 3000,
+            "blocked_before_wake_ns": 6529279,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 611896205000,
+                "state": "S",
+                "wake_ns": 611900863000,
+                "end_ns": 611900864000
+              },
+              {
+                "start_ns": 611900869000,
+                "state": "S",
+                "wake_ns": 611907080000,
+                "end_ns": 611907082000
+              },
+              {
+                "start_ns": 611907118000,
+                "state": "S",
+                "wake_ns": 611910442000,
+                "end_ns": 611910442000
+              }
+            ]
+          },
+          "px4_fc/logger": {
+            "off_cpu_ns": 6551279,
+            "runnable_ns": 30000,
+            "blocked_before_wake_ns": 6521279,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 611896115000,
+                "state": "S",
+                "wake_ns": 611900859000,
+                "end_ns": 611900874000
+              },
+              {
+                "start_ns": 611900891000,
+                "state": "R",
+                "wake_ns": null,
+                "end_ns": 611900906000
+              },
+              {
+                "start_ns": 611900911000,
+                "state": "S",
+                "wake_ns": 611910448000,
+                "end_ns": 611910449000
+              }
+            ]
+          },
+          "px4_fc/wq:lp_default": {
+            "off_cpu_ns": 6001279,
+            "runnable_ns": 15000,
+            "blocked_before_wake_ns": 5986279,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 611893456000,
+                "state": "S",
+                "wake_ns": 611900762000,
+                "end_ns": 611900763000
+              },
+              {
+                "start_ns": 611900864000,
+                "state": "D",
+                "wake_ns": 611901077000,
+                "end_ns": 611901081000
+              },
+              {
+                "start_ns": 611901089000,
+                "state": "D",
+                "wake_ns": 611903782000,
+                "end_ns": 611903786000
+              },
+              {
+                "start_ns": 611904123000,
+                "state": "D",
+                "wake_ns": 611904245000,
+                "end_ns": 611904248000
+              },
+              {
+                "start_ns": 611904252000,
+                "state": "D",
+                "wake_ns": 611906936000,
+                "end_ns": 611906939000
+              },
+              {
+                "start_ns": 611907061000,
+                "state": "S",
+                "wake_ns": 611918493000,
+                "end_ns": 611918495000
+              }
+            ]
+          }
+        }
+      },
+      {
+        "tick": 6988,
+        "ns": 613399177279,
+        "end_ns": 613400772729,
+        "duration_ns": 1595450,
+        "thread_cpu_ns": 228870,
+        "native_path": "AP then PX4 inputs; not separated",
+        "supervisor_scheduler": {
+          "off_cpu_ns": 1373000,
+          "runnable_ns": 1000,
+          "blocked_before_wake_ns": 1372000,
+          "unknown_off_cpu_ns": 0,
+          "intervals": [
+            {
+              "start_ns": 613399197000,
+              "state": "S",
+              "wake_ns": 613400569000,
+              "end_ns": 613400570000
+            }
+          ]
+        },
+        "limitation": "Supervisor blocking/runnable time does not identify the native FC or host cause",
+        "correlated_threads": {
+          "ap_fc/arducopter": {
+            "off_cpu_ns": 1481450,
+            "runnable_ns": 60000,
+            "blocked_before_wake_ns": 1421450,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 613398359000,
+                "state": "S",
+                "wake_ns": 613400385000,
+                "end_ns": 613400445000
+              },
+              {
+                "start_ns": 613400559000,
+                "state": "S",
+                "wake_ns": 613402142000,
+                "end_ns": 613402143000
+              }
+            ]
+          },
+          "ap_fc/log_io": {
+            "off_cpu_ns": 1583450,
+            "runnable_ns": 8000,
+            "blocked_before_wake_ns": 1575450,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 613398978000,
+                "state": "S",
+                "wake_ns": 613399989000,
+                "end_ns": 613399997000
+              },
+              {
+                "start_ns": 613400009000,
+                "state": "S",
+                "wake_ns": 613401021000,
+                "end_ns": 613401028000
+              }
+            ]
+          },
+          "ap_fc/DDS": {
+            "off_cpu_ns": 1566721,
+            "runnable_ns": 12000,
+            "blocked_before_wake_ns": 1554721,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 613398729000,
+                "state": "S",
+                "wake_ns": 613399729000,
+                "end_ns": 613399736000
+              },
+              {
+                "start_ns": 613399741000,
+                "state": "S",
+                "wake_ns": 613400744000,
+                "end_ns": 613400749000
+              }
+            ]
+          },
+          "px4_fc/sim_send": {
+            "off_cpu_ns": 1555450,
+            "runnable_ns": 19000,
+            "blocked_before_wake_ns": 1536450,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 613394696000,
+                "state": "S",
+                "wake_ns": 613399276000,
+                "end_ns": 613399279000
+              },
+              {
+                "start_ns": 613399285000,
+                "state": "S",
+                "wake_ns": 613400410000,
+                "end_ns": 613400426000
+              },
+              {
+                "start_ns": 613400460000,
+                "state": "S",
+                "wake_ns": 613404424000,
+                "end_ns": 613404427000
+              }
+            ]
+          },
+          "px4_fc/logger": {
+            "off_cpu_ns": 1575450,
+            "runnable_ns": 2000,
+            "blocked_before_wake_ns": 1573450,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 613394620000,
+                "state": "S",
+                "wake_ns": 613399282000,
+                "end_ns": 613399284000
+              },
+              {
+                "start_ns": 613399304000,
+                "state": "S",
+                "wake_ns": 613404396000,
+                "end_ns": 613404397000
+              }
+            ]
+          },
+          "px4_fc/wq:lp_default": {
+            "off_cpu_ns": 1595450,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 1595450,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 613387132000,
+                "state": "S",
+                "wake_ns": 613408749000,
+                "end_ns": 613408752000
+              }
+            ]
+          }
+        }
+      },
+      {
+        "tick": 3960,
+        "ns": 610343939077,
+        "end_ns": 610345487387,
+        "duration_ns": 1548310,
+        "thread_cpu_ns": 822650,
+        "native_path": "AP then PX4 inputs; not separated",
+        "supervisor_scheduler": {
+          "off_cpu_ns": 738000,
+          "runnable_ns": 91000,
+          "blocked_before_wake_ns": 647000,
+          "unknown_off_cpu_ns": 0,
+          "intervals": [
+            {
+              "start_ns": 610343951000,
+              "state": "R",
+              "wake_ns": null,
+              "end_ns": 610343988000
+            },
+            {
+              "start_ns": 610343996000,
+              "state": "R",
+              "wake_ns": null,
+              "end_ns": 610344012000
+            },
+            {
+              "start_ns": 610344041000,
+              "state": "R",
+              "wake_ns": null,
+              "end_ns": 610344074000
+            },
+            {
+              "start_ns": 610344264000,
+              "state": "S",
+              "wake_ns": 610344270000,
+              "end_ns": 610344272000
+            },
+            {
+              "start_ns": 610344738000,
+              "state": "S",
+              "wake_ns": 610345379000,
+              "end_ns": 610345382000
+            }
+          ]
+        },
+        "limitation": "Supervisor blocking/runnable time does not identify the native FC or host cause",
+        "correlated_threads": {
+          "ap_fc/arducopter": {
+            "off_cpu_ns": 1459310,
+            "runnable_ns": 42923,
+            "blocked_before_wake_ns": 1416387,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 610343906000,
+                "state": "R",
+                "wake_ns": null,
+                "end_ns": 610343953000
+              },
+              {
+                "start_ns": 610343988000,
+                "state": "R",
+                "wake_ns": null,
+                "end_ns": 610344017000
+              },
+              {
+                "start_ns": 610344071000,
+                "state": "S",
+                "wake_ns": 610346179000,
+                "end_ns": 610346184000
+              }
+            ]
+          },
+          "ap_fc/log_io": {
+            "off_cpu_ns": 1535310,
+            "runnable_ns": 15000,
+            "blocked_before_wake_ns": 1520310,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 610343049000,
+                "state": "S",
+                "wake_ns": 610344070000,
+                "end_ns": 610344079000
+              },
+              {
+                "start_ns": 610344087000,
+                "state": "S",
+                "wake_ns": 610345095000,
+                "end_ns": 610345101000
+              },
+              {
+                "start_ns": 610345106000,
+                "state": "S",
+                "wake_ns": 610346124000,
+                "end_ns": 610346132000
+              }
+            ]
+          },
+          "ap_fc/DDS": {
+            "off_cpu_ns": 1541310,
+            "runnable_ns": 5000,
+            "blocked_before_wake_ns": 1536310,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 610343879000,
+                "state": "S",
+                "wake_ns": 610344880000,
+                "end_ns": 610344885000
+              },
+              {
+                "start_ns": 610344892000,
+                "state": "S",
+                "wake_ns": 610345909000,
+                "end_ns": 610345912000
+              }
+            ]
+          },
+          "px4_fc/sim_send": {
+            "off_cpu_ns": 287310,
+            "runnable_ns": 8000,
+            "blocked_before_wake_ns": 279310,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 610339375000,
+                "state": "S",
+                "wake_ns": 610343993000,
+                "end_ns": 610343996000
+              },
+              {
+                "start_ns": 610344017000,
+                "state": "S",
+                "wake_ns": 610344125000,
+                "end_ns": 610344130000
+              },
+              {
+                "start_ns": 610345370000,
+                "state": "S",
+                "wake_ns": 610348359000,
+                "end_ns": 610348361000
+              }
+            ]
+          },
+          "px4_fc/logger": {
+            "off_cpu_ns": 1523310,
+            "runnable_ns": 1000,
+            "blocked_before_wake_ns": 1522310,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 610339355000,
+                "state": "S",
+                "wake_ns": 610344040000,
+                "end_ns": 610344041000
+              },
+              {
+                "start_ns": 610344066000,
+                "state": "S",
+                "wake_ns": 610348360000,
+                "end_ns": 610348384000
+              }
+            ]
+          },
+          "px4_fc/wq:lp_default": {
+            "off_cpu_ns": 1548310,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 1548310,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 610339301000,
+                "state": "S",
+                "wake_ns": 610360280000,
+                "end_ns": 610360283000
+              }
+            ]
+          }
+        }
+      },
+      {
+        "tick": 7584,
+        "ns": 614002743757,
+        "end_ns": 614003474822,
+        "duration_ns": 731065,
+        "thread_cpu_ns": 731479,
+        "native_path": "AP then PX4 inputs; not separated",
+        "supervisor_scheduler": {
+          "off_cpu_ns": 12000,
+          "runnable_ns": 12000,
+          "blocked_before_wake_ns": 0,
+          "unknown_off_cpu_ns": 0,
+          "intervals": [
+            {
+              "start_ns": 614002822000,
+              "state": "R",
+              "wake_ns": null,
+              "end_ns": 614002834000
+            }
+          ]
+        },
+        "limitation": "Supervisor blocking/runnable time does not identify the native FC or host cause",
+        "correlated_threads": {
+          "ap_fc/arducopter": {
+            "off_cpu_ns": 591822,
+            "runnable_ns": 91000,
+            "blocked_before_wake_ns": 500822,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 614002860000,
+                "state": "R",
+                "wake_ns": null,
+                "end_ns": 614002947000
+              },
+              {
+                "start_ns": 614002953000,
+                "state": "R",
+                "wake_ns": null,
+                "end_ns": 614002957000
+              },
+              {
+                "start_ns": 614002974000,
+                "state": "S",
+                "wake_ns": 614004600000,
+                "end_ns": 614004637000
+              }
+            ]
+          },
+          "ap_fc/log_io": {
+            "off_cpu_ns": 723065,
+            "runnable_ns": 3000,
+            "blocked_before_wake_ns": 720065,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 614002284000,
+                "state": "S",
+                "wake_ns": 614003287000,
+                "end_ns": 614003290000
+              },
+              {
+                "start_ns": 614003298000,
+                "state": "S",
+                "wake_ns": 614004320000,
+                "end_ns": 614004325000
+              }
+            ]
+          },
+          "ap_fc/DDS": {
+            "off_cpu_ns": 731065,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 731065,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 614002706000,
+                "state": "S",
+                "wake_ns": 614003717000,
+                "end_ns": 614003724000
+              }
+            ]
+          },
+          "px4_fc/sim_send": {
+            "off_cpu_ns": 704065,
+            "runnable_ns": 2000,
+            "blocked_before_wake_ns": 702065,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 613997458000,
+                "state": "S",
+                "wake_ns": 614002845000,
+                "end_ns": 614002846000
+              },
+              {
+                "start_ns": 614002852000,
+                "state": "S",
+                "wake_ns": 614002956000,
+                "end_ns": 614002957000
+              },
+              {
+                "start_ns": 614002978000,
+                "state": "S",
+                "wake_ns": 614007226000,
+                "end_ns": 614007228000
+              }
+            ]
+          },
+          "px4_fc/logger": {
+            "off_cpu_ns": 691065,
+            "runnable_ns": 3000,
+            "blocked_before_wake_ns": 688065,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 613997390000,
+                "state": "S",
+                "wake_ns": 614002914000,
+                "end_ns": 614002917000
+              },
+              {
+                "start_ns": 614002957000,
+                "state": "S",
+                "wake_ns": 614007239000,
+                "end_ns": 614007242000
+              }
+            ]
+          },
+          "px4_fc/wq:lp_default": {
+            "off_cpu_ns": 731065,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 731065,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 613992405000,
+                "state": "S",
+                "wake_ns": 614015050000,
+                "end_ns": 614015059000
+              }
+            ]
+          }
+        }
+      },
+      {
+        "tick": 5500,
+        "ns": 611896131560,
+        "end_ns": 611896797171,
+        "duration_ns": 665611,
+        "thread_cpu_ns": 680284,
+        "native_path": "AP then PX4 inputs; not separated",
+        "supervisor_scheduler": {
+          "off_cpu_ns": 0,
+          "runnable_ns": 0,
+          "blocked_before_wake_ns": 0,
+          "unknown_off_cpu_ns": 0,
+          "intervals": []
+        },
+        "limitation": "Supervisor blocking/runnable time does not identify the native FC or host cause",
+        "correlated_threads": {
+          "ap_fc/arducopter": {
+            "off_cpu_ns": 665611,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 665611,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 611896110000,
+                "state": "S",
+                "wake_ns": 611898517000,
+                "end_ns": 611898532000
+              }
+            ]
+          },
+          "ap_fc/log_io": {
+            "off_cpu_ns": 665611,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 665611,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 611896129000,
+                "state": "S",
+                "wake_ns": 611897153000,
+                "end_ns": 611897186000
+              }
+            ]
+          },
+          "ap_fc/DDS": {
+            "off_cpu_ns": 665611,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 665611,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 611896129000,
+                "state": "S",
+                "wake_ns": 611897149000,
+                "end_ns": 611897160000
+              }
+            ]
+          },
+          "px4_fc/sim_send": {
+            "off_cpu_ns": 646611,
+            "runnable_ns": 4000,
+            "blocked_before_wake_ns": 642611,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 611893622000,
+                "state": "S",
+                "wake_ns": 611896166000,
+                "end_ns": 611896169000
+              },
+              {
+                "start_ns": 611896172000,
+                "state": "S",
+                "wake_ns": 611896188000,
+                "end_ns": 611896189000
+              },
+              {
+                "start_ns": 611896205000,
+                "state": "S",
+                "wake_ns": 611900863000,
+                "end_ns": 611900864000
+              }
+            ]
+          },
+          "px4_fc/logger": {
+            "off_cpu_ns": 665611,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 665611,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 611896115000,
+                "state": "S",
+                "wake_ns": 611900859000,
+                "end_ns": 611900874000
+              }
+            ]
+          },
+          "px4_fc/wq:lp_default": {
+            "off_cpu_ns": 665611,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 665611,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 611893456000,
+                "state": "S",
+                "wake_ns": 611900762000,
+                "end_ns": 611900763000
+              }
+            ]
+          }
+        }
+      },
+      {
+        "tick": 6500,
+        "ns": 612907956649,
+        "end_ns": 612908428896,
+        "duration_ns": 472247,
+        "thread_cpu_ns": 187323,
+        "native_path": "AP then PX4 inputs; not separated",
+        "supervisor_scheduler": {
+          "off_cpu_ns": 291000,
+          "runnable_ns": 2000,
+          "blocked_before_wake_ns": 289000,
+          "unknown_off_cpu_ns": 0,
+          "intervals": [
+            {
+              "start_ns": 612907989000,
+              "state": "S",
+              "wake_ns": 612908278000,
+              "end_ns": 612908280000
+            }
+          ]
+        },
+        "limitation": "Supervisor blocking/runnable time does not identify the native FC or host cause",
+        "correlated_threads": {
+          "ap_fc/arducopter": {
+            "off_cpu_ns": 472247,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 472247,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 612907947000,
+                "state": "S",
+                "wake_ns": 612909932000,
+                "end_ns": 612909938000
+              }
+            ]
+          },
+          "ap_fc/log_io": {
+            "off_cpu_ns": 454247,
+            "runnable_ns": 21000,
+            "blocked_before_wake_ns": 433247,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 612907108000,
+                "state": "S",
+                "wake_ns": 612908145000,
+                "end_ns": 612908166000
+              },
+              {
+                "start_ns": 612908184000,
+                "state": "S",
+                "wake_ns": 612909182000,
+                "end_ns": 612909189000
+              }
+            ]
+          },
+          "ap_fc/DDS": {
+            "off_cpu_ns": 472247,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 472247,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 612907634000,
+                "state": "S",
+                "wake_ns": 612908643000,
+                "end_ns": 612908666000
+              }
+            ]
+          },
+          "px4_fc/sim_send": {
+            "off_cpu_ns": 450247,
+            "runnable_ns": 44000,
+            "blocked_before_wake_ns": 406247,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 612904447000,
+                "state": "S",
+                "wake_ns": 612908201000,
+                "end_ns": 612908245000
+              },
+              {
+                "start_ns": 612908267000,
+                "state": "S",
+                "wake_ns": 612912098000,
+                "end_ns": 612912100000
+              }
+            ]
+          },
+          "px4_fc/logger": {
+            "off_cpu_ns": 459247,
+            "runnable_ns": 1000,
+            "blocked_before_wake_ns": 458247,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 612904360000,
+                "state": "S",
+                "wake_ns": 612908047000,
+                "end_ns": 612908048000
+              },
+              {
+                "start_ns": 612908061000,
+                "state": "S",
+                "wake_ns": 612912118000,
+                "end_ns": 612912120000
+              }
+            ]
+          },
+          "px4_fc/wq:lp_default": {
+            "off_cpu_ns": 472247,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 472247,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 612904273000,
+                "state": "S",
+                "wake_ns": 612912061000,
+                "end_ns": 612912062000
+              }
+            ]
+          }
+        }
+      },
+      {
+        "tick": 8000,
+        "ns": 614422182535,
+        "end_ns": 614422654002,
+        "duration_ns": 471467,
+        "thread_cpu_ns": 186840,
+        "native_path": "AP then PX4 inputs; not separated",
+        "supervisor_scheduler": {
+          "off_cpu_ns": 293000,
+          "runnable_ns": 10000,
+          "blocked_before_wake_ns": 283000,
+          "unknown_off_cpu_ns": 0,
+          "intervals": [
+            {
+              "start_ns": 614422186000,
+              "state": "R",
+              "wake_ns": null,
+              "end_ns": 614422191000
+            },
+            {
+              "start_ns": 614422249000,
+              "state": "S",
+              "wake_ns": 614422532000,
+              "end_ns": 614422537000
+            }
+          ]
+        },
+        "limitation": "Supervisor blocking/runnable time does not identify the native FC or host cause",
+        "correlated_threads": {
+          "ap_fc/arducopter": {
+            "off_cpu_ns": 463002,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 463002,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 614422191000,
+                "state": "S",
+                "wake_ns": 614424918000,
+                "end_ns": 614424923000
+              }
+            ]
+          },
+          "ap_fc/log_io": {
+            "off_cpu_ns": 466467,
+            "runnable_ns": 4000,
+            "blocked_before_wake_ns": 462467,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 614421622000,
+                "state": "S",
+                "wake_ns": 614422631000,
+                "end_ns": 614422635000
+              },
+              {
+                "start_ns": 614422640000,
+                "state": "S",
+                "wake_ns": 614423644000,
+                "end_ns": 614423655000
+              }
+            ]
+          },
+          "ap_fc/DDS": {
+            "off_cpu_ns": 427467,
+            "runnable_ns": 12000,
+            "blocked_before_wake_ns": 415467,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 614421421000,
+                "state": "S",
+                "wake_ns": 614422438000,
+                "end_ns": 614422445000
+              },
+              {
+                "start_ns": 614422478000,
+                "state": "S",
+                "wake_ns": 614422630000,
+                "end_ns": 614422635000
+              },
+              {
+                "start_ns": 614422646000,
+                "state": "S",
+                "wake_ns": 614423653000,
+                "end_ns": 614423657000
+              }
+            ]
+          },
+          "px4_fc/sim_send": {
+            "off_cpu_ns": 444467,
+            "runnable_ns": 5000,
+            "blocked_before_wake_ns": 439467,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 614418380000,
+                "state": "S",
+                "wake_ns": 614422362000,
+                "end_ns": 614422364000
+              },
+              {
+                "start_ns": 614422371000,
+                "state": "S",
+                "wake_ns": 614422499000,
+                "end_ns": 614422502000
+              },
+              {
+                "start_ns": 614422522000,
+                "state": "S",
+                "wake_ns": 614427286000,
+                "end_ns": 614427289000
+              }
+            ]
+          },
+          "px4_fc/logger": {
+            "off_cpu_ns": 458467,
+            "runnable_ns": 4000,
+            "blocked_before_wake_ns": 454467,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 614418338000,
+                "state": "S",
+                "wake_ns": 614422313000,
+                "end_ns": 614422317000
+              },
+              {
+                "start_ns": 614422330000,
+                "state": "S",
+                "wake_ns": 614427165000,
+                "end_ns": 614427179000
+              }
+            ]
+          },
+          "px4_fc/wq:lp_default": {
+            "off_cpu_ns": 471467,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 471467,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 614418268000,
+                "state": "S",
+                "wake_ns": 614427101000,
+                "end_ns": 614427104000
+              }
+            ]
+          }
+        }
+      },
+      {
+        "tick": 7580,
+        "ns": 613997265934,
+        "end_ns": 613997719100,
+        "duration_ns": 453166,
+        "thread_cpu_ns": 353159,
+        "native_path": "AP then PX4 inputs; not separated",
+        "supervisor_scheduler": {
+          "off_cpu_ns": 100000,
+          "runnable_ns": 100000,
+          "blocked_before_wake_ns": 0,
+          "unknown_off_cpu_ns": 0,
+          "intervals": [
+            {
+              "start_ns": 613997296000,
+              "state": "R",
+              "wake_ns": null,
+              "end_ns": 613997375000
+            },
+            {
+              "start_ns": 613997381000,
+              "state": "R",
+              "wake_ns": null,
+              "end_ns": 613997402000
+            }
+          ]
+        },
+        "limitation": "Supervisor blocking/runnable time does not identify the native FC or host cause",
+        "correlated_threads": {
+          "ap_fc/arducopter": {
+            "off_cpu_ns": 453166,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 453166,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 613997207000,
+                "state": "S",
+                "wake_ns": 613998821000,
+                "end_ns": 613998826000
+              }
+            ]
+          },
+          "ap_fc/log_io": {
+            "off_cpu_ns": 453166,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 453166,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 613997093000,
+                "state": "S",
+                "wake_ns": 613998113000,
+                "end_ns": 613998115000
+              }
+            ]
+          },
+          "ap_fc/DDS": {
+            "off_cpu_ns": 453166,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 453166,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 613997071000,
+                "state": "S",
+                "wake_ns": 613998088000,
+                "end_ns": 613998095000
+              }
+            ]
+          },
+          "px4_fc/sim_send": {
+            "off_cpu_ns": 418166,
+            "runnable_ns": 3000,
+            "blocked_before_wake_ns": 415166,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 613992503000,
+                "state": "S",
+                "wake_ns": 613997380000,
+                "end_ns": 613997381000
+              },
+              {
+                "start_ns": 613997400000,
+                "state": "S",
+                "wake_ns": 613997440000,
+                "end_ns": 613997442000
+              },
+              {
+                "start_ns": 613997458000,
+                "state": "S",
+                "wake_ns": 614002845000,
+                "end_ns": 614002846000
+              }
+            ]
+          },
+          "px4_fc/logger": {
+            "off_cpu_ns": 411166,
+            "runnable_ns": 3000,
+            "blocked_before_wake_ns": 408166,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 613992476000,
+                "state": "S",
+                "wake_ns": 613997345000,
+                "end_ns": 613997348000
+              },
+              {
+                "start_ns": 613997390000,
+                "state": "S",
+                "wake_ns": 614002914000,
+                "end_ns": 614002917000
+              }
+            ]
+          },
+          "px4_fc/wq:lp_default": {
+            "off_cpu_ns": 453166,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 453166,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 613992405000,
+                "state": "S",
+                "wake_ns": 614015050000,
+                "end_ns": 614015059000
+              }
+            ]
+          }
+        }
+      },
+      {
+        "tick": 5750,
+        "ns": 612154540932,
+        "end_ns": 612154967947,
+        "duration_ns": 427015,
+        "thread_cpu_ns": 436560,
+        "native_path": "AP input only",
+        "supervisor_scheduler": {
+          "off_cpu_ns": 0,
+          "runnable_ns": 0,
+          "blocked_before_wake_ns": 0,
+          "unknown_off_cpu_ns": 0,
+          "intervals": []
+        },
+        "limitation": "Supervisor blocking/runnable time does not identify the native FC or host cause",
+        "correlated_threads": {
+          "ap_fc/arducopter": {
+            "off_cpu_ns": 280015,
+            "runnable_ns": 8000,
+            "blocked_before_wake_ns": 272015,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 612153926000,
+                "state": "S",
+                "wake_ns": 612154545000,
+                "end_ns": 612154553000
+              },
+              {
+                "start_ns": 612154700000,
+                "state": "S",
+                "wake_ns": 612155639000,
+                "end_ns": 612155644000
+              }
+            ]
+          },
+          "ap_fc/log_io": {
+            "off_cpu_ns": 420015,
+            "runnable_ns": 4000,
+            "blocked_before_wake_ns": 416015,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 612153523000,
+                "state": "S",
+                "wake_ns": 612154546000,
+                "end_ns": 612154550000
+              },
+              {
+                "start_ns": 612154557000,
+                "state": "S",
+                "wake_ns": 612155578000,
+                "end_ns": 612155584000
+              }
+            ]
+          },
+          "ap_fc/DDS": {
+            "off_cpu_ns": 427015,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 427015,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 612154221000,
+                "state": "S",
+                "wake_ns": 612155224000,
+                "end_ns": 612155236000
+              }
+            ]
+          },
+          "px4_fc/sim_send": {
+            "off_cpu_ns": 427015,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 427015,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 612152279000,
+                "state": "S",
+                "wake_ns": 612156596000,
+                "end_ns": 612156612000
+              }
+            ]
+          },
+          "px4_fc/logger": {
+            "off_cpu_ns": 427015,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 427015,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 612152253000,
+                "state": "S",
+                "wake_ns": 612156646000,
+                "end_ns": 612156649000
+              }
+            ]
+          },
+          "px4_fc/wq:lp_default": {
+            "off_cpu_ns": 427015,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 427015,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 612139537000,
+                "state": "S",
+                "wake_ns": 612160522000,
+                "end_ns": 612160523000
+              }
+            ]
+          }
+        }
+      },
+      {
+        "tick": 3000,
+        "ns": 609371115697,
+        "end_ns": 609371468909,
+        "duration_ns": 353212,
+        "thread_cpu_ns": 206821,
+        "native_path": "AP then PX4 inputs; not separated",
+        "supervisor_scheduler": {
+          "off_cpu_ns": 152000,
+          "runnable_ns": 43000,
+          "blocked_before_wake_ns": 109000,
+          "unknown_off_cpu_ns": 0,
+          "intervals": [
+            {
+              "start_ns": 609371191000,
+              "state": "R",
+              "wake_ns": null,
+              "end_ns": 609371230000
+            },
+            {
+              "start_ns": 609371243000,
+              "state": "S",
+              "wake_ns": 609371352000,
+              "end_ns": 609371356000
+            }
+          ]
+        },
+        "limitation": "Supervisor blocking/runnable time does not identify the native FC or host cause",
+        "correlated_threads": {
+          "ap_fc/arducopter": {
+            "off_cpu_ns": 353212,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 353212,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 609371099000,
+                "state": "S",
+                "wake_ns": 609372683000,
+                "end_ns": 609372687000
+              }
+            ]
+          },
+          "ap_fc/log_io": {
+            "off_cpu_ns": 353212,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 353212,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 609370466000,
+                "state": "S",
+                "wake_ns": 609371477000,
+                "end_ns": 609371480000
+              }
+            ]
+          },
+          "ap_fc/DDS": {
+            "off_cpu_ns": 332212,
+            "runnable_ns": 2000,
+            "blocked_before_wake_ns": 330212,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 609370388000,
+                "state": "S",
+                "wake_ns": 609371397000,
+                "end_ns": 609371399000
+              },
+              {
+                "start_ns": 609371420000,
+                "state": "S",
+                "wake_ns": 609371528000,
+                "end_ns": 609371532000
+              }
+            ]
+          },
+          "px4_fc/sim_send": {
+            "off_cpu_ns": 329212,
+            "runnable_ns": 4000,
+            "blocked_before_wake_ns": 325212,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 609367700000,
+                "state": "S",
+                "wake_ns": 609371284000,
+                "end_ns": 609371286000
+              },
+              {
+                "start_ns": 609371294000,
+                "state": "S",
+                "wake_ns": 609371322000,
+                "end_ns": 609371324000
+              },
+              {
+                "start_ns": 609371340000,
+                "state": "S",
+                "wake_ns": 609374805000,
+                "end_ns": 609374806000
+              }
+            ]
+          },
+          "px4_fc/logger": {
+            "off_cpu_ns": 331212,
+            "runnable_ns": 3000,
+            "blocked_before_wake_ns": 328212,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 609367687000,
+                "state": "S",
+                "wake_ns": 609371188000,
+                "end_ns": 609371191000
+              },
+              {
+                "start_ns": 609371213000,
+                "state": "S",
+                "wake_ns": 609374780000,
+                "end_ns": 609374797000
+              }
+            ]
+          },
+          "px4_fc/wq:lp_default": {
+            "off_cpu_ns": 353212,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 353212,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 609367628000,
+                "state": "S",
+                "wake_ns": 609374771000,
+                "end_ns": 609374795000
+              }
+            ]
+          }
+        }
+      },
+      {
+        "tick": 7000,
+        "ns": 613412251911,
+        "end_ns": 613412604614,
+        "duration_ns": 352703,
+        "thread_cpu_ns": 326382,
+        "native_path": "AP then PX4 inputs; not separated",
+        "supervisor_scheduler": {
+          "off_cpu_ns": 30000,
+          "runnable_ns": 30000,
+          "blocked_before_wake_ns": 0,
+          "unknown_off_cpu_ns": 0,
+          "intervals": [
+            {
+              "start_ns": 613412320000,
+              "state": "R",
+              "wake_ns": null,
+              "end_ns": 613412350000
+            }
+          ]
+        },
+        "limitation": "Supervisor blocking/runnable time does not identify the native FC or host cause",
+        "correlated_threads": {
+          "ap_fc/arducopter": {
+            "off_cpu_ns": 282703,
+            "runnable_ns": 30089,
+            "blocked_before_wake_ns": 252614,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 613412224000,
+                "state": "R",
+                "wake_ns": null,
+                "end_ns": 613412276000
+              },
+              {
+                "start_ns": 613412280000,
+                "state": "R",
+                "wake_ns": null,
+                "end_ns": 613412286000
+              },
+              {
+                "start_ns": 613412352000,
+                "state": "S",
+                "wake_ns": 613414177000,
+                "end_ns": 613414181000
+              }
+            ]
+          },
+          "ap_fc/log_io": {
+            "off_cpu_ns": 347703,
+            "runnable_ns": 1000,
+            "blocked_before_wake_ns": 346703,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 613411481000,
+                "state": "S",
+                "wake_ns": 613412497000,
+                "end_ns": 613412498000
+              },
+              {
+                "start_ns": 613412503000,
+                "state": "S",
+                "wake_ns": 613413516000,
+                "end_ns": 613413523000
+              }
+            ]
+          },
+          "ap_fc/DDS": {
+            "off_cpu_ns": 352703,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 352703,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 613411693000,
+                "state": "S",
+                "wake_ns": 613412698000,
+                "end_ns": 613412735000
+              }
+            ]
+          },
+          "px4_fc/sim_send": {
+            "off_cpu_ns": 318703,
+            "runnable_ns": 3000,
+            "blocked_before_wake_ns": 315703,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 613408811000,
+                "state": "S",
+                "wake_ns": 613412289000,
+                "end_ns": 613412290000
+              },
+              {
+                "start_ns": 613412313000,
+                "state": "S",
+                "wake_ns": 613412377000,
+                "end_ns": 613412379000
+              },
+              {
+                "start_ns": 613412390000,
+                "state": "S",
+                "wake_ns": 613416666000,
+                "end_ns": 613416688000
+              }
+            ]
+          },
+          "px4_fc/logger": {
+            "off_cpu_ns": 328703,
+            "runnable_ns": 1000,
+            "blocked_before_wake_ns": 327703,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 613408790000,
+                "state": "S",
+                "wake_ns": 613412319000,
+                "end_ns": 613412320000
+              },
+              {
+                "start_ns": 613412344000,
+                "state": "S",
+                "wake_ns": 613416651000,
+                "end_ns": 613416691000
+              }
+            ]
+          },
+          "px4_fc/wq:lp_default": {
+            "off_cpu_ns": 352703,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 352703,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 613408793000,
+                "state": "S",
+                "wake_ns": 613416649000,
+                "end_ns": 613416651000
+              }
+            ]
+          }
+        }
+      },
+      {
+        "tick": 7500,
+        "ns": 613915910477,
+        "end_ns": 613916242894,
+        "duration_ns": 332417,
+        "thread_cpu_ns": 158024,
+        "native_path": "AP then PX4 inputs; not separated",
+        "supervisor_scheduler": {
+          "off_cpu_ns": 179000,
+          "runnable_ns": 1000,
+          "blocked_before_wake_ns": 178000,
+          "unknown_off_cpu_ns": 0,
+          "intervals": [
+            {
+              "start_ns": 613915956000,
+              "state": "S",
+              "wake_ns": 613916134000,
+              "end_ns": 613916135000
+            }
+          ]
+        },
+        "limitation": "Supervisor blocking/runnable time does not identify the native FC or host cause",
+        "correlated_threads": {
+          "ap_fc/arducopter": {
+            "off_cpu_ns": 329894,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 329894,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 613915913000,
+                "state": "S",
+                "wake_ns": 613917804000,
+                "end_ns": 613917806000
+              }
+            ]
+          },
+          "ap_fc/log_io": {
+            "off_cpu_ns": 332417,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 332417,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 613915735000,
+                "state": "S",
+                "wake_ns": 613916739000,
+                "end_ns": 613916759000
+              }
+            ]
+          },
+          "ap_fc/DDS": {
+            "off_cpu_ns": 332417,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 332417,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 613915691000,
+                "state": "S",
+                "wake_ns": 613916678000,
+                "end_ns": 613916685000
+              }
+            ]
+          },
+          "px4_fc/sim_send": {
+            "off_cpu_ns": 295417,
+            "runnable_ns": 11000,
+            "blocked_before_wake_ns": 284417,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 613912027000,
+                "state": "S",
+                "wake_ns": 613915984000,
+                "end_ns": 613915992000
+              },
+              {
+                "start_ns": 613915999000,
+                "state": "S",
+                "wake_ns": 613916092000,
+                "end_ns": 613916095000
+              },
+              {
+                "start_ns": 613916125000,
+                "state": "S",
+                "wake_ns": 613919828000,
+                "end_ns": 613919838000
+              }
+            ]
+          },
+          "px4_fc/logger": {
+            "off_cpu_ns": 306417,
+            "runnable_ns": 2000,
+            "blocked_before_wake_ns": 304417,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 613911928000,
+                "state": "S",
+                "wake_ns": 613916058000,
+                "end_ns": 613916060000
+              },
+              {
+                "start_ns": 613916086000,
+                "state": "S",
+                "wake_ns": 613919857000,
+                "end_ns": 613919858000
+              }
+            ]
+          },
+          "px4_fc/wq:lp_default": {
+            "off_cpu_ns": 332417,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 332417,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 613911866000,
+                "state": "S",
+                "wake_ns": 613919796000,
+                "end_ns": 613919811000
+              }
+            ]
+          }
+        }
+      },
+      {
+        "tick": 3750,
+        "ns": 610132112709,
+        "end_ns": 610132431557,
+        "duration_ns": 318848,
+        "thread_cpu_ns": 326022,
+        "native_path": "AP input only",
+        "supervisor_scheduler": {
+          "off_cpu_ns": 0,
+          "runnable_ns": 0,
+          "blocked_before_wake_ns": 0,
+          "unknown_off_cpu_ns": 0,
+          "intervals": []
+        },
+        "limitation": "Supervisor blocking/runnable time does not identify the native FC or host cause",
+        "correlated_threads": {
+          "ap_fc/arducopter": {
+            "off_cpu_ns": 240848,
+            "runnable_ns": 2000,
+            "blocked_before_wake_ns": 238848,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 610131442000,
+                "state": "S",
+                "wake_ns": 610132117000,
+                "end_ns": 610132119000
+              },
+              {
+                "start_ns": 610132197000,
+                "state": "S",
+                "wake_ns": 610132970000,
+                "end_ns": 610132973000
+              }
+            ]
+          },
+          "ap_fc/log_io": {
+            "off_cpu_ns": 318848,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 318848,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 610132082000,
+                "state": "S",
+                "wake_ns": 610133087000,
+                "end_ns": 610133091000
+              }
+            ]
+          },
+          "ap_fc/DDS": {
+            "off_cpu_ns": 318848,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 318848,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 610131475000,
+                "state": "S",
+                "wake_ns": 610132488000,
+                "end_ns": 610132493000
+              }
+            ]
+          },
+          "px4_fc/sim_send": {
+            "off_cpu_ns": 318848,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 318848,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 610130068000,
+                "state": "S",
+                "wake_ns": 610133772000,
+                "end_ns": 610133774000
+              }
+            ]
+          },
+          "px4_fc/logger": {
+            "off_cpu_ns": 318848,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 318848,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 610130038000,
+                "state": "S",
+                "wake_ns": 610133825000,
+                "end_ns": 610133826000
+              }
+            ]
+          },
+          "px4_fc/wq:lp_default": {
+            "off_cpu_ns": 318848,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 318848,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 610117045000,
+                "state": "S",
+                "wake_ns": 610137569000,
+                "end_ns": 610137572000
+              }
+            ]
+          }
+        }
+      },
+      {
+        "tick": 5000,
+        "ns": 611393483471,
+        "end_ns": 611393791740,
+        "duration_ns": 308269,
+        "thread_cpu_ns": 156861,
+        "native_path": "AP then PX4 inputs; not separated",
+        "supervisor_scheduler": {
+          "off_cpu_ns": 153000,
+          "runnable_ns": 44000,
+          "blocked_before_wake_ns": 109000,
+          "unknown_off_cpu_ns": 0,
+          "intervals": [
+            {
+              "start_ns": 611393489000,
+              "state": "R",
+              "wake_ns": null,
+              "end_ns": 611393518000
+            },
+            {
+              "start_ns": 611393528000,
+              "state": "R",
+              "wake_ns": null,
+              "end_ns": 611393542000
+            },
+            {
+              "start_ns": 611393558000,
+              "state": "S",
+              "wake_ns": 611393667000,
+              "end_ns": 611393668000
+            }
+          ]
+        },
+        "limitation": "Supervisor blocking/runnable time does not identify the native FC or host cause",
+        "correlated_threads": {
+          "ap_fc/arducopter": {
+            "off_cpu_ns": 209269,
+            "runnable_ns": 193529,
+            "blocked_before_wake_ns": 15740,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 611393479000,
+                "state": "R",
+                "wake_ns": null,
+                "end_ns": 611393537000
+              },
+              {
+                "start_ns": 611393611000,
+                "state": "R",
+                "wake_ns": null,
+                "end_ns": 611393649000
+              },
+              {
+                "start_ns": 611393668000,
+                "state": "R",
+                "wake_ns": null,
+                "end_ns": 611393770000
+              },
+              {
+                "start_ns": 611393776000,
+                "state": "S",
+                "wake_ns": 611395277000,
+                "end_ns": 611395281000
+              }
+            ]
+          },
+          "ap_fc/log_io": {
+            "off_cpu_ns": 308269,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 308269,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 611393116000,
+                "state": "S",
+                "wake_ns": 611394142000,
+                "end_ns": 611394148000
+              }
+            ]
+          },
+          "ap_fc/DDS": {
+            "off_cpu_ns": 308269,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 308269,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 611393456000,
+                "state": "S",
+                "wake_ns": 611394474000,
+                "end_ns": 611394481000
+              }
+            ]
+          },
+          "px4_fc/sim_send": {
+            "off_cpu_ns": 293269,
+            "runnable_ns": 2000,
+            "blocked_before_wake_ns": 291269,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 611389524000,
+                "state": "S",
+                "wake_ns": 611393525000,
+                "end_ns": 611393526000
+              },
+              {
+                "start_ns": 611393531000,
+                "state": "S",
+                "wake_ns": 611393619000,
+                "end_ns": 611393620000
+              },
+              {
+                "start_ns": 611393630000,
+                "state": "S",
+                "wake_ns": 611397437000,
+                "end_ns": 611397454000
+              }
+            ]
+          },
+          "px4_fc/logger": {
+            "off_cpu_ns": 290269,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 290269,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 611389414000,
+                "state": "S",
+                "wake_ns": 611393528000,
+                "end_ns": 611393528000
+              },
+              {
+                "start_ns": 611393546000,
+                "state": "S",
+                "wake_ns": 611397403000,
+                "end_ns": 611397405000
+              }
+            ]
+          },
+          "px4_fc/wq:lp_default": {
+            "off_cpu_ns": 308269,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 308269,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 611389355000,
+                "state": "S",
+                "wake_ns": 611397357000,
+                "end_ns": 611397371000
+              }
+            ]
+          }
+        }
+      },
+      {
+        "tick": 4000,
+        "ns": 610385318515,
+        "end_ns": 610385591982,
+        "duration_ns": 273467,
+        "thread_cpu_ns": 176879,
+        "native_path": "AP then PX4 inputs; not separated",
+        "supervisor_scheduler": {
+          "off_cpu_ns": 98000,
+          "runnable_ns": 46000,
+          "blocked_before_wake_ns": 52000,
+          "unknown_off_cpu_ns": 0,
+          "intervals": [
+            {
+              "start_ns": 610385322000,
+              "state": "R",
+              "wake_ns": null,
+              "end_ns": 610385367000
+            },
+            {
+              "start_ns": 610385434000,
+              "state": "S",
+              "wake_ns": 610385486000,
+              "end_ns": 610385487000
+            }
+          ]
+        },
+        "limitation": "Supervisor blocking/runnable time does not identify the native FC or host cause",
+        "correlated_threads": {
+          "ap_fc/arducopter": {
+            "off_cpu_ns": 273467,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 273467,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 610385299000,
+                "state": "S",
+                "wake_ns": 610386748000,
+                "end_ns": 610386754000
+              }
+            ]
+          },
+          "ap_fc/log_io": {
+            "off_cpu_ns": 273467,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 273467,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 610385057000,
+                "state": "S",
+                "wake_ns": 610386075000,
+                "end_ns": 610386081000
+              }
+            ]
+          },
+          "ap_fc/DDS": {
+            "off_cpu_ns": 273467,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 273467,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 610385083000,
+                "state": "S",
+                "wake_ns": 610386100000,
+                "end_ns": 610386103000
+              }
+            ]
+          },
+          "px4_fc/sim_send": {
+            "off_cpu_ns": 253467,
+            "runnable_ns": 7000,
+            "blocked_before_wake_ns": 246467,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 610381182000,
+                "state": "S",
+                "wake_ns": 610385374000,
+                "end_ns": 610385379000
+              },
+              {
+                "start_ns": 610385386000,
+                "state": "S",
+                "wake_ns": 610385460000,
+                "end_ns": 610385462000
+              },
+              {
+                "start_ns": 610385475000,
+                "state": "S",
+                "wake_ns": 610388819000,
+                "end_ns": 610388820000
+              }
+            ]
+          },
+          "px4_fc/logger": {
+            "off_cpu_ns": 257467,
+            "runnable_ns": 1000,
+            "blocked_before_wake_ns": 256467,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 610381150000,
+                "state": "S",
+                "wake_ns": 610385422000,
+                "end_ns": 610385423000
+              },
+              {
+                "start_ns": 610385439000,
+                "state": "S",
+                "wake_ns": 610388843000,
+                "end_ns": 610388845000
+              }
+            ]
+          },
+          "px4_fc/wq:lp_default": {
+            "off_cpu_ns": 273467,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 273467,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 610381154000,
+                "state": "S",
+                "wake_ns": 610388738000,
+                "end_ns": 610388738000
+              }
+            ]
+          }
+        }
+      },
+      {
+        "tick": 6000,
+        "ns": 612406063538,
+        "end_ns": 612406299785,
+        "duration_ns": 236247,
+        "thread_cpu_ns": 241065,
+        "native_path": "AP then PX4 inputs; not separated",
+        "supervisor_scheduler": {
+          "off_cpu_ns": 0,
+          "runnable_ns": 0,
+          "blocked_before_wake_ns": 0,
+          "unknown_off_cpu_ns": 0,
+          "intervals": []
+        },
+        "limitation": "Supervisor blocking/runnable time does not identify the native FC or host cause",
+        "correlated_threads": {
+          "ap_fc/arducopter": {
+            "off_cpu_ns": 236247,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 236247,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 612406017000,
+                "state": "S",
+                "wake_ns": 612408397000,
+                "end_ns": 612408401000
+              }
+            ]
+          },
+          "ap_fc/log_io": {
+            "off_cpu_ns": 236247,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 236247,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 612405593000,
+                "state": "S",
+                "wake_ns": 612406605000,
+                "end_ns": 612406611000
+              }
+            ]
+          },
+          "ap_fc/DDS": {
+            "off_cpu_ns": 236247,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 236247,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 612405938000,
+                "state": "S",
+                "wake_ns": 612406954000,
+                "end_ns": 612406960000
+              }
+            ]
+          },
+          "px4_fc/sim_send": {
+            "off_cpu_ns": 226247,
+            "runnable_ns": 2000,
+            "blocked_before_wake_ns": 224247,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 612406010000,
+                "state": "S",
+                "wake_ns": 612406169000,
+                "end_ns": 612406171000
+              },
+              {
+                "start_ns": 612406181000,
+                "state": "S",
+                "wake_ns": 612410518000,
+                "end_ns": 612410521000
+              }
+            ]
+          },
+          "px4_fc/logger": {
+            "off_cpu_ns": 220247,
+            "runnable_ns": 4000,
+            "blocked_before_wake_ns": 216247,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 612402726000,
+                "state": "S",
+                "wake_ns": 612406142000,
+                "end_ns": 612406146000
+              },
+              {
+                "start_ns": 612406162000,
+                "state": "S",
+                "wake_ns": 612410559000,
+                "end_ns": 612410561000
+              }
+            ]
+          },
+          "px4_fc/wq:lp_default": {
+            "off_cpu_ns": 236247,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 236247,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 612402688000,
+                "state": "S",
+                "wake_ns": 612410477000,
+                "end_ns": 612410482000
+              }
+            ]
+          }
+        }
+      },
+      {
+        "tick": 6250,
+        "ns": 612657801968,
+        "end_ns": 612658016707,
+        "duration_ns": 214739,
+        "thread_cpu_ns": 114270,
+        "native_path": "AP input only",
+        "supervisor_scheduler": {
+          "off_cpu_ns": 106000,
+          "runnable_ns": 2000,
+          "blocked_before_wake_ns": 104000,
+          "unknown_off_cpu_ns": 0,
+          "intervals": [
+            {
+              "start_ns": 612657829000,
+              "state": "S",
+              "wake_ns": 612657933000,
+              "end_ns": 612657935000
+            }
+          ]
+        },
+        "limitation": "Supervisor blocking/runnable time does not identify the native FC or host cause",
+        "correlated_threads": {
+          "ap_fc/arducopter": {
+            "off_cpu_ns": 102739,
+            "runnable_ns": 3000,
+            "blocked_before_wake_ns": 99739,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 612656862000,
+                "state": "S",
+                "wake_ns": 612657805000,
+                "end_ns": 612657808000
+              },
+              {
+                "start_ns": 612657920000,
+                "state": "S",
+                "wake_ns": 612658624000,
+                "end_ns": 612658626000
+              }
+            ]
+          },
+          "ap_fc/log_io": {
+            "off_cpu_ns": 214739,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 214739,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 612657644000,
+                "state": "S",
+                "wake_ns": 612658653000,
+                "end_ns": 612658658000
+              }
+            ]
+          },
+          "ap_fc/DDS": {
+            "off_cpu_ns": 214739,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 214739,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 612657134000,
+                "state": "S",
+                "wake_ns": 612658152000,
+                "end_ns": 612658210000
+              }
+            ]
+          },
+          "px4_fc/sim_send": {
+            "off_cpu_ns": 214739,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 214739,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 612654936000,
+                "state": "S",
+                "wake_ns": 612659736000,
+                "end_ns": 612659740000
+              }
+            ]
+          },
+          "px4_fc/logger": {
+            "off_cpu_ns": 214739,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 214739,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 612654909000,
+                "state": "S",
+                "wake_ns": 612659744000,
+                "end_ns": 612659746000
+              }
+            ]
+          },
+          "px4_fc/wq:lp_default": {
+            "off_cpu_ns": 214739,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 214739,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 612643151000,
+                "state": "S",
+                "wake_ns": 612663313000,
+                "end_ns": 612663318000
+              }
+            ]
+          }
+        }
+      },
+      {
+        "tick": 4250,
+        "ns": 610640153356,
+        "end_ns": 610640361170,
+        "duration_ns": 207814,
+        "thread_cpu_ns": 108805,
+        "native_path": "AP input only",
+        "supervisor_scheduler": {
+          "off_cpu_ns": 148000,
+          "runnable_ns": 45000,
+          "blocked_before_wake_ns": 103000,
+          "unknown_off_cpu_ns": 0,
+          "intervals": [
+            {
+              "start_ns": 610640162000,
+              "state": "S",
+              "wake_ns": 610640265000,
+              "end_ns": 610640310000
+            }
+          ]
+        },
+        "limitation": "Supervisor blocking/runnable time does not identify the native FC or host cause",
+        "correlated_threads": {
+          "ap_fc/arducopter": {
+            "off_cpu_ns": 98814,
+            "runnable_ns": 3000,
+            "blocked_before_wake_ns": 95814,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 610639419000,
+                "state": "S",
+                "wake_ns": 610640159000,
+                "end_ns": 610640162000
+              },
+              {
+                "start_ns": 610640271000,
+                "state": "S",
+                "wake_ns": 610640988000,
+                "end_ns": 610640992000
+              }
+            ]
+          },
+          "ap_fc/log_io": {
+            "off_cpu_ns": 207814,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 207814,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 610640050000,
+                "state": "S",
+                "wake_ns": 610641057000,
+                "end_ns": 610641061000
+              }
+            ]
+          },
+          "ap_fc/DDS": {
+            "off_cpu_ns": 195814,
+            "runnable_ns": 4000,
+            "blocked_before_wake_ns": 191814,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 610639311000,
+                "state": "S",
+                "wake_ns": 610640317000,
+                "end_ns": 610640321000
+              },
+              {
+                "start_ns": 610640333000,
+                "state": "S",
+                "wake_ns": 610641337000,
+                "end_ns": 610641346000
+              }
+            ]
+          },
+          "px4_fc/sim_send": {
+            "off_cpu_ns": 207814,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 207814,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 610638394000,
+                "state": "S",
+                "wake_ns": 610641802000,
+                "end_ns": 610641804000
+              }
+            ]
+          },
+          "px4_fc/logger": {
+            "off_cpu_ns": 207814,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 207814,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 610638356000,
+                "state": "S",
+                "wake_ns": 610641787000,
+                "end_ns": 610641790000
+              }
+            ]
+          },
+          "px4_fc/wq:lp_default": {
+            "off_cpu_ns": 207814,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 207814,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 610625228000,
+                "state": "S",
+                "wake_ns": 610645370000,
+                "end_ns": 610645371000
+              }
+            ]
+          }
+        }
+      },
+      {
+        "tick": 6750,
+        "ns": 613159574142,
+        "end_ns": 613159777218,
+        "duration_ns": 203076,
+        "thread_cpu_ns": 103029,
+        "native_path": "AP input only",
+        "supervisor_scheduler": {
+          "off_cpu_ns": 105000,
+          "runnable_ns": 3000,
+          "blocked_before_wake_ns": 102000,
+          "unknown_off_cpu_ns": 0,
+          "intervals": [
+            {
+              "start_ns": 613159599000,
+              "state": "S",
+              "wake_ns": 613159701000,
+              "end_ns": 613159704000
+            }
+          ]
+        },
+        "limitation": "Supervisor blocking/runnable time does not identify the native FC or host cause",
+        "correlated_threads": {
+          "ap_fc/arducopter": {
+            "off_cpu_ns": 94076,
+            "runnable_ns": 8000,
+            "blocked_before_wake_ns": 86076,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 613158852000,
+                "state": "S",
+                "wake_ns": 613159581000,
+                "end_ns": 613159589000
+              },
+              {
+                "start_ns": 613159698000,
+                "state": "S",
+                "wake_ns": 613160449000,
+                "end_ns": 613160452000
+              }
+            ]
+          },
+          "ap_fc/log_io": {
+            "off_cpu_ns": 203076,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 203076,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 613159044000,
+                "state": "S",
+                "wake_ns": 613160062000,
+                "end_ns": 613160068000
+              }
+            ]
+          },
+          "ap_fc/DDS": {
+            "off_cpu_ns": 203076,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 203076,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 613159343000,
+                "state": "S",
+                "wake_ns": 613160366000,
+                "end_ns": 613160370000
+              }
+            ]
+          },
+          "px4_fc/sim_send": {
+            "off_cpu_ns": 203076,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 203076,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 613156960000,
+                "state": "S",
+                "wake_ns": 613161391000,
+                "end_ns": 613161395000
+              }
+            ]
+          },
+          "px4_fc/logger": {
+            "off_cpu_ns": 203076,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 203076,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 613156951000,
+                "state": "S",
+                "wake_ns": 613161375000,
+                "end_ns": 613161377000
+              }
+            ]
+          },
+          "px4_fc/wq:lp_default": {
+            "off_cpu_ns": 203076,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 203076,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 613144806000,
+                "state": "S",
+                "wake_ns": 613165020000,
+                "end_ns": 613165027000
+              }
+            ]
+          }
+        }
+      },
+      {
+        "tick": 2750,
+        "ns": 609119531524,
+        "end_ns": 609119721783,
+        "duration_ns": 190259,
+        "thread_cpu_ns": 93729,
+        "native_path": "AP input only",
+        "supervisor_scheduler": {
+          "off_cpu_ns": 102000,
+          "runnable_ns": 3000,
+          "blocked_before_wake_ns": 99000,
+          "unknown_off_cpu_ns": 0,
+          "intervals": [
+            {
+              "start_ns": 609119549000,
+              "state": "S",
+              "wake_ns": 609119648000,
+              "end_ns": 609119651000
+            }
+          ]
+        },
+        "limitation": "Supervisor blocking/runnable time does not identify the native FC or host cause",
+        "correlated_threads": {
+          "ap_fc/arducopter": {
+            "off_cpu_ns": 108259,
+            "runnable_ns": 7000,
+            "blocked_before_wake_ns": 101259,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 609118978000,
+                "state": "S",
+                "wake_ns": 609119541000,
+                "end_ns": 609119548000
+              },
+              {
+                "start_ns": 609119630000,
+                "state": "S",
+                "wake_ns": 609120385000,
+                "end_ns": 609120389000
+              }
+            ]
+          },
+          "ap_fc/log_io": {
+            "off_cpu_ns": 190259,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 190259,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 609119414000,
+                "state": "S",
+                "wake_ns": 609120422000,
+                "end_ns": 609120424000
+              }
+            ]
+          },
+          "ap_fc/DDS": {
+            "off_cpu_ns": 190259,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 190259,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 609119297000,
+                "state": "S",
+                "wake_ns": 609120312000,
+                "end_ns": 609120316000
+              }
+            ]
+          },
+          "px4_fc/sim_send": {
+            "off_cpu_ns": 190259,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 190259,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 609117865000,
+                "state": "S",
+                "wake_ns": 609121515000,
+                "end_ns": 609121516000
+              }
+            ]
+          },
+          "px4_fc/logger": {
+            "off_cpu_ns": 190259,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 190259,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 609117834000,
+                "state": "S",
+                "wake_ns": 609121463000,
+                "end_ns": 609121465000
+              }
+            ]
+          },
+          "px4_fc/wq:lp_default": {
+            "off_cpu_ns": 190259,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 190259,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 609105270000,
+                "state": "S",
+                "wake_ns": 609125294000,
+                "end_ns": 609125297000
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "limitation": "Biased retained samples: whole-step wall time >2ms or tick divisible by 250. Counts/medians are not population rates; unpaired boundary intervals remain unaccounted. AP-only waits do not identify an AP function, thread, or host cause."
+  },
+  "largest_group": {
+    "group": {
+      "kind": "rate_group_end",
+      "epoch": "e91fd8e50550468bbbe6b29f06bffe64",
+      "tick": 1928,
+      "issued_monotonic_ns": 608279474489,
+      "segment_id": 1,
+      "request_id": "config",
+      "requested_rate": 1.0,
+      "transition": false,
+      "actual_end_ns": 608279470137,
+      "lateness_ns": 24417758,
+      "start_tick": 1924,
+      "end_tick": 1928,
+      "ideal_start_ns": 608251052379,
+      "ideal_end_ns": 608255052379,
+      "earliest_start_ns": 608266208339,
+      "actual_start_ns": 608266208343
+    },
+    "timings": [
+      {
+        "kind": "diagnostic_step_cpu_timing",
+        "epoch": "e91fd8e50550468bbbe6b29f06bffe64",
+        "tick": 1926,
+        "issued_monotonic_s": 608.277316453,
+        "wall_start_ns": 608267122491,
+        "wall_end_ns": 608277312331,
+        "stages": {
+          "health_and_models": {
+            "wall_ns": 472244,
+            "thread_cpu_ns": 272421
+          },
+          "encode_send": {
+            "wall_ns": 65125,
+            "thread_cpu_ns": 63950
+          },
+          "native_inputs": {
+            "wall_ns": 9652471,
+            "thread_cpu_ns": 1493866
+          }
+        },
+        "limitation": "Thread CPU separates execution from off-CPU time; off-CPU includes I/O wait and descheduling"
+      }
+    ],
+    "native_waits": [
+      {
+        "tick": 1926,
+        "ns": 608267659860,
+        "end_ns": 608277312331,
+        "duration_ns": 9652471,
+        "thread_cpu_ns": 1493866,
+        "native_path": "AP input only",
+        "supervisor_scheduler": {
+          "off_cpu_ns": 0,
+          "runnable_ns": 0,
+          "blocked_before_wake_ns": 0,
+          "unknown_off_cpu_ns": 0,
+          "intervals": []
+        },
+        "limitation": "Supervisor blocking/runnable time does not identify the native FC or host cause",
+        "correlated_threads": {
+          "ap_fc/arducopter": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "ap_fc/log_io": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "ap_fc/DDS": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "px4_fc/sim_send": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "px4_fc/logger": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "px4_fc/wq:lp_default": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          }
+        }
+      }
+    ],
+    "inside_capture": false
+  },
+  "rate": {
+    "path": "/root/wksim-scheduler-probe-eventmap-01/runs/scheduler-4598ca8a747b/epochs/e91fd8e50550468bbbe6b29f06bffe64/rate.jsonl",
+    "rate_log_sha256": "960c2867d3e442ffbaa21d2419bb62c9ccdc6af846e159b2033e832e1748547c",
+    "source_sha256": "0b53a16acd65138b4623a9a8573ec8d643a2b78f4e27e8122c65efb9a6da25c4",
+    "late_limit_ns": 100000000,
+    "replay": "RED",
+    "rejection": {
+      "kind": "rate_unmet",
+      "tick": 8204,
+      "lateness_ns": 100044370
+    },
+    "captured_failure_matches": true,
+    "segments": [
+      {
+        "segment_id": 1,
+        "rate": 1.0,
+        "groups": 2041,
+        "first_tick": 40,
+        "last_tick": 8204,
+        "wall_duration_ns": 8263232983,
+        "group_duration_median_ns": 3234184,
+        "group_duration_max_ns": 13261794,
+        "group_duration_p99_ns": 4517957,
+        "group_over_period_count": 117,
+        "phase_first_ns": 21311,
+        "phase_last_ns": 98894040,
+        "summed_positive_phase_increment_ns": 98872729,
+        "preceding_group_excess_sum_ns": 55840930,
+        "top_phase_spikes": [
+          {
+            "tick": 1928,
+            "phase_increment_ns": 9306513,
+            "preceding_group_excess_ns": 9261794,
+            "residual_release_delay_ns": 44719,
+            "preceding_group_duration_ns": 13261794,
+            "gap_from_previous_end_ns": 44719,
+            "actual_start_ns": 608279514856
+          },
+          {
+            "tick": 5504,
+            "phase_increment_ns": 5741219,
+            "preceding_group_excess_ns": 5561287,
+            "residual_release_delay_ns": 179932,
+            "preceding_group_duration_ns": 9561287,
+            "gap_from_previous_end_ns": 179932,
+            "actual_start_ns": 611907614856
+          },
+          {
+            "tick": 2000,
+            "phase_increment_ns": 5670715,
+            "preceding_group_excess_ns": 5257337,
+            "residual_release_delay_ns": 413378,
+            "preceding_group_duration_ns": 9257337,
+            "gap_from_previous_end_ns": 413378,
+            "actual_start_ns": 608364370270
+          },
+          {
+            "tick": 1932,
+            "phase_increment_ns": 1961638,
+            "preceding_group_excess_ns": 1923724,
+            "residual_release_delay_ns": 37914,
+            "preceding_group_duration_ns": 5923724,
+            "gap_from_previous_end_ns": 37914,
+            "actual_start_ns": 608285476494
+          },
+          {
+            "tick": 3960,
+            "phase_increment_ns": 1782579,
+            "preceding_group_excess_ns": 1722491,
+            "residual_release_delay_ns": 60088,
+            "preceding_group_duration_ns": 5722491,
+            "gap_from_previous_end_ns": 60088,
+            "actual_start_ns": 610345661350
+          },
+          {
+            "tick": 6988,
+            "phase_increment_ns": 1711232,
+            "preceding_group_excess_ns": 936578,
+            "residual_release_delay_ns": 774654,
+            "preceding_group_duration_ns": 4936578,
+            "gap_from_previous_end_ns": 774654,
+            "actual_start_ns": 613401670448
+          },
+          {
+            "tick": 68,
+            "phase_increment_ns": 1676745,
+            "preceding_group_excess_ns": 1634698,
+            "residual_release_delay_ns": 42047,
+            "preceding_group_duration_ns": 5634698,
+            "gap_from_previous_end_ns": 42047,
+            "actual_start_ns": 606397512803
+          },
+          {
+            "tick": 7584,
+            "phase_increment_ns": 1619607,
+            "preceding_group_excess_ns": 1521089,
+            "residual_release_delay_ns": 98518,
+            "preceding_group_duration_ns": 5521089,
+            "gap_from_previous_end_ns": 98518,
+            "actual_start_ns": 614003702387
+          },
+          {
+            "tick": 1944,
+            "phase_increment_ns": 1524214,
+            "preceding_group_excess_ns": 1468210,
+            "residual_release_delay_ns": 56004,
+            "preceding_group_duration_ns": 5468210,
+            "gap_from_previous_end_ns": 56004,
+            "actual_start_ns": 608300503990
+          },
+          {
+            "tick": 3364,
+            "phase_increment_ns": 1504073,
+            "preceding_group_excess_ns": 1058190,
+            "residual_release_delay_ns": 445883,
+            "preceding_group_duration_ns": 5058190,
+            "gap_from_previous_end_ns": 445883,
+            "actual_start_ns": 609741674286
+          }
+        ]
+      }
+    ],
+    "limitation": "Replays captured boundary timestamps through real JointRate, not underlying workload or OS scheduling. Release delay includes caller work, pacing and scheduling; it does not identify their cause."
+  },
+  "limits": [
+    "10-second ground diagnostic, not flight/rate acceptance.",
+    "Printed trace timestamps have microsecond precision.",
+    "Boundary half-events are excluded; missing wakeups remain unknown.",
+    "FC comm-to-kernel-TID correlation is diagnostic and inherits the mapping limitation.",
+    "FC scheduler overlap with a supervisor wait is temporal co-occurrence, not causation.",
+    "Guest scheduler states do not identify a Windows or physical storage cause."
+  ]
+}
