@@ -2,6 +2,10 @@
 
 ## 最新检查点（优先于下方历史记录）
 
+`d1f7bb5`已推送纯快照交换协议：主会话封住默认boot未校验、request对象与哈希bytes不一致、真实snapshot整数PID键无法序列化三缺口；23项三端通过，新增Windows UNC拒绝用例后Windows24项通过。实际NTFS→WSL /mnt/c→Windows原子发布/读回/拒绝覆盖往返通过，仅传输测试，无native身份验收。UNC不支持原子hardlink，明确拒绝且不降级部分写入。AGY17t现独占新serve_wsl_snapshot_requests.py及测试，构建Windows两阶段服务；主会话接手未提交snapshot工具的整生命周期deadline与stderr读上界，22项合成测试过。OMP21r只读查Rfly既有live失败，不得直接skip；Claude18u仍写三维膨胀。snapshot工具/服务尚未接入collector，无新真实诊断。
+
+当前分发：Claude18t已完成肯定初始化修复，已转18u三维膨胀实现，唯一写入grid_map.cpp/test_grid_map_init_native.py/39-planner-run-contract.md；OMP21q仍写wsl_root_task_snapshot.py及测试（严格解析和读上界）；agy17q只读结论里“辅助线程全系统唯一/无积压零溢出”未获接受，已转17r，仅写wsl_snapshot_exchange.py及测试的纯请求响应协议，不改collector/driver。下一接入考虑pre-bootstrap leader身份与post-capture完整线程验证，不能删掉FC所有权核验，也不能引入输入前等待全部FC线程的栅栏。当前无真实构建/模型/tracefs运行。
+
 当前 HEAD `adcf009`：GridMap 初始化两项P1已修复（乘法前除法上界、失败抛异常防半初始化），三端23项通过；原C++表达式UBSan复现后已修复。RflySim原C++14完整plan_env构建失败于log4cxx要求std::shared_mutex，改明确C++17后全新目录`/root/wksim-gridmap-cxx17-ekhpBw`构建成功，库SHA6003461696353695911f561f3a72fc795c945eb1c9db35cefb562cefc7fc6b35。两次构建日志/源码hash随提交封存，库未提交，当前无真实执行。Claude18t只读复核肯定主要修复，仍待turn终态；下一片是实际三维膨胀（cloud固定Z=2、scan死代码Z=20、clear候选逐轴边界）。
 
 快照工具`tools/wsl_root_task_snapshot.py`及测试仍未提交：Windows真实自有进程映射可用，Linux内直接调用wsl.exe实测Exec format error。当前唯一写入者OMP Task21q，收紧严格base64/namespace/流式输出上界；agy Task17q只读调查bootstrap接入因果。agy17p提出的前置FC就绪栅栏和假定120ms/零等待/零丢失方案未接受，不能按其报告直接接入。主会话确认system root lsns PNS0与Ubuntu子层，但仍需Windows侧桥接及collector身份绑定。`ba6acb6`已同步#75队列四文件，勿再等待旧Task21n。
