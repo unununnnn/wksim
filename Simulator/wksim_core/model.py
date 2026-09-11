@@ -144,6 +144,28 @@ class Model:
             raise RuntimeError("Model clock differs from fixed-step scheduler")
         return result
 
+    def initial_state(self):
+        if self.ticks != 0:
+            raise RuntimeError("Initial state is only available before stepping")
+        state_fn = getattr(self.library, "wk_model_initial_state", None)
+        if state_fn is None:
+            raise RuntimeError("Model library lacks the initial-state ABI")
+        if not getattr(state_fn, "argtypes", None):
+            state_fn.argtypes = [
+                ctypes.c_void_p,
+                ctypes.POINTER(ctypes.c_double),
+                ctypes.c_int,
+            ]
+            state_fn.restype = ctypes.c_int
+        status = state_fn(self.handle, self._output, 120)
+        if status:
+            raise RuntimeError(f"Model initial state failed: {status}")
+        result = list(self._output)
+        if len(result) != 120 or not all(math.isfinite(value) for value in result):
+            raise RuntimeError("Model initial state is not finite")
+        return result
+
+
     def close(self):
         if self.handle:
             self.library.wk_model_destroy(self.handle)

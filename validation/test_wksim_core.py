@@ -172,6 +172,36 @@ class NativeModelTests(unittest.TestCase):
             s_leg = m_legacy.step([0] * 16)
             self.assertEqual(s_exp, s_leg)
 
+    def test_initial_state_is_read_only_and_finite(self):
+        with Model(self.library) as model:
+            self.assertEqual(model.ticks, 0)
+            initial = model.initial_state()
+            self.assertEqual(model.ticks, 0)
+            self.assertEqual(len(initial), 120)
+            self.assertTrue(all(math.isfinite(value) for value in initial))
+            state = model.step([0] * 16)
+            self.assertEqual(model.ticks, 1)
+            self.assertAlmostEqual(state[2], 0.001, places=8)
+
+    def test_initial_state_fails_closed_without_symbol_or_after_step(self):
+        class DummyLib:
+            def __init__(self, real):
+                self.wk_model_create = real.wk_model_create
+                self.wk_model_destroy = real.wk_model_destroy
+                self.wk_model_step = real.wk_model_step
+
+        with Model(self.library) as model:
+            orig = model.library
+            try:
+                model.library = DummyLib(orig)
+                with self.assertRaisesRegex(RuntimeError, "initial-state ABI"):
+                    model.initial_state()
+            finally:
+                model.library = orig
+            model.step([0] * 16)
+            with self.assertRaisesRegex(RuntimeError, "only available before stepping"):
+                model.initial_state()
+
     def test_missing_symbol_on_older_library(self):
         class DummyLib:
             def __init__(self, real):
