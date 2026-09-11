@@ -1,0 +1,75 @@
+{
+  "status": "pass",
+  "scope": "Compile the ACTUAL candidate WorkQueue::Add/SignalWorkerThread/Run bodies plus its tracing\nhelper against minimal POSIX semaphore/queue/platform shims; a bounded smoke test, not a flight test.\n\nScope is deliberately narrow: the three WorkQueue method bodies and the anonymous-namespace\ntracing helpers (wksim_wait_trace/wksim_wall_ns) are extracted VERBATIM (byte-exact, with\nsource sha256 + 1-based line-range provenance) from the candidate WorkQueue.cpp and compiled\ninto a single translation unit. Everything else \u2014 the WorkQueue/WorkItem class scaffolding, the\nFIFO queue, the semaphore/log/lockstep/time layer \u2014 is a labeled SHIM and claims no production\nbehavior. No flight, WorkQueueManager, module or manager integration is exercised.\n\nTwo sequential batches run on the same WorkQueue. Both WorkItems delete themselves inside Run()\nand sleep >2ms so the diagnostic fires; the second also stops the queue. A condition variable in\nthe labeled lockstep shim establishes the first unregister as the batch boundary before the\nsecond Add. Verified: trace off emits nothing; trace on logs both COPIED item names (a use-after-\nfree would trip AddressSanitizer), each batch unregisters, the second batch gets a newer ready\ntimestamp, WKSIM_PX4_QUEUE follows unregister and work_unlock, and the run completes without\ndeadlock. Compiled with AddressSanitizer when available.\n\nRuns in WSL where g++ and the candidate tree live. Usage:\n  python3 -B tools/check_px4_workqueue_trace.py <candidate_src> --output <new_dir>\n",
+  "modes": [
+    {
+      "mode": "off",
+      "unregister_calls": 2,
+      "work_traces": 0,
+      "queue_traces": 0,
+      "queue_ready_mono_ns": []
+    },
+    {
+      "mode": "invalid",
+      "unregister_calls": 2,
+      "work_traces": 0,
+      "queue_traces": 0,
+      "queue_ready_mono_ns": []
+    },
+    {
+      "mode": "on",
+      "unregister_calls": 2,
+      "work_traces": 2,
+      "queue_traces": 2,
+      "queue_ready_mono_ns": [
+        94752460304,
+        94755671007
+      ]
+    }
+  ],
+  "compiler_command": [
+    "g++",
+    "-std=c++17",
+    "-pthread",
+    "-g",
+    "-DENABLE_LOCKSTEP_SCHEDULER",
+    "-fsanitize=address",
+    "-o",
+    "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/validation/px4-component-workqueue-04/test",
+    "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/validation/px4-component-workqueue-04/test.cpp"
+  ],
+  "sanitizer": "address",
+  "source": "/root/wksim-px4-component-ZNq7Mp/src/platforms/common/px4_work_queue/WorkQueue.cpp",
+  "source_sha256": "9ed92ae5b425dcb638a2177a5cac20b9952e62c54b837f071f45f3bc3b303b3c",
+  "extracted_provenance": {
+    "helpers": {
+      "lines": [
+        51,
+        67
+      ],
+      "sha256": "2ac63467631b6d65bd1ff8abdc7c78190208e669d7a65a4c5df976aa933b0750"
+    },
+    "Add": {
+      "lines": [
+        154,
+        171
+      ],
+      "sha256": "a714659510ba56b41f8aeb318ce3e61eaf8b93561cf1fd99a1bba7ef5ee8b63d"
+    },
+    "SignalWorkerThread": {
+      "lines": [
+        173,
+        180
+      ],
+      "sha256": "6af5297d9b2ec5a5ebfe7fecf06ccde5a300efeb49fb29f127dc810a011f4347"
+    },
+    "Run": {
+      "lines": [
+        200,
+        268
+      ],
+      "sha256": "dcc1011fb5777a5b70b2b75a02b9bb724d1258fb55dbe74a705d8a6b4d4728e0"
+    }
+  },
+  "checker_sha256": "9f68b85d7edc4bbf6cfabcbf647d4b6417577e0dc61de26eb13071fce8a97897"
+}

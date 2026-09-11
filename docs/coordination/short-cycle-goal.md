@@ -14,10 +14,10 @@
 
 | 代理 | 此轮交付 | 写入边界 |
 | --- | --- | --- |
-| Oh My Pi | #104 逐tick物理/几何审计只读复核 | 仅 physical-review 报告与 test_aruco_physical_review.py，运行源码冻结 |
-| agy | #104 实际原生目标CDR解析与关联窗口检查器（不授予通过） | 仅 inspect_aruco_native_targets.py 与自己的 native-correlation 报告；raw记录器已交主会话 |
-| Claude Code | #104 原始公共命令链和共同timeline离线审计 | 仅 audit_aruco_tracking_raw.py、测试与自己的报告；PX4候选已提交，源码冻结 |
-| 主会话 | 三路结果独立复核、契约/集成、真实运行与票据收口 | 其它已预约接入位置；不与上述写入者并发改同一文件 |
+| Oh My Pi | PX4 v2 trace 解析器只读复核 | 不写文件；核对字段、时间顺序、兼容性和因果边界 |
+| agy | #104 GitHub 验收/依赖/标签只读复核 | 不写仓库或 GitHub；新线程 `a23348a3-8cda-4373-9144-af3451f418af` |
+| Claude Code | PX4 WorkQueue 同实例两批次原生冒烟 | 仅 `tools/check_px4_workqueue_trace.py` 与对应测试；不改候选/patch/runtime |
+| 主会话 | v2 主审、准入/冒烟复核、唯一 SITL 运行线、票据与提交收口 | 其它文件；不与 Claude 并发修改其两个文件 |
 
 真实 SITL/UE/MATLAB/tracefs 共用资源串行预约；每场唯一输出，只清理自有进程。纯代码/离线测试并行。下一实际运行优先选择依赖齐全且已通过代码复核的一条，不用模拟成功替代真实验收。
 
@@ -27,7 +27,7 @@
 
 - [Oh My Pi](codex://threads/71b28520-5317-4b44-aab5-0f3b8329ae9f)
 - [agy](codex://threads/9ef3a71a-c4fb-4b72-8950-1df2dae018de)
-- [Claude Code](codex://threads/f0e405df-5143-41d8-a5e5-422b0a295c7f)
+- [Claude Code](codex://threads/586cc873-65e7-4d1e-975b-3de9bbac446e)
 
 前轮大型推送已成功，push 进程 `33870` 已退出 0，不再等待该进程。后续仅增量推送已验证提交，未验证代理工作不随提交混入。
 
@@ -84,3 +84,21 @@ tracking-03已退出1且所有运行组已清理：run aruco-track-556a1b0366 / 
 第16场Tool session=16857，run_id=aruco-track-8e056c491a。接续先poll16857；15场61502与push59227均终态，不要再等或重启。16运行期间禁止所有测试/构建/归档/推送；OMP/Claude均仅代码。Goal保持active，#104/Full未完成。
 
 第16场16857已终态1，manager0；aruco-track-8e056c491a/epochd47cb442efcb48bcae670c0c7a246f6b，tick27956起飞前rate失败121.048875ms、0RGB。完整205文件3分片已归档，重放精确复现。6979组中位3.312ms/最大29.6425ms；失败窗阶段CPU/墙钟分布不同于15，仍未唯一归因，不能盲改AP。当前无实际SITL/UE；等待OMP有界外部线程采样器主审后再决定下一诊断。Claude旧4b13切片长时间读查无文件，已取消旧turn，转新任务586cc873-65e7-4d1e-975b-3de9bbac446e/turn44f0f8f1仅2文件compact时间戳审计；保留外部默认model+auto thinking（工具回执已验证），非nested。运行合同40-aruco-run-contract.md更新为实际已实现入口、冻结值和准确审计范围；不改变门槛。#104/Full仍OPEN。
+
+当前无SITL/UE，16完整失败与实际运行合同已推c87548b；88d30a9已推，将fixed_task与ArUco统一三处延迟报告门控（退出、组完成、retirement），26项WSL检查通过/2个显式private ROS未启用，无正式mixed/PV实跑通过声明。OMP采样器已主审退修feec70c2：status路径应epoch.parent.parent、run/epoch绑定、TID start_ticks前后校验、PID批次后校验、完整argv、行数/参数界、自身CPU/耗时、schedstats标记；允许其离线及自建短命进程smoke，不启动SITL。主会话实查kernel.sched_schedstats=0，CLK_TCK=100，WSL6.6.87.2；不把runqueue0解释为无等待，未改变内核开关。Claude新任务586cc873的旧稿有tuple传resolve及“最新发布等于Control已消费”错误，已定向退修a34624e2：PX4以同tick后随state的sample stamp+ENU位置速度唯一定位此前LP，native.timestamp等于该LP.timestamp；新发布但未消费LP不误拒；AP同tickheader必须一致。source/test仍WIP未接收。当前不启动17，先等两个工具交付并主验收。Goal active，#104/Full未完。
+
+0500175已推送有界线程采样器，主会话修复epoch入口、zombie退役、忙线程正常stat变化误丢、空重复目标、错误header、batch耗时/boot_id/CLK_TCK；14项WSL（含自建短命进程）通过。当前第17场validation/40-aruco-tracking-17-px4-threads，run_id aruco-track-83ab77c0eb，Tool session83436已启动；私有/root/wksim-aruco-track-sRS1gSkV/aruco-track-83ab77c0eb。计划于实际tick>=10000时触发外部40s/50Hz，目标supervisor/AP-fc/PX4-fc，不改kernel.sched_schedstats=0，排队计数标不可用。已开启600s自有WSL保活进程session74832，PID/PGID599 start_ticks330，boot_id87e04105-21a5-41fd-a4ea-11f182fe8eb7，约06:31:42开始，必须核实其自然退出或以完全身份匹配关闭；不改WSL配置。当前禁止测试/构建/压缩/推送，runtime/采样器源码冻结，Claude仅代码修timestamp工具。16session16857已终态，不能再等。
+
+17场epoch=ddcbd0ee3cf54c2cb77de4fecd5a0d6c；运行Tool session83436。采样等待/执行协调器Tool session44389，等tick>=10000后运行40s/50Hz，触发记录validation/coordination/aruco-17-thread-sampler-launch.json，输出/root/wksim-thread-probe-17-83ab77c0eb。接续先poll83436和44389，不因观察超时重启；runtime/采样器仍冻结。WSL保活session74832有600s上限，需要确认终态。Claude时间戳工具已开始更新到14KB，测试尚待交，禁止在17期间运行测试。
+
+17运行83436/采样44389/600s保活74832均已终态（driver1/sampler0/keepalive0），无当前残留需等待。17在40296/100.456794ms失败，0RGB，40s采样1991批123442行，实际覆盖10268..30240，不含最终失败；sampler自身CPU4.747s有明显开销，runqueue关闭不判无等待。原件/分析已推2c2ce49；b70ffb2主验收native payload timestamps，21测试，AP15=791/PX4-10=785全过，保留旧场缺口。13accd2新增仅CPU诊断开启的runtime-loop边界，管理/pacing/physics/clock_publish/clock_evidence/group_end_view，31测试通过（实际advance调用顺序、失败不推进、原RateUnmet不被日志错覆盖）；没有物理/倍率门槛变化，默认无额外clock读取。Graph已查ClockPublisher.publish并直接读源，未重建大索引。当前18场validation/40-aruco-tracking-18-px4-loop run_id=aruco-track-e8b6165cde已启动，无外部sampler/保活程序，采用新内部loop timing，同其它参数。禁止并发测试/构建/归档/推送；runtime冻结。Claude当前新任务586cc873 turn65a5e375仅只读复核13accd2（2–5min范围，不跑测试）；源码与timestamp工具已交主会话。#104/PX4修复后完整场仍未过，Full未完。
+
+18场运行Tool session=62632，run_id aruco-track-e8b6165cde。接续先poll62632并找对应小status，不重启同一run。所有17相关句柄已终态，无外部采样器运行；本轮18期间不要测试/压缩/推送。
+
+18场62632已终态1，manager0，tick9388失败230.194579ms、0RGB。新增loop probe将失败精确定位为PX4 input wait219.973566ms/线程CPU25.078397ms；此前start lag仅15.077ms，管理/clock发布/clock日志均短。原件183文件2分片已推d814982。native发送原代码先poll(100)再组件sem barrier，TCP_NODELAY已开；不按100ms倍数猜路径，不先认定logger。OMP草稿有空组件死锁/逐轮日志/虚构上下文，已拒；主会话从真实3文件生成0005，保留全部原sem/bitset/register/continue/empty-return，off无clock/log，trace only active>2ms或poll>20ms。1109步构建成功，私有/root/wksim-px4-component-q0zJqx，manifest SHA a627423fb28ac4ccf190514ef8f0a4378f41b760311cab523ced3bfb21d0d24b；严格3文件delta+产物+父7Rj来源封存。18检查Win/WSL通过，实际candidate component源码POSIX semaphore shim测试off/on/invalid均通过（off/invalid clock_reads0，无日志；on等待全部组件且释放bit2）。admission-exec.json ok=true/native_component_timing=true；两次手工检查的overlay失败保留，已确认是缺环境/WSL额外shell展开，必须wsl --exec且sourceFW overlay后保留PYTHONPATH。原运行器本就exec。37028构建/80382与8846失败复查/44248成功复查及67965推送都已终态。ff8ae96解析器4检查通过，只解读观测不归因，release pair非原子不可作唯一根因。当前19场validation/40-aruco-tracking-19-px4-component run_id=aruco-track-78cb277e06已启动，候选JSON validation/px4-component-candidate-01/candidate.json；只使用原生慢段+内部CPU/write计时，无外部采样/保活，kernel统计开关未改。禁止并发测试/构建/归档/推送，runtime/patch/checker冻结。下一接续poll本场，完成后跑analyze_px4_component_trace.py实际px4-fc.log，并做完整ArUco审计。#104/Full仍OPEN。
+
+第19场Tool session=23939，run_id aruco-track-78cb277e06。接续先poll23939、找到该run小status；不得因观察超时重启。当前无其它SITL/采样/保活，19期间禁止所有测试/构建/压缩/推送。已推送HEAD ff8ae96。
+
+第19场已终态失败并随 `8faa567` 推送：run `aruco-track-78cb277e06` / epoch `e60d74f1719f4e5684e144ff09513b76`，tick60168、100.119728ms、15帧；v1原生记录定位到约26.15ms组件等待，同时暴露81,563次WorkQueue动态注册，不能把旧release观察误作唯一原因。失败原件及归档保留。
+
+当前无SITL/UE进程。PX4诊断v2候选 `/root/wksim-px4-component-ZNq7Mp` 已完成1109步构建、五文件严格delta封存和资源准入，manifest SHA256 `9806c6cbbf5318a33a9359de2846540a4a807a79101a2a426d78ec8d7e792b80`；原生barrier与一批次自删除WorkItem ASan冒烟通过。OMP复核确认ready时间戳在每批注销/复位后的首个Add重新建立，上一轮误报已撤回。Claude正在补同实例两批次同步冒烟；完成主审后才能启动run20。#104按票面失败处理保持OPEN并移至needs-triage，已写入AP15通过、PX4 run19失败与v2未飞行边界。固定1ms、时钟/输入屏障、无追赶/隐式重锚及100ms门槛不变。

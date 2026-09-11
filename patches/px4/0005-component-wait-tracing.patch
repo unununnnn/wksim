@@ -1,22 +1,24 @@
 diff --git a/platforms/posix/src/px4/common/lockstep_scheduler/include/lockstep_scheduler/lockstep_components.h b/platforms/posix/src/px4/common/lockstep_scheduler/include/lockstep_scheduler/lockstep_components.h
 --- a/platforms/posix/src/px4/common/lockstep_scheduler/include/lockstep_scheduler/lockstep_components.h
 +++ b/platforms/posix/src/px4/common/lockstep_scheduler/include/lockstep_scheduler/lockstep_components.h
-@@ -75,4 +75,8 @@
+@@ -75,4 +75,9 @@
  
  	std::atomic_int _components_used_bitset{0};
  	std::atomic_int _components_progress_bitset{0};
 +
 +	// Separate diagnostic observations. Never used by the barrier algorithm.
 +	std::atomic_int _trace_last_release_component{0};
++	std::atomic_int _trace_last_release_kind{0};
 +	std::atomic<long long> _trace_last_release_ns{0};
  };
 diff --git a/platforms/posix/src/px4/common/lockstep_scheduler/src/lockstep_components.cpp b/platforms/posix/src/px4/common/lockstep_scheduler/src/lockstep_components.cpp
 --- a/platforms/posix/src/px4/common/lockstep_scheduler/src/lockstep_components.cpp
 +++ b/platforms/posix/src/px4/common/lockstep_scheduler/src/lockstep_components.cpp
-@@ -42,6 +42,31 @@
+@@ -41,6 +41,31 @@
+ #include <px4_platform_common/log.h>
  #include <px4_platform_common/tasks.h>
  #include <limits.h>
- 
++
 +#include <sys/syscall.h>
 +#include <time.h>
 +#include <unistd.h>
@@ -41,33 +43,34 @@ diff --git a/platforms/posix/src/px4/common/lockstep_scheduler/src/lockstep_comp
 +	return static_cast<long long>(ts.tv_sec) * 1000000000LL + ts.tv_nsec;
 +}
 +} // namespace
-+
+ 
  LockstepComponents::LockstepComponents(bool no_cleanup_on_destroy)
  	: _no_cleanup_on_destroy(no_cleanup_on_destroy)
- {
-@@ -69,6 +94,10 @@
+@@ -91,6 +116,11 @@
  
- 			if (_components_used_bitset.compare_exchange_weak(expected, expected | (1 << component))) {
- 				PX4_DEBUG("%s: got lockstep component %i", px4_get_taskname(), component);
-+				if (wksim_wait_trace()) {
-+					std::fprintf(stderr, "WKSIM_PX4_REGISTER {\"component\":%d,\"tid\":%ld,\"task\":\"%s\"}\n",
-+						1 << component, static_cast<long>(::syscall(SYS_gettid)), px4_get_taskname());
-+				}
- 				return 1 << component;
- 			}
- 		}
-@@ -117,6 +146,10 @@
+ 	if (_components_progress_bitset == components_used_bitset) {
+ 		_components_progress_bitset = 0;
++		if (wksim_wait_trace()) {
++			_trace_last_release_kind.store(2, std::memory_order_relaxed);
++			_trace_last_release_component.store(component, std::memory_order_relaxed);
++			_trace_last_release_ns.store(wksim_wall_ns(), std::memory_order_release);
++		}
+ 		px4_sem_post(&_components_sem);
+ 	}
+ }
+@@ -117,6 +147,11 @@
  		int value;
  
  		if (px4_sem_getvalue(&_components_sem, &value) == 0 && value < 1) {
 +			if (wksim_wait_trace()) {
++				_trace_last_release_kind.store(1, std::memory_order_relaxed);
 +				_trace_last_release_component.store(component, std::memory_order_relaxed);
 +				_trace_last_release_ns.store(wksim_wall_ns(), std::memory_order_release);
 +			}
  			px4_sem_post(&_components_sem);
  		}
  	}
-@@ -128,5 +161,21 @@
+@@ -128,5 +163,21 @@
  		return;
  	}
  
@@ -83,9 +86,9 @@ diff --git a/platforms/posix/src/px4/common/lockstep_scheduler/src/lockstep_comp
 +		if (end_ns - start_ns > 2000000LL) {
 +			const long long release_ns = _trace_last_release_ns.load(std::memory_order_acquire);
 +			const int release_component = _trace_last_release_component.load(std::memory_order_relaxed);
-+			std::fprintf(stderr, "WKSIM_PX4_COMPONENT {\"start_mono_ns\":%lld,\"end_mono_ns\":%lld,\"wait_ns\":%lld,\"used\":%d,\"progress\":%d,\"missing\":%d,\"observed_release_component\":%d,\"observed_release_mono_ns\":%lld}\n",
++			std::fprintf(stderr, "WKSIM_PX4_COMPONENT {\"start_mono_ns\":%lld,\"end_mono_ns\":%lld,\"wait_ns\":%lld,\"used\":%d,\"progress\":%d,\"missing\":%d,\"observed_release_component\":%d,\"observed_release_mono_ns\":%lld,\"observed_release_kind\":%d}\n",
 +				start_ns, end_ns, end_ns - start_ns, used, progress, used & ~progress,
-+				release_component, release_ns);
++				release_component, release_ns, _trace_last_release_kind.load(std::memory_order_relaxed));
 +		}
 +	}
  }
@@ -169,3 +172,120 @@ diff --git a/src/modules/simulation/simulator_mavlink/SimulatorMavlink.cpp b/src
  		}
  	}
  
+diff --git a/platforms/common/px4_work_queue/WorkQueue.cpp b/platforms/common/px4_work_queue/WorkQueue.cpp
+--- a/platforms/common/px4_work_queue/WorkQueue.cpp
++++ b/platforms/common/px4_work_queue/WorkQueue.cpp
+@@ -41,6 +41,31 @@
+ #include <px4_platform_common/time.h>
+ #include <drivers/drv_hrt.h>
+ 
++#include <sys/syscall.h>
++#include <time.h>
++#include <unistd.h>
++#include <cstdio>
++#include <cstdlib>
++#include <cstring>
++
++namespace {
++bool wksim_wait_trace()
++{
++	static const bool enabled = []() {
++		const char *value = std::getenv("WKSIM_PX4_COMPONENT_TIMING");
++		return value != nullptr && std::strcmp(value, "1") == 0;
++	}();
++	return enabled;
++}
++
++long long wksim_wall_ns()
++{
++	struct timespec ts {};
++	if (::syscall(SYS_clock_gettime, CLOCK_MONOTONIC, &ts) != 0) { return 0; }
++	return static_cast<long long>(ts.tv_sec) * 1000000000LL + ts.tv_nsec;
++}
++} // namespace
++
+ namespace px4
+ {
+ 
+@@ -134,6 +159,7 @@
+ 
+ 	if (_lockstep_component == -1) {
+ 		_lockstep_component = px4_lockstep_register_component();
++		if (wksim_wait_trace()) { _trace_batch_ready_ns = wksim_wall_ns(); }
+ 	}
+ 
+ #endif // ENABLE_LOCKSTEP_SCHEDULER
+@@ -173,19 +199,46 @@
+ 
+ void WorkQueue::Run()
+ {
++	const bool trace = wksim_wait_trace();
+ 	while (!should_exit()) {
+ 		// loop as the wait may be interrupted by a signal
+ 		do {} while (px4_sem_wait(&_process_lock) != 0);
++		const long long woke_ns = trace ? wksim_wall_ns() : 0;
+ 
+ 		work_lock();
++		const long long worker_ns = trace ? wksim_wall_ns() : 0;
++#if defined(ENABLE_LOCKSTEP_SCHEDULER)
++		const int component = _lockstep_component;
++		const long long ready_ns = trace ? _trace_batch_ready_ns : 0;
++#else
++		const int component = 0;
++		const long long ready_ns = worker_ns;
++#endif
++		unsigned items = 0;
+ 
+ 		// process queued work
+ 		while (!_q.empty()) {
+ 			WorkItem *work = _q.pop();
++			char item_name[96] {};
++			if (trace) {
++				const char *name = work->ItemName();
++				std::snprintf(item_name, sizeof(item_name), "%s", name ? name : "unknown");
++				++items;
++			}
+ 
+ 			work_unlock(); // unlock work queue to run (item may requeue itself)
++			const long long item_start_ns = trace ? wksim_wall_ns() : 0;
+ 			work->RunPreamble();
+ 			work->Run();
++			if (trace) {
++				const long long item_end_ns = wksim_wall_ns();
++				if (item_end_ns - item_start_ns > 2000000LL) {
++					// No queue lock is held; work may already have deleted itself.
++					std::fprintf(stderr, "WKSIM_PX4_WORK {\"start_mono_ns\":%lld,\"end_mono_ns\":%lld,\"duration_ns\":%lld,\"queue\":\"%s\",\"item\":\"%s\",\"component\":%d,\"tid\":%ld}\n",
++						item_start_ns, item_end_ns, item_end_ns - item_start_ns, _config.name,
++						item_name, component, static_cast<long>(::syscall(SYS_gettid)));
++				}
++			}
+ 			// Note: after Run() we cannot access work anymore, as it might have been deleted
+ 			work_lock(); // re-lock
+ 		}
+@@ -200,6 +253,15 @@
+ #endif // ENABLE_LOCKSTEP_SCHEDULER
+ 
+ 		work_unlock();
++		if (trace && items > 0 && ready_ns > 0) {
++			const long long end_ns = wksim_wall_ns();
++			if (end_ns - ready_ns > 2000000LL) {
++				// The queue lock and its lockstep registration have both been released.
++				std::fprintf(stderr, "WKSIM_PX4_QUEUE {\"ready_mono_ns\":%lld,\"woke_mono_ns\":%lld,\"worker_mono_ns\":%lld,\"end_mono_ns\":%lld,\"duration_ns\":%lld,\"queue\":\"%s\",\"component\":%d,\"tid\":%ld,\"items\":%u}\n",
++					ready_ns, woke_ns, worker_ns, end_ns, end_ns - ready_ns, _config.name, component,
++					static_cast<long>(::syscall(SYS_gettid)), items);
++			}
++		}
+ 	}
+ 
+ 	PX4_DEBUG("%s: exiting", _config.name);
+diff --git a/platforms/common/include/px4_platform_common/px4_work_queue/WorkQueue.hpp b/platforms/common/include/px4_platform_common/px4_work_queue/WorkQueue.hpp
+--- a/platforms/common/include/px4_platform_common/px4_work_queue/WorkQueue.hpp
++++ b/platforms/common/include/px4_platform_common/px4_work_queue/WorkQueue.hpp
+@@ -103,6 +103,7 @@
+ 
+ #if defined(ENABLE_LOCKSTEP_SCHEDULER)
+ 	int _lockstep_component {-1};
++	long long _trace_batch_ready_ns{0}; // Accessed only under work_lock().
+ #endif // ENABLE_LOCKSTEP_SCHEDULER
+ 
+ };

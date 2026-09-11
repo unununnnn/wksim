@@ -24,7 +24,7 @@ class ComponentCandidateTests(unittest.TestCase):
             with patch.object(candidate,'snapshot',return_value=value|{'binary_sha256':'c'*64}):
                 with self.assertRaises(ValueError):candidate.check(path,digest)
 
-    def test_delta_outside_the_three_native_files_is_rejected(self):
+    def test_delta_outside_the_allowed_native_files_is_rejected(self):
         with patch.object(candidate.Path,'resolve',lambda self,**kw:self), \
              patch.object(candidate.land,'check',return_value={'source':{'files':{'extra':1}}}), \
              patch.object(candidate,'expected_sources',return_value={}), \

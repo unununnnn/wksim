@@ -18,7 +18,9 @@ BUILDER='tools/build-px4-component-timing.sh'
 TARGETS=(
  'src/modules/simulation/simulator_mavlink/SimulatorMavlink.cpp',
  'platforms/posix/src/px4/common/lockstep_scheduler/src/lockstep_components.cpp',
- 'platforms/posix/src/px4/common/lockstep_scheduler/include/lockstep_scheduler/lockstep_components.h')
+ 'platforms/posix/src/px4/common/lockstep_scheduler/include/lockstep_scheduler/lockstep_components.h',
+ 'platforms/common/px4_work_queue/WorkQueue.cpp',
+ 'platforms/common/include/px4_platform_common/px4_work_queue/WorkQueue.hpp')
 ENVIRONMENT={'WKSIM_PX4_COMPONENT_TIMING':'1'}
 
 
@@ -58,7 +60,7 @@ def snapshot(root):
     runtime=root/'src/build/px4_sitl_default'
     artifacts={p.relative_to(root).as_posix():file_identity(p,root)
                for base in ('bin','etc') for p in sorted((runtime/base).rglob('*')) if p.is_file()}
-    return dict(schema='px4-component-timing-v1',root=str(root),source=after,
+    return dict(schema='px4-component-timing-v2',root=str(root),source=after,
         parent_manifest=dict(path=str(PARENT),sha256=PARENT_SHA,binary_sha256=parent['binary_sha256']),
         baseline_source=parent['baseline_source'],baseline_binary_sha256=parent['baseline_binary_sha256'],
         binary_sha256=digest(root/'src'/land.BINARY),artifacts=artifacts,

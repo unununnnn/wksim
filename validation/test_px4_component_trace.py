@@ -28,7 +28,20 @@ class NativeTraceTests(unittest.TestCase):
         path=Path(__file__).resolve().parents[1]/'validation/px4-component-barrier-01/on.stderr'
         report=analyze(path)
         self.assertEqual(report['status'],'observed')
-        self.assertEqual(report['counts'],dict(send=0,component=1,register=2))
+        self.assertEqual(report['counts'],dict(send=0,component=1,register=2,work=0,queue=0))
+
+    def test_queue_early_wake_is_valid_but_worker_cannot_precede_enqueue(self):
+        row=dict(ready_mono_ns=20,woke_mono_ns=10,worker_mono_ns=25,end_mono_ns=40,
+                 duration_ns=20,queue='wq:test',component=4,tid=10,items=2)
+        self.assertEqual(parse('WKSIM_PX4_QUEUE '+json.dumps(row),1)['items'],2)
+        row['worker_mono_ns']=15
+        with self.assertRaises(ValueError):parse('WKSIM_PX4_QUEUE '+json.dumps(row),1)
+
+    def test_work_duration_is_exact(self):
+        row=dict(start_mono_ns=10,end_mono_ns=40,duration_ns=30,queue='wq:test',item='self-deleting',component=4,tid=10)
+        self.assertEqual(parse('WKSIM_PX4_WORK '+json.dumps(row),1)['duration_ns'],30)
+        row['duration_ns']=29
+        with self.assertRaises(ValueError):parse('WKSIM_PX4_WORK '+json.dumps(row),1)
 
 
 if __name__=='__main__':unittest.main()
