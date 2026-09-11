@@ -2,6 +2,10 @@
 
 ## 最新检查点（优先于下方历史记录）
 
+后继检查：`ec40ec2` 已推送 #75 AST 修复，OMP 终审 GO，三端各 70 项通过；当前 OMP Task21m 只读核验 #75/#74/#73 的真实运行依赖。agy Task17m 已恢复可见读证据进度，线程不变，检查 scheduler 准入。Claude 原18r连续多次无进度且无改动，经工具确认取消为 interrupted，已在同线程续派18s，仅编辑 grid_map.cpp/test_grid_map_param_safety.py 的初始化数值边界；三轴膨胀算法留给下一片。三个 Luna 仍为已完成状态。
+
+**真实 scheduler 仍 NO-GO**：主会话重读旧 trace，arducopter 存在 kernel PID4449（192次）与4770（2次），当前 FC 严格映射仍将失败；当前 Ubuntu WSL 只读 proc 实查 Pid/Tgid/NSpid 均736，self/init namespace均 pid:[4026532242]，未暴露外层 PID。不能把本机 NSpid[0] 未经证明当成 kernel-global ID。下一片必须解决可信外层身份绑定与 AP leader 的同名启动线程，不能盲跑或放宽身份检查。新发现已评论 #33；旧测试的双层 NSpid 合成假设不代表本机 procfs。
+
 截至提交 `a9bd574`：`989b45d` 的 GridMap 参数生命周期修复与 `186b839` 的 scheduler 时序/NSpid 绑定修复均已推送。GridMap 三端 17 项离线测试通过；scheduler 三端各 84 项通过（Windows 2 项条件跳过），OMP 增量复核 P0/P1 为 0。`1f085c5` 推送普通/promotion 严格收据准入；`a9bd574` 推送 G6 未批准预算骨架，三端 26 项测试通过（Windows 1 项平台跳过）。这些提交未构成真实 planner/SITL/G6 验收。
 
 当前唯一写入者与任务：
