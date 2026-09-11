@@ -8,8 +8,12 @@ synthetic in-memory fixtures in a system temp directory. They cover:
     120 values, non-finite, boolean, missing terminal, identity mismatch.
 """
 import json
+import hashlib
 import math
+import os
+import signal
 import struct
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -27,6 +31,7 @@ from tools.run_e0_same_source_conformance import (
     FROZEN_METRIC,
     Reject,
     SAMPLES,
+    _launch_process,
     align,
     compare_aligned,
     parse_native_record,
@@ -64,10 +69,11 @@ def _write_reference(root, fn=lambda k, i: 0.0):
         (root / (array + '.f64')).write_bytes(_reference_rows(width, fn))
 
 
-def _record_lines(status='complete', mutate=None, drop_terminal=False, source=None):
+def _record_lines(status='complete', mutate=None, drop_terminal=False, source=None,
+                  input_csv='header\nrow\n', input_rows=None):
     lines = [json.dumps(dict(
         kind='major_recorder_start', schema_version=1,
-        source=_source_identity() if source is None else source, input_csv='header\nrow\n',
+        source=_source_identity() if source is None else source, input_csv=input_csv,
         expected_calls=SAMPLES, comparison_end_s=0.5, expected_engine_end_s=0.501))]
     for k in range(SAMPLES):
         sample = dict(
@@ -76,6 +82,9 @@ def _record_lines(status='complete', mutate=None, drop_terminal=False, source=No
             major_capture_count=1, step_status='complete',
             major_root_outputs={a: [0.0] * w for a, w in ARRAY_LENGTHS.items()},
         )
+        if input_rows is not None:
+            sample['inPWMs'] = input_rows[k]['inPWMs']
+            sample['TerrainIn15d'] = input_rows[k]['TerrainIn15d']
         if mutate:
             mutate(k, sample)
         lines.append(json.dumps(sample))
@@ -115,6 +124,84 @@ def _valid_contract(observables=None):
                       array_lengths=dict(ARRAY_LENGTHS)),
         observables=_valid_observables() if observables is None else observables,
     )
+
+
+def _sha(path):
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+def _write_input(path):
+    header = ['k', 'time_s'] + [f'inPWMs{i}' for i in range(16)] + [
+        f'TerrainIn15d{i}' for i in range(15)]
+    rows = [','.join(header)]
+    parsed = []
+    for k in range(SAMPLES):
+        values = [0.0] * 32
+        values[0] = float('%.3f' % (k * 0.001))
+        rows.append(','.join([str(k), '%.3f' % values[0]] + ['0'] * 31))
+        parsed.append({'time_s': values[0], 'inPWMs': values[1:17],
+                       'TerrainIn15d': values[17:32]})
+    path.write_text('\n'.join(rows) + '\n', encoding='ascii')
+    return path.read_bytes(), parsed
+
+
+def _write_execution_fixture(root, contract):
+    """Create a complete synthetic execution contract; the launcher stays fake."""
+    input_path = root / 'input.csv'
+    input_raw, input_rows = _write_input(input_path)
+    matlab = root / 'matlab.exe'
+    matlab.write_bytes(b'fake matlab executable')
+    export = root / 'export_model_reference.m'
+    export.write_text('% fake export script\n', encoding='ascii')
+    slx = root / 'Exp1_MinModelTemp.slx'
+    init = root / 'Exp1_MinModelTemp_init.m'
+    slx.write_bytes(b'fake slx')
+    init.write_text('% fake init\n', encoding='ascii')
+    support = {}
+    for name, data in (
+        ('parameter-bindings.json', '{}\n'),
+        ('readiness.json', '{}\n'),
+        ('dependencies.json', '[]\n'),
+    ):
+        path = root / name
+        path.write_text(data, encoding='ascii')
+        support[name] = path
+    contract['identity']['slx'] = {'path': str(slx), 'sha256': _sha(slx)}
+    contract['identity']['init'] = {'path': str(init), 'sha256': _sha(init)}
+    stage_files = [
+        {'name': 'Exp1_MinModelTemp.slx', 'path': str(slx), 'sha256': _sha(slx)},
+        {'name': 'Exp1_MinModelTemp_init.m', 'path': str(init), 'sha256': _sha(init)},
+    ] + [
+        {'name': name, 'path': str(path), 'sha256': _sha(path)}
+        for name, path in support.items()
+    ]
+    native_manifest = root / 'build-manifest.json'
+    native_manifest.write_text(json.dumps({
+        'source_identity': _source_identity(),
+        'executable': {
+            'filename': 'major_model_recorder',
+            'sha256': '9' * 64,
+            'size_bytes': 126920,
+        },
+    }), encoding='ascii')
+    contract['execution'] = {
+        'case_id': 'C0',
+        'input': {'path': str(input_path), 'sha256': _sha(input_path)},
+        'timeout_seconds': 5,
+        'normal': {
+            'matlab': str(matlab),
+            'matlab_sha256': _sha(matlab),
+            'export_script': {'path': str(export), 'sha256': _sha(export)},
+            'stage_files': stage_files,
+        },
+        'native': {
+            'manifest': {'path': str(native_manifest), 'sha256': _sha(native_manifest)},
+            'executable_sha256': '9' * 64,
+            'wsl_executable': '/root/fake/major_model_recorder',
+            'wsl_distro': 'Ubuntu-22.04',
+        },
+    }
+    return input_raw, input_rows, _source_identity()
 
 
 class ContractValidationTests(unittest.TestCase):
@@ -231,7 +318,7 @@ class FailClosedEntryTests(unittest.TestCase):
         self.assertFalse(result['native_launched'])
 
     def test_fully_provisioned_never_reports_pass(self):
-        # Even a fully-approved contract must NOT report pass from this seam.
+        # A budget-complete contract without the execution identities is still blocked.
         result = run(self._write(_valid_contract()))
         self.assertNotEqual(result['status'], 'pass')
         self.assertNotEqual(result['status'], 'declared_cases_pass')
@@ -239,13 +326,338 @@ class FailClosedEntryTests(unittest.TestCase):
         self.assertFalse(result['g6_acceptance'])
         self.assertFalse(result['matlab_launched'])
         self.assertFalse(result['native_launched'])
-        self.assertEqual(result['status'], 'execution_not_implemented')
+        self.assertEqual(result['status'], 'blocked')
+        self.assertTrue(any('execution block' in reason for reason in result['blocking_reasons']))
 
-    def test_cli_not_implemented_is_nonzero(self):
+    def test_cli_blocked_is_nonzero(self):
         path = self._write(_valid_contract())
         with patch('sys.argv', ['run_e0_same_source_conformance.py', str(path)]):
             with redirect_stdout(StringIO()):
-                self.assertEqual(main(), 3)
+                self.assertEqual(main(), 2)
+
+    def test_execution_preflight_happens_before_evidence_directory(self):
+        contract_path = self._write(_valid_contract())
+        evidence = self.tmp / 'must-not-exist'
+        result = run(contract_path, evidence_dir=evidence)
+        self.assertEqual(result['status'], 'blocked')
+        self.assertFalse(evidence.exists())
+
+
+class ExecutionOrchestrationTests(unittest.TestCase):
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp(prefix='e0-same-source-execution-'))
+
+    def _write_contract(self):
+        contract = _valid_contract()
+        input_raw, input_rows, source = _write_execution_fixture(self.tmp, contract)
+        path = self.tmp / 'contract.json'
+        path.write_text(json.dumps(contract), encoding='utf-8')
+        return path, contract, input_raw, input_rows, source
+
+    @staticmethod
+    def _native_probe(path, distro, sha256='9' * 64, executable=True,
+                      regular_file=True, size_bytes=126920):
+        return {
+            'path': path, 'sha256': sha256, 'size_bytes': size_bytes,
+            'mode': '755', 'regular_file': regular_file, 'executable': executable,
+        }
+
+    def _launcher(self, input_raw, input_rows, source, calls, *, normal_exit=0,
+                  native_exit=0, native_input_csv=None):
+        def launch(**kwargs):
+            side = kwargs['side']
+            calls.append(side)
+            stdout_path = Path(kwargs['stdout_path'])
+            stderr_path = Path(kwargs['stderr_path'])
+            stderr_path.write_text('', encoding='ascii')
+            if side == 'normal':
+                stdout_path.write_text('', encoding='ascii')
+                stage = Path(kwargs['cwd'])
+                for array, width in ARRAY_LENGTHS.items():
+                    (stage / (array + '.f64')).write_bytes(_reference_rows(width, lambda k, i: 0.0))
+                (stage / 'applied-input.f64').write_bytes(
+                    b''.join(struct.pack('<33d', float(k), row['time_s'], *row['inPWMs'],
+                                         *row['TerrainIn15d'])
+                              for k, row in enumerate(input_rows)))
+                manifest = json.loads((stage / 'manifest.json').read_text(encoding='utf-8'))
+                (stage / 'reference.json').write_text(json.dumps({
+                    'status': 'complete', 'case': manifest['case'],
+                    'epoch': manifest['epoch'],
+                    'contract_sha256': manifest['contract_sha256'],
+                }), encoding='utf-8')
+                return {'exit_code': normal_exit, 'timeout': False, 'pid': 101}
+            stdout_path.write_text(_record_lines(
+                source=source,
+                input_csv=(input_raw.decode('ascii')
+                           if native_input_csv is None else native_input_csv),
+                input_rows=input_rows),
+                encoding='utf-8')
+            return {'exit_code': native_exit, 'timeout': False, 'pid': 202}
+        return launch
+
+    def test_normal_then_native_success_is_comparable(self):
+        path, contract, input_raw, input_rows, source = self._write_contract()
+        calls = []
+        result = run(
+            path, evidence_dir=self.tmp / 'evidence',
+            launcher=self._launcher(input_raw, input_rows, source, calls),
+            wsl_path_resolver=lambda path, distro: '/mnt/fake/input.csv',
+            native_identity_probe=self._native_probe,
+        )
+        self.assertEqual(result['status'], 'declared_cases_pass')
+        self.assertEqual(calls, ['normal', 'native'])
+        self.assertTrue(result['execution_attempted'])
+        self.assertTrue(result['matlab_launched'])
+        self.assertTrue(result['native_launched'])
+        self.assertEqual(result['native']['argv'][4:8],
+                         ['timeout', '--signal=TERM', '--kill-after=5s', '5.0s'])
+        self.assertFalse(result['physical_accuracy'])
+        self.assertFalse(result['g6_acceptance'])
+        self.assertEqual(result['scalar_count'], 120)
+        self.assertEqual(result['comparisons'], 120 * SAMPLES)
+        self.assertTrue((self.tmp / 'evidence' / 'result.json').is_file())
+
+    def test_normal_failure_does_not_start_native(self):
+        path, contract, input_raw, input_rows, source = self._write_contract()
+        calls = []
+        result = run(
+            path, evidence_dir=self.tmp / 'failure',
+            launcher=self._launcher(input_raw, input_rows, source, calls, normal_exit=1),
+            wsl_path_resolver=lambda path, distro: '/mnt/fake/input.csv',
+            native_identity_probe=self._native_probe,
+        )
+        self.assertEqual(result['status'], 'invalid_run')
+        self.assertEqual(calls, ['normal'])
+        self.assertFalse(result['native_launched'])
+        self.assertEqual(result['input_sha256'], contract['execution']['input']['sha256'])
+        self.assertIn('source_identity', result['normal'])
+        self.assertEqual(result['native_executable_entity']['sha256'], '9' * 64)
+        self.assertEqual(result['native_source_identity'], source)
+        self.assertTrue(result['native']['launch_skipped'])
+        self.assertTrue((self.tmp / 'failure' / 'result.json').is_file())
+
+    def test_native_identity_mismatch_is_blocked_before_launch(self):
+        path, contract, input_raw, input_rows, source = self._write_contract()
+        contract['execution']['native']['executable_sha256'] = '8' * 64
+        path.write_text(json.dumps(contract), encoding='utf-8')
+        calls = []
+        evidence = self.tmp / 'identity-failure'
+        result = run(path, evidence_dir=evidence,
+                     launcher=self._launcher(input_raw, input_rows, source, calls))
+        self.assertEqual(result['status'], 'blocked')
+        self.assertFalse(calls)
+        self.assertFalse(evidence.exists())
+
+    def test_actual_native_sha_mismatch_blocks_before_evidence_or_launch(self):
+        path, contract, input_raw, input_rows, source = self._write_contract()
+        calls = []
+        evidence = self.tmp / 'actual-native-identity-failure'
+        result = run(
+            path, evidence_dir=evidence,
+            launcher=self._launcher(input_raw, input_rows, source, calls),
+            native_identity_probe=lambda wsl_path, distro: self._native_probe(
+                wsl_path, distro, sha256='8' * 64),
+        )
+        self.assertEqual(result['status'], 'blocked')
+        self.assertTrue(any('executable bytes' in reason
+                            for reason in result['blocking_reasons']))
+        self.assertFalse(calls)
+        self.assertFalse(evidence.exists())
+
+    def test_non_executable_native_blocks_before_evidence_or_launch(self):
+        path, contract, input_raw, input_rows, source = self._write_contract()
+        calls = []
+        evidence = self.tmp / 'native-not-executable'
+        result = run(
+            path, evidence_dir=evidence,
+            launcher=self._launcher(input_raw, input_rows, source, calls),
+            native_identity_probe=lambda wsl_path, distro: self._native_probe(
+                wsl_path, distro, executable=False),
+        )
+        self.assertEqual(result['status'], 'blocked')
+        self.assertFalse(calls)
+        self.assertFalse(evidence.exists())
+
+    def test_native_size_mismatch_blocks_before_evidence_or_launch(self):
+        path, contract, input_raw, input_rows, source = self._write_contract()
+        calls = []
+        evidence = self.tmp / 'native-size-mismatch'
+        result = run(
+            path, evidence_dir=evidence,
+            launcher=self._launcher(input_raw, input_rows, source, calls),
+            native_identity_probe=lambda wsl_path, distro: self._native_probe(
+                wsl_path, distro, size_bytes=1),
+        )
+        self.assertEqual(result['status'], 'blocked')
+        self.assertFalse(calls)
+        self.assertFalse(evidence.exists())
+
+    def test_matlab_bytes_must_match_declared_sha(self):
+        path, contract, input_raw, input_rows, source = self._write_contract()
+        Path(contract['execution']['normal']['matlab']).write_bytes(b'replaced matlab')
+        calls = []
+        evidence = self.tmp / 'matlab-identity-failure'
+        result = run(
+            path, evidence_dir=evidence,
+            launcher=self._launcher(input_raw, input_rows, source, calls),
+            native_identity_probe=self._native_probe,
+        )
+        self.assertEqual(result['status'], 'blocked')
+        self.assertFalse(calls)
+        self.assertFalse(evidence.exists())
+
+    def test_prepare_failure_leaves_no_partial_evidence_directory(self):
+        path, contract, input_raw, input_rows, source = self._write_contract()
+        evidence = self.tmp / 'copy-failure'
+        real_copyfile = __import__('shutil').copyfile
+        copy_count = 0
+
+        def fail_second_copy(source_path, destination_path):
+            nonlocal copy_count
+            copy_count += 1
+            if copy_count == 2:
+                raise OSError('synthetic copy failure')
+            return real_copyfile(source_path, destination_path)
+
+        with patch('tools.run_e0_same_source_conformance.shutil.copyfile',
+                   side_effect=fail_second_copy):
+            result = run(path, evidence_dir=evidence,
+                         native_identity_probe=self._native_probe)
+        self.assertEqual(result['status'], 'blocked')
+        self.assertFalse(evidence.exists())
+        self.assertFalse(list(self.tmp.glob('.copy-failure.staging-*')))
+
+    def test_matlab_identity_is_rechecked_immediately_before_launch(self):
+        path, contract, input_raw, input_rows, source = self._write_contract()
+        calls = []
+
+        def mutate_matlab_then_resolve(input_path, distro):
+            Path(contract['execution']['normal']['matlab']).write_bytes(b'late replacement')
+            return '/mnt/fake/input.csv'
+
+        result = run(
+            path, evidence_dir=self.tmp / 'late-matlab-change',
+            launcher=self._launcher(input_raw, input_rows, source, calls),
+            wsl_path_resolver=mutate_matlab_then_resolve,
+            native_identity_probe=self._native_probe,
+        )
+        self.assertEqual(result['status'], 'invalid_run')
+        self.assertFalse(calls)
+        self.assertTrue(any('changed before launch' in reason
+                            for reason in result['blocking_reasons']))
+        self.assertTrue(result['normal']['launch_skipped'])
+        self.assertTrue(result['native']['launch_skipped'])
+
+    def test_wsl_path_resolution_failure_retains_native_skeleton(self):
+        path, contract, input_raw, input_rows, source = self._write_contract()
+        evidence = self.tmp / 'wsl-path-failure'
+
+        def fail_resolution(input_path, distro):
+            raise OSError('synthetic wslpath failure')
+
+        result = run(
+            path, evidence_dir=evidence, wsl_path_resolver=fail_resolution,
+            native_identity_probe=self._native_probe,
+        )
+        self.assertEqual(result['status'], 'invalid_run')
+        self.assertTrue(result['native']['launch_skipped'])
+        self.assertIsNone(result['native']['argv'])
+        self.assertEqual(result['native']['input_path_resolution'], 'pending')
+        self.assertIsNone(result['native']['exit_code'])
+        self.assertFalse(result['native']['timeout'])
+        self.assertEqual(result['native']['expected_executable']['sha256'], '9' * 64)
+        self.assertTrue((evidence / 'result.json').is_file())
+
+    def test_native_identity_is_rechecked_immediately_before_launch(self):
+        path, contract, input_raw, input_rows, source = self._write_contract()
+        calls = []
+        probe_calls = 0
+
+        def changing_probe(wsl_path, distro):
+            nonlocal probe_calls
+            probe_calls += 1
+            return self._native_probe(
+                wsl_path, distro, sha256=('9' if probe_calls == 1 else '8') * 64)
+
+        result = run(
+            path, evidence_dir=self.tmp / 'late-native-change',
+            launcher=self._launcher(input_raw, input_rows, source, calls),
+            wsl_path_resolver=lambda input_path, distro: '/mnt/fake/input.csv',
+            native_identity_probe=changing_probe,
+        )
+        self.assertEqual(result['status'], 'invalid_run')
+        self.assertEqual(calls, ['normal'])
+        self.assertFalse(result['native_launched'])
+        self.assertEqual(probe_calls, 2)
+        self.assertTrue(result['native']['launch_skipped'])
+        self.assertEqual(result['native']['argv'][4], 'timeout')
+
+    def test_non_string_native_input_csv_is_retained_as_invalid_evidence(self):
+        path, contract, input_raw, input_rows, source = self._write_contract()
+        calls = []
+        evidence = self.tmp / 'invalid-input-csv-type'
+        result = run(
+            path, evidence_dir=evidence,
+            launcher=self._launcher(
+                input_raw, input_rows, source, calls, native_input_csv=['not', 'text']),
+            wsl_path_resolver=lambda input_path, distro: '/mnt/fake/input.csv',
+            native_identity_probe=self._native_probe,
+        )
+        self.assertEqual(result['status'], 'invalid_run')
+        self.assertEqual(calls, ['normal', 'native'])
+        self.assertTrue(result['native_launched'])
+        self.assertIn('input_csv must be a string', result['error'])
+        self.assertTrue((evidence / 'result.json').is_file())
+
+    def test_wsl_timeout_exit_is_recorded_as_timeout(self):
+        path, contract, input_raw, input_rows, source = self._write_contract()
+        calls = []
+        result = run(
+            path, evidence_dir=self.tmp / 'native-timeout',
+            launcher=self._launcher(
+                input_raw, input_rows, source, calls, native_exit=124),
+            wsl_path_resolver=lambda input_path, distro: '/mnt/fake/input.csv',
+            native_identity_probe=self._native_probe,
+        )
+        self.assertEqual(result['status'], 'invalid_run')
+        self.assertTrue(result['native']['timeout'])
+        self.assertEqual(result['native']['timeout_source'], 'wsl_coreutils_timeout')
+        self.assertTrue((self.tmp / 'native-timeout' / 'result.json').is_file())
+
+
+class ProcessContainmentTests(unittest.TestCase):
+    def test_timeout_uses_owned_process_group_and_bounded_reap(self):
+        with tempfile.TemporaryDirectory(prefix='e0-launch-timeout-') as directory:
+            root = Path(directory)
+            process = unittest.mock.Mock()
+            process.pid = 4242
+            process.wait.side_effect = [
+                subprocess.TimeoutExpired(cmd=['synthetic'], timeout=0.01), -9,
+            ]
+            patches = [
+                patch('tools.run_e0_same_source_conformance.subprocess.Popen',
+                      return_value=process),
+            ]
+            if os.name == 'nt':
+                patches.append(patch(
+                    'tools.run_e0_same_source_conformance.subprocess.run',
+                    return_value=unittest.mock.Mock(returncode=0)))
+            else:
+                patches.append(patch('tools.run_e0_same_source_conformance.os.killpg'))
+            with patches[0] as popen, patches[1] as terminate:
+                status = _launch_process(
+                    side='synthetic', argv=['synthetic'], cwd=root, env=os.environ.copy(),
+                    stdout_path=root / 'stdout.log', stderr_path=root / 'stderr.log',
+                    timeout_seconds=0.01)
+            self.assertTrue(status['timeout'])
+            self.assertEqual(status['exit_code'], -9)
+            kwargs = popen.call_args.kwargs
+            if os.name == 'nt':
+                self.assertEqual(kwargs['creationflags'], subprocess.CREATE_NEW_PROCESS_GROUP)
+                self.assertEqual(terminate.call_args.args[0][:2], ['taskkill.exe', '/PID'])
+            else:
+                self.assertTrue(kwargs['start_new_session'])
+                terminate.assert_called_once_with(4242, signal.SIGKILL)
 
 
 class ParseReferenceTests(unittest.TestCase):

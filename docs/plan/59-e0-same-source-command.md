@@ -1,11 +1,11 @@
 # #59 同源 e0 数值验收命令接缝（fail-closed 入口）
 
-2026-09-11。本切片交付 #59 路线中“SLX 11.8 normal 对同源 11.8 native”唯一可执行命令的**入口接缝**：先验证新合同 schema/identity/逐量预算，再决定是否可达执行阶段。本切片**不实现**参考/候选执行与逐量比较本身，也不冻结任何预算。
+2026-09-11。本切片交付 #59 路线中“SLX 11.8 normal 对同源 11.8 native”唯一可执行命令的**入口接缝**：先验证新合同 schema/identity/逐量预算，再在完整执行身份存在时编排 normal→native→离线比较。本切片不冻结任何预算。
 
 ## 交付物（仅 3 个新文件，不改旧 R1）
 
-- `tools/run_e0_same_source_conformance.py` — fail-closed 入口 + 纯解析/对齐层。
-- `validation/test_e0_same_source_conformance.py` — 26 项单元测试，纯 Python、不启动 MATLAB/build、不读真实模型。
+- `tools/run_e0_same_source_conformance.py` — fail-closed 入口、可注入的 normal/native 编排、解析/对齐层。
+- `validation/test_e0_same_source_conformance.py` — 63 项纯 Python 单元测试，不启动 MATLAB/WSL/build，不读真实模型。
 - 本文档。
 
 明确不复用旧入口：`tools/run_numerical_conformance.py` 硬绑定旧 11.0 目标构建（`BUILD=/root/wksim-major-recorder-j_3guvtn/build.json`、`EXE_SHA c685817a…`）与冻结合同 `numerical-conformance-v1.json`（`CONTRACT_SHA 23d72e26…`），其 `compare()` 强制 `rule=='finite_binary64_value_equal'` 且预算全 0。旧合同一字未改。
@@ -22,9 +22,37 @@
    - 逐 observable：必备字段 `observable, source_mapping, unit, frame, datum, sample_phase, metric, abs_budget, rel_budget, rms_budget, derivation, domain, approval, contract_sha256, array, indices`；三个预算须为有限非负数；`approval` 必须恰为 `'approved'`；`contract_sha256` 为 64 位小写十六进制，`array`/`indices` 合法、非空且不重复；
    - **标量覆盖必须恰为 120**（少一个即阻塞）。
 2. 若**任一** observable 缺 abs/rel/RMS 预算，或 `approval != approved`，或 identity/schema 不完整 → 返回 `status='blocked'`、`physical_accuracy=False`、`g6_acceptance=False`、`matlab_launched=False`、`native_launched=False`、`execution_attempted=False`，并列出全部 `blocking_reasons`。**绝不启动 MATLAB/native，绝不报 pass。**
-3. 仅当合同完全供给且 approved 后，执行/比较阶段才“可达”——但本切片刻意不实现它，返回 `status='execution_not_implemented'`，仍 `physical_accuracy=False`、不报 pass。
+3. 仅当合同完全供给且 approved 后，才校验 execution block、所有输入/脚本/模型/manifest SHA 和 staging 文件。MATLAB 本体按合同 SHA 校验；native executable 在 WSL 内按 filename、regular-file、execute bit、size 和 SHA 实测并与 build manifest 交叉核对。执行身份缺失或不一致仍返回 `status='blocked'`，且不创建 evidence 目录。
+4. 所有预检通过后才在同一父目录的临时 staging tree 中准备证据，完整复制并复核后一次 rename 为最终 evidence 目录；准备失败会清理临时目录。随后依次启动 normal MATLAB 与 native major recorder；两侧输出、输入、终态和 source identity 全部有效后，才进入 `align()`/`compare_aligned()`。
 
-退出码：`blocked` → 2；`execution_not_implemented` → 3。本接缝没有 `pass` 或退出码 0 路径，外层自动化不能把“合同已就绪但执行尚未实现”误判为数值通过。
+退出码：`blocked`/`invalid_run` → 2；`numerical_failed` → 1；`declared_cases_pass` → 0。`declared_cases_pass` 仍只表示声明合同下的数值比较结果，不代表 physical accuracy 或 G6 通过。
+
+## normal→native 执行编排
+
+执行合同在新合同根部增加 `execution`：
+
+- `case_id`、`input.path/sha256`、正好 501 行的 `k,time_s,inPWMs[16],TerrainIn15d[15]` CSV；
+- `normal.matlab/matlab_sha256`、`normal.export_script.path/sha256`，以及至少包含 SLX、init、`parameter-bindings.json`、`readiness.json`、`dependencies.json` 的 `normal.stage_files`；SLX/init 的 SHA 必须与 `identity` 相同；
+- `native.manifest.path/sha256`、`native.executable_sha256`、`native.wsl_executable`、可选 `native.wsl_distro`；manifest 中的 `source_identity` 和 executable SHA 必须完整且一致；
+- `timeout_seconds`。
+
+所有路径、文件存在性、文件 SHA、输入格点、native source identity、WSL executable 实体和合同文件 SHA 都在最终 evidence 目录创建前检查。执行阶段使用新目录和私有 `TEMP/TMP/MATLAB_PREFDIR`，不覆盖已有证据。Windows 侧进程超时后按独立 process group 回收整棵子进程树；native 同时由 WSL 内的 `timeout` 在期限后 TERM、5 秒后 KILL，并对 Windows 侧 reap 使用有界等待。
+
+normal 命令固定为：
+
+```text
+D:/matlab/install date/bin/matlab.exe -wait -sd <evidence>/normal -batch export_model_reference
+```
+
+native 命令固定为：
+
+```text
+wsl.exe -d Ubuntu-22.04 --exec timeout --signal=TERM --kill-after=5s <timeout>s <native.wsl_executable> --record <wsl-input.csv>
+```
+
+`build_generated_e0_major.py` 只提供已构建 executable 和 manifest；新的 `run()` 不在执行阶段编译。normal 必须产出 `reference.json`、三个 `<Array>.f64` 和 `applied-input.f64`；native 必须产出现有 503 行 recorder JSONL。normal 的 `case/epoch/contract_sha256`、native 的输入原文与 source identity 必须与外层 manifest 和合同一致。
+
+结果保存为 `result.json`，至少包含 `status/case_id/epoch/contract_sha256/input_sha256`、normal/native argv、cwd、退出码、超时、两侧实测 source/executable identity、原始输出路径、sampling、120 标量比较统计、失败计数，以及恒为 false 的 `physical_accuracy/g6_acceptance`。
 
 ## 纯解析/对齐层（可独立测试，严格拒绝）
 
@@ -49,15 +77,15 @@
 
 严格 `Reject`：metric 非冻结标识；任一预算缺失/非有限/为负；reference 或 native 值非有限或为布尔；序列长度 ≠ 501；observable 或 aligned 重复映射同一 `(array,index)`；aligned 标量无对应预算或 observable 身份不符。两侧覆盖必须恰为同一组 120 个标量。
 
-**入口仍未接线**：`run()` 不调用 `compare_aligned`；合同完全 approved 后仍返回 `execution_not_implemented`、退出码 3。合成比较结果绝不作为 G6/physical pass。
+`run()` 已接线 normal→native→`compare_aligned`，但 launcher 和 WSL 路径解析器可注入，测试不会触发真实进程。任何合同、身份、预算或运行产物拒绝都会落到 `blocked` 或 `invalid_run`，不生成数值通过。
 
 ## 本切片未交付 / 禁止边界
 
 - **未冻结任何预算**：`abs_budget`/`rel_budget`/`rms_budget` 仍全部待有依据推导。禁止用旧 R1 观测差值或本次候选差值乘系数反推；禁止套用 RK4 O(h^4) 阶数或网格收敛作预算。
-- **已交付**纯离线逐量比较层（见上节），但**未实现**参考/候选执行阶段：没有从引擎产出 `.f64`/`record.jsonl` 的真实运行入口接进 `run()`。该执行阶段需在新合同 approved 后另行分配写入范围，且仍须满足原合同的拒绝边界（缺身份/错格点/少样/非有限/布尔伪数值/缺终态/随机相位未证/预算未冻结均不得通过）。
+- **执行仍受合同阻塞**：当前真实合同没有 120 个 approved 逐量 abs/rel/RMS 预算，尤其 56 个动态量仍未冻结；因此真实入口在任何 MATLAB/native 启动前返回 `blocked`。实现编排不等于取得预算，也不允许用观察差值反推预算。
 - 不改 `numerical-conformance-v1.json`、不改 `run_numerical_conformance.py`、不改 `build_generated_e0_major.py`、`export_model_reference.m`。
 - 本接缝通过 ≠ 物理精度通过 ≠ G6/Full 通过；`physical_accuracy` 恒为 False。
-- 未 git 提交/推送/issue 写入；未启动 MATLAB/build/仿真。
+- 本切片未启动 MATLAB/WSL/build/仿真；测试只使用 synthetic contract、fake launcher 和临时目录。
 
 ## 验证
 
@@ -65,4 +93,4 @@
 python -B -m unittest validation.test_e0_same_source_conformance -v
 ```
 
-48 项全部通过（合同校验/入口 fail-closed/解析/对齐 + 16 项逐量比较：正例、pointwise 负例、RMS 负例、边界等号、非有限/布尔/错 metric/缺预算、两侧重复映射/无预算标量/身份错配；无 MATLAB/build/真实模型）。
+63 项全部通过（合同校验、MATLAB/native 启动前实体复核、原子 staging、host/WSL 双层超时识别与进程树回收、注入的路径解析/normal/native 正例与失败边界、解析/对齐、逐量比较；无 MATLAB/WSL/build/真实模型）。
