@@ -1,0 +1,187 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/unununnnn/wksim/schemas/27-legacy-abi-manifest.schema.json",
+  "title": "Legacy ABI manifest proposal (#27/#73 gate object)",
+  "description": "Structural contract for a reviewable legacy-DLL ABI manifest proposal. This schema can only describe a blocked, unapproved proposal; acceptance is granted by a human decision ticket, never by this file. The companion validator applies fail-closed Unicode text checks without rewriting the manifest.",
+  "type": "object",
+  "required": ["schema_version", "kind", "status", "acceptance", "sample",
+               "exports", "lifecycle", "isolation", "unresolved_conflicts"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {"const": 1},
+    "kind": {"const": "legacy_abi_manifest_proposal"},
+    "status": {"const": "blocked_unapproved"},
+    "acceptance": {"const": false},
+    "sample": {
+      "type": "object",
+      "required": ["file_sha256", "source", "license", "permitted_local_use",
+                   "readable_header_or_wrapper"],
+      "additionalProperties": false,
+      "properties": {
+        "file_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "source": {"type": "string", "minLength": 1},
+        "license": {"type": "string", "minLength": 1},
+        "permitted_local_use": {"type": "string", "minLength": 1},
+        "readable_header_or_wrapper": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^(?!/)(?!.*\\\\)(?!.*(?:^|/)\\.\\.(?:/|$))[^\\0]+$"
+        }
+      }
+    },
+    "exports": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/export"}
+    },
+    "lifecycle": {
+      "type": "object",
+      "required": ["states", "transitions", "reset_restores_random_state"],
+      "additionalProperties": false,
+      "properties": {
+        "states": {"type": "array", "minItems": 6, "maxItems": 6,
+                   "items": {"enum": ["unloaded", "loaded", "initialized",
+                                      "stepping", "resetting", "terminated"]},
+                   "uniqueItems": true},
+        "transitions": {
+          "type": "array",
+          "minItems": 5,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^(unloaded|loaded|initialized|stepping|resetting|terminated)->(unloaded|loaded|initialized|stepping|resetting|terminated)$"
+          }
+        },
+        "reset_restores_random_state": {"enum": ["yes", "no", "evidence_required"]}
+      }
+    },
+    "isolation": {
+      "type": "object",
+      "required": ["dll_crash", "step_error", "short_output", "repeated_reset",
+                   "thread_udp_residue"],
+      "additionalProperties": false,
+      "properties": {
+        "dll_crash": {"$ref": "#/$defs/isolation_statement"},
+        "step_error": {"$ref": "#/$defs/isolation_statement"},
+        "short_output": {"$ref": "#/$defs/isolation_statement"},
+        "repeated_reset": {"$ref": "#/$defs/isolation_statement"},
+        "thread_udp_residue": {"$ref": "#/$defs/isolation_statement"}
+      }
+    },
+    "unresolved_conflicts": {
+      "type": "array",
+      "minItems": 2,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/conflict"}
+    }
+  },
+  "$defs": {
+    "export": {
+      "type": "object",
+      "required": ["name", "calling_convention", "return", "parameters",
+                   "ownership", "units", "sample_phase", "step_semantics",
+                   "evidence"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {"type": "string", "pattern": "^Dll\\w+$"},
+        "calling_convention": {"enum": ["cdecl", "stdcall", "fastcall",
+                                        "thiscall", "vectorcall"]},
+        "return": {
+          "type": "object",
+          "required": ["type", "error_codes"],
+          "additionalProperties": false,
+          "properties": {
+            "type": {"type": "string", "minLength": 1},
+            "error_codes": {
+              "type": "array",
+              "minItems": 1,
+              "items": {"type": "string", "minLength": 1}
+            }
+          }
+        },
+        "parameters": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/parameter"}
+        },
+        "ownership": {"enum": ["caller", "callee", "shared", "none"]},
+        "units": {"type": "string", "minLength": 1},
+        "sample_phase": {"enum": ["init", "pre_step", "post_step", "reset",
+                                  "terminate", "not_step_bound"]},
+        "step_semantics": {"enum": ["input_committed_before_step",
+                                    "output_sampled_after_step",
+                                    "not_step_bound"]},
+        "evidence": {"$ref": "#/$defs/evidence"}
+      }
+    },
+    "parameter": {
+      "type": "object",
+      "required": ["name", "order", "type", "direction", "array_layout"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {"type": "string", "minLength": 1},
+        "order": {"type": "integer", "minimum": 0},
+        "type": {"enum": ["float", "double", "int32", "uint32", "int64",
+                          "uint64", "uint8", "pointer", "void"]},
+        "direction": {"enum": ["in", "out", "inout"]},
+        "array_layout": {
+          "type": "object",
+          "required": ["is_array", "element_type", "length"],
+          "additionalProperties": false,
+          "properties": {
+            "is_array": {"type": "boolean"},
+            "element_type": {"enum": ["float", "double", "int32", "uint32",
+                                      "int64", "uint64", "uint8", "none"]},
+            "length": {"type": "integer", "minimum": 0}
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "array_layout": {
+                "properties": {"is_array": {"const": true}}
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "type": {"const": "pointer"}
+            }
+          }
+        }
+      ]
+    },
+    "evidence": {
+      "type": "object",
+      "required": ["path", "sha256", "lines"],
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^(?!/)(?![a-zA-Z]:)(?!.*\\\\)(?!.*\\s)(?!.*(?:^|/)(?:\\.|\\.\\.)(?:/|$))(?!.*//)[^\\0/]+(?:/[^\\0/]+)*$"
+        },
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "lines": {"type": "string", "pattern": "^[1-9]\\d*(-[1-9]\\d*)?(,[1-9]\\d*(-[1-9]\\d*)?)*$"}
+      }
+    },
+    "isolation_statement": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!\\s*$)(?!\\s*(?:unknown|todo|n/a|na|tbd|unset|unavailable)\\s*$).+"
+    },
+    "conflict": {
+      "type": "object",
+      "required": ["id", "description", "evidence", "adjudication"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "description": {"type": "string", "minLength": 1},
+        "evidence": {"$ref": "#/$defs/evidence"},
+        "adjudication": {"const": "unresolved"}
+      }
+    }
+  }
+}
