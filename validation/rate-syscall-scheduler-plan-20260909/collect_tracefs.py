@@ -51,9 +51,23 @@ def identity(pid):
 
 
 def task_inventory(pid):
-    """Return stable namespace-local task identities for one owned process."""
+    """Return stable, namespace-bound task identities for one owned process.
+
+    Each row binds BOTH namespace views of one thread, read from
+    ``/proc/<tgid>/task/<tid>/status``: ``local_tid`` is the innermost
+    (namespace-local) tid -- the ``NSpid`` chain's last entry -- and ``global_tid``
+    is the outermost (root-namespace) entry ``NSpid[0]``, which is the ID the
+    kernel ``sched_switch`` tracepoint reports.  The ``/proc`` task directory name
+    is the namespace-local id, so it must equal ``local_tid`` (``NSpid[-1]``), and
+    ``Tgid`` must equal the owned pid.  A missing or empty ``NSpid`` line, a
+    non-positive id, a chain whose namespace depth differs between threads of the
+    same process, or a directory name that does not match ``NSpid[-1]`` (a
+    global/local swap) all fail closed.  This is the namespace-mismatch guard the
+    one real diagnostic exposed (Ubuntu/local pid 601 vs kernel/global pid 1015).
+    """
     root=Path('/proc')/str(pid)/'task'
     result=[]
+    chain_depth=None
     for path in sorted(root.iterdir(),key=lambda value:int(value.name)):
         require(path.name.isdigit(),'Non-numeric task entry')
         before=(path/'stat').read_text()
@@ -64,15 +78,51 @@ def task_inventory(pid):
         before_comm=before[before.find('(')+1:before_end]
         after_comm=after[after.find('(')+1:after_end]
         tgid=re.search(r'^Tgid:\s*(\d+)$',status,re.MULTILINE)
+        nspid=re.search(r'^NSpid:[ \t]*(\d+(?:[ \t]+\d+)*)[ \t]*$',status,re.MULTILINE)
         require(len(before_fields)>19 and len(after_fields)>19 and tgid is not None
                 and int(tgid.group(1))==pid,
                 'Task does not belong to owned process: '+path.name)
+        require(nspid is not None,'Task NSpid chain is missing: '+path.name)
+        chain=[int(value) for value in nspid.group(1).split()]
+        require(chain and all(value>0 for value in chain),
+                'Task NSpid chain is malformed: '+path.name)
+        if chain_depth is None:
+            chain_depth=len(chain)
+        require(len(chain)==chain_depth,'Task NSpid chain mismatch: '+path.name)
+        global_tid=chain[0];local_tid=chain[-1]
+        require(local_tid==int(path.name),
+                'Task NSpid global/local confusion: '+path.name)
         comm=(path/'comm').read_text().strip()
         require(before_comm==after_comm==comm and before_fields[19]==after_fields[19],
                 'Task identity changed during inventory: '+path.name)
-        result.append(dict(local_tid=int(path.name),comm=comm,start_ticks=int(before_fields[19])))
+        result.append(dict(local_tid=local_tid,global_tid=global_tid,comm=comm,
+                           start_ticks=int(before_fields[19])))
     require(result,'Owned process has no tasks: '+str(pid))
+    require(len({row['global_tid'] for row in result})==len(result),
+            'Task global NSpid identities are not distinct: '+str(pid))
     return result
+
+
+def select_leader(rows,owner_pid,comm):
+    """Return ``(leader, same_comm_others)`` for one owned process and exact comm.
+
+    The leader (main) thread of a process has a namespace-local tid equal to the
+    owned pid, so requiring ``local_tid == owner_pid`` together with the exact
+    comm pins the leader precisely.  Other threads that happen to share the comm
+    (for example helper threads that inherited the diagnostic name) do NOT make
+    the target ambiguous -- they are returned as evidence (``same_comm_others``)
+    instead of failing the selection.  The selection fails closed when no row is
+    both the leader and an exact comm match, or when more than one leader row
+    matches.
+    """
+    rows=list(rows)
+    leaders=[row for row in rows
+             if row.get('local_tid')==owner_pid and row.get('comm')==comm]
+    require(len(leaders)==1,'Leader thread absent/ambiguous for comm: '+comm)
+    leader=leaders[0]
+    others=[row for row in rows
+            if row.get('comm')==comm and row.get('local_tid')!=leader.get('local_tid')]
+    return leader,others
 
 
 def required_fc_threads(owners):
@@ -201,9 +251,29 @@ def _sched_switch_pairs(line):
     return pairs
 
 
-def scan_global_comm_owners(expected,proc_root=None):
-    """Require every target comm to belong to exactly one expected local task."""
+def scan_global_comm_owners(expected,proc_root=None,*,allow_foreign=False):
+    """Require every target comm's pinned owner task to be present in /proc.
+
+    Strict mode (``allow_foreign=False``, the default) keeps the historical guard:
+    each target comm must be owned by EXACTLY the expected local task, and any
+    other same-comm task is a foreign owner that fails closed.  With
+    ``allow_foreign=True`` the pinned owner (``tgid``, ``tid`` == the leader's
+    namespace-local identity) must still be present, but ADDITIONAL same-comm
+    tasks -- for example helper threads that inherited the name before the leader
+    was renamed -- are recorded in the returned ``foreign`` evidence list instead
+    of failing, because the leader has already been pinned by
+    ``local_tid == owner pid``.  A collection may be supplied to allow this only
+    for selected comm names; this keeps fixed FC thread names strict.  A comm whose
+    pinned owner is ABSENT fails closed in every mode.
+    """
     require(expected and len(expected)==len(set(expected)),'Expected comm names are not distinct')
+    if allow_foreign is True:
+        allowed_foreign=set(expected)
+    elif allow_foreign in (False,None):
+        allowed_foreign=set()
+    else:
+        allowed_foreign=set(allow_foreign)
+        require(allowed_foreign<=set(expected),'Unknown foreign-owner comm allowance')
     proc_root=Path('/proc') if proc_root is None else Path(proc_root)
     last_missing=[]
     for attempt in range(2):
@@ -221,38 +291,73 @@ def scan_global_comm_owners(expected,proc_root=None):
                     races.append(str(error));continue
                 if comm in matches:
                     matches[comm].append(dict(tgid=int(process.name),tid=int(task.name)))
-        foreign=[];last_missing=[]
+        absent=[];foreign=[];last_missing=[]
         for name,owner in expected.items():
             values=matches[name]
             if not values:last_missing.append(name)
-            if values!=[dict(tgid=owner['tgid'],tid=owner['tid'])]:
-                foreign.append(dict(comm=name,expected=owner,observed=values))
-        if not foreign:
-            return dict(matches=matches,scan_attempts=attempt+1,ignored_races=races)
-        only_missing=all(not row['observed'] for row in foreign)
+            pinned=dict(tgid=owner['tgid'],tid=owner['tid'])
+            if pinned not in values:
+                absent.append(dict(comm=name,expected=owner,observed=values))
+            else:
+                extra=[value for value in values if value!=pinned]
+                if extra:
+                    foreign.append(dict(comm=name,expected=owner,observed=extra))
+        if not absent:
+            forbidden=[row for row in foreign if row['comm'] not in allowed_foreign]
+            if forbidden:
+                raise ValueError('Global comm ownership mismatch: '+json.dumps(forbidden,sort_keys=True))
+            return dict(matches=matches,foreign=foreign,scan_attempts=attempt+1,ignored_races=races)
+        only_missing=all(not row['observed'] for row in absent)
         if not (attempt==0 and only_missing and races):
-            raise ValueError('Global comm ownership mismatch: '+json.dumps(foreign,sort_keys=True))
+            raise ValueError('Global comm ownership mismatch: '+json.dumps(absent,sort_keys=True))
     raise ValueError('Global comm ownership missing after retry: '+','.join(last_missing))
 
 
-def map_sched_switch_pids(instance,put,names,output,*,retain=False):
+def map_sched_switch_pids(instance,put,names,output,*,retain=False,expected=None,evidence=None):
     """Map exact comm names using a bounded private sched_switch window.
 
-    The tracepoint PID fields are the only source of kernel-visible IDs. The
-    mapping accepts one and only one PID for each exact comm; a second PID is
-    an ambiguity and a missing name at the deadline fails closed. Polling
-    trace_pipe makes the window event-driven instead of sleeping for a fixed
-    warm-up interval.
+    The tracepoint PID fields are the only source of kernel-visible IDs, and they
+    are ROOT-namespace (global) pids.  With no ``expected`` (the default) the
+    mapping accepts one and only one PID for each exact comm; a second PID is an
+    ambiguity and a missing name at the deadline fails closed.  When a role is
+    pinned in ``expected`` (role -> the leader's ``global_tid`` == NSpid[0]), only
+    that global pid is accepted as the target; any other same-comm pid (for
+    example a helper thread that inherited the diagnostic name) does NOT make the
+    target ambiguous -- it is appended to ``evidence`` (when given) instead.  A
+    pinned leader that is never observed still fails closed at the deadline.
+    Polling trace_pipe makes the window event-driven instead of sleeping for a
+    fixed warm-up interval.
     """
     require(len(set(names.values()))==len(names),'Trace comm names are not distinct')
+    expected={} if expected is None else dict(expected)
     expression=' || '.join(
         f'prev_comm == "{name}" || next_comm == "{name}"'
         for name in names.values())
     candidates={role:set() for role in names}
+    comm_to_role={name:role for role,name in names.items()}
     raw=bytearray()
     descriptor=None
     pending=b''
     primary=None
+    foreign_seen=set()
+    def observe(text):
+        for comm,pid_text in _sched_switch_pairs(text):
+            role=comm_to_role.get(comm)
+            if role is None:
+                continue
+            pid=int(pid_text)
+            if role in expected:
+                if pid==expected[role]:
+                    candidates[role].add(pid)
+                elif evidence is not None:
+                    key=(role,comm,pid)
+                    if key not in foreign_seen:
+                        foreign_seen.add(key)
+                        evidence.append(dict(role=role,comm=comm,kernel_pid=pid))
+            else:
+                candidates[role].add(pid)
+                require(len(candidates[role])==1,
+                        'Kernel PID mapping ambiguous: '+role)
     try:
         put('events/sched/sched_switch/filter',expression)
         put('events/sched/sched_switch/enable','1')
@@ -272,23 +377,9 @@ def map_sched_switch_pids(instance,put,names,output,*,retain=False):
             pending+=chunk
             while b'\n' in pending:
                 line,pending=pending.split(b'\n',1)
-                text=line.decode(errors='replace')
-                for comm,pid_text in _sched_switch_pairs(text):
-                    for role,name in names.items():
-                        if comm==name:
-                            candidates[role].add(int(pid_text))
-                            require(len(candidates[role])==1,
-                                    'Kernel PID mapping ambiguous: '+role)
-                            break
+                observe(line.decode(errors='replace'))
         if pending.strip():
-            text=pending.decode(errors='replace')
-            for comm,pid_text in _sched_switch_pairs(text):
-                for role,name in names.items():
-                    if comm==name:
-                        candidates[role].add(int(pid_text))
-                        require(len(candidates[role])==1,
-                                'Kernel PID mapping ambiguous: '+role)
-                        break
+            observe(pending.decode(errors='replace'))
         missing=[role for role,values in candidates.items() if len(values)!=1]
         require(not missing,'Kernel PID mapping timed out: '+','.join(missing))
     except BaseException as error:
@@ -338,22 +429,49 @@ def map_kernel_pids(instance,put,owners,epoch,output,*,retain=False):
             for comm in comms:
                 names[fc_role+'/'+comm]=comm
     require(len(set(names.values()))==len(names),'Trace comm names are not distinct')
-    expected_base={name:dict(role=role,tgid=owners[role]['pid'],tid=owners[role]['pid'])
+    # Pin each base-role leader thread (local_tid == owner pid, exact comm) and bind
+    # its root-namespace tid.  Other threads sharing the diagnostic comm (e.g.
+    # helper threads named before the leader was renamed) are recorded as evidence,
+    # NOT treated as an ambiguity, because the leader is pinned by local_tid.
+    base_leaders={}
+    same_comm_threads={}
+    for role in BASE_ROLES:
+        leader,others=select_leader(task_inventory(owners[role]['pid']),
+                                    owners[role]['pid'],names[role])
+        base_leaders[role]=leader
+        if others:
+            same_comm_threads[role]=others
+    expected_base={name:dict(role=role,tgid=owners[role]['pid'],
+                             tid=base_leaders[role]['local_tid'])
                    for role,name in names.items() if role in BASE_ROLES}
-    comm_owners_before=scan_global_comm_owners(expected_base)
-    mapped=map_sched_switch_pids(instance,put,names,output,retain=retain)
+    comm_owners_before=scan_global_comm_owners(expected_base,allow_foreign=True)
+    sched_switch_same_comm=[]
+    mapped=map_sched_switch_pids(instance,put,names,output,retain=retain,
+                                 expected={role:base_leaders[role]['global_tid'] for role in BASE_ROLES},
+                                 evidence=sched_switch_same_comm)
     require(len(set(mapped.values()))==len(mapped),'Kernel PID mappings are not distinct')
+    # sched_switch reports the root-namespace (global) pid; bind it to the pinned
+    # leader's NSpid[0], never the namespace-local id (the WSL diagnostic split).
+    # The pinned-expected mapping above already selects it; this re-check is the
+    # fail-closed guard against a global/local swap (and holds even if the mapping
+    # were produced without the leader pins).
+    for role in BASE_ROLES:
+        require(mapped.get(role)==base_leaders[role]['global_tid'],
+                'Kernel/global leader identity differs: '+role)
     local_threads,inventories_after=wait_required_fc_threads(owners) if 'ap_fc' in owners else ({},{})
     for role,thread in local_threads.items():
-        require(mapped.get(role)==thread['local_tid'],
-                'Kernel/local FC thread identity differs: '+role)
+        require(mapped.get(role)==thread['global_tid'],
+                'Kernel/global FC thread identity differs: '+role)
     expected={name:dict(role=role,tgid=(owners[role]['pid'] if role in BASE_ROLES else
-        owners[role.split('/')[0]]['pid']),tid=(owners[role]['pid'] if role in BASE_ROLES else
+        owners[role.split('/')[0]]['pid']),tid=(base_leaders[role]['local_tid'] if role in BASE_ROLES else
         local_threads[role]['local_tid'])) for role,name in names.items()}
-    comm_owners_after=scan_global_comm_owners(expected)
+    comm_owners_after=scan_global_comm_owners(
+        expected,allow_foreign={names[role] for role in BASE_ROLES})
     mapping_trace=output/'pid-mapping-trace.txt'
     mapping_sha256=hashlib.sha256(mapping_trace.read_bytes()).hexdigest()
     mapping=dict(names=names,kernel_pids=mapped,
+                base_leaders=base_leaders,same_comm_threads=same_comm_threads,
+                sched_switch_same_comm=sched_switch_same_comm,
                 local_threads=local_threads,inventories_before=inventories_after,
                 inventories_after=inventories_after,
                 comm_owners_before=comm_owners_before,comm_owners_after=comm_owners_after,
@@ -362,8 +480,11 @@ def map_kernel_pids(instance,put,owners,epoch,output,*,retain=False):
                 mapping_timeout_s=MAPPING_TIMEOUT_S,
                 mapping_sha256=mapping_sha256,
                 mapping_trace_bytes=mapping_trace.stat().st_size,
-                limitation=('A missing, multiply observed or snapshot-visible foreign owner fails closed; '
-                            'a transient foreign same-comm task absent from both /proc snapshots cannot be excluded'))
+                limitation=('A missing pinned leader, a snapshot-absent pinned owner, or a kernel/global '
+                            'pid that does not match the leader NSpid[0] fails closed; a foreign '
+                            'same-comm thread/PID is recorded as evidence once the leader is pinned by '
+                            'local_tid == owner pid; a transient foreign same-comm task absent from both '
+                            '/proc snapshots cannot be excluded'))
     encoded=(json.dumps(mapping,sort_keys=True,indent=2)+'\n').encode()
     (output/'pid-mapping-status.json').write_bytes(encoded)
     return mapping

@@ -172,15 +172,24 @@ class Guards(unittest.TestCase):
             owners={role:dict(pid=pid,start_ticks=1) for role,pid in (
                 ('ap_worker',11),('px4_worker',22),('supervisor',33),('ap_fc',44),('px4_fc',55))}
             epoch='a'*32
-            def add_status(path,local,name,tgid=None):
+            # The base roles model the real WSL PID-namespace split the diagnostic
+            # exposed: the namespace-local pid (the /proc directory name, e.g. 11)
+            # differs from the kernel/global pid the sched_switch tracepoint reports
+            # (1001).  NSpid binds both: NSpid[0]=global, NSpid[-1]=local.
+            base_global={'ap_worker':1001,'px4_worker':1002,'supervisor':1003}
+            def add_status(path,local,name,global_tid,tgid=None):
                 path.mkdir(parents=True,exist_ok=True)
                 path.joinpath('comm').write_text(name+'\n')
                 path.joinpath('status').write_text(f'Name:\t{name}\nTgid:\t{tgid or local}\n')
                 task=path/'task'/str(local);task.mkdir(parents=True,exist_ok=True)
+                fields=['S']+['0']*18+[str(5000+local)]
+                task.joinpath('stat').write_text(f'{local} ({name}) '+' '.join(fields)+'\n')
+                task.joinpath('status').write_text(
+                    f'Name:\t{name}\nTgid:\t{tgid or local}\nNSpid:\t{global_tid}\t{local}\n')
                 task.joinpath('comm').write_text(name+'\n')
             for role,pid,suffix in (('ap_worker',11,'a'),('px4_worker',22,'p'),('supervisor',33,'s')):
                 name='wk'+epoch[:11]+suffix
-                add_status(root/'proc'/str(pid),pid,name)
+                add_status(root/'proc'/str(pid),pid,name,base_global[role])
             for process_role,names in collector.FC_THREADS.items():
                 pid=owners[process_role]['pid']
                 for offset,name in enumerate(names,1):
@@ -189,9 +198,9 @@ class Guards(unittest.TestCase):
                     fields=['S']+['0']*18+[str(5000+tid)]
                     process.mkdir(parents=True)
                     process.joinpath('stat').write_text(f'{tid} ({name}) '+' '.join(fields)+'\n')
-                    process.joinpath('status').write_text(f'Name:\t{name}\nTgid:\t{pid}\n')
+                    process.joinpath('status').write_text(f'Name:\t{name}\nTgid:\t{pid}\nNSpid:\t{tid}\n')
                     process.joinpath('comm').write_text(name+'\n')
-            mapped=dict(ap_worker=1001,px4_worker=1002,supervisor=1003,
+            mapped=dict(base_global,
                         **{'ap_fc/arducopter':45,'ap_fc/log_io':46,'ap_fc/DDS':47,
                            'px4_fc/sim_send':56,'px4_fc/logger':57,
                            'px4_fc/wq:lp_default':58})

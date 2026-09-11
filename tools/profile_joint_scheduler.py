@@ -453,7 +453,9 @@ def wait_gate_release(path,gate_ready,active_token,run_id,epoch,collector,*,mana
                     or type(value.get('capture_token_published_monotonic_ns',value.get('capture_active_published_monotonic_ns'))) is not int
                     or type(value.get('released_monotonic_ns')) is not int
                     or value.get('capture_token_published_monotonic_ns',value.get('capture_active_published_monotonic_ns'))!=active.get('published_monotonic_ns')
-                    or active.get('published_monotonic_ns')<gate_ready.get('published_monotonic_ns')
+                    # NOTE: the token's publication and the gate-ready publication are
+                    # intentionally NOT ordered against each other; only the release is
+                    # required to follow both (below).
                     or type(active.get('started_monotonic_ns')) is not int
                     or active.get('published_monotonic_ns')<active.get('started_monotonic_ns')
                     or value.get('released_monotonic_ns')<value.get('capture_token_published_monotonic_ns',value.get('capture_active_published_monotonic_ns'))
@@ -549,8 +551,10 @@ def validate_capture_owner_final(active_token,gate_ready,collector_identity,expe
                 or gate_token_value.get('instance_owner_sha256')!=owner_sha256
                 or type(bootstrap_started) is not int or bootstrap_started<=0
                 or type(bootstrap_published) is not int
-                or bootstrap_published<bootstrap_started
-                or bootstrap_published<gate_ready.get('published_monotonic_ns')):
+                # bootstrap start<=publish is required here; the bootstrap and
+                # gate-ready publications are deliberately NOT ordered against each
+                # other (both only need to precede the release, checked below).
+                or bootstrap_published<bootstrap_started):
             raise RuntimeError('Bootstrap gate token identity differs after collector retirement')
         _validate_instance_owner(owner,gate_token_value,gate_ready,collector_identity,expected_owners)
     if (release.get('schema')!=GATE_RELEASE_SCHEMA
@@ -571,11 +575,19 @@ def validate_capture_owner_final(active_token,gate_ready,collector_identity,expe
             or type(release_published) is not int or release_published<=0
             or release_published!=gate_token_value.get('published_monotonic_ns')
             or (not bootstrap_gate and release_published!=published)
-            or bootstrap_gate and (published<release_published or started<release_published)
             or type(released) is not int or released<=0
             or released<release_published
             or released<gate_ready.get('published_monotonic_ns')):
         raise RuntimeError('First-step gate-release proof identity differs after collector retirement')
+    # Timing contract for the bootstrap gate (the #102-diagnostic correction):
+    #   bootstrap start<=publish<=release, gate-ready publish<=release, and
+    #   release<=formal start<=formal publish.  The bootstrap and gate-ready
+    #   publications are NOT ordered against each other.  `released` is a validated
+    #   positive int >= both publications (above), and `started`/`published` are
+    #   validated positive ints with started<=publish (active-token check above),
+    #   so the remaining new constraint is release<=formal start.
+    if bootstrap_gate and not (released<=started<=published):
+        raise RuntimeError('First-step gate-release proof timing order differs after collector retirement')
     return dict(owner=owner,sha256=owner_sha256,active_sha256=active_sha256,
                 gate_token_sha256=gate_token_sha256,release_sha256=release_sha256)
 

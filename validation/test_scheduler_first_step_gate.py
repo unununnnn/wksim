@@ -116,6 +116,59 @@ class FirstStepGateTests(unittest.TestCase):
             hook._first_step_gate(SimpleNamespace(
                 f_locals={'self':SimpleNamespace(clock=SimpleNamespace(tick=0))}))
 
+    def test_hook_release_orders_after_both_publications_but_not_between_them(self):
+        # #102-diagnostic timing contract: the gate release must follow BOTH the
+        # bootstrap-token publication and the gate-ready publication, but those two
+        # publications are NOT ordered against each other.  Here the bootstrap token
+        # is published (200) strictly BEFORE the supervisor's gate-ready (real
+        # monotonic ns, >> 200), and the hook must still release.
+        hook = load_hook()
+        epoch = 'a'*32
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp); capture = root/'capture'; capture.mkdir()
+            ready = root/'gate-ready.json'; release = root/'gate-release.json'
+            token = capture/'capture-bootstrap-active.json'
+            owner = dict(schema='wksim.private-tracefs.instance-owner.v1',
+                         collector_pid=456, collector_start_ticks=457,
+                         supervisor_pid=os.getpid(), supervisor_start_ticks=789,
+                         instance='/sys/kernel/tracing/instances/wksim-rate-'+epoch,
+                         instance_inode=[1, 2], run_id='run', epoch=epoch)
+            (capture/'instance-owner.json').write_text(json.dumps(owner))
+            active = dict(schema='wksim.private-tracefs.capture-bootstrap-active.v1',
+                          state='bootstrap_active', phase='bootstrap_sched_switch',
+                          collector_pid=456, collector_start_ticks=457,
+                          supervisor_pid=os.getpid(), supervisor_start_ticks=789,
+                          instance=owner['instance'], instance_inode=[1, 2],
+                          run_id='run', epoch=epoch, started_monotonic_ns=100,
+                          published_monotonic_ns=200,
+                          instance_owner_sha256=hashlib.sha256(
+                              (capture/'instance-owner.json').read_bytes()).hexdigest())
+            token.write_text(json.dumps(active, sort_keys=True)+'\n')
+            hook.run_id, hook.epoch = 'run', epoch
+            previous = os.environ.copy()
+            try:
+                os.environ.update(WKSIM_TRACE_GATE_READY=str(ready),
+                                  WKSIM_TRACE_GATE_RELEASE=str(release),
+                                  WKSIM_TRACE_CAPTURE_BOOTSTRAP_TOKEN=str(token),
+                                  WKSIM_TRACE_CAPTURE_ACTIVE_TOKEN=str(capture/'capture-active.json'))
+                frame = SimpleNamespace(f_locals={'self': SimpleNamespace(clock=SimpleNamespace(tick=0))})
+                with patch.object(hook, '_self_start_ticks', return_value=789):
+                    hook._first_step_gate(frame)
+            finally:
+                os.environ.clear(); os.environ.update(previous)
+            ready_value = json.loads(ready.read_text())
+            release_value = json.loads(release.read_text())
+            bootstrap_published = active['published_monotonic_ns']          # 200
+            # bootstrap was published strictly before gate-ready ...
+            self.assertLess(bootstrap_published, ready_value['published_monotonic_ns'])
+            # ... yet the release still followed both publications (start<=publish
+            # held inside the token, and release>=bootstrap and release>=gate-ready).
+            self.assertGreaterEqual(release_value['released_monotonic_ns'], bootstrap_published)
+            self.assertGreaterEqual(release_value['released_monotonic_ns'],
+                                    ready_value['published_monotonic_ns'])
+            self.assertEqual(release_value['capture_token_published_monotonic_ns'],
+                             bootstrap_published)
+
     def test_hook_rejects_active_state_and_publication_time_tamper(self):
         hook = load_hook()
         epoch = 'a'*32
