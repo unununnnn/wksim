@@ -2,7 +2,7 @@
 
 2026-09-11。`joint-public-flight-zzmg3k47` 是准入修复后首个且唯一的新真实 `full_xyz_pv_yaw_v1` 场次。AP mixed manifest SHA256 为 `1e6250ef…e94c`，当前控制 `0DQQz9` manifest SHA256 为 `25edbf81…d610`，epoch 为 `1a4e2ccf023f4bb8bb880bbd2ea96926`。准入、零步初始化、实际 FIFO/nice 调度和双机起飞均成功。
 
-运行在 tick 98,700 以 `rate_unmet/resource_insufficient` 锁存，累计迟到 `100.092095ms`，场均倍率 `0.49975687561984183`，完成 24,665 个四步组。只读归因把约 `99.881013ms` 的释放超期拆为：组内工作超过 8ms 的累计 `14.535828ms`，组外 release wait、回调、任务监督与调度延迟累计 `85.345185ms`。这只是时间区间分类，不声称 CPU 根因。最大单组 release excess 为 tick 1,924 的 `5.486732ms`；其余较大样本包括 tick 66,304 的 `3.206464ms` 和 tick 19,468 的 `2.615931ms`。
+运行在 tick 98,700 以 `rate_unmet/resource_insufficient` 锁存，累计迟到 `100.092095ms`，场均倍率 `0.49975687561984183`，完成 24,665 个四步组。按前一组 work 与下一组 start-to-start creep 正确配对后，24,664 个相邻区间精确闭合为 `99.881013ms = 14.535828ms` 前组 work-over + `85.345185ms` release excess。这只是时间区间分类，不声称 CPU 根因。最大 release excess 是 tick 16,384→16,388 的 `1.401230ms`；此前把 tick 1,924 的 `5.486732ms` 整段 creep 误称为 release excess，未扣除其中 `5.168901ms` 的前组 work-over，现已由 `tools/analyze_joint_rate_intervals.py` 的逐区间闭合校验纠正。
 
 所有当时可形成的完整滑窗在平均倍率门内：23,165 个 10s 窗最坏绝对相对误差 `0.0013936196`（预算 0.02），16,918 个 60s 窗最坏 `0.0006475887`（预算 0.01）。这些是失败后从完整 `rate_group_end` 记录重算的诊断值；正式 PV 审计因运行/清理未 PASS 按设计在第一项终止，不能把滑窗结果单独登记为验收通过。累计 100ms 门没有放宽。
 
