@@ -16,6 +16,7 @@ from Simulator.wksim_planning.ego_evaluator import (
     UniformBspline,
 )
 from Simulator.wksim_planning.ego_trajectory_adapter import (
+    MAX_TICK,
     MAX_TRAJECTORY_ID,
     SAMPLE_STRIDE_TICKS,
     AdapterError,
@@ -23,7 +24,11 @@ from Simulator.wksim_planning.ego_trajectory_adapter import (
     seconds_to_tick,
     tick_to_seconds,
 )
-from Simulator.wksim_planning.trajectory_session import MAX_COMMAND_ID, TrajectorySession
+from Simulator.wksim_planning.trajectory_session import (
+    MAX_COMMAND_ID,
+    MAX_GENERATION,
+    TrajectorySession,
+)
 
 IDENTITY = dict(run_id="run-a", mission_id="mission-a", uav_id=1, control_epoch="epoch-a",
                 planner_generation=0, command_high_water=0)
@@ -335,6 +340,111 @@ class AdapterTickMonotonicityTests(unittest.TestCase):
         out = adapter.step(identity(session), 110, True, True)
         self.assertEqual(out["intent"], "trajectory")
         self.assertEqual(out["trajectory_id"], 2)
+
+
+class AdapterAtomicReplanTests(unittest.TestCase):
+    @staticmethod
+    def snapshot(session, adapter):
+        return (
+            session.state,
+            session.generation,
+            session.last_event_sequence,
+            session.last_command_id,
+            session._trajectory,
+            session._sample,
+            session._last_sample_tick,
+            session._last_output_tick,
+            session._hold_anchor,
+            session._last_reason,
+            adapter.trajectory_id,
+            adapter._last_tick,
+            adapter._active_spline,
+            adapter._active_start_tick,
+            adapter._active_end_tick,
+            adapter._fallback_yaw,
+            adapter._next_tick,
+        )
+
+    def test_replan_and_activate_commits_once_and_streams_every_ten_ticks(self):
+        session = TrajectorySession(dict(IDENTITY, command_high_water=40))
+        adapter = EgoTrajectoryAdapter(session)
+        accepted = adapter.replan_and_activate(
+            identity(session), 1, straight_spline(), 1, 0, 0.0
+        )
+
+        self.assertEqual(accepted, 1)
+        self.assertEqual((session.state, session.generation,
+                          session.last_event_sequence), ("ACTIVE", 1, 1))
+        outputs = [
+            adapter.step(identity(session), tick, True, True)
+            for tick in (0, 10, 20)
+        ]
+        self.assertEqual([output["tick"] for output in outputs], [0, 10, 20])
+        self.assertEqual([output["command_id"] for output in outputs], [41, 42, 43])
+        self.assertTrue(all(output["trajectory_id"] == 1 for output in outputs))
+
+    def test_replan_and_activate_rejections_never_mutate_session_or_adapter(self):
+        session, adapter = make_adapter()
+        adapter.replan_and_activate(
+            identity(session), 1, straight_spline(), 1, 0, 0.0
+        )
+        adapter.step(identity(session), 0, True, True)
+        before = self.snapshot(session, adapter)
+        empty = straight_spline()
+        empty.duration = 0.0
+        negative = straight_spline()
+        negative.duration = -1.0
+        non_finite = straight_spline()
+        non_finite.duration = float("nan")
+
+        invalid_calls = (
+            (identity(session), 2, straight_spline(), 1, 10, 0.0),
+            (identity(session), 2, straight_spline(), 0, 10, 0.0),
+            (identity(session), 2, straight_spline(), 2, 0, 0.0),
+            (identity(session), 2, object(), 2, 10, 0.0),
+            (identity(session), 2, empty, 2, 10, 0.0),
+            (identity(session), 2, negative, 2, 10, 0.0),
+            (identity(session), 2, non_finite, 2, 10, 0.0),
+            (identity(session), 2, straight_spline(), 2, 10, float("nan")),
+            (identity(session), 2, straight_spline(), 2, MAX_TICK, 0.0),
+            (identity(session), True, straight_spline(), 2, 10, 0.0),
+            (identity(session), 1, straight_spline(), 2, 10, 0.0),
+            (identity(session), MAX_COMMAND_ID + 1,
+             straight_spline(), 2, 10, 0.0),
+            (dict(IDENTITY, run_id="other", planner_generation=session.generation),
+             2, straight_spline(), 2, 10, 0.0),
+            (dict(IDENTITY, planner_generation=session.generation + 1),
+             2, straight_spline(), 2, 10, 0.0),
+        )
+        for call in invalid_calls:
+            with self.subTest(event=call[1], trajectory_id=call[3]):
+                with self.assertRaises((AdapterError, ValueError)):
+                    adapter.replan_and_activate(*call)
+                self.assertEqual(self.snapshot(session, adapter), before)
+
+    def test_replan_and_activate_rejects_terminal_session_without_mutation(self):
+        session, adapter = make_adapter()
+        session.stop("cancel", identity(session), 1)
+        before = self.snapshot(session, adapter)
+
+        with self.assertRaises((AdapterError, ValueError)):
+            adapter.replan_and_activate(
+                identity(session), 2, straight_spline(), 1, 0, 0.0
+            )
+
+        self.assertEqual(self.snapshot(session, adapter), before)
+
+    def test_replan_and_activate_rejects_generation_overflow_without_mutation(self):
+        session = TrajectorySession(dict(IDENTITY, planner_generation=MAX_GENERATION))
+        adapter = EgoTrajectoryAdapter(session)
+        before = self.snapshot(session, adapter)
+
+        with self.assertRaises(AdapterError):
+            adapter.replan_and_activate(
+                identity(session), 1, straight_spline(), 1, 0, 0.0
+            )
+
+        self.assertEqual(self.snapshot(session, adapter), before)
 
 
 class AdapterReplanAndExpiryTests(unittest.TestCase):

@@ -1,6 +1,10 @@
 import unittest
 
-from Simulator.wksim_planning.trajectory_session import MAX_COMMAND_ID, TrajectorySession
+from Simulator.wksim_planning.trajectory_session import (
+    MAX_COMMAND_ID,
+    MAX_GENERATION,
+    TrajectorySession,
+)
 
 
 IDENTITY = dict(run_id="run-a", mission_id="mission-a", uav_id=1, control_epoch="epoch-a",
@@ -121,6 +125,108 @@ class TrajectorySessionTests(unittest.TestCase):
         with self.assertRaises(OverflowError):
             session.next_output(12, True, True)
         self.assertEqual(session.state, "FAULTED")
+
+    def test_atomic_replan_and_accept_commits_once_and_starts_active(self):
+        session = TrajectorySession(IDENTITY)
+
+        generation = session.replan_and_accept(
+            identity(session), 1, trajectory_id=7, start_tick=10, end_tick=20
+        )
+
+        self.assertEqual(generation, 1)
+        self.assertEqual((session.state, session.generation,
+                           session.last_event_sequence), ("ACTIVE", 1, 1))
+        session.sample(identity(session), generation, 7, 10,
+                       (1, 2, 3), (0, 0, 0), (0, 0, 0), 0.0)
+        output = session.next_output(10, True, True)
+        self.assertEqual((output["trajectory_id"], output["generation"],
+                          output["command_id"]), (7, 1, 41))
+
+    def test_atomic_replan_and_accept_rejections_leave_session_unchanged(self):
+        session = TrajectorySession(IDENTITY)
+        session.replan_and_accept(
+            identity(session), 1, trajectory_id=7, start_tick=10, end_tick=20
+        )
+        before = (session.state, session.generation, session.last_event_sequence,
+                  session.last_command_id, session._trajectory, session._sample,
+                  session._last_sample_tick, session._hold_anchor)
+
+        invalid_calls = (
+            (dict(IDENTITY, run_id="other", planner_generation=session.generation),
+             2, 8, 20, 30),
+            (dict(IDENTITY, planner_generation=session.generation + 1),
+             2, 8, 20, 30),
+            (identity(session), True, 8, 20, 30),
+            (identity(session), 1, 8, 20, 30),
+            (identity(session), MAX_COMMAND_ID + 1, 8, 20, 30),
+            (identity(session), 2, MAX_COMMAND_ID + 1, 20, 30),
+            (identity(session), 2, 8, True, 30),
+            (identity(session), 2, 8, 30, 30),
+            (identity(session), 2, 8, 20, 2**63),
+        )
+        for call in invalid_calls:
+            with self.subTest(call=call[1:]):
+                with self.assertRaises((ValueError, OverflowError)):
+                    session.replan_and_accept(
+                        call[0], call[1], call[2], call[3], call[4]
+                    )
+                self.assertEqual(
+                    (session.state, session.generation, session.last_event_sequence,
+                     session.last_command_id, session._trajectory, session._sample,
+                     session._last_sample_tick, session._hold_anchor),
+                    before,
+                )
+
+    def test_atomic_replan_preserves_last_sample_as_hold_anchor(self):
+        session = TrajectorySession(IDENTITY)
+        generation = session.replan_and_accept(
+            identity(session), 1, trajectory_id=7, start_tick=10, end_tick=20
+        )
+        session.sample(identity(session), generation, 7, 10,
+                       (1, 2, 3), (0, 0, 0), (0, 0, 0), 0.5)
+
+        new_generation = session.replan_and_accept(
+            identity(session), 2, trajectory_id=8, start_tick=20, end_tick=30
+        )
+
+        self.assertEqual(new_generation, 2)
+        self.assertEqual(session._hold_anchor, {"position": (1.0, 2.0, 3.0), "yaw": 0.5})
+        self.assertEqual(session.state, "ACTIVE")
+        self.assertIsNone(session._sample)
+
+    def test_atomic_replan_and_accept_rejects_terminal_identity_without_mutation(self):
+        session = TrajectorySession(IDENTITY)
+        session.stop("cancel", identity(session), 1)
+        before = (session.state, session.generation, session.last_event_sequence,
+                  session.last_command_id, session._trajectory, session._sample,
+                  session._last_sample_tick, session._hold_anchor)
+
+        with self.assertRaises(ValueError):
+            session.replan_and_accept(identity(session), 2, 7, 10, 20)
+
+        self.assertEqual(
+            (session.state, session.generation, session.last_event_sequence,
+             session.last_command_id, session._trajectory, session._sample,
+             session._last_sample_tick, session._hold_anchor),
+            before,
+        )
+
+    def test_atomic_replan_and_accept_rejects_generation_overflow_without_mutation(self):
+        identity_at_limit = dict(IDENTITY, planner_generation=MAX_GENERATION)
+        session = TrajectorySession(identity_at_limit)
+        before = (session.state, session.generation, session.last_event_sequence,
+                  session.last_command_id, session._trajectory, session._sample,
+                  session._last_sample_tick, session._hold_anchor)
+
+        with self.assertRaises(OverflowError):
+            session.replan_and_accept(identity(session), 1, 7, 10, 20)
+
+        self.assertEqual(
+            (session.state, session.generation, session.last_event_sequence,
+             session.last_command_id, session._trajectory, session._sample,
+             session._last_sample_tick, session._hold_anchor),
+            before,
+        )
 
 
 if __name__ == "__main__":

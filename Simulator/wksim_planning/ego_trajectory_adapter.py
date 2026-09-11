@@ -18,10 +18,11 @@ Boundary (fail closed, never widened here):
   never minted locally. NOTE: Bspline.msg declares traj_id as int64; the uint32 cap here is
   the deliberate narrowing of the #101 TrajectorySession (MAX_COMMAND_ID), NOT the upstream
   field width. It must strictly increase across activations within uint32.
-- Activation requires an explicit begin_replan (a generation bump) AND an explicit current
-  start_tick: a replan can never silently reuse an earlier tick, because a real run's
-  authority tick is monotonic and never resets. A payload whose generation is not the
-  session's current generation is rejected as a stale replan.
+- Activation requires an explicit generation bump, either through begin_replan followed by
+  activate or atomically through replan_and_activate, AND an explicit current start_tick: a
+  replan can never silently reuse an earlier tick, because a real run's authority tick is
+  monotonic and never resets. A payload whose generation is not the session's current
+  generation is rejected as a stale replan.
 - map == ENU, metres, seconds, radians. There is no implicit coordinate rotation or
   frame conversion; only the ENU 'map' frame is accepted offline.
 - Only the real EGO order (3) is accepted, enforced in the evaluator so a lower order can
@@ -73,6 +74,15 @@ class AdapterError(ValueError):
 def _uint(value, name, maximum):
     if isinstance(value, bool) or type(value) is not int or not 0 <= value <= maximum:
         raise AdapterError(f"{name} must be an integer in [0, {maximum}]")
+    return value
+
+
+def _trajectory_id(value):
+    value = _uint(value, "trajectory_id", MAX_TRAJECTORY_ID)
+    if value == 0:
+        raise AdapterError(
+            f"trajectory_id must be an integer in [1, {MAX_TRAJECTORY_ID}]"
+        )
     return value
 
 
@@ -201,7 +211,7 @@ class EgoTrajectoryAdapter:
         self._check_identity(identity)
         if not isinstance(spline, EgoSpline):
             raise AdapterError("spline payload must be an EgoSpline")
-        trajectory_id = _uint(trajectory_id, "trajectory_id", MAX_TRAJECTORY_ID)
+        trajectory_id = _trajectory_id(trajectory_id)
         start_tick = _uint(start_tick, "start_tick", MAX_TICK)
         fallback_yaw = _finite_scalar(fallback_yaw, "fallback_yaw")
         # The evaluator has already enforced finite knots/control points and order 3. A
@@ -227,6 +237,50 @@ class EgoTrajectoryAdapter:
                                            start_tick, end_tick)
         except ValueError as error:
             raise AdapterError(f"trajectory rejected by session: {error}") from error
+        self._trajectory_id_hwm = trajectory_id
+        self._active_spline = spline
+        self._active_start_tick = start_tick
+        self._active_end_tick = end_tick
+        self._fallback_yaw = fallback_yaw
+        self._next_tick = start_tick
+        return trajectory_id
+
+    def replan_and_activate(self, identity, event_sequence, spline, trajectory_id,
+                            start_tick, fallback_yaw):
+        """Validate and atomically replan/accept one trajectory.
+
+        All adapter-owned checks run before the session commit. The session then
+        validates and commits its event/generation/trajectory state in one operation;
+        the remaining adapter assignments cannot fail.
+        """
+        self._check_identity(identity)
+        if self.session.state in ("CANCELLED", "RELEASED", "FAULTED"):
+            raise AdapterError("session is not accepting trajectories")
+        if not isinstance(spline, EgoSpline):
+            raise AdapterError("spline payload must be an EgoSpline")
+        trajectory_id = _trajectory_id(trajectory_id)
+        start_tick = _uint(start_tick, "start_tick", MAX_TICK)
+        fallback_yaw = _finite_scalar(fallback_yaw, "fallback_yaw")
+        duration = _finite_scalar(spline.duration, "spline duration")
+        if duration <= 0.0:
+            raise AdapterError("spline duration must be positive")
+        if self._last_tick is not None and start_tick <= self._last_tick:
+            raise AdapterError("start_tick must be strictly greater than the highest tick already observed")
+        if trajectory_id <= self._trajectory_id_hwm:
+            raise AdapterError("trajectory_id must strictly increase across activations")
+        duration_ticks = seconds_to_tick(duration)
+        if duration_ticks <= 0:
+            raise AdapterError("trajectory interval must be non-empty on the tick grid")
+        if duration_ticks > MAX_TICK - start_tick:
+            raise AdapterError("trajectory end tick overflows")
+        end_tick = start_tick + duration_ticks
+        try:
+            self.session.replan_and_accept(
+                identity, event_sequence, trajectory_id, start_tick, end_tick
+            )
+        except (ValueError, OverflowError) as error:
+            raise AdapterError(f"trajectory replan rejected by session: {error}") from error
+
         self._trajectory_id_hwm = trajectory_id
         self._active_spline = spline
         self._active_start_tick = start_tick

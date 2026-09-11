@@ -140,6 +140,45 @@ class TrajectorySession:
         self._last_reason = "replan"
         return self.generation
 
+    def replan_and_accept(self, identity, event_sequence, trajectory_id,
+                          start_tick, end_tick):
+        """Atomically start one generation and accept its trajectory.
+
+        Every rejectable condition is checked before the event sequence, generation,
+        state, or trajectory fields change. The caller supplies the identity for the
+        current generation; the returned value is the newly committed generation.
+        """
+        if self.state in ("CANCELLED", "RELEASED", "FAULTED"):
+            raise ValueError("session cannot replan after terminal stop")
+        self._check_identity(identity)
+        _uint(event_sequence, "event_sequence", MAX_COMMAND_ID)
+        if (self.last_event_sequence is not None
+                and event_sequence <= self.last_event_sequence):
+            raise ValueError("event sequence must increase")
+        if self.generation >= MAX_GENERATION:
+            raise OverflowError("planner generation exhausted")
+        _uint(trajectory_id, "trajectory_id", MAX_COMMAND_ID)
+        _uint(start_tick, "start_tick", 2**63 - 1)
+        _uint(end_tick, "end_tick", 2**63 - 1)
+        if start_tick >= end_tick:
+            raise ValueError("trajectory interval must be non-empty")
+        new_generation = self.generation + 1
+        trajectory = dict(generation=new_generation, trajectory_id=trajectory_id,
+                          start_tick=start_tick, end_tick=end_tick)
+        hold_anchor = None
+        if self._sample is not None:
+            hold_anchor = dict(position=self._sample["position"], yaw=self._sample["yaw"])
+
+        self.last_event_sequence = event_sequence
+        if hold_anchor is not None:
+            self._hold_anchor = hold_anchor
+        self.generation = new_generation
+        self._clear_trajectory()
+        self._trajectory = trajectory
+        self.state = "ACTIVE"
+        self._last_reason = None
+        return new_generation
+
     def accept_trajectory(self, identity, generation, trajectory_id, start_tick, end_tick):
         """Accept only the result belonging to the currently requested generation."""
         if self.state in ("CANCELLED", "RELEASED", "FAULTED"):
