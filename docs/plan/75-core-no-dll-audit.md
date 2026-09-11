@@ -1,6 +1,6 @@
 # #75 支撑门禁：自主核心无厂商 DLL 面的静态审计
 
-2026-09-12。`tools/audit_core_no_vendor_dll.py` 在当前仓库树上机器证明：默认自主核心不解析、不加载任何供应商 DLL 路径。**这不是 #75 的实跑**——票面"全新目录执行一次运行"的前置 #74 仍阻塞，本切片不解除它。
+2026-09-12。`tools/audit_core_no_vendor_dll.py` 检查当前默认自主核心的受支持静态语法和配置，拒绝已知厂商 DLL 面与一等 ctypes 模块逃逸；它不是完备 Python 数据流证明，也不替代真实运行。#75 的真实前置是已关闭的 #72（稳定键 `26-import-reset-run`，#26 证据链交付的冻结运行器）；原先绑定到 #74 是队列依赖错误，修正不改变父票 AC/父依赖与未知 ABI 限制。后继真实证据已随 `69d65bf` 推送，#75 已关闭，详见下文。
 
 ## 审计的不变量（任一违反即 exit 2）
 
@@ -30,7 +30,7 @@
 7. **审计根**：必须真实绝对目录、非软链。
 8. **输出固定**：`schema=wksim.core-no-vendor-dll.v1`，status pass/failed，non_claims 三条固定文本，字节确定性（sort_keys、无 NaN）。
 
-- #75 完成条件要求一次真实运行 + 原始审计 PASS，前置 #74（←#73 needs-triage，ABI manifest 门已就位等证据包）。本切片只提供持续机器门禁：任何把厂商 DLL 面引入核心的提交会被立刻拒绝。
+- #75 完成条件要求一次真实运行 + 原始审计 PASS，前置为已关闭的 #72（`26-import-reset-run`；#26 证据链的冻结运行器与输入已在库）。本切片只提供持续机器门禁：任何把厂商 DLL 面引入核心的提交会被立刻拒绝。#73/#74 旧 ABI 分支保持 needs-triage，与本票不再串行。
 - #26 closure 门禁（`tools/audit_26_closure_readiness.py`）与本审计互补：前者钉证据链，后者钉运行面。
 
 ## Non-claims
@@ -44,7 +44,7 @@
 - 本工具不自带完整性证明：其自身源码哈希由外部提交/证据链（评审记录与仓库钉扎）保证；白名单自修改会被行哈希钉捕获，但"攻击者同时改工具与白名单"超出本门禁范围。
 - 2026-09-12：`bdd39ee` 的 `joint_runtime.py:478` guard 行仍保持精确 hash `50d84d7a7fea63689a2af3763da245811b96dfac46b7f2054843f8dff530193a`，无需 repin；Windows、Ubuntu-22.04、RflySim-20.04 的 real-repo CLI 均通过。配置校验会在当前解释器中执行仓库 `config.py` 顶层 import；工具只恢复 `sys.path` 与 `Simulator.*` 模块缓存，不沙箱、不回滚环境变量、文件、网络、线程或其他全局副作用，这些副作用仍属于工具信任边界。
 
-## 后继静态准入门（不替代 #74/#75 实跑）
+## 后继静态准入门（不替代 #72/#75 实跑）
 
 `Simulator/wksim_runtime/preflight.py` 的 `validate_model_build_manifest()` 现在由普通模型准入和显式 `model_promotion_flight` 共用。它拒绝重复 JSON 键和非有限数，要求 v2 manifest 字段集精确匹配，逐项核验 archive、wrapper、loader、library 与生成源的 canonical 非软链路径和 SHA256、compiler/profile、argv、ABI/platform，并以 `readelf -d` 的直接 `DT_NEEDED` 集合和 `nm -D --defined-only` 的 required exports 做静态门禁。已知 vendor、SITL、MATLAB、Gazebo/CopterSim 直接依赖 fail closed；Gazebo 匹配大小写不敏感，覆盖 `gazebo_plugin.so` 等无 `lib` 前缀名称，同时保留名称边界避免误杀无关字符串。结果中的 `model_static_abi` 保存实际核验的直接依赖和导出符号。此门只读取 ELF 元数据，不实例化 `Model`，也不新增 manifest 字段。
 
@@ -57,4 +57,6 @@ py -3 -B -m unittest validation.test_promotion_flight -v
 python3 -B -m unittest validation.test_promotion_flight -v
 ```
 
-其证明边界是直接 ELF 导入表和静态构建收据，不是递归共享库解析、运行期 `dlopen`、ABI 实际调用、物理/倍率/飞行验收或 #75 的全新目录运行。真实 build 仍必须等待 #74 提供固定输入和准确命令，在 Ubuntu-22.04 WSL 的独立目录中串行执行，并保留编译日志、manifest、`readelf`/`nm` 原始输出及退出身份；不能从本门禁自行编造命令。
+其证明边界是直接 ELF 导入表和静态构建收据，不是递归共享库解析、运行期 `dlopen`、ABI 实际调用或物理/倍率/飞行验收。#75 已由主会话使用 #72 的冻结运行器完成：`wsl -d Ubuntu-22.04 -u root --cd /mnt/c/Users/PC/Documents/odid编译/wksim -- python3 -B tools/validate_generated_e0_lifecycle.py --manifest validation/codegen-e0-build-short-cycle-01/build-manifest.json --output validation/lunar-27-core-without-dll/run-ec40ec2-01`。该目录已有不可覆盖证据，不得复用。
+
+真实结果见 [independent-audit.json](../../validation/lunar-27-core-without-dll/run-ec40ec2-01/independent-audit.json)：原库与新冷构建库在两个独立进程中各执行两轮，每轮1000步、120输出、1ms；480000值精确重复，既定1e-8时钟门槛通过。加载映射中无厂商DLL，两个子进程退出0且无模型进程组残留。原始记录、构建日志、身份与独立重读审计已随 `69d65bf` 推送，仅关闭 #75；#27、未知ABI、G6及Full不因此通过。

@@ -82,7 +82,7 @@
 
 | 子票 | 执行层 | 稳定键 / 单一交付 | 本票前置 |
 | --- | --- | --- | --- |
-| [#75](https://github.com/unununnnn/wksim/issues/75) | Luna | `27-core-without-dll` · 验证禁用DLL后自主核心仍可运行 | #74 |
+| [#75](https://github.com/unununnnn/wksim/issues/75) | Luna | `27-core-without-dll` · 验证禁用DLL后自主核心仍可运行 | #72 |
 | [#73](https://github.com/unununnnn/wksim/issues/73) | Astra | `27-host` · 实现一个已确认旧ABI的隔离宿主 | #58 |
 | [#74](https://github.com/unununnnn/wksim/issues/74) | Luna | `27-legacy-lifecycle` · 执行一个旧ABI样本的生命周期 | #73 |
 
