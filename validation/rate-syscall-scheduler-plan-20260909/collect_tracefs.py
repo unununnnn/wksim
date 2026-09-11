@@ -12,6 +12,7 @@ import re
 import select
 import signal
 import sys
+import tempfile
 import time
 import uuid
 
@@ -341,13 +342,54 @@ def statistics(instance):
     return dict(raw=raw,loss_counts=counts)
 
 
-def enable_capture(put,duration,metadata):
+def emit_capture_active(path,metadata):
+    """Publish one exclusive, fully-written token after tracing is enabled."""
+    target=Path(path)
+    if target.exists():
+        raise FileExistsError(str(target))
+    payload=dict(schema='wksim.private-tracefs.capture-active.v1',state='active',
+                 collector_pid=os.getpid(),instance=metadata['instance'],
+                 instance_inode=metadata['instance_inode'],run_id=metadata['run_id'],
+                 epoch=metadata['epoch'],started_monotonic_ns=metadata['started_monotonic_ns'],
+                 published_monotonic_ns=time.monotonic_ns())
+    raw=(json.dumps(payload,sort_keys=True,indent=2)+'\n').encode()
+    descriptor=None
+    temporary=None
+    try:
+        descriptor,temporary=tempfile.mkstemp(prefix='.'+target.name+'-',suffix='.tmp',dir=target.parent)
+        offset=0
+        while offset<len(raw):
+            offset += os.write(descriptor,raw[offset:])
+        os.fsync(descriptor)
+        os.close(descriptor)
+        descriptor=None
+        if target.exists():
+            raise FileExistsError(str(target))
+        # A hard-link publication is atomic and create-only: unlike replace,
+        # it cannot overwrite a token created in the check-to-publish window.
+        os.link(temporary,target)
+        Path(temporary).unlink()
+        temporary=None
+    except BaseException:
+        if descriptor is not None:
+            try:os.close(descriptor)
+            except OSError:pass
+        if temporary is not None:
+            Path(temporary).unlink(missing_ok=True)
+        raise
+    metadata['capture_active_token']=str(target)
+    metadata['capture_active']=payload
+    return payload
+
+
+def enable_capture(put,duration,metadata,active_token):
     # Includes the complete enabling write, never a post-enable underestimate.
     began=time.monotonic_ns()
     metadata['started_monotonic_ns']=began
     metadata['started_realtime_ns']=time.time_ns()
     metadata['window_semantics']='before enable write through completed disable write'
     put('tracing_on','1')
+    emit_capture_active(active_token,metadata)
     return began,began+int(duration*1e9)
 
 
@@ -418,6 +460,9 @@ def collect(args,owners):
     require(args.output.is_absolute() and not output.exists(),'Use a new absolute output directory')
     require(not any(output.is_relative_to(Path(p)) for p in ('/sys','/proc','/dev')),'Output cannot be a control filesystem')
     output.mkdir(mode=0o700)
+    active_token=(args.capture_active_token or output/'capture-active.json').resolve()
+    require(active_token.parent==output and not active_token.exists(),
+            'Capture-active token must be a new file inside output')
     path=TRACE/'instances'/('wksim-rate-'+uuid.uuid4().hex)
     metadata=dict(schema='wksim.private-tracefs.v1',run_id=args.run_id,epoch=args.epoch,
         acceptance_eligible=False,requested_duration_s=args.duration,preflight=before,
@@ -436,7 +481,8 @@ def collect(args,owners):
         stat=path.stat();inode=(stat.st_dev,stat.st_ino)
         metadata['instance_inode']=list(inode)
         with (output/'instance-owner.json').open('x') as stream:
-            json.dump(dict(instance=str(path),instance_inode=list(inode),collector_pid=os.getpid(),
+            json.dump(dict(schema='wksim.private-tracefs.instance-owner.v1',instance=str(path),
+                           instance_inode=list(inode),collector_pid=os.getpid(),
                            boot_id=args.boot_id,run_id=args.run_id,epoch=args.epoch),stream,indent=2)
         guarded_instance(path,inode)
         def put(relative,value):
@@ -463,7 +509,7 @@ def collect(args,owners):
         metadata['stats_before']=statistics(path)
         descriptor=os.open(path/'trace_pipe',TRACE_PIPE_FLAGS)
         with (output/'trace.txt').open('xb') as destination:
-            began,deadline=enable_capture(put,args.duration,metadata)
+            began,deadline=enable_capture(put,args.duration,metadata,active_token)
             while time.monotonic_ns()<deadline and not cancelled:
                 verify(owners,args.boot_id)
                 timeout=min(.05,max(0,(deadline-time.monotonic_ns())/1e9))
@@ -498,6 +544,7 @@ def main():
     parser.add_argument('--run-id')
     parser.add_argument('--epoch')
     parser.add_argument('--output',type=Path)
+    parser.add_argument('--capture-active-token',type=Path)
     parser.add_argument('--duration',type=float,default=10.)
     parser.add_argument('--map-comm',action='store_true',help='Map exact per-run diagnostic comm names to kernel tracepoint IDs')
     args=parser.parse_args()

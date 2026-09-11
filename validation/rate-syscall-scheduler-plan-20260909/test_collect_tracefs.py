@@ -1,5 +1,6 @@
 """No kernel tracing: parser, filter, path ownership and preflight guards only."""
 from pathlib import Path
+import json
 import sys
 import tempfile
 from types import SimpleNamespace
@@ -224,6 +225,45 @@ class Guards(unittest.TestCase):
             self.assertFalse(metadata['events_observed'])
             self.assertFalse(metadata['complete'])
             self.assertEqual(metadata['status'],'diagnostic_partial')
+
+    def test_capture_active_token_is_exclusive_and_complete(self):
+        with tempfile.TemporaryDirectory() as temp:
+            target=Path(temp)/'capture-active.json'
+            metadata=dict(instance='/sys/kernel/tracing/instances/wksim-rate-'+'a'*32,
+                          instance_inode=[1,2],run_id='run',epoch='b'*32,
+                          started_monotonic_ns=123)
+            payload=collector.emit_capture_active(target,metadata)
+            self.assertEqual(payload['schema'],'wksim.private-tracefs.capture-active.v1')
+            self.assertIsInstance(payload['published_monotonic_ns'],int)
+            self.assertEqual(json.loads(target.read_text()),payload)
+            self.assertEqual(metadata['capture_active'],payload)
+            with self.assertRaises(FileExistsError):
+                collector.emit_capture_active(target,metadata)
+
+    def test_capture_active_token_uses_create_only_publication(self):
+        with tempfile.TemporaryDirectory() as temp:
+            target=Path(temp)/'capture-active.json'
+            metadata=dict(instance='/sys/kernel/tracing/instances/wksim-rate-'+'a'*32,
+                          instance_inode=[1,2],run_id='run',epoch='b'*32,
+                          started_monotonic_ns=123)
+            with patch.object(collector.os,'link',wraps=collector.os.link) as link, \
+                 patch.object(collector.os,'replace',side_effect=AssertionError('replace is not create-only')):
+                collector.emit_capture_active(target,metadata)
+            link.assert_called_once()
+
+    def test_enable_capture_publishes_token_after_enable_write(self):
+        with tempfile.TemporaryDirectory() as temp:
+            target=Path(temp)/'capture-active.json'
+            metadata=dict(instance='/sys/kernel/tracing/instances/wksim-rate-'+'a'*32,
+                          instance_inode=[1,2],run_id='run',epoch='b'*32)
+            calls=[]
+            with patch.object(collector.time,'monotonic_ns',return_value=123), \
+                 patch.object(collector.time,'time_ns',return_value=456):
+                began,deadline=collector.enable_capture(
+                    lambda relative,value:calls.append((relative,value)),1,metadata,target)
+            self.assertEqual((began,deadline),(123,1_000_000_123))
+            self.assertEqual(calls,[('tracing_on','1')])
+            self.assertEqual(json.loads(target.read_text())['state'],'active')
 
 
 if __name__=='__main__':unittest.main()
