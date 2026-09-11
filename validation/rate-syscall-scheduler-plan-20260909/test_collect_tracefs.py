@@ -106,6 +106,25 @@ class Guards(unittest.TestCase):
                                          ('events/sched/sched_switch/enable','0'),('trace','')])
             close.assert_called_once_with(9)
 
+    def test_sched_mapping_retain_keeps_bootstrap_trace_window_enabled(self):
+        names={'ap_worker':'wk-a'}
+        event=b'prev_comm=wk-a prev_pid=101 prev_prio=120 prev_state=S\n'
+        clock=iter((0.0,0.0,0.1,0.1))
+        with tempfile.TemporaryDirectory() as temp:
+            output=Path(temp); calls=[]
+            with patch.object(collector.os,'open',return_value=9), \
+                 patch.object(collector.os,'read',return_value=event), \
+                 patch.object(collector.os,'close') as close, \
+                 patch.object(collector.select,'select',return_value=([9],[],[])), \
+                 patch.object(collector.time,'monotonic',side_effect=lambda:next(clock)):
+                result=collector.map_sched_switch_pids(Path(temp)/'instance',
+                    lambda relative,value:calls.append((relative,value)),names,output,retain=True)
+            self.assertEqual(result,{'ap_worker':101})
+            self.assertNotIn(('tracing_on','0'),calls)
+            self.assertNotIn(('events/sched/sched_switch/enable','0'),calls)
+            self.assertNotIn(('trace',''),calls)
+            close.assert_called_once_with(9)
+
     def test_sched_mapping_rejects_ambiguous_comm_pid(self):
         names={'ap_worker':'wk-a'}
         event=(b'prev_comm=wk-a prev_pid=101 prev_prio=120 prev_state=S ==> next_comm=idle next_pid=0\n'
@@ -173,9 +192,9 @@ class Guards(unittest.TestCase):
                     process.joinpath('status').write_text(f'Name:\t{name}\nTgid:\t{pid}\n')
                     process.joinpath('comm').write_text(name+'\n')
             mapped=dict(ap_worker=1001,px4_worker=1002,supervisor=1003,
-                        **{'ap_fc/arducopter':1004,'ap_fc/log_io':1005,'ap_fc/DDS':1006,
-                           'px4_fc/sim_send':1007,'px4_fc/logger':1008,
-                           'px4_fc/wq:lp_default':1009})
+                        **{'ap_fc/arducopter':45,'ap_fc/log_io':46,'ap_fc/DDS':47,
+                           'px4_fc/sim_send':56,'px4_fc/logger':57,
+                           'px4_fc/wq:lp_default':58})
             (output/'pid-mapping-trace.txt').write_bytes(b'fixture')
             with patch.object(collector,'Path',side_effect=lambda value:root/'proc' if value=='/proc' else Path(value)), \
                  patch.object(collector,'map_sched_switch_pids',return_value=mapped) as map_pids:
@@ -211,6 +230,33 @@ class Guards(unittest.TestCase):
              self.assertRaisesRegex(ValueError,'absent/ambiguous: ap_fc/log_io'):
             collector.required_fc_threads(owners)
 
+    def test_wait_required_fc_threads_allows_startup_absence_then_seals_inventory(self):
+        owners={'ap_fc':dict(pid=44),'px4_fc':dict(pid=55)}
+        complete={44:[dict(local_tid=44,comm='arducopter',start_ticks=1),
+                      dict(local_tid=45,comm='log_io',start_ticks=2),
+                      dict(local_tid=46,comm='DDS',start_ticks=3)],
+                  55:[dict(local_tid=55,comm='sim_send',start_ticks=4),
+                      dict(local_tid=56,comm='logger',start_ticks=5),
+                      dict(local_tid=57,comm='wq:lp_default',start_ticks=6)]}
+        calls=iter((complete[44][0:2],complete[55],complete[44],complete[55],complete[44],complete[55]))
+        with patch.object(collector,'task_inventory',side_effect=lambda pid:next(calls)), \
+             patch.object(collector.time,'monotonic',side_effect=(0.,0.,1.)), \
+             patch.object(collector.time,'sleep'):
+            selected,inventories=collector.wait_required_fc_threads(owners,timeout=2.)
+        self.assertEqual(selected['ap_fc/arducopter']['local_tid'],44)
+        self.assertEqual(inventories['px4_fc'][-1]['comm'],'wq:lp_default')
+
+    def test_wait_required_fc_threads_fails_closed_on_ambiguous_name(self):
+        owners={'ap_fc':dict(pid=44),'px4_fc':dict(pid=55)}
+        rows={44:[dict(local_tid=44,comm='arducopter',start_ticks=1),
+                  dict(local_tid=45,comm='log_io',start_ticks=2),
+                  dict(local_tid=46,comm='log_io',start_ticks=3),
+                  dict(local_tid=47,comm='DDS',start_ticks=4)],
+              55:[]}
+        with patch.object(collector,'task_inventory',side_effect=lambda pid:rows[pid]), \
+             self.assertRaisesRegex(ValueError,'ownership ambiguous: ap_fc/log_io'):
+            collector.wait_required_fc_threads(owners,timeout=.1)
+
     def test_empty_capture_is_not_complete_even_with_no_reported_loss(self):
         with tempfile.TemporaryDirectory() as temp:
             root=Path(temp);instance=root/'instance';instance.mkdir();output=root/'output';output.mkdir()
@@ -231,7 +277,12 @@ class Guards(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             target=Path(temp)/'capture-active.json'
             (Path(temp)/'instance-owner.json').write_text(json.dumps(
-                dict(schema='wksim.private-tracefs.instance-owner.v1')))
+                dict(schema='wksim.private-tracefs.instance-owner.v1',
+                     instance='/sys/kernel/tracing/instances/wksim-rate-'+'a'*32,
+                     instance_inode=[1,2],collector_pid=456,collector_start_ticks=456,
+                     supervisor_pid=789,supervisor_start_ticks=790,
+                     run_id='run',epoch='b'*32,boot_id='boot',owners={
+                         'supervisor':{'pid':789,'start_ticks':790}}), sort_keys=True)+'\n')
             metadata=dict(instance='/sys/kernel/tracing/instances/wksim-rate-'+'a'*32,
                           instance_inode=[1,2],run_id='run',epoch='b'*32,
                           started_monotonic_ns=123,collector_start_ticks=456,
@@ -261,6 +312,35 @@ class Guards(unittest.TestCase):
                  patch.object(collector.os,'replace',side_effect=AssertionError('replace is not create-only')):
                 collector.emit_capture_active(target,metadata)
             link.assert_called_once()
+
+    def test_capture_bootstrap_token_uses_explicit_bootstrap_start_timestamp(self):
+        with tempfile.TemporaryDirectory() as temp:
+            target=Path(temp)/'capture-bootstrap-active.json'
+            (Path(temp)/'instance-owner.json').write_text(json.dumps(
+                dict(schema='wksim.private-tracefs.instance-owner.v1',
+                     instance='/sys/kernel/tracing/instances/wksim-rate-'+'a'*32,
+                     instance_inode=[1,2],collector_pid=456,collector_start_ticks=456,
+                     supervisor_pid=789,supervisor_start_ticks=790,
+                     run_id='run',epoch='b'*32,boot_id='boot',owners={
+                         'supervisor':{'pid':789,'start_ticks':790}}), sort_keys=True)+'\n')
+            metadata=dict(instance='/sys/kernel/tracing/instances/wksim-rate-'+'a'*32,
+                          instance_inode=[1,2],run_id='run',epoch='b'*32,
+                          bootstrap_started_monotonic_ns=123,
+                          collector_start_ticks=456,
+                          owners={'supervisor':{'pid':789,'start_ticks':790}})
+            payload=collector.emit_capture_bootstrap(target,metadata)
+            self.assertEqual(payload['schema'],'wksim.private-tracefs.capture-bootstrap-active.v1')
+            self.assertEqual(payload['state'],'bootstrap_active')
+            self.assertEqual(payload['phase'],'bootstrap_sched_switch')
+            self.assertEqual(payload['started_monotonic_ns'],123)
+            self.assertEqual(json.loads(target.read_text()),payload)
+
+    def test_bootstrap_loss_counter_delta_is_fail_closed(self):
+        before={'loss_counts':{'cpu0':{'overrun':0,'commit overrun':0,'dropped events':0}}}
+        after={'loss_counts':{'cpu0':{'overrun':1,'commit overrun':0,'dropped events':0}}}
+        delta,loss_free=collector.loss_counter_delta(before,after)
+        self.assertEqual(delta['cpu0']['overrun'],1)
+        self.assertFalse(loss_free)
 
     def test_enable_capture_publishes_token_after_enable_write(self):
         with tempfile.TemporaryDirectory() as temp:

@@ -89,6 +89,45 @@ def required_fc_threads(owners):
     return selected,inventories
 
 
+def _fc_thread_probe(owners):
+    """Return the FC inventory without turning startup absence into a fault."""
+    selected={}
+    inventories={}
+    missing=[]
+    ambiguous=[]
+    for role,names in FC_THREADS.items():
+        try:
+            rows=task_inventory(owners[role]['pid'])
+        except (FileNotFoundError,NotADirectoryError,PermissionError):
+            missing.extend(role+'/'+name for name in names)
+            continue
+        inventories[role]=rows
+        for name in names:
+            matches=[row for row in rows if row['comm']==name]
+            if len(matches)==1:
+                selected[role+'/'+name]=matches[0]
+            elif not matches:
+                missing.append(role+'/'+name)
+            else:
+                ambiguous.append(role+'/'+name)
+    return selected,inventories,missing,ambiguous
+
+
+def wait_required_fc_threads(owners,timeout=None):
+    """Wait for FC tasks to exist, but fail immediately on duplicate ownership."""
+    timeout=FC_THREAD_TIMEOUT_S if timeout is None else timeout
+    deadline=time.monotonic()+timeout
+    missing=[]
+    while time.monotonic()<deadline:
+        selected,inventories,missing,ambiguous=_fc_thread_probe(owners)
+        require(not ambiguous,'Required FC thread ownership ambiguous: '+','.join(ambiguous))
+        if not missing:
+            selected,inventories=required_fc_threads(owners)
+            return selected,inventories
+        time.sleep(MAPPING_SELECT_S)
+    raise TimeoutError('Required FC thread inventory timed out: '+','.join(missing))
+
+
 def verify(owners,expected_boot):
     require(boot()==expected_boot,'Boot identity changed')
     found={}
@@ -148,6 +187,9 @@ def filters(pids):
 
 MAPPING_TIMEOUT_S=3.
 MAPPING_SELECT_S=.01
+FC_THREAD_TIMEOUT_S=15.
+BOOTSTRAP_SCHEMA='wksim.private-tracefs.capture-bootstrap-active.v1'
+ACTIVE_SCHEMA='wksim.private-tracefs.capture-active.v1'
 
 
 def _sched_switch_pairs(line):
@@ -193,7 +235,7 @@ def scan_global_comm_owners(expected,proc_root=None):
     raise ValueError('Global comm ownership missing after retry: '+','.join(last_missing))
 
 
-def map_sched_switch_pids(instance,put,names,output):
+def map_sched_switch_pids(instance,put,names,output,*,retain=False):
     """Map exact comm names using a bounded private sched_switch window.
 
     The tracepoint PID fields are the only source of kernel-visible IDs. The
@@ -253,17 +295,19 @@ def map_sched_switch_pids(instance,put,names,output):
         primary=error
     finally:
         cleanup_errors=[]
-        for relative,value in (('tracing_on','0'),
-                               ('events/sched/sched_switch/enable','0')):
-            try:put(relative,value)
-            except BaseException as error:cleanup_errors.append(relative+': '+str(error))
+        if not retain:
+            for relative,value in (('tracing_on','0'),
+                                   ('events/sched/sched_switch/enable','0')):
+                try:put(relative,value)
+                except BaseException as error:cleanup_errors.append(relative+': '+str(error))
         if descriptor is not None:
             try:os.close(descriptor)
             except BaseException as error:cleanup_errors.append('trace_pipe close: '+str(error))
         try:(output/'pid-mapping-trace.txt').write_bytes(bytes(raw))
         except BaseException as error:cleanup_errors.append('mapping trace write: '+str(error))
-        try:put('trace','')
-        except BaseException as error:cleanup_errors.append('trace: '+str(error))
+        if not retain:
+            try:put('trace','')
+            except BaseException as error:cleanup_errors.append('trace: '+str(error))
         if cleanup_errors:
             try:(output/'pid-mapping-cleanup-errors.json').write_text(
                     json.dumps(cleanup_errors,indent=2)+'\n')
@@ -275,29 +319,42 @@ def map_sched_switch_pids(instance,put,names,output):
     return {role:values.pop() for role,values in candidates.items()}
 
 
-def map_kernel_pids(instance,put,owners,epoch,output):
-    """Correlate exact owned comm names through a bounded private sched trace."""
+def map_kernel_pids(instance,put,owners,epoch,output,*,retain=False):
+    """Correlate exact owned comm names while consuming bootstrap trace immediately.
+
+    FC tasks may appear after the supervisor publishes the bootstrap token.  The
+    scheduler window therefore starts with all expected comm names, and the
+    local task inventory is sealed only after the event-driven trace drain has
+    observed every name.  This prevents the 1 MiB private ring from filling
+    while startup ownership is still converging.
+    """
     names={role:'wk'+epoch[:11]+suffix for role,suffix in (
         ('ap_worker','a'),('px4_worker','p'),('supervisor','s'))}
     for role,name in names.items():
         require((Path('/proc')/str(owners[role]['pid'])/'comm').read_text().strip()==name,
                 'Diagnostic comm name missing or wrong: '+role)
-    local_threads,inventories_before=required_fc_threads(owners) if 'ap_fc' in owners else ({},{})
-    names.update({role:value['comm'] for role,value in local_threads.items()})
+    if 'ap_fc' in owners:
+        for fc_role,comms in FC_THREADS.items():
+            for comm in comms:
+                names[fc_role+'/'+comm]=comm
     require(len(set(names.values()))==len(names),'Trace comm names are not distinct')
+    expected_base={name:dict(role=role,tgid=owners[role]['pid'],tid=owners[role]['pid'])
+                   for role,name in names.items() if role in BASE_ROLES}
+    comm_owners_before=scan_global_comm_owners(expected_base)
+    mapped=map_sched_switch_pids(instance,put,names,output,retain=retain)
+    require(len(set(mapped.values()))==len(mapped),'Kernel PID mappings are not distinct')
+    local_threads,inventories_after=wait_required_fc_threads(owners) if 'ap_fc' in owners else ({},{})
+    for role,thread in local_threads.items():
+        require(mapped.get(role)==thread['local_tid'],
+                'Kernel/local FC thread identity differs: '+role)
     expected={name:dict(role=role,tgid=(owners[role]['pid'] if role in BASE_ROLES else
         owners[role.split('/')[0]]['pid']),tid=(owners[role]['pid'] if role in BASE_ROLES else
         local_threads[role]['local_tid'])) for role,name in names.items()}
-    comm_owners_before=scan_global_comm_owners(expected)
-    mapped=map_sched_switch_pids(instance,put,names,output)
-    require(len(set(mapped.values()))==len(mapped),'Kernel PID mappings are not distinct')
-    local_threads_after,inventories_after=required_fc_threads(owners) if 'ap_fc' in owners else ({},{})
-    require(local_threads_after==local_threads,'Required FC thread identity changed during mapping')
     comm_owners_after=scan_global_comm_owners(expected)
     mapping_trace=output/'pid-mapping-trace.txt'
     mapping_sha256=hashlib.sha256(mapping_trace.read_bytes()).hexdigest()
     mapping=dict(names=names,kernel_pids=mapped,
-                local_threads=local_threads,inventories_before=inventories_before,
+                local_threads=local_threads,inventories_before=inventories_after,
                 inventories_after=inventories_after,
                 comm_owners_before=comm_owners_before,comm_owners_after=comm_owners_after,
                 method='owned exact comm names observed in a bounded private sched_switch window',
@@ -344,8 +401,30 @@ def statistics(instance):
     return dict(raw=raw,loss_counts=counts)
 
 
-def emit_capture_active(path,metadata):
-    """Publish one exclusive, fully-written token after tracing is enabled."""
+def loss_counter_delta(before,after):
+    """Return comparable loss counters and whether bootstrap stayed loss-free."""
+    before_counts=before.get('loss_counts',{}) if isinstance(before,dict) else {}
+    after_counts=after.get('loss_counts',{}) if isinstance(after,dict) else {}
+    cpus=sorted(set(before_counts)|set(after_counts))
+    delta={}
+    loss_free=True
+    for cpu in cpus:
+        old=before_counts.get(cpu,{})
+        new=after_counts.get(cpu,{})
+        fields=sorted(set(old)|set(new))
+        delta[cpu]={}
+        for field in fields:
+            old_value=old.get(field)
+            new_value=new.get(field)
+            delta[cpu][field]=None if old_value is None or new_value is None else new_value-old_value
+            if (old_value is None or new_value is None or new_value != old_value
+                    or old_value != 0 or new_value != 0):
+                loss_free=False
+    return delta,loss_free
+
+
+def _emit_capture_token(path,metadata,*,schema,state,phase,started_monotonic_ns=None):
+    """Publish one exclusive, fully-written token after a trace boundary."""
     target=Path(path)
     if target.exists():
         raise FileExistsError(str(target))
@@ -356,12 +435,16 @@ def emit_capture_active(path,metadata):
             'Capture instance owner proof is invalid')
     owner_sha256=hashlib.sha256(owner_raw).hexdigest()
     supervisor=metadata['owners']['supervisor']
-    payload=dict(schema='wksim.private-tracefs.capture-active.v1',state='active',
+    started = (metadata.get('started_monotonic_ns')
+               if started_monotonic_ns is None else started_monotonic_ns)
+    require(type(started) is int and started>0,
+            'Capture token start timestamp is invalid')
+    payload=dict(schema=schema,state=state,phase=phase,
                  collector_pid=os.getpid(),collector_start_ticks=metadata['collector_start_ticks'],
                  supervisor_pid=supervisor['pid'],supervisor_start_ticks=supervisor['start_ticks'],
                  instance_owner_sha256=owner_sha256,instance=metadata['instance'],
                  instance_inode=metadata['instance_inode'],run_id=metadata['run_id'],
-                 epoch=metadata['epoch'],started_monotonic_ns=metadata['started_monotonic_ns'],
+                 epoch=metadata['epoch'],started_monotonic_ns=started,
                  published_monotonic_ns=time.monotonic_ns())
     raw=(json.dumps(payload,sort_keys=True,indent=2)+'\n').encode()
     descriptor=None
@@ -391,6 +474,60 @@ def emit_capture_active(path,metadata):
     metadata['capture_active_token']=str(target)
     metadata['capture_active']=payload
     return payload
+
+
+def emit_capture_active(path,metadata):
+    """Publish the filtered capture token after all precise filters are enabled."""
+    return _emit_capture_token(path,metadata,schema=ACTIVE_SCHEMA,state='active',phase='filtered')
+
+
+def emit_capture_bootstrap(path,metadata):
+    """Publish a distinct sched_switch-only token used solely by the tick-zero gate."""
+    payload=_emit_capture_token(path,metadata,schema=BOOTSTRAP_SCHEMA,
+                                state='bootstrap_active',phase='bootstrap_sched_switch',
+                                started_monotonic_ns=metadata.get('bootstrap_started_monotonic_ns'))
+    metadata['capture_bootstrap_token']=str(path)
+    metadata['capture_bootstrap']=payload
+    return payload
+
+
+def wait_gate_release(path,bootstrap,owners,run_id,epoch,timeout=FC_THREAD_TIMEOUT_S):
+    """Require the gate to release exactly this bootstrap token before mapping."""
+    path=Path(path)
+    if not path:
+        raise ValueError('Gate-release path is required for bootstrap capture')
+    token_sha256=hashlib.sha256(
+        (Path(bootstrap['token_path']).read_bytes() if bootstrap.get('token_path')
+         else b'')).hexdigest() if bootstrap.get('token_path') else bootstrap.get('sha256')
+    expected_sha=bootstrap.get('sha256') or token_sha256
+    gate_ready_path=path.with_name('gate-ready.json')
+    deadline=time.monotonic()+timeout
+    while time.monotonic()<deadline:
+        if path.exists():
+            value=json.loads(path.read_bytes())
+            owner=owners['supervisor']
+            observed_sha=value.get('capture_token_sha256',value.get('capture_active_sha256'))
+            require(isinstance(value,dict) and value.get('schema')=='wksim.private-tracefs.capture-release.v1'
+                    and value.get('state')=='released' and value.get('run_id')==run_id
+                    and value.get('epoch')==epoch and value.get('tick')==0
+                    and value.get('supervisor_pid')==owner['pid']
+                    and value.get('supervisor_start_ticks')==owner['start_ticks']
+                    and value.get('capture_token_schema')==BOOTSTRAP_SCHEMA
+                    and observed_sha==expected_sha
+                    and value.get('instance')==bootstrap.get('instance')
+                    and value.get('instance_inode')==bootstrap.get('instance_inode')
+                    and value.get('instance_owner_sha256')==bootstrap.get('instance_owner_sha256')
+                    and value.get('collector_pid')==bootstrap.get('collector_pid')
+                    and value.get('collector_start_ticks')==bootstrap.get('collector_start_ticks')
+                    and type(value.get('capture_token_published_monotonic_ns')) is int
+                    and value.get('capture_token_published_monotonic_ns')==bootstrap.get('published_monotonic_ns')
+                    and type(value.get('released_monotonic_ns')) is int
+                    and value.get('released_monotonic_ns')>=bootstrap.get('published_monotonic_ns')
+                    and value.get('gate_ready_sha256')==hashlib.sha256(gate_ready_path.read_bytes()).hexdigest(),
+                    'Bootstrap gate-release binding differs')
+            return value
+        time.sleep(MAPPING_SELECT_S)
+    raise TimeoutError('Bootstrap gate release was not published')
 
 
 def enable_capture(put,duration,metadata,active_token):
@@ -472,17 +609,23 @@ def collect(args,owners):
     require(not any(output.is_relative_to(Path(p)) for p in ('/sys','/proc','/dev')),'Output cannot be a control filesystem')
     output.mkdir(mode=0o700)
     active_token=(args.capture_active_token or output/'capture-active.json').resolve()
+    bootstrap_token=(args.capture_bootstrap_token or output/'capture-bootstrap-active.json').resolve()
     require(active_token.parent==output and not active_token.exists(),
             'Capture-active token must be a new file inside output')
+    require(bootstrap_token.parent==output and not bootstrap_token.exists()
+            and bootstrap_token!=active_token,
+            'Capture-bootstrap token must be a distinct new file inside output')
     path=TRACE/'instances'/('wksim-rate-'+uuid.uuid4().hex)
     collector_identity=identity(os.getpid())
     metadata=dict(schema='wksim.private-tracefs.v1',run_id=args.run_id,epoch=args.epoch,
         acceptance_eligible=False,requested_duration_s=args.duration,preflight=before,
         owners=owners,command=sys.argv,instance=str(path),errors=[],status='diagnostic_partial',
         collector_pid=collector_identity['pid'],collector_start_ticks=collector_identity['start_ticks'],
-        boundary_syscalls_may_be_unpaired=True)
+        boundary_syscalls_may_be_unpaired=True,
+        bootstrap_token=str(bootstrap_token),filtered_token=str(active_token),
+        capture_boundaries={})
     (output/'preflight.json').write_text(json.dumps(before,indent=2)+'\n')
-    inode=None; descriptor=None; stopped=None; began=None
+    inode=None; descriptor=None; destination=None; stopped=None; began=None
     cancelled=[]
     handlers={}
     try:
@@ -515,8 +658,50 @@ def collect(args,owners):
         put('buffer_size_kb','1024')
         require('[mono]' in (path/'trace_clock').read_text(),'Instance mono clock not selected')
         require(args.map_comm,'Capture requires namespace-verified --map-comm')
-        mapping=map_kernel_pids(path,put,owners,args.epoch,output)
+        bootstrap_started=time.monotonic_ns()
+        metadata['bootstrap_started_monotonic_ns']=bootstrap_started
+        metadata['bootstrap_semantics']='sched_switch-only retained window before precise filters'
+        metadata['capture_boundaries']['bootstrap_raw_retained']=False
+        metadata['bootstrap_stats_before']=statistics(path)
+        put('events/sched/sched_switch/filter',' || '.join(
+            f'prev_comm == "{name}" || next_comm == "{name}"'
+            for name in ('wk'+args.epoch[:11]+'a','wk'+args.epoch[:11]+'p','wk'+args.epoch[:11]+'s')))
+        put('events/sched/sched_switch/enable','1')
+        put('tracing_on','1')
+        bootstrap_payload=emit_capture_bootstrap(bootstrap_token,metadata)
+        bootstrap_sha256=hashlib.sha256(bootstrap_token.read_bytes()).hexdigest()
+        metadata['capture_boundaries']['bootstrap_token_sha256']=bootstrap_sha256
+        metadata['capture_boundaries']['bootstrap_published_monotonic_ns']=bootstrap_payload['published_monotonic_ns']
+        gate_release=wait_gate_release(args.capture_gate_release,dict(
+            bootstrap_payload,sha256=bootstrap_sha256),owners,
+            args.run_id,args.epoch)
+        metadata['gate_release']=gate_release
+        metadata['capture_boundaries']['gate_release_monotonic_ns']=gate_release.get('released_monotonic_ns')
+        mapping=map_kernel_pids(path,put,owners,args.epoch,output,retain=True)
         metadata['pid_mapping']=mapping
+        bootstrap_trace=output/'pid-mapping-trace.txt'
+        bootstrap_raw=bootstrap_trace.read_bytes()
+        metadata['bootstrap_stats_after']=statistics(path)
+        delta,loss_free=loss_counter_delta(metadata['bootstrap_stats_before'],
+                                            metadata['bootstrap_stats_after'])
+        metadata['bootstrap_loss_delta']=delta
+        metadata['bootstrap_loss_free']=loss_free
+        metadata['bootstrap_trace']=dict(path=str(bootstrap_trace),bytes=len(bootstrap_raw),
+            sha256=hashlib.sha256(bootstrap_raw).hexdigest())
+        require(loss_free,'Bootstrap trace buffer loss detected; refusing retained capture')
+        trace_path=output/'trace.txt'
+        destination=trace_path.open('xb')
+        destination.write(bootstrap_raw)
+        trace_boundary_bytes=0
+        if bootstrap_raw and not bootstrap_raw.endswith(b'\n'):
+            destination.write(b'\n')
+            trace_boundary_bytes=1
+        destination.flush()
+        metadata['trace_sections']={'bootstrap':dict(offset=0,bytes=len(bootstrap_raw),
+            sha256=hashlib.sha256(bootstrap_raw).hexdigest()),
+            'boundary_bytes':trace_boundary_bytes}
+        metadata['capture_boundaries']['filtered_transition_monotonic_ns']=time.monotonic_ns()
+        metadata['capture_boundaries']['bootstrap_raw_retained']=True
         applied=filters(mapping['kernel_pids'])
         for event,expression in applied.items():
             put('events/'+event+'/filter',expression)
@@ -525,26 +710,35 @@ def collect(args,owners):
         metadata['fd_before']={name:fds(value['pid']) for name,value in verify(owners,args.boot_id).items()}
         metadata['stats_before']=statistics(path)
         descriptor=os.open(path/'trace_pipe',TRACE_PIPE_FLAGS)
-        with (output/'trace.txt').open('xb') as destination:
-            began,deadline=enable_capture(put,args.duration,metadata,active_token)
-            while time.monotonic_ns()<deadline and not cancelled:
-                verify(owners,args.boot_id)
-                timeout=min(.05,max(0,(deadline-time.monotonic_ns())/1e9))
-                if select.select([descriptor],[],[],timeout)[0]:
-                    try: destination.write(os.read(descriptor,1024*1024))
-                    except BlockingIOError: pass
-            put('tracing_on','0')
-            stopped=time.monotonic_ns()
-            metadata['stop_reason']='signal' if cancelled else 'duration'
-            # No new events once disabled. Drain only this owned instance.
-            while True:
-                try: chunk=os.read(descriptor,1024*1024)
-                except BlockingIOError: break
-                if not chunk:break
-                destination.write(chunk)
+        began,deadline=enable_capture(put,args.duration,metadata,active_token)
+        metadata['capture_boundaries']['filtered_token_sha256']=hashlib.sha256(active_token.read_bytes()).hexdigest()
+        metadata['capture_boundaries']['filtered_published_monotonic_ns']=metadata['capture_active']['published_monotonic_ns']
+        while time.monotonic_ns()<deadline and not cancelled:
+            verify(owners,args.boot_id)
+            timeout=min(.05,max(0,(deadline-time.monotonic_ns())/1e9))
+            if select.select([descriptor],[],[],timeout)[0]:
+                try: destination.write(os.read(descriptor,1024*1024))
+                except BlockingIOError: pass
+        put('tracing_on','0')
+        stopped=time.monotonic_ns()
+        metadata['stop_reason']='signal' if cancelled else 'duration'
+        # No new events once disabled. Drain only this owned instance.
+        while True:
+            try: chunk=os.read(descriptor,1024*1024)
+            except BlockingIOError: break
+            if not chunk:break
+            destination.write(chunk)
+        destination.flush()
+        filtered_offset=(metadata['trace_sections']['bootstrap']['bytes']
+                         +metadata['trace_sections']['boundary_bytes'])
+        filtered_bytes=destination.tell()-filtered_offset
+        metadata['trace_sections']['filtered']=dict(offset=filtered_offset,bytes=filtered_bytes)
     except BaseException as error:
         metadata['errors'].append(type(error).__name__+': '+str(error))
     finally:
+        if destination is not None:
+            try: destination.close()
+            except BaseException as error: metadata['errors'].append('Trace output close: '+str(error))
         finalize_capture(path,inode,descriptor,metadata,output,before,owners,args.boot_id,handlers,cancelled,began,stopped)
     return metadata
 
@@ -562,6 +756,8 @@ def main():
     parser.add_argument('--epoch')
     parser.add_argument('--output',type=Path)
     parser.add_argument('--capture-active-token',type=Path)
+    parser.add_argument('--capture-bootstrap-token',type=Path)
+    parser.add_argument('--capture-gate-release',type=Path,required=False)
     parser.add_argument('--duration',type=float,default=10.)
     parser.add_argument('--map-comm',action='store_true',help='Map exact per-run diagnostic comm names to kernel tracepoint IDs')
     args=parser.parse_args()
@@ -577,6 +773,7 @@ def main():
         if owners and args.run_id and args.epoch:verify_roles(value['verified_owners'],args.run_id,args.epoch)
         print(json.dumps(value,indent=2));return 0
     require(args.output is not None and args.run_id and args.epoch and re.fullmatch('[0-9a-f]{32}',args.epoch),'Capture needs output/run-id/32hex epoch')
+    require(args.capture_gate_release is not None,'Capture needs --capture-gate-release')
     result=collect(args,owners)
     print(json.dumps({k:result.get(k) for k in ('status','complete','elapsed_s','instance_removed','errors')}))
     return 0 if result['complete'] else 1

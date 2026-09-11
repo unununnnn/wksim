@@ -13,7 +13,7 @@ from tools.analyze_joint_scheduler import (parse,pair,pair_all,explain,native_wa
 from tools.profile_joint_scheduler import (epoch_groups_retired,failure_payload_clean,product_result_clean,complete_child_ownership,
     complete_fc_thread_names,validate_capture_started_early,wait_capture_active,wait_gate_ready,wait_gate_release,
     validate_capture_owner_final,install_cleanup_signal_handlers,restore_cleanup_signal_handlers,
-    retire_collector,retire_manager,kill_collector_group)
+    retire_collector,retire_manager,kill_collector_group,startup_readiness,publish_startup_readiness)
 
 
 class SchedulerAnalysisTests(unittest.TestCase):
@@ -37,6 +37,22 @@ class SchedulerAnalysisTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'Ambiguous child ownership'):
             complete_child_ownership(duplicate)
 
+    def test_startup_readiness_preserves_authority_fault_and_missing_roles(self):
+        state={'run_id':'run','epoch':'a'*32,'phase':'faulted',
+               'authority':{'phase':'faulted','fault':'input timeout','tick':0},
+               'supervisor':{'pid':99,'start_ticks':100}}
+        value=startup_readiness(state,{'arducopter-model':{'pid':11,'start_ticks':111}})
+        self.assertEqual(value['state'],'authority_faulted')
+        self.assertEqual(value['authority']['fault'],'input timeout')
+        self.assertEqual(set(value['missing']),{'px4_worker','ap_fc','px4_fc'})
+
+    def test_startup_readiness_publication_is_create_only(self):
+        state={'run_id':'run','epoch':'a'*32,'phase':'stopped','authority':{'phase':'stopped'}}
+        with tempfile.TemporaryDirectory() as temp:
+            path=Path(temp)/'startup-readiness.json'
+            publish_startup_readiness(path,state)
+            with self.assertRaises(FileExistsError):publish_startup_readiness(path,state)
+
     def test_capture_wait_rejects_ambiguous_or_incomplete_fc_names(self):
         self.assertFalse(complete_fc_thread_names(['arducopter','log_io'],{'arducopter','log_io','DDS'}))
         with self.assertRaisesRegex(ValueError,'Ambiguous FC thread ownership'):
@@ -50,7 +66,7 @@ class SchedulerAnalysisTests(unittest.TestCase):
             state={'run_id':'run','epoch':epoch,'authority':{'epoch':epoch,'tick':39},
                    'issued_monotonic_s':101.0}
             status.write_text(json.dumps(state))
-            active={'state':'active','run_id':'run','epoch':epoch,
+            active={'state':'active','phase':'filtered','run_id':'run','epoch':epoch,
                     'published_monotonic_ns':100_000_000_000}
             self.assertEqual(validate_capture_started_early(status,'run',epoch,active),state)
             for changed in ({'run_id':'other','epoch':epoch,'authority':{'epoch':epoch,'tick':1}},
@@ -79,12 +95,47 @@ class SchedulerAnalysisTests(unittest.TestCase):
         epoch='a'*32
         with tempfile.TemporaryDirectory() as temp:
             status=Path(temp)/'status.json'
-            active={'state':'active','run_id':'run','epoch':epoch,
+            active={'state':'active','phase':'filtered','run_id':'run','epoch':epoch,
                     'published_monotonic_ns':100_000_000_000}
             with self.assertRaisesRegex(RuntimeError,'Manager exited'):
                 validate_capture_started_early(status,'run',epoch,active,manager=Exited(),timeout=.2)
             with self.assertRaisesRegex(RuntimeError,'Collector exited'):
                 validate_capture_started_early(status,'run',epoch,active,collector=Exited(),timeout=.2)
+
+    def test_formal_filtered_token_does_not_reuse_tick_zero_deadline(self):
+        epoch='a'*32
+        with tempfile.TemporaryDirectory() as temp:
+            status=Path(temp)/'status.json'
+            state={'run_id':'run','epoch':epoch,'authority':{'epoch':epoch,'tick':400},
+                   'issued_monotonic_s':101.0}
+            status.write_text(json.dumps(state))
+            bootstrap={'schema':'wksim.private-tracefs.capture-bootstrap-active.v1',
+                       'state':'bootstrap_active','phase':'bootstrap_sched_switch',
+                       'run_id':'run','epoch':epoch,'started_monotonic_ns':100,
+                       'published_monotonic_ns':200}
+            formal={'schema':'wksim.private-tracefs.capture-active.v1',
+                    'state':'active','phase':'filtered','run_id':'run','epoch':epoch,
+                    'started_monotonic_ns':300,'published_monotonic_ns':400}
+            result=validate_capture_started_early(status,'run',epoch,formal,
+                                                  bootstrap=bootstrap,timeout=.1)
+            self.assertEqual(result['authority']['tick'],400)
+
+    def test_formal_filtered_token_must_follow_bootstrap_publication(self):
+        epoch='a'*32
+        active={'schema':'wksim.private-tracefs.capture-active.v1','state':'active',
+                'phase':'filtered','run_id':'run','epoch':epoch,
+                'started_monotonic_ns':150,'published_monotonic_ns':200}
+        bootstrap={'schema':'wksim.private-tracefs.capture-bootstrap-active.v1',
+                   'state':'bootstrap_active','phase':'bootstrap_sched_switch',
+                   'run_id':'run','epoch':epoch,'started_monotonic_ns':100,
+                   'published_monotonic_ns':300}
+        with tempfile.TemporaryDirectory() as temp:
+            status=Path(temp)/'status.json'
+            status.write_text(json.dumps({'run_id':'run','epoch':epoch,
+                'authority':{'epoch':epoch,'tick':1},'issued_monotonic_s':101.}))
+            with self.assertRaisesRegex(RuntimeError,'ordering differs'):
+                validate_capture_started_early(status,'run',epoch,active,
+                                               bootstrap=bootstrap,timeout=.1)
 
     def test_first_step_gate_ready_requires_tick_zero_and_owned_supervisor(self):
         epoch='a'*32
@@ -126,7 +177,7 @@ class SchedulerAnalysisTests(unittest.TestCase):
                        owners=expected)
             (root/'instance-owner.json').write_text(json.dumps(owner,sort_keys=True)+'\n')
             token.write_text(json.dumps(dict(schema='wksim.private-tracefs.capture-active.v1',
-                state='active',run_id='run',epoch=epoch,collector_pid=456,collector_start_ticks=457,
+                state='active',phase='filtered',run_id='run',epoch=epoch,collector_pid=456,collector_start_ticks=457,
                 supervisor_pid=123,supervisor_start_ticks=456,instance=owner['instance'],
                 instance_inode=owner['instance_inode'],instance_owner_sha256=hashlib.sha256(
                     (root/'instance-owner.json').read_bytes()).hexdigest(),started_monotonic_ns=150,
@@ -171,7 +222,7 @@ class SchedulerAnalysisTests(unittest.TestCase):
                        collector_pid=456,collector_start_ticks=457,supervisor_pid=123,
                        supervisor_start_ticks=456,instance='/sys/wksim-rate-a',instance_inode=[1,2])
             owner_path.write_text(json.dumps(owner,sort_keys=True)+'\n')
-            active=dict(schema='wksim.private-tracefs.capture-active.v1',state='active',
+            active=dict(schema='wksim.private-tracefs.capture-active.v1',state='active',phase='filtered',
                         run_id='run',epoch=epoch,collector_pid=456,collector_start_ticks=457,
                         supervisor_pid=123,supervisor_start_ticks=456,instance=owner['instance'],
                         instance_inode=owner['instance_inode'],
@@ -225,7 +276,7 @@ class SchedulerAnalysisTests(unittest.TestCase):
                            supervisor_start_ticks=456,instance='/sys/wksim-rate-a',instance_inode=[1,2],
                            owners=owner_owners)
                 owner_path.write_text(json.dumps(owner,sort_keys=True)+'\n')
-                active=dict(schema='wksim.private-tracefs.capture-active.v1',state='active',
+                active=dict(schema='wksim.private-tracefs.capture-active.v1',state='active',phase='filtered',
                             run_id='run',epoch=epoch,collector_pid=456,collector_start_ticks=457,
                             supervisor_pid=123,supervisor_start_ticks=456,instance=owner['instance'],
                             instance_inode=owner['instance_inode'],
@@ -261,6 +312,38 @@ class SchedulerAnalysisTests(unittest.TestCase):
                 validate_capture_owner_final(token,ready,{'pid':456,'start_ticks':457},
                                              expected,release_path)
 
+    def test_final_owner_binds_formal_token_to_bootstrap_gate_release(self):
+        epoch='a'*32
+        with tempfile.TemporaryDirectory() as temp:
+            root=Path(temp); bootstrap_path=root/'capture-bootstrap-active.json'; active=root/'capture-active.json'
+            owner_path=root/'instance-owner.json'; ready_path=root/'gate-ready.json'; release_path=root/'gate-release.json'
+            ready=dict(schema='wksim.private-tracefs.capture-gate-ready.v1',state='ready',run_id='run',epoch=epoch,
+                       pid=123,start_ticks=456,tick=0,published_monotonic_ns=100)
+            ready_path.write_text(json.dumps(ready,sort_keys=True)+'\n')
+            owner=dict(schema='wksim.private-tracefs.instance-owner.v1',run_id='run',epoch=epoch,
+                       collector_pid=456,collector_start_ticks=457,supervisor_pid=123,supervisor_start_ticks=456,
+                       instance='/sys/wksim-rate-a',instance_inode=[1,2])
+            owner_path.write_text(json.dumps(owner,sort_keys=True)+'\n')
+            owner_sha=hashlib.sha256(owner_path.read_bytes()).hexdigest()
+            base=dict(collector_pid=456,collector_start_ticks=457,supervisor_pid=123,supervisor_start_ticks=456,
+                      instance=owner['instance'],instance_inode=owner['instance_inode'],instance_owner_sha256=owner_sha,
+                      run_id='run',epoch=epoch,started_monotonic_ns=150,published_monotonic_ns=200)
+            bootstrap=dict(schema='wksim.private-tracefs.capture-bootstrap-active.v1',state='bootstrap_active',
+                           phase='bootstrap_sched_switch',**base)
+            bootstrap_path.write_text(json.dumps(bootstrap,sort_keys=True)+'\n')
+            formal=dict(schema='wksim.private-tracefs.capture-active.v1',state='active',phase='filtered',
+                        **dict(base,started_monotonic_ns=350,published_monotonic_ns=400))
+            active.write_text(json.dumps(formal,sort_keys=True)+'\n')
+            release=dict(schema='wksim.private-tracefs.capture-release.v1',state='released',run_id='run',epoch=epoch,
+                         supervisor_pid=123,supervisor_start_ticks=456,collector_pid=456,collector_start_ticks=457,
+                         capture_token_sha256=hashlib.sha256(bootstrap_path.read_bytes()).hexdigest(),
+                         capture_token_schema=bootstrap['schema'],capture_token_published_monotonic_ns=200,
+                         instance_owner_sha256=owner_sha,gate_ready_sha256=hashlib.sha256(ready_path.read_bytes()).hexdigest(),
+                         instance=owner['instance'],instance_inode=owner['instance_inode'],tick=0,released_monotonic_ns=300)
+            release_path.write_text(json.dumps(release,sort_keys=True)+'\n')
+            result=validate_capture_owner_final(active,ready,{'pid':456,'start_ticks':457},
+                                                release_path=release_path,gate_token=bootstrap_path)
+            self.assertEqual(result['gate_token_sha256'],hashlib.sha256(bootstrap_path.read_bytes()).hexdigest())
     def test_final_owner_rejects_active_state_time_and_release_time_tamper(self):
         epoch='a'*32
         with tempfile.TemporaryDirectory() as temp:
@@ -275,7 +358,7 @@ class SchedulerAnalysisTests(unittest.TestCase):
                        supervisor_start_ticks=456,instance='/sys/wksim-rate-a',instance_inode=[1,2])
             owner_path.write_text(json.dumps(owner,sort_keys=True)+'\n')
             def write_chain(state='active',published=200,release_published=200):
-                active=dict(schema='wksim.private-tracefs.capture-active.v1',state=state,
+                active=dict(schema='wksim.private-tracefs.capture-active.v1',state=state,phase='filtered',
                             run_id='run',epoch=epoch,collector_pid=456,collector_start_ticks=457,
                             supervisor_pid=123,supervisor_start_ticks=456,instance=owner['instance'],
                             instance_inode=owner['instance_inode'],
@@ -354,7 +437,7 @@ class SchedulerAnalysisTests(unittest.TestCase):
                         instance_inode=[1,2],run_id='run',epoch='a'*32)
             owner_raw=json.dumps(owner).encode();(root/'instance-owner.json').write_bytes(owner_raw)
             token.write_text(json.dumps(dict(schema='wksim.private-tracefs.capture-active.v1',
-                state='active',collector_pid=1234,collector_start_ticks=567,supervisor_pid=99,
+                state='active',phase='filtered',collector_pid=1234,collector_start_ticks=567,supervisor_pid=99,
                 supervisor_start_ticks=100,instance=owner['instance'],instance_inode=[3,4],
                 instance_owner_sha256=hashlib.sha256(owner_raw).hexdigest(),run_id='run',epoch='a'*32,
                 started_monotonic_ns=1,published_monotonic_ns=2)))
@@ -388,7 +471,7 @@ class SchedulerAnalysisTests(unittest.TestCase):
                        owners=expected)
             owner_raw=json.dumps(owner,sort_keys=True).encode();(root/'instance-owner.json').write_bytes(owner_raw)
             token.write_text(json.dumps(dict(schema='wksim.private-tracefs.capture-active.v1',
-                state='active',collector_pid=1234,collector_start_ticks=567,supervisor_pid=99,
+                state='active',phase='filtered',collector_pid=1234,collector_start_ticks=567,supervisor_pid=99,
                 supervisor_start_ticks=100,instance=owner['instance'],instance_inode=owner['instance_inode'],
                 instance_owner_sha256=hashlib.sha256(owner_raw).hexdigest(),run_id='run',epoch='a'*32,
                 started_monotonic_ns=1,published_monotonic_ns=2)))

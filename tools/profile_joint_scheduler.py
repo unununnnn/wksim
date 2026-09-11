@@ -16,6 +16,7 @@ import sys
 import time
 import uuid
 import shutil
+import tempfile
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
@@ -31,9 +32,69 @@ CAPTURE_ACTIVE_TIMEOUT_S=15.
 EARLY_CAPTURE_TICK_LIMIT=40
 GATE_READY_SCHEMA='wksim.private-tracefs.capture-gate-ready.v1'
 GATE_RELEASE_SCHEMA='wksim.private-tracefs.capture-release.v1'
+BOOTSTRAP_SCHEMA='wksim.private-tracefs.capture-bootstrap-active.v1'
+ACTIVE_SCHEMA='wksim.private-tracefs.capture-active.v1'
+STARTUP_READINESS_SCHEMA='wksim.private-tracefs.startup-readiness.v1'
+STARTUP_REQUIRED=('supervisor','ap_worker','px4_worker','ap_fc','px4_fc')
 
 
 def digest(path): return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+def create_only_json(path,value):
+    """Publish one complete JSON fact without replacing an existing fact."""
+    target=Path(path)
+    raw=(json.dumps(value,indent=2,allow_nan=False)+'\n').encode()
+    descriptor,temporary=tempfile.mkstemp(prefix='.'+target.name+'-',suffix='.tmp',dir=target.parent)
+    try:
+        offset=0
+        while offset<len(raw):
+            offset += os.write(descriptor,raw[offset:])
+        os.fsync(descriptor)
+        os.close(descriptor)
+        descriptor=None
+        if target.exists():
+            raise FileExistsError(str(target))
+        os.link(temporary,target)
+        os.unlink(temporary)
+        temporary=None
+    finally:
+        if descriptor is not None:
+            os.close(descriptor)
+        if temporary is not None:
+            Path(temporary).unlink(missing_ok=True)
+
+
+def startup_readiness(state,child_owners=None,gate_ready=None):
+    """Describe startup ownership and preserve an authority terminal state."""
+    observed={}
+    if isinstance(state,dict) and isinstance(state.get('supervisor'),dict):
+        observed['supervisor']=state['supervisor']
+    if isinstance(child_owners,dict):
+        observed.update(dict(
+            ap_worker=child_owners.get('arducopter-model'),
+            px4_worker=child_owners.get('px4-model'),
+            ap_fc=child_owners.get('arducopter-fc'),
+            px4_fc=child_owners.get('px4-fc')))
+        observed={key:value for key,value in observed.items() if value is not None}
+    if gate_ready is not None:
+        observed['gate_ready']=gate_ready
+    missing=[name for name in STARTUP_REQUIRED if name not in observed]
+    authority=state.get('authority',{}) if isinstance(state,dict) else {}
+    phase=state.get('phase') if isinstance(state,dict) else None
+    authority_phase=authority.get('phase') if isinstance(authority,dict) else None
+    terminal=phase if phase in ('faulted','stopped') else authority_phase if authority_phase in ('faulted','stopped') else None
+    return dict(schema=STARTUP_READINESS_SCHEMA,state='authority_'+terminal if terminal else ('ready' if not missing and gate_ready is not None else 'waiting'),
+                required=list(STARTUP_REQUIRED),observed=observed,missing=missing,
+                authority=authority,phase=phase,run_id=state.get('run_id') if isinstance(state,dict) else None,
+                epoch=state.get('epoch') if isinstance(state,dict) else None,
+                gate_ready=gate_ready)
+
+
+def publish_startup_readiness(path,state,child_owners=None,gate_ready=None):
+    value=startup_readiness(state,child_owners,gate_ready)
+    create_only_json(path,value)
+    return value
 
 
 def _identity_fields(value,label):
@@ -246,9 +307,10 @@ def fc_threads_ready(children):
 
 
 def wait_capture_active(token,collector,run_id=None,epoch=None,*,manager=None,
-                       collector_identity=None,supervisor_identity=None,expected_owners=None,
-                       timeout=CAPTURE_ACTIVE_TIMEOUT_S):
-    """Wait for the collector's exclusive post-enable token, or fail closed."""
+                        collector_identity=None,supervisor_identity=None,expected_owners=None,
+                        timeout=CAPTURE_ACTIVE_TIMEOUT_S,token_schema=ACTIVE_SCHEMA,
+                        token_state='active',token_phase=None):
+    """Wait for one collector token, or fail closed on an identity mismatch."""
     expected_collector=collector_identity or json_identity(collector.pid)
     _identity_fields(expected_collector,'Collector')
     expected_supervisor=supervisor_identity
@@ -263,13 +325,14 @@ def wait_capture_active(token,collector,run_id=None,epoch=None,*,manager=None,
             except (OSError,json.JSONDecodeError) as error:
                 raise RuntimeError('Capture-active token is unreadable') from error
             if (not isinstance(value,dict) or not isinstance(owner,dict)
-                    or value.get('schema')!='wksim.private-tracefs.capture-active.v1'
+                    or value.get('schema')!=token_schema
                     or owner.get('schema')!='wksim.private-tracefs.instance-owner.v1'
                     or value.get('collector_pid')!=collector.pid
                     or owner.get('collector_pid')!=collector.pid
                     or value.get('collector_start_ticks')!=expected_collector['start_ticks']
                     or owner.get('collector_start_ticks')!=expected_collector['start_ticks']
-                    or value.get('state')!='active'
+                    or value.get('state')!=token_state
+                    or token_phase is not None and value.get('phase')!=token_phase
                     or value.get('instance')!=owner.get('instance')
                     or value.get('instance_inode')!=owner.get('instance_inode')
                     or value.get('run_id')!=owner.get('run_id')
@@ -278,6 +341,11 @@ def wait_capture_active(token,collector,run_id=None,epoch=None,*,manager=None,
                     or run_id is not None and value.get('run_id')!=run_id
                     or epoch is not None and value.get('epoch')!=epoch):
                 raise RuntimeError('Capture-active token identity differs')
+            token_started=value.get('started_monotonic_ns')
+            token_published=value.get('published_monotonic_ns')
+            if (type(token_started) is not int or token_started<=0
+                    or type(token_published) is not int or token_published<token_started):
+                raise RuntimeError('Capture-active token timing differs')
             if expected_supervisor is not None:
                 if (value.get('supervisor_pid')!=expected_supervisor['pid']
                         or value.get('supervisor_start_ticks')!=expected_supervisor['start_ticks']):
@@ -331,8 +399,9 @@ def wait_gate_ready(path,run_id,epoch,supervisor_identity,*,manager=None,
 
 def wait_gate_release(path,gate_ready,active_token,run_id,epoch,collector,*,manager=None,
                       collector_identity=None,expected_owners=None,
-                      timeout=CAPTURE_ACTIVE_TIMEOUT_S):
-    """Require the supervisor to release exactly the active collector token."""
+                      timeout=CAPTURE_ACTIVE_TIMEOUT_S,token_schema=ACTIVE_SCHEMA,
+                      token_state='active',token_phase=None):
+    """Require the supervisor to release exactly the selected collector token."""
     path=Path(path); active_token=Path(active_token)
     gate_ready_path=path.with_name('gate-ready.json')
     expected_collector=collector_identity or json_identity(collector.pid)
@@ -368,21 +437,26 @@ def wait_gate_release(path,gate_ready,active_token,run_id,epoch,collector,*,mana
                     or value.get('supervisor_start_ticks')!=gate_ready.get('start_ticks')
                     or value.get('collector_pid')!=collector.pid
                     or value.get('collector_start_ticks')!=expected_collector['start_ticks']
-                    or value.get('capture_active_sha256')!=active_sha256
+                    or value.get('capture_token_sha256',value.get('capture_active_sha256'))!=active_sha256
+                    or value.get('capture_token_schema',token_schema)!=token_schema
                     or value.get('instance_owner_sha256')!=owner_sha256
                     or value.get('gate_ready_sha256')!=digest(gate_ready_path)
                     or value.get('instance')!=owner.get('instance')
                     or value.get('instance_inode')!=owner.get('instance_inode')
-                    or active.get('schema')!='wksim.private-tracefs.capture-active.v1'
-                    or active.get('state')!='active'
+                    or active.get('schema')!=token_schema
+                    or active.get('state')!=token_state
+                    or token_phase is not None and active.get('phase')!=token_phase
                     or active.get('instance_owner_sha256')!=owner_sha256
                     or type(value.get('tick')) is not int or value.get('tick')<0
                     or value.get('tick')>=EARLY_CAPTURE_TICK_LIMIT
                     or value.get('tick')!=gate_ready.get('tick')
-                    or type(value.get('capture_active_published_monotonic_ns')) is not int
+                    or type(value.get('capture_token_published_monotonic_ns',value.get('capture_active_published_monotonic_ns'))) is not int
                     or type(value.get('released_monotonic_ns')) is not int
-                    or value.get('capture_active_published_monotonic_ns')!=active.get('published_monotonic_ns')
-                    or value.get('released_monotonic_ns')<value.get('capture_active_published_monotonic_ns')
+                    or value.get('capture_token_published_monotonic_ns',value.get('capture_active_published_monotonic_ns'))!=active.get('published_monotonic_ns')
+                    or active.get('published_monotonic_ns')<gate_ready.get('published_monotonic_ns')
+                    or type(active.get('started_monotonic_ns')) is not int
+                    or active.get('published_monotonic_ns')<active.get('started_monotonic_ns')
+                    or value.get('released_monotonic_ns')<value.get('capture_token_published_monotonic_ns',value.get('capture_active_published_monotonic_ns'))
                     or value.get('released_monotonic_ns')<gate_ready.get('published_monotonic_ns')):
                 raise RuntimeError('First-step gate-release proof identity differs')
             return value
@@ -413,13 +487,15 @@ def _validate_gate_ready_proof(value):
 
 
 def validate_capture_owner_final(active_token,gate_ready,collector_identity,expected_owners=None,
-                                 release_path=None):
+                                 release_path=None,gate_token=None):
     """Re-read the complete active/owner/release chain after collector retirement."""
     if release_path is None:
         raise RuntimeError('First-step gate-release proof path is required')
     active_token=Path(active_token)
     active,active_sha256=_read_proof(active_token,'Capture-active token')
     owner,owner_sha256=_read_instance_owner(active_token.parent/'instance-owner.json')
+    gate_token_path=Path(gate_token) if gate_token is not None else active_token
+    gate_token_value,gate_token_sha256=_read_proof(gate_token_path,'Capture gate token')
     release_path=Path(release_path)
     release,release_sha256=_read_proof(release_path,'First-step gate-release proof')
     gate_ready_path=release_path.with_name('gate-ready.json')
@@ -435,6 +511,7 @@ def validate_capture_owner_final(active_token,gate_ready,collector_identity,expe
     started=active.get('started_monotonic_ns')
     if (active.get('schema')!='wksim.private-tracefs.capture-active.v1'
             or active.get('state')!='active'
+            or active.get('phase')!='filtered'
             or active.get('run_id')!=gate_ready.get('run_id')
             or active.get('epoch')!=gate_ready.get('epoch')
             or active.get('collector_pid')!=collector_pid
@@ -450,7 +527,32 @@ def validate_capture_owner_final(active_token,gate_ready,collector_identity,expe
     if active.get('instance_owner_sha256')!=owner_sha256:
         raise RuntimeError('Capture owner digest changed after collector retirement')
     released=release.get('released_monotonic_ns')
-    release_published=release.get('capture_active_published_monotonic_ns')
+    bootstrap_gate=gate_token_path!=active_token
+    release_published=release.get('capture_token_published_monotonic_ns',
+                                   release.get('capture_active_published_monotonic_ns'))
+    release_token_sha=release.get('capture_token_sha256',release.get('capture_active_sha256'))
+    release_token_schema=release.get('capture_token_schema',ACTIVE_SCHEMA)
+    if bootstrap_gate:
+        bootstrap_started=gate_token_value.get('started_monotonic_ns')
+        bootstrap_published=gate_token_value.get('published_monotonic_ns')
+        if (gate_token_value.get('schema')!=BOOTSTRAP_SCHEMA
+                or gate_token_value.get('state')!='bootstrap_active'
+                or gate_token_value.get('phase')!='bootstrap_sched_switch'
+                or gate_token_value.get('run_id')!=gate_ready.get('run_id')
+                or gate_token_value.get('epoch')!=gate_ready.get('epoch')
+                or gate_token_value.get('collector_pid')!=collector_pid
+                or gate_token_value.get('collector_start_ticks')!=collector_start
+                or gate_token_value.get('supervisor_pid')!=supervisor_pid
+                or gate_token_value.get('supervisor_start_ticks')!=supervisor_start
+                or gate_token_value.get('instance')!=owner.get('instance')
+                or gate_token_value.get('instance_inode')!=owner.get('instance_inode')
+                or gate_token_value.get('instance_owner_sha256')!=owner_sha256
+                or type(bootstrap_started) is not int or bootstrap_started<=0
+                or type(bootstrap_published) is not int
+                or bootstrap_published<bootstrap_started
+                or bootstrap_published<gate_ready.get('published_monotonic_ns')):
+            raise RuntimeError('Bootstrap gate token identity differs after collector retirement')
+        _validate_instance_owner(owner,gate_token_value,gate_ready,collector_identity,expected_owners)
     if (release.get('schema')!=GATE_RELEASE_SCHEMA
             or release.get('state')!='released'
             or release.get('run_id')!=gate_ready.get('run_id')
@@ -459,31 +561,59 @@ def validate_capture_owner_final(active_token,gate_ready,collector_identity,expe
             or release.get('supervisor_start_ticks')!=supervisor_start
             or release.get('collector_pid')!=collector_pid
             or release.get('collector_start_ticks')!=collector_start
-            or release.get('capture_active_sha256')!=active_sha256
+            or release_token_sha!=(gate_token_sha256 if bootstrap_gate else active_sha256)
+            or release_token_schema!=(BOOTSTRAP_SCHEMA if bootstrap_gate else ACTIVE_SCHEMA)
             or release.get('instance_owner_sha256')!=owner_sha256
             or release.get('gate_ready_sha256')!=gate_ready_sha256
             or release.get('instance')!=owner.get('instance')
             or release.get('instance_inode')!=owner.get('instance_inode')
             or release.get('tick')!=gate_ready.get('tick')
             or type(release_published) is not int or release_published<=0
-            or release_published!=published
+            or release_published!=gate_token_value.get('published_monotonic_ns')
+            or (not bootstrap_gate and release_published!=published)
+            or bootstrap_gate and (published<release_published or started<release_published)
             or type(released) is not int or released<=0
             or released<release_published
             or released<gate_ready.get('published_monotonic_ns')):
         raise RuntimeError('First-step gate-release proof identity differs after collector retirement')
     return dict(owner=owner,sha256=owner_sha256,active_sha256=active_sha256,
-                release_sha256=release_sha256)
+                gate_token_sha256=gate_token_sha256,release_sha256=release_sha256)
 
 
 def validate_capture_started_early(status_path,run_id,epoch,active,*,manager=None,
-                                   collector=None,timeout=CAPTURE_ACTIVE_TIMEOUT_S):
-    """Require the active token and same-epoch status to precede timed tick 40."""
+                                   collector=None,timeout=CAPTURE_ACTIVE_TIMEOUT_S,
+                                   bootstrap=None):
+    """Validate the formal token after the bootstrap gate has released.
+
+    The bootstrap token and gate-release proof own the tick-zero/early-start
+    contract.  A formal filtered token is checked for phase, ownership and
+    strict ordering after bootstrap; it is deliberately not required to land
+    before tick 40.
+    """
     if (active.get('run_id') != run_id or active.get('epoch') != epoch
-            or active.get('state') != 'active'):
+            or active.get('state') != 'active' or active.get('phase') != 'filtered'):
         raise RuntimeError('Capture-active token run/epoch identity differs')
     published=active.get('published_monotonic_ns')
     if (not isinstance(published,int) or isinstance(published,bool) or published<=0):
         raise RuntimeError('Capture-active token publication time is invalid')
+    if bootstrap is not None:
+        if (not isinstance(bootstrap,dict)
+                or bootstrap.get('schema') != BOOTSTRAP_SCHEMA
+                or bootstrap.get('state') != 'bootstrap_active'
+                or bootstrap.get('phase') != 'bootstrap_sched_switch'
+                or bootstrap.get('run_id') != run_id
+                or bootstrap.get('epoch') != epoch):
+            raise RuntimeError('Bootstrap token identity differs from formal capture')
+        bootstrap_published=bootstrap.get('published_monotonic_ns')
+        bootstrap_started=bootstrap.get('started_monotonic_ns')
+        active_started=active.get('started_monotonic_ns')
+        if (not isinstance(bootstrap_published,int) or bootstrap_published<=0
+                or not isinstance(bootstrap_started,int) or bootstrap_started<=0
+                or not isinstance(active_started,int) or active_started<=0
+                or bootstrap_published < bootstrap_started
+                or active_started < bootstrap_published
+                or published <= bootstrap_published):
+            raise RuntimeError('Formal capture token ordering differs from bootstrap')
     deadline=time.monotonic()+timeout
     while time.monotonic()<deadline:
         if manager is not None and manager.poll() is not None:
@@ -508,7 +638,7 @@ def validate_capture_started_early(status_path,run_id,epoch,active,*,manager=Non
                 tick=authority.get('tick')
                 if not isinstance(tick,int) or isinstance(tick,bool) or tick < 0:
                     raise RuntimeError('Post-token status tick is invalid')
-                if tick >= EARLY_CAPTURE_TICK_LIMIT:
+                if bootstrap is None and tick >= EARLY_CAPTURE_TICK_LIMIT:
                     raise RuntimeError('Capture became active at or after timed tick 40')
                 return state
         time.sleep(READY_POLL_S)
@@ -735,6 +865,7 @@ def run(output):
     gate_ready = hook/'gate-ready.json'
     gate_release = hook/'gate-release.json'
     capture_output=output/'capture'
+    bootstrap_token=capture_output/'capture-bootstrap-active.json'
     active_token=capture_output/'capture-active.json'
     hook_source = ROOT/'validation/rate-remediation-ff63c72/sitecustomize.py'
     shutil.copy2(hook_source, hook/'sitecustomize.py')
@@ -759,12 +890,13 @@ def run(output):
             environment = dict(os.environ, WKSIM_JOINT_CPU_TIMING='1', WKSIM_TRACE_RUN=run_id,
                 WKSIM_TRACE_HOOK_OUTPUT=str(hook), WKSIM_TRACE_GATE_READY=str(gate_ready),
                 WKSIM_TRACE_GATE_RELEASE=str(gate_release),
+                WKSIM_TRACE_CAPTURE_BOOTSTRAP_TOKEN=str(bootstrap_token),
                 WKSIM_TRACE_CAPTURE_ACTIVE_TOKEN=str(active_token),
                 PYTHONPATH=str(hook)+os.pathsep+os.environ.get('PYTHONPATH',''))
             result['diagnostic_environment'] = {k:environment[k] for k in (
                 'WKSIM_JOINT_CPU_TIMING','WKSIM_TRACE_RUN','WKSIM_TRACE_HOOK_OUTPUT',
                 'WKSIM_TRACE_GATE_READY','WKSIM_TRACE_GATE_RELEASE',
-                'WKSIM_TRACE_CAPTURE_ACTIVE_TOKEN','PYTHONPATH')}
+                'WKSIM_TRACE_CAPTURE_BOOTSTRAP_TOKEN','WKSIM_TRACE_CAPTURE_ACTIVE_TOKEN','PYTHONPATH')}
             manager = subprocess.Popen(command, cwd=ROOT, env=environment,
                 stdout=service, stderr=subprocess.STDOUT, start_new_session=True)
             result['manager'] = json_identity(manager.pid)
@@ -777,17 +909,26 @@ def run(output):
                     pass
             write_json(output/'launch.json', result)
             deadline = time.monotonic()+180
+            child_owners=None
             while True:
                 if manager.poll() is not None: raise RuntimeError('Manager exited before native targets were ready')
                 if time.monotonic() >= deadline: raise TimeoutError('Native target startup')
                 status_path = directory/'status.json'
                 if status_path.exists():
                     state = json.loads(status_path.read_text())
+                    authority=state.get('authority',{})
+                    if (state.get('phase') in ('faulted','stopped')
+                            or isinstance(authority,dict) and authority.get('phase') in ('faulted','stopped')):
+                        result['startup_readiness']=publish_startup_readiness(
+                            output/'startup-readiness.json',state,child_owners)
+                        result['startup_authority']=state
+                        raise RuntimeError('Native target startup authority '+str(
+                            state.get('phase') or authority.get('phase')))
                     child_path = directory/'epochs'/state['epoch']/'children.json'
                     if child_path.exists():
                         children = json.loads(child_path.read_text())
                         child_owners=complete_child_ownership(children,state.get('supervisor'))
-                        if child_owners is not None and fc_threads_ready(children):
+                        if child_owners is not None:
                             if os.name=='posix':
                                 save_manager_group_snapshot(manager,result)
                             break
@@ -796,12 +937,12 @@ def run(output):
                           px4_worker=child_owners['px4-model'], supervisor=state['supervisor'],
                           ap_fc=child_owners['arducopter-fc'],px4_fc=child_owners['px4-fc'])
             result.update(epoch=state['epoch'], owners=owners, capture_start_state=state)
-            result['gate_ready'] = wait_gate_ready(gate_ready,run_id,state['epoch'],
-                owners['supervisor'],manager=manager)
             argv = [sys.executable, '-B', str(COLLECTOR), '--boot-id', result['boot_id'],
                     '--run-id', run_id, '--epoch', state['epoch'], '--duration', '10',
                     '--map-comm',
+                    '--capture-bootstrap-token', str(bootstrap_token),
                     '--capture-active-token', str(active_token),
+                    '--capture-gate-release', str(gate_release),
                     '--output', str(capture_output)]
             for role, identity in owners.items():
                 argv += ['--'+role.replace('_', '-'), f"{identity['pid']}:{identity['start_ticks']}"]
@@ -810,20 +951,32 @@ def run(output):
                 stderr=subprocess.STDOUT, start_new_session=True)
             result['collector'] = json_identity(collector.pid)
             write_json(output/'capture-launch.json', result)
+            result['capture_bootstrap'] = wait_capture_active(
+                bootstrap_token,collector,run_id,state['epoch'],manager=manager,
+                collector_identity=result['collector'],supervisor_identity=owners['supervisor'],
+                expected_owners=owners,token_schema=BOOTSTRAP_SCHEMA,
+                token_state='bootstrap_active',token_phase='bootstrap_sched_switch')
+            result['gate_ready'] = wait_gate_ready(gate_ready,run_id,state['epoch'],
+                owners['supervisor'],manager=manager)
+            result['startup_readiness']=publish_startup_readiness(
+                output/'startup-readiness.json',state,owners,result['gate_ready'])
+            result['gate_release'] = wait_gate_release(
+                gate_release,result['gate_ready'],bootstrap_token,run_id,state['epoch'],collector,
+                manager=manager,collector_identity=result['collector'],expected_owners=owners,
+                token_schema=BOOTSTRAP_SCHEMA,token_state='bootstrap_active',
+                token_phase='bootstrap_sched_switch')
             result['capture_active'] = wait_capture_active(
                 active_token,collector,run_id,state['epoch'],manager=manager,
                 collector_identity=result['collector'],supervisor_identity=owners['supervisor'],
-                expected_owners=owners)
-            result['gate_release'] = wait_gate_release(
-                gate_release,result['gate_ready'],active_token,run_id,state['epoch'],collector,
-                manager=manager,collector_identity=result['collector'],expected_owners=owners)
+                expected_owners=owners,token_phase='filtered')
             result['capture_active_status'] = validate_capture_started_early(
                 directory/'status.json',run_id,state['epoch'],result['capture_active'],
-                manager=manager,collector=collector)
+                manager=manager,collector=collector,bootstrap=result['capture_bootstrap'])
             collector.wait(timeout=40)
             result['collector_returncode'] = collector.returncode
             result['capture_owner_final'] = validate_capture_owner_final(
-                active_token,result['gate_ready'],result['collector'],owners,gate_release)
+                active_token,result['gate_ready'],result['collector'],owners,gate_release,
+                gate_token=bootstrap_token)
             result['capture'] = json.loads((output/'capture/metadata.json').read_text())
             result['last_observation'] = json.loads((directory/'status.json').read_text())
     except (Exception, KeyboardInterrupt) as error:

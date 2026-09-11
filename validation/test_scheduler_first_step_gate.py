@@ -22,19 +22,19 @@ def load_hook():
 
 
 class FirstStepGateTests(unittest.TestCase):
-    def test_hook_publishes_tick_zero_release_bound_to_active_token(self):
+    def test_hook_publishes_tick_zero_release_bound_to_bootstrap_token(self):
         hook = load_hook()
         epoch = 'a'*32
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp); capture = root/'capture'; capture.mkdir()
             ready = root/'gate-ready.json'; release = root/'gate-release.json'
-            token = capture/'capture-active.json'
+            token = capture/'capture-bootstrap-active.json'
             owner = dict(schema='wksim.private-tracefs.instance-owner.v1',
                          collector_pid=456, collector_start_ticks=457,
                          supervisor_pid=os.getpid(), supervisor_start_ticks=789,
                          instance='/sys/kernel/tracing/instances/wksim-rate-'+epoch,
                          instance_inode=[1, 2], run_id='run', epoch=epoch)
-            active = dict(schema='wksim.private-tracefs.capture-active.v1',state='active',
+            active = dict(schema='wksim.private-tracefs.capture-bootstrap-active.v1',state='bootstrap_active',phase='bootstrap_sched_switch',
                           collector_pid=456, collector_start_ticks=457,
                           supervisor_pid=os.getpid(), supervisor_start_ticks=789,
                           instance=owner['instance'], instance_inode=[1, 2],
@@ -50,7 +50,8 @@ class FirstStepGateTests(unittest.TestCase):
             try:
                 os.environ.update(WKSIM_TRACE_GATE_READY=str(ready),
                                   WKSIM_TRACE_GATE_RELEASE=str(release),
-                                  WKSIM_TRACE_CAPTURE_ACTIVE_TOKEN=str(token))
+                                  WKSIM_TRACE_CAPTURE_BOOTSTRAP_TOKEN=str(token),
+                                  WKSIM_TRACE_CAPTURE_ACTIVE_TOKEN=str(capture/'capture-active.json'))
                 frame = SimpleNamespace(f_locals={'self': SimpleNamespace(clock=SimpleNamespace(tick=0))})
                 with patch.object(hook, '_self_start_ticks', return_value=789):
                     hook._first_step_gate(frame)
@@ -66,14 +67,54 @@ class FirstStepGateTests(unittest.TestCase):
             self.assertEqual(release_value['supervisor_start_ticks'], 789)
             self.assertEqual(release_value['instance_owner_sha256'],
                              active['instance_owner_sha256'])
-            self.assertEqual(release_value['capture_active_sha256'],
+            self.assertEqual(release_value['capture_token_sha256'],
                              hashlib.sha256(token.read_bytes()).hexdigest())
+            self.assertEqual(release_value['capture_token_schema'], active['schema'])
 
     def test_hook_fails_closed_when_first_step_is_not_tick_zero(self):
         hook = load_hook()
         frame = SimpleNamespace(f_locals={'self': SimpleNamespace(clock=SimpleNamespace(tick=1))})
         with self.assertRaisesRegex(RuntimeError, 'requires clock tick 0'):
             hook._first_step_gate(frame)
+
+    def test_hook_accepts_bootstrap_token_and_labels_release_boundary(self):
+        hook = load_hook()
+        epoch='a'*32
+        with tempfile.TemporaryDirectory() as temp:
+            root=Path(temp); capture=root/'capture'; capture.mkdir()
+            ready=root/'gate-ready.json'; release=root/'gate-release.json'
+            token=capture/'capture-bootstrap-active.json'
+            owner=dict(schema='wksim.private-tracefs.instance-owner.v1',collector_pid=456,
+                       collector_start_ticks=457,supervisor_pid=os.getpid(),supervisor_start_ticks=789,
+                       instance='/sys/kernel/tracing/instances/wksim-rate-'+epoch,
+                       instance_inode=[1,2],run_id='run',epoch=epoch)
+            owner_path=capture/'instance-owner.json'; owner_path.write_text(json.dumps(owner))
+            payload=dict(schema='wksim.private-tracefs.capture-bootstrap-active.v1',
+                         state='bootstrap_active',phase='bootstrap_sched_switch',collector_pid=456,
+                         collector_start_ticks=457,supervisor_pid=os.getpid(),supervisor_start_ticks=789,
+                         instance=owner['instance'],instance_inode=[1,2],run_id='run',epoch=epoch,
+                         started_monotonic_ns=100,published_monotonic_ns=200,
+                         instance_owner_sha256=hashlib.sha256(owner_path.read_bytes()).hexdigest())
+            token.write_text(json.dumps(payload,sort_keys=True)+'\n')
+            hook.run_id,hook.epoch='run',epoch
+            previous=os.environ.copy()
+            try:
+                os.environ.update(WKSIM_TRACE_GATE_READY=str(ready),WKSIM_TRACE_GATE_RELEASE=str(release),
+                                  WKSIM_TRACE_CAPTURE_BOOTSTRAP_TOKEN=str(token),
+                                  WKSIM_TRACE_CAPTURE_ACTIVE_TOKEN=str(capture/'capture-active.json'))
+                frame=SimpleNamespace(f_locals={'self':SimpleNamespace(clock=SimpleNamespace(tick=0))})
+                with patch.object(hook,'_self_start_ticks',return_value=789):hook._first_step_gate(frame)
+            finally:
+                os.environ.clear();os.environ.update(previous)
+            value=json.loads(release.read_text())
+            self.assertEqual(value['capture_token_schema'],payload['schema'])
+            self.assertEqual(value['capture_token_sha256'],hashlib.sha256(token.read_bytes()).hexdigest())
+
+    def test_hook_requires_bootstrap_token_for_tick_zero_release(self):
+        hook = load_hook()
+        with self.assertRaisesRegex(RuntimeError, 'requires a bootstrap capture token'):
+            hook._first_step_gate(SimpleNamespace(
+                f_locals={'self':SimpleNamespace(clock=SimpleNamespace(tick=0))}))
 
     def test_hook_rejects_active_state_and_publication_time_tamper(self):
         hook = load_hook()
@@ -92,7 +133,7 @@ class FirstStepGateTests(unittest.TestCase):
                          run_id='run', epoch=epoch, pid=os.getpid(), start_ticks=789,
                          tick=0, published_monotonic_ns=100)
             def write_active(state='active', published=200):
-                active = dict(schema='wksim.private-tracefs.capture-active.v1', state=state,
+                active = dict(schema='wksim.private-tracefs.capture-active.v1', state=state, phase='filtered',
                               collector_pid=456, collector_start_ticks=457,
                               supervisor_pid=os.getpid(), supervisor_start_ticks=789,
                               instance=owner['instance'], instance_inode=[1, 2],

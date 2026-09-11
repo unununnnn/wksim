@@ -94,7 +94,7 @@ def _self_start_ticks():
 
 
 def _capture_active(token, gate_ready):
-    """Read and bind the collector's complete token and instance owner proof."""
+    """Read and bind either the bootstrap or filtered collector token."""
     token = Path(token)
     raw = token.read_bytes()
     active = json.loads(raw)
@@ -102,8 +102,10 @@ def _capture_active(token, gate_ready):
     owner_raw = owner_path.read_bytes()
     owner = json.loads(owner_raw)
     owner_sha256 = hashlib.sha256(owner_raw).hexdigest()
-    if (not isinstance(active, dict) or active.get('schema') != 'wksim.private-tracefs.capture-active.v1'
-            or active.get('state') != 'active'
+    token_state = {'wksim.private-tracefs.capture-active.v1':('active','filtered'),
+                   'wksim.private-tracefs.capture-bootstrap-active.v1':('bootstrap_active','bootstrap_sched_switch')}
+    if (not isinstance(active, dict) or active.get('schema') not in token_state
+            or (active.get('state'),active.get('phase')) != token_state.get(active.get('schema'))
             or active.get('run_id') != run_id or active.get('epoch') != epoch
             or not isinstance(owner, dict)
             or owner.get('schema') != 'wksim.private-tracefs.instance-owner.v1'
@@ -144,10 +146,13 @@ def _first_step_gate(frame):
     tick = getattr(clock, 'tick', None)
     if tick != 0:
         raise RuntimeError('Diagnostic first-step gate requires clock tick 0')
-    start_ticks = _self_start_ticks()
+    bootstrap_name = os.environ.get('WKSIM_TRACE_CAPTURE_BOOTSTRAP_TOKEN')
+    if not bootstrap_name:
+        raise RuntimeError('First-step gate requires a bootstrap capture token')
     gate_ready = Path(os.environ['WKSIM_TRACE_GATE_READY'])
     gate_release = Path(os.environ['WKSIM_TRACE_GATE_RELEASE'])
-    active_token = Path(os.environ['WKSIM_TRACE_CAPTURE_ACTIVE_TOKEN'])
+    active_token = Path(bootstrap_name)
+    start_ticks = _self_start_ticks()
     ready = dict(schema='wksim.private-tracefs.capture-gate-ready.v1', state='ready',
                  run_id=run_id, epoch=epoch, pid=os.getpid(), start_ticks=start_ticks, tick=tick,
                  published_monotonic_ns=time.monotonic_ns())
@@ -172,11 +177,12 @@ def _first_step_gate(frame):
                     supervisor_start_ticks=start_ticks,
                     collector_pid=active['collector_pid'],
                     collector_start_ticks=active['collector_start_ticks'],
-                    capture_active_sha256=token_sha256,
+                    capture_token_sha256=token_sha256,
+                    capture_token_schema=active['schema'],
                     instance_owner_sha256=owner_sha256,
                     instance=active['instance'], instance_inode=active['instance_inode'],
                     gate_ready_sha256=hashlib.sha256(gate_ready.read_bytes()).hexdigest(),
-                    tick=tick, capture_active_published_monotonic_ns=active['published_monotonic_ns'],
+                    tick=tick, capture_token_published_monotonic_ns=active['published_monotonic_ns'],
                     released_monotonic_ns=released_monotonic_ns)
     _exclusive_json(gate_release, released)
 
