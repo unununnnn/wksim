@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "status": "rate_failed_and_retired",
+  "run_id": "joint-public-flight-tpwl1k4p",
+  "scene_epoch": "e5c32b2cc92d41b9afa38096489f7bda",
+  "task_profile": "full_xyz_pv_yaw_v1",
+  "archive": "validation/joint-public-flight-tpwl1k4p",
+  "raw_file_count": 284,
+  "raw_bytes": 181496303,
+  "wall_seconds": 120.15706886800001,
+  "admission": {
+    "ok": true,
+    "children_created": 0,
+    "ap_manifest_sha256": "1e6250eff8873d6b2e52017b613c223ac29f8260fdf92aac2cf0c7cdcc6ce94c",
+    "control_manifest_sha256": "a6a17b42f92cf6df4b92fe36b6e1e65f6e4e42f684daac4113091591a1802346",
+    "message_manifest_sha256": "29969da0702451e3fc6f1de40bc301a67284c4e7d5fae8f88c64773d27a96219"
+  },
+  "rate_failure": {
+    "reason": "resource_insufficient",
+    "tick": 26636,
+    "time_ns": 26636000000,
+    "requested_rate": 0.5,
+    "lateness_ns": 100038885,
+    "worst_lateness_ns": 100038885,
+    "measured_rate": 0.499096932366686,
+    "completed_groups": 6649,
+    "anchor_tick": 40,
+    "strict_threshold_ns": 100000000
+  },
+  "completion": {
+    "flight_completed": false,
+    "tasks_completed": false,
+    "control_shutdown_clean": true,
+    "cleanup_errors": [],
+    "unowned_process_inventory_unchanged": true,
+    "message_candidate_unchanged": true,
+    "source_unchanged": true,
+    "remaining_matching_processes": 0
+  },
+  "async_model_evidence": {
+    "requested": true,
+    "writer_summaries_complete": false,
+    "error": "Both model evidence writer summaries are required",
+    "truth_stream_bytes_each": 35192832,
+    "truth_stream_sha256_each": "cfc26fee6a79bc4e7a142275373399f9b714d468cbac04e2e3a8ee2bf57360c5"
+  },
+  "offline_audit": {
+    "status": "failed",
+    "path": "validation/83-final-pv-tpwl1k4p-audit.json",
+    "sha256": "ca0b9f6b3f1debecc8dea0c1de3382ae55bcc880b2b969c51f380d453c7f62a4",
+    "outstanding_checks": true
+  },
+  "retained_sha256": {
+    "result.json": "bcd8d67da6e7e473f855bcae17fc998bc432cf1cb40b5cd5d228f2ad40e16662",
+    "rate.jsonl": "41b1e2a6bc57749a0500d3b067f38e8a8200ad92b8d08e369d0c651d2fbc31e7",
+    "experimental-admission.json": "99166a239c85a17f216f497649b8053fc9f5178878f6fad1b68e52223be676d8",
+    "ap-build.json": "1e6250eff8873d6b2e52017b613c223ac29f8260fdf92aac2cf0c7cdcc6ce94c",
+    "control-build.json": "a6a17b42f92cf6df4b92fe36b6e1e65f6e4e42f684daac4113091591a1802346",
+    "message-build.json": "29969da0702451e3fc6f1de40bc301a67284c4e7d5fae8f88c64773d27a96219"
+  },
+  "production_admitted": false,
+  "flown": false,
+  "scope": "Retained failure evidence only; no task, flight, rate, profile, or production acceptance"
+}
