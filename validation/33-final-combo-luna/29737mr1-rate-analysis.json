@@ -1,0 +1,75 @@
+{
+  "schema": "wksim.final-combo-rate-failure.v1",
+  "run_id": "joint-public-flight-29737mr1",
+  "runner_commit": "b45aae8",
+  "scene_epoch": "d672372a257a4dc3abd56f392c6137cb",
+  "result_sha256": "f5d913303a5ac3eefbf3a17ba340935a95d6d0a3593cff80917f30bb1fa97e37",
+  "rate_sha256": "c61e2da9fee5c24ad9a26a520189a1ad1f5a75b9567de6285ee19ea1f1aeba78",
+  "clock_sha256": "8e7ce9b6a4fff8683d96097cb2d9158b70fcb580d9139bcbb43b3a7d97d87d27",
+  "joint_wire_sha256": "0108568d907b74946b5e6ef4b229126505ea5d98bd264180cce323279dadde74",
+  "manifests": {
+    "ap": "1e6250eff8873d6b2e52017b613c223ac29f8260fdf92aac2cf0c7cdcc6ce94c",
+    "control": "060f9677ed9ba2234c16fa7543319014cd3bb335f480af562780d79772be4080",
+    "message": "29969da0702451e3fc6f1de40bc301a67284c4e7d5fae8f88c64773d27a96219"
+  },
+  "model": {
+    "library_sha256": "e59ab914e3ff8225ff303e05a885f8fa1eaedb05a95443f097920ca60a7f1c0b",
+    "build_manifest_sha256": "f254b90ef53cbb5d6e034b7b58facd499f2073ee68bb1a509020108e3dbf2a24"
+  },
+  "failure": {
+    "tick": 89988,
+    "lateness_ns": 100090024,
+    "requested_rate": 0.5,
+    "measured_rate": 0.4997328152096779,
+    "completed_groups": 22487,
+    "strict_threshold_ns": 100000000,
+    "threshold_excess_ns": 90024
+  },
+  "interval_attribution": {
+    "path": "validation/33-final-combo-luna/29737mr1-rate-intervals.json",
+    "sha256": "0c55cf3f0e1731de41704b811614bd4598192b8ba622f8e66c5ed3a171e771ff",
+    "intervals": 22486,
+    "creep_total_ns": 99810473,
+    "work_over_total_ns": 41637901,
+    "release_excess_total_ns": 58172572
+  },
+  "task_boundary": {
+    "arducopter_leg_1_reference_samples": 120,
+    "px4_leg_1_reference_samples": 120,
+    "arducopter_leg_2_reference_samples": 51,
+    "px4_leg_2_reference_samples": 51,
+    "leg_1_endpoint_and_stop_holds_completed": true,
+    "leg_2_endpoint_prepared": false,
+    "land_completed": false
+  },
+  "async_model_evidence": {
+    "requested": true,
+    "model_runtime_import_fix_exercised": true,
+    "writer_sidecars_present": false,
+    "explanation": "The rate fault terminated both model workers before normal EOF, so neither writer completion sidecar was published."
+  },
+  "cleanup": {
+    "control_shutdown_clean": true,
+    "owned_groups": 10,
+    "remaining_group_members": 0,
+    "cleanup_errors": [],
+    "task_returncodes": {
+      "arducopter": 1,
+      "px4": 1
+    }
+  },
+  "audit": {
+    "path": "validation/33-final-combo-luna/29737mr1-audit.json",
+    "sha256": "1878b898f92de95411859ed64368ad5a617477f8a2a451752a172d8fc16bd070",
+    "status": "failed",
+    "error": "Both model evidence writer summaries are required"
+  },
+  "archive": {
+    "members": 293,
+    "bytes": 103564045,
+    "parts": 4,
+    "sha256": "0db58d12632a9c3f732d475abe6106690bd9043a1d4fb28b429a037dbea5cb01",
+    "recombined_match": true
+  },
+  "limitations": "The strict cumulative lateness gate fired before the second P+V endpoint and LAND. The run and formal audit are non-PASS; without a timing probe, interval categories do not establish a CPU, DDS, storage, or scheduler cause."
+}
