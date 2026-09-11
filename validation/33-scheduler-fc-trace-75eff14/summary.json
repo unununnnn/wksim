@@ -1,0 +1,147 @@
+{
+  "schema": "wksim.scheduler-fc-trace-summary.v1",
+  "status": "diagnostic_captured_and_retired",
+  "acceptance_eligible": false,
+  "source_commit": "75eff14893d33d3dcd4f78084aade8bdb60db33f",
+  "source_directory": "/root/wksim-scheduler-probe-75eff14-01",
+  "run_id": "scheduler-5fcc2ecfd454",
+  "epoch": "d3ea3e617ea841d09d5280c42d9deede",
+  "capture": {
+    "status": "diagnostic_window_captured",
+    "requested_duration_s": 10.0,
+    "elapsed_s": 10.000323148,
+    "complete": true,
+    "loss_free": true,
+    "errors": [],
+    "private_instance_removed": true,
+    "global_controls_unchanged": true,
+    "trace_bytes": 45136380,
+    "trace_sha256": "13ba41545629621aeafe141c7d36bce8d7728bad54ded6270a505159124982c5",
+    "mapping_method": "owned local task inventory plus unique comm observed in private sched_switch events",
+    "mapped_roles": [
+      "ap_worker",
+      "px4_worker",
+      "supervisor",
+      "ap_fc/arducopter",
+      "ap_fc/log_io",
+      "ap_fc/DDS",
+      "px4_fc/sim_send",
+      "px4_fc/logger",
+      "px4_fc/wq:lp_default"
+    ],
+    "mapping_limitation": "FC kernel TID ownership relied on a uniquely named thread being scheduled during a separate mapping window. The trace started only after that mapping, so early rate spikes were outside the capture window."
+  },
+  "rate": {
+    "requested_rate": 1.0,
+    "late_limit_ns": 100000000,
+    "rate_log_sha256": "bc23b1cfc27a082ea1c456fdc3da577fd1eeaaa7f457db02a2f527fbd71c6bed",
+    "groups": 3934,
+    "first_tick": 40,
+    "last_tick": 15776,
+    "wall_duration_ns": 15822110365,
+    "group_duration_median_ns": 3061358.0,
+    "group_duration_p99_ns": 3993087,
+    "group_duration_max_ns": 14624236,
+    "groups_over_4ms": 39,
+    "phase_first_ns": 18494,
+    "phase_last_ns": 87154593,
+    "summed_positive_phase_increment_ns": 87136099,
+    "preceding_group_excess_sum_ns": 44664590,
+    "top_phase_spikes": [
+      {
+        "tick": 5504,
+        "phase_increment_ns": 10692813,
+        "preceding_group_excess_ns": 10624236,
+        "residual_release_delay_ns": 68577,
+        "inside_capture": false
+      },
+      {
+        "tick": 1928,
+        "phase_increment_ns": 9129197,
+        "preceding_group_excess_ns": 9088804,
+        "residual_release_delay_ns": 40393,
+        "inside_capture": false
+      },
+      {
+        "tick": 2000,
+        "phase_increment_ns": 5830800,
+        "preceding_group_excess_ns": 5093132,
+        "residual_release_delay_ns": 737668,
+        "inside_capture": false
+      },
+      {
+        "tick": 1936,
+        "phase_increment_ns": 4552243,
+        "preceding_group_excess_ns": 4490909,
+        "residual_release_delay_ns": 61334,
+        "inside_capture": false
+      },
+      {
+        "tick": 4272,
+        "phase_increment_ns": 3543936,
+        "preceding_group_excess_ns": 3085567,
+        "residual_release_delay_ns": 458369,
+        "inside_capture": false
+      }
+    ]
+  },
+  "largest_group": {
+    "tick": 5504,
+    "duration_ns": 14624236,
+    "native_inputs_wall_ns": 10435053,
+    "native_inputs_thread_cpu_ns": 1217805,
+    "inside_capture": false
+  },
+  "inside_capture_native_waits": {
+    "recorded_samples": 40,
+    "excluded_boundary_samples": 44,
+    "over_2ms": 0,
+    "ap_input_only": {
+      "samples": 20,
+      "median_ns": 158340.0,
+      "maximum_ns": 410492
+    },
+    "ap_then_px4": {
+      "samples": 20,
+      "median_ns": 268031.5,
+      "maximum_ns": 617686
+    },
+    "separate_native_paths": {
+      "arducopter": {
+        "recorded_samples": 40,
+        "maximum_ns": 454474
+      },
+      "px4": {
+        "recorded_samples": 20,
+        "maximum_ns": 377987
+      }
+    }
+  },
+  "inside_capture_fc_storage": {
+    "ap_fc/log_io": {
+      "write_calls": 105,
+      "write_median_ns": 10000,
+      "write_p99_ns": 46000,
+      "write_maximum_ns": 68000,
+      "writes_over_1ms": 0,
+      "fsync_calls": 0,
+      "fdatasync_calls": 0
+    },
+    "px4_fc/logger": {
+      "write_calls": 0,
+      "fsync_calls": 0,
+      "fdatasync_calls": 0
+    }
+  },
+  "cleanup": {
+    "manager_returncode": 0,
+    "remaining_manager_group": [],
+    "epoch_groups_retired": true,
+    "sources_unchanged": true
+  },
+  "analyzers": {
+    "scheduler_sha256": "0e405ffe5eb76ed34ebeccb5ae51753068817a8735f2f6531d808b138b456c8d",
+    "native_inputs_sha256": "c4d5fd96b78bbf9d2e93f5ed0151f4285c79cd7e3f53670ab3c8188358422ee5"
+  },
+  "conclusion": "The first five-owner FC trace completed cleanly and reproduced no storage or native-input stall inside its 10-second capture window. The largest early stalls occurred before the comm-based kernel-TID mapping completed, so this run identifies a measurement-start gap and does not identify a hot-path cause or satisfy rate acceptance."
+}
