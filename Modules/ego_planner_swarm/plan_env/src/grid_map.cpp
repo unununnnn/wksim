@@ -932,6 +932,9 @@ Eigen::Vector3d GridMap::closetPointInMap(const Eigen::Vector3d &pt, const Eigen
 // 紧接着，对局部地图的occupancy_buffer中所有点的值进行一一判断，判断是否超过为障碍物的最低概率mp_.min_occupancy_log_，如若判断，就对该点进行膨胀，并将所有膨胀点的occupancy_buffer_inflate值全部置为1；
 void GridMap::clearAndInflateLocalMap()
 {
+  const int inf_step = checkedInflationSteps(mp_.obstacles_inflation_, mp_);
+  if (inf_step < 0)
+    return;
   /*clear outside local*/
   const int vec_margin = 5;
   // Eigen::Vector3i min_vec_margin = min_vec - Eigen::Vector3i(vec_margin,
@@ -1011,10 +1014,11 @@ void GridMap::clearAndInflateLocalMap()
 
   // inflate occupied voxels to compensate robot size
 
-  int inf_step = ceil(mp_.obstacles_inflation_ / mp_.resolution_);
-  // int inf_step_z = 1;
+  // Three-axis inflation uses ONE shared, bounded step count
+  // (checkedInflationSteps, <= 32 steps/axis so the candidate cube stays <=
+  // 65^3), identical to cloudCallback.  Fail-closed: invalid inflation
+  // geometry leaves the local map untouched.
   vector<Eigen::Vector3i> inf_pts(pow(2 * inf_step + 1, 3));
-  // inf_pts.resize(4 * inf_step + 3);
   Eigen::Vector3i inf_pt;
 
   // clear outdated data
@@ -1038,12 +1042,12 @@ void GridMap::clearAndInflateLocalMap()
           for (int k = 0; k < (int)inf_pts.size(); ++k)
           {
             inf_pt = inf_pts[k];
-            int idx_inf = toAddress(inf_pt);
-            if (idx_inf < 0 ||
-                idx_inf >= mp_.map_voxel_num_(0) * mp_.map_voxel_num_(1) * mp_.map_voxel_num_(2))
-            {
+            // Per-axis bounds BEFORE toAddress: a flat-address range check can
+            // alias an out-of-range axis onto a valid flat index (a z overflow
+            // shifts into the next y row), so validate each axis.
+            if (!isInMap(inf_pt))
               continue;
-            }
+            const int idx_inf = toAddress(inf_pt);
             md_.occupancy_buffer_inflate_[idx_inf] = 1;
           }
         }
@@ -1174,148 +1178,12 @@ void GridMap::odomCallback(const nav_msgs::OdometryConstPtr &odom)
 
 void GridMap::scanCallback(const sensor_msgs::LaserScanConstPtr &laser_scan)
 {
-  // 弃用
+  // Deprecated input path: subscribed for topic compatibility but the scan
+  // pipeline is disabled.  The previous unreachable body hard-coded a divergent
+  // 20-voxel z inflation; it is removed so scan cannot carry a third inflation
+  // semantic.  This callback stays a no-op and does not enable scan mapping.
+  (void)laser_scan;
   return;
-  // 参考网页:http://wiki.ros.org/laser_geometry
-  // sensor_msgs::LaserScan 转为 sensor_msgs::PointCloud2 格式
-  laser_geometry::LaserProjection projector_;
-  sensor_msgs::PointCloud2 input_laser_scan;
-  projector_.projectLaser(*laser_scan, input_laser_scan);
-  // 再由sensor_msgs::PointCloud2 转为 pcl::PointCloud<pcl::PointXYZ>
-  pcl::PointCloud<pcl::PointXYZ> input_point_cloud,latest_cloud;
-  // 此时input_point_cloud是机体系，需要的是latest_cloud（惯性系）
-  pcl::fromROSMsg(input_laser_scan, input_point_cloud);
-
-  // 去掉自身附近的点
-  // pcl::PointXYZ point_body;
-  // Eigen::Vector3d point_body_vector;
-  // for (size_t i = 0; i < input_point_cloud.points.size(); ++i)
-  // {
-  //   point_body = input_point_cloud.points[i];
-  //   point_body_vector(0) = pt.x, point_body_vector(1) = pt.y, point_body_vector(2) = pt.z;
-  //   // 自身范围设定为50cm（暂定）
-  //   if(point_body_vector.norm() < 0.5)
-  //   {
-
-  //   }
-  // }
-
-  md_.has_cloud_ = true;
-
-  if (!md_.has_odom_)
-  {
-    std::cout << "no odom!" << std::endl;
-    return;
-  }
-
-    // 从odom中取得6DOF
-    double x, y, z, roll, pitch, yaw;
-    // 平移（xyz）
-    x = odom_uav.pose.pose.position.x;
-    y = odom_uav.pose.pose.position.y;
-    z = odom_uav.pose.pose.position.z;
-    // 旋转（从四元数到欧拉角）
-    tf::Quaternion orientation;
-    tf::quaternionMsgToTF(odom_uav.pose.pose.orientation, orientation);
-    tf::Matrix3x3(orientation).getRPY(roll, pitch, yaw);
-
-    pcl::transformPointCloud(input_point_cloud, latest_cloud, pcl::getTransformation(x, y, z, 0.0, 0.0, yaw));
-
-
-  if (latest_cloud.points.size() == 0)
-    return;
-
-  if (isnan(md_.camera_pos_(0)) || isnan(md_.camera_pos_(1)) || isnan(md_.camera_pos_(2)))
-    return;
-
-  this->resetBuffer(md_.camera_pos_ - mp_.local_update_range_,
-                    md_.camera_pos_ + mp_.local_update_range_);
-
-  pcl::PointXYZ pt;
-  Eigen::Vector3d p3d, p3d_inf;
-
-  int inf_step = ceil(mp_.obstacles_inflation_ / mp_.resolution_);
-  int inf_step_z = 20;
-
-  double max_x, max_y, max_z, min_x, min_y, min_z;
-
-  min_x = mp_.map_max_boundary_(0);
-  min_y = mp_.map_max_boundary_(1);
-  min_z = mp_.map_max_boundary_(2);
-
-  max_x = mp_.map_min_boundary_(0);
-  max_y = mp_.map_min_boundary_(1);
-  max_z = mp_.map_min_boundary_(2);
-
-
-  for (size_t i = 0; i < latest_cloud.points.size(); ++i)
-  {
-    pt = latest_cloud.points[i];
-    p3d(0) = pt.x, p3d(1) = pt.y, p3d(2) = pt.z;
-
-    /* point inside update range */
-    Eigen::Vector3d devi = p3d - md_.camera_pos_;
-    Eigen::Vector3i inf_pt;
-
-    if (fabs(devi(0)) < mp_.local_update_range_(0) && fabs(devi(1)) < mp_.local_update_range_(1) &&
-        fabs(devi(2)) < mp_.local_update_range_(2))
-    {
-      /* inflate the point */
-      for (int x = -inf_step; x <= inf_step; ++x)
-        for (int y = -inf_step; y <= inf_step; ++y)
-          for (int z = -inf_step_z; z <= inf_step_z; ++z)
-          {
-
-            p3d_inf(0) = pt.x + x * mp_.resolution_;
-            p3d_inf(1) = pt.y + y * mp_.resolution_;
-            p3d_inf(2) = pt.z + z * mp_.resolution_;
-
-            max_x = max(max_x, p3d_inf(0));
-            max_y = max(max_y, p3d_inf(1));
-            max_z = max(max_z, p3d_inf(2));
-
-            min_x = min(min_x, p3d_inf(0));
-            min_y = min(min_y, p3d_inf(1));
-            min_z = min(min_z, p3d_inf(2));
-
-            posToIndex(p3d_inf, inf_pt);
-
-            if (!isInMap(inf_pt))
-              continue;
-
-            int idx_inf = toAddress(inf_pt);
-
-            md_.occupancy_buffer_inflate_[idx_inf] = 1;
-          }
-    }
-  }
-
-
-  min_x = min(min_x, md_.camera_pos_(0));
-  min_y = min(min_y, md_.camera_pos_(1));
-  min_z = min(min_z, md_.camera_pos_(2));
-
-  max_x = max(max_x, md_.camera_pos_(0));
-  max_y = max(max_y, md_.camera_pos_(1));
-  max_z = max(max_z, md_.camera_pos_(2));
-
-  max_z = max(max_z, mp_.ground_height_);
-
-  posToIndex(Eigen::Vector3d(max_x, max_y, max_z), md_.local_bound_max_);
-  posToIndex(Eigen::Vector3d(min_x, min_y, min_z), md_.local_bound_min_);
-
-  boundIndex(md_.local_bound_min_);
-  boundIndex(md_.local_bound_max_);
-
-  // add virtual ceiling to limit flight height
-  if (mp_.virtual_ceil_height_ > -0.5) {
-    int ceil_id = floor((mp_.virtual_ceil_height_ - mp_.map_origin_(2)) * mp_.resolution_inv_) - 1;
-    for (int x = md_.local_bound_min_(0); x <= md_.local_bound_max_(0); ++x)
-      for (int y = md_.local_bound_min_(1); y <= md_.local_bound_max_(1); ++y) {
-        md_.occupancy_buffer_inflate_[toAddress(x, y, ceil_id)] = 1;
-      }
-  }
-
 }
 
 void GridMap::cloudCallback(const sensor_msgs::PointCloud2ConstPtr &img)
@@ -1340,20 +1208,27 @@ void GridMap::cloudCallback(const sensor_msgs::PointCloud2ConstPtr &img)
   }else{
     stop_publishMapInflate = false;
   }
-  if (isnan(md_.camera_pos_(0)) || isnan(md_.camera_pos_(1)) || isnan(md_.camera_pos_(2)))
+  if (!md_.camera_pos_.allFinite() || !mp_.map_min_boundary_.allFinite() ||
+      !mp_.map_max_boundary_.allFinite() || !mp_.local_update_range_.allFinite() ||
+      (mp_.local_update_range_.array() < 0.0).any() || !isInMap(md_.camera_pos_))
+    return;
+
+  const int inf_step = checkedInflationSteps(mp_.obstacles_inflation_, mp_);
+  if (inf_step < 0)
     return;
 
   // 重置膨胀地图，重置范围：无人机当前位置、local_update_range_
   // 含义：使用当前时刻的点云数据来更新无人机特定范围内的地图信息
-  this->resetBuffer(md_.camera_pos_ - mp_.local_update_range_,
-                    md_.camera_pos_ + mp_.local_update_range_);
+  this->resetBuffer((md_.camera_pos_ - mp_.local_update_range_).cwiseMax(mp_.map_min_boundary_),
+                    (md_.camera_pos_ + mp_.local_update_range_).cwiseMin(mp_.map_max_boundary_));
 
   pcl::PointXYZ pt;
   Eigen::Vector3d p3d, p3d_inf;
 
-  int inf_step = ceil(mp_.obstacles_inflation_ / mp_.resolution_);
-  int inf_step_z = 2;
-
+  // Three-axis inflation uses ONE shared, bounded step count
+  // (checkedInflationSteps, <= 32 steps/axis so the candidate cube stays <=
+  // 65^3); z is no longer a hard-coded 2 voxels.  Fail-closed: invalid
+  // inflation geometry leaves the map untouched.
   double max_x, max_y, max_z, min_x, min_y, min_z;
 
   min_x = mp_.map_max_boundary_(0);
@@ -1367,6 +1242,9 @@ void GridMap::cloudCallback(const sensor_msgs::PointCloud2ConstPtr &img)
   for (size_t i = 0; i < latest_cloud.points.size(); ++i)
   {
     pt = latest_cloud.points[i];
+    // Skip non-finite cloud points before any index arithmetic.
+    if (!std::isfinite(pt.x) || !std::isfinite(pt.y) || !std::isfinite(pt.z))
+      continue;
     p3d(0) = pt.x, p3d(1) = pt.y, p3d(2) = pt.z;
 
     /* point inside update range */
@@ -1381,12 +1259,17 @@ void GridMap::cloudCallback(const sensor_msgs::PointCloud2ConstPtr &img)
       /* inflate the point */
       for (int x = -inf_step; x <= inf_step; ++x)
         for (int y = -inf_step; y <= inf_step; ++y)
-          for (int z = -inf_step_z; z <= inf_step_z; ++z)
+          for (int z = -inf_step; z <= inf_step; ++z)
           {
 
             p3d_inf(0) = pt.x + x * mp_.resolution_;
             p3d_inf(1) = pt.y + y * mp_.resolution_;
             p3d_inf(2) = pt.z + z * mp_.resolution_;
+
+            // An obstacle just outside the map can still inflate into it.
+            // Validate each candidate before conversion or local-bound growth.
+            if (!p3d_inf.allFinite() || !isInMap(p3d_inf))
+              continue;
 
             max_x = max(max_x, p3d_inf(0));
             max_y = max(max_y, p3d_inf(1));
