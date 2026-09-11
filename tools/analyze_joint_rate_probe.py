@@ -55,11 +55,17 @@ def analyze(path):
                 "Timing-probe phase accounting is not closed")
         require(release_excess == max(0, row["terminal_ns"] - row["earliest_start_ns"]),
                 "Timing-probe release excess was relabelled")
+        entry_lateness = max(0, row["entry_ns"] - row["earliest_start_ns"])
+        post_entry_excess = max(0, row["terminal_ns"] - max(row["entry_ns"], row["earliest_start_ns"]))
+        require(release_excess == entry_lateness + post_entry_excess,
+                "Timing-probe release excess does not split at probe entry")
         require(counters["sleep_max_overshoot_ns"] <= phases["sleep_elapsed_ns"],
                 "Timing-probe sleep overshoot exceeds elapsed sleep")
         outcomes[row["outcome"]] += 1
         for field, value in {**phases, **counters, "observed_elapsed_ns": observed,
-                             "release_excess_ns": release_excess}.items():
+                             "release_excess_ns": release_excess,
+                             "entry_lateness_ns": entry_lateness,
+                             "post_entry_excess_ns": post_entry_excess}.items():
             totals[field] += value
             maxima[field] = max(maxima[field], value)
     observed_total = totals["observed_elapsed_ns"]
@@ -85,6 +91,16 @@ def analyze(path):
             "total": totals["release_excess_ns"],
             "max": maxima["release_excess_ns"],
             "mean": totals["release_excess_ns"] / len(samples),
+            "entry_lateness": {
+                "total": totals["entry_lateness_ns"],
+                "max": maxima["entry_lateness_ns"],
+                "mean": totals["entry_lateness_ns"] / len(samples),
+            },
+            "post_entry_excess": {
+                "total": totals["post_entry_excess_ns"],
+                "max": maxima["post_entry_excess_ns"],
+                "mean": totals["post_entry_excess_ns"] / len(samples),
+            },
         },
         "counters": {field: {"total": totals[field], "max": maxima[field]} for field in COUNTERS},
         "input": str(path),

@@ -44,14 +44,23 @@ class AnalyzeJointRateProbeTests(unittest.TestCase):
             return analyze(path)
 
     def test_aggregates_closed_samples_as_diagnostic_only(self):
-        result = self.analyze_rows([sample(), sample(start_tick=44, end_tick=48,
-                                                      outcome="rate_unmet")])
+        result = self.analyze_rows([
+            sample(),
+            sample(start_tick=44, end_tick=48, outcome="rate_unmet",
+                   entry_ns=130, initial_health_end_ns=140,
+                   entry_to_initial_health_ns=10, loop_health_ns=0,
+                   sleep_requested_ns=0, sleep_elapsed_ns=0, sleep_calls=0,
+                   sleep_max_overshoot_ns=0, final_spin_other_ns=10,
+                   observed_elapsed_ns=20, phase_total_ns=20),
+        ])
         self.assertEqual(result["status"], "diagnostic")
         self.assertFalse(result["production_performance"])
         self.assertEqual(result["sample_count"], 2)
         self.assertEqual(result["outcomes"], {"rate_unmet": 1, "started": 1})
-        self.assertEqual(result["phases"]["sleep_elapsed_ns"]["total_ns"], 50)
+        self.assertEqual(result["phases"]["sleep_elapsed_ns"]["total_ns"], 25)
         self.assertEqual(sum(item["observed_share"] for item in result["phases"].values()), 1.0)
+        self.assertEqual(result["release_excess_ns"]["entry_lateness"]["total"], 10)
+        self.assertEqual(result["release_excess_ns"]["post_entry_excess"]["total"], 50)
 
     def test_rejects_identity_phase_and_release_tampering(self):
         cases = [
