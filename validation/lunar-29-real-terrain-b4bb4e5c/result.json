@@ -1,0 +1,189 @@
+{
+  "claims": {
+    "external_systems": "No SITL, UE, FC, ROS, or MATLAB",
+    "native_io": "deterministic native-I/O stub: AP ACK + 4 ms PX4 barrier only",
+    "physical_boundary": "terrain input/model response only; no contact-force claim",
+    "terrain_feedback": "state[k-1].Vehicle60 -> ENU support height -> Terrain15D"
+  },
+  "error": "baseline scenario failed: 'dict' object has no attribute 'get_msgbuf'",
+  "fixed_step_ns": 1000000,
+  "library": {
+    "path": "/mnt/c/Users/PC/AppData/Local/Temp/wksim-model-xlzl9yvv/libwksim_model.so",
+    "sha256": "e59ab914e3ff8225ff303e05a885f8fa1eaedb05a95443f097920ca60a7f1c0b"
+  },
+  "macro_barrier_ticks": [
+    4,
+    8,
+    12,
+    16,
+    20,
+    24,
+    28,
+    32,
+    36,
+    40,
+    44,
+    48
+  ],
+  "scenarios": {
+    "baseline": {
+      "children": [
+        {
+          "argv": [
+            "/usr/bin/python3",
+            "-B",
+            "-m",
+            "Simulator.wksim_core.worker",
+            "--library",
+            "/mnt/c/Users/PC/AppData/Local/Temp/wksim-model-xlzl9yvv/libwksim_model.so",
+            "--trace",
+            "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/validation/lunar-29-real-terrain-b4bb4e5c/baseline-arducopter-truth.jsonl",
+            "--epoch",
+            "8588d359a3de49f487516909d0206f91"
+          ],
+          "cwd": "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim",
+          "pid": 712,
+          "reaped": true,
+          "returncode": -15,
+          "stack": "arducopter",
+          "start_ticks": 18532
+        },
+        {
+          "argv": [
+            "/usr/bin/python3",
+            "-B",
+            "-m",
+            "Simulator.wksim_core.worker",
+            "--library",
+            "/mnt/c/Users/PC/AppData/Local/Temp/wksim-model-xlzl9yvv/libwksim_model.so",
+            "--trace",
+            "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/validation/lunar-29-real-terrain-b4bb4e5c/baseline-px4-truth.jsonl",
+            "--epoch",
+            "8588d359a3de49f487516909d0206f91"
+          ],
+          "cwd": "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim",
+          "pid": 713,
+          "reaped": true,
+          "returncode": -15,
+          "stack": "px4",
+          "start_ticks": 18532
+        }
+      ],
+      "clock_path": "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/validation/lunar-29-real-terrain-b4bb4e5c/baseline-clocks.jsonl",
+      "clock_snapshots": [
+        {
+          "epoch": "8588d359a3de49f487516909d0206f91",
+          "fault": null,
+          "input_pending": false,
+          "last_barrier_tick": 0,
+          "last_input_tick": 0,
+          "last_request_id": 0,
+          "pending_tick": null,
+          "phase": "running",
+          "recoverable": false,
+          "single_remaining": 0,
+          "synchronized": false,
+          "tick": 0,
+          "time_ns": 0,
+          "version": 1
+        },
+        {
+          "epoch": "8588d359a3de49f487516909d0206f91",
+          "fault": null,
+          "input_pending": false,
+          "last_barrier_tick": 0,
+          "last_input_tick": 1,
+          "last_request_id": 0,
+          "pending_tick": null,
+          "phase": "running",
+          "recoverable": false,
+          "single_remaining": 0,
+          "synchronized": false,
+          "tick": 1,
+          "time_ns": 1000000,
+          "version": 1
+        },
+        {
+          "epoch": "8588d359a3de49f487516909d0206f91",
+          "fault": null,
+          "input_pending": false,
+          "last_barrier_tick": 0,
+          "last_input_tick": 2,
+          "last_request_id": 0,
+          "pending_tick": null,
+          "phase": "running",
+          "recoverable": false,
+          "single_remaining": 0,
+          "synchronized": false,
+          "tick": 2,
+          "time_ns": 2000000,
+          "version": 1
+        },
+        {
+          "epoch": "8588d359a3de49f487516909d0206f91",
+          "fault": null,
+          "input_pending": false,
+          "last_barrier_tick": 0,
+          "last_input_tick": 3,
+          "last_request_id": 0,
+          "pending_tick": null,
+          "phase": "running",
+          "recoverable": false,
+          "single_remaining": 0,
+          "synchronized": false,
+          "tick": 3,
+          "time_ns": 3000000,
+          "version": 1
+        }
+      ],
+      "epoch": "8588d359a3de49f487516909d0206f91",
+      "name": "baseline",
+      "scene_config": {
+        "box": {
+          "center_enu_m": [
+            2.0,
+            0.0,
+            0.5
+          ],
+          "geometry_id": "box_0",
+          "size_m": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        "coordinate_frame": "ENU",
+        "origin_enu_m": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "plane": {
+          "geometry_id": "plane_z0",
+          "z_m": 0.0
+        },
+        "scene_id": "static-plane-box-v1",
+        "scene_sha256": "60ae50970e23d35e0a28b22694d61ca85c4e10af1f574a6ca9f07c79f7e03514",
+        "schema": "wksim.static-scene.v1",
+        "unit": "metre"
+      },
+      "scene_path": "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/validation/lunar-29-real-terrain-b4bb4e5c/baseline-scene.json",
+      "ticks_completed": 3
+    }
+  },
+  "schema": "wksim.lunar-29-real-terrain.v1",
+  "source_sha256": {
+    "Simulator/wksim_core/joint.py": "f5433c2ec7e81794ffcfab26dce0feff18d4e1affdfb44f895a72e4ce0241d50",
+    "Simulator/wksim_core/model.cpp": "150ddf3bab66e9e59701791392f6d792a14346e0b75ecdfe94872095e72d0290",
+    "Simulator/wksim_core/model.py": "a88f4405cca87fa02d3dbaa66d280397f9d57aa269f5941059ddd80ef0c7ba0b",
+    "Simulator/wksim_core/static_contact.py": "7b2699c317936f2615cbdcc1742939e932c030d495854dccad53dd924c65e0e1",
+    "Simulator/wksim_core/worker.py": "dae21abdff34e887f65e6df4e0ecd0c004638cc1fcc16705acba0ebd78687c1c",
+    "Simulator/wksim_runtime/contact_observer.py": "28d482bca60bfcb75419bb59b2ee08056cf1e0392b42e2d304ea1579b7391de7",
+    "Simulator/wksim_runtime/scene_clock.py": "a6dc143abf0f9119568090a5aaa0bf06a7fa5e617f107e9606fc6489819add3f",
+    "Simulator/wksim_runtime/static-scene-v1.json": "f2972aa228484be202f94327d7f8d932946e7d893283f7b1f4f6036c0357371e",
+    "Simulator/wksim_runtime/terrain_feedback.py": "8d0ee7cc362e25e9f601d5aa422520cf75be7d98e80f4d230adbfce523bfdde2",
+    "tools/probe_joint_terrain_feedback.py": "99adb4e76cd1749c0bce9678039e02d55588fd3ce89f16594a67197a1dea7e32"
+  },
+  "status": "failed",
+  "ticks": 50
+}
