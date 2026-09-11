@@ -91,6 +91,132 @@ def image_identity(child,original,*,allow_exited=False):
     return dict(state='running',identity=current)
 
 
+def _scheduler_policy_name(policy):
+    names = {value: name for name, value in (
+        ('SCHED_OTHER', getattr(os, 'SCHED_OTHER', None)),
+        ('SCHED_FIFO', getattr(os, 'SCHED_FIFO', None)),
+        ('SCHED_RR', getattr(os, 'SCHED_RR', None)),
+    ) if value is not None}
+    return names.get(policy, str(policy))
+
+
+def _scheduler_snapshot(pid):
+    """Read the policy, priority and nice that a child actually received."""
+    policy = os.sched_getscheduler(pid)
+    priority = os.sched_getparam(pid).sched_priority
+    nice = os.getpriority(os.PRIO_PROCESS, pid)
+    return dict(policy=_scheduler_policy_name(policy), policy_value=policy,
+                priority=priority, nice=nice,
+                actual_policy=policy, actual_priority=priority)
+
+
+def _preflight_scheduler_ready(snapshot):
+    return (isinstance(snapshot, dict)
+            and snapshot.get('policy') == 'SCHED_OTHER'
+            and snapshot.get('policy_value') == getattr(os, 'SCHED_OTHER', 0)
+            and snapshot.get('priority') == 0
+            and snapshot.get('nice') == 0)
+
+
+def _child_nice_target(role):
+    return 0 if role=='preflight' else -10 if role in ('model','fc') else -5
+
+
+def _set_manager_scheduler():
+    policy=os.SCHED_FIFO | os.SCHED_RESET_ON_FORK
+    os.sched_setscheduler(0,policy,os.sched_param(50))
+    return dict(policy='SCHED_FIFO',priority=50,reset_on_fork=True,
+                actual_policy=os.sched_getscheduler(0),
+                actual_priority=os.sched_getparam(0).sched_priority)
+
+
+def _require_preflight_scheduler(pid, snapshot=None):
+    """Fail closed unless an admitted preflight child is ordinary scheduled."""
+    snapshot = _scheduler_snapshot(pid) if snapshot is None else snapshot
+    if not _preflight_scheduler_ready(snapshot):
+        raise RuntimeError('Preflight scheduler demotion failed: '+repr(snapshot))
+    return snapshot
+
+
+def _terminate_and_reap(child,log=None):
+    """Retire one child after an admission check fails."""
+    errors=[]
+
+    def running():
+        try:
+            return child.poll() is None
+        except Exception as error:
+            errors.append(repr(error))
+            # A failed poll cannot prove that the child is gone.  Continue
+            # with terminate/wait so an admission failure never abandons it.
+            return True
+
+    def wait_once():
+        try:
+            child.wait(timeout=5)
+            return True
+        except Exception as error:
+            errors.append(repr(error))
+            return False
+
+    try:
+        if running():
+            try: child.terminate()
+            except Exception as error: errors.append(repr(error))
+            if running() and not wait_once() and running():
+                killed=False
+                try:
+                    child.kill()
+                    killed=True
+                except Exception as error: errors.append(repr(error))
+                if killed:
+                    wait_once()
+                elif running():
+                    wait_once()
+    finally:
+        if log is not None and getattr(log,'closed',False) is not True:
+            try: log.close()
+            except Exception as error: errors.append(repr(error))
+    return errors
+
+
+def _require_child_identity(child):
+    identity=json_identity(child.pid)
+    if (not isinstance(identity,dict)
+            or any(type(identity.get(key)) is not int or identity[key] <= 0
+                   for key in ('pid','pgid','start_ticks'))
+            or identity.get('pid') != child.pid):
+        raise RuntimeError('Runtime child identity unavailable after launch')
+    return identity
+
+
+def _launch_child(argv,cwd,log,role,configure,cleanup_errors=None):
+    """Spawn a child, then apply its parent-side scheduler admission."""
+    child=subprocess.Popen(argv,cwd=cwd,stdout=log,stderr=log,stdin=subprocess.DEVNULL)
+    try:
+        observation=configure(child)
+    except BaseException:
+        if role=='preflight':
+            errors=_terminate_and_reap(child,log)
+            if cleanup_errors is not None:
+                cleanup_errors.extend(errors)
+        raise
+    return child,observation
+
+
+def _finish_preflight_timing(timing,outcome=None,error=None):
+    if not isinstance(timing,dict) or 'started_monotonic_ns' not in timing:
+        return None
+    if 'finished_monotonic_ns' not in timing:
+        finished=time.monotonic_ns()
+        timing['finished_monotonic_ns']=finished
+        timing['elapsed_ns']=finished-timing['started_monotonic_ns']
+        timing['elapsed_seconds']=timing['elapsed_ns']/1e9
+    if outcome is not None: timing['outcome']=outcome
+    if error is not None: timing['error']=repr(error)
+    return timing
+
+
 def stop_processes(children):
     errors=[]
     for name,child,log in reversed(children):
@@ -102,7 +228,7 @@ def stop_processes(children):
                     child.kill();child.wait(timeout=5)
         except (OSError,subprocess.TimeoutExpired) as error:
             errors.append(dict(name=name,error=repr(error)))
-        log.close()
+        if getattr(log,'closed',False) is not True: log.close()
     return errors
 
 
@@ -177,17 +303,17 @@ def epoch_run(directory,epoch,generation=1):
     # Real-time scheduling bounds preemption by ordinary processes; RT
     # throttling and host jitter still apply and are not claimed away.
     try:
-        # Explicit camera experiment: ordinary children and background threads
-        # must not inherit the supervisor's FIFO/50 policy. Native model/FC
-        # leaders are still explicitly configured by child_priority below.
-        reset_children=aruco_task or async_model_evidence
-        scheduler_policy=os.SCHED_FIFO | (os.SCHED_RESET_ON_FORK if reset_children else 0)
-        os.sched_setscheduler(0,scheduler_policy,os.sched_param(50))
-        result['manager_scheduler']=dict(policy='SCHED_FIFO',priority=50,
-                                         reset_on_fork=reset_children,actual_policy=os.sched_getscheduler(0),
-                                         actual_priority=os.sched_getparam(0).sched_priority)
+        # Ordinary children start under the kernel's reset-on-fork boundary.
+        # Native model/FC leaders are explicitly configured by child_priority
+        # after launch.
+        result['manager_scheduler']=_set_manager_scheduler()
     except OSError as error:
-        result['manager_scheduler']=dict(policy='SCHED_FIFO',priority=50,error=repr(error))
+        # A host may deny the manager RT request. Keep the downgrade visible;
+        # the actual preflight SCHED_OTHER/priority0/nice0 observation below
+        # remains the admission barrier, so an inherited FIFO child is rejected
+        # before any native component is launched.
+        result['manager_scheduler']=dict(policy='SCHED_FIFO',priority=50,
+                                         reset_on_fork=True,error=repr(error))
     def interrupted(signum,frame):
         raise InterruptedError('Owned joint epoch interrupted')
     signal.signal(signal.SIGTERM,interrupted)
@@ -221,13 +347,23 @@ def epoch_run(directory,epoch,generation=1):
     status(['stop'],'starting')
     def child_priority(child,role):
         # Only this manager's own children are ever reniced, right after spawn.
-        target=-10 if role in ('model','fc') else -5
+        target=_child_nice_target(role)
         record=dict(target=target)
         try:
             os.setpriority(os.PRIO_PROCESS,child.pid,target)
             record['applied']=os.getpriority(os.PRIO_PROCESS,child.pid)
         except OSError as error:
             record['error']=repr(error)
+        if role=='preflight':
+            try:
+                record['scheduler']=_scheduler_snapshot(child.pid)
+                if 'error' in record:
+                    record['scheduler_error']='Preflight child did not enter SCHED_OTHER/priority0/nice0'
+                else:
+                    _require_preflight_scheduler(child.pid,record['scheduler'])
+            except (OSError,RuntimeError) as error:
+                record['scheduler_error']=repr(error)
+            return record
         # Real-time scheduling only for the lockstep-critical model/FC pair;
         # the applied policy is recorded, never silently assumed.
         if role in ('model','fc'):
@@ -250,12 +386,54 @@ def epoch_run(directory,epoch,generation=1):
         return record
     def launch(name,argv,cwd,role):
         log=(output/(name+'.log')).open('x')
-        child=subprocess.Popen(argv,cwd=cwd,stdout=log,stderr=log,stdin=subprocess.DEVNULL)
+        spawned={}
+        cleanup_errors=[]
+        def configure(child):
+            spawned['child']=child
+            priority=child_priority(child,role)
+            if role=='preflight' and priority.get('scheduler_error'):
+                spawned['priority']=priority
+                raise RuntimeError('Preflight child scheduler admission failed')
+            return priority
+        try:
+            child,priority=_launch_child(argv,cwd,log,role,configure,
+                                         cleanup_errors=cleanup_errors)
+        except BaseException as error:
+            child=spawned.get('child')
+            if child is None:
+                log.close()
+                raise
+            priority=spawned.get('priority',dict(target=0 if role=='preflight' else None))
+            if cleanup_errors:
+                priority['cleanup_errors']=list(cleanup_errors)
+            children.append((name,child,log));specs[child.pid]=dict(name=name,argv=argv,cwd=Path(cwd),role=role)
+            result['children'][name]=dict(argv=argv,cwd=str(cwd),priority=priority)
+            result['children'][name]['priority'].setdefault('error',repr(error))
+            write_json(output/'children.json',result['children'])
+            raise
         children.append((name,child,log));specs[child.pid]=dict(name=name,argv=argv,cwd=Path(cwd),role=role)
-        result['children'][name]=dict(identity=json_identity(child.pid),argv=argv,cwd=str(cwd),
-                                      priority=child_priority(child,role))
-        write_json(output/'children.json',result['children'])
+        result['children'][name]=dict(argv=argv,cwd=str(cwd),priority=priority)
+        try:
+            result['children'][name]['identity']=_require_child_identity(child)
+            write_json(output/'children.json',result['children'])
+        except BaseException as error:
+            # Keep the failed scheduler observation in the auditable child
+            # metadata before making admission fail closed.
+            result['children'][name]['priority'].setdefault('error',repr(error))
+            if role=='preflight':
+                cleanup_errors=_terminate_and_reap(child,log)
+                if cleanup_errors:
+                    result['children'][name]['priority']['cleanup_errors']=cleanup_errors
+            write_json(output/'children.json',result['children'])
+            raise
         return child
+    def finish_preflight_phase(outcome=None,error=None):
+        timing=_finish_preflight_timing(result.get('preflight_execution'),outcome,error)
+        if timing is None: return
+        child=result['children'].get('preflight')
+        if child is not None:
+            child['preflight_execution']=dict(timing)
+            write_json(output/'children.json',result['children'])
     def physics_health():
         nonlocal last_child_poll
         for _,stream in evidence_streams:
@@ -341,18 +519,28 @@ def epoch_run(directory,epoch,generation=1):
     try:
         # The expensive, read-only identity walk must not block operator stop.
         # It runs in an owned child of this same private epoch process group.
-        preflight=launch('preflight',[sys.executable,'-B','-m','Simulator.wksim_runtime.runtime',
-                         str(directory/'config.json'),'--prepared','--preflight'],output,'preflight')
+        preflight_started=time.monotonic_ns()
+        result['preflight_execution']=dict(started_monotonic_ns=preflight_started,
+            required_scheduler='SCHED_OTHER',required_priority=0,required_nice=0,
+            launch_scheduler_check='post_spawn_parent_observation')
+        try:
+            preflight=launch('preflight',[sys.executable,'-B','-m','Simulator.wksim_runtime.runtime',
+                             str(directory/'config.json'),'--prepared','--preflight'],output,'preflight')
+        except BaseException as error:
+            finish_preflight_phase('scheduler_setup_failed',error)
+            raise
         while preflight.poll() is None:
             if time.monotonic()>=next_status:
                 status(['stop'],'starting')
                 stop=mailbox.poll(offer,['stop'])
                 if stop is not None:
+                    finish_preflight_phase('operator_stopped')
                     clock_action('stop');result['stop_request']=stop
                     result['status']='stopped'
                     return result
             time.sleep(.02)
         expected.add(preflight.pid)
+        finish_preflight_phase('completed' if preflight.returncode==0 else 'rejected')
         admission=json.loads((output/'preflight.log').read_text())
         result['preflight']=admission
         write_json(output/'preflight.json',admission)
@@ -464,8 +652,9 @@ def epoch_run(directory,epoch,generation=1):
                 child=subprocess.Popen(argv,cwd=folder,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=log,text=True)
                 name=stack+'-model';children.append((name,child,log));model_workers[stack]=child
                 specs[child.pid]=dict(name=name,role='model',cwd=folder,argv=argv)
-                result['children'][name]=dict(identity=json_identity(child.pid),argv=argv,cwd=str(folder),
-                                              priority=child_priority(child,'model'))
+                result['children'][name]=dict(argv=argv,cwd=str(folder))
+                result['children'][name]['identity']=_require_child_identity(child)
+                result['children'][name]['priority']=child_priority(child,'model')
                 plan=launch_spec(admission['configs'][stack],folder,library,
                                  admitted_capabilities=admission['capabilities'])
                 if stack=='px4' and admission.get('native_component_timing'):
@@ -476,8 +665,9 @@ def epoch_run(directory,epoch,generation=1):
                     stdout=log,stderr=log,stdin=subprocess.DEVNULL)
                 name=stack+'-fc';children.append((name,child,log))
                 specs[child.pid]=dict(name=name,role='fc',cwd=folder,argv=plan['fc'])
-                result['children'][name]=dict(identity=json_identity(child.pid),argv=plan['fc'],cwd=str(folder),
-                                              priority=child_priority(child,'fc'))
+                result['children'][name]=dict(argv=plan['fc'],cwd=str(folder))
+                result['children'][name]['identity']=_require_child_identity(child)
+                result['children'][name]['priority']=child_priority(child,'fc')
                 if stack=='px4' and admission.get('native_component_timing'):
                     result['children'][name]['explicit_environment']=dict(plan['fc_environment'])
                 argv=plan['control']
