@@ -2,6 +2,10 @@
 
 ## 最新检查点（优先于下方历史记录）
 
+当前 HEAD `adcf009`：GridMap 初始化两项P1已修复（乘法前除法上界、失败抛异常防半初始化），三端23项通过；原C++表达式UBSan复现后已修复。RflySim原C++14完整plan_env构建失败于log4cxx要求std::shared_mutex，改明确C++17后全新目录`/root/wksim-gridmap-cxx17-ekhpBw`构建成功，库SHA6003461696353695911f561f3a72fc795c945eb1c9db35cefb562cefc7fc6b35。两次构建日志/源码hash随提交封存，库未提交，当前无真实执行。Claude18t只读复核肯定主要修复，仍待turn终态；下一片是实际三维膨胀（cloud固定Z=2、scan死代码Z=20、clear候选逐轴边界）。
+
+快照工具`tools/wsl_root_task_snapshot.py`及测试仍未提交：Windows真实自有进程映射可用，Linux内直接调用wsl.exe实测Exec format error。当前唯一写入者OMP Task21q，收紧严格base64/namespace/流式输出上界；agy Task17q只读调查bootstrap接入因果。agy17p提出的前置FC就绪栅栏和假定120ms/零等待/零丢失方案未接受，不能按其报告直接接入。主会话确认system root lsns PNS0与Ubuntu子层，但仍需Windows侧桥接及collector身份绑定。`ba6acb6`已同步#75队列四文件，勿再等待旧Task21n。
+
 最新实跑：`69d65bf` 已推送 `validation/lunar-27-core-without-dll/run-ec40ec2-01` 全新目录证据，**#75 已关闭**。沿用 #72 真实入口，冷构建与原库两独立进程退出0、四轮各1000步、480000值精确一致；主会话独立重读raw/hash/输入/时钟/加载映射，未发现厂商DLL，模型组残留0。输出不含厂商源码/二进制。#75 GitHub票面和原生依赖已将误绑的#74改为已关闭#72；#27父AC/依赖/ABI限制不变。OMP Task21n仍负责四份本地队列/文档同步，尚未交付；勿重复实跑或重新关闭#75。当前无真实执行线占用。
 
 后继检查：`ec40ec2` 已推送 #75 AST 修复，OMP 终审 GO，三端各 70 项通过；当前 OMP Task21m 只读核验 #75/#74/#73 的真实运行依赖。agy Task17m 已恢复可见读证据进度，线程不变，检查 scheduler 准入。Claude 原18r连续多次无进度且无改动，经工具确认取消为 interrupted，已在同线程续派18s，仅编辑 grid_map.cpp/test_grid_map_param_safety.py 的初始化数值边界；三轴膨胀算法留给下一片。三个 Luna 仍为已完成状态。
