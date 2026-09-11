@@ -72,3 +72,8 @@ catkin_install_python(
   PROGRAMS scripts/bspline_ros1_relay.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
+
+install(
+  FILES launch_for_prometheus/bspline_ros1_relay.launch
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch_for_prometheus
+)

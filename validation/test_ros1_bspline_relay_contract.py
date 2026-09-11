@@ -14,6 +14,8 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 RELAY_PATH = ROOT / "Modules/ego_planner_swarm/plan_manage/scripts/bspline_ros1_relay.py"
+LAUNCH_PATH = ROOT / "Modules/ego_planner_swarm/plan_manage/launch_for_prometheus/bspline_ros1_relay.launch"
+CMAKE_PATH = ROOT / "Modules/ego_planner_swarm/plan_manage/CMakeLists.txt"
 SPEC = importlib.util.spec_from_file_location("bspline_ros1_relay", RELAY_PATH)
 RELAY = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(RELAY)
@@ -79,6 +81,16 @@ class Ros1BsplineRelayContractTests(unittest.TestCase):
         self.assertIn("PrometheusBspline", source)
         self.assertIn("rospy.Subscriber(input_topic, TrajUtilsBspline", source)
         self.assertIn("rospy.Publisher(output_topic, PrometheusBspline", source)
+
+    def test_catkin_install_declares_existing_relay_launch(self):
+        self.assertTrue(LAUNCH_PATH.is_file())
+        self.assertEqual(LAUNCH_PATH.read_text(encoding="utf-8").lstrip()[:7], "<launch")
+        cmake = CMAKE_PATH.read_text(encoding="utf-8")
+        self.assertRegex(
+            cmake,
+            r"install\(\s*FILES\s+launch_for_prometheus/bspline_ros1_relay\.launch"
+            r"\s+DESTINATION\s+\$\{CATKIN_PACKAGE_SHARE_DESTINATION\}/launch_for_prometheus\s*\)",
+        )
 
 
 if __name__ == "__main__":
