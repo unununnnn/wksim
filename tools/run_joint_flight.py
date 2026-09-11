@@ -66,6 +66,16 @@ def candidate_environment(control, messages=None):
     return message_environment(messages, env) if messages is not None else env
 
 
+def model_environment(base=None):
+    """Keep the complete repository runtime ahead of partial control overlays."""
+    env = dict(os.environ if base is None else base)
+    repo = str(REPO)
+    pythonpath = [value for value in env.get('PYTHONPATH', '').split(os.pathsep)
+                  if value and value != repo]
+    env['PYTHONPATH'] = os.pathsep.join([repo, *pythonpath])
+    return env
+
+
 def activate_candidate_imports(control, messages):
     env = candidate_environment(control, messages)
     for name in ('PYTHONPATH', 'AMENT_PREFIX_PATH', 'LD_LIBRARY_PATH'):
@@ -731,11 +741,13 @@ def run(args):
                         '--trace',str(live/(stack+'-truth.jsonl')),'--epoch',clock.epoch]
                 if async_model_evidence:
                     argv.append('--async-evidence')
+                runtime_env = model_environment()
                 child = subprocess.Popen(argv,cwd=directory,stdin=subprocess.PIPE,stdout=subprocess.PIPE,
-                                         stderr=log,text=True,start_new_session=True)
+                                         stderr=log,text=True,start_new_session=True,env=runtime_env)
                 children.append((stack+'-model',child,log)); workers[stack]=child
-                child_specs[child.pid] = dict(role='model',directory=directory,result_key=stack,env=None)
+                child_specs[child.pid] = dict(role='model',directory=directory,result_key=stack,env=runtime_env)
                 result['children'][stack+'-model'] = dict(identity=json_identity(child.pid),argv=argv,cwd=str(directory))
+                result['children'][stack+'-model']['runtime_python_root'] = str(REPO)
                 if candidate:
                     result['children'][stack+'-model']['scheduling'] = scheduling(
                         child.pid, 'model', async_model_evidence=async_model_evidence)

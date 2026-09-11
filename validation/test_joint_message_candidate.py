@@ -2,6 +2,7 @@
 import json
 import os
 from pathlib import Path
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -108,6 +109,29 @@ class MessageCandidateTests(unittest.TestCase):
             finally:
                 runner.sys.path[:] = old_path
         self.assertEqual(observed['prometheus_control'], str(Path(control['package'])))
+
+    def test_model_environment_keeps_complete_runtime_ahead_of_partial_overlay(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            repo = root/'repo'
+            overlay = root/'control'
+            (repo/'Simulator/wksim_runtime').mkdir(parents=True)
+            (overlay/'Simulator/wksim_runtime').mkdir(parents=True)
+            (repo/'Simulator/wksim_runtime/__init__.py').write_text('')
+            evidence = repo/'Simulator/wksim_runtime/evidence_stream.py'
+            evidence.write_text('ORIGIN = "repo"\n')
+            (overlay/'Simulator/wksim_runtime/__init__.py').write_text('')
+            base = dict(os.environ)
+            base['PYTHONPATH'] = os.pathsep.join([str(overlay), str(repo), 'fixed'])
+            with patch.object(runner, 'REPO', repo):
+                env = runner.model_environment(base)
+            self.assertEqual(env['PYTHONPATH'].split(os.pathsep),
+                             [str(repo), str(overlay), 'fixed'])
+            observed = subprocess.check_output(
+                [sys.executable, '-B', '-c',
+                 'import Simulator.wksim_runtime.evidence_stream as e; print(e.__file__)'],
+                cwd=root, env=env, text=True).strip()
+            self.assertEqual(Path(observed).resolve(), evidence.resolve())
 
 
 if __name__ == '__main__':
