@@ -61,10 +61,11 @@ class MixedProfileAdmissionTests(unittest.TestCase):
                           build_log_sha256=joint.digest(root/'build.log'),
                           build_script_sha256=joint.digest(repo/'tools/build-joint-control.sh'))
             with patch.object(joint, 'REPO', repo):
-                joint._control(record)
+                with self.assertRaisesRegex(ValueError, 'requires manifest version 2'):
+                    joint._control(record)
                 (current/'prometheus_control/node.py').write_text('new current source')
                 self.assertEqual(joint._control(record, sealed=True), str(package))
-                with self.assertRaisesRegex(ValueError, 'source or installed'):
+                with self.assertRaisesRegex(ValueError, 'requires manifest version 2'):
                     joint._control(record)
                 (package/'node.py').write_text('tampered installed old source')
                 with self.assertRaisesRegex(ValueError, 'source or installed'):

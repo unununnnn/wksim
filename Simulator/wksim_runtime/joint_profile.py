@@ -88,6 +88,8 @@ def _firmware(record, stack):
 
 
 def _control(record, *, sealed=False):
+    if not sealed and record.get('version') != 2:
+        raise ValueError('Current control candidate requires manifest version 2')
     root = Path(record['root'])
     package = root/'install/prometheus_control'/PYTHON/'prometheus_control'
     if root.resolve(strict=True) != root or root.is_symlink() or str(package) != record['package']:

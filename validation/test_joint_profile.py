@@ -87,7 +87,7 @@ class JointProfileTests(unittest.TestCase):
                 build_script_sha256=profile.digest(repo/'tools/build-joint-control.sh'))
             with patch.object(profile,'REPO',repo):
                 self.assertEqual(profile._control(record,sealed=True),str(package))
-                with self.assertRaisesRegex(ValueError,'build input'):
+                with self.assertRaisesRegex(ValueError,'requires manifest version 2'):
                     profile._control(record,sealed=False)
                 (staged/'CMakeLists.txt').write_text('tampered historical build')
                 with self.assertRaisesRegex(ValueError,'build input'):
@@ -166,6 +166,8 @@ class JointProfileTests(unittest.TestCase):
                 build_log_sha256=profile.digest(candidate/'build.log'),
                 build_script_sha256=next(iter(profile.LEGACY_CONTROL_BUILD_SCRIPTS)))
             self.assertEqual(profile._control(record,sealed=True),str(package))
+            with self.assertRaisesRegex(ValueError,'requires manifest version 2'):
+                profile._control(record,sealed=False)
             record['build_script_sha256']='0'*64
             with self.assertRaisesRegex(ValueError,'Unknown legacy'):
                 profile._control(record,sealed=True)
