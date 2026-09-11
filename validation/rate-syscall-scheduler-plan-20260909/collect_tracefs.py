@@ -44,7 +44,9 @@ def boot():return Path('/proc/sys/kernel/random/boot_id').read_text().strip()
 def identity(pid):
     root=Path('/proc')/str(pid)
     text=(root/'stat').read_text()
-    return dict(pid=pid,start_ticks=int(text[text.rfind(')')+2:].split()[19]),
+    fields=text[text.rfind(')')+2:].split()
+    require(len(fields)>19,'Process identity is incomplete')
+    return dict(pid=pid,pgid=int(fields[2]),start_ticks=int(fields[19]),
                 argv=(root/'cmdline').read_bytes().rstrip(b'\0').decode(errors='replace').split('\0'))
 
 
@@ -347,8 +349,17 @@ def emit_capture_active(path,metadata):
     target=Path(path)
     if target.exists():
         raise FileExistsError(str(target))
+    owner_path=target.parent/'instance-owner.json'
+    owner_raw=owner_path.read_bytes()
+    owner=json.loads(owner_raw)
+    require(isinstance(owner,dict) and owner.get('schema')=='wksim.private-tracefs.instance-owner.v1',
+            'Capture instance owner proof is invalid')
+    owner_sha256=hashlib.sha256(owner_raw).hexdigest()
+    supervisor=metadata['owners']['supervisor']
     payload=dict(schema='wksim.private-tracefs.capture-active.v1',state='active',
-                 collector_pid=os.getpid(),instance=metadata['instance'],
+                 collector_pid=os.getpid(),collector_start_ticks=metadata['collector_start_ticks'],
+                 supervisor_pid=supervisor['pid'],supervisor_start_ticks=supervisor['start_ticks'],
+                 instance_owner_sha256=owner_sha256,instance=metadata['instance'],
                  instance_inode=metadata['instance_inode'],run_id=metadata['run_id'],
                  epoch=metadata['epoch'],started_monotonic_ns=metadata['started_monotonic_ns'],
                  published_monotonic_ns=time.monotonic_ns())
@@ -464,9 +475,11 @@ def collect(args,owners):
     require(active_token.parent==output and not active_token.exists(),
             'Capture-active token must be a new file inside output')
     path=TRACE/'instances'/('wksim-rate-'+uuid.uuid4().hex)
+    collector_identity=identity(os.getpid())
     metadata=dict(schema='wksim.private-tracefs.v1',run_id=args.run_id,epoch=args.epoch,
         acceptance_eligible=False,requested_duration_s=args.duration,preflight=before,
         owners=owners,command=sys.argv,instance=str(path),errors=[],status='diagnostic_partial',
+        collector_pid=collector_identity['pid'],collector_start_ticks=collector_identity['start_ticks'],
         boundary_syscalls_may_be_unpaired=True)
     (output/'preflight.json').write_text(json.dumps(before,indent=2)+'\n')
     inode=None; descriptor=None; stopped=None; began=None
@@ -480,10 +493,15 @@ def collect(args,owners):
         path.mkdir()
         stat=path.stat();inode=(stat.st_dev,stat.st_ino)
         metadata['instance_inode']=list(inode)
+        owner_proof=verify(owners,args.boot_id)
         with (output/'instance-owner.json').open('x') as stream:
             json.dump(dict(schema='wksim.private-tracefs.instance-owner.v1',instance=str(path),
-                           instance_inode=list(inode),collector_pid=os.getpid(),
-                           boot_id=args.boot_id,run_id=args.run_id,epoch=args.epoch),stream,indent=2)
+                           instance_inode=list(inode),collector_pid=collector_identity['pid'],
+                           collector_start_ticks=collector_identity['start_ticks'],
+                           supervisor_pid=owners['supervisor']['pid'],
+                           supervisor_start_ticks=owners['supervisor']['start_ticks'],
+                           owners=owner_proof,boot_id=args.boot_id,run_id=args.run_id,epoch=args.epoch),
+                      stream,indent=2,sort_keys=True)
         guarded_instance(path,inode)
         def put(relative,value):
             guarded_instance(path,inode)
@@ -499,7 +517,6 @@ def collect(args,owners):
         require(args.map_comm,'Capture requires namespace-verified --map-comm')
         mapping=map_kernel_pids(path,put,owners,args.epoch,output)
         metadata['pid_mapping']=mapping
-        verify(owners,args.boot_id)
         applied=filters(mapping['kernel_pids'])
         for event,expression in applied.items():
             put('events/'+event+'/filter',expression)

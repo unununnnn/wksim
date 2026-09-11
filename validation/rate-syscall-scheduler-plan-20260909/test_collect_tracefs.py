@@ -1,5 +1,6 @@
 """No kernel tracing: parser, filter, path ownership and preflight guards only."""
 from pathlib import Path
+import hashlib
 import json
 import sys
 import tempfile
@@ -229,11 +230,18 @@ class Guards(unittest.TestCase):
     def test_capture_active_token_is_exclusive_and_complete(self):
         with tempfile.TemporaryDirectory() as temp:
             target=Path(temp)/'capture-active.json'
+            (Path(temp)/'instance-owner.json').write_text(json.dumps(
+                dict(schema='wksim.private-tracefs.instance-owner.v1')))
             metadata=dict(instance='/sys/kernel/tracing/instances/wksim-rate-'+'a'*32,
                           instance_inode=[1,2],run_id='run',epoch='b'*32,
-                          started_monotonic_ns=123)
+                          started_monotonic_ns=123,collector_start_ticks=456,
+                          owners={'supervisor':{'pid':789,'start_ticks':790}})
             payload=collector.emit_capture_active(target,metadata)
             self.assertEqual(payload['schema'],'wksim.private-tracefs.capture-active.v1')
+            self.assertEqual(payload['collector_start_ticks'],456)
+            self.assertEqual(payload['supervisor_start_ticks'],790)
+            self.assertEqual(payload['instance_owner_sha256'],
+                             hashlib.sha256((Path(temp)/'instance-owner.json').read_bytes()).hexdigest())
             self.assertIsInstance(payload['published_monotonic_ns'],int)
             self.assertEqual(json.loads(target.read_text()),payload)
             self.assertEqual(metadata['capture_active'],payload)
@@ -243,9 +251,12 @@ class Guards(unittest.TestCase):
     def test_capture_active_token_uses_create_only_publication(self):
         with tempfile.TemporaryDirectory() as temp:
             target=Path(temp)/'capture-active.json'
+            (Path(temp)/'instance-owner.json').write_text(json.dumps(
+                dict(schema='wksim.private-tracefs.instance-owner.v1')))
             metadata=dict(instance='/sys/kernel/tracing/instances/wksim-rate-'+'a'*32,
                           instance_inode=[1,2],run_id='run',epoch='b'*32,
-                          started_monotonic_ns=123)
+                          started_monotonic_ns=123,collector_start_ticks=456,
+                          owners={'supervisor':{'pid':789,'start_ticks':790}})
             with patch.object(collector.os,'link',wraps=collector.os.link) as link, \
                  patch.object(collector.os,'replace',side_effect=AssertionError('replace is not create-only')):
                 collector.emit_capture_active(target,metadata)
@@ -254,8 +265,12 @@ class Guards(unittest.TestCase):
     def test_enable_capture_publishes_token_after_enable_write(self):
         with tempfile.TemporaryDirectory() as temp:
             target=Path(temp)/'capture-active.json'
+            (Path(temp)/'instance-owner.json').write_text(json.dumps(
+                dict(schema='wksim.private-tracefs.instance-owner.v1')))
             metadata=dict(instance='/sys/kernel/tracing/instances/wksim-rate-'+'a'*32,
-                          instance_inode=[1,2],run_id='run',epoch='b'*32)
+                          instance_inode=[1,2],run_id='run',epoch='b'*32,
+                          collector_start_ticks=456,
+                          owners={'supervisor':{'pid':789,'start_ticks':790}})
             calls=[]
             with patch.object(collector.time,'monotonic_ns',return_value=123), \
                  patch.object(collector.time,'time_ns',return_value=456):
