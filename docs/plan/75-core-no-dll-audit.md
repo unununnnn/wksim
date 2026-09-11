@@ -43,3 +43,18 @@
 
 - 本工具不自带完整性证明：其自身源码哈希由外部提交/证据链（评审记录与仓库钉扎）保证；白名单自修改会被行哈希钉捕获，但"攻击者同时改工具与白名单"超出本门禁范围。
 - 2026-09-12：`bdd39ee` 的 `joint_runtime.py:478` guard 行仍保持精确 hash `50d84d7a7fea63689a2af3763da245811b96dfac46b7f2054843f8dff530193a`，无需 repin；Windows、Ubuntu-22.04、RflySim-20.04 的 real-repo CLI 均通过。配置校验会在当前解释器中执行仓库 `config.py` 顶层 import；工具只恢复 `sys.path` 与 `Simulator.*` 模块缓存，不沙箱、不回滚环境变量、文件、网络、线程或其他全局副作用，这些副作用仍属于工具信任边界。
+
+## 后继静态准入门（不替代 #74/#75 实跑）
+
+`Simulator/wksim_runtime/preflight.py` 的 `validate_model_build_manifest()` 现在由普通模型准入和显式 `model_promotion_flight` 共用。它拒绝重复 JSON 键和非有限数，要求 v2 manifest 字段集精确匹配，逐项核验 archive、wrapper、loader、library 与生成源的 canonical 非软链路径和 SHA256、compiler/profile、argv、ABI/platform，并以 `readelf -d` 的直接 `DT_NEEDED` 集合和 `nm -D --defined-only` 的 required exports 做静态门禁。已知 vendor、SITL、MATLAB、Gazebo/CopterSim 直接依赖 fail closed；Gazebo 匹配大小写不敏感，覆盖 `gazebo_plugin.so` 等无 `lib` 前缀名称，同时保留名称边界避免误杀无关字符串。结果中的 `model_static_abi` 保存实际核验的直接依赖和导出符号。此门只读取 ELF 元数据，不实例化 `Model`，也不新增 manifest 字段。
+
+普通准入、promotion 和所有模型预检早退都经过统一结果收尾，保留 `candidate_status`、`ok` 和 promotion provenance 字段；manifest、路径、archive、ELF 或证据错误统一以 `model_manifest_mismatch` 拒绝。
+
+当前测试使用临时 fixture，并 mock `readelf`/`nm`；Windows 和 WSL Ubuntu-22.04 的纯 Python 命令为：
+
+```text
+py -3 -B -m unittest validation.test_promotion_flight -v
+python3 -B -m unittest validation.test_promotion_flight -v
+```
+
+其证明边界是直接 ELF 导入表和静态构建收据，不是递归共享库解析、运行期 `dlopen`、ABI 实际调用、物理/倍率/飞行验收或 #75 的全新目录运行。真实 build 仍必须等待 #74 提供固定输入和准确命令，在 Ubuntu-22.04 WSL 的独立目录中串行执行，并保留编译日志、manifest、`readelf`/`nm` 原始输出及退出身份；不能从本门禁自行编造命令。

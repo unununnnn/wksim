@@ -32,8 +32,11 @@ class PromotionFlightTests(unittest.TestCase):
             validate_config(dict(data, control_protocol='legacy_v1', model_promotion_flight=True))
         promoted = validate_config(dict(config(), model_promotion_flight=True))
         self.assertIs(promoted['model_promotion_flight'], True)
+        with self.assertRaisesRegex(ValueError, 'explicit model_promotion_flight'):
+            preflight.promotion_model_build({}, {})
 
     def test_model_promotion_binds_exact_build_and_static_abi(self):
+        from Simulator.wksim_core import model as model_module
         from Simulator.wksim_core.model import ABI_CONTRACT, MEMBERS
         with tempfile.TemporaryDirectory() as directory:
             repo = Path(directory) / 'repo'
@@ -71,23 +74,177 @@ class PromotionFlightTests(unittest.TestCase):
                             str(build_dir / 'Exp1_MinModelTemp.cpp'), str(wrapper), '-o', str(library)],
                          platform=platform_record, abi=ABI_CONTRACT,
                          dynamic_dependencies=dependencies)
-            (build_dir / 'build.json').write_text(json.dumps(build))
+            manifest = build_dir / 'build.json'
+
+            def write_build(value):
+                manifest.write_text(json.dumps(value))
+
+            write_build(build)
             flags = dict(model_library=str(library), model_promotion_flight=True)
+            nm_output = '\n'.join(
+                f'0000000000000000 T {symbol}'
+                for symbol in sorted(ABI_CONTRACT['required_symbols']))
+
+            def fake_elf_tool(command, **kwargs):
+                self.assertEqual(kwargs, dict(text=True, timeout=10))
+                if command[:2] == ['readelf', '-d']:
+                    return '\n'.join(
+                        f' 0x0000000000000001 (NEEDED)             Shared library: [{dependency}]'
+                        for dependency in dependencies)
+                if command[:3] == ['nm', '-D', '--defined-only']:
+                    return nm_output
+                raise AssertionError(f'unexpected ELF command: {command}')
+
             with patch.object(preflight, 'REPO', repo), \
-                    patch('Simulator.wksim_core.model.dynamic_dependencies', return_value=dependencies), \
-                    patch('Simulator.wksim_core.model.exported_model_symbols',
-                          return_value=sorted(ABI_CONTRACT['required_symbols'])), \
-                    patch('Simulator.wksim_core.model.model_platform', return_value=platform_record):
+                    patch.object(model_module.subprocess, 'check_output', side_effect=fake_elf_tool) as elf_tools, \
+                    patch('Simulator.wksim_core.model.model_platform', return_value=platform_record), \
+                    patch.object(model_module.Model, '__init__', side_effect=AssertionError('must not load')), \
+                    patch.object(model_module.ctypes, 'CDLL', side_effect=AssertionError('must not load')):
+                regular = preflight.validate_model_build_manifest(
+                    {'model_library': str(library)}, {'model_build': baseline})
+                self.assertFalse(regular['identities']['model_library']['promotion_candidate'])
                 result = preflight.promotion_model_build(flags, {'model_build': baseline})
                 self.assertEqual(result['build'], build)
                 self.assertEqual(result['abi']['contract'], ABI_CONTRACT)
                 self.assertIn('wk_model_initial_state', result['abi']['exported_symbols'])
                 self.assertEqual(result['identities']['model_loader']['sha256'], sha(loader))
+                self.assertEqual(len(elf_tools.call_args_list), 4)
                 changed = copy.deepcopy(build)
                 changed['wrapper_sha256'] = '0' * 64
-                (build_dir / 'build.json').write_text(json.dumps(changed))
+                write_build(changed)
                 with self.assertRaisesRegex(ValueError, 'model_wrapper'):
                     preflight.promotion_model_build(flags, {'model_build': baseline})
+
+                for key, value, pattern in (
+                        ('schema_version', 1, 'schema'),
+                        ('archive_sha256', '0' * 64, 'baseline'),
+                        ('compiler', 'changed compiler', 'baseline'),
+                        ('profile', 'changed profile', 'baseline'),
+                        ('argv', list(build['argv']) + ['--changed'], 'compiler'),
+                        ('archive_members', [], 'source'),
+                        ('source_files', [], 'source'),
+                        ('library_sha256', '0' * 64, 'model_library'),
+                        ('loader_sha256', '0' * 64, 'model_loader'),
+                        ('library', str(archive), 'library path'),
+                        ('abi', {}, 'ABI'),
+                        ('platform', {}, 'ABI')):
+                    changed = copy.deepcopy(build)
+                    changed[key] = value
+                    write_build(changed)
+                    with self.subTest(manifest_field=key), self.assertRaisesRegex(ValueError, pattern):
+                        preflight.validate_model_build_manifest(flags, {'model_build': baseline})
+
+                changed = copy.deepcopy(build)
+                changed['abi']['initial_state']['read_only'] = 1
+                write_build(changed)
+                with self.assertRaisesRegex(ValueError, 'ABI'):
+                    preflight.validate_model_build_manifest(flags, {'model_build': baseline})
+
+                changed = copy.deepcopy(build)
+                changed['dynamic_dependencies'] = ['libc.so.6']
+                write_build(changed)
+                with self.assertRaisesRegex(ValueError, 'dynamic dependency set'):
+                    preflight.validate_model_build_manifest(flags, {'model_build': baseline})
+
+                write_build(build)
+                for dependency in ('libgazebo.so', 'gazebo_plugin.so', 'GAZEBO_PLUGIN.SO'):
+                    changed = copy.deepcopy(build)
+                    changed['dynamic_dependencies'] = [dependency]
+                    write_build(changed)
+                    with patch('Simulator.wksim_core.model.dynamic_dependencies',
+                               return_value=[dependency]):
+                        for candidate in (False, True):
+                            with self.subTest(forbidden_dependency=dependency,
+                                              promotion_candidate=candidate), \
+                                    self.assertRaisesRegex(ValueError, 'Forbidden model dynamic dependency'):
+                                if candidate:
+                                    preflight.promotion_model_build(flags, {'model_build': baseline})
+                                else:
+                                    preflight.validate_model_build_manifest(
+                                        {'model_library': str(library)}, {'model_build': baseline})
+                for dependency in ('libgazeboard_helper.so', 'libregular.so'):
+                    changed = copy.deepcopy(build)
+                    changed['dynamic_dependencies'] = [dependency]
+                    write_build(changed)
+                    with patch('Simulator.wksim_core.model.dynamic_dependencies',
+                               return_value=[dependency]):
+                        for candidate in (False, True):
+                            with self.subTest(allowed_dependency=dependency,
+                                              promotion_candidate=candidate):
+                                accepted = (preflight.promotion_model_build(
+                                    flags, {'model_build': baseline}) if candidate else
+                                    preflight.validate_model_build_manifest(
+                                        {'model_library': str(library)},
+                                        {'model_build': baseline}))
+                                self.assertEqual(accepted['abi']['dynamic_dependencies'], [dependency])
+                write_build(build)
+                with patch('Simulator.wksim_core.model.exported_model_symbols',
+                           return_value=sorted(ABI_CONTRACT['required_symbols'])[:-1]):
+                    with self.assertRaisesRegex(ValueError, 'exported symbol set'):
+                        preflight.validate_model_build_manifest(flags, {'model_build': baseline})
+
+                duplicate = json.dumps(build).replace(
+                    '"schema_version": 2', '"schema_version": 2, "schema_version": 2', 1)
+                manifest.write_text(duplicate)
+                with self.assertRaisesRegex(ValueError, 'Duplicate JSON key'):
+                    preflight.validate_model_build_manifest(flags, {'model_build': baseline})
+                nonfinite = json.dumps(build).replace('"schema_version": 2',
+                                                       '"schema_version": NaN', 1)
+                manifest.write_text(nonfinite)
+                with self.assertRaisesRegex(ValueError, 'Non-finite JSON'):
+                    preflight.validate_model_build_manifest(flags, {'model_build': baseline})
+
+                write_build(build)
+                with patch.object(preflight.zipfile, 'ZipFile',
+                                  side_effect=zipfile.BadZipFile('invalid archive')):
+                    with self.assertRaisesRegex(zipfile.BadZipFile, 'invalid archive'):
+                        preflight.validate_model_build_manifest(flags, {'model_build': baseline})
+
+                write_build(build)
+                link = build_dir / 'library-link.so'
+                try:
+                    link.symlink_to(library)
+                except OSError:
+                    pass
+                else:
+                    with self.assertRaisesRegex(ValueError, 'canonical non-symlink'):
+                        preflight.validate_model_build_manifest(
+                            dict(flags, model_library=str(link)), {'model_build': baseline})
+                    link.unlink()
+
+                moved_manifest = build_dir / 'build-moved.json'
+                manifest.rename(moved_manifest)
+                try:
+                    manifest.symlink_to(moved_manifest)
+                except OSError:
+                    moved_manifest.rename(manifest)
+                else:
+                    with self.assertRaisesRegex(ValueError, 'canonical non-symlink'):
+                        preflight.validate_model_build_manifest(flags, {'model_build': baseline})
+                    manifest.unlink()
+                    moved_manifest.rename(manifest)
+
+    def test_preflight_early_rejection_keeps_candidate_schema(self):
+        data = config()
+        data['capabilities'] = ['not-admitted']
+        with tempfile.TemporaryDirectory() as directory:
+            index = Path(directory) / 'capability-index.json'
+            index.write_text(json.dumps({'capabilities': []}))
+            with patch.object(preflight, 'INDEX', index), \
+                    patch.object(preflight, 'validate_config', return_value=dict(data)):
+                result = preflight.preflight(data)
+        self.assertFalse(result['ok'])
+        self.assertEqual(result['reasons'][0]['code'], 'unsupported_capability')
+        self.assertEqual(set(result['candidate_status']),
+                         {'implemented', 'built', 'flown', 'scope'})
+        self.assertFalse(result['candidate_status']['flown'])
+
+        rejected = preflight._finish_preflight_result(
+            dict(ok=False, reasons=[dict(code='model_manifest_mismatch', message='bad')],
+                 identities={}, capabilities=[], children_created=0),
+            dict(model_promotion_flight=True))
+        self.assertFalse(rejected['candidate_status']['built'])
+        self.assertEqual(rejected['flight_provenance'], 'model_promotion_flight')
 
     def test_independent_only_skips_history_and_never_claims_flown(self):
         for stack in ('px4', 'arducopter'):
