@@ -307,21 +307,663 @@ def _check_load_sites(root, report, files, allowed_dynamic_exec):
         importlib_machinery_aliases = set()
         import_module_aliases = set()
         import_function_aliases = {"__import__"}
+        setattr_aliases = {"setattr"}
         vars_aliases = {"vars"}
         getattr_aliases = {"getattr"}
         getattribute_aliases = set()
         ctypes_getattribute_aliases = set()
         attrgetter_aliases = set()
         operator_aliases = set()
+        container_bindings = {}
+        function_parameter_names = set()
+
+        # Small, deliberately conservative abstract interpreter.  The audit
+        # must not execute source, but a syntax-only walk misses a native
+        # loader hidden behind a factory, closure, object attribute or
+        # comprehension.  Values carry only the identities needed by this
+        # audit; unknown owners remain distinct so ordinary user-owned fields
+        # can stay clean while an unknown ``x.CDLL`` fails closed.
+        class _StaticValue:
+            __slots__ = ("tags", "funcs", "items")
+
+            def __init__(self, tags=(), funcs=(), items=None):
+                self.tags = set(tags)
+                self.funcs = set(funcs)
+                self.items = None if items is None else list(items)
+
+        def _sv_union(*values):
+            tags = set()
+            funcs = set()
+            items = []
+            have_items = False
+            for value in values:
+                if value is None:
+                    continue
+                tags |= value.tags
+                funcs |= value.funcs
+                if value.items is not None:
+                    have_items = True
+                    items.extend(value.items)
+            return _StaticValue(tags, funcs, items if have_items else None)
+
+        def _sv_item(value, key=None):
+            if value is None or value.items is None:
+                return _StaticValue()
+            selected = []
+            for item_key, item_value in value.items:
+                if key is None or item_key is None or item_key == key:
+                    selected.append(item_value)
+            return _sv_union(*selected)
+
+        parent_nodes = {}
+        function_nodes = {}
+        class_nodes = {}
+        for parent in ast.walk(tree):
+            for child in ast.iter_child_nodes(parent):
+                parent_nodes[id(child)] = parent
+            if isinstance(parent, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                function_nodes[parent.name] = parent
+            elif isinstance(parent, ast.ClassDef):
+                class_nodes[parent.name] = parent
+
+        function_envs = {}
+        function_closures = {}
+        function_return_cache = {}
+        sensitive_function_nodes = set()
+        global_bindings = {}
+        class_attributes = {}
+        instance_attributes = {}
+
+        def _enclosing_function(expr):
+            parent = parent_nodes.get(id(expr))
+            while parent is not None:
+                if isinstance(parent, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Lambda)):
+                    return parent
+                parent = parent_nodes.get(id(parent))
+            return None
+
+        def _enclosing_class(expr):
+            parent = parent_nodes.get(id(expr))
+            while parent is not None:
+                if isinstance(parent, ast.ClassDef):
+                    return parent
+                parent = parent_nodes.get(id(parent))
+            return None
+
+        def _known_function_value(node):
+            if isinstance(node, ast.Name) and node.id in function_nodes:
+                return _StaticValue(funcs=(function_nodes[node.id],))
+            return _StaticValue()
+
+        def _static_items(expr, env, context, stack):
+            if isinstance(expr, (ast.List, ast.Tuple, ast.Set)):
+                return [(index, _abstract(value, env, context, stack))
+                        for index, value in enumerate(expr.elts)]
+            if isinstance(expr, ast.Dict):
+                items = []
+                for key, value in zip(expr.keys, expr.values):
+                    item_key = None if key is None else _eval_str(key)
+                    items.append((item_key, _abstract(value, env, context, stack)))
+                return items
+            if isinstance(expr, (ast.ListComp, ast.SetComp, ast.GeneratorExp)):
+                value = _abstract(expr, env, context, stack)
+                return value.items
+            if isinstance(expr, ast.DictComp):
+                value = _abstract(expr, env, context, stack)
+                return value.items
+            return None
+
+        def _function_return(function, args=(), keywords=None, caller_env=None, stack=()):
+            if id(function) in stack:
+                return _StaticValue(tags=("unknown_owner",))
+            keywords = keywords or {}
+            cache_key = (id(function), tuple(id(argument) for argument in args),
+                         tuple(sorted((name, id(value)) for name, value in keywords.items())))
+            if cache_key is not None and cache_key in function_return_cache:
+                return function_return_cache[cache_key]
+            env = dict(global_bindings)
+            env.update(function_closures.get(id(function), {}))
+            parameters = (list(function.args.posonlyargs) + list(function.args.args)
+                          + list(function.args.kwonlyargs))
+            positional = list(args)
+            defaults = ([None] * (len(function.args.posonlyargs)
+                        + len(function.args.args) - len(function.args.defaults))
+                        + list(function.args.defaults))
+            for index, parameter in enumerate(parameters):
+                if positional:
+                    env[parameter.arg] = _abstract(positional.pop(0), caller_env or env,
+                                                    function, stack)
+                elif parameter.arg in keywords:
+                    env[parameter.arg] = _abstract(keywords[parameter.arg], caller_env or env,
+                                                    function, stack)
+                else:
+                    default = defaults[index] if index < len(defaults) else None
+                    if default is not None:
+                        env[parameter.arg] = _abstract(default, caller_env or env,
+                                                        function, stack)
+            for parameter, default in zip(function.args.kwonlyargs, function.args.kw_defaults):
+                if parameter.arg in keywords:
+                    env[parameter.arg] = _abstract(keywords[parameter.arg], caller_env or env,
+                                                    function, stack)
+                elif default is not None:
+                    env[parameter.arg] = _abstract(default, caller_env or env,
+                                                    function, stack)
+            function_envs[id(function)] = env
+            if isinstance(function, ast.Lambda):
+                result = _abstract(function.body, env, function, stack + (id(function),))
+                function_envs[id(function)] = env
+                if cache_key is not None:
+                    function_return_cache[cache_key] = result
+                return result
+
+            returns = []
+
+            def bind(target, value):
+                if isinstance(target, ast.Starred):
+                    target = target.value
+                if isinstance(target, ast.Name):
+                    env[target.id] = value
+                    return
+                if isinstance(target, (ast.Tuple, ast.List)):
+                    for index, child in enumerate(target.elts):
+                        bind(child, _sv_item(value, index))
+                    return
+                if isinstance(target, ast.Attribute) and isinstance(target.value, ast.Name):
+                    owner = target.value.id
+                    owner_class = None
+                    if owner == "self":
+                        klass = _enclosing_class(function)
+                        owner_class = None if klass is None else klass.name
+                    if owner_class is not None:
+                        class_attributes[(owner_class, target.attr)] = value
+                    else:
+                        instance_attributes[(owner, target.attr)] = value
+
+            def visit_statements(statements):
+                for statement in statements:
+                    if isinstance(statement, ast.Return):
+                        returns.append(_abstract(statement.value, env, function, stack))
+                    elif isinstance(statement, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                        function_closures[id(statement)] = dict(env)
+                        env[statement.name] = _StaticValue(funcs=(statement,))
+                    elif isinstance(statement, ast.ClassDef):
+                        class_nodes[statement.name] = statement
+                        env[statement.name] = _StaticValue(tags=(f"class:{statement.name}",))
+                    elif isinstance(statement, ast.Assign):
+                        value = _abstract(statement.value, env, function, stack)
+                        for target in statement.targets:
+                            bind(target, value)
+                    elif isinstance(statement, ast.AnnAssign) and statement.value is not None:
+                        bind(statement.target, _abstract(statement.value, env, function, stack))
+                    elif isinstance(statement, ast.AugAssign):
+                        bind(statement.target, _abstract(statement.value, env, function, stack))
+                    elif isinstance(statement, ast.If):
+                        before = dict(env)
+                        visit_statements(statement.body)
+                        body_env = dict(env)
+                        env.clear(); env.update(before)
+                        visit_statements(statement.orelse)
+                        for name, value in body_env.items():
+                            env[name] = _sv_union(env.get(name), value)
+                    elif isinstance(statement, (ast.For, ast.AsyncFor)):
+                        bind(statement.target, _sv_item(_abstract(statement.iter, env, function, stack)))
+                        visit_statements(statement.body)
+                        visit_statements(statement.orelse)
+                    elif isinstance(statement, (ast.While, ast.With, ast.AsyncWith)):
+                        visit_statements(statement.body)
+                        if hasattr(statement, "orelse"):
+                            visit_statements(statement.orelse)
+                    elif isinstance(statement, ast.Try):
+                        visit_statements(statement.body)
+                        for handler in statement.handlers:
+                            visit_statements(handler.body)
+                        visit_statements(statement.orelse)
+                        visit_statements(statement.finalbody)
+
+            visit_statements(function.body)
+            function_envs[id(function)] = env
+            result = _sv_union(*returns)
+            if cache_key is not None:
+                function_return_cache[cache_key] = result
+            return result
+
+        def _abstract_uncached(expr, env=None, context=None, stack=()):
+            if expr is None:
+                return _StaticValue()
+            if env is None:
+                if context is None:
+                    context = _enclosing_function(expr)
+                env = function_envs.get(id(context), global_bindings) if context else global_bindings
+            if isinstance(expr, ast.Name):
+                if expr.id in env:
+                    return env[expr.id]
+                if expr.id in global_bindings:
+                    return global_bindings[expr.id]
+                if expr.id in function_nodes:
+                    return _known_function_value(expr)
+                if expr.id in class_nodes:
+                    return _StaticValue(tags=(f"class:{expr.id}",))
+                if expr.id in ctypes_aliases:
+                    return _StaticValue(tags=("ctypes_module",))
+                if expr.id in importlib_aliases:
+                    return _StaticValue(tags=("importlib_module",))
+                if expr.id in importlib_machinery_aliases:
+                    return _StaticValue(tags=("machinery",))
+                if expr.id in vars_aliases:
+                    return _StaticValue(tags=("vars",))
+                if expr.id in getattr_aliases:
+                    return _StaticValue(tags=("getattr",))
+                if expr.id in getattribute_aliases:
+                    return _StaticValue(tags=("getattribute",))
+                if expr.id in ctypes_getattribute_aliases:
+                    return _StaticValue(tags=("ctypes_getattribute",))
+                if expr.id in attrgetter_aliases:
+                    return _StaticValue(tags=("attrgetter",))
+                if expr.id in import_module_aliases:
+                    return _StaticValue(tags=("import_module",))
+                if expr.id in import_function_aliases:
+                    return _StaticValue(tags=("import_function",))
+                if expr.id in setattr_aliases:
+                    return _StaticValue(tags=("setattr",))
+                if expr.id in operator_aliases:
+                    return _StaticValue(tags=("operator",))
+                return _StaticValue(tags=("unknown_owner",))
+            if isinstance(expr, ast.Constant):
+                return _StaticValue()
+            if isinstance(expr, ast.NamedExpr):
+                value = _abstract(expr.value, env, context, stack)
+                if isinstance(expr.target, ast.Name):
+                    env[expr.target.id] = value
+                return value
+            if isinstance(expr, ast.Lambda):
+                function_closures[id(expr)] = dict(env)
+                return _StaticValue(funcs=(expr,))
+            if isinstance(expr, ast.Attribute):
+                base = _abstract(expr.value, env, context, stack)
+                if "ctypes_module" in base.tags:
+                    if expr.attr in _ALL_LOADER_TOKENS:
+                        return _StaticValue(tags=("ctypes_loader",))
+                    if expr.attr == "__dict__":
+                        return _StaticValue(tags=("ctypes_reflection",))
+                    if expr.attr == "__getattribute__":
+                        return _StaticValue(tags=("ctypes_getattribute",))
+                    return _StaticValue()
+                if "importlib_module" in base.tags:
+                    if expr.attr == "import_module":
+                        return _StaticValue(tags=("import_module",))
+                    if expr.attr == "machinery":
+                        return _StaticValue(tags=("machinery",))
+                if "machinery" in base.tags and expr.attr in _IMPORTLIB_LOADER_NAMES:
+                    return _StaticValue(tags=("ctypes_loader",))
+                if "operator" in base.tags and expr.attr == "attrgetter":
+                    return _StaticValue(tags=("attrgetter",))
+                if "unknown_owner" in base.tags and expr.attr in _ALL_LOADER_TOKENS:
+                    return _StaticValue(tags=("unknown_loader",))
+                for tag in base.tags:
+                    if tag.startswith("class:"):
+                        return class_attributes.get((tag[6:], expr.attr), _StaticValue())
+                    if tag.startswith("instance:"):
+                        owner = tag[9:]
+                        value = class_attributes.get((owner, expr.attr))
+                        if value is not None:
+                            return value
+                if isinstance(expr.value, ast.Name):
+                    return instance_attributes.get((expr.value.id, expr.attr), _StaticValue())
+                return _StaticValue()
+            if isinstance(expr, ast.Subscript):
+                value = _abstract(expr.value, env, context, stack)
+                key = _eval_str(expr.slice)
+                if isinstance(key, int):
+                    return _sv_item(value, key)
+                return _sv_item(value, key)
+            if isinstance(expr, (ast.List, ast.Tuple, ast.Set)):
+                return _StaticValue(items=_static_items(expr, env, context, stack))
+            if isinstance(expr, ast.Dict):
+                return _StaticValue(items=_static_items(expr, env, context, stack))
+            if isinstance(expr, (ast.ListComp, ast.SetComp, ast.GeneratorExp, ast.DictComp)):
+                local = dict(env)
+                for generator in expr.generators:
+                    iterable = _abstract(generator.iter, local, context, stack)
+                    item = _sv_item(iterable)
+                    if isinstance(generator.target, ast.Name):
+                        local[generator.target.id] = item
+                    elif isinstance(generator.target, (ast.Tuple, ast.List)):
+                        for index, target in enumerate(generator.target.elts):
+                            if isinstance(target, ast.Name):
+                                local[target.id] = _sv_item(item, index)
+                if isinstance(expr, ast.DictComp):
+                    value = _abstract(expr.value, local, context, stack)
+                    key = _eval_str(expr.key)
+                    return _StaticValue(tags=value.tags, funcs=value.funcs,
+                                        items=[(key, value)])
+                value = _abstract(expr.elt, local, context, stack)
+                return _StaticValue(tags=value.tags, funcs=value.funcs,
+                                    items=[(0, value)])
+            if isinstance(expr, ast.IfExp):
+                return _sv_union(_abstract(expr.body, env, context, stack),
+                                 _abstract(expr.orelse, env, context, stack))
+            if isinstance(expr, ast.BoolOp):
+                return _sv_union(*(_abstract(value, env, context, stack)
+                                   for value in expr.values))
+            if isinstance(expr, ast.Call):
+                function = _abstract(expr.func, env, context, stack)
+                eligible_functions = [value for value in function.funcs
+                                      if value in sensitive_function_nodes
+                                      or isinstance(value, ast.Lambda)]
+                if eligible_functions:
+                    return _sv_union(*(_function_return(value, expr.args,
+                                                        {keyword.arg: keyword.value for keyword in expr.keywords
+                                                         if keyword.arg is not None},
+                                                        env, stack + (id(value),))
+                                      for value in eligible_functions))
+                if function.funcs:
+                    return _StaticValue(tags=("unknown_owner",))
+                if "ctypes_loader" in function.tags or "unknown_loader" in function.tags:
+                    return _StaticValue()
+                if "getattr" in function.tags and len(expr.args) >= 2:
+                    owner = _abstract(expr.args[0], env, context, stack)
+                    attr = _eval_str(expr.args[1])
+                    if "ctypes_module" in owner.tags and attr in _ALL_LOADER_TOKENS:
+                        return _StaticValue(tags=("ctypes_loader",))
+                    if "machinery" in owner.tags and attr in _IMPORTLIB_LOADER_NAMES:
+                        return _StaticValue(tags=("ctypes_loader",))
+                    return _StaticValue(tags=("unknown_owner",)) if attr is None else _StaticValue()
+                if "ctypes_getattribute" in function.tags and expr.args:
+                    attr = _eval_str(expr.args[-1])
+                    if attr in _ALL_LOADER_TOKENS:
+                        return _StaticValue(tags=("ctypes_loader",))
+                if "import_function" in function.tags and expr.args:
+                    module = _eval_str(expr.args[0])
+                    if module == "ctypes":
+                        return _StaticValue(tags=("ctypes_module",))
+                    if module == "importlib":
+                        return _StaticValue(tags=("importlib_module",))
+                if "import_module" in function.tags and expr.args:
+                    module = _eval_str(expr.args[0])
+                    if module == "importlib.machinery":
+                        return _StaticValue(tags=("machinery",))
+                if "attrgetter" in function.tags:
+                    attr = _eval_str(expr.args[0]) if expr.args else None
+                    return _StaticValue(tags=("attrgetter_sensitive" if attr in _ALL_LOADER_TOKENS or attr is None
+                                               else "attrgetter_safe",))
+                if "setattr" in function.tags and len(expr.args) >= 3:
+                    owner = expr.args[0]
+                    attr = _eval_str(expr.args[1])
+                    value = _abstract(expr.args[2], env, context, stack)
+                    if isinstance(owner, ast.Name) and attr is not None:
+                        if owner.id in class_nodes:
+                            class_attributes[(owner.id, attr)] = value
+                        else:
+                            instance_attributes[(owner.id, attr)] = value
+                    return _StaticValue()
+                for tag in function.tags:
+                    if tag.startswith("class:"):
+                        return _StaticValue(tags=(f"instance:{tag[6:]}",))
+                return _StaticValue(tags=("unknown_owner",))
+            return _StaticValue()
+
+        abstract_cache = {}
+
+        def _abstract(expr, env=None, context=None, stack=()):
+            # Calls made by the AST checks repeatedly inspect the same node.
+            # Cache only context-free lookups after the initial fixpoint; the
+            # function evaluator still passes explicit environments and keeps
+            # its call-sensitive behavior.
+            if env is None and context is None and not stack:
+                key = id(expr)
+                if key in abstract_cache:
+                    return abstract_cache[key]
+                value = _abstract_uncached(expr, None, None, ())
+                abstract_cache[key] = value
+                return value
+            return _abstract_uncached(expr, env, context, stack)
+
+        # Seed the import identities before evaluating aliases and receivers.
+        for definition in ast.walk(tree):
+            if isinstance(definition, ast.Import):
+                for alias in definition.names:
+                    name = alias.asname or alias.name
+                    if alias.name in ("ctypes", "_ctypes"):
+                        ctypes_aliases.add(name)
+                    elif alias.name == "importlib":
+                        importlib_aliases.add(name)
+                    elif alias.name == "importlib.machinery":
+                        importlib_machinery_aliases.add(alias.asname or "machinery")
+                    elif alias.name == "operator":
+                        operator_aliases.add(name)
+            elif isinstance(definition, ast.ImportFrom):
+                mod = definition.module or ""
+                for alias in definition.names:
+                    name = alias.asname or alias.name
+                    if mod in ("ctypes", "_ctypes") and alias.name == "ctypes":
+                        ctypes_aliases.add(name)
+                    elif mod == "builtins" and alias.name == "vars":
+                        vars_aliases.add(name)
+                    elif mod == "builtins" and alias.name == "getattr":
+                        getattr_aliases.add(name)
+                    elif mod == "builtins" and alias.name == "__import__":
+                        import_function_aliases.add(name)
+                    elif mod == "builtins" and alias.name == "setattr":
+                        setattr_aliases.add(name)
+                    elif mod == "operator" and alias.name == "attrgetter":
+                        attrgetter_aliases.add(name)
+                    elif mod == "importlib" and alias.name == "import_module":
+                        import_module_aliases.add(name)
+                    elif mod == "importlib" and alias.name == "machinery":
+                        importlib_machinery_aliases.add(name)
+
+        # The project uses ctypes only via direct attribute access.  Refuse
+        # first-class module escapes instead of claiming complete Python object
+        # flow analysis (properties and aliased mutable receivers are open-ended).
+        # A simple local name alias remains supported for ordinary ctypes types.
+        module_names = set(ctypes_aliases)
+        changed = True
+        while changed:
+            changed = False
+            for assignment in ast.walk(tree):
+                if (isinstance(assignment, ast.Assign)
+                        and isinstance(assignment.value, ast.Name)
+                        and assignment.value.id in module_names):
+                    for target in assignment.targets:
+                        if isinstance(target, ast.Name) and target.id not in module_names:
+                            module_names.add(target.id)
+                            changed = True
+        for node in ast.walk(tree):
+            if not (isinstance(node, ast.Name) and isinstance(node.ctx, ast.Load)
+                    and node.id in module_names):
+                continue
+            parent = parent_nodes.get(id(node))
+            if isinstance(parent, ast.Attribute) and parent.value is node:
+                continue
+            if (isinstance(parent, ast.Assign) and parent.value is node
+                    and all(isinstance(target, ast.Name) for target in parent.targets)):
+                continue
+            _fail(report, f"unsupported first-class ctypes module escape at {relative}:{node.lineno}")
+
+        # Only analyze user functions whose syntax can carry a native or
+        # reflection value.  Other calls become an opaque owner at the use
+        # site, which is both fail-closed for ``unknown().CDLL`` and keeps the
+        # repository-wide audit linear in the size of the AST.
+        for function in function_nodes.values():
+            for node in ast.walk(function):
+                if isinstance(node, ast.Attribute) and node.attr in (
+                        _ALL_LOADER_TOKENS | _IMPORTLIB_LOADER_NAMES
+                        | {"__dict__", "__getattribute__"}):
+                    sensitive_function_nodes.add(function)
+                    break
+                if isinstance(node, ast.Name) and node.id in ctypes_aliases:
+                    parent = parent_nodes.get(id(node))
+                    if not (isinstance(parent, ast.Attribute)
+                            and parent.value is node
+                            and parent.attr not in (_ALL_LOADER_TOKENS
+                                                    | _FORBIDDEN_CPYTHON_ATTRS
+                                                    | {"__dict__", "__getattribute__"})):
+                        sensitive_function_nodes.add(function)
+                        break
+
+        # Resolve module-level names and ordinary class/instance fields to a
+        # fixpoint.  This is intentionally syntax-only and never imports or
+        # invokes the audited source.
+        for _ in range(8):
+            changed = False
+            for definition in ast.walk(tree):
+                if isinstance(definition, ast.ClassDef):
+                    for statement in definition.body:
+                        value_node = (statement.value if isinstance(statement, (ast.Assign, ast.AnnAssign))
+                                      else None)
+                        if value_node is None:
+                            continue
+                        targets = (statement.targets if isinstance(statement, ast.Assign)
+                                   else [statement.target])
+                        value = _abstract(value_node, global_bindings, definition, ())
+                        for target in targets:
+                            if isinstance(target, ast.Name):
+                                key = (definition.name, target.id)
+                                merged = _sv_union(class_attributes.get(key), value)
+                                if key not in class_attributes or (merged.tags != class_attributes[key].tags):
+                                    class_attributes[key] = merged
+                                    changed = True
+                if isinstance(definition, ast.Assign):
+                    function = _enclosing_function(definition)
+                    owner = _enclosing_class(definition)
+                    value = _abstract(definition.value, global_bindings, function, ())
+                    for target in definition.targets:
+                        if function is None and owner is None and isinstance(target, ast.Name):
+                            previous = global_bindings.get(target.id)
+                            merged = _sv_union(previous, value)
+                            if previous is None or merged.tags != previous.tags or merged.funcs != previous.funcs:
+                                global_bindings[target.id] = merged
+                                changed = True
+                        elif isinstance(target, ast.Attribute) and isinstance(target.value, ast.Name):
+                            key = (target.value.id, target.attr)
+                            previous = instance_attributes.get(key)
+                            merged = _sv_union(previous, value)
+                            if previous is None or merged.tags != previous.tags:
+                                instance_attributes[key] = merged
+                                changed = True
+                            if target.value.id in class_nodes:
+                                class_key = (target.value.id, target.attr)
+                                previous = class_attributes.get(class_key)
+                                merged = _sv_union(previous, value)
+                                if previous is None or merged.tags != previous.tags:
+                                    class_attributes[class_key] = merged
+                                    changed = True
+                elif isinstance(definition, ast.AnnAssign) and definition.value is not None:
+                    function = _enclosing_function(definition)
+                    owner = _enclosing_class(definition)
+                    value = _abstract(definition.value, global_bindings, function, ())
+                    if function is None and owner is None and isinstance(definition.target, ast.Name):
+                        previous = global_bindings.get(definition.target.id)
+                        merged = _sv_union(previous, value)
+                        if previous is None or merged.tags != previous.tags:
+                            global_bindings[definition.target.id] = merged
+                            changed = True
+                    elif isinstance(definition.target, ast.Attribute) and isinstance(definition.target.value, ast.Name):
+                        instance_attributes[(definition.target.value.id, definition.target.attr)] = value
+                        if definition.target.value.id in class_nodes:
+                            class_attributes[(definition.target.value.id, definition.target.attr)] = value
+            if not changed:
+                break
+        for function in sensitive_function_nodes:
+            _function_return(function)
+        for definition in ast.walk(tree):
+            if isinstance(definition, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                arguments = (list(definition.args.posonlyargs)
+                             + list(definition.args.args)
+                             + list(definition.args.kwonlyargs))
+                function_parameter_names.update(argument.arg for argument in arguments)
+        # Track parameters copied to local names.  Unknown callables carrying
+        # a native/reflection value must fail closed at their invocation.
+        changed = True
+        while changed:
+            changed = False
+            for assignment in ast.walk(tree):
+                if not isinstance(assignment, ast.Assign) or not isinstance(assignment.value, ast.Name):
+                    continue
+                if assignment.value.id not in function_parameter_names:
+                    continue
+                for target in assignment.targets:
+                    if isinstance(target, ast.Name) and target.id not in function_parameter_names:
+                        function_parameter_names.add(target.id)
+                        changed = True
         allowed_loader_attrs = (
             _model_allowed_loader_call_ids(tree)
             if relative == "Simulator/wksim_core/model.py" else set())
 
+        def _resolved_container(expr, seen=()):
+            if not isinstance(expr, ast.Name) or expr.id not in container_bindings:
+                return expr
+            if expr.id in seen:
+                return expr
+            return _resolved_container(container_bindings[expr.id], seen + (expr.id,))
+
+        def _container_values(expr):
+            """Return values selected by a statically known container access."""
+            if not isinstance(expr, ast.Subscript):
+                return None
+            base = _resolved_container(expr.value)
+            key = _eval_str(expr.slice)
+            if isinstance(base, ast.Dict):
+                values = []
+                for dict_key, value in zip(base.keys, base.values):
+                    if dict_key is None:
+                        values.append(value)
+                    elif key is None or _eval_str(dict_key) == key:
+                        values.append(value)
+                return values
+            if isinstance(base, (ast.List, ast.Tuple)):
+                if isinstance(key, int) and -len(base.elts) <= key < len(base.elts):
+                    return [base.elts[key]]
+                if key is None:
+                    return list(base.elts)
+            return None
+
+        def is_builtins_expr(expr):
+            if isinstance(expr, ast.Name):
+                return expr.id == "__builtins__"
+            if (isinstance(expr, ast.Subscript)
+                    and isinstance(expr.value, ast.Call)
+                    and isinstance(expr.value.func, ast.Name)
+                    and expr.value.func.id in {"globals", "locals"}):
+                return _eval_str(expr.slice) == "__builtins__"
+            if (isinstance(expr, ast.Call) and isinstance(expr.func, ast.Attribute)
+                    and expr.func.attr == "get" and expr.args):
+                return (_eval_str(expr.args[0]) == "__builtins__"
+                        and isinstance(expr.func.value, ast.Call)
+                        and isinstance(expr.func.value.func, ast.Name)
+                        and expr.func.value.func.id in {"globals", "locals"})
+            return False
+
+        def _builtin_lookup(expr, names):
+            if isinstance(expr, ast.Subscript):
+                key = _eval_str(expr.slice)
+                if key in names and (is_builtins_expr(expr.value) or is_vars_call(expr.value)):
+                    return True
+            if (isinstance(expr, ast.Call) and isinstance(expr.func, ast.Attribute)
+                    and expr.func.attr == "get" and expr.args):
+                key = _eval_str(expr.args[0])
+                if key in names and is_builtins_expr(expr.func.value):
+                    return True
+            return False
+
+        def _container_alias_matches(expr, matcher):
+            values = _container_values(expr)
+            return bool(values) and any(matcher(value) for value in values)
+
+        def is_vars_expr(expr):
+            if isinstance(expr, ast.Name) and expr.id in vars_aliases:
+                return True
+            return _container_alias_matches(expr,
+                                            lambda value: isinstance(value, ast.Name)
+                                            and value.id in vars_aliases)
+
         def is_vars_call(node):
-            return (isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
-                    and node.func.id in vars_aliases and len(node.args) >= 1)
+            return (isinstance(node, ast.Call) and is_vars_expr(node.func)
+                    and len(node.args) >= 1)
 
         def is_ctypes_expr(expr):
+            if "ctypes_module" in _abstract(expr).tags:
+                return True
             if isinstance(expr, ast.Name):
                 return expr.id in ctypes_aliases
             if isinstance(expr, ast.Attribute):
@@ -338,31 +980,48 @@ def _check_load_sites(root, report, files, allowed_dynamic_exec):
                 return is_ctypes_expr(expr.body) or is_ctypes_expr(expr.orelse)
             if isinstance(expr, ast.BoolOp):
                 return any(is_ctypes_expr(value) for value in expr.values)
+            values = _container_values(expr)
+            if values is not None:
+                return any(is_ctypes_expr(value) for value in values)
             return False
 
         def is_importlib_module_expr(expr):
+            if "importlib_module" in _abstract(expr).tags:
+                return True
             if isinstance(expr, ast.Name):
-                return expr.id in importlib_aliases
-            if isinstance(expr, ast.Attribute):
-                return is_importlib_module_expr(expr.value)
-            return False
+                direct = expr.id in importlib_aliases
+            elif isinstance(expr, ast.Attribute):
+                direct = is_importlib_module_expr(expr.value)
+            else:
+                direct = False
+            return direct or _container_alias_matches(expr, is_importlib_module_expr)
 
         def is_import_module_expr(expr):
+            if "import_module" in _abstract(expr).tags:
+                return True
             if isinstance(expr, ast.Name):
-                return expr.id in import_module_aliases
-            return (isinstance(expr, ast.Attribute) and expr.attr == "import_module"
-                    and is_importlib_module_expr(expr.value))
+                direct = expr.id in import_module_aliases
+            else:
+                direct = (isinstance(expr, ast.Attribute) and expr.attr == "import_module"
+                          and is_importlib_module_expr(expr.value))
+            return direct or _container_alias_matches(expr, is_import_module_expr)
+
+        def is_import_function_expr(expr):
+            if "import_function" in _abstract(expr).tags:
+                return True
+            if isinstance(expr, ast.Name) and expr.id in import_function_aliases:
+                return True
+            return _builtin_lookup(expr, {"__import__"}) \
+                or _container_alias_matches(expr, is_import_function_expr)
 
         def is_trusted_import_module_call(node):
             if not isinstance(node, ast.Call):
                 return False
-            if isinstance(node.func, ast.Name):
-                return node.func.id in import_module_aliases
-            if isinstance(node.func, ast.Attribute) and node.func.attr == "import_module":
-                return is_importlib_module_expr(node.func.value)
-            return False
+            return is_import_module_expr(node.func)
 
         def is_machinery_expr(expr):
+            if "machinery" in _abstract(expr).tags:
+                return True
             if isinstance(expr, ast.Name):
                 return expr.id in importlib_machinery_aliases
             if isinstance(expr, ast.Attribute):
@@ -373,41 +1032,140 @@ def _check_load_sites(root, report, files, allowed_dynamic_exec):
                 return bool(expr.args) and _eval_str(expr.args[0]) == "importlib.machinery"
             if isinstance(expr, ast.Call) and is_vars_call(expr):
                 return is_machinery_expr(expr.args[0])
-            return False
+            return _container_alias_matches(expr, is_machinery_expr)
+
+        def is_getattr_expr(expr):
+            if "getattr" in _abstract(expr).tags:
+                return True
+            if isinstance(expr, ast.Name) and expr.id in getattr_aliases:
+                return True
+            return _builtin_lookup(expr, {"getattr"}) \
+                or _container_alias_matches(expr, is_getattr_expr)
 
         def is_attrgetter_expr(expr):
+            if "attrgetter" in _abstract(expr).tags:
+                return True
             if isinstance(expr, ast.Name):
-                return expr.id in attrgetter_aliases
-            if isinstance(expr, ast.Attribute):
-                return expr.attr == "attrgetter" and is_operator_expr(expr.value)
-            if isinstance(expr, ast.Subscript):
-                return (_eval_str(expr.slice) == "attrgetter"
-                        and (is_operator_expr(expr.value)
-                             or (isinstance(expr.value, ast.Attribute)
-                                 and expr.value.attr == "__dict__"
-                                 and is_operator_expr(expr.value.value))
-                             or (isinstance(expr.value, ast.Call)
-                                 and is_vars_call(expr.value)
-                                 and expr.value.args
-                                 and is_operator_expr(expr.value.args[0]))))
-            if isinstance(expr, ast.Call) and isinstance(expr.func, ast.Name) \
-                    and expr.func.id in getattr_aliases and len(expr.args) >= 2:
-                return _eval_str(expr.args[1]) == "attrgetter"
-            return False
+                direct = expr.id in attrgetter_aliases
+            elif isinstance(expr, ast.Attribute):
+                direct = expr.attr == "attrgetter" and is_operator_expr(expr.value)
+            elif isinstance(expr, ast.Subscript):
+                direct = (_eval_str(expr.slice) == "attrgetter"
+                          and (is_operator_expr(expr.value)
+                               or (isinstance(expr.value, ast.Attribute)
+                                   and expr.value.attr == "__dict__"
+                                   and is_operator_expr(expr.value.value))
+                               or (isinstance(expr.value, ast.Call)
+                                   and is_vars_call(expr.value)
+                                   and expr.value.args
+                                   and is_operator_expr(expr.value.args[0]))))
+            elif isinstance(expr, ast.Call) and is_getattr_expr(expr.func) and len(expr.args) >= 2:
+                direct = _eval_str(expr.args[1]) == "attrgetter"
+            else:
+                direct = False
+            return direct or _container_alias_matches(expr, is_attrgetter_expr)
 
         def is_operator_expr(expr):
-            return isinstance(expr, ast.Name) and expr.id in operator_aliases
+            if "operator" in _abstract(expr).tags:
+                return True
+            return ((isinstance(expr, ast.Name) and expr.id in operator_aliases)
+                    or _container_alias_matches(expr, is_operator_expr))
 
         def is_getattribute_expr(expr):
+            if "getattribute" in _abstract(expr).tags:
+                return True
             if isinstance(expr, ast.Name):
-                return expr.id in getattribute_aliases
-            return isinstance(expr, ast.Attribute) and expr.attr == "__getattribute__"
+                direct = expr.id in getattribute_aliases
+            else:
+                direct = isinstance(expr, ast.Attribute) and expr.attr == "__getattribute__"
+            return direct or _builtin_lookup(expr, {"__getattribute__"}) \
+                or _container_alias_matches(expr, is_getattribute_expr)
 
         def is_ctypes_getattribute_expr(expr):
+            if "ctypes_getattribute" in _abstract(expr).tags:
+                return True
             if isinstance(expr, ast.Name):
-                return expr.id in ctypes_getattribute_aliases
-            return (isinstance(expr, ast.Attribute) and expr.attr == "__getattribute__"
-                    and is_ctypes_expr(expr.value))
+                direct = expr.id in ctypes_getattribute_aliases
+            else:
+                direct = (isinstance(expr, ast.Attribute) and expr.attr == "__getattribute__"
+                          and is_ctypes_expr(expr.value))
+            return direct or _container_alias_matches(expr, is_ctypes_getattribute_expr)
+
+        def is_ctypes_sensitive_expr(expr):
+            if _abstract(expr).tags & {"ctypes_module", "ctypes_loader", "ctypes_reflection",
+                                       "ctypes_getattribute"}:
+                return True
+            if isinstance(expr, ast.Name):
+                return expr.id in ctypes_aliases
+            if isinstance(expr, ast.Attribute):
+                if expr.attr not in (_ALL_LOADER_TOKENS | _FORBIDDEN_CPYTHON_ATTRS
+                                     | {"__dict__"}):
+                    return False
+                return is_ctypes_sensitive_expr(expr.value)
+            if isinstance(expr, ast.Call) and is_vars_call(expr) and expr.args:
+                return is_ctypes_sensitive_expr(expr.args[0])
+            values = _container_values(expr)
+            return values is not None and any(is_ctypes_sensitive_expr(value) for value in values)
+
+        def is_sensitive_value(expr):
+            static_tags = _abstract(expr).tags
+            return (bool(static_tags & {"ctypes_module", "ctypes_loader", "ctypes_reflection",
+                                        "ctypes_getattribute", "unknown_loader",
+                                        "attrgetter_sensitive"})
+                    or is_ctypes_sensitive_expr(expr) or is_builtins_expr(expr)
+                    or is_vars_expr(expr) or is_getattr_expr(expr)
+                    or is_getattribute_expr(expr) or is_ctypes_getattribute_expr(expr)
+                    or is_import_function_expr(expr) or is_import_module_expr(expr)
+                    or is_attrgetter_expr(expr) or is_machinery_expr(expr)
+                    or is_operator_expr(expr))
+
+        def is_loader_expr(expr):
+            """Recognize a native loader owner, including opaque owners."""
+            tags = _abstract(expr).tags
+            return (is_ctypes_expr(expr) or "ctypes_loader" in tags
+                    or "unknown_loader" in tags or "unknown_owner" in tags)
+
+        def contains_sensitive_value(expr):
+            if is_sensitive_value(expr):
+                return True
+            if "unknown_loader" in _abstract(expr).tags:
+                return True
+            # A safe ctypes constant such as ctypes.c_double must not inherit
+            # the sensitivity of its module owner.
+            if isinstance(expr, ast.Attribute) and is_ctypes_expr(expr.value):
+                return False
+            if isinstance(expr, (ast.Dict, ast.List, ast.Tuple, ast.Set)):
+                if isinstance(expr, ast.Dict):
+                    values = list(expr.values) + [key for key in expr.keys if key is not None]
+                else:
+                    values = list(expr.elts)
+                return any(contains_sensitive_value(value) for value in values)
+            if isinstance(expr, ast.Call):
+                if is_attrgetter_expr(expr.func):
+                    return True
+                if is_getattr_expr(expr.func) and expr.args:
+                    attr = _eval_str(expr.args[1]) if len(expr.args) >= 2 else None
+                    return (is_ctypes_expr(expr.args[0])
+                            or is_machinery_expr(expr.args[0])
+                            or attr in _ALL_LOADER_TOKENS
+                            or attr in _IMPORTLIB_LOADER_NAMES)
+                if is_import_function_expr(expr.func):
+                    module = _eval_str(expr.args[0]) if expr.args else None
+                    return module is None or "ctypes" in module or module == "importlib.machinery"
+                if is_import_module_expr(expr.func):
+                    module = _eval_str(expr.args[0]) if expr.args else None
+                    return module is None or "ctypes" in module or module == "importlib.machinery"
+                if is_vars_expr(expr.func) and expr.args:
+                    return is_sensitive_value(expr.args[0])
+                return (any(contains_sensitive_value(argument) for argument in expr.args)
+                        or any(contains_sensitive_value(keyword.value) for keyword in expr.keywords))
+            return any(contains_sensitive_value(child) for child in ast.iter_child_nodes(expr))
+
+        def contains_sensitive_literal(expr):
+            return any(isinstance(inner, ast.Constant) and inner.value in (
+                set(_ALL_LOADER_TOKENS) | set(_IMPORTLIB_LOADER_NAMES)
+                | {"ctypes", "importlib.machinery", "__builtins__"})
+                       for inner in ast.walk(expr))
 
         def bind_names(target, value, names, predicate):
             if isinstance(target, ast.Starred):
@@ -434,20 +1192,24 @@ def _check_load_sites(root, report, files, allowed_dynamic_exec):
             bind_names(target, value, ctypes_aliases, is_ctypes_expr)
             bind_names(target, value, importlib_machinery_aliases, is_machinery_expr)
             bind_names(target, value, vars_aliases,
-                      lambda expr: isinstance(expr, ast.Name) and expr.id in vars_aliases)
+                      is_vars_expr)
             bind_names(target, value, getattr_aliases,
-                      lambda expr: isinstance(expr, ast.Name) and expr.id in getattr_aliases)
+                      is_getattr_expr)
             bind_names(target, value, attrgetter_aliases, is_attrgetter_expr)
             bind_names(target, value, import_module_aliases,
                       is_import_module_expr)
             bind_names(target, value, import_function_aliases,
-                      lambda expr: isinstance(expr, ast.Name) and expr.id in import_function_aliases)
+                      is_import_function_expr)
             bind_names(target, value, getattribute_aliases, is_getattribute_expr)
             bind_names(target, value, ctypes_getattribute_aliases, is_ctypes_getattribute_expr)
             bind_names(target, value, operator_aliases,
-                      lambda expr: isinstance(expr, ast.Name) and expr.id in operator_aliases)
+                      lambda expr: ((isinstance(expr, ast.Name) and expr.id in operator_aliases)
+                                    or _container_alias_matches(expr, is_operator_expr)))
 
         for node in ast.walk(tree):
+            if isinstance(node, ast.Name) and node.id == "__builtins__":
+                _fail(report, f"forbidden __builtins__ reflection surface at {relative}:{node.lineno}")
+
             # 1. Imports from ctypes, importlib, operator or builtins.
             if isinstance(node, ast.ImportFrom):
                 mod = node.module or ""
@@ -509,15 +1271,13 @@ def _check_load_sites(root, report, files, allowed_dynamic_exec):
 
             # 2. Dynamic module imports: __import__('ctypes') or import_module(...).
             if isinstance(node, ast.Call):
-                if (isinstance(node.func, ast.Name)
-                        and node.func.id in import_function_aliases):
+                if is_import_function_expr(node.func):
                     module_name = _eval_str(node.args[0]) if node.args else None
                     if module_name is None:
                         _fail(report, f"forbidden dynamic __import__ module name at {relative}:{node.lineno}")
                     elif "ctypes" in module_name:
                         _fail(report, f"forbidden dynamic __import__ of ctypes at {relative}:{node.lineno}")
-                elif ((isinstance(node.func, ast.Attribute) and node.func.attr == "import_module")
-                      or (isinstance(node.func, ast.Name) and node.func.id in import_module_aliases)):
+                elif is_import_module_expr(node.func):
                     module_name = _eval_str(node.args[0]) if node.args else None
                     if module_name is None:
                         _fail(report, f"forbidden dynamic importlib module name at {relative}:{node.lineno}")
@@ -526,11 +1286,16 @@ def _check_load_sites(root, report, files, allowed_dynamic_exec):
                     if is_trusted_import_module_call(node) and module_name == "importlib.machinery":
                         _fail(report, f"forbidden dynamic importlib loader module at {relative}:{node.lineno}")
 
+                if isinstance(node.func, ast.Name) and node.func.id in {"globals", "locals"}:
+                    _fail(report, f"forbidden global namespace reflection at {relative}:{node.lineno}")
+
             # 3. Dynamic execution calls: eval, exec, compile.
             if isinstance(node, ast.Call):
                 call_name = None
                 if isinstance(node.func, ast.Name) and node.func.id in {"eval", "exec", "compile"}:
                     call_name = node.func.id
+                elif _builtin_lookup(node.func, {"eval", "exec", "compile"}):
+                    call_name = _eval_str(node.func.slice) if isinstance(node.func, ast.Subscript) else "builtin"
                 elif isinstance(node.func, ast.Attribute) and node.func.attr in {"eval", "exec"}:
                     call_name = node.func.attr
                 elif (isinstance(node.func, ast.Attribute) and node.func.attr == "compile"
@@ -541,6 +1306,31 @@ def _check_load_sites(root, report, files, allowed_dynamic_exec):
                         _fail(report, f"forbidden dynamic code execution call ({call_name}) at {relative}:{node.lineno}")
                     else:
                         observed_dynamic_exec.add((relative, node.lineno))
+
+            # 3b. Do not allow native/reflection values to cross an opaque
+            # callable or be hidden in a container.  The audit does not run
+            # those callables, so this conservative boundary is the safe
+            # substitute for interprocedural execution.
+            if isinstance(node, (ast.Dict, ast.List, ast.Tuple, ast.Set)) \
+                    and contains_sensitive_value(node):
+                _fail(report, f"forbidden sensitive value carried through container at "
+                              f"{relative}:{node.lineno}")
+            if isinstance(node, ast.Assign) and any(isinstance(target, ast.Subscript)
+                                                    for target in node.targets) \
+                    and contains_sensitive_value(node.value):
+                _fail(report, f"forbidden sensitive value stored in container at "
+                              f"{relative}:{node.lineno}")
+            if isinstance(node, ast.Call):
+                arguments = list(node.args) + [keyword.value for keyword in node.keywords]
+                if any(is_sensitive_value(argument) for argument in arguments):
+                    _fail(report, f"forbidden sensitive value passed through callable at "
+                                  f"{relative}:{node.lineno}")
+                if (isinstance(node.func, ast.Name)
+                        and node.func.id in function_parameter_names
+                        and any(contains_sensitive_value(argument) or contains_sensitive_literal(argument)
+                                for argument in arguments)):
+                    _fail(report, f"forbidden sensitive value passed to callable parameter at "
+                                  f"{relative}:{node.lineno}")
 
             # 4. Access to ctypes/importlib machinery dictionaries or vars aliases.
             if isinstance(node, ast.Attribute) and node.attr == "__dict__":
@@ -600,7 +1390,7 @@ def _check_load_sites(root, report, files, allowed_dynamic_exec):
             # 6c. Reject ctypes-owned loader references while keeping user-owned
             # Foo.CDLL references clean.
             if (isinstance(node, ast.Attribute) and node.attr in _LOAD_NAMES
-                    and is_ctypes_expr(node.value) and id(node) not in allowed_loader_attrs):
+                    and is_loader_expr(node.value) and id(node) not in allowed_loader_attrs):
                 _fail(report, f"forbidden loader reference outside the pinned call "
                               f"({node.attr}) at {relative}:{node.lineno}")
 
@@ -617,10 +1407,10 @@ def _check_load_sites(root, report, files, allowed_dynamic_exec):
 
             # 7. Attribute access on ctypes/importlib loader owners.
             if isinstance(node, ast.Attribute):
-                if node.attr in _LOADER_ATTRS and is_ctypes_expr(node.value):
+                if node.attr in _LOADER_ATTRS and is_loader_expr(node.value):
                     _fail(report, f"forbidden ctypes loader module access ({node.attr}) at {relative}:{node.lineno}")
                 elif ((isinstance(node.value, ast.Attribute) and node.value.attr in _LOADER_ATTRS
-                       and is_ctypes_expr(node.value.value))
+                       and is_loader_expr(node.value.value))
                       or (isinstance(node.value, ast.Name) and node.value.id in _LOADER_ATTRS
                           and node.value.id in aliases)):
                     _fail(report, f"forbidden ctypes loader attribute access ({node.attr}) at {relative}:{node.lineno}")
@@ -630,8 +1420,7 @@ def _check_load_sites(root, report, files, allowed_dynamic_exec):
                     _fail(report, f"forbidden native/bytecode loader access ({node.attr}) at {relative}:{node.lineno}")
 
             # 8. getattr loader calls, including returned importlib machinery modules.
-            if (isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
-                    and node.func.id in getattr_aliases):
+            if isinstance(node, ast.Call) and is_getattr_expr(node.func):
                 if len(node.args) >= 2:
                     attr_val = _eval_str(node.args[1])
                     base = node.args[0]
@@ -686,14 +1475,15 @@ def _check_load_sites(root, report, files, allowed_dynamic_exec):
             if isinstance(node, ast.Assign):
                 rhs = node.value
                 for target in node.targets:
+                    if isinstance(target, ast.Name):
+                        container_bindings[target.id] = rhs
                     bind_aliases(target, rhs)
                 is_loader_alias = (
                     isinstance(rhs, ast.Attribute) and rhs.attr in _ALL_LOADER_TOKENS
                     and is_ctypes_expr(rhs.value))
                 if isinstance(rhs, ast.Name) and rhs.id in aliases:
                     is_loader_alias = True
-                elif (isinstance(rhs, ast.Call) and isinstance(rhs.func, ast.Name)
-                      and rhs.func.id in getattr_aliases):
+                elif isinstance(rhs, ast.Call) and is_getattr_expr(rhs.func):
                     if (len(rhs.args) >= 2 and _eval_str(rhs.args[1]) in _ALL_LOADER_TOKENS
                             and is_ctypes_expr(rhs.args[0])):
                         is_loader_alias = True
@@ -707,6 +1497,8 @@ def _check_load_sites(root, report, files, allowed_dynamic_exec):
                         bind_loader_names(target, rhs)
 
             if isinstance(node, ast.AnnAssign) and node.value is not None:
+                if isinstance(node.target, ast.Name):
+                    container_bindings[node.target.id] = node.value
                 bind_aliases(node.target, node.value)
 
             # 10. Dynamic library call sites require a ctypes owner or a
@@ -723,8 +1515,9 @@ def _check_load_sites(root, report, files, allowed_dynamic_exec):
                 func_parts.reverse()
                 loads_library = (
                     isinstance(func, ast.Attribute) and func.attr in _LOAD_NAMES
-                    and is_ctypes_expr(func.value)) or (
-                        isinstance(func, ast.Name) and func.id in aliases)
+                    and is_loader_expr(func.value)) or (
+                        isinstance(func, ast.Name) and func.id in aliases) or (
+                        bool(_abstract(func).tags & {"ctypes_loader", "unknown_loader"}))
                 if loads_library:
                     if relative == "Simulator/wksim_core/model.py" and id(func) in allowed_loader_attrs:
                         allowed_count += 1

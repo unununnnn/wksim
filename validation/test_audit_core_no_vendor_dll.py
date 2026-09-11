@@ -85,6 +85,25 @@ class NoVendorDllAuditTests(unittest.TestCase):
         self.assertEqual(report["status"], "pass")
         self.assertEqual(report["violations"], [])
 
+    def test_first_class_module_escape_cannot_hide_in_object_flow(self):
+        samples = [
+            'class C: pass\ndef f():\n c=C()\n c.module=ctypes\n return c\nf().module.CDLL("x")\n',
+            'class C:\n @property\n def module(self): return ctypes\nC().module.CDLL("x")\n',
+            'class C: pass\na=C()\nb=a\na.module=ctypes\nb.module.CDLL("x")\n',
+        ]
+        for sample in samples:
+            with self.subTest(sample=sample):
+                report = self.audit(extra_files={"Simulator/wksim_core/probe.py":
+                                                'import ctypes\n' + sample})
+                self.assertEqual(report["status"], "failed")
+                self.assertTrue(any("first-class ctypes module escape" in item
+                                    for item in report["violations"]))
+
+    def test_local_module_alias_keeps_ctypes_type_usage(self):
+        report = self.audit(extra_files={"Simulator/wksim_core/probe.py":
+                                        'import ctypes as C\nmodule=C\nx=module.c_double(2)\n'})
+        self.assertEqual(report["status"], "pass")
+
     def test_extra_load_site_rejected(self):
         extra = {"Simulator/wksim_core/worker.py":
                  "import ctypes\nctypes.WinDLL('x')\n"}
@@ -528,10 +547,133 @@ class ReflectionBypassTests(unittest.TestCase):
                 self.assertTrue(any("worker.py" in v for v in report["violations"]),
                                 report["violations"])
 
+    def test_return_attribute_default_and_comprehension_carriers_rejected(self):
+        for label, source in (
+            ("function_return", 'import ctypes\n'
+             'def factory():\n    return ctypes\n'
+             'factory().CDLL("x")\n'),
+            ("closure_return", 'import ctypes\n'
+             'def outer():\n    module = ctypes\n'
+             '    def inner():\n        return module\n'
+             '    return inner\n'
+             'outer()().CDLL("x")\n'),
+            ("lambda_return", 'import ctypes\n'
+             'factory = lambda: ctypes\n'
+             'factory().CDLL("x")\n'),
+            ("factory_chain", 'import ctypes\n'
+             'def first(): return ctypes\n'
+             'def second(): return first()\n'
+             'second().CDLL("x")\n'),
+            ("default_capture", 'import ctypes\n'
+             'def load(module=ctypes):\n    module.CDLL("x")\n'
+             'load()\n'),
+            ("kw_default_capture", 'import ctypes\n'
+             'def load(*, module=ctypes):\n    module.CDLL("x")\n'
+             'load()\n'),
+            ("named_expression", 'import ctypes\n'
+             '(module := ctypes).CDLL("x")\n'),
+            ("list_comprehension", 'import ctypes\n'
+             '[ctypes for _ in [0]][0].CDLL("x")\n'),
+            ("dict_comprehension", 'import ctypes\n'
+             '{"module": ctypes for _ in [0]}["module"].CDLL("x")\n'),
+            ("set_comprehension", 'import ctypes\n'
+             'next(iter({ctypes for _ in [0]})).CDLL("x")\n'),
+            ("generator_expression", 'import ctypes\n'
+             'next((ctypes for _ in [0])).CDLL("x")\n'),
+            ("class_attribute_carrier", 'import ctypes\n'
+             'class Holder:\n    module = ctypes\n'
+             'Holder.module.CDLL("x")\n'),
+            ("instance_attribute_carrier", 'import ctypes\n'
+             'class Holder: pass\n'
+             'holder = Holder()\n'
+             'holder.module = ctypes\n'
+             'holder.module.CDLL("x")\n'),
+            ("class_attribute_assignment", 'import ctypes\n'
+             'class Holder: pass\n'
+             'Holder.module = ctypes\n'
+             'Holder.module.CDLL("x")\n'),
+            ("setattr_instance_carrier", 'import ctypes\n'
+             'class Holder: pass\n'
+             'holder = Holder()\n'
+             'setattr(holder, "module", ctypes)\n'
+             'holder.module.CDLL("x")\n'),
+            ("unknown_factory_fail_closed", 'def factory():\n    return unknown_module()\n'
+             'factory().CDLL("x")\n'),
+        ):
+            with self.subTest(label=label):
+                report = self.audit_snippet(source)
+                self.assertTrue(any("worker.py" in v for v in report["violations"]),
+                                report["violations"])
+
+    def test_ordinary_attribute_carriers_and_ctypes_types_stay_clean(self):
+        for label, source in (
+            ("ordinary_class_attribute", 'class Holder:\n'
+             '    @staticmethod\n'
+             '    def CDLL(value): return value\n'
+             'Holder.CDLL("x")\n'),
+            ("ordinary_instance_attribute", 'class Holder: pass\n'
+             'holder = Holder()\n'
+             'holder.CDLL = lambda value: value\n'
+             'holder.CDLL("x")\n'),
+            ("ctypes_type_defaults", 'import ctypes\n'
+             'def parameter(value=ctypes.c_double): return value(1.0)\n'
+             'parameter()\n'),
+            ("ordinary_import_module", 'import importlib\n'
+             'importlib.import_module("json")\n'),
+        ):
+            with self.subTest(label=label):
+                report = self.audit_snippet(source)
+                self.assertFalse(any("worker.py" in v for v in report["violations"]),
+                                 report["violations"])
+
     def test_plain_container_and_dict_get_stay_clean(self):
         for label, source in (
             ("plain_get", 'd = {}\nx = d.get("CDLL")\n'),
             ("plain_container", 'f = [len][0]\nf("x")\n'),
+        ):
+            with self.subTest(label=label):
+                report = self.audit_snippet(source)
+                self.assertFalse(any("worker.py" in v for v in report["violations"]),
+                                 report["violations"])
+
+    def test_builtin_container_and_parameter_reflection_bypasses_rejected(self):
+        for label, source in (
+            ("builtins_getattr", 'import ctypes\n'
+             '__builtins__["getattr"](ctypes, "CDLL")("x")\n'),
+            ("builtins_import", 'm = __builtins__["__import__"]("ctypes")\n'
+             'm.CDLL("x")\n'),
+            ("globals_builtins_importlib", 'm = globals()["__builtins__"]["__import__"]("importlib")\n'
+             'm.import_module("importlib.machinery").ExtensionFileLoader("x", "x.pyd")\n'),
+            ("dict_module", 'import ctypes\nd = {"m": ctypes}\n'
+             'd["m"].CDLL("x")\n'),
+            ("list_module", 'import ctypes\nd = [ctypes]\n'
+             'd[0].CDLL("x")\n'),
+            ("tuple_getattr", 'import ctypes\nt = (getattr,)\n'
+             't[0](ctypes, "CDLL")("x")\n'),
+            ("dict_attrgetter", 'import ctypes, operator\n'
+             'd = {"g": operator.attrgetter}\n'
+             'd["g"]("CDLL")(ctypes)("x")\n'),
+            ("dict_import_module", 'import importlib\n'
+             'd = {"i": importlib.import_module}\n'
+             'd["i"]("importlib.machinery").ExtensionFileLoader("x", "x.pyd")\n'),
+            ("parameter_getattr", 'import ctypes\n'
+             'def f(g):\n    return g(ctypes, "CDLL")("x")\n'
+             'f(getattr)\n'),
+            ("parameter_import", 'def f(i):\n    return i("ctypes").CDLL("x")\n'
+             'f(__import__)\n'),
+        ):
+            with self.subTest(label=label):
+                report = self.audit_snippet(source)
+                self.assertTrue(any("worker.py" in v for v in report["violations"]),
+                                report["violations"])
+
+    def test_sensitive_carrier_false_positive_boundaries(self):
+        for label, source in (
+            ("ordinary_getattr", 'class G:\n    CDLL = 1\n'
+             'g = G()\nx = getattr(g, "CDLL")\n'),
+            ("ordinary_attrgetter", 'import operator\noperator.attrgetter("real")(1j)\n'),
+            ("ordinary_import_module", 'import importlib\nimportlib.import_module("json")\n'),
+            ("ctypes_constants", 'import ctypes\nvalues = (ctypes.c_double, ctypes.c_int)\n'),
         ):
             with self.subTest(label=label):
                 report = self.audit_snippet(source)
