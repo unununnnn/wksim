@@ -1,5 +1,24 @@
 # 三代理短周期 Goal
 
+## 最新检查点（优先于下方历史记录）
+
+截至提交 `186b839`：`989b45d` 的 GridMap 参数生命周期修复与 `186b839` 的 scheduler 时序/NSpid 绑定修复均已推送。GridMap 三端 17 项离线测试通过；scheduler 三端各 84 项通过（Windows 2 项条件跳过），OMP 增量复核 P0/P1 为 0。两者均未构成真实 planner/SITL 验收。
+
+当前唯一写入者与任务：
+
+| 执行端 | 当前任务 | 写入范围 |
+| --- | --- | --- |
+| Claude Code `4d5268f4-1d78-48ba-a5d6-aa800447cb1c` | 统一 GridMap 三轴膨胀、初始化上界和逐轴索引校验 | grid_map.h/cpp、test_grid_map_param_safety.py、39-planner-run-contract.md |
+| Oh My Pi `6deb2e40-2240-4db2-8c7f-c06bf6724048` | #75 preflight Gazebo/结果 schema 最终复核 | 只读 |
+| agy `d0a07619-281c-408c-813a-d0784cee52a3` | #75 preflight 终审因个人额度失败 | 无有效运行；恢复后再分发 |
+| Luna `luna_pump_bounds_fix` | #75 AST 返回值、闭包和属性载体绕过修复 | audit_core_no_vendor_dll.py 及其测试 |
+| Luna `luna_scheduler_resetfork_final_seal` | G6 单次读取、发布竞态、嵌套来源绑定修复 | G6 schema、generator、validator 及测试 |
+| Luna `luna_75_reflection_seal` | #75 preflight 修复已交付，等待独立复核 | 三文件暂不继续编辑 |
+
+G6 首次 OMP GO 已被 Luna 可复现反例推翻，保持 NO-GO，禁止提交未完成修复。#75 preflight 新修复待 OMP 复核，AST 修复待交付。真实 scheduler isolated-01 失败原件不重跑；下一诊断必须新目录、新 run，并先解决已知准入条件。当前无本轮安排的真实 SITL/UE/MATLAB/tracefs 运行。
+
+实查 Goal 服务返回 `blocked`，与旧文档的 active 记载不一致；主会话未将其误报为 active，也未以本轮提交标记 Full 完成。heartbeat `wksim` 仍 ACTIVE 并已更新到上述线程，后续以实时状态为准。旧 dispatch JSON 和下方历史线程不可作为当前分发依据。
+
 2026-09-10 用户要求合理设置 Goal、缩短任务周期，并将 Claude Code 加入原 OMP/agy 分工。实查本任务 Goal 为空后已创建 active Goal，继承原 Full/G0–G6 和所有必需票据终态；未指定 token 预算，因此未设置预算。不能因一个切片或一轮任务完成而将此 Goal 标为完成。
 
 ## 执行节奏
