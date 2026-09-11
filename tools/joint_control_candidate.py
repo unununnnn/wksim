@@ -6,6 +6,11 @@ import os
 from pathlib import Path
 import re
 
+try:
+    from joint_message_candidate import check as check_messages
+except ImportError:  # Support package-style imports from the repository root.
+    from tools.joint_message_candidate import check as check_messages
+
 REPO = Path(__file__).resolve().parents[1]
 PACKAGE = REPO / 'ros2/src/prometheus_control'
 PYTHON = 'local/lib/python3.10/dist-packages'
@@ -22,6 +27,8 @@ INSTALLED_INPUTS = {
     'scripts/trajectory_bridge_node': 'lib/prometheus_control/trajectory_bridge_node',
     'launch/trajectory_bridge.launch.py': 'share/prometheus_control/launch/trajectory_bridge.launch.py',
 }
+MESSAGE_MANIFEST = Path('/root/wksim-ros2-Rzj3Pf/message-build.json')
+MESSAGE_SHA256 = '29969da0702451e3fc6f1de40bc301a67284c4e7d5fae8f88c64773d27a96219'
 
 
 def digest(path):
@@ -74,11 +81,16 @@ def snapshot(root):
     staged_builder = root / 'build-joint-control.sh'
     if digest(staged_builder) != digest(REPO / 'tools/build-joint-control.sh'):
         raise ValueError('Staged control build script differs')
+    messages = check_messages(MESSAGE_MANIFEST, MESSAGE_SHA256)
     return dict(version=2, root=str(root), package=str(installed), python_sha256=source,
                 simulator_python_sha256=simulator, build_inputs=config,
                 installed_inputs=installed_inputs, build_log_sha256=digest(root / 'build.log'),
                 rc_transport_sha256=digest(root/'install/prometheus_control/lib/libwksim_rc_take.so'),
                 build_script_sha256=digest(staged_builder),
+                sealer_sha256=digest(REPO/'tools/joint_control_candidate.py'),
+                message_manifest_path=str(MESSAGE_MANIFEST),
+                message_manifest_sha256=MESSAGE_SHA256,
+                message_candidate=messages,
                 scope='experimental continuous joint ROS-time operations; no production admission')
 
 

@@ -40,13 +40,21 @@ class CandidateTests(unittest.TestCase):
             transport.write_bytes(b'fixture transport\n')
             (repo/'tools').mkdir()
             (repo/'tools/build-joint-control.sh').write_text('fixture build\n')
+            (repo/'tools/joint_control_candidate.py').write_text('fixture sealer\n')
             (root/'build-joint-control.sh').write_text('fixture build\n')
             (root/'build.log').write_text('fixture completed\n')
+            messages = dict(root='/root/wksim-ros2-Test12', packages={})
             with patch.object(candidate,'REPO',repo),patch.object(candidate,'PACKAGE',package),\
-                    patch.object(candidate,'root_path',return_value=root):
+                    patch.object(candidate,'root_path',return_value=root),\
+                    patch.object(candidate,'check_messages',return_value=messages) as check_messages:
                 manifest=root/'build.json'; manifest.write_text(json.dumps(candidate.snapshot(root)))
                 checksum=candidate.digest(manifest)
-                self.assertEqual(candidate.check(manifest,checksum)['version'],2)
+                record = candidate.check(manifest,checksum)
+                self.assertEqual(record['version'],2)
+                self.assertEqual(record['message_candidate'], messages)
+                self.assertEqual(record['message_manifest_path'], str(candidate.MESSAGE_MANIFEST))
+                self.assertEqual(record['message_manifest_sha256'], candidate.MESSAGE_SHA256)
+                check_messages.assert_called_with(candidate.MESSAGE_MANIFEST, candidate.MESSAGE_SHA256)
                 with self.assertRaises(ValueError): candidate.check(manifest,'0'*64)
                 installed=root/'install/prometheus_control'/candidate.PYTHON/'prometheus_control/node.py'
                 installed.write_text('VALUE = 2\n')
