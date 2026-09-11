@@ -214,6 +214,21 @@ def audit_initial_sidecar(rows, epoch):
     return _sha256_bytes(_canonical_json(row["state"]).encode("utf-8"))
 
 
+def _state_trace_sha256(states):
+    return _sha256_bytes(_canonical_json(states).encode("utf-8"))
+
+
+def _terrain_trace_is(terrain_by_trace, expected):
+    return (isinstance(terrain_by_trace, dict)
+            and set(terrain_by_trace) == set(STACKS)
+            and all(
+                isinstance(values, list)
+                and len(values) == TICKS
+                and all(_exact_float_vector(value, expected) for value in values)
+                for values in terrain_by_trace.values()
+            ))
+
+
 def audit_scenario(evidence):
     """Audit retained worker traces and clocks without running any process."""
     if not isinstance(evidence, dict):
@@ -229,13 +244,27 @@ def audit_scenario(evidence):
         raise ProbeError("scenario evidence contains an invalid expected Terrain15D")
     _audit_clock_snapshots(evidence.get("clock_snapshots"))
 
+    initial_states = evidence.get("initial_states")
+    initial_state_sha256 = {}
+    if initial_states is not None:
+        if not isinstance(initial_states, dict) or set(initial_states) != set(STACKS):
+            raise ProbeError("scenario evidence must contain both initial states")
+        for stack in STACKS:
+            if not _finite_state(initial_states[stack]):
+                raise ProbeError(f"{stack} initial state is not a finite 120-value state")
+            initial_state_sha256[stack] = _sha256_bytes(
+                _canonical_json(initial_states[stack]).encode("utf-8")
+            )
+
     final_states = {}
+    state_traces = {}
     terrain_by_trace = {}
     for stack in STACKS:
         rows = trace_rows[stack]
         if not isinstance(rows, list) or len(rows) != TICKS:
             raise ProbeError(f"{stack} trace must contain exactly 50 records")
         values = []
+        state_traces[stack] = []
         for expected_tick, row in enumerate(rows, 1):
             expected_request = {
                 "version": 1,
@@ -268,24 +297,38 @@ def audit_scenario(evidence):
             if round(state[60]) != expected_tick * 1000:
                 raise ProbeError(f"{stack} state does not prove the expected sensor time")
             values.append(list(row["terrain"]))
+            state_traces[stack].append(list(state))
             final_states[stack] = state
         terrain_by_trace[stack] = values
 
     for index in range(TICKS):
-        if trace_rows[STACKS[0]][index]["state"] != trace_rows[STACKS[1]][index]["state"]:
+        if state_traces[STACKS[0]][index] != state_traces[STACKS[1]][index]:
             raise ProbeError("the two native Exp1 workers diverged within one scenario")
 
     final_state_sha256 = {
         stack: _sha256_bytes(_canonical_json(final_states[stack]).encode("utf-8"))
         for stack in STACKS
     }
-    return {
+    result = {
+        "epoch": epoch,
+        "scene_hash": evidence.get("scene_hash"),
         "ticks": TICKS,
         "stacks_identical": True,
         "terrain_by_trace": terrain_by_trace,
+        "state_trace_sha256": {
+            stack: _state_trace_sha256(state_traces[stack])
+            for stack in STACKS
+        },
         "final_state_sha256": final_state_sha256,
         "final_states": final_states,
+        "state_traces": state_traces,
     }
+    if initial_states is not None:
+        result["initial_states"] = {
+            stack: list(initial_states[stack]) for stack in STACKS
+        }
+        result["initial_state_sha256"] = initial_state_sha256
+    return result
 
 
 def compare_scenarios(baseline, elevated):
@@ -305,6 +348,61 @@ def compare_scenarios(baseline, elevated):
         "elevated_final_state_sha256": dict(elevated["final_state_sha256"]),
         "differing_indices": differing_indices,
         "both_stacks_differ": True,
+    }
+
+def compare_elevated_reset(elevated, elevated_reset):
+    """Require an exact fresh-epoch replay of the elevated scenario."""
+    if elevated.get("epoch") == elevated_reset.get("epoch"):
+        raise ProbeError("elevated reset comparison requires a new epoch")
+    scene_hash = elevated.get("scene_hash")
+    if (not isinstance(scene_hash, str) or len(scene_hash) != 64
+            or any(character not in "0123456789abcdef" for character in scene_hash)
+            or scene_hash != elevated_reset.get("scene_hash")):
+        raise ProbeError("elevated reset comparison requires the same scene hash")
+    if elevated.get("ticks") != TICKS or elevated_reset.get("ticks") != TICKS:
+        raise ProbeError("elevated reset comparison requires exactly 50 ticks")
+    if (not _terrain_trace_is(elevated.get("terrain_by_trace"), ELEVATED_TERRAIN)
+            or not _terrain_trace_is(
+                elevated_reset.get("terrain_by_trace"), ELEVATED_TERRAIN
+            )):
+        raise ProbeError(
+            "elevated reset comparison requires exact [-1.0, +0.0 x14] Terrain15D"
+        )
+    if ("initial_states" not in elevated
+            or "initial_states" not in elevated_reset
+            or "initial_state_sha256" not in elevated
+            or "initial_state_sha256" not in elevated_reset):
+        raise ProbeError("elevated reset comparison requires both initial states")
+
+    initial_state_equal = {}
+    state_trace_equal = {}
+    for stack in STACKS:
+        if elevated["initial_states"][stack] != elevated_reset["initial_states"][stack]:
+            raise ProbeError(f"elevated reset initial state mismatch for {stack}")
+        if elevated["state_traces"][stack] != elevated_reset["state_traces"][stack]:
+            raise ProbeError(f"elevated reset state trace mismatch for {stack}")
+        if (elevated["state_trace_sha256"][stack]
+                != elevated_reset["state_trace_sha256"][stack]):
+            raise ProbeError(f"elevated reset state trace hash mismatch for {stack}")
+        initial_state_equal[stack] = True
+        state_trace_equal[stack] = True
+
+    return {
+        "reason_code": "cold_reset_elevated_exact_replay",
+        "epoch_changed": True,
+        "scene_hash_equal": True,
+        "elevated_epoch": elevated["epoch"],
+        "elevated_reset_epoch": elevated_reset["epoch"],
+        "initial_state_equal": initial_state_equal,
+        "state_trace_equal": state_trace_equal,
+        "initial_state_sha256": {
+            "elevated": dict(elevated["initial_state_sha256"]),
+            "elevated_reset": dict(elevated_reset["initial_state_sha256"]),
+        },
+        "state_trace_sha256": {
+            "elevated": dict(elevated["state_trace_sha256"]),
+            "elevated_reset": dict(elevated_reset["state_trace_sha256"]),
+        },
     }
 
 
@@ -487,11 +585,13 @@ def _source_hashes():
 
 def _scenario_summary(name, epoch, scene_path, scene_config, manifest,
                       traces, clock_path, clock_snapshots, children,
-                      initial_state_sha256, stub, audit):
+                      initial_enu, initial_state_sha256, stub, audit):
     return {
         "name": name,
         "epoch": epoch,
         "ticks": TICKS,
+        "scene_hash": scene_config["scene_sha256"],
+        "tick0_enu": list(initial_enu),
         "scene_path": str(scene_path),
         "scene_config": scene_config,
         "scene_manifest": manifest,
@@ -511,11 +611,12 @@ def _scenario_summary(name, epoch, scene_path, scene_config, manifest,
         },
         "terrain_by_trace": audit["terrain_by_trace"],
         "stacks_identical": audit["stacks_identical"],
+        "state_trace_sha256": audit["state_trace_sha256"],
         "final_state_sha256": audit["final_state_sha256"],
     }
-
-
-def _run_scenario(name, library, output):
+def _run_scenario(name, library, output, scene_anchor_enu=None):
+    if name not in ("baseline", "elevated", "elevated_reset"):
+        raise ProbeError(f"unknown terrain probe scenario: {name}")
     epoch = uuid.uuid4().hex
     traces = {
         stack: output / f"{name}-{stack}-truth.jsonl"
@@ -526,8 +627,9 @@ def _run_scenario(name, library, output):
     clock_snapshots = []
     scene_path = output / f"{name}-scene.json"
     scene_config = None
-    manifest = None
-    expected_terrain = BASELINE_TERRAIN if name == "baseline" else ELEVATED_TERRAIN
+    expected_terrain = (BASELINE_TERRAIN
+                        if name == "baseline"
+                        else ELEVATED_TERRAIN)
     scenario_evidence = {
         "epoch": epoch,
         "trace_rows": {},
@@ -554,6 +656,9 @@ def _run_scenario(name, library, output):
         if states[STACKS[0]] != states[STACKS[1]]:
             raise ProbeError("real tick-0 model states differ between stacks")
         initial_enu = vehicle60_to_enu_query_point(states[STACKS[0]][:60])
+        scenario_evidence["initial_states"] = {
+            stack: list(states[stack]) for stack in STACKS
+        }
 
         if name == "baseline":
             scene_config = json.loads(DEFAULT_SCENE_PATH.read_text(encoding="utf-8"))
@@ -563,7 +668,15 @@ def _run_scenario(name, library, output):
             scene_source = DEFAULT_SCENE_PATH
             expected_scene_hash = FROZEN_SCENE_SHA256
         else:
-            scene_config = make_elevated_scene(initial_enu)
+            if name == "elevated_reset":
+                if scene_anchor_enu is None:
+                    raise ProbeError("elevated reset requires the first elevated tick-0 ENU")
+                if initial_enu != scene_anchor_enu:
+                    raise ProbeError("elevated reset tick-0 ENU state changed")
+                scene_anchor = scene_anchor_enu
+            else:
+                scene_anchor = initial_enu
+            scene_config = make_elevated_scene(scene_anchor)
             scene_path.write_text(
                 json.dumps(scene_config, indent=2, sort_keys=True, ensure_ascii=True) + "\n",
                 encoding="utf-8",
@@ -571,6 +684,7 @@ def _run_scenario(name, library, output):
             )
             scene_source = scene_config
             expected_scene_hash = scene_config["scene_sha256"]
+        scenario_evidence["scene_hash"] = expected_scene_hash
 
         clock = SceneClock(epoch)
         terrain_feedback = TerrainFeedback(
@@ -617,20 +731,29 @@ def _run_scenario(name, library, output):
         if (not all(record.get("reaped") for record in records)
                 or any(record.get("returncode") != 0 for record in records)):
             raise ProbeError("real worker child retirement was not clean")
-        initial_state_sha256 = {
-            stack: audit_initial_sidecar(
-                _load_trace(Path(str(traces[stack]) + ".initial.jsonl")), epoch)
+        initial_sidecars = {
+            stack: _load_trace(Path(str(traces[stack]) + ".initial.jsonl"))
             for stack in STACKS
         }
+        initial_state_sha256 = {
+            stack: audit_initial_sidecar(initial_sidecars[stack], epoch)
+            for stack in STACKS
+        }
+        if any(initial_sidecars[stack][0]["state"]
+               != scenario_evidence["initial_states"][stack]
+               for stack in STACKS):
+            raise ProbeError("initial sidecar state differs from initial RPC state")
         scenario_evidence["trace_rows"] = {
             stack: _load_trace(traces[stack]) for stack in STACKS
         }
         audit = audit_scenario(scenario_evidence)
+        if audit["initial_state_sha256"] != initial_state_sha256:
+            raise ProbeError("initial state hash differs from its sidecar")
         success = True
         scenario = _scenario_summary(
             name, epoch, scene_path, scene_config, manifest, traces,
             clock_path, clock_snapshots, _public_child_records(records),
-            initial_state_sha256, native_io, audit,
+            initial_enu, initial_state_sha256, native_io, audit,
         )
         scenario["runtime_record_count"] = len(runtime_records)
         return scenario, audit
@@ -672,6 +795,7 @@ def run_probe(library, output):
             "physical_boundary": "terrain input/model response only; no contact-force claim",
             "native_io": DeterministicNativeIOStub.label,
             "external_systems": "No SITL, UE, FC, ROS, or MATLAB",
+            "cold_reset": "elevated -> elevated_reset exact replay under a new epoch",
         },
         "scenarios": {},
     }
@@ -682,7 +806,18 @@ def run_probe(library, output):
             scenario, audit = _run_scenario(name, library, output)
             result["scenarios"][name] = scenario
             audits[name] = audit
+        reset_scenario, reset_audit = _run_scenario(
+            "elevated_reset",
+            library,
+            output,
+            scene_anchor_enu=result["scenarios"]["elevated"]["tick0_enu"],
+        )
+        result["scenarios"]["elevated_reset"] = reset_scenario
+        audits["elevated_reset"] = reset_audit
         result["comparison"] = compare_scenarios(audits["baseline"], audits["elevated"])
+        result["elevated_reset_comparison"] = compare_elevated_reset(
+            audits["elevated"], audits["elevated_reset"]
+        )
         result["status"] = "passed"
     except ScenarioFailure as exc:
         result["status"] = "failed"

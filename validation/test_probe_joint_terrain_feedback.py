@@ -22,19 +22,19 @@ def state(tick, marker=0.0):
     return values
 
 
-def trace_rows(terrain, marker):
+def trace_rows(terrain, marker, epoch=EPOCH):
     rows = []
     for tick in range(1, probe.TICKS + 1):
         request = {
             "version": 1,
-            "epoch": EPOCH,
+            "epoch": epoch,
             "tick": tick,
             "commands": [0.0] * 16,
             "terrain": list(terrain),
         }
         rows.append({
             "version": 1,
-            "epoch": EPOCH,
+            "epoch": epoch,
             "tick": tick,
             "state": state(tick, marker),
             "request": request,
@@ -152,6 +152,80 @@ class ProbePureLogicTests(unittest.TestCase):
         with self.assertRaisesRegex(probe.ProbeError, "terrain"):
             probe.audit_scenario(evidence)
 
+
+    def audited_elevated(self, epoch=EPOCH, trace_marker=0.0,
+                         initial_marker=0.0, scene_hash="1" * 64):
+        initial = {
+            "arducopter": state(0, initial_marker),
+            "px4": state(0, initial_marker),
+        }
+        return probe.audit_scenario({
+            "epoch": epoch,
+            "scene_hash": scene_hash,
+            "trace_rows": {
+                "arducopter": trace_rows([-1.0] + [0.0] * 14, trace_marker, epoch),
+                "px4": trace_rows([-1.0] + [0.0] * 14, trace_marker, epoch),
+            },
+            "clock_snapshots": clocks(),
+            "expected_terrain": [-1.0] + [0.0] * 14,
+            "initial_states": initial,
+        })
+
+    def test_elevated_reset_reports_exact_replay_and_compact_hashes(self):
+        elevated = self.audited_elevated()
+        reset = self.audited_elevated("fedcba98765432100123456789abcdef")
+
+        comparison = probe.compare_elevated_reset(elevated, reset)
+
+        self.assertEqual(comparison["reason_code"], "cold_reset_elevated_exact_replay")
+        self.assertTrue(comparison["epoch_changed"])
+        self.assertTrue(comparison["scene_hash_equal"])
+        self.assertEqual(comparison["initial_state_equal"],
+                         {"arducopter": True, "px4": True})
+        self.assertEqual(comparison["state_trace_equal"],
+                         {"arducopter": True, "px4": True})
+        self.assertEqual(
+            comparison["initial_state_sha256"]["elevated"],
+            comparison["initial_state_sha256"]["elevated_reset"],
+        )
+        self.assertEqual(
+            comparison["state_trace_sha256"]["elevated"],
+            comparison["state_trace_sha256"]["elevated_reset"],
+        )
+
+    def test_elevated_reset_rejects_state_trace_mismatch(self):
+        elevated = self.audited_elevated()
+        reset = self.audited_elevated(
+            "fedcba98765432100123456789abcdef", trace_marker=1.0
+        )
+
+        with self.assertRaisesRegex(probe.ProbeError, "state trace"):
+            probe.compare_elevated_reset(elevated, reset)
+
+    def test_elevated_reset_rejects_initial_state_mismatch(self):
+        elevated = self.audited_elevated()
+        reset = self.audited_elevated(
+            "fedcba98765432100123456789abcdef", initial_marker=1.0
+        )
+
+        with self.assertRaisesRegex(probe.ProbeError, "initial state"):
+            probe.compare_elevated_reset(elevated, reset)
+
+    def test_elevated_reset_rejects_scene_hash_mismatch(self):
+        elevated = self.audited_elevated()
+        reset = self.audited_elevated(
+            "fedcba98765432100123456789abcdef", scene_hash="2" * 64
+        )
+
+        with self.assertRaisesRegex(probe.ProbeError, "scene hash"):
+            probe.compare_elevated_reset(elevated, reset)
+
+    def test_elevated_reset_requires_a_new_epoch(self):
+        elevated = self.audited_elevated()
+        reset = self.audited_elevated()
+
+        with self.assertRaisesRegex(probe.ProbeError, "new epoch"):
+            probe.compare_elevated_reset(elevated, reset)
     def test_compare_requires_different_final_states_for_both_stacks(self):
         baseline = probe.audit_scenario({
             "epoch": EPOCH,
