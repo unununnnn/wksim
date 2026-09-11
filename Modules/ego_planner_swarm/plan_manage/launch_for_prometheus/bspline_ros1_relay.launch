@@ -1,0 +1,14 @@
+<launch>
+  <arg name="uav_id" default="1"/>
+  <arg name="input_topic" default="/uav$(arg uav_id)/planning/bspline"/>
+  <arg name="output_topic" default="/uav$(arg uav_id)/planning/bspline_ros1_prometheus"/>
+
+  <node pkg="ego_planner"
+        type="bspline_ros1_relay.py"
+        name="uav$(arg uav_id)_bspline_ros1_relay"
+        output="screen">
+    <param name="uav_id" value="$(arg uav_id)"/>
+    <param name="input_topic" value="$(arg input_topic)"/>
+    <param name="output_topic" value="$(arg output_topic)"/>
+  </node>
+</launch>

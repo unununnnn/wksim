@@ -67,3 +67,8 @@ target_link_libraries(pub_preset_goal ${catkin_LIBRARIES})
 
 add_executable(motion_goal_swarm src_for_prometheus/motion_goal_swarm.cpp)
 target_link_libraries(motion_goal_swarm ${catkin_LIBRARIES})
+
+catkin_install_python(
+  PROGRAMS scripts/bspline_ros1_relay.py
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
