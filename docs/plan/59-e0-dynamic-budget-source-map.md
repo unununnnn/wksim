@@ -8,6 +8,18 @@
 
 这里的 `source_mapping` 只用于定位生成 C++、模型端口和已有资料。它不能把 R1 的差值、候选输出或已有阈值转化为新的工程预算。
 
+机器可校验的逐槽展开位于
+[`e0-source-to-slot-manifest-20260911.json`](../../validation/e0-source-to-slot-manifest-20260911.json)，
+其结构由
+[`59-e0-source-to-slot-manifest.schema.json`](59-e0-source-to-slot-manifest.schema.json)
+约束。生成器和离线校验器分别是
+[`generate_e0_source_to_slot_manifest.py`](../../tools/generate_e0_source_to_slot_manifest.py)
+与
+[`validate_e0_source_to_slot_manifest.py`](../../tools/validate_e0_source_to_slot_manifest.py)。
+该 manifest 只复制冻结合同中已有的 observable、source label、native unit 和采样相位；
+未绑定的源码路径、行号、symbol、版本、hash、frame 与 datum 保持 `null`，并逐项列入
+`unresolved_fields`。
+
 ## 分组证据盘点
 
 | 子系统 / 槽位 | source_mapping 和现有来源 | 可用于后续工作的证据 | 明确缺失 | owner 决策与最小工件 |

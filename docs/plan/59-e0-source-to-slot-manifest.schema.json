@@ -1,0 +1,162 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://wksim.invalid/schemas/e0-source-to-slot-manifest-v1.json",
+  "title": "wksim e0 source-to-slot manifest",
+  "description": "A provenance-only map for the 56 dynamic scalar slots. It is not a numerical budget contract.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "kind",
+    "status",
+    "contract",
+    "slot_count",
+    "slots"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "kind": {
+      "const": "e0_source_to_slot_manifest"
+    },
+    "status": {
+      "enum": ["unresolved", "complete"]
+    },
+    "contract": {
+      "$ref": "#/$defs/contract"
+    },
+    "slot_count": {
+      "const": 56
+    },
+    "slots": {
+      "type": "array",
+      "minItems": 56,
+      "maxItems": 56,
+      "items": {
+        "$ref": "#/$defs/slot"
+      }
+    }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "nullableString": {
+      "type": ["string", "null"]
+    },
+    "contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "contract_id", "sha256"],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "contract_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "sourceMapping": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["raw", "path", "line_start", "line_end", "symbol"],
+      "properties": {
+        "raw": {
+          "type": ["string", "null"]
+        },
+        "path": {
+          "type": ["string", "null"]
+        },
+        "line_start": {
+          "type": ["integer", "null"],
+          "minimum": 1
+        },
+        "line_end": {
+          "type": ["integer", "null"],
+          "minimum": 1
+        },
+        "symbol": {
+          "$ref": "#/$defs/nullableString"
+        }
+      }
+    },
+    "slot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "slot",
+        "array",
+        "index",
+        "observable",
+        "source_mapping",
+        "version",
+        "hash",
+        "unit",
+        "frame",
+        "datum",
+        "sample_phase",
+        "status",
+        "unresolved_fields"
+      ],
+      "properties": {
+        "slot": {
+          "type": "string",
+          "pattern": "^(Vehicle60|Sensor30|GPS30)\\[[0-9]+\\]$"
+        },
+        "array": {
+          "enum": ["Vehicle60", "Sensor30", "GPS30"]
+        },
+        "index": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 59
+        },
+        "observable": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_mapping": {
+          "$ref": "#/$defs/sourceMapping"
+        },
+        "version": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "hash": {
+          "type": ["string", "null"],
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "unit": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "frame": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "datum": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "sample_phase": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "status": {
+          "enum": ["unresolved", "complete"]
+        },
+        "unresolved_fields": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  }
+}
