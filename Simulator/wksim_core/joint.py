@@ -5,6 +5,7 @@ flight. It never sends task, arming or mode commands. Inputs are held between
 their native updates; AP next-frame is not a control-calculation-complete ACK.
 """
 import json
+import math
 import os
 import gc
 import select
@@ -29,7 +30,7 @@ def before_deadline(deadline,stack=None):
 
 
 class JointPhysics:
-    def __init__(self, stack, clock, workers, health, record):
+    def __init__(self, stack, clock, workers, health, record, *, terrain_feedback=None):
         from pymavlink.dialects.v20 import common
         self.clock, self.workers = clock, workers
         self.health, self.record = health, record
@@ -48,6 +49,7 @@ class JointPhysics:
         self.px_commands = [0.0]*16
         self.states = {}
         self.inflight = None
+        self.terrain_feedback = terrain_feedback
         # Opt-in diagnostic sampling; disabled in normal product execution.
         self.cpu_timing = os.environ.get('WKSIM_JOINT_CPU_TIMING') == '1'
         if self.cpu_timing:
@@ -63,6 +65,32 @@ class JointPhysics:
                         thread_cpu_ns=time.thread_time_ns()-cpu)
             gc.callbacks.append(gc_timing)
             stack.callback(gc.callbacks.remove, gc_timing)
+
+    def initialize_states(self, initial_states):
+        """Copy exact one-shot worker responses before the first model step."""
+        if self.clock.tick != 0:
+            raise ValueError('Initial states may only be recorded at tick zero')
+        if self.states:
+            raise ValueError('Initial states were already recorded')
+        if not isinstance(initial_states, dict) or set(initial_states) != set(self.workers):
+            raise ValueError('Initial states must exactly match the worker set')
+        copied = {}
+        response_fields = {'version', 'epoch', 'tick', 'state', 'initial'}
+        for name in self.workers:
+            response = initial_states[name]
+            if (not isinstance(response, dict) or set(response) != response_fields
+                    or type(response.get('version')) is not int or response['version'] != 1
+                    or response.get('epoch') != self.clock.epoch
+                    or type(response.get('tick')) is not int or response['tick'] != 0
+                    or response.get('initial') is not True):
+                raise ValueError(f'Invalid initial-state response for {name}')
+            state = response['state']
+            if (not isinstance(state, list) or len(state) != 120
+                    or any(isinstance(value, bool) or not isinstance(value, (int, float))
+                           or not math.isfinite(value) for value in state)):
+                raise ValueError(f'Invalid 120-value initial state for {name}')
+            copied[name] = list(state)
+        self.states = copied
 
     def wait_readable(self, sock, deadline, stack=None):
         self.health()
@@ -151,12 +179,18 @@ class JointPhysics:
         ap_frame, px_time = self.pending_ap['frame'], self.px_time
         inputs = dict(arducopter=self.pending_ap['commands'], px4=self.px_commands)
         self.inflight=dict(tick=tick,ap_source_frame=ap_frame,px4_source_time_us=px_time,stage='model')
-        responses = receive_workers({name: (self.workers[name], dict(version=1, epoch=self.clock.epoch,
-                     tick=tick, commands=commands)) for name, commands in inputs.items()},
-                     self.clock.epoch, health=self.health)
+        requests = {}
+        for name, commands in inputs.items():
+            req = dict(version=1, epoch=self.clock.epoch, tick=tick, commands=commands)
+            if self.terrain_feedback is not None:
+                if name not in self.states:
+                    raise RuntimeError(f'Missing prior state for {name} at tick {tick}')
+                req['terrain'] = self.terrain_feedback.query_terrain(name, tick, self.states[name])
+            requests[name] = (self.workers[name], req)
+        responses = receive_workers(requests, self.clock.epoch, health=self.health)
         self.clock.commit(responses)
         self.inflight['model_ticks']={name:response['tick'] for name,response in responses.items()}
-        self.states = {name: response['state'] for name, response in responses.items()}
+        self.states = {name: list(response['state']) for name, response in responses.items()}
         if marks is not None: marks.append((time.monotonic_ns(), time.thread_time_ns()))
         # Single serialization pass; byte-identical to building sensor_message
         # then parsing/updating/re-encoding (same field order and options).

@@ -24,6 +24,7 @@ from .joint_trajectory import supported_actions,validate_initialized,coordinate_
 from .joint_rate import JointRate,RateUnmet
 from .joint_evidence import verify_tasks,final_run_status,task_group_completed,load_retired_task_report
 from .scene_clock import SceneClock,ClockPublisher
+from .terrain_feedback import TerrainFeedback
 from ..wksim_core.joint import JointPhysics,InputTimeout
 from ..wksim_core.joint_state_stream import JointStateWriter,hex_identity
 
@@ -403,7 +404,9 @@ def epoch_run(directory,epoch,generation=1):
             def record_clock(text):
                 if write_probe: write_probe.write(clocks,'clock',text)
                 else: clocks.write(text)
-            physics=JointPhysics(resources,clock,model_workers,physics_health,record)
+            terrain_feedback=TerrainFeedback(epoch)
+            physics=JointPhysics(resources,clock,model_workers,physics_health,record,
+                                 terrain_feedback=terrain_feedback)
             from .loop_timing import LoopTiming
             loop_timing=LoopTiming(physics.cpu_timing,record)
             publisher.publish(clock);record_clock(json.dumps(clock.snapshot())+'\n')
@@ -468,6 +471,7 @@ def epoch_run(directory,epoch,generation=1):
             if clock.tick!=0 or any(value['tick']!=0 or value.get('initial') is not True
                                     for value in initial_states.values()):
                 raise RuntimeError('Explicit initial-state observation advanced the physical clock')
+            physics.initialize_states(initial_states)
             record_images('ready')
             if aruco_task:
                 scheduler_snapshot={}
@@ -484,7 +488,7 @@ def epoch_run(directory,epoch,generation=1):
                     scheduler_snapshot[name]=dict(pid=pid,threads=threads)
                 result['scheduler_snapshot']=scheduler_snapshot
             result['initialization']=dict(physical_tick=0,models=initial_models,initial_states=initial_states,
-                                          task_execution_requires_explicit_go=True)
+                terrain_feedback=terrain_feedback.manifest(),task_execution_requires_explicit_go=True)
             record_rate('transport_initialized',physical_tick=0,task_execution_requires_explicit_go=True)
             busy_phase=None
             physics.connect()
