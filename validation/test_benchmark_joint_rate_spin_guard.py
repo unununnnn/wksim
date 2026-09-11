@@ -60,6 +60,15 @@ class SpinGuardBenchmarkTests(unittest.TestCase):
                 self.assertEqual(result['overshoot_ns'], [50_000])
                 self.assertEqual(result['spin_elapsed_ns'], [guard_ns])
 
+    def test_multiple_samples_set_a_fresh_target_and_retain_each_result(self):
+        clock = FakeClock()
+        result = measure_guard(1_000_000, 2, clock.now, clock.sleep)
+
+        self.assertEqual(clock.sleep_calls, 2)
+        self.assertEqual(clock.sleep_requests, [7_000_000, 6_900_000])
+        self.assertEqual(result['overshoot_ns'], [0, 0])
+        self.assertEqual(result['spin_elapsed_ns'], [1_000_000, 900_000])
+
     def test_summary_reports_percentiles_and_strict_thresholds(self):
         result = summarize([0, 10_000, 20_000, 100_000, 600_000])
 
@@ -68,8 +77,8 @@ class SpinGuardBenchmarkTests(unittest.TestCase):
             'total_ns': 730_000,
             'mean_ns': 146_000.0,
             'median_ns': 20_000,
-            'p95_ns': 100_000,
-            'p99_ns': 100_000,
+            'p95_ns': 600_000,
+            'p99_ns': 600_000,
             'max_ns': 600_000,
             'count_gt_10us': 3,
             'count_gt_100us': 1,
@@ -95,6 +104,7 @@ class SpinGuardBenchmarkTests(unittest.TestCase):
         self.assertEqual(result['period_ns'], PERIOD_NS)
         self.assertEqual(result['candidates_ns'], list(GUARD_CANDIDATES_NS))
         self.assertEqual(result['sample_count'], 1)
+        self.assertEqual(result['percentile_method'], 'nearest_rank')
         self.assertEqual(result['started_utc'], '2026-09-11T00:00:00+00:00')
         self.assertEqual(result['finished_utc'], '2026-09-11T00:00:01+00:00')
         self.assertEqual(result['environment']['wsl_distro_name'], 'Ubuntu')

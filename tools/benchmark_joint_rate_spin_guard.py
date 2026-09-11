@@ -41,8 +41,9 @@ def _samples(value):
     return value
 
 
-def _percentile(ordered, fraction):
-    return ordered[int(fraction * (len(ordered) - 1))]
+def _percentile(ordered, percent):
+    index = (percent * len(ordered) + 99) // 100 - 1
+    return ordered[max(0, index)]
 
 
 def summarize(values):
@@ -54,8 +55,8 @@ def summarize(values):
         total_ns=sum(ordered),
         mean_ns=sum(ordered) / len(ordered),
         median_ns=statistics.median(ordered),
-        p95_ns=_percentile(ordered, .95),
-        p99_ns=_percentile(ordered, .99),
+        p95_ns=_percentile(ordered, 95),
+        p99_ns=_percentile(ordered, 99),
         max_ns=ordered[-1],
         count_gt_10us=sum(value > 10_000 for value in ordered),
         count_gt_100us=sum(value > 100_000 for value in ordered),
@@ -141,6 +142,7 @@ def run_benchmark(samples, *, now=time.monotonic_ns, sleep=time.sleep,
         period_ns=PERIOD_NS,
         candidates_ns=list(GUARD_CANDIDATES_NS),
         sample_count=samples,
+        percentile_method='nearest_rank',
         started_utc=started_utc,
         finished_utc=finished_utc,
         environment=host_metadata() if environment is None else environment,
