@@ -35,6 +35,6 @@
 
 ## Goal 服务状态
 
-现有 Goal `01a08b94-d2fe-7361-9c43-2d54e9490f32` 实查仍为 blocked。主会话按用户请求尝试 create_goal，新目标被服务以 unfinished goal 拒绝；不能把未完成 Full 标成 complete 来绕过限制。
+2026-09-12 用户要求修复 Goal。最新 get_goal 返回 null，旧 unfinished 阻塞记录已不存在；主会话通过正式 create_goal 接口重建，并再次 get_goal 确認 `status=active`，threadId 仍为 `01a08b94-d2fe-7361-9c43-2d54e9490f32`，createdAt=`1789170710`，未设置 token 预算。
 
-本文为已采用的新执行目标，heartbeat `wksim` 持续推进。Goal 服务记录与实际工作状态分开如实报告；接口目前不能替换/恢复未完成 Goal。
+本文对应当前已生效 Goal；heartbeat `wksim` 保持 ACTIVE 并持续推进。旧 blocked/无法创建的记载属于历史，不再代表当前状态。没有将未完成 Full 伪标为 complete，也没有直接编辑 Goal 数据库。

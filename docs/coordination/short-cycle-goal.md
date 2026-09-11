@@ -2,6 +2,8 @@
 
 ## 最新检查点（优先于下方历史记录）
 
+**Goal已修复并生效**：用户2026-09-12要求修复后，get_goal最新返回null；正式create_goal成功，随后再次get_goal确认status=active、createdAt=1789170710，threadId=01a08b94-d2fe-7361-9c43-2d54e9490f32。目标为[next-acceptance-goal.md](next-acceptance-goal.md)的M1/M2/M3及Full收口，无token预算。旧blocked/创建受拒记载仅为历史，禁止继续当作当前阻塞；没有虚假完成或直接改数据库。当前新发现：Luna shutdown复核指出预检身份缺失放行/leader退出残留两项P1，需要修复后才可新诊断。
+
 2026-09-12用户明确要求新目标与3个Luna+agy/Claude/Oh My Pi持续推进，当前主计划改为[next-acceptance-goal.md](next-acceptance-goal.md)。已实际派发三个Luna/xhigh：luna_ceiling_bounds独占grid_map.cpp/native test修虚拟顶索引；luna_planner_build_readiness只读准备完整EGO构建；luna_scheduler_shutdown_review只读复核EOF/预检清理。Claude18w继续launcher，OMP21t继续collector，agy17y写acceptance-frontier.json。旧“三个Luna已完成/不能续派”不再代表当前状态；Fast未宣称核验。create_goal因旧unfinished记录被拒，新目标以执行计划与ACTIVE heartbeat持续落实，不能将旧Full虚假结案。一次独立复核后优先实际验收，减少重复审计和盲测。
 
 `2dbcef6`已推送统一三轴GridMap膨胀：clear逐轴先验、scan死代码删除、cloud逐候选位置有限/界内检查后转int，保留界外邻近点向内膨胀；camera/maps/range先验与reset边界夹取。三端28项通过（Windows2native skip）；新`/root/wksim-gridmap-inflation-6zuJJw`完整plan_env构建通过，库SHA42cd98bdbc1077991b0363620eb96be5b73cb0e1d9dda3ba7837c9ed73df5458，日志/源码hash已封存。仍无真实11000点云/完整planner/clearance/飞行验收。AGY17x正在独立只读复核这切片；下一规划器工作可准备完整EGO构建/实际点云测试，勿重复只做plan_env编译。
