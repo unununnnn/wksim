@@ -1,0 +1,125 @@
+{
+  "schema": "wksim.scheduler-gate-mapping-failure.v1",
+  "status": "diagnostic_partial",
+  "acceptance_eligible": false,
+  "source_commit": "bdd39ee",
+  "source_directory": "/root/wksim-scheduler-probe-20260913-isolated-01",
+  "run_id": "scheduler-a9e390ff8a6e",
+  "epoch": "2557d7a0bdcf48cab2e1bb6d7982403f",
+  "tree": {
+    "files": 137,
+    "bytes": 2876292,
+    "manifest_sha256": "9d41706fcafc24aae050f2e7888ca2c437d82742d7e7038c3fab346e28c29830",
+    "manifest_definition": "SHA-256 of sorted UTF-8 lines path<TAB>bytes<TAB>file_sha256<LF>, relative to source_directory"
+  },
+  "failure": {
+    "outer_error": "RuntimeError: First-step gate-release proof identity differs",
+    "collector_returncode": 1,
+    "collector_error": "ValueError: Kernel PID mapping ambiguous: ap_fc/arducopter",
+    "bootstrap_publish_monotonic_ns": 115491101045,
+    "gate_ready_publish_monotonic_ns": 115620393685,
+    "gate_release_monotonic_ns": 115622995296,
+    "bootstrap_published_before_gate_ready": true,
+    "physical_tick": 25,
+    "flight_task_started": false,
+    "formal_active_token_present": false,
+    "complete_capture": false,
+    "evidence": {
+      "authority_final_tick": 25,
+      "authority_last_barrier_tick": 24,
+      "authority_last_input_tick": 24,
+      "flight_completed": false,
+      "action_results": [],
+      "tasks": {},
+      "collector_complete": false,
+      "collector_instance_removed": true,
+      "startup_readiness_state": "waiting",
+      "startup_readiness_missing": ["ap_worker", "px4_worker", "ap_fc", "px4_fc"]
+    },
+    "inner_preflight": {
+      "returncode": 0,
+      "elapsed_seconds": 23.223985977,
+      "required_scheduler": "SCHED_OTHER",
+      "required_priority": 0,
+      "required_nice": 0,
+      "actual_policy": "SCHED_OTHER",
+      "actual_policy_value": 0,
+      "actual_priority": 0,
+      "actual_nice": 0,
+      "outcome": "completed"
+    }
+  },
+  "cleanup": {
+    "manager_returncode": 0,
+    "collector_returncode": 1,
+    "remaining_manager_group": [],
+    "remaining_epoch_group_members": [],
+    "epoch_groups_retired": true,
+    "trace_instance_removed": true,
+    "cleanup_errors": [],
+    "sources_unchanged": true
+  },
+  "key_artifacts": {
+    "report.json": {
+      "bytes": 74203,
+      "sha256": "4cee90fc4bc627432adac893b88337f5f9d4a9b33f3e212b1b0ba1a46b83e8d4"
+    },
+    "collector.log": {
+      "bytes": 171,
+      "sha256": "0c647d807b355328929544ed5e545b214f0e4a32d51ff0a3a621ccc1a05c600e"
+    },
+    "capture/metadata.json": {
+      "bytes": 63152,
+      "sha256": "da031dce5962797849623a3877edb0f826be78d979b2c78b5411d2ade61f7caa"
+    },
+    "capture/capture-bootstrap-active.json": {
+      "bytes": 653,
+      "sha256": "26ce96d2e71c8d9144f0e83c9418d4a694e640d2dc1a9239f8ae4108a6e85ac8"
+    },
+    "capture/preflight.json": {
+      "bytes": 9135,
+      "sha256": "ec7b806087e723014f6e07003944d629463e16524f6024013e76260568ac0001"
+    },
+    "capture/instance-owner.json": {
+      "bytes": 3558,
+      "sha256": "8126a84ddd547807efa6588a5699a99237173cf41dc8326842566e8d80ded8ec"
+    },
+    "hook/gate-ready.json": {
+      "bytes": 260,
+      "sha256": "b041f55fa0e3b23dce398bbecbfba4e563001b89c6522eb5cf1bc09216202aca"
+    },
+    "hook/gate-release.json": {
+      "bytes": 891,
+      "sha256": "4287b17ef1f24d9317a42d176bbf43685890ca01578b77fb6b693df6d674a3c3"
+    },
+    "runs/scheduler-a9e390ff8a6e/result.json": {
+      "bytes": 57737,
+      "sha256": "0f73e0b122c40a27b729f9b2f95eacb62a945190537efbd5eb8bfbd1855bc5a2"
+    },
+    "runs/scheduler-a9e390ff8a6e/epochs/2557d7a0bdcf48cab2e1bb6d7982403f/result.json": {
+      "bytes": 48295,
+      "sha256": "5aed4a45b2e75b47d20444a87b72b1566e4e4d281e9f557f2b5af58f891a42d7"
+    },
+    "runs/scheduler-a9e390ff8a6e/epochs/2557d7a0bdcf48cab2e1bb6d7982403f/children.json": {
+      "bytes": 14232,
+      "sha256": "4529ac319022d33d7760753e524dc3c788f0582a8ae64083811421b8e46b43b7"
+    },
+    "runs/scheduler-a9e390ff8a6e/epochs/2557d7a0bdcf48cab2e1bb6d7982403f/wire.jsonl": {
+      "bytes": 56484,
+      "sha256": "97ed3dbf82b2afebe5a7df33c3ceddbcbea34e20341472473472e2483f784607"
+    }
+  },
+  "source_sha256": {
+    "Simulator/wksim_runtime/joint_runtime.py": "6a7d027ad1ead8f113e064b03058fa45b9ad6f804daabe58a7a1c5a9c20a18aa",
+    "Simulator/wksim_runtime/joint_rate.py": "0b53a16acd65138b4623a9a8573ec8d643a2b78f4e27e8122c65efb9a6da25c4",
+    "tools/profile_joint_scheduler.py": "27fd03cdc4ebc44e91403dd082d15de02b8384acf11009b8b6f858ddccc04aee",
+    "validation/rate-syscall-scheduler-plan-20260909/collect_tracefs.py": "60bb50440a8d3b64d8b86ddf198ff35db4483c480c45f447a101ecf738838b72",
+    "validation/rate-remediation-ff63c72/sitecustomize.py": "06fab77df0728edc8374d893c3a37bd3ba350f95491fb9011f90d27e757ac34c"
+  },
+  "non_claims": [
+    "This retained ground failure is not a scheduler capture pass, rate pass, flight pass, or acceptance result.",
+    "The collector mapping ambiguity and first-step gate-release identity mismatch are separate failures; neither was repaired by this record.",
+    "No formal active token or complete capture exists, and no flight task was started; the 25 physical ticks are not flight evidence."
+  ],
+  "next_action": "Repair and independently review both failures offline before any future probe; do not rerun this probe or weaken its gate, mapping, timing, ACK, or cleanup requirements."
+}
