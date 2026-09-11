@@ -12,4 +12,4 @@
 - 第一次 81 项控制候选矩阵暴露 `0ae940d` 未同步 `test_joint_control_candidate.py` 的 `rc_take.cpp`/共享库夹具，原失败日志保留；补齐夹具与篡改拒绝检查后，第二次 81/81 通过。
 - 使用真实 AP mixed、固定 PX4/模型/消息、历史 FVMjak 及新 `0DQQz9` 运行完整 0-child admission，结果 `ok=true`、`children_created=0`、无拒绝原因；新控制 root 与历史 baseline root 分别为 `0DQQz9` 和 `FVMjak`。
 
-`tools/ap_mixed_candidate.py`、最终组合运行合同和待接证据的 mixed profile 已换钉新控制 manifest。#83 仍需一次新的真实 `full_xyz_pv_yaw_v1` 运行和外置 `audit_pv_trajectory.py` 审计；本次准入修复不证明物理、倍率或正式 profile 已通过，也不改变旧三场 RateUnmet 和本次 0-tick 失败。
+`tools/ap_mixed_candidate.py`、最终组合运行合同和待接证据的 mixed profile 已换钉新控制 manifest。随后真实场 `joint-public-flight-zzmg3k47` 已通过本准入，但在 tick 98,700 以累计迟到 `100.092095ms` 失败；详见 [失败报告](2026-09-11-final-combo-rate-failure-zzmg3k47.md)。本次准入修复不证明物理、倍率或正式 profile 已通过，也不改变旧三场 RateUnmet 和本次 0-tick 失败。
