@@ -222,11 +222,41 @@ class PVRawAuditBoundaries(unittest.TestCase):
 
     def test_mixed_identity_is_dispatched_without_relabeling(self):
         from tools import audit_pv_trajectory as audit
-        result = dict(mixed_admission=dict(task_profile=audit.PROFILE))
+        result = dict(task_profile=audit.PROFILE,
+                      mixed_admission=dict(task_profile=audit.PROFILE))
         with patch('audit_mixed_control.retained_identity', return_value={'checked': 'mixed'}) as checker:
             self.assertEqual(audit.retained_identity(Path('/unused'), result), {'checked': 'mixed'})
             checker.assert_called_once_with(Path('/unused'), result, task_profile=audit.PROFILE)
         self.assertNotIn('pv_admission', result)
+
+    def test_task_selection_binds_full_pv_to_mixed_admission_or_legacy_pv(self):
+        from tools import audit_pv_trajectory as audit
+        full = dict(task_profile=audit.PROFILE,
+                    mixed_admission=dict(task_profile=audit.PROFILE))
+        self.assertEqual(audit.select_task_profile(full, audit.PROFILE),
+                         (audit.PROFILE, 'mixed_admission'))
+        legacy = dict(task_profile=audit.PROFILE,
+                      pv_admission=dict(task_profile=audit.PROFILE))
+        self.assertEqual(audit.select_task_profile(legacy),
+                         (audit.PROFILE, 'pv_admission'))
+
+    def test_task_selection_fails_closed_on_result_admission_or_request_disagreement(self):
+        from tools import audit_pv_trajectory as audit
+        base = dict(task_profile=audit.PROFILE,
+                    mixed_admission=dict(task_profile=audit.PROFILE))
+        cases = [
+            (dict(base, task_profile=audit.MIXED_PROFILE), 'Result/admission'),
+            (dict(task_profile=audit.PROFILE,
+                  mixed_admission=dict(task_profile=audit.MIXED_PROFILE)), 'Result/admission'),
+            (base, 'Requested task profile'),
+            (dict(base, pv_admission=dict(task_profile=audit.PROFILE)), 'exactly one'),
+            (dict(task_profile=audit.MIXED_PROFILE,
+                  mixed_admission=dict(task_profile=audit.MIXED_PROFILE)), 'Unsupported task profile'),
+        ]
+        for index, (value, message) in enumerate(cases):
+            requested = audit.MIXED_PROFILE if index == 2 else None
+            with self.subTest(message=message), self.assertRaisesRegex(ValueError, message):
+                audit.select_task_profile(value, requested, allowed=(audit.PROFILE,))
 
     def test_control_flags_distinguish_old_mixed_and_final_dual_profile(self):
         from tools.audit_mixed_control import control_profiles, PROFILE, PV_PROFILE

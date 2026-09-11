@@ -21,12 +21,36 @@ from audit_joint_rate import schedule, measurement
 from Simulator.wksim_runtime.evidence import json_value
 
 PROFILE = 'full_xyz_pv_yaw_v1'
+MIXED_PROFILE = 'xy_velocity_z_position_yaw_v1'
 DELTAS = ((1.5, 1., .4, .6), (-1., .5, -.2, -.3))
 STACKS = (('arducopter', 1), ('px4', 2))
 
 
 def read(path):
     return json.loads(Path(path).read_text())
+
+
+def select_task_profile(result, requested=None, *, allowed=None):
+    """Select one task profile and bind it to exactly one admission record.
+
+    The result is the execution record, while the admission is the selected
+    resource gate. Both must name the same task; an explicit caller request
+    is a third identity that must agree before any task-specific audit runs.
+    """
+    require(isinstance(result, dict), 'Task selection result is not an object')
+    keys = [key for key in ('mixed_admission', 'pv_admission') if key in result]
+    require(len(keys) == 1, 'Task selection requires exactly one admission record')
+    admission_key = keys[0]
+    admission = result.get(admission_key)
+    actual = result.get('task_profile')
+    require(isinstance(admission, dict) and isinstance(actual, str)
+            and admission.get('task_profile') == actual,
+            'Result/admission task profile differs')
+    if allowed is not None:
+        require(actual in allowed, 'Unsupported task profile: '+repr(actual))
+    if requested is not None:
+        require(requested == actual, 'Requested task profile differs from result/admission')
+    return actual, admission_key
 
 
 def stamp(message):
@@ -251,14 +275,15 @@ def message_evidence_identity(root, result):
                 packages=sorted(verified['packages']))
 
 
-def retained_identity(root, result):
+def retained_identity(root, result, *, task_profile=None):
+    selected, _ = select_task_profile(result, task_profile, allowed=(PROFILE,))
     message_identity = candidate_initialization(root, result)
     if 'mixed_admission' in result:
         from audit_mixed_control import retained_identity as mixed_identity
-        return mixed_identity(root, result, task_profile=PROFILE)
+        return mixed_identity(root, result, task_profile=selected)
     require(result['status'] == 'pass' and result['flight_completed'] and result['source_unchanged']
             and result['control_shutdown_clean'] and not result['cleanup_errors'], 'Candidate run/cleanup did not pass')
-    require(result['task_profile'] == PROFILE and result['unowned_ap_before'] == result['unowned_ap_after'],
+    require(result['task_profile'] == selected and result['unowned_ap_before'] == result['unowned_ap_after'],
             'Wrong task profile or unrelated process changed')
     require(result['bounds'] == dict(wall_seconds=900, simulation_ticks=180000, task_position_error_m=.5,
             task_speed_m_s=.5, takeoff_min_height_m=2.5, ground_abs_height_m=.3), 'Frozen run bounds changed')
@@ -284,9 +309,9 @@ def retained_identity(root, result):
     admission = read(root/'experimental-admission.json')
     require(admission == result['pv_admission'] and admission['ok'] and admission['experimental']
             and not admission['production_admitted'] and not admission['flown']
-            and admission['children_created'] == 0 and not admission['reasons'] and admission['task_profile'] == PROFILE,
+            and admission['children_created'] == 0 and not admission['reasons'] and admission['task_profile'] == selected,
             'Experimental admission identity/scope differs')
-    require(admission['capability'] == dict(profile=PROFILE, position_axes='xyz', velocity_axes='xyz', yaw=True,
+    require(admission['capability'] == dict(profile=selected, position_axes='xyz', velocity_axes='xyz', yaw=True,
             acceleration=False, yaw_rate=False, mixed_axes=False, arducopter_type_mask=2496), 'Capability scope changed')
     for name, expected in admission['identities']['source_sha256'].items():
         require(sources.get(name) == expected, 'Admission/execution source mismatch: '+name)
@@ -457,7 +482,8 @@ def decode(root, result, *, admission_key='pv_admission', message_packages=None,
     return data
 
 
-def task_evidence(root, result, data, *, recorder_name='wksim_joint_flight_clock', task_root=None):
+def task_evidence(root, result, data, *, recorder_name='wksim_joint_flight_clock', task_root=None,
+                  task_profile=PROFILE):
     task_root = root if task_root is None else task_root
     tasks, phases, requests = {}, {}, {}
     tokens = set()
@@ -465,7 +491,7 @@ def task_evidence(root, result, data, *, recorder_name='wksim_joint_flight_clock
         report = read(task_root/stack/'result.json')
         require(report == result['tasks'][stack] and report['status'] == 'pass' and report['run_id'] == result['run_id']
                 and report['scene_epoch'] == result['scene_epoch'] and report['uav_id'] == uid and report['use_sim_time']
-                and report['task_profile'] == PROFILE, 'Task report identity differs')
+                and report['task_profile'] == task_profile, 'Task report identity differs')
         task = report['task']; tasks[stack] = task
         graph = task['pv_request_graph']
         require(set(graph) == {'setup', 'command'}, 'Missing named passive-observer graph proof')
@@ -476,7 +502,7 @@ def task_evidence(root, result, data, *, recorder_name='wksim_joint_flight_clock
                 and all(e['node_namespace'] == '/' and re.fullmatch('[0-9a-f]+', e['endpoint_gid'])
                         and int(e['endpoint_gid'], 16) != 0 for e in endpoints),
                 'Unexpected control/observer subscriber graph')
-        require(task['pv_profile'] == PROFILE and len(task['pv_legs']) == 2 and not task['control_restarts'], 'Missing/restarted P+V task')
+        require(task['pv_profile'] == task_profile and len(task['pv_legs']) == 2 and not task['control_restarts'], 'Missing/restarted P+V task')
         phase = {p['phase']: p for p in report['phases']}; phases[stack] = phase
         counts = Counter(p['phase'] for p in report['phases'])
         require(all(count == 1 or name in ('pv_1_reference', 'pv_2_reference') for name, count in counts.items()),
@@ -560,7 +586,7 @@ def task_evidence(root, result, data, *, recorder_name='wksim_joint_flight_clock
         for leg, record in enumerate(task['pv_legs'], 1):
             ready = read(task_root/stack/f'pv-ready-{leg}.json'); go = read(task_root/f'pv-go-{leg}.json')
             require(ready == record['ready'] == go['tasks'][stack] and go == record['offer'], 'Ready/go echo differs')
-            require(ready['version'] == go['version'] == 1 and ready['profile'] == go['profile'] == PROFILE
+            require(ready['version'] == go['version'] == 1 and ready['profile'] == go['profile'] == task_profile
                     and ready['leg'] == go['leg'] == leg and ready['run_id'] == go['run_id'] == result['run_id']
                     and ready['scene_epoch'] == go['scene_epoch'] == result['scene_epoch']
                     and ready['control_epoch'] == task['control_epoch'] and ready['uav_id'] == uid
@@ -802,18 +828,19 @@ def rate_windows(root, result, *, wire_name='joint-wire.jsonl'):
     return reports
 
 
-def audit(root):
+def audit(root, *, task_profile=None):
     root = Path(root)
     result = read(root/'result.json')
-    identity = retained_identity(root, result)
-    raw = decode(root, result, admission_key='mixed_admission' if 'mixed_admission' in result else 'pv_admission')
-    tasks, phases, requests = task_evidence(root, result, raw)
+    selected, admission_key = select_task_profile(result, task_profile, allowed=(PROFILE,))
+    identity = retained_identity(root, result, task_profile=selected)
+    raw = decode(root, result, admission_key=admission_key)
+    tasks, phases, requests = task_evidence(root, result, raw, task_profile=selected)
     native = native_targets(raw, requests)
     physics = physical(root, result, tasks, phases)
     rates = rate_windows(root, result)
     artifacts = {p.relative_to(root).as_posix(): digest(p) for p in sorted(root.rglob('*'))
                  if p.is_file() and p.name not in ('pv-audit.json', 'audit.json')}
-    return dict(status='pass', task_profile=PROFILE, run_id=result['run_id'], scene_epoch=result['scene_epoch'],
+    return dict(status='pass', task_profile=selected, run_id=result['run_id'], scene_epoch=result['scene_epoch'],
                 pre_encoding_yaw_float32_narrowings={stack: sum(
                     r['command']['yaw_ref'] != f32(r['command']['yaw_ref']) for r in task['request_envelopes'] if 'command' in r)
                     for stack, task in tasks.items()},
@@ -836,11 +863,12 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('directory', type=Path)
     parser.add_argument('--output', type=Path)
+    parser.add_argument('--task-profile')
     args = parser.parse_args()
     if args.output:
         require(not args.output.resolve().is_relative_to(args.directory.resolve()), 'Audit output must be outside raw evidence')
     try:
-        report = audit(args.directory)
+        report = audit(args.directory, task_profile=args.task_profile)
     except (OSError, ValueError, KeyError, TypeError, ImportError, AssertionError, IndexError, StopIteration, OverflowError) as error:
         report = dict(status='failed', directory=str(args.directory), error=repr(error), audit_source_sha256=digest(__file__),
                       outstanding_checks=['Audit terminated at the reported failure; downstream checks are not accepted.'])

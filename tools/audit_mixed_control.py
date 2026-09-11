@@ -15,7 +15,8 @@ REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / 'tools'))
 from audit_joint_flight import audit_timeline, digest, lines, require
 from audit_pv_trajectory import (read, stamp, angle, f32, wire_command, wire_request,
-    rejected_bootstrap_ack, enu, close_vector, truth_window, decode, rate_windows)
+    rejected_bootstrap_ack, enu, close_vector, truth_window, decode, rate_windows,
+    select_task_profile)
 from Simulator.wksim_runtime.evidence import json_value
 
 PROFILE = 'xy_velocity_z_position_yaw_v1'
@@ -105,7 +106,9 @@ def control_profiles(result, *, require_pv=False):
     return profiles
 
 
-def retained_identity(root, result, *, task_profile=PROFILE):
+def retained_identity(root, result, *, task_profile=None):
+    selected, _ = select_task_profile(result, task_profile, allowed=(PROFILE, PV_PROFILE))
+    task_profile = selected
     from audit_pv_trajectory import candidate_initialization
     message_identity = candidate_initialization(root, result)
     require(task_profile in (PROFILE, PV_PROFILE), 'Unsupported task for mixed firmware audit')
@@ -800,18 +803,19 @@ def native_logs(root, tasks, native, data):
                 altitude_interpretation='pZ is NED relative to EKF origin; no direct equality to home-relative Z is claimed')
 
 
-def audit(root):
+def audit(root, *, task_profile=None):
     root = Path(root)
     result = read(root/'result.json')
-    identity = retained_identity(root, result)
-    raw = decode(root, result, admission_key='mixed_admission')
+    selected, admission_key = select_task_profile(result, task_profile, allowed=(PROFILE,))
+    identity = retained_identity(root, result, task_profile=selected)
+    raw = decode(root, result, admission_key=admission_key)
     tasks, phases, requests, references = task_evidence(root, result, raw)
     native = native_targets(raw, requests, references, tasks)
     logs = native_logs(root, tasks, native, raw)
     physics = physical(root, result, tasks, phases)
     rates = rate_windows(root, result)
     artifacts = {p.relative_to(root).as_posix(): digest(p) for p in sorted(root.rglob('*')) if p.is_file()}
-    return dict(status='pass', task_profile=PROFILE, run_id=result['run_id'], scene_epoch=result['scene_epoch'],
+    return dict(status='pass', task_profile=selected, run_id=result['run_id'], scene_epoch=result['scene_epoch'],
         identity=identity, raw_dds_channels={name:len(rows) for name, rows in raw.items()}, native_targets=native,
         native_guided_submode=logs, **physics, rate_segments=rates, result_sha256=digest(root/'result.json'),
         evidence_sha256=artifacts, audit_source_sha256=digest(__file__),
@@ -828,11 +832,12 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('directory', type=Path)
     parser.add_argument('--output', type=Path)
+    parser.add_argument('--task-profile')
     args = parser.parse_args()
     if args.output:
         require(not args.output.resolve().is_relative_to(args.directory.resolve()), 'Audit output must be outside raw evidence')
     try:
-        report = audit(args.directory)
+        report = audit(args.directory, task_profile=args.task_profile)
     except (OSError, ValueError, KeyError, TypeError, ImportError, AssertionError, IndexError, StopIteration, OverflowError) as error:
         report = dict(status='failed', directory=str(args.directory), error=repr(error), audit_source_sha256=digest(__file__),
             outstanding_checks=['Audit terminated at the reported failure; missing evidence is incomplete, and downstream checks are not accepted.'])

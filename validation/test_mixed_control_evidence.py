@@ -92,6 +92,17 @@ def native_fixture():
 
 
 class MixedRawAuditBoundaries(unittest.TestCase):
+    def test_mixed_identity_task_selection_rejects_request_or_admission_mismatch(self):
+        from tools import audit_mixed_control as audit
+        result = dict(task_profile=audit.PROFILE,
+                      mixed_admission=dict(task_profile=audit.PROFILE))
+        with self.assertRaisesRegex(ValueError, 'Requested task profile'):
+            audit.retained_identity(Path('/unused'), result, task_profile=audit.PV_PROFILE)
+        changed = dict(task_profile=audit.PROFILE,
+                       mixed_admission=dict(task_profile=audit.PV_PROFILE))
+        with self.assertRaisesRegex(ValueError, 'Result/admission'):
+            audit.retained_identity(Path('/unused'), changed)
+
     def test_source_stamp_overlap_needs_a_completed_window_and_new_acceptance(self):
         self.assertTrue(after_completed_window(6, 5, 60_672_000_000, 60_672_000_000, 60673))
         self.assertFalse(after_completed_window(6, 5, 60_671_000_000, 60_672_000_000, 60673))
