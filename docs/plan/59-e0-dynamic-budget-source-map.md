@@ -16,9 +16,14 @@
 [`generate_e0_source_to_slot_manifest.py`](../../tools/generate_e0_source_to_slot_manifest.py)
 与
 [`validate_e0_source_to_slot_manifest.py`](../../tools/validate_e0_source_to_slot_manifest.py)。
-该 manifest 只复制冻结合同中已有的 observable、source label、native unit 和采样相位；
-未绑定的源码路径、行号、symbol、版本、hash、frame 与 datum 保持 `null`，并逐项列入
-`unresolved_fields`。
+私有 ZIP/SLX 不进入 Git；干净 checkout 的严格校验和外部 artifact 根目录约定见
+[`59-e0-artifact-portability.md`](59-e0-artifact-portability.md)。
+该 manifest 为 schema v2：历史 R1 的 `cpp:` 行号已逐槽解析为精确
+`line_ranges`，并绑定到仓库内冻结的 Model 11.0 ZIP 及其成员 SHA-256。校验器直接从
+ZIP 成员流式计算哈希，不解压到文件系统；归档路径、归档哈希、成员路径或成员哈希任一漂移都会失败关闭。
+当前 SLX 11.8 的路径和哈希只固定来源身份，逐槽同源行号映射保持
+`unresolved`，直到从当前生成源码重新推导，不能复用历史 11.0 行号。
+其余未绑定的版本、hash、frame 与 datum 保持 `null`，并逐项列入 `unresolved_fields`。
 
 ## 分组证据盘点
 
