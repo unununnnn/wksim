@@ -133,7 +133,7 @@ class PVAdmissionTests(unittest.TestCase):
 
 
 class SealedControlTests(unittest.TestCase):
-    def test_old_source_and_build_checks_remain_required(self):
+    def test_old_source_and_build_checks_are_bound_to_historical_install(self):
         with tempfile.TemporaryDirectory() as temporary:
             base = Path(temporary).resolve()
             repo, root = base / 'repo', base / 'old-control'
@@ -142,23 +142,28 @@ class SealedControlTests(unittest.TestCase):
             source = repo / 'ros2/src/prometheus_control'
             inputs = ('CMakeLists.txt', 'package.xml', 'scripts/prometheus_control_node')
             paths = [staged / 'prometheus_control/node.py', package / 'node.py',
-                     source / 'prometheus_control/node.py', root / 'build.log', repo / 'tools/build-joint-control.sh']
-            paths += [directory / name for directory in (staged, source) for name in inputs]
+                     root / 'build.log', repo / 'tools/build-joint-control.sh']
+            paths += [staged / name for name in inputs]
             for path in paths:
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.write_text('sealed')
-            # Current Python deliberately differs: its ownership is the NEW check_control branch.
-            (source / 'prometheus_control/node.py').write_text('new candidate')
+            # Current source and build inputs deliberately differ. Their ownership is
+            # the separate new check_control branch, not the historical baseline.
+            current_python = source / 'prometheus_control/node.py'
+            current_python.parent.mkdir(parents=True)
+            current_python.write_text('new candidate')
+            for name in inputs:
+                path = source / name
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text('new candidate build')
             record = dict(root=str(root), package=str(package),
                           python_sha256={'node.py': pv.joint.digest(package / 'node.py')},
                           build_inputs={name: pv.joint.digest(staged / name) for name in inputs},
                           build_log_sha256=pv.joint.digest(root / 'build.log'),
                           build_script_sha256=pv.joint.digest(repo / 'tools/build-joint-control.sh'))
-            with patch.object(pv, 'REPO', repo):
+            with patch.object(pv.joint, 'REPO', repo):
                 self.assertEqual(pv._sealed_control(record), str(package))
                 for path in paths:
-                    if path == source / 'prometheus_control/node.py':
-                        continue
                     with self.subTest(path=str(path)):
                         path.write_text('tampered')
                         with self.assertRaises(ValueError):

@@ -42,37 +42,8 @@ def _pv_record(manifest, checksum):
 
 
 def _sealed_control(record):
-    """Old flown control stays sealed; only its current-repo Python binding is replaced.
-
-    Unlike joint._control, current Python belongs to the explicit new candidate via
-    check_control. All other old-control checks, including current build inputs,
-    remain required here. Neither a failed production report nor ok=true is reused.
-    """
-    root = Path(record['root'])
-    package = root / 'install/prometheus_control' / joint.PYTHON / 'prometheus_control'
-    if root.resolve(strict=True) != root or root.is_symlink() or str(package) != record['package']:
-        raise ValueError('Sealed control root/package differs')
-    for directory in (root / 'src/prometheus_control/prometheus_control', package):
-        if (not directory.is_dir() or directory.is_symlink() or
-                directory.resolve(strict=True) != directory):
-            raise ValueError('Missing or symlinked sealed control package')
-        actual = {}
-        for path in directory.rglob('*'):
-            if path.is_symlink() or not path.resolve().is_relative_to(directory.resolve()):
-                raise ValueError('Sealed control path escapes source boundary')
-            if path.is_file() and '__pycache__' not in path.parts:
-                actual[path.relative_to(directory).as_posix()] = joint.digest(path)
-        if not actual or actual != record['python_sha256']:
-            raise ValueError('Sealed control source or installed file set differs')
-    for base in (REPO / 'ros2/src/prometheus_control', root / 'src/prometheus_control'):
-        for name, expected in record['build_inputs'].items():
-            if joint.digest(base / name) != expected:
-                raise ValueError('Sealed control build input differs')
-    for path, expected in ((root / 'build.log', record['build_log_sha256']),
-                           (REPO / 'tools/build-joint-control.sh', record['build_script_sha256'])):
-        if joint.digest(path) != expected:
-            raise ValueError('Sealed control build evidence differs')
-    return str(package)
+    """Verify the historical baseline against its own sealed source and build inputs."""
+    return joint._control(record, sealed=True)
 
 
 def _fixed_resources(p):

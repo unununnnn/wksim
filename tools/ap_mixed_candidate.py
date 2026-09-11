@@ -19,7 +19,7 @@ from joint_control_candidate import check as check_control
 
 PV_PROFILE = 'full_xyz_pv_yaw_v1'
 FINAL_AP_SHA = '1e6250eff8873d6b2e52017b613c223ac29f8260fdf92aac2cf0c7cdcc6ce94c'
-FINAL_CONTROL_SHA = 'd9fdfc74f4f241440dd1186ef38d0bde56026cd28e4b55897f38a11e7311909e'
+FINAL_CONTROL_SHA = '25edbf816e1b417028be73f409b211b48a1579cce4d63b0d9c6c9b5277e6d610'
 
 
 def verify(manifest, checksum):

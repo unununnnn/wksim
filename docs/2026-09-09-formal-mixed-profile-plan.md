@@ -2,7 +2,7 @@
 
 2026-09-09。本文件记录有界准入实现及主代理的后续证据接入合同。代码接线与实飞提升是分开的结果：本子任务没有构建或启动 SITL，没有修改历史 flight/build 记录，没有写工单或提交。子代理实际模型/推理强度经主代理核实为 `gpt-6-astra/high` 后开始；无嵌套代理。
 
-新增 `joint_quad_dds_mixed_pv_v1`，AP 固定为 `/root/wksim-ap-mixed-fhuf05l9/mixed-build.json`，SHA256 `1e6250eff8873d6b2e52017b613c223ac29f8260fdf92aac2cf0c7cdcc6ce94c`；control 固定为 `/root/wksim-joint-control-OEvS3W/build.json`，SHA256 `d9fdfc74f4f241440dd1186ef38d0bde56026cd28e4b55897f38a11e7311909e`。PX4、模型、消息和 Agent 来源沿用原固定资源，但必须由两份新能力证明绑定到同一真实资源。
+新增 `joint_quad_dds_mixed_pv_v1`，AP 固定为 `/root/wksim-ap-mixed-fhuf05l9/mixed-build.json`，SHA256 `1e6250eff8873d6b2e52017b613c223ac29f8260fdf92aac2cf0c7cdcc6ce94c`；control 于 2026-09-11 随当前 RC 构建输入刷新为 `/root/wksim-joint-control-0DQQz9/build.json`，SHA256 `25edbf816e1b417028be73f409b211b48a1579cce4d63b0d9c6c9b5277e6d610`。PX4、模型、消息和 Agent 来源沿用原固定资源，但必须由两份新能力证明绑定到同一真实资源。
 
 当前新增行的 `evidence` 是空数组，故 `check_resources` 在平台检查、全源遍历或启动前返回 `ok=false`、`children_created=0`、`capabilities=[]`，原因是缺少最终 mixed/PV 能力飞行证明。本文不把候选构建的历史 `production_admitted=false` 或 `flown=false` 改写为 PASS。
 
@@ -33,7 +33,7 @@ AP 通过现有 `ap_mixed_candidate.verify` 验证真正的 mixed schema、源�
 
 ## 旧行与离线检查
 
-`joint_quad_dds_v1` 的 AP/control/PX4 pins、证据与 setup 路径原样保留，只增加 `control_source=sealed_legacy` 及原有两种公共任务能力声明。旧 control 核验仍检查 manifest/root/package、staged/installed 全 Python 文件集、当前与 staged 构建输入、build log 与构建脚本；仅不要求今日仓库的新 Python 等于历史 FVMjak Python。这与既有 `ap_pv_candidate._sealed_control` 的边界一致，复用原 `_control` 遍历而不再复制一个大型验证器。新行仍要求 current/staged/installed 三方一致；旧 installed 或 staged 字节改变仍拒绝。
+`joint_quad_dds_v1` 的 AP/control/PX4 pins、证据与 setup 路径原样保留，只增加 `control_source=sealed_legacy` 及原有两种公共任务能力声明。旧 control 核验仍检查 manifest/root/package、历史 staged/installed 全 Python 文件集、历史 staged build inputs、build log 与构建脚本；今日仓库的 Python 和构建输入属于新候选的独立 `check_control` 分支。`ap_pv_candidate._sealed_control()` 复用同一 `_control(..., sealed=True)` 实现，避免两套规则漂移。新行仍要求 current/staged/installed 三方一致；旧 installed 或 staged 字节改变仍拒绝。
 
 本次只阅读指定源码与直接引用，无未知结构导航，未运行多余 CBM 刷新。目标文件原索引状态由主代理确认；不把索引就绪当作新逻辑已被索引的证据。
 

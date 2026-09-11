@@ -6,15 +6,15 @@
 
 正式 mixed/PV 路径由 `JointPhysics.advance()` 每 tick 调用同一 `receive_workers()`，双模型没有旁路。使用 run21 封存的实际中位请求帧（AP/PX4 均 147 字节）在 Ubuntu-22.04 各做 7×200,000 次隔离调用，旧 `parse_frame()+encode` 中位为 2308.7/2361.6ns，新 `encode+len` 为 60.0/59.0ns；按两 worker、四 tick 计算，中位减少约 18.205µs/组。该微基准只证明候选减少固定热路径工作，不把节省量直接当作累计迟到改善。run21 在相关双模型 0.5× 真实闭环中完成 78,716 tick、最坏迟到 67.207ms，证明当前实现可在完整飞行中工作；因任务、PX4候选和诊断开关不同，不把 run20→run21 当作本候选单变量 A/B。
 
-候选身份与原始微基准数组保存于 `validation/33-rate-profile/worker-rpc-trim-20260911.json`。最终组合仍须用本文件既有的 mixed/OEvS3W 双开关身份运行一次并交给 `tools/audit_pv_trajectory.py`；只有新场全门通过才关闭 #83。运行命令保持：
+候选身份与原始微基准数组保存于 `validation/33-rate-profile/worker-rpc-trim-20260911.json`。首个 #83 尝试 `joint-public-flight-l8xlqwdq` 在 0 tick 准入阶段证明 OEvS3W 已被当前 RC 构建输入淘汰；失败原件保留。最终组合改用同一 AP mixed 加当前源码控制 `0DQQz9` 的双开关身份运行一次并交给 `tools/audit_pv_trajectory.py`；只有新场全门通过才关闭 #83。运行命令为：
 
 ```bash
 bash tools/run-joint-flight.sh \
   --task-profile full_xyz_pv_yaw_v1 \
   --ap-mixed-manifest /root/wksim-ap-mixed-fhuf05l9/mixed-build.json \
   --ap-mixed-sha256 1e6250eff8873d6b2e52017b613c223ac29f8260fdf92aac2cf0c7cdcc6ce94c \
-  --control-manifest /root/wksim-joint-control-OEvS3W/build.json \
-  --control-sha256 d9fdfc74f4f241440dd1186ef38d0bde56026cd28e4b55897f38a11e7311909e
+  --control-manifest /root/wksim-joint-control-0DQQz9/build.json \
+  --control-sha256 25edbf816e1b417028be73f409b211b48a1579cce4d63b0d9c6c9b5277e6d610
 ```
 
 下文保留 2026-09-09 三场失败诊断及当时仅计时的旧候选；旧结果不改判。当前候选已经满足 #82 对一个有测量依据的源码变化、准确身份、冻结边界和唯一后续命令的交付要求，#83 的真实结果仍未知。

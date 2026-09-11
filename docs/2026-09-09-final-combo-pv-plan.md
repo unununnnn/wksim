@@ -2,7 +2,7 @@
 
 2026-09-09。此文件冻结可执行的候选兼容性入口；没有宣称最终组合已实飞，也不修改旧 PV/mixed 飞行记录。原 PV baseline `joint-public-flight-qi66lh_y` 与 mixed nominal `joint-public-flight-zk5_nukn` 使用不同组合或开关状态，不能替代本合同。
 
-仅接纳 AP `/root/wksim-ap-mixed-fhuf05l9/mixed-build.json`（SHA256 `1e6250eff8873d6b2e52017b613c223ac29f8260fdf92aac2cf0c7cdcc6ce94c`）和控制 `/root/wksim-joint-control-OEvS3W/build.json`（SHA256 `d9fdfc74f4f241440dd1186ef38d0bde56026cd28e4b55897f38a11e7311909e`）。mixed verifier 保留完整源码快照、补丁、二进制及 mixed→PV→fixed 链核验；没有伪造 PV manifest。任务身份是 `full_xyz_pv_yaw_v1`，固件身份仍为 mixed；结果使用 `mixed_admission`。
+仅接纳 AP `/root/wksim-ap-mixed-fhuf05l9/mixed-build.json`（SHA256 `1e6250eff8873d6b2e52017b613c223ac29f8260fdf92aac2cf0c7cdcc6ce94c`）和控制 `/root/wksim-joint-control-0DQQz9/build.json`（SHA256 `25edbf816e1b417028be73f409b211b48a1579cce4d63b0d9c6c9b5277e6d610`）。mixed verifier 保留完整源码快照、补丁、二进制及 mixed→PV→fixed 链核验；没有伪造 PV manifest。任务身份是 `full_xyz_pv_yaw_v1`，固件身份仍为 mixed；结果使用 `mixed_admission`。该控制候选从 2026-09-11 当前源码重新构建，包含 `0ae940d` 引入的 RC transport 构建输入；旧 OEvS3W 自身未变，但不再等于当前仓库，故仅保留为历史失败身份。
 
 实际 AP 控制启动同时传入 `arducopter_pv_profile:=full_xyz_pv_yaw_v1` 与 `arducopter_mixed_profile:=xy_velocity_z_position_yaw_v1`。此后 mixed 候选入口也使用相同双开关。旧 PV manifest 路线保持原单 PV 开关；旧 mixed 审计仍识别单 mixed 开关，并在 `identity.control_profiles` 如实输出，不能用它冒充双开关覆盖。
 
@@ -13,8 +13,8 @@ bash tools/run-joint-flight.sh \
   --task-profile full_xyz_pv_yaw_v1 \
   --ap-mixed-manifest /root/wksim-ap-mixed-fhuf05l9/mixed-build.json \
   --ap-mixed-sha256 1e6250eff8873d6b2e52017b613c223ac29f8260fdf92aac2cf0c7cdcc6ce94c \
-  --control-manifest /root/wksim-joint-control-OEvS3W/build.json \
-  --control-sha256 d9fdfc74f4f241440dd1186ef38d0bde56026cd28e4b55897f38a11e7311909e
+  --control-manifest /root/wksim-joint-control-0DQQz9/build.json \
+  --control-sha256 25edbf816e1b417028be73f409b211b48a1579cce4d63b0d9c6c9b5277e6d610
 python3 -B tools/audit_pv_trajectory.py validation/ACTUAL_NEW_RUN --output validation/ACTUAL_NEW_AUDIT.json
 ```
 
