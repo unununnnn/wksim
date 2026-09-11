@@ -58,7 +58,9 @@ class AnalyzeJointRateProbeTests(unittest.TestCase):
         self.assertEqual(result["sample_count"], 2)
         self.assertEqual(result["outcomes"], {"rate_unmet": 1, "started": 1})
         self.assertEqual(result["phases"]["sleep_elapsed_ns"]["total_ns"], 25)
-        self.assertEqual(sum(item["observed_share"] for item in result["phases"].values()), 1.0)
+        self.assertAlmostEqual(
+            sum(item["observed_share"] for item in result["phases"].values()), 1.0
+        )
         self.assertEqual(result["release_excess_ns"]["entry_lateness"]["total"], 10)
         self.assertEqual(result["release_excess_ns"]["post_entry_excess"]["total"], 50)
 
