@@ -1,30 +1,46 @@
-# #102 规划运行合同 — 离线 B-spline→TrajectorySession 适配接缝
+# #39/#102 规划运行合同 — ego-single-box-v1 离线入口与 B-spline 适配接缝
 
-2026-09-11。本切片交付 issue #102 的最小**离线前置接缝**：把一条**显式供给**的 EGO uniform B-spline payload 纯确定性地转成 TrajectorySession（`Simulator/wksim_planning/trajectory_session.py`，issue #101 合同）接受的 10 ms / 整数 1 ms-tick 轨迹样本。它在 agy 已完成的源码复核之上实现，复用 #101 已冻结的会话语义，**不**新增任何执行/物理/ROS 能力。
+2026-09-12。本合同现在覆盖两个相互独立的离线前置接缝：profile 关闭的 EGO ROS1 launch 入口，以及显式供给的 EGO uniform B-spline 到 `TrajectorySession` 的纯 Python 适配。它们只冻结输入、参数和静态边界，**不声明真实规划器、ROS 传输、物理飞行或验收已经完成**。
 
-## 交付物（仅 4 个文件）
+## 本次 launch/profile 切片（仅 4 个文件）
 
-- `Simulator/wksim_planning/ego_evaluator.py` — 纯 de Boor uniform B-spline 求值器（无 ROS/planner/SITL 依赖），仅 position/velocity/acceleration，仅 order 3。
-- `Simulator/wksim_planning/ego_trajectory_adapter.py` — 纯确定性适配器：EgoSpline payload → TrajectorySession 样本流；yaw 为强制显式 fallback。
-- `validation/test_ego_trajectory_adapter.py` — 35 项单元测试，纯 Python，无 MATLAB/build/SITL/UE。
+- `Modules/ego_planner_swarm/plan_manage/launch_for_prometheus/advanced_param_wksim_single_box.xml` — 从现有 `advanced_param.xml` 的参数语义派生，关闭 `ego-single-box-v1` 的地图、唯一点云输入、预设目标和实际生效的速度/加速度限制；不暴露可覆盖这些值的 launch arg。
+- `Modules/ego_planner_swarm/plan_manage/launch_for_prometheus/sitl_ego_planner_wksim_single_box.launch` — 只 include 上述 planner 参数和上游 `traj_server_for_prometheus`；不启动 ROS bridge、飞控、SITL、UE 或地图生产器。
+- `validation/test_39_planner_launch_contract.py` — XML well-formed、参数/输入唯一性、profile 数值和 profile hash 交叉合同测试；纯 Python。
 - 本文档。
 
-不改 `trajectory_session.py`、不改 #59 三文件、不碰任何现有 dirty 文件。
+这四个文件只做静态合同。未改 sender/receiver、pump、上游 planner 源码或保护文件，也未提交。
+
+## ego-single-box-v1 固定值与坐标边界
+
+profile 来源是 `Simulator/wksim_planning/scene_profile.py` 的 `EGO_SINGLE_BOX_V1`，不是 launch 文件重新定义的几何。launch 固定：
+
+- ENU、米、秒、弧度；map 原点 `(-10,-6,0)`，尺寸 `(20,12,6)`，分辨率 `0.1`；障碍 AABB `[-0.5,0.5] × [-1,1] × [0,5.5]`。
+- profile 的起点是运行准入中的真实 odom/接管状态 `(-4, 0, 3)`；它不是 EGO 源码读取的 planner 参数，故没有伪造 `fsm/start_*`。预设目标通过上游 `flight_type=2` 和唯一 waypoint `(4, 0, 3)` 固定；当前 overlay 的 `realworld_experiment=false` 只使 FSM 初始 `have_trigger=true`，因此免除外部 `/uav1/ego_trigger` 等待。FSM 仍要求真实 odom，并要求 `/uav1/prometheus/control_state` 的 `control_state==2` 才能离开 `WAIT_TARGET`、进入规划；本 launch 不启动该控制状态发布者。
+- 唯一点云输入为仓库已有 `map_generator/global_cloud` `sensor_msgs/PointCloud2` 语义。这个 topic 绑定不证明生产者已经发布 profile 的 11,000 个体素中心；运行准入必须核对点云内容、frame 和 hash。
+- `local_update_range=(9,7,6)`、`obstacles_inflation=0.8`、`virtual_ceil_height=5.5`、`max_vel=0.8`、`max_acc=6`、`planning_horizon=13.5`、重规划间隔 `1.0`，均来自已读上游参数语义或冻结 profile；上游虽读取 `manager/max_jerk`，但当前规划器不执行 jerk 约束，故 overlay 不发布该无效参数。
+- 上游 grid map 的 frame 写法固定为 `world`；本合同只允许它作为 profile `map` 的**同原点同轴别名**，不允许旋转、轴交换或隐式单位变换。`world`/`map` 不一致时运行必须拒绝。
+
+当前 `EGO_SINGLE_BOX_V1` 的静态身份为：
+
+- `profile_hash` / `canonical_hash`: `49da4cccaf3c172c510daa3cc3bd0ddad521669c4d64f3c8bc1a7fe71d9730f7`
+- `collision_hash`: `08b88651775ae2181e5082f124d16c6a434597703fdf2ff08bfc0bd59205c07c`
+- `voxel_hash` / profile `point_cloud_hash`: `3602530733cf10fd0960212dc413b157e56e662d330b4b314a71f4c21abae638`
+- 体素中心数量：`11000`，顺序 `x,y,z` 升序；物理碰撞体与点云仍需 #29 现场证据证明同源。
 
 ## 离线边界（严格收窄，永不外推）
 
-**本接缝是纯离线求值/适配，绝不**：
+本切片**只做静态合同**，**不启动 ROS / ROS2**，不声明真实规划器，不声明已经完成真实飞行。它不读取运行时 point cloud，不运行 SITL / UE / MATLAB / build，不拥有 public `request_id`，也不分配 public `command_id`。launch 文件描述上游 ROS1 入口的参数和 topic 接缝；它不是运行结果或 transport proof。
 
-- 启动或接入任何 **ROS / ROS2 EGO planner**——不声明 ROS2 planner 存在；
-- 读取 **point cloud**、占用图或任何传感器输入；
-- 运行 **SITL / UE / MATLAB / build**；
-- 读取墙钟（wall clock）或真实飞行数据；
-- 拥有或铸造 public `request_id`——`request_id` 归 public command publisher，本适配器只向会话喂轨迹样本；
-- 分配 public `command_id`——`command_id` 由 `TrajectorySession` 唯一分配（1..4294967295，溢出→FAULTED）。
+真实接入仍必须等待 #29 的物理/反馈/碰撞观察器、#33 的 mixed-axis/trajectory-following 控制证据，以及 ROS1→ROS2 实际传输和共享 `/clock`。离线 profile、launch XML、B-spline 求值或 synthetic payload 都不能替代这些证据。
 
-**坐标/单位**：仅接受 ENU `map` 帧（metres / seconds / radians）。无隐式坐标旋转或帧转换；任何非 `map` 帧在适配器构造期即拒绝。
+## 已知上游不匹配和现场准入门
 
-**求值网格**：会话消费整数 1 ms tick；上游 traj_server 的求值定时器是 10 ms。适配器每个样本推进 `SAMPLE_STRIDE_TICKS=10` 个整数 tick，`seconds_to_tick` 拒绝任何不落 1 ms 网格的时间。
+- 上游通用 `advanced_param.xml` 的 `obstacles_inflation=0.2`、local range `5.5/5.5/4.5` 和通用 map 默认值不符合本 profile；本切片只在新 overlay 中关闭这些差异，不修改上游源。
+- `GridMap::cloudCallback` 当前源码把 z 方向膨胀步数写死为 2 个 voxel，而 XY 使用参数 `obstacles_inflation/resolution`；因此 overlay 不能单独证明真实实现已经满足 profile 对三维碰撞包络的要求。这是 P1 上游实现差异，必须由 #29 的物理几何/clearance 证据解决或另行修复。
+- **范围外上游 P1，当前未解决**：`GridMap::initMap` 把局部变量 `uav_id`、`x_size`、`y_size`、`z_size`、`x_origin`、`y_origin` 的地址保存进 `grid_params_get_i/d`；`/uav1/prometheus/param_settings` 后续回调可能通过这些已失效地址写入。这个四文件静态切片未修改上游源码，也不宣称解决该动态参数悬空问题；真实运行必须把它作为独立阻塞处理。
+- `map_generator/global_cloud` 只是仓库已有 topic 名称；没有静态测试能证明其内容等于 profile 点云。发布者必须提供 11,000 点、frame、profile/voxel hash 和时间戳证据。
+- `flight_type=2` 使用预设 waypoint；在当前 `realworld_experiment=false` 仿真语义下，FSM 将 `have_trigger` 初值设为 `true`，免除外部 `/uav1/ego_trigger` 等待，但仍必须有真实 odom 和 `/uav1/prometheus/control_state` 的 `control_state==2` 才能离开 `WAIT_TARGET` 并进入规划。起点只来自真实 odom，参数本身不能当作已经接管或已经起飞。
 
 ## 求值器数学（对齐上游，含非均匀 knots）
 
@@ -54,9 +70,12 @@
 ## 测试
 
 ```powershell
+python -B -m unittest validation.test_39_planner_launch_contract -v
 python -B -m unittest validation.test_ego_trajectory_adapter -v
 python -B -m unittest validation.test_trajectory_session -v
 ```
+
+本次 launch/profile 静态测试 11 项通过；测试逐项锁定两个 XML 的活动 remap、节点元数据和所有声明参数的精确值/类型，并读取上游 FSM、GridMap、planner manager、optimizer 和 planner node 源码，锁定 trigger 初值、`control_state==2` 的 `WAIT_TARGET` 门槛及有效/无效参数边界。XML 两个文件均可由 Python `ElementTree` 解析，且 `py_compile` 通过。以上只证明静态合同，不证明 ROS launch、planner、传输或飞行。
 
 `test_ego_trajectory_adapter` 38 项全部通过、`test_trajectory_session` 8 项全部通过。覆盖：求值器端点/内部值（恒定/线性/非对称曲线路径）、**非均匀 lengthened knots 接受且求值/导数正确**（导数掐头去尾、用当前 knots、被移动 knot 处求值/导数改变）、畸形/非有限/错长/非单调 knot 与控制点拒绝、**order≠3 构造期拒绝**、**标量/非 3 向量 position 构造期拒绝**；激活需显式 start_tick/ID/**强制有限 fallback yaw**、帧不匹配拒绝、轨迹结束→HOLD；**更高单调 tick 的迟到 replan**、**走过 tick100 后 replan start=100 拒绝（相等会指向已消费 tick）、start=110 接受且 step(110) 发出 trajectory**、stale generation 拒绝、样本过期→HOLD、取消（迟到样本拒绝+无输出）；**失控喂零样本**（适配器喂游标不动、会话 RELEASED）、状态过期→FAULTED、安全标志须 bool、**安全路径把已观察 tick 记入 high-water、之后重复/回退 tick 在适配器层拒绝**；**错误 identity 在 stride/non-stride/lost-control/next_output 前均 fail 且不喂样本/不改状态/不推进 tick**、**step 重复/回退 tick 在喂样本前拒绝**、next_output 推进 tick high-water；traj_id 严格递增/uint32 overflow 拒绝、跨 replan command_id 严格单调、command_id 溢出→FAULTED。
 

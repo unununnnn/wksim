@@ -1,0 +1,15 @@
+<launch>
+  <!-- Static EGO planner entry point for ego-single-box-v1.  The vehicle must
+       be brought to the contract start pose (-4, 0, 3) by the owning runtime;
+       EGO itself only consumes odometry and the fixed goal below. -->
+  <include file="$(find ego_planner)/launch_for_prometheus/advanced_param_wksim_single_box.xml"/>
+
+  <!-- Keep the upstream Prometheus trajectory-server path.  This file does
+       not provide ROS1/ROS2 transport, a flight controller, or physics. -->
+  <node pkg="ego_planner" name="uav1_traj_server_for_prometheus" type="traj_server_for_prometheus" output="screen">
+    <param name="uav_id" value="1" type="int"/>
+    <param name="control_flag" value="0" type="int"/>
+    <param name="traj_server/time_forward" value="1.0" type="double"/>
+    <param name="traj_server/last_yaw" value="0.0" type="double"/>
+  </node>
+</launch>
