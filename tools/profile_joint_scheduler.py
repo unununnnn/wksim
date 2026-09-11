@@ -23,6 +23,7 @@ from Simulator.wksim_runtime.joint_actions import submit
 COLLECTOR = ROOT/'validation/rate-syscall-scheduler-plan-20260909/collect_tracefs.py'
 FC_THREAD_NAMES={'arducopter-fc':{'arducopter','log_io','DDS'},
                  'px4-fc':{'sim_send','logger','wq:lp_default'}}
+READY_POLL_S=0.010
 
 
 def digest(path): return hashlib.sha256(Path(path).read_bytes()).hexdigest()
@@ -96,7 +97,7 @@ def run(output):
                         if (all(k in children for k in ('arducopter-model','px4-model','arducopter-fc','px4-fc'))
                                 and fc_threads_ready(children)):
                             break
-                time.sleep(.02)
+                time.sleep(READY_POLL_S)
             owners = dict(ap_worker=children['arducopter-model']['identity'],
                           px4_worker=children['px4-model']['identity'], supervisor=state['supervisor'],
                           ap_fc=children['arducopter-fc']['identity'],px4_fc=children['px4-fc']['identity'])

@@ -24,6 +24,7 @@ LOSS=('overrun','commit overrun','dropped events')
 FC_THREADS={'ap_fc':('arducopter','log_io','DDS'),
             'px4_fc':('sim_send','logger','wq:lp_default')}
 BASE_ROLES=('ap_worker','px4_worker','supervisor')
+TRACE_PIPE_FLAGS=os.O_RDONLY|getattr(os,'O_NONBLOCK',0)
 
 
 def require(value,message):
@@ -142,12 +143,137 @@ def filters(pids):
     return result
 
 
-def map_kernel_pids(instance,put,owners,epoch,output):
-    """Correlate only the exact owned comm names through native sched events.
+MAPPING_TIMEOUT_S=3.
+MAPPING_SELECT_S=.01
 
-    WSL /proc PIDs are namespace-local, while these tracepoint fields use
-    kernel-global IDs. Numeric PID equality is never assumed.
+
+def _sched_switch_pairs(line):
+    """Return exact comm/PID pairs from one textual sched_switch event."""
+    pairs=[]
+    for match in re.finditer(
+            r'prev_comm=(\S+)\s+prev_pid=(\d+)|next_comm=(\S+)\s+next_pid=(\d+)',line):
+        pairs.append((match.group(1) or match.group(3),match.group(2) or match.group(4)))
+    return pairs
+
+
+def scan_global_comm_owners(expected,proc_root=None):
+    """Require every target comm to belong to exactly one expected local task."""
+    require(expected and len(expected)==len(set(expected)),'Expected comm names are not distinct')
+    proc_root=Path('/proc') if proc_root is None else Path(proc_root)
+    last_missing=[]
+    for attempt in range(2):
+        matches={name:[] for name in expected}
+        races=[]
+        for process in proc_root.iterdir():
+            if not process.name.isdigit():continue
+            try:tasks=list((process/'task').iterdir())
+            except (FileNotFoundError,NotADirectoryError) as error:
+                races.append(str(error));continue
+            for task in tasks:
+                if not task.name.isdigit():continue
+                try:comm=(task/'comm').read_text().strip()
+                except (FileNotFoundError,NotADirectoryError) as error:
+                    races.append(str(error));continue
+                if comm in matches:
+                    matches[comm].append(dict(tgid=int(process.name),tid=int(task.name)))
+        foreign=[];last_missing=[]
+        for name,owner in expected.items():
+            values=matches[name]
+            if not values:last_missing.append(name)
+            if values!=[dict(tgid=owner['tgid'],tid=owner['tid'])]:
+                foreign.append(dict(comm=name,expected=owner,observed=values))
+        if not foreign:
+            return dict(matches=matches,scan_attempts=attempt+1,ignored_races=races)
+        only_missing=all(not row['observed'] for row in foreign)
+        if not (attempt==0 and only_missing and races):
+            raise ValueError('Global comm ownership mismatch: '+json.dumps(foreign,sort_keys=True))
+    raise ValueError('Global comm ownership missing after retry: '+','.join(last_missing))
+
+
+def map_sched_switch_pids(instance,put,names,output):
+    """Map exact comm names using a bounded private sched_switch window.
+
+    The tracepoint PID fields are the only source of kernel-visible IDs. The
+    mapping accepts one and only one PID for each exact comm; a second PID is
+    an ambiguity and a missing name at the deadline fails closed. Polling
+    trace_pipe makes the window event-driven instead of sleeping for a fixed
+    warm-up interval.
     """
+    require(len(set(names.values()))==len(names),'Trace comm names are not distinct')
+    expression=' || '.join(
+        f'prev_comm == "{name}" || next_comm == "{name}"'
+        for name in names.values())
+    candidates={role:set() for role in names}
+    raw=bytearray()
+    descriptor=None
+    pending=b''
+    primary=None
+    try:
+        put('events/sched/sched_switch/filter',expression)
+        put('events/sched/sched_switch/enable','1')
+        descriptor=os.open(instance/'trace_pipe',TRACE_PIPE_FLAGS)
+        put('tracing_on','1')
+        deadline=time.monotonic()+MAPPING_TIMEOUT_S
+        while time.monotonic()<deadline and not all(len(values)==1 for values in candidates.values()):
+            timeout=min(MAPPING_SELECT_S,max(0,deadline-time.monotonic()))
+            ready,_,_=select.select([descriptor],[],[],timeout)
+            if not ready:
+                continue
+            try:chunk=os.read(descriptor,1024*1024)
+            except BlockingIOError:continue
+            if not chunk:
+                continue
+            raw.extend(chunk)
+            pending+=chunk
+            while b'\n' in pending:
+                line,pending=pending.split(b'\n',1)
+                text=line.decode(errors='replace')
+                for comm,pid_text in _sched_switch_pairs(text):
+                    for role,name in names.items():
+                        if comm==name:
+                            candidates[role].add(int(pid_text))
+                            require(len(candidates[role])==1,
+                                    'Kernel PID mapping ambiguous: '+role)
+                            break
+        if pending.strip():
+            text=pending.decode(errors='replace')
+            for comm,pid_text in _sched_switch_pairs(text):
+                for role,name in names.items():
+                    if comm==name:
+                        candidates[role].add(int(pid_text))
+                        require(len(candidates[role])==1,
+                                'Kernel PID mapping ambiguous: '+role)
+                        break
+        missing=[role for role,values in candidates.items() if len(values)!=1]
+        require(not missing,'Kernel PID mapping timed out: '+','.join(missing))
+    except BaseException as error:
+        primary=error
+    finally:
+        cleanup_errors=[]
+        for relative,value in (('tracing_on','0'),
+                               ('events/sched/sched_switch/enable','0')):
+            try:put(relative,value)
+            except BaseException as error:cleanup_errors.append(relative+': '+str(error))
+        if descriptor is not None:
+            try:os.close(descriptor)
+            except BaseException as error:cleanup_errors.append('trace_pipe close: '+str(error))
+        try:(output/'pid-mapping-trace.txt').write_bytes(bytes(raw))
+        except BaseException as error:cleanup_errors.append('mapping trace write: '+str(error))
+        try:put('trace','')
+        except BaseException as error:cleanup_errors.append('trace: '+str(error))
+        if cleanup_errors:
+            try:(output/'pid-mapping-cleanup-errors.json').write_text(
+                    json.dumps(cleanup_errors,indent=2)+'\n')
+            except BaseException as error:cleanup_errors.append('cleanup evidence: '+str(error))
+            message='Kernel PID mapping cleanup failed: '+'; '.join(cleanup_errors)
+            if primary is not None:message=str(primary)+'; '+message
+            primary=ValueError(message)
+    if primary is not None:raise primary
+    return {role:values.pop() for role,values in candidates.items()}
+
+
+def map_kernel_pids(instance,put,owners,epoch,output):
+    """Correlate exact owned comm names through a bounded private sched trace."""
     names={role:'wk'+epoch[:11]+suffix for role,suffix in (
         ('ap_worker','a'),('px4_worker','p'),('supervisor','s'))}
     for role,name in names.items():
@@ -156,31 +282,31 @@ def map_kernel_pids(instance,put,owners,epoch,output):
     local_threads,inventories_before=required_fc_threads(owners) if 'ap_fc' in owners else ({},{})
     names.update({role:value['comm'] for role,value in local_threads.items()})
     require(len(set(names.values()))==len(names),'Trace comm names are not distinct')
-    expression=' || '.join(f'prev_comm == "{name}" || next_comm == "{name}"' for name in names.values())
-    put('events/sched/sched_switch/filter',expression)
-    put('events/sched/sched_switch/enable','1')
-    put('tracing_on','1')
-    time.sleep(3.)
-    put('tracing_on','0')
-    raw=(instance/'trace').read_bytes()
-    (output/'pid-mapping-trace.txt').write_bytes(raw)
-    mapped={}
-    text=raw.decode()
-    for role,name in names.items():
-        matches=set(int(value) for value in re.findall(
-            r'(?:prev|next)_comm='+re.escape(name)+r' (?:prev|next)_pid=(\d+)',text))
-        require(len(matches)==1,'Kernel PID mapping absent/ambiguous: '+role)
-        mapped[role]=matches.pop()
+    expected={name:dict(role=role,tgid=(owners[role]['pid'] if role in BASE_ROLES else
+        owners[role.split('/')[0]]['pid']),tid=(owners[role]['pid'] if role in BASE_ROLES else
+        local_threads[role]['local_tid'])) for role,name in names.items()}
+    comm_owners_before=scan_global_comm_owners(expected)
+    mapped=map_sched_switch_pids(instance,put,names,output)
     require(len(set(mapped.values()))==len(mapped),'Kernel PID mappings are not distinct')
     local_threads_after,inventories_after=required_fc_threads(owners) if 'ap_fc' in owners else ({},{})
     require(local_threads_after==local_threads,'Required FC thread identity changed during mapping')
-    put('events/sched/sched_switch/enable','0')
-    put('trace','')
-    return dict(names=names,kernel_pids=mapped,mapping_sha256=hashlib.sha256(raw).hexdigest(),
+    comm_owners_after=scan_global_comm_owners(expected)
+    mapping_trace=output/'pid-mapping-trace.txt'
+    mapping_sha256=hashlib.sha256(mapping_trace.read_bytes()).hexdigest()
+    mapping=dict(names=names,kernel_pids=mapped,
                 local_threads=local_threads,inventories_before=inventories_before,
                 inventories_after=inventories_after,
-                method='owned local task inventory plus unique comm observed in private sched_switch events',
-                limitation='FC kernel TID ownership relies on one matching comm being scheduled in the mapping window; foreign dormant names cannot be excluded')
+                comm_owners_before=comm_owners_before,comm_owners_after=comm_owners_after,
+                method='owned exact comm names observed in a bounded private sched_switch window',
+                mapping_source='private_sched_switch',
+                mapping_timeout_s=MAPPING_TIMEOUT_S,
+                mapping_sha256=mapping_sha256,
+                mapping_trace_bytes=mapping_trace.stat().st_size,
+                limitation=('A missing, multiply observed or snapshot-visible foreign owner fails closed; '
+                            'a transient foreign same-comm task absent from both /proc snapshots cannot be excluded'))
+    encoded=(json.dumps(mapping,sort_keys=True,indent=2)+'\n').encode()
+    (output/'pid-mapping-status.json').write_bytes(encoded)
+    return mapping
 
 
 def preflight(owners=None,expected_boot=None):
@@ -335,7 +461,7 @@ def collect(args,owners):
         metadata['applied_filters']={e:(path/'events'/e/'filter').read_text() for e in applied}
         metadata['fd_before']={name:fds(value['pid']) for name,value in verify(owners,args.boot_id).items()}
         metadata['stats_before']=statistics(path)
-        descriptor=os.open(path/'trace_pipe',os.O_RDONLY|os.O_NONBLOCK)
+        descriptor=os.open(path/'trace_pipe',TRACE_PIPE_FLAGS)
         with (output/'trace.txt').open('xb') as destination:
             began,deadline=enable_capture(put,args.duration,metadata)
             while time.monotonic_ns()<deadline and not cancelled:

@@ -82,45 +82,119 @@ class Guards(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'Worker epoch'):
             collector.verify_roles(found,run,'b'*32)
 
-    def test_kernel_mapping_uses_owned_names_and_rejects_shared_thread_name(self):
-        for ambiguous in (False, True):
-            with tempfile.TemporaryDirectory() as temp:
-                root=Path(temp);instance=root/'instance';instance.mkdir();output=root/'output';output.mkdir()
-                owners={role:dict(pid=pid,start_ticks=1) for role,pid in (
-                    ('ap_worker',11),('px4_worker',22),('supervisor',33),('ap_fc',44),('px4_fc',55))}
-                epoch='a'*32;lines=[]
-                for role,pid,suffix,kernel in (('ap_worker',11,'a',1011),('px4_worker',22,'p',1022),('supervisor',33,'s',1033)):
-                    name='wk'+epoch[:11]+suffix
-                    process=root/'proc'/str(pid);process.mkdir(parents=True)
-                    (process/'comm').write_text(name+'\n')
-                    lines.append(f'prev_comm={name} prev_pid={kernel} prev_prio=120 prev_state=S ==> next_comm=idle next_pid=0\n')
-                kernel=1040
-                for process_role,names in collector.FC_THREADS.items():
-                    pid=owners[process_role]['pid']
-                    for offset,name in enumerate(names,1):
-                        tid=pid+offset;process=root/'proc'/str(pid)/'task'/str(tid);process.mkdir(parents=True)
-                        fields=['S']+['0']*18+[str(5000+tid)]
-                        stat=f'{tid} ({name}) '+ ' '.join(fields)+'\n'
-                        (process/'stat').write_text(stat)
-                        (process/'status').write_text(f'Name:\t{name}\nTgid:\t{pid}\n')
-                        (process/'comm').write_text(name+'\n')
-                        kernel+=1
-                        lines.append(f'prev_comm={name} prev_pid={kernel} prev_prio=120 prev_state=S ==> next_comm=idle next_pid=0\n')
-                if ambiguous:lines.append('next_comm=wk'+epoch[:11]+'s next_pid=2033\n')
-                (instance/'trace').write_text(''.join(lines))
-                with patch.object(collector,'Path',side_effect=lambda value:root/'proc' if value=='/proc' else Path(value)), \
-                     patch.object(collector.time,'sleep'):
-                    if ambiguous:
-                        with self.assertRaisesRegex(ValueError,'absent/ambiguous: supervisor'):
-                            collector.map_kernel_pids(instance,lambda *args:None,owners,epoch,output)
-                    else:
-                        result=collector.map_kernel_pids(instance,lambda *args:None,owners,epoch,output)
-                        self.assertEqual({k:result['kernel_pids'][k] for k in collector.BASE_ROLES},
-                                         dict(ap_worker=1011,px4_worker=1022,supervisor=1033))
-                        self.assertEqual(result['local_threads']['ap_fc/log_io']['comm'],'log_io')
-                        filtered=collector.filters(result['kernel_pids'])
-                        self.assertIn('common_pid == '+str(result['kernel_pids']['px4_fc/logger']),
-                                      filtered['syscalls/sys_enter_fsync'])
+    def test_sched_mapping_accepts_one_pid_per_exact_comm(self):
+        names={'ap_worker':'wk-a','px4_worker':'wk-p'}
+        event=(b'          task-1 [001] .... 1.0: sched_switch: '
+               b'prev_comm=wk-a prev_pid=101 prev_prio=120 prev_state=S ==> '
+               b'next_comm=wk-p next_pid=102 next_prio=120\n')
+        clock=iter((0.0,0.0,0.1,0.1))
+        with tempfile.TemporaryDirectory() as temp:
+            output=Path(temp)
+            calls=[]
+            with patch.object(collector.os,'open',return_value=9), \
+                 patch.object(collector.os,'read',return_value=event), \
+                 patch.object(collector.os,'close') as close, \
+                 patch.object(collector.select,'select',return_value=([9],[],[])), \
+                 patch.object(collector.time,'monotonic',side_effect=lambda:next(clock)):
+                result=collector.map_sched_switch_pids(Path(temp)/'instance',
+                    lambda relative,value:calls.append((relative,value)),names,output)
+            self.assertEqual(result,{'ap_worker':101,'px4_worker':102})
+            self.assertEqual((output/'pid-mapping-trace.txt').read_bytes(),event)
+            self.assertEqual(calls[-3:],[('tracing_on','0'),
+                                         ('events/sched/sched_switch/enable','0'),('trace','')])
+            close.assert_called_once_with(9)
+
+    def test_sched_mapping_rejects_ambiguous_comm_pid(self):
+        names={'ap_worker':'wk-a'}
+        event=(b'prev_comm=wk-a prev_pid=101 prev_prio=120 prev_state=S ==> next_comm=idle next_pid=0\n'
+               b'prev_comm=wk-a prev_pid=999 prev_prio=120 prev_state=S ==> next_comm=idle next_pid=0\n')
+        clock=iter((0.0,0.0,0.1))
+        with tempfile.TemporaryDirectory() as temp:
+            with patch.object(collector.os,'open',return_value=9), \
+                 patch.object(collector.os,'read',return_value=event), \
+                 patch.object(collector.os,'close'), \
+                 patch.object(collector.select,'select',return_value=([9],[],[])), \
+                 patch.object(collector.time,'monotonic',side_effect=lambda:next(clock)):
+                with self.assertRaisesRegex(ValueError,'mapping ambiguous: ap_worker'):
+                    collector.map_sched_switch_pids(Path(temp)/'instance',lambda *args:None,
+                        names,Path(temp))
+
+    def test_sched_mapping_rejects_missing_comm_at_deadline(self):
+        names={'ap_worker':'wk-a'}
+        clock=iter((0.0,0.0,3.0,3.0))
+        with tempfile.TemporaryDirectory() as temp:
+            with patch.object(collector.os,'open',return_value=9), \
+                 patch.object(collector.os,'close'), \
+                 patch.object(collector.select,'select',return_value=([],[],[])), \
+                 patch.object(collector.time,'monotonic',side_effect=lambda:next(clock)):
+                with self.assertRaisesRegex(ValueError,'mapping timed out: ap_worker'):
+                    collector.map_sched_switch_pids(Path(temp)/'instance',lambda *args:None,
+                        names,Path(temp))
+
+    def test_sched_mapping_parses_final_line_without_newline(self):
+        names={'ap_worker':'wk-a'}
+        event=b'prev_comm=wk-a prev_pid=101 prev_prio=120 prev_state=S'
+        clock=iter((0.0,0.0,0.1,3.0))
+        with tempfile.TemporaryDirectory() as temp:
+            with patch.object(collector.os,'open',return_value=9), \
+                 patch.object(collector.os,'read',return_value=event), \
+                 patch.object(collector.os,'close'), \
+                 patch.object(collector.select,'select',return_value=([9],[],[])), \
+                 patch.object(collector.time,'monotonic',side_effect=lambda:next(clock)):
+                result=collector.map_sched_switch_pids(Path(temp)/'instance',lambda *args:None,
+                    names,Path(temp))
+            self.assertEqual(result,{'ap_worker':101})
+
+    def test_kernel_mapping_uses_exact_comm_scheduler_window(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root=Path(temp);instance=root/'instance';instance.mkdir();output=root/'output';output.mkdir()
+            owners={role:dict(pid=pid,start_ticks=1) for role,pid in (
+                ('ap_worker',11),('px4_worker',22),('supervisor',33),('ap_fc',44),('px4_fc',55))}
+            epoch='a'*32
+            def add_status(path,local,name,tgid=None):
+                path.mkdir(parents=True,exist_ok=True)
+                path.joinpath('comm').write_text(name+'\n')
+                path.joinpath('status').write_text(f'Name:\t{name}\nTgid:\t{tgid or local}\n')
+                task=path/'task'/str(local);task.mkdir(parents=True,exist_ok=True)
+                task.joinpath('comm').write_text(name+'\n')
+            for role,pid,suffix in (('ap_worker',11,'a'),('px4_worker',22,'p'),('supervisor',33,'s')):
+                name='wk'+epoch[:11]+suffix
+                add_status(root/'proc'/str(pid),pid,name)
+            for process_role,names in collector.FC_THREADS.items():
+                pid=owners[process_role]['pid']
+                for offset,name in enumerate(names,1):
+                    tid=pid+offset
+                    process=root/'proc'/str(pid)/'task'/str(tid)
+                    fields=['S']+['0']*18+[str(5000+tid)]
+                    process.mkdir(parents=True)
+                    process.joinpath('stat').write_text(f'{tid} ({name}) '+' '.join(fields)+'\n')
+                    process.joinpath('status').write_text(f'Name:\t{name}\nTgid:\t{pid}\n')
+                    process.joinpath('comm').write_text(name+'\n')
+            mapped=dict(ap_worker=1001,px4_worker=1002,supervisor=1003,
+                        **{'ap_fc/arducopter':1004,'ap_fc/log_io':1005,'ap_fc/DDS':1006,
+                           'px4_fc/sim_send':1007,'px4_fc/logger':1008,
+                           'px4_fc/wq:lp_default':1009})
+            (output/'pid-mapping-trace.txt').write_bytes(b'fixture')
+            with patch.object(collector,'Path',side_effect=lambda value:root/'proc' if value=='/proc' else Path(value)), \
+                 patch.object(collector,'map_sched_switch_pids',return_value=mapped) as map_pids:
+                result=collector.map_kernel_pids(instance,lambda *args:None,owners,epoch,output)
+            self.assertEqual({k:result['kernel_pids'][k] for k in collector.BASE_ROLES},
+                             {k:mapped[k] for k in collector.BASE_ROLES})
+            self.assertEqual(result['local_threads']['ap_fc/log_io']['comm'],'log_io')
+            map_pids.assert_called_once()
+            filtered=collector.filters(result['kernel_pids'])
+            self.assertIn('common_pid == '+str(result['kernel_pids']['px4_fc/logger']),
+                          filtered['syscalls/sys_enter_fsync'])
+
+    def test_global_comm_ownership_rejects_foreign_same_name(self):
+        with tempfile.TemporaryDirectory() as temp:
+            proc=Path(temp)
+            for tgid,tid,name in ((44,45,'logger'),(99,100,'logger')):
+                task=proc/str(tgid)/'task'/str(tid);task.mkdir(parents=True)
+                task.joinpath('comm').write_text(name+'\n')
+            expected={'logger':dict(role='px4_fc/logger',tgid=44,tid=45)}
+            with self.assertRaisesRegex(ValueError,'Global comm ownership mismatch'):
+                collector.scan_global_comm_owners(expected,proc)
 
     def test_required_fc_threads_rejects_duplicate_comm(self):
         owners={'ap_fc':dict(pid=44),'px4_fc':dict(pid=55)}
