@@ -35,6 +35,43 @@ class OperatorRetirement(Exception):
     pass
 
 
+def validate_evidence_requests(task, async_evidence, async_model_evidence):
+    """Keep general streams ArUco-only while allowing model traces for fixed tasks."""
+    aruco_task = task == ARUCO_TASK
+    fixed_task = task in FIXED_TASKS
+    if async_evidence and not aruco_task:
+        raise ValueError('Background evidence writes require the explicit ArUco experiment')
+    if async_model_evidence and not (aruco_task or fixed_task):
+        raise ValueError('Background model evidence writes require a fixed PV/MIXED or ArUco task')
+
+
+def _sha256_file(path):
+    value=hashlib.sha256()
+    with Path(path).open('rb') as source:
+        for chunk in iter(lambda:source.read(1024*1024),b''):value.update(chunk)
+    return value.hexdigest()
+
+
+def validate_model_writer_summary(summary,trace,library,epoch):
+    """Bind a retired model writer to this epoch, trace, model and scheduler."""
+    trace=Path(trace).resolve(strict=True);library=Path(library).resolve(strict=True)
+    scheduler=dict(available=True,policy='SCHED_OTHER',priority=0,
+                   actual_policy=getattr(os,'SCHED_OTHER',0),actual_priority=0)
+    submitted=summary.get('submitted_bytes') if isinstance(summary,dict) else None
+    written=summary.get('written_bytes') if isinstance(summary,dict) else None
+    if (not isinstance(summary,dict) or summary.get('complete') is not True
+            or summary.get('alive') is not False or summary.get('error') is not None
+            or summary.get('closed') is not True or summary.get('writer_scheduler')!=scheduler
+            or type(submitted) is not int or submitted<0 or type(written) is not int
+            or submitted!=written or written!=trace.stat().st_size
+            or summary.get('epoch')!=epoch
+            or summary.get('truth_trace_sha256')!=_sha256_file(trace)
+            or summary.get('model_library')!=str(library)
+            or summary.get('model_library_sha256')!=_sha256_file(library)):
+        raise ValueError('Model trace writer evidence identity or completeness differs')
+    return summary
+
+
 def resume_confirmed(lifecycle,clock,request):
     ready=lifecycle.acknowledged() and clock.tick%4==0
     if time.monotonic()-request['began']>=5:
@@ -82,8 +119,7 @@ def epoch_run(directory,epoch,generation=1):
     defer_task_reports=aruco_task or fixed_task
     async_evidence=os.environ.get('WKSIM_JOINT_ASYNC_EVIDENCE')=='1'
     async_model_evidence=os.environ.get('WKSIM_JOINT_ASYNC_MODEL_EVIDENCE')=='1'
-    if (async_evidence or async_model_evidence) and not aruco_task:
-        raise ValueError('Background evidence writes require the explicit ArUco experiment')
+    validate_evidence_requests(config['task'],async_evidence,async_model_evidence)
     session=json.loads((directory/'session.json').read_text())
     if (set(session)!={'version','run_id','instance_id'} or session['version']!=1
             or session['run_id']!=config['run_id'] or not hex_identity(session['instance_id'])
@@ -93,9 +129,11 @@ def epoch_run(directory,epoch,generation=1):
     output.mkdir(parents=True)
     result=dict(version=1,run_id=config['run_id'],epoch=epoch,status='failed',children={},tasks={},
                 action_results=[],host_boot_id=host_boot_id(),flight_completed=False,
-                instance_id=session['instance_id'],generation=generation,task_profile=config['task'])
+                instance_id=session['instance_id'],generation=generation,task_profile=config['task'],
+                async_evidence_requested=async_evidence,
+                async_model_evidence_requested=async_model_evidence)
     view=JointStateWriter(None,config['run_id'],session['instance_id'],epoch,generation)
-    physics=None
+    physics=None;library=None
     clock=SceneClock(epoch)
     evidence_streams=[]
     def open_evidence(path,buffering):
@@ -142,10 +180,12 @@ def epoch_run(directory,epoch,generation=1):
         # Explicit camera experiment: ordinary children and background threads
         # must not inherit the supervisor's FIFO/50 policy. Native model/FC
         # leaders are still explicitly configured by child_priority below.
-        scheduler_policy=os.SCHED_FIFO | (os.SCHED_RESET_ON_FORK if aruco_task else 0)
+        reset_children=aruco_task or async_model_evidence
+        scheduler_policy=os.SCHED_FIFO | (os.SCHED_RESET_ON_FORK if reset_children else 0)
         os.sched_setscheduler(0,scheduler_policy,os.sched_param(50))
         result['manager_scheduler']=dict(policy='SCHED_FIFO',priority=50,
-                                         reset_on_fork=aruco_task,actual_policy=os.sched_getscheduler(0))
+                                         reset_on_fork=reset_children,actual_policy=os.sched_getscheduler(0),
+                                         actual_priority=os.sched_getparam(0).sched_priority)
     except OSError as error:
         result['manager_scheduler']=dict(policy='SCHED_FIFO',priority=50,error=repr(error))
     def interrupted(signum,frame):
@@ -196,8 +236,9 @@ def epoch_run(directory,epoch,generation=1):
                 policy=os.SCHED_FIFO | (os.SCHED_RESET_ON_FORK if reset_model_threads else 0)
                 os.sched_setscheduler(child.pid,policy,os.sched_param(40))
                 record['scheduler']=dict(policy='SCHED_FIFO',priority=40,
-                                         reset_on_fork=reset_model_threads,
-                                         actual_policy=os.sched_getscheduler(child.pid))
+                                          reset_on_fork=reset_model_threads,
+                                          actual_policy=os.sched_getscheduler(child.pid),
+                                          actual_priority=os.sched_getparam(child.pid).sched_priority)
             except OSError as error:
                 record['scheduler']=dict(policy='SCHED_FIFO',priority=40,error=repr(error))
         if aruco_task:
@@ -839,13 +880,10 @@ def epoch_run(directory,epoch,generation=1):
             result['async_model_evidence']={}
             for stack in ('arducopter','px4'):
                 try:
-                    path=output/(stack+'-truth.jsonl.writer.json')
-                    summary=json.loads(path.read_text())
-                    if (summary.get('complete') is not True or summary.get('alive') is not False
-                            or summary.get('error') is not None or summary.get('closed') is not True
-                            or summary.get('submitted_bytes')!=summary.get('written_bytes')
-                            or summary.get('written_bytes')!=(output/(stack+'-truth.jsonl')).stat().st_size):
-                        raise ValueError('Model trace writer did not retire with complete bytes')
+                    trace=output/(stack+'-truth.jsonl')
+                    path=Path(str(trace)+'.writer.json')
+                    summary=validate_model_writer_summary(
+                        json.loads(path.read_text()),trace,library,epoch)
                     result['async_model_evidence'][stack]=summary
                 except (OSError,ValueError,TypeError) as error:
                     result.setdefault('model_evidence_errors',[]).append(dict(stack=stack,error=str(error)))

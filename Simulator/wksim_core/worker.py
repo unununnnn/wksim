@@ -5,6 +5,7 @@ must exclusively own these pipes from launch, with one outstanding RPC. On an
 RPC failure it must retire the child through its lifecycle owner (no retries).
 """
 import argparse
+import hashlib
 import json
 import math
 import os
@@ -25,6 +26,25 @@ _rpc_guard = threading.Lock()
 
 def encoded(value):
     return json.dumps(value, separators=(',', ':'), allow_nan=False)
+
+
+def _sha256_file(path):
+    digest = hashlib.sha256()
+    with Path(path).open('rb') as source:
+        for chunk in iter(lambda: source.read(1024 * 1024), b''):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _async_evidence_identity(library, trace, epoch):
+    library_path = Path(library).resolve(strict=True)
+    trace_path = Path(trace).resolve(strict=True)
+    return dict(
+        epoch=epoch,
+        truth_trace_sha256=_sha256_file(trace_path),
+        model_library=str(library_path),
+        model_library_sha256=_sha256_file(library_path),
+    )
 
 
 def _epoch(value):
@@ -148,12 +168,30 @@ def model_worker(library, trace, epoch, *, async_evidence=False):
         log = AsyncEvidenceStream(trace, close_timeout=2)
     else:
         log = Path(trace).open('x', encoding='utf-8', buffering=1)
-    try:
+    if not async_evidence:
         return _worker_loop(library, log, epoch, async_evidence, trace)
-    finally:
-        if async_evidence:
-            with Path(str(trace)+'.writer.json').open('x', encoding='utf-8') as output:
-                json.dump(log.summary(), output, indent=2)
+
+    # _worker_loop owns the stream context, so reaching this branch means the
+    # writer close completed successfully.  Refuse to publish an incomplete
+    # sidecar even if a future stream implementation changes that contract.
+    result = _worker_loop(library, log, epoch, async_evidence, trace)
+    summary = log.summary()
+    if (summary.get('complete') is not True
+            or summary.get('alive') is not False
+            or summary.get('closed') is not True
+            or summary.get('error') is not None
+            or summary.get('written_bytes') != summary.get('submitted_bytes')
+            or (hasattr(os,'SCHED_OTHER') and summary.get('writer_scheduler') != dict(
+                available=True,policy='SCHED_OTHER',priority=0,
+                actual_policy=os.SCHED_OTHER,actual_priority=0))):
+        raise RuntimeError('Async evidence writer did not close completely')
+
+    # Hashes are intentionally computed only after the writer has retired.
+    # Any path, digest, or read failure propagates without publishing evidence.
+    summary.update(_async_evidence_identity(library, trace, epoch))
+    with Path(str(trace)+'.writer.json').open('x', encoding='utf-8') as output:
+        json.dump(summary, output, indent=2)
+    return result
 
 
 def _worker_loop(library, log, epoch, async_evidence, trace):

@@ -1,8 +1,10 @@
 """Offline auditor boundaries only; synthetic observations are never flight proof."""
 import copy
+import hashlib
 import json
 import math
 import os
+from tempfile import TemporaryDirectory
 import unittest
 from pathlib import Path
 from unittest.mock import patch
@@ -49,7 +51,112 @@ def native_fixture():
     return data, requests
 
 
+def model_evidence_fixture(root):
+    epoch = 'a'*32
+    library = root/'fixed-model.so'
+    library.write_bytes(b'fixed-model')
+    library_sha256 = hashlib.sha256(library.read_bytes()).hexdigest()
+    model = dict(library=str(library), library_sha256=library_sha256)
+    summaries = {}
+    children = {}
+    for stack in ('arducopter', 'px4'):
+        trace = root/(stack+'-truth.jsonl')
+        trace.write_bytes(b'{}\n')
+        summary = dict(submitted_bytes=3, written_bytes=3, queue_highwater=1,
+                       alive=False, closed=True, error=None, io_calls=1,
+                       max_io_wall_ns=10, complete=True, epoch=epoch,
+                       truth_trace_sha256=hashlib.sha256(trace.read_bytes()).hexdigest(),
+                       model_library=str(library), model_library_sha256=library_sha256,
+                       writer_scheduler=dict(available=True, policy='SCHED_OTHER', priority=0,
+                                             actual_policy=0, actual_priority=0))
+        Path(str(trace)+'.writer.json').write_text(json.dumps(summary))
+        summaries[stack] = summary
+        children[stack+'-model'] = {
+            'argv': ['python', '--async-evidence'],
+            'scheduling': {'reset_on_fork': True, 'actual_policy': 0x40000001,
+                           'actual_priority': 40},
+        }
+    result = dict(scene_epoch=epoch, epoch=epoch, model_library=str(library),
+                  model_build=dict(model), pv_admission=dict(
+                      model_library=str(library), identities=dict(
+                          baseline=dict(model=dict(model)))),
+                  async_model_evidence_requested=True, async_evidence_requested=False,
+                  manager_scheduling={'reset_on_fork': True, 'actual_policy': 0x40000001,
+                                      'actual_priority': 50},
+                  source_sha256={'Simulator/wksim_runtime/evidence_stream.py': 'a'*64},
+                  children=children, async_model_evidence=summaries)
+    return result
+
+
 class PVRawAuditBoundaries(unittest.TestCase):
+    def test_async_model_evidence_requires_both_current_writer_sidecars(self):
+        from tools import audit_pv_trajectory as audit
+        with TemporaryDirectory(prefix='pv-model-evidence-') as directory:
+            root = Path(directory)
+            result = model_evidence_fixture(root)
+            checked = audit.model_evidence_identity(root, result)
+            self.assertTrue(checked['requested'])
+            self.assertEqual(checked['stacks']['px4']['truth_bytes'], 3)
+
+    def test_async_model_evidence_rejects_missing_flag_or_incomplete_sidecar(self):
+        from tools import audit_pv_trajectory as audit
+        with TemporaryDirectory(prefix='pv-model-evidence-') as directory:
+            root = Path(directory)
+            result = model_evidence_fixture(root)
+            result['children']['px4-model']['argv'] = ['python']
+            with self.assertRaisesRegex(ValueError, 'px4 model was not launched'):
+                audit.model_evidence_identity(root, result)
+
+    def test_async_model_evidence_rejects_scheduler_inheritance_gap(self):
+        from tools import audit_pv_trajectory as audit
+        with TemporaryDirectory(prefix='pv-model-evidence-') as directory:
+            root = Path(directory)
+            result = model_evidence_fixture(root)
+            result['children']['px4-model']['scheduling']['actual_policy'] = 1
+            with self.assertRaisesRegex(ValueError, 'px4 model did not reset'):
+                audit.model_evidence_identity(root, result)
+
+    def test_async_model_evidence_rejects_each_identity_mismatch_per_stack(self):
+        from tools import audit_pv_trajectory as audit
+        for stack in ('arducopter', 'px4'):
+            for field, bad in (('epoch', 'b'*32),
+                               ('truth_trace_sha256', 'b'*64),
+                               ('model_library', '/wrong/model.so'),
+                               ('model_library_sha256', 'b'*64)):
+                with self.subTest(stack=stack, field=field), TemporaryDirectory(prefix='pv-model-evidence-') as directory:
+                    root = Path(directory)
+                    result = model_evidence_fixture(root)
+                    result['async_model_evidence'][stack][field] = bad
+                    Path(str(root/(stack+'-truth.jsonl'))+'.writer.json').write_text(
+                        json.dumps(result['async_model_evidence'][stack]))
+                    with self.assertRaisesRegex(ValueError, stack+' model evidence'):
+                        audit.model_evidence_identity(root, result)
+
+    def test_async_model_evidence_rejects_result_summary_mismatch_and_trace_rehash(self):
+        from tools import audit_pv_trajectory as audit
+        with TemporaryDirectory(prefix='pv-model-evidence-') as directory:
+            root = Path(directory)
+            result = model_evidence_fixture(root)
+            result['async_model_evidence']['px4']['complete'] = False
+            with self.assertRaisesRegex(ValueError, 'px4 model evidence writer'):
+                audit.model_evidence_identity(root, result)
+
+        with TemporaryDirectory(prefix='pv-model-evidence-') as directory:
+            root = Path(directory)
+            result = model_evidence_fixture(root)
+            trace = root/'arducopter-truth.jsonl'
+            trace.write_bytes(b'changed\n')
+            with self.assertRaisesRegex(ValueError, 'arducopter model evidence truth digest'):
+                audit.model_evidence_identity(root, result)
+
+    def test_unrequested_model_evidence_remains_compatible_with_legacy_result(self):
+        from tools import audit_pv_trajectory as audit
+        self.assertEqual(audit.model_evidence_identity(Path('/unused'), {}),
+                         dict(requested=False, legacy=True))
+        self.assertEqual(audit.model_evidence_identity(Path('/unused'),
+                                                        {'async_model_evidence_requested': False}),
+                         dict(requested=False, legacy=False))
+
     def test_mixed_identity_is_dispatched_without_relabeling(self):
         from tools import audit_pv_trajectory as audit
         result = dict(mixed_admission=dict(task_profile=audit.PROFILE))

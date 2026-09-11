@@ -1,7 +1,10 @@
 """Actual worker function with fake Model/in-memory pipes; no native resource."""
+import hashlib
 import io
+import json
 from pathlib import Path
 import sys
+import tempfile
 from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
@@ -152,6 +155,59 @@ class SerializationReuse(unittest.TestCase):
         self.assertEqual(self.trace.getvalue(),'')
         self.assertEqual(self.stdout.getvalue(),'')
         self.assertTrue(self.model.closed)
+
+
+class AsyncEvidenceIdentity(unittest.TestCase):
+    def setUp(self):
+        self.model=FakeModel()
+        self.started=patch.object(worker,'_started',False)
+        self.started.start()
+        self.addCleanup(self.started.stop)
+        self.model_patch=patch.object(worker,'Model',lambda path:self.model)
+        self.model_patch.start()
+        self.addCleanup(self.model_patch.stop)
+
+    def run_worker(self, library, trace):
+        request=dict(version=1,epoch=EPOCH,tick=1,commands=[0.0]*16)
+        stdin=io.StringIO(worker.encoded(request)+'\n')
+        stdout=io.StringIO()
+        with patch.object(worker,'sys',SimpleNamespace(stdin=stdin,stdout=stdout)):
+            worker.model_worker(library, trace, EPOCH, async_evidence=True)
+
+    def test_writer_sidecar_records_closed_stream_identity(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root=Path(temporary)
+            library=root/'model.so'
+            library.write_bytes(b'model-library')
+            trace=root/'truth.jsonl'
+            self.run_worker(library, trace)
+
+            summary=json.loads((root/'truth.jsonl.writer.json').read_text())
+            self.assertEqual(summary['epoch'],EPOCH)
+            self.assertEqual(summary['truth_trace_sha256'],
+                             hashlib.sha256(trace.read_bytes()).hexdigest())
+            self.assertEqual(summary['model_library'],str(library.resolve()))
+            self.assertEqual(summary['model_library_sha256'],
+                             hashlib.sha256(library.read_bytes()).hexdigest())
+            if hasattr(worker.os,'sched_setscheduler'):
+                self.assertEqual(summary['writer_scheduler'],dict(
+                    available=True,policy='SCHED_OTHER',priority=0,
+                    actual_policy=worker.os.SCHED_OTHER,actual_priority=0))
+            self.assertTrue(summary['complete'])
+            self.assertFalse(summary['alive'])
+            self.assertTrue(summary['closed'])
+            self.assertIsNone(summary['error'])
+
+    def test_digest_failure_does_not_publish_sidecar(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root=Path(temporary)
+            library=root/'model.so'
+            library.write_bytes(b'model-library')
+            trace=root/'truth.jsonl'
+            with patch.object(worker,'_sha256_file',side_effect=OSError('digest failed')):
+                with self.assertRaisesRegex(OSError,'digest failed'):
+                    self.run_worker(library, trace)
+            self.assertFalse((root/'truth.jsonl.writer.json').exists())
 
 
 if __name__=='__main__': unittest.main()

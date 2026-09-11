@@ -14,6 +14,20 @@ class EvidenceStreamError(RuntimeError):
     pass
 
 
+def _ordinary_scheduler():
+    """Demote this writer thread before it can touch the evidence queue or fd."""
+    names=('SCHED_OTHER','sched_param','sched_setscheduler','sched_getscheduler','sched_getparam')
+    if not all(hasattr(os,name) for name in names):
+        return dict(available=False)
+    os.sched_setscheduler(0,os.SCHED_OTHER,os.sched_param(0))
+    policy=os.sched_getscheduler(0)
+    priority=os.sched_getparam(0).sched_priority
+    if policy!=os.SCHED_OTHER or priority!=0:
+        raise EvidenceStreamError('evidence writer did not enter ordinary scheduling')
+    return dict(available=True,policy='SCHED_OTHER',priority=0,
+                actual_policy=policy,actual_priority=priority)
+
+
 class _Queue(queue.Queue):
     def __init__(self, capacity):
         self.highwater=0
@@ -25,7 +39,7 @@ class _Queue(queue.Queue):
 
 class AsyncEvidenceStream:
     def __init__(self,path,block_size=65536,queue_blocks=8,close_timeout=5,
-                 *,_writer=None,_opener=None,_closer=None):
+                 *,_writer=None,_opener=None,_closer=None,_scheduler=None):
         for value,name in ((block_size,'block_size'),(queue_blocks,'queue_blocks')):
             if type(value) is not int or value<1:raise ValueError(name+' must be a positive integer')
         if type(close_timeout) not in (int,float) or not math.isfinite(close_timeout) or close_timeout<0:
@@ -33,12 +47,14 @@ class AsyncEvidenceStream:
         self._block_size=block_size;self._capacity=block_size*queue_blocks
         self._close_timeout=float(close_timeout)
         self._queue=_Queue(queue_blocks);self._pending=bytearray()
-        self._done=threading.Event()
+        self._done=threading.Event();self._scheduler_ready=threading.Event()
         self._submitted=self._written=0
         self._worker_error=self._main_error=self._close_outcome=None
+        self._writer_scheduler=None
         self._closed=False
         self._io_calls=self._max_io_ns=0
         self._writer=_writer or os.write;self._closer=_closer or os.close
+        self._scheduler=_scheduler or _ordinary_scheduler
         flags=os.O_WRONLY|os.O_CREAT|os.O_EXCL|getattr(os,'O_BINARY',0)
         fd=(_opener or os.open)(os.fspath(path),flags,0o600)
         try:
@@ -47,9 +63,27 @@ class AsyncEvidenceStream:
         except BaseException:
             self._closer(fd)
             raise
+        # Construction happens before the model RPC loop.  Do not accept the
+        # first tick until the writer has either proved ordinary scheduling or
+        # failed; otherwise a scheduler error could surface one commit late.
+        if not self._scheduler_ready.wait(timeout=self._close_timeout):
+            self._main_error=EvidenceStreamError(
+                'evidence writer scheduler setup timed out')
+            self._done.set()
+            self._thread.join(timeout=self._close_timeout)
+            raise self._main_error
+        try:self.check()
+        except BaseException:
+            self._thread.join(timeout=self._close_timeout)
+            raise
 
     def _run(self,fd):
         try:
+            # pthread creation inherits the creator's policy.  Parent-side
+            # SCHED_RESET_ON_FORK does not cover this thread, so demotion must
+            # be the first writer-thread operation and must fail closed.
+            self._writer_scheduler=self._scheduler()
+            self._scheduler_ready.set()
             while True:
                 try:block=self._queue.get(timeout=.02)
                 except queue.Empty:
@@ -69,6 +103,7 @@ class AsyncEvidenceStream:
                     remaining=remaining[count:]
         except BaseException as error:
             self._worker_error=error
+            self._scheduler_ready.set()
         finally:
             try:self._closer(fd)
             except BaseException as error:
@@ -142,7 +177,7 @@ class AsyncEvidenceStream:
         return dict(submitted_bytes=self._submitted,written_bytes=self._written,
                     queue_highwater=self._queue.highwater,alive=alive,closed=self._closed,
                     error=None if error is None else repr(error),io_calls=self._io_calls,
-                    max_io_wall_ns=self._max_io_ns,
+                    max_io_wall_ns=self._max_io_ns,writer_scheduler=self._writer_scheduler,
                     complete=self._close_outcome is True and not alive and error is None
                              and self._written==self._submitted)
 

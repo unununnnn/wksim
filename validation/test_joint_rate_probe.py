@@ -2,6 +2,7 @@
 import hashlib
 import json
 import os
+import tempfile
 import unittest
 import sys
 from pathlib import Path
@@ -164,6 +165,75 @@ class JointRateProbeTests(unittest.TestCase):
 
 
 class JointRuntimeTimingProbeEntryTests(unittest.TestCase):
+    def test_async_model_evidence_rejects_non_candidate_before_isolation(self):
+        args = SimpleNamespace(task_profile="position", async_model_evidence=True)
+        with patch.dict(os.environ, {TIMING_PROBE_ENV: "0"}, clear=False), \
+                patch.object(runner, "check_isolation") as isolate:
+            with self.assertRaisesRegex(ValueError, "async-model-evidence"):
+                runner.run(args)
+        isolate.assert_not_called()
+
+    def test_async_model_evidence_writer_summary_is_lossless_and_both_stacks_are_required(self):
+        with tempfile.TemporaryDirectory() as root:
+            directory = Path(root)
+            payload = b'{"tick":1}\n'
+            summary = dict(complete=True, alive=False, closed=True, error=None,
+                           submitted_bytes=len(payload), written_bytes=len(payload),
+                           writer_scheduler=dict(available=True, policy="SCHED_OTHER",
+                               priority=0, actual_policy=0, actual_priority=0))
+            for stack in ("arducopter", "px4"):
+                trace = directory / (stack + "-truth.jsonl")
+                trace.write_bytes(payload)
+                Path(str(trace) + ".writer.json").write_text(json.dumps(summary))
+            records = runner.verify_async_model_evidence(directory)
+            self.assertEqual(set(records), {"arducopter", "px4"})
+            self.assertEqual(records["arducopter"], summary)
+            broken = directory / "px4-truth.jsonl.writer.json"
+            broken.write_text(json.dumps(dict(summary, written_bytes=0)))
+            with self.assertRaisesRegex(RuntimeError, "px4 model trace writer"):
+                runner.verify_async_model_evidence(directory)
+            broken.write_text("[]")
+            with self.assertRaisesRegex(RuntimeError, "px4 model trace writer"):
+                runner.verify_async_model_evidence(directory)
+
+    @unittest.skipUnless(all(hasattr(os, name) for name in
+                             ("SCHED_FIFO", "SCHED_RESET_ON_FORK", "sched_param",
+                              "setpriority", "getpriority", "sched_setscheduler",
+                              "sched_getscheduler", "sched_getparam")),
+                         "Linux scheduler API is unavailable")
+    def test_async_model_evidence_model_scheduler_sets_reset_on_fork(self):
+        with patch.object(runner.os, "setpriority"), \
+                patch.object(runner.os, "getpriority", return_value=-10), \
+                patch.object(runner.os, "sched_setscheduler") as set_scheduler, \
+                patch.object(runner.os, "sched_getscheduler",
+                             return_value=runner.os.SCHED_FIFO | runner.os.SCHED_RESET_ON_FORK), \
+                patch.object(runner.os, "sched_getparam", return_value=SimpleNamespace(sched_priority=40)):
+            value = runner.scheduling(123, "model", async_model_evidence=True)
+        set_scheduler.assert_called_once_with(
+            123, runner.os.SCHED_FIFO | runner.os.SCHED_RESET_ON_FORK, runner.os.sched_param(40))
+        self.assertTrue(value["reset_on_fork"])
+        self.assertEqual(value["actual_policy"] & runner.os.SCHED_RESET_ON_FORK,
+                         runner.os.SCHED_RESET_ON_FORK)
+
+    @unittest.skipUnless(all(hasattr(os, name) for name in
+                             ("SCHED_FIFO", "SCHED_RESET_ON_FORK", "sched_param",
+                              "setpriority", "getpriority", "sched_setscheduler",
+                              "sched_getscheduler", "sched_getparam")),
+                         "Linux scheduler API is unavailable")
+    def test_async_model_evidence_manager_resets_children_before_spawn(self):
+        with patch.object(runner.os, "setpriority"), \
+                patch.object(runner.os, "getpriority", return_value=-10), \
+                patch.object(runner.os, "sched_setscheduler") as set_scheduler, \
+                patch.object(runner.os, "sched_getscheduler",
+                             return_value=runner.os.SCHED_FIFO | runner.os.SCHED_RESET_ON_FORK), \
+                patch.object(runner.os, "sched_getparam", return_value=SimpleNamespace(sched_priority=50)):
+            value = runner.scheduling(0, "manager", async_model_evidence=True)
+        set_scheduler.assert_called_once_with(
+            0, runner.os.SCHED_FIFO | runner.os.SCHED_RESET_ON_FORK, runner.os.sched_param(50))
+        self.assertTrue(value["reset_on_fork"])
+        self.assertEqual(value["actual_policy"] & runner.os.SCHED_RESET_ON_FORK,
+                         runner.os.SCHED_RESET_ON_FORK)
+
     def test_environment_is_strictly_three_state(self):
         self.assertFalse(timing_probe_enabled({}))
         self.assertFalse(timing_probe_enabled({TIMING_PROBE_ENV: "0"}))

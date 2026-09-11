@@ -60,7 +60,7 @@ def candidate_rate_sources(_diagnostic):
     ]
 
 
-def scheduling(pid, role):
+def scheduling(pid, role, *, async_model_evidence=False):
     """Same own-process policy as the formal joint manager; record actual results."""
     value = dict(target_nice=-10 if role in ('manager','model','fc') else -5)
     try:
@@ -70,13 +70,53 @@ def scheduling(pid, role):
         value['nice_error'] = repr(error)
     if role in ('manager','model','fc'):
         value['target_fifo_priority'] = 50 if role=='manager' else 40
+        # The manager must reset its children before Popen so the model worker's
+        # background writer cannot race the parent's post-spawn scheduling call
+        # and inherit FIFO/50.  The model leader is then explicitly promoted to
+        # FIFO/40 with the same reset flag while its existing writer stays
+        # ordinary-scheduled.
+        reset_on_fork = role in ('manager', 'model') and async_model_evidence
+        if reset_on_fork:
+            value['reset_on_fork'] = True
         try:
-            os.sched_setscheduler(pid,os.SCHED_FIFO,os.sched_param(value['target_fifo_priority']))
+            policy = os.SCHED_FIFO
+            if reset_on_fork:
+                policy |= os.SCHED_RESET_ON_FORK
+            os.sched_setscheduler(pid,policy,os.sched_param(value['target_fifo_priority']))
             value['actual_policy'] = os.sched_getscheduler(pid)
             value['actual_priority'] = os.sched_getparam(pid).sched_priority
         except OSError as error:
             value['scheduler_error'] = repr(error)
     return value
+
+
+def verify_async_model_evidence(directory):
+    """Require both model trace writers to retire with lossless output."""
+    directory = Path(directory)
+    records = {}
+    for stack in ('arducopter', 'px4'):
+        trace = directory / (stack + '-truth.jsonl')
+        sidecar = Path(str(trace) + '.writer.json')
+        try:
+            summary = json.loads(sidecar.read_text())
+            size = trace.stat().st_size
+        except (OSError, ValueError, TypeError) as error:
+            raise RuntimeError(f'Missing {stack} model trace writer evidence: {error}') from error
+        if (not isinstance(summary, dict)
+                or summary.get('complete') is not True or summary.get('alive') is not False
+                or summary.get('closed') is not True or summary.get('error') is not None
+                or summary.get('writer_scheduler') != dict(
+                    available=True, policy='SCHED_OTHER', priority=0,
+                    actual_policy=getattr(os, 'SCHED_OTHER', 0), actual_priority=0)
+                or type(summary.get('submitted_bytes')) is not int
+                or type(summary.get('written_bytes')) is not int
+                or summary['submitted_bytes'] != summary['written_bytes']
+                or summary['written_bytes'] != size):
+            raise RuntimeError(f'{stack} model trace writer did not retire with complete bytes')
+        # Keep the result entry byte-for-byte identical to the writer sidecar;
+        # the offline auditor owns the trace hash/artifact digest.
+        records[stack] = summary
+    return records
 
 
 def save(path, data):
@@ -202,6 +242,9 @@ def run(args):
     timing_probe = timing_probe_enabled()
     if timing_probe and args.task_profile not in (PV_PROFILE, MIXED_PROFILE):
         raise ValueError(f"{TIMING_PROBE_ENV}=1 is only allowed for candidate/PV task profiles")
+    async_model_evidence = getattr(args, 'async_model_evidence', False)
+    if async_model_evidence and args.task_profile not in (PV_PROFILE, MIXED_PROFILE):
+        raise ValueError('--async-model-evidence is only allowed for PV/MIXED task profiles')
     model_promotion_flight = getattr(args, 'model_promotion_flight', False)
     diagnostic_identity = timing_probe_identity() if timing_probe else None
     check_isolation()
@@ -245,6 +288,7 @@ def run(args):
                               task_position_error_m=.5, task_speed_m_s=.5,
                               takeoff_min_height_m=2.5, ground_abs_height_m=.3),
                   scope=__doc__)
+    result['async_model_evidence_requested'] = async_model_evidence
     if diagnostic_identity is not None:
         result['rate_timing_probe'] = dict(diagnostic_identity)
     print(json.dumps(dict(archive=str(archive), live=str(live))), flush=True)
@@ -273,6 +317,8 @@ def run(args):
         sources += candidate_rate_sources(timing_probe)
         sources += ['Simulator/wksim_runtime/joint_profile.py',
                     'Simulator/wksim_runtime/joint-profiles.json','Simulator/wksim_runtime/build_identity.py']
+    if async_model_evidence:
+        sources += ['Simulator/wksim_runtime/evidence_stream.py']
     if pv:
         sources += ['docs/2026-09-09-pv-flight-plan.md']
     if mixed_firmware:
@@ -634,7 +680,8 @@ def run(args):
                 lifecycle = JointLifecycle(node, clock, publisher, live, result['run_id'], started, pause_probe)
                 resources.callback(lifecycle.close)
             if candidate:
-                result['manager_scheduling'] = scheduling(0,'manager')
+                result['manager_scheduling'] = scheduling(
+                    0, 'manager', async_model_evidence=async_model_evidence)
             for stack, uid in (('arducopter',1),('px4',2)):
                 directory = live/stack
                 directory.mkdir()
@@ -642,13 +689,16 @@ def run(args):
                 log = (live/(stack+'-model.log')).open('x')
                 argv = [sys.executable,'-B','-m','Simulator.wksim_core.worker','--library',str(library),
                         '--trace',str(live/(stack+'-truth.jsonl')),'--epoch',clock.epoch]
+                if async_model_evidence:
+                    argv.append('--async-evidence')
                 child = subprocess.Popen(argv,cwd=directory,stdin=subprocess.PIPE,stdout=subprocess.PIPE,
                                          stderr=log,text=True,start_new_session=True)
                 children.append((stack+'-model',child,log)); workers[stack]=child
                 child_specs[child.pid] = dict(role='model',directory=directory,result_key=stack,env=None)
                 result['children'][stack+'-model'] = dict(identity=json_identity(child.pid),argv=argv,cwd=str(directory))
                 if candidate:
-                    result['children'][stack+'-model']['scheduling'] = scheduling(child.pid,'model')
+                    result['children'][stack+'-model']['scheduling'] = scheduling(
+                        child.pid, 'model', async_model_evidence=async_model_evidence)
                 plan = launch_spec(configs[stack], directory, library)
                 launch(stack+'-agent',plan['agent'],directory)
                 launch(stack+'-fc',plan['fc'],directory,dict(os.environ,**plan['fc_environment']))
@@ -834,10 +884,16 @@ def run(args):
         result.update(error=repr(error),traceback=traceback.format_exc(),faulted_authority=clock.snapshot())
         print('Joint flight failed: '+repr(error),flush=True)
     finally:
-        result['flight_completed'] = result['status']=='pass'
         result['cleanup_errors']=stop_children(children)
         for name,child,_ in children:
             result['children'][name].update(returncode=child.returncode,remaining_group_members=group_members(child.pid))
+        if async_model_evidence:
+            try:
+                result['async_model_evidence'] = verify_async_model_evidence(live)
+            except BaseException as error:
+                result['status'] = 'failed'
+                result.setdefault('error', 'Async model evidence incomplete')
+                result['async_model_evidence_error'] = repr(error)
         result['unowned_ap_after']=json_identity(828)
         result['source_unchanged']=result['source_sha256']=={name:digest(REPO/name) for name in sources}
         if candidate and result.get('control_source_sha256'):
@@ -866,6 +922,7 @@ def run(args):
                 or not result['source_unchanged'] or result['unowned_ap_before']!=result['unowned_ap_after']
                 or result.get('model_promotion_flight_requested') and not result.get('model_unchanged')):
             result['status']='failed'
+        result['flight_completed'] = result['status']=='pass'
         result['wall_seconds']=time.monotonic()-started
         save(live/'result.json',result)
         shutil.copytree(live,archive,dirs_exist_ok=True)
@@ -894,6 +951,8 @@ def main(argv=None):
                         help='Diagnostic only: pace landing at >=12ms wall per 4ms joint barrier to reproduce low-rate state expiry')
     runner.add_argument('--model-promotion-flight', action='store_true',
                         help='Explicit unflown current-model ABI admission for one healthy position flight')
+    runner.add_argument('--async-model-evidence', action='store_true',
+                        help='Explicit bounded model truth-writer candidate for PV/MIXED flights')
     for name in ('control-manifest','control-sha256'):
         runner.add_argument('--'+name,required=True)
     for name in ('ap-manifest','ap-sha256','ap-pv-manifest','ap-pv-sha256','ap-mixed-manifest','ap-mixed-sha256'):
@@ -915,6 +974,8 @@ def main(argv=None):
     if args.role == 'run':
         pv = args.task_profile == PV_PROFILE
         mixed = args.task_profile == MIXED_PROFILE
+        if args.async_model_evidence and not (pv or mixed):
+            parser.error('--async-model-evidence is only allowed for PV/MIXED task profiles')
         if pv:
             pv_pair = bool(args.ap_pv_manifest and args.ap_pv_sha256 and not args.ap_mixed_manifest and not args.ap_mixed_sha256)
             mixed_pair = bool(args.ap_mixed_manifest and args.ap_mixed_sha256 and not args.ap_pv_manifest and not args.ap_pv_sha256)

@@ -33,6 +33,61 @@ def wait_for(predicate, seconds=5):
 
 
 class StreamTests(unittest.TestCase):
+    def test_writer_enters_ordinary_scheduler_before_first_io(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            scheduled = threading.Event()
+
+            def scheduler():
+                scheduled.set()
+                return dict(available=True, policy="SCHED_OTHER", priority=0,
+                            actual_policy=0, actual_priority=0)
+
+            def writer(fd, view):
+                self.assertTrue(scheduled.is_set())
+                return os.write(fd, view)
+
+            path = Path(tmp) / "e.jsonl"
+            with AsyncEvidenceStream(path, block_size=4, _scheduler=scheduler,
+                                     _writer=writer) as stream:
+                stream.write("data")
+            self.assertEqual(stream.summary()["writer_scheduler"]["policy"], "SCHED_OTHER")
+
+    def test_writer_scheduler_failure_is_latched_before_io(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            writes = []
+
+            def scheduler():
+                raise OSError("scheduler demotion failed")
+
+            def writer(fd, view):
+                writes.append(bytes(view))
+                return os.write(fd, view)
+
+            with self.assertRaisesRegex(OSError, "scheduler demotion failed"):
+                AsyncEvidenceStream(Path(tmp) / "e.jsonl", block_size=4,
+                                    _scheduler=scheduler, _writer=writer)
+            self.assertEqual(writes, [])
+
+    def test_writer_scheduler_setup_has_close_timeout_bound(self):
+        release = threading.Event()
+        closed = threading.Event()
+
+        def scheduler():
+            release.wait(5)
+            return dict(available=True, policy="SCHED_OTHER", priority=0,
+                        actual_policy=0, actual_priority=0)
+
+        started = time.monotonic()
+        try:
+            with self.assertRaisesRegex(EvidenceStreamError, "scheduler setup timed out"):
+                AsyncEvidenceStream("unused", close_timeout=.05, _scheduler=scheduler,
+                                    _opener=lambda *_: 17,
+                                    _closer=lambda _fd: closed.set())
+        finally:
+            release.set()
+        self.assertLess(time.monotonic() - started, 1)
+        self.assertTrue(closed.wait(1))
+
     def test_bytes_and_order_exactly_preserved_across_records(self):
         with tempfile.TemporaryDirectory() as tmp:
             records = ["plain ascii\n", "中文与 é 混合 ✓\n", '{"a": 1}\n', "", "x" * 100]

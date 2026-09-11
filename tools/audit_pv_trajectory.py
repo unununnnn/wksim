@@ -8,6 +8,7 @@ from bisect import bisect_left
 from collections import Counter
 import json
 import math
+import os
 from pathlib import Path
 import re
 import struct
@@ -94,6 +95,117 @@ def truth_window(rows, start_ns, end_ns):
     require(type(start_ns) is int and type(end_ns) is int and start_ns % 1_000_000 == end_ns % 1_000_000 == 0
             and 1_000_000 <= start_ns < end_ns <= len(rows)*1_000_000, 'Physical window is off-grid or incomplete')
     return rows[start_ns//1_000_000-1:end_ns//1_000_000]
+
+
+def model_evidence_identity(root, result):
+    """Validate opt-in asynchronous model evidence while accepting legacy results."""
+    requested = result.get('async_model_evidence_requested')
+    if requested is None:
+        return dict(requested=False, legacy=True)
+    require(type(requested) is bool, 'Model evidence request state is invalid')
+    if not requested:
+        require('async_model_evidence' not in result,
+                'Unrequested asynchronous model evidence summary is present')
+        for child in result.get('children', {}).values():
+            if isinstance(child, dict) and isinstance(child.get('argv'), list):
+                require('--async-evidence' not in child['argv'],
+                        'Unrequested asynchronous model evidence worker is present')
+        return dict(requested=False, legacy=False)
+    require(result.get('async_evidence_requested') is not True,
+            'General asynchronous evidence is outside fixed PV/MIXED audit scope')
+    require('Simulator/wksim_runtime/evidence_stream.py' in result.get('source_sha256', {}),
+            'Async model evidence writer source identity is missing')
+    summaries = result.get('async_model_evidence')
+    require(isinstance(summaries, dict) and set(summaries) == {stack for stack, _ in STACKS},
+            'Both model evidence writer summaries are required')
+
+    reset_bit = getattr(os, 'SCHED_RESET_ON_FORK', 0x40000000)
+    fifo_policy = getattr(os, 'SCHED_FIFO', 1)
+    def reset_scheduler(record, priority):
+        actual = record.get('actual_policy') if isinstance(record, dict) else None
+        return (isinstance(record, dict) and record.get('reset_on_fork') is True
+                and type(actual) is int and actual & reset_bit == reset_bit
+                and actual & ~reset_bit == fifo_policy
+                and record.get('actual_priority') == priority)
+    manager_scheduler = result.get('manager_scheduling', result.get('manager_scheduler'))
+    require(reset_scheduler(manager_scheduler, 50),
+            'Async model evidence manager did not reset child scheduling')
+
+    epochs = [result[name] for name in ('scene_epoch', 'epoch') if name in result]
+    require(epochs and all(isinstance(value, str) for value in epochs)
+            and len(set(epochs)) == 1, 'Model evidence result epoch is missing or inconsistent')
+    expected_epoch = epochs[0]
+
+    admission_key = 'mixed_admission' if 'mixed_admission' in result else 'pv_admission'
+    admission = result.get(admission_key)
+    require(isinstance(admission, dict) and isinstance(admission.get('model_library'), str),
+            'Fixed model admission identity is missing')
+    identities = admission.get('identities')
+    baseline = identities.get('baseline', {}) if isinstance(identities, dict) else {}
+    admission_model = baseline.get('model') if isinstance(baseline, dict) else None
+    model_build = result.get('model_build')
+    require(isinstance(model_build, dict)
+            and isinstance(model_build.get('library'), str)
+            and isinstance(model_build.get('library_sha256'), str),
+            'Fixed model result identity is missing')
+    require(isinstance(admission_model, dict)
+            and isinstance(admission_model.get('library'), str)
+            and isinstance(admission_model.get('library_sha256'), str),
+            'Fixed model admission baseline is missing')
+    expected_library = str(Path(model_build['library']).resolve())
+    require(expected_library == str(Path(admission['model_library']).resolve())
+            == str(Path(admission_model['library']).resolve())
+            and model_build['library_sha256'] == admission_model['library_sha256'],
+            'Fixed model result/admission identities differ')
+    if isinstance(result.get('model_library'), str):
+        require(str(Path(result['model_library']).resolve()) == expected_library,
+                'Fixed model result path differs from admission')
+    expected_library_sha256 = model_build['library_sha256']
+
+    checked = {}
+    children = result.get('children')
+    require(isinstance(children, dict), 'Model evidence child identities are missing')
+    for stack, _ in STACKS:
+        child = children.get(stack+'-model')
+        require(isinstance(child, dict) and isinstance(child.get('argv'), list)
+                and child['argv'].count('--async-evidence') == 1,
+                f'{stack} model was not launched with asynchronous evidence')
+        child_scheduler = child.get('scheduling')
+        if child_scheduler is None and isinstance(child.get('priority'), dict):
+            child_scheduler = child['priority'].get('scheduler')
+        require(reset_scheduler(child_scheduler, 40),
+                f'{stack} model did not reset writer-thread scheduling inheritance')
+        trace = Path(root)/(stack+'-truth.jsonl')
+        sidecar = Path(str(trace)+'.writer.json')
+        require(trace.is_file() and sidecar.is_file(), f'Missing {stack} model evidence')
+        summary = read(sidecar)
+        require(isinstance(summary, dict)
+                and summary == summaries[stack]
+                and summary.get('complete') is True
+                and summary.get('alive') is False
+                and summary.get('closed') is True
+                and summary.get('error') is None
+                and summary.get('writer_scheduler') == dict(
+                    available=True, policy='SCHED_OTHER', priority=0,
+                    actual_policy=getattr(os, 'SCHED_OTHER', 0), actual_priority=0),
+                f'{stack} model evidence writer did not complete cleanly')
+        require(summary.get('epoch') == expected_epoch,
+                f'{stack} model evidence epoch differs from result')
+        require(summary.get('truth_trace_sha256') == digest(trace),
+                f'{stack} model evidence truth digest differs from trace')
+        require(summary.get('model_library') == expected_library
+                and summary.get('model_library_sha256') == expected_library_sha256,
+                f'{stack} model evidence library identity differs from fixed model')
+        submitted = summary.get('submitted_bytes')
+        written = summary.get('written_bytes')
+        size = trace.stat().st_size
+        require(type(submitted) is int and submitted >= 0
+                and type(written) is int and written == submitted == size,
+                f'{stack} model evidence byte summary differs from truth file')
+        checked[stack] = dict(argv_async_evidence=True, truth_bytes=size,
+                              writer_summary=summary)
+    return dict(requested=True, legacy=False, source='Simulator/wksim_runtime/evidence_stream.py',
+                stacks=checked)
 
 
 def retained_identity(root, result):
@@ -212,6 +324,7 @@ def retained_identity(root, result):
 
 
 def candidate_initialization(root, result):
+    model_evidence_identity(root, result)
     if 'initialization' not in result:
         return
     value = result['initialization']
