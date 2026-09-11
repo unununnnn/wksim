@@ -1054,7 +1054,7 @@ def main(argv=None):
         elif mixed:
             if (not args.ap_mixed_manifest or not args.ap_mixed_sha256 or args.ap_manifest or args.ap_sha256
                     or args.ap_pv_manifest or args.ap_pv_sha256 or args.px4_manifest or args.px4_sha256
-                    or args.message_manifest or args.message_sha256
+                    or (args.message_manifest is None) != (args.message_sha256 is None)
                     or args.pause_probe or args.scene_lifecycle or args.scene_lease_loss or args.dds_loss
                     or args.native_state_trace or args.probe_land_freshness):
                 parser.error('Mixed profile requires its own AP manifest/SHA and no alternate probes')

@@ -2,7 +2,7 @@
 
 2026-09-09。此文件冻结可执行的候选兼容性入口；没有宣称最终组合已实飞，也不修改旧 PV/mixed 飞行记录。原 PV baseline `joint-public-flight-qi66lh_y` 与 mixed nominal `joint-public-flight-zk5_nukn` 使用不同组合或开关状态，不能替代本合同。
 
-仅接纳 AP `/root/wksim-ap-mixed-fhuf05l9/mixed-build.json`（SHA256 `1e6250eff8873d6b2e52017b613c223ac29f8260fdf92aac2cf0c7cdcc6ce94c`）、控制 `/root/wksim-joint-control-49HzRl/build.json`（SHA256 `060f9677ed9ba2234c16fa7543319014cd3bb335f480af562780d79772be4080`）和消息 overlay `/root/wksim-ros2-Rzj3Pf/message-build.json`（SHA256 `29969da0702451e3fc6f1de40bc301a67284c4e7d5fae8f88c64773d27a96219`）。mixed verifier 保留完整源码快照、补丁、二进制及 mixed→PV→fixed 链核验；没有伪造 PV manifest。任务身份是 `full_xyz_pv_yaw_v1`，固件身份仍为 mixed；结果使用 `mixed_admission`。控制和消息候选从 2026-09-11 当前源码重新构建，封存 `command_high_water` ABI、Control Python、运行支持文件、入口脚本和完整安装包；旧候选自身未变，只保留为历史身份。
+仅接纳 AP `/root/wksim-ap-mixed-fhuf05l9/mixed-build.json`（SHA256 `1e6250eff8873d6b2e52017b613c223ac29f8260fdf92aac2cf0c7cdcc6ce94c`）、控制 `/root/wksim-joint-control-rWolCy/build.json`（SHA256 `a6a17b42f92cf6df4b92fe36b6e1e65f6e4e42f684daac4113091591a1802346`）和消息 overlay `/root/wksim-ros2-Rzj3Pf/message-build.json`（SHA256 `29969da0702451e3fc6f1de40bc301a67284c4e7d5fae8f88c64773d27a96219`）。mixed verifier 保留完整源码快照、补丁、二进制及 mixed→PV→fixed 链核验；没有伪造 PV manifest。`full_xyz_pv_yaw_v1` 与 `xy_velocity_z_position_yaw_v1` 两项最终能力证明都必须显式使用这组 control/message 候选，避免 current Control 与历史 `SessionState` ABI 混用。固件身份仍为 mixed；结果使用 `mixed_admission`。控制和消息候选从 2026-09-11 当前源码重新构建，封存 `command_high_water` ABI、Control Python、运行支持文件、入口脚本和完整安装包；旧候选自身未变，只保留为历史身份。
 
 实际 AP 控制启动同时传入 `arducopter_pv_profile:=full_xyz_pv_yaw_v1` 与 `arducopter_mixed_profile:=xy_velocity_z_position_yaw_v1`。此后 mixed 候选入口也使用相同双开关。旧 PV manifest 路线保持原单 PV 开关；旧 mixed 审计仍识别单 mixed 开关，并在 `identity.control_profiles` 如实输出，不能用它冒充双开关覆盖。
 
@@ -14,8 +14,8 @@ bash tools/run-joint-flight.sh \
   --async-model-evidence \
   --ap-mixed-manifest /root/wksim-ap-mixed-fhuf05l9/mixed-build.json \
   --ap-mixed-sha256 1e6250eff8873d6b2e52017b613c223ac29f8260fdf92aac2cf0c7cdcc6ce94c \
-  --control-manifest /root/wksim-joint-control-49HzRl/build.json \
-  --control-sha256 060f9677ed9ba2234c16fa7543319014cd3bb335f480af562780d79772be4080 \
+  --control-manifest /root/wksim-joint-control-rWolCy/build.json \
+  --control-sha256 a6a17b42f92cf6df4b92fe36b6e1e65f6e4e42f684daac4113091591a1802346 \
   --message-manifest /root/wksim-ros2-Rzj3Pf/message-build.json \
   --message-sha256 29969da0702451e3fc6f1de40bc301a67284c4e7d5fae8f88c64773d27a96219
 python3 -B tools/audit_pv_trajectory.py validation/ACTUAL_NEW_RUN --output validation/ACTUAL_NEW_AUDIT.json

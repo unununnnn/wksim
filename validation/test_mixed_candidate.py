@@ -78,7 +78,40 @@ class MixedCandidateTests(unittest.TestCase):
             report = mixed.admit(str(self.path), 'a'*64, str(self.control_path), self.control_sha, '../bad')
             self.assertFalse(report['ok']); self.assertEqual(report['configs'], {})
 
-    def test_pv_task_keeps_true_mixed_verification_and_exact_final_pins(self):
+    def test_only_fixed_legacy_control_uses_sealed_v1_verification(self):
+        p = mixed.joint.select_profile('joint_quad_dds_v1')
+        native = dict(candidate=self.record,
+                      baseline_verification=dict(baseline_manifest_sha256=p['manifests']['ap']['sha256']))
+        legacy = dict(version=1, root=str(mixed.LEGACY_CONTROL_MANIFEST.parent),
+                      package=str(mixed.LEGACY_CONTROL_MANIFEST.parent/'package'))
+        with patch.object(mixed, 'verify', return_value=native), \
+                patch.object(mixed, '_fixed_resources', return_value={}), \
+                patch.object(mixed, 'checked_json', return_value=legacy), \
+                patch.object(mixed.joint, '_control', return_value=legacy['package']) as sealed, \
+                patch.object(mixed, 'check_control', side_effect=AssertionError('current verifier used')):
+            report = mixed.admit(str(self.path), 'a'*64, str(mixed.LEGACY_CONTROL_MANIFEST),
+                                 mixed.LEGACY_CONTROL_SHA, 'legacy-mixed-unit')
+            self.assertTrue(report['ok'], report['reasons'])
+            self.assertIs(report['control_candidate'], legacy)
+            sealed.assert_called_once_with(legacy, sealed=True)
+            for manifest, checksum, task, message in (
+                    ('/root/wksim-joint-control-other/build.json', mixed.LEGACY_CONTROL_SHA, mixed.PROFILE, None),
+                    (str(mixed.LEGACY_CONTROL_MANIFEST), mixed.LEGACY_CONTROL_SHA, mixed.PV_PROFILE, None),
+                    (str(mixed.LEGACY_CONTROL_MANIFEST), mixed.LEGACY_CONTROL_SHA, mixed.PROFILE, '/root/message.json')):
+                sealed.reset_mock()
+                rejected = mixed.admit(str(self.path), 'a'*64, manifest, checksum, 'legacy-mixed-unit',
+                                       task_profile=task, message_manifest=message,
+                                       message_checksum=(mixed.FINAL_MESSAGE_SHA if message else None))
+                self.assertFalse(rejected['ok'])
+                self.assertEqual(rejected['children_created'], 0)
+                sealed.assert_not_called()
+        with patch.object(mixed, 'checked_json', return_value=dict(legacy, version=2)), \
+                patch.object(mixed.joint, '_control', side_effect=AssertionError('sealed verification began')):
+            with self.assertRaisesRegex(ValueError, 'version 1'):
+                mixed.admitted_control(mixed.LEGACY_CONTROL_MANIFEST, mixed.LEGACY_CONTROL_SHA,
+                                       mixed.PROFILE, None)
+
+    def test_current_tasks_keep_true_mixed_verification_and_exact_final_pins(self):
         p = mixed.joint.select_profile('joint_quad_dds_v1')
         native = dict(candidate=self.record, baseline_verification=dict(baseline_manifest_sha256=p['manifests']['ap']['sha256']))
         with patch.object(mixed, 'verify', return_value=native) as verify, \
@@ -110,12 +143,31 @@ class MixedCandidateTests(unittest.TestCase):
                                        message_checksum=message_sha)
                 self.assertFalse(rejected['ok']); self.assertEqual(rejected['children_created'], 0)
                 verify.assert_not_called()
+            report = mixed.admit(str(self.path), mixed.FINAL_AP_SHA, str(self.control_path),
+                                 mixed.FINAL_CONTROL_SHA, 'mixed-unit', task_profile=mixed.PROFILE,
+                                 message_manifest='/root/wksim-ros2-Test12/message-build.json',
+                                 message_checksum=mixed.FINAL_MESSAGE_SHA)
+            self.assertTrue(report['ok'], report['reasons'])
+            self.assertIs(report['message_candidate'], self.messages)
+            self.assertEqual(report['capability']['arducopter_type_mask'], 2531)
             verify.reset_mock()
-            rejected = mixed.admit(str(self.path), 'a'*64, str(self.control_path), self.control_sha,
-                                   'mixed-unit', message_manifest='/root/wksim-ros2-Test12/message-build.json',
-                                   message_checksum=mixed.FINAL_MESSAGE_SHA)
+            rejected = mixed.admit(str(self.path), mixed.FINAL_AP_SHA, str(self.control_path),
+                                   mixed.FINAL_CONTROL_SHA, 'mixed-unit', task_profile=mixed.PROFILE)
             self.assertFalse(rejected['ok'])
+            self.assertEqual(rejected['children_created'], 0)
+            self.assertIn('explicit final message candidate', rejected['reasons'][0]['message'])
             verify.assert_not_called()
+            for ap_sha, control_sha, message_sha in (
+                    ('a'*64, mixed.FINAL_CONTROL_SHA, mixed.FINAL_MESSAGE_SHA),
+                    (mixed.FINAL_AP_SHA, 'a'*64, mixed.FINAL_MESSAGE_SHA),
+                    (mixed.FINAL_AP_SHA, mixed.FINAL_CONTROL_SHA, 'a'*64)):
+                verify.reset_mock()
+                rejected = mixed.admit(str(self.path), ap_sha, str(self.control_path), control_sha,
+                                       'mixed-unit', task_profile=mixed.PROFILE,
+                                       message_manifest='/root/wksim-ros2-Test12/message-build.json',
+                                       message_checksum=message_sha)
+                self.assertFalse(rejected['ok'])
+                verify.assert_not_called()
 
 
 if __name__ == '__main__':

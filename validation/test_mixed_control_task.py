@@ -14,7 +14,8 @@ class MixedTaskTests(unittest.TestCase):
     def test_pv_selector_accepts_one_firmware_schema_before_any_run(self):
         from tools import run_joint_flight as runner
         command = ['run', '--control-manifest', 'unopened.json', '--control-sha256', 'a'*64,
-                   '--task-profile', runner.PV_PROFILE]
+                   '--task-profile', runner.PV_PROFILE,
+                   '--message-manifest', 'messages.json', '--message-sha256', 'c'*64]
         for prefix in ('ap-pv', 'ap-mixed'):
             pair = ['--'+prefix+'-manifest', 'unopened.json', '--'+prefix+'-sha256', 'b'*64]
             with patch.object(runner, 'run', return_value=0) as run:
@@ -27,6 +28,22 @@ class MixedTaskTests(unittest.TestCase):
                     runner.main(command+extra)
                 self.assertEqual(error.exception.code, 2)
                 run.assert_not_called()
+
+    def test_mixed_selector_accepts_a_complete_message_candidate_pair(self):
+        from tools import run_joint_flight as runner
+        command = ['run', '--control-manifest', 'unopened.json', '--control-sha256', 'a'*64,
+                   '--task-profile', runner.MIXED_PROFILE,
+                   '--ap-mixed-manifest', 'mixed.json', '--ap-mixed-sha256', 'b'*64,
+                   '--message-manifest', 'messages.json', '--message-sha256', 'c'*64]
+        with patch.object(runner, 'run', return_value=0) as run:
+            self.assertEqual(runner.main(command), 0)
+            self.assertEqual(run.call_args.args[0].message_manifest, 'messages.json')
+        for incomplete in (command[:-2], command[:-1]):
+            with self.subTest(incomplete=incomplete), patch.object(runner, 'run') as run, \
+                    self.assertRaises(SystemExit) as error:
+                runner.main(incomplete)
+            self.assertEqual(error.exception.code, 2)
+            run.assert_not_called()
 
     def test_hold_readiness_resets_after_relapse_and_has_wall_bound(self):
         task = MixedTask.__new__(MixedTask)

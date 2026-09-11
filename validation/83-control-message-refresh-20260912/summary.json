@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "status": "verified_ready_for_formal_flight",
+  "production_admitted": false,
+  "flown": false,
+  "control_candidate": {
+    "manifest": "/root/wksim-joint-control-rWolCy/build.json",
+    "sha256": "a6a17b42f92cf6df4b92fe36b6e1e65f6e4e42f684daac4113091591a1802346",
+    "version": 2,
+    "message_manifest_sha256": "29969da0702451e3fc6f1de40bc301a67284c4e7d5fae8f88c64773d27a96219",
+    "sealer_sha256": "382e53ffafab4ce2b5a1cbf5b9fbf4559b242e57540c146a124ddcafa77ef370"
+  },
+  "message_candidate": {
+    "manifest": "/root/wksim-ros2-Rzj3Pf/message-build.json",
+    "sha256": "29969da0702451e3fc6f1de40bc301a67284c4e7d5fae8f88c64773d27a96219",
+    "version": 1
+  },
+  "ap_candidate": {
+    "manifest": "/root/wksim-ap-mixed-fhuf05l9/mixed-build.json",
+    "sha256": "1e6250eff8873d6b2e52017b613c223ac29f8260fdf92aac2cf0c7cdcc6ce94c"
+  },
+  "zero_child_admissions": [
+    {
+      "run_id": "full-zero-child-admission-20260911c",
+      "task_profile": "full_xyz_pv_yaw_v1",
+      "status": "pass",
+      "children_created": 0
+    },
+    {
+      "run_id": "mixed-zero-child-admission-20260912",
+      "task_profile": "xy_velocity_z_position_yaw_v1",
+      "status": "pass",
+      "children_created": 0
+    }
+  ],
+  "validation": {
+    "wsl_focused_tests": {
+      "tests": 89,
+      "status": "pass",
+      "skipped": 6
+    },
+    "windows_focused_tests": {
+      "tests": 13,
+      "status": "pass",
+      "skipped": 7
+    },
+    "windows_extended_tests": {
+      "tests": 89,
+      "status": "environment_limited",
+      "skipped": 20,
+      "limitation": "The existing symlink escape test requires Windows symlink privilege"
+    }
+  },
+  "scope": "Candidate identity and zero-child admission only; formal flight and production admission remain pending"
+}

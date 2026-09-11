@@ -23,7 +23,7 @@ PV_PROFILE = 'full_xyz_pv_yaw_v1'
 STACKS = (('arducopter', 1), ('px4', 2))
 AP_SHA = '1e6250eff8873d6b2e52017b613c223ac29f8260fdf92aac2cf0c7cdcc6ce94c'
 CONTROL_SHA = 'd9fdfc74f4f241440dd1186ef38d0bde56026cd28e4b55897f38a11e7311909e'
-PV_CONTROL_SHA = '060f9677ed9ba2234c16fa7543319014cd3bb335f480af562780d79772be4080'
+PV_CONTROL_SHA = 'a6a17b42f92cf6df4b92fe36b6e1e65f6e4e42f684daac4113091591a1802346'
 PV_MESSAGE_SHA = '29969da0702451e3fc6f1de40bc301a67284c4e7d5fae8f88c64773d27a96219'
 PV_SHA = 'e05e5c9d0b2b576d2cf1751b01557219d6da36998b22ded396ca33d7f5c4db62'
 BASE_SHA = 'f347ba252fbfc33bc92baffba08660f33c3a0e4462e90177ba84bdc11408660a'
@@ -149,12 +149,18 @@ def retained_identity(root, result, *, task_profile=PROFILE):
             yaw_rate=False, acceleration=False, terrain=False, arducopter_type_mask=2531,
             native_submode=7, vertical_velocity_avoidance=False))
     require(admission['capability'] == capability, 'Mixed firmware task capability scope changed')
-    expected_control_sha = PV_CONTROL_SHA if task_profile == PV_PROFILE else CONTROL_SHA
-    require(admission['manifest_sha256'] == AP_SHA and admission['control_manifest_sha256'] == expected_control_sha,
+    selected_control_sha = admission['control_manifest_sha256']
+    allowed_control_sha = ({PV_CONTROL_SHA} if task_profile == PV_PROFILE
+                           else {CONTROL_SHA, PV_CONTROL_SHA})
+    require(admission['manifest_sha256'] == AP_SHA and selected_control_sha in allowed_control_sha,
             'Frozen mixed build/control selection changed')
-    if task_profile == PV_PROFILE:
-        require(result['manifest_sha256'].get('message') == PV_MESSAGE_SHA,
-                'Frozen P+V message candidate selection changed')
+    if selected_control_sha == PV_CONTROL_SHA:
+        require(message_identity.get('requested') is True
+                and result['manifest_sha256'].get('message') == PV_MESSAGE_SHA,
+                'Frozen current message candidate selection changed')
+    else:
+        require(message_identity == dict(requested=False, legacy=True),
+                'Historical mixed control cannot use a current message candidate')
     for name, expected in admission['identities']['source_sha256'].items():
         require(sources.get(name) == expected, 'Admission/execution source mismatch: '+name)
     require(digest(root/'ap-build.json') == result['manifest_sha256']['ap'] == admission['manifest_sha256']

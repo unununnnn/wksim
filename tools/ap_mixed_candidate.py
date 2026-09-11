@@ -20,8 +20,10 @@ from joint_message_candidate import check as check_messages
 
 PV_PROFILE = 'full_xyz_pv_yaw_v1'
 FINAL_AP_SHA = '1e6250eff8873d6b2e52017b613c223ac29f8260fdf92aac2cf0c7cdcc6ce94c'
-FINAL_CONTROL_SHA = '060f9677ed9ba2234c16fa7543319014cd3bb335f480af562780d79772be4080'
+FINAL_CONTROL_SHA = 'a6a17b42f92cf6df4b92fe36b6e1e65f6e4e42f684daac4113091591a1802346'
 FINAL_MESSAGE_SHA = '29969da0702451e3fc6f1de40bc301a67284c4e7d5fae8f88c64773d27a96219'
+LEGACY_CONTROL_MANIFEST = Path('/root/wksim-joint-control-OEvS3W/build.json')
+LEGACY_CONTROL_SHA = 'd9fdfc74f4f241440dd1186ef38d0bde56026cd28e4b55897f38a11e7311909e'
 
 
 def verify(manifest, checksum):
@@ -82,6 +84,19 @@ def verify(manifest, checksum):
         scope='Current mixed build bytes only; no native behavior, experimental admission or flight proof')
 
 
+def admitted_control(manifest, checksum, task_profile, message_manifest):
+    path = Path(manifest)
+    if checksum != LEGACY_CONTROL_SHA:
+        return check_control(path, checksum)
+    if task_profile != PROFILE or message_manifest is not None or path != LEGACY_CONTROL_MANIFEST:
+        raise ValueError('Historical mixed control requires its exact manifest and no message candidate')
+    record = checked_json(path, checksum)
+    if type(record.get('version')) is not int or record['version'] != 1:
+        raise ValueError('Historical mixed control requires manifest version 1')
+    joint._control(record, sealed=True)
+    return record
+
+
 def admit(manifest, checksum, control_manifest, control_checksum, run_id, *, task_profile=PROFILE,
           message_manifest=None, message_checksum=None):
     result = dict(ok=False, experimental=True, production_admitted=False, flown=False, children_created=0,
@@ -90,11 +105,15 @@ def admit(manifest, checksum, control_manifest, control_checksum, run_id, *, tas
     try:
         if task_profile not in (PROFILE, PV_PROFILE):
             raise ValueError('Unsupported task for mixed firmware')
-        if task_profile != PV_PROFILE and (message_manifest is not None or message_checksum is not None):
-            raise ValueError('Message candidate is only valid for the P+V task')
-        if task_profile == PV_PROFILE and (checksum != FINAL_AP_SHA or control_checksum != FINAL_CONTROL_SHA
-                or message_checksum != FINAL_MESSAGE_SHA):
-            raise ValueError('P+V compatibility requires the exact final mixed/control manifests')
+        if (message_manifest is None) != (message_checksum is None):
+            raise ValueError('Message candidate path/SHA pair is incomplete')
+        if task_profile == PV_PROFILE and message_manifest is None:
+            raise ValueError('P+V compatibility requires the explicit final message candidate')
+        if task_profile == PROFILE and control_checksum == FINAL_CONTROL_SHA and message_manifest is None:
+            raise ValueError('Current mixed control requires the explicit final message candidate')
+        if message_manifest is not None and (checksum != FINAL_AP_SHA
+                or control_checksum != FINAL_CONTROL_SHA or message_checksum != FINAL_MESSAGE_SHA):
+            raise ValueError('Current mixed/P+V compatibility requires the exact final manifests')
         p = joint.select_profile('joint_quad_dds_v1')
         base = dict(schema_version=1, run_id=run_id, vehicle_id=1, model_profile='quad_x',
             communication='native_dds', control_protocol='session_v1', capabilities=['native_position_mission'],
@@ -106,8 +125,8 @@ def admit(manifest, checksum, control_manifest, control_checksum, run_id, *, tas
             raise ValueError('Mixed/PV baseline does not descend from the fixed joint AP')
         fixed = _fixed_resources(p)
         checked_json(Path(control_manifest), control_checksum)
-        control = check_control(control_manifest, control_checksum)
-        messages = check_messages(message_manifest, message_checksum) if task_profile == PV_PROFILE else None
+        control = admitted_control(control_manifest, control_checksum, task_profile, message_manifest)
+        messages = check_messages(message_manifest, message_checksum) if message_manifest is not None else None
         if control['root'] == p['control_workspace']:
             raise ValueError('Mixed experiment requires a separately built control candidate')
         configs = {stack: validate_config(dict(base, stack=stack, **(
