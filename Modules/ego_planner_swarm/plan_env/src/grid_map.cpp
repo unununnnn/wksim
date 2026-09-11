@@ -2,7 +2,9 @@
 #include <cmath>
 #include <exception>
 #include <limits>
+#include <stdexcept>
 #include <string>
+#include <unordered_set>
 
 #include "plan_env/grid_map.h"
 
@@ -113,6 +115,31 @@ int gridMapInflationStepLimit(const MappingParameters& params) {
   return std::max(limit, 0);
 }
 
+// Shared inflation-step bound that validates obstacles_inflation_ (metres) and
+// returns the per-axis voxel step count actually used for inflation.  Init time
+// and the runtime parameter update share the SAME limit through
+// gridMapInflationStepLimit (<= kGridMapMaxInflationSteps steps/axis, so
+// 2*steps+1 <= 65 and the candidate cube stays <= 65^3).  Fail-closed: any
+// non-finite / non-positive input, or a distance that would exceed the safe
+// step limit, yields -1.
+int checkedInflationSteps(double inflation_m, const MappingParameters& params) {
+  if (!std::isfinite(inflation_m) || inflation_m < 0.0) {
+    return -1;
+  }
+  if (!std::isfinite(params.resolution_) || params.resolution_ <= 0.0) {
+    return -1;
+  }
+  const int step_limit = gridMapInflationStepLimit(params);
+  if (step_limit < 0) {
+    return -1;
+  }
+  const double steps = std::ceil(inflation_m / params.resolution_);
+  if (!std::isfinite(steps) || steps > static_cast<double>(step_limit)) {
+    return -1;
+  }
+  return static_cast<int>(steps);
+}
+
 }  // namespace
 
 void GridMap::initMap(ros::NodeHandle &nh)
@@ -182,6 +209,29 @@ void GridMap::initMap(ros::NodeHandle &nh)
   // 无人机定位数据超时
   node_.param("grid_map/odom_depth_timeout", mp_.odom_depth_timeout_, 1.0);
 
+  // Fail-closed map geometry validation.  Every guard below runs BEFORE the
+  // first resolution division (resolution_inv_), double->int ceil (voxel count)
+  // or vector allocation, so a non-finite / non-positive resolution, map size or
+  // skip_pixel can never reach those operations.  An invalid map aborts
+  // initialization (no subscriptions or buffers are set up) instead of producing
+  // undefined conversions or overflowing allocations.
+  if (!std::isfinite(mp_.resolution_) || mp_.resolution_ <= 0.0) {
+    ROS_ERROR_STREAM("GridMap init aborted: grid_map/resolution must be finite and > 0, got "
+                     << mp_.resolution_);
+    throw std::invalid_argument("Invalid GridMap resolution");
+  }
+  if (!std::isfinite(x_size) || x_size <= 0.0 || !std::isfinite(y_size) || y_size <= 0.0 ||
+      !std::isfinite(z_size) || z_size <= 0.0) {
+    ROS_ERROR_STREAM("GridMap init aborted: grid_map/map_size_x/y/z must be finite and > 0, got ("
+                     << x_size << ", " << y_size << ", " << z_size << ")");
+    throw std::invalid_argument("Invalid GridMap size");
+  }
+  if (mp_.skip_pixel_ <= 0) {
+    ROS_ERROR_STREAM("GridMap init aborted: grid_map/skip_pixel must be a positive integer, got "
+                     << mp_.skip_pixel_);
+    throw std::invalid_argument("Invalid GridMap skip_pixel");
+  }
+
   // 虚拟天花板高度要小于等于ground_height+z_size，否则重置该高度
   if( mp_.virtual_ceil_height_ - mp_.ground_height_ > z_size)
   {
@@ -190,6 +240,9 @@ void GridMap::initMap(ros::NodeHandle &nh)
   }
 
   mp_.resolution_inv_ = 1 / mp_.resolution_;
+  if (!std::isfinite(mp_.resolution_inv_)) {
+    throw std::invalid_argument("GridMap inverse resolution is not finite");
+  }
   //todo: different map origin
   if(x_origin < -1.0+1e-2 && x_origin > -1.0-1e-2) mp_.map_origin_ = Eigen::Vector3d(-x_size / 2.0, -y_size / 2.0, mp_.ground_height_);
   else mp_.map_origin_ = Eigen::Vector3d(x_origin, y_origin, mp_.ground_height_);
@@ -203,15 +256,46 @@ void GridMap::initMap(ros::NodeHandle &nh)
   mp_.min_occupancy_log_ = logit(mp_.p_occ_);
   mp_.unknown_flag_ = 0.01;
 
-  for (int i = 0; i < 3; ++i)
-    mp_.map_voxel_num_(i) = ceil(mp_.map_size_(i) / mp_.resolution_);
+  for (int i = 0; i < 3; ++i) {
+    // Checked double->int conversion: resolution_ and map_size_ are already
+    // validated finite/positive above, so the quotient is finite and > 0; guard
+    // the ceil against the int range before assigning into the Vector3i.
+    const double voxels = std::ceil(mp_.map_size_(i) / mp_.resolution_);
+    if (!std::isfinite(voxels) || voxels < 1.0 ||
+        voxels > static_cast<double>(std::numeric_limits<int>::max())) {
+      ROS_ERROR_STREAM("GridMap init aborted: map_size_[" << i << "]/resolution gives an invalid "
+                       << "voxel count " << voxels);
+      throw std::invalid_argument("GridMap voxel count is outside the integer range");
+    }
+    mp_.map_voxel_num_(i) = static_cast<int>(voxels);
+  }
+
+  // obstacles_inflation_ (metres) must map to a bounded per-axis step count
+  // through the SAME limit the runtime update uses (gridMapInflationStepLimit,
+  // <= 32 steps/axis so the candidate cube stays <= 65^3) before any buffer is
+  // allocated from these voxel counts.
+  if (checkedInflationSteps(mp_.obstacles_inflation_, mp_) < 0) {
+    ROS_ERROR_STREAM("GridMap init aborted: grid_map/obstacles_inflation is outside the safe "
+                     << "resolution/map-size bound, got " << mp_.obstacles_inflation_);
+    throw std::invalid_argument("Invalid GridMap inflation");
+  }
 
   // z轴上，地面高度为最小值
   mp_.map_min_boundary_ = mp_.map_origin_;
   mp_.map_max_boundary_ = mp_.map_origin_ + mp_.map_size_;
 
   // initialize data buffers
-  int buffer_size = mp_.map_voxel_num_(0) * mp_.map_voxel_num_(1) * mp_.map_voxel_num_(2);
+  // Check each multiplication before evaluating it.  Even three valid int
+  // dimensions can overflow long long when multiplied without this guard.
+  int buffer_size = 1;
+  for (int axis = 0; axis < 3; ++axis) {
+    const int voxels = mp_.map_voxel_num_(axis);
+    if (voxels <= 0 || buffer_size > std::numeric_limits<int>::max() / voxels) {
+      ROS_ERROR_STREAM("GridMap init aborted: map voxel buffer size overflow");
+      throw std::invalid_argument("GridMap voxel buffer size overflow");
+    }
+    buffer_size *= voxels;
+  }
 
   md_.occupancy_buffer_ = vector<double>(buffer_size, mp_.clamp_min_log_ - mp_.unknown_flag_);
   md_.occupancy_buffer_inflate_ = vector<char>(buffer_size, 0);

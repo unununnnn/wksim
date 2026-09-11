@@ -6,6 +6,7 @@ runtime in this validation environment.
 """
 
 from pathlib import Path
+import re
 import unittest
 
 
@@ -17,10 +18,19 @@ SOURCE = (ROOT / "Modules/ego_planner_swarm/plan_env/src/grid_map.cpp").read_tex
     encoding="utf-8"
 )
 
+_MAX_STEPS = re.search(r"kGridMapMaxInflationSteps\s*=\s*(\d+)", SOURCE)
+MAX_INFLATION_STEPS = int(_MAX_STEPS.group(1)) if _MAX_STEPS else None
+
 
 def callback_source():
     start = SOURCE.index("void GridMap::gridparam_Callback")
     end = SOURCE.index("// 膨胀地图全部重置", start)
+    return SOURCE[start:end]
+
+
+def init_map_source():
+    start = SOURCE.index("void GridMap::initMap")
+    end = SOURCE.index("void GridMap::gridparam_Callback", start)
     return SOURCE[start:end]
 
 
@@ -107,6 +117,65 @@ class TestGridMapParameterSafety(unittest.TestCase):
         self.assertNotIn("mp_.map_max_boundary_", callback)
         self.assertNotIn("md_.occupancy_buffer_", callback)
         self.assertIn("unsupported parameter", callback)
+
+
+class TestGridMapInitNumericSafety(unittest.TestCase):
+    """Fail-closed numeric guards in GridMap::initMap plus the shared inflation
+    step bound, exercised without ROS/catkin."""
+
+    def test_cpp_includes_unordered_set_explicitly(self):
+        # The anonymous namespace uses std::unordered_set; the .cpp must include
+        # it directly rather than rely on grid_map.h providing it transitively.
+        include_block = SOURCE[: SOURCE.index('#include "plan_env/grid_map.h"')]
+        self.assertIn("#include <unordered_set>", include_block)
+
+    def test_checked_inflation_steps_helper_is_shared_with_init(self):
+        self.assertIn("int checkedInflationSteps(double inflation_m", SOURCE)
+        # the helper funnels through the SAME limit the runtime callback uses
+        self.assertIn("gridMapInflationStepLimit(params)", SOURCE)
+        self.assertIn("std::ceil(inflation_m / params.resolution_)", SOURCE)
+        # initMap validates obstacles_inflation_ through that shared helper
+        self.assertIn("checkedInflationSteps(mp_.obstacles_inflation_, mp_)", init_map_source())
+        # 32 steps/axis -> 2*32+1 = 65 -> candidate cube <= 65^3
+        self.assertIsNotNone(MAX_INFLATION_STEPS)
+        self.assertLessEqual(2 * MAX_INFLATION_STEPS + 1, 65)
+
+    def test_runtime_callback_still_shares_the_same_step_limit(self):
+        # The runtime update path keeps using gridMapInflationStepLimit(mp_); the
+        # init path now shares that same bound through checkedInflationSteps.
+        self.assertIn("gridMapInflationStepLimit(mp_)", callback_source())
+
+    def test_init_guards_precede_division_ceil_and_allocation(self):
+        body = init_map_source()
+
+        def at(text):
+            return body.index(text)
+
+        res_guard = at("grid_map/resolution must be finite and > 0")
+        size_guard = at("grid_map/map_size_x/y/z must be finite and > 0")
+        skip_guard = at("grid_map/skip_pixel must be a positive integer")
+        voxel_guard = at("gives an invalid ")
+        inflation_guard = at("checkedInflationSteps(mp_.obstacles_inflation_, mp_)")
+        overflow_guard = at("map voxel buffer size overflow")
+
+        first_resolution_div = at("mp_.resolution_inv_ = 1 / mp_.resolution_")
+        voxel_ceil = at("std::ceil(mp_.map_size_(i) / mp_.resolution_)")
+        voxel_int_assign = at("mp_.map_voxel_num_(i) = static_cast<int>(voxels)")
+        first_buffer_alloc = at("md_.occupancy_buffer_ = vector<double>(buffer_size")
+        proj_div_alloc = at("md_.proj_points_.resize(640 * 480 / mp_.skip_pixel_")
+
+        # resolution / map sizes are validated before any division or ceil use
+        self.assertLess(res_guard, first_resolution_div)
+        self.assertLess(res_guard, voxel_ceil)
+        self.assertLess(size_guard, first_resolution_div)
+        self.assertLess(size_guard, voxel_ceil)
+        # the double->int voxel conversion is guarded before assignment
+        self.assertLess(voxel_guard, voxel_int_assign)
+        # inflation and the buffer product are validated before any allocation
+        self.assertLess(inflation_guard, first_buffer_alloc)
+        self.assertLess(overflow_guard, first_buffer_alloc)
+        # skip_pixel is validated before the proj_points_ division/resize
+        self.assertLess(skip_guard, proj_div_alloc)
 
 
 if __name__ == "__main__":
