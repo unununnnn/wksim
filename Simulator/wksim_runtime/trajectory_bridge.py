@@ -7,11 +7,15 @@ conflicting writers, but the current CommandRequest message has no owner token, 
 this module does not claim atomic exclusive-writer proof.
 """
 from dataclasses import dataclass
+from functools import wraps
 import json
 import math
 from numbers import Real
 import time
 
+import rclpy
+from rcl_interfaces.msg import ParameterDescriptor
+from rclpy.executors import ExternalShutdownException
 from rclpy.node import Node
 from prometheus_msgs.msg import Bspline, TextInfo, UAVCommand, UAVControlState
 from wksim_msgs.msg import CommandRequest, SessionState
@@ -65,29 +69,64 @@ def _explicit_float(value, name):
     return float(value)
 
 
+def _fail_closed_callback(callback):
+    @wraps(callback)
+    def guarded(self, *args, **kwargs):
+        try:
+            return callback(self, *args, **kwargs)
+        except Exception:
+            return self._fault("internal_callback_error")
+
+    return guarded
+
+
 class TrajectoryBridgeNode(Node):
     """Single-UAV planner bridge bound to one public control epoch at a time."""
 
-    def __init__(self, *, run_id, mission_id, uav_id, fallback_yaw,
-                 authority_anchor_ns, publisher_factory=None, clock_ns=None,
-                 monotonic_s=None):
-        run_id = _explicit_text(run_id, "run_id")
-        mission_id = _explicit_text(mission_id, "mission_id")
-        if len(run_id) > 64:
-            raise ValueError("run_id exceeds the CommandRequest wire limit")
-        if type(uav_id) is not int or uav_id != 1:
-            raise ValueError("trajectory bridge only supports uav_id=1")
-        fallback_yaw = _explicit_float(fallback_yaw, "fallback_yaw")
-        authority_anchor_ns = _explicit_uint(
-            authority_anchor_ns, "authority_anchor_ns", 2**63 - 1
-        )
-        if authority_anchor_ns % TICK_NS:
-            raise ValueError("authority_anchor_ns must land on the 1 ms grid")
-
+    def __init__(self, *, run_id=None, mission_id=None, uav_id=None,
+                 fallback_yaw=None, authority_anchor_ns=None,
+                 publisher_factory=None, clock_ns=None, monotonic_s=None):
         super().__init__("wksim_trajectory_bridge")
-        if clock_ns is None and not self.get_parameter("use_sim_time").value:
+        descriptor = ParameterDescriptor(read_only=True)
+        parameter_defaults = {
+            "run_id": "",
+            "mission_id": "",
+            "uav_id": 0,
+            "fallback_yaw": float("nan"),
+            "authority_anchor_ns": -1,
+        }
+
+        def parameter(name, supplied):
+            default = parameter_defaults[name] if supplied is None else supplied
+            return self.declare_parameter(name, default, descriptor).value
+
+        try:
+            run_id = _explicit_text(parameter("run_id", run_id), "run_id")
+            mission_id = _explicit_text(
+                parameter("mission_id", mission_id), "mission_id"
+            )
+            uav_id = parameter("uav_id", uav_id)
+            fallback_yaw = _explicit_float(
+                parameter("fallback_yaw", fallback_yaw), "fallback_yaw"
+            )
+            authority_anchor_ns = _explicit_uint(
+                parameter("authority_anchor_ns", authority_anchor_ns),
+                "authority_anchor_ns",
+                2**63 - 1,
+            )
+            if len(run_id) > 64:
+                raise ValueError("run_id exceeds the CommandRequest wire limit")
+            if type(uav_id) is not int or uav_id != 1:
+                raise ValueError("trajectory bridge only supports uav_id=1")
+            if authority_anchor_ns % TICK_NS:
+                raise ValueError("authority_anchor_ns must land on the 1 ms grid")
+            if clock_ns is None and not self.get_parameter("use_sim_time").value:
+                raise ValueError(
+                    "production trajectory bridge requires use_sim_time=true"
+                )
+        except Exception:
             self.destroy_node()
-            raise ValueError("production trajectory bridge requires use_sim_time=true")
+            raise
         self.run_id = run_id
         self.mission_id = mission_id
         self.uav_id = uav_id
@@ -210,6 +249,7 @@ class TrajectoryBridgeNode(Node):
         self.adapter = EgoTrajectoryAdapter(self.session)
         self.latest_state = msg
 
+    @_fail_closed_callback
     def on_session_state(self, msg):
         if (msg.version != SessionState.VERSION or msg.run_id != self.run_id
                 or len(msg.control_epoch) != 32
@@ -260,6 +300,7 @@ class TrajectoryBridgeNode(Node):
             yaw_dt=msg.yaw_dt,
         )
 
+    @_fail_closed_callback
     def on_bspline(self, msg):
         if self.fault_reason is not None or self.session is None:
             return False
@@ -351,6 +392,7 @@ class TrajectoryBridgeNode(Node):
             return self._fault("command_publish_failed")
         return True
 
+    @_fail_closed_callback
     def on_text_info(self, msg):
         try:
             event = json.loads(msg.message)
@@ -389,6 +431,7 @@ class TrajectoryBridgeNode(Node):
         self.pending = None
         return True
 
+    @_fail_closed_callback
     def on_timer(self):
         if self.fault_reason is not None or self.next_drive_tick is None:
             return False
@@ -417,3 +460,22 @@ class TrajectoryBridgeNode(Node):
             return self._fault("missing_trajectory_intent")
         self.next_drive_tick += SAMPLE_STRIDE_TICKS
         return self._publish_intent(intent, self.last_clock_ns)
+
+
+def main(args=None):
+    node = None
+    rclpy.init(args=args)
+    try:
+        node = TrajectoryBridgeNode()
+        rclpy.spin(node)
+    except (KeyboardInterrupt, ExternalShutdownException):
+        pass
+    finally:
+        if node is not None:
+            node.destroy_node()
+        if rclpy.ok():
+            rclpy.shutdown()
+
+
+if __name__ == "__main__":
+    main()

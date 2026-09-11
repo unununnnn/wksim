@@ -8,6 +8,7 @@ import json
 import os
 import time
 import unittest
+from unittest.mock import patch
 
 
 PRIVATE_ROS = os.environ.get("WKSIM_TEST_PRIVATE_ROS") == "1"
@@ -325,6 +326,71 @@ class TrajectoryBridgeCallbackTests(unittest.TestCase):
         self.assertEqual(self.node.fault_reason, "ros_clock_moved_backwards")
         self.assertFalse(self.node.on_bspline(self.spline()))
         self.assertEqual(self.publisher.messages, [])
+
+    def test_unexpected_session_state_exception_fails_closed(self):
+        with patch(
+            "Simulator.wksim_runtime.trajectory_bridge._explicit_uint",
+            side_effect=RuntimeError("unexpected"),
+        ):
+            self.assertFalse(self.node.on_session_state(self.state()))
+
+        self.assertEqual(self.node.fault_reason, "internal_callback_error")
+        self.assertIsNone(self.node.pending)
+        self.assertIsNone(self.node.next_drive_tick)
+        self.assertEqual(self.publisher.messages, [])
+
+    def test_unexpected_bspline_exception_fails_closed(self):
+        self.assertTrue(self.node.on_session_state(self.state()))
+        with patch.object(
+            self.node, "_normalized_bspline", side_effect=RuntimeError("unexpected")
+        ):
+            self.assertFalse(self.node.on_bspline(self.spline()))
+
+        self.assertEqual(self.node.fault_reason, "internal_callback_error")
+        self.assertIsNone(self.node.pending)
+        self.assertIsNone(self.node.next_drive_tick)
+        self.assertEqual(self.node.request_high_water, 30)
+        self.assertEqual(self.node.session.last_command_id, 20)
+        self.assertEqual(self.node.event_sequence, 0)
+        self.assertEqual(self.node.adapter.trajectory_id, 0)
+        self.assertIsNone(self.node.adapter._last_tick)
+        self.assertEqual(self.publisher.messages, [])
+        self.assertFalse(self.node.on_bspline(self.spline()))
+
+    def test_unexpected_text_info_exception_fails_closed(self):
+        self.initialize_and_publish()
+        with patch(
+            "Simulator.wksim_runtime.trajectory_bridge.json.loads",
+            side_effect=RuntimeError("unexpected"),
+        ):
+            self.assertFalse(self.node.on_text_info(
+                self.event("command_accepted", 31, 21)
+            ))
+
+        self.assertEqual(self.node.fault_reason, "internal_callback_error")
+        self.assertIsNone(self.node.pending)
+        self.assertIsNone(self.node.next_drive_tick)
+        self.assertEqual(self.node.request_high_water, 31)
+        self.assertEqual(self.node.session.last_command_id, 21)
+        self.assertEqual(len(self.publisher.messages), 1)
+
+    def test_unexpected_timer_exception_fails_closed(self):
+        self.initialize_and_publish()
+        self.assertTrue(self.node.on_text_info(
+            self.event("command_accepted", 31, 21)
+        ))
+        self.tick = 110
+        with patch.object(
+            self.node.adapter, "step", side_effect=RuntimeError("unexpected")
+        ):
+            self.assertFalse(self.node.on_timer())
+
+        self.assertEqual(self.node.fault_reason, "internal_callback_error")
+        self.assertIsNone(self.node.pending)
+        self.assertIsNone(self.node.next_drive_tick)
+        self.assertEqual(self.node.request_high_water, 31)
+        self.assertEqual(self.node.session.last_command_id, 21)
+        self.assertEqual(len(self.publisher.messages), 1)
 
 
 @unittest.skipUnless(PRIVATE_ROS and PRIVATE_RMW,
