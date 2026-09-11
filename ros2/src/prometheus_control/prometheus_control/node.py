@@ -698,6 +698,7 @@ class ControlNode(Node):
         received = self.native.state_received_monotonic
         self.session_pub.publish(SessionState(version=RunSession.VERSION, run_id=self.session.run_id,
             control_epoch=self.session.epoch, sequence=self.sequence, last_request_id=self.session.last_request,
+            command_high_water=int(self.processor.last_command_id),
             native_generation=self.native.generation, source_clock='fc_boot',
             source_received_valid=received is not None, source_received_monotonic_s=received or 0.0,
             published_monotonic_s=self.wall(), state=self.state, control=control))

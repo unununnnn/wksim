@@ -5,6 +5,9 @@ string<=64 run_id
 string<=32 control_epoch
 uint64 sequence
 uint64 last_request_id
+# This control epoch's highest successfully accepted UAVCommand.command_id
+# (telemetry only). Distinct from last_request_id, the consumed request-envelope id.
+uint32 command_high_water
 uint64 native_generation
 # Source stamp stays in state.header; receive/publication use this WSL boot's monotonic clock.
 string<=16 source_clock
