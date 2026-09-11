@@ -17,7 +17,7 @@ import unittest
 
 from Simulator.wksim_core.worker import (
     REQUEST_LIMIT, RESPONSE_LIMIT, encoded, parse_frame, receive_worker,
-    step_request, validate_response,
+    step_request, terrain_request, validate_response,
 )
 
 EPOCH = 'a' * 32
@@ -40,12 +40,22 @@ class ProtocolTests(unittest.TestCase):
         valid = step()
         valid['commands'] = [0, 1] * 8
         step_request(valid, 0, EPOCH)
+        valid_terrain = dict(step(), terrain=[0.0] * 15)
+        self.assertEqual(step_request(valid_terrain, 0, EPOCH), [0.0] * 16)
+        self.assertEqual(terrain_request(valid_terrain), [0.0] * 15)
+        self.assertIsNone(terrain_request(step()))
+        self.assertIsNone(terrain_request(snapshot()))
+        self.assertIsNone(terrain_request("invalid"))
         invalid = [dict(step(), extra=1), step(0), step(2), step(True), step(1, OTHER),
                    dict(step(), version=True), dict(snapshot(), snapshot=1),
                    dict(snapshot(), tick=0), dict(step(), epoch='A' * 32)]
         for value in (True, None, '0', -0.01, 1.01, float('nan'), float('inf'), 10**400):
             invalid.append(dict(step(), commands=[value] * 16))
         invalid += [dict(step(), commands=[0] * 15), dict(step(), commands=[0] * 17)]
+        for bad_t in ([0.0] * 14, [0.0] * 16, [True] * 15, [float('nan')] * 15,
+                      [float('inf')] * 15, 10**400, ['0.0'] * 15, 'flat'):
+            invalid.append(dict(step(), terrain=bad_t))
+        invalid.append(dict(step(), terrain=[0.0] * 15, extra=1))
         for request in invalid:
             with self.subTest(request=request), self.assertRaises(ValueError):
                 step_request(request, 0, EPOCH)
@@ -232,6 +242,10 @@ class RealModelTests(OwnedChildren):
         bad = [encoded(dict(step(2), extra=1)), encoded(step(2, OTHER)),
                encoded(step(1)), encoded(step(3)), encoded(step(True)),
                encoded(dict(step(2), commands=[True] * 16)),
+               encoded(dict(step(2), terrain=[True] * 15)),
+               encoded(dict(step(2), terrain=[0.0] * 14)),
+               encoded(dict(step(2), terrain=[0.0] * 16)),
+               encoded(dict(step(2), terrain=[0.0] * 15)).replace('0.0', 'NaN', 1),
                encoded(step(2)).replace('"tick":2', '"tick":2,"tick":2'),
                encoded(step(2)).replace('0.0', 'NaN', 1),
                encoded(step(2)).replace('0.0', '1e999', 1),
@@ -255,6 +269,32 @@ class RealModelTests(OwnedChildren):
         self.assertNotEqual(child.wait(timeout=3), 0)
         self.assertEqual(trace.read_text(), '')
         self.assertEqual(child.stdout.read(), '')
+
+    def test_worker_step_with_terrain_and_trace_logging(self):
+        child, trace = self.model()
+        terrain1 = [-0.2] + [0.0] * 14
+        req1 = dict(step(1), terrain=terrain1)
+        res1 = receive_worker(child, req1, EPOCH)
+        self.assertEqual(res1['tick'], 1)
+        self.assertAlmostEqual(res1['state'][2], 0.001)
+
+        req2 = step(2)
+        res2 = receive_worker(child, req2, EPOCH)
+        self.assertEqual(res2['tick'], 2)
+        self.assertAlmostEqual(res2['state'][2], 0.002)
+
+        child.stdin.close()
+        self.assertEqual(child.wait(timeout=3), 0)
+
+        rows = [json.loads(line) for line in trace.read_text().splitlines()]
+        self.assertEqual(len(rows), 2)
+        self.assertEqual(rows[0]['tick'], 1)
+        self.assertEqual(rows[0]['request'], req1)
+        self.assertEqual(rows[0]['terrain'], terrain1)
+
+        self.assertEqual(rows[1]['tick'], 2)
+        self.assertEqual(rows[1]['request'], req2)
+        self.assertNotIn('terrain', rows[1])
 
 
 if __name__ == '__main__':

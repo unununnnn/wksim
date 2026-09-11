@@ -130,6 +130,64 @@ class NativeModelTests(unittest.TestCase):
             loop.update(packet(1, rate=999))
             self.assertAlmostEqual(loop.state[2], 0.002)
 
+    def test_terrain_validation_no_clock_advance(self):
+        bad_terrains = [
+            [0.0] * 14,
+            [0.0] * 16,
+            [True] * 15,
+            [float("nan")] * 15,
+            [float("inf")] * 15,
+            ["0.0"] * 15,
+            123,
+            {"a": 1},
+        ]
+        with Model(self.library) as model:
+            for invalid in bad_terrains:
+                with self.subTest(invalid=invalid), self.assertRaises(ValueError):
+                    model.step([0] * 16, terrain=invalid)
+            self.assertEqual(model.ticks, 0)
+
+    def test_terrain_default_equivalence(self):
+        with Model(self.library) as m1, Model(self.library) as m2:
+            for _ in range(10):
+                s1 = m1.step([0.1] * 16)
+                s2 = m2.step([0.1] * 16, terrain=[0.0] * 15)
+                self.assertEqual(s1, s2)
+
+    def test_elevated_terrain_reaction_and_zero_reset(self):
+        # Elevated terrain in NED: negative Z corresponds to upward elevation.
+        with Model(self.library) as m_default, Model(self.library) as m_elevated:
+            s_def = None
+            s_ele = None
+            for _ in range(50):
+                s_def = m_default.step([0] * 16)
+                s_ele = m_elevated.step([0] * 16, terrain=[-0.5] + [0.0] * 14)
+            self.assertNotEqual(s_def, s_ele)
+
+        # Legacy step explicitly resets TerrainIn15d to 0.0, matching explicit 0.0 terrain.
+        with Model(self.library) as m_explicit, Model(self.library) as m_legacy:
+            m_explicit.step([0] * 16, terrain=[-0.5] + [0.0] * 14)
+            m_legacy.step([0] * 16, terrain=[-0.5] + [0.0] * 14)
+            s_exp = m_explicit.step([0] * 16, terrain=[0.0] * 15)
+            s_leg = m_legacy.step([0] * 16)
+            self.assertEqual(s_exp, s_leg)
+
+    def test_missing_symbol_on_older_library(self):
+        class DummyLib:
+            def __init__(self, real):
+                self.wk_model_create = real.wk_model_create
+                self.wk_model_destroy = real.wk_model_destroy
+                self.wk_model_step = real.wk_model_step
+
+        with Model(self.library) as model:
+            orig = model.library
+            try:
+                model.library = DummyLib(orig)
+                with self.assertRaisesRegex(RuntimeError, "terrain-input ABI"):
+                    model.step([0] * 16, terrain=[0.0] * 15)
+            finally:
+                model.library = orig
+
 
 if __name__ == "__main__":
     unittest.main()

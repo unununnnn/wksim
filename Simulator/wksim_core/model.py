@@ -66,19 +66,76 @@ class Model:
         self.library.wk_model_step.argtypes = [ctypes.c_void_p, ctypes.POINTER(ctypes.c_double),
                                              ctypes.c_int, ctypes.c_int, ctypes.POINTER(ctypes.c_double), ctypes.c_int]
         self.library.wk_model_step.restype = ctypes.c_int
+        if hasattr(self.library, "wk_model_step_with_terrain"):
+            self.library.wk_model_step_with_terrain.argtypes = [
+                ctypes.c_void_p,
+                ctypes.POINTER(ctypes.c_double),
+                ctypes.c_int,
+                ctypes.POINTER(ctypes.c_double),
+                ctypes.c_int,
+                ctypes.c_int,
+                ctypes.POINTER(ctypes.c_double),
+                ctypes.c_int,
+            ]
+            self.library.wk_model_step_with_terrain.restype = ctypes.c_int
         self.handle = self.library.wk_model_create()
         if not self.handle:
             raise RuntimeError("Model initialization failed")
         self.ticks = 0
         self._output = (ctypes.c_double * 120)()
 
-    def step(self, commands, steps=1):
-        if len(commands) != 16 or any(not math.isfinite(x) or not 0 <= x <= 1 for x in commands):
+    def step(self, commands, steps=1, *, terrain=None):
+        if (
+            not isinstance(commands, (list, tuple))
+            or len(commands) != 16
+            or any(
+                isinstance(x, bool)
+                or not isinstance(x, (int, float))
+                or not math.isfinite(x)
+                or not 0 <= x <= 1
+                for x in commands
+            )
+        ):
             raise ValueError("Expected 16 finite normalized actuator commands in [0,1]")
-        if not isinstance(steps, int) or not 1 <= steps <= 1000:
+        if type(steps) is not int or not 1 <= steps <= 1000:
             raise ValueError("steps must be an integer in [1,1000]")
-        inputs = (ctypes.c_double * 16)(*commands)
-        status = self.library.wk_model_step(self.handle, inputs, 16, steps, self._output, 120)
+        if terrain is not None:
+            if (
+                not isinstance(terrain, (list, tuple))
+                or len(terrain) != 15
+                or any(
+                    isinstance(x, bool)
+                    or not isinstance(x, (int, float))
+                    or not math.isfinite(x)
+                    for x in terrain
+                )
+            ):
+                raise ValueError("Expected 15 finite numeric terrain inputs")
+            step_fn = getattr(self.library, "wk_model_step_with_terrain", None)
+            if step_fn is None:
+                raise RuntimeError("Model library lacks the reviewed terrain-input ABI")
+            if not getattr(step_fn, "argtypes", None):
+                step_fn.argtypes = [
+                    ctypes.c_void_p,
+                    ctypes.POINTER(ctypes.c_double),
+                    ctypes.c_int,
+                    ctypes.POINTER(ctypes.c_double),
+                    ctypes.c_int,
+                    ctypes.c_int,
+                    ctypes.POINTER(ctypes.c_double),
+                    ctypes.c_int,
+                ]
+                step_fn.restype = ctypes.c_int
+            inputs = (ctypes.c_double * 16)(*commands)
+            terrain_inputs = (ctypes.c_double * 15)(*terrain)
+            status = step_fn(
+                self.handle, inputs, 16, terrain_inputs, 15, steps, self._output, 120
+            )
+        else:
+            inputs = (ctypes.c_double * 16)(*commands)
+            status = self.library.wk_model_step(
+                self.handle, inputs, 16, steps, self._output, 120
+            )
         if status:
             raise RuntimeError(f"Model step failed: {status}")
         self.ticks += steps

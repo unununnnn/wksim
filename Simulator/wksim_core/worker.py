@@ -70,14 +70,27 @@ def step_request(request, current_tick, epoch):
     _header(request, epoch)
     if set(request) == {'version', 'epoch', 'snapshot'} and request['snapshot'] is True:
         return None
-    if (set(request) != {'version', 'epoch', 'tick', 'commands'}
+    if (set(request) not in ({'version', 'epoch', 'tick', 'commands'},
+                             {'version', 'epoch', 'tick', 'commands', 'terrain'})
             or type(request['tick']) is not int or request['tick'] != current_tick + 1):
         raise ValueError('Expected exactly the next authoritative tick')
     commands = request['commands']
     if (not isinstance(commands, list) or len(commands) != 16
             or any(not _number(x) or not 0 <= x <= 1 for x in commands)):
         raise ValueError('Expected 16 finite non-bool commands in [0,1]')
+    if 'terrain' in request:
+        terrain = request['terrain']
+        if (not isinstance(terrain, list) or len(terrain) != 15
+                or any(not _number(x) for x in terrain)):
+            raise ValueError('Expected 15 finite non-bool terrain values')
     return commands
+
+
+def terrain_request(request):
+    """Extract validated terrain if present in request, else None."""
+    if isinstance(request, dict) and 'terrain' in request:
+        return list(request['terrain'])
+    return None
 
 
 def validate_response(response, epoch, tick):
@@ -126,13 +139,20 @@ def _worker_loop(library, log, epoch, async_evidence):
                 log.check()
             request = parse_frame(line, REQUEST_LIMIT)
             commands = step_request(request, model.ticks, epoch)
+            terrain = terrain_request(request)
             if commands is not None:
-                state = model.step(commands)
+                if terrain is not None:
+                    state = model.step(commands, terrain=terrain)
+                else:
+                    state = model.step(commands)
             response = dict(version=1, epoch=epoch, tick=model.ticks, state=state)
             if commands is not None:
                 # Preserve the exact accepted input, as well as decoded fields.
                 response_json = encoded(response)
-                extras_json = encoded(dict(commands=commands, input=line, request=request))
+                extras = dict(commands=commands, input=line, request=request)
+                if terrain is not None:
+                    extras['terrain'] = terrain
+                extras_json = encoded(extras)
                 log.write(response_json[:-1] + ',' + extras_json[1:] + '\n')
             validate_response(response, epoch, model.ticks)
             output = (response_json if commands is not None else encoded(response)) + '\n'
