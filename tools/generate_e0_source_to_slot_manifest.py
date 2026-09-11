@@ -126,12 +126,13 @@ def parse_cpp_line_ranges(source):
 
 def _source_mapping(source):
     """Build the two-layer historical/current source mapping."""
-    raw = source if isinstance(source, str) and source else None
-    historical_ranges = parse_cpp_line_ranges(raw) if raw is not None else []
+    if not isinstance(source, str) or not source:
+        raise ValueError("historical source label must be a non-empty string")
+    historical_ranges = parse_cpp_line_ranges(source)
     return {
-        "raw": raw,
+        "raw": source,
         "historical_r1_cpp": {
-            "status": "bound" if historical_ranges else "unresolved",
+            "status": "bound",
             "line_ranges": historical_ranges,
         },
         "current_slx_11_8": {

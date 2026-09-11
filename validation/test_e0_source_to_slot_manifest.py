@@ -26,12 +26,14 @@ from tools.generate_e0_source_to_slot_manifest import (  # noqa: E402
     build_manifest,
     dynamic_scalars,
     parse_cpp_line_ranges,
+    write_manifest,
 )
 from tools import validate_e0_source_to_slot_manifest as validator  # noqa: E402
 
 
 CONTRACT = ROOT / DEFAULT_CONTRACT
 SCHEMA = ROOT / "docs/plan/59-e0-source-to-slot-manifest.schema.json"
+CHECKED_IN_MANIFEST = ROOT / "validation/e0-source-to-slot-manifest-20260911.json"
 
 
 class TestE0SourceToSlotManifest(unittest.TestCase):
@@ -130,6 +132,23 @@ class TestE0SourceToSlotManifest(unittest.TestCase):
         self.assertEqual(len(scalars), 56)
         self.assertEqual(len({observable["id"] for _, _, observable in scalars}), 26)
 
+    def test_missing_historical_cpp_source_fails_closed(self):
+        with CONTRACT.open(encoding="utf-8") as stream:
+            contract = json.load(stream)
+        for source_case in ("__missing__", None, ""):
+            with self.subTest(source_case=source_case):
+                broken_contract = copy.deepcopy(contract)
+                if source_case == "__missing__":
+                    broken_contract["observables"][2].pop("source")
+                else:
+                    broken_contract["observables"][2]["source"] = source_case
+                with patch(
+                    "tools.generate_e0_source_to_slot_manifest.load_contract",
+                    return_value=broken_contract,
+                ):
+                    with self.assertRaisesRegex(ValueError, "historical source label"):
+                        build_manifest(CONTRACT)
+
     def test_generated_manifest_validates(self):
         manifest = build_manifest(CONTRACT)
         with tempfile.TemporaryDirectory() as directory:
@@ -212,12 +231,16 @@ class TestE0SourceToSlotManifest(unittest.TestCase):
 
     def test_checked_in_manifest_is_reproducible(self):
         checked_in = json.loads(
-            (ROOT / "validation/e0-source-to-slot-manifest-20260911.json").read_text(
-                encoding="utf-8"
-            )
+            CHECKED_IN_MANIFEST.read_text(encoding="utf-8")
         )
         self.assertEqual(checked_in, build_manifest(CONTRACT))
         self.assertEqual(checked_in["contract"]["sha256"], FROZEN_CONTRACT_SHA256)
+
+    def test_generator_serialization_matches_checked_in_manifest_bytes(self):
+        with tempfile.TemporaryDirectory() as directory:
+            generated = Path(directory) / "manifest.json"
+            write_manifest(CONTRACT, generated)
+            self.assertEqual(generated.read_bytes(), CHECKED_IN_MANIFEST.read_bytes())
 
     def test_duplicate_slot_is_rejected(self):
         manifest = build_manifest(CONTRACT)
