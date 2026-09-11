@@ -2,6 +2,7 @@
 import hashlib
 import json
 import os
+import subprocess
 import tempfile
 import unittest
 import sys
@@ -165,6 +166,116 @@ class JointRateProbeTests(unittest.TestCase):
 
 
 class JointRuntimeTimingProbeEntryTests(unittest.TestCase):
+    def test_async_model_workers_receive_eof_before_group_cleanup(self):
+        class FakeStdin:
+            def __init__(self):
+                self.closed = False
+                self.close_calls = 0
+
+            def close(self):
+                self.close_calls += 1
+                self.closed = True
+
+        class FakeChild:
+            def __init__(self, pid, *, role, alive=True):
+                self.pid = pid
+                self.stdin = FakeStdin()
+                self.returncode = None if alive else 0
+                self.wait_calls = []
+
+            def poll(self):
+                return self.returncode
+
+            def wait(self, timeout=None):
+                self.wait_calls.append(timeout)
+                self.returncode = 0
+                return self.returncode
+
+        model = FakeChild(11, role='model')
+        agent = FakeChild(12, role='agent')
+        dead_model = FakeChild(13, role='model', alive=False)
+        children = [('model', model, None), ('agent', agent, None), ('dead', dead_model, None)]
+        specs = {11: {'role': 'model'}, 12: {'role': 'agent'}, 13: {'role': 'model'}}
+
+        self.assertEqual(runner.retire_model_workers(children, specs, timeout=.25), [])
+        self.assertEqual(model.stdin.close_calls, 1)
+        self.assertEqual(model.wait_calls, [.25])
+        self.assertEqual(agent.stdin.close_calls, 0)
+        self.assertEqual(agent.wait_calls, [])
+        self.assertEqual(dead_model.stdin.close_calls, 0)
+        self.assertEqual(dead_model.wait_calls, [])
+
+    def test_async_model_worker_retirement_timeout_is_reported(self):
+        class Stdin:
+            closed = False
+
+            def close(self):
+                self.closed = True
+
+        class Stuck:
+            pid = 17
+            stdin = Stdin()
+            returncode = None
+
+            def poll(self):
+                return self.returncode
+
+            def wait(self, timeout=None):
+                raise subprocess.TimeoutExpired('fake-model', timeout)
+
+        errors = runner.retire_model_workers(
+            [('model', Stuck(), None)], {17: {'role': 'model'}}, timeout=.01)
+        self.assertEqual(len(errors), 1)
+        self.assertIn('did not retire before timeout', errors[0])
+
+    def test_async_model_retirement_exception_still_stops_groups_and_preserves_error(self):
+        manager_error = repr(RateUnmet(100_000_001))
+        result = dict(status='pass', error=manager_error)
+        children = [('model', object(), None)]
+        events = []
+
+        def retire(*args, **kwargs):
+            events.append('retire')
+            raise BaseException('boom')
+
+        def stop(value):
+            events.append('stop')
+            return []
+
+        with patch.object(runner, 'retire_model_workers', side_effect=retire) as retirement, \
+                patch.object(runner, 'stop_children', side_effect=stop) as stop_groups:
+            runner.cleanup_children(result, children, {}, async_model_evidence=True)
+        self.assertEqual(events, ['retire', 'stop'])
+        retirement.assert_called_once_with(children, {})
+        stop_groups.assert_called_once_with(children)
+        self.assertEqual(result['error'], manager_error)
+        self.assertEqual(result['status'], 'failed')
+        self.assertEqual(len(result['cleanup_errors']), 1)
+        self.assertIn('async model worker retirement failed', result['cleanup_errors'][0])
+
+    def test_non_async_cleanup_only_stops_groups_and_preserves_clean_state(self):
+        result = dict(status='observed', error='existing manager observation')
+        children = [('agent', object(), None)]
+        events = []
+
+        def retire(*args, **kwargs):
+            events.append('retire')
+            raise AssertionError('non-async cleanup must not retire model workers')
+
+        def stop(value):
+            events.append('stop')
+            return []
+
+        with patch.object(runner, 'retire_model_workers', side_effect=retire) as retirement, \
+                patch.object(runner, 'stop_children', side_effect=stop) as stop_groups:
+            runner.cleanup_children(result, children, {}, async_model_evidence=False)
+        self.assertEqual(events, ['stop'])
+        retirement.assert_not_called()
+        stop_groups.assert_called_once_with(children)
+        self.assertEqual(result['cleanup_errors'], [])
+        self.assertEqual(result['status'], 'observed')
+        self.assertEqual(result['error'], 'existing manager observation')
+
     def test_async_model_evidence_rejects_non_candidate_before_isolation(self):
         args = SimpleNamespace(task_profile="position", async_model_evidence=True)
         with patch.dict(os.environ, {TIMING_PROBE_ENV: "0"}, clear=False), \

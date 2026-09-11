@@ -158,6 +158,51 @@ def verify_async_model_evidence(directory):
     return records
 
 
+def retire_model_workers(children, child_specs, *, timeout=3):
+    """Close async model-worker stdin before owned-group teardown.
+
+    A model worker publishes its writer sidecar only after its input loop sees
+    EOF and the evidence-stream context has retired.  A manager fault used to
+    call ``stop_children`` immediately, which sent SIGTERM to the model
+    workers and discarded that finalization step along with the sidecar.  Ask
+    only live model workers to consume EOF; the normal group cleanup remains
+    responsible for every other process and for workers that do not retire in
+    time.  Errors are returned so a failed retirement can never turn a failed
+    flight into a pass.
+    """
+    errors = []
+    for name, child, _ in children:
+        if child_specs.get(child.pid, {}).get('role') != 'model' or child.poll() is not None:
+            continue
+        stream = getattr(child, 'stdin', None)
+        try:
+            if stream is not None and not getattr(stream, 'closed', False):
+                stream.close()
+        except (OSError, ValueError) as error:
+            errors.append(f'{name}: stdin close failed: {error}')
+        try:
+            child.wait(timeout=timeout)
+        except subprocess.TimeoutExpired as error:
+            errors.append(f'{name}: model worker did not retire before timeout: {error}')
+        except OSError as error:
+            errors.append(f'{name}: model worker wait failed: {error}')
+    return errors
+
+
+def cleanup_children(result, children, child_specs, *, async_model_evidence=False):
+    """Retire workers, always tear down groups, and preserve existing errors."""
+    errors = []
+    if async_model_evidence:
+        try:
+            errors.extend(retire_model_workers(children, child_specs))
+        except BaseException as error:
+            errors.append(f'async model worker retirement failed: {error!r}')
+    errors.extend(stop_children(children))
+    result['cleanup_errors'] = errors
+    if errors:
+        result['status'] = 'failed'
+
+
 def save(path, data):
     def evidence(value):
         if isinstance(value, float) and not math.isfinite(value):
@@ -942,7 +987,8 @@ def run(args):
         result.update(error=repr(error),traceback=traceback.format_exc(),faulted_authority=clock.snapshot())
         print('Joint flight failed: '+repr(error),flush=True)
     finally:
-        result['cleanup_errors']=stop_children(children)
+        cleanup_children(result, children, child_specs,
+                         async_model_evidence=async_model_evidence)
         for name,child,_ in children:
             result['children'][name].update(returncode=child.returncode,remaining_group_members=group_members(child.pid))
         if async_model_evidence:
