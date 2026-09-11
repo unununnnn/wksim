@@ -1,0 +1,834 @@
+{
+  "schema_version": 1,
+  "kind": "e0_current_source_mapping",
+  "status": "bound",
+  "provenance_only": true,
+  "non_claims": "Source-location provenance only; not a numerical or physical equivalence claim, not a #59 G6 budget, not an execution contract. v1 maps each slot to its root-outport write statement only; upstream computation sites in the current source are out of scope. The generated C++ bytes remain private and are never committed.",
+  "contract": {
+    "path": "Simulator/wksim_core/numerical-conformance-v1.json",
+    "contract_id": "wksim-e0-fixed-reference-native-preservation-v1",
+    "sha256": "23d72e26da5dfc7df0b41b96d090664d0ec022d777f6258e409bf7080f2c08f0"
+  },
+  "generated_source": {
+    "name": "Exp1_MinModelTemp.cpp",
+    "model_version": "11.8",
+    "generation_run": "short-cycle-codegen-01",
+    "artifact_relative_path": "work/codegen-e0/short-cycle-codegen-01/codegen/Exp1_MinModelTemp_ert_rtw/Exp1_MinModelTemp.cpp",
+    "sha256": "2c25b3fa08c996c8f2ed1a7feae5558062cd722ae5d350cc8a25caf2be10b274",
+    "size_bytes": 327598,
+    "evidence": {
+      "path": "validation/codegen-e0/short-cycle-codegen-01/generated-sources-manifest.json",
+      "sha256": "85c40213cec0f349d36664c5621bb53c46ad96f9756cdd4eaa2bb97a7b2acc67"
+    }
+  },
+  "derivation": {
+    "rule": "e0-current-outport-write-v1",
+    "line_numbering": "raw-bytes-split-lf",
+    "enclosing_function": "MulticopterModelClass::step",
+    "outports": [
+      {
+        "array": "Vehicle60",
+        "outport": "VehileInfo60d",
+        "size": 60
+      },
+      {
+        "array": "Sensor30",
+        "outport": "HILSensor30d",
+        "size": 30
+      },
+      {
+        "array": "GPS30",
+        "outport": "HILGPS30d",
+        "size": 30
+      }
+    ],
+    "covered_output_slots": 120
+  },
+  "slot_count": 56,
+  "slots": [
+    {
+      "slot": "Vehicle60[2]",
+      "array": "Vehicle60",
+      "index": 2,
+      "observable": "vehicle_time",
+      "outport": "VehileInfo60d",
+      "statement": "assignment",
+      "line_ranges": [
+        [
+          7864,
+          7864
+        ]
+      ]
+    },
+    {
+      "slot": "Vehicle60[3]",
+      "array": "Vehicle60",
+      "index": 3,
+      "observable": "velocity_ned",
+      "outport": "VehileInfo60d",
+      "statement": "assignment",
+      "line_ranges": [
+        [
+          7865,
+          7865
+        ]
+      ]
+    },
+    {
+      "slot": "Vehicle60[4]",
+      "array": "Vehicle60",
+      "index": 4,
+      "observable": "velocity_ned",
+      "outport": "VehileInfo60d",
+      "statement": "assignment",
+      "line_ranges": [
+        [
+          7867,
+          7867
+        ]
+      ]
+    },
+    {
+      "slot": "Vehicle60[5]",
+      "array": "Vehicle60",
+      "index": 5,
+      "observable": "velocity_ned",
+      "outport": "VehileInfo60d",
+      "statement": "assignment",
+      "line_ranges": [
+        [
+          7869,
+          7869
+        ]
+      ]
+    },
+    {
+      "slot": "Vehicle60[6]",
+      "array": "Vehicle60",
+      "index": 6,
+      "observable": "position_ned",
+      "outport": "VehileInfo60d",
+      "statement": "assignment",
+      "line_ranges": [
+        [
+          7866,
+          7866
+        ]
+      ]
+    },
+    {
+      "slot": "Vehicle60[7]",
+      "array": "Vehicle60",
+      "index": 7,
+      "observable": "position_ned",
+      "outport": "VehileInfo60d",
+      "statement": "assignment",
+      "line_ranges": [
+        [
+          7868,
+          7868
+        ]
+      ]
+    },
+    {
+      "slot": "Vehicle60[8]",
+      "array": "Vehicle60",
+      "index": 8,
+      "observable": "position_ned",
+      "outport": "VehileInfo60d",
+      "statement": "assignment",
+      "line_ranges": [
+        [
+          7870,
+          7870
+        ]
+      ]
+    },
+    {
+      "slot": "Vehicle60[9]",
+      "array": "Vehicle60",
+      "index": 9,
+      "observable": "euler_components",
+      "outport": "VehileInfo60d",
+      "statement": "assignment",
+      "line_ranges": [
+        [
+          4306,
+          4309
+        ]
+      ]
+    },
+    {
+      "slot": "Vehicle60[10]",
+      "array": "Vehicle60",
+      "index": 10,
+      "observable": "euler_components",
+      "outport": "VehileInfo60d",
+      "statement": "assignment",
+      "line_ranges": [
+        [
+          7887,
+          7887
+        ]
+      ]
+    },
+    {
+      "slot": "Vehicle60[11]",
+      "array": "Vehicle60",
+      "index": 11,
+      "observable": "euler_components",
+      "outport": "VehileInfo60d",
+      "statement": "assignment",
+      "line_ranges": [
+        [
+          7888,
+          7888
+        ]
+      ]
+    },
+    {
+      "slot": "Vehicle60[12]",
+      "array": "Vehicle60",
+      "index": 12,
+      "observable": "quaternion_components",
+      "outport": "VehileInfo60d",
+      "statement": "assignment",
+      "line_ranges": [
+        [
+          7889,
+          7889
+        ]
+      ]
+    },
+    {
+      "slot": "Vehicle60[13]",
+      "array": "Vehicle60",
+      "index": 13,
+      "observable": "quaternion_components",
+      "outport": "VehileInfo60d",
+      "statement": "assignment",
+      "line_ranges": [
+        [
+          7890,
+          7890
+        ]
+      ]
+    },
+    {
+      "slot": "Vehicle60[14]",
+      "array": "Vehicle60",
+      "index": 14,
+      "observable": "quaternion_components",
+      "outport": "VehileInfo60d",
+      "statement": "assignment",
+      "line_ranges": [
+        [
+          7891,
+          7891
+        ]
+      ]
+    },
+    {
+      "slot": "Vehicle60[15]",
+      "array": "Vehicle60",
+      "index": 15,
+      "observable": "quaternion_components",
+      "outport": "VehileInfo60d",
+      "statement": "assignment",
+      "line_ranges": [
+        [
+          7892,
+          7892
+        ]
+      ]
+    },
+    {
+      "slot": "Vehicle60[16]",
+      "array": "Vehicle60",
+      "index": 16,
+      "observable": "active_motor_speed",
+      "outport": "VehileInfo60d",
+      "statement": "assignment",
+      "line_ranges": [
+        [
+          7893,
+          7894
+        ]
+      ]
+    },
+    {
+      "slot": "Vehicle60[17]",
+      "array": "Vehicle60",
+      "index": 17,
+      "observable": "active_motor_speed",
+      "outport": "VehileInfo60d",
+      "statement": "assignment",
+      "line_ranges": [
+        [
+          7895,
+          7896
+        ]
+      ]
+    },
+    {
+      "slot": "Vehicle60[18]",
+      "array": "Vehicle60",
+      "index": 18,
+      "observable": "active_motor_speed",
+      "outport": "VehileInfo60d",
+      "statement": "assignment",
+      "line_ranges": [
+        [
+          7897,
+          7898
+        ]
+      ]
+    },
+    {
+      "slot": "Vehicle60[19]",
+      "array": "Vehicle60",
+      "index": 19,
+      "observable": "active_motor_speed",
+      "outport": "VehileInfo60d",
+      "statement": "assignment",
+      "line_ranges": [
+        [
+          7899,
+          7900
+        ]
+      ]
+    },
+    {
+      "slot": "Vehicle60[20]",
+      "array": "Vehicle60",
+      "index": 20,
+      "observable": "extra_motor_speed",
+      "outport": "VehileInfo60d",
+      "statement": "assignment",
+      "line_ranges": [
+        [
+          7901,
+          7902
+        ]
+      ]
+    },
+    {
+      "slot": "Vehicle60[21]",
+      "array": "Vehicle60",
+      "index": 21,
+      "observable": "extra_motor_speed",
+      "outport": "VehileInfo60d",
+      "statement": "assignment",
+      "line_ranges": [
+        [
+          7903,
+          7904
+        ]
+      ]
+    },
+    {
+      "slot": "Vehicle60[22]",
+      "array": "Vehicle60",
+      "index": 22,
+      "observable": "extra_motor_speed",
+      "outport": "VehileInfo60d",
+      "statement": "assignment",
+      "line_ranges": [
+        [
+          7905,
+          7906
+        ]
+      ]
+    },
+    {
+      "slot": "Vehicle60[23]",
+      "array": "Vehicle60",
+      "index": 23,
+      "observable": "extra_motor_speed",
+      "outport": "VehileInfo60d",
+      "statement": "assignment",
+      "line_ranges": [
+        [
+          7907,
+          7908
+        ]
+      ]
+    },
+    {
+      "slot": "Vehicle60[24]",
+      "array": "Vehicle60",
+      "index": 24,
+      "observable": "body_motion_acceleration",
+      "outport": "VehileInfo60d",
+      "statement": "assignment",
+      "line_ranges": [
+        [
+          7909,
+          7909
+        ]
+      ]
+    },
+    {
+      "slot": "Vehicle60[25]",
+      "array": "Vehicle60",
+      "index": 25,
+      "observable": "body_motion_acceleration",
+      "outport": "VehileInfo60d",
+      "statement": "assignment",
+      "line_ranges": [
+        [
+          7911,
+          7911
+        ]
+      ]
+    },
+    {
+      "slot": "Vehicle60[26]",
+      "array": "Vehicle60",
+      "index": 26,
+      "observable": "body_motion_acceleration",
+      "outport": "VehileInfo60d",
+      "statement": "assignment",
+      "line_ranges": [
+        [
+          7913,
+          7913
+        ]
+      ]
+    },
+    {
+      "slot": "Vehicle60[27]",
+      "array": "Vehicle60",
+      "index": 27,
+      "observable": "body_angular_rate",
+      "outport": "VehileInfo60d",
+      "statement": "assignment",
+      "line_ranges": [
+        [
+          7910,
+          7910
+        ]
+      ]
+    },
+    {
+      "slot": "Vehicle60[28]",
+      "array": "Vehicle60",
+      "index": 28,
+      "observable": "body_angular_rate",
+      "outport": "VehileInfo60d",
+      "statement": "assignment",
+      "line_ranges": [
+        [
+          7912,
+          7912
+        ]
+      ]
+    },
+    {
+      "slot": "Vehicle60[29]",
+      "array": "Vehicle60",
+      "index": 29,
+      "observable": "body_angular_rate",
+      "outport": "VehileInfo60d",
+      "statement": "assignment",
+      "line_ranges": [
+        [
+          7914,
+          7914
+        ]
+      ]
+    },
+    {
+      "slot": "Vehicle60[30]",
+      "array": "Vehicle60",
+      "index": 30,
+      "observable": "truth_latitude_longitude",
+      "outport": "VehileInfo60d",
+      "statement": "assignment",
+      "line_ranges": [
+        [
+          7915,
+          7915
+        ]
+      ]
+    },
+    {
+      "slot": "Vehicle60[31]",
+      "array": "Vehicle60",
+      "index": 31,
+      "observable": "truth_latitude_longitude",
+      "outport": "VehileInfo60d",
+      "statement": "assignment",
+      "line_ranges": [
+        [
+          7916,
+          7916
+        ]
+      ]
+    },
+    {
+      "slot": "Vehicle60[32]",
+      "array": "Vehicle60",
+      "index": 32,
+      "observable": "truth_altitude",
+      "outport": "VehileInfo60d",
+      "statement": "assignment",
+      "line_ranges": [
+        [
+          7917,
+          7917
+        ]
+      ]
+    },
+    {
+      "slot": "Sensor30[0]",
+      "array": "Sensor30",
+      "index": 0,
+      "observable": "sensor_time",
+      "outport": "HILSensor30d",
+      "statement": "assignment",
+      "line_ranges": [
+        [
+          7442,
+          7442
+        ]
+      ]
+    },
+    {
+      "slot": "Sensor30[1]",
+      "array": "Sensor30",
+      "index": 1,
+      "observable": "accelerometer",
+      "outport": "HILSensor30d",
+      "statement": "assignment",
+      "line_ranges": [
+        [
+          7466,
+          7467
+        ]
+      ]
+    },
+    {
+      "slot": "Sensor30[2]",
+      "array": "Sensor30",
+      "index": 2,
+      "observable": "accelerometer",
+      "outport": "HILSensor30d",
+      "statement": "assignment",
+      "line_ranges": [
+        [
+          7491,
+          7492
+        ]
+      ]
+    },
+    {
+      "slot": "Sensor30[3]",
+      "array": "Sensor30",
+      "index": 3,
+      "observable": "accelerometer",
+      "outport": "HILSensor30d",
+      "statement": "assignment",
+      "line_ranges": [
+        [
+          7516,
+          7517
+        ]
+      ]
+    },
+    {
+      "slot": "Sensor30[4]",
+      "array": "Sensor30",
+      "index": 4,
+      "observable": "gyroscope",
+      "outport": "HILSensor30d",
+      "statement": "assignment",
+      "line_ranges": [
+        [
+          7541,
+          7542
+        ]
+      ]
+    },
+    {
+      "slot": "Sensor30[5]",
+      "array": "Sensor30",
+      "index": 5,
+      "observable": "gyroscope",
+      "outport": "HILSensor30d",
+      "statement": "assignment",
+      "line_ranges": [
+        [
+          7566,
+          7567
+        ]
+      ]
+    },
+    {
+      "slot": "Sensor30[6]",
+      "array": "Sensor30",
+      "index": 6,
+      "observable": "gyroscope",
+      "outport": "HILSensor30d",
+      "statement": "assignment",
+      "line_ranges": [
+        [
+          7611,
+          7612
+        ]
+      ]
+    },
+    {
+      "slot": "Sensor30[7]",
+      "array": "Sensor30",
+      "index": 7,
+      "observable": "magnetic_field",
+      "outport": "HILSensor30d",
+      "statement": "assignment",
+      "line_ranges": [
+        [
+          7613,
+          7615
+        ]
+      ]
+    },
+    {
+      "slot": "Sensor30[8]",
+      "array": "Sensor30",
+      "index": 8,
+      "observable": "magnetic_field",
+      "outport": "HILSensor30d",
+      "statement": "assignment",
+      "line_ranges": [
+        [
+          7616,
+          7618
+        ]
+      ]
+    },
+    {
+      "slot": "Sensor30[9]",
+      "array": "Sensor30",
+      "index": 9,
+      "observable": "magnetic_field",
+      "outport": "HILSensor30d",
+      "statement": "assignment",
+      "line_ranges": [
+        [
+          7619,
+          7621
+        ]
+      ]
+    },
+    {
+      "slot": "Sensor30[10]",
+      "array": "Sensor30",
+      "index": 10,
+      "observable": "absolute_pressure",
+      "outport": "HILSensor30d",
+      "statement": "assignment",
+      "line_ranges": [
+        [
+          7622,
+          7623
+        ]
+      ]
+    },
+    {
+      "slot": "Sensor30[11]",
+      "array": "Sensor30",
+      "index": 11,
+      "observable": "differential_pressure",
+      "outport": "HILSensor30d",
+      "statement": "assignment",
+      "line_ranges": [
+        [
+          7624,
+          7628
+        ]
+      ]
+    },
+    {
+      "slot": "Sensor30[12]",
+      "array": "Sensor30",
+      "index": 12,
+      "observable": "pressure_altitude",
+      "outport": "HILSensor30d",
+      "statement": "assignment",
+      "line_ranges": [
+        [
+          7629,
+          7629
+        ]
+      ]
+    },
+    {
+      "slot": "Sensor30[13]",
+      "array": "Sensor30",
+      "index": 13,
+      "observable": "temperature",
+      "outport": "HILSensor30d",
+      "statement": "assignment",
+      "line_ranges": [
+        [
+          7630,
+          7631
+        ]
+      ]
+    },
+    {
+      "slot": "GPS30[0]",
+      "array": "GPS30",
+      "index": 0,
+      "observable": "gps_time",
+      "outport": "HILGPS30d",
+      "statement": "assignment",
+      "line_ranges": [
+        [
+          7732,
+          7732
+        ]
+      ]
+    },
+    {
+      "slot": "GPS30[1]",
+      "array": "GPS30",
+      "index": 1,
+      "observable": "gps_latitude_longitude",
+      "outport": "HILGPS30d",
+      "statement": "assignment",
+      "line_ranges": [
+        [
+          7733,
+          7734
+        ]
+      ]
+    },
+    {
+      "slot": "GPS30[2]",
+      "array": "GPS30",
+      "index": 2,
+      "observable": "gps_latitude_longitude",
+      "outport": "HILGPS30d",
+      "statement": "assignment",
+      "line_ranges": [
+        [
+          7735,
+          7736
+        ]
+      ]
+    },
+    {
+      "slot": "GPS30[3]",
+      "array": "GPS30",
+      "index": 3,
+      "observable": "gps_altitude",
+      "outport": "HILGPS30d",
+      "statement": "assignment",
+      "line_ranges": [
+        [
+          7737,
+          7738
+        ]
+      ]
+    },
+    {
+      "slot": "GPS30[4]",
+      "array": "GPS30",
+      "index": 4,
+      "observable": "gps_accuracy_indicators",
+      "outport": "HILGPS30d",
+      "statement": "assignment",
+      "line_ranges": [
+        [
+          7739,
+          7739
+        ]
+      ]
+    },
+    {
+      "slot": "GPS30[5]",
+      "array": "GPS30",
+      "index": 5,
+      "observable": "gps_accuracy_indicators",
+      "outport": "HILGPS30d",
+      "statement": "assignment",
+      "line_ranges": [
+        [
+          7740,
+          7740
+        ]
+      ]
+    },
+    {
+      "slot": "GPS30[6]",
+      "array": "GPS30",
+      "index": 6,
+      "observable": "gps_horizontal_speed",
+      "outport": "HILGPS30d",
+      "statement": "assignment",
+      "line_ranges": [
+        [
+          7693,
+          7694
+        ]
+      ]
+    },
+    {
+      "slot": "GPS30[7]",
+      "array": "GPS30",
+      "index": 7,
+      "observable": "gps_velocity_ned",
+      "outport": "HILGPS30d",
+      "statement": "assignment",
+      "line_ranges": [
+        [
+          7741,
+          7741
+        ]
+      ]
+    },
+    {
+      "slot": "GPS30[8]",
+      "array": "GPS30",
+      "index": 8,
+      "observable": "gps_velocity_ned",
+      "outport": "HILGPS30d",
+      "statement": "assignment",
+      "line_ranges": [
+        [
+          7742,
+          7742
+        ]
+      ]
+    },
+    {
+      "slot": "GPS30[9]",
+      "array": "GPS30",
+      "index": 9,
+      "observable": "gps_velocity_ned",
+      "outport": "HILGPS30d",
+      "statement": "assignment",
+      "line_ranges": [
+        [
+          7743,
+          7744
+        ]
+      ]
+    },
+    {
+      "slot": "GPS30[10]",
+      "array": "GPS30",
+      "index": 10,
+      "observable": "gps_course_encoded",
+      "outport": "HILGPS30d",
+      "statement": "assignment",
+      "line_ranges": [
+        [
+          7730,
+          7731
+        ]
+      ]
+    }
+  ]
+}
