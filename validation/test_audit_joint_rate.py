@@ -27,6 +27,7 @@ from tools.audit_joint_rate import (
     schedule,
     timing_probe_identity,
 )
+from tools.audit_joint_rate_lifecycle import closed_rate_schedule
 from Simulator.wksim_runtime.joint_rate_probe import timing_probe_identity as runtime_probe_identity
 
 
@@ -243,6 +244,89 @@ class TestAuditJointRate(unittest.TestCase):
             case_dir = make_synthetic_case(temp_dir, lateness_ns=100_000_000)
             with self.assertRaises((AssertionError, ValueError)):
                 audit_failure(case_dir)
+
+    def test_success_lifecycle_schedule_never_accepts_rate_unmet(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            case_dir = make_synthetic_case(temp_dir, lateness_ns=105_000_000)
+            epoch = 'a' * 32
+            with self.assertRaises((AssertionError, ValueError)) as ctx:
+                closed_rate_schedule(Path(case_dir) / 'run/epochs' / epoch / 'rate.jsonl', epoch,
+                                     expected_terminal_reasons=('set-rate',))
+            self.assertIn('rate_unmet', str(ctx.exception))
+
+    def test_closed_schedule_rejects_empty_segment(self):
+        epoch = 'e' * 32
+        rows = [
+            dict(kind='rate_anchor', epoch=epoch, segment_id=1, requested_rate=1.0,
+                 request_id='r', reason='synchronized_boundary',
+                 anchor=dict(tick=40, wall_ns=1_000_000_000, transition=False)),
+            dict(kind='rate_segment_end', epoch=epoch, segment_id=1,
+                 completed_groups=0, worst_lateness_ns=0, reason='completed'),
+        ]
+        with tempfile.NamedTemporaryFile('w+', delete=False) as handle:
+            handle.write(''.join(json.dumps(row) + '\n' for row in rows))
+            path = Path(handle.name)
+        try:
+            with self.assertRaisesRegex((AssertionError, ValueError), 'without a group'):
+                closed_rate_schedule(path, epoch, expected_terminal_reasons=('set-rate',))
+        finally:
+            path.unlink(missing_ok=True)
+
+    def test_closed_schedule_rejects_bad_terminal_reason(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            case_dir = make_synthetic_case(temp_dir, status='pass', fault_type=None, lateness_ns=0)
+            epoch = 'a' * 32
+            path = Path(case_dir) / 'run/epochs' / epoch / 'rate.jsonl'
+            rows = [json.loads(line) for line in path.read_text().splitlines()]
+            rows[-1]['reason'] = 'set-rate'
+            path.write_text(''.join(json.dumps(row) + '\n' for row in rows))
+            self.assertEqual(len(closed_rate_schedule(path, epoch,
+                                                      expected_terminal_reasons=('set-rate',))), 1)
+            rows[-1]['reason'] = 'stop'
+            path.write_text(''.join(json.dumps(row) + '\n' for row in rows))
+            with self.assertRaisesRegex(ValueError, 'does not match production close/reanchor'):
+                closed_rate_schedule(path, epoch, expected_terminal_reasons=('set-rate',))
+            rows[-1]['reason'] = 'forged'
+            path.write_text(''.join(json.dumps(row) + '\n' for row in rows))
+            with self.assertRaisesRegex(ValueError, 'unknown or failure terminal reason'):
+                closed_rate_schedule(path, epoch, expected_terminal_reasons=('set-rate',))
+
+    def test_schedule_rejects_overdue_second_group_without_catch_up(self):
+        epoch = 'd' * 32
+        wall = 1_000_000_000
+        period = 4_000_000
+        first_start = wall + 10_000_000
+        second_start = wall + period
+        rows = [dict(kind='rate_anchor', epoch=epoch, segment_id=1, requested_rate=1.0,
+                     request_id='r', anchor=dict(tick=40, wall_ns=wall, transition=False))]
+        for index, actual_start in enumerate((first_start, second_start)):
+            tick = 40 + index * 4
+            ideal = wall + index * period
+            earliest = ideal if index == 0 else first_start + period
+            rows.extend([
+                dict(kind='rate_group_start', epoch=epoch, segment_id=1, request_id='r',
+                     requested_rate=1.0, transition=False, tick=tick, start_tick=tick,
+                     end_tick=tick + 4, ideal_start_ns=ideal, ideal_end_ns=ideal + period,
+                     earliest_start_ns=earliest, actual_start_ns=actual_start,
+                     lateness_ns=max(0, actual_start - ideal)),
+                dict(kind='rate_group_end', epoch=epoch, segment_id=1, request_id='r',
+                     requested_rate=1.0, transition=False, tick=tick + 4, start_tick=tick,
+                     end_tick=tick + 4, ideal_start_ns=ideal, ideal_end_ns=ideal + period,
+                     earliest_start_ns=earliest, actual_start_ns=actual_start,
+                     actual_end_ns=actual_start + period,
+                     lateness_ns=max(0, actual_start - ideal)),
+            ])
+        rows.append(dict(kind='rate_segment_end', epoch=epoch, segment_id=1,
+                         completed_groups=2, worst_lateness_ns=10_000_000,
+                         reason='completed'))
+        with tempfile.NamedTemporaryFile('w+', delete=False) as handle:
+            handle.write(''.join(json.dumps(row) + '\n' for row in rows))
+            path = Path(handle.name)
+        try:
+            with self.assertRaisesRegex(ValueError, 'caught up an overdue group'):
+                schedule(path, epoch, allow_failure=False)
+        finally:
+            path.unlink(missing_ok=True)
 
     def test_epoch_mismatch_rejection(self):
         with tempfile.TemporaryDirectory() as temp_dir:
