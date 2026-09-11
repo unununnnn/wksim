@@ -81,14 +81,20 @@ source /root/wksim-dds-VxM6Ni/ros-install/local_setup.bash
 source /root/wksim-ap-dds-yaw-state-4Wr27s/ros-install/local_setup.bash
 source /root/wksim-ros2-MUlZd0/install/local_setup.bash
 source /root/wksim-joint-control-FVMjak/install/local_setup.bash
-/usr/bin/python3 -B tools/audit_joint_rate.py validation/lunar-20-epoch-1/case --require-epochs 1 --output validation/lunar-20-epoch-1/audit.json
+# 1. 正式稳态通过审计（要求完整 flow.json 与 steady 执行，通过时顶层 status=pass，退出码 0）
+/usr/bin/python3 -B tools/audit_joint_rate.py validation/lunar-20-epoch-1/case --require-epochs 1 --mode steady --output validation/lunar-20-epoch-1/audit.json
 # 每场独立通过后才执行完整同候选cohort审计
-/usr/bin/python3 -B tools/audit_joint_rate.py validation/lunar-20-epoch-1/case validation/lunar-20-epoch-2/case validation/lunar-20-epoch-3/case --require-epochs 3 --output validation/lunar-20-epoch-3/cohort-audit.json
+/usr/bin/python3 -B tools/audit_joint_rate.py validation/lunar-20-epoch-1/case validation/lunar-20-epoch-2/case validation/lunar-20-epoch-3/case --require-epochs 3 --mode steady --output validation/lunar-20-epoch-3/cohort-audit.json
+
+# 2. 结构化 RateUnmet 失败审计（当无稳态 flow.json 时通过 --mode failure 或 --allow-failure 产出非 PASS 结构化归因，退出码 1）
+/usr/bin/python3 -B tools/audit_joint_rate.py validation/lunar-20-epoch-1/case --mode failure --output validation/lunar-20-epoch-1/failure-audit-structured.json
 ```
 
-审计文件放在`case/`外且必须新建；第2、3场单场命令同步替换两处编号，不能跳过单场审计直接只看cohort。旧`steady-one-after-ready`驱动可证明失败但当前审计明确只接受`flow.mode=steady`，故新候选从配置请求1×并完整steady执行。35s+35s提供连续空中窗口的机会，不保证飞行或窗口成立。
+审计文件放在`case/`外且必须新建；第2、3场单场命令同步替换两处编号，不能跳过单场审计直接只看cohort。旧`steady-one-after-ready`驱动可证明失败但稳态审计明确只接受`flow.mode=steady`，故新候选从配置请求1×并完整steady执行。35s+35s提供连续空中窗口的机会，不保证飞行或窗口成立。
 
-输出schema沿用已读原入口：`case/experiment.json`、`wrapper.py`、`wrapper.json`、`preflight.log`、`service.log`、`driver.log`、`flow.json`、`run/result.json`、`run/epochs/<epoch>/`完整原始truth/wire/rate/clock/CDR/来源快照/原生maps/清理结果。wrapper额外保存`candidate_id`、清单SHA、亲和性与进程身份读回；manager退出0不代表driver或审计通过。原始审计顶层`status=pass`且实际returncode0、单场及三场身份/物理/窗口/无残留全部成立才可作相应证明。
+输出schema：
+- **稳态通过schema**：沿用已读原入口：`case/experiment.json`、`wrapper.py`、`wrapper.json`、`preflight.log`、`service.log`、`driver.log`、`flow.json`、`run/result.json`、`run/epochs/<epoch>/`完整原始truth/wire/rate/clock/CDR/来源快照/原生maps/清理结果。wrapper额外保存`candidate_id`、清单SHA、亲和性与进程身份读回；manager退出0不代表driver或审计通过。原始审计顶层`status=pass`且实际returncode0、单场及三场身份/物理/窗口/无残留全部成立才可作相应证明。
+- **RateUnmet失败schema**：当因迟到超 100ms 触发 `RateUnmet('rate_unmet/resource_insufficient')` 并在无 `flow.json` 退出时，通过 `--mode failure`（或 `--allow-failure`）审计生成结构化失败记录：包含 `status="failed"`、`classification="rate_unmet"`、`epoch`、`run_id`、`requested_rate`、`failure_tick`、`lateness_ns`（严格 $>100\text{ ms}$）、`worst_lateness_ns`、`reason="resource_insufficient"`、`completed_groups`、`fault_authority` 与诚实 `limitations` 声明。失败审计还要求 wrapper、run、epoch、schedule、fault authority 和源码身份一致，顶层保持 `status="failed"`、实际 returncode 1。失败模式拒绝覆盖已有输出；任何试图将 failure 模式或 $\le 100\text{ ms}$ 伪造结果当作 acceptance 的行为均被严格拒绝。
 
 ## 本票验证、原件与边界
 

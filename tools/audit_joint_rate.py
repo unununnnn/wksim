@@ -8,6 +8,7 @@ import sys
 
 REPO=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(REPO))
+sys.path.insert(0,str(Path(__file__).resolve().parent))
 from audit_joint_flight import digest,lines,require
 from audit_joint_product import audit_epoch
 from audit_joint_product_lifecycle import retained_identity
@@ -87,7 +88,76 @@ def measurement(start,end,rate):
                 measured_rate=measured,relative_error=measured/rate-1)
 
 
-def audit(root):
+def audit_failure(root):
+    root=Path(root);wrapper_path=root/'wrapper.json';run_path=root/'run/result.json'
+    require(wrapper_path.exists(),'Missing wrapper.json')
+    require(run_path.exists(),'Missing run/result.json')
+    wrapper=read(wrapper_path);run=read(run_path)
+    require(not wrapper.get('remaining_manager_group'),'Lingering processes after failure')
+    require(type(wrapper.get('manager_returncode')) is int
+            and wrapper['manager_returncode'] != 0,'Failure manager must exit nonzero')
+    if 'driver_returncode' in wrapper:
+        require(type(wrapper['driver_returncode']) is int
+                and wrapper['driver_returncode'] != 0,'Failure driver must exit nonzero')
+    require(wrapper.get('mode')=='steady','Failure case was not the frozen steady mode')
+    require(run.get('status')=='failed','Failure audit requires failed run status')
+    require(isinstance(run.get('run_id'),str) and run['run_id'],'Run identity missing')
+    require(isinstance(run.get('epochs'),list) and len(run['epochs'])==1,
+            'Failure case must contain exactly one epoch record')
+    item=run['epochs'][0];epoch=item.get('epoch')
+    require(isinstance(epoch,str) and len(epoch)==32 and epoch==epoch.lower()
+            and all(c in '0123456789abcdef' for c in epoch),'Invalid epoch in run result')
+    epoch_result=item.get('result',{})
+    require(epoch_result.get('status')=='failed'
+            and epoch_result.get('run_id')==run['run_id']
+            and epoch_result.get('epoch')==epoch,
+            'Epoch result status or identity is invalid')
+    directory=root/'run/epochs'/epoch
+    require(directory.is_dir(),'Epoch directory missing')
+    faults=epoch_result.get('faults')
+    if not faults and (directory/'faults.json').exists():
+        faults=read(directory/'faults.json')
+    require(isinstance(faults,list) and faults,'Missing faults record')
+    rate_fault=next((f for f in faults if f.get('type')=='RateUnmet'
+                     or 'rate_unmet' in str(f.get('fault',''))
+                     or 'RateUnmet' in str(f.get('error',''))),None)
+    require(rate_fault is not None,'Missing RateUnmet in faults record')
+    rate_path=directory/'rate.jsonl'
+    require(rate_path.exists(),'Missing rate.jsonl in epoch directory')
+    segments=schedule(rate_path,epoch,allow_failure=True)
+    failed_segments=[s for s in segments.values() if 'failure' in s]
+    require(len(failed_segments)==1,'Expected exactly one certified rate_unmet segment')
+    failed_segment=failed_segments[0]
+    fail_row=failed_segment['failure']
+    require(fail_row.get('kind')=='rate_unmet','Failure record is not rate_unmet')
+    require(fail_row.get('reason')=='resource_insufficient','Failure reason is not resource_insufficient')
+    require(fail_row.get('lateness_ns',0)>100_000_000,'Failure lateness did not exceed 100ms threshold')
+    require(failed_segment['worst_ns']>100_000_000,'Worst lateness did not exceed 100ms')
+    requested_rate=run.get('config',{}).get('requested_rate')
+    require(requested_rate==failed_segment['anchor']['requested_rate']
+            and wrapper.get('requested_rate')==requested_rate,
+            'Requested rate identity differs across wrapper/run/schedule')
+    authority=rate_fault.get('authority')
+    require(isinstance(authority,dict) and authority.get('epoch')==epoch
+            and authority.get('tick')==fail_row.get('tick')
+            and authority.get('fault')=='rate_unmet/resource_insufficient',
+            'Runtime fault authority does not match the rate_unmet row')
+    source_sha=epoch_result.get('source_sha256')
+    require(isinstance(source_sha,dict) and source_sha
+            and all(isinstance(path,str) and isinstance(value,str) and len(value)==64
+                    and value==value.lower() and all(c in '0123456789abcdef' for c in value)
+                    for path,value in source_sha.items()),'Source identity is absent or malformed')
+    code_snapshot=hashlib.sha256(json.dumps(source_sha,sort_keys=True).encode()).hexdigest()
+    return dict(status='failed',classification='rate_unmet',epoch=epoch,run_id=run.get('run_id'),
+                requested_rate=requested_rate,code_snapshot=code_snapshot,
+                failure_tick=fail_row.get('tick'),lateness_ns=fail_row.get('lateness_ns'),
+                worst_lateness_ns=failed_segment['worst_ns'],reason=fail_row.get('reason'),
+                completed_groups=failed_segment.get('completed_groups',len(failed_segment.get('groups',[]))),
+                fault_authority=authority,
+                limitations=['Certified RateUnmet failure: run exceeded 100ms phase limit without steady window. Non-PASS.'])
+
+
+def audit_steady(root):
     root=Path(root);wrapper=read(root/'wrapper.json');flow=read(root/'flow.json');run=read(root/'run/result.json')
     require(wrapper['driver_returncode']==wrapper['manager_returncode']==0 and not wrapper['remaining_manager_group']
             and flow['status']=='behavior_pass' and flow['mode']=='steady' and flow['result']==run
@@ -167,20 +237,43 @@ def audit(root):
                     'Rate error budgets are wall performance budgets, not G6 dynamics equivalence tolerances.'])
 
 
+def audit(root,*,mode='steady',allow_failure=False):
+    is_failure=(mode=='failure') or allow_failure
+    flow_path=Path(root)/'flow.json'
+    if not flow_path.exists():
+        if not is_failure:
+            raise ValueError('Steady formal flight requires flow.json; use --mode failure or --allow-failure for RateUnmet runs')
+        return audit_failure(root)
+    if is_failure:
+        run_path=Path(root)/'run/result.json'
+        if run_path.exists() and read(run_path).get('status')=='failed':
+            return audit_failure(root)
+        raise ValueError('Failure audit mode cannot be used to accept a passing run')
+    return audit_steady(root)
+
+
 if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('directories',nargs='+',type=Path);parser.add_argument('--output',required=True,type=Path)
-    parser.add_argument('--require-epochs',type=int,choices=(1,3),default=1);args=parser.parse_args()
+    parser.add_argument('--require-epochs',type=int,choices=(1,3),default=1)
+    parser.add_argument('--mode',choices=('steady','failure'),default='steady')
+    parser.add_argument('--allow-failure',action='store_true')
+    args=parser.parse_args()
     require(all(not args.output.resolve().is_relative_to(p.resolve()) for p in args.directories),'Output must be outside evidence')
-    result=dict(status='failed',runs=[],required_epochs=args.require_epochs,audit_sha256=digest(__file__))
+    failure_mode=(args.mode=='failure') or args.allow_failure
+    require(not failure_mode or not args.output.exists(),
+            'Failure audit output already exists; refusing to overwrite retained evidence')
+    result=dict(status='failed',runs=[],required_epochs=args.require_epochs,mode=args.mode,
+                allow_failure=failure_mode,audit_sha256=digest(__file__))
     for path in args.directories:
-        try:result['runs'].append(audit(path))
+        try:result['runs'].append(audit(path,mode=args.mode,allow_failure=failure_mode))
         except (OSError,ValueError,KeyError,TypeError,ImportError,AssertionError) as error:
             result['runs'].append(dict(status='failed',directory=str(path),error=repr(error)))
-    if (all(r['status']=='pass' for r in result['runs'])
-            and len({r['epoch'] for r in result['runs']})>=args.require_epochs
-            and len({r['requested_rate'] for r in result['runs']})==1
-            and len({r['code_snapshot'] for r in result['runs']})==1):result['status']='pass'
+    if (not failure_mode
+            and all(r.get('status')=='pass' for r in result['runs'])
+            and len({r['epoch'] for r in result['runs'] if r.get('epoch')})>=args.require_epochs
+            and len({r['requested_rate'] for r in result['runs'] if r.get('requested_rate')})==1
+            and len({r['code_snapshot'] for r in result['runs'] if r.get('code_snapshot')})==1):result['status']='pass'
     args.output.write_text(json.dumps(result,indent=2,allow_nan=False)+'\n')
-    print(json.dumps(dict(status=result['status'],runs=[{k:r.get(k) for k in ('status','epoch','error')} for r in result['runs']])))
+    print(json.dumps(dict(status=result['status'],runs=[{k:r.get(k) for k in ('status','epoch','classification','lateness_ns','error') if k in r} for r in result['runs']])))
     raise SystemExit(0 if result['status']=='pass' else 1)
