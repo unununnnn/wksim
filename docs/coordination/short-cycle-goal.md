@@ -2,6 +2,8 @@
 
 ## 最新检查点（优先于下方历史记录）
 
+Linux profile宿主接入已提交：支持--exchange-dir/--watch-host-stdin，EOF给自身SIGTERM但仅设置取消事件，在已记录子进程handle/identity后的明确检查点进入finally；static preflight改独立session、可取消等待、核验并清理自有group，清理错误禁止启动manager。新test_scheduler_host_lifetime六项在两WSL全过（真实EOF→preflight group回收），Windows相关60项过3skip。尚未完整集成collector/Windows启动器，不可实跑scheduler。AGY17w正在修launcher默认Ubuntu错误、cwd/root、严格report、spawn/interrupt清理与PIPE积压；OMP21t写collector；Claude18u已进入测试实现，有进展。
+
 `db0afb0`已推送root snapshot工具、Windows服务和`validation/wsl-snapshot-service-smoke-20260912/run-01`真实六canary两阶段证据。五子进程+模拟collector身份均核验，两个phase成功、子进程退出0，约7.9s，非SITL/tracefs。服务硬链接计数拒绝与原子publisher短暂nlink=2合法状态冲突已由主会话修复。snapshot测试绑定正确distro，最新25项Windows/Rfly全过，Ubuntu最新批次1项因interop状态跳过（先前真实通过已见）；不混称每批均实跑。OMP21s读码GO。当前OMP21t只写collector及对应测试，实施pre-bootstrap leader与post-capture完整线程证明；AGY17v只写Windows launcher及测试；主会话负责profile_joint_scheduler.py接入--exchange-dir/--watch-host-stdin（stdin EOF须触发Linux自身SIGTERM进入既有cleanup，不能kill wsl.exe替代）。Claude18u仍写三维膨胀，已有行尾匹配问题但有新进度。collector/driver集成未完成前不得实跑scheduler。
 
 `d1f7bb5`已推送纯快照交换协议：主会话封住默认boot未校验、request对象与哈希bytes不一致、真实snapshot整数PID键无法序列化三缺口；23项三端通过，新增Windows UNC拒绝用例后Windows24项通过。实际NTFS→WSL /mnt/c→Windows原子发布/读回/拒绝覆盖往返通过，仅传输测试，无native身份验收。UNC不支持原子hardlink，明确拒绝且不降级部分写入。AGY17t现独占新serve_wsl_snapshot_requests.py及测试，构建Windows两阶段服务；主会话接手未提交snapshot工具的整生命周期deadline与stderr读上界，22项合成测试过。OMP21r只读查Rfly既有live失败，不得直接skip；Claude18u仍写三维膨胀。snapshot工具/服务尚未接入collector，无新真实诊断。
