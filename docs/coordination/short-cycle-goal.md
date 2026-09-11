@@ -2,6 +2,8 @@
 
 ## 最新检查点（优先于下方历史记录）
 
+`db0afb0`已推送root snapshot工具、Windows服务和`validation/wsl-snapshot-service-smoke-20260912/run-01`真实六canary两阶段证据。五子进程+模拟collector身份均核验，两个phase成功、子进程退出0，约7.9s，非SITL/tracefs。服务硬链接计数拒绝与原子publisher短暂nlink=2合法状态冲突已由主会话修复。snapshot测试绑定正确distro，最新25项Windows/Rfly全过，Ubuntu最新批次1项因interop状态跳过（先前真实通过已见）；不混称每批均实跑。OMP21s读码GO。当前OMP21t只写collector及对应测试，实施pre-bootstrap leader与post-capture完整线程证明；AGY17v只写Windows launcher及测试；主会话负责profile_joint_scheduler.py接入--exchange-dir/--watch-host-stdin（stdin EOF须触发Linux自身SIGTERM进入既有cleanup，不能kill wsl.exe替代）。Claude18u仍写三维膨胀，已有行尾匹配问题但有新进度。collector/driver集成未完成前不得实跑scheduler。
+
 `d1f7bb5`已推送纯快照交换协议：主会话封住默认boot未校验、request对象与哈希bytes不一致、真实snapshot整数PID键无法序列化三缺口；23项三端通过，新增Windows UNC拒绝用例后Windows24项通过。实际NTFS→WSL /mnt/c→Windows原子发布/读回/拒绝覆盖往返通过，仅传输测试，无native身份验收。UNC不支持原子hardlink，明确拒绝且不降级部分写入。AGY17t现独占新serve_wsl_snapshot_requests.py及测试，构建Windows两阶段服务；主会话接手未提交snapshot工具的整生命周期deadline与stderr读上界，22项合成测试过。OMP21r只读查Rfly既有live失败，不得直接skip；Claude18u仍写三维膨胀。snapshot工具/服务尚未接入collector，无新真实诊断。
 
 当前分发：Claude18t已完成肯定初始化修复，已转18u三维膨胀实现，唯一写入grid_map.cpp/test_grid_map_init_native.py/39-planner-run-contract.md；OMP21q仍写wsl_root_task_snapshot.py及测试（严格解析和读上界）；agy17q只读结论里“辅助线程全系统唯一/无积压零溢出”未获接受，已转17r，仅写wsl_snapshot_exchange.py及测试的纯请求响应协议，不改collector/driver。下一接入考虑pre-bootstrap leader身份与post-capture完整线程验证，不能删掉FC所有权核验，也不能引入输入前等待全部FC线程的栅栏。当前无真实构建/模型/tracefs运行。
