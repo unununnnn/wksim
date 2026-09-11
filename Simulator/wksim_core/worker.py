@@ -86,6 +86,25 @@ def step_request(request, current_tick, epoch):
     return commands
 
 
+def initial_request(request, current_tick, epoch, *, initial_observed=False):
+    """Validate an explicit one-shot initial-state request; None denies the shape.
+
+    Any request carrying the 'initial' key is validated strictly here and never
+    falls back to the snapshot or step paths. The request is read-only: both the
+    parent channel tick and the child model ticks must still be zero.
+    """
+    if not isinstance(request, dict) or 'initial' not in request:
+        return None
+    _header(request, epoch)
+    if set(request) != {'version', 'epoch', 'initial'} or request['initial'] is not True:
+        raise ValueError('Expected an explicit initial-state request')
+    if current_tick != 0:
+        raise ValueError('Initial state is only available at tick zero')
+    if initial_observed:
+        raise ValueError('Initial state was already observed')
+    return True
+
+
 def terrain_request(request):
     """Extract validated terrain if present in request, else None."""
     if isinstance(request, dict) and 'terrain' in request:
@@ -95,6 +114,15 @@ def terrain_request(request):
 
 def validate_response(response, epoch, tick):
     _header(response, epoch)
+    if response.get('initial') is True:
+        if (set(response) != {'version', 'epoch', 'tick', 'state', 'initial'}
+                or type(response['tick']) is not int or response['tick'] != 0 or tick != 0):
+            raise ValueError('Invalid initial-state response tick or fields')
+        state = response['state']
+        if (not isinstance(state, list) or len(state) != 120
+                or any(not _number(x) for x in state)):
+            raise ValueError('Invalid initial model state')
+        return response
     if (set(response) != {'version', 'epoch', 'tick', 'state'}
             or type(response['tick']) is not int or response['tick'] < 0
             or response['tick'] != tick):
@@ -121,16 +149,17 @@ def model_worker(library, trace, epoch, *, async_evidence=False):
     else:
         log = Path(trace).open('x', encoding='utf-8', buffering=1)
     try:
-        return _worker_loop(library, log, epoch, async_evidence)
+        return _worker_loop(library, log, epoch, async_evidence, trace)
     finally:
         if async_evidence:
             with Path(str(trace)+'.writer.json').open('x', encoding='utf-8') as output:
                 json.dump(log.summary(), output, indent=2)
 
 
-def _worker_loop(library, log, epoch, async_evidence):
+def _worker_loop(library, log, epoch, async_evidence, trace):
     with log, Model(library) as model:
         state = None
+        initial_seen = False
         while True:
             line = sys.stdin.readline(REQUEST_LIMIT + 1)
             if not line:
@@ -138,14 +167,27 @@ def _worker_loop(library, log, epoch, async_evidence):
             if async_evidence:
                 log.check()
             request = parse_frame(line, REQUEST_LIMIT)
-            commands = step_request(request, model.ticks, epoch)
+            initial = initial_request(request, model.ticks, epoch, initial_observed=initial_seen)
+            commands = None if initial else step_request(request, model.ticks, epoch)
             terrain = terrain_request(request)
-            if commands is not None:
-                if terrain is not None:
-                    state = model.step(commands, terrain=terrain)
-                else:
-                    state = model.step(commands)
-            response = dict(version=1, epoch=epoch, tick=model.ticks, state=state)
+            if initial:
+                # Explicit one-shot read: never steps and never replaces the
+                # snapshot state, which stays None at tick zero.
+                if initial_seen:
+                    raise ValueError('Initial state was already observed')
+                initial_state = getattr(model, 'initial_state', None)
+                if not callable(initial_state):
+                    raise RuntimeError('Model lacks the explicit initial-state ABI')
+                response = dict(version=1, epoch=epoch, tick=model.ticks,
+                                state=initial_state(), initial=True)
+                initial_seen = True
+            else:
+                if commands is not None:
+                    if terrain is not None:
+                        state = model.step(commands, terrain=terrain)
+                    else:
+                        state = model.step(commands)
+                response = dict(version=1, epoch=epoch, tick=model.ticks, state=state)
             if commands is not None:
                 # Preserve the exact accepted input, as well as decoded fields.
                 response_json = encoded(response)
@@ -154,8 +196,18 @@ def _worker_loop(library, log, epoch, async_evidence):
                     extras['terrain'] = terrain
                 extras_json = encoded(extras)
                 log.write(response_json[:-1] + ',' + extras_json[1:] + '\n')
-            validate_response(response, epoch, model.ticks)
-            output = (response_json if commands is not None else encoded(response)) + '\n'
+                validate_response(response, epoch, model.ticks)
+            elif initial:
+                # Sidecar audit row; the main trace keeps its legacy step-only
+                # shape so enumerate-from-tick-1 auditors stay valid unchanged.
+                validate_response(response, epoch, model.ticks)
+                response_json = encoded(response)
+                extras_json = encoded(dict(input=line, request=request))
+                with Path(str(trace) + '.initial.jsonl').open('x', encoding='utf-8') as audit:
+                    audit.write(response_json[:-1] + ',' + extras_json[1:] + '\n')
+            else:
+                validate_response(response, epoch, model.ticks)
+            output = (response_json if commands is not None or initial else encoded(response)) + '\n'
             if len(output.encode('utf-8')) > RESPONSE_LIMIT:
                 raise ValueError('Oversized response')
             sys.stdout.write(output)
@@ -188,7 +240,8 @@ def receive_workers(requests, epoch, timeout=3.0, *, health=None):
         for name, (child, request) in requests.items():
             with _rpc_guard:
                 if not hasattr(child, '_wksim_rpc'):
-                    child._wksim_rpc = dict(lock=threading.Lock(), failed=False, tick=0, epoch=epoch)
+                    child._wksim_rpc = dict(lock=threading.Lock(), failed=False, tick=0, epoch=epoch,
+                                            initial_observed=False)
                 rpc = child._wksim_rpc
             if not rpc['lock'].acquire(blocking=False):
                 raise RuntimeError('Only one outstanding worker RPC is allowed')
@@ -196,7 +249,9 @@ def receive_workers(requests, epoch, timeout=3.0, *, health=None):
             channels.append(channel)
             if rpc['failed'] or rpc['epoch'] != epoch:
                 raise RuntimeError('Worker channel must be retired')
-            commands = step_request(request, rpc['tick'], epoch)
+            initial = initial_request(request, rpc['tick'], epoch,
+                                      initial_observed=rpc.get('initial_observed', False))
+            commands = None if initial else step_request(request, rpc['tick'], epoch)
             frame = encoded(request) + '\n'
             outgoing = frame.encode('utf-8')
             if len(outgoing) > REQUEST_LIMIT:
@@ -241,6 +296,8 @@ def receive_workers(requests, epoch, timeout=3.0, *, health=None):
                     written = os.write(channel['writer'], channel['outgoing'])
                 except BlockingIOError:
                     continue
+                except BrokenPipeError:
+                    raise RuntimeError('Worker request pipe closed')
                 if written == 0:
                     raise RuntimeError('Worker request pipe closed')
                 channel['rpc']['sent_bytes'] += written
@@ -270,6 +327,8 @@ def receive_workers(requests, epoch, timeout=3.0, *, health=None):
                                              epoch, channel['tick'])
                 # Keep the actual confirmation frontier, distinct from clock.commit.
                 channel['rpc'].update(tick=channel['tick'], response_received=True)
+                if response.get('initial') is True:
+                    channel['rpc']['initial_observed'] = True
                 responses[channel['name']] = response
                 pending.remove(channel)
                 if time.monotonic() >= deadline:

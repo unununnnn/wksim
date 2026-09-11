@@ -6,6 +6,7 @@ Evidence is retained in a printed temporary root, including every owned PID.
 Transport-only Python children below are not model or trajectory evidence.
 """
 import json
+import math
 import os
 from pathlib import Path
 import subprocess
@@ -16,8 +17,8 @@ import time
 import unittest
 
 from Simulator.wksim_core.worker import (
-    REQUEST_LIMIT, RESPONSE_LIMIT, encoded, parse_frame, receive_worker,
-    step_request, terrain_request, validate_response,
+    REQUEST_LIMIT, RESPONSE_LIMIT, encoded, initial_request, parse_frame,
+    receive_worker, step_request, terrain_request, validate_response,
 )
 
 EPOCH = 'a' * 32
@@ -80,6 +81,45 @@ class ProtocolTests(unittest.TestCase):
                       dict(response, state=[float('inf')] * 120)):
             with self.subTest(value=value), self.assertRaises(ValueError):
                 validate_response(value, EPOCH, 1)
+
+    def test_initial_request_boundaries(self):
+        initial = dict(version=1, epoch=EPOCH, initial=True)
+        self.assertIs(initial_request(initial, 0, EPOCH), True)
+        for other in (snapshot(), step(), dict(step(), terrain=[0.0] * 15), 'invalid', []):
+            self.assertIsNone(initial_request(other, 0, EPOCH))
+        # Invalid initial shapes reject here and never fall back to snapshot/step.
+        invalid = [dict(initial, initial=False), dict(initial, initial=1),
+                   dict(snapshot(), initial=True), dict(initial, snapshot=True),
+                   dict(initial, tick=0), dict(initial, extra=1), dict(step(), initial=True),
+                   dict(initial, epoch=OTHER), dict(initial, version=2),
+                   {'version': 1, 'initial': True}, {'epoch': EPOCH, 'initial': True}]
+        for request in invalid:
+            with self.subTest(request=request), self.assertRaises(ValueError):
+                initial_request(request, 0, EPOCH)
+        # One shared gate covers both the parent channel tick and child model ticks.
+        with self.assertRaisesRegex(ValueError, 'tick zero'):
+            initial_request(initial, 1, EPOCH)
+        with self.assertRaisesRegex(ValueError, 'already observed'):
+            initial_request(initial, 0, EPOCH, initial_observed=True)
+
+    def test_initial_response_validation(self):
+        response = dict(version=1, epoch=EPOCH, tick=0, state=[0.0] * 120, initial=True)
+        validate_response(response, EPOCH, 0)
+        # The same 120-state at tick zero without the explicit flag stays invalid.
+        legacy = dict(response)
+        del legacy['initial']
+        invalid = [legacy, dict(response, initial=False), dict(response, initial=1),
+                   dict(response, tick=1), dict(response, tick=True),
+                   dict(response, epoch=OTHER), dict(response, extra=1),
+                   dict(response, state=None), dict(response, state=[0.0] * 119),
+                   dict(response, state=[True] * 120),
+                   dict(response, state=[float('inf')] * 120)]
+        for value in invalid:
+            with self.subTest(value=value), self.assertRaises(ValueError):
+                validate_response(value, EPOCH, 0)
+        # An initial-state response never satisfies a pending step expectation.
+        with self.assertRaises(ValueError):
+            validate_response(response, EPOCH, 1)
 
 
 class OwnedChildren(unittest.TestCase):
@@ -197,6 +237,100 @@ class TransportTests(OwnedChildren):
             with self.assertRaises((ValueError, RuntimeError)):
                 receive_worker(child, snapshot(), EPOCH)
 
+    def fake_model(self, with_initial):
+        """Transport-only worker child whose Model stub needs no real library."""
+        trace = self.root / f'fake-trace-{len(self.children)}.jsonl'
+        extra = ('    def initial_state(self): return [0.0] * 120\n' if with_initial else '')
+        code = ('from Simulator.wksim_core import worker\n'
+                'class FakeModel:\n'
+                '    def __init__(self, library): self.ticks = 0\n'
+                '    def __enter__(self): return self\n'
+                '    def __exit__(self, *args): return None\n'
+                '    def step(self, commands, terrain=None):\n'
+                '        self.ticks += 1\n'
+                '        return [0.0] * 120\n'
+                + extra +
+                'worker.Model = FakeModel\n'
+                'worker.model_worker(None, ' + repr(str(trace)) + ', ' + repr(EPOCH) + ')\n')
+        child, _ = self.launch([sys.executable, '-c', code],
+                               'transport-only fake model (initial=%s)' % with_initial)
+        return child, trace
+
+    def test_initial_state_method_availability_fails_closed(self):
+        child, trace = self.fake_model(with_initial=False)
+        with self.assertRaisesRegex(RuntimeError, 'complete response'):
+            receive_worker(child, dict(version=1, epoch=EPOCH, initial=True), EPOCH)
+        # The failure happened after transmission, so the channel is poisoned.
+        self.assertTrue(child._wksim_rpc['failed'])
+        self.assertNotEqual(child.wait(timeout=3), 0)
+        self.assertEqual(child.stdout.read(), '')
+        self.assertEqual(trace.read_text(), '')
+        self.assertFalse(Path(str(trace) + '.initial.jsonl').exists())
+
+    def test_initial_state_gates_frozen_snapshot_and_sidecar(self):
+        child, trace = self.fake_model(with_initial=True)
+        request = dict(version=1, epoch=EPOCH, initial=True)
+        initial = receive_worker(child, request, EPOCH)
+        self.assertEqual((initial['tick'], initial['initial']), (0, True))
+        self.assertEqual(len(initial['state']), 120)
+        self.assertTrue(child._wksim_rpc.get('initial_observed'))
+        # Parent-side gate: repeated initial request at tick zero rejects before
+        # transmission and never poisons the channel.
+        with self.assertRaisesRegex(ValueError, 'already observed'):
+            receive_worker(child, request, EPOCH)
+        self.assertFalse(child._wksim_rpc['failed'])
+        # The legacy snapshot at tick zero still returns the frozen null state.
+        self.assertEqual(receive_worker(child, snapshot(), EPOCH),
+                         dict(version=1, epoch=EPOCH, tick=0, state=None))
+        # Parent-side gate: once the channel advanced, rejection precedes any
+        # transmitted byte and therefore never poisons the channel.
+        receive_worker(child, step(), EPOCH)
+        self.assertEqual(child._wksim_rpc['tick'], 1)
+        with self.assertRaisesRegex(ValueError, 'tick zero'):
+            receive_worker(child, request, EPOCH)
+        self.assertFalse(child._wksim_rpc['failed'])
+        # Child-side gate: the same request injected past the parent after a step
+        # kills the child without any further response.
+        child.stdin.write(encoded(step(2)) + '\n')
+        child.stdin.write(encoded(request) + '\n')
+        child.stdin.flush()
+        self.assertNotEqual(child.wait(timeout=3), 0)
+        # Post-transmission failure against the dead child poisons the channel.
+        with self.assertRaises(RuntimeError):
+            receive_worker(child, snapshot(), EPOCH)
+        self.assertTrue(child._wksim_rpc['failed'])
+        # The main trace keeps its legacy step-only shape (tick k at row k);
+        # the explicit read is audited once in the sidecar with the raw input.
+        rows = [json.loads(line) for line in trace.read_text().splitlines()]
+        self.assertEqual([row['tick'] for row in rows], [1, 2])
+        self.assertNotIn('initial', rows[0])
+        sidecar = [json.loads(line)
+                   for line in Path(str(trace) + '.initial.jsonl').read_text().splitlines()]
+        self.assertEqual(len(sidecar), 1)
+        self.assertEqual(sidecar[0]['tick'], 0)
+        self.assertIs(sidecar[0]['initial'], True)
+        self.assertEqual(sidecar[0]['request'], request)
+        self.assertEqual(json.loads(sidecar[0]['input']), request)
+        self.assertNotIn('commands', sidecar[0])
+        self.assertEqual(len(sidecar[0]['state']), 120)
+
+    def test_invalid_initial_state_response_fails_closed_without_sidecar(self):
+        trace = self.root / f'fake-trace-{len(self.children)}.jsonl'
+        code = ('from Simulator.wksim_core import worker\n'
+                'class BadModel:\n'
+                '    def __init__(self, library): self.ticks = 0\n'
+                '    def __enter__(self): return self\n'
+                '    def __exit__(self, *args): return None\n'
+                '    def initial_state(self): return [0.0] * 119\n'
+                'worker.Model = BadModel\n'
+                'worker.model_worker(None, ' + repr(str(trace)) + ', ' + repr(EPOCH) + ')\n')
+        child, _ = self.launch([sys.executable, '-c', code], 'bad initial state model')
+        with self.assertRaisesRegex(RuntimeError, 'complete response'):
+            receive_worker(child, dict(version=1, epoch=EPOCH, initial=True), EPOCH)
+        self.assertTrue(child._wksim_rpc['failed'])
+        self.assertNotEqual(child.wait(timeout=3), 0)
+        self.assertFalse(Path(str(trace) + '.initial.jsonl').exists())
+
 
 @unittest.skipUnless(os.environ.get('WK_MODEL_LIBRARY'), 'real library not supplied')
 class RealModelTests(OwnedChildren):
@@ -295,6 +429,57 @@ class RealModelTests(OwnedChildren):
         self.assertEqual(rows[1]['tick'], 2)
         self.assertEqual(rows[1]['request'], req2)
         self.assertNotIn('terrain', rows[1])
+
+    def test_explicit_initial_state_and_trace(self):
+        child, trace = self.model()
+        request = dict(version=1, epoch=EPOCH, initial=True)
+        initial = receive_worker(child, request, EPOCH)
+        self.assertEqual(initial['tick'], 0)
+        self.assertIs(initial['initial'], True)
+        self.assertEqual(len(initial['state']), 120)
+        self.assertTrue(all(math.isfinite(value) for value in initial['state']))
+        # The frozen tick-zero snapshot contract is unchanged by the explicit read.
+        self.assertEqual(receive_worker(child, snapshot(), EPOCH),
+                         dict(version=1, epoch=EPOCH, tick=0, state=None))
+        first = receive_worker(child, step(), EPOCH)
+        self.assertEqual(first['tick'], 1)
+        self.assertAlmostEqual(first['state'][2], 0.001)
+        child.stdin.close()
+        self.assertEqual(child.wait(timeout=3), 0)
+        rows = [json.loads(line) for line in trace.read_text().splitlines()]
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]['tick'], 1)
+        self.assertEqual(rows[0]['request'], step())
+        self.assertNotIn('initial', rows[0])
+        sidecar = [json.loads(line)
+                   for line in Path(str(trace) + '.initial.jsonl').read_text().splitlines()]
+        self.assertEqual(len(sidecar), 1)
+        self.assertEqual((sidecar[0]['version'], sidecar[0]['epoch']), (1, EPOCH))
+        self.assertEqual(sidecar[0]['tick'], 0)
+        self.assertIs(sidecar[0]['initial'], True)
+        self.assertEqual(sidecar[0]['state'], initial['state'])
+        self.assertEqual(sidecar[0]['request'], request)
+        self.assertEqual(json.loads(sidecar[0]['input']), request)
+        self.assertNotIn('commands', sidecar[0])
+
+    def test_initial_state_after_step_fails_closed(self):
+        child, trace = self.model()
+        receive_worker(child, step(), EPOCH)
+        self.assertEqual(child._wksim_rpc['tick'], 1)
+        # Parent-side gate rejects before transmission and never poisons.
+        with self.assertRaisesRegex(ValueError, 'tick zero'):
+            receive_worker(child, dict(version=1, epoch=EPOCH, initial=True), EPOCH)
+        self.assertFalse(child._wksim_rpc['failed'])
+        # Child-side gate rejects an injected request after the model stepped.
+        child.stdin.write(encoded(dict(version=1, epoch=EPOCH, initial=True)) + '\n')
+        child.stdin.flush()
+        child.stdin.close()
+        self.assertNotEqual(child.wait(timeout=3), 0)
+        self.assertEqual(child.stdout.read(), '')
+        rows = trace.read_text().splitlines()
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(json.loads(rows[0])['tick'], 1)
+        self.assertFalse(Path(str(trace) + '.initial.jsonl').exists())
 
 
 if __name__ == '__main__':

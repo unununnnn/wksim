@@ -464,6 +464,10 @@ def epoch_run(directory,epoch,generation=1):
             initial_models=lifecycle.snapshot(physics)
             if clock.tick!=0 or any(value['tick']!=0 for value in initial_models['models'].values()):
                 raise RuntimeError('Startup observation advanced the physical clock')
+            initial_states=lifecycle.initial_states(physics)
+            if clock.tick!=0 or any(value['tick']!=0 or value.get('initial') is not True
+                                    for value in initial_states.values()):
+                raise RuntimeError('Explicit initial-state observation advanced the physical clock')
             record_images('ready')
             if aruco_task:
                 scheduler_snapshot={}
@@ -479,7 +483,7 @@ def epoch_run(directory,epoch,generation=1):
                             threads.append(dict(tid=entry.name,error=repr(error)))
                     scheduler_snapshot[name]=dict(pid=pid,threads=threads)
                 result['scheduler_snapshot']=scheduler_snapshot
-            result['initialization']=dict(physical_tick=0,models=initial_models,
+            result['initialization']=dict(physical_tick=0,models=initial_models,initial_states=initial_states,
                                           task_execution_requires_explicit_go=True)
             record_rate('transport_initialized',physical_tick=0,task_execution_requires_explicit_go=True)
             busy_phase=None

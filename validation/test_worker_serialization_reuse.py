@@ -105,5 +105,53 @@ class SerializationReuse(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError,'Only one Model lifetime'):
             worker.model_worker('fake-never-loaded','in-memory-trace',EPOCH)
 
+    def test_initial_state_read_is_one_shot_audited_and_never_steps(self):
+        self.model.initial_state=lambda: [2.5]*120
+        request=dict(version=1,epoch=EPOCH,initial=True)
+        snapshot=dict(version=1,epoch=EPOCH,snapshot=True)
+        self.run_requests([request,snapshot])
+        initial=dict(version=1,epoch=EPOCH,tick=0,state=[2.5]*120,initial=True)
+        frozen=dict(version=1,epoch=EPOCH,tick=0,state=None)
+        self.assertEqual(self.stdout.getvalue(),
+                         ''.join(self.original_encoded(r)+'\n' for r in (initial,frozen)))
+        self.assertEqual(self.model.ticks,0)
+        # The sidecar sink is patched onto the same in-memory trace here; the
+        # row carries the explicit flag plus the exact accepted request bytes.
+        expected=dict(**initial,input=self.original_encoded(request)+'\n',request=request)
+        self.assertEqual(self.trace.getvalue(),self.original_encoded(expected)+'\n')
+
+    def test_second_initial_state_request_fails_closed(self):
+        self.model.initial_state=lambda: [2.5]*120
+        request=dict(version=1,epoch=EPOCH,initial=True)
+        self.stdin.write(self.original_encoded(request)+'\n'+self.original_encoded(request)+'\n')
+        self.stdin.seek(0)
+        with self.assertRaisesRegex(ValueError,'already observed'):
+            worker.model_worker('fake-never-loaded','in-memory-trace',EPOCH)
+        initial=dict(version=1,epoch=EPOCH,tick=0,state=[2.5]*120,initial=True)
+        self.assertEqual(self.stdout.getvalue(),self.original_encoded(initial)+'\n')
+
+    def test_missing_initial_state_method_fails_closed(self):
+        with self.assertRaisesRegex(RuntimeError,'initial-state ABI'):
+            self.run_requests([dict(version=1,epoch=EPOCH,initial=True)])
+        self.assertEqual(self.stdout.getvalue(),'')
+        self.assertTrue(self.model.closed)
+
+    def test_initial_state_after_step_fails_closed_in_loop(self):
+        self.model.initial_state=lambda: [2.5]*120
+        self.stdin.write(''.join(self.original_encoded(r)+'\n'
+                                 for r in (self.step(),dict(version=1,epoch=EPOCH,initial=True))))
+        self.stdin.seek(0)
+        with self.assertRaisesRegex(ValueError,'tick zero'):
+            worker.model_worker('fake-never-loaded','in-memory-trace',EPOCH)
+        self.assertEqual(self.model.ticks,1)
+
+    def test_invalid_initial_state_has_no_sidecar_or_response(self):
+        self.model.initial_state=lambda: [2.5]*119
+        with self.assertRaisesRegex(ValueError,'Invalid initial model state'):
+            self.run_requests([dict(version=1,epoch=EPOCH,initial=True)])
+        self.assertEqual(self.trace.getvalue(),'')
+        self.assertEqual(self.stdout.getvalue(),'')
+        self.assertTrue(self.model.closed)
+
 
 if __name__=='__main__': unittest.main()

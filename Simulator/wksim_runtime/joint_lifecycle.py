@@ -8,7 +8,7 @@ import json
 import math
 import time
 
-from Simulator.wksim_core.worker import receive_worker
+from Simulator.wksim_core.worker import receive_worker, receive_workers
 from prometheus_control.scene import TOPIC, PERIOD_SECONDS, LEASE_SECONDS
 
 
@@ -117,6 +117,14 @@ class JointLifecycle:
             faulted_republications=self.clock_publisher.faulted_republications,
             models={name:receive_worker(worker, dict(version=1, epoch=self.clock.epoch, snapshot=True),
                        self.clock.epoch) for name, worker in physics.workers.items()})
+
+    def initial_states(self, physics):
+        """Explicit one-shot tick-zero model reads; never steps the common clock."""
+        if self.clock.tick != 0:
+            raise RuntimeError('Explicit initial-state observation requires tick zero')
+        requests = {name: (worker, dict(version=1, epoch=self.clock.epoch, initial=True))
+                    for name, worker in physics.workers.items()}
+        return receive_workers(requests, self.clock.epoch)
 
     def communication_fault(self, reason, affected_uav_ids=None):
         self.clock.suspend(reason)
