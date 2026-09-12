@@ -62,7 +62,7 @@ class PVTask(Task):
                 and all(abs(a-b) <= .3 for a, b in zip(self.state.velocity, velocity))
                 and abs((self.state.attitude[2]-yaw+math.pi) % (2*math.pi)-math.pi) <= .15)
 
-    def execute(self):
+    def prepare(self):
         self.wait('public_control_ready', lambda: self.fresh() and self.request_graph_ready(), 55)
         if not grounded(self.state, self.uav_id):
             raise RuntimeError('Candidate task requires disarmed ground state')
@@ -84,6 +84,9 @@ class PVTask(Task):
                               and abs((self.state.attitude[2]+math.pi) % (2*math.pi)-math.pi) <= .15)
         self.wait('waypoint_reached', at_waypoint)
         self.dwell('waypoint_completed', at_waypoint, 2)
+
+    def execute(self):
+        self.prepare()
         for leg in (1, 2):
             self.fly_leg(leg)
         self.offer('land_accepted', agent_cmd=self.Cmd.LAND, control_level=self.Cmd.EXIT_ABSOLUTE_CONTROL)
@@ -93,7 +96,7 @@ class PVTask(Task):
         self.wait('normal_stop_ready', lambda: self.fresh() and grounded(self.state, self.uav_id)
                   and self.received.get('state', 0) > completed)
 
-    def fly_leg(self, leg):
+    def begin_leg(self, leg):
         position = [2., 3., 3.] if leg == 1 else [float(v) for v in self.state.position]
         yaw = 0. if leg == 1 else float(self.state.attitude[2])
         ready = dict(version=1, profile=PROFILE, leg=leg, run_id=self.run_id,
@@ -114,6 +117,10 @@ class PVTask(Task):
         self.wait(f'pv_{leg}_started', lambda: self.task_time() >= start)
         record = dict(ready=ready, offer=go, samples=[], acceleration_executed=False)
         self.pv_legs.append(record)
+        return position, yaw, start, record
+
+    def fly_leg(self, leg):
+        position, yaw, start, record = self.begin_leg(leg)
         previous = None
         while True:
             elapsed = self.task_time()-start

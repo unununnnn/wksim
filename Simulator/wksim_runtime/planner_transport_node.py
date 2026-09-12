@@ -467,6 +467,9 @@ class PlannerTransportNode(Node):
         except OSError as error:
             self._fault(f"accept_failed:{error}")
             return False
+        # Linux accept() does not inherit the listener's nonblocking flag.
+        # An idle peer must not block ROS clock, ACK, or shutdown callbacks.
+        connection.setblocking(False)
         self._connection = connection
         self.receiver = PlannerTransportReceiver(self.pump, connection=connection)
         return True

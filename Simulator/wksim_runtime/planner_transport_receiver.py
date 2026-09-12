@@ -199,6 +199,10 @@ class PlannerTransportReceiver:
         self._require_current_identity(identity)
         try:
             chunk = self._connection.recv(self._recv_bytes)
+        except BlockingIOError:
+            # A live nonblocking socket with no new bytes is idle, not EOF.
+            # Keep decoder state untouched and let the ROS executor continue.
+            return []
         except OSError as error:
             raise ReceiverError("invalid_socket", f"recv failed: {error}") from error
         if not isinstance(chunk, (bytes, bytearray)):

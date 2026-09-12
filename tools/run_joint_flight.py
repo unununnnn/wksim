@@ -248,6 +248,9 @@ def task_main(args):
         if args.task_profile == PV_PROFILE:
             from pv_trajectory_task import PVTask
             task_class, extra = PVTask, dict(trajectory_epoch=args.scene_epoch)
+            if args.planner_release_proof:
+                from planner_release_task import PlannerReleaseTask
+                task_class = PlannerReleaseTask
         elif args.task_profile == MIXED_PROFILE:
             from tools.mixed_control_task import MixedTask
             task_class, extra = MixedTask, dict(trajectory_epoch=args.scene_epoch)
@@ -323,6 +326,8 @@ def task_main(args):
 
 
 def run(args):
+    if getattr(args, 'planner_release_proof', False):
+        from planner_release_task import PlannerReleaseTask  # Validate helper import before launching actors.
     timing_probe = timing_probe_enabled()
     if timing_probe and args.task_profile not in (PV_PROFILE, MIXED_PROFILE):
         raise ValueError(f"{TIMING_PROBE_ENV}=1 is only allowed for candidate/PV task profiles")
@@ -406,6 +411,8 @@ def run(args):
         sources += ['Simulator/wksim_runtime/evidence_stream.py']
     if pv:
         sources += ['docs/2026-09-09-pv-flight-plan.md']
+    if args.planner_release_proof:
+        sources += ['tools/planner_release_task.py', 'tools/planner_release_handoff.py']
     if mixed_firmware:
         sources += ['tools/ap_mixed_candidate.py','tools/prepare_ap_mixed_candidate.py',
                     'docs/2026-09-09-mixed-flight-plan.md',
@@ -580,6 +587,8 @@ def run(args):
                 '--stack',stack,'--uav-id',str(uid),'--run-id',result['run_id'],
                 '--scene-epoch',clock.epoch,'--output',str(directory),'--task-mode',task_mode,
                 '--task-profile',args.task_profile]
+            if args.planner_release_proof:
+                command += ['--planner-release-proof']
             if args.scene_lifecycle:
                 command += ['--scene-lifecycle','--control-package',control['package'],
                             '--scene-module-sha',control['python_sha256']['scene.py']]
@@ -1033,6 +1042,11 @@ def run(args):
                 or result.get('message_candidate') and not result.get('message_unchanged')
                 or result.get('model_promotion_flight_requested') and not result.get('model_unchanged')):
             result['status']='failed'
+        if args.planner_release_proof:
+            if result['status'] == 'pass':
+                result['status'] = 'observed'
+            result['planner_release_proof'] = True
+            result['nominal_pv_acceptance'] = False
         result['flight_completed'] = result['status']=='pass'
         result['wall_seconds']=time.monotonic()-started
         save(live/'result.json',result)
@@ -1046,6 +1060,7 @@ def main(argv=None):
     parser=argparse.ArgumentParser(description=__doc__)
     sub=parser.add_subparsers(dest='role',required=True)
     runner=sub.add_parser('run')
+    runner.add_argument('--planner-release-proof', action='store_true')
     runner.add_argument('--pause-probe', action='store_true',
                         help='Observe four wall seconds at a true airborne pause, then stop without resuming')
     runner.add_argument('--repeat-paused-clock', action='store_true',
@@ -1076,6 +1091,7 @@ def main(argv=None):
     task=sub.add_parser('task')
     task.add_argument('--stack',choices=['arducopter','px4'],required=True)
     task.add_argument('--uav-id',type=int,required=True)
+    task.add_argument('--planner-release-proof', action='store_true')
     task.add_argument('--scene-lifecycle', action='store_true')
     task.add_argument('--control-package')
     task.add_argument('--scene-module-sha')
@@ -1084,6 +1100,8 @@ def main(argv=None):
     task.add_argument('--start-token')
     for name in ('run-id','scene-epoch','output'): task.add_argument('--'+name,required=True)
     args=parser.parse_args(argv)
+    if args.planner_release_proof and args.task_profile != PV_PROFILE:
+        parser.error('Planner release proof requires the explicit PV-capable profile')
     if args.role == 'run':
         pv = args.task_profile == PV_PROFILE
         mixed = args.task_profile == MIXED_PROFILE

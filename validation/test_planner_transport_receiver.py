@@ -495,6 +495,20 @@ class ReceiverGuardTests(unittest.TestCase):
             receiver.poll(identity=current_identity(pump), current_tick=0, fallback_yaw=0.0)
         self.assertEqual(ctx.exception.reason, "connection_closed")
 
+    def test_nonblocking_idle_preserves_decoder_and_accepts_next_frame(self):
+        _, decoder, pump = make_pump()
+        write_end, read_end = self._pair()
+        read_end.setblocking(False)
+        receiver = PlannerTransportReceiver(pump, connection=read_end)
+        self.assertEqual(receiver.poll(identity=current_identity(pump), current_tick=0,
+                                       fallback_yaw=0.0), [])
+        self.assertEqual(decoder.high_water_sequence, 0)
+        encoder = BsplineTcpEncoder(SESSION_ID)
+        write_end.sendall(encoder.encode_frame(sender.build_payload(FakeBspline(clear_cps()))))
+        outcomes = receiver.poll(identity=current_identity(pump), current_tick=0, fallback_yaw=0.0)
+        self.assertEqual(outcomes[0].outcome, OUTCOME_ACTIVATED)
+        self.assertEqual(decoder.high_water_sequence, 1)
+
     def test_recover_requires_poisoned(self):
         _, _, pump = make_pump()
         _, receiver = self.make_socket_receiver(pump)
