@@ -54,7 +54,10 @@ from Simulator.wksim_runtime.planner_scene_binding import (
     EGO_SINGLE_BOX_BINDING,
     PlannerSceneBinding,
 )
-from Simulator.wksim_planning.ego_trajectory_adapter import EgoTrajectoryAdapter
+from Simulator.wksim_planning.ego_trajectory_adapter import (
+    AdapterError,
+    EgoTrajectoryAdapter,
+)
 from Simulator.wksim_planning.ego_trajectory_adapter import MAX_TICK
 from Simulator.wksim_planning.ego_scene_admission import (
     DEFAULT_SAMPLE_PERIOD_S,
@@ -133,7 +136,7 @@ class FrameOutcome:
     outcome: str                        # activated | rejected_* | poison
     transport_consumed: bool            # read_frame() committed the transport sequence
     session_activated: bool             # adapter.replan_and_activate committed the session
-    event_sequence: Optional[int]       # spent only when session_activated
+    event_sequence: Optional[int]       # committed activation or hold/cancel event
     detail: str                         # rejection/poison reason ("" when activated)
     report: Optional[Any] = None        # SceneClearanceReport when admission ran
 
@@ -191,13 +194,20 @@ class PlannerTransportPump:
     def __init__(self, adapter: EgoTrajectoryAdapter, *, decoder: BsplineTcpDecoder,
                  anchor_ns: int, binding: PlannerSceneBinding = EGO_SINGLE_BOX_BINDING,
                  sample_period_s: float = DEFAULT_SAMPLE_PERIOD_S,
-                 initial_event_sequence: int = 1, initial_current_tick: int = 0):
+                 initial_event_sequence: int = 1, initial_current_tick: int = 0,
+                 accept_control: bool = False):
         if not isinstance(adapter, EgoTrajectoryAdapter):
             raise PumpError("invalid_adapter", "adapter must be an EgoTrajectoryAdapter")
         if not isinstance(decoder, BsplineTcpDecoder):
             raise PumpError("invalid_decoder", "decoder must be a BsplineTcpDecoder")
         if isinstance(anchor_ns, bool) or type(anchor_ns) is not int or anchor_ns < 0:
             raise PumpError("invalid_anchor", "anchor_ns must be a non-negative integer")
+        if type(accept_control) is not bool:
+            raise PumpError("invalid_decoder", "accept_control must be a strict bool")
+        if accept_control and not getattr(decoder, "accept_control", False):
+            raise PumpError(
+                "invalid_decoder",
+                "control mode requires a decoder constructed with accept_control=True")
         next_event_sequence = _strict_int(
             initial_event_sequence, "invalid_sequence", "initial_event_sequence", MAX_COMMAND_ID)
         last_event_sequence = adapter.session.last_event_sequence
@@ -224,6 +234,13 @@ class PlannerTransportPump:
         self._last_current_tick = last_current_tick
         self._event_sequence_exhausted = False
         self._state = STATE_ACTIVE
+        self._accept_control = accept_control
+        # Planner output gate (v2 control "gate" frames).  Initial CLOSED:
+        # gate frames only cost transport sequence and never touch the
+        # session, so a closed gate with no trajectory fabricates nothing.
+        # v1 (accept_control=False) pumps never receive gate frames, so this
+        # flag cannot regress v1 behavior.
+        self._output_gate_open = False
 
     # ---- read-only audit properties -------------------------------------
     @property
@@ -250,6 +267,15 @@ class PlannerTransportPump:
     def command_high_water(self) -> int:
         return self._session.last_command_id
 
+    @property
+    def output_gate_open(self) -> bool:
+        """The planner output gate set by v2 control "gate" frames."""
+        return self._output_gate_open
+
+    @property
+    def accept_control(self) -> bool:
+        return self._accept_control
+
     def _check_feed_identity(self, identity: Any) -> Optional[Identity]:
         """Validate caller generation before touching the decoder.
 
@@ -275,6 +301,29 @@ class PlannerTransportPump:
                 "caller planner_generation must equal the current session generation",
             )
         return candidate
+
+    def _validate_control_identity(self, identity: Any) -> Optional[str]:
+        """Full stable-tuple + generation check for control events.
+
+        ``_check_feed_identity`` (feed level) only gates generation before
+        decoder mutation; admission owns the stable-tuple check for Bspline
+        frames.  Control events bypass admission, so they MUST verify the
+        public ``session.identity`` stable tuple AND generation here, BEFORE
+        any pump/session change (a gate toggle included).  Returns an error
+        detail string or None.
+        """
+        candidate, error, _out_of_range = _parse_identity(identity)
+        if error is not None:
+            return str(error)
+        expected = self._session.identity  # public attribute
+        if (candidate.run_id, candidate.mission_id, candidate.uav_id,
+                candidate.control_epoch) != (
+                    expected.run_id, expected.mission_id, expected.uav_id,
+                    expected.control_epoch):
+            return "identity stable tuple differs from the active session"
+        if candidate.planner_generation != self._session.generation:
+            return "caller planner_generation must equal the current session generation"
+        return None
 
     # ---- control events (hold / cancel) ------------------------------------
     def _spend_event_sequence(self) -> None:
@@ -393,7 +442,12 @@ class PlannerTransportPump:
             if candidate is not None and candidate.planner_generation != self._session.generation:
                 break
             try:
-                mapping = self._decoder.read_frame()   # PUBLIC: commits transport seq FIRST
+                if self._accept_control:
+                    # PUBLIC typed read: commits transport seq FIRST; the
+                    # returned order IS the single TCP stream order.
+                    read = self._decoder.read_frame_any()
+                else:
+                    read = self._decoder.read_frame()
             except BsplineEnvelopeError as error:
                 # A poison frame sits at the head of the buffer and blocks the
                 # decoder permanently.  Frames admitted before it stay admitted;
@@ -401,10 +455,67 @@ class PlannerTransportPump:
                 self._state = STATE_POISONED
                 outcomes.append(self._poison_outcome(error))
                 break
-            if mapping is None:
+            if read is None:
                 break
+            if self._accept_control:
+                kind, value = read
+                if kind == "control":
+                    outcomes.append(
+                        self._handle_control(value, identity, current_tick))
+                    continue
+                mapping = value
+            else:
+                mapping = read
             outcomes.append(self._admit_frame(mapping, identity, current_tick, fallback_yaw))
         return outcomes
+
+    def _handle_control(self, control: Any, identity: Any, current_tick: int) -> FrameOutcome:
+        """Apply one validated v2 control frame; the transport sequence is
+        already committed (same two-commit boundary as admission).
+
+        - ``gate``: idempotent planner output gate; costs ONLY the transport
+          sequence -- zero session event, zero allocator spend.  A closed gate
+          with no trajectory fabricates no hold and no cancel.
+        - ``hold``/``cancel``: routed through the pump-owned atomic entries
+          with this feed's ``current_tick``.  A session-level rejection is
+          reported as a ``rejected_*`` outcome: the transport consumption is
+          honest, and NO event sequence is burned (the 22d atomic session
+          stop guarantees a rejected call changes nothing).
+        """
+        transport_sequence = self._decoder.high_water_sequence
+        identity_error = self._validate_control_identity(identity)
+        if identity_error is not None:
+            # Rejected BEFORE any gate/event/session change; the transport
+            # consumption is reported honestly.
+            return FrameOutcome(
+                transport_sequence=transport_sequence, trajectory_id=None,
+                outcome="rejected_identity", transport_consumed=True,
+                session_activated=False, event_sequence=None,
+                detail=identity_error, report=None)
+        kind = control["kind"]
+        if kind == "gate":
+            self._output_gate_open = control["open"]
+            return FrameOutcome(
+                transport_sequence=transport_sequence, trajectory_id=None,
+                outcome="gate_open" if control["open"] else "gate_closed",
+                transport_consumed=True, session_activated=False,
+                event_sequence=None, detail="", report=None)
+        event_sequence = self._next_event_sequence
+        try:
+            if kind == "hold":
+                self.hold(identity, current_tick=current_tick)
+            else:
+                self.cancel(identity, current_tick=current_tick)
+        except (PumpError, AdapterError, ValueError, OverflowError) as error:
+            return FrameOutcome(
+                transport_sequence=transport_sequence, trajectory_id=None,
+                outcome=f"rejected_{kind}", transport_consumed=True,
+                session_activated=False, event_sequence=None,
+                detail=str(error), report=None)
+        return FrameOutcome(
+            transport_sequence=transport_sequence, trajectory_id=None,
+            outcome=kind, transport_consumed=True, session_activated=False,
+            event_sequence=event_sequence, detail="", report=None)
 
     def _poison_outcome(self, error: BsplineEnvelopeError) -> FrameOutcome:
         return FrameOutcome(
@@ -479,13 +590,18 @@ class PlannerTransportPump:
         new_session = TrajectorySession(new_identity)
         new_adapter = EgoTrajectoryAdapter(new_session)
         try:
-            new_decoder = BsplineTcpDecoder(transport_session_id)
+            new_decoder = BsplineTcpDecoder(
+                transport_session_id, accept_control=prior._accept_control)
         except BsplineEnvelopeError as error:
             raise PumpError("invalid_session_id", str(error)) from error
+        # The control mode is preserved EXPLICITLY: a control-mode pump never
+        # silently degrades to v1 on recovery.  The output gate restarts
+        # CLOSED (constructor initial), exactly like a fresh bind.
         recovered = cls(
             new_adapter, decoder=new_decoder, anchor_ns=prior._anchor_ns,
             binding=prior._binding, sample_period_s=prior._sample_period_s,
             initial_event_sequence=prior._next_event_sequence,
-            initial_current_tick=prior._last_current_tick)
+            initial_current_tick=prior._last_current_tick,
+            accept_control=prior._accept_control)
         recovered._event_sequence_exhausted = prior._event_sequence_exhausted
         return recovered

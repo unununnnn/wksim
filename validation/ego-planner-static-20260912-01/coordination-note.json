@@ -1,0 +1,11 @@
+{
+  "scope": "execution-coordination incident, not a performance/root-cause conclusion",
+  "observed_other_process": {
+    "distro": "Ubuntu-22.04",
+    "pid_at_observation": 603,
+    "command": "python3 tools/run_rate_control_comparison.py --manifest /root/wksim-px4-inner-gtntgizh/candidate.json --sha256 4a0767d11f085102bd246f90f3dbe3f2dc4987f58db89e74f6cef40ac8dcb959"
+  },
+  "issue": "The process check and Rfly fixture start were placed in one shell tool call, so the result was not assessed before launch.",
+  "fixture_outcome": "The fixture timed out at its 30s bound before manual interruption; roscore and planner launch exited zero and no local namespace processes remained.",
+  "followup": "Inspect both distro process results in a separate completed tool call before any future native start. Do not terminate the other task or infer its result."
+}

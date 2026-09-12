@@ -22,7 +22,7 @@ heartbeat `wksim` 绑定同一任务，保持 ACTIVE、每三分钟检查一次�
 
 待用户语义澄清：已通过异步问题请求确认是否允许 start_tick100、到达120 时保留start_time并首次求值t=.020、不补历史样本。该问题未获回答；不得把等待视为同意，不修改当前start_in_past/等值闸门。其他独立工作继续。
 
-OMP22g正在返修唯一写入bspline_tcp_envelope.py、planner_transport_pump.py及两套tests，实现显式opt-in控制帧；当前v1默认/字节必须保持。22f主验发现gate缺稳定身份校验、v2未完整进入冻结快照、recover丢opt-in模式，已退回22g修复；暂不触node/sender/session，不暂存未交付修改。
+OMP22g已完成并由主会话通过202项检查：显式opt-in有序控制帧、完整gate身份门、v2冻结快照、recover保留模式均已修复；主会话去掉v1重复JSON解析。sender/node仍未启用，真实停止/释放ACK待接线，不能把CANCELLED无输出当FC已停。
 
 ## 下一步：每次完成一个验收切片
 
@@ -50,3 +50,5 @@ OMP22g正在返修唯一写入bspline_tcp_envelope.py、planner_transport_pump.p
 不得暂存用户/未验证文件：docs/Prometheus.gitmodules.reference、validation/coordination/short-cycle-dispatches.json、docs/coordination/agy-aruco-native-correlation.md、docs/coordination/claude-native-wait-next-probe.md、tools/inspect_aruco_native_targets.py、validation/test_aruco_native_targets.py、docs/coordination/acceptance-frontier.json。不发布厂商源码/二进制，不终止用户进程。
 
 工作区另有他方控制器/PID/独立profile/runtime/preflight/README/CONTEXT等改动；本轮未修改或暂存这些内容，禁止纳入本任务提交。
+
+本轮EGO静态输入夹具 ego-planner-static-20260912-01 在30s内无Bspline，已失败并清理（handle65988终态）。因启动时发现另一任务在Ubuntu运行run_rate_control_comparison预检，可能有资源重叠，此结果不作性能/根因结论。记录coordination-note.json；后续必须先单独完成并评估两发行版进程检查，不能在同一未评估命令中紧接启动。源码/日志保留，尚无真实planner输出/净空证明。

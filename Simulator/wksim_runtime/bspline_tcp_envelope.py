@@ -118,6 +118,14 @@ _PINNED_INT64_MIN = -9223372036854775808
 _PINNED_INT64_MAX = 9223372036854775807
 _PINNED_NANOSEC_LIMIT = 1_000_000_000
 _PINNED_SESSION_PATTERN = r"^[0-9a-f]{32}$"
+_PINNED_CONTROL_SCHEMA_V2 = "wksim.bspline-tcp-envelope.v2"
+_PINNED_CONTROL_ENVELOPE_FIELDS = (
+    "schema",
+    "transport_session_id",
+    "sequence",
+    "control",
+)
+_PINNED_CONTROL_KINDS = ("gate", "hold", "cancel")
 
 # These names are intentionally public for callers and documentation.  The
 # private values above are the construction-time protocol pins: changing a
@@ -131,6 +139,9 @@ MAX_FRAME_BYTES = _PINNED_MAX_FRAME_BYTES       # 1 MiB wire frame maximum
 MAX_PAYLOAD_BYTES = _PINNED_MAX_PAYLOAD_BYTES
 MAX_POINTS = _PINNED_MAX_POINTS                 # Consistent with ego_evaluator.MAX_POINTS
 MAX_KNOTS = _PINNED_MAX_KNOTS                   # Upper bound for uniform/non-uniform knot vector
+CONTROL_SCHEMA_V2 = _PINNED_CONTROL_SCHEMA_V2
+CONTROL_ENVELOPE_FIELDS = _PINNED_CONTROL_ENVELOPE_FIELDS
+CONTROL_KINDS = _PINNED_CONTROL_KINDS
 MAX_YAW_PTS = _PINNED_MAX_YAW_PTS               # Bounded yaw sequence
 MAX_BUFFER_BYTES = _PINNED_MAX_BUFFER_BYTES     # 2 MiB stream buffer cap
 
@@ -168,6 +179,9 @@ ENVELOPE_REASONS = (
     "spliced_frame",
     "oversized_frame",
     "invalid_json",
+    "invalid_control_kind",
+    "invalid_control_payload",
+    "control_frame_unexpected",
     "duplicate_key",
     "invalid_envelope_schema",
     "invalid_session_id",
@@ -193,6 +207,8 @@ _PINNED_ENVELOPE_REASONS = ENVELOPE_REASONS
 _BSPLINE_PAYLOAD_FIELDS_AT_IMPORT = BSPLINE_PAYLOAD_FIELDS
 _ENVELOPE_FIELDS_AT_IMPORT = ENVELOPE_FIELDS
 _ENVELOPE_REASONS_AT_IMPORT = ENVELOPE_REASONS
+_CONTROL_ENVELOPE_FIELDS_AT_IMPORT = CONTROL_ENVELOPE_FIELDS
+_CONTROL_KINDS_AT_IMPORT = CONTROL_KINDS
 
 _HEX_SESSION_RE = re.compile(_PINNED_SESSION_PATTERN)
 
@@ -237,6 +253,9 @@ class _ProtocolSnapshot(NamedTuple):
     payload_fields: Tuple[str, ...]
     envelope_fields: Tuple[str, ...]
     envelope_reasons: Tuple[str, ...]
+    control_schema: str
+    control_envelope_fields: Tuple[str, ...]
+    control_kinds: Tuple[str, ...]
 
 
 def _capture_protocol_snapshot(
@@ -266,6 +285,9 @@ def _capture_protocol_snapshot(
     _payload_fields: Tuple[str, ...] = _BSPLINE_PAYLOAD_FIELDS_AT_IMPORT,
     _envelope_fields: Tuple[str, ...] = _ENVELOPE_FIELDS_AT_IMPORT,
     _envelope_reasons: Tuple[str, ...] = _ENVELOPE_REASONS_AT_IMPORT,
+    _control_schema: str = _PINNED_CONTROL_SCHEMA_V2,
+    _control_envelope_fields: Tuple[str, ...] = _CONTROL_ENVELOPE_FIELDS_AT_IMPORT,
+    _control_kinds: Tuple[str, ...] = _CONTROL_KINDS_AT_IMPORT,
 ) -> _ProtocolSnapshot:
     """Validate module pins and capture the complete instance protocol contract."""
     if SCHEMA_V1 != _schema or _PINNED_SCHEMA_V1 != _schema:
@@ -326,6 +348,13 @@ def _capture_protocol_snapshot(
         raise BsplineEnvelopeError("invalid_payload", "module payload field pin was modified")
     if ENVELOPE_FIELDS != _envelope_fields or _PINNED_ENVELOPE_FIELDS != _envelope_fields:
         raise BsplineEnvelopeError("invalid_envelope_schema", "module envelope field pin was modified")
+    if CONTROL_SCHEMA_V2 != _control_schema or _PINNED_CONTROL_SCHEMA_V2 != _control_schema:
+        raise BsplineEnvelopeError("invalid_envelope_schema", "module control schema pin was modified")
+    if (CONTROL_ENVELOPE_FIELDS != _control_envelope_fields
+            or _PINNED_CONTROL_ENVELOPE_FIELDS != _control_envelope_fields):
+        raise BsplineEnvelopeError("invalid_envelope_schema", "module control envelope field pin was modified")
+    if CONTROL_KINDS != _control_kinds or _PINNED_CONTROL_KINDS != _control_kinds:
+        raise BsplineEnvelopeError("invalid_control_kind", "module control kind pin was modified")
 
     # Verify the repository files against private pins, never against mutable
     # public globals.  This also prevents edited message files and edited
@@ -352,6 +381,9 @@ def _capture_protocol_snapshot(
         payload_fields=_payload_fields,
         envelope_fields=_envelope_fields,
         envelope_reasons=_envelope_reasons,
+        control_schema=_control_schema,
+        control_envelope_fields=_control_envelope_fields,
+        control_kinds=_control_kinds,
     )
 
 
@@ -847,6 +879,98 @@ def parse_and_validate_envelope(
     }
 
 
+def validate_control(control: Any, *,
+                     kinds: Tuple[str, ...] = _CONTROL_KINDS_AT_IMPORT) -> Dict[str, Any]:
+    """Validate one v2 control payload; return a normalized copy.
+
+    Exact-key, strict-type contracts per kind:
+    - ``{"kind": "gate", "open": <strict bool>}`` -- the planner output gate
+      (upstream ``ego_command_stop_pub`` Bool; it is ONLY a gate, never a
+      cancel);
+    - ``{"kind": "hold"}`` -- session hold (no-route); the anchor is
+      receiver-local state and is NEVER carried on the wire;
+    - ``{"kind": "cancel"}`` -- planner-initiated terminal session cancel.
+    """
+    if type(control) is not dict:
+        raise BsplineEnvelopeError(
+            "invalid_control_payload", f"control must be a dict, got {type(control).__name__}")
+    kind = control.get("kind")
+    if kind not in kinds:
+        raise BsplineEnvelopeError(
+            "invalid_control_kind", f"unknown control kind: {kind!r}")
+    if kind == "gate":
+        if set(control.keys()) != {"kind", "open"}:
+            raise BsplineEnvelopeError(
+                "invalid_control_payload",
+                f"gate control must have exactly keys (kind, open), got {sorted(control.keys())}")
+        if type(control["open"]) is not bool:
+            raise BsplineEnvelopeError(
+                "invalid_control_payload", "gate open must be a strict bool")
+        return {"kind": "gate", "open": control["open"]}
+    if set(control.keys()) != {"kind"}:
+        raise BsplineEnvelopeError(
+            "invalid_control_payload",
+            f"{kind} control must have exactly key (kind), got {sorted(control.keys())}")
+    return {"kind": kind}
+
+
+def parse_and_validate_control_envelope(
+    raw_data: bytes | str | Dict[str, Any],
+    *,
+    expected_session_id: Optional[str] = None,
+    expected_sequence: Optional[int] = None,
+    expected_session_pattern: Optional[str] = None,
+    expected_schema: Optional[str] = None,
+    control_fields: Tuple[str, ...] = _CONTROL_ENVELOPE_FIELDS_AT_IMPORT,
+    kinds: Tuple[str, ...] = _CONTROL_KINDS_AT_IMPORT,
+) -> Dict[str, Any]:
+    """Parse and validate one v2 control envelope (schema-discriminated type).
+
+    The v1 Bspline envelope contract is untouched; this is the explicit v2
+    type sharing the SAME transport session and sequence counter.
+    """
+    if expected_session_pattern is None:
+        expected_session_pattern = _HEX_SESSION_RE.pattern
+    if expected_schema is None:
+        expected_schema = CONTROL_SCHEMA_V2
+    if isinstance(raw_data, (bytes, bytearray, str)):
+        envelope = parse_json_bytes(raw_data)
+    elif type(raw_data) is dict:
+        envelope = raw_data
+    else:
+        raise BsplineEnvelopeError(
+            "invalid_envelope_schema",
+            f"expected bytes, str or dict, got {type(raw_data).__name__}")
+    if set(envelope.keys()) != set(control_fields):
+        raise BsplineEnvelopeError(
+            "invalid_envelope_schema",
+            f"control envelope fields must be exactly {list(control_fields)}")
+    if envelope["schema"] != expected_schema:
+        raise BsplineEnvelopeError(
+            "invalid_envelope_schema",
+            f"schema mismatch: expected {expected_schema!r}, got {envelope['schema']!r}")
+    session_id = validate_session_id(
+        envelope["transport_session_id"], pattern=expected_session_pattern)
+    if expected_session_id is not None and session_id != expected_session_id:
+        raise BsplineEnvelopeError(
+            "session_mismatch",
+            f"session mismatch: expected {expected_session_id}, got {session_id}")
+    seq = envelope["sequence"]
+    if isinstance(seq, bool) or type(seq) is not int or seq < 0:
+        raise BsplineEnvelopeError(
+            "sequence_mismatch", f"sequence must be non-negative int, got {seq!r}")
+    if expected_sequence is not None and seq != expected_sequence:
+        raise BsplineEnvelopeError(
+            "sequence_mismatch",
+            f"sequence mismatch: expected {expected_sequence}, got {seq}")
+    return {
+        "schema": expected_schema,
+        "transport_session_id": session_id,
+        "sequence": seq,
+        "control": validate_control(envelope["control"], kinds=kinds),
+    }
+
+
 def _to_bridge_mapping(
     envelope_or_payload: Dict[str, Any],
     *,
@@ -1029,6 +1153,34 @@ class BsplineTcpEncoder:
         self.next_sequence += 1
         return frame
 
+    def build_control_envelope(self, control: Dict[str, Any]) -> Dict[str, Any]:
+        """Validate one v2 control and construct its envelope WITHOUT advancing the sequence."""
+        return {
+            "schema": self._protocol.control_schema,
+            "transport_session_id": self.session_id,
+            "sequence": self.next_sequence,
+            "control": validate_control(control, kinds=self._protocol.control_kinds),
+        }
+
+    def encode_control_frame(self, control: Dict[str, Any]) -> bytes:
+        """Validate, serialize, and frame one v2 control on the SAME sequence counter.
+
+        Bspline and control frames share this instance's ``next_sequence``, so
+        both types travel in one ordered TCP sequence stream -- no cross-channel
+        reorder is possible.  The sequence advances ONLY after serialization
+        and framing succeed completely.
+        """
+        envelope = self.build_control_envelope(control)
+        json_bytes = serialize_envelope_json(envelope)
+        frame = pack_frame(
+            json_bytes,
+            max_frame_bytes=self._protocol.max_frame_bytes,
+            max_payload_bytes=self._protocol.max_payload_bytes,
+        )
+        self.high_water_sequence = self.next_sequence
+        self.next_sequence += 1
+        return frame
+
 
 class BsplineTcpDecoder:
     """Stateful decoder for Bspline TCP envelope frames.
@@ -1039,12 +1191,19 @@ class BsplineTcpDecoder:
     discarding the decoder/connection and starting a new transport_session_id.
     """
 
-    def __init__(self, session_id: str, initial_sequence: int = 1):
+    def __init__(self, session_id: str, initial_sequence: int = 1, *,
+                 accept_control: bool = False):
         # Same frozen-identity snapshot discipline as the encoder.
         self._protocol = _capture_protocol_snapshot()
         self.session_id = validate_session_id(session_id, pattern=self._protocol.session_pattern)
         if isinstance(initial_sequence, bool) or type(initial_sequence) is not int or initial_sequence < 0:
             raise BsplineEnvelopeError("sequence_mismatch", "initial_sequence must be non-negative integer")
+        if type(accept_control) is not bool:
+            raise BsplineEnvelopeError("invalid_envelope_schema", "accept_control must be a strict bool")
+        # Explicit opt-in: a default decoder is a pure v1 reader; a v2 control
+        # frame on it is an unknown schema and poisons exactly like any other
+        # contract violation.
+        self.accept_control = accept_control
         self.expected_sequence = initial_sequence
         self.high_water_sequence = initial_sequence - 1
         self.last_envelope: Optional[Dict[str, Any]] = None
@@ -1131,11 +1290,8 @@ class BsplineTcpDecoder:
         self._buffer.extend(chunk)
 
 
-    def read_frame(self) -> Optional[Dict[str, Any]]:
-        """Attempt to deframe and decode the next frame from streaming buffer.
-
-        Returns None if buffer does not have a complete frame yet.
-        """
+    def _peek_frame(self):
+        """Deframe the head frame WITHOUT decoding; None if incomplete."""
         if len(self._buffer) < 4:
             return None
         payload_len = unpack_frame_header(
@@ -1146,7 +1302,74 @@ class BsplineTcpDecoder:
         total_len = 4 + payload_len
         if len(self._buffer) < total_len:
             return None
-        payload_bytes = bytes(self._buffer[4:total_len])
+        return total_len, bytes(self._buffer[4:total_len])
+
+    def _frame_is_control(self, payload_bytes: bytes) -> bool:
+        """Best-effort schema peek; malformed JSON is left to the decode path."""
+        try:
+            envelope = parse_json_bytes(payload_bytes)
+        except BsplineEnvelopeError:
+            return False
+        return (isinstance(envelope, dict)
+                and envelope.get("schema") == self._protocol.control_schema)
+
+    def read_frame_any(self):
+        """Typed read for control-opt-in consumers: ("bspline", mapping) |
+        ("control", control), or None if no complete frame is buffered.
+
+        Both types share this decoder's sequence expectation, so the returned
+        order IS the single TCP stream order.
+        """
+        peek = self._peek_frame()
+        if peek is None:
+            return None
+        total_len, payload_bytes = peek
+        if self.accept_control and self._frame_is_control(payload_bytes):
+            _enforce_json_payload_size(payload_bytes, self._protocol.max_payload_bytes)
+            envelope = parse_and_validate_control_envelope(
+                payload_bytes,
+                expected_session_id=self.session_id,
+                expected_sequence=self.expected_sequence,
+                expected_session_pattern=self._protocol.session_pattern,
+                expected_schema=self._protocol.control_schema,
+                control_fields=self._protocol.control_envelope_fields,
+                kinds=self._protocol.control_kinds,
+            )
+            # Advance high-water mark ONLY after all validation succeeds
+            self.high_water_sequence = self.expected_sequence
+            self.expected_sequence += 1
+            self.last_envelope = envelope
+            del self._buffer[:total_len]
+            return "control", envelope["control"]
+        mapping = self.decode_envelope_payload(payload_bytes)
+        del self._buffer[:total_len]
+        return "bspline", mapping
+
+    def read_frame(self) -> Optional[Dict[str, Any]]:
+        """Attempt to deframe and decode the next Bspline frame from the buffer.
+
+        Returns None if buffer does not have a complete frame yet.
+        Legacy v1 contract, stated precisely: this raw decoder has NO poison
+        latch of its own.  On a v2 control frame it raises
+        ``invalid_envelope_schema`` (decoder without ``accept_control``) or
+        ``control_frame_unexpected`` (opted-in decoder) WITHOUT consuming the
+        frame: the frame stays buffered, a later ``read_frame_any`` on an
+        opted-in decoder can still consume it, and repeated ``read_frame``
+        calls keep raising at the same head-of-line frame.  The POISONED state
+        is latched by the PUMP (which treats any BsplineEnvelopeError from a
+        read as transport poison); calling ``read_frame`` on a mixed stream is
+        API misuse with defined recovery (switch to ``read_frame_any``), not
+        decoder corruption.  Mixed-stream consumers must use
+        ``read_frame_any()`` on an accept_control decoder.
+        """
+        peek = self._peek_frame()
+        if peek is None:
+            return None
+        total_len, payload_bytes = peek
+        if self.accept_control and self._frame_is_control(payload_bytes):
+            raise BsplineEnvelopeError(
+                "control_frame_unexpected",
+                "v2 control frame requires read_frame_any(); read_frame() is bspline-only")
         mapping = self.decode_envelope_payload(payload_bytes)
         # Succeeded: discard the processed frame from buffer
         del self._buffer[:total_len]

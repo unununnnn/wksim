@@ -76,6 +76,17 @@ def make_valid_payload(
 
 
 class BsplineTcpEnvelopeTests(unittest.TestCase):
+    def test_default_v1_reads_parse_json_once(self):
+        import Simulator.wksim_runtime.bspline_tcp_envelope as module
+        frame = BsplineTcpEncoder(VALID_SESSION_ID).encode_frame(make_valid_payload())
+        for method in ("read_frame", "read_frame_any"):
+            decoder = BsplineTcpDecoder(VALID_SESSION_ID)
+            decoder.feed(frame)
+            with self.subTest(method=method), patch.object(module, "parse_json_bytes", wraps=parse_json_bytes) as parse:
+                self.assertIsNotNone(getattr(decoder, method)())
+                self.assertEqual(parse.call_count, 1)
+                self.assertEqual(decoder.expected_sequence, 2)
+
     def assert_envelope_error(self, reason: str, callable_obj, *args, **kwargs):
         with self.assertRaises(BsplineEnvelopeError) as ctx:
             callable_obj(*args, **kwargs)
@@ -958,6 +969,184 @@ def encoder_envelope_with(payload_json: bytes) -> bytes:
                 b'"ros2_msg_sha256":"' + ROS2_BSPLINE_MSG_SHA256.encode() + b'",'
                 b'"payload":' + payload_json + b'}')
     return envelope
+
+
+
+class BsplineTcpControlV2Tests(unittest.TestCase):
+    """v2 control carrier: schema-discriminated, opt-in, shared sequence stream."""
+
+    def assert_envelope_error(self, reason: str, callable_obj, *args, **kwargs):
+        with self.assertRaises(BsplineEnvelopeError) as ctx:
+            callable_obj(*args, **kwargs)
+        self.assertEqual(ctx.exception.reason, reason)
+        return ctx.exception
+
+    def test_control_validation_contract(self):
+        from Simulator.wksim_runtime.bspline_tcp_envelope import validate_control
+        self.assertEqual(validate_control({"kind": "gate", "open": True}),
+                         {"kind": "gate", "open": True})
+        self.assertEqual(validate_control({"kind": "hold"}), {"kind": "hold"})
+        self.assertEqual(validate_control({"kind": "cancel"}), {"kind": "cancel"})
+        self.assert_envelope_error("invalid_control_kind", validate_control,
+                                   {"kind": "land"})
+        self.assert_envelope_error("invalid_control_payload", validate_control,
+                                   {"kind": "gate", "open": 1})
+        self.assert_envelope_error("invalid_control_payload", validate_control,
+                                   {"kind": "gate"})
+        self.assert_envelope_error("invalid_control_payload", validate_control,
+                                   {"kind": "hold", "anchor": [0, 0, 0]})
+        self.assert_envelope_error("invalid_control_payload", validate_control,
+                                   "gate")
+
+    def test_shared_sequence_counter_across_types(self):
+        encoder = BsplineTcpEncoder(VALID_SESSION_ID)
+        decoder = BsplineTcpDecoder(VALID_SESSION_ID, accept_control=True)
+        f1 = encoder.encode_frame(make_valid_payload(traj_id=1))
+        f2 = encoder.encode_control_frame({"kind": "gate", "open": True})
+        f3 = encoder.encode_frame(make_valid_payload(traj_id=2, nanosec=6_000_000))
+        f4 = encoder.encode_control_frame({"kind": "hold"})
+        self.assertEqual(
+            [json.loads(f[4:])["sequence"] for f in (f1, f2, f3, f4)],
+            [1, 2, 3, 4])
+        decoder.feed(f1 + f2 + f3 + f4)
+        kind1, _ = decoder.read_frame_any()
+        kind2, control2 = decoder.read_frame_any()
+        kind3, _ = decoder.read_frame_any()
+        kind4, control4 = decoder.read_frame_any()
+        self.assertEqual((kind1, kind2, kind3, kind4),
+                         ("bspline", "control", "bspline", "control"))
+        self.assertEqual(control2, {"kind": "gate", "open": True})
+        self.assertEqual(control4, {"kind": "hold"})
+        self.assertEqual(decoder.high_water_sequence, 4)
+        self.assertIsNone(decoder.read_frame_any())
+
+    def test_default_decoder_rejects_control_as_unknown_schema(self):
+        # v1 default: opt-in absent, a v2 control frame poisons like any
+        # contract violation -- default behavior/bytes are unchanged.
+        encoder = BsplineTcpEncoder(VALID_SESSION_ID)
+        decoder = BsplineTcpDecoder(VALID_SESSION_ID)
+        decoder.feed(encoder.encode_control_frame({"kind": "gate", "open": True}))
+        self.assert_envelope_error("invalid_envelope_schema", decoder.read_frame_any)
+        decoder2 = BsplineTcpDecoder(VALID_SESSION_ID)
+        decoder2.feed(encoder.encode_control_frame({"kind": "cancel"}))
+        self.assert_envelope_error("invalid_envelope_schema", decoder2.read_frame)
+
+    def test_legacy_read_frame_refuses_control_even_opted_in(self):
+        encoder = BsplineTcpEncoder(VALID_SESSION_ID)
+        decoder = BsplineTcpDecoder(VALID_SESSION_ID, accept_control=True)
+        decoder.feed(encoder.encode_control_frame({"kind": "gate", "open": False}))
+        self.assert_envelope_error("control_frame_unexpected", decoder.read_frame)
+
+    def test_malformed_control_frame_poisons_stream(self):
+        encoder = BsplineTcpEncoder(VALID_SESSION_ID)
+        decoder = BsplineTcpDecoder(VALID_SESSION_ID, accept_control=True)
+        bad = encoder.build_control_envelope({"kind": "gate", "open": True})
+        bad["control"] = {"kind": "detonate"}
+        decoder.feed(pack_frame(serialize_envelope_json(bad)))
+        self.assert_envelope_error("invalid_control_kind", decoder.read_frame_any)
+        # Sequence did not advance on the poison frame.
+        self.assertEqual(decoder.expected_sequence, 1)
+
+    def test_control_envelope_field_and_sequence_gates(self):
+        from Simulator.wksim_runtime.bspline_tcp_envelope import (
+            parse_and_validate_control_envelope,
+        )
+        good = {"schema": "wksim.bspline-tcp-envelope.v2",
+                "transport_session_id": VALID_SESSION_ID, "sequence": 7,
+                "control": {"kind": "cancel"}}
+        parsed = parse_and_validate_control_envelope(
+            good, expected_session_id=VALID_SESSION_ID, expected_sequence=7)
+        self.assertEqual(parsed["control"], {"kind": "cancel"})
+        self.assert_envelope_error(
+            "invalid_envelope_schema", parse_and_validate_control_envelope,
+            dict(good, extra=1))
+        self.assert_envelope_error(
+            "invalid_envelope_schema", parse_and_validate_control_envelope,
+            dict(good, schema="wksim.bspline-tcp-envelope.v1"))
+        self.assert_envelope_error(
+            "session_mismatch", parse_and_validate_control_envelope,
+            dict(good, transport_session_id=OTHER_SESSION_ID),
+            expected_session_id=VALID_SESSION_ID, expected_sequence=7)
+        self.assert_envelope_error(
+            "sequence_mismatch", parse_and_validate_control_envelope, good,
+            expected_session_id=VALID_SESSION_ID, expected_sequence=8)
+
+    def test_v1_bspline_roundtrip_byte_unchanged(self):
+        # The v1 encode path is byte-identical with the v2 additions present.
+        payload = make_valid_payload(traj_id=3)
+        frame = BsplineTcpEncoder(VALID_SESSION_ID).encode_frame(payload)
+        decoder = BsplineTcpDecoder(VALID_SESSION_ID)
+        decoder.feed(frame)
+        mapping = decoder.read_frame()
+        self.assertEqual(mapping["traj_id"], 3)
+        envelope = json.loads(frame[4:])
+        self.assertEqual(envelope["schema"], "wksim.bspline-tcp-envelope.v1")
+        self.assertEqual(set(envelope.keys()),
+                         {"schema", "transport_session_id", "sequence",
+                          "source_package", "source_msg_type",
+                          "ros1_msg_sha256", "ros2_msg_sha256", "payload"})
+
+    def test_control_snapshot_immune_to_monkeypatch(self):
+        """Instances built before a monkeypatch keep the captured v2 values."""
+        import Simulator.wksim_runtime.bspline_tcp_envelope as module
+
+        encoder = BsplineTcpEncoder(VALID_SESSION_ID)
+        decoder = BsplineTcpDecoder(VALID_SESSION_ID, accept_control=True)
+        originals = {name: getattr(module, name) for name in
+                     ("CONTROL_SCHEMA_V2", "CONTROL_KINDS", "CONTROL_ENVELOPE_FIELDS")}
+        try:
+            module.CONTROL_SCHEMA_V2 = "wksim.bspline-tcp-envelope.v999"
+            module.CONTROL_KINDS = ("detonate",)
+            module.CONTROL_ENVELOPE_FIELDS = ("schema",)
+            frame = encoder.encode_control_frame({"kind": "gate", "open": True})
+            self.assertEqual(json.loads(frame[4:])["schema"],
+                             "wksim.bspline-tcp-envelope.v2")
+            decoder.feed(frame)
+            kind, control = decoder.read_frame_any()
+            self.assertEqual((kind, control), ("control", {"kind": "gate", "open": True}))
+        finally:
+            for name, value in originals.items():
+                setattr(module, name, value)
+
+    def test_control_pin_drift_rejected_at_construction(self):
+        """Changing public AND private control names cannot build an instance."""
+        import Simulator.wksim_runtime.bspline_tcp_envelope as module
+
+        cases = (
+            ({"CONTROL_SCHEMA_V2": "x", "_PINNED_CONTROL_SCHEMA_V2": "x"},
+             "invalid_envelope_schema"),
+            ({"CONTROL_ENVELOPE_FIELDS": ("schema",),
+              "_PINNED_CONTROL_ENVELOPE_FIELDS": ("schema",)},
+             "invalid_envelope_schema"),
+            ({"CONTROL_KINDS": ("detonate",),
+              "_PINNED_CONTROL_KINDS": ("detonate",)},
+             "invalid_control_kind"),
+        )
+        for names_and_values, reason in cases:
+            originals = {name: getattr(module, name) for name in names_and_values}
+            try:
+                for name, value in names_and_values.items():
+                    setattr(module, name, value)
+                self.assert_envelope_error(
+                    reason, BsplineTcpEncoder, VALID_SESSION_ID)
+                self.assert_envelope_error(
+                    reason, BsplineTcpDecoder, VALID_SESSION_ID)
+            finally:
+                for name, value in originals.items():
+                    setattr(module, name, value)
+
+    def test_read_frame_misuse_does_not_corrupt_raw_decoder(self):
+        """API misuse (read_frame on a mixed stream) raises without consuming;
+        the same opted-in decoder then consumes via read_frame_any.  The
+        POISONED latch is the pump's, not the raw decoder's."""
+        encoder = BsplineTcpEncoder(VALID_SESSION_ID)
+        decoder = BsplineTcpDecoder(VALID_SESSION_ID, accept_control=True)
+        decoder.feed(encoder.encode_control_frame({"kind": "gate", "open": True}))
+        self.assert_envelope_error("control_frame_unexpected", decoder.read_frame)
+        # Not consumed, not corrupted: the typed read still works.
+        kind, control = decoder.read_frame_any()
+        self.assertEqual((kind, control), ("control", {"kind": "gate", "open": True}))
+        self.assertEqual(decoder.high_water_sequence, 1)
 
 
 if __name__ == "__main__":

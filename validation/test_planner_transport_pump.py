@@ -647,6 +647,18 @@ def control_snapshot(pump, session):
     return (allocator, deepcopy(vars(session)), adapter, deepcopy(vars(pump._decoder)))
 
 
+def session_event_snapshot(pump, session):
+    """Full control_snapshot minus the fields a gate frame legitimately moves:
+    decoder transport high-water/expectation/last envelope and the gate flag."""
+    allocator, session_vars, adapter, decoder_vars = control_snapshot(pump, session)
+    allocator = dict(allocator)
+    allocator.pop("_output_gate_open", None)
+    decoder_vars = dict(decoder_vars)
+    for name in ("expected_sequence", "high_water_sequence", "last_envelope", "_buffer"):
+        decoder_vars.pop(name, None)
+    return allocator, session_vars, adapter, decoder_vars
+
+
 class PumpControlEventTests(unittest.TestCase):
     """Pump-owned hold/cancel route through the pump event allocator."""
 
@@ -856,6 +868,242 @@ class PumpControlEventTests(unittest.TestCase):
         self.assert_pump_error("sequence_exhausted", pump.cancel,
                                current_identity(pump), current_tick=0)
         self.assertEqual(control_snapshot(pump, session), before)
+
+
+def make_control_pump(**kwargs):
+    session = TrajectorySession(dict(IDENTITY))
+    adapter = EgoTrajectoryAdapter(session)
+    decoder = BsplineTcpDecoder(SESSION_ID, accept_control=True)
+    pump = PlannerTransportPump(adapter, decoder=decoder, anchor_ns=0,
+                                accept_control=True, **kwargs)
+    return session, adapter, decoder, pump
+
+
+class PumpControlCarrierTests(unittest.TestCase):
+    """v2 control carrier through the opt-in pump: gate/hold/cancel in-stream."""
+
+    def assert_pump_error(self, reason, callable_obj, *args, **kwargs):
+        with self.assertRaises(PumpError) as ctx:
+            callable_obj(*args, **kwargs)
+        self.assertEqual(ctx.exception.reason, reason)
+        return ctx.exception
+
+    def test_control_mode_requires_opted_in_decoder(self):
+        session = TrajectorySession(dict(IDENTITY))
+        adapter = EgoTrajectoryAdapter(session)
+        v1_decoder = BsplineTcpDecoder(SESSION_ID)
+        self.assert_pump_error(
+            "invalid_decoder", PlannerTransportPump, adapter,
+            decoder=v1_decoder, anchor_ns=0, accept_control=True)
+        decoder = BsplineTcpDecoder(SESSION_ID, accept_control=True)
+        self.assert_pump_error(
+            "invalid_decoder", PlannerTransportPump, adapter,
+            decoder=decoder, anchor_ns=0, accept_control=1)
+
+    def test_v1_pump_poisons_on_control_frame(self):
+        session, adapter, decoder, pump = make_pump()
+        encoder = BsplineTcpEncoder(SESSION_ID)
+        outcomes = pump.feed(
+            encoder.encode_control_frame({"kind": "gate", "open": True}),
+            identity=IDENTITY, current_tick=0, fallback_yaw=0.0)
+        self.assertEqual([o.outcome for o in outcomes], [OUTCOME_POISON])
+        self.assertEqual(pump.state, STATE_POISONED)
+
+    def test_mixed_stream_order_and_shared_sequence(self):
+        session, adapter, decoder, pump = make_control_pump()
+        encoder = BsplineTcpEncoder(SESSION_ID)
+        chunk = (encoder.encode_control_frame({"kind": "gate", "open": True})
+                 + encoder.encode_frame(make_payload(clear_cps(), traj_id=1))
+                 + encoder.encode_control_frame({"kind": "gate", "open": False}))
+        outcomes = pump.feed(chunk, identity=IDENTITY, current_tick=0,
+                             fallback_yaw=0.0)
+        self.assertEqual([o.outcome for o in outcomes],
+                         ["gate_open", OUTCOME_ACTIVATED])
+        self.assertEqual([o.transport_sequence for o in outcomes], [1, 2])
+        # The activation bumped the generation: the buffered gate frame waits
+        # for the caller to re-derive identity (existing feed rule).
+        outcomes = pump.feed(b"", identity=current_identity(pump),
+                             current_tick=0, fallback_yaw=0.0)
+        self.assertEqual([o.outcome for o in outcomes], ["gate_closed"])
+        self.assertEqual(outcomes[0].transport_sequence, 3)
+        self.assertEqual(session.state, "ACTIVE")
+        # Gate frames spent zero session events: only the activation burned 1.
+        self.assertEqual(session.last_event_sequence, 1)
+        self.assertEqual(pump.next_event_sequence, 2)
+
+    def test_gate_is_idempotent_and_touches_no_session_state(self):
+        session, adapter, decoder, pump = make_control_pump()
+        encoder = BsplineTcpEncoder(SESSION_ID)
+        self.assertFalse(pump.output_gate_open)  # initial closed
+        before = session_event_snapshot(pump, session)
+        for flag in (True, True, False, False):
+            outcomes = pump.feed(
+                encoder.encode_control_frame({"kind": "gate", "open": flag}),
+                identity=IDENTITY, current_tick=0, fallback_yaw=0.0)
+            self.assertEqual(len(outcomes), 1)
+            self.assertEqual(outcomes[0].transport_consumed, True)
+            self.assertIsNone(outcomes[0].event_sequence)
+        # Session/event state untouched; only the gate flag and the transport
+        # high-water (1 per frame, honestly spent) moved.
+        self.assertEqual(session_event_snapshot(pump, session), before)
+        self.assertEqual(decoder.high_water_sequence, 4)
+        self.assertFalse(pump.output_gate_open)
+
+    def test_gate_closed_on_waiting_session_fabricates_nothing(self):
+        session, adapter, decoder, pump = make_control_pump()
+        encoder = BsplineTcpEncoder(SESSION_ID)
+        before = session_event_snapshot(pump, session)
+        outcomes = pump.feed(
+            encoder.encode_control_frame({"kind": "gate", "open": False}),
+            identity=IDENTITY, current_tick=0, fallback_yaw=0.0)
+        self.assertEqual([o.outcome for o in outcomes], ["gate_closed"])
+        self.assertEqual(session_event_snapshot(pump, session), before)
+        self.assertEqual(decoder.high_water_sequence, 1)
+        self.assertEqual(session.state, "WAITING")
+
+    def test_hold_frame_rejection_is_atomic_then_replan_continues(self):
+        session, adapter, decoder, pump = make_control_pump()
+        encoder = BsplineTcpEncoder(SESSION_ID)
+        activate(pump, encoder, traj_id=1)
+        outcomes = pump.feed(encoder.encode_control_frame({"kind": "hold"}),
+                             identity=current_identity(pump), current_tick=1,
+                             fallback_yaw=0.0)
+        # No hold anchor exists (no sample fed): atomic session rejection,
+        # transport honestly consumed, zero event burn.
+        self.assertEqual([o.outcome for o in outcomes], ["rejected_hold"])
+        self.assertEqual(session.last_event_sequence, 1)
+        self.assertEqual(pump.next_event_sequence, 2)
+        self.assertEqual(session.state, "ACTIVE")
+        # A successful pump-entry hold then a replan keep sequences strict.
+        pump.hold(current_identity(pump), current_tick=1,
+                  anchor=([1.0, 3.0, 1.0], 0.0))
+        self.assertEqual(session.state, "HOLD")
+        second = activate(pump, encoder, traj_id=2, tick=2, nanosec=2_000_000,
+                          identity=current_identity(pump))
+        self.assertEqual(second.event_sequence, 3)
+
+    def test_cancel_frame_is_terminal_via_allocator(self):
+        session, adapter, decoder, pump = make_control_pump()
+        encoder = BsplineTcpEncoder(SESSION_ID)
+        activate(pump, encoder, traj_id=1)
+        outcomes = pump.feed(encoder.encode_control_frame({"kind": "cancel"}),
+                             identity=current_identity(pump), current_tick=1,
+                             fallback_yaw=0.0)
+        self.assertEqual(len(outcomes), 1)
+        self.assertEqual(outcomes[0].outcome, "cancel")
+        self.assertEqual(outcomes[0].event_sequence, 2)
+        self.assertEqual(session.state, "CANCELLED")
+        self.assertEqual(pump.next_event_sequence, 3)
+        # Terminal: a later hold frame is atomically rejected, no burn.
+        outcomes = pump.feed(encoder.encode_control_frame({"kind": "hold"}),
+                             identity=current_identity(pump), current_tick=2,
+                             fallback_yaw=0.0)
+        self.assertEqual([o.outcome for o in outcomes], ["rejected_hold"])
+        self.assertEqual(session.last_event_sequence, 2)
+        self.assertEqual(pump.next_event_sequence, 3)
+
+    def test_malformed_control_frame_poisons_pump(self):
+        session, adapter, decoder, pump = make_control_pump()
+        encoder = BsplineTcpEncoder(SESSION_ID)
+        bad = encoder.build_control_envelope({"kind": "gate", "open": True})
+        bad["control"] = {"kind": "gate", "open": "yes"}
+        outcomes = pump.feed(
+            pack_frame(serialize_envelope_json(bad)),
+            identity=IDENTITY, current_tick=0, fallback_yaw=0.0)
+        self.assertEqual([o.outcome for o in outcomes], [OUTCOME_POISON])
+        self.assertEqual(pump.state, STATE_POISONED)
+
+    def test_generation_change_defers_buffered_control_to_next_feed(self):
+        session, adapter, decoder, pump = make_control_pump()
+        encoder = BsplineTcpEncoder(SESSION_ID)
+        chunk = (encoder.encode_frame(make_payload(clear_cps(), traj_id=1))
+                 + encoder.encode_control_frame({"kind": "gate", "open": True}))
+        # The activation bumps the generation; the buffered control frame must
+        # wait for the caller to re-derive identity (existing feed rule).
+        outcomes = pump.feed(chunk, identity=IDENTITY, current_tick=0,
+                             fallback_yaw=0.0)
+        self.assertEqual([o.outcome for o in outcomes], [OUTCOME_ACTIVATED])
+        self.assertFalse(pump.output_gate_open)
+        outcomes = pump.feed(b"", identity=current_identity(pump),
+                             current_tick=0, fallback_yaw=0.0)
+        self.assertEqual([o.outcome for o in outcomes], ["gate_open"])
+        self.assertTrue(pump.output_gate_open)
+
+    def test_control_events_reject_wrong_stable_tuple_before_any_change(self):
+        session, adapter, decoder, pump = make_control_pump()
+        encoder = BsplineTcpEncoder(SESSION_ID)
+        before = session_event_snapshot(pump, session)
+        for field, bad in (("run_id", "run-b"), ("mission_id", "mission-b"),
+                           ("uav_id", 9), ("control_epoch", "epoch-b")):
+            bad_identity = dict(IDENTITY, **{field: bad})
+            outcomes = pump.feed(
+                encoder.encode_control_frame({"kind": "gate", "open": True}),
+                identity=bad_identity, current_tick=0, fallback_yaw=0.0)
+            self.assertEqual([o.outcome for o in outcomes], ["rejected_identity"])
+            self.assertTrue(outcomes[0].transport_consumed)
+            self.assertFalse(pump.output_gate_open)  # never toggled
+        self.assertEqual(session_event_snapshot(pump, session), before)
+        # A legal identity still opens the gate afterwards.
+        outcomes = pump.feed(
+            encoder.encode_control_frame({"kind": "gate", "open": True}),
+            identity=IDENTITY, current_tick=0, fallback_yaw=0.0)
+        self.assertEqual([o.outcome for o in outcomes], ["gate_open"])
+        self.assertTrue(pump.output_gate_open)
+
+    def test_control_events_reject_malformed_identity(self):
+        session, adapter, decoder, pump = make_control_pump()
+        encoder = BsplineTcpEncoder(SESSION_ID)
+        before = session_event_snapshot(pump, session)
+        outcomes = pump.feed(
+            encoder.encode_control_frame({"kind": "gate", "open": True}),
+            identity=ExplodingIdentityMapping(), current_tick=0, fallback_yaw=0.0)
+        self.assertEqual([o.outcome for o in outcomes], ["rejected_identity"])
+        self.assertFalse(pump.output_gate_open)
+        self.assertEqual(session_event_snapshot(pump, session), before)
+
+    def test_recover_preserves_control_mode_and_resets_gate(self):
+        session, adapter, decoder, pump = make_control_pump()
+        encoder = BsplineTcpEncoder(SESSION_ID)
+        # Open the gate, then poison via a bad-frame hash mismatch.
+        pump.feed(encoder.encode_control_frame({"kind": "gate", "open": True}),
+                  identity=IDENTITY, current_tick=0, fallback_yaw=0.0)
+        self.assertTrue(pump.output_gate_open)
+        pump.feed(poison_frame(encoder, traj_id=1),
+                  identity=IDENTITY, current_tick=0, fallback_yaw=0.0)
+        self.assertEqual(pump.state, STATE_POISONED)
+        recovered = PlannerTransportPump.recover(
+            pump, transport_session_id=OTHER_SESSION_ID)
+        # No silent v1 downgrade; gate restarts closed.
+        self.assertTrue(recovered.accept_control)
+        self.assertFalse(recovered.output_gate_open)
+        # A legal gate frame works on the recovered pump (generation + 1).
+        new_encoder = BsplineTcpEncoder(OTHER_SESSION_ID)
+        identity = dict(IDENTITY,
+                        planner_generation=recovered.session_generation,
+                        command_high_water=recovered.command_high_water)
+        outcomes = recovered.feed(
+            new_encoder.encode_control_frame({"kind": "gate", "open": True}),
+            identity=identity, current_tick=0, fallback_yaw=0.0)
+        self.assertEqual([o.outcome for o in outcomes], ["gate_open"])
+        self.assertTrue(recovered.output_gate_open)
+
+    def test_recover_of_v1_pump_stays_v1(self):
+        session, adapter, decoder, pump = make_pump()
+        encoder = BsplineTcpEncoder(SESSION_ID)
+        pump.feed(poison_frame(encoder, traj_id=1),
+                  identity=IDENTITY, current_tick=0, fallback_yaw=0.0)
+        recovered = PlannerTransportPump.recover(
+            pump, transport_session_id=OTHER_SESSION_ID)
+        self.assertFalse(recovered.accept_control)
+        # A control frame on the recovered v1 pump poisons like any v1 pump.
+        new_encoder = BsplineTcpEncoder(OTHER_SESSION_ID)
+        identity = dict(IDENTITY,
+                        planner_generation=recovered.session_generation,
+                        command_high_water=recovered.command_high_water)
+        outcomes = recovered.feed(
+            new_encoder.encode_control_frame({"kind": "gate", "open": True}),
+            identity=identity, current_tick=0, fallback_yaw=0.0)
+        self.assertEqual([o.outcome for o in outcomes], [OUTCOME_POISON])
 
 
 if __name__ == "__main__":
