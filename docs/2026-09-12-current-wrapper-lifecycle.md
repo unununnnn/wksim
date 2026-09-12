@@ -22,3 +22,11 @@ cd /mnt/c/Users/PC/Documents/odid编译/wksim
 外层 bash 在所有 native 验证及输入哈希后检查成功后，多出一个回车命令，返回 1；收据单独记录该包装错误。编译、两个 native 子进程、四周期审核和之后的哈希检查已经完成。没有因包装尾部错误重复运行。
 
 这补齐当前 wrapper 的冷重建、独立运行、重置和终止证据；未覆盖新增 terrain/初始化接口的全部语义、MATLAB 数值对照、可选 DLL ABI、飞行或 G6。2026-09-12 实时 GitHub 核对 #24 CLOSED、#9 OPEN，#26 原依赖和全部原 AC 保持，不能据本结果关闭 #26 或 Full。历史 `26-closure-readiness-manifest.json` 不改写成当前场次。
+
+## 主会话对 #26 证据映射的复核
+
+本节是主会话复核记录，补足 DS-D 交付时仍标记缺失的 AC5；其报告保留为交付时快照。主会话核对 `G/source-manifest.json` 中 SLX/init 的具名来源与哈希、`generated-sources-manifest.json`、当前 build manifest 的 `generation_run_id=short-cycle-codegen-01` 及六源身份，并核对本次四周期原始结果。可编辑材料的直接来源是生成场的 source manifest，43 项生命周期冻结收据用于本次输入与历史不变性，不能替代 SLX/init 来源。
+
+既有 `G/codegen-report.json` 的五项产品 test/checkout 均为 1、九阶段均为 ok，核对的是实际记录，不重复执行 MATLAB、不以文件存在代替许可检查。工具检出不推导厂商材料再分发许可。
+
+AC1–AC4 的本地证据及 AC5 的命令、身份、结果、失败边界与主会话复核已完成到本记录所列范围。`R`、`L` 仓库证据目录不含 `.so`；原库与冷库仍保留在 Linux 本地，未发布厂商源码或二进制。#9 的正式依赖继续未满足，#26 仍不可关闭。G6、可选 DLL ABI 与新增环境反馈语义不在此结论内。

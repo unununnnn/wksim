@@ -1,0 +1,903 @@
+{
+  "schema": "wksim.ds-26-host-recheck.v1",
+  "slot": "DS-D",
+  "kind": "restored_evidence_closure_recheck",
+  "generated_at": "2026-09-12",
+  "repository": "unununnnn/wksim",
+  "workspace": "C:/Users/PC/Documents/odid编译/wksim",
+  "issue_under_review": 26,
+  "purpose": "在 Ubuntu-22.04 原生可见 /root 的环境中只读复核既有 #26 manifest，把 Windows 宿主路径映射问题与真实产物缺失分开，并区分历史 source chain 一致、当前 wrapper 漂移、真正缺失文件、形式依赖 #9 仍 OPEN。",
+  "reused_tooling": {
+    "checker": "tools/audit_26_closure_readiness.py",
+    "checker_sha256": "67fdeb302385f5ff42c1707c2e0e937c5d955d6e0a5b1195ef458b7992d2e809",
+    "checker_bytes": 49878,
+    "manifest": "docs/plan/26-closure-readiness-manifest.json",
+    "duplicate_cli_created": false,
+    "note": "未新增任何 checker 或 CLI；本轮只新增本文件。"
+  },
+  "read_only_verification": {
+    "verdict": "confirmed_read_only",
+    "source_scan": {
+      "method": "Select-String 扫描 checker 全文的 write_text/write_bytes/open('w'|'x'|'a')/mkdir/unlink/remove/rename/shutil./chmod/subprocess",
+      "write_sites_found": [
+        {
+          "line": 997,
+          "code": "args.output.write_text(raw, encoding=\"utf-8\", newline=\"\\n\")",
+          "gate": "仅在显式传入 --output 时执行；本轮的 WSL 只读核对未传 --output"
+        }
+      ],
+      "subprocess_sites_found": [
+        {
+          "line": 923,
+          "code": "subprocess.run([\"git\", \"ls-files\", \"-z\"], cwd=root, capture_output=True, timeout=60)",
+          "side_effect": "none",
+          "note": "只读 git 查询，用于判定生成源码是否被跟踪；失败时 fail-closed 报 generated-source exclusion undecidable"
+        }
+      ],
+      "compile_or_load_sites": [],
+      "matlab_or_native_sites": []
+    },
+    "empirical_check": {
+      "method": "对 /root/wksim-codegen-e0-build-short-cycle-01 与 /root/wksim-codegen-e0-cold-c96e30e01ec6 全文件 sha256sum 聚合，跑 checker 前后各取一次",
+      "before_aggregate_sha256": "54e166d06ad48e38ef6a9e6bf4273f9792cffe0746404e87011258ecb4e13a52",
+      "after_aggregate_sha256": "54e166d06ad48e38ef6a9e6bf4273f9792cffe0746404e87011258ecb4e13a52",
+      "identical": true,
+      "conclusion": "/root 证据树在 checker 运行前后逐字节未变"
+    },
+    "not_executed": [
+      ".so / DLL 加载",
+      "MATLAB / Embedded Coder",
+      "任何编译（g++ / cl）",
+      "任何 native、飞控、ROS1/ROS2、UE 节点或 step"
+    ]
+  },
+  "environment": {
+    "windows_host": {
+      "os_name": "nt",
+      "observed_problem": "在 Windows 下 POSIX 路径 /root/... 无法映射为可读原生路径，checker 的 _as_host_path 对 os.name=='nt' 且以 / 开头的值返回 None，于是产出 3 条 'cannot be mapped on this host' 违规。这些是宿主映射问题，不是产物缺失。"
+    },
+    "wsl_target": {
+      "distro": "Ubuntu-22.04",
+      "state": "Running",
+      "user": "root",
+      "python": "3.10.12 (main, Jun 22 2026, 18:55:27) [GCC 11.4.0]",
+      "repo_cwd": "/mnt/c/Users/PC/Documents/odid编译/wksim",
+      "why_this_host": "os.name != 'nt'，因此 /root/... 作为原生绝对路径直接可用；Windows 路径按 _as_host_path 映射到 /mnt/<drive>/...，两侧 provenance 都能解析。"
+    }
+  },
+  "commands": {
+    "primary_audit_argv": [
+      "wsl",
+      "-d",
+      "Ubuntu-22.04",
+      "-u",
+      "root",
+      "--",
+      "bash",
+      "-lc",
+      "cd /mnt/c/Users/PC/Documents/odid编译/wksim && /usr/bin/python3 -B tools/audit_26_closure_readiness.py"
+    ],
+    "exit_code": 2,
+    "exit_code_meaning": "report['status'] != 'ready_blocked_by_formal_dependency'（main 在 999 行据此返回 0 或 2）",
+    "stdout_captured_verbatim": true,
+    "wrote_any_file": false
+  },
+  "checker_report_wsl": {
+    "status": "not_ready",
+    "blocking_issue": 9,
+    "claim": "Local audit verifies a pinned OPEN #9 snapshot; it cannot close #26 or query GitHub in real time.",
+    "violations": [
+      "build manifest.staged_sources.model.cpp size drifted: expected 1864, observed 4070: /mnt/c/Users/PC/Documents/odid编译/wksim/Simulator/wksim_core/model.cpp"
+    ],
+    "violation_count": 1
+  },
+  "host_mapping_artifacts_resolved": {
+    "statement": "Windows 下出现的 3 条 'cannot be mapped on this host' 违规在 WSL 原生环境全部消失，因为对应文件真实存在且可读。",
+    "windows_only_violations": [
+      "lifecycle cold_library cannot be mapped on this host: /root/wksim-codegen-e0-cold-c96e30e01ec6/libwksim_e0.so",
+      "lifecycle cold probe cannot be mapped on this host: /root/wksim-codegen-e0-cold-c96e30e01ec6/libwksim_e0.so",
+      "build output library cannot be mapped on this host: /root/wksim-codegen-e0-build-short-cycle-01/libwksim_e0.so"
+    ],
+    "resolution": "resolved_as_host_mapping_not_missing",
+    "evidence": [
+      "EXISTS 87312 /root/wksim-codegen-e0-build-short-cycle-01/libwksim_e0.so",
+      "EXISTS 87312 /root/wksim-codegen-e0-cold-c96e30e01ec6/libwksim_e0.so"
+    ]
+  },
+  "finding_1_historical_source_chain_consistent": {
+    "verdict": "consistent",
+    "scope": "历史固化证据（2026-09-10 快照）自身逐字节自洽；这批证据对它所绑定的那份 wrapper 仍然有效。",
+    "staged_artifacts_rehashed_on_wsl_root": [
+      {
+        "path": "/root/wksim-codegen-e0-build-short-cycle-01/Exp1_MinModelTemp.cpp",
+        "size_bytes": 327598,
+        "pinned_sha256": "2c25b3fa08c996c8f2ed1a7feae5558062cd722ae5d350cc8a25caf2be10b274",
+        "observed_sha256": "2c25b3fa08c996c8f2ed1a7feae5558062cd722ae5d350cc8a25caf2be10b274",
+        "match": true
+      },
+      {
+        "path": "/root/wksim-codegen-e0-build-short-cycle-01/Exp1_MinModelTemp.h",
+        "size_bytes": 141379,
+        "pinned_sha256": "7601dbd721f0502e4bd67758d86cc21abf8e5c9568a31fb3160283df1df8c4bc",
+        "observed_sha256": "7601dbd721f0502e4bd67758d86cc21abf8e5c9568a31fb3160283df1df8c4bc",
+        "match": true
+      },
+      {
+        "path": "/root/wksim-codegen-e0-build-short-cycle-01/rtwtypes.h",
+        "size_bytes": 4520,
+        "pinned_sha256": "1b08664b70d40d08ee2952ca47254bd16a9e045be8b5edc9781fe620fb7c199f",
+        "observed_sha256": "1b08664b70d40d08ee2952ca47254bd16a9e045be8b5edc9781fe620fb7c199f",
+        "match": true
+      },
+      {
+        "path": "/root/wksim-codegen-e0-build-short-cycle-01/model.cpp",
+        "size_bytes": 1864,
+        "pinned_sha256": "3f325678b1d85c9aa3fd07bd644d82935aa26d82885926defeced139f02ddf2c",
+        "observed_sha256": "3f325678b1d85c9aa3fd07bd644d82935aa26d82885926defeced139f02ddf2c",
+        "match": true,
+        "significance": "被 pin 的那份 wrapper 原件在 /root 完整存活，1864 字节，未被破坏"
+      },
+      {
+        "path": "/root/wksim-codegen-e0-build-short-cycle-01/rtw_continuous.h",
+        "size_bytes": 4353,
+        "pinned_sha256": "8f2c78fdc5a097552078484c738aefcc944463c8834d2ca6319b76cedf526b18",
+        "observed_sha256": "8f2c78fdc5a097552078484c738aefcc944463c8834d2ca6319b76cedf526b18",
+        "match": true
+      },
+      {
+        "path": "/root/wksim-codegen-e0-build-short-cycle-01/rtw_solver.h",
+        "size_bytes": 10634,
+        "pinned_sha256": "359ff69aa94a137e8b246721ead52e056dd4fdf11c35a7f92ebb9f14e0cda674",
+        "observed_sha256": "359ff69aa94a137e8b246721ead52e056dd4fdf11c35a7f92ebb9f14e0cda674",
+        "match": true
+      },
+      {
+        "path": "/root/wksim-codegen-e0-build-short-cycle-01/libwksim_e0.so",
+        "size_bytes": 87312,
+        "pinned_sha256": "7da6853201b89238c273f2e1360ad21fe479e267d0ed08cf3500f98bf535505e",
+        "observed_sha256": "7da6853201b89238c273f2e1360ad21fe479e267d0ed08cf3500f98bf535505e",
+        "match": true
+      },
+      {
+        "path": "/root/wksim-codegen-e0-cold-c96e30e01ec6/libwksim_e0.so",
+        "size_bytes": 87312,
+        "pinned_sha256": "7da6853201b89238c273f2e1360ad21fe479e267d0ed08cf3500f98bf535505e",
+        "observed_sha256": "7da6853201b89238c273f2e1360ad21fe479e267d0ed08cf3500f98bf535505e",
+        "match": true,
+        "significance": "冷重建产物与原产物同哈希，checker 的 cold_library 复核在 WSL 下真实通过"
+      }
+    ],
+    "manifest_pins_rehashed_in_repo": {
+      "all_match": true,
+      "count": 6,
+      "files": [
+        "docs/2026-09-10-generated-e0-lifecycle.md",
+        "validation/codegen-e0/short-cycle-codegen-01/generated-sources-manifest.json",
+        "validation/codegen-e0/short-cycle-codegen-01/codegen-report.json",
+        "validation/codegen-e0-lifecycle-01/audit.json",
+        "validation/codegen-e0/short-cycle-codegen-01/summary.json",
+        "validation/codegen-e0-build-short-cycle-01/build-manifest.json"
+      ]
+    },
+    "checker_internal_checks_that_now_pass": [
+      "manifest pins 未漂移",
+      "codegen report status='generated' 且 9 阶段全 ok、5 项许可 checkout 齐全",
+      "generated-sources-manifest 与 build-manifest 的 staged 源码哈希一致",
+      "lifecycle audit status='pass'，两次运行进程身份不同，cold_library 可解析且哈希匹配",
+      "生成源码/厂商产物未被 git 跟踪"
+    ]
+  },
+  "finding_2_current_wrapper_drift": {
+    "verdict": "real_drift_confirmed",
+    "detail": "唯一残留违规即为 wrapper 漂移，且是真实差异，不是宿主噪声。",
+    "pinned_wrapper": {
+      "sha256": "3f325678b1d85c9aa3fd07bd644d82935aa26d82885926defeced139f02ddf2c",
+      "size_bytes": 1864,
+      "origin": "build-manifest.staged_sources.model.cpp（与 lifecycle audit.json source_sha256.model.cpp 同值）",
+      "still_available_at": "/root/wksim-codegen-e0-build-short-cycle-01/model.cpp"
+    },
+    "current_checkout_wrapper": {
+      "path": "Simulator/wksim_core/model.cpp",
+      "sha256": "150ddf3bab66e9e59701791392f6d792a14346e0b75ecdfe94872095e72d0290",
+      "size_bytes": 4070,
+      "matches_head": true,
+      "git_diff_vs_head_lines": 0
+    },
+    "delta": {
+      "size_delta_bytes": 2206,
+      "cause": "pin 之后有两次功能性提交改动了该 wrapper",
+      "commits": [
+        {
+          "sha_short": "f9a34f8",
+          "subject": "Expose same-source terrain input"
+        },
+        {
+          "sha_short": "9bb11ce",
+          "subject": "Expose initialized model state"
+        }
+      ]
+    },
+    "correct_interpretation": {
+      "not_implied": "不能说 libwksim_e0.so 的生命周期证据失效；该 .so 的字节、编译命令与输入 pin 全部自洽（见 finding_1）。",
+      "implied": "pin 住的 wrapper 与当前 checkout 的 wrapper 不是同一个源，因此‘当前 checkout 能否复现/加载该模型’无法由既有历史证据回答。这属于 must_revalidate 的实质项。"
+    }
+  },
+  "finding_3_genuinely_missing_files": {
+    "verdict": "none",
+    "statement": "在 WSL 原生可见 /root 的环境下，checker 未报告任何真实文件缺失；全部 8 个外部暂存文件存在且哈希与 pin 一致。",
+    "windows_only_reported_missing": 3,
+    "windows_only_reported_missing_reclassified_as": "host_mapping_issue",
+    "true_missing_count": 0,
+    "verification_method": "stat -c%s 逐文件存在性 + sha256sum 逐文件哈希，均在 /root 原生路径下完成"
+  },
+  "finding_4_formal_dependency_9": {
+    "verdict": "still_open",
+    "issue": 9,
+    "live_state": "OPEN",
+    "title": "可选模型插件与场景反馈接口决策",
+    "labels": [
+      "wayfinder:grilling"
+    ],
+    "queried_via": "gh issue view 9 --repo unununnnn/wksim --json number,state,title,labels",
+    "queried_at": "2026-09-12",
+    "checker_position": {
+      "blocking_issue": 9,
+      "claim": "Local audit verifies a pinned OPEN #9 snapshot; it cannot close #26 or query GitHub in real time.",
+      "note": "checker 自述不查 GitHub、只验证快照仍为 OPEN；本文件的实时查询确认快照未过期，阻塞仍然成立。"
+    },
+    "machine_decidable": true
+  },
+  "can_close_directly": {
+    "statement": "以下字段为可直接收口的只读核验结论：它们已被真实数据判定，无需新增证据。",
+    "items": [
+      {
+        "field": "historical_evidence_consistent",
+        "value": true,
+        "basis": "6 个 manifest pin 命中 + 8 个 /root 暂存产物逐字节命中 pin（含被 pin 的 1864 字节 wrapper 原件）",
+        "machine_checkable": true
+      },
+      {
+        "field": "historical_source_chain_complete",
+        "value": true,
+        "basis": "生成源码、MathWorks 头、wrapper、产物 .so 与冷重建 .so 全部存在且哈希自洽",
+        "machine_checkable": true
+      },
+      {
+        "field": "vendor_materials_not_tracked",
+        "value": true,
+        "basis": "checker 的 git ls-files 排除检查通过",
+        "machine_checkable": true
+      },
+      {
+        "field": "license_checkout_and_generation_stages",
+        "value": true,
+        "basis": "codegen report status='generated'，9 阶段全 ok，5 项许可齐全",
+        "machine_checkable": true
+      },
+      {
+        "field": "cold_rebuild_library_identity",
+        "value": true,
+        "basis": "cold-c96e30e01ec6/libwksim_e0.so 与原产物同为 7da68532...，87312 字节",
+        "machine_checkable": true
+      },
+      {
+        "field": "host_mapping_misclassification_resolved",
+        "value": true,
+        "basis": "Windows 下 3 条 cannot-be-mapped 违规在 WSL 下全部消失",
+        "machine_checkable": true
+      },
+      {
+        "field": "genuinely_missing_files",
+        "value": "none",
+        "basis": "WSL 原生 /root 下 8/8 文件存在",
+        "machine_checkable": true
+      },
+      {
+        "field": "formal_dependency_9_state",
+        "value": "OPEN",
+        "basis": "本次 gh 实时查询",
+        "machine_checkable": true
+      }
+    ]
+  },
+  "must_provide_evidence": {
+    "statement": "以下字段无法由本槽只读证据收口，必须补证或由主会话裁决；不得据子票 closed 或 6 pin 命中宣称 #26 通过。",
+    "items": [
+      {
+        "field": "current_source_matches",
+        "value": "partial_2026_09_12",
+        "blocking_fact": "当前 wrapper 已被主会话冷构建为独立新库（528db324…/87584）并通过 100 步 1ms 探针；checker 仍只针对旧证据快照报告 wrapper 漂移，不消费新证据（缺口 D）。",
+        "remaining": "新库的 reset/冷重建周期、terrain 接口、已初始化态语义均未验证",
+        "required_action": "B1 已在证据层完成（新证据绑定当前 wrapper，旧证据保留）；如仍需 checker 层面的收口，须权衡第 3 节缺口 D，不得为其新建第二 checker",
+        "owner": "主会话",
+        "machine_decidable": true
+      },
+      {
+        "field": "closure_manifest_claim_satisfied",
+        "value": false,
+        "blocking_fact": "checker status 仍为 not_ready；manifest 自身 claim 要求的 current-checkout provenance/wrapper/lifecycle revalidation 未完成",
+        "required_action": "完成 B1/B2 后重跑 checker，确认 violations 为空",
+        "owner": "主会话",
+        "machine_checkable": true
+      },
+      {
+        "field": "ac5_main_agent_review_record",
+        "value": "absent",
+        "blocking_fact": "#26 原 AC5 要求‘主代理复核后才能关闭’，该具名复核记录不存在",
+        "required_action": "产生具名复核工件，覆盖 pin 清单、复核结论、复核者、时间",
+        "owner": "主代理",
+        "machine_checkable": false
+      },
+      {
+        "field": "generation_contract_blocking_conclusion_disposition",
+        "value": "undisposed",
+        "blocking_fact": "docs/plan/26-generation-contract.md 结论 blocked_source_authorization_and_generation_entry 从未被显式撤回，只有文首称其为历史检查点",
+        "required_action": "在 #26 收口记录中显式标记 superseded 或 retained，并给出依据",
+        "owner": "主会话",
+        "machine_checkable": false
+      },
+      {
+        "field": "formal_dependency_9_closed",
+        "value": false,
+        "blocking_fact": "#9 实时仍为 OPEN",
+        "required_action": "在 #9 形成 ABI/插件与场景反馈接口决策，或书面接受替代路线并据此解除形式依赖",
+        "owner": "人类裁决",
+        "machine_checkable": true
+      },
+      {
+        "field": "sub_ticket_to_ac_mapping",
+        "value": "absent",
+        "blocking_fact": "#70/#71/#72 全 CLOSED 而父票 OPEN，无子票→AC 映射表",
+        "required_action": "补映射表并写明子票关闭不等于父票 AC 全满足",
+        "owner": "主会话",
+        "machine_checkable": false
+      }
+    ]
+  },
+  "anomalies_and_unmapped_recorded_honestly": [
+    {
+      "item": "Windows 下 3 条 cannot-be-mapped 违规",
+      "classification": "host_mapping_issue",
+      "not_a_real_defect": true
+    },
+    {
+      "item": "首次统计 exit code 时 PowerShell 管道返回 0",
+      "classification": "shell_artifact",
+      "detail": "经 /dev/null 重定向的独立复核，checker 真实退出码为 2",
+      "resolved": true
+    },
+    {
+      "item": "bash 循环内双层引号被 PowerShell 转义吞掉，初次存在性探测输出空路径",
+      "classification": "quoting_error_in_probe",
+      "resolution": "改用 here-string 写入临时 .sh 后执行，得到正确结果",
+      "resolved": true
+    },
+    {
+      "item": "validation/codegen-e0/short-cycle-codegen-01/ 目录内已无生成源码，只剩报告类文件",
+      "classification": "by_design",
+      "detail": "生成源码本就未入库；工作副本存在于 work/codegen-e0/... 与 /root 构建目录",
+      "not_a_defect": true
+    }
+  ],
+  "plan_package": {
+    "status": "executed_by_main_session_and_recorded",
+    "superseded_old_state": {
+      "statement": "本条目的旧状态（主会话未冻结入口 / 尚不能证明当前源码构建）已被 2026-09-12 主会话实测取代；旧状态作为历史记录保留在下方 superseded_by 字段中。",
+      "superseded_items": [
+        "主会话未冻结入口（缺口 A）",
+        "尚不能证明当前源码构建",
+        "26-generation-contract.md 称 #71 所需完整生成命令缺失",
+        "新 .so 哈希未知且必须不同（普遍推断）"
+      ]
+    },
+    "plan_document": "docs/plan/26-current-wrapper-recheck-plan.md",
+    "plan_document_sha256": "57707c070a8d8e4dbef6a7c5ac546524d7863d46662ffd6f1dd9ed8f7b4677e7",
+    "plan_contract_tests": "validation/test_audit_26_current_source_plan.py",
+    "plan_contract_tests_sha256": "7ad3db5979516423244b30d2a4359400598d82c86c196f4f3ea7452e02e4d2d1",
+    "key_discovery": {
+      "artifact": "tools/build_generated_e0.py",
+      "sha256": "0f6c7a8caa6b6b885115e76986bceb0ecc07f06050ea78c316d8aa14747c1c68",
+      "size_bytes": 41243,
+      "tracked": true,
+      "worktree_clean": true,
+      "commit": "50897b8 feat: generate e0 11.8 and verify standalone Linux model lifecycle",
+      "why_it_matters": "这份已提交、已带 782 行测试的现有驱动本身就参数化 --wrapper-source、--run-test 与 --evidence-root，因此当前 wrapper 的冷重核沿已批准路径可执行，无需新增任何入口。26-generation-contract.md 中“#71 所需完整生成命令目前缺失”这一条已不成立。",
+      "verified_surface": {
+        "accepts_wrapper_source": true,
+        "accepts_run_test": true,
+        "accepts_evidence_root": true,
+        "has_dry_run": false,
+        "required_build_sources": [
+          "Exp1_MinModelTemp.cpp",
+          "Exp1_MinModelTemp.h",
+          "model.cpp",
+          "rtw_continuous.h",
+          "rtw_solver.h",
+          "rtwtypes.h"
+        ],
+        "compiler_flags_match_historical": true,
+        "existing_tests": "validation/test_build_generated_e0.py (sha256 7bfd4159ae021a0ac69c919e7a69fd012b9da3ae9ca1367d6319afab92cba31a)"
+      }
+    },
+    "recheck_verdict": "executed_by_main_session_2026_09_12",
+    "recheck_plan_summary": {
+      "primary_command_binary": "tools/build_generated_e0.py",
+      "build_id": "current-wrapper-01",
+      "evidence_dir_rule": "validation/codegen-e0-build-current-wrapper-01/ （必须为空或不存在）",
+      "wsl_build_dir_rule": "/root/wksim-codegen-e0-build-current-wrapper-01 （必须为空或不存在，且匹配驱动正则）",
+      "optional_lifecycle_dir_rule": "validation/codegen-e0-lifecycle-current-wrapper-01/ （必须是新目录）",
+      "input_assertion_core": "新 build-manifest.json 的 staged_sources.model.cpp.sha256 必须等于 150ddf3bab66e9e59701791392f6d792a14346e0b75ecdfe94872095e72d0290，size_bytes 必须等于 4070",
+      "unknown_output_is_declared_unknown": "计划阶段把新 libwksim_e0.so 的 sha256 与大小标为未知，未编造任何具体值；后由主会话实测为 528db3241baa43ef79166fbba74f6a4176aa2d82bf7c238bfe8f8db68267b328 / 87584（见 main_session_current_wrapper_01）",
+      "does_not_regenerate_cpp": true,
+      "does_not_call_matlab": true,
+      "does_not_do_physics_comparison": true
+    },
+    "gap_classification": [
+      {
+        "id": "A",
+        "name": "用户授权缺口",
+        "real": true,
+        "blocking_execution": false,
+        "status": "resolved_2026_09_12",
+        "resolution": "主会话以 validation/coordination/native-inputs-20260912/current-wrapper-01.json 明示冻结 build_generated_e0.py（0f6c7a8c…）用于本次 cold build 与 100 步生命周期检查；随后实际执行并产出 validation/codegen-e0-build-current-wrapper-01。",
+        "scope_limit": "冻结明确限于本次范围：full_or_g6_acceptance=false",
+        "historical_gap": "26-generation-contract.md 的结论 blocked_source_authorization_and_generation_entry 此前从未被显式撤回；其“分配写入范围并冻结命令与哈希”要求已由上述冻结记录满足。",
+        "detail_retained_for_history": "脚本“缺失”一项在当时即已不成立（build_generated_e0.py 自 50897b8 起存在）；真正缺的是具名冻结记录，现已补齐。",
+        "machine_decidable": true
+      },
+      {
+        "id": "B",
+        "name": "预算缺口",
+        "real": false,
+        "applicable_to_this_plan": false,
+        "detail": "G6 逐量物理预算 56 项全部 unresolved/blocked，但本计划只做冷构建与生命周期，不做物理精度比较。预算阻塞 G6 数值路线，不阻塞 wrapper 冷重核。",
+        "forbidden_misuse": "不得把预算阻塞当作 wrapper 重核的借口，也不得用重核通过暗示 G6 进展"
+      },
+      {
+        "id": "C",
+        "name": "ABI 缺口",
+        "real": false,
+        "applicable_to_this_plan": false,
+        "detail": "本计划使用项目自有 C 入口语义 wk_model_create/wk_model_step/wk_model_destroy，不涉及厂商 DLL ABI，故 #9 的 ABI 决策不阻塞执行（但仍阻塞父票关闭）。"
+      },
+      {
+        "id": "D",
+        "name": "工具链缺口",
+        "real": true,
+        "blocking_execution": false,
+        "detail": "audit_26_closure_readiness.py 的 main() 只有 --manifest 与 --output，没有 --root，且内部硬编码 validation/codegen-e0-build-short-cycle-01/build-manifest.json、validation/codegen-e0-lifecycle-01/audit.json、PINNED_GENERATED_ROOT=work/codegen-e0/short-cycle-codegen-01/codegen/。因此新证据目录无法被该 checker 直接消费，而修改它被明令禁止。",
+        "explicitly_rejected_workarounds": [
+          "不新增 tools/check_generation_evidence.py 之类的第二 checker",
+          "不因为报告缺少 historical_evidence_consistent / current_source_matches / missing_conditions 这三个字面字段名而新建 CLI —— 该三语义已由 violations[] + status + blocking_issue 承载"
+        ],
+        "consequence": "新证据由驱动自身的 evidence 闸门 + 独立生命周期验证器验证；checker 继续只负责历史快照的收口就绪判定"
+      }
+    ],
+    "forbidden_extrapolations_recorded_in_plan": [
+      "重核通过 ⇒ #26 可关闭（#9 仍 OPEN，AC5 复核记录缺失）",
+      "新 .so 通过 ⇒ 物理精度/G6 通过 或 R1 改判",
+      "生命周期通过 ⇒ 模型物理正确（无 MATLAB 数值 oracle）",
+      "重核通过 ⇒ 已覆盖 terrain 输入 或 已初始化态语义",
+      "编译链接成功 ⇒ 所有导出/布局与合同一致",
+      "本计划覆盖 #26 的 AC1–AC4",
+      "本计划可替代 #60 的 full-acceptance-report.md"
+    ]
+  },
+  "test_evidence": {
+    "new_plan_contract_tests": {
+      "path": "validation/test_audit_26_current_source_plan.py",
+      "command": "python -m pytest validation/test_audit_26_current_source_plan.py -q",
+      "result": "35 passed, 1 skipped",
+      "skip_reason": "POSIX-specific mapping rule（在 Windows 上跳过，属环境限制）",
+      "covers": [
+        "wrapper 身份与计划前提一致（漂移量 2206 bytes 精确断言）",
+        "两个既有工具指向同一 wrapper",
+        "驱动 evidence 闸门：正例通过、篡改生成源被拒、空 post-verification 被拒、codegen 目录越权被拒",
+        "输出目录规则：新目录未存在、id 不冲突、WSL 目录正则通过、越界与历史 id 复用被拒、非空目录被拒",
+        "checker 硬编码绑定确实阻断“只写新 manifest”的绕过路径",
+        "checker CLI 无 --root 而 API 有；报告含三语义而无新字段名",
+        "计划文档保留可执行命令 token、新目录名、输入断言、未编造新 .so 哈希、八条禁止外推"
+      ],
+      "not_executed": [
+        ".so/DLL 加载",
+        "编译",
+        "MATLAB",
+        "native/飞控/ROS/UE",
+        "任何 WSL 调用（runner 被替身替换）"
+      ]
+    },
+    "regression_suites": [
+      {
+        "path": "validation/test_audit_26_closure_readiness.py",
+        "command": "python -m pytest validation/test_audit_26_closure_readiness.py -q",
+        "result": "25 passed, 2 skipped",
+        "skip_reason": "Windows 无 symlink/junction 特权"
+      },
+      {
+        "path": "validation/test_build_generated_e0.py",
+        "command": "python -m pytest validation/test_build_generated_e0.py -q",
+        "result": "26 passed"
+      }
+    ],
+    "linux_host_readonly_recheck": {
+      "host": "Ubuntu-22.04 (WSL), user root, /root natively visible",
+      "command": "wsl -d Ubuntu-22.04 -u root -- bash -lc 'cd /mnt/c/.../wksim && /usr/bin/python3 -B tools/audit_26_closure_readiness.py'",
+      "exit_code": 2,
+      "status": "not_ready",
+      "violation_count": 1,
+      "violation": "build manifest.staged_sources.model.cpp size drifted: expected 1864, observed 4070",
+      "files_modified_by_recheck": [],
+      "conclusion": "在原生可见 /root 的 Linux 宿主上，checker 只报告 1 条真实 wrapper 漂移；Windows 下的 3 条 cannot-be-mapped 全部消失，确证其为宿主映射问题而非文件缺失。"
+    }
+  },
+  "main_session_current_wrapper_01": {
+    "recorded_by": "DS-D（只读记录；本次未重跑冷构建、未执行任何模型）",
+    "recorded_at": "2026-09-12",
+    "head_at_record_time": "b67ad437a01841efce9d543eb1f794060625181b",
+    "head_subject": "Verify current wrapper cold build without MATLAB runtime",
+    "freeze_record": {
+      "path": "validation/coordination/native-inputs-20260912/current-wrapper-01.json",
+      "exists": true,
+      "decision": "Main agent freezes existing build_generated_e0.py for this authorized current-wrapper cold build and 100-step lifecycle check only",
+      "scope_limit": "full_or_g6_acceptance: false",
+      "gap_A_resolved": true,
+      "hashes_before_count": 40,
+      "historical_and_input_hashes_unchanged": true,
+      "changes": []
+    },
+    "evidence": {
+      "dir": "validation/codegen-e0-build-current-wrapper-01",
+      "wsl_dir": "/root/wksim-codegen-e0-build-current-wrapper-01",
+      "files": [
+        "build-manifest.json",
+        "build.stderr.log",
+        "build.stdout.log",
+        "command.json",
+        "ldd.txt",
+        "summary.json",
+        "test-probe.json"
+      ],
+      "library_sha256": "528db3241baa43ef79166fbba74f6a4176aa2d82bf7c238bfe8f8db68267b328",
+      "library_size_bytes": 87584,
+      "historical_library_sha256": "7da6853201b89238c273f2e1360ad21fe479e267d0ed08cf3500f98bf535505e",
+      "historical_library_size_bytes": 87312,
+      "observed_difference": "本次实测 528db324…/87584 ≠ 历史 7da68532…/87312。仅记录本次观测，不声称任何 wrapper 变更都必然产生不同字节。",
+      "status": "tested",
+      "command_return_code": 0,
+      "compiler": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0",
+      "compile_command": "cd /root/wksim-codegen-e0-build-current-wrapper-01 && g++ -std=c++17 -O2 -fno-fast-math -fPIC -shared -Wl,--no-undefined -I. Exp1_MinModelTemp.cpp model.cpp -o libwksim_e0.so",
+      "ldd_clean": true,
+      "ldd_violations": [],
+      "summary_sha256": "e14e13c9709795a15e8b9fe0f837c1301a28e236513f31b02279afd68ad5afbc"
+    },
+    "key_assertion_satisfied": {
+      "claim": "新 build-manifest.json 绑定的是当前 wrapper，而非被历史 pin 的 wrapper",
+      "staged_sources.model.cpp.sha256": "150ddf3bab66e9e59701791392f6d792a14346e0b75ecdfe94872095e72d0290",
+      "staged_sources.model.cpp.size_bytes": 4070,
+      "pinned_wrapper_sha256": "3f325678b1d85c9aa3fd07bd644d82935aa26d82885926defeced139f02ddf2c",
+      "pinned_wrapper_size_bytes": 1864,
+      "verdict": "satisfied：当前 wrapper 哈希与大小写入新 manifest，历史 pin 未被改写",
+      "other_five_staged_sources_match_history": true
+    },
+    "lifecycle_probe": {
+      "success": true,
+      "steps_evaluated": 100,
+      "step_size_seconds": 0.001,
+      "sim_time_seconds": 0.1,
+      "all_outputs_finite": true,
+      "non_finite_step": null,
+      "output_dimension": 120,
+      "clock_tolerance_s": 1e-08
+    },
+    "not_covered_by_this_evidence": [
+      {
+        "item": "reset / 冷重建周期",
+        "basis": "新证据目录无 audit.json、cold/、original/、cycle-*.jsonl；冻结记录写明 100-step lifecycle check only"
+      },
+      {
+        "item": "新增 terrain 接口（wrapper 提交 f9a34f8 Expose same-source terrain input）",
+        "basis": "探针使用常量输入 [0.5]*16，新证据文件中不出现 terrain 字样"
+      },
+      {
+        "item": "新增已初始化态语义（wrapper 提交 9bb11ce Expose initialized model state）",
+        "basis": "新证据中无对应断言或检查"
+      },
+      {
+        "item": "G6 / 物理精度 / Full 验收",
+        "basis": "冻结记录 full_or_g6_acceptance=false；summary.scope 自述 no flight or G6 equivalence claim；R1 numerical_failed 与原 5684 失败值保持原状"
+      },
+      {
+        "item": "导出/字段布局全量审查",
+        "basis": "探针只验证 120 维输出、有限性与时钟一致，不审查全部字段语义"
+      }
+    ],
+    "state_changes": [
+      {
+        "old_state": "主会话未冻结入口（缺口 A 真实阻塞）",
+        "new_state": "已解除，具名冻结记录存在；解除范围限于本次 cold build + 100 步生命周期检查",
+        "machine_decidable": true
+      },
+      {
+        "old_state": "尚不能证明当前源码构建",
+        "new_state": "已证明到本次范围：当前 wrapper 150ddf3b…/4070 冷构建为 528db324…/87584，100 步 1ms 探针通过，ldd 干净",
+        "machine_decidable": true
+      },
+      {
+        "old_state": "26-generation-contract.md 称 #71 所需完整生成命令缺失",
+        "new_state": "已被取代：命令为 tools/build_generated_e0.py（50897b8），本次已实际执行",
+        "machine_decidable": true
+      },
+      {
+        "old_state": "新 .so 哈希未知且必须不同（普遍推断）",
+        "new_state": "改为本次实测记录：528db324…/87584 与历史 7da68532…/87312 实测不同，不作普遍推断",
+        "machine_decidable": true
+      }
+    ],
+    "still_unchanged_and_not_claimable": [
+      "#9 仍 OPEN；#26 不因此可关闭",
+      "AC5 主代理复核记录仍缺；子票→AC 映射表仍缺",
+      "不得由本次通过推断物理正确、G6 通过、terrain 接口已验收或 AC1–AC4 已覆盖",
+      "旧 manifest、旧生命周期证据、共享 checker 均未被本次改动"
+    ]
+  },
+  "next_entry_independent_lifecycle_validator": {
+    "tool": "tools/validate_generated_e0_lifecycle.py",
+    "tool_sha256": "545125fb2234f7c493153e8947559d23cfba328427be2ef3ed0b3f6e016aab09",
+    "method": "只读 --help 与源码；未运行任何模型",
+    "accepts_explicit_library_argument": false,
+    "cli_surface": "usage: validate_generated_e0_lifecycle.py [-h] [--manifest MANIFEST] [--probe PROBE] --output OUTPUT",
+    "why_not": "源码第 127-128 行只注册 --manifest/--probe/--output；库路径由第 56 行经 staged_sources[*].wsl_staged_path 的父目录间接推导，无 --library/--so 入参",
+    "exact_next_entry": {
+      "command": "python -B tools/validate_generated_e0_lifecycle.py --manifest 'validation/codegen-e0-build-current-wrapper-01/build-manifest.json' --output 'validation/codegen-e0-lifecycle-current-wrapper-01'",
+      "library_expressed_via": "指向新 build manifest，而非直接传 .so"
+    },
+    "preconditions_verified": [
+      {
+        "check": "第 50 行硬编码六源集与 current-wrapper-01 的 staged_sources 一致",
+        "verdict": "pass"
+      },
+      {
+        "check": "第 57 行要求 summary.json 与 build-manifest.json 同目录",
+        "verdict": "pass（current-wrapper-01 同时含两者）"
+      },
+      {
+        "check": "第 81 行断言冷重建产物哈希等于 summary.json 的 library_sha256",
+        "verdict": "将要求等于 528db3241baa43ef79166fbba74f6a4176aa2d82bf7c238bfe8f8db68267b328"
+      }
+    ],
+    "side_effects_if_run": [
+      "真实 g++ 编译与 ldd",
+      "4×1000 步 native 运行（第 100-116 行）",
+      "第 73 行新建 /root/wksim-codegen-e0-cold-<uuid12>（0700）",
+      "--output 必须是不存在的新目录（第 47 行 exist_ok=False）",
+      "须在 linux 平台运行（第 46 行 sys.platform=='linux'）"
+    ],
+    "not_read_only": true,
+    "executed_by_this_slot": false,
+    "would_not_be_consumed_by_checker": "产生的 audit.json 不会被 tools/audit_26_closure_readiness.py 消费（其硬编码 validation/codegen-e0-lifecycle-01/audit.json）；属第 3 节缺口 D 的预期行为，不得为此新建第二 checker"
+  },
+  "validator_admission_hardening": {
+    "recorded_at": "2026-09-12",
+    "implemented_by": "DS-D",
+    "target": "tools/validate_generated_e0_lifecycle.py",
+    "validator_sha256_after": "ec883644acce248921c9775451699ce2c149311d438b720e3e21c361571a2098",
+    "validator_sha256_before": "545125fb2234f7c493153e8947559d23cfba328427be2ef3ed0b3f6e016aab09",
+    "audited_defects": [
+      "run() 在读取并验证 manifest 之前就 output.mkdir(...)",
+      "只 assert len(parents)==1，未校验每源文件名与其 key 对应",
+      "源哈希 assert 在 cold 目录与 contract.json 创建之后才执行"
+    ],
+    "new_admission_order": [
+      "只读前置：输出路径若为符号链接/已存在文件/非空目录 → 拒绝（不创建任何东西）",
+      "load_build_manifest：symlink、非普通文件、畸形 JSON、非对象根 → 拒绝",
+      "source_root：六源精确匹配；绝对 POSIX 路径；无 NUL；basename 必须等于 key；唯一共享父目录；父目录为 /root 直接子目录且前缀 wksim-codegen-e0-build-",
+      "verify_source_hashes：六源逐一 symlink/普通文件/记录哈希，全部通过前不复制任何字节",
+      "check_library_identity：summary.json 同目录且普通文件；library_sha256 为 64 位 hex；libwksim_e0.so 为普通文件；实测哈希与大小匹配",
+      "（以上全部只读，副作用自此开始）",
+      "私有快照 snapshot_inputs：复制 manifest 与六源并对副本重新哈希",
+      "冻结 contract.json（数值未改）",
+      "output.mkdir(exist_ok=False) → 创建 cold → 从快照复制 → 编译 → 哈希断言 → ldd"
+    ],
+    "unchanged_contract": [
+      "compiler argv",
+      "contract.json numeric gates (ticks=1000, dt_s=0.001, three input segments, output_count=120, clock_absolute_error_s=1e-8)",
+      "numeric comparison and the original 4x1000-step gate",
+      "audit.json schema and fields",
+      "cold rebuild hash must equal the original library"
+    ],
+    "new_tests": {
+      "path": "validation/test_generated_e0_lifecycle_admission.py",
+      "sha256": "9be828744cf9d6b4fb987b76646409565aa305f90f4cb95723067cfea586c2ac",
+      "count": 52,
+      "result_on_ubuntu_22_04": "52 passed",
+      "host_requirement": "must run on Linux: run() requires sys.platform=='linux' and /root must be a real absolute path",
+      "no_native": true,
+      "rejection_cases": [
+        "source symlink",
+        "filename not matching its key",
+        "common-parent escape / root-prefix mismatch",
+        "source hash mismatch",
+        "library hash mismatch",
+        "occupied or non-directory output"
+      ],
+      "side_effect_assertion": "subprocess.run / subprocess.Popen / shutil.copyfile 被替换为抛错替身；每次拒绝后断言输出目录未创建或未新增文件"
+    },
+    "pre_existing_unrelated_failure": {
+      "test": "validation/test_build_generated_e0.py::TestBuildGeneratedE0::test_to_wsl_path",
+      "host": "Ubuntu-22.04 only",
+      "cause": "to_wsl_path() 对相对 Windows 路径在 POSIX 宿主上不转换，断言期望 /mnt/c/... 失败",
+      "relation_to_this_change": "无（该测试不导入 validate_generated_e0_lifecycle）",
+      "status": "not fixed (out of my owned scope)"
+    },
+    "defects_fixed": [
+      "any existing output (including an empty directory) is rejected before any snapshot/copy/compile",
+      "a symlinked or non-canonical build root is rejected; lexical checks alone let the parent escape /root",
+      "a failed run removes the snapshot it created and nothing else",
+      "the contract uses the manifest SHA bound at read time, not a second hash of the original file",
+      "all six source bytes are read into memory and hash-verified, and the library identity confirmed, BEFORE any snapshot write"
+    ]
+  },
+  "self_reference_note": {
+    "issue": "本文件记录自己的 sha256 时，写入动作本身会改变该哈希。",
+    "hash_before_this_final_edit": "2f43ee60862626454a0ac4c535b4403eef1f60e3a4cba15a3bbf0dd7cec29ca0",
+    "authoritative_method": "校验本文件身份请直接重算，不要引用任何写在本文件内的自指哈希：Get-FileHash -Algorithm SHA256 -LiteralPath 'docs/coordination/ds-26-host-recheck-20260912.json'"
+  },
+  "tool_and_artifact_identities": {
+    "tools/validate_generated_e0_lifecycle.py": "ec883644acce248921c9775451699ce2c149311d438b720e3e21c361571a2098",
+    "validation/test_generated_e0_lifecycle_admission.py": "8970c7ed4afeda5de0e6461f972b08c18d1f76f3148990352e7c0e0d90e4f3e3",
+    "docs/plan/26-current-wrapper-recheck-plan.md": "5f3b7f4178bff503fc79a58e85ae2c40465997c3d635eeb804be4196e05b0728",
+    "validation/test_audit_26_current_source_plan.py": "6ef7be9bc9b6d2b31e960c6e4859602615bcbfa07ec2385b40aa2e8633963fc3",
+    "tools/audit_26_closure_readiness.py": "67fdeb302385f5ff42c1707c2e0e937c5d955d6e0a5b1195ef458b7992d2e809",
+    "tools/build_generated_e0.py": "0f6c7a8caa6b6b885115e76986bceb0ecc07f06050ea78c316d8aa14747c1c68",
+    "validation/test_build_generated_e0.py": "7bfd4159ae021a0ac69c919e7a69fd012b9da3ae9ca1367d6319afab92cba31a",
+    "validation/test_audit_26_closure_readiness.py": "925b4e55584beae56f03fb97ac1fb1ee92f5f56d7ffbafb82bdce7ed48797547",
+    "docs/plan/26-closure-readiness-manifest.json": "229eb94c8bc4cec71693719b32ad86f716b8a92ac4a2e19b541fc701bc72a1d7",
+    "validation/codegen-e0-lifecycle-current-wrapper-01/audit.json": "0b5d96c97fcba5120213a2143ca641375878140435bc681b58ea3fcef8c5ff29",
+    "validation/codegen-e0-lifecycle-current-wrapper-01/contract.json": "b02128e719c3eb82166a232c52a597c4f146ef4f7752af2dd13b8fb1a18ba383",
+    "validation/codegen-e0-lifecycle-current-wrapper-01/build.json": "238f64d9a512a353854281c489d39f5ea3db9a9dfb3139f7264981e77cdce648",
+    "validation/codegen-e0-lifecycle-current-wrapper-01/ldd.txt": "37e02aa5d783de224a31690341b0c90e870efb1b16e068d23c91cc9d77b52f92",
+    "validation/codegen-e0-lifecycle-current-wrapper-01/original/process.json": "cccd828a3e6444981f44cc6388e4c215f0339ca530f66c8fcf07071d5c4097b7",
+    "validation/codegen-e0-lifecycle-current-wrapper-01/cold/process.json": "39f809482e06b590fa6fcd090accaeb9311decb34dfead22d575c1513fcc44e6",
+    "validation/coordination/native-inputs-20260912/current-lifecycle-01.json": "1e28021eaf0f573b3ad3db22d89c58bc89e31da8599b6bd194e49d3e54d80a55",
+    "docs/plan/26-current-source-ac-evidence-20260912.md": "4070bf4bdb87e60a9ad1eb45d8f1512e2bdfbf060cba3e9d94ec13dbbb544a79"
+  },
+  "self_constraints": {
+    "new_files_created": [
+      "docs/plan/26-current-wrapper-recheck-plan.md",
+      "validation/test_audit_26_current_source_plan.py"
+    ],
+    "files_updated": [
+      "docs/coordination/ds-26-host-recheck-20260912.json"
+    ],
+    "checker_modified": false,
+    "build_driver_modified": false,
+    "model_source_modified": false,
+    "manifest_modified": false,
+    "prior_reports_modified": false,
+    "issue_closed": false,
+    "goal_closed": false,
+    "vendor_material_copied": false,
+    "vendor_material_disclosed": false,
+    "compilation_or_native_execution": false,
+    "second_checker_created": false,
+    "git_commits": false,
+    "new_agents": false
+  },
+  "incidents": [
+    {
+      "what": "docs/plan/26-current-wrapper-recheck-plan.md was truncated from ~490 lines to 84 lines by a scripted edit made in this module",
+      "recovery_attempts_verified": [
+        "git log --all -- <path>: no history; git ls-files reports the path is unknown to git",
+        "git stash list: empty",
+        "git fsck --lost-found: only pre-existing unrelated broken links",
+        "no copy or backup on disk or in the temp directory"
+      ],
+      "outcome": "NOT RECOVERED. The file was rebuilt as an honest partial: the surviving section 13, the verified Linux entry points, and only facts re-derivable from this JSON plus workspace measurements. The lost section 1-12 prose is recorded as lost and was NOT reconstructed from memory.",
+      "plan_sha256_after_rebuild": "afe7d3fee31d8d956c71a8d4f60eae593df0fc69c4240cbfd7966001a8ae0d5b"
+    }
+  ],
+  "current_wrapper_native_lifecycle": {
+    "executed_by": "main session (real execution), not this module",
+    "note": "本模块未重跑 native/编译/模型加载；以下为对真实原件的只读核验记录。",
+    "evidence_dir": "validation/codegen-e0-lifecycle-current-wrapper-01",
+    "audit_status": "pass",
+    "audit_schema": "wksim.generated-e0-lifecycle.v1",
+    "ticks_per_cycle": 1000,
+    "cycles": 4,
+    "compared_values": 480000,
+    "clock_tolerance_s": 1e-08,
+    "library_sha256": "528db3241baa43ef79166fbba74f6a4176aa2d82bf7c238bfe8f8db68267b328",
+    "library_size_bytes": 87584,
+    "raw_sha256_recomputed": {
+      "original/cycle-0.jsonl": "0979200da666f80d679203f07c47effd5d7385d3a0ddb1fe2b30e1bbc70b7553",
+      "original/cycle-1.jsonl": "0979200da666f80d679203f07c47effd5d7385d3a0ddb1fe2b30e1bbc70b7553",
+      "cold/cycle-0.jsonl": "0979200da666f80d679203f07c47effd5d7385d3a0ddb1fe2b30e1bbc70b7553",
+      "cold/cycle-1.jsonl": "0979200da666f80d679203f07c47effd5d7385d3a0ddb1fe2b30e1bbc70b7553"
+    },
+    "all_four_raw_equal": true,
+    "runs": [
+      {
+        "name": "original",
+        "pid": 705,
+        "pgid": 705,
+        "returncode": 0
+      },
+      {
+        "name": "cold",
+        "pid": 706,
+        "pgid": 706,
+        "returncode": 0
+      }
+    ],
+    "cold_library": "/root/wksim-codegen-e0-cold-907225b3b06c/libwksim_e0.so",
+    "receipt": {
+      "path": "validation/coordination/native-inputs-20260912/current-lifecycle-01.json",
+      "sha256": "1e28021eaf0f573b3ad3db22d89c58bc89e31da8599b6bd194e49d3e54d80a55",
+      "inputs_and_history_unchanged": true,
+      "hash_count": 43
+    },
+    "shell_postlude": {
+      "wrapper_exit_code": 1,
+      "diagnostic": "bash: line 41: carriage-return command not found",
+      "occurred_after": "native validator completion and post-validation hash check",
+      "rerun_required": false
+    },
+    "newly_covered": "current wrapper (150ddf3b... / 4070 B) cold rebuild + 4x1000 reset lifecycle",
+    "still_uncovered": [
+      "new terrain interface (f9a34f8)",
+      "initialized-state semantics (9bb11ce)",
+      "G6 / physical accuracy; R1 numerical_failed unchanged",
+      "optional legacy/modern DLL ABI (#27/#28, blocked by #9)",
+      "export/field layout full review; flight; other airframes"
+    ],
+    "limitation": "Independent Linux reconstruction and reset only; no flight or MATLAB numeric oracle"
+  },
+  "ac_evidence_mapping": {
+    "document": "docs/plan/26-current-source-ac-evidence-20260912.md",
+    "live_issue_states_verified": {
+      "#24": "CLOSED",
+      "#9": "OPEN",
+      "#26": "OPEN",
+      "#70": "CLOSED",
+      "#71": "CLOSED",
+      "#72": "CLOSED"
+    },
+    "per_ac": {
+      "AC1_source_chain": "satisfied_local",
+      "AC2_license_actual_checkout": "satisfied_by_record_5x_test1_checkout1_9_stages_ok",
+      "AC3_matlab_free_lifecycle": "satisfied_newly_covers_current_wrapper",
+      "AC4_vendor_materials_controlled": "satisfied",
+      "AC5_delivery_and_main_agent_review": "partial_main_agent_review_record_absent"
+    },
+    "closable_now": false,
+    "blocking": [
+      "#9 OPEN (live)",
+      "AC5 main-agent review record absent"
+    ],
+    "must_not": [
+      "close #26",
+      "update the old pin manifest to make history look like it ran current source",
+      "claim physical accuracy, G6, terrain acceptance, or full AC1-AC4 coverage from this run",
+      "treat file existence as license checkout success",
+      "treat local usability as redistribution permission"
+    ]
+  },
+  "review_triage": {
+    "frozen_validator": "ec883644acce248921c9775451699ce2c149311d438b720e3e21c361571a2098",
+    "frozen_note": "main-reviewed and codebuddy-reviewed; frozen this round for submission; no further edits",
+    "F1": "error-diagnostic wording only; recorded, not expanded this round; SHA gate still in force",
+    "F2": "redundant size item only; recorded, not expanded this round; SHA gate still in force",
+    "F3": "REJECTED - do not clear the cold directory; it is retained build evidence whose hash is part of the AC3 judgement",
+    "F4": "test docstring only; not changed this round (doc priority, avoid touching frozen input); any change requires reporting a new SHA first"
+  },
+  "frozen_this_round": {
+    "tools/validate_generated_e0_lifecycle.py": "ec883644acce248921c9775451699ce2c149311d438b720e3e21c361571a2098",
+    "validation/test_generated_e0_lifecycle_admission.py": "8970c7ed4afeda5de0e6461f972b08c18d1f76f3148990352e7c0e0d90e4f3e3",
+    "note": "main-reviewed and codebuddy-reviewed; frozen for submission; not touched in the documentation round"
+  },
+  "test_counts_this_round": {
+    "validation/test_generated_e0_lifecycle_admission.py": "52 passed (Ubuntu-22.04)",
+    "validation/test_audit_26_closure_readiness.py + validation/test_audit_26_current_source_plan.py": "73 passed, 3 skipped (Windows)",
+    "validation/test_build_generated_e0.py": "25 passed, 1 failed (pre-existing to_wsl_path on POSIX, unrelated, not fixed)"
+  }
+}
