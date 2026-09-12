@@ -240,7 +240,8 @@ def check_wsl_directory_status(
         'if [ -L "$1" ]; then echo SYMLINK; exit 2; elif [ -e "$1" ]; then exit 0; else exit 1; fi',
         "wksim-output-check", output_wsl,
     ]
-    proc = subprocess.run(cmd, capture_output=True, timeout=5.0, check=False)
+    # This read-only check can be the first command of a cold WSL boot.
+    proc = subprocess.run(cmd, capture_output=True, timeout=30.0, check=False)
     if proc.returncode == 0:
         return True
     elif proc.returncode == 1:
