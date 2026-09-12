@@ -144,9 +144,9 @@ def audit(root):
     # Deserialize the independently captured DDS stream with the frozen generated messages.
     from rclpy.serialization import deserialize_message
     from prometheus_msgs.msg import TextInfo
-    from wksim_msgs.msg import SetupRequest,CommandRequest
+    from wksim_msgs.msg import SetupRequest,CommandRequest,SessionState
     observed_events=[];setups=[];commands=[];sequence=0;digest=hashlib.sha256()
-    native_events={'arducopter':[],'px4':[]};ap_land=[];px4_land=[]
+    native_events={'arducopter':[],'px4':[]};ap_land=[];px4_land=[];px4_commands=[];final_states={}
     with (root/'pv-dds.jsonl').open('rb') as stream:
         for line in stream:
             digest.update(line);row=json.loads(line)
@@ -154,10 +154,18 @@ def audit(root):
             sequence=row['sequence'];topic=row['topic']
             cls={'/uav1/prometheus/text_info':TextInfo,'/uav1/prometheus/v2/setup':SetupRequest,
                  '/uav1/prometheus/v2/command':CommandRequest,
-                 '/uav2/prometheus/text_info':TextInfo,'/uav2/prometheus/v2/command':CommandRequest}.get(topic)
+                 '/uav2/prometheus/text_info':TextInfo,'/uav2/prometheus/v2/command':CommandRequest,
+                 '/uav1/prometheus/v2/state':SessionState,'/uav2/prometheus/v2/state':SessionState}.get(topic)
             if cls is None:continue
             msg=deserialize_message(bytes.fromhex(row['cdr_hex']),cls)
-            if cls is TextInfo:
+            if cls is SessionState:
+                stack='arducopter' if topic.startswith('/uav1/') else 'px4'
+                uid=1 if stack=='arducopter' else 2
+                require(msg.version==1 and msg.run_id==result['run_id']
+                        and msg.control_epoch==result['tasks'][stack]['task']['control_epoch']
+                        and msg.state.uav_id==msg.control.uav_id==uid,'public state identity differs')
+                final_states[stack]=msg
+            elif cls is TextInfo:
                 event=json.loads(msg.message)
                 stack='arducopter' if topic.startswith('/uav1/') else 'px4'
                 if (event.get('run_id')==result['run_id']
@@ -176,7 +184,9 @@ def audit(root):
                             and msg.setup.cmd==1 and msg.setup.px4_mode=='BRAKE','actual public release request differs')
                     setups.append(msg.request_id)
             elif topic.startswith('/uav1/'):commands.append((msg.request_id,msg.command.command_id))
-            elif msg.command.agent_cmd==msg.command.LAND:
+            else:
+                px4_commands.append((msg.request_id,msg.command.command_id))
+                if msg.command.agent_cmd!=msg.command.LAND:continue
                 require(msg.version==1 and msg.run_id==result['run_id']
                         and msg.control_epoch==result['tasks']['px4']['task']['control_epoch']
                         and msg.command.control_level==msg.command.EXIT_ABSOLUTE_CONTROL,'PX4 LAND identity/mode differs')
@@ -184,6 +194,20 @@ def audit(root):
     require(observed_events==[ack,done] and setups==[request],'independent DDS release correlation failed')
     require(commands and max(c for _,c in commands)==release['verified_command_high_water']
             and max(q for q,_ in commands)==request-1,'source writer did not remain silent')
+    for command_rows in (commands,px4_commands):
+        require(command_rows and all(b[0]>a[0] and b[1]>a[1] for a,b in zip(command_rows,command_rows[1:])),
+                'public command/request IDs are not strictly increasing')
+    require(set(final_states)=={'arducopter','px4'},'final public SessionState missing')
+    final_public={}
+    for stack,msg in final_states.items():
+        require(msg.state.armed is False and msg.state.connected and msg.state.odom_valid
+                and not msg.control.failsafe and msg.state.header.frame_id=='map'
+                and abs(float(msg.state.position[2]))<.3 and msg.source_received_valid
+                and 0<=msg.published_monotonic_s-msg.source_received_monotonic_s<=2,
+                'final captured public state not fresh, grounded and disarmed')
+        final_public[stack]=dict(armed=msg.state.armed,mode=msg.state.mode,
+                                last_request_id=msg.last_request_id,
+                                position=[float(v) for v in msg.state.position])
     require(ap_land==[request+1] and len(px4_land)==1,'actual LAND request missing or duplicated')
     land_proof={}
     for stack,land_id in (('arducopter',ap_land[0]),('px4',px4_land[0][0])):
@@ -215,7 +239,7 @@ def audit(root):
     hashes['rate.jsonl']=digest.hexdigest()
     return dict(status='pass',scope='moving P+V handoff, public BRAKE and two-vehicle LAND only',
                 full_acceptance=False,nominal_pv_acceptance=False,ego_obstacle_flight=False,
-                run_id=result['run_id'],epoch=epoch,request_id=request,physical=physical,landing=land_proof,
+                run_id=result['run_id'],epoch=epoch,request_id=request,physical=physical,landing=land_proof,final_public=final_public,
                 dds_capture_messages=sequence,rate_groups=groups,worst_lateness_ns=worst,evidence_sha256=hashes)
 
 
