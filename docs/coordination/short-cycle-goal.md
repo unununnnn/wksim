@@ -12,20 +12,20 @@
 
 ## 当前关键路径
 
-本轮已收到正式 Goal continuation，清理后自动续跑得到实际验证。最新 Git 为准。验收工作区仍在 Ubuntu-22.04 `/root/wksim-release-acceptance-fe3`、分支 `codex/planner-release-validation`，其私有实验改动尚未合入主仓库。主仓库只集成已验证的运行时修复与证据，保护他方 runner/runtime/控制器改动。
+主仓库最新已推送运行时修复为1521343；后续提交以实时Git为准。Ubuntu-22.04 `/root/wksim-release-acceptance-fe3` 的私有分支 `codex/planner-release-validation` 已提交实验准备 c97e92b、执行模块证据 e5a124e、失败记录 float32 修复8699169。主仓库他方 runner/runtime/控制器修改不覆盖，不整文件替换。
 
-1. **非阻塞接收修复已通过主验。** 安装态 helper 02 暴露 Linux accept() 不继承 listener 的 nonblocking，第二次 recv 阻塞 ROS executor；receiver 又把 EAGAIN 当 invalid_socket。主会话修正 accepted socket.setblocking(False) 与 BlockingIOError→空批次，保留 EOF/身份/其他错误门。56 项纯检查、27 项实际 ROS 检查通过。首次 ROS 回归失败原件保留在 `validation/control-nonblocking-20260912/ros-tests.log`，通过记录是 ros-tests-02.log。
-2. **新 Control 候选必须用于后续验证。** `/root/wksim-joint-control-c2IXOr/build.json`，SHA `6fe8c0b30775a9ba83407302f602d0785876d307e5f1cb746afa3bf316cf5e7e`。已实际构建并 seal；私有 ap_mixed_candidate pin 已更新，主仓库最终飞行 pin 不变。BeqOco 含已证实的阻塞接收缺陷，不再用于新飞行。
-3. **安装态 helper 03 已通过，但不是 FC 证明。** `validation/planner-release-helper-20260912-03/`：真实安装 Node/ROS/TCP，明确合成的状态与 ACK；唯一 SetupRequest=30，command 高水位=17，无 trajectory 输出；源码运行前封存、运行后 SHA 一致；Node 继承 task PGID，helper 只按 pid/start_ticks 核验并发送信号，正常退出0、日志为空，独立 /proc 证明该身份已退出。01 先关 socket 产生 EOF；02 改清理顺序后暴露阻塞并需 KILL；原件全部保留。
-4. **下一步重新准入 c2IXOr，收取 Claude 18-AH 后进入真实 release。** 私有 `validation/planner-release-preflight-20260912/admission-03.json` 已对旧 BeqOco 返回 ok=true，children_created=0；正确顺序是原 run-joint-flight.sh 的 MUlZd0/FVMjak 历史 overlay，之后才激活 Rzj3Pf/新 Control。不能将旧 admission-03 当新候选准入；对 c2IXOr 写 admission-04。252 个历史 baseline 文件按原 SHA 复制的记录在 baseline-copy.json，不能发布原始厂商资产。
+1. **真实移动中 release 首场 FAILED，禁止盲重跑。** 私有原始目录 `validation/joint-public-flight-8fmacpgy`，live `/root/wksim-joint-flight-zzt0406g`，epoch `676a53981dd747cb93bfd5271d7f5d95`，执行源码 e5a124e。tick67996 累计迟到134828282ns触发原100ms RateUnmet；此前两机已起飞并进入P+V。AP writer静默tick67940，公共速度0.26640569398276115m/s、同tick物理真值0.3055788437713588m/s。没有 release ACK，没有停止/LAND 验收，不能算 #83 nominal PV 或 Full。
+2. **时序与清理已核验，因果仍有限。** 最后67992→67996组耗71993754ns；planner启动前最近组已有66800709ns累计迟到。子进程启动wall351.29149844，RateUnmet记录351.423954943，cancel在351.529023245，晚于rate fault105068302ns，events为空。启动重叠不证明唯一CPU/IO/FC原因。源码与完整Control候选均不变，原10个PGID的独立/proc检查为空；planner pid2501继承AP task pgid1927、退出0，无用户进程被终止。完整原件保留私有目录；主仓库选定原件及rate.gz/SHA清单在 `validation/planner-release-native-20260912-01/`。
+3. **失败记录缺口已修复，原记录不重写。** AP result.json因release_stop中的numpy.float32无法JSON序列化而未写出；原始task log、progress、helper记录均保留。8699169仅把anchor和pre_release_velocity转Python float，真实numpy回归与6项流程/证据检查通过；不是改变坐标或阈值。
+4. **下一步评审并实现启动预热，避免在计时飞行中临时加载整套ROS/Python模块。** 候选方案：同一密封planner子进程在 initialized.json/physics tick0屏障前完成模块加载，等待自有stdin激活令牌；writer静默且当前双高水位核对后，才实例化真正PlannerTransportNode并接收cancel。不能提前绑定epoch追随PV writer，不能提前分配请求，不改.5倍率/100ms/1ms/无追赶或停止锚点。Claude18-AI（thread `4d5268f4-1d78-48ba-a5d6-aa800447cb1c`，turn `4edadb23-c0ac-4634-9cf7-76c00f454998`）已派发只读边界复核，最后实时状态running；主会话拥有实现。先读其状态，不因观察超时重启。不直接复跑8fmacpgy原条件。
 
-私有实验已有 PVTask prepare/begin_leg 提取、新 PlannerReleaseTask、显式 `--planner-release-proof` 和 10 项流程/入口检查；AP 在原 P+V 第一段确实移动时静默 writer，经真实公共 cancel→BRAKE 双阶段确认，再保留 2 秒准备、4 秒 <=.25m/s/<=1m 停止窗口及 AUTO.LAND。主会话已补整数 ROS ns 和 phase 状态快照。该场次只能是 diagnostic observed，不能算 #83 nominal PV 或 Full；实际 1ms truth 必须独立审计。
+Control仍为 `/root/wksim-joint-control-c2IXOr/build.json`，SHA `6fe8c0b30775a9ba83407302f602d0785876d307e5f1cb746afa3bf316cf5e7e`。admission-04已对该候选实际准入ok=true，零子进程；原overlay顺序MUlZd0/FVMjak，之后激活Rzj3Pf/新Control，不削弱checks。BeqOco有已证实的阻塞接收缺陷，不用于新飞行。新候选本轮实跑前后完整check_control一致，无须因实验工具修改而重建同样Control。
 
-OMP 22l 主验仍发现请求从29正常领养30被误拒绝，以及独立子进程组可逃离父任务清理，已实际 cancel，read 确认 interrupted/turnId=null。主会话接管 helper 与测试，修正上述问题、同一 TCP 连接、安装环境、ROS deadline、失败记录、Linux start_ticks 索引19和 TERM/KILL 身份核验，29 项 helper/流程/准入纯检查通过。当前唯一写入者为主会话，不重新启动 OMP 覆盖这些文件。
+Claude18-AH已完成：采纳安装态模块证据缺口，e5a124e记录子进程实际加载15个Simulator模块并逐项对候选路径/哈希核验，赛后完整check_control；闭包源码和消息资产进入原source_unchanged。其子进程独立组担忧已由前轮继承task组/正常退出修复；其“速度必定>.25”数学推论不成立，以实测为准；其把anchor后移会放宽原停止距离，未采纳。安装态新增证据联调04验证15模块、退出0、源码不变，仍是合成ACK，不是FC证明。
 
-Claude 18-AH（thread `4d5268f4-1d78-48ba-a5d6-aa800447cb1c`，turn `ab744e9d-f54a-4a03-b709-a289c20c7955`）最后实时状态 running，负责只读检查 task/runner，下一轮读状态与最终报告；不得因观察超时重启。agy turn `ddd29a53-9932-45e2-b956-566d6a1a4319` 返回 failed 但附带证据映射文字，仅作定位提示，不当主验；其 record_phase 等建议需核对真实API（实际是 task.phase），不能直接照抄。
+已完成且不重复：非阻塞接收修复1521343（accepted socket显式nonblocking，BlockingIOError空批次，EOF/身份拒绝保留），56纯检查、27实际ROS检查；安装态03与04通过。证据 `validation/control-nonblocking-20260912/`、`validation/planner-release-helper-20260912-03/`；01/02旧失败原件保留。OMP22l已实际中断并确认interrupted，helper由主会话接管，不重启覆盖。agy旧映射结果状态failed，仅作定位提示，不当验收。
 
-本轮所有主会话 native/fixture/build handles 都已终态。下次任何 native 启动前重新分别完成并评估两 distro 进程检查。无需重做本轮安装夹具；先处理准入、独立审查和真实场次。
+本轮真实场次handle38241已退出1；准入handle67838退出0；所有主会话native/fixture/build handles均终态。下次任何native启动前必须重新分别完成并评估两个distro进程检查，再单独启动。所有数值、身份、新鲜度、停止、时间门槛和历史失败均保留。
 
 ## 已完成，勿重复
 
