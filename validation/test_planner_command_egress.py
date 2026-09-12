@@ -489,5 +489,272 @@ class SessionStateDecisionTests(unittest.TestCase):
             ("fault", "external_request_writer"))
 
 
+class ReleaseEgressTests(unittest.TestCase):
+    """Public release (SET_PX4_MODE) through the shared request high-water."""
+
+    def make_release_egress(self, **kw):
+        session, adapter = make_activated_adapter()
+        setup_pub = RecordingPublisher()
+        egress = PlannerCommandEgress(
+            adapter, RecordingPublisher(), run_id=IDENTITY["run_id"],
+            mission_id=IDENTITY["mission_id"], uav_id=IDENTITY["uav_id"],
+            control_epoch=IDENTITY["control_epoch"], clock_ns=lambda: 2_000_000_000,
+            setup_publisher=setup_pub, **kw)
+        return session, adapter, egress, setup_pub
+
+    def setup_event(self, kind, request_id, **fields):
+        event = dict(version=1, run_id=IDENTITY["run_id"],
+                     control_epoch=IDENTITY["control_epoch"], event=kind,
+                     request_id=request_id)
+        event.update(fields)
+        return event
+
+    def test_release_modes_match_control_node_exit_modes(self):
+        _, _, egress, published = self.make_release_egress()
+        with self.assertRaises(ValueError):
+            egress.request_release(mode="OFFBOARD", expected_native_mode="OFFBOARD",
+                                   owns_control=True, state_fresh=True)
+        self.assertEqual(egress.request_high_water, 0)
+        outcome, envelope = egress.request_release(mode="BRAKE", expected_native_mode="BRAKE",
+                                                   owns_control=True, state_fresh=True)
+        self.assertEqual(outcome, "sent")
+        self.assertEqual(envelope["setup"]["px4_mode"], "BRAKE")
+        self.assertEqual(len(published.envelopes), 1)
+
+    def test_release_requires_current_fresh_owned_state_without_mutation(self):
+        for owned, fresh in ((False, True), (True, False), (1, True), (True, None)):
+            _, _, egress, published = self.make_release_egress()
+            with self.subTest(owned=owned, fresh=fresh), self.assertRaises(ValueError):
+                egress.request_release(mode="POSCTL", expected_native_mode="POSCTL",
+                                       owns_control=owned, state_fresh=fresh)
+            self.assertEqual(egress.request_high_water, 0)
+            self.assertIsNone(egress.release)
+            self.assertFalse(published.envelopes)
+
+    def test_matched_semantic_rejection_and_revoke_fault(self):
+        for kind in ("setup_rejected", "control_revoked"):
+            _, _, egress, _ = self.make_release_egress()
+            _, envelope = egress.request_release(mode="POSCTL", expected_native_mode="POSCTL",
+                                                 owns_control=True, state_fresh=True)
+            with self.subTest(kind=kind), self.assertRaises(EgressFault) as caught:
+                egress.on_setup_event(self.setup_event(kind, envelope["request_id"], reason="setup_busy"),
+                                      ERROR, info_value=INFO, error_value=ERROR)
+            self.assertEqual(caught.exception.reason, "release_rejected")
+            self.assertFalse(egress.release["confirmed"])
+
+    def test_old_setup_event_is_ignored_and_contradictory_confirmation_faults(self):
+        _, _, egress, _ = self.make_release_egress(initial_request_high_water=8)
+        _, envelope = egress.request_release(mode="POSCTL", expected_native_mode="POSCTL",
+                                             owns_control=True, state_fresh=True)
+        rid = envelope["request_id"]
+        self.assertEqual(egress.on_setup_event(
+            self.setup_event("native_ack", rid-1, accepted=True, stage="simple"),
+            INFO, info_value=INFO, error_value=ERROR), "ignored")
+        self.assertFalse(egress.release["ack_received"])
+        egress.on_setup_event(self.setup_event("native_ack", rid, accepted=True, stage="simple"),
+                              INFO, info_value=INFO, error_value=ERROR)
+        completed = self.setup_event("setup_completed", rid, action="mode", value="POSCTL", native_mode="POSCTL")
+        egress.on_setup_event(completed, INFO, info_value=INFO, error_value=ERROR)
+        completed["native_mode"] = "OFFBOARD"
+        with self.assertRaises(EgressFault):
+            egress.on_setup_event(completed, INFO, info_value=INFO, error_value=ERROR)
+
+    def test_unconfigured_release_is_caller_error_without_mutation(self):
+        _, _, egress, _ = make_egress()
+        before = egress.request_high_water
+        with self.assertRaises(ValueError):
+            egress.request_release(owns_control=True, state_fresh=True, mode="POSCTL", expected_native_mode="POSCTL")
+        self.assertEqual(egress.request_high_water, before)
+        self.assertIsNone(egress.release)
+
+    def test_release_shares_request_high_water(self):
+        _, _, egress, setup_pub = self.make_release_egress()
+        first = egress.step_and_publish(0, True, True)
+        self.assertEqual(first["request_id"], 1)
+        egress.on_command_event(
+            dict(version=1, run_id=IDENTITY["run_id"],
+                 control_epoch=IDENTITY["control_epoch"],
+                 event="command_accepted", request_id=1, command_id=1),
+            INFO, info_value=INFO, error_value=ERROR)
+        outcome, envelope = egress.request_release(owns_control=True, state_fresh=True,
+            mode="POSCTL", expected_native_mode="POSCTL")
+        self.assertEqual(outcome, "sent")
+        self.assertEqual(envelope["request_id"], 2)  # SAME counter
+        self.assertEqual(envelope["run_id"], IDENTITY["run_id"])
+        self.assertEqual(envelope["control_epoch"], IDENTITY["control_epoch"])
+        self.assertEqual(envelope["setup"]["cmd"], "SET_PX4_MODE")
+        self.assertEqual(envelope["setup"]["px4_mode"], "POSCTL")
+        self.assertEqual(envelope["setup"]["stamp_sec"], 2)
+        self.assertEqual(setup_pub.envelopes, [envelope])
+        self.assertEqual(egress.release["request_id"], 2)
+        self.assertFalse(egress.release["confirmed"])
+
+    def test_busy_is_atomic_and_never_fakes_cancel(self):
+        _, _, egress, setup_pub = self.make_release_egress()
+        egress.step_and_publish(0, True, True)  # command pending now
+        before = (egress.request_high_water, egress.pending, egress.release)
+        outcome, envelope = egress.request_release(owns_control=True, state_fresh=True,
+            mode="POSCTL", expected_native_mode="POSCTL")
+        self.assertEqual((outcome, envelope), ("busy", None))
+        self.assertEqual((egress.request_high_water, egress.pending, egress.release), before)
+        self.assertEqual(setup_pub.envelopes, [])
+        # After the ACK clears the pending command, the release goes through.
+        egress.on_command_event(
+            dict(version=1, run_id=IDENTITY["run_id"],
+                 control_epoch=IDENTITY["control_epoch"],
+                 event="command_accepted", request_id=1, command_id=1),
+            INFO, info_value=INFO, error_value=ERROR)
+        outcome, envelope = egress.request_release(owns_control=True, state_fresh=True,
+            mode="POSCTL", expected_native_mode="POSCTL")
+        self.assertEqual(outcome, "sent")
+        self.assertEqual(envelope["request_id"], 2)
+
+    def test_second_release_while_in_flight_is_busy(self):
+        _, _, egress, setup_pub = self.make_release_egress()
+        egress.request_release(owns_control=True, state_fresh=True, mode="POSCTL", expected_native_mode="POSCTL")
+        before = egress.request_high_water
+        self.assertEqual(
+            egress.request_release(owns_control=True, state_fresh=True, mode="AUTO.LAND", expected_native_mode="AUTO.LAND"),
+            ("busy", None))
+        self.assertEqual(egress.request_high_water, before)
+        self.assertEqual(len(setup_pub.envelopes), 1)
+
+    def test_mode_validation_before_any_mutation(self):
+        _, _, egress, _ = self.make_release_egress()
+        before = egress.request_high_water
+        for bad_call in (
+                dict(mode="TELEPORT", expected_native_mode="POSCTL"),
+                dict(mode="", expected_native_mode="POSCTL"),
+                dict(mode="POSCTL", expected_native_mode=""),
+                dict(mode="POSCTL", expected_native_mode=None)):
+            with self.assertRaises(ValueError):
+                egress.request_release(owns_control=True, state_fresh=True, **bad_call)
+        self.assertEqual(egress.request_high_water, before)
+        self.assertIsNone(egress.release)
+
+    def test_no_trajectory_after_release_issued(self):
+        _, _, egress, _ = self.make_release_egress()
+        egress.request_release(owns_control=True, state_fresh=True, mode="POSCTL", expected_native_mode="POSCTL")
+        with self.assertRaises(EgressFault) as caught:
+            egress.step_and_publish(0, True, True)
+        self.assertEqual(caught.exception.reason, "release_in_flight")
+        self.assertIsNone(egress.fault_reason)  # general fault NOT latched
+
+    def test_two_phase_confirmation(self):
+        _, _, egress, _ = self.make_release_egress()
+        _, envelope = egress.request_release(owns_control=True, state_fresh=True,
+            mode="POSCTL", expected_native_mode="POSCTL")
+        rid = envelope["request_id"]
+        # setup_received alone is NOT progress toward confirmed.
+        self.assertEqual(
+            egress.on_setup_event(self.setup_event("setup_received", rid),
+                                  INFO, info_value=INFO, error_value=ERROR),
+            "setup_received")
+        self.assertFalse(egress.release["confirmed"])
+        # Phase 1: native_ack accepted with the expected stage.
+        self.assertEqual(
+            egress.on_setup_event(
+                self.setup_event("native_ack", rid, accepted=True, stage="simple"),
+                INFO, info_value=INFO, error_value=ERROR),
+            "ack_received")
+        self.assertFalse(egress.release["confirmed"])  # ack alone != done
+        self.assertEqual(
+            egress.on_setup_event(
+                self.setup_event("native_ack", rid, accepted=True, stage="simple"),
+                INFO, info_value=INFO, error_value=ERROR),
+            "duplicate_ack")
+        # Phase 2: setup_completed with exact action/value/native_mode match.
+        self.assertEqual(
+            egress.on_setup_event(
+                self.setup_event("setup_completed", rid, action="mode",
+                                 value="POSCTL", native_mode="POSCTL"),
+                INFO, info_value=INFO, error_value=ERROR),
+            "confirmed")
+        self.assertTrue(egress.release["confirmed"])
+        self.assertEqual(
+            egress.on_setup_event(
+                self.setup_event("setup_completed", rid, action="mode",
+                                 value="POSCTL", native_mode="POSCTL"),
+                INFO, info_value=INFO, error_value=ERROR),
+            "duplicate")
+        with self.assertRaises(EgressFault) as caught:
+            egress.step_and_publish(0, True, True)
+        self.assertEqual(caught.exception.reason, "release_confirmed")
+
+    def test_completion_before_ack_faults(self):
+        _, _, egress, _ = self.make_release_egress()
+        _, envelope = egress.request_release(owns_control=True, state_fresh=True,
+            mode="POSCTL", expected_native_mode="POSCTL")
+        with self.assertRaises(EgressFault) as caught:
+            egress.on_setup_event(
+                self.setup_event("setup_completed", envelope["request_id"],
+                                 action="mode", value="POSCTL",
+                                 native_mode="POSCTL"),
+                INFO, info_value=INFO, error_value=ERROR)
+        self.assertEqual(caught.exception.reason, "release_completion_without_ack")
+
+    def test_completion_mismatch_faults(self):
+        _, _, egress, _ = self.make_release_egress()
+        _, envelope = egress.request_release(owns_control=True, state_fresh=True,
+            mode="POSCTL", expected_native_mode="POSCTL")
+        rid = envelope["request_id"]
+        egress.on_setup_event(self.setup_event("native_ack", rid, accepted=True,
+                                               stage="simple"),
+                              INFO, info_value=INFO, error_value=ERROR)
+        with self.assertRaises(EgressFault) as caught:
+            egress.on_setup_event(
+                self.setup_event("setup_completed", rid, action="mode",
+                                 value="POSCTL", native_mode="AUTO.RTL"),
+                INFO, info_value=INFO, error_value=ERROR)
+        self.assertEqual(caught.exception.reason, "release_completion_mismatch")
+
+    def test_native_reject_faults_closed(self):
+        _, _, egress, _ = self.make_release_egress()
+        _, envelope = egress.request_release(owns_control=True, state_fresh=True,
+            mode="AUTO.LAND", expected_native_mode="AUTO.LAND")
+        with self.assertRaises(EgressFault) as caught:
+            egress.on_setup_event(
+                self.setup_event("native_ack", envelope["request_id"],
+                                 accepted=False, stage="simple"),
+                INFO, info_value=INFO, error_value=ERROR)
+        self.assertEqual(caught.exception.reason, "release_rejected")
+
+    def test_wrong_stage_faults(self):
+        _, _, egress, _ = self.make_release_egress()
+        _, envelope = egress.request_release(owns_control=True, state_fresh=True,
+            mode="POSCTL", expected_native_mode="POSCTL")
+        rid = envelope["request_id"]
+        with self.assertRaises(EgressFault) as caught:
+            egress.on_setup_event(
+                self.setup_event("native_ack", rid, accepted=True, stage="land"),
+                INFO, info_value=INFO, error_value=ERROR)
+        self.assertEqual(caught.exception.reason, "release_ack_stage_mismatch")
+
+    def test_foreign_and_other_writer_events(self):
+        _, _, egress, _ = self.make_release_egress()
+        _, envelope = egress.request_release(owns_control=True, state_fresh=True,
+            mode="POSCTL", expected_native_mode="POSCTL")
+        rid = envelope["request_id"]
+        foreign = self.setup_event("native_ack", rid, accepted=True, stage="simple")
+        foreign["run_id"] = "run-b"
+        self.assertEqual(
+            egress.on_setup_event(foreign, INFO, info_value=INFO, error_value=ERROR),
+            "ignored")
+        with self.assertRaises(EgressFault) as caught:
+            egress.on_setup_event(
+                self.setup_event("native_ack", rid + 99, accepted=True, stage="simple"),
+                INFO, info_value=INFO, error_value=ERROR)
+        self.assertEqual(caught.exception.reason, "other_setup_writer_event")
+
+    def test_setup_events_without_release_are_ignored(self):
+        _, _, egress, _ = self.make_release_egress()
+        self.assertEqual(
+            egress.on_setup_event(self.setup_event("native_ack", 1, accepted=True,
+                                                   stage="simple"),
+                                  INFO, info_value=INFO, error_value=ERROR),
+            "ignored")
+        self.assertIsNone(egress.release)
+
+
 if __name__ == "__main__":
     unittest.main()

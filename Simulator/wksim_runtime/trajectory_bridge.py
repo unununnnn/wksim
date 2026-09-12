@@ -17,8 +17,8 @@ import rclpy
 from rcl_interfaces.msg import ParameterDescriptor
 from rclpy.executors import ExternalShutdownException
 from rclpy.node import Node
-from prometheus_msgs.msg import Bspline, TextInfo, UAVCommand, UAVControlState
-from wksim_msgs.msg import CommandRequest, SessionState
+from prometheus_msgs.msg import Bspline, TextInfo, UAVCommand, UAVControlState, UAVSetup
+from wksim_msgs.msg import CommandRequest, SessionState, SetupRequest
 
 from Simulator.wksim_planning.ego_bspline_bridge import BridgeError, bridge_bspline
 
@@ -86,6 +86,29 @@ def build_ros_command_request(fields, *, run_id, control_epoch, request_id):
         request_id=request_id,
         command=command,
     )
+
+
+def build_ros_mode_request(*, mode, stamp_ns, run_id, control_epoch, request_id):
+    """Assemble the existing public mode-release request; does not send or allocate IDs."""
+    if mode not in ("POSCTL", "AUTO.LOITER", "AUTO.LAND", "AUTO.RTL", "BRAKE"):
+        raise ValueError("unsupported release mode")
+    run_id = _explicit_text(run_id, "run_id")
+    if len(run_id) > 64:
+        raise ValueError("run_id exceeds the SetupRequest wire limit")
+    if (not isinstance(control_epoch, str) or len(control_epoch) != 32
+            or any(char not in "0123456789abcdef" for char in control_epoch)):
+        raise ValueError("control_epoch must be 32 lowercase hex characters")
+    _explicit_uint(request_id, "request_id", MAX_REQUEST_ID)
+    if request_id == 0:
+        raise ValueError("request_id must be positive")
+    _explicit_uint(stamp_ns, "stamp_ns", (2**31 - 1) * 1_000_000_000 + 999_999_999)
+    setup = UAVSetup()
+    setup.header.stamp.sec, setup.header.stamp.nanosec = divmod(stamp_ns, 1_000_000_000)
+    setup.header.frame_id = "map"
+    setup.cmd = UAVSetup.SET_PX4_MODE
+    setup.px4_mode = mode
+    return SetupRequest(version=SetupRequest.VERSION, run_id=run_id,
+                        control_epoch=control_epoch, request_id=request_id, setup=setup)
 
 
 @dataclass

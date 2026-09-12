@@ -11,3 +11,27 @@ The raw decoder has no poison latch: a v1-only read method leaves an unexpected 
 Main-agent verification: 202 tests across envelope, pump, session, adapter and command egress passed, including malformed identity, schema drift, opt-in recovery, mixed-stream sequence order and the v1 parse-count regression.
 
 This does not enable control frames in the ROS1 sender or ROS2 transport node. Those integrations still need explicit mode selection and public stop/release ACK handling. A terminal planner session that stops publishing is not evidence that a real FC stopped its last P+V command. No trajectory-time gate or physics/freshness limit was changed.
+
+## Public release foundation
+
+`PlannerCommandEgress.request_release` now uses the existing public SetupRequest
+mode interface and the same request-id allocator as commands. It requires an
+explicit setup publisher, requested/expected native modes, and current strict
+ownership/freshness verdicts. Existing command pending state returns busy without
+clearing that pending request or consuming another ID. A sent release prevents
+further trajectory publication; setup events remain processable.
+
+Allowed exit modes match ControlNode: BRAKE, POSCTL, AUTO.LOITER, AUTO.LAND and
+AUTO.RTL. OFFBOARD is not a release mode. Confirmation requires a matching
+successful `native_ack` followed by matching mode observation in
+`setup_completed`; receipt alone is insufficient. ControlNode emits even a
+negative native ACK as INFO, then emits its error/revocation separately. Matched
+rejection/revocation and contradictory completion events fault; older setup
+request events and foreign run/epoch events do not confirm the release.
+
+`build_ros_mode_request` assembles the generated SetupRequest without publishing
+or allocating IDs. Five valid mode variants and malformed identity/counter/time
+inputs were checked with actual ROS2 serialization. The related pure suites pass
+221 tests. Sender/node integration, timeout handling while waiting for release,
+and actual FC mode observation remain outstanding; this foundation is not a
+physical cancellation result.

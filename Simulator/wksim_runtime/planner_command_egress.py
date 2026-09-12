@@ -236,6 +236,88 @@ def classify_command_event(event, message_type, *, run_id, epoch, pending,
     return "accepted", None, (request_id, command_id)
 
 
+SETUP_CMD_SET_PX4_MODE = "SET_PX4_MODE"  # symbolic; node resolves to UAVSetup.SET_PX4_MODE
+DEFAULT_RELEASE_MODES = frozenset(
+    ("BRAKE", "AUTO.LAND", "AUTO.RTL", "POSCTL", "AUTO.LOITER"))
+DEFAULT_ACK_STAGE = "simple"
+
+
+def classify_setup_event(event, message_type, *, run_id, epoch, release,
+                         info_value, error_value,
+                         expected_ack_stage=DEFAULT_ACK_STAGE):
+    """Classify one setup-channel event; pure, returns (outcome, release).
+
+    Two-phase release confirmation: a matching successful ``native_ack``
+    (accepted, stage == expected_ack_stage) followed by a matching
+    ``setup_completed`` (action == 'mode', value == requested mode,
+    native_mode == caller-supplied expectation) -- both for the SAME
+    run/epoch/request_id -- is the ONLY path to 'confirmed'.
+    ``setup_received`` and a lone ack never complete a release.  Every
+    rejection/mismatch is a 'fault:<reason>'; the function never mutates.
+    """
+    if type(event) is not dict:
+        return "fault:malformed_text_info", release
+    if (type(event.get("version")) is not int or event["version"] != 1
+            or event.get("run_id") != run_id or event.get("control_epoch") != epoch):
+        return "ignored", release
+    kind = event.get("event")
+    if kind not in ("native_ack", "setup_received", "setup_completed", "setup_rejected", "control_revoked"):
+        return "ignored", release
+    if release is None:
+        return "ignored", release
+    request_id = event.get("request_id")
+    if type(request_id) is not int or request_id < 0:
+        return "fault:malformed_text_info", release
+    if request_id < release["request_id"]:
+        return "ignored", release
+    if request_id != release["request_id"]:
+        return "fault:other_setup_writer_event", release
+    if kind in ("setup_rejected", "control_revoked"):
+        if message_type != error_value:
+            return "fault:text_info_type_mismatch", release
+        return "fault:release_rejected", release
+    if kind == "setup_received":
+        if message_type != info_value:
+            return "fault:text_info_type_mismatch", release
+        return "duplicate" if release["confirmed"] else "setup_received", release
+    if kind == "native_ack":
+        accepted = event.get("accepted")
+        if accepted is True:
+            if message_type != info_value:
+                return "fault:text_info_type_mismatch", release
+            if event.get("stage") != expected_ack_stage:
+                return "fault:release_ack_stage_mismatch", release
+            if release["confirmed"]:
+                return "duplicate", release
+            if release["ack_received"]:
+                return "duplicate_ack", release
+            updated = dict(release)
+            updated["ack_received"] = True
+            return "ack_received", updated
+        if accepted is False:
+            # ControlNode emits native_ack as INFO even when accepted=false;
+            # the subsequent revoke is the ERROR event.
+            if message_type != info_value:
+                return "fault:text_info_type_mismatch", release
+            return "fault:release_rejected", release
+        return "fault:malformed_text_info", release
+    # setup_completed
+    if message_type != info_value:
+        return "fault:text_info_type_mismatch", release
+    if not release["ack_received"]:
+        return "fault:release_completion_without_ack", release
+    if (event.get("action") != "mode"
+            or event.get("value") != release["mode"]
+            or event.get("native_mode") != release["expected_native_mode"]):
+        return "fault:release_completion_mismatch", release
+    if release["confirmed"]:
+        return "duplicate", release
+    updated = dict(release)
+    updated["completed"] = True
+    updated["confirmed"] = True
+    return "confirmed", updated
+
+
 class PlannerCommandEgress:
     """Drive the pump-held adapter and emit public command envelopes.
 
@@ -252,7 +334,9 @@ class PlannerCommandEgress:
     """
 
     def __init__(self, adapter, publisher, *, run_id, mission_id, uav_id,
-                 control_epoch, clock_ns, initial_request_high_water=0):
+                 control_epoch, clock_ns, initial_request_high_water=0,
+                 setup_publisher=None, allowed_release_modes=None,
+                 expected_ack_stage=DEFAULT_ACK_STAGE):
         if not isinstance(adapter, EgoTrajectoryAdapter):
             raise ValueError("adapter must be an EgoTrajectoryAdapter")
         if not callable(publisher):
@@ -282,6 +366,21 @@ class PlannerCommandEgress:
         self._pending = None          # (request_id, command_id) or None
         self._last_ack = None
         self._fault_reason = None
+        if setup_publisher is not None and not callable(setup_publisher):
+            raise ValueError("setup_publisher must be callable")
+        if allowed_release_modes is None:
+            allowed_release_modes = DEFAULT_RELEASE_MODES
+        if (not isinstance(allowed_release_modes, frozenset)
+                or not allowed_release_modes
+                or not all(_explicit_text(m, "release mode") for m in allowed_release_modes)
+                or not allowed_release_modes <= DEFAULT_RELEASE_MODES):
+            raise ValueError(
+                "allowed_release_modes must be a non-empty frozenset of known modes")
+        _explicit_text(expected_ack_stage, "expected_ack_stage")
+        self._setup_publisher = setup_publisher
+        self._allowed_release_modes = allowed_release_modes
+        self._expected_ack_stage = expected_ack_stage
+        self._release = None
 
     @property
     def session(self):
@@ -303,6 +402,11 @@ class PlannerCommandEgress:
     @property
     def last_ack(self):
         return self._last_ack
+
+    @property
+    def release(self):
+        """The in-flight/confirmed release record, or None."""
+        return None if self._release is None else dict(self._release)
 
     def _identity(self):
         return dict(
@@ -329,6 +433,13 @@ class PlannerCommandEgress:
         """
         if self._fault_reason is not None:
             raise EgressFault(self._fault_reason)
+        if self._release is not None:
+            # A release was issued (or confirmed): no trajectory is ever
+            # published afterwards.  This does NOT latch the general fault --
+            # setup events must keep flowing to the two-phase confirmation.
+            raise EgressFault(
+                "release_confirmed" if self._release["confirmed"]
+                else "release_in_flight")
         if type(tick) is not int:
             raise ValueError("tick must be an integer")
         if self._pending is not None:
@@ -381,6 +492,83 @@ class PlannerCommandEgress:
             info_value=info_value, error_value=error_value)
         self._pending = pending
         self._last_ack = last_ack
+        if outcome.startswith(FAULT_PREFIX):
+            self._fault(outcome[len(FAULT_PREFIX):])
+        return outcome
+
+    def request_release(self, *, mode, expected_native_mode, owns_control, state_fresh):
+        """Issue one public SET_PX4_MODE release through the SHARED request
+        high-water (no separate counter; command_id is untouched).
+
+        Returns ``("sent", envelope)`` or ``("busy", None)``.  'busy' means a
+        command is pending OR a release is already in flight: NOTHING was
+        sent and NO counter moved; the caller retries after the ACK clears.
+        The pending command is never cleared to fake a cancellation.
+
+        ``mode`` and ``expected_native_mode`` are explicit caller inputs (no
+        FC-type guessing); ``mode`` must be in the configured allowed set.
+        The caller must supply its current strict ownership/freshness verdicts.
+        Every check runs BEFORE any mutation.
+        """
+        if self._setup_publisher is None:
+            raise ValueError("release requires an explicitly configured setup_publisher")
+        if self._fault_reason is not None:
+            raise EgressFault(self._fault_reason)
+        if type(owns_control) is not bool or type(state_fresh) is not bool:
+            raise ValueError("release ownership and freshness must be strict bools")
+        if not owns_control or not state_fresh:
+            raise ValueError("release requires fresh owned control state")
+        _explicit_text(mode, "mode")
+        _explicit_text(expected_native_mode, "expected_native_mode")
+        if mode not in self._allowed_release_modes:
+            raise ValueError(f"mode must be one of {sorted(self._allowed_release_modes)}")
+        if self._release is not None or self._pending is not None:
+            return "busy", None
+        if self._request_high_water >= MAX_REQUEST_ID:
+            self._fault("request_id_exhausted")
+        now_ns = self._clock_ns()
+        if type(now_ns) is not int or now_ns < 0:
+            self._fault("invalid_clock")
+        self._request_high_water += 1
+        envelope = {
+            "run_id": self._run_id,
+            "control_epoch": self._control_epoch,
+            "request_id": self._request_high_water,
+            "setup": {
+                "stamp_sec": now_ns // 1_000_000_000,
+                "stamp_nanosec": now_ns % 1_000_000_000,
+                "frame_id": "map",
+                "cmd": SETUP_CMD_SET_PX4_MODE,
+                "px4_mode": mode,
+            },
+        }
+        try:
+            self._setup_publisher(envelope)
+        except Exception as error:
+            self._fault(f"setup_publish_failed:{error}")
+        self._release = {
+            "request_id": envelope["request_id"],
+            "mode": mode,
+            "expected_native_mode": expected_native_mode,
+            "ack_received": False,
+            "completed": False,
+            "confirmed": False,
+        }
+        return "sent", envelope
+
+    def on_setup_event(self, event, message_type, *, info_value, error_value):
+        """Apply one setup-channel event through the shared classifier.
+
+        Returns the outcome string. A 'fault:<reason>' outcome latches the
+        egress fault and raises :class:`EgressFault` (fail closed).
+        """
+        if self._fault_reason is not None:
+            raise EgressFault(self._fault_reason)
+        outcome, release = classify_setup_event(
+            event, message_type, run_id=self._run_id, epoch=self._control_epoch,
+            release=self._release, info_value=info_value,
+            error_value=error_value, expected_ack_stage=self._expected_ack_stage)
+        self._release = release
         if outcome.startswith(FAULT_PREFIX):
             self._fault(outcome[len(FAULT_PREFIX):])
         return outcome
