@@ -2,6 +2,18 @@
 
 2026-09-12最新：Goal active，createdAt1789219780；Full/G0–G6原目标和全部验收门保持。上一轮是实质进展：C1源码/测试交付、真实诊断运行、原件保留与独立核算，不能把失败场称通过。
 
+## 最新用户要求：五个可用席位已实际派发
+
+用户要求继续分派、减少轮空。当前临时阵容OMP+3 codebuddy+Claude Code（五个外部席位），原DeepSeek受管backend不可用，不当作运行席位；重启确认仍未收到。完整回执和任务范围见validation/coordination/available-five-20260913.json。
+
+- OMP：6deb2e40，当前turnf8c4693a-1424-488b-be21-5d32903666ba，完成early-work诊断三文件；前次以“重写测试”结束的turn未验收，已立即接续。
+- codebuddy审查：98925ad6，当前turn5feb8f80-b8af-4a58-b00f-f762ebf880a7，先独立审owned scheduling，再回early-work修订。其已发现Region.end不传tick/epoch使end_tick=None且漏身份复核，errors列表无上限；诊断尚不得实跑。
+- codebuddy流水：43972780-fcfe-4089-97ff-41ae1139b2dd，turn41c037b7-e525-4426-b629-57813ce94f8a，独立分析wire与rate时间约束/慢组范围，仅新c2-gap-bounds文件。
+- codebuddy调度：390d430a-95ae-4ee6-8cd7-186d422e8634，当前turn75b3eea8-76c7-4569-90c3-85c91442c5e0，工具已交但主审返修：CRLF原字节hash、schedstats禁用不能当0、kernel_prio/RT优先级区分、身份变化丢弃读数。只写capture_owned_scheduling.py/test_owned_scheduling.py及自己的说明。
+- Claude：48faf2f5-f74a-4ba4-ac85-4ae4d05c5801，turn62f8e233-5f08-4987-82b7-4e1d5aee7710，修PV审计输出防覆盖与纯行为测试；只写audit_pv_trajectory.py/test_pv_audit_cli_output.py。
+
+本轮新增只读定位已落盘validation/coordination/c2-gap-localization-20260913与docs/coordination/c2-wire-gap-localization-20260913.md：C2最大组2764→2768内tick2766 AP sensor→actuator记录间隔15.596140ms；2928→2932内tick2930 AP间隔11.133646ms。普通wire时间可作时序关联，不能把它称纯网络/CPU或把重叠区间加总。没有新native，当前native均已终态。
+
 ## 2026-09-13 最新：C2完整场仍失败，转10墙秒分段诊断
 
 重启Codex的确认仍未收到；DeepSeek受管后台未恢复，**不执行重启脚本、不伪造turn/end**。下面是无需重启已实际推进的项目工作。

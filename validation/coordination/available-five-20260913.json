@@ -1,0 +1,150 @@
+{
+  "schema": "wksim.available-harness-queue.v1",
+  "observed_at": "2026-09-12 15:47:52 UTC",
+  "roster": "OMP + 3 codebuddy + Claude Code (five external seats)",
+  "reason": "User asked to keep dispatching and reduce idle handoffs; DeepSeek managed backend unavailable pending app restart permission.",
+  "restart_authorized": false,
+  "goal_scope_unchanged": "Full/G0-G6 with all original physical/time/identity gates",
+  "jobs": [
+    {
+      "slot": "probe-implementation",
+      "harness": "omp",
+      "threadId": "6deb2e40-2240-4db2-8c7f-c06bf6724048",
+      "turnId": "f8c4693a-1424-488b-be21-5d32903666ba",
+      "owned": [
+        "Linux tools/run_joint_flight.py",
+        "Linux tools/early_manager_work_probe.py",
+        "Linux validation/test_early_manager_work_probe.py"
+      ],
+      "next": "Resolve independent review defects; deliver stable SHA, pure tests and exact diagnostic argv.",
+      "deepLink": "codex://threads/6deb2e40-2240-4db2-8c7f-c06bf6724048",
+      "observed_status": "running",
+      "observed_turn": {
+        "turnId": "f8c4693a-1424-488b-be21-5d32903666ba",
+        "status": "running"
+      },
+      "latest_progress": [],
+      "result": {
+        "availability": "pending"
+      },
+      "delegationId": null,
+      "delegation_note": "Existing task resumed; no new delegationId returned by thread send."
+    },
+    {
+      "slot": "probe-review",
+      "harness": "codebuddy",
+      "threadId": "98925ad6-4736-4dd2-8287-1132158e2b14",
+      "turnId": "53d6f0d6-6cd3-4ac6-a2dc-1f8a01e199df",
+      "delegationId": "b83f9f44-8bc1-4cec-b0e1-b85cbe1e621f",
+      "owned": [
+        "docs/coordination/codebuddy-early-work-review-20260913.md"
+      ],
+      "next": "Review stable fixes and validate new differences only.",
+      "deepLink": "codex://threads/98925ad6-4736-4dd2-8287-1132158e2b14",
+      "observed_status": "running",
+      "observed_turn": {
+        "turnId": "53d6f0d6-6cd3-4ac6-a2dc-1f8a01e199df",
+        "status": "running"
+      },
+      "latest_progress": [
+        "Runner fixes D4 (run guard) and D5 (no default lambdas). Now the revised test suite."
+      ],
+      "result": {
+        "availability": "pending"
+      },
+      "followup_turn": "5feb8f80-b8af-4a58-b00f-f762ebf880a7",
+      "acceptance_note": "Initial probe review found Region and unbounded-error issues; reviewer now reviews scheduling capture independently before returning to probe fixes."
+    },
+    {
+      "slot": "wire-analysis",
+      "harness": "codebuddy",
+      "threadId": "43972780-fcfe-4089-97ff-41ae1139b2dd",
+      "turnId": "41c037b7-e525-4426-b629-57813ce94f8a",
+      "delegationId": "5cc8cb8d-cdee-4ac5-9e92-5bdc5aede772",
+      "configuration": {
+        "requested": {},
+        "effective": {
+          "effectiveModel": {
+            "id": "cb.ZGVlcHNlZWstdjQuMS1mbGFzaA"
+          },
+          "resolvedModelLabel": "Deepseek-V4.1-Flash",
+          "effectiveThinkingOptionId": "enabled"
+        }
+      },
+      "assignment": "独立只读流水时序分析，完整交付包。工作区C:\\Users\\PC\\Documents\\odid编译\\wksim，实际raw Ubuntu /root/wksim-release-acceptance-fe3/validation/joint-public-flight-lcgv0yte。先读已存在validation/coordination/c2-gap-localization-20260913/inspect_gaps.py与result.json、对应doc以及实际run源record()、joint.py事件顺序。你的唯一输出NEW validation/coordination/c2-gap-bounds-20260913/（脚本+结果）和docs/coordination/c2-gap-bounds-20260913.md，不改OMP/现有分析器。目标：把前8大慢组中“sensor到actuator不足以解释工作耗时”的组进一步定位为sensor前、native输入或step后区域，**只推可证明的范围**。可尝试用同场rate group_start先于首sensor、末step先于group_end的程序顺序推导wire相对wall与rate绝对ns的共同offset上下界；若交集不成立或数据不足如实报告，不编造offset、不把tick换墙秒。普通wire浮点秒存在舍入，不能给虚假的纳秒精度。区间可能重叠，不加总成假闭合；不得排他归因CPU/网络/FC。接续直接做小型手算正/反例验证边界算法与实际8组输出，再交输入/脚本SHA及具体可支持结论。无新native/模型/ROS/构建/嵌套/Git。",
+      "deepLink": "codex://threads/43972780-fcfe-4089-97ff-41ae1139b2dd",
+      "observed_status": "running",
+      "observed_turn": {
+        "turnId": "41c037b7-e525-4426-b629-57813ce94f8a",
+        "status": "running"
+      },
+      "latest_progress": [
+        "Let me check access to the Ubuntu raw data and WSL."
+      ],
+      "result": {
+        "availability": "pending"
+      }
+    },
+    {
+      "slot": "scheduling-snapshot",
+      "harness": "codebuddy",
+      "threadId": "390d430a-95ae-4ee6-8cd7-186d422e8634",
+      "turnId": "dafe6f6e-ca03-462f-bb63-a39db19854d5",
+      "delegationId": "959c02ae-2f07-4bbe-887a-e412b8756b94",
+      "configuration": {
+        "requested": {},
+        "effective": {
+          "effectiveModel": {
+            "id": "cb.ZGVlcHNlZWstdjQuMS1mbGFzaA"
+          },
+          "resolvedModelLabel": "Deepseek-V4.1-Flash",
+          "effectiveThinkingOptionId": "enabled"
+        }
+      },
+      "assignment": "独立实现只读owned-process调度快照工具，完整代码+纯测试包。工作区C:\\Users\\PC\\Documents\\odid编译\\wksim；唯一写NEW tools/capture_owned_scheduling.py、NEW validation/test_owned_scheduling.py及简短docs/coordination/owned-scheduling-snapshot-20260913.md。用途：后续由主会话在计时前和计时结束后采集自己启动的children，避免把不同WSL boot/线程调度现象凭空归因。输入已有children-start.json形状（可只读validation/33-final-combo-luna/c2-lcgv0yte/children-start.json），只采集其精确pid/pgid/start_ticks匹配的进程；逐线程task/stat/status/schedstat及可用的策略/优先级/CPUallowed信息，附boot_id/uptime/调度RT预算的只读值与采样时间。PID复用/不匹配/已消失明确unavailable，读取前后复核身份；任何缺失不是0，不给性能pass。严禁修改优先级/affinity/内核、停止进程或启动native；不自动集成runner，不后台轮询，不构造调度框架。测试用临时/proc形状fixture及mock系统读，覆盖消失/复用/拒绝越界路径/缺字段/正常记录，输出新文件独占创建不覆盖已有结果。接续交能由主会话直接执行的前后两次命令及成本/局限，不能把mock当native证据。无嵌套/Git。",
+      "deepLink": "codex://threads/390d430a-95ae-4ee6-8cd7-186d422e8634",
+      "observed_status": "running",
+      "observed_turn": {
+        "turnId": "dafe6f6e-ca03-462f-bb63-a39db19854d5",
+        "status": "running"
+      },
+      "latest_progress": [
+        "Let me check the test harness setup and a doc example for format."
+      ],
+      "result": {
+        "availability": "pending"
+      },
+      "followup_turn": "75b3eea8-76c7-4569-90c3-85c91442c5e0",
+      "acceptance_note": "Initial delivery returned immediately for raw-byte hashes, disabled schedstats, priority labels and unstable thread records."
+    },
+    {
+      "slot": "audit-output-safety",
+      "harness": "claude-code",
+      "threadId": "48faf2f5-f74a-4ba4-ac85-4ae4d05c5801",
+      "turnId": "62f8e233-5f08-4987-82b7-4e1d5aee7710",
+      "delegationId": "0b3902b6-7aac-4235-969b-d76c27543034",
+      "configuration": {
+        "requested": {},
+        "effective": {
+          "effectiveModel": {
+            "id": "claude-model-v1.ZGVmYXVsdA"
+          },
+          "effectiveThinkingOptionId": "auto"
+        }
+      },
+      "assignment": "修复PV审计CLI覆盖已有证据的实际风险。工作区C:\\Users\\PC\\Documents\\odid编译\\wksim，唯一写tools/audit_pv_trajectory.py与NEW validation/test_pv_audit_cli_output.py。该工具main()目前args.output.write_text(raw)可覆盖历史报告，用户要求保留失败原件。最小改动：已有输出(含symlink)在执行audit之前明确拒绝；最终写入用独占创建避免检查后竞争覆盖，保留输出不得位于raw根目录内的原有约束。不改任何物理/1ms/身份/倍率判据，不改native runner，不对已失败C2重跑flight。测试用真实临时文件和mock audit：既有内容逐字保留、symlink拒绝、竞态不覆盖、正常新报告与CLI退出码、raw目录保护。保持现有合法绝对路径输入合同；相对输入遇到canonical guard可改善错误提示，但不要悄悄放宽symlink边界。当前文件干净无其他作者。接续直接跑相关纯测试并修自身问题，交稳定SHA与简洁问题/行为说明，不只给建议。禁止native/构建/模型/ROS/嵌套、Git提交、issue消息。",
+      "deepLink": "codex://threads/48faf2f5-f74a-4ba4-ac85-4ae4d05c5801",
+      "observed_status": "running",
+      "observed_turn": {
+        "turnId": "62f8e233-5f08-4987-82b7-4e1d5aee7710",
+        "status": "running"
+      },
+      "latest_progress": [
+        "Let me understand the existing code and project state first."
+      ],
+      "result": {
+        "availability": "pending"
+      }
+    }
+  ]
+}
