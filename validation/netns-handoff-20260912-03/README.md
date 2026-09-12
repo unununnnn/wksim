@@ -1,0 +1,11 @@
+# Cross-distribution network namespace handoff
+
+The current `netns_handoff.py` transferred a real Linux network-namespace FD from an Ubuntu-22.04 process in an owned private network to a RflySim-20.04 process. Both result files have the same boot ID and source hashes. The receiver changed from net inode 4026531840 to the granted inode 4026532232, retained its mount/IPC namespace identities and could still access `/opt/ros/noetic/setup.bash`. An actual TCP loopback challenge/response with the Ubuntu listener passed after entry. A wrong run ID was rejected before joining or consuming the grant. Both processes exited zero and the owned socket/grant endpoints were removed.
+
+The exporter was launched with `unshare --net --ipc --mount --propagation private`; the receiver used only `unshare --ipc --mount` before `enter_namespace`. Both used private `/dev/shm`. The shared directory is recorded in `setup.json`. The fixture CLI is `python3 -B validation/netns_handoff_probe.py owner|client SHARED_DIRECTORY ABSOLUTE_DURABLE_OUTPUT`.
+
+The one-use protocol verifies directory/file ownership and modes, peer UID, run/token, exact namespace type/dev/inode and complete SCM_RIGHTS receipt. Received FDs are close-on-exec and closed after entry or rejection. Grant publication is atomic. Three targeted Linux test methods additionally exercise invalid identity values, symlinked grants, extra/truncated FDs and malformed response identity, checking that rejection never invokes setns and closes the received FDs.
+
+An earlier successful fixture wrote only to `/mnt/wsl`; a subsequently observed WSL reboot changed the boot ID and erased those temporary JSON files. Its console result remains conversation history, but is not used as durable acceptance evidence. Attempt 02 added per-endpoint persistent results; this attempt 03 verifies the final stricter metadata validation and atomic grant publication against the current source. No temporary authorization token is published.
+
+This is network membership and loopback transport evidence only. It does not prove cross-distribution ROS/DDS traffic, real FC state, scene authority, planner behavior or physical acceptance. The caller must continue owning actor lifetime and scene/session checks; transferring a network FD is not a control grant.

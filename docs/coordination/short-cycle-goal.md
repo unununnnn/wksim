@@ -18,6 +18,12 @@ heartbeat `wksim` 绑定同一任务，保持 ACTIVE、每三分钟检查一次�
 
 本轮 #83 实跑 joint-public-flight-nqyqcagl 已 FAILED：tick53128 累计迟到104260439ns，原100ms门槛触发 RateUnmet。双机已起飞但任务未完成，source_unchanged=true、Control正常退出、十个自有PGID独立清理通过。证据 validation/33-final-combo-luna/20260912-nqyqcagl，完整原件仍保留；绝对路径 raw PV audit在 failed-run gate拒绝。#83仍OPEN/needs-triage，评论 issuecomment-5643302702。rate-analysis.json数值已独立逐项复算；wire-interval-review.json纠正6.2/6.57ms是step→外发sensor间隔，含日志/clock/模型RPC等，不能排他归因AP。M1另有kernel-wire-correlation.json：tick5504直接诊断wait_px4=5419791ns、wait_ap=127634ns，不跨run外推。
 
+当前新增 namespace 接线：netns_handoff.py 已实际 Ubuntu→Rfly SCM_RIGHTS 交接并通过 loopback，Rfly mount/IPC与Noetic路径保持不变；最终证据 validation/netns-handoff-20260912-03 已持久化并与当前源码SHA核对。旧 /mnt/wsl 临时结果曾随WSL boot变化丢失，不充当持久证据。handle41886/12942/21600均已退出0，当前无主会话native运行。跨distro ROS/DDS还未验证。
+
+待用户语义澄清：已通过异步问题请求确认是否允许 start_tick100、到达120 时保留start_time并首次求值t=.020、不补历史样本。该问题未获回答；不得把等待视为同意，不修改当前start_in_past/等值闸门。其他独立工作继续。
+
+OMP22f正在唯一写入bspline_tcp_envelope.py、planner_transport_pump.py及两套tests，实现显式opt-in控制帧；当前v1默认/字节必须保持。暂不触node/sender/session，不暂存未交付修改。
+
 ## 下一步：每次完成一个验收切片
 
 1. **M2 bridge 已构建并完成隔离反向传输验证。** bool模板修复后第一次链接暴露 BoundingBox.Class→class_name、DetectionInfoSub.trackIds→track_ids 缺映射；新增独立 wksim_ros1_bridge_mappings 包，未改冻结消息。完整构建3min13s成功，print-pairs核验六个必要类型；实际ROS2→ROS1 Clock/Odometry/UAVControlState/嵌套改名字段、三时间样本及暂停clock通过，四个自有进程退出0，namespace无残留。证据 validation/ros1-bridge-runtime-20260912。RflySim工作区 /root/wksim-ros1-bridge-humble-8oGKuV，消息56份源pin未变。下一步是真实联合场景namespace/状态源接线，不把夹具当FC闭环。
