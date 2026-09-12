@@ -1,3 +1,5 @@
+> 历史计划：当前有效阵容已由最新Goal改为codebuddy + OMP + 3 DeepSeek；请以short-cycle-goal.md和runtime-recovery-20260912/dispatch.json为准。
+
 # 六席位下一阶段执行计划
 
 2026-09-12。新Goal已由正式工具创建并为active；旧Goal已不存在，未改数据库。项目终态仍为全部已批准必需票据及Full/G0–G6，以下是当前关键路径，不缩减终态。
