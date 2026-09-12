@@ -4,11 +4,13 @@
 
 ## Goal 健康状态
 
+**最后状态变更：get_goal 最新返回 paused，updatedAt=1789206897，原因未返回。主会话未调用Goal暂停/完成工具，未改数据库。心跳wksim已同步PAUSED，避免绕过运行时暂停；不自动恢复。以下较早active和续跑检查是历史健康记录。**
+
 - thread：`01a08b94-d2fe-7361-9c43-2d54e9490f32`；goal：`63bdd724-67ae-4701-8fae-73e2a03578f5`。
 - 本次 get_goal 和只读数据库一致：active，token_budget=null，continuation deferral 为零；桌面实际 CLI 的 goals=true；任务未归档，接口返回 inProgress、error=null。
 - 运行记录显示 07:53:23 UTC 和 08:32:10 UTC 两次回合结束后立即开始下一轮。续跑机制已有实际执行记录；清理后的下一回合已收到正式 Goal continuation，自动续跑验证完成。
 - 不重复创建、不虚假结案、不改数据库。现有 Goal 工具没有 objective 编辑或 resume 参数；最新阶段和完成项以本检查点为准。累计 tokensUsed 是消耗统计，不能当作预算上限。
-- heartbeat `wksim` 绑定同一任务，ACTIVE，每三分钟检查。无变化或不可行动时静默，只在重要变化、完成、失败或需用户行动时通知。心跳只辅助跟进，不能代替 Goal 完成验收。
+- heartbeat `wksim` 绑定同一任务，当前PAUSED；原计划每三分钟检查。无变化或不可行动时静默，只在重要变化、完成、失败或需用户行动时通知。心跳只辅助跟进，不能代替 Goal 完成验收。
 
 ## 当前关键路径
 
@@ -27,7 +29,7 @@ Control仍为 `/root/wksim-joint-control-c2IXOr/build.json`，SHA `6fe8c0b30775a
 
 预热实现bc76fb6：原AP task在initialized.json前持有子进程和stdin；import+rclpy.init预加载后记录warm-ready0，激活前不创建Node/绑定会话。保留原5s传输、10s ROS截止、所有计数/身份检查；原task组清理，helper只核验并信号自有PID。34项检查与安装态合成输入预热05通过。Claude18-AI误称“时钟前只有runner存在”，已用实际launch_task→initialized gate源码纠正；不引入多余runner文件握手。OMP22l仍中断，主会话拥有helper，不重启覆盖。Luna接口Fast仍不可选择/验证，遵守仓库规则由主会话承担对应工作，不伪报设置。
 
-本轮handle70504真实场次退出0，98999只读审计退出0；所有主会话native/fixture/build handles均终态。成功场次原10个PGID的独立/proc复查为空，warm child继承taskPGID并正常退出0。下次native前重新分别完成并评估两distro进程检查，再单独启动。全范围Goal保持active，不关闭任何尚缺原AC的父/子票。
+本轮handle70504真实场次退出0，98999只读审计退出0；所有主会话native/fixture/build handles均终态。成功场次原10个PGID的独立/proc复查为空，warm child继承taskPGID并正常退出0。下次native前重新分别完成并评估两distro进程检查，再单独启动。全范围Goal尚未完成，最新运行时状态paused；不关闭任何尚缺原AC的父/子票。
 
 ## 已完成，勿重复
 
