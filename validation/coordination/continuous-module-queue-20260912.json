@@ -22,13 +22,14 @@
     {
       "owner": "B",
       "threadId": "34386db2-17a1-425b-a102-f910451c5c63",
-      "turnId": "a5bac343-7e81-4539-a779-36d3262b05f9",
+      "turnId": "c7a5e68c-f575-472c-94bc-706e768ed9a8",
       "harness": "deepseek-harness",
       "deepLink": "codex://threads/34386db2-17a1-425b-a102-f910451c5c63",
       "status_at_dispatch": "running",
       "delegationId": null,
       "delegation_note": "Existing child resumed; thread send does not return delegationId.",
-      "assignment": "策略更新：领取一个实现+验证完整包，当前项与后续直接连续执行，禁止只交建议。你独占Windows wksim NEW tools/compare_joint_gc_diagnostics.py、NEW validation/test_compare_joint_gc_diagnostics.py，以及你现有docs/plan/33-rate-measured-candidate-20260912.md和ds-7bdfxkb-diagnostic-analysis.json。当前：把已做7bdfxkb分析变为可复用只读比较器，输入两场result/rate/joint-wire(支持现有.gz)；输出真实同身份/同profile/同timing env/同async/AP-control-message基线兼容情况、GC gen2最大与总CPU、interval嵌套证据、最大entry/work-over、release excess及latch闭合；baseline没有GC候选而candidate必须明确freeze元数据及恢复，run/epoch不同合法但单场混身份拒绝。缺失/不兼容返回unavailable/rejected，不造零、不宣布performance_pass，不用两场相关性声称因果。复用已存在interval分析器，避免抄第二套。后续直接做：行为测试覆盖gzip/缺列/身份不兼容/无latch/负残差等实际合同，用原7bdfxkb只读自检可分析但不能冒充candidate；输出一份带原件SHA的自检结果到NEW validation/coordination/gc-diagnostic-comparator-20260912/。修正文档C1仅collect+freeze，绝不disable或调threshold；它是假说而不是必要条件，原文必要不充分/最多节省不能当实测保证。A独占Linux runner/GC模块，你不改。禁止native/ROS/build/模型加载、嵌套派发、提交Git。15–25分钟目标，模块内自行测试修复。"
+      "assignment": "策略更新：领取一个实现+验证完整包，当前项与后续直接连续执行，禁止只交建议。你独占Windows wksim NEW tools/compare_joint_gc_diagnostics.py、NEW validation/test_compare_joint_gc_diagnostics.py，以及你现有docs/plan/33-rate-measured-candidate-20260912.md和ds-7bdfxkb-diagnostic-analysis.json。当前：把已做7bdfxkb分析变为可复用只读比较器，输入两场result/rate/joint-wire(支持现有.gz)；输出真实同身份/同profile/同timing env/同async/AP-control-message基线兼容情况、GC gen2最大与总CPU、interval嵌套证据、最大entry/work-over、release excess及latch闭合；baseline没有GC候选而candidate必须明确freeze元数据及恢复，run/epoch不同合法但单场混身份拒绝。缺失/不兼容返回unavailable/rejected，不造零、不宣布performance_pass，不用两场相关性声称因果。复用已存在interval分析器，避免抄第二套。后续直接做：行为测试覆盖gzip/缺列/身份不兼容/无latch/负残差等实际合同，用原7bdfxkb只读自检可分析但不能冒充candidate；输出一份带原件SHA的自检结果到NEW validation/coordination/gc-diagnostic-comparator-20260912/。修正文档C1仅collect+freeze，绝不disable或调threshold；它是假说而不是必要条件，原文必要不充分/最多节省不能当实测保证。A独占Linux runner/GC模块，你不改。禁止native/ROS/build/模型加载、嵌套派发、提交Git。15–25分钟目标，模块内自行测试修复。",
+      "acceptance_feedback": "First comparator delivery not accepted: invented gc-freeze.json schema differs from real runner result.manager_gc_candidate and manager-gc-candidate.json. Resumed to consume real producer output and generate contract fixtures from actual ManagerGCFreeze.report; no manually manufactured evidence. Also remove nonexistent second collect from documentation."
     },
     {
       "owner": "D",
