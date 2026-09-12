@@ -43,3 +43,21 @@ Bspline wire envelope carries no planner generation; that identity is supplied
 locally by the receiver's caller. A control-event extension must advance the
 pump's event allocator together with the shared session, preserving replan
 ordering. Natural trajectory expiry is not evidence of explicit cancellation.
+
+The pump now owns explicit `hold(..., current_tick=..., anchor=...)` and
+`cancel(..., current_tick=...)` events as well as activation events. A successful
+control event advances the same allocator and tick ledger; rejected identity,
+tick, anchor or capacity checks do not change the session, decoder or allocator.
+`TrajectorySession.stop` validates its event and prepares the anchor before
+committing state, fixing the previous rejected-anchor sequence consumption.
+The four focused session/pump/adapter/egress suites pass 142 checks. The TCP
+control carrier and physical cancellation behavior remain unverified; v1
+Bspline bytes and terminal output semantics are unchanged.
+
+The official ROS1 bridge now builds with the bool-vector fix and a separate
+mapping package for the frozen `Class`/`trackIds` renames. A real isolated
+ROS2-to-ROS1 fixture forwarded Clock, Odometry, UAVControlState and nested
+detection messages at three timestamps; ROS1 simulated time stayed frozen
+during wall-time pauses. Evidence: `validation/ros1-bridge-runtime-20260912/`.
+The fixture does not connect a real FC or planner; shared scene namespace,
+actual state sources and end-to-end flight remain outstanding.

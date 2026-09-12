@@ -1,0 +1,172 @@
+{
+  "version": 1,
+  "run_id": "scheduler-086648004be0",
+  "source_file": "linux/runs/scheduler-086648004be0/epochs/1c404fd36f8543e19b9d083c8e437cdc/wire.jsonl.gz",
+  "source_uncompressed_sha256": "4a691d604ba1d14fea582dab06abd16beac0d1e4486c2324990984cdce5978d2",
+  "scope": "M1 1x ground run only; not the separate PV 0.5x failure",
+  "records": [
+    {
+      "line": 20806,
+      "record": {
+        "kind": "sensor",
+        "epoch": "1c404fd36f8543e19b9d083c8e437cdc",
+        "tick": 5504,
+        "issued_monotonic_s": 76.886657539,
+        "stack": "arducopter",
+        "source_frame": 5503
+      }
+    },
+    {
+      "line": 20807,
+      "record": {
+        "kind": "sensor",
+        "epoch": "1c404fd36f8543e19b9d083c8e437cdc",
+        "tick": 5504,
+        "issued_monotonic_s": 76.886712665,
+        "stack": "px4",
+        "timestamp_us": 5504000
+      }
+    },
+    {
+      "line": 20808,
+      "record": {
+        "kind": "actuator",
+        "epoch": "1c404fd36f8543e19b9d083c8e437cdc",
+        "tick": 5504,
+        "issued_monotonic_s": 76.886823631,
+        "stack": "arducopter",
+        "frame": 5504,
+        "rate": 1000
+      }
+    },
+    {
+      "line": 20809,
+      "record": {
+        "kind": "actuator",
+        "epoch": "1c404fd36f8543e19b9d083c8e437cdc",
+        "tick": 5504,
+        "issued_monotonic_s": 76.892253202,
+        "stack": "px4"
+      }
+    },
+    {
+      "line": 20811,
+      "record": {
+        "kind": "step",
+        "epoch": "1c404fd36f8543e19b9d083c8e437cdc",
+        "tick": 5504,
+        "issued_monotonic_s": 76.892288031,
+        "ap_source_frame": 5503,
+        "px4_source_time_us": 5500000,
+        "model_ticks": {
+          "arducopter": 5504,
+          "px4": 5504
+        }
+      }
+    },
+    {
+      "line": 20812,
+      "record": {
+        "kind": "diagnostic_native_input_timing",
+        "epoch": "1c404fd36f8543e19b9d083c8e437cdc",
+        "tick": 5504,
+        "issued_monotonic_s": 76.892294319,
+        "ap_source_frame": 5503,
+        "px4_source_time_us": 5500000,
+        "native_wait_wall_ns": 5547425,
+        "waits": [
+          {
+            "stack": "arducopter",
+            "wall_start_ns": 76886721222,
+            "wall_end_ns": 76886848856,
+            "wall_ns": 127634,
+            "thread_cpu_ns": 86547,
+            "ap_frame": 5504
+          },
+          {
+            "stack": "px4",
+            "wall_start_ns": 76886854854,
+            "wall_end_ns": 76892274645,
+            "wall_ns": 5419791,
+            "thread_cpu_ns": 661011,
+            "px4_time_us": 5504000
+          }
+        ],
+        "limitation": "Retained slow(>2ms native wait)/periodic(tick%250) samples, not a full census. Each wait brackets only the supervisor wait_ap/wait_px4 call; acknowledge_ap, barrier/repair_input and all record writes are excluded and stay in the combined native_inputs stage. Supervisor off-CPU during a wait includes I/O wait and descheduling; it does not identify the native FC, host or Windows cause."
+      }
+    },
+    {
+      "line": 20813,
+      "record": {
+        "kind": "diagnostic_step_cpu_timing",
+        "epoch": "1c404fd36f8543e19b9d083c8e437cdc",
+        "tick": 5504,
+        "issued_monotonic_s": 76.892307227,
+        "wall_start_ns": 76886297043,
+        "wall_end_ns": 76892302689,
+        "stages": {
+          "health_and_models": {
+            "wall_ns": 336621,
+            "thread_cpu_ns": 202374
+          },
+          "encode_send": {
+            "wall_ns": 85550,
+            "thread_cpu_ns": 85542
+          },
+          "native_inputs": {
+            "wall_ns": 5583475,
+            "thread_cpu_ns": 781528
+          }
+        },
+        "limitation": "Thread CPU separates execution from off-CPU time; off-CPU includes I/O wait and descheduling"
+      }
+    },
+    {
+      "line": 20814,
+      "record": {
+        "kind": "diagnostic_runtime_loop_timing",
+        "epoch": "1c404fd36f8543e19b9d083c8e437cdc",
+        "tick": 5504,
+        "issued_monotonic_s": 76.892457341,
+        "observed_tick": 5504,
+        "complete": true,
+        "wall_start_ns": 76886276970,
+        "wall_end_ns": 76892453160,
+        "stages": {
+          "administration": {
+            "wall_ns": 18449,
+            "thread_cpu_ns": 18454
+          },
+          "pacing": {
+            "wall_ns": 850,
+            "thread_cpu_ns": 782
+          },
+          "physics": {
+            "wall_ns": 6021924,
+            "thread_cpu_ns": 1085635
+          },
+          "clock_publish": {
+            "wall_ns": 105189,
+            "thread_cpu_ns": 105228
+          },
+          "clock_evidence": {
+            "wall_ns": 11405,
+            "thread_cpu_ns": 11342
+          },
+          "group_end_and_view": {
+            "wall_ns": 18373,
+            "thread_cpu_ns": 18399
+          }
+        },
+        "limitation": "Sampled runtime intervals; pacing includes intended waits. Thread CPU and wall clocks have distinct read windows; no causal classification."
+      }
+    }
+  ],
+  "finding": "At tick 5504, the directly bracketed supervisor wait_px4 interval is 5419791ns, versus 127634ns in wait_ap. AP sleeping during that interval does not establish AP as the critical-path blocker.",
+  "limitations": [
+    "Bracketed wall time includes supervisor execution, off-CPU time and native waiting; it does not identify the internal PX4 or host cause.",
+    "The kernel-offcpu-analysis.json agent draft has not been independently verified and its broad exclusions are not accepted.",
+    "Absence of selected write events cannot exclude all filesystem or host-side delays.",
+    "No cross-run attribution to joint-public-flight-nqyqcagl."
+  ]
+}

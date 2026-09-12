@@ -14,14 +14,14 @@ heartbeat `wksim` 绑定同一任务，保持 ACTIVE、每三分钟检查一次�
 - M1 ground 诊断 formal 10.000188298 秒、321461 条事件；九任务/五 owner 前后身份、零 loss、BPF 解绑和清理通过；tick12184 无 fault，最差迟到 77.256332ms。仅诊断，不能充当 PV、长期倍率或 Full 验收。峰值在 formal 停止后 203.738653ms，不能编造内核因果。证据 `validation/scheduler-kernel-bpf-20260912-03/`。
 - 完整 EGO 构建 029fae1、真实 ROS1 11000 点云与八个 GridMap 占用查询 214bdca 已完成；静态 odom 是夹具，真实绕障/净空/飞行未通过。
 - ROS2 TCP 公共出口 0555f96 已完成 callback/传输及独立 RMW 检查；不是 FC 物理验收。
-- 当前唯一 native 执行：RflySim-20.04 ros1_bridge 完整编译，handle **22543**，尚未终态，必须先 poll，禁止重复启动。日志 /root/wksim-ros1-bridge-humble-8oGKuV/bridge-build-bool-22b.log；首次观察已编译52对象，实际 cc1plus 存活。旧 handle 69221/18341/21242 和本轮 PV handle 81968 均已终态。
+- 当前没有存活的主会话 native/ROS/SITL 执行。handle22543 已链接失败，handle21492 添加字段映射后完整构建成功；reverse fixture L0Dfdj 已通过并清理。所有旧 handle 均已终态，不再等待或重启。
 
-本轮 #83 实跑 joint-public-flight-nqyqcagl 已 FAILED：tick53128 累计迟到104260439ns，原100ms门槛触发 RateUnmet。双机已起飞但任务未完成，source_unchanged=true、Control正常退出、十个自有PGID独立清理通过。证据 validation/33-final-combo-luna/20260912-nqyqcagl，完整原件仍保留；绝对路径 raw PV audit在 failed-run gate拒绝。#83仍OPEN/needs-triage，评论 issuecomment-5643302702。agy18-AL正在只写该证据目录的rate-analysis.json，不得覆盖其文件，不立即盲跑。
+本轮 #83 实跑 joint-public-flight-nqyqcagl 已 FAILED：tick53128 累计迟到104260439ns，原100ms门槛触发 RateUnmet。双机已起飞但任务未完成，source_unchanged=true、Control正常退出、十个自有PGID独立清理通过。证据 validation/33-final-combo-luna/20260912-nqyqcagl，完整原件仍保留；绝对路径 raw PV audit在 failed-run gate拒绝。#83仍OPEN/needs-triage，评论 issuecomment-5643302702。rate-analysis.json数值已独立逐项复算；wire-interval-review.json纠正6.2/6.57ms是step→外发sensor间隔，含日志/clock/模型RPC等，不能排他归因AP。M1另有kernel-wire-correlation.json：tick5504直接诊断wait_px4=5419791ns、wait_ap=127634ns，不跨run外推。
 
 ## 下一步：每次完成一个验收切片
 
-1. **M2 bridge：先等待当前完整编译。** OMP22b完成后主会话已从真实模板抽取函数，以C++17/UBSan/libstdc++ assertions实际编译验证通过，包括非零bool字节/截断/空vector，证据 validation/ros1-bridge-bool-20260912。完整构建 handle22543 正在运行；工作区 /root/wksim-ros1-bridge-humble-8oGKuV，build-full-ego/install-full-ego，官方基线611755fd917285316051cbea80507e8b2f6b7ec1。完成后先检查退出码，再验证dynamic_bridge --print-pairs中Bspline、UAVControlState、Odometry、Clock。用完整EGO /root/wksim-ego-local-pGqjgO/devel，不能用缺traj_utils库的msg-only overlay；保留两次原失败日志，不删接口、不用-fpermissive。
-2. **M3 Control 安装闭包主验及 fresh build。** Luna gridmap 已交付显式 Python 模块、两份冻结 Bspline.msg、安装态 fallback、sealer 资产校验；报告 39 项纯 Python 检查通过，已由主会话完成 39 项检查、Ubuntu fresh build、仓库外安装态 smoke 和 live sealer 三方校验；Claude18-AA 独立只读复核无阻断。新候选 /root/wksim-joint-control-ZlTVa4/build.json，SHA 3d04d53a5c41d374ee623d16a265e8816d481e5d4433f23a60140a8e8184ecc4；证据 validation/control-install-20260912/，没有物理验收。改动在 envelope、message_pins、build-joint-control.sh、Control CMake、joint_control_candidate.py 及两套测试。构建后必须从 repo 外仅用 install PYTHONPATH 实例化 decoder/节点。旧 rWolCy runtime 过期，不能复用或只改 pins。然后按 #83 原 0.5x/100ms/10s/60s 及双 native flags 实跑；#82 已关闭。
+1. **M2 bridge 已构建并完成隔离反向传输验证。** bool模板修复后第一次链接暴露 BoundingBox.Class→class_name、DetectionInfoSub.trackIds→track_ids 缺映射；新增独立 wksim_ros1_bridge_mappings 包，未改冻结消息。完整构建3min13s成功，print-pairs核验六个必要类型；实际ROS2→ROS1 Clock/Odometry/UAVControlState/嵌套改名字段、三时间样本及暂停clock通过，四个自有进程退出0，namespace无残留。证据 validation/ros1-bridge-runtime-20260912。RflySim工作区 /root/wksim-ros1-bridge-humble-8oGKuV，消息56份源pin未变。下一步是真实联合场景namespace/状态源接线，不把夹具当FC闭环。
+2. **M3 #83 保持失败，不重跑。** 0769c3a 的 ZlTVa4 曾通过实际构建/仓库外安装验证，并用于已失败的 nqyqcagl。此后新增pump控制事件和session.stop原子性修复，142项主验通过；因此ZlTVa4再次与当前runtime不一致，任何新实跑前必须fresh-build，不可仅修改pins。成功hold/cancel共用event allocator，错误identity/tick/anchor/计数不改状态；v1 wire和终态无输出语义未改，未证明物理取消。
 3. **M2 剩余闭环。** 真实反向 odom/control_state、同源 clock、stop/cancel、namespace 连接及实际绕障仍缺。Claude18z 已完成时序核对：生产端保存时刻和消费者零延迟/整毫秒要求冲突；保留原时间戳及无追赶约束，不擅加未来 δ 或放宽门槛。停发 Bool 不等于 terminal cancel，控制事件序号须由 pump 统一分配。
 
 ## 代理句柄：先查实时状态再续派
@@ -31,9 +31,9 @@ heartbeat `wksim` 绑定同一任务，保持 ACTIVE、每三分钟检查一次�
 | Luna luna2_scheduler_verify | timing-analysis 已集成 b1ad906 |
 | Luna luna2_gridmap_probe | Control 模块/消息资产闭包已交付，待主验 |
 | Luna luna2_cloud_publisher | bridge ABI/环境核对已交付 |
-| Claude 4d5268f4-1d78-48ba-a5d6-aa800447cb1c | 18z 时序核对、18-AA 安装闭包复核已完成 |
-| Oh My Pi 6deb2e40-2240-4db2-8c7f-c06bf6724048 | 22b 正修正 ROS bool/LStream/空 vector 和实际模板测试，禁止自行编译 |
-| agy d0a07619-281c-408c-813a-d0784cee52a3 | 18-AK PV 准备报告已读，harness failed 与报告结论分开记录 |
+| Claude 4d5268f4-1d78-48ba-a5d6-aa800447cb1c | 18-AC wire时序纠正已完成；不能排他归因模型RPC |
+| Oh My Pi 6deb2e40-2240-4db2-8c7f-c06bf6724048 | 22d 控制事件原子性已交付并主验142项；22c错误烧序号版本已修正 |
+| agy d0a07619-281c-408c-813a-d0784cee52a3 | rate数值修正版已主验；kernel-offcpu-analysis.json为未核验草稿，不暂存/不接受宽泛因果结论 |
 
 按用户要求以三个 Luna 和三个外部端协作，遵守当前模型指令，不伪报 Fast。每切片唯一写入者，通常 2–4 文件；主验接手前明确所有权。外部派发前运行 codexhost delegate --help；读 JSON 最后一项 progress 和 result，THREAD_BUSY 代表消息未送达。
 

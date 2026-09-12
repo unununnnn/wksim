@@ -13,7 +13,11 @@ Scene geometry under test (committed ego-single-box-v1):
 import unittest
 
 from Simulator.wksim_planning.ego_evaluator import UniformBspline
-from Simulator.wksim_planning.ego_trajectory_adapter import EgoTrajectoryAdapter, MAX_TICK
+from Simulator.wksim_planning.ego_trajectory_adapter import (
+    AdapterError,
+    EgoTrajectoryAdapter,
+    MAX_TICK,
+)
 from Simulator.wksim_planning.trajectory_session import (
     Identity,
     MAX_COMMAND_ID,
@@ -618,6 +622,240 @@ class PumpGuardTests(unittest.TestCase):
             source = handle.read()
         for forbidden in ("import socket", "from socket", "import rospy", "import rclpy"):
             self.assertNotIn(forbidden, source)
+
+
+def activate(pump, encoder, *, traj_id=1, tick=0, identity=None, nanosec=0):
+    """Feed one clear frame and assert exactly one activation.
+
+    The encoder MUST be the same instance across feeds of one pump: the
+    transport sequence is per-stream, so a fresh encoder would restart it and
+    poison the decoder.
+    """
+    frame = encoder.encode_frame(
+        make_payload(clear_cps(), traj_id=traj_id, nanosec=nanosec))
+    outcomes = pump.feed(frame, identity=identity or IDENTITY,
+                         current_tick=tick, fallback_yaw=0.0)
+    assert len(outcomes) == 1 and outcomes[0].outcome == OUTCOME_ACTIVATED
+    return outcomes[0]
+def control_snapshot(pump, session):
+    from copy import deepcopy
+    adapter = {name: id(value) if name in ("session", "_active_spline") else deepcopy(value)
+               for name, value in vars(pump._adapter).items()}
+    allocator = {name: id(value) if name == "_binding" else deepcopy(value)
+                 for name, value in vars(pump).items()
+                 if name not in ("_adapter", "_session", "_decoder", "_admission")}
+    return (allocator, deepcopy(vars(session)), adapter, deepcopy(vars(pump._decoder)))
+
+
+class PumpControlEventTests(unittest.TestCase):
+    """Pump-owned hold/cancel route through the pump event allocator."""
+
+    def assert_pump_error(self, reason, callable_obj, *args, **kwargs):
+        with self.assertRaises(PumpError) as ctx:
+            callable_obj(*args, **kwargs)
+        self.assertEqual(ctx.exception.reason, reason)
+        return ctx.exception
+
+    def test_activate_hold_replan_sequence_strictly_increases(self):
+        session, adapter, decoder, pump = make_pump()
+        encoder = BsplineTcpEncoder(SESSION_ID)
+        first = activate(pump, encoder, traj_id=1)
+        self.assertEqual(first.event_sequence, 1)
+        self.assertEqual(pump.next_event_sequence, 2)
+        state = pump.hold(current_identity(pump), current_tick=0,
+                          anchor=([1.0, 3.0, 1.0], 0.0))
+        self.assertEqual(state, "HOLD")
+        self.assertEqual(
+            (session.state, session.generation, session.last_event_sequence),
+            ("HOLD", 2, 2))
+        self.assertEqual(pump.next_event_sequence, 3)
+        self.assertEqual(pump.last_current_tick, 0)
+        # The replan after the hold must use the NEXT sequence, never reuse 2.
+        second = activate(pump, encoder, traj_id=2, tick=1, nanosec=1_000_000,
+                          identity=current_identity(pump))
+        self.assertEqual(second.event_sequence, 3)
+        self.assertEqual(
+            (session.state, session.generation, session.last_event_sequence),
+            ("ACTIVE", 3, 3))
+        self.assertEqual(pump.next_event_sequence, 4)
+
+    def test_hold_without_usable_anchor_is_atomically_rejected(self):
+        session, adapter, decoder, pump = make_pump()
+        encoder = BsplineTcpEncoder(SESSION_ID)
+        activate(pump, encoder, traj_id=1)
+        before = control_snapshot(pump, session)
+        with self.assertRaises(ValueError) as ctx:
+            pump.hold(current_identity(pump), current_tick=0)
+        self.assertIn("hold anchor", str(ctx.exception))
+        # Atomic: the rejection changed NOTHING -- no burned sequence.
+        self.assertEqual(control_snapshot(pump, session), before)
+        # The next replan uses the very next sequence, proving no burn.
+        second = activate(pump, encoder, traj_id=2, tick=1, nanosec=1_000_000,
+                          identity=current_identity(pump))
+        self.assertEqual(second.event_sequence, 2)
+
+    def test_hold_with_invalid_anchor_shape_is_atomically_rejected(self):
+        session, adapter, decoder, pump = make_pump()
+        encoder = BsplineTcpEncoder(SESSION_ID)
+        activate(pump, encoder, traj_id=1)
+        before = control_snapshot(pump, session)
+        with self.assertRaises(ValueError):
+            pump.hold(current_identity(pump), current_tick=0, anchor=object())
+        self.assertEqual(control_snapshot(pump, session), before)
+
+    def test_hold_with_non_finite_anchor_is_atomically_rejected(self):
+        session, adapter, decoder, pump = make_pump()
+        encoder = BsplineTcpEncoder(SESSION_ID)
+        activate(pump, encoder, traj_id=1)
+        before = control_snapshot(pump, session)
+        with self.assertRaises(ValueError):
+            pump.hold(current_identity(pump), current_tick=0,
+                      anchor=([0.0, float("nan"), 1.0], 0.0))
+        self.assertEqual(control_snapshot(pump, session), before)
+
+    def test_hold_on_waiting_session_requires_anchor(self):
+        session, adapter, decoder, pump = make_pump()
+        before = control_snapshot(pump, session)
+        with self.assertRaises(ValueError):
+            pump.hold(current_identity(pump), current_tick=0)
+        self.assertEqual(control_snapshot(pump, session), before)
+        # With an explicit anchor the same hold succeeds from WAITING.
+        state = pump.hold(current_identity(pump), current_tick=0,
+                          anchor=([0.0, 0.0, 1.0], 0.0))
+        self.assertEqual(state, "HOLD")
+        self.assertEqual(
+            (session.state, session.generation, session.last_event_sequence),
+            ("HOLD", 1, 1))
+        self.assertEqual(pump.next_event_sequence, 2)
+
+    def test_control_tick_must_be_valid_and_not_regress(self):
+        session, adapter, decoder, pump = make_pump()
+        encoder = BsplineTcpEncoder(SESSION_ID)
+        activate(pump, encoder, traj_id=1, tick=5, nanosec=5_000_000)
+        before = control_snapshot(pump, session)
+        for bad_tick in (-1, 1.5, "3", None, True, MAX_TICK + 1):
+            self.assert_pump_error(
+                "invalid_tick", pump.hold, current_identity(pump),
+                current_tick=bad_tick, anchor=([0.0, 0.0, 1.0], 0.0))
+        self.assert_pump_error(
+            "tick_regressed", pump.hold, current_identity(pump),
+            current_tick=4, anchor=([0.0, 0.0, 1.0], 0.0))
+        self.assert_pump_error(
+            "tick_regressed", pump.cancel, current_identity(pump),
+            current_tick=0)
+        self.assertEqual(control_snapshot(pump, session), before)
+        # Equal tick is allowed (non-regression, not strict increase).
+        state = pump.hold(current_identity(pump), current_tick=5,
+                          anchor=([0.0, 0.0, 1.0], 0.0))
+        self.assertEqual(state, "HOLD")
+        self.assertEqual(pump.last_current_tick, 5)
+
+    def test_failed_control_event_does_not_advance_pump_tick(self):
+        session, adapter, decoder, pump = make_pump()
+        encoder = BsplineTcpEncoder(SESSION_ID)
+        activate(pump, encoder, traj_id=1, tick=2, nanosec=2_000_000)
+        before = control_snapshot(pump, session)
+        with self.assertRaises(ValueError):
+            pump.hold(current_identity(pump), current_tick=7)
+        self.assertEqual(control_snapshot(pump, session), before)
+        self.assertEqual(pump.last_current_tick, 2)
+
+    def test_generation_exhaustion_is_atomically_rejected(self):
+        session, adapter, decoder, pump = make_pump()
+        encoder = BsplineTcpEncoder(SESSION_ID)
+        activate(pump, encoder, traj_id=1)
+        session.generation = MAX_GENERATION
+        identity = current_identity(pump)
+        before = control_snapshot(pump, session)
+        with self.assertRaises(OverflowError):
+            pump.hold(identity, current_tick=0,
+                      anchor=([0.0, 0.0, 1.0], 0.0))
+        with self.assertRaises(OverflowError):
+            pump.cancel(identity, current_tick=0)
+        self.assertEqual(control_snapshot(pump, session), before)
+
+    def test_cancel_is_terminal_and_blocks_everything_after(self):
+        session, adapter, decoder, pump = make_pump()
+        encoder = BsplineTcpEncoder(SESSION_ID)
+        activate(pump, encoder, traj_id=1)
+        state = pump.cancel(current_identity(pump), current_tick=0)
+        self.assertEqual(state, "CANCELLED")
+        self.assertEqual(
+            (session.state, session.generation, session.last_event_sequence),
+            ("CANCELLED", 2, 2))
+        self.assertEqual(pump.next_event_sequence, 3)
+        # Terminal rejections are atomic: nothing burns.
+        before = control_snapshot(pump, session)
+        with self.assertRaises(ValueError):
+            pump.hold(current_identity(pump), current_tick=0,
+                      anchor=([0.0, 0.0, 1.0], 0.0))
+        with self.assertRaises(ValueError):
+            pump.cancel(current_identity(pump), current_tick=0)
+        self.assertEqual(control_snapshot(pump, session), before)
+        # Replan after terminal cancel is refused by admission, no activation.
+        frame = encoder.encode_frame(
+            make_payload(clear_cps(), traj_id=2, nanosec=1_000_000))
+        outcomes = pump.feed(frame, identity=current_identity(pump),
+                             current_tick=1, fallback_yaw=0.0)
+        self.assertEqual(len(outcomes), 1)
+        self.assertNotEqual(outcomes[0].outcome, OUTCOME_ACTIVATED)
+        self.assertFalse(outcomes[0].session_activated)
+        self.assertEqual(session.last_event_sequence, 2)
+        self.assertEqual(pump.next_event_sequence, 3)
+
+    def test_stale_generation_rejected_before_any_mutation(self):
+        session, adapter, decoder, pump = make_pump()
+        encoder = BsplineTcpEncoder(SESSION_ID)
+        activate(pump, encoder, traj_id=1)
+        before = control_snapshot(pump, session)
+        stale = dict(current_identity(pump), planner_generation=0)
+        self.assert_pump_error("generation_mismatch", pump.hold, stale,
+                               current_tick=0,
+                               anchor=([0.0, 0.0, 1.0], 0.0))
+        self.assert_pump_error("generation_mismatch", pump.cancel, stale,
+                               current_tick=0)
+        self.assertEqual(control_snapshot(pump, session), before)
+
+    def test_malformed_identity_rejected_without_burn(self):
+        session, adapter, decoder, pump = make_pump()
+        encoder = BsplineTcpEncoder(SESSION_ID)
+        activate(pump, encoder, traj_id=1)
+        before = control_snapshot(pump, session)
+        with self.assertRaises((AdapterError, ValueError)):
+            pump.hold(ExplodingIdentityMapping(), current_tick=0,
+                      anchor=([0.0, 0.0, 1.0], 0.0))
+        self.assertEqual(control_snapshot(pump, session), before)
+
+    def test_poisoned_pump_rejects_control_events(self):
+        session, adapter, decoder, pump = make_pump()
+        encoder = BsplineTcpEncoder(SESSION_ID)
+        activate(pump, encoder, traj_id=1)
+        pump.feed(poison_frame(encoder, traj_id=2),
+                  identity=current_identity(pump), current_tick=1,
+                  fallback_yaw=0.0)
+        self.assertEqual(pump.state, STATE_POISONED)
+        before = control_snapshot(pump, session)
+        self.assert_pump_error("poisoned", pump.hold, current_identity(pump),
+                               current_tick=1,
+                               anchor=([0.0, 0.0, 1.0], 0.0))
+        self.assert_pump_error("poisoned", pump.cancel, current_identity(pump),
+                               current_tick=1)
+        self.assertEqual(control_snapshot(pump, session), before)
+
+    def test_event_sequence_exhaustion_blocks_control_events(self):
+        session, adapter, decoder, pump = make_pump(
+            initial_event_sequence=MAX_COMMAND_ID)
+        encoder = BsplineTcpEncoder(SESSION_ID)
+        # The last available sequence is spent by the activation itself.
+        first = activate(pump, encoder, traj_id=1)
+        self.assertEqual(first.event_sequence, MAX_COMMAND_ID)
+        before = control_snapshot(pump, session)
+        self.assert_pump_error("sequence_exhausted", pump.hold,
+                               current_identity(pump), current_tick=0,
+                               anchor=([0.0, 0.0, 1.0], 0.0))
+        self.assert_pump_error("sequence_exhausted", pump.cancel,
+                               current_identity(pump), current_tick=0)
+        self.assertEqual(control_snapshot(pump, session), before)
 
 
 if __name__ == "__main__":

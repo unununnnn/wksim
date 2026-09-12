@@ -24,7 +24,7 @@ TRANSACTION BOUNDARY (read before relying on this pump):
   it records such a frame as ``transport_consumed=True,
   session_activated=False``: its transport sequence and payload ``trajectory_id``
   are burned, but the pump spends NO ``event_sequence`` (that counter advances
-  only on a successful activation).  This pump provides NO crash atomicity and NO
+  only on a successful activation or explicit control event). This pump provides NO crash atomicity and NO
   exactly-once guarantee: if the process stops between the two commits, the frame
   and its outcome may be lost from both ledgers.
 
@@ -37,8 +37,8 @@ builds a new decoder (new transport session), a new ``TrajectorySession`` at
 ``planner_generation + 1`` (preserving ``command_high_water`` so public command
 IDs keep increasing across the reconnect), and a fresh admission gate.
 
-The pump does NOT drive the control/execution path: it only admits trajectories
-into the offline session.  It never calls ``step``/``next_output``, never produces
+The pump admits trajectories and applies explicit hold/cancel events to the
+offline session. It never calls ``step``/``next_output``, never produces
 a public command output, and never touches a vehicle, UE, or SITL.
 """
 from __future__ import annotations
@@ -104,12 +104,12 @@ NON_CLAIMS = (
     "no wall clock; current_tick is caller-supplied, bounded, and checked for "
     "non-regression",
     "no identifier minting; trajectory_id comes from the payload and "
-    "event_sequence is a session-scoped ordering counter spent only on activation",
+    "event_sequence is a session-scoped ordering counter spent only on committed activation or control events",
     "no continuous-curve or flight-safety claim; scene clearance inherits the "
     "admission gate's sampled/segment-checked honesty bound",
     "no force, impulse, or Terrain15D; the obstacle is a vertical AABB, not terrain",
-    "does not drive the control/execution path; it only admits trajectories into "
-    "the offline session",
+    "does not publish or execute control output; it admits trajectories and "
+    "applies explicit stop events to the offline session",
 )
 
 
@@ -276,6 +276,76 @@ class PlannerTransportPump:
             )
         return candidate
 
+    # ---- control events (hold / cancel) ------------------------------------
+    def _spend_event_sequence(self) -> None:
+        """Commit the current event sequence exactly like an activation does."""
+        if self._next_event_sequence == MAX_COMMAND_ID:
+            self._event_sequence_exhausted = True
+        else:
+            self._next_event_sequence += 1
+
+    def _run_control_event(self, operation: Any, identity: Any, action: str,
+                           current_tick: Any) -> str:
+        """Route one adapter stop-family call through the pump event allocator.
+
+        The pump owns ``_next_event_sequence``: a direct ``adapter.hold`` /
+        ``adapter.cancel`` from a caller would burn the session event
+        high-water without advancing the allocator, so the next replan would
+        reuse the value and be rejected by the session. Routing here keeps the
+        two in lock-step.
+
+        Gates, all evaluated BEFORE any decoder/session/pump mutation:
+        poisoned pump, ``current_tick`` validity and non-regression against
+        ``last_current_tick`` (same MAX_TICK discipline as ``feed``),
+        stale/future caller generation, and an exhausted event-sequence space.
+        A malformed or stable-tuple-mismatched identity falls through to the
+        adapter, which rejects it before any session mutation (same boundary
+        as admission).
+
+        ``TrajectorySession.stop`` is atomic: a rejected call changes NOTHING,
+        so the allocator is advanced ONLY after a successful call -- there is
+        no compensation or rollback here. The pump's authority-tick ledger is
+        updated only on success as well. Adapter/session errors propagate
+        unchanged; the adapter's semantics (HOLD via no-route, terminal
+        CANCELLED, anchor requirements, generation bump) are reused, never
+        re-implemented.
+        """
+        if self._state != STATE_ACTIVE:
+            raise PumpError(
+                "poisoned",
+                f"cannot {action} while the pump is poisoned; recover with a new transport_session_id")
+        current_tick = _strict_int(current_tick, "invalid_tick", "current_tick", MAX_TICK)
+        if current_tick < self._last_current_tick:
+            raise PumpError(
+                "tick_regressed",
+                f"cannot {action}: current_tick must not regress below the pump tick high-water")
+        candidate = self._check_feed_identity(identity)
+        if self._event_sequence_exhausted:
+            raise PumpError(
+                "sequence_exhausted",
+                f"cannot {action}: the event sequence space is exhausted")
+        state = operation(candidate, self._next_event_sequence)
+        # Success only: the session committed the event.
+        self._spend_event_sequence()
+        self._last_current_tick = current_tick
+        return state
+
+    def hold(self, identity: Any, *, current_tick: Any, anchor: Any = None) -> str:
+        """Pump-owned hold (session ``no-route`` -> HOLD) through the allocator.
+
+        No anchor is fabricated here: when the session has no hold anchor, the
+        session's own (atomic) rejection applies.
+        """
+        return self._run_control_event(
+            lambda candidate, seq: self._adapter.hold(candidate, seq, anchor=anchor),
+            identity, "hold", current_tick)
+
+    def cancel(self, identity: Any, *, current_tick: Any) -> str:
+        """Pump-owned cancel (terminal CANCELLED) through the allocator."""
+        return self._run_control_event(
+            lambda candidate, seq: self._adapter.cancel(candidate, seq),
+            identity, "cancel", current_tick)
+
     # ---- receive loop ----------------------------------------------------
     def feed(self, chunk: Any, *, identity: Any, current_tick: int,
              fallback_yaw: float) -> List[FrameOutcome]:
@@ -368,10 +438,7 @@ class PlannerTransportPump:
                 transport_consumed=True, session_activated=False, event_sequence=None,
                 detail=_detail(error), report=error.report)
         # Activated: the session committed.  Only now is the event_sequence spent.
-        if event_sequence == MAX_COMMAND_ID:
-            self._event_sequence_exhausted = True
-        else:
-            self._next_event_sequence += 1
+        self._spend_event_sequence()
         return FrameOutcome(
             transport_sequence=transport_sequence, trajectory_id=accepted,
             outcome=OUTCOME_ACTIVATED, transport_consumed=True, session_activated=True,

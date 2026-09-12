@@ -93,11 +93,15 @@ class TrajectorySession:
             raise ValueError("planner generation differs from the active session")
         return candidate
 
-    def _event(self, identity, event_sequence, generation=None):
+    def _check_event(self, identity, event_sequence, generation=None):
+        """Validate identity + sequence WITHOUT recording anything."""
         self._check_identity(identity, generation)
         _uint(event_sequence, "event_sequence", MAX_COMMAND_ID)
         if self.last_event_sequence is not None and event_sequence <= self.last_event_sequence:
             raise ValueError("event sequence must increase")
+
+    def _event(self, identity, event_sequence, generation=None):
+        self._check_event(identity, event_sequence, generation)
         self.last_event_sequence = event_sequence
 
     def _bump_generation(self):
@@ -233,17 +237,31 @@ class TrajectorySession:
         return dict(row)
 
     def stop(self, reason, identity, event_sequence, anchor=None):
-        """Apply a stop event before any sample at the same adapter tick."""
+        """Apply a stop event before any sample at the same adapter tick.
+
+        Atomic: every rejectable condition -- identity/event legality, anchor
+        presence/shape/finiteness, generation capacity -- is validated BEFORE
+        any state changes. The anchor is prepared locally; last_event_sequence,
+        hold_anchor, generation, and state commit together, only on success.
+        """
         if reason not in _STOP_REASONS:
             raise ValueError("unknown stop reason")
         if self.state in ("CANCELLED", "RELEASED", "FAULTED"):
             raise ValueError("session is already terminal")
-        self._event(identity, event_sequence)
+        self._check_event(identity, event_sequence)
         if anchor is not None:
-            self._hold_anchor = self._anchor(anchor)
-        elif reason in ("stop", "no-route", "replan") and self._hold_anchor is None:
-            raise ValueError("a hold anchor is required before stopping")
-        self._bump_generation()
+            prepared_anchor = self._anchor(anchor)
+        else:
+            prepared_anchor = self._hold_anchor
+            if reason in ("stop", "no-route", "replan") and prepared_anchor is None:
+                raise ValueError("a hold anchor is required before stopping")
+        if self.generation == MAX_GENERATION:
+            raise OverflowError("planner generation exhausted")
+        # All validations passed: commit together.
+        self.last_event_sequence = event_sequence
+        self._hold_anchor = prepared_anchor
+        self.generation += 1
+        self._clear_trajectory()
         self._last_reason = reason
         self.state = "CANCELLED" if reason == "cancel" else (
             "RELEASED" if reason in ("release", "control-lost") else (

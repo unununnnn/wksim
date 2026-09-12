@@ -229,5 +229,96 @@ class TrajectorySessionTests(unittest.TestCase):
         )
 
 
+class StopAtomicityTests(unittest.TestCase):
+    """session.stop validates every rejectable condition before any commit."""
+
+    def snapshot(self, session):
+        from copy import deepcopy
+        return deepcopy((session.state, session.generation, session.last_event_sequence,
+                session.last_command_id, session._trajectory, session._sample,
+                session._last_sample_tick, session._hold_anchor,
+                session._last_reason))
+
+    def make_active(self):
+        session = TrajectorySession(IDENTITY)
+        generation = start(session)
+        session.sample(identity(session, generation), generation, 7, 10,
+                       (1, 2, 3), (0, 0, 0), (0, 0, 0), 0, valid_until_tick=12)
+        return session
+
+    def test_missing_anchor_rejected_without_mutation(self):
+        session = TrajectorySession(IDENTITY)  # WAITING: no hold anchor exists
+        before = self.snapshot(session)
+        with self.assertRaises(ValueError):
+            session.stop("no-route", identity(session), 1)
+        self.assertEqual(self.snapshot(session), before)
+
+    def test_invalid_anchor_shape_rejected_without_mutation(self):
+        session = self.make_active()
+        before = self.snapshot(session)
+        with self.assertRaises(ValueError):
+            session.stop("no-route", identity(session), 2, anchor=object())
+        with self.assertRaises(ValueError):
+            session.stop("no-route", identity(session), 2,
+                         anchor=((0.0, float("nan"), 1.0), 0.0))
+        with self.assertRaises(ValueError):
+            session.stop("no-route", identity(session), 2,
+                         anchor=((0.0, 0.0, 1.0), float("inf")))
+        self.assertEqual(self.snapshot(session), before)
+
+    def test_regressed_sequence_rejected_without_mutation(self):
+        session = self.make_active()
+        session.stop("no-route", identity(session), 2, anchor=((9, 8, 7), 0.4))
+        before = self.snapshot(session)
+        with self.assertRaises(ValueError):
+            session.stop("no-route", identity(session), 2,
+                         anchor=((0, 0, 0), 0.0))
+        with self.assertRaises(ValueError):
+            session.stop("cancel", identity(session), 1)
+        self.assertEqual(self.snapshot(session), before)
+
+    def test_generation_overflow_rejected_without_mutation_or_fault(self):
+        session = self.make_active()
+        session.generation = MAX_GENERATION
+        before = self.snapshot(session)
+        with self.assertRaises(OverflowError):
+            session.stop("no-route", identity(session), 2,
+                         anchor=((0, 0, 0), 0.0))
+        with self.assertRaises(OverflowError):
+            session.stop("cancel", identity(session), 2)
+        self.assertEqual(self.snapshot(session), before)
+        self.assertNotEqual(session.state, "FAULTED")
+
+    def test_terminal_and_unknown_reason_rejected_without_mutation(self):
+        session = self.make_active()
+        before = self.snapshot(session)
+        with self.assertRaises(ValueError):
+            session.stop("explode", identity(session), 2)
+        session.stop("cancel", identity(session), 2)
+        terminal = self.snapshot(session)
+        with self.assertRaises(ValueError):
+            session.stop("no-route", identity(session), 3,
+                         anchor=((0, 0, 0), 0.0))
+        with self.assertRaises(ValueError):
+            session.stop("cancel", identity(session), 3)
+        self.assertEqual(self.snapshot(session), terminal)
+        self.assertEqual(self.snapshot(session)[:1], ("CANCELLED",))
+        self.assertNotEqual(before, terminal)  # the successful cancel committed
+
+    def test_successful_stop_commits_all_fields_together(self):
+        session = self.make_active()
+        generation_before = session.generation
+        state = session.stop("no-route", identity(session), 2,
+                             anchor=((9, 8, 7), 0.4))
+        self.assertEqual(state, "HOLD")
+        self.assertEqual(session.last_event_sequence, 2)
+        self.assertEqual(session.generation, generation_before + 1)
+        self.assertEqual(session.state, "HOLD")
+        self.assertEqual(session._hold_anchor,
+                         dict(position=[9.0, 8.0, 7.0], yaw=0.4))
+        self.assertIsNone(session._trajectory)
+        self.assertIsNone(session._sample)
+
+
 if __name__ == "__main__":
     unittest.main()
