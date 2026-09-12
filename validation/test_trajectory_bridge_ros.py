@@ -329,7 +329,7 @@ class TrajectoryBridgeCallbackTests(unittest.TestCase):
 
     def test_unexpected_session_state_exception_fails_closed(self):
         with patch(
-            "Simulator.wksim_runtime.trajectory_bridge._explicit_uint",
+            "Simulator.wksim_runtime.trajectory_bridge.session_state_decision",
             side_effect=RuntimeError("unexpected"),
         ):
             self.assertFalse(self.node.on_session_state(self.state()))

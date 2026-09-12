@@ -21,6 +21,14 @@ from prometheus_msgs.msg import Bspline, TextInfo, UAVCommand, UAVControlState
 from wksim_msgs.msg import CommandRequest, SessionState
 
 from Simulator.wksim_planning.ego_bspline_bridge import BridgeError, bridge_bspline
+
+from Simulator.wksim_runtime.planner_command_egress import (
+    authority_tick,
+    classify_command_event,
+    command_fields,
+    session_state_decision,
+    session_state_fresh_and_owned,
+)
 from Simulator.wksim_planning.ego_trajectory_adapter import (
     SAMPLE_STRIDE_TICKS,
     TICK_NS,
@@ -43,6 +51,41 @@ CLOCK_FAULTS = frozenset((
     "ros_clock_off_grid",
     "authority_tick_overflow",
 ))
+
+
+
+
+def build_ros_command_request(fields, *, run_id, control_epoch, request_id):
+    """Assemble one real CommandRequest from shared plain fields; no state.
+
+    The ONLY place symbolic command_fields names become wire constants. Both
+    the bridge and the Route-B transport node publish through this assembly,
+    so the two writers cannot diverge on the wire.
+    """
+    command = UAVCommand()
+    command.header.stamp.sec = fields["stamp_sec"]
+    command.header.stamp.nanosec = fields["stamp_nanosec"]
+    command.header.frame_id = fields["frame_id"]
+    command.agent_cmd = UAVCommand.MOVE
+    command.control_level = UAVCommand.DEFAULT_CONTROL
+    command.move_mode = (
+        UAVCommand.TRAJECTORY if fields["move_mode"] == "TRAJECTORY"
+        else UAVCommand.XYZ_POS
+    )
+    command.position_ref = fields["position_ref"]
+    command.velocity_ref = fields["velocity_ref"]
+    command.acceleration_ref = fields["acceleration_ref"]
+    command.yaw_ref = fields["yaw_ref"]
+    command.yaw_rate_mode = fields["yaw_rate_mode"]
+    command.yaw_rate_ref = fields["yaw_rate_ref"]
+    command.command_id = fields["command_id"]
+    return CommandRequest(
+        version=CommandRequest.VERSION,
+        run_id=run_id,
+        control_epoch=control_epoch,
+        request_id=request_id,
+        command=command,
+    )
 
 
 @dataclass
@@ -204,35 +247,25 @@ class TrajectoryBridgeNode(Node):
             self._fault("ros_clock_moved_backwards")
             return None
         self.last_clock_ns = value
-        if value < self.authority_anchor_ns:
-            self._fault("ros_clock_before_authority_anchor")
+        try:
+            return authority_tick(value, self.authority_anchor_ns)
+        except ValueError as error:
+            self._fault(str(error))
             return None
-        delta = value - self.authority_anchor_ns
-        if delta % TICK_NS:
-            self._fault("ros_clock_off_grid")
-            return None
-        tick = delta // TICK_NS
-        if tick > 2**63 - 1:
-            self._fault("authority_tick_overflow")
-            return None
-        return tick
 
     def _state_fresh_and_owned(self):
         msg = self.latest_state
         if msg is None or self.fault_reason is not None:
             return False
-        now = self._monotonic_s()
-        published = msg.published_monotonic_s
-        received = msg.source_received_monotonic_s
-        return bool(
-            isinstance(now, Real) and math.isfinite(now)
-            and math.isfinite(published) and 0.0 <= now - published <= STATE_STALE_SECONDS
-            and msg.source_received_valid
-            and math.isfinite(received) and 0.0 <= now - received <= STATE_STALE_SECONDS
-            and valid_state(msg.state, self.uav_id)
-            and msg.control.control_state == UAVControlState.COMMAND_CONTROL
-            and not msg.control.failsafe
-        )
+        return session_state_fresh_and_owned(
+            now_s=self._monotonic_s(),
+            published_s=msg.published_monotonic_s,
+            received_s=msg.source_received_monotonic_s,
+            received_valid=msg.source_received_valid,
+            state_valid=valid_state(msg.state, self.uav_id),
+            control_is_command=(
+                msg.control.control_state == UAVControlState.COMMAND_CONTROL),
+            failsafe=bool(msg.control.failsafe))
 
     def _bind_epoch(self, msg):
         clock_fault = self.fault_reason if self.fault_reason in CLOCK_FAULTS else None
@@ -260,35 +293,39 @@ class TrajectoryBridgeNode(Node):
 
     @_fail_closed_callback
     def on_session_state(self, msg):
-        if (msg.version != SessionState.VERSION or msg.run_id != self.run_id
-                or len(msg.control_epoch) != 32
-                or msg.control_epoch in self.retired_epochs
-                or msg.state.uav_id != self.uav_id
-                or msg.control.uav_id != self.uav_id):
+        action, reason = session_state_decision(
+            dict(
+                version_ok=(msg.version == SessionState.VERSION),
+                run_match=(msg.run_id == self.run_id),
+                control_epoch=msg.control_epoch,
+                epoch_well_formed=(len(msg.control_epoch) == 32),
+                state_uav_match=(msg.state.uav_id == self.uav_id),
+                control_uav_match=(msg.control.uav_id == self.uav_id),
+                sequence=msg.sequence,
+                last_request_id=msg.last_request_id,
+                command_high_water=msg.command_high_water,
+            ),
+            dict(
+                retired_epochs=self.retired_epochs,
+                current_epoch=self.epoch,
+                current_sequence=self.session_sequence,
+                session_command_high_water=(
+                    self.session.last_command_id if self.session is not None else 0),
+                pending_request_id=(
+                    self.pending.request_id if self.pending is not None else None),
+            ))
+        if action == "ignore":
             return False
-        try:
-            sequence = _explicit_uint(msg.sequence, "session sequence", MAX_REQUEST_ID)
-            request_id = _explicit_uint(msg.last_request_id, "last_request_id", MAX_REQUEST_ID)
-            command_id = _explicit_uint(
-                msg.command_high_water, "command_high_water", MAX_COMMAND_ID
-            )
-        except ValueError:
-            return False
-
-        if sequence == 0:
-            return False
-        if self.epoch != msg.control_epoch:
+        if action == "bind":
             self._bind_epoch(msg)
             return True
-        if sequence <= self.session_sequence:
-            return False
-        self.session_sequence = sequence
+        # update/fault: sequence accepted; record state fields before faulting,
+        # matching the original mutation order.
+        self.session_sequence = msg.sequence
         self.latest_state = msg
-        self.request_high_water = max(self.request_high_water, request_id)
-        if command_id > self.session.last_command_id:
-            return self._fault("external_command_writer")
-        if self.pending is not None and request_id > self.pending.request_id:
-            return self._fault("external_request_writer")
+        self.request_high_water = max(self.request_high_water, msg.last_request_id)
+        if action == "fault":
+            return self._fault(reason)
         return True
 
     @staticmethod
@@ -366,35 +403,14 @@ class TrajectoryBridgeNode(Node):
         if self.request_high_water >= MAX_REQUEST_ID:
             return self._fault("request_id_exhausted")
         try:
-            command = UAVCommand()
-            command.header.stamp.sec = now_ns // 1_000_000_000
-            command.header.stamp.nanosec = now_ns % 1_000_000_000
-            command.header.frame_id = "map"
-            command.agent_cmd = UAVCommand.MOVE
-            command.control_level = UAVCommand.DEFAULT_CONTROL
-            command.move_mode = (
-                UAVCommand.TRAJECTORY if intent["intent"] == "trajectory"
-                else UAVCommand.XYZ_POS
-            )
-            command.position_ref = [float(value) for value in intent["position_ref"]]
-            command.velocity_ref = [float(value) for value in intent["velocity_ref"]]
-            command.acceleration_ref = [float(value) for value in intent["acceleration_ref"]]
-            command.yaw_ref = float(intent["yaw_ref"])
-            command.yaw_rate_mode = bool(intent["yaw_rate_mode"])
-            command.yaw_rate_ref = float(intent["yaw_rate_ref"])
-            command.command_id = int(intent["command_id"])
-
+            fields = command_fields(intent, now_ns)
             self.request_high_water += 1
-            request = CommandRequest(
-                version=CommandRequest.VERSION,
-                run_id=self.run_id,
-                control_epoch=self.epoch,
-                request_id=self.request_high_water,
-                command=command,
-            )
+            request = build_ros_command_request(
+                fields, run_id=self.run_id, control_epoch=self.epoch,
+                request_id=self.request_high_water)
         except Exception:
             return self._fault("command_message_invalid")
-        self.pending = PendingCommand(request.request_id, command.command_id)
+        self.pending = PendingCommand(request.request_id, request.command.command_id)
         try:
             self.command_pub.publish(request)
         except Exception:
@@ -407,38 +423,20 @@ class TrajectoryBridgeNode(Node):
             event = json.loads(msg.message)
         except (TypeError, ValueError):
             return self._fault("malformed_text_info")
-        if type(event) is not dict:
-            return self._fault("malformed_text_info")
-        if (type(event.get("version")) is not int or event["version"] != 1
-                or event.get("run_id") != self.run_id
-                or event.get("control_epoch") != self.epoch):
-            return False
-        kind = event.get("event")
-        if kind == "control_revoked":
-            if msg.message_type != TextInfo.ERROR:
-                return self._fault("text_info_type_mismatch")
-            return self._fault("control_revoked")
-        if kind not in ("command_accepted", "command_rejected"):
-            return False
-        request_id = event.get("request_id")
-        command_id = event.get("command_id")
-        if (self.last_ack is not None and kind == "command_accepted"
-                and (request_id, command_id) == self.last_ack):
-            return False
-        if (self.pending is None
-                or type(request_id) is not int or type(command_id) is not int
-                or request_id != self.pending.request_id
-                or command_id != self.pending.command_id):
-            return self._fault("other_command_writer_event")
-        if kind == "command_rejected":
-            if msg.message_type != TextInfo.ERROR:
-                return self._fault("text_info_type_mismatch")
-            return self._fault("command_rejected")
-        if msg.message_type != TextInfo.INFO:
-            return self._fault("text_info_type_mismatch")
-        self.last_ack = (request_id, command_id)
-        self.pending = None
-        return True
+        outcome, pending, last_ack = classify_command_event(
+            event, msg.message_type, run_id=self.run_id, epoch=self.epoch,
+            pending=(None if self.pending is None
+                     else (self.pending.request_id, self.pending.command_id)),
+            last_ack=self.last_ack,
+            info_value=TextInfo.INFO, error_value=TextInfo.ERROR)
+        if pending is None and self.pending is not None:
+            self.pending = None
+        self.last_ack = last_ack
+        if outcome.startswith("fault:"):
+            return self._fault(outcome[len("fault:"):])
+        if outcome == "accepted":
+            return True
+        return False
 
     @_fail_closed_callback
     def on_timer(self):
