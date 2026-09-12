@@ -94,4 +94,26 @@ class PlannerProvenanceTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError,'exit normally'):
                 runner.verify_planner_execution(report,control)
 
+class ReleaseFailureEvidenceTests(unittest.TestCase):
+    def test_ros_numpy_vectors_remain_json_serializable_on_failed_handoff(self):
+        import json, tempfile, numpy as np
+        from unittest.mock import patch
+        task=object.__new__(PlannerReleaseTask)
+        task.latest={'state':SimpleNamespace(position=np.array([1.,2.,3.],dtype=np.float32),
+                                            velocity=np.array([.3,.2,.1],dtype=np.float32))}
+        task.node=SimpleNamespace(get_clock=lambda:SimpleNamespace(now=lambda:SimpleNamespace(nanoseconds=6000000000)))
+        task.begin_leg=lambda leg:([1.,2.,3.],0.,0.,{'samples':[]})
+        task.task_time=lambda:6.0
+        task.Cmd=SimpleNamespace(MOVE=2,TRAJECTORY=5)
+        task.offer=lambda *a,**kw:None
+        task.fresh=lambda:True
+        task.phase=lambda label:None
+        with tempfile.TemporaryDirectory() as directory:
+            task.directory=Path(directory)
+            with patch('planner_release_task.handoff_and_release',side_effect=RuntimeError('original failure')):
+                with self.assertRaisesRegex(RuntimeError,'original failure'):task.fly_until_release()
+        saved=json.loads(json.dumps(task.release_stop,allow_nan=False))
+        self.assertEqual(saved['anchor'],[1.,2.,3.])
+        self.assertGreater(saved['pre_release_velocity'][0],.25)
+
 if __name__=='__main__':unittest.main()

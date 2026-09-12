@@ -57,8 +57,8 @@ class PlannerReleaseTask(PVTask):
             raise RuntimeError('Release proof requires actual movement above the stop threshold')
         self.release_stop = dict(requested_ros_ns=self.node.get_clock().now().nanoseconds,
                                  requested_ros_s=self.task_time(),
-                                 anchor=list(self.state.position),
-                                 pre_release_velocity=list(self.state.velocity))
+                                 anchor=[float(v) for v in self.state.position],
+                                 pre_release_velocity=[float(v) for v in self.state.velocity])
         # No further command publication occurs until the helper returns with
         # a verified setup response and the new public request high-water.
         self.phase('release_writer_silent')
