@@ -300,7 +300,9 @@ def task_main(args):
                 rclpy.spin_once(task.node, timeout_sec=.02)
             save(root/'initialized.json',dict(version=1,run_id=args.run_id,scene_epoch=args.scene_epoch,
                 uav_id=args.uav_id,task_profile=args.task_profile,request_graph=task.pv_request_graph,
-                ros_time_ns=task.node.get_clock().now().nanoseconds))
+                ros_time_ns=task.node.get_clock().now().nanoseconds,
+                **(dict(planner_prewarm=task._prepared_planner_handoff.record)
+                   if args.planner_release_proof and args.stack=='arducopter' else {})))
         task.wait('joint_public_ready', lambda: (task.recovery_transport_fresh() if args.task_mode=='recover' else task.fresh())
                   and (task.request_graph_ready() if args.task_profile in (PV_PROFILE, MIXED_PROFILE) else
                        task.setup_pub.get_subscription_count() == task.command_pub.get_subscription_count() == 1), 55)
@@ -878,6 +880,13 @@ def run(args):
                             or record['scene_epoch']!=clock.epoch or record['uav_id']!=uid
                             or record['task_profile']!=args.task_profile or record['ros_time_ns']!=0):
                         raise ValueError('Candidate startup identity or zero clock differs')
+                    if args.planner_release_proof and stack=='arducopter':
+                        warm=record['planner_prewarm']
+                        if (warm['outcome']!='prepared_at_clock_zero'
+                                or warm['timestamps']['node_spawned_ros_ns']!=0
+                                or warm['timestamps']['warm_ready_ros_ns']!=0
+                                or warm['child']['pgid']!=result['children']['arducopter-task']['identity']['pgid']):
+                            raise ValueError('Planner prewarm did not complete inside the task group at clock zero')
                     initialized[stack] = record
                 from Simulator.wksim_core.worker import receive_worker
                 snapshots = {stack:receive_worker(worker,dict(version=1,epoch=clock.epoch,snapshot=True),clock.epoch)

@@ -17,7 +17,7 @@ from prometheus_msgs.msg import TextInfo, UAVControlState
 # Keep the sealed Simulator package first. Only the experiment helper lives in tools.
 repo = Path(__file__).resolve().parents[1]
 sys.path.append(str(repo))
-from tools.planner_release_handoff import handoff_and_release
+from tools.planner_release_handoff import handoff_and_release, prepare_planner
 import Simulator.wksim_runtime.planner_command_egress as egress
 
 
@@ -45,6 +45,17 @@ def main():
     driver = None
     try:
         driver = Driver(output)
+        if len(sys.argv)>3 and sys.argv[3]=='prewarm':
+            driver.freeze_clock=True
+            driver._prepared_planner_handoff=prepare_planner(driver,output=output/'handoff',
+                environment=dict(os.environ),mode='BRAKE',expected_native_mode='BRAKE')
+            prepared=driver._prepared_planner_handoff
+            assert driver.task_time()==0
+            assert prepared.record['timestamps']['warm_ready_ros_ns']==0
+            assert 'wksim_planner_transport' not in driver.node.get_node_names()
+            report['prewarm_at_clock_zero']=True
+            report['node_absent_before_activation']=True
+            driver.freeze_clock=False
         deadline = time.monotonic()+8
         while driver.task_time()==0:
             if time.monotonic()>deadline: raise TimeoutError('ROS fixture clock not initialized')
@@ -60,7 +71,10 @@ def main():
         report.update(status='failed',error=repr(exc))
         raise
     finally:
-        if driver is not None: driver.node.destroy_node()
+        if driver is not None:
+            prepared=getattr(driver,'_prepared_planner_handoff',None)
+            if prepared is not None:prepared.close_prepared()
+            driver.node.destroy_node()
         rclpy.shutdown()
         report['source_unchanged'] = all(hashlib.sha256(Path(name).read_bytes()).hexdigest()==sha for name,sha in hashes.items())
         if not report['source_unchanged']:report['status']='failed'
@@ -84,6 +98,7 @@ class Driver:
         self.directory=output
         self.started=time.monotonic()
         self.sequence=0
+        self.freeze_clock=False
         self.requests=[]
         self.commands=[]
         self.node=rclpy.create_node('release_helper_fixture', parameter_overrides=[Parameter('use_sim_time',value=True)])
@@ -112,7 +127,7 @@ class Driver:
     def pump(self):
         now=time.monotonic()
         if now-self.started>25: raise TimeoutError('Fixture wall watchdog')
-        ns=(1000+int((now-self.started)*1000))*1000000
+        ns=0 if self.freeze_clock else (1000+int((now-self.started)*1000))*1000000
         clock=Clock()
         clock.clock.sec,clock.clock.nanosec=divmod(ns,1000000000)
         self.clock.publish(clock)

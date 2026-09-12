@@ -62,6 +62,44 @@ TRANSPORT_READY_S = 5.0               # wall bound for transport reads, retained
 SESSION_READ_S = 5.0                  # wall bound for the fresh state read
 
 
+# The same installed process stays alive from prewarm through release.
+# No Node, DDS participant, session binding, or public request exists before token.
+PLANNER_PROCESS = r"""
+import hashlib,json,pathlib,sys,time
+import rclpy
+from rclpy.executors import ExternalShutdownException
+from Simulator.wksim_runtime.planner_transport_node import PlannerTransportNode
+loaded={name:{'path':str(pathlib.Path(module.__file__).resolve()),
+              'sha256':hashlib.sha256(pathlib.Path(module.__file__).read_bytes()).hexdigest()}
+        for name,module in sys.modules.items()
+        if name.startswith('Simulator.') and getattr(module,'__file__',None)}
+node=None
+rclpy.init(args=sys.argv[1:])
+try:
+    print(json.dumps({'planner_loaded_modules':loaded,'planner_warm_ready':True,
+                      'warm_ready_wall_ns':time.monotonic_ns()}),flush=True)
+    token=sys.stdin.buffer.readline()
+    if token:
+        if token != b'activate\n': raise RuntimeError('invalid owned activation token')
+        node=PlannerTransportNode()
+        announced=False
+        while rclpy.ok():
+            rclpy.spin_once(node,timeout_sec=.02)
+            if node.fault_reason is not None: raise RuntimeError(node.fault_reason)
+            if node.egress is not None and not announced:
+                print(json.dumps({'planner_bound':{
+                    'run_id':node.run_id,'control_epoch':node.epoch,
+                    'request_high_water':node.egress.request_high_water,
+                    'command_high_water':node.session.last_command_id}}),flush=True)
+                announced=True
+except (KeyboardInterrupt,ExternalShutdownException):
+    pass
+finally:
+    if node is not None:node.destroy_node()
+    if rclpy.ok():rclpy.shutdown()
+"""
+
+
 # ---- pure verification helpers (no ROS) ---------------------------------------
 
 def verify_session_high_water(state_fields, *, expected_request_id,
@@ -167,15 +205,15 @@ def terminate_child(record, process, *, timeout_s=5.0):
 class PlannerReleaseHandoff:
     """Drive one real cancel->release handoff against a live joint runtime."""
 
-    def __init__(self, task, *, output, environment, mode, expected_native_mode):
+    def __init__(self, task, *, output, environment, mode, expected_native_mode, _preparing=False):
         # Preconditions: the source writer is silent with its last command ACKed.
         if getattr(task, "protocol", None) != "session_v1":
             raise ValueError("handoff requires a session_v1 task")
-        if getattr(task, "pending_request_id", None) is not None:
+        if not _preparing and getattr(task, "pending_request_id", None) is not None:
             raise ValueError("task still has a pending command: not a completed ACK")
-        if getattr(task, "epoch", None) is None:
+        if not _preparing and getattr(task, "epoch", None) is None:
             raise ValueError("task has no control epoch")
-        if getattr(task, "active", False) is not True:
+        if not _preparing and getattr(task, "active", False) is not True:
             raise ValueError("task must be live (active) for a handoff")
         command_id = getattr(task, "command_id", None)
         if type(command_id) is not int or command_id < 0:
@@ -336,14 +374,7 @@ class PlannerReleaseHandoff:
     # -- step 3: node process ---------------------------------------------------------
     def _spawn_transport_node(self):
         argv = [
-            "/usr/bin/python3", "-B", "-c",
-            "import hashlib,json,pathlib,sys; "
-            "import Simulator.wksim_runtime.planner_transport_node as node; "
-            "loaded={name:{'path':str(pathlib.Path(module.__file__).resolve()),"
-            "'sha256':hashlib.sha256(pathlib.Path(module.__file__).read_bytes()).hexdigest()} "
-            "for name,module in sys.modules.items() "
-            "if name.startswith('Simulator.') and getattr(module,'__file__',None)}; "
-            "print(json.dumps({'planner_loaded_modules':loaded}),flush=True); node.main()",
+            "/usr/bin/python3", "-B", "-c", PLANNER_PROCESS,
             "--ros-args",
             "-p", f"run_id:={self.task.run_id}",
             "-p", f"mission_id:={self.task.run_id}-release",
@@ -365,7 +396,7 @@ class PlannerReleaseHandoff:
         try:
             self._child = subprocess.Popen(
                 argv, cwd=str(self.task.directory), env=self.environment,
-                stdout=self._log_handle, stderr=subprocess.STDOUT,
+                stdout=self._log_handle, stderr=subprocess.STDOUT, stdin=subprocess.PIPE,
                 # Inherit the task group so supervisor teardown also reaches
                 # this node if the task is killed before its finally block.
                 start_new_session=False)
@@ -376,7 +407,77 @@ class PlannerReleaseHandoff:
         self._child_record = record_child(self._child)
         self.record["child"] = vars(self._child_record)
         self.record["timestamps"]["node_spawned_wall"] = time.monotonic()
+        self.record["timestamps"]["node_spawned_ros_ns"] = self._ros_ns()
         return self._child
+
+    def _message(self, field):
+        log = self.output_dir/'planner-transport-node.log'
+        if log.is_file():
+            for line in log.read_text(errors='replace').splitlines():
+                try:message=json.loads(line)
+                except ValueError:continue
+                if isinstance(message,dict) and field in message:return message
+        return None
+
+    def _wait_warm_ready(self):
+        deadline=time.monotonic()+TRANSPORT_READY_S
+        while time.monotonic()<deadline:
+            if self._child.poll() is not None:raise RuntimeError('planner exited during prewarm')
+            message=self._message('planner_warm_ready')
+            if message is not None:
+                if message['planner_warm_ready'] is not True:raise ValueError('invalid warm-ready marker')
+                self.record['planner_loaded_modules']=message['planner_loaded_modules']
+                self.record['timestamps']['warm_ready_wall_ns']=message['warm_ready_wall_ns']
+                self.record['timestamps']['warm_ready_ros_ns']=self._ros_ns()
+                return
+            self._pump()
+            time.sleep(.01)
+        raise TimeoutError('planner prewarm exceeded the transport bound')
+
+    def prepare(self):
+        if self._ros_ns()!=0:raise RuntimeError('prewarm must precede the physical clock')
+        try:
+            self._spawn_transport_node()
+            self._wait_warm_ready()
+            if self._ros_ns()!=0:raise RuntimeError('physical clock advanced during prewarm')
+            self.record['outcome']='prepared_at_clock_zero'
+            self._write_record()
+            return self
+        except Exception as error:
+            self.record.update(outcome='failed:prewarm',error=str(error))
+            try:self._cleanup()
+            finally:self._write_record()
+            raise
+
+    def close_prepared(self):
+        if self._child is not None:
+            try:self._cleanup()
+            finally:self._write_record()
+
+    def _activate(self):
+        self._check_invariants()
+        self._child.stdin.write(b'activate\n')
+        self._child.stdin.flush()
+        self._child.stdin.close()
+        self.record['timestamps']['activated_ros_ns']=self._ros_ns()
+        self.record['timestamps']['activated_wall_ns']=time.monotonic_ns()
+
+    def _verify_node_binding(self):
+        deadline=time.monotonic()+TRANSPORT_READY_S
+        while time.monotonic()<deadline:
+            self._pump()
+            if self._child.poll() is not None:raise RuntimeError('planner exited before binding')
+            message=self._message('planner_bound')
+            if message is None:
+                time.sleep(.01)
+                continue
+            bound=message['planner_bound']
+            expected=dict(run_id=self.task.run_id,control_epoch=self.task.epoch,
+                          request_high_water=self._baseline_request,command_high_water=self._baseline_command)
+            if bound!=expected:raise ValueError('planner bound to unexpected identity or high waters')
+            self.record['planner_bound']=bound
+            return
+        raise TimeoutError('planner binding exceeded transport bound')
 
     def _wait_node_ready(self):
         """Bounded wall retry; the SUCCESSFUL connection is RETAINED (the
@@ -480,10 +581,17 @@ class PlannerReleaseHandoff:
         """Execute the full handoff; the record is persisted on ANY failure,
         and a refused child teardown can never report success."""
         try:
+            if self.task.pending_request_id is not None or self.task.epoch is None or not self.task.active:
+                raise ValueError('release requires live owned task with no pending request')
+            self._initial_request,self._initial_command=self.task.request_id,self.task.command_id
             self.verify_public_high_water()
             self._register_observation()
-            self._spawn_transport_node()
+            if self._child is None:
+                self._spawn_transport_node()
+                self._wait_warm_ready()
+            self._activate()
             self._wait_node_ready()
+            self._verify_node_binding()
             self._send_cancel()
             release_request_id = self._observe_release()
             self._verify_task_adoption(release_request_id)
@@ -521,6 +629,8 @@ class PlannerReleaseHandoff:
         """
         try:
             if self._child is not None and self._child_record is not None:
+                if getattr(self._child,'stdin',None) is not None and not self._child.stdin.closed:
+                    self._child.stdin.close()  # EOF retires a never-activated child.
                 self.record['child_teardown'] = terminate_child(self._child_record, self._child)
                 self.record['child_returncode'] = self._child.returncode
                 self._child = None
@@ -561,8 +671,18 @@ class PlannerReleaseHandoff:
         return path
 
 
+def prepare_planner(task, *, output, environment, mode, expected_native_mode):
+    return PlannerReleaseHandoff(task,output=output,environment=environment,mode=mode,
+                                 expected_native_mode=expected_native_mode,_preparing=True).prepare()
+
+
 def handoff_and_release(task, *, output, environment, mode, expected_native_mode):
-    """Module-level entry point used by tools/planner_release_task.py."""
-    return PlannerReleaseHandoff(
-        task, output=output, environment=environment,
-        mode=mode, expected_native_mode=expected_native_mode).run()
+    prepared=getattr(task,'_prepared_planner_handoff',None)
+    if prepared is not None:
+        if (prepared.task is not task or prepared.output_dir != Path(output)
+                or prepared.environment != environment or prepared.mode != mode
+                or prepared.expected_native_mode != expected_native_mode):
+            raise ValueError('prepared planner context changed')
+        return prepared.run()
+    return PlannerReleaseHandoff(task,output=output,environment=environment,mode=mode,
+                                 expected_native_mode=expected_native_mode).run()

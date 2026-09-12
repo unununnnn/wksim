@@ -235,6 +235,9 @@ class OrchestrationTests(unittest.TestCase):
             handoff._child = child
             handoff._child_record = ChildRecord(12345, 12345, 42, ['fixture'])
         handoff._spawn_transport_node = spawn
+        handoff._wait_warm_ready = lambda: None
+        handoff._activate = lambda: None
+        handoff._verify_node_binding = lambda: None
         handoff._wait_node_ready = lambda: setattr(handoff, '_socket', mock.Mock())
         handoff._read_fresh_state_once = lambda: SimpleNamespace(last_request_id=30,command_high_water=17)
         modules = {'wksim_msgs':SimpleNamespace(), 'wksim_msgs.msg':SimpleNamespace(SessionState=object),
@@ -298,6 +301,28 @@ class OrchestrationTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError,'pre-spawn identity'):self.run_record(handoff,modules)
             saved=json.loads((Path(tmp)/'release/planner-release-handoff.json').read_text())
             self.assertEqual(saved['error'],'pre-spawn identity mismatch')
+
+
+class PrewarmGateTests(unittest.TestCase):
+    def test_prepare_rejects_nonzero_clock_before_spawning(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            handoff=make_handoff(OrchestrationTask(tmp),Path(tmp)/'release')
+            with mock.patch.object(handoff,'_spawn_transport_node') as spawn:
+                with self.assertRaisesRegex(RuntimeError,'precede the physical clock'):handoff.prepare()
+                spawn.assert_not_called()
+
+    def test_run_rechecks_pending_request_after_prewarm(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            task=OrchestrationTask(tmp)
+            handoff=make_handoff(task,Path(tmp)/'release')
+            task.pending_request_id=30
+            with mock.patch.object(handoff,'verify_public_high_water') as verify:
+                with self.assertRaisesRegex(ValueError,'no pending request'):handoff.run()
+                verify.assert_not_called()
+
+    def test_child_program_is_valid_python(self):
+        from tools.planner_release_handoff import PLANNER_PROCESS
+        compile(PLANNER_PROCESS,'planner_prewarm_child','exec')
 
 
 class RealChildTests(unittest.TestCase):

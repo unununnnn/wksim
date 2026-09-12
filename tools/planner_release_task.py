@@ -5,7 +5,7 @@ import time
 
 from pv_trajectory_task import PVTask, reference
 from Simulator.wksim_runtime.task import grounded
-from planner_release_handoff import handoff_and_release
+from planner_release_handoff import handoff_and_release, prepare_planner
 
 
 class PlannerReleaseTask(PVTask):
@@ -13,6 +13,23 @@ class PlannerReleaseTask(PVTask):
         super().__init__(*args, **kwargs)
         self.release_result = None
         self.release_stop = None
+        self._prepared_planner_handoff = None
+        if self.flight_stack == 'arducopter':
+            self._prepared_planner_handoff = prepare_planner(
+                self,output=self.directory/'planner-release',environment=dict(os.environ),
+                mode='BRAKE',expected_native_mode='BRAKE')
+
+    def pump(self):
+        super().pump()
+        prepared=getattr(self,'_prepared_planner_handoff',None)
+        if prepared is not None and prepared._child is not None and prepared._child.poll() is not None:
+            raise RuntimeError('prepared planner process exited unexpectedly')
+
+    def close(self):
+        try:
+            prepared=getattr(self,'_prepared_planner_handoff',None)
+            if prepared is not None:prepared.close_prepared()
+        finally:super().close()
 
     def execute(self):
         self.prepare()  # Existing arm/takeoff/hold/waypoint contract, unchanged.
