@@ -13,8 +13,8 @@
 
 | 席位 | thread / 当前turn | 独占交付 |
 | --- | --- | --- |
-| OMP | 6deb2e40-2240-4db2-8c7f-c06bf6724048 / 51cec837-fb90-4ede-997c-7a2006ec43a6 | 独立只读复核参考端run-03与240个major值/原件/清理及输出保护；仅写omp-reference-first-step-review-20260913.md，不改实现或重跑MATLAB。 |
-| Claude Code | 48faf2f5-f74a-4ba4-ac85-4ae4d05c5801 / f75c871b-fba1-407f-bb57-f8bbbaf13bd2 | 新build_first_step_trace.py/必要recorder及instrumentation测试，目标ODE4四级只读trace；已收到参考端真实run-03数据，不编译/运行模型，不改旧builder/冻结源，不把trace当G6通过。 |
+| OMP | 6deb2e40-2240-4db2-8c7f-c06bf6724048 / 8394e3b8-98ec-4136-994f-8bcc8fd87e43 | 上一probe已交回；实现compare_first_step_trace.py及独立纯测试，以真实原件重现comparison-v2，严格校验事件序位/覆盖/hex并绑定SHA。禁止改probe/recorder。 |
+| Claude Code | 48faf2f5-f74a-4ba4-ac85-4ae4d05c5801 / 0364b8e1-9763-4b34-8ad7-76c862121f93 | 目标端已交回并由主会话实跑；现在独占参考probe及说明，核验修复句柄/端口枚举/opts/默认行为陈述/恢复保护，不跑MATLAB。 |
 
 OMP旧数值报告出现过把2墙秒当500组，以及将sleep_max总和减出“残余归因”的错误，均不采用。现有分类仅能定位阶段边界，不能证明OS/FC或纯off-CPU原因。新helper须先读源、核对真实父类行为与测试再接线。
 
@@ -46,11 +46,17 @@ OMP旧数值报告出现过把2墙秒当500组，以及将sleep_max总和减出�
 
 最新诊断vnv58upp（epoch3649e119e5544199b406645610e258b5）在tick91504以RateUnmet100515303ns失败，wall234.990319751s；无记录器/CPU采样错误、source_unchanged=true，PGID2373–2382独立全空。Linux原件validation/joint-public-flight-vnv58upp，live /root/wksim-joint-flight-k607mi42，收据validation/spin-cpu-mixed-20260913-01。22,866条父/子记录逐组对应，22,848组有跨释放pair。765个>=10us迟到pair合计58.696388ms迟到，CPU/wall比值有高低两类；记录到的79个GC事件与这765个pair重叠0。CPU读取自身成本未被v1独立括住，因此不能把比值直接当原pacer的on/off-CPU或OS/FC因果证据。v2必须先剥离读取窗口不确定性，不盲改睡眠余量。选取包validation/33-formal-promotion/spin-vnv58upp约6.6MB，保留失败与测量局限，不能作正式通过。
 
-spin v2已主审收口但未实跑：主会话去掉热路径仍存在的tuple，改为每组预分配slots并逐标量更新；CPython observe无BUILD_TUPLE/LIST/MAP字节码。新增前后时钟跨观测顺序检查。helper SHA d3115c140cc3b1fb2500d8fd7c78321c62a81bd2928dae00eb894e1334d3ec40，测试1f5c2741…，合并57passed/11subtests；私有提交ff389db，主仓库已同步这两个文件，receipt在validation/coordination/spin-v2-delivery-20260913。下一次诊断可采用该稳定版本，仍须资源前检和保护原门。
+spin v2已主审收口并完成下文0fsmugd1诊断：主会话去掉热路径仍存在的tuple，改为每组预分配slots并逐标量更新；CPython observe无BUILD_TUPLE/LIST/MAP字节码。新增前后时钟跨观测顺序检查。helper SHA d3115c140cc3b1fb2500d8fd7c78321c62a81bd2928dae00eb894e1334d3ec40，测试1f5c2741…，合并57passed/11subtests；私有提交ff389db，主仓库已同步这两个文件，receipt在validation/coordination/spin-v2-delivery-20260913。该版本实跑结果见下文；不得因旧检查点文字重复运行。
 
 ## G6与模型证据
 
-主会话已实际验证参考端新probe：execution/run-01/02保留partial，run-03通过UDD Data属性取到4积分器的连续状态和导数double hex。每块PostDerivatives时点0/.0005/.0005/.001；72事件无丢弃；240个主输出与原C3G f64前2行逐位相同，所有使用中的输入前后未变。执行probe SHA fecb5bf7…，MATLAB各次exit0且无残留；缓存/代码生成材料不发布。纯复算目标源码ODE4表达式在这组参考导数下重现13个末态分量，不是目标实际执行或根因证明。详见docs/2026-09-13-reference-first-step-observation.md与g6-reference-probe-20260913/execution-03/analysis.json。目标端trace尚未实跑，G6仍失败。
+目标端mrdivide版已完成：Linux /root/wksim-first-step-trace-20260913-03，编译/run exit0，PGID671/696全空；13项纯测试通过。5次求解时间/major-minor序列正确，240主输出及4级状态/导数/更新与版本02逐位相同。stage2实际分子[1]=bc000013449033b2、结果[1]=bc56d4db33a987b9；5次实际目标惯性矩阵均diag(.0211,.0219,.0366)。只证明目标端，参考求解输入尚未观测。trace SHA9cee60eb5b3e5ccc96730f13423f5e0fa07de19654a481d32e9e885953f4bed3；证据validation/coordination/g6-target-mrdivide-20260913。
+
+目标端已真实构建/执行两个首步trace，目录/root/wksim-first-step-trace-20260913-01与-02，编译/run均exit0、自有PGID661/674全空；仓库包g6-target-first-step-20260913仅选取日志/JSON/自写源。第02版major240值与旧C3G目标stdout逐位一致、stage/update与01完全相同，实际只一次ODE4更新。13个映射状态最早差异为stage2 pqr.derivative[1]，bc56d4db33a987b8 vs ...b9（1ULP），之后传播；其余23态未覆盖。comparison-v2修正首个t=.001 PostOutputs为minor、最后才major的选择错误，原v1保留。下一步取两端实际矩阵求解输入，不能据参数声明称所有输入相同。详见docs/2026-09-13-target-first-step-comparison.md。
+
+spin v2也已实跑0fsmugd1（epoch74bc4d6b57074d6c8df3fd74ea68e552），在tick46988以100158534ns RateUnmet失败；wall153.892627706s，source_unchanged=true、记录错误/CPU错误0，PGID2037–2046独立全空。11737记录/11711跨点pair，426个>=10us迟到pair合计34.552384ms；其中152个CPU读取窗口>10us，只有1个pair的wall-minus-CPU下界>10us。这揭示读取成本与区间不确定性，不能据比值排除宿主/内核影响或给原pacer做因果归因。新包spin-v2-0fsmugd1保留失败，未证明mixed通过；勿盲重跑或放宽100ms。
+
+主会话已实际验证参考端新probe：execution/run-01/02保留partial，run-03通过UDD Data属性取到4积分器的连续状态和导数double hex。每块PostDerivatives时点0/.0005/.0005/.001；72事件无丢弃；240个主输出与原C3G f64前2行逐位相同，所有使用中的输入前后未变。执行probe SHA fecb5bf7…，MATLAB各次exit0且无残留；缓存/代码生成材料不发布。纯复算目标源码ODE4表达式在这组参考导数下重现13个末态分量，不是目标实际执行或根因证明。详见docs/2026-09-13-reference-first-step-observation.md与g6-reference-probe-20260913/execution-03/analysis.json。目标端trace两版实跑结果见上文；G6仍失败。
 
 - 已交付G6 first-divergence工具、测试与v1/v2/v3保留报告。主会话修read-once、数值/hex与manifest绑定、独占输出，并补拒绝相同值/正负零、非finite、bool假失败；实际重算与v3一致。
 - 当前工具SHA75e97e3c3188dd8982c769e1287b188dad9127385ce45302899ab751b8a04e00，测试61904a4e602eb357470c8dffe385b1c6b50a6ba470cdf6a110009b2d80cb28b4。Windows30passed/1已由先前Linux覆盖的symlink skip/5subtests；最终记录见validation/coordination/g6-first-divergence-20260913/main-verification-final.json。

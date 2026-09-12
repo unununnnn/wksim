@@ -1,0 +1,185 @@
+// Independent first-step (k=0->1) ODE4 trace recorder. Diagnostic only; no
+// production wrapper, model, or ABI change. Provides the read-only capture hooks
+// the instrumented generated source calls, runs exactly one ODE4 step with the
+// frozen C3G k=0 input, and writes every captured value as exact binary64 hex.
+#include "Exp1_MinModelTemp.h"
+#include <cstdint>
+#include <cstdio>
+#include <cstring>
+#include <cmath>
+#include <memory>
+#include <fcntl.h>
+#include <unistd.h>
+#include <fstream>
+#include <iostream>
+#include <sstream>
+#include <stdexcept>
+#include <string>
+#include <vector>
+
+namespace {
+std::string g_log;  // JSONL record buffer, flushed once at the end
+int g_stage_count = 0;
+int g_update_count = 0;
+int g_major_count = 0;
+
+std::string hex64(double value) {
+    std::uint64_t bits = 0;
+    std::memcpy(&bits, &value, 8);
+    char buf[32];
+    std::snprintf(buf, sizeof buf, "0x%016llx", static_cast<unsigned long long>(bits));
+    return buf;
+}
+
+void append_hex_array(std::string& out, const real_T* values, int n) {
+    out += '[';
+    for (int i = 0; i < n; ++i) {
+        if (i) out += ',';
+        out += '"';
+        out += hex64(values[i]);
+        out += '"';
+    }
+    out += ']';
+}
+}  // namespace
+
+// Capture t=0 and t=0.001 major outputs. The second call returns before any
+// additional Update/ODE work, so there is still exactly one integrated step.
+bool wk_trace_major(const ExtY_Exp1_MinModelTemp_T& y) {
+    if (g_major_count >= 2) throw std::runtime_error("unexpected major capture");
+    std::string rec = "{\"kind\":\"major_output\",\"k\":" + std::to_string(g_major_count);
+    rec += ",\"Vehicle60\":"; append_hex_array(rec, y.VehileInfo60d, 60);
+    rec += ",\"Sensor30\":"; append_hex_array(rec, y.HILSensor30d, 30);
+    rec += ",\"GPS30\":"; append_hex_array(rec, y.HILGPS30d, 30);
+    rec += "}\n"; g_log += rec;
+    return ++g_major_count == 2;
+}
+
+// Read-only capture hooks called by the instrumented rt_ertODEUpdateContinuousStates.
+void wk_trace_ode4_stage(int wk_stage, double wk_t, const real_T* wk_state,
+                         const real_T* wk_deriv, int wk_n) {
+    if (wk_n != 36 || wk_stage != g_stage_count || wk_stage > 3)
+        throw std::runtime_error("unexpected ODE4 stage order or width");
+    ++g_stage_count;
+    std::string rec = std::string("{\"kind\":\"ode4_stage\",\"stage\":") +
+        std::to_string(wk_stage) + ",\"time_s\":\"" + hex64(wk_t) +
+        "\",\"nXc\":" + std::to_string(wk_n) + ",\"state_hex\":";
+    append_hex_array(rec, wk_state, wk_n);
+    rec += ",\"deriv_hex\":";
+    append_hex_array(rec, wk_deriv, wk_n);
+    rec += "}\n";
+    g_log += rec;
+}
+
+void wk_trace_ode4_update(double wk_t, const real_T* wk_pre, const real_T* wk_post, int wk_n) {
+    if (wk_n != 36 || g_stage_count != 4 || g_update_count != 0)
+        throw std::runtime_error("unexpected ODE4 update count or width");
+    ++g_update_count;
+    std::string rec = std::string("{\"kind\":\"ode4_update\",\"time_s\":\"") +
+        hex64(wk_t) + "\",\"nXc\":" + std::to_string(wk_n) + ",\"pre_hex\":";
+    append_hex_array(rec, wk_pre, wk_n);
+    rec += ",\"post_hex\":";
+    append_hex_array(rec, wk_post, wk_n);
+    rec += "}\n";
+    g_log += rec;
+}
+
+namespace {
+std::string quote(const std::string& text) {
+    std::string out = "\"";
+    for (char ch : text) {
+        if (ch == '"' || ch == '\\') out += '\\';
+        out += ch;
+    }
+    return out + '"';
+}
+
+// Read the k=0 row of the frozen 501x33 input (k,time,16 pwm,15 terrain).
+struct FirstRow { std::vector<double> pwm, terrain; std::size_t rows; };
+
+FirstRow read_first_row(const std::string& path) {
+    std::ifstream file(path);
+    if (!file) throw std::runtime_error("cannot open input csv");
+    std::string line;
+    if (!std::getline(file, line)) throw std::runtime_error("empty input csv");
+    std::size_t rows = 0;
+    FirstRow first{};
+    while (std::getline(file, line)) {
+        if (!line.empty() && line.back() == '\r') line.pop_back();
+        if (line.empty()) continue;
+        std::istringstream cells(line);
+        std::string cell;
+        std::vector<std::string> parts;
+        while (std::getline(cells, cell, ',')) parts.push_back(cell);
+        if (parts.size() != 33) throw std::runtime_error("expected 33 input columns");
+        if (rows == 0) {
+            for (int i = 0; i < 16; ++i) first.pwm.push_back(std::stod(parts[2 + i]));
+            for (int i = 0; i < 15; ++i) first.terrain.push_back(std::stod(parts[18 + i]));
+        }
+        ++rows;
+    }
+    if (rows != 501) throw std::runtime_error("expected exactly 501 input rows");
+    first.rows = rows;
+    return first;
+}
+
+void append_input_hex(std::string& out, const char* key, const std::vector<double>& values) {
+    out += "\""; out += key; out += "\":[";
+    for (std::size_t i = 0; i < values.size(); ++i) {
+        if (i) out += ',';
+        out += '"'; out += hex64(values[i]); out += '"';
+    }
+    out += ']';
+}
+}  // namespace
+
+int main(int argc, char** argv) {
+    if (argc != 5 || std::string(argv[1]) != "--record" || std::string(argv[3]) != "--output") {
+        std::cerr << "Usage: first_step_trace_recorder --record input.csv --output trace.jsonl\n";
+        return 1;
+    }
+    try {
+        const FirstRow first = read_first_row(argv[2]);
+        const int descriptor = ::open(argv[4], O_WRONLY | O_CREAT | O_EXCL, 0600);
+        if (descriptor < 0) throw std::runtime_error("output must be a new writable file");
+        FILE* stream = ::fdopen(descriptor, "wb");
+        if (!stream) { ::close(descriptor); throw std::runtime_error("cannot attach output stream"); }
+        std::unique_ptr<FILE, decltype(&std::fclose)> output(stream, &std::fclose);
+        std::unique_ptr<MulticopterModelClass> model(new MulticopterModelClass());
+        model->initialize();
+        if (rtmGetErrorStatus(model->getRTM())) throw std::runtime_error("model initialize error");
+        if (model->getRTM()->Timing.t[0] != 0.) throw std::runtime_error("initial model time differs");
+        // Apply the frozen k=0 input, then run exactly one ODE4 step (t=0 -> 0.001 s).
+        for (int i = 0; i < 16; ++i) model->Exp1_MinModelTemp_U.inPWMs[i] = first.pwm[i];
+        for (int i = 0; i < 15; ++i) model->Exp1_MinModelTemp_U.TerrainIn15d[i] = first.terrain[i];
+
+        g_log += "{\"kind\":\"first_step_trace_start\",\"case\":\"C3G\",\"solver\":\"ode4\","
+                 "\"step_s\":\"0.001\",\"input_csv\":" + quote(argv[2]) +
+                 ",\"input_rows\":" + std::to_string(first.rows) + ",\"k0_input_hex\":{";
+        append_input_hex(g_log, "inPWMs", first.pwm);
+        g_log += ',';
+        append_input_hex(g_log, "TerrainIn15d", first.terrain);
+        g_log += "}}\n";
+
+        model->step();  // the instrumented ODE4 update appends stage/update records
+        if (rtmGetErrorStatus(model->getRTM())) throw std::runtime_error("model step error");
+        if (std::abs(model->getRTM()->Timing.t[0] - .001) > 1e-12 ||
+            g_stage_count != 4 || g_update_count != 1)
+            throw std::runtime_error("single-step time or trace coverage differs");
+        model->step();  // major output at k=1, early return before a second ODE4 update
+        if (g_major_count != 2 || g_stage_count != 4 || g_update_count != 1 ||
+            std::abs(model->getRTM()->Timing.t[0] - .001) > 1e-12)
+            throw std::runtime_error("major observation advanced a second step");
+        model->terminate();
+
+        g_log += "{\"kind\":\"first_step_trace_end\"}\n";
+
+        if (std::fwrite(g_log.data(), 1, g_log.size(), output.get()) != g_log.size() ||
+            std::fflush(output.get()) != 0) throw std::runtime_error("trace write failed");
+        std::cout << g_log;  // also echo to stdout for the run harness
+        return 0;
+    } catch (const std::exception& error) {
+        std::cerr << "{\"status\":\"failed\",\"error\":" << quote(error.what()) << "}\n";
+        return 1;
+    }
+}
