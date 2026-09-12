@@ -4,15 +4,14 @@
 
 ## Goal 健康状态
 
-**最后状态变更：get_goal 最新返回 paused，updatedAt=1789206897，原因未返回。主会话未调用Goal暂停/完成工具，未改数据库。心跳wksim已同步PAUSED，避免绕过运行时暂停；不自动恢复。以下较早active和续跑检查是历史健康记录。**
+2026-09-12用户要求规划新Goal。get_goal先返回null，随后正式create_goal成功，createdAt1789210351、active、无token预算。此前paused的旧Goal没有被伪装完成或改库恢复。新阶段计划见 [六席位计划](six-end-next-goal-20260912.md)。
 
-- thread：`01a08b94-d2fe-7361-9c43-2d54e9490f32`；goal：`63bdd724-67ae-4701-8fae-73e2a03578f5`。
-- 本次 get_goal 和只读数据库一致：active，token_budget=null，continuation deferral 为零；桌面实际 CLI 的 goals=true；任务未归档，接口返回 inProgress、error=null。
-- 运行记录显示 07:53:23 UTC 和 08:32:10 UTC 两次回合结束后立即开始下一轮。续跑机制已有实际执行记录；清理后的下一回合已收到正式 Goal continuation，自动续跑验证完成。
-- 不重复创建、不虚假结案、不改数据库。现有 Goal 工具没有 objective 编辑或 resume 参数；最新阶段和完成项以本检查点为准。累计 tokensUsed 是消耗统计，不能当作预算上限。
-- heartbeat `wksim` 绑定同一任务，当前PAUSED；原计划每三分钟检查。无变化或不可行动时静默，只在重要变化、完成、失败或需用户行动时通知。心跳只辅助跟进，不能代替 Goal 完成验收。
+用户明确保留Fast要求；三Luna暂由主会话代行，实际三个外部端为Claude Code、Oh My Pi、DeepSeek Harness（接替agy）。不宣称六个代理都已启动。各席位写入权、实时句柄与验收条件见新计划和validation/coordination/six-end-20260912/dispatch.json。
 
 ## 当前关键路径
+
+**新阶段优先项：**先修复18-AJ完整性误判并验证删除命令/重排编号负例；再按Claude19a核对#82/#83完整PV合同；DeepSeek02纠正其01的写者/时钟域误读。当前新计划优先于下方上一阶段记录。主会话已完成25文件完整性校验、实际负例复现和7票依赖核对；OMP独占Linux审计脚本/原测试文件，主会话勿覆盖其进行中的修改。
+
 
 主仓库6d139b7已推送，包含真实release成功证据、独立审计工具与#39运行合同补充。实验分支 `codex/planner-release-validation` 已推送至90bb3e1；实际运行代码bc76fb6。Ubuntu-22.04工作区 `/root/wksim-release-acceptance-fe3` 保留所有实验代码及全量原件。主仓库他方runner/runtime/控制器修改未覆盖，实验分支尚未整体合并。
 
@@ -27,9 +26,9 @@ Control仍为 `/root/wksim-joint-control-c2IXOr/build.json`，SHA `6fe8c0b30775a
 
 原8fmacpgy失败保留：epoch676a53981dd747cb93bfd5271d7f5d95，tick67996迟到134828282ns，最后组71993754ns；cancel晚于rate fault105068302ns，零ACK。启动重叠不证明唯一CPU/IO/FC原因。AP result.json曾因numpy.float32未落盘，8699169修复为Python float并通过真实numpy回归，不重写原件。证据 `validation/planner-release-native-20260912-01/`。
 
-预热实现bc76fb6：原AP task在initialized.json前持有子进程和stdin；import+rclpy.init预加载后记录warm-ready0，激活前不创建Node/绑定会话。保留原5s传输、10s ROS截止、所有计数/身份检查；原task组清理，helper只核验并信号自有PID。34项检查与安装态合成输入预热05通过。Claude18-AI误称“时钟前只有runner存在”，已用实际launch_task→initialized gate源码纠正；不引入多余runner文件握手。OMP22l仍中断，主会话拥有helper，不重启覆盖。Luna接口Fast仍不可选择/验证，遵守仓库规则由主会话承担对应工作，不伪报设置。
+预热实现bc76fb6：原AP task在initialized.json前持有子进程和stdin；import+rclpy.init预加载后记录warm-ready0，激活前不创建Node/绑定会话。保留原5s传输、10s ROS截止、所有计数/身份检查；原task组清理，helper只核验并信号自有PID。34项检查与安装态合成输入预热05通过。Claude18-AI误称“时钟前只有runner存在”，已用实际launch_task→initialized gate源码纠正；不引入多余runner文件握手。OMP22l仍中断，主会话拥有helper，不重启覆盖。Luna接口Fast仍不可选择/验证，且用户新近明确保留该要求，由主会话暂时代行，不伪报设置。
 
-本轮handle70504真实场次退出0，98999只读审计退出0；所有主会话native/fixture/build handles均终态。成功场次原10个PGID的独立/proc复查为空，warm child继承taskPGID并正常退出0。下次native前重新分别完成并评估两distro进程检查，再单独启动。全范围Goal尚未完成，最新运行时状态paused；不关闭任何尚缺原AC的父/子票。
+本轮handle70504真实场次退出0，98999只读审计退出0；所有主会话native/fixture/build handles均终态。成功场次原10个PGID的独立/proc复查为空，warm child继承taskPGID并正常退出0。下次native前重新分别完成并评估两distro进程检查，再单独启动。全范围Goal尚未完成，新Goal为active；不关闭任何尚缺原AC的父/子票。
 
 ## 已完成，勿重复
 
