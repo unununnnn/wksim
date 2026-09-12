@@ -1,143 +1,64 @@
 # 当前 Goal 执行检查点
 
-## 最新：当前mixed真实场失败留证，正式Control校验已修；G6定位工具收口
+2026-09-13。Goal active，createdAt=1789219780；Full/G0–G6原范围和原AC不变。上一轮与本轮均有真实运行、代码修复和新证据，不是全局blocked。历史明细保留于[8f726ca检查点](https://github.com/unununnnn/wksim/blob/8f726ca/docs/coordination/short-cycle-goal.md)，本页只描述当前状态。
 
-主会话按同一AP/Control/Message与已验证async+GC配置、关闭全部计时探针，实际跑mixed `joint-public-flight-oxv29042`（epoch18c96a7e0af9477092aa87e18239c23c）。在tick131760、LAND下降中触发RateUnmet100034744ns；wall313.978032933s，source_unchanged=true，cleanup_errors=[]，PGID2023–2032独立全空且boot与前检相同。Task未完成，不计任何整场通过；原mixed审计以Candidate run/cleanup did not pass拒绝。保留包validation/33-formal-promotion/current-mixed-oxv29042，约2.43MB压缩选取件，完整raw仍Linux。#83保持CLOSED，#84/Full未通过。
+## 工作区与所有权
 
-核算：115732+99780808+138204=100034744ns；creep=15139984 work-over+84640824 release-excess。实际墙钟分区249early/975731ns、1crossing/4ns、32679steady/98805073ns；OMP初版500组/4.49ms分区作废。32,930个group start相对earliest的中位超额19ns，p95=38ns，31589组小于1us；这些开始时差含前组工作超额，不能一概叫调度延迟。既有xtj8wk8i计时原件中，894个entry/initial-health未迟到且release-excess≥10us的组共有71821720ns额外迟到，只有1组sleep_max_overshoot>1ms；sleep_max各组总和不是因果分解，不能相减构造“剩余归因”。下一探针只区分释放边界附近wall与线程CPU，原pacer与门不改。
+- 主仓库：C:/Users/PC/Documents/odid编译/wksim，分支codex/independent-rgb-integration，remote unununnnn/wksim。大量controller/runtime/UE/rover他方修改保留，禁止git add全库或覆盖。
+- 主会话独占native、正式profile/catalog和joint_profile.py接线。Linux执行检出：Ubuntu-22.04 /root/wksim-release-acceptance-fe3，分支codex/planner-release-validation；第二发行版RflySim-20.04。
+- Windows tools/run_joint_flight.py属于其它工作；实验runner只在上述Linux检出修改，并保留实际源SHA快照。最新主仓库joint_profile.py修复尚未同步到该Linux检出。
+- 队列JSON是交接记录，不是后台自动调度程序。先读精确thread终态再续派；THREAD_BUSY不算送达，cancel ack不算终态。
 
-主会话发现被空证据提前拒绝遮住的正式校验缺陷：joint_profile._control(current)仍按7个旧模块检查，而真实已封存c2为15模块+2资产。现改为复用未修改的joint_control_candidate.check完整源/安装/资产/消息/构建验证，并比对传入record；sealed历史校验显式支持声明的两份资产，旧默认行不改。真实c2 current/sealed均通过；Linux21passed/46subtests（Windows旧symlink测试缺权限，未改成假通过）。证据位于20260913-readiness/formal-control-before.json与after.json。catalog仍空，不授予能力。_mixed_proofs对显式message证明/资源overlay仍需下一轮完整适配：当前代码只接受ap/control两清单，实际PV还含message；未用假mixed行绕过验证。
+## 当前两个可用外部任务
 
-G6诊断器read-once修复已主审并实际重算与v3逐项一致，原v1/v2保留。主会话又补拒绝相同值/正负零、非finite与bool被假称严格binary64失败；Windows30passed/1已由Linux验证的symlink skip/5subtests，原R1零预算不改。当前源75e97e3c3188dd8982c769e1287b188dad9127385ce45302899ab751b8a04e00，测试61904a4e602eb357470c8dffe385b1c6b50a6ba470cdf6a110009b2d80cb28b4，定位仍C3G/k1/Vehicle60[3]、2ULP；精确原因未证。main-verification-final.json明确旧作者29项Linux与当前标量修订的范围。
+| 席位 | thread / 当前turn | 独占交付 |
+| --- | --- | --- |
+| OMP | 6deb2e40-2240-4db2-8c7f-c06bf6724048 / 79527a91-5587-4974-8bde-e3fe9f3a1383 | 新tools/rate_spin_cpu_probe.py、validation/test_rate_spin_cpu_probe.py及说明；继承真实JointRateTimingProbe，测释放边界附近相邻wall/线程CPU间隔。只交helper，主会话后续接线，不改原pacer/runner或调度。 |
+| Claude Code | 48faf2f5-f74a-4ba4-ac85-4ae4d05c5801 / 0630b2de-d013-4285-90ba-2afe75cfd4f8 | g6-first-step-static文档/证据；纠正sqrt与历史ISA过强结论，保留ODE4原始括号顺序，核实R2022b normal参考端观测API。诊断器/测试已交主会话，不再改。 |
 
-实际接续：OMP turn79527a91-5587-4974-8bde-e3fe9f3a1383独占新rate_spin_cpu_probe.py/test及说明，继承真实诊断父类、每组有界CPU/wall gap记录，禁止改pacer/runner/全局调度或native；主会话后续接线。Claude turndaa6426c-8c5e-4d79-9d4b-f8ca4479b17f独占G6首步静态计算链/ISA/FMA调查，无模型执行/构建。当前无native，两个外部端运行；codebuddy配额与DSH重启确认边界保持。Goal active，上一轮与本轮均有实质进展，不是全局blocked。
+OMP旧数值报告出现过把2墙秒当500组，以及将sleep_max总和减出“残余归因”的错误，均不采用。现有分类仅能定位阶段边界，不能证明OS/FC或纯off-CPU原因。新helper须先读源、核对真实父类行为与测试再接线。
 
-## 最新：#83已CLOSED；#84/G6继续
+三个codebuddy均因429终态，返回的恢复时间为2026-09-13 20:54:20 JST；此时前不重复投递。DeepSeek受管后台仍故障，不计作运行席位。原Luna Fast未能核验，不替换成未获授权的速度/模型。
 
-GitHub已实际关闭#83（completed），证据实现与原件选取包已推送941d584。OMP独立扫描确认新AP航点[55047,57047]与PX4[58893,60893]各2001个1ms样本零违例，AP最大速度0.49723<0.5；审计v2、result SHA与无探针身份同场。详见omp-formal-pv-review-20260913.md。OMP已立即续派turn7643da36-c5f7-4d0d-b446-8135a6e86447，独占docs/2026-09-09-formal-mixed-profile-plan.md当前检查点与validation/33-formal-promotion/20260913-readiness，查同组合mixed原件/正式profile映射；不修改catalog，不把一份PV证明充作两种能力。正式行当前仍0DQQz9/evidence=[]，已知私有validation范围未发现mixed场，仅说明该范围。Claude继续G6修订turn5ad55920，无新native在运行。#33/#84/Full保持OPEN/未完成。
+## 已完成：#83
 
-新场1w6dru32（epoch a160e99bb6ac46b4a09f0b36b3daeed7），runner exit0/pass、tick116004、wall283.260591381s、无两timing/early-work字段，最坏迟到89299145ns；PGID2060–2069独立全空。raw-pv-audit-v2.json完整PASS，SHA8140d80e5695bb377dedaef7198cb67811456a2429bab005085b2a5926f0e8c4，主会话复核全部302输入SHA及result绑定。27,493个10s和21,245个60s完整滑窗、两栈两段各12,001个1ms参考样本、全部原物理/端点/停止/LAND门通过。详见docs/2026-09-13-final-combo-pv-pass.md与validation/33-final-combo-luna/pv-settle-1w6dru32。#82已CLOSED；#83待推送与收口，#33/#84/Full未完成，不标Goal complete。
+#83已CLOSED，#82已CLOSED。结果/修复/独立复核已推送至f6239b7：
+- run joint-public-flight-1w6dru32，epoch a160e99bb6ac46b4a09f0b36b3daeed7，runner与完整raw PV审计PASS，无计时探针。
+- tick116004，最坏迟到89299145ns；27493个10s、21245个60s完整滑窗与两栈两段各12001个1ms参考样本全部通过原门；PGID2060–2069独立全空。
+- 原件在Linux validation/joint-public-flight-1w6dru32；选取包validation/33-final-combo-luna/pv-settle-1w6dru32。audit-v2 SHA8140d80e5695bb377dedaef7198cb67811456a2429bab005085b2a5926f0e8c4；全部302输入SHA另复核。
+- 详见docs/2026-09-13-final-combo-pv-pass.md。v1因重复status失败保留；v2复用原mixed严格规则核验两条完整解码字段相同的状态，保留事件及真实负例。没有重跑PV，也没有改旧原件。
+- Task的fresh/估计速度≤.4入场余量已实跑；原2s/.5m/s保持及全部物理门保留。
 
-修复两处真实问题：现有Control校验完整证明c2IXOr匹配当前支持代码，而ZlTVa4已失配8文件；准入/审计/当前合同同步唯一c2，旧身份仅历史审计。旧诊断xtj8wk8i完整物理遍历仅AP航点首2ms超过原速度门；新PVTask fresh且估计速度≤.4才进入原2s/.5保持，原窗口/阈值不放宽。新场第一审计因PX4重复状态失败，原件与失败报告保留；实际两包完整解码字段相同（CDR不完全相同），复用原mixed严格规则、同run/epoch/系统/时间绑定及真实负例后v2通过，并显式记录重复事件。禁止再把旧诊断当正式证据。
+## 当前#84阻断与下一步
 
-OMP v2分析器c6f10b8c/test5ec071f4修复峰值、bool身份、计数与单次读取，9项纯测试通过、真实峰值已主独立核对；目前turn6d346e78-1368-450c-a9b2-5d30daea9382独立复核新场AP/PX4航点原始窗口。Claude G6首版仅定位C3G/k1的ULP分歧，主审退回过度根因结论、未核验输入hash和覆盖报告风险；原任务在native清理后已续turn5ad55920-fdce-4e3f-bca9-0b1cfc495625，尚未验收。codebuddy配额及DSH重启确认边界保持；当前两外部端running。
+同一当前组合mixed首次新场oxv29042失败：
+- epoch18c96a7e0af9477092aa87e18239c23c；Linux raw validation/joint-public-flight-oxv29042，live /root/wksim-joint-flight-8rmtytx5；收据validation/current-mixed-20260913-01。
+- tick131760、LAND下降中，RateUnmet100034744ns；wall313.978032933s，source_unchanged=true、cleanup_errors=[]、PGID2023–2032独立全空且boot与前检相同。Task未完成，不计整场通过。
+- 115732+99780808+138204=100034744ns；creep=15139984 work-over+84640824 release-excess。
+- 正确墙钟分区：249 early/975731ns、1 crossing/4ns、32679 steady/98805073ns。开始相对earliest的中位超额19ns、p95=38ns；这包括前组工作超额，不能统称调度延迟。
+- 选取包validation/33-formal-promotion/current-mixed-oxv29042约2.43MB；完整raw留Linux。原mixed审计拒绝failed run，下游检查不接受。不要盲重跑同配置。
 
-## 最新：xtj8wk8i 诊断完成，正式身份审计拒绝；两席续接
+正式接线准备：
+1. OMP提供的readiness包确认正式行仍0DQQz9/evidence=[]。只找到已通过的当前PV一行；未找到同组合mixed整场PASS，不能复制PV凑两行。
+2. 主会话已修joint_profile._control：current分支复用未修改的完整joint_control_candidate.check；sealed历史分支核验声明资产。真实c2的current/sealed均通过，Linux21passed/46subtests。before/after在validation/33-formal-promotion/20260913-readiness。原7模块检查曾拒绝真实15模块+2资产；旧默认行未改。
+3. _mixed_proofs仍需完整适配当前显式message证明及资源overlay（现只接受ap/control两清单，实际PV还含message）。原空证据拒绝及无能力授予保持。具体计划在docs/2026-09-09-formal-mixed-profile-plan.md。
+4. 先收spin CPU helper，测量可区分的原因，再修倍率问题。原pacer/1ms/4tick/no-catchup/100ms及完整窗口不放宽。
 
-主会话进一步用同一原件确定位点（main-physics-peak.json）：最大physics_advance是start_tick1999→end_tick2000，wall6622100ns、同样本线程CPU1292890ns。内部diagnostic_step_cpu_timing三段wall为health_and_models447530、encode_send138549、native_inputs6015442；嵌套PX4 wait5822033ns/CPU595145ns。外层与内层不能相加；只证明该首10s峰值落在PX4输入等待，不证明整个场次迟到由FC、OS或I/O单独造成。wire完整SHA d870c106…90a06已留证。
+## G6与模型证据
 
-OMP首版8bb0f911分析器不验收：将最后tick5033误叫最大耗时样本位置、identity.segment=True误通过、200条invalid被截断计成65、JSON读取/hash不同次。已在同任务实际续派turn357e843c-2875-45e5-8bcf-b35382447724，要求准确峰值同样本wall/CPU、plain-int身份、总量与有限明细分离、一次原字节读取、portable真实helper夹具，新结果用v2且保留旧版为被取代证据。旧摘要“10s约10000tick前半”与中位之差“组均差”也已退回；不能引用为有效分析。Claude原turn42c349c8仍推进G6。
+- 已交付G6 first-divergence工具、测试与v1/v2/v3保留报告。主会话修read-once、数值/hex与manifest绑定、独占输出，并补拒绝相同值/正负零、非finite、bool假失败；实际重算与v3一致。
+- 当前工具SHA75e97e3c3188dd8982c769e1287b188dad9127385ce45302899ab751b8a04e00，测试61904a4e602eb357470c8dffe385b1c6b50a6ba470cdf6a110009b2d80cb28b4。Windows30passed/1已由先前Linux覆盖的symlink skip/5subtests；最终记录见validation/coordination/g6-first-divergence-20260913/main-verification-final.json。
+- 仍有5684个R1零预算失败；最早C3G/k1/Vehicle60[3]为2ULP。小误差不能排除全部合同问题，精确浮点运算原因未证。当前R1补丁cpp和二进制不在盘；静态原源/当前编译器不能冒充历史二进制证明。Claude正在补正。
+- #26 current-wrapper-01已完成4×1000/1ms冷重建与reset：wrapper150ddf3b…，library528db324…，480000值精确相同。详见docs/2026-09-12-current-wrapper-lifecycle.md；不要重跑。#9接口/环境反馈依赖仍OPEN，#26不能关闭，G6未完成。
 
-主会话实际运行首10墙秒early-work诊断。私有源码提交a18eace；run `joint-public-flight-xtj8wk8i`，epoch `792e1feb4b274040965ca38e31491768`，Ubuntu原件`/root/wksim-release-acceptance-fe3/validation/joint-public-flight-xtj8wk8i`，live`/root/wksim-joint-flight-4r9hv49t`。runner status=pass、flight_completed=true，两栈task pass，final tick115992/stopped，wall283.203527176s；最差迟到97940161ns。source_unchanged=true，所有source快照SHA独立核对一致，control_shutdown_clean=true，cleanup_errors=[]。PGID2007–2016独立确认全空，前后boot_id一致。两栈async complete/closed且提交/写入字节相同。early-work共21239样本，无错误、无截断，真实segment1，anchor116928968402ns到126928968402ns。
+## 运行资源与必须保持的规则
 
-**不是#83通过**：两timing env及early-work打开，本来就仅诊断；现有raw PV审计另在`Frozen mixed build/control selection changed`拒绝，未接受下游物理/完整滑窗检查。执行Control是诊断方案c2IXOr/6fe8c0b3，正式#83链接合同及审计锁定ZlTVa4/3d04d53a。两个manifest的11份Control Python相同、15份Simulator支持中8份不同，不能仅凭前者相同替换身份或扩大通过结论。后续正式验收先核对合同指定组合与安装源码，不改审计pin以接受本场。诊断方案与正式合同须明确区分。
+- 当前冻结组合：AP /root/wksim-ap-mixed-fhuf05l9/mixed-build.json SHA1e6250ef…；Control /root/wksim-joint-control-c2IXOr/build.json SHA6fe8c0b3…；Message /root/wksim-ros2-Rzj3Pf/message-build.json SHA29969da0…。完整SHA和精确命令见当前final-combo合同及最近launch.sh。ZlTVa4是旧构建，已失配8份当前支持模块。
+- 保持固定PX4 /root/wksim-px4-state-ONa1Kw/wksim-build.json（d7e905b3…）与本场模型库e59ab914…的原准入链；不要给PV/MIXED传PX4 override。两native参数必须同时启用。
+- 新native前分别完成并检查两WSL进程扫描，再在另一调用启动；收口/暂停重负载代理，并以read确认终态。禁止终止用户进程或改全局内核/调度。当前无native活跃，最近19042/46644均终态。
+- 使用干净env；ROS离线审计需要/opt/ros/humble、DDS、AP消息与Rzj3Pf环境。Bash脚本用Python写入并清除CR；不要重犯PowerShell管道在末行追加CR。
+- 已通过飞行不重跑。审计变化复核原件，保留失败报告，全部原AC证明后才关闭对应票；#33/#84/Full仍未完成，Goal不可complete。只精确git add，禁止发布厂商源码或.so。
 
-rate离线核算：28989组，28988interval，creep95552005ns=work_over15954551+release_excess79597454；无latch，末段重建为unavailable而非0。启动脚本末行被PowerShell管道补入CR，使最后`exit`包装报1；已确认runner实际返回0并完成清理，原脚本/日志保留，不重跑这次成功诊断。包`validation/33-rate-profile/early-work-xtj8wk8i`保留18项，三个大文本gzip压缩后约6.25MB（原85.34MB），解压字节逐项核验；完整wire/truth/DDS和厂商材料只在Linux原件中。
+## 仍待用户确认的恢复操作
 
-三个codebuddy本轮均因429配额终态，返回重置时间**2026-09-13 20:54:20 JST**；不再派入限额席位。先前7890连接拒绝已实测恢复，随后配额失败，不能混作同一故障。诊断独占窗口前OMP/Claude均cancel后read确认interrupted；结束后已实际续派OMP turn0d06e772-4459-4d84-b4b6-ef055f6c5ba1（真实early-work分析器与结果），Claude turn42c349c8-b19a-4711-89d4-cf28f6f1761a（G6首分歧C3G/k1）。DeepSeek受管backend仍不可用且未获重启确认。当前只有两席running，不沿用下面五席历史状态。
-
-调度模块收口：独立审查确认原033d8af8身份/禁用计数/输出保护正确，并发现畸形stat/schedstat计数TypeError或bool假值。主会话修为非法计数null+reason、有效标志必须True；compare源码现13a61a7f。代理配额结束前已落地烟测复跑修复：必填新output-dir、原子mkdir先于Popen、独占文件创建、cleanup参与判定。主会话Windows定向88passed/1skip，Linux smoke纯测试16passed（含真实symlink）。成功自有Python烟测原件不重跑，旧比较器033d8af8及旧脚本b2e691cd按精确SHA保留，旧normal_exit=0明确为SIGTERM受控退出。原Full/G0–G6与所有AC仍未完成，Goal active。
-
-## 2026-09-13 02:11 JST：五席即时接续（取代下面旧席位快照）
-
-主会话逐个读取精确任务，确认上一turn均completed后成功续派五个running turn；真实完整回执、独占文件与派发正文见validation/coordination/rolling-five-20260913-02.json。OMP负责early-work离线分析器；codebuddy审查负责R3一行闭合及调度比较器独立反例；codebuddy时序负责无效状态/复位是否实际位于慢路径；codebuddy调度负责自建Python进程双快照端到端验证；Claude负责G6已有5684失败值的首个分歧。没有新native启动。DeepSeek仍不可用，重启确认仍未收到，不计作运行席位。
-
-收取稳定交付后即时验收/返修/续派，不等待整批。主会话已确认release CLI仅输出保护变化，WSL输出与既有审计17项通过；比较器40项通过，独立审查与真实自有Python双快照仍进行。Linux early-probe runner主修R3 SHA65c7a86765a99d2173a62ffafaf56c43243674dd1e3cbbc1150147b4c56d8161，helper/test冻结，之前103passed/1skip/18subtests成立；本轮只开发独立分析器，不再改冻结runner。完整PV仍失败，G6仍未通过，全部原验收门保持。JSON仅为派发回执，不声称实现后台自动补位。
-
-2026-09-12最新：Goal active，createdAt1789219780；Full/G0–G6原目标和全部验收门保持。上一轮是实质进展：C1源码/测试交付、真实诊断运行、原件保留与独立核算，不能把失败场称通过。
-
-## 最新用户要求：五个可用席位已实际派发
-
-用户要求继续分派、减少轮空。当前临时阵容OMP+3 codebuddy+Claude Code（五个外部席位），原DeepSeek受管backend不可用，不当作运行席位；重启确认仍未收到。完整回执和任务范围见validation/coordination/available-five-20260913.json。
-
-- OMP：6deb2e40，当前turnf8c4693a-1424-488b-be21-5d32903666ba，完成early-work诊断三文件；前次以“重写测试”结束的turn未验收，已立即接续。
-- codebuddy审查：98925ad6，当前turn5feb8f80-b8af-4a58-b00f-f762ebf880a7，先独立审owned scheduling，再回early-work修订。其已发现Region.end不传tick/epoch使end_tick=None且漏身份复核，errors列表无上限；诊断尚不得实跑。
-- codebuddy流水：43972780-fcfe-4089-97ff-41ae1139b2dd，turn41c037b7-e525-4426-b629-57813ce94f8a，独立分析wire与rate时间约束/慢组范围，仅新c2-gap-bounds文件。
-- codebuddy调度：390d430a-95ae-4ee6-8cd7-186d422e8634，当前turn75b3eea8-76c7-4569-90c3-85c91442c5e0，工具已交但主审返修：CRLF原字节hash、schedstats禁用不能当0、kernel_prio/RT优先级区分、身份变化丢弃读数。只写capture_owned_scheduling.py/test_owned_scheduling.py及自己的说明。
-- Claude：48faf2f5-f74a-4ba4-ac85-4ae4d05c5801，turn62f8e233-5f08-4987-82b7-4e1d5aee7710，修PV审计输出防覆盖与纯行为测试；只写audit_pv_trajectory.py/test_pv_audit_cli_output.py。
-
-本轮新增只读定位已落盘validation/coordination/c2-gap-localization-20260913与docs/coordination/c2-wire-gap-localization-20260913.md：C2最大组2764→2768内tick2766 AP sensor→actuator记录间隔15.596140ms；2928→2932内tick2930 AP间隔11.133646ms。普通wire时间可作时序关联，不能把它称纯网络/CPU或把重叠区间加总。没有新native，当前native均已终态。
-
-## 2026-09-13 最新：C2完整场仍失败，转10墙秒分段诊断
-
-重启Codex的确认仍未收到；DeepSeek受管后台未恢复，**不执行重启脚本、不伪造turn/end**。下面是无需重启已实际推进的项目工作。
-
-OMP C2微基准已终态，源码/结果已主读核对：相同每20000tick 30000次exists调用，旧/新readiness片段中位数5179.54235/1270.21885ns/tick，差值约-3909ns，仅已有go文件的快路径；不代表整场性能。结果位于validation/coordination/c2-readiness-microbench-20260912，main-verification.json明确loop-4描述笔误(实际代码等于loop.col_offset)与tmpfs未记录、仅片段证据的边界。
-
-主会话分别检查两WSL无native并冻结source/manifest后实际跑C2完整PV：run joint-public-flight-lcgv0yte，epoch710fc8826ea54e6ebfe028d7d2e2228c；原件/root/wksim-release-acceptance-fe3/validation/joint-public-flight-lcgv0yte，live/root/wksim-joint-flight-t7vr8gqi，预约收据validation/33-final-combo-c2-20260913-01。保留C1开关及原全部门，只有Path构造外提、两诊断env均关闭。**FAILED**：tick73208，lateness100067614ns，wall198.068556916s；session44043已终态exit1，不能再poll/restart。source_unchanged=true；GC65782→65651→0；两栈async closed/complete且字节提交=写入(AP109574368/PX4114687590)；独立确认PGID1933–1942全空。绝对路径raw PV审计拒绝failed run，下游检查不计通过。
-
-保留包validation/33-final-combo-luna/c2-lcgv0yte。核算130042+99828597+108975=100067614；work_over51224765+release_excess48603832=99828597。真实墙钟分区：early249interval/creep706739/work_over0，crossing1/14ns，steady18041/creep99121844，其中work_over51224765ns。前三个大work区间为2764→2768(work22.689080ms,over14.689080ms)、2928→2932(work17.347295ms)、2772→2776(work14.504935ms)，主要尖峰已在anchor后约5.5–5.8墙秒；只诊断首2s会错过它们。
-
-**当前OMP任务**：thread6deb2e40-2240-4db2-8c7f-c06bf6724048，turn97434fe2-0de2-46c3-a8e2-b9ae1464857d running，实现tools/early_manager_work_probe.py、validation/test_early_manager_work_probe.py和Linux runner接线。--early-work-timing仅PV/MIXED且必须WKSIM_JOINT_CPU_TIMING=1与WKSIM_JOINT_RATE_TIMING_PROBE=1，错误组合在任何temp/native前拒绝；默认无诊断取时/样本/文件IO，**窗口首anchor起固定10墙秒**，steady_after只作2s分界标记；cap32768/truncated、跨界标注、内存缓冲，全部native清理后独立文件落盘；phase wall/当前线程CPU区分outer health/rate begin/physics/clock/post-advance，不能重叠加总。保留原所有操作次数/返回/异常/顺序/门。先审代码+纯测试，不启动新native。
-
-原OMP turne892b4cc已正常cancel→interrupted；app send_message_to_thread尝试返回External steering requires non-empty text而未送达，已改用cancel+CLI续派，不假称排队。codebuddy thread98925ad6的turnc7a77420已completed，仅在代码未出现时写了侦察报告(不通过)；报告误提WRITE_TIMING不适用于本runner，应以**CPU_TIMING+RATE_TIMING_PROBE**明确要求为准。代码落地后再按新SHA续派实际审查，旧报告不作为通过依据。
-
-#26/Full状态与既有通过证据保持；C2更快的微片段没有整场成功证明，#83仍OPEN。不要重复同配置盲跑。
-
-## 用户指定卡死会话：恢复操作等待确认
-
-用户明确指出thread34386db2-17a1-425b-a102-f910451c5c63卡死。已读持久DSH日志：native session-092babe4-799e-45c1-84f2-ac6e4fe8533d turn10停在seq1503 step/end，缺turn/end；重复cancel仅返回ack，Host一直running。已确认同受管DSH后台其它五个session均有terminal，无其它DSH活跃任务，备份原journal、mapping、两未验收比较器文件到C:/Users/PC/.codex/repair-backups/ds-b-stuck-20260912，哈希一致。按PID/parent/命令路径核验后停止了CodexHost受管DSH node PID58652（不是用户DeepSeek桌面PID31408）。当前DeepSeek provider unavailable：适配器缓存已断开的127.0.0.1:58656，harness inspect --refresh true不能重建；未假称恢复成功。
-
-已通过异步问题请求用户允许重启Codex应用，因为会中断当前主任务和仍running的OMP。**尚未收到确认，禁止自行重启。** 具名重启脚本已准备在上述backup/restart-codex-after-approval.ps1，尚未执行；绑定Codex GUI PID58628及creation/exe身份，拒绝PID复用。确认后才后台启动该脚本；重连后先harness inspect/read目标任务核验恢复，不手写turn/end或数据库状态。CLI/原生会话备份不发布仓库。Goal保持active，不改Goal数据库。
-
-项目独立交付已保存：C2只移动重复Path构造至while前，Linux私有提交208e0e4，runner SHA c208b1d07a9054458e13b3f7bf74c145cb8641ec495e46fc7df5b6fb1626e408，snapshot validation/coordination/c2-readiness-source-20260912，独立codebuddy-c2-readiness-review有边界通过；A69passed/1skip/18subtests，**未实跑C2，性能未证**。OMP微基准thread6deb2e40、turnb4b83d53-5b61-43a1-a0bc-5cd9fff8e176仍running，暂停安排native直到收口。
-
-另已修模型验证器-O/-OO剥离assert后误报pass风险，两个入口先显式拒绝，原数值/编译/比较不变；主会话去掉2个AST镜像测试、正常化测试换行，57项Linux纯行为测试通过。旧native证据仍绑定ec883644/89afcb4，不重跑。新版guard源SHA3f7dc749bdf814e6a0a714db5b7b94f734fa35350e2f3090d2cad4ce22fc5346。
-
-## 最新完整 PV 尝试与已验收核算
-
-本轮按#83完整合同实跑PV+C1，关闭两项计时探针；原件/root/wksim-release-acceptance-fe3/validation/joint-public-flight-vwen35gc，epoch6fd5ad0f674247b5a0fec79d84e82005。**仍失败**：tick87096 RateUnmet100485315ns，wall228.749446927s，anchor tick44。session19024已终态exit1，无存活native。无rate_timing_probe/CPU诊断记录；source_unchanged=true，GC65793→65628→0，async两栈closed/complete/submitted==written，owned PGID1943–1952独立确认全空。#83不关闭。
-
-原件保留包validation/33-final-combo-luna/c1-vwen35gc。第一次raw审计相对路径触canonical guard失败；纠正为绝对路径后raw-pv-audit-absolute.json按真实run失败拒绝，未接受后续逐1ms/物理/窗口检查。两份审计保留，没有重复飞行。收据中OMP取消措辞已在bundle manifest校正：当时OMP已completed，cancel=false；旧B仍状态异常，没假称终态。
-
-A的现有interval分析器扩展已主审，24项相关纯测试主会话通过：新增phase_partition用actual_start_ns对真实steady_after_ns分类early/crossing/steady，全部interval唯一归类、三项总量严格零残差；无标记时unavailable，不换算物理tick。三场输出validation/33-rate-profile/diagnostic-triple-20260912，源码SHA1c43ac9c4b80f2dcc8eb52ffd9c3fe061f5cd2ef9206d839fe20e7af2f783fc7。vwen35gc首两墙秒early creep10749183ns（work_over7159759），cross3ns，steady88887482ns；全场151077+99636668+697570=100485315；creep=34868504+64768164。ztd early23900631ns，基线7bdf early272029ns；场长/探针不同，不作因果性能结论。A旧v1/v2墙秒/tick、采样均值论证均撤回。
-
-新B独立启动开销调查已启动：thread36c5a420-1b76-4e5e-92c6-6240d59b23fa，turne5509fe9-a43e-4111-89f0-fa6d26753e1a，delegation82176a04-f658-482f-af72-e4bddaad0eb4，native默认DeepSeek-V41-Flash/high。只写ds-startup-cost-evidence-20260912.md/json，定位真实早期慢组和初始化/health开销；不接管旧B半成品文件。A turn47eb2140-15c3-4bae-9c23-9e114082e484已完成核算实现。OMP测量审查已completed，D当前#26映射已交并提交；主会话AC5复核记录见docs/2026-09-12-current-wrapper-lifecycle.md，补足D交付时缺失项。#9 OPEN依赖保持，#26不关闭。不再盲目重复同配置native；先收具体启动开销证据。
-
-## 本轮新增完成：当前 wrapper 独立冷重建/重置
-
-主会话已实际执行 `validation/codegen-e0-lifecycle-current-wrapper-01/`：audit pass，4×1000步/1ms/120维、480000值四周期精确一致；原库与cold库SHA528db324…相同；43项输入/历史哈希不变；两个子进程exit0，PGID705/706独立确认空。冷库/root/wksim-codegen-e0-cold-907225b3b06c/libwksim_e0.so。详见docs/2026-09-12-current-wrapper-lifecycle.md与validation/coordination/native-inputs-20260912/current-lifecycle-01.json。
-
-执行validator SHA ec883644acce248921c9775451699ce2c149311d438b720e3e21c361571a2098，准入52项Ubuntu root行为测试与独立codebuddy复核通过。外层bash全部native/后置哈希检查后有多余CR命令exit1，属于包装尾部错误，已单列，不重跑native。已通过场不得重复；未覆盖terrain全语义/可选DLL/G6。实时gh确认#24 CLOSED/#9 OPEN/#26 OPEN，历史pinmanifest保持。
-
-最新任务：A turn931c9ab3-638d-4eae-b80b-942e74115ad1修C1分析错误（2秒非20秒预热、窗口端点、旧分析器、条件采样均值/因果混淆），两分析文件暂不验收；OMP turn735f022c-e46a-464d-aaf4-d643908b0460独立复核该测量。D turnac063e4c-3300-4501-b4fa-d2ca5d5b586d只做当前#26五AC到真实证据映射和文档收口，不再改已运行validator；codebuddy turnffcabb64-026d-41b2-bda2-8eb580a912ab已完成current-lifecycle源码审查。原B状态仍异常且半成品不依赖，不虚报终态。下方旧D“未验收/未执行”状态由本节取代。
-
-## 最新真实场：C1 freeze-only，失败原件已保留
-
-- run：joint-public-flight-ztdsk269，epoch7d9b3af3441242b687a19e388a9df0d6。
-- 原件：Ubuntu-22.04 /root/wksim-release-acceptance-fe3/validation/joint-public-flight-ztdsk269；live /root/wksim-joint-flight-8a6s301a。
-- 场次收据：同工作区validation/rate-diagnostic-c1-20260912-01；执行前冻结源码/清单，并分别检查两WSL未发现native。A/OMP/审查端终态，D暂停；B两次cancelled=true但read仍running，Linux和Windows独立未见Python/测试负载，此状态差异记录在收据，不能谎称B已终态。
-- 同原两段PV、0.5倍率、1ms、4tick、100ms、async与两timing env；只追加--manager-gc-freeze。未放宽门，未带planner-release/AP PV/PX4 override。
-- **FAILED RateUnmet**：tick96624，lateness100129488ns，wall245.117340622s；主会话exec **36508已终态exit1**，不再poll/restart。
-- C1真实生效：armed/prepared/restored=true，freeze_after65783，restore_before65631，restore_after0；tick0准备，gc_enabled与threshold700/10/10保持。source_unchanged=true，无GC报告错误，cleanup_errors=[]。
-- 两栈async closed/complete，submitted==written，队列highwater2；AP150464736B，PX4159105857B。独立/proc核对所拥有10个PGID1948–1957全部为空；independent-cleanup.json已保留。
-- 主会话用已提交interval分析器独立核算：24146groups/24145intervals，**289518+99687759+152211=100129488**；creep=33372289 work-over+66315470 release_excess。末段152211ns，上一完成组end迟到96372932ns；失败仍在下组begin release wait。分析原件rate-diagnostic-c1-20260912-01/main-rate-analysis.json。
-- Windows保留包：validation/33-rate-profile/diagnostic-c1-ztdsk269（16项文件，约30.7MB；完整raw仍Linux）。基线7bdfxkb包原样保持，不拿不同场长的总数直接声称改善/恶化。
-
-## C1源码交付已冻结，实验分支提交7cb7e84
-
-Linux分支codex/planner-release-validation；run_joint_flight SHA fd0b7ee6dfb99be7a2d6f580555c6f9bfcddf721e25f68e97761d7f5670df246；manager_gc_candidate SHA cbf7b0186131c08d4055aea1fcafdb8e7cca36d9acfcb19cdac87938d8786e66。两文件本场执行身份一致。
-
-六个源码/测试冻结副本与交付收据：validation/coordination/c1-delivery-20260912。A候选23项通过，旧夹具修复后相关59passed/1skip/18subtests；OMP实际parser入口10项通过（native run mocked），源码/参数已主审。不会重复把这些纯测试当作正式飞行证据。
-
-codebuddy新实际执行审查：docs/coordination/codebuddy-c1-execution-review-20260912.md。旧引用Windows joint_runtime的设计报告不是本实验runner审查。其建议restore前冻结量必须相等**不采用**：主会话独立普通Python实测一次freeze后普通对象释放会使6623→6622，真实场也65783→65631；数量不是所有权。当前runner无其他freeze调用者，复用边界保持。入口测试缺失项后由OMP交付。
-
-## 当前负责人/真实句柄（下一轮先read，不信旧列表）
-
-遵循[module策略](module-delivery-policy-20260912.md)：唯一写入者、当前项+接续、内部测试归负责人；不为满员重复报告。当前资源窗口已结束并续派：
-
-- **A** thread9e1df14f-9028-44dc-b5d6-c3da7c173a5a，turn **b36934f2-4a7f-4cfd-b8ed-50592c558290**，running。负责C1与7bdfxkb原始分析：真实anchor前/计时/收尾GC分区、CPU/墙钟/阶段/迟到，提出有依据的下一补测或候选。只写新ds-c1-actual-analysis-20260912.json/md，不改冻结实现/B文件；允许只读raw扫描。
-- **D** thread2224f8dd-5384-4c21-a66c-6d1f4f68c7d0，turn **d70dd83b-44c1-4688-80fc-673d6c1d512c**，running。继续现有validate_generated_e0_lifecycle及行为测试四项修复：已有空output提前拒绝、buildroot symlink逃逸、快照失败清理、manifest读取身份绑定；**全部六源字节/hash/library先验证，再任何快照写入**。旧方案简化时又把核验放到快照之后，尚未验收。它误截断了自己未提交的26-current-wrapper-recheck-plan.md，尚无可靠完整备份；不得假称已恢复，可用真实证据重新形成准确文档，但不编造旧正文。先收源码测试，之后才main native生命周期。
-- **B** thread34386db2-17a1-425b-a102-f910451c5c63，turn **c8466cde-d622-4d34-b96b-c484538c57e9**。两次cancelled=true，read仍running、进度停在windowing；**未证明终态，不向busy任务假排队，不另设写入者覆盖其文件**。main Windows tools/compare_joint_gc_diagnostics.py、对应测试是未验收半成品。首版错误自造gc-freeze.json已返修；次版真实report接线后又把freeze对象数量硬编码1，并把tick0collect混入timed统计。最后已派修，但状态异常。可用已提交interval工具独立分析，不依赖半成品。
-- **OMP** thread6deb2e40-2240-4db2-8c7f-c06bf6724048，turn d887a19b-cf24-4a74-a525-318da2527664 completed，交Linux validation/test_gc_candidate_entry.py（8580194384d843948ee4fa55435454558730d459cd9da201b0d2d7003dffd975）与Windows omp-gc-entry报告。未分配新的无意义小报告。
-- **codebuddy新审查** thread98925ad6-4736-4dd2-8287-1132158e2b14，delegation b83f9f44-8bc1-4cec-b0e1-b85cbe1e621f，turn7f326c40-4076-4a7f-bd3b-64b21d0225af completed。先等新的具体候选再审。旧7c740…只作历史。
-
-## 不重做的已验收历史
-
-- 5ec3d38审计/复现完整模块，真实一正四负、原件不变；Linux59项零skip。
-- f21fc3a rate核算，无latch为null，有latch精确闭合。
-- b67ad43 current-wrapper-01冷构建+100步1ms通过：wrapper150ddf3b…/4070B，library528db324…/87584B，40项输入历史不变；未覆盖reset/cold完整周期/terrain/G6。
-- bomvjsmg真实release+双LAND、最差75.3217ms保持成立，非完整PV/EGO绕障。
-- 基线7bdfxkb：tick109776 lateness100050657ns，GC tick107572 CPU24.329672ms嵌于manager PX4wait；不是#83通过。
-
-主分支codex/independent-rgb-integration；Windows runner/controller/runtime/UE/rover大量他方改动严禁覆盖，git add仅精确路径。全部#83/#26/#9/Full未满足AC继续开放，晚到EGO语义未答不改门。任何下一native仍须分别重查两WSL，再单独启动；禁止发布厂商源码/.so，禁止终止用户进程，全部原AC证明才完成Goal。
+用户指定卡死任务34386db2-17a1-425b-a102-f910451c5c63：原受管DSH日志turn10缺turn/end，已备份且停止确认无其它活跃任务的受管PID58652；用户独立DeepSeek桌面PID31408未动。适配器仍缓存故障和会话cookie，手动起同端口不能假定可恢复。重启Codex应用的确认尚未收到，不执行C:/Users/PC/.codex/repair-backups/ds-b-stuck-20260912/restart-codex-after-approval.ps1，不补写turn/end或Goal数据库。若用户明确批准，先重新核验进程身份再操作；不要重复提问。
