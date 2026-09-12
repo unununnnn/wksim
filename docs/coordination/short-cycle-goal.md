@@ -1,5 +1,17 @@
 # 当前 Goal 执行检查点
 
+## 最新：xtj8wk8i 诊断完成，正式身份审计拒绝；两席续接
+
+主会话实际运行首10墙秒early-work诊断。私有源码提交a18eace；run `joint-public-flight-xtj8wk8i`，epoch `792e1feb4b274040965ca38e31491768`，Ubuntu原件`/root/wksim-release-acceptance-fe3/validation/joint-public-flight-xtj8wk8i`，live`/root/wksim-joint-flight-4r9hv49t`。runner status=pass、flight_completed=true，两栈task pass，final tick115992/stopped，wall283.203527176s；最差迟到97940161ns。source_unchanged=true，所有source快照SHA独立核对一致，control_shutdown_clean=true，cleanup_errors=[]。PGID2007–2016独立确认全空，前后boot_id一致。两栈async complete/closed且提交/写入字节相同。early-work共21239样本，无错误、无截断，真实segment1，anchor116928968402ns到126928968402ns。
+
+**不是#83通过**：两timing env及early-work打开，本来就仅诊断；现有raw PV审计另在`Frozen mixed build/control selection changed`拒绝，未接受下游物理/完整滑窗检查。执行Control是诊断方案c2IXOr/6fe8c0b3，正式#83链接合同及审计锁定ZlTVa4/3d04d53a。两个manifest的11份Control Python相同、15份Simulator支持中8份不同，不能仅凭前者相同替换身份或扩大通过结论。后续正式验收先核对合同指定组合与安装源码，不改审计pin以接受本场。诊断方案与正式合同须明确区分。
+
+rate离线核算：28989组，28988interval，creep95552005ns=work_over15954551+release_excess79597454；无latch，末段重建为unavailable而非0。启动脚本末行被PowerShell管道补入CR，使最后`exit`包装报1；已确认runner实际返回0并完成清理，原脚本/日志保留，不重跑这次成功诊断。包`validation/33-rate-profile/early-work-xtj8wk8i`保留18项，三个大文本gzip压缩后约6.25MB（原85.34MB），解压字节逐项核验；完整wire/truth/DDS和厂商材料只在Linux原件中。
+
+三个codebuddy本轮均因429配额终态，返回重置时间**2026-09-13 20:54:20 JST**；不再派入限额席位。先前7890连接拒绝已实测恢复，随后配额失败，不能混作同一故障。诊断独占窗口前OMP/Claude均cancel后read确认interrupted；结束后已实际续派OMP turn0d06e772-4459-4d84-b4b6-ef055f6c5ba1（真实early-work分析器与结果），Claude turn42c349c8-b19a-4711-89d4-cf28f6f1761a（G6首分歧C3G/k1）。DeepSeek受管backend仍不可用且未获重启确认。当前只有两席running，不沿用下面五席历史状态。
+
+调度模块收口：独立审查确认原033d8af8身份/禁用计数/输出保护正确，并发现畸形stat/schedstat计数TypeError或bool假值。主会话修为非法计数null+reason、有效标志必须True；compare源码现13a61a7f。代理配额结束前已落地烟测复跑修复：必填新output-dir、原子mkdir先于Popen、独占文件创建、cleanup参与判定。主会话Windows定向88passed/1skip，Linux smoke纯测试16passed（含真实symlink）。成功自有Python烟测原件不重跑，旧比较器033d8af8及旧脚本b2e691cd按精确SHA保留，旧normal_exit=0明确为SIGTERM受控退出。原Full/G0–G6与所有AC仍未完成，Goal active。
+
 ## 2026-09-13 02:11 JST：五席即时接续（取代下面旧席位快照）
 
 主会话逐个读取精确任务，确认上一turn均completed后成功续派五个running turn；真实完整回执、独占文件与派发正文见validation/coordination/rolling-five-20260913-02.json。OMP负责early-work离线分析器；codebuddy审查负责R3一行闭合及调度比较器独立反例；codebuddy时序负责无效状态/复位是否实际位于慢路径；codebuddy调度负责自建Python进程双快照端到端验证；Claude负责G6已有5684失败值的首个分歧。没有新native启动。DeepSeek仍不可用，重启确认仍未收到，不计作运行席位。

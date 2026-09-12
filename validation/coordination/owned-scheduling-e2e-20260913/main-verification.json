@@ -1,0 +1,33 @@
+{
+  "checks": {
+    "old_capture_source_matches": true,
+    "old_compare_source_matches": true,
+    "old_script_source_matches": true,
+    "children_bytes_match": true,
+    "before_bytes_match": true,
+    "after_bytes_match": true,
+    "all_reported_checks_true": true,
+    "reaped": true
+  },
+  "main_tests": {
+    "windows_comparison_and_smoke": {
+      "passed": 88,
+      "skipped": 1
+    },
+    "linux_smoke_safety": {
+      "passed": 16,
+      "skipped": 0
+    }
+  },
+  "new_source_sha256": {
+    "tools\\compare_owned_scheduling.py": "13a61a7ffd92880571613c69d3d31736f1982e75ff03b365e2602338c928ec6f",
+    "validation\\test_compare_owned_scheduling.py": "a8eb584df5c86112fa8f39dff4869f4d2e0baa652a56c8ff3164a12b3cf12ca9",
+    "validation\\coordination\\owned-scheduling-e2e-20260913\\run_e2e.py": "09ce032d31af42d02b9d0bb3443456f6a6a612acca543af6bf74920d10c3c71b",
+    "validation\\coordination\\owned-scheduling-e2e-20260913\\test_run_e2e.py": "ffaf978c8181f7bde4e0c10140a9dad575f1be8c244435c39889fc3f859993b5"
+  },
+  "limits": [
+    "Historical real smoke is ordinary owned Python processes, not a flight or performance verdict.",
+    "Original returncode 0 follows SIGTERM handler, not spontaneous exit.",
+    "Current safety revisions verified with pure mocked-process tests, not another native run."
+  ]
+}
