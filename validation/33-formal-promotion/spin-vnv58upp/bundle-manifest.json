@@ -1,0 +1,87 @@
+{
+  "created_unix": 1789246644.6837595,
+  "run_id": "joint-public-flight-vnv58upp",
+  "epoch": "3649e119e5544199b406645610e258b5",
+  "status": "failed",
+  "raw_root": "/root/wksim-release-acceptance-fe3/validation/joint-public-flight-vnv58upp",
+  "live_root": "/root/wksim-joint-flight-k607mi42",
+  "source_unchanged": true,
+  "probe_summary": {
+    "classification": "diagnostic_only",
+    "production_performance": false,
+    "record_error_total": 0,
+    "record_errors": [],
+    "initialized": true
+  },
+  "full_acceptance": false,
+  "retained": {
+    "result.json": {
+      "sha256": "49adbc0c7e3d9dba0264db1057f91b461d37d0576f57e5b4dcf48441ce0c6b37",
+      "bytes": 129350
+    },
+    "rate.jsonl": {
+      "sha256": "0397eb6f2c6f30c5a2d68febab6406a1461944f11ff3b399e702692e6b9be587",
+      "bytes": 89357970,
+      "archive_name": "rate.jsonl.gz",
+      "compressed_sha256": "141b9859aea8baef90adf751dd531ff64142df684d1357e792e96580d2d66ab2"
+    },
+    "independent-cleanup.json": {
+      "sha256": "7b033c6d0421b24377d729015b29ca1a2100f61e0293750a23a90f0fb2d7b4e5",
+      "bytes": 250
+    },
+    "manager-gc-candidate.json": {
+      "sha256": "8ec74ba8b6950f2d870ccdd4751fd6fa62f89defe0c951059da29761bd06aacb",
+      "bytes": 2980
+    },
+    "children-start.json": {
+      "sha256": "512da4f7a560398cb8cb9586dce201b76ee5c9510941d13f6aa95de91357846f",
+      "bytes": 14529
+    },
+    "source__tools__run_joint_flight.py.txt": {
+      "sha256": "f5411627c2758f31d86da16b0bf38c469dda6fe4f03b89806bcb543db04ed63a",
+      "bytes": 84785
+    },
+    "source__tools__rate_spin_cpu_probe.py.txt": {
+      "sha256": "c6f37ab43738c5a71b721142d0fd4afa8f72faeed973cff34222e276d75c8994",
+      "bytes": 12014
+    },
+    "source__Simulator__wksim_runtime__joint_rate.py.txt": {
+      "sha256": "0b53a16acd65138b4623a9a8573ec8d643a2b78f4e27e8122c65efb9a6da25c4",
+      "bytes": 7271
+    },
+    "source__Simulator__wksim_runtime__joint_rate_probe.py.txt": {
+      "sha256": "a8bac9ac84ba9960296bb6b43d6d39c6bbc17fa9fdc47adf7e05ce76d7066653",
+      "bytes": 7826
+    },
+    "launch.sh": {
+      "sha256": "4f32fa61a4eca963a9440c6fd994c28a3c8bd11b778bfc68744ec469dee2de44",
+      "bytes": 1841
+    },
+    "launch.json": {
+      "sha256": "589c84a4595a504113343b6f5fb4d0e9b61769ec297c103e1a9c7b4b3238bc6d",
+      "bytes": 87
+    },
+    "exit-code.txt": {
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "bytes": 2
+    },
+    "run.stdout.log": {
+      "sha256": "da052e276f42c5166d129df3abc2e4f352a466e0bf9f1d7818d90d07b301d787",
+      "bytes": 1951
+    },
+    "pre-run-identity.json": {
+      "sha256": "78ed68085c9fbcce3749fc78020364b33b939ceae69e34610f0f1043339fdf20",
+      "bytes": 3265
+    },
+    "main-rate-analysis.json": {
+      "sha256": "34e3de0a6a0c78278fd235858602c1bad61461beeaab4878560fb2b0544550bf",
+      "bytes": 14933
+    }
+  },
+  "scope": "Diagnostic-only mixed run. Preserve original failure. CPU/window ratios include observer cost and do not identify OS/FC causality.",
+  "limitations": [
+    "CPU read is after wall read; unmeasured per-read cost limits exact interpretation. A v2 probe will retain both read windows.",
+    "Recorded GC events overlap none of the 765 late crossing pairs; not a claim about unrecorded phenomena.",
+    "Full raw wire/truth/DDS and native sources remain in Linux, not included in this selected bundle."
+  ]
+}
