@@ -14,7 +14,7 @@
 | 席位 | thread / 当前turn | 独占交付 |
 | --- | --- | --- |
 | OMP | 6deb2e40-2240-4db2-8c7f-c06bf6724048 / 40cb9045-ae4a-461b-b3fc-8bc91d9840a4 | Linux spin probe v2：给CPU读取加同域wall前后边界，计算间隔上下界；热路径只更新标量，字典推迟到begin结束；不改runner/父pacer/调度，不跑native。v1已实跑，旧源/原件不动。 |
-| Claude Code | 48faf2f5-f74a-4ba4-ac85-4ae4d05c5801 / 5e60728d-e226-4c35-9f8d-dfa3cf8e0778 | 新tools/probe_reference_first_step.m、map_reference_blocks.py及纯测试；参考端监听诊断，仅代码/元数据，不执行MATLAB或模型，不改冻结导出脚本/SLX。native窗口后已续接。 |
+| Claude Code | 48faf2f5-f74a-4ba4-ac85-4ae4d05c5801 / ed15fcb7-debf-4154-9377-123ce8a84e05 | 参考端包已交，主会话尚未审阅/实跑：probe_reference_first_step.m a719e7dd…、map_reference_blocks.py bc81f851…、纯测试5项。现在独占新build_first_step_trace.py/必要recorder及instrumentation测试，准备目标ODE4四级只读trace；不编译、不运行模型、不改旧builder/冻结源，不把trace当G6通过。 |
 
 OMP旧数值报告出现过把2墙秒当500组，以及将sleep_max总和减出“残余归因”的错误，均不采用。现有分类仅能定位阶段边界，不能证明OS/FC或纯off-CPU原因。新helper须先读源、核对真实父类行为与测试再接线。
 
