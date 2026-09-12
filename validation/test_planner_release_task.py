@@ -65,5 +65,33 @@ class ReleaseCliTests(unittest.TestCase):
             self.assertEqual(runner.main(args+['--planner-release-proof']),0)
             self.assertTrue(execute.call_args.args[0].planner_release_proof)
 
-if __name__=='__main__':unittest.main()
+class PlannerProvenanceTests(unittest.TestCase):
+    def test_actual_child_modules_must_match_candidate_paths_and_bytes(self):
+        import tempfile, hashlib
+        import run_joint_flight as runner
+        with tempfile.TemporaryDirectory() as directory:
+            base=Path(directory)
+            package=base/'prometheus_control'
+            package.mkdir()
+            modules={}
+            hashes={}
+            for module in ('planner_transport_node','planner_transport_receiver','planner_command_egress'):
+                relative='wksim_runtime/'+module+'.py'
+                path=base/'Simulator'/relative
+                path.parent.mkdir(parents=True,exist_ok=True)
+                path.write_text('# test '+module)
+                sha=hashlib.sha256(path.read_bytes()).hexdigest()
+                hashes[relative]=sha
+                modules['Simulator.wksim_runtime.'+module]={'path':str(path),'sha256':sha}
+            release={'child_returncode':0,'child_teardown':'terminated','planner_loaded_modules':modules}
+            report={'task':{'release':release}}
+            control={'package':str(package),'simulator_python_sha256':hashes}
+            self.assertEqual(runner.verify_planner_execution(report,control),modules)
+            path.write_text('# tampered after child exit')
+            with self.assertRaisesRegex(ValueError,'differs from sealed'):
+                runner.verify_planner_execution(report,control)
+            release['child_returncode']=-9
+            with self.assertRaisesRegex(ValueError,'exit normally'):
+                runner.verify_planner_execution(report,control)
 
+if __name__=='__main__':unittest.main()

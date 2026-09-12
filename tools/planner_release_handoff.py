@@ -336,8 +336,14 @@ class PlannerReleaseHandoff:
     # -- step 3: node process ---------------------------------------------------------
     def _spawn_transport_node(self):
         argv = [
-            "/usr/bin/python3", "-B", "-m",
-            "Simulator.wksim_runtime.planner_transport_node",
+            "/usr/bin/python3", "-B", "-c",
+            "import hashlib,json,pathlib,sys; "
+            "import Simulator.wksim_runtime.planner_transport_node as node; "
+            "loaded={name:{'path':str(pathlib.Path(module.__file__).resolve()),"
+            "'sha256':hashlib.sha256(pathlib.Path(module.__file__).read_bytes()).hexdigest()} "
+            "for name,module in sys.modules.items() "
+            "if name.startswith('Simulator.') and getattr(module,'__file__',None)}; "
+            "print(json.dumps({'planner_loaded_modules':loaded}),flush=True); node.main()",
             "--ros-args",
             "-p", f"run_id:={self.task.run_id}",
             "-p", f"mission_id:={self.task.run_id}-release",
@@ -537,6 +543,16 @@ class PlannerReleaseHandoff:
 
     def _write_record(self):
         self.record["events"] = self._events
+        log = self.output_dir / 'planner-transport-node.log'
+        if log.is_file():
+            for line in log.read_text(errors='replace').splitlines():
+                try:
+                    message = json.loads(line)
+                except ValueError:
+                    continue
+                if isinstance(message, dict) and 'planner_loaded_modules' in message:
+                    self.record['planner_loaded_modules'] = message['planner_loaded_modules']
+                    break
         path = self.output_dir / "planner-release-handoff.json"
         tmp = self.output_dir / ".planner-release-handoff.json.tmp"
         tmp.write_text(json.dumps(self.record, indent=2, default=str),

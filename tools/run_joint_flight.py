@@ -223,6 +223,29 @@ def save(path, data):
         Path(temporary).unlink(missing_ok=True)
 
 
+def verify_planner_execution(task_report, control):
+    """Match the child's actual imported module bytes to the sealed candidate."""
+    release = task_report['task']['release']
+    if release['child_returncode'] != 0 or release['child_teardown'] not in ('terminated', 'already_exited'):
+        raise ValueError('Planner release node did not exit normally')
+    modules = release.get('planner_loaded_modules', {})
+    required = {'Simulator.wksim_runtime.planner_transport_node',
+                'Simulator.wksim_runtime.planner_transport_receiver',
+                'Simulator.wksim_runtime.planner_command_egress'}
+    if not required <= modules.keys():
+        raise ValueError('Missing actual planner module provenance')
+    prefix = Path(control['package']).parent/'Simulator'
+    for name, record in modules.items():
+        path = Path(record['path'])
+        relative = path.relative_to(prefix).as_posix()
+        module_path = name.removeprefix('Simulator.').replace('.', '/')
+        if (relative not in (module_path+'.py', module_path+'/__init__.py')
+                or record['sha256'] != control['simulator_python_sha256'].get(relative)
+                or digest(path) != record['sha256']):
+            raise ValueError('Planner module differs from sealed Control: '+name)
+    return modules
+
+
 def task_main(args):
     check_isolation()
     import rclpy
@@ -413,6 +436,10 @@ def run(args):
         sources += ['docs/2026-09-09-pv-flight-plan.md']
     if args.planner_release_proof:
         sources += ['tools/planner_release_task.py', 'tools/planner_release_handoff.py']
+        from joint_control_candidate import SIMULATOR_FILES, SIMULATOR_ASSETS
+        for package, names in {**SIMULATOR_FILES, **SIMULATOR_ASSETS}.items():
+            sources += [f'Simulator/{package}/{name}' for name in names
+                        if f'Simulator/{package}/{name}' not in sources]
     if mixed_firmware:
         sources += ['tools/ap_mixed_candidate.py','tools/prepare_ap_mixed_candidate.py',
                     'docs/2026-09-09-mixed-flight-plan.md',
@@ -565,6 +592,8 @@ def run(args):
                     if args.scene_lifecycle and report.get('scene_implementation') != dict(
                             path=str(Path(control['package'])/'scene.py'), sha256=control['python_sha256']['scene.py']):
                         raise RuntimeError('Task scene permission implementation identity differs')
+                    if args.planner_release_proof and stack == 'arducopter':
+                        result['planner_executed_modules'] = verify_planner_execution(report, control)
                     expected_exits.add(child.pid)
                     result['tasks'][stack] = report
                 else:
@@ -1019,6 +1048,15 @@ def run(args):
                 digest(Path(result['native_source_root'])/name) == expected
                 and digest(live/'native-source'/name) == expected
                 for name, expected in result['native_source_sha256'].items())
+        if args.planner_release_proof and result.get('control_candidate'):
+            try:
+                result['planner_control_unchanged'] = (check_control(args.control_manifest, args.control_sha256)
+                                                       == result['control_candidate'])
+            except (OSError, ValueError, KeyError, TypeError, ImportError):
+                result['planner_control_unchanged'] = False
+            if not result['planner_control_unchanged']:
+                result['status'] = 'failed'
+                result.setdefault('error', 'Planner Control candidate changed during execution')
         if result.get('message_candidate'):
             try:
                 result['message_unchanged'] = (check_messages(args.message_manifest, args.message_sha256)
