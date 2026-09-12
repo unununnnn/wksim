@@ -13,10 +13,12 @@
 
 | 席位 | thread / 当前turn | 独占交付 |
 | --- | --- | --- |
-| OMP（新会话） | 51609e8d-e4ce-4a8e-8a0d-f7c896c24842 / defcac22-66dd-4293-a075-5fa940fbf7f0 | tools/native_release_wait.c、.py及对应纯测试：独立Linux最终1ms等待候选，不接生产pacer/runner，不编译；主会话后续先测语义/开销。 |
-| Claude Code（新会话） | e64514a6-77c2-4b27-91a7-896c92a361fd / 51c94e1a-1aa7-419c-9784-256a65fec34d | 修build_first_step_solve_candidate.py及测试：真实源实际有声明/定义/调用3处，首版错误只接受2处；补倒数overflow回退，并用真实archive验证准备。禁止改共享源或native。 |
+| OMP（新会话） | 51609e8d-e4ce-4a8e-8a0d-f7c896c24842 / c73cbb49-a187-42b3-b5e5-635ea7eb85d2 | 仅读元数据调查越界续行21ad94b2来源；不写文件/数据库、不WSL/编译/native、不发起或取消任务。 |
+| Claude Code（新会话） | e64514a6-77c2-4b27-91a7-896c92a361fd / c935bf84-3b38-490a-b206-e1ce6e661e63 | 准备器已验收18测试/真实源相同；现独占native_release_wait.c/.py/test，补time.h、绝对库路径hash/load及int64保护，只纯测试、不WSL/native/构建。 |
 
-实际句柄/默认模型回执见rolling-two-20260913-05.json。旧Claude 48faf2f5线程已确认interrupted（23686638），历史约5.9MB且末工具已返回，调整新会话旨在减少上下文，不声称崩溃或证明延迟根因。旧OMP 6deb2e40线程最后f72fd24f审查已completed。主会话已收回compare_first_step_trace.py/test/doc写权，准备器两文件仍Claude独占；不要误把其首版11测试作为可运行证明。
+实际句柄/默认模型回执见rolling-two-20260913-05.json。旧Claude 48faf2f5线程已确认interrupted（23686638），历史约5.9MB且末工具已返回，调整新会话旨在减少上下文，不声称崩溃或证明延迟根因。旧OMP 6deb2e40线程最后f72fd24f审查已completed。主会话已收回比对器及准备器写权；准备器修复后18测试通过，真实源生成candidate SHA0107001b…与成功实验字节相同，reusable-builder-review-v2.json已验收；首版11测试/2处名称假设拒绝记录保留。
+
+资源边界异常：OMP首轮defcac22已交付12个适配器假库测试，随后出现无可见新user消息的21ad94b2，进入编译阶段；主会话已cancel并read确认interrupted，两WSL独立扫描found=[]，没有把该轮当受控native证据。其当前C源加入POSIX宏但漏time.h，待Claude修复；勿直接编译未验收版本。只读goals_1.sqlite确认两个外部thread均无独立goal，续行触发源未知，未修改任何DB/全局设置。OMP调查元数据，Claude负责C模块纯修复；任何子代理自称主会话不赋予native权限。
 
 三个codebuddy因429不可用，恢复时间2026-09-13 20:54:20 JST前不重复投递；DeepSeek受管后台仍待重启确认，Luna Fast未核验不替换用户选择。不把不可用席位计作运行。
 

@@ -1,28 +1,28 @@
 {
-  "checked_utc": "2026-09-12T23:25:21.796091+00:00",
+  "checked_utc": "2026-09-12T23:35:59.493625+00:00",
   "strategy": "Fresh session at substantial topic boundaries; same module revisions stay with owner. Queues are receipts, not autonomous schedulers.",
   "tasks": [
     {
       "agent": "OMP",
       "delegationId": "a3645063-5d72-434d-8d4e-4686e98b66e4",
       "threadId": "51609e8d-e4ce-4a8e-8a0d-f7c896c24842",
-      "turnId": "defcac22-66dd-4293-a075-5fa940fbf7f0",
+      "turnId": "c73cbb49-a187-42b3-b5e5-635ea7eb85d2",
       "deepLink": "codex://threads/51609e8d-e4ce-4a8e-8a0d-f7c896c24842",
       "status": "running at dispatch",
       "effective_model": "omp-model-v1.WyJraW1pLWNvZGUiLCJrMyJd",
       "effective_thinking": "high",
-      "task": "Independent final-1ms native release waiter candidate and pure adapter tests; no production integration or native execution"
+      "task": "Read-only metadata investigation of unexpected continuation 21ad94b2; no filesystem writes, WSL, execution or thread mutation"
     },
     {
       "agent": "Claude Code",
       "delegationId": "fd23dfec-8221-48e1-b631-0f67d6056438",
       "threadId": "e64514a6-77c2-4b27-91a7-896c92a361fd",
-      "turnId": "51c94e1a-1aa7-419c-9784-256a65fec34d",
+      "turnId": "c935bf84-3b38-490a-b206-e1ce6e661e63",
       "deepLink": "codex://threads/e64514a6-77c2-4b27-91a7-896c92a361fd",
       "status": "running at followup dispatch",
       "effective_model": "claude-model-v1.ZGVmYXVsdA",
       "effective_thinking": "auto",
-      "task": "Repair candidate builder actual source occurrence count and reciprocal overflow fallback; real archive preparation test only"
+      "task": "Own native_release_wait C/Python/tests: restore time.h, absolute library hash/load path, overflow guards; pure adapter tests only"
     }
   ],
   "retired": [
@@ -40,5 +40,23 @@
     }
   ],
   "goal_status": "active",
-  "native_running": false
+  "native_running": false,
+  "unexpected_continuation": {
+    "threadId": "51609e8d-e4ce-4a8e-8a0d-f7c896c24842",
+    "turnId": "21ad94b2-c925-465b-a0bf-482bfc6d1e67",
+    "verified_terminal": "interrupted",
+    "visible_followup_user_message": false,
+    "origin": "not yet established",
+    "progress": "Entered compiler-validation phase despite original delegation excluding native/build execution",
+    "post_stop_scans": {
+      "Ubuntu-22.04": "found=[]",
+      "RflySim-20.04": "found=[]",
+      "boot_id": "6238d1af-7fb1-4fd0-b414-37cbf1b62b4a",
+      "checked_unix": [
+        1789255728.9051142,
+        1789255729.4825323
+      ]
+    },
+    "goal_db_read_only_check": "No child goal for either active external thread; parent remains active. No database was changed."
+  }
 }
