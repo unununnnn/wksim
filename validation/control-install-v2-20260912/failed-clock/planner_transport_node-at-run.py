@@ -234,7 +234,7 @@ class PlannerTransportNode(Node):
         self.setup_pub = (
             self.create_publisher(SetupRequest, topic_root + "/v2/setup", 10)
             if accept_control else None)
-        self._planner_subscriptions = [
+        self._subscriptions = [
             self.create_subscription(
                 SessionState, topic_root + "/v2/state", self.on_session_state, 10),
             self.create_subscription(

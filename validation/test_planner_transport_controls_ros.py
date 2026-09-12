@@ -109,6 +109,19 @@ class PlannerTransportNodeCallbackTests(unittest.TestCase):
         self.assertIsNone(node._current_tick())
         self.assertEqual(node.fault_reason, "operation_clock_source_changed")
 
+    def test_production_ros_clock_subscription_is_serviced(self):
+        from rosgraph_msgs.msg import Clock
+        node = self.make_node(clock_ns=None)
+        publisher = node.create_publisher(Clock, "/clock", 10)
+        clock = Clock(); clock.clock.sec = 1
+        deadline = time.monotonic() + 3
+        while node.get_clock().now().nanoseconds != 1_000_000_000:
+            self.assertLess(time.monotonic(), deadline, "native /clock callback was not serviced")
+            publisher.publish(clock)
+            rclpy.spin_once(node, timeout_sec=0.02)
+        self.assertEqual(node._current_tick(), 0)
+        self.assertIn("/clock", [sub.topic_name for sub in node.subscriptions])
+
     def test_real_tcp_sender_hold_cancel_and_public_release(self):
         from types import SimpleNamespace
         from validation.test_planner_transport_receiver import sender
