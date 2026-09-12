@@ -8,10 +8,63 @@ import sys
 import time
 import tempfile
 import unittest
+from types import SimpleNamespace
+from unittest.mock import patch
 from tools.pv_trajectory_task import reference, DURATION, PVTask
 
 
 class PVReferenceTests(unittest.TestCase):
+    def test_waypoint_settles_before_original_two_second_dwell(self):
+        class BeforeTrajectory(Exception):
+            pass
+
+        class Setup:
+            SET_PX4_MODE, ARMING, SET_CONTROL_MODE = range(3)
+
+            def __init__(self, **kwargs):
+                self.__dict__.update(kwargs)
+
+        task = PVTask.__new__(PVTask)
+        state = SimpleNamespace(position=[2., 3., 3.], velocity=[.49, 0., 0.],
+                                attitude=[0., 0., 0.], armed=True)
+        task.latest = {'state': state}
+        task.flight_stack, task.uav_id = 'arducopter', 1
+        task.Setup = Setup
+        task.Cmd = SimpleNamespace(MOVE=4, XYZ_POS=0)
+        task.send = task.offer = lambda *args, **kwargs: None
+        fresh = [True]
+        task.fresh = lambda: fresh[0]
+        observed = []
+
+        def wait(label, predicate, *args):
+            if label != 'waypoint_reached':
+                return
+            self.assertFalse(predicate())  # native .49 cannot open the raw .5 window
+            state.velocity[0] = .4
+            fresh[0] = False
+            self.assertFalse(predicate())
+            fresh[0] = True
+            self.assertTrue(predicate())
+            observed.append(label)
+
+        def dwell(label, predicate, seconds):
+            if label != 'waypoint_completed':
+                return
+            self.assertEqual(observed, ['waypoint_reached'])
+            self.assertEqual(seconds, 2)
+            state.velocity[0] = .49
+            self.assertTrue(predicate())  # original dwell limit remains .5
+            state.velocity[0] = .5001
+            self.assertFalse(predicate())
+            observed.append(label)
+            raise BeforeTrajectory()
+
+        task.wait, task.dwell = wait, dwell
+        with patch('tools.pv_trajectory_task.grounded', return_value=True):
+            with self.assertRaises(BeforeTrajectory):
+                task.execute()
+        self.assertEqual(observed, ['waypoint_reached', 'waypoint_completed'])
+
     @unittest.skipUnless(os.environ.get('WKSIM_TEST_PRIVATE_ROS') == '1', 'requires generated ROS messages')
     def test_new_origin_serializes_real_generated_float32_position(self):
         from prometheus_msgs.msg import UAVState

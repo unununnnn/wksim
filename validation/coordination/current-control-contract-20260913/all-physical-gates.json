@@ -1,0 +1,119 @@
+{
+  "scope": "All original physical predicates collected; no threshold or window change; no acceptance",
+  "run_id": "joint-public-flight-xtj8wk8i",
+  "epoch": "792e1feb4b274040965ca38e31491768",
+  "accepted": false,
+  "failed_predicates": 2,
+  "counts": [
+    {
+      "stack": "arducopter",
+      "message": "Baseline raw physical position/speed/yaw gate exceeded",
+      "count": 2
+    }
+  ],
+  "examples": [
+    {
+      "stack": "arducopter",
+      "message": "Baseline raw physical position/speed/yaw gate exceeded",
+      "tick": 55012,
+      "leg": null,
+      "phase": "waypoint_reached",
+      "metrics": [
+        0.15217019967880255,
+        0.5053412780658135,
+        0.026572602929244127
+      ]
+    },
+    {
+      "stack": "arducopter",
+      "message": "Baseline raw physical position/speed/yaw gate exceeded",
+      "tick": 55013,
+      "leg": null,
+      "phase": "waypoint_reached",
+      "metrics": [
+        0.152638788366704,
+        0.5022139316075227,
+        0.026513885486694422
+      ]
+    }
+  ],
+  "traversal": {
+    "raw_timeline": {
+      "total_ticks": 115992,
+      "shared_epoch": "792e1feb4b274040965ca38e31491768",
+      "physical": {
+        "arducopter": {
+          "max_height_m": 3.4148833902697118,
+          "final_height_m": -6.042054567997922e-05,
+          "min_waypoint_error_m": 0.024690529808312944,
+          "hold_truth_max_error_m": 0.05807946702282196,
+          "waypoint_truth_max_error_m": 0.19450194192077855
+        },
+        "px4": {
+          "max_height_m": 3.412167918857237,
+          "final_height_m": -2.493620275873181e-06,
+          "min_waypoint_error_m": 0.04054843761362226,
+          "hold_truth_max_error_m": 0.15268702354910868,
+          "waypoint_truth_max_error_m": 0.4649987702849567
+        }
+      },
+      "simultaneous_height_above_1m_ticks": 63667,
+      "wire_counts": {
+        "ap_sensor": 115992,
+        "px_sensor": 28998,
+        "gps": 1159,
+        "step": 115992,
+        "barrier": 28998
+      },
+      "ap_identical_duplicates": 0,
+      "clock_publications": 115993,
+      "unique_clock_ticks": 115993,
+      "paused_clock_republications": 0,
+      "faulted_clock_republications": 0
+    },
+    "trajectory_and_stop": {
+      "arducopter": [
+        {
+          "leg": 1,
+          "continuous_reference_ticks": 12001,
+          "max_position_error_m": 0.07033811209039988,
+          "max_axis_velocity_error_m_s": 0.029486911443424572,
+          "max_yaw_error_rad": 0.02274809014284812,
+          "stop_max_speed_m_s": 0.011799859305436257,
+          "stop_max_drift_m": 0.03628264296293528
+        },
+        {
+          "leg": 2,
+          "continuous_reference_ticks": 12001,
+          "max_position_error_m": 0.06713089246187799,
+          "max_axis_velocity_error_m_s": 0.024364140252991835,
+          "max_yaw_error_rad": 0.0038052529110872424,
+          "stop_max_speed_m_s": 0.011588958666585384,
+          "stop_max_drift_m": 0.046768054079787465
+        }
+      ],
+      "px4": [
+        {
+          "leg": 1,
+          "continuous_reference_ticks": 12001,
+          "max_position_error_m": 0.12541167782651644,
+          "max_axis_velocity_error_m_s": 0.07662165397215731,
+          "max_yaw_error_rad": 0.03933753884288821,
+          "stop_max_speed_m_s": 0.041922652770222675,
+          "stop_max_drift_m": 0.09422235411714223
+        },
+        {
+          "leg": 2,
+          "continuous_reference_ticks": 12001,
+          "max_position_error_m": 0.06101223626524239,
+          "max_axis_velocity_error_m_s": 0.026810374080888977,
+          "max_yaw_error_rad": 0.015492230873223378,
+          "stop_max_speed_m_s": 0.02114647926927318,
+          "stop_max_drift_m": 0.04649665442162104
+        }
+      ]
+    }
+  },
+  "auditor_sha256": "2cb506c5c4d95612dd60225689df062c719712faaef0fe20a687948f92a1c150",
+  "collector_sha256": "3e9aea2cc3188d196331c6c6d77b52ddec0e8d2ddede729429bb13350227c22e"
+}

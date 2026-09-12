@@ -9,7 +9,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from tools.audit_pv_trajectory import analytic, tracking, truth_window, native_targets, wire_request, rejected_bootstrap_ack
+from tools.audit_pv_trajectory import analytic, tracking, truth_window, native_targets, wire_request, rejected_bootstrap_ack, expected_public_error
 
 
 def header(seconds):
@@ -360,6 +360,39 @@ class PVRawAuditBoundaries(unittest.TestCase):
         data['/ap/wksim/local_state_v1'][0][1]['time_boot_us'] += 1
         with self.assertRaisesRegex(ValueError, 'bootstamp'):
             native_targets(data, requests)
+
+
+class PublicDuplicateEvidenceTests(unittest.TestCase):
+    def test_duplicate_error_requires_same_session_and_complete_equal_native_states(self):
+        event = dict(event='native_input_rejected', reason='duplicate_source', source='status',
+                     source_stamp=1000, run_id='run', control_epoch='epoch')
+        message = dict(message_type=2, header=header(.002))
+        sample = dict(timestamp=1000, system_id=22, nav_state=18)
+        data = {'/px/fmu/out/vehicle_status': [(row(1, .001), sample), (row(2, .001), dict(sample))]}
+
+        def accepted(e=event, m=message, d=data, stack='px4'):
+            return expected_public_error(e, row(3, .002), m, d, stack=stack,
+                                         run_id='run', control_epoch='epoch', first_request_ns=1)
+
+        self.assertTrue(accepted())
+        for change in (dict(run_id='other'), dict(control_epoch='retired'),
+                       dict(reason='regressed_source'), dict(source='ack'),
+                       dict(source_stamp=3000)):
+            with self.subTest(change=change):
+                self.assertFalse(accepted(e=dict(event, **change)))
+        self.assertFalse(accepted(stack='arducopter'))
+        self.assertFalse(accepted(m=dict(message, message_type=3)))
+        self.assertFalse(accepted(d={}))
+        changed = copy.deepcopy(data)
+        changed['/px/fmu/out/vehicle_status'].pop()
+        self.assertFalse(accepted(d=changed))
+        changed = copy.deepcopy(data)
+        changed['/px/fmu/out/vehicle_status'][1][1]['nav_state'] = 14
+        self.assertFalse(accepted(d=changed))
+        changed = copy.deepcopy(data)
+        for _, item in changed['/px/fmu/out/vehicle_status']:
+            item['system_id'] = 23
+        self.assertFalse(accepted(d=changed))
 
 
 if __name__ == '__main__':

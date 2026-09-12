@@ -1,0 +1,18 @@
+{
+  "created_unix": 1789235723.8785338,
+  "source_sha256": {
+    "tools/ap_mixed_candidate.py": "5420e1443d58c66eca379b29d8bdb15ea044335dd343cca2d9da88d2364e368f",
+    "tools/audit_mixed_control.py": "f7f8816674f9526d48c808cfb10a31ca47fa7d08c6263ff531fb13edddb40234",
+    "tools/pv_trajectory_task.py": "c6b3350eea83ff01a33c59a679801c223ada87284a090c4d21f45bdd01996132",
+    "validation/test_mixed_candidate.py": "c32664a898f02e8c034ba49a83a7ef9a36e6d630bbf3ae7b4a7ed01c289e28a4",
+    "validation/test_pv_trajectory.py": "a31c33dc2da979b154db7b76601f1b7eb8645e74e94b6fc490c5afd7830be293",
+    "docs/2026-09-09-final-combo-pv-plan.md": "5f140b1f350f1dfd1947ced2a8605ff078f5584c850ced42594ebde43a03d699"
+  },
+  "tests": {
+    "pin_and_physical_audits": "51 passed, 2 skipped, 30 subtests",
+    "waypoint_entry_and_pv_evidence": "22 passed, 3 skipped, 23 subtests"
+  },
+  "raw_audit": "After sealed current-control correction and clean ROS Python imports, original audit rejects two AP speed samples. No failed record changed.",
+  "promotion": "Still forbidden for xtj8wk8i because rate_timing_probe is present. joint_profile.py guard untouched.",
+  "changes": "Current exact control SHA restored to already verified current install; previous control retained for historical raw audits only. Arrival speed margin .4 before original 2s/.5 dwell. No new flight yet."
+}

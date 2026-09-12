@@ -1,5 +1,13 @@
 # 当前 Goal 执行检查点
 
+## 最新：#83限定切片的完整原始审计已PASS，待工单收口；#84/G6继续
+
+新场1w6dru32（epoch a160e99bb6ac46b4a09f0b36b3daeed7），runner exit0/pass、tick116004、wall283.260591381s、无两timing/early-work字段，最坏迟到89299145ns；PGID2060–2069独立全空。raw-pv-audit-v2.json完整PASS，SHA8140d80e5695bb377dedaef7198cb67811456a2429bab005085b2a5926f0e8c4，主会话复核全部302输入SHA及result绑定。27,493个10s和21,245个60s完整滑窗、两栈两段各12,001个1ms参考样本、全部原物理/端点/停止/LAND门通过。详见docs/2026-09-13-final-combo-pv-pass.md与validation/33-final-combo-luna/pv-settle-1w6dru32。#82已CLOSED；#83待推送与收口，#33/#84/Full未完成，不标Goal complete。
+
+修复两处真实问题：现有Control校验完整证明c2IXOr匹配当前支持代码，而ZlTVa4已失配8文件；准入/审计/当前合同同步唯一c2，旧身份仅历史审计。旧诊断xtj8wk8i完整物理遍历仅AP航点首2ms超过原速度门；新PVTask fresh且估计速度≤.4才进入原2s/.5保持，原窗口/阈值不放宽。新场第一审计因PX4重复状态失败，原件与失败报告保留；实际两包完整解码字段相同（CDR不完全相同），复用原mixed严格规则、同run/epoch/系统/时间绑定及真实负例后v2通过，并显式记录重复事件。禁止再把旧诊断当正式证据。
+
+OMP v2分析器c6f10b8c/test5ec071f4修复峰值、bool身份、计数与单次读取，9项纯测试通过、真实峰值已主独立核对；目前turn6d346e78-1368-450c-a9b2-5d30daea9382独立复核新场AP/PX4航点原始窗口。Claude G6首版仅定位C3G/k1的ULP分歧，主审退回过度根因结论、未核验输入hash和覆盖报告风险；原任务在native清理后已续turn5ad55920-fdce-4e3f-bca9-0b1cfc495625，尚未验收。codebuddy配额及DSH重启确认边界保持；当前两外部端running。
+
 ## 最新：xtj8wk8i 诊断完成，正式身份审计拒绝；两席续接
 
 主会话进一步用同一原件确定位点（main-physics-peak.json）：最大physics_advance是start_tick1999→end_tick2000，wall6622100ns、同样本线程CPU1292890ns。内部diagnostic_step_cpu_timing三段wall为health_and_models447530、encode_send138549、native_inputs6015442；嵌套PX4 wait5822033ns/CPU595145ns。外层与内层不能相加；只证明该首10s峰值落在PX4输入等待，不证明整个场次迟到由FC、OS或I/O单独造成。wire完整SHA d870c106…90a06已留证。

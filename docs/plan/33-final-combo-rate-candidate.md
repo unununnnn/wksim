@@ -1,5 +1,7 @@
 # #82 最终 mixed/PV 倍率候选与失败边界
 
+2026-09-13 历史标记：本文的0DQQz9/OEvS3W命令与“当前”用语均指相应旧轮次，保留用于复核失败记录，不再作为新场入口。当前唯一组合、准确命令及封存核验见[最终组合合同](../2026-09-09-final-combo-pv-plan.md)，使用已核验的c2IXOr；旧数据不改判。
+
 ## 2026-09-11 可执行减负候选
 
 候选 `33-rate-worker-rpc-trim-v1` 已由提交 `26aa4eb` 实现：`Simulator/wksim_core/worker.py::receive_workers()` 保留 `step_request()`、唯一 JSON 编码、4096 字节上限和接收端完整 `parse_frame()`/响应校验，只删除对主进程刚刚编码的每个出站请求再次 JSON 反序列化。当前源码 SHA256 为 `164d6ebac4910c95a6b98bee3ae9524286b3f9aed446defca71d87886ddba081`。55 项 WSL transport/worker 检查通过，两个真实模型的 1000 tick 状态与 trace 对照一致；不改变 1ms 物理、4 tick 输入屏障、每 tick `/clock`、单锚、无追赶或 100ms 门。

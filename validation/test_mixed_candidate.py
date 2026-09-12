@@ -134,6 +134,8 @@ class MixedCandidateTests(unittest.TestCase):
             for task, ap_sha, control_sha, message_sha in (
                     (mixed.PV_PROFILE, 'a'*64, mixed.FINAL_CONTROL_SHA, mixed.FINAL_MESSAGE_SHA),
                     (mixed.PV_PROFILE, mixed.FINAL_AP_SHA, 'a'*64, mixed.FINAL_MESSAGE_SHA),
+                    (mixed.PV_PROFILE, mixed.FINAL_AP_SHA,
+                     '3d04d53a5c41d374ee623d16a265e8816d481e5d4433f23a60140a8e8184ecc4', mixed.FINAL_MESSAGE_SHA),
                     (mixed.PV_PROFILE, mixed.FINAL_AP_SHA, mixed.FINAL_CONTROL_SHA, 'a'*64),
                     ('position', mixed.FINAL_AP_SHA, mixed.FINAL_CONTROL_SHA, mixed.FINAL_MESSAGE_SHA)):
                 verify.reset_mock()
@@ -160,6 +162,8 @@ class MixedCandidateTests(unittest.TestCase):
             for ap_sha, control_sha, message_sha in (
                     ('a'*64, mixed.FINAL_CONTROL_SHA, mixed.FINAL_MESSAGE_SHA),
                     (mixed.FINAL_AP_SHA, 'a'*64, mixed.FINAL_MESSAGE_SHA),
+                    (mixed.FINAL_AP_SHA,
+                     '3d04d53a5c41d374ee623d16a265e8816d481e5d4433f23a60140a8e8184ecc4', mixed.FINAL_MESSAGE_SHA),
                     (mixed.FINAL_AP_SHA, mixed.FINAL_CONTROL_SHA, 'a'*64)):
                 verify.reset_mock()
                 rejected = mixed.admit(str(self.path), ap_sha, str(self.control_path), control_sha,
