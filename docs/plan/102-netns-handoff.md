@@ -7,3 +7,12 @@ The exporter verifies its network is private relative to the distribution init p
 The real Ubuntu-to-Rfly loopback fixture and malformed-capsule checks are recorded in `validation/netns-handoff-20260912-03/`. Results must be written to persistent storage before processes exit: `/mnt/wsl` is temporary and was observed to disappear across a WSL reboot.
 
 Next integration must export only during a real scene's pre-physics setup, supervise the Rfly actor as part of that scene, and verify ROS/DDS traffic across the distinct IPC namespaces. Existing SessionState/clock/identity/freshness gates remain authoritative; a transferred namespace FD does not grant flight control. No real FC/planner attachment is claimed by the loopback fixture.
+
+Cross-distribution ROS/DDS fixture transport is now verified in
+`validation/cross-distro-ros-20260912-04/`. With separate `/dev/shm`, use the
+explicit `cross_namespace_dds.xml` loopback UDP profile and set
+`ROS_LOCALHOST_ONLY=0` only inside the already-verified private network.
+Humble RMW otherwise appends SHM after XML loading. Default transport and XML
+alone failed; the successful configuration delivered all five message types
+at three timestamps without sharing IPC or changing message QoS. Real scene
+state sources and actor supervision still need integration.

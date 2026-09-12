@@ -18,11 +18,11 @@ heartbeat `wksim` 绑定同一任务，保持 ACTIVE、每三分钟检查一次�
 
 本轮 #83 实跑 joint-public-flight-nqyqcagl 已 FAILED：tick53128 累计迟到104260439ns，原100ms门槛触发 RateUnmet。双机已起飞但任务未完成，source_unchanged=true、Control正常退出、十个自有PGID独立清理通过。证据 validation/33-final-combo-luna/20260912-nqyqcagl，完整原件仍保留；绝对路径 raw PV audit在 failed-run gate拒绝。#83仍OPEN/needs-triage，评论 issuecomment-5643302702。rate-analysis.json数值已独立逐项复算；wire-interval-review.json纠正6.2/6.57ms是step→外发sensor间隔，含日志/clock/模型RPC等，不能排他归因AP。M1另有kernel-wire-correlation.json：tick5504直接诊断wait_px4=5419791ns、wait_ap=127634ns，不跨run外推。
 
-当前新增 namespace 接线：netns_handoff.py 已实际 Ubuntu→Rfly SCM_RIGHTS 交接并通过 loopback，Rfly mount/IPC与Noetic路径保持不变；最终证据 validation/netns-handoff-20260912-03 已持久化并与当前源码SHA核对。旧 /mnt/wsl 临时结果曾随WSL boot变化丢失，不充当持久证据。handle41886/12942/21600均已退出0，当前无主会话native运行。跨distro ROS/DDS还未验证。
+当前新增 namespace 接线：netns_handoff.py 已实际 Ubuntu→Rfly SCM_RIGHTS 交接并通过 loopback，Rfly mount/IPC与Noetic路径保持不变；最终证据 validation/netns-handoff-20260912-03 已持久化并与当前源码SHA核对。旧 /mnt/wsl 临时结果曾随WSL boot变化丢失，不充当持久证据。handle41886/12942/21600均已退出0，当前无主会话native运行。跨distro ROS/DDS现已验证：validation/cross-distro-ros-20260912-04；01/02/03发现topic却收不到数据，03证明XML已加载且GUID不同，最终定位Humble ROS_LOCALHOST_ONLY=1在XML后重新加入SHM。04在已验证私有netns内使用XML的127.0.0.1 UDP白名单并设ROS_LOCALHOST_ONLY=0，三时间样本/五消息及暂停clock全通过，owner与visitor均退出0。不得将此网络配置全局套给现有飞控或放宽物理门槛。
 
 待用户语义澄清：已通过异步问题请求确认是否允许 start_tick100、到达120 时保留start_time并首次求值t=.020、不补历史样本。该问题未获回答；不得把等待视为同意，不修改当前start_in_past/等值闸门。其他独立工作继续。
 
-OMP22f正在唯一写入bspline_tcp_envelope.py、planner_transport_pump.py及两套tests，实现显式opt-in控制帧；当前v1默认/字节必须保持。暂不触node/sender/session，不暂存未交付修改。
+OMP22g正在返修唯一写入bspline_tcp_envelope.py、planner_transport_pump.py及两套tests，实现显式opt-in控制帧；当前v1默认/字节必须保持。22f主验发现gate缺稳定身份校验、v2未完整进入冻结快照、recover丢opt-in模式，已退回22g修复；暂不触node/sender/session，不暂存未交付修改。
 
 ## 下一步：每次完成一个验收切片
 
@@ -48,3 +48,5 @@ OMP22f正在唯一写入bspline_tcp_envelope.py、planner_transport_pump.py及�
 主会话独占 SITL/ROS/UE/MATLAB/tracefs/BPF/原生构建执行线；真实性能运行时冻结源码并停止并行重负载。保留 1ms、native 输入/时钟屏障、无追赶、100ms 累计迟到及原身份/新鲜度门槛。真实运行用新目录并保留失败原件。G6 预算、未知 ABI、硬件或批准缺项只阻塞相关分支。全部 Full 必需证明完成后才结案。
 
 不得暂存用户/未验证文件：docs/Prometheus.gitmodules.reference、validation/coordination/short-cycle-dispatches.json、docs/coordination/agy-aruco-native-correlation.md、docs/coordination/claude-native-wait-next-probe.md、tools/inspect_aruco_native_targets.py、validation/test_aruco_native_targets.py、docs/coordination/acceptance-frontier.json。不发布厂商源码/二进制，不终止用户进程。
+
+工作区另有他方控制器/PID/独立profile/runtime/preflight/README/CONTEXT等改动；本轮未修改或暂存这些内容，禁止纳入本任务提交。

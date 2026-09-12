@@ -1,0 +1,29 @@
+{
+  "status": "failed",
+  "physical_acceptance": false,
+  "topics": [
+    "/clock",
+    "/wksim_bridge_probe/odom",
+    "/wksim_bridge_probe/control",
+    "/wksim_bridge_probe/boxes",
+    "/wksim_bridge_probe/detections"
+  ],
+  "external_publisher": true,
+  "namespace_scan_scope": "current distribution proc view",
+  "error": "RuntimeError(\"external ROS2 fixture publication: processes exited early: {'receiver': 1}\")",
+  "children": {
+    "roscore": {
+      "pid": 432,
+      "returncode": 0
+    },
+    "receiver": {
+      "pid": 530,
+      "returncode": 1
+    },
+    "bridge": {
+      "pid": 611,
+      "returncode": 0
+    }
+  },
+  "remaining_namespace_pids": []
+}

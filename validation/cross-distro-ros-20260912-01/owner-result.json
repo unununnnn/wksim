@@ -1,0 +1,33 @@
+{
+  "status": "failed",
+  "role": "owner",
+  "distro": "Ubuntu-22.04",
+  "boot_id": "be5fc61d-3b58-40c5-9776-11ee17f7c667",
+  "initial_namespaces": {
+    "net": "net:[4026532232]",
+    "ipc": "ipc:[4026532231]",
+    "mnt": "mnt:[4026532230]"
+  },
+  "source_sha256": {
+    "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/validation/ros1_bridge_cross_distro_probe.py": "7fed6aa08ab518d04ec1317d158485be4e6a65fdc1751290d0e4a4705ace5920",
+    "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/Simulator/wksim_runtime/netns_handoff.py": "3cfea24602fb6c703898be4bac6e81f71a38a0175260b08d2bad58ba9b973575",
+    "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/validation/ros1_bridge_reverse_probe.py": "02fadd744eb3b49c1604ad6bbce2abb4d5e63e0f57443a40e890235af9c19ae0"
+  },
+  "physical_acceptance": false,
+  "handoff": {
+    "run_id": "cross-distro-ros-fixture",
+    "netns": {
+      "device": 4,
+      "inode": 4026532232
+    },
+    "descriptor_transferred": true
+  },
+  "error": "RuntimeError('ROS1 receipt timed out for sample 0')",
+  "traceback": "Traceback (most recent call last):\n  File \"/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/validation/ros1_bridge_cross_distro_probe.py\", line 46, in run\n    reverse.ros2(out)\n  File \"/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/validation/ros1_bridge_reverse_probe.py\", line 153, in ros2\n    raise RuntimeError(f\"ROS1 receipt timed out for sample {index}\")\nRuntimeError: ROS1 receipt timed out for sample 0\n",
+  "final_namespaces": {
+    "net": "net:[4026532232]",
+    "ipc": "ipc:[4026532231]",
+    "mnt": "mnt:[4026532230]"
+  },
+  "source_unchanged": true
+}
