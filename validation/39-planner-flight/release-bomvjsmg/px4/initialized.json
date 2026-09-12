@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "run_id": "joint-public-flight-bomvjsmg",
+  "scene_epoch": "fffc7da8ba73461fa26b1949a31b0007",
+  "uav_id": 2,
+  "task_profile": "full_xyz_pv_yaw_v1",
+  "request_graph": {
+    "setup": [
+      {
+        "node_name": "wksim_joint_px4_control",
+        "node_namespace": "/",
+        "endpoint_gid": "010f7f019107453b00000000000023040000000000000000"
+      },
+      {
+        "node_name": "wksim_joint_flight_clock",
+        "node_namespace": "/",
+        "endpoint_gid": "010f7f019f02e8060000000000001a040000000000000000"
+      }
+    ],
+    "command": [
+      {
+        "node_name": "wksim_joint_px4_control",
+        "node_namespace": "/",
+        "endpoint_gid": "010f7f019107453b00000000000024040000000000000000"
+      },
+      {
+        "node_name": "wksim_joint_flight_clock",
+        "node_namespace": "/",
+        "endpoint_gid": "010f7f019f02e80600000000000019040000000000000000"
+      }
+    ]
+  },
+  "ros_time_ns": 0
+}

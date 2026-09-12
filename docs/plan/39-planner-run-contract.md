@@ -1,6 +1,6 @@
 # #39/#102 规划运行合同 — ego-single-box-v1 离线入口与 B-spline 适配接缝
 
-2026-09-12。本合同现在覆盖三个相互独立的离线前置接缝：profile 关闭的 EGO ROS1 launch 入口、显式供给的 EGO uniform B-spline 到 `TrajectorySession` 的纯 Python 适配，以及 GridMap 动态参数回调的生命周期安全边界。它们只冻结输入、参数和静态边界，**不声明真实规划器、ROS 传输、物理飞行或验收已经完成**。
+2026-09-12。本合同保留三个离线前置接缝：EGO ROS1 launch/profile、uniform B-spline 纯 Python 适配、GridMap 参数生命周期边界。离线部分只证明其明确范围。文末另记录真实移动 P+V 的公共 cancel→BRAKE→LAND 切片；它不包含真实 EGO 输出驱动的完整绕障飞行，不能关闭 #39/#102。
 
 ## 本次 launch/profile 与 GridMap 参数安全静态切片
 
@@ -94,3 +94,40 @@ python -B -m unittest validation.test_trajectory_session -v
 - **issue #102**：本切片仅交付离线前置接缝；#102 整体仍开启，待真实 planner/point cloud/#29/#33/public flight 各自闭合。
 
 未 git 提交/推送/issue 写入；未运行 SITL/UE/MATLAB/build。
+
+
+## 真实公共释放前置：bomvjsmg（#39/#102 保持 OPEN）
+
+2026-09-12，执行提交 `bc76fb6`，私有实验分支 `codex/planner-release-validation`。完整原件保留在 Ubuntu-22.04 `/root/wksim-release-acceptance-fe3/validation/joint-public-flight-bomvjsmg`；可公开的结果、控制候选清单、独立审计、DDS/rate压缩原件与停止窗口真值片段见 [证据目录](../../validation/39-planner-flight/release-bomvjsmg/evidence-manifest.json)。真值片段不能替代完整原件；全量 SHA 由审计记录。
+
+- run `joint-public-flight-bomvjsmg`，scene epoch `fffc7da8ba73461fa26b1949a31b0007`；结果 `observed`，不是 nominal PV/Full pass。
+- 同一 planner 子进程在物理 tick0 前预加载并等待自有 stdin 令牌；由原 AP task 持有管道并继承其 PGID。writer静默后重新验证当前 run/epoch/双高水位，才创建 ROS Node；实际绑定点再次精确核对，随后发送 TCP cancel。没有提前绑定或分配请求。
+- 实际加载的15个 Simulator 模块逐项匹配封存 Control c2IXOr，manifest SHA `6fe8c0b30775a9ba83407302f602d0785876d307e5f1cb746afa3bf316cf5e7e`；运行前后源码和候选检查一致。
+- 公共 BRAKE 请求66有原始DDS中的真实 native_ack→setup_completed(BRAKE)，随后 AP AUTO.LAND请求67、PX4 LAND请求126各有 native ACK 和模式确认。命令/请求ID严格递增，AP交接后 command 高水位保持62。
+- 两栈各92596个连续1ms物理样本；AP交接真值速度0.3064071141526029m/s。原4秒停止窗的4001个含端点样本全部通过：AP最大速度0.04970044238295725m/s、距释放前锚点最远0.4820302973402434m；PX4分别0.03930866587856656m/s、0.09233400879439557m。未后移AP锚点。
+- 两栈最终原始 SessionState 均有效、解除武装、在地面。23140个rate组无追赶，保持原.5请求倍率、1ms/native屏障，最差累计迟到75321700ns，小于原100ms；这不是长期倍率验收。
+- 两个控制节点、任务及planner正常退出，原10个PGID的独立/proc复查为空。未终止用户进程。旧8fmacpgy失败与float32报告缺口原件保留，不能被本次成功覆盖。
+
+实际执行入口（运行环境与原始参数记录，不要求重复实跑）：
+
+```bash
+cd /root/wksim-release-acceptance-fe3
+bash tools/run-joint-flight.sh --planner-release-proof \
+  --ap-mixed-manifest /root/wksim-ap-mixed-fhuf05l9/mixed-build.json \
+  --ap-mixed-sha256 1e6250eff8873d6b2e52017b613c223ac29f8260fdf92aac2cf0c7cdcc6ce94c \
+  --control-manifest /root/wksim-joint-control-c2IXOr/build.json \
+  --control-sha256 6fe8c0b30775a9ba83407302f602d0785876d307e5f1cb746afa3bf316cf5e7e \
+  --message-manifest /root/wksim-ros2-Rzj3Pf/message-build.json \
+  --message-sha256 29969da0702451e3fc6f1de40bc301a67284c4e7d5fae8f88c64773d27a96219 \
+  --task-profile full_xyz_pv_yaw_v1
+```
+
+独立只读审计入口（先加载Humble和Rzj3Pf的生成消息 overlay，不创建ROS节点）：
+
+```bash
+python3 -B tools/audit_planner_release.py \
+  /root/wksim-release-acceptance-fe3/validation/joint-public-flight-bomvjsmg \
+  --output /tmp/release-audit-review.json
+```
+
+该切片证明的是已有移动P+V控制交接后的公共释放及落地，**没有把真实EGO Bspline接入该场次，也没有证明到达、绕障净空、无接触、no-route或真实重规划**。这些仍须按原父票完成；晚到轨迹起点的未回答语义问题不因本次释放验证而放宽。
