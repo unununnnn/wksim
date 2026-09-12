@@ -24,8 +24,17 @@ Contract (enforced, not narrated):
   the rest of the group; it never masks the business exception in flight;
   cancellation types (KeyboardInterrupt/SystemExit/InterruptedError)
   propagate;
-- no wall-minus-CPU OS/FC attribution; no zero-overhead claim: one extra
-  thread-CPU read per pacing clock read while ``begin_group`` is active.
+- v2 measurement: every thread-CPU read is bracketed by a SECOND read on
+  the same monotonic domain (``after_now``, defaulting to the wall clock),
+  so each pair reports the CPU-read windows at both ends and wall-gap BOUNDS
+  [max(0, cur_before-prev_after), cur_after-prev_before] instead of a naive
+  point estimate.  The parent's time return value, comparisons, period and
+  checks still use the original ``super()`` read; the after read is
+  observation-only and never feeds back.  Bounds are not precise off-CPU
+  attribution, and the CPU read's own duration is visible, never hidden;
+- no wall-minus-CPU OS/FC attribution; no zero-overhead claim: two extra
+  reads (thread CPU + after timestamp) per pacing clock read while
+  ``begin_group`` is active.
 """
 
 import time
@@ -39,21 +48,30 @@ MAX_RECORD_ERRORS = 32
 CANCEL_TYPES = (KeyboardInterrupt, SystemExit, InterruptedError)
 
 
+class _PairSlots:
+    __slots__ = ('gap_wall', 'gap_cpu', 'gap_lower', 'gap_upper', 'prev_wall', 'prev_after', 'wall_ns', 'after_ns', 'prev_cpu', 'cpu_ns', 'crossing', 'crosses_release')
+
+    def __init__(self):
+        self.gap_wall = None
+
+
 class _SpinWindow:
     """Per-group scalar aggregates; allocated once per begin_group."""
 
     __slots__ = ("start_tick", "window_lo_ns", "earliest_ns", "prev_wall_ns",
                  "prev_cpu_ns", "pairs_observed", "pairs_valid",
                  "pairs_invalid_cpu", "excluded_boundary_crossings",
+                 "prev_after_ns",
                  "big_gap_count", "max_gap", "cpu_errors", "cpu_disabled",
-                 "in_boundary", "release_crossed", "release_crossing",
-                 "release_lateness_ns")
+                 "in_boundary", "release_crossed", "release_lateness_ns",
+                 "_max", "_cross")
 
     def __init__(self, start_tick, earliest_ns):
         self.start_tick = start_tick
         self.window_lo_ns = earliest_ns - SPIN_WINDOW_NS
         self.earliest_ns = earliest_ns
         self.prev_wall_ns = None
+        self.prev_after_ns = None
         self.prev_cpu_ns = None
         self.pairs_observed = 0
         self.pairs_valid = 0
@@ -65,17 +83,20 @@ class _SpinWindow:
         self.cpu_disabled = False
         self.in_boundary = False
         self.release_crossed = False
-        self.release_crossing = None
         self.release_lateness_ns = None
+        # Scalar-only lazy state; dicts are built once at group end.
+        self._max = _PairSlots()
+        self._cross = _PairSlots()
 
     def clear_previous(self):
         """A health/sleep boundary intervened: drop the retained read."""
         if self.prev_wall_ns is not None:
             self.excluded_boundary_crossings += 1
         self.prev_wall_ns = None
+        self.prev_after_ns = None
         self.prev_cpu_ns = None
 
-    def observe(self, wall_ns, cpu_ns):
+    def observe(self, wall_ns, cpu_ns, after_ns):
         """One adjacent-read pair (prev -> current).  A pair counts when the
         closing read lands in the window, OR when it is the FIRST read at or
         past the release edge and the opening read precedes it -- that
@@ -87,8 +108,10 @@ class _SpinWindow:
         read."""
         if self.in_boundary or self.release_crossed:
             return
-        prev_wall, prev_cpu = self.prev_wall_ns, self.prev_cpu_ns
+        prev_wall, prev_after, prev_cpu = (
+            self.prev_wall_ns, self.prev_after_ns, self.prev_cpu_ns)
         self.prev_wall_ns = wall_ns
+        self.prev_after_ns = after_ns
         self.prev_cpu_ns = cpu_ns
         if prev_wall is None:
             return
@@ -103,6 +126,8 @@ class _SpinWindow:
         self.pairs_observed += 1
         crossing = prev_wall < self.window_lo_ns
         gap_wall = wall_ns - prev_wall
+        gap_lower = max(0, wall_ns - prev_after) if prev_after is not None else 0
+        gap_upper = after_ns - prev_wall if after_ns is not None else gap_wall
         gap_cpu = None
         cpu_ok = (not self.cpu_disabled and cpu_ns is not None
                   and prev_cpu is not None and cpu_ns >= prev_cpu)
@@ -113,24 +138,32 @@ class _SpinWindow:
             self.pairs_invalid_cpu += 1
         if gap_wall >= BIG_GAP_NS:
             self.big_gap_count += 1
-        if cpu_ok and (self.max_gap is None
-                       or gap_wall > self.max_gap["gap_wall_ns"]):
-            # The max complete pair over ALL valid pairs; the dict is built
-            # only when the candidate actually wins.
-            self.max_gap = dict(gap_wall_ns=gap_wall, gap_cpu_ns=gap_cpu,
-                                prev_wall_ns=prev_wall, wall_ns=wall_ns,
-                                prev_cpu_ns=prev_cpu, cpu_ns=cpu_ns,
-                                crossing=crossing,
-                                crosses_release=crosses_release)
+        if cpu_ok and (self._max.gap_wall is None or gap_wall > self._max.gap_wall):
+            target = self._max
+            target.gap_wall = gap_wall
+            target.gap_cpu = gap_cpu
+            target.gap_lower = gap_lower
+            target.gap_upper = gap_upper
+            target.prev_wall = prev_wall
+            target.prev_after = prev_after
+            target.wall_ns = wall_ns
+            target.after_ns = after_ns
+            target.prev_cpu = prev_cpu
+            target.cpu_ns = cpu_ns
+            target.crossing = crossing
+            target.crosses_release = crosses_release
         if crosses_release:
-            self.release_crossing = dict(
-                gap_wall_ns=gap_wall,
-                gap_cpu_ns=gap_cpu,
-                prev_wall_ns=prev_wall,
-                wall_ns=wall_ns,
-                prev_cpu_ns=prev_cpu,
-                cpu_ns=cpu_ns,
-                lateness_ns=self.release_lateness_ns)
+            target = self._cross
+            target.gap_wall = gap_wall
+            target.gap_cpu = gap_cpu
+            target.gap_lower = gap_lower
+            target.gap_upper = gap_upper
+            target.prev_wall = prev_wall
+            target.prev_after = prev_after
+            target.wall_ns = wall_ns
+            target.after_ns = after_ns
+            target.prev_cpu = prev_cpu
+            target.cpu_ns = cpu_ns
 
 
 class JointRateSpinCpuProbe(JointRateTimingProbe):
@@ -138,10 +171,15 @@ class JointRateSpinCpuProbe(JointRateTimingProbe):
 
     def __init__(self, epoch, requested_rate, record,
                  now=time.monotonic_ns, sleep=time.sleep,
-                 thread_now=time.thread_time_ns):
+                 thread_now=time.thread_time_ns, after_now=None):
         if not callable(thread_now):
             raise ValueError("thread_now must be callable")
+        if after_now is None:
+            after_now = now
+        if not callable(after_now):
+            raise ValueError("after_now must be callable")
         self._thread_now = thread_now
+        self._after_now = after_now
         self._spin = None
         self._spin_record_errors = []
         self._spin_record_error_total = 0
@@ -159,29 +197,34 @@ class JointRateSpinCpuProbe(JointRateTimingProbe):
         if spin is None:
             return value
         if spin.cpu_disabled:
-            spin.observe(value, None)
+            spin.observe(value, None, None)
             return value
         try:
             cpu = self._thread_now()
+            after = self._after_now()
         except CANCEL_TYPES:
             raise
         except Exception:
-            # Ordinary CPU sampling failure: list it and stop CPU sampling for
-            # the rest of this group; wall observation continues.
+            # Ordinary CPU/after-clock sampling failure: list it and stop
+            # this group's sampling; wall observation continues.
             spin.cpu_errors += 1
             spin.cpu_disabled = True
-            spin.observe(value, None)
+            spin.observe(value, None, None)
             return value
-        # CPU values must be plain non-negative ints: bool/str/float/negative
-        # or a backwards step is listed and disables this group's CPU
-        # sampling instead of raising at the comparison site.
+        # CPU and after-clock values must be plain non-negative ints, the
+        # after read must not precede the parent read, and neither series may
+        # step backwards; anything else is listed and disables this group's
+        # CPU sampling instead of raising at the comparison site.
         if (type(cpu) is not int or cpu < 0
-                or (spin.prev_cpu_ns is not None and cpu < spin.prev_cpu_ns)):
+                or type(after) is not int or after < value
+                or (spin.prev_cpu_ns is not None and cpu < spin.prev_cpu_ns)
+                or (spin.prev_after_ns is not None
+                    and (after < spin.prev_after_ns or value < spin.prev_after_ns))):
             spin.cpu_errors += 1
             spin.cpu_disabled = True
-            spin.observe(value, None)
+            spin.observe(value, None, None)
             return value
-        spin.observe(value, cpu)
+        spin.observe(value, cpu, after)
         return value
 
     def _probe_sleep(self, seconds):
@@ -244,7 +287,39 @@ class JointRateSpinCpuProbe(JointRateTimingProbe):
         if error is not None:
             raise error
 
+    @staticmethod
+    def _pair_dict(parts):
+        gap_wall = parts.gap_wall
+        gap_cpu = parts.gap_cpu
+        gap_lower = parts.gap_lower
+        gap_upper = parts.gap_upper
+        prev_wall = parts.prev_wall
+        prev_after = parts.prev_after
+        wall_ns = parts.wall_ns
+        after_ns = parts.after_ns
+        prev_cpu = parts.prev_cpu
+        cpu_ns = parts.cpu_ns
+        return dict(
+            gap_wall_ns=gap_wall, gap_cpu_ns=gap_cpu,
+            wall_gap_lower_ns=gap_lower, wall_gap_upper_ns=gap_upper,
+            prev_wall_ns=prev_wall, prev_after_ns=prev_after,
+            wall_ns=wall_ns, after_ns=after_ns,
+            prev_cpu_ns=prev_cpu, cpu_ns=cpu_ns,
+            prev_cpu_read_window_ns=(
+                None if prev_after is None else prev_after - prev_wall),
+            cpu_read_window_ns=(
+                None if after_ns is None else after_ns - wall_ns))
+
     def _finish_spin_record(self, spin, outcome, earliest):
+        max_gap = None
+        if spin._max.gap_wall is not None:
+            max_gap = self._pair_dict(spin._max)
+            max_gap["crossing"] = spin._max.crossing
+            max_gap["crosses_release"] = spin._max.crosses_release
+        release_crossing = None
+        if spin._cross.gap_wall is not None:
+            release_crossing = self._pair_dict(spin._cross)
+            release_crossing["lateness_ns"] = spin.release_lateness_ns
         fields = dict(
             diagnostic="rate_spin_cpu_probe",
             classification="diagnostic_only",
@@ -261,16 +336,18 @@ class JointRateSpinCpuProbe(JointRateTimingProbe):
             excluded_boundary_crossings=spin.excluded_boundary_crossings,
             big_gap_count=spin.big_gap_count,
             big_gap_threshold_ns=BIG_GAP_NS,
-            max_gap=spin.max_gap,
+            max_gap=max_gap,
             release_crossed=spin.release_crossed,
-            release_crossing=spin.release_crossing,
+            release_crossing=release_crossing,
             release_lateness_ns=spin.release_lateness_ns,
             cpu_errors=spin.cpu_errors,
             cpu_disabled=spin.cpu_disabled,
             instrumentation_overhead=(
-                "one extra current-thread CPU read per pacing clock read while "
-                "begin_group is active; per-group scalars only; no per-poll "
-                "allocation, no disk writes; wall minus thread CPU is not an "
-                "OS/FC attribution"),
+                "two extra reads (current-thread CPU plus an after timestamp "
+                "on the same monotonic domain) per pacing clock read while "
+                "begin_group is active; per-group scalars only; max/crossing "
+                "records built once at group end; no per-poll container allocation, no "
+                "disk writes; wall-gap bounds are not precise off-CPU "
+                "attribution"),
         )
         self.record("rate_spin_cpu_probe", **fields)

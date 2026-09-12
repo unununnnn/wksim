@@ -1,0 +1,131 @@
+{
+  "model_slx": "E:\\rflysimtools\\RflySimAPIs\\4.RflySimModel\\1.BasicExps\\e0_MinModelTemp\\Exp1_MinModelTemp.slx",
+  "model_slx_sha256": "c232e2e9f71a195ba77af628370a0b0f977104870673c91955e51c528a9a3392",
+  "model_name": "Exp1_MinModelTemp",
+  "io": {
+    "inPWMs": {
+      "block_type": "Inport",
+      "sid": "10053",
+      "path": "Exp1_MinModelTemp/inPWMs"
+    },
+    "TerrainIn15d": {
+      "block_type": "Inport",
+      "sid": "12106",
+      "path": "Exp1_MinModelTemp/TerrainIn15d"
+    },
+    "HILSensor30d": {
+      "block_type": "Outport",
+      "sid": "10427",
+      "path": "Exp1_MinModelTemp/HILSensor30d"
+    },
+    "HILGPS30d": {
+      "block_type": "Outport",
+      "sid": "10428",
+      "path": "Exp1_MinModelTemp/HILGPS30d"
+    },
+    "VehileInfo60d": {
+      "block_type": "Outport",
+      "sid": "10429",
+      "path": "Exp1_MinModelTemp/VehileInfo60d"
+    }
+  },
+  "sixdof": {
+    "subsystem": {
+      "name": "6DOF1",
+      "sid": "12216"
+    },
+    "reference": {
+      "name": "Custom Variable Mass 6DOF (Quaternion)",
+      "sid": "12216:1138",
+      "source_block": "shared6dof/6DOF (Euler Angles)",
+      "source_type": "6DOF EoM (Body Axis)"
+    }
+  },
+  "model_integrators": [
+    {
+      "name": "Integrator",
+      "sid": "9896",
+      "system": "simulink/systems/system_9890.xml"
+    },
+    {
+      "name": "Integrator",
+      "sid": "9917",
+      "system": "simulink/systems/system_9911.xml"
+    },
+    {
+      "name": "Integrator",
+      "sid": "9938",
+      "system": "simulink/systems/system_9932.xml"
+    },
+    {
+      "name": "Integrator",
+      "sid": "9959",
+      "system": "simulink/systems/system_9953.xml"
+    },
+    {
+      "name": "Integrator",
+      "sid": "9980",
+      "system": "simulink/systems/system_9974.xml"
+    },
+    {
+      "name": "Integrator",
+      "sid": "10001",
+      "system": "simulink/systems/system_9995.xml"
+    },
+    {
+      "name": "Integrator",
+      "sid": "10022",
+      "system": "simulink/systems/system_10016.xml"
+    },
+    {
+      "name": "Integrator",
+      "sid": "10043",
+      "system": "simulink/systems/system_10037.xml"
+    }
+  ],
+  "libraries": {
+    "shared6dof": {
+      "path": "D:\\matlab\\install date\\toolbox\\shared\\aeroblks\\shared6dof.slx",
+      "sha256": "7d12b7e6c7c6ff21767aec5afb4c5f0e9959df2e2c815f77075fd06b2336c36a",
+      "integrators": [
+        {
+          "name": "p,q,r",
+          "sid": "61:17",
+          "system": "simulink/systems/system_61.xml"
+        },
+        {
+          "name": "ub,vb,wb",
+          "sid": "61:56",
+          "system": "simulink/systems/system_61.xml"
+        },
+        {
+          "name": "xe,ye,ze",
+          "sid": "61:26",
+          "system": "simulink/systems/system_61.xml"
+        }
+      ]
+    },
+    "shared6dofsys": {
+      "path": "D:\\matlab\\install date\\toolbox\\shared\\aeroblks\\shared6dofsys.slx",
+      "sha256": "22f98f2e9a8a827b4e5159bdfb026809c5026a3e3d88a5234dcb2c9d1ce1e15c",
+      "integrators": [
+        {
+          "name": "phi theta psi",
+          "sid": "359",
+          "system": "simulink/systems/system_355.xml"
+        },
+        {
+          "name": "q0 q1 q2 q3",
+          "sid": "380",
+          "system": "simulink/systems/system_372.xml"
+        },
+        {
+          "name": "mass",
+          "sid": "289:14",
+          "system": "simulink/systems/system_289.xml"
+        }
+      ]
+    }
+  },
+  "note": "Continuous-state integrators of the rigid-body 6DOF live inside the library-linked Aerospace Blockset block (source_block above), not directly in the model XML. Their full runtime paths through the library link are resolved by the reference probe in the running model, not decidable offline."
+}

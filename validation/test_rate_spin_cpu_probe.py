@@ -91,7 +91,8 @@ def make_probe(cls, wall, cpu=None, sleep=None):
     records = []
     probe = cls(EPOCH, 0.5, make_record_sink(records), now=wall,
                 sleep=sleep or fake_sleep_factory(wall),
-                **({"thread_now": cpu} if cpu is not None else {}))
+                **({"thread_now": cpu, "after_now": lambda: wall.t}
+                   if cpu is not None else {}))
     return probe, records
 
 
@@ -125,7 +126,8 @@ class CoreContractTests(unittest.TestCase):
             records = []
             probe = cls(EPOCH, 0.5, make_record_sink(records), now=wall,
                         sleep=fake_sleep_factory(wall),
-                        **({"thread_now": FakeCpu(read_step_ns=2000)}
+                        **({"thread_now": FakeCpu(read_step_ns=2000),
+                            "after_now": lambda: wall.t}
                            if cls is JointRateSpinCpuProbe else {}))
             anchor_and_place(probe, wall, remaining_ns=1_100_000)
             probe.begin_group(44, fake_health_factory(wall))
@@ -412,6 +414,85 @@ class CancellationContractTests(unittest.TestCase):
         anchor_and_place(probe, wall, remaining_ns=1_100_000)
         with self.assertRaises(KeyboardInterrupt):
             probe.begin_group(44, fake_health_factory(wall))
+
+
+class MeasurementBiasTests(unittest.TestCase):
+    """The CPU read's own duration must be visible in the v2 bounds, never
+    hidden: a naive wall/CPU ratio would misattribute it."""
+
+    def test_cpu_read_duration_bias_visible_in_bounds(self):
+        # Wall steps 10us per pacing read; the thread-CPU read itself costs
+        # 40us of wall (slow read), CPU advances only 10us per read.  The
+        # naive wall/CPU ratio (5x) would scream off-CPU; the v2 bounds show
+        # the read window dominates the gap instead.
+        wall = FakeWall(read_step_ns=10_000)
+
+        def slow_cpu():
+            wall.t += 40_000  # the CPU read itself costs 40us of wall
+            slow_cpu.c += 10_000
+            return slow_cpu.c
+        slow_cpu.c = 0
+
+        records = []
+        probe = JointRateSpinCpuProbe(
+            EPOCH, 0.5, make_record_sink(records), now=wall,
+            sleep=fake_sleep_factory(wall), thread_now=slow_cpu,
+            after_now=lambda: wall.t)
+        anchor_and_place(probe, wall, remaining_ns=1_100_000)
+        probe.begin_group(44, fake_health_factory(wall))
+        record = spin_records(records)[-1]
+        gap = record["max_gap"]
+        self.assertEqual(gap["gap_wall_ns"], 50_000)     # raw: 10 + 40 read cost
+        self.assertEqual(gap["gap_cpu_ns"], 10_000)
+        self.assertEqual(gap["cpu_read_window_ns"], 40_000)
+        # Bounds: the gap minus the read's own window brackets the true span.
+        self.assertEqual(gap["wall_gap_lower_ns"], 10_000)
+        self.assertEqual(gap["wall_gap_upper_ns"], 90_000)
+        # Naive ratio would claim 5x off-CPU; the bounds and the 40us read
+        # window make the bias visible instead of attributing it.
+        self.assertGreater(record["pairs_valid"], 0)
+
+    def test_after_clock_invalid_or_regressing_disables_group(self):
+        for after in (lambda: -1, lambda: 0.5):
+            wall = FakeWall(read_step_ns=50_000)
+            records = []
+            probe = JointRateSpinCpuProbe(
+                EPOCH, 0.5, make_record_sink(records), now=wall,
+                sleep=fake_sleep_factory(wall),
+                thread_now=FakeCpu(read_step_ns=1000), after_now=after)
+            anchor_and_place(probe, wall, remaining_ns=1_100_000)
+            probe.begin_group(44, fake_health_factory(wall))
+            record = spin_records(records)[-1]
+            self.assertEqual(record["cpu_errors"], 1, after)
+            self.assertTrue(record["cpu_disabled"], after)
+
+    def test_after_clock_regression_disables_group(self):
+        wall = FakeWall(read_step_ns=50_000)
+        descending = iter([10_000_000, 5_000_000])
+        records = []
+        probe = JointRateSpinCpuProbe(
+            EPOCH, 0.5, make_record_sink(records), now=wall,
+            sleep=fake_sleep_factory(wall),
+            thread_now=FakeCpu(read_step_ns=1000),
+            after_now=lambda: next(descending, 5_000_000))
+        anchor_and_place(probe, wall, remaining_ns=1_100_000)
+        probe.begin_group(44, fake_health_factory(wall))
+        record = spin_records(records)[-1]
+        self.assertEqual(record["cpu_errors"], 1)
+        self.assertTrue(record["cpu_disabled"])
+
+    def test_release_crossing_record_carries_windows_and_bounds(self):
+        wall = FakeWall(read_step_ns=600_000)
+        cpu = FakeCpu(read_step_ns=1000)
+        probe, records = make_probe(JointRateSpinCpuProbe, wall, cpu)
+        earliest = anchor_and_place(probe, wall, remaining_ns=1_100_000)
+        probe.begin_group(44, fake_health_factory(wall))
+        crossing = spin_records(records)[-1]["release_crossing"]
+        self.assertEqual(crossing["lateness_ns"], 100_000)
+        self.assertEqual(crossing["wall_gap_lower_ns"], 600_000)
+        self.assertEqual(crossing["wall_gap_upper_ns"], 600_000)
+        self.assertIn("prev_cpu_read_window_ns", crossing)
+        self.assertIn("cpu_read_window_ns", crossing)
 
 
 if __name__ == "__main__":
