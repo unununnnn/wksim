@@ -9,9 +9,14 @@ the validator creates an output directory, creates a cold directory, copies a
 source, spawns a compiler, or spawns a probe child.
 
 Nothing here compiles code, loads a ``.so``, runs MATLAB, or touches ROS/UE.
-``subprocess.run``, ``subprocess.Popen``, ``shutil.copyfile`` and the path
-root are all replaced in-process, so the suite is host-agnostic; it does not
-require Linux and does not depend on ``/root``.
+``subprocess.run``, ``subprocess.Popen`` and the process identity helper are
+replaced in-process.
+
+Host requirement: this suite runs on **Linux** with a **writable ``/root``**.
+That is not incidental — ``run()`` rejects non-Linux hosts outright
+(``sys.platform != 'linux'``) and the staged-root contract requires ``/root`` to
+be a real absolute path (``Path('/root/...')`` is not absolute on Windows).
+The fixtures therefore create and remove real directories under ``/root``.
 
 The suite also pins the *behaviour that must not change*: the compiler argv,
 the frozen 4x1000-step comparison gate, and the numeric budgets recorded in
@@ -21,6 +26,7 @@ the frozen 4x1000-step comparison gate, and the numeric budgets recorded in
 import json
 import os
 from pathlib import Path
+import subprocess
 import sys
 import shutil
 import tempfile
@@ -728,6 +734,128 @@ class FrozenContractTests(unittest.TestCase):
         self.assertEqual(len(self.snapshots), 1)
         self.assertTrue(self.snapshots[0].is_dir())
         self.assertTrue((self.snapshots[0] / "libwksim_e0.so").is_file())
+
+
+# --------------------------------------------------------------------------
+# 4. Optimized-mode refusal: assert-based gates must never be stripped.
+# --------------------------------------------------------------------------
+
+
+class OptimizedModeGuardTests(unittest.TestCase):
+    """Under ``python -O`` every numeric/lifecycle gate is stripped, so a run
+    could be reported as ``pass`` without being checked.  Both execution entry
+    points must refuse to start, before any filesystem write or model load.
+
+    The subprocess tests use a real ``-O`` interpreter; nothing is compiled,
+    no ``.so`` is loaded, and the paths are deliberately nonexistent.
+    """
+
+    VALIDATOR = ROOT / "tools/validate_generated_e0_lifecycle.py"
+
+    def _run_under(self, optimize_flag, code):
+        return subprocess.run(
+            [sys.executable, optimize_flag, "-B", "-c", code],
+            capture_output=True,
+            text=True,
+            timeout=60,
+        )
+
+    def _programmatic_probe(self, tmp, flag="-O"):
+        """Import the module under an optimized interpreter and call both entry points."""
+        out = Path(tmp) / "sentinel-output"
+        code = (
+            "import sys; sys.path.insert(0, r'%s')\n"
+            "import validate_generated_e0_lifecycle as v\n"
+            "print('DEBUG_FLAG', __debug__)\n"
+            "for name, args in (('run', ('absent-manifest.json', r'%s')),"
+            " ('probe', ('absent-lib.so', r'%s'))):\n"
+            "    try:\n"
+            "        getattr(v, name)(*args)\n"
+            "        print(name, 'NO_RAISE')\n"
+            "    except v.AdmissionError as exc:\n"
+            "        print(name, 'REFUSED', str(exc)[:40])\n"
+            % (str(ROOT / "tools"), str(out), str(out))
+        )
+        return self._run_under(flag, code), out
+
+    def test_programmatic_calls_refuse_under_optimized_interpreter(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            proc, out = self._programmatic_probe(tmp)
+            self.assertEqual(proc.returncode, 0, proc.stderr)
+            stdout = proc.stdout
+            self.assertIn("DEBUG_FLAG False", stdout)
+            self.assertIn("run REFUSED", stdout)
+            self.assertIn("probe REFUSED", stdout)
+            self.assertNotIn("NO_RAISE", stdout)
+            # Proof the refusal happened before any filesystem effect.
+            self.assertFalse(out.exists(), "guard let the run create its output")
+
+    def test_cli_refuses_under_optimized_interpreter(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "cli-output"
+            proc = subprocess.run(
+                [
+                    sys.executable,
+                    "-O",
+                    "-B",
+                    str(self.VALIDATOR),
+                    "--manifest",
+                    "absent-manifest.json",
+                    "--output",
+                    str(out),
+                ],
+                capture_output=True,
+                text=True,
+                timeout=60,
+            )
+            self.assertNotEqual(proc.returncode, 0)
+            combined = (proc.stdout + proc.stderr).lower()
+            self.assertIn("assertions are disabled", combined)
+            self.assertFalse(out.exists(), "guard let the CLI create its output")
+
+    def test_double_optimized_interpreter_also_refuses(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            proc, out = self._programmatic_probe(tmp, flag="-OO")
+            self.assertEqual(proc.returncode, 0, proc.stderr)
+            self.assertIn("DEBUG_FLAG False", proc.stdout)
+            self.assertIn("REFUSED", proc.stdout)
+            self.assertNotIn("NO_RAISE", proc.stdout)
+            self.assertFalse(out.exists())
+
+
+    def test_guard_precedes_every_other_entry_point_check(self):
+        """Even with a plausible platform, the guard is what rejects first.
+
+        ``__debug__`` is a compile-time constant and cannot be monkeypatched, so
+        the -O subprocess is combined with a source-level check that the guard
+        call is the first statement (see the AST test above).
+        """
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "precedence-output"
+            proc = self._run_under(
+                "-O",
+                "import sys; sys.path.insert(0, r'%s')\n"
+                "import validate_generated_e0_lifecycle as v\n"
+                "print('PLATFORM', sys.platform)\n"
+                "try:\n"
+                "    v.run('absent-manifest.json', r'%s')\n"
+                "    print('NO_RAISE')\n"
+                "except v.AdmissionError as exc:\n"
+                "    print('GUARD_FIRST', str(exc)[:30])\n"
+                "except Exception as exc:\n"
+                "    print('OTHER', type(exc).__name__)\n"
+                % (str(ROOT / "tools"), str(out)),
+            )
+            self.assertEqual(proc.returncode, 0, proc.stderr)
+            self.assertIn("GUARD_FIRST", proc.stdout)
+            self.assertNotIn("OTHER", proc.stdout)
+            self.assertNotIn("NO_RAISE", proc.stdout)
+            self.assertFalse(out.exists())
+
+
+    def test_normal_mode_guard_is_a_no_op(self):
+        self.assertTrue(__debug__)
+        self.assertIsNone(validator.require_assertions_enabled())
 
 
 if __name__ == "__main__":

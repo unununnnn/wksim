@@ -29,6 +29,22 @@ class AdmissionError(ValueError):
     """Input rejected before any output directory, cold directory or compiler run."""
 
 
+def require_assertions_enabled():
+    """Refuse to run under ``python -O``/``-OO``, where the numeric lifecycle
+    gates (all implemented with ``assert``) are stripped and a run could be
+    reported as ``pass`` without being checked.
+
+    Called as the first statement of every execution entry point, so a
+    programmatic caller cannot bypass it either.
+    """
+    if not __debug__:
+        raise AdmissionError(
+            'assertions are disabled (python -O/-OO); the numeric and lifecycle '
+            'gates are assert-based and would be stripped silently. Re-run with '
+            'optimization off: /usr/bin/python3 -B tools/validate_generated_e0_lifecycle.py'
+        )
+
+
 def sha(path):return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 def write(path,value):
     with Path(path).open('x',encoding='utf-8') as stream:json.dump(value,stream,indent=2,allow_nan=False)
@@ -139,6 +155,7 @@ def check_library_identity(original,summary_path):
 
 
 def probe(library,output):
+    require_assertions_enabled()
     output.mkdir()
     identity=json_identity(os.getpid())
     mappings=[]
@@ -157,6 +174,7 @@ def probe(library,output):
 
 
 def run(build_manifest,output):
+    require_assertions_enabled()
     if sys.platform!='linux':raise ValueError('Run in Ubuntu-22.04 with /usr/bin/python3')
     output=Path(output)
     # --- Admission: nothing is created, compiled or loaded before this passes. --

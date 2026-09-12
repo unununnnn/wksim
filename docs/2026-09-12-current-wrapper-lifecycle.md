@@ -25,6 +25,8 @@ cd /mnt/c/Users/PC/Documents/odid编译/wksim
 
 ## 主会话对 #26 证据映射的复核
 
+后续入口加固：`run()` 与 `probe()` 现均先拒绝 `python -O/-OO`，防止断言被删除后错误报告通过。具体数值门和四周期逻辑未改；57 项纯行为测试通过，包含真实优化模式子进程拒绝检查。测试宿主说明已修正为 Linux、可写 `/root`。本页上述 native 结果仍绑定执行版本 `ec883644…`（提交 `89afcb4`），没有把历史执行身份改写为新入口版本，也没有重复已通过场次。
+
 本节是主会话复核记录，补足 DS-D 交付时仍标记缺失的 AC5；其报告保留为交付时快照。主会话核对 `G/source-manifest.json` 中 SLX/init 的具名来源与哈希、`generated-sources-manifest.json`、当前 build manifest 的 `generation_run_id=short-cycle-codegen-01` 及六源身份，并核对本次四周期原始结果。可编辑材料的直接来源是生成场的 source manifest，43 项生命周期冻结收据用于本次输入与历史不变性，不能替代 SLX/init 来源。
 
 既有 `G/codegen-report.json` 的五项产品 test/checkout 均为 1、九阶段均为 ok，核对的是实际记录，不重复执行 MATLAB、不以文件存在代替许可检查。工具检出不推导厂商材料再分发许可。

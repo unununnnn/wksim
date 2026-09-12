@@ -2,6 +2,16 @@
 
 2026-09-12最新：Goal active，createdAt1789219780；Full/G0–G6原目标和全部验收门保持。上一轮是实质进展：C1源码/测试交付、真实诊断运行、原件保留与独立核算，不能把失败场称通过。
 
+## 用户指定卡死会话：恢复操作等待确认
+
+用户明确指出thread34386db2-17a1-425b-a102-f910451c5c63卡死。已读持久DSH日志：native session-092babe4-799e-45c1-84f2-ac6e4fe8533d turn10停在seq1503 step/end，缺turn/end；重复cancel仅返回ack，Host一直running。已确认同受管DSH后台其它五个session均有terminal，无其它DSH活跃任务，备份原journal、mapping、两未验收比较器文件到C:/Users/PC/.codex/repair-backups/ds-b-stuck-20260912，哈希一致。按PID/parent/命令路径核验后停止了CodexHost受管DSH node PID58652（不是用户DeepSeek桌面PID31408）。当前DeepSeek provider unavailable：适配器缓存已断开的127.0.0.1:58656，harness inspect --refresh true不能重建；未假称恢复成功。
+
+已通过异步问题请求用户允许重启Codex应用，因为会中断当前主任务和仍running的OMP。**尚未收到确认，禁止自行重启。** 具名重启脚本已准备在上述backup/restart-codex-after-approval.ps1，尚未执行；绑定Codex GUI PID58628及creation/exe身份，拒绝PID复用。确认后才后台启动该脚本；重连后先harness inspect/read目标任务核验恢复，不手写turn/end或数据库状态。CLI/原生会话备份不发布仓库。Goal保持active，不改Goal数据库。
+
+项目独立交付已保存：C2只移动重复Path构造至while前，Linux私有提交208e0e4，runner SHA c208b1d07a9054458e13b3f7bf74c145cb8641ec495e46fc7df5b6fb1626e408，snapshot validation/coordination/c2-readiness-source-20260912，独立codebuddy-c2-readiness-review有边界通过；A69passed/1skip/18subtests，**未实跑C2，性能未证**。OMP微基准thread6deb2e40、turnb4b83d53-5b61-43a1-a0bc-5cd9fff8e176仍running，暂停安排native直到收口。
+
+另已修模型验证器-O/-OO剥离assert后误报pass风险，两个入口先显式拒绝，原数值/编译/比较不变；主会话去掉2个AST镜像测试、正常化测试换行，57项Linux纯行为测试通过。旧native证据仍绑定ec883644/89afcb4，不重跑。新版guard源SHA3f7dc749bdf814e6a0a714db5b7b94f734fa35350e2f3090d2cad4ce22fc5346。
+
 ## 最新完整 PV 尝试与已验收核算
 
 本轮按#83完整合同实跑PV+C1，关闭两项计时探针；原件/root/wksim-release-acceptance-fe3/validation/joint-public-flight-vwen35gc，epoch6fd5ad0f674247b5a0fec79d84e82005。**仍失败**：tick87096 RateUnmet100485315ns，wall228.749446927s，anchor tick44。session19024已终态exit1，无存活native。无rate_timing_probe/CPU诊断记录；source_unchanged=true，GC65793→65628→0，async两栈closed/complete/submitted==written，owned PGID1943–1952独立确认全空。#83不关闭。
