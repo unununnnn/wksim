@@ -1,0 +1,129 @@
+{
+  "status": "aligned",
+  "scope": "13 mapped rigid-body states of 36; not whole-model conformance",
+  "mapped_states": 13,
+  "total_states": 36,
+  "blocks": [
+    {
+      "block": "q0 q1 q2 q3",
+      "target_indices": [
+        6,
+        9
+      ],
+      "stage_difference_count": 2,
+      "stage_differences": [
+        {
+          "stage": 3,
+          "field": "derivatives",
+          "index": 2,
+          "reference_hex": "bba76121ffa77473",
+          "target_hex": "0xbba76121ffa77474",
+          "ulp": 1,
+          "sign_flip": false
+        },
+        {
+          "stage": 3,
+          "field": "derivatives",
+          "index": 3,
+          "reference_hex": "36494aa6d36ff400",
+          "target_hex": "0x36494aa6d36ff3c0",
+          "ulp": 64,
+          "sign_flip": false
+        }
+      ],
+      "final_state_differences": [
+        {
+          "index": 3,
+          "reference_hex": "3581440763f7c6a8",
+          "target_hex": "0x3581440763f7c67c"
+        }
+      ],
+      "final_state_selector": "last t=0.001 record (ode4 update / last PostOutputs), never the fourth-stage minor"
+    },
+    {
+      "block": "p,q,r",
+      "target_indices": [
+        10,
+        12
+      ],
+      "stage_difference_count": 2,
+      "stage_differences": [
+        {
+          "stage": 2,
+          "field": "derivatives",
+          "index": 1,
+          "reference_hex": "bc56d4db33a987b8",
+          "target_hex": "0xbc56d4db33a987b9",
+          "ulp": 1,
+          "sign_flip": false
+        },
+        {
+          "stage": 3,
+          "field": "cont_states",
+          "index": 1,
+          "reference_hex": "bbb76121ffa77473",
+          "target_hex": "0xbbb76121ffa77474",
+          "ulp": 1,
+          "sign_flip": false
+        }
+      ],
+      "final_state_differences": [],
+      "final_state_selector": "last t=0.001 record (ode4 update / last PostOutputs), never the fourth-stage minor"
+    },
+    {
+      "block": "xe,ye,ze",
+      "target_indices": [
+        13,
+        15
+      ],
+      "stage_difference_count": 0,
+      "stage_differences": [],
+      "final_state_differences": [],
+      "final_state_selector": "last t=0.001 record (ode4 update / last PostOutputs), never the fourth-stage minor"
+    },
+    {
+      "block": "ub,vb,wb",
+      "target_indices": [
+        16,
+        18
+      ],
+      "stage_difference_count": 1,
+      "stage_differences": [
+        {
+          "stage": 3,
+          "field": "derivatives",
+          "index": 0,
+          "reference_hex": "baa3bfd397a2d0d5",
+          "target_hex": "0xbaa3bfd397a2d0d6",
+          "ulp": 1,
+          "sign_flip": false
+        }
+      ],
+      "final_state_differences": [
+        {
+          "index": 0,
+          "reference_hex": "b9e48cb0f57301da",
+          "target_hex": "0xb9e48cb0f57301db"
+        }
+      ],
+      "final_state_selector": "last t=0.001 record (ode4 update / last PostOutputs), never the fourth-stage minor"
+    }
+  ],
+  "earliest_difference": {
+    "block": "p,q,r",
+    "stage": 2,
+    "field": "derivatives",
+    "index": 1,
+    "reference_hex": "bc56d4db33a987b8",
+    "target_hex": "0xbc56d4db33a987b9",
+    "ulp": 1,
+    "sign_flip": false
+  },
+  "non_claims": [
+    "23 unmapped states are not covered",
+    "no G6/R1 passage is claimed",
+    "identical stage-0/1 states do not exclude unobserved upstream divergence"
+  ],
+  "reference_sha256": "99fc1ec84a110bea1e5998a97b4f9c66231966474268ba74bfc343b584e03f85",
+  "target_sha256": "d55542d743c456073d2d362ed3f71232d6d4697f450eaa8f8333b88699436360"
+}

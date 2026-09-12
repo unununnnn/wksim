@@ -13,12 +13,12 @@
 
 | 席位 | thread / 当前turn | 独占交付 |
 | --- | --- | --- |
-| OMP | 6deb2e40-2240-4db2-8c7f-c06bf6724048 / c6ebf63a-f2d0-44ad-9374-5fa2b1a0fb0b | v2返修20纯测试通过；主审确认major接受、丢采/非法末态/实际使用derivative错误dtype拒绝。现扩展实际mrdivide+参考run05严格schema和操作数对照，保留历史报告。禁止改probe/recorder。 |
-| Claude Code | 48faf2f5-f74a-4ba4-ac85-4ae4d05c5801 / 23686638-0f45-472e-8ec9-edf268eaa168 | 参考probe和helper审查已交回；现准备独立build_first_step_solve_candidate.py及纯测试，统一有限非零对角矩阵乘倒数诊断分支，保留通用fallback，不编译/运行，不改共享源。 |
+| OMP（新会话） | 51609e8d-e4ce-4a8e-8a0d-f7c896c24842 / defcac22-66dd-4293-a075-5fa940fbf7f0 | tools/native_release_wait.c、.py及对应纯测试：独立Linux最终1ms等待候选，不接生产pacer/runner，不编译；主会话后续先测语义/开销。 |
+| Claude Code（新会话） | e64514a6-77c2-4b27-91a7-896c92a361fd / 51c94e1a-1aa7-419c-9784-256a65fec34d | 修build_first_step_solve_candidate.py及测试：真实源实际有声明/定义/调用3处，首版错误只接受2处；补倒数overflow回退，并用真实archive验证准备。禁止改共享源或native。 |
 
-OMP旧数值报告出现过把2墙秒当500组，以及将sleep_max总和减出“残余归因”的错误，均不采用。现有分类仅能定位阶段边界，不能证明OS/FC或纯off-CPU原因。新helper须先读源、核对真实父类行为与测试再接线。
+实际句柄/默认模型回执见rolling-two-20260913-05.json。旧Claude 48faf2f5线程已确认interrupted（23686638），历史约5.9MB且末工具已返回，调整新会话旨在减少上下文，不声称崩溃或证明延迟根因。旧OMP 6deb2e40线程最后f72fd24f审查已completed。主会话已收回compare_first_step_trace.py/test/doc写权，准备器两文件仍Claude独占；不要误把其首版11测试作为可运行证明。
 
-三个codebuddy均因429终态，返回的恢复时间为2026-09-13 20:54:20 JST；此时前不重复投递。DeepSeek受管后台仍故障，不计作运行席位。原Luna Fast未能核验，不替换成未获授权的速度/模型。
+三个codebuddy因429不可用，恢复时间2026-09-13 20:54:20 JST前不重复投递；DeepSeek受管后台仍待重启确认，Luna Fast未核验不替换用户选择。不把不可用席位计作运行。
 
 ## 已完成：#83
 
@@ -50,24 +50,15 @@ spin v2已主审收口并完成下文0fsmugd1诊断：主会话去掉热路径�
 
 ## G6与模型证据
 
-本轮run-04/05参考观测已实跑：04按真实Reshape返回unavailable；05增加单输入/输出Reshape穿越后成功定位Product2，5事件无丢弃，实际配置Inputs=*/、Matrix(*)、2输入(1x3/3x3)、1输出(1x3)。两次MATLAB exit0且无残留，37个实际使用冻结文件及本次源前后不变，240主输出和72积分器事件与run-03完全一致。run-05 report SHA72ff7d8eaeee7854bf026d19a7ee37f38c061764ce5369d0dd5845b1aa084c62；probe SHAeb485804023c5310ea436af5d14f862e3aa5e75f3342fd057d6f313f00649603；resolver SHAd87e61d7e3606cd2bccbef83a790e595fc4ee8ed37200afc62df89ca5a6d12fb。原件/verify/收据在g6-reference-probe-20260913/execution/run-04/05，只归档选定JSON/脚本/日志，禁止cache/codegen。
+主会话已在/root/wksim-first-step-diagonal-solve-20260913-01真实执行独立对角求解顺序实验：统一有限非零对角矩阵乘倒数，倒数非finite即回退原通用函数；原函数字节保留，不改正式模型。compile/run exit0，PGID669/678独立全空。候选首步240 major、13映射态及4级导数/末态、5次solve均与参考run05逐位相同；人工对照和自动比对一致。trace SHA5e89b720dac275a4980df1881aae2dfde76d223ad9a0bc8dbeba15edaa1e1d09，exe2b867710633e713db60c275fbbb1f356bd3c3c606d0162bae3252853cc251fb0。原archive/输入/builder/recorder/配方5项运行后SHA不变；证据g6-diagonal-solve-candidate-20260913，详见docs/2026-09-13-diagonal-solve-experiment.md。原件和正式模型未替换，不能据首步成功关闭R1/G6。
 
-两端5次实际分子和矩阵全部逐位相同，仅seq2的q结果1ULP不同，已把首个映射差异定位到矩阵求解计算；前4次参考Product输出逐位等于实际pqr导数。离线n/j给目标b9，n*(1/j)给参考b8，仍未证明参考内部算法。见docs/2026-09-13-first-step-solve-boundary.md与execution-05/solve-comparison.json。Claude已接独立诊断候选准备，不改正式模型；候选下一步需主审、双WSL前检、独立编译/首步实跑，验证旧原件不变及是否减少差异；不能据首步通过关闭G6。
+基础观测：目标trace03与参考run05的5次实际分子/矩阵全等，仅seq2 q结果差1ULP；参考实际连接穿过SubSystem/Reshape到Product2，Inputs=*/、Matrix(*)，2输入(1x3/3x3)、1输出(1x3)。参考run04在Reshape正确unavailable后补单输入/输出穿越；run05成功5条无丢弃，两次exit0/PID25320、71816退出无残留，37个使用冻结输入及源前后不变，240major和72积分器事件与run03完全相同。reference05 SHA72ff7d8eaeee7854bf026d19a7ee37f38c061764ce5369d0dd5845b1aa084c62；probe eb485804…，resolver d87e61d7…；完整证据见g6-reference-probe-20260913和docs/2026-09-13-first-step-solve-boundary.md。两次MATLAB不再运行。
 
-比对器v2的20项测试通过。main-review-v2.json更正v1的一项审查：event3的PostOutputs.derivatives未参与对照，改它的dtype不能证明比较缺陷；真正参与的PostDerivatives坏dtype、丢采和非法末态均已拒绝，合法major接受。v1保留，v2更正。当前代码由OMP继续扩展新求解schema，尚未冻结提交。Claude helper只读审查无阻断问题，实际run-04/05另补并验证Reshape路径。其旧字符串静态测试只作历史审查快照保留execution-04/reviewer-static-tests.py.txt，不以其替代新版实际运行。
+比对器v3经主审补畸形容器、缺字段、端口数、bool冒充序号/时间、disabled optional兼容；30测试+8subtests通过。工具SHA569742b6a5c8219404441e8c34dbfddc7de27b5f7836f9c603368bbc90f0a632，测试75d5205ed2e4062e8c7e5971b7a29236397f69ed20c4cf98580a226e00b9e0d6。candidate comparator-result-v2与v1语义相同，差异列表为空；aligned只表示可对齐。旧main-review-v1中的未使用PostOutputs.derivatives dtype负例已由v2更正，真实使用的PostDerivatives坏dtype拒绝；历史报告保留。
 
-目标端mrdivide版已完成：Linux /root/wksim-first-step-trace-20260913-03，编译/run exit0，PGID671/696全空；13项纯测试通过。5次求解时间/major-minor序列正确，240主输出及4级状态/导数/更新与版本02逐位相同。stage2实际分子[1]=bc000013449033b2、结果[1]=bc56d4db33a987b9；5次实际目标惯性矩阵均diag(.0211,.0219,.0366)。只证明目标端，参考求解输入尚未观测。trace SHA9cee60eb5b3e5ccc96730f13423f5e0fa07de19654a481d32e9e885953f4bed3；证据validation/coordination/g6-target-mrdivide-20260913。
+另做同源边界核查：固定11.0与已生成11.8的实际mrdivide函数体1046字节完全相同，SHA7e0be87b4e760028fbd191e6be1011a67da749e6791f0b1ea06d0d63460dfcf9，见g6-solve-same-source-20260913/source-comparison-v2.json（v1误取前置声明已作废，不保留厂商正文）。复用既有11.8 C0 major和normal C0作纯离线60120值诊断，仍有Sensor30[10]在k153/k181两差异，无模型重跑，无预算赋值/改判；existing-c0-observation.json及脚本保留。不要追求旧R1全部零差异来代替Full真实要求；#59同源逐量物理预算仍缺依据，正式入口不得绕过。旧R1仍5684失败。
 
-目标端已真实构建/执行两个首步trace，目录/root/wksim-first-step-trace-20260913-01与-02，编译/run均exit0、自有PGID661/674全空；仓库包g6-target-first-step-20260913仅选取日志/JSON/自写源。第02版major240值与旧C3G目标stdout逐位一致、stage/update与01完全相同，实际只一次ODE4更新。13个映射状态最早差异为stage2 pqr.derivative[1]，bc56d4db33a987b8 vs ...b9（1ULP），之后传播；其余23态未覆盖。comparison-v2修正首个t=.001 PostOutputs为minor、最后才major的选择错误，原v1保留。下一步取两端实际矩阵求解输入，不能据参数声明称所有输入相同。详见docs/2026-09-13-target-first-step-comparison.md。
-
-spin v2也已实跑0fsmugd1（epoch74bc4d6b57074d6c8df3fd74ea68e552），在tick46988以100158534ns RateUnmet失败；wall153.892627706s，source_unchanged=true、记录错误/CPU错误0，PGID2037–2046独立全空。11737记录/11711跨点pair，426个>=10us迟到pair合计34.552384ms；其中152个CPU读取窗口>10us，只有1个pair的wall-minus-CPU下界>10us。这揭示读取成本与区间不确定性，不能据比值排除宿主/内核影响或给原pacer做因果归因。新包spin-v2-0fsmugd1保留失败，未证明mixed通过；勿盲重跑或放宽100ms。
-
-主会话已实际验证参考端新probe：execution/run-01/02保留partial，run-03通过UDD Data属性取到4积分器的连续状态和导数double hex。每块PostDerivatives时点0/.0005/.0005/.001；72事件无丢弃；240个主输出与原C3G f64前2行逐位相同，所有使用中的输入前后未变。执行probe SHA fecb5bf7…，MATLAB各次exit0且无残留；缓存/代码生成材料不发布。纯复算目标源码ODE4表达式在这组参考导数下重现13个末态分量，不是目标实际执行或根因证明。详见docs/2026-09-13-reference-first-step-observation.md与g6-reference-probe-20260913/execution-03/analysis.json。目标端trace两版实跑结果见上文；G6仍失败。
-
-- 已交付G6 first-divergence工具、测试与v1/v2/v3保留报告。主会话修read-once、数值/hex与manifest绑定、独占输出，并补拒绝相同值/正负零、非finite、bool假失败；实际重算与v3一致。
-- 当前工具SHA75e97e3c3188dd8982c769e1287b188dad9127385ce45302899ab751b8a04e00，测试61904a4e602eb357470c8dffe385b1c6b50a6ba470cdf6a110009b2d80cb28b4。Windows30passed/1已由先前Linux覆盖的symlink skip/5subtests；最终记录见validation/coordination/g6-first-divergence-20260913/main-verification-final.json。
-- 仍有5684个R1零预算失败；最早C3G/k1/Vehicle60[3]为2ULP。小误差不能排除全部合同问题，精确浮点运算原因未证。修正后的静态doc SHA3b0de981…/source-index e852aa6b…保留原ODE4括号顺序，sqrt输入未观测仍未证，历史二进制缺失/FMA判断前提明确；参考端事件粒度需要实际新诊断验证，不能假定每步4次。
-- #26 current-wrapper-01已完成4×1000/1ms冷重建与reset：wrapper150ddf3b…，library528db324…，480000值精确相同。详见docs/2026-09-12-current-wrapper-lifecycle.md；不要重跑。#9接口/环境反馈依赖仍OPEN，#26不能关闭，G6未完成。
+#26 current-wrapper-01仍为已完成4x1000/1ms冷重建/reset、480000值精确相同；wrapper150ddf3b…/library528db324…，docs/2026-09-12-current-wrapper-lifecycle.md。#9 DLL接口仍缺厂商C原型/所有权/授权样本，环境合同已批准不等于DLL ABI获证；#73/#74/#76/#77/#78不可按ready标签猜接口执行。#102仍依赖#29/#33和真实公开绕障闭环，#62失败后#63/#64未解锁；当前并未全局blocked。
 
 ## 运行资源与必须保持的规则
 

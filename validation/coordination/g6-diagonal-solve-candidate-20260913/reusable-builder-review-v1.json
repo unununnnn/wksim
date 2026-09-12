@@ -1,0 +1,10 @@
+{
+  "status": "rejected_before_native",
+  "delivered_builder_sha256": "15a42a679bee659d91ac091024beb8cd8938f64c244443fc58efc301c9875959",
+  "actual_generated_cpp_sha256": "a35d7c8f39c94f2db8c27b19affee5b66c1b001c63ded334ba83c99f8be54019",
+  "check": "candidate.add_diagonal_branch(base.instrument(real_pinned_cpp))",
+  "actual_name_occurrences": 3,
+  "error": "Expected exactly one rt_mrdivide definition and one call site",
+  "reason": "Forward declaration plus definition plus call; synthetic two-occurrence tests did not exercise the real source. Author is repairing; this tool was not used for the successful main-session experiment.",
+  "additional_boundary": "Require finite reciprocals before selecting reciprocal branch, otherwise preserve original fallback; finite nonzero diagonal alone does not prevent reciprocal overflow."
+}

@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "kind": "first_step_trace_build",
+  "note": "Diagnostic first-step ODE4 trace; not a numerical acceptance. Compile/run separately (Linux/WSL).",
+  "build_argv": [
+    "g++",
+    "-std=c++17",
+    "-O2",
+    "-fno-fast-math",
+    "-Wl,--no-undefined",
+    "-I",
+    "/root/wksim-first-step-diagonal-solve-20260913-01",
+    "/root/wksim-first-step-diagonal-solve-20260913-01/Exp1_MinModelTemp.candidate.cpp",
+    "/root/wksim-first-step-diagonal-solve-20260913-01/first_step_trace_recorder.cpp",
+    "-o",
+    "/root/wksim-first-step-diagonal-solve-20260913-01/first_step_trace_recorder"
+  ],
+  "run_argv": [
+    "/root/wksim-first-step-diagonal-solve-20260913-01/first_step_trace_recorder",
+    "--record",
+    "/root/wksim-first-step-diagonal-solve-20260913-01/input.csv",
+    "--output",
+    "/root/wksim-first-step-diagonal-solve-20260913-01/first-step-trace.jsonl"
+  ],
+  "compiler_reference": "g++ (Ubuntu 11.4.0) -std=c++17 -O2 -fno-fast-math (same as R1 target build)",
+  "identity": {
+    "archive_sha256": "d528b5d247e13d943f1eaa7a37fd3cb4d15c7e9bb7a6b0e5988a1423e59d05ed",
+    "original_cpp_sha256": "a35d7c8f39c94f2db8c27b19affee5b66c1b001c63ded334ba83c99f8be54019",
+    "instrumented_cpp_sha256": "0107001b1a4aeef4591b2516ffad338866e4645a59c519c3c3e367073acac001",
+    "recorder_cpp_sha256": "b422c6f9c4762b1604f3602c121d98b7490aca8149973184db7b72a90f815875",
+    "input_csv_sha256": "721c88bf3f621923b98bb43251c50bae7817106a984be64345c0528d34d3adcf",
+    "builder_sha256": "8a07c8ca7157f699e9f3d385afd7df6c1747ef8d67b3da36f02395b80babe493",
+    "baseline_instrumented_cpp_sha256": "3e271d64f46191a1e5dd41c92ae215ea5321ec42ece31dd1ada389be3ece9182",
+    "candidate_recipe_sha256": "b3f02ac25b45fb670d2e75139e4a69ff21f68500efc13eef735d0126925d9602"
+  },
+  "state_layout_from_header": [
+    {
+      "name": "IntegratorSecondOrderLimited_CS",
+      "indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    },
+    {
+      "name": "q0q1q2q3_CSTATE",
+      "indices": [
+        6,
+        7,
+        8,
+        9
+      ]
+    },
+    {
+      "name": "pqr_CSTATE",
+      "indices": [
+        10,
+        11,
+        12
+      ]
+    },
+    {
+      "name": "xeyeze_CSTATE",
+      "indices": [
+        13,
+        14,
+        15
+      ]
+    },
+    {
+      "name": "ubvbwb_CSTATE",
+      "indices": [
+        16,
+        17,
+        18
+      ]
+    },
+    {
+      "name": "IntegratorSecondOrderLimited__n",
+      "indices": [
+        19,
+        20,
+        21,
+        22,
+        23,
+        24
+      ]
+    },
+    {
+      "name": "TransferFcn4/1/2_CSTATE",
+      "indices": [
+        25,
+        26,
+        27
+      ]
+    },
+    {
+      "name": "MotorNonlinearDynamic8..1 .x",
+      "indices": [
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35
+      ]
+    }
+  ],
+  "nXc": 36,
+  "diagnostic_only": true,
+  "production_replacement": false,
+  "candidate": "Uniform reciprocal multiplication for finite invertible diagonal matrices; original fallback retained",
+  "reciprocal_overflow_policy": "Fall back to original solve if any reciprocal is nonfinite",
+  "insertion_removed_restores_baseline": true
+}
