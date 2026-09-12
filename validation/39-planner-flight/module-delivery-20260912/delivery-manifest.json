@@ -1,0 +1,106 @@
+{
+  "kind": "audit-integrity module delivery manifest",
+  "delivered_utc": "2026-09-12T12:40:50.455084Z",
+  "raw_root": "/root/wksim-release-acceptance-fe3/validation/joint-public-flight-bomvjsmg",
+  "output_dir": "/root/wksim-release-acceptance-fe3/validation/coordination/module-delivery-20260912/audit/probe-run-03-module-delivery",
+  "scope": "read-only one-positive/four-negative matrix; no rclpy.init, no ROS nodes, no SITL, no model load, no build",
+  "source_sha256": {
+    "tools/audit_planner_release.py": "e8d33c5d6562f75cb3f3e5baacf33737af91281d646fefe0cc5db369d374177e",
+    "tools/probe_release_audit_integrity.py": "51342c48d1f7550fa2e353e107ec2a1005add409b514f469285dfc5381209a97",
+    "validation/test_planner_release_audit.py": "8f5a142bfa3a22be64d99ff64d8bfc7a558e848093c36b7a5f047258432c776c",
+    "validation/test_release_audit_integrity.py": "dff20f4b0835c21961690fc453f548686027fc68ba59fc51e571e62b7ea62b8d"
+  },
+  "auditor_sha256": "e8d33c5d6562f75cb3f3e5baacf33737af91281d646fefe0cc5db369d374177e",
+  "probe_tool_sha256": "51342c48d1f7550fa2e353e107ec2a1005add409b514f469285dfc5381209a97",
+  "producer_distinct_from_auditor": true,
+  "pure_tests": {
+    "linux": {
+      "test_planner_release_audit.py": "8 passed",
+      "test_release_audit_integrity.py": "51 passed, 0 skipped",
+      "total": "59 passed"
+    },
+    "windows": {
+      "total": "57 passed, 2 skipped, 5 subtests passed",
+      "skips": "platform symlink-privilege skips only (WinError 1314)"
+    }
+  },
+  "real_matrix": {
+    "verdict": "pass",
+    "selected_matrix_pass": true,
+    "complete_matrix_pass": true,
+    "required": [
+      "ledger_command_gap",
+      "command_payload_tamper",
+      "ledger_tail_truncation",
+      "retained_source_change"
+    ],
+    "executed": [
+      "ledger_command_gap",
+      "command_payload_tamper",
+      "ledger_tail_truncation",
+      "retained_source_change"
+    ],
+    "missing": [],
+    "optional_executed": [],
+    "positive_accepted": true,
+    "negatives_rejected": [
+      "ledger_command_gap",
+      "command_payload_tamper",
+      "ledger_tail_truncation",
+      "retained_source_change"
+    ],
+    "required_matrix_pass": true,
+    "verdict_pass": true,
+    "baseline_unchanged": true,
+    "baseline_file_count": 319,
+    "scenario_outcomes": {
+      "positive_unmodified": "accepted",
+      "ledger_command_gap": "rejected",
+      "command_payload_tamper": "rejected",
+      "ledger_tail_truncation": "rejected",
+      "retained_source_change": "rejected"
+    },
+    "rejection_messages": {
+      "ledger_command_gap": "ValueError: publish ledger and captured envelopes differ",
+      "command_payload_tamper": "ValueError: publish ledger and captured envelopes differ",
+      "ledger_tail_truncation": "ValueError: publish ledger differs from completed Task report",
+      "retained_source_change": "ValueError: retained source changed: Simulator/wksim_core/ap_json.py"
+    }
+  },
+  "independent_verification": {
+    "full_tree_rehash_files": 319,
+    "full_tree_rehash_identical_to_baseline": true,
+    "mismatches": [],
+    "method": "separate process re-hashed every file in raw_root after the run and compared to probe-report baseline.sha256_before"
+  },
+  "audit_inputs": {
+    "count": 66,
+    "derived_retained_sources_listed": 55,
+    "derived_retained_sources_unique": 55,
+    "missing": [],
+    "excluded_prefixes": [
+      "vendor/",
+      "native-source/"
+    ]
+  },
+  "environment": {
+    "ros": "/opt/ros/humble + /root/wksim-ros2-Rzj3Pf/install/setup.bash",
+    "codec": "rosidl/rclpy frozen generated messages",
+    "rclpy_init_called": false
+  },
+  "closed_review_findings": {
+    "F2b producer self-hash": "closed - probe_tool_sha256 recorded separately, present in report and probe.log",
+    "F2b/F3 optional overall flag": "closed - complete_matrix_pass now also requires verdict_pass",
+    "F5 derived duplicate over-count": "closed - derived_retained_sources deduplicated (55 listed, 55 unique)"
+  },
+  "known_boundary_not_changed": "codebuddy F4: the helper Setup66 envelope has no full-field source-side ledger, so captured CDR must not be presented as one. Documentation boundary, no functional gap; auditor left byte-identical to the validated reference (E8D33C5D...).",
+  "constraints_honoured": [
+    "no physical threshold change",
+    "no float tolerance added",
+    "no fabricated helper source ledger",
+    "no git commit",
+    "no other files modified",
+    "no new agents",
+    "older probe-run-01/02 untouched"
+  ]
+}
