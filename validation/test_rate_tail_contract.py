@@ -38,7 +38,8 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from tools.analyze_joint_rate_intervals import PERIOD_NS, analyze as analyze_intervals
+from tools.analyze_joint_rate_intervals import (
+    PERIOD_NS, TICKS_PER_GROUP, analyze as analyze_intervals)
 from tools.analyze_joint_rate_tail_phases import analyze as analyze_tail_phases
 
 
@@ -122,6 +123,63 @@ def write_trace(rows):
     path = Path(directory.name) / "rate.jsonl"
     path.write_text("".join(json.dumps(row) + "\n" for row in rows), encoding="utf-8")
     return directory, path
+
+
+# -- five-group chain with hand-computable creep/work-over/release-excess -----
+# Group starts are 8 ms apart plus a deliberate 100/200/300/400 us creep, and
+# the first two groups carry work over one period so work_over is non-zero.
+CHAIN_ANCHOR_TICK = 44
+_CHAIN_ACTUAL_OFFSETS = (0, PERIOD_NS + 100_000, 2 * PERIOD_NS + 300_000,
+                         3 * PERIOD_NS + 600_000, 4 * PERIOD_NS + 1_000_000)
+_CHAIN_WORKS = (PERIOD_NS + 60_000, PERIOD_NS, PERIOD_NS + 120_000,
+                PERIOD_NS, PERIOD_NS)
+
+
+def _chain_actual_start(index):
+    return IDEAL_START_NS + _CHAIN_ACTUAL_OFFSETS[index]
+
+
+def _chain_latch(lateness_ns=1_100_000):
+    """A latch matching the five-group chain: boundary tick 64, creep 1_000_000."""
+    return _latch(lateness_ns, tick=CHAIN_ANCHOR_TICK + TICKS_PER_GROUP * len(_CHAIN_WORKS))
+
+
+def _chain():
+    rows = []
+    previous_actual = None
+    for index, work in enumerate(_CHAIN_WORKS):
+        tick = CHAIN_ANCHOR_TICK + TICKS_PER_GROUP * index
+        ideal = IDEAL_START_NS + index * PERIOD_NS
+        actual = _chain_actual_start(index)
+        if index == 0:
+            earliest = ideal
+        else:
+            earliest = max(ideal, previous_actual + PERIOD_NS)
+        rows += _group(tick, ideal, earliest, actual, work)
+        previous_actual = actual
+    return rows
+
+
+def _anchor(steady_after_ns, anchor_wall_ns=IDEAL_START_NS, tick=CHAIN_ANCHOR_TICK,
+            epoch=EPOCH):
+    """A ``rate_anchor`` record carrying the wall-clock steady marker."""
+    return {
+        "kind": "rate_anchor",
+        "epoch": epoch,
+        "tick": tick,
+        "issued_monotonic_ns": anchor_wall_ns + 1,
+        "reason": "synchronized_boundary",
+        "requested_rate": 0.5,
+        "request_id": "config",
+        "segment_id": 1,
+        "latched": False,
+        "anchor": {"tick": tick, "wall_ns": anchor_wall_ns, "transition": False},
+        "measured_rate": None,
+        "measurement": "timed_segment",
+        "completed_groups": 0,
+        "worst_lateness_ns": 0,
+        "steady_after_ns": steady_after_ns,
+    }
 
 
 class LatchReconciliationTests(unittest.TestCase):
@@ -254,6 +312,152 @@ class ProbeFreeTailContractTests(unittest.TestCase):
         # The tail tool refuses to attribute phases instead of inventing them.
         with self.assertRaisesRegex(ValueError, "No rate_timing_probe samples"):
             analyze_tail_phases(path)
+
+
+class PhasePartitionTests(unittest.TestCase):
+    """early/steady/crossing partitioning driven by the real wall marker.
+
+    The retained 0.5x schedule has an 8 ms wall group period, so a 2 s warm-up
+    is 250 groups and the anchor tick varies between fields. The boundary must
+    therefore come from the trace's own ``steady_after_ns`` and be compared
+    against ``actual_start_ns``; converting seconds to ticks and adding them to
+    the anchor tick is wrong for both reasons.
+    """
+
+    def analyze(self, rows):
+        directory, path = write_trace(rows)
+        self.addCleanup(directory.cleanup)
+        return analyze_intervals(path)
+
+    # -- synthetic five-group chain, hand-computable -----------------------
+
+    def chain(self):
+        return _chain()
+
+    def test_rate_must_be_exactly_half_x(self):
+        rows = _two_groups()
+        rows[0]["requested_rate"] = 1.0
+        rows[1]["requested_rate"] = 1.0
+        rows += [_anchor(IDEAL_START_NS + 2_000_000_000)]
+        with self.assertRaisesRegex(ValueError, "0.5"):
+            self.analyze(rows)
+
+    def test_crossing_interval_is_listed_separately_and_sums_close(self):
+        # A2 + 1ms falls strictly inside the third interval.
+        boundary = _chain_actual_start(2) + 1_000_000
+        result = self.analyze(self.chain() + [_anchor(boundary)])
+        self.assertEqual(result["status"], "analyzed")
+        partition = result["phase_partition"]
+        self.assertTrue(partition["available"])
+        self.assertIsNone(partition["reason"])
+        self.assertEqual(partition["boundary"]["source"], "rate_anchor")
+        self.assertEqual(partition["boundary"]["anchor_tick"], 44)
+        self.assertEqual(partition["boundary"]["steady_after_ns"], boundary)
+
+        classes = partition["classes"]
+        self.assertEqual(classes["early"]["intervals"], 2)
+        self.assertEqual(classes["crossing"]["intervals"], 1)
+        self.assertEqual(classes["steady"]["intervals"], 1)
+        self.assertEqual(classes["early"]["creep_ns"], 300_000)
+        self.assertEqual(classes["crossing"]["creep_ns"], 300_000)
+        self.assertEqual(classes["steady"]["creep_ns"], 400_000)
+
+        crossing = classes["crossing"]["crossing_interval"]
+        self.assertIsNotNone(crossing)
+        self.assertEqual(crossing["previous_start_tick"], 52)
+        self.assertEqual(crossing["current_start_tick"], 56)
+        self.assertLess(crossing["previous_actual_start_ns"], boundary)
+        self.assertGreater(crossing["current_actual_start_ns"], boundary)
+
+        closure = partition["closure"]
+        self.assertTrue(closure["classes_are_disjoint"])
+        self.assertEqual(closure["intervals_partitioned"], result["intervals"])
+        self.assertEqual(closure["creep_residual_ns"], 0)
+        self.assertEqual(closure["work_over_residual_ns"], 0)
+        self.assertEqual(closure["release_excess_residual_ns"], 0)
+        self.assertTrue(closure["closes"])
+
+    def test_partition_sums_equal_the_published_totals_exactly(self):
+        boundary = _chain_actual_start(2) + 1_000_000
+        result = self.analyze(self.chain() + [_anchor(boundary)])
+        classes = result["phase_partition"]["classes"]
+        for class_key, total_key in (("creep_ns", "creep_total_ns"),
+                                     ("work_over_ns", "work_over_total_ns"),
+                                     ("release_excess_ns", "release_excess_total_ns")):
+            summed = sum(classes[name][class_key]
+                         for name in ("early", "crossing", "steady"))
+            self.assertEqual(summed, result[total_key], class_key)
+        # The hand-computed chain totals, so the identity is not vacuous.
+        self.assertEqual(result["creep_total_ns"], 1_000_000)
+        self.assertEqual(result["work_over_total_ns"], 180_000)
+        self.assertEqual(result["release_excess_total_ns"], 820_000)
+
+    def test_boundary_on_a_group_start_leaves_no_crossing(self):
+        boundary = _chain_actual_start(2)
+        result = self.analyze(self.chain() + [_anchor(boundary)])
+        classes = result["phase_partition"]["classes"]
+        self.assertEqual(classes["crossing"]["intervals"], 0)
+        self.assertIsNone(classes["crossing"]["crossing_interval"])
+        self.assertEqual(classes["crossing"]["creep_ns"], 0)
+        self.assertEqual(classes["early"]["intervals"], 2)
+        self.assertEqual(classes["steady"]["intervals"], 2)
+        self.assertTrue(result["phase_partition"]["closure"]["closes"])
+
+    def test_partition_follows_the_wall_marker_not_tick_arithmetic(self):
+        last = _chain_actual_start(4)
+        everything_early = self.analyze(
+            self.chain() + [_anchor(last + 1)])["phase_partition"]
+        everything_steady = self.analyze(
+            self.chain() + [_anchor(IDEAL_START_NS - 1)])["phase_partition"]
+        self.assertEqual(everything_early["classes"]["early"]["intervals"], 4)
+        self.assertEqual(everything_early["classes"]["steady"]["intervals"], 0)
+        self.assertEqual(everything_steady["classes"]["early"]["intervals"], 0)
+        self.assertEqual(everything_steady["classes"]["steady"]["intervals"], 4)
+        # Same groups, same ticks, opposite partitions: only the wall marker moved.
+        self.assertEqual(everything_early["boundary"]["anchor_tick"],
+                         everything_steady["boundary"]["anchor_tick"])
+        # A realistic 2 s marker is measured as wall, never as a tick count.
+        realistic = self.analyze(
+            self.chain() + [_anchor(IDEAL_START_NS + 2_000_000_000)])["phase_partition"]
+        self.assertEqual(realistic["boundary"]["steady_after_minus_anchor_ns"],
+                         2_000_000_000)
+        self.assertEqual(realistic["classes"]["early"]["intervals"], 4)
+
+    def test_anchor_tick_does_not_change_the_partition(self):
+        boundary = _chain_actual_start(2) + 1_000_000
+        tick44 = self.analyze(self.chain() + [_anchor(boundary, tick=44)])
+        tick40 = self.analyze(self.chain() + [_anchor(boundary, tick=40)])
+        self.assertEqual(tick44["phase_partition"]["boundary"]["anchor_tick"], 44)
+        self.assertEqual(tick40["phase_partition"]["boundary"]["anchor_tick"], 40)
+        for name in ("early", "crossing", "steady"):
+            self.assertEqual(tick44["phase_partition"]["classes"][name],
+                             tick40["phase_partition"]["classes"][name])
+
+    def test_missing_steady_marker_is_unavailable_and_fields_unchanged(self):
+        # The five-group chain ends on boundary tick 64 and its creep is
+        # 1_000_000 ns, so a closing latch must use that boundary and at least
+        # that lateness.
+        rows = self.chain() + [_chain_latch()]
+        result = self.analyze(rows)
+        partition = result["phase_partition"]
+        self.assertFalse(partition["available"])
+        self.assertEqual(partition["reason"], "no_steady_after_marker")
+        self.assertIsNone(partition["boundary"])
+        self.assertIsNone(partition["classes"])
+        self.assertIsNone(partition["closure"])
+        # The pre-existing contract is untouched by the absent marker.
+        self.assertEqual(result["status"], "analyzed")
+        self.assertEqual(result["creep_total_ns"], 1_000_000)
+        self.assertEqual(result["latch_reconciliation"]["status"], "reconciled")
+
+    def test_existing_interval_fields_are_not_reshaped(self):
+        boundary = _chain_actual_start(2) + 1_000_000
+        result = self.analyze(self.chain() + [_anchor(boundary)])
+        expected = {"previous_start_tick", "current_start_tick", "creep_ns",
+                    "previous_work_ns", "between_ns", "previous_work_over_ns",
+                    "release_excess_ns", "cumulative_share"}
+        self.assertEqual(set(result["top_creep_intervals"][0]), expected)
+        self.assertEqual(set(result["top_release_excess_intervals"][0]), expected)
 
 
 if __name__ == "__main__":

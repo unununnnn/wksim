@@ -2,6 +2,16 @@
 
 2026-09-12最新：Goal active，createdAt1789219780；Full/G0–G6原目标和全部验收门保持。上一轮是实质进展：C1源码/测试交付、真实诊断运行、原件保留与独立核算，不能把失败场称通过。
 
+## 最新完整 PV 尝试与已验收核算
+
+本轮按#83完整合同实跑PV+C1，关闭两项计时探针；原件/root/wksim-release-acceptance-fe3/validation/joint-public-flight-vwen35gc，epoch6fd5ad0f674247b5a0fec79d84e82005。**仍失败**：tick87096 RateUnmet100485315ns，wall228.749446927s，anchor tick44。session19024已终态exit1，无存活native。无rate_timing_probe/CPU诊断记录；source_unchanged=true，GC65793→65628→0，async两栈closed/complete/submitted==written，owned PGID1943–1952独立确认全空。#83不关闭。
+
+原件保留包validation/33-final-combo-luna/c1-vwen35gc。第一次raw审计相对路径触canonical guard失败；纠正为绝对路径后raw-pv-audit-absolute.json按真实run失败拒绝，未接受后续逐1ms/物理/窗口检查。两份审计保留，没有重复飞行。收据中OMP取消措辞已在bundle manifest校正：当时OMP已completed，cancel=false；旧B仍状态异常，没假称终态。
+
+A的现有interval分析器扩展已主审，24项相关纯测试主会话通过：新增phase_partition用actual_start_ns对真实steady_after_ns分类early/crossing/steady，全部interval唯一归类、三项总量严格零残差；无标记时unavailable，不换算物理tick。三场输出validation/33-rate-profile/diagnostic-triple-20260912，源码SHA1c43ac9c4b80f2dcc8eb52ffd9c3fe061f5cd2ef9206d839fe20e7af2f783fc7。vwen35gc首两墙秒early creep10749183ns（work_over7159759），cross3ns，steady88887482ns；全场151077+99636668+697570=100485315；creep=34868504+64768164。ztd early23900631ns，基线7bdf early272029ns；场长/探针不同，不作因果性能结论。A旧v1/v2墙秒/tick、采样均值论证均撤回。
+
+新B独立启动开销调查已启动：thread36c5a420-1b76-4e5e-92c6-6240d59b23fa，turne5509fe9-a43e-4111-89f0-fa6d26753e1a，delegation82176a04-f658-482f-af72-e4bddaad0eb4，native默认DeepSeek-V41-Flash/high。只写ds-startup-cost-evidence-20260912.md/json，定位真实早期慢组和初始化/health开销；不接管旧B半成品文件。A turn47eb2140-15c3-4bae-9c23-9e114082e484已完成核算实现。OMP测量审查已completed，D当前#26映射已交并提交；主会话AC5复核记录见docs/2026-09-12-current-wrapper-lifecycle.md，补足D交付时缺失项。#9 OPEN依赖保持，#26不关闭。不再盲目重复同配置native；先收具体启动开销证据。
+
 ## 本轮新增完成：当前 wrapper 独立冷重建/重置
 
 主会话已实际执行 `validation/codegen-e0-lifecycle-current-wrapper-01/`：audit pass，4×1000步/1ms/120维、480000值四周期精确一致；原库与cold库SHA528db324…相同；43项输入/历史哈希不变；两个子进程exit0，PGID705/706独立确认空。冷库/root/wksim-codegen-e0-cold-907225b3b06c/libwksim_e0.so。详见docs/2026-09-12-current-wrapper-lifecycle.md与validation/coordination/native-inputs-20260912/current-lifecycle-01.json。

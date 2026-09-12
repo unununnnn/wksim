@@ -24,6 +24,23 @@ It does not claim that release_excess or the terminal increment can be split
 into health checks, record writes, sleep overshoot, or scheduler delay without
 more instrumentation.
 
+Phase partition (``phase_partition``)
+------------------------------------
+When the trace carries a ``steady_after_ns`` marker (``rate_anchor``, falling
+back to ``rate_unmet``), every interval is assigned to exactly one class:
+
+    early     -- the interval ends at or before steady_after_ns
+    crossing  -- the interval straddles steady_after_ns (at most one)
+    steady    -- the interval starts at or after steady_after_ns
+
+The boundary is an absolute wall timestamp compared against ``actual_start_ns``;
+ticks are never converted, because one four-tick group spans 8 ms of wall at the
+retained 0.5x rate and the anchor tick varies between traces. Because the classes
+partition the interval list, their creep/work-over/release-excess sums must equal
+the totals exactly, and a non-zero residual raises instead of being smoothed. A
+trace without the marker reports ``available: false`` with null classes; the
+latch fields and their null semantics are unchanged either way.
+
 Usage: python3 -B tools/analyze_joint_rate_intervals.py TRACE --output NEW.json
 """
 
@@ -339,6 +356,167 @@ def _buckets(values):
     return result
 
 
+def load_steady_boundary(path, identity):
+    """Return this schedule's wall-clock steady boundary, or ``None``.
+
+    ``steady_after_ns`` is an absolute monotonic wall timestamp, so intervals are
+    classified by comparing ``actual_start_ns`` against it directly. Ticks are
+    never converted to wall: at the retained 0.5x rate one four-tick group spans
+    8 ms of wall, so a 2 s warm-up is 250 groups, and the anchor tick itself
+    varies between traces (40 in one field, 44 in another). A trace without the
+    marker yields ``None`` rather than a guessed boundary.
+
+    ``rate_anchor`` is preferred over ``rate_unmet`` because it is written when
+    the schedule starts; both carry the same value here.
+    """
+    expected = (
+        identity["epoch"], identity["segment_id"], identity["request_id"],
+        identity["requested_rate"], identity["transition"],
+    )
+    found = {}
+    with Path(path).open(encoding="utf-8") as stream:
+        for line in stream:
+            try:
+                row = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if not isinstance(row, dict):
+                continue
+            if row.get("kind") not in ("rate_anchor", "rate_unmet"):
+                continue
+            if _latch_identity(row) != expected:
+                continue
+            steady = row.get("steady_after_ns")
+            anchor = row.get("anchor")
+            wall = anchor.get("wall_ns") if isinstance(anchor, dict) else None
+            tick = anchor.get("tick") if isinstance(anchor, dict) else None
+            if isinstance(steady, bool) or not isinstance(steady, int):
+                continue
+            if isinstance(wall, bool) or not isinstance(wall, int):
+                continue
+            found.setdefault(row["kind"], {
+                "steady_after_ns": steady,
+                "anchor_wall_ns": wall,
+                "anchor_tick": tick,
+                "source": row["kind"],
+            })
+    return found.get("rate_anchor") or found.get("rate_unmet")
+
+
+def _phase_partition(groups, intervals, boundary):
+    """Split every interval into exactly one of early / crossing / steady.
+
+    The boundary is a wall timestamp, so an interval is classified by where its
+    own endpoints fall: an interval that ends at or before the boundary is
+    early, one that starts at or after it is steady, and the single interval
+    that straddles it is reported on its own. Because the three classes
+    partition the interval list, their sums must equal the totals exactly; a
+    non-zero residual fails closed instead of being smoothed over.
+    """
+    names = ("early", "crossing", "steady")
+    if boundary is None:
+        return {
+            "available": False,
+            "reason": "no_steady_after_marker",
+            "boundary": None,
+            "classes": None,
+            "closure": None,
+        }
+
+    steady_after_ns = boundary["steady_after_ns"]
+    buckets = {name: [] for name in names}
+    crossing_index = None
+    for index, item in enumerate(intervals):
+        previous_ns = groups[index]["actual_start_ns"]
+        current_ns = groups[index + 1]["actual_start_ns"]
+        if previous_ns >= steady_after_ns:
+            name = "steady"
+        elif current_ns <= steady_after_ns:
+            name = "early"
+        else:
+            name = "crossing"
+            if crossing_index is not None:
+                raise ValueError(
+                    "more than one interval crosses the steady boundary")
+            crossing_index = index
+        buckets[name].append(item)
+
+    classes = {}
+    for name in names:
+        items = buckets[name]
+        classes[name] = {
+            "intervals": len(items),
+            "creep_ns": sum(item["creep_ns"] for item in items),
+            "work_over_ns": sum(item["previous_work_over_ns"] for item in items),
+            "release_excess_ns": sum(item["release_excess_ns"] for item in items),
+            "first_previous_start_tick": items[0]["previous_start_tick"] if items else None,
+            "last_current_start_tick": items[-1]["current_start_tick"] if items else None,
+            "crossing_interval": None,
+        }
+
+    if crossing_index is not None:
+        item = intervals[crossing_index]
+        classes["crossing"]["crossing_interval"] = {
+            "previous_start_tick": item["previous_start_tick"],
+            "current_start_tick": item["current_start_tick"],
+            "previous_actual_start_ns": groups[crossing_index]["actual_start_ns"],
+            "current_actual_start_ns": groups[crossing_index + 1]["actual_start_ns"],
+            "steady_after_ns": steady_after_ns,
+            "creep_ns": item["creep_ns"],
+            "previous_work_over_ns": item["previous_work_over_ns"],
+            "release_excess_ns": item["release_excess_ns"],
+        }
+
+    totals = {
+        "creep_ns": sum(item["creep_ns"] for item in intervals),
+        "work_over_ns": sum(item["previous_work_over_ns"] for item in intervals),
+        "release_excess_ns": sum(item["release_excess_ns"] for item in intervals),
+    }
+    partitioned = {
+        key: sum(classes[name][key] for name in names)
+        for key in ("creep_ns", "work_over_ns", "release_excess_ns")
+    }
+    intervals_partitioned = sum(classes[name]["intervals"] for name in names)
+    closure = {
+        "intervals_total": len(intervals),
+        "intervals_partitioned": intervals_partitioned,
+        "creep_total_ns": totals["creep_ns"],
+        "creep_partitioned_ns": partitioned["creep_ns"],
+        "creep_residual_ns": totals["creep_ns"] - partitioned["creep_ns"],
+        "work_over_total_ns": totals["work_over_ns"],
+        "work_over_partitioned_ns": partitioned["work_over_ns"],
+        "work_over_residual_ns": totals["work_over_ns"] - partitioned["work_over_ns"],
+        "release_excess_total_ns": totals["release_excess_ns"],
+        "release_excess_partitioned_ns": partitioned["release_excess_ns"],
+        "release_excess_residual_ns": totals["release_excess_ns"] - partitioned["release_excess_ns"],
+        "classes_are_disjoint": intervals_partitioned == len(intervals),
+        "closes": None,
+    }
+    closure["closes"] = (
+        closure["classes_are_disjoint"]
+        and closure["creep_residual_ns"] == 0
+        and closure["work_over_residual_ns"] == 0
+        and closure["release_excess_residual_ns"] == 0
+    )
+    if not closure["closes"]:
+        raise ValueError("phase partition does not close against the interval totals")
+
+    groups_early = sum(
+        1 for group in groups if group["actual_start_ns"] <= steady_after_ns)
+    return {
+        "available": True,
+        "reason": None,
+        "boundary": {
+            **boundary,
+            "steady_after_minus_anchor_ns": steady_after_ns - boundary["anchor_wall_ns"],
+            "groups_at_or_before_boundary": groups_early,
+            "groups_total": len(groups),
+        },
+        "classes": classes,
+        "closure": closure,
+    }
+
+
 def analyze(path):
     identity, groups = load_groups(path)
     intervals = []
@@ -378,6 +556,8 @@ def analyze(path):
 
     trace_path = Path(path)
     reconciliation = _reconcile(identity, groups, creep_total, load_latches(path))
+    phase_partition = _phase_partition(
+        groups, intervals, load_steady_boundary(path, identity))
     return {
         "schema": "wksim.rate-interval-attribution.v1",
         "status": "analyzed",
@@ -395,6 +575,7 @@ def analyze(path):
         "recorded_latch_lateness_ns": reconciliation["recorded_latch_lateness_ns"],
         "terminal_unreconciled_ns": reconciliation["terminal_unreconciled_ns"],
         "latch_reconciliation": reconciliation,
+        "phase_partition": phase_partition,
         "positive_creep_buckets": _buckets([item["creep_ns"] for item in intervals]),
         "positive_release_excess_buckets": _buckets(
             [item["release_excess_ns"] for item in intervals]

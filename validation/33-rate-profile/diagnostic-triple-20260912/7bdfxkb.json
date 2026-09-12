@@ -1,0 +1,583 @@
+{
+ "schema": "wksim.rate-interval-attribution.v1",
+ "status": "analyzed",
+ "scope": "observable interval arithmetic only; no causal split of release_excess",
+ "identity": {
+  "epoch": "85df8c49b8f64de8ba794cff149696d1",
+  "segment_id": 1,
+  "request_id": "config",
+  "requested_rate": 0.5,
+  "transition": false
+ },
+ "period_ns": 8000000,
+ "ticks_per_group": 4,
+ "groups": 27434,
+ "intervals": 27433,
+ "creep_total_ns": 99717577,
+ "work_over_total_ns": 25703958,
+ "release_excess_total_ns": 74013619,
+ "last_group_work_over_unattributed_ns": 0,
+ "first_group_start_lateness_ns": 163239,
+ "recorded_latch_lateness_ns": 100050657,
+ "terminal_unreconciled_ns": 169841,
+ "latch_reconciliation": {
+  "creep_total_ns": 99717577,
+  "first_group_start_lateness_ns": 163239,
+  "last_group_start_lateness_ns": 99880816,
+  "last_group_end_lateness_ns": 96205477,
+  "last_group_boundary_tick": 109776,
+  "foreign_rate_unmet": [],
+  "status": "reconciled",
+  "reason": null,
+  "rate_unmet_tick": 109776,
+  "recorded_latch_lateness_ns": 100050657,
+  "latch_site": "begin_group_release_wait",
+  "terminal_unreconciled_ns": 169841,
+  "closes": true
+ },
+ "phase_partition": {
+  "available": true,
+  "reason": null,
+  "boundary": {
+   "steady_after_ns": 119986269506,
+   "anchor_wall_ns": 117986269506,
+   "anchor_tick": 40,
+   "source": "rate_anchor",
+   "steady_after_minus_anchor_ns": 2000000000,
+   "groups_at_or_before_boundary": 250,
+   "groups_total": 27434
+  },
+  "classes": {
+   "early": {
+    "intervals": 249,
+    "creep_ns": 272029,
+    "work_over_ns": 0,
+    "release_excess_ns": 272029,
+    "first_previous_start_tick": 40,
+    "last_current_start_tick": 1036,
+    "crossing_interval": null
+   },
+   "crossing": {
+    "intervals": 1,
+    "creep_ns": 36,
+    "work_over_ns": 0,
+    "release_excess_ns": 36,
+    "first_previous_start_tick": 1036,
+    "last_current_start_tick": 1040,
+    "crossing_interval": {
+     "previous_start_tick": 1036,
+     "current_start_tick": 1040,
+     "previous_actual_start_ns": 119978704774,
+     "current_actual_start_ns": 119986704810,
+     "steady_after_ns": 119986269506,
+     "creep_ns": 36,
+     "previous_work_over_ns": 0,
+     "release_excess_ns": 36
+    }
+   },
+   "steady": {
+    "intervals": 27183,
+    "creep_ns": 99445512,
+    "work_over_ns": 25703958,
+    "release_excess_ns": 73741554,
+    "first_previous_start_tick": 1040,
+    "last_current_start_tick": 109772,
+    "crossing_interval": null
+   }
+  },
+  "closure": {
+   "intervals_total": 27433,
+   "intervals_partitioned": 27433,
+   "creep_total_ns": 99717577,
+   "creep_partitioned_ns": 99717577,
+   "creep_residual_ns": 0,
+   "work_over_total_ns": 25703958,
+   "work_over_partitioned_ns": 25703958,
+   "work_over_residual_ns": 0,
+   "release_excess_total_ns": 74013619,
+   "release_excess_partitioned_ns": 74013619,
+   "release_excess_residual_ns": 0,
+   "classes_are_disjoint": true,
+   "closes": true
+  }
+ },
+ "positive_creep_buckets": {
+  "0-10us": {
+   "count": 26301,
+   "sum_ns": 2871830
+  },
+  "10-100us": {
+   "count": 510,
+   "sum_ns": 19024158
+  },
+  "100-500us": {
+   "count": 314,
+   "sum_ns": 51200773
+  },
+  "0.5-1ms": {
+   "count": 0,
+   "sum_ns": 0
+  },
+  "1-2ms": {
+   "count": 0,
+   "sum_ns": 0
+  },
+  ">2ms": {
+   "count": 3,
+   "sum_ns": 26620816
+  },
+  "zero": {
+   "count": 305,
+   "sum_ns": 0
+  }
+ },
+ "positive_release_excess_buckets": {
+  "0-10us": {
+   "count": 26301,
+   "sum_ns": 2871830
+  },
+  "10-100us": {
+   "count": 510,
+   "sum_ns": 19024158
+  },
+  "100-500us": {
+   "count": 317,
+   "sum_ns": 52117631
+  },
+  "0.5-1ms": {
+   "count": 0,
+   "sum_ns": 0
+  },
+  "1-2ms": {
+   "count": 0,
+   "sum_ns": 0
+  },
+  ">2ms": {
+   "count": 0,
+   "sum_ns": 0
+  },
+  "zero": {
+   "count": 305,
+   "sum_ns": 0
+  }
+ },
+ "top_creep_intervals": [
+  {
+   "previous_start_tick": 107568,
+   "current_start_tick": 107572,
+   "creep_ns": 20785815,
+   "previous_work_ns": 28531250,
+   "between_ns": 254565,
+   "previous_work_over_ns": 20531250,
+   "release_excess_ns": 254565,
+   "cumulative_share": 0.20844685185240713
+  },
+  {
+   "previous_start_tick": 1996,
+   "current_start_tick": 2000,
+   "creep_ns": 3084980,
+   "previous_work_ns": 10688467,
+   "between_ns": 396513,
+   "previous_work_over_ns": 2688467,
+   "release_excess_ns": 396513,
+   "cumulative_share": 0.2393840255464691
+  },
+  {
+   "previous_start_tick": 5500,
+   "current_start_tick": 5504,
+   "creep_ns": 2750021,
+   "previous_work_ns": 10484241,
+   "between_ns": 265780,
+   "previous_work_over_ns": 2484241,
+   "release_excess_ns": 265780,
+   "cumulative_share": 0.26696212243504475
+  },
+  {
+   "previous_start_tick": 70436,
+   "current_start_tick": 70440,
+   "creep_ns": 323350,
+   "previous_work_ns": 3967955,
+   "between_ns": 4355395,
+   "previous_work_over_ns": 0,
+   "release_excess_ns": 323350,
+   "cumulative_share": 0.27020478044708207
+  },
+  {
+   "previous_start_tick": 21808,
+   "current_start_tick": 21812,
+   "creep_ns": 309278,
+   "previous_work_ns": 4128613,
+   "between_ns": 4180665,
+   "previous_work_over_ns": 0,
+   "release_excess_ns": 309278,
+   "cumulative_share": 0.2733063199078734
+  },
+  {
+   "previous_start_tick": 25120,
+   "current_start_tick": 25124,
+   "creep_ns": 308403,
+   "previous_work_ns": 4115804,
+   "between_ns": 4192599,
+   "previous_work_over_ns": 0,
+   "release_excess_ns": 308403,
+   "cumulative_share": 0.2763990845866622
+  },
+  {
+   "previous_start_tick": 86556,
+   "current_start_tick": 86560,
+   "creep_ns": 301499,
+   "previous_work_ns": 4233713,
+   "between_ns": 4067786,
+   "previous_work_over_ns": 0,
+   "release_excess_ns": 301499,
+   "cumulative_share": 0.2794226137283701
+  },
+  {
+   "previous_start_tick": 30164,
+   "current_start_tick": 30168,
+   "creep_ns": 275337,
+   "previous_work_ns": 5481565,
+   "between_ns": 2793772,
+   "previous_work_over_ns": 0,
+   "release_excess_ns": 275337,
+   "cumulative_share": 0.2821837819023621
+  },
+  {
+   "previous_start_tick": 85224,
+   "current_start_tick": 85228,
+   "creep_ns": 274613,
+   "previous_work_ns": 4165445,
+   "between_ns": 4109168,
+   "previous_work_over_ns": 0,
+   "release_excess_ns": 274613,
+   "cumulative_share": 0.28493768957101717
+  },
+  {
+   "previous_start_tick": 85432,
+   "current_start_tick": 85436,
+   "creep_ns": 273075,
+   "previous_work_ns": 4612283,
+   "between_ns": 3660792,
+   "previous_work_over_ns": 0,
+   "release_excess_ns": 273075,
+   "cumulative_share": 0.28767617367999226
+  },
+  {
+   "previous_start_tick": 85640,
+   "current_start_tick": 85644,
+   "creep_ns": 271644,
+   "previous_work_ns": 4187237,
+   "between_ns": 4084407,
+   "previous_work_over_ns": 0,
+   "release_excess_ns": 271644,
+   "cumulative_share": 0.2904003072597723
+  },
+  {
+   "previous_start_tick": 63008,
+   "current_start_tick": 63012,
+   "creep_ns": 242010,
+   "previous_work_ns": 4067838,
+   "between_ns": 4174172,
+   "previous_work_over_ns": 0,
+   "release_excess_ns": 242010,
+   "cumulative_share": 0.29282726153685024
+  },
+  {
+   "previous_start_tick": 78472,
+   "current_start_tick": 78476,
+   "creep_ns": 237527,
+   "previous_work_ns": 4111779,
+   "between_ns": 4125748,
+   "previous_work_over_ns": 0,
+   "release_excess_ns": 237527,
+   "cumulative_share": 0.2952092588451081
+  },
+  {
+   "previous_start_tick": 5116,
+   "current_start_tick": 5120,
+   "creep_ns": 237143,
+   "previous_work_ns": 3747781,
+   "between_ns": 4489362,
+   "previous_work_over_ns": 0,
+   "release_excess_ns": 237143,
+   "cumulative_share": 0.2975874052776072
+  },
+  {
+   "previous_start_tick": 26168,
+   "current_start_tick": 26172,
+   "creep_ns": 230348,
+   "previous_work_ns": 4325626,
+   "between_ns": 3904722,
+   "previous_work_over_ns": 0,
+   "release_excess_ns": 230348,
+   "cumulative_share": 0.2998974092601548
+  },
+  {
+   "previous_start_tick": 109168,
+   "current_start_tick": 109172,
+   "creep_ns": 229888,
+   "previous_work_ns": 3843478,
+   "between_ns": 4386410,
+   "previous_work_over_ns": 0,
+   "release_excess_ns": 229888,
+   "cumulative_share": 0.3022028002144497
+  },
+  {
+   "previous_start_tick": 78892,
+   "current_start_tick": 78896,
+   "creep_ns": 228808,
+   "previous_work_ns": 4462917,
+   "between_ns": 3765891,
+   "previous_work_over_ns": 0,
+   "release_excess_ns": 228808,
+   "cumulative_share": 0.3044973605806727
+  },
+  {
+   "previous_start_tick": 44868,
+   "current_start_tick": 44872,
+   "creep_ns": 225455,
+   "previous_work_ns": 3941247,
+   "between_ns": 4284208,
+   "previous_work_over_ns": 0,
+   "release_excess_ns": 225455,
+   "cumulative_share": 0.306758295982262
+  },
+  {
+   "previous_start_tick": 63112,
+   "current_start_tick": 63116,
+   "creep_ns": 223709,
+   "previous_work_ns": 3638862,
+   "between_ns": 4584847,
+   "previous_work_over_ns": 0,
+   "release_excess_ns": 223709,
+   "cumulative_share": 0.30900172193313524
+  },
+  {
+   "previous_start_tick": 5788,
+   "current_start_tick": 5792,
+   "creep_ns": 216674,
+   "previous_work_ns": 3747287,
+   "between_ns": 4469387,
+   "previous_work_over_ns": 0,
+   "release_excess_ns": 216674,
+   "cumulative_share": 0.31117459863670777
+  }
+ ],
+ "top_release_excess_intervals": [
+  {
+   "previous_start_tick": 1996,
+   "current_start_tick": 2000,
+   "creep_ns": 3084980,
+   "previous_work_ns": 10688467,
+   "between_ns": 396513,
+   "previous_work_over_ns": 2688467,
+   "release_excess_ns": 396513,
+   "cumulative_share": 0.005357297823796456
+  },
+  {
+   "previous_start_tick": 70436,
+   "current_start_tick": 70440,
+   "creep_ns": 323350,
+   "previous_work_ns": 3967955,
+   "between_ns": 4355395,
+   "previous_work_over_ns": 0,
+   "release_excess_ns": 323350,
+   "cumulative_share": 0.009726088383814877
+  },
+  {
+   "previous_start_tick": 21808,
+   "current_start_tick": 21812,
+   "creep_ns": 309278,
+   "previous_work_ns": 4128613,
+   "between_ns": 4180665,
+   "previous_work_over_ns": 0,
+   "release_excess_ns": 309278,
+   "cumulative_share": 0.013904751772778466
+  },
+  {
+   "previous_start_tick": 25120,
+   "current_start_tick": 25124,
+   "creep_ns": 308403,
+   "previous_work_ns": 4115804,
+   "between_ns": 4192599,
+   "previous_work_over_ns": 0,
+   "release_excess_ns": 308403,
+   "cumulative_share": 0.018071593013172346
+  },
+  {
+   "previous_start_tick": 86556,
+   "current_start_tick": 86560,
+   "creep_ns": 301499,
+   "previous_work_ns": 4233713,
+   "between_ns": 4067786,
+   "previous_work_over_ns": 0,
+   "release_excess_ns": 301499,
+   "cumulative_share": 0.022145154123594468
+  },
+  {
+   "previous_start_tick": 30164,
+   "current_start_tick": 30168,
+   "creep_ns": 275337,
+   "previous_work_ns": 5481565,
+   "between_ns": 2793772,
+   "previous_work_over_ns": 0,
+   "release_excess_ns": 275337,
+   "cumulative_share": 0.025865239747295696
+  },
+  {
+   "previous_start_tick": 85224,
+   "current_start_tick": 85228,
+   "creep_ns": 274613,
+   "previous_work_ns": 4165445,
+   "between_ns": 4109168,
+   "previous_work_over_ns": 0,
+   "release_excess_ns": 274613,
+   "cumulative_share": 0.02957554338749467
+  },
+  {
+   "previous_start_tick": 85432,
+   "current_start_tick": 85436,
+   "creep_ns": 273075,
+   "previous_work_ns": 4612283,
+   "between_ns": 3660792,
+   "previous_work_over_ns": 0,
+   "release_excess_ns": 273075,
+   "cumulative_share": 0.03326506706826483
+  },
+  {
+   "previous_start_tick": 85640,
+   "current_start_tick": 85644,
+   "creep_ns": 271644,
+   "previous_work_ns": 4187237,
+   "between_ns": 4084407,
+   "previous_work_over_ns": 0,
+   "release_excess_ns": 271644,
+   "cumulative_share": 0.036935256469488406
+  },
+  {
+   "previous_start_tick": 5500,
+   "current_start_tick": 5504,
+   "creep_ns": 2750021,
+   "previous_work_ns": 10484241,
+   "between_ns": 265780,
+   "previous_work_over_ns": 2484241,
+   "release_excess_ns": 265780,
+   "cumulative_share": 0.04052621720875451
+  },
+  {
+   "previous_start_tick": 107568,
+   "current_start_tick": 107572,
+   "creep_ns": 20785815,
+   "previous_work_ns": 28531250,
+   "between_ns": 254565,
+   "previous_work_over_ns": 20531250,
+   "release_excess_ns": 254565,
+   "cumulative_share": 0.043965651780924264
+  },
+  {
+   "previous_start_tick": 63008,
+   "current_start_tick": 63012,
+   "creep_ns": 242010,
+   "previous_work_ns": 4067838,
+   "between_ns": 4174172,
+   "previous_work_over_ns": 0,
+   "release_excess_ns": 242010,
+   "cumulative_share": 0.04723545540990233
+  },
+  {
+   "previous_start_tick": 78472,
+   "current_start_tick": 78476,
+   "creep_ns": 237527,
+   "previous_work_ns": 4111779,
+   "between_ns": 4125748,
+   "previous_work_over_ns": 0,
+   "release_excess_ns": 237527,
+   "cumulative_share": 0.05044468910512267
+  },
+  {
+   "previous_start_tick": 5116,
+   "current_start_tick": 5120,
+   "creep_ns": 237143,
+   "previous_work_ns": 3747781,
+   "between_ns": 4489362,
+   "previous_work_over_ns": 0,
+   "release_excess_ns": 237143,
+   "cumulative_share": 0.053648734565999265
+  },
+  {
+   "previous_start_tick": 26168,
+   "current_start_tick": 26172,
+   "creep_ns": 230348,
+   "previous_work_ns": 4325626,
+   "between_ns": 3904722,
+   "previous_work_over_ns": 0,
+   "release_excess_ns": 230348,
+   "cumulative_share": 0.05676097259884022
+  },
+  {
+   "previous_start_tick": 109168,
+   "current_start_tick": 109172,
+   "creep_ns": 229888,
+   "previous_work_ns": 3843478,
+   "between_ns": 4386410,
+   "previous_work_over_ns": 0,
+   "release_excess_ns": 229888,
+   "cumulative_share": 0.059866995559290245
+  },
+  {
+   "previous_start_tick": 78892,
+   "current_start_tick": 78896,
+   "creep_ns": 228808,
+   "previous_work_ns": 4462917,
+   "between_ns": 3765891,
+   "previous_work_over_ns": 0,
+   "release_excess_ns": 228808,
+   "cumulative_share": 0.0629584266106485
+  },
+  {
+   "previous_start_tick": 44868,
+   "current_start_tick": 44872,
+   "creep_ns": 225455,
+   "previous_work_ns": 3941247,
+   "between_ns": 4284208,
+   "previous_work_over_ns": 0,
+   "release_excess_ns": 225455,
+   "cumulative_share": 0.06600455518868764
+  },
+  {
+   "previous_start_tick": 63112,
+   "current_start_tick": 63116,
+   "creep_ns": 223709,
+   "previous_work_ns": 3638862,
+   "between_ns": 4584847,
+   "previous_work_over_ns": 0,
+   "release_excess_ns": 223709,
+   "cumulative_share": 0.0690270935136951
+  },
+  {
+   "previous_start_tick": 5788,
+   "current_start_tick": 5792,
+   "creep_ns": 216674,
+   "previous_work_ns": 3747287,
+   "between_ns": 4469387,
+   "previous_work_over_ns": 0,
+   "release_excess_ns": 216674,
+   "cumulative_share": 0.07195458176420207
+  }
+ ],
+ "observable": [
+  "group work",
+  "between-group interval",
+  "start-to-start creep",
+  "previous work-over",
+  "release excess",
+  "first group start lateness",
+  "recorded rate_unmet latch",
+  "terminal unreconciled increment"
+ ],
+ "not_separable_without_instrumentation": [
+  "release excess split among health checks, record writes, sleep overshoot, and scheduler delay"
+ ],
+ "trace_sha256": "484016e746bfad78ef5d46f0d85d19e1761ebea30fea2d22e63649ea57e07d0b",
+ "analyzer_sha256": "1c43ac9c4b80f2dcc8eb52ffd9c3fe061f5cd2ef9206d839fe20e7af2f783fc7"
+}
