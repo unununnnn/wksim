@@ -13,8 +13,8 @@
 
 | 席位 | thread / 当前turn | 独占交付 |
 | --- | --- | --- |
-| OMP | 6deb2e40-2240-4db2-8c7f-c06bf6724048 / 8394e3b8-98ec-4136-994f-8bcc8fd87e43 | 上一probe已交回；实现compare_first_step_trace.py及独立纯测试，以真实原件重现comparison-v2，严格校验事件序位/覆盖/hex并绑定SHA。禁止改probe/recorder。 |
-| Claude Code | 48faf2f5-f74a-4ba4-ac85-4ae4d05c5801 / 0364b8e1-9763-4b34-8ad7-76c862121f93 | 目标端已交回并由主会话实跑；现在独占参考probe及说明，核验修复句柄/端口枚举/opts/默认行为陈述/恢复保护，不跑MATLAB。 |
+| OMP | 6deb2e40-2240-4db2-8c7f-c06bf6724048 / 3c437171-b5a0-45da-9c26-487eb9512e7f | 比对器首版主审返修：合法with-major误拒，丢采/非法末态hex/错误dtype误收；作者负责全部校验与真实负例，保留v1报告。禁止改probe/recorder。 |
+| Claude Code | 48faf2f5-f74a-4ba4-ac85-4ae4d05c5801 / 23686638-0f45-472e-8ec9-edf268eaa168 | 参考probe和helper审查已交回；现准备独立build_first_step_solve_candidate.py及纯测试，统一有限非零对角矩阵乘倒数诊断分支，保留通用fallback，不编译/运行，不改共享源。 |
 
 OMP旧数值报告出现过把2墙秒当500组，以及将sleep_max总和减出“残余归因”的错误，均不采用。现有分类仅能定位阶段边界，不能证明OS/FC或纯off-CPU原因。新helper须先读源、核对真实父类行为与测试再接线。
 
@@ -49,6 +49,12 @@ OMP旧数值报告出现过把2墙秒当500组，以及将sleep_max总和减出�
 spin v2已主审收口并完成下文0fsmugd1诊断：主会话去掉热路径仍存在的tuple，改为每组预分配slots并逐标量更新；CPython observe无BUILD_TUPLE/LIST/MAP字节码。新增前后时钟跨观测顺序检查。helper SHA d3115c140cc3b1fb2500d8fd7c78321c62a81bd2928dae00eb894e1334d3ec40，测试1f5c2741…，合并57passed/11subtests；私有提交ff389db，主仓库已同步这两个文件，receipt在validation/coordination/spin-v2-delivery-20260913。该版本实跑结果见下文；不得因旧检查点文字重复运行。
 
 ## G6与模型证据
+
+本轮run-04/05参考观测已实跑：04按真实Reshape返回unavailable；05增加单输入/输出Reshape穿越后成功定位Product2，5事件无丢弃，实际配置Inputs=*/、Matrix(*)、2输入(1x3/3x3)、1输出(1x3)。两次MATLAB exit0且无残留，37个实际使用冻结文件及本次源前后不变，240主输出和72积分器事件与run-03完全一致。run-05 report SHA72ff7d8eaeee7854bf026d19a7ee37f38c061764ce5369d0dd5845b1aa084c62；probe SHAeb485804023c5310ea436af5d14f862e3aa5e75f3342fd057d6f313f00649603；resolver SHAd87e61d7e3606cd2bccbef83a790e595fc4ee8ed37200afc62df89ca5a6d12fb。原件/verify/收据在g6-reference-probe-20260913/execution/run-04/05，只归档选定JSON/脚本/日志，禁止cache/codegen。
+
+两端5次实际分子和矩阵全部逐位相同，仅seq2的q结果1ULP不同，已把首个映射差异定位到矩阵求解计算；前4次参考Product输出逐位等于实际pqr导数。离线n/j给目标b9，n*(1/j)给参考b8，仍未证明参考内部算法。见docs/2026-09-13-first-step-solve-boundary.md与execution-05/solve-comparison.json。Claude已接独立诊断候选准备，不改正式模型；候选下一步需主审、双WSL前检、独立编译/首步实跑，验证旧原件不变及是否减少差异；不能据首步通过关闭G6。
+
+比对器首版的4个真实错误保存在first-step-comparator-20260913/main-review-v1.json，OMP返修仍进行；未验收。Claude helper只读审查无阻断问题，实际run-04/05另补并验证Reshape路径。其旧字符串静态测试只作历史审查快照保留execution-04/reviewer-static-tests.py.txt，不以其替代新版实际运行。
 
 目标端mrdivide版已完成：Linux /root/wksim-first-step-trace-20260913-03，编译/run exit0，PGID671/696全空；13项纯测试通过。5次求解时间/major-minor序列正确，240主输出及4级状态/导数/更新与版本02逐位相同。stage2实际分子[1]=bc000013449033b2、结果[1]=bc56d4db33a987b9；5次实际目标惯性矩阵均diag(.0211,.0219,.0366)。只证明目标端，参考求解输入尚未观测。trace SHA9cee60eb5b3e5ccc96730f13423f5e0fa07de19654a481d32e9e885953f4bed3；证据validation/coordination/g6-target-mrdivide-20260913。
 
