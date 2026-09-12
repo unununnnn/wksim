@@ -83,6 +83,10 @@ python -B -m unittest validation.test_trajectory_session -v
 
 ## 仍未交付 / 保持开启
 
+2026-09-12 实际 EGO 输出已取得，见 `validation/ego-planner-static-20260912-02/`：固定点云、静态 odom 和合成 control-state/clock 夹具生成了 33 控制点、37 knot 的轨迹。采样折线净空检查通过；未连接真实 FC，不能外推为物理验收。
+
+实际轨迹时长为 10.802539100943088s。适配器结束边界现定义为：保留原始 knots/时长，使用首个“不早于曲线结束时间”的 authority tick 进入 HOLD；禁止在此 tick 或之后外推求值。这修正了“轨迹时长必须整毫秒”的离线实现限制，未改变物理1ms步、采样stride、状态/样本新鲜度预算、原始start_time或起点准入规则。纯时间点转换 `seconds_to_tick` 仍严格拒绝离网时间。真实样条离线回放与226项定向检查通过；晚到起点问题仍单独待处理。
+
 - **真实 ROS2 EGO planner**：未接入、未声明存在。
 - **point cloud / 占用图**：未读取。
 - **#29 / #33**：接触观察者与状态估计接缝保持开启，不在本切片闭合。

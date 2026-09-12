@@ -52,3 +52,5 @@ OMP22g已完成并由主会话通过202项检查：显式opt-in有序控制帧�
 工作区另有他方控制器/PID/独立profile/runtime/preflight/README/CONTEXT等改动；本轮未修改或暂存这些内容，禁止纳入本任务提交。
 
 本轮EGO静态输入夹具 ego-planner-static-20260912-01 在30s内无Bspline，已失败并清理（handle65988终态）。因启动时发现另一任务在Ubuntu运行run_rate_control_comparison预检，可能有资源重叠，此结果不作性能/根因结论。记录coordination-note.json；后续必须先单独完成并评估两发行版进程检查，不能在同一未评估命令中紧接启动。源码/日志保留，尚无真实planner输出/净空证明。
+
+后续独立两端进程检查均为空后，EGO静态夹具02已成功并退出：真实生成33控制点/37knots，观测障碍占用后合成COMMAND，两个点云、51184膨胀占用点。原始ROS1消息和JSON见validation/ego-planner-static-20260912-02。采样折线净空0.9971919183081722m通过，但不是连续曲线/飞行证明。实际duration=10.802539100943088s暴露适配器整毫秒时长限制；已仅修正终止tick为首次达到原始曲线结束时刻的整数tick，不改knots/start或晚到闸门。真实样条离线准入/完整回放到tick12404 HOLD通过，226项检查通过。当前没有主会话native运行。

@@ -8,6 +8,8 @@ strictly increase within uint32; the adapter never mints one and never evaluates
 (yaw is a mandatory explicit finite fallback).
 """
 import unittest
+import math
+from unittest.mock import patch
 
 from Simulator.wksim_planning.ego_evaluator import (
     DEFAULT_ORDER,
@@ -605,6 +607,36 @@ class AdapterIdMonotonicityTests(unittest.TestCase):
 
 
 class AdapterGridTests(unittest.TestCase):
+    def test_fractional_duration_expires_without_extrapolating(self):
+        points = [(i * 0.01, 0.0, 1.0) for i in range(7)]
+        knots = list(UniformBspline(3, points, 0.010123).knots)
+        spline = EgoSpline(3, knots, points)
+        duration = spline.duration
+        session, adapter = make_adapter()
+        activate(session, adapter, spline, start_tick=100)
+        self.assertEqual(adapter._active_end_tick, 141)
+        self.assertEqual(adapter._active_start_tick, 100)
+        with patch.object(spline, "position_at", wraps=spline.position_at) as evaluate:
+            for tick in range(100, 141, 10):
+                self.assertEqual(adapter.step(identity(session), tick, True, True)["intent"], "trajectory")
+            calls = evaluate.call_count
+            self.assertEqual(adapter.step(identity(session), 141, True, True)["intent"], "hold")
+            self.assertEqual(evaluate.call_count, calls)
+            self.assertTrue(all(call.args[0] < duration for call in evaluate.call_args_list))
+        self.assertEqual(spline.duration, duration)
+
+    def test_end_tick_uses_original_duration_at_adjacent_float_boundaries(self):
+        from Simulator.wksim_planning.ego_trajectory_adapter import _trajectory_end_tick
+        for duration, elapsed in ((0.01, 10), (math.nextafter(0.01, 0.0), 10),
+                                  (math.nextafter(0.01, math.inf), 11), (0.0105, 11)):
+            with self.subTest(duration=duration):
+                end = _trajectory_end_tick(100, duration)
+                self.assertEqual(end, 100 + elapsed)
+                self.assertGreaterEqual(tick_to_seconds(elapsed), duration)
+                self.assertLess(tick_to_seconds(elapsed - 1), duration)
+        with self.assertRaises(AdapterError):
+            _trajectory_end_tick(MAX_TICK - 1, math.nextafter(0.001, math.inf))
+
     def test_off_grid_time_rejected(self):
         with self.assertRaises(AdapterError):
             seconds_to_tick(0.0105)   # not an exact 1 ms multiple

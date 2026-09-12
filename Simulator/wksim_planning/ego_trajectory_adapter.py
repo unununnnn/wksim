@@ -130,6 +130,24 @@ def _finite_scalar(value, name):
     return float(value)
 
 
+def _trajectory_end_tick(start_tick, duration):
+    """First authority tick at/after the unchanged curve's end time."""
+    duration = _finite_scalar(duration, "spline duration")
+    capacity = MAX_TICK - start_tick
+    if duration <= 0:
+        raise AdapterError("spline duration must be positive")
+    if duration > tick_to_seconds(capacity):
+        raise AdapterError("trajectory end tick overflows")
+    elapsed = min(capacity, max(1, math.ceil(duration / (TICK_NS / 1_000_000_000))))
+    # Compare using the evaluator's tick-to-seconds conversion, avoiding a
+    # rounded quotient moving expiry before the original duration.
+    while tick_to_seconds(elapsed) < duration:
+        elapsed += 1
+    while elapsed > 1 and tick_to_seconds(elapsed - 1) >= duration:
+        elapsed -= 1
+    return start_tick + elapsed
+
+
 class EgoTrajectoryAdapter:
     """One serial adapter bound to a single TrajectorySession (single writer).
 
@@ -229,7 +247,7 @@ class EgoTrajectoryAdapter:
             raise AdapterError("trajectory_id must strictly increase across activations")
 
         generation = self.session.generation
-        end_tick = start_tick + seconds_to_tick(spline.duration)
+        end_tick = _trajectory_end_tick(start_tick, spline.duration)
         if end_tick <= start_tick:
             raise AdapterError("trajectory interval must be non-empty on the tick grid")
         try:
@@ -268,12 +286,7 @@ class EgoTrajectoryAdapter:
             raise AdapterError("start_tick must be strictly greater than the highest tick already observed")
         if trajectory_id <= self._trajectory_id_hwm:
             raise AdapterError("trajectory_id must strictly increase across activations")
-        duration_ticks = seconds_to_tick(duration)
-        if duration_ticks <= 0:
-            raise AdapterError("trajectory interval must be non-empty on the tick grid")
-        if duration_ticks > MAX_TICK - start_tick:
-            raise AdapterError("trajectory end tick overflows")
-        end_tick = start_tick + duration_ticks
+        end_tick = _trajectory_end_tick(start_tick, duration)
         try:
             self.session.replan_and_accept(
                 identity, event_sequence, trajectory_id, start_tick, end_tick

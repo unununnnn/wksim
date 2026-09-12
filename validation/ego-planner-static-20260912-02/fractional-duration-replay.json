@@ -1,0 +1,74 @@
+{
+  "scope": "offline admission/replay of actual captured EGO spline; no FC",
+  "trajectory_id": 1,
+  "source_start_time_ns": 2601000000,
+  "source_duration_seconds": 10.802539100943088,
+  "first_eval_tick": 1601,
+  "end_tick": 12404,
+  "sampled_clearance": {
+    "admitted": true,
+    "evidence_kind": "sampled_segment_checked",
+    "continuous_proof": false,
+    "scene_id": "ego-single-box-v1",
+    "scene_hash": "40ee928113c1ad6b2f9987c01506ee34171bd15099e6e7c9425496498cb8d0ba",
+    "geometry_id": "ego-single-box-v1:obstacle",
+    "profile_hash": "49da4cccaf3c172c510daa3cc3bd0ddad521669c4d64f3c8bc1a7fe71d9730f7",
+    "vehicle_radius": 0.35,
+    "required_clearance": 0.3,
+    "clearance_margin": 0.6499999999999999,
+    "sample_period_s": 0.01,
+    "duration_s": 10.802539100943088,
+    "sample_count": 1082,
+    "segment_count": 1081,
+    "start_point": [
+      -3.9995268806109134,
+      0.000298355434487314,
+      2.9999999999999893
+    ],
+    "end_point": [
+      3.911860793142294,
+      0.046616474075530656,
+      3.0
+    ],
+    "min_obstacle_clearance": 0.9971919183081722,
+    "min_envelope_clearance": 2.419092785153655,
+    "violation": null,
+    "non_claims": [
+      "clearance is proven only for the sampled polyline of straight segments, not for the continuous B-spline curve between sample instants",
+      "the deterministic 0.010 s grid is an evaluation cadence, not a proof that the stride is sufficient for continuous-curve safety",
+      "no force, impulse, UE, SITL, ROS, planner, socket, or flight claim",
+      "the obstacle is a vertical AABB; Terrain15D / terrain-height is never read or driven",
+      "no identifier is minted and no wall clock is read"
+    ]
+  },
+  "first_command_id": 1,
+  "last_trajectory_command_id": 1081,
+  "terminal_intent": {
+    "agent_cmd": 4,
+    "move_mode": 0,
+    "command_id": 1082,
+    "position_ref": [
+      3.911801499705176,
+      0.046610395988374076,
+      3.0
+    ],
+    "velocity_ref": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "acceleration_ref": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "yaw_ref": 0.0,
+    "yaw_rate_mode": false,
+    "yaw_rate_ref": 0.0,
+    "generation": 1,
+    "tick": 12404,
+    "intent": "hold"
+  },
+  "original_payload_sha256": "d4d318cc99cc55460a5de229881f8c83bbd032a7c97fd80f7f603ca4e2684447",
+  "adapter_sha256": "1ebd161181e8dfe8d0388e1eaa307385df34b7247935a6da321d17a2243c515d"
+}
