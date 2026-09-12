@@ -2,6 +2,13 @@
 
 ## 最新检查点（优先于下方历史记录）
 
+2026-09-12 最新实证：`029fae1` 已完成并推送完整 EGO 原生构建，全部 planner 可执行文件/消息与 19 份 C++17 编译配置已核验。随后真实 ROS1 GridMap run-01 通过：实际收到的 132000 字节点云与冻结中心逐字节一致，11000 唯一体素、8 个 occupancy 查询全部通过；证据 `validation/39-gridmap-cloud-20260912/`。仅使用独立 master 与明确的静态 odom 夹具，不代表规划/净空/飞行通过。
+
+M1 最新：Linux preflight 身份缺失、leader 退出残留、存活 leader 晚创建子进程快照已修；Windows launcher 严格清理报告与路径数据传递、collector 全五 owner/root PID 双阶段证明已联调。Ubuntu 当前相关三套检查 82 passed/30 subtests（含真实 EOF 子进程清理）。等待 Claude 最后接口核对与实际资源准入后，在全新目录真实诊断。当前无真实运行占用。三个 Luna 现用 luna2_scheduler_verify、luna2_gridmap_probe、luna2_cloud_publisher；完成状态须实时枚举后续派。OMP 正在实现公共 trajectory egress，agy 核对实际 M1 资源，Claude 只读 M1 联调；旧线程分工均为历史。
+
+Goal 已回读 active，无 token 预算；heartbeat `wksim` ACTIVE 且已清除旧 blocked/失效代理名称引用。全局 Goal 尚未完成。ROS1 反向状态与共享 clock 尚无传输实现，当前 TCP Route B 仅承载 Bspline，不能把消息编译成功当作已桥接。
+
+
 **Goal已修复并生效**：用户2026-09-12要求修复后，get_goal最新返回null；正式create_goal成功，随后再次get_goal确认status=active、createdAt=1789170710，threadId=01a08b94-d2fe-7361-9c43-2d54e9490f32。目标为[next-acceptance-goal.md](next-acceptance-goal.md)的M1/M2/M3及Full收口，无token预算。旧blocked/创建受拒记载仅为历史，禁止继续当作当前阻塞；没有虚假完成或直接改数据库。当前新发现：Luna shutdown复核指出预检身份缺失放行/leader退出残留两项P1，需要修复后才可新诊断。
 
 2026-09-12用户明确要求新目标与3个Luna+agy/Claude/Oh My Pi持续推进，当前主计划改为[next-acceptance-goal.md](next-acceptance-goal.md)。已实际派发三个Luna/xhigh：luna_ceiling_bounds独占grid_map.cpp/native test修虚拟顶索引；luna_planner_build_readiness只读准备完整EGO构建；luna_scheduler_shutdown_review只读复核EOF/预检清理。Claude18w继续launcher，OMP21t继续collector，agy17y写acceptance-frontier.json。旧“三个Luna已完成/不能续派”不再代表当前状态；Fast未宣称核验。create_goal因旧unfinished记录被拒，新目标以执行计划与ACTIVE heartbeat持续落实，不能将旧Full虚假结案。一次独立复核后优先实际验收，减少重复审计和盲测。
