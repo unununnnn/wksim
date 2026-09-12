@@ -866,16 +866,43 @@ def main():
     parser.add_argument('--task-profile')
     args = parser.parse_args()
     if args.output:
-        require(not args.output.resolve().is_relative_to(args.directory.resolve()), 'Audit output must be outside raw evidence')
+        # A retained report is evidence: refuse to clobber it before any audit
+        # work. lexists (not exists) is dangling-symlink aware, so a symlinked
+        # output is rejected even when its target no longer exists.
+        if os.path.lexists(args.output):
+            print('Audit output already exists; refusing to overwrite retained evidence: '
+                  + str(args.output), file=sys.stderr)
+            return 2
+        # Keep the report outside the raw evidence root. Resolving both sides
+        # preserves the symlink boundary (a path reached through a link into the
+        # raw tree is still inside it) and shows where a relative output lands.
+        resolved_output = args.output.resolve()
+        resolved_directory = args.directory.resolve()
+        if resolved_output.is_relative_to(resolved_directory):
+            print('Audit output must be outside raw evidence: ' + str(args.output)
+                  + ' resolves to ' + str(resolved_output)
+                  + ' inside ' + str(resolved_directory), file=sys.stderr)
+            return 2
     try:
         report = audit(args.directory, task_profile=args.task_profile)
     except (OSError, ValueError, KeyError, TypeError, ImportError, AssertionError, IndexError, StopIteration, OverflowError) as error:
         report = dict(status='failed', directory=str(args.directory), error=repr(error), audit_source_sha256=digest(__file__),
                       outstanding_checks=['Audit terminated at the reported failure; downstream checks are not accepted.'])
     raw = json.dumps(report, indent=2, allow_nan=False)+'\n'
+    persisted = True
     if args.output:
-        args.output.write_text(raw)
+        try:
+            with open(args.output, 'x') as handle:
+                handle.write(raw)
+        except FileExistsError:
+            # Lost the check/write race: the target appeared after the pre-audit
+            # check. Never overwrite it; the report still goes to stdout.
+            print('Audit output appeared during the run; refusing to overwrite retained evidence: '
+                  + str(args.output), file=sys.stderr)
+            persisted = False
     print(raw, end='')
+    if not persisted:
+        return 2
     return 0 if report['status'] == 'pass' else 1
 
 
