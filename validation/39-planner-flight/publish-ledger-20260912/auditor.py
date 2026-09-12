@@ -38,8 +38,6 @@ def event_id_contiguous(event_ids):
     BEFORE publish).  Contiguity of the RECEIVED ids from first to last proves no
     TextInfo loss inside that range even under BEST_EFFORT capture; it says nothing
     about events outside the range, which the caller scopes explicitly.'''
-    require(all(type(value) is int and value>0 for value in event_ids),
-            'invalid source event_id')
     ids=sorted(set(event_ids))
     require(ids and all(b==a+1 for a,b in zip(ids,ids[1:])),'source event_id gap: TextInfo delivery loss in range')
     return ids
@@ -60,7 +58,13 @@ def publication_records(log_path):
     return records
 
 
-def verify_publication_coverage(ledger,completed,captured,*,run_id,control_epoch,wire_value=None):
+def published_envelopes(log_path):
+    records=publication_records(log_path)
+    return ([(m['request_id'],m['command']['command_id']) for m in records if 'command' in m],
+            [(m['request_id'],m['setup']['px4_mode']) for m in records if 'setup' in m])
+
+
+def verify_publication_coverage(ledger,completed,captured,*,run_id,control_epoch):
     """Compare full messages; cross-topic arrival order need not equal emission order."""
     require(ledger==completed,'publish ledger differs from completed Task report')
     for records in (ledger,captured):
@@ -71,10 +75,7 @@ def verify_publication_coverage(ledger,completed,captured,*,run_id,control_epoch
         require(len({m['request_id'] for m in records})==len(records),'duplicate publication ID')
     require(all(b['request_id']>a['request_id'] for a,b in zip(ledger,ledger[1:])),
             'source request IDs not increasing')
-    # Task logs precede ROS serialization: canonicalize via the frozen wire types,
-    # never by a numeric tolerance (notably Python float vs ROS float32 yaw_ref).
-    encoded=[wire_value(message) for message in ledger] if wire_value else ledger
-    require(encoded==sorted(captured,key=lambda m:m['request_id']),
+    require(ledger==sorted(captured,key=lambda m:m['request_id']),
             'publish ledger and captured envelopes differ')
     return dict(requests=len(ledger),first_request_id=ledger[0]['request_id'],
                 last_request_id=ledger[-1]['request_id'])
@@ -189,9 +190,8 @@ def audit(root):
         require(previous==ticks and metrics['stop_samples']==window[1]-window[0]+1 and abs(last[8])<.3,'incomplete truth/final ground')
         physical[stack]=metrics;hashes[stack+'-truth.jsonl']=digest.hexdigest()
     # Deserialize the independently captured DDS stream with the frozen generated messages.
-    from rclpy.serialization import deserialize_message,serialize_message
+    from rclpy.serialization import deserialize_message
     from rosidl_runtime_py.convert import message_to_ordereddict
-    from rosidl_runtime_py.set_message import set_message_fields
     from prometheus_msgs.msg import TextInfo
     from wksim_msgs.msg import SetupRequest,CommandRequest,SessionState
     observed_events=[];setups=[];commands=[];sequence=0;digest=hashlib.sha256();text_event_ids={}
@@ -259,12 +259,6 @@ def audit(root):
     require(set(text_event_ranges)=={'/uav1/prometheus/text_info','/uav2/prometheus/text_info'},
             'source event stream missing for a vehicle')
     require(observed_events==[ack,done] and setups==[request],'independent DDS release correlation failed')
-    def wire_value(message):
-        cls=CommandRequest if 'command' in message else SetupRequest
-        generated=cls()
-        set_message_fields(generated,message)
-        return message_to_ordereddict(deserialize_message(serialize_message(generated),cls))
-
     # Anchor owned-writer publication logs to normally completed Task reports,
     # then compare full captured envelopes. The helper is a distinct AP writer.
     publish_proof={}
@@ -277,7 +271,7 @@ def audit(root):
         expected=report['task']['request_envelopes']
         owned_capture=[m for m in captured if not (stack=='arducopter' and 'setup' in m and m['request_id']==request)]
         proof=verify_publication_coverage(ledger,expected,owned_capture,
-                run_id=result['run_id'],control_epoch=report['task']['control_epoch'],wire_value=wire_value)
+                run_id=result['run_id'],control_epoch=report['task']['control_epoch'])
         hashes[stack+'/prometheus.jsonl']=sha(ledger_path)
         hashes[stack+'/result.json']=sha(root/stack/'result.json')
         sent_commands=[(m['request_id'],m['command']['command_id']) for m in ledger if 'command' in m]

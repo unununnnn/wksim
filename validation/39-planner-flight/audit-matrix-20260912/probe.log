@@ -1,0 +1,27 @@
+raw baseline : /root/wksim-release-acceptance-fe3/validation/joint-public-flight-bomvjsmg
+auditor      : /root/wksim-release-acceptance-fe3/tools/audit_planner_release.py
+work root    : /tmp/wksim-audit-probe-cre1mwef
+output dir   : /root/wksim-release-acceptance-fe3/validation/coordination/six-end-20260912/probe-run-02
+baseline files hashed: 319
+audit inputs : 66 files (70 retained sources derived from manifests)
+codec        : rosidl/rclpy frozen generated messages
+auditor sha  : e8d33c5d6562f75cb3f3e5baacf33737af91281d646fefe0cc5db369d374177e
+
+== positive control: unmodified isolated copy ==
+   outcome=accepted 
+
+== scenario: ledger_command_gap ==
+   mutated pv-dds.jsonl: deleted first /uav1/prometheus/v2/command row seq=26880 and renumbered 52712 rows
+   outcome=rejected ValueError: publish ledger and captured envelopes differ
+
+== scenario: command_payload_tamper ==
+   mutated pv-dds.jsonl: rewrote command.yaw_ref 0.0->0.5 keeping request/command ids
+   outcome=rejected ValueError: publish ledger and captured envelopes differ
+
+== scenario: ledger_tail_truncation ==
+   mutated arducopter/prometheus.jsonl: truncated from last publication line 49292 (request_id=68, SetupRequest); dropped 67 line(s), of which 66 non-publication
+   outcome=rejected ValueError: publish ledger differs from completed Task report
+
+== scenario: retained_source_change ==
+   mutated source__Simulator__wksim_core__ap_json.py.txt: appended marker to retained source (sha changed)
+   outcome=rejected ValueError: retained source changed: Simulator/wksim_core/ap_json.py

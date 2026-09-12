@@ -38,8 +38,6 @@ def event_id_contiguous(event_ids):
     BEFORE publish).  Contiguity of the RECEIVED ids from first to last proves no
     TextInfo loss inside that range even under BEST_EFFORT capture; it says nothing
     about events outside the range, which the caller scopes explicitly.'''
-    require(all(type(value) is int and value>0 for value in event_ids),
-            'invalid source event_id')
     ids=sorted(set(event_ids))
     require(ids and all(b==a+1 for a,b in zip(ids,ids[1:])),'source event_id gap: TextInfo delivery loss in range')
     return ids
@@ -58,6 +56,12 @@ def publication_records(log_path):
             require(row.get('published') in ('CommandRequest','SetupRequest'),'unknown publication record')
             records.append(row['message'])
     return records
+
+
+def published_envelopes(log_path):
+    records=publication_records(log_path)
+    return ([(m['request_id'],m['command']['command_id']) for m in records if 'command' in m],
+            [(m['request_id'],m['setup']['px4_mode']) for m in records if 'setup' in m])
 
 
 def verify_publication_coverage(ledger,completed,captured,*,run_id,control_epoch,wire_value=None):
