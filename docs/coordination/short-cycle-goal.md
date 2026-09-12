@@ -12,20 +12,22 @@
 
 ## 当前关键路径
 
-主仓库最新已推送运行时修复为1521343；后续提交以实时Git为准。Ubuntu-22.04 `/root/wksim-release-acceptance-fe3` 的私有分支 `codex/planner-release-validation` 已提交实验准备 c97e92b、执行模块证据 e5a124e、失败记录 float32 修复8699169。主仓库他方 runner/runtime/控制器修改不覆盖，不整文件替换。
+主仓库6d139b7已推送，包含真实release成功证据、独立审计工具与#39运行合同补充。实验分支 `codex/planner-release-validation` 已推送至90bb3e1；实际运行代码bc76fb6。Ubuntu-22.04工作区 `/root/wksim-release-acceptance-fe3` 保留所有实验代码及全量原件。主仓库他方runner/runtime/控制器修改未覆盖，实验分支尚未整体合并。
 
-1. **真实移动中 release 首场 FAILED，禁止盲重跑。** 私有原始目录 `validation/joint-public-flight-8fmacpgy`，live `/root/wksim-joint-flight-zzt0406g`，epoch `676a53981dd747cb93bfd5271d7f5d95`，执行源码 e5a124e。tick67996 累计迟到134828282ns触发原100ms RateUnmet；此前两机已起飞并进入P+V。AP writer静默tick67940，公共速度0.26640569398276115m/s、同tick物理真值0.3055788437713588m/s。没有 release ACK，没有停止/LAND 验收，不能算 #83 nominal PV 或 Full。
-2. **时序与清理已核验，因果仍有限。** 最后67992→67996组耗71993754ns；planner启动前最近组已有66800709ns累计迟到。子进程启动wall351.29149844，RateUnmet记录351.423954943，cancel在351.529023245，晚于rate fault105068302ns，events为空。启动重叠不证明唯一CPU/IO/FC原因。源码与完整Control候选均不变，原10个PGID的独立/proc检查为空；planner pid2501继承AP task pgid1927、退出0，无用户进程被终止。完整原件保留私有目录；主仓库选定原件及rate.gz/SHA清单在 `validation/planner-release-native-20260912-01/`。
-3. **失败记录缺口已修复，原记录不重写。** AP result.json因release_stop中的numpy.float32无法JSON序列化而未写出；原始task log、progress、helper记录均保留。8699169仅把anchor和pre_release_velocity转Python float，真实numpy回归与6项流程/证据检查通过；不是改变坐标或阈值。
-4. **下一步评审并实现启动预热，避免在计时飞行中临时加载整套ROS/Python模块。** 候选方案：同一密封planner子进程在 initialized.json/physics tick0屏障前完成模块加载，等待自有stdin激活令牌；writer静默且当前双高水位核对后，才实例化真正PlannerTransportNode并接收cancel。不能提前绑定epoch追随PV writer，不能提前分配请求，不改.5倍率/100ms/1ms/无追赶或停止锚点。Claude18-AI（thread `4d5268f4-1d78-48ba-a5d6-aa800447cb1c`，turn `4edadb23-c0ac-4634-9cf7-76c00f454998`）已派发只读边界复核，最后实时状态running；主会话拥有实现。先读其状态，不因观察超时重启。不直接复跑8fmacpgy原条件。
+1. **真实移动公共 release 与双机 LAND 已实跑并通过当前原始审计，不重复该场次。** run `joint-public-flight-bomvjsmg`，scene epoch `fffc7da8ba73461fa26b1949a31b0007`，原件 `/root/wksim-release-acceptance-fe3/validation/joint-public-flight-bomvjsmg`，live `/root/wksim-joint-flight-4_nzkfc8`。结果 observed（明确不是nominalPV/Full），两任务与Control正常完成。AP在物理tick0预加载同一planner子进程，writer静默后激活，真实绑定run/epoch/request65/command62核对后发cancel；请求66的native_ack→setup_completed(BRAKE)成立，随后AP AUTO.LAND67、PX4 LAND126均有真实native ACK和模式确认。
+2. **1ms与独立DDS审计03通过。** 两栈各92596个连续1ms真值；AP交接真值速度0.3064071141526029m/s。停止窗各4001个含端点样本：AP最大速度0.04970044238295725m/s、距释放前锚点最远0.4820302973402434m；PX4最大速度0.03930866587856656m/s、漂移0.09233400879439557m。独立CDR读取52713条DDS记录，命令/请求ID严格递增，最后SessionState真实解除武装、有效且在地面。23140个原.5rate组无追赶，最差迟到75321700ns。主仓库证据 `validation/39-planner-flight/release-bomvjsmg/`；全量真值仍在私有目录，Git中的stop-truth.gz只是明确4001行片段，不能冒充全量。审计工具SHA `c4a003c89396e733a068db81cf5b017ef02b3ecfdb4a546280623ff242c03471`，审计03和源码快照均保留。
+3. **当前只剩该审计的独立代码复核，随后转下一验收切片。** Claude18-AJ，thread `4d5268f4-1d78-48ba-a5d6-aa800447cb1c`，turn `8bcc303b-8250-4b94-a551-423c72984c58`，最后实时状态running；范围是审计潜在误判，不运行native或全量raw扫描。其派发之后主会话已补原始LAND确认、最终SessionState、ID严格递增与物理窗口完整范围检查；回收报告时核对当前90bb3e1，不能照旧版本建议重复改动。仅有审计代码修正时复核原件，不重复飞行。
+4. **后续优先核对#82→#83原合同与冻结候选。** #83刚读取仍OPEN，要求完整最终组合PV、原.5x/100ms/10s/60s合同与原audit_pv_trajectory，全两段；本次AP提前release/PX4仅一段不能关闭#83。先读取#82及 docs/2026-09-09-final-combo-pv-plan.md、mixed-production-seam、rate-release-check，核对新Control是否需要重新冻结合同，再决定一次完整PV验证。新common-prefix已真实运行至92596tick且通过，不能把旧53k失败直接当仍在运行，也不能无依据盲重跑旧条件。
 
-Control仍为 `/root/wksim-joint-control-c2IXOr/build.json`，SHA `6fe8c0b30775a9ba83407302f602d0785876d307e5f1cb746afa3bf316cf5e7e`。admission-04已对该候选实际准入ok=true，零子进程；原overlay顺序MUlZd0/FVMjak，之后激活Rzj3Pf/新Control，不削弱checks。BeqOco有已证实的阻塞接收缺陷，不用于新飞行。新候选本轮实跑前后完整check_control一致，无须因实验工具修改而重建同样Control。
+#39/#102仍OPEN：本场没有真实EGO Bspline驱动的完整绕障、到达、净空/无接触、no-route或重规划。原晚到起点语义问题仍未得到用户回答，不能放宽start_in_past或等值闸门；继续独立票据工作。不要把公共释放完成当作map→planner→public control→flight全部完成。
 
-Claude18-AH已完成：采纳安装态模块证据缺口，e5a124e记录子进程实际加载15个Simulator模块并逐项对候选路径/哈希核验，赛后完整check_control；闭包源码和消息资产进入原source_unchanged。其子进程独立组担忧已由前轮继承task组/正常退出修复；其“速度必定>.25”数学推论不成立，以实测为准；其把anchor后移会放宽原停止距离，未采纳。安装态新增证据联调04验证15模块、退出0、源码不变，仍是合成ACK，不是FC证明。
+Control仍为 `/root/wksim-joint-control-c2IXOr/build.json`，SHA `6fe8c0b30775a9ba83407302f602d0785876d307e5f1cb746afa3bf316cf5e7e`，两场前后完整check_control均一致，15个实际执行模块匹配封存；admission-04已准入。纯实验工具改动无需重建同样Control。环境顺序保留MUlZd0/FVMjak历史overlay，之后激活Rzj3Pf/候选，不削弱checks。BeqOco有阻塞recv缺陷，不用于新场次。
 
-已完成且不重复：非阻塞接收修复1521343（accepted socket显式nonblocking，BlockingIOError空批次，EOF/身份拒绝保留），56纯检查、27实际ROS检查；安装态03与04通过。证据 `validation/control-nonblocking-20260912/`、`validation/planner-release-helper-20260912-03/`；01/02旧失败原件保留。OMP22l已实际中断并确认interrupted，helper由主会话接管，不重启覆盖。agy旧映射结果状态failed，仅作定位提示，不当验收。
+原8fmacpgy失败保留：epoch676a53981dd747cb93bfd5271d7f5d95，tick67996迟到134828282ns，最后组71993754ns；cancel晚于rate fault105068302ns，零ACK。启动重叠不证明唯一CPU/IO/FC原因。AP result.json曾因numpy.float32未落盘，8699169修复为Python float并通过真实numpy回归，不重写原件。证据 `validation/planner-release-native-20260912-01/`。
 
-本轮真实场次handle38241已退出1；准入handle67838退出0；所有主会话native/fixture/build handles均终态。下次任何native启动前必须重新分别完成并评估两个distro进程检查，再单独启动。所有数值、身份、新鲜度、停止、时间门槛和历史失败均保留。
+预热实现bc76fb6：原AP task在initialized.json前持有子进程和stdin；import+rclpy.init预加载后记录warm-ready0，激活前不创建Node/绑定会话。保留原5s传输、10s ROS截止、所有计数/身份检查；原task组清理，helper只核验并信号自有PID。34项检查与安装态合成输入预热05通过。Claude18-AI误称“时钟前只有runner存在”，已用实际launch_task→initialized gate源码纠正；不引入多余runner文件握手。OMP22l仍中断，主会话拥有helper，不重启覆盖。Luna接口Fast仍不可选择/验证，遵守仓库规则由主会话承担对应工作，不伪报设置。
+
+本轮handle70504真实场次退出0，98999只读审计退出0；所有主会话native/fixture/build handles均终态。成功场次原10个PGID的独立/proc复查为空，warm child继承taskPGID并正常退出0。下次native前重新分别完成并评估两distro进程检查，再单独启动。全范围Goal保持active，不关闭任何尚缺原AC的父/子票。
 
 ## 已完成，勿重复
 
