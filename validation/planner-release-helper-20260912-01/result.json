@@ -1,0 +1,101 @@
+{
+  "scope": "synthetic ROS input, actual installed Node and TCP helper only",
+  "physical_acceptance": false,
+  "native_ack_is_synthetic": true,
+  "fixture_module_path": "/root/wksim-joint-control-BeqOco/install/prometheus_control/local/lib/python3.10/dist-packages/Simulator/wksim_runtime/planner_command_egress.py",
+  "handoff": {
+    "mode": "BRAKE",
+    "expected_native_mode": "BRAKE",
+    "transport_session_id": "12301718988639ff0821c7d424f73cac",
+    "listen_port": 53097,
+    "deadline_ros_ns": 10000000000,
+    "outcome": "release_confirmed_observed",
+    "events": [
+      {
+        "wall": 635.141021737,
+        "ros_ns": 1494000000,
+        "message_type": 0,
+        "event": {
+          "version": 1,
+          "run_id": "handoff-installed-fixture",
+          "control_epoch": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "request_id": 30,
+          "event": "native_ack",
+          "accepted": true,
+          "stage": "simple"
+        }
+      },
+      {
+        "wall": 635.172833762,
+        "ros_ns": 1526000000,
+        "message_type": 0,
+        "event": {
+          "version": 1,
+          "run_id": "handoff-installed-fixture",
+          "control_epoch": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "request_id": 30,
+          "event": "setup_completed",
+          "action": "mode",
+          "value": "BRAKE",
+          "native_mode": "BRAKE"
+        }
+      }
+    ],
+    "child": {
+      "pid": 720,
+      "pgid": 592,
+      "start_ticks": 63475,
+      "argv": [
+        "/usr/bin/python3",
+        "-B",
+        "-m",
+        "Simulator.wksim_runtime.planner_transport_node",
+        "--ros-args",
+        "-p",
+        "run_id:=handoff-installed-fixture",
+        "-p",
+        "mission_id:=handoff-installed-fixture-release",
+        "-p",
+        "uav_id:=1",
+        "-p",
+        "fallback_yaw:=0.0",
+        "-p",
+        "authority_anchor_ns:=0",
+        "-p",
+        "listen_host:=127.0.0.1",
+        "-p",
+        "listen_port:=53097",
+        "-p",
+        "transport_session_id:=12301718988639ff0821c7d424f73cac",
+        "-p",
+        "accept_control:=true",
+        "-p",
+        "cancel_mode:=BRAKE",
+        "-p",
+        "expected_native_mode:=BRAKE",
+        "-p",
+        "use_sim_time:=true"
+      ],
+      "alive_at_record": true
+    },
+    "timestamps": {
+      "high_water_verified_wall": 634.75516042,
+      "node_spawned_wall": 634.755961609,
+      "cancel_sent_wall": 634.97151334,
+      "cancel_sent_ros_ns": 1339000000,
+      "release_confirmed_wall": 635.182960154,
+      "release_confirmed_ros_ns": 1526000000,
+      "task_adopted_wall": 635.225562628
+    },
+    "verified_request_high_water": 29,
+    "verified_command_high_water": 17,
+    "adopted_request_high_water": 30,
+    "child_teardown": "terminated",
+    "child_returncode": 0
+  },
+  "status": "pass",
+  "setup_request_ids": [
+    30
+  ],
+  "command_outputs": 0
+}

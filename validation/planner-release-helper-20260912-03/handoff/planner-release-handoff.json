@@ -1,0 +1,90 @@
+{
+  "mode": "BRAKE",
+  "expected_native_mode": "BRAKE",
+  "transport_session_id": "c1842779b77ddff3e9921a5230a68328",
+  "listen_port": 43165,
+  "deadline_ros_ns": 10000000000,
+  "outcome": "release_confirmed_observed",
+  "events": [
+    {
+      "wall": 1044.692285988,
+      "ros_ns": 1492000000,
+      "message_type": 0,
+      "event": {
+        "version": 1,
+        "run_id": "handoff-installed-fixture",
+        "control_epoch": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "request_id": 30,
+        "event": "native_ack",
+        "accepted": true,
+        "stage": "simple"
+      }
+    },
+    {
+      "wall": 1044.724076953,
+      "ros_ns": 1523000000,
+      "message_type": 0,
+      "event": {
+        "version": 1,
+        "run_id": "handoff-installed-fixture",
+        "control_epoch": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "request_id": 30,
+        "event": "setup_completed",
+        "action": "mode",
+        "value": "BRAKE",
+        "native_mode": "BRAKE"
+      }
+    }
+  ],
+  "child": {
+    "pid": 722,
+    "pgid": 606,
+    "start_ticks": 104430,
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "-m",
+      "Simulator.wksim_runtime.planner_transport_node",
+      "--ros-args",
+      "-p",
+      "run_id:=handoff-installed-fixture",
+      "-p",
+      "mission_id:=handoff-installed-fixture-release",
+      "-p",
+      "uav_id:=1",
+      "-p",
+      "fallback_yaw:=0.0",
+      "-p",
+      "authority_anchor_ns:=0",
+      "-p",
+      "listen_host:=127.0.0.1",
+      "-p",
+      "listen_port:=43165",
+      "-p",
+      "transport_session_id:=c1842779b77ddff3e9921a5230a68328",
+      "-p",
+      "accept_control:=true",
+      "-p",
+      "cancel_mode:=BRAKE",
+      "-p",
+      "expected_native_mode:=BRAKE",
+      "-p",
+      "use_sim_time:=true"
+    ],
+    "alive_at_record": true
+  },
+  "timestamps": {
+    "high_water_verified_wall": 1044.306037213,
+    "node_spawned_wall": 1044.307084062,
+    "cancel_sent_wall": 1044.522938009,
+    "cancel_sent_ros_ns": 1337000000,
+    "release_confirmed_wall": 1044.734197347,
+    "release_confirmed_ros_ns": 1523000000,
+    "task_adopted_wall": 1044.777040634
+  },
+  "verified_request_high_water": 29,
+  "verified_command_high_water": 17,
+  "adopted_request_high_water": 30,
+  "child_teardown": "terminated",
+  "child_returncode": 0
+}

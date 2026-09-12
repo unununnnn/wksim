@@ -107,6 +107,17 @@ class PlannerTransportNodeRosTests(unittest.TestCase):
         self.assertEqual(connection.fileno(), -1)
         client.close()
 
+    def test_idle_accepted_peer_does_not_block_ros_callbacks(self):
+        client = self.bind_and_connect()
+        self.addCleanup(client.close)
+        self.assertTrue(self.node._ensure_connection())
+        # Assert before polling so a regression fails instead of hanging CI.
+        self.assertFalse(self.node._connection.getblocking())
+        self.node.on_receive_timer()
+        self.assertIsNone(self.node.fault_reason)
+        self.assertTrue(self.node.on_session_state(self.state(sequence=2)))
+        self.assertEqual(self.publisher.messages, [])
+
     def test_control_epoch_change_does_not_reset_same_transport_token(self):
         client = self.bind_and_connect()
         session = self.node.session

@@ -1,0 +1,12 @@
+{
+  "defect": "Linux accepted TCP sockets remain blocking, starving the ROS executor on an idle peer; EAGAIN was also treated as a socket failure.",
+  "correction": "Explicitly set accepted sockets nonblocking; return an empty outcome batch on BlockingIOError while preserving EOF and other failures.",
+  "pure_checks": 56,
+  "ros_checks": 27,
+  "new_control_manifest": "/root/wksim-joint-control-c2IXOr/build.json",
+  "new_control_sha256": "6fe8c0b30775a9ba83407302f602d0785876d307e5f1cb746afa3bf316cf5e7e",
+  "previous_fixture_01": "ACK fixture passed, socket-first teardown emitted EOF fault.",
+  "previous_fixture_02": "Retaining TCP exposed executor blocking; node required SIGKILL.",
+  "fixed_fixture_03": "Source sealed before/after; installed Node, synthetic state/ACK, actual TCP; request 30, command high-water17; clean exit0 and empty log.",
+  "native_flight_acceptance": false
+}
