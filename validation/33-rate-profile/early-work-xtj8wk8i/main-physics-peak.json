@@ -1,0 +1,78 @@
+{
+  "scope": "Exact largest early-window physics_advance sample and nested diagnostics at its end_tick; no phase-overlap sum or full-flight attribution",
+  "run_id": "joint-public-flight-xtj8wk8i",
+  "epoch": "792e1feb4b274040965ca38e31491768",
+  "peak": {
+    "phase": "physics_advance",
+    "start_tick": 1999,
+    "end_tick": 2000,
+    "start_ns": 120854558997,
+    "end_ns": 120861181097,
+    "thread_cpu_ns": 1292890,
+    "wall_ns": 6622100,
+    "crossing": false,
+    "warmup": false,
+    "outcome": "ok"
+  },
+  "nested_diagnostics": [
+    {
+      "line": 7568,
+      "record": {
+        "kind": "diagnostic_native_input_timing",
+        "epoch": "792e1feb4b274040965ca38e31491768",
+        "tick": 2000,
+        "wall": 54.13689604699999,
+        "ap_source_frame": 1999,
+        "px4_source_time_us": 1996000,
+        "native_wait_wall_ns": 5976782,
+        "waits": [
+          {
+            "stack": "arducopter",
+            "wall_start_ns": 120855147835,
+            "wall_end_ns": 120855302584,
+            "wall_ns": 154749,
+            "thread_cpu_ns": 150486,
+            "ap_frame": 2000
+          },
+          {
+            "stack": "px4",
+            "wall_start_ns": 120855305412,
+            "wall_end_ns": 120861127445,
+            "wall_ns": 5822033,
+            "thread_cpu_ns": 595145,
+            "px4_time_us": 2000000
+          }
+        ],
+        "limitation": "Retained slow(>2ms native wait)/periodic(tick%250) samples, not a full census. Each wait brackets only the supervisor wait_ap/wait_px4 call; acknowledge_ap, barrier/repair_input and all record writes are excluded and stay in the combined native_inputs stage. Supervisor off-CPU during a wait includes I/O wait and descheduling; it does not identify the native FC, host or Windows cause."
+      }
+    },
+    {
+      "line": 7569,
+      "record": {
+        "kind": "diagnostic_step_cpu_timing",
+        "epoch": "792e1feb4b274040965ca38e31491768",
+        "tick": 2000,
+        "wall": 54.136910463999996,
+        "wall_start_ns": 120854559730,
+        "wall_end_ns": 120861161251,
+        "stages": {
+          "health_and_models": {
+            "wall_ns": 447530,
+            "thread_cpu_ns": 357139
+          },
+          "encode_send": {
+            "wall_ns": 138549,
+            "thread_cpu_ns": 134441
+          },
+          "native_inputs": {
+            "wall_ns": 6015442,
+            "thread_cpu_ns": 781388
+          }
+        },
+        "limitation": "Thread CPU separates execution from off-CPU time; off-CPU includes I/O wait and descheduling"
+      }
+    }
+  ],
+  "wire_sha256": "d870c1069ff6686845cb004f64d9deb22b8aade13fa67d92d30c6384abc90a06",
+  "probe_sha256": "61dd544b3bb5c0bcec9beeffd870b24c033d4a9451298dc969e2091f8d13cd22"
+}

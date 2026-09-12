@@ -2,6 +2,10 @@
 
 ## 最新：xtj8wk8i 诊断完成，正式身份审计拒绝；两席续接
 
+主会话进一步用同一原件确定位点（main-physics-peak.json）：最大physics_advance是start_tick1999→end_tick2000，wall6622100ns、同样本线程CPU1292890ns。内部diagnostic_step_cpu_timing三段wall为health_and_models447530、encode_send138549、native_inputs6015442；嵌套PX4 wait5822033ns/CPU595145ns。外层与内层不能相加；只证明该首10s峰值落在PX4输入等待，不证明整个场次迟到由FC、OS或I/O单独造成。wire完整SHA d870c106…90a06已留证。
+
+OMP首版8bb0f911分析器不验收：将最后tick5033误叫最大耗时样本位置、identity.segment=True误通过、200条invalid被截断计成65、JSON读取/hash不同次。已在同任务实际续派turn357e843c-2875-45e5-8bcf-b35382447724，要求准确峰值同样本wall/CPU、plain-int身份、总量与有限明细分离、一次原字节读取、portable真实helper夹具，新结果用v2且保留旧版为被取代证据。旧摘要“10s约10000tick前半”与中位之差“组均差”也已退回；不能引用为有效分析。Claude原turn42c349c8仍推进G6。
+
 主会话实际运行首10墙秒early-work诊断。私有源码提交a18eace；run `joint-public-flight-xtj8wk8i`，epoch `792e1feb4b274040965ca38e31491768`，Ubuntu原件`/root/wksim-release-acceptance-fe3/validation/joint-public-flight-xtj8wk8i`，live`/root/wksim-joint-flight-4r9hv49t`。runner status=pass、flight_completed=true，两栈task pass，final tick115992/stopped，wall283.203527176s；最差迟到97940161ns。source_unchanged=true，所有source快照SHA独立核对一致，control_shutdown_clean=true，cleanup_errors=[]。PGID2007–2016独立确认全空，前后boot_id一致。两栈async complete/closed且提交/写入字节相同。early-work共21239样本，无错误、无截断，真实segment1，anchor116928968402ns到126928968402ns。
 
 **不是#83通过**：两timing env及early-work打开，本来就仅诊断；现有raw PV审计另在`Frozen mixed build/control selection changed`拒绝，未接受下游物理/完整滑窗检查。执行Control是诊断方案c2IXOr/6fe8c0b3，正式#83链接合同及审计锁定ZlTVa4/3d04d53a。两个manifest的11份Control Python相同、15份Simulator支持中8份不同，不能仅凭前者相同替换身份或扩大通过结论。后续正式验收先核对合同指定组合与安装源码，不改审计pin以接受本场。诊断方案与正式合同须明确区分。
