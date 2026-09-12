@@ -2,6 +2,16 @@
 
 2026-09-12工具宿主已实际恢复，正式get_goal返回active，createdAt1789215151。不重建、不改数据库。当前用户指定阵容是 **codebuddy + Oh My Pi + 3个DeepSeek（五个外部端）**，不要沿用旧六端/Claude/三Luna代行配置。历史检查点见 [恢复前归档](short-cycle-before-recovery-20260912.md)。
 
+## 本轮已验收交付（优先于历史任务快照）
+
+- `5ec3d38` 已推送：DS-A完整审计模块。最终probe SHA51342c48…，审计器e8d33c5d…不变。主会话核验四文件SHA、真实一正四负、complete_matrix_pass=true及319文件前后哈希一致，并在Linux独立跑59项纯测试，零skip。证据 `validation/39-planner-flight/module-delivery-20260912/`。该模块可直接复用，不再重复实跑或重复让代理复核已关闭点；Setup66无全字段源账本的明确边界保持。
+- `f21fc3a` 已推送：区间核算新字段和16项相关主验通过。nqyqcagl真实数据精确闭合115025+97921130+6224284=104260439ns；bomvjsmg没有latch，正确返回null/unavailable。证据 `validation/coordination/rate-reconciliation-20260912/`。这只是分析工具，不是减负或PV通过证明。
+- `b67ad43` 已推送：主会话已冻结并实际执行current-wrapper-01冷构建和100步1ms检查。driver SHA0f6c7a8c…，wrapper150ddf3b…/4070B，新库/root/wksim-codegen-e0-build-current-wrapper-01/libwksim_e0.so，SHA528db3241baa43ef79166fbba74f6a4176aa2d82bf7c238bfe8f8db68267b328；输出有限、仿真时间0.1s、依赖不含MATLAB运行库，40项输入与历史文件前后不变。证据 `validation/codegen-e0-build-current-wrapper-01/` 与主会话冻结收据 `validation/coordination/native-inputs-20260912/current-wrapper-01.json`。只提交元数据/日志，没有提交.so或厂商源码；不是G6或#26全部验收。
+
+下一步先收DS-B对诊断包事实错误的最后修订（turn3a1673c2-b131-43fe-8f27-a308cc8180e6）；实际PV命令必须不带PX4 override，PX4由mixed_admission基线链核验。主会话已选--async-model-evidence与当前#83合同及nqyqcagl保持一致，两timing env仅作诊断。不能错误声称audit_pv/audit_joint_rate直接拒绝全部probe行；实际拒绝归属和值域按源码说明。校验后才预约一次新的、仅诊断的场次，绝不能因较轻release通过而直接宣布#83可过。
+
+DS-D正在更新其已有模型计划/宿主报告（turn eaa525cd-9463-4f9e-b37e-5d06f177c9f2），收口主会话已冻结/已冷构建的事实，并提供已有独立生命周期入口；勿再执行current-wrapper-01（目录已存在）。codebuddy与OMP上一模块复核均完成，报告尚有少量过时事实，以本节和当前源码为准。下一native前必须重新分别评估两WSL进程检查，其他重负载任务需结束或暂停。本轮冷构建同步返回exit0，无存活主会话native句柄。
+
 ## 已完成的第一优先项
 
 主分支 `codex/independent-rgb-integration` 的 e897fb8 已推送：发布侧完整性审计修订、原始发布日志压缩件、真实一正四负矩阵及执行源码快照。正例accepted/pass，删除命令并重排编号、同ID改载荷、真正截断最后发布记录、篡改保留源码四负例全部rejected；baseline前后SHA一致。主验证记录 `validation/39-planner-flight/audit-matrix-20260912/main-verification.json`。
