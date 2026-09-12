@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 import re
 import sys
+import subprocess
 
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO))
@@ -33,9 +34,28 @@ def root_path(value):
 def evidence_path(value):
     path = Path(value)
     base = (REPO/'validation').resolve()
-    if (not path.is_dir() or path.is_symlink() or path.resolve() != path
-            or not path.resolve().is_relative_to(base)):
+    if not path.is_dir() or path.is_symlink() or path.resolve() != path:
         raise ValueError('Requires an owned validation/prometheus-ros2-* evidence directory')
+    if not path.is_relative_to(base):
+        # Sealed evidence remains owned by its original checkout. A clean
+        # worktree of that same repository may verify it without rewriting
+        # the immutable manifest or importing code from the dirty checkout.
+        def git_path(root, option):
+            output = subprocess.check_output(
+                ['git', '-C', str(root), 'rev-parse', '--path-format=absolute', option],
+                stderr=subprocess.DEVNULL, text=True, timeout=10).strip()
+            return Path(output).resolve(strict=True)
+        try:
+            common = git_path(REPO, '--git-common-dir')
+            owned = any(
+                parent.name == 'validation'
+                and git_path(parent.parent, '--show-toplevel') == parent.parent
+                and git_path(parent.parent, '--git-common-dir') == common
+                for parent in path.parents)
+        except (OSError, subprocess.SubprocessError):
+            owned = False
+        if not owned:
+            raise ValueError('Message evidence belongs to another repository')
     return path
 
 
