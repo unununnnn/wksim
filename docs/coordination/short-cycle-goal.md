@@ -12,6 +12,8 @@
 
 ## 当前唯一写入者与任务
 
+**用户最新调整：采用[模块负责人连续交付](module-delivery-policy-20260912.md)。DS-A现在独占四个审计/复现源码与测试文件，DS-B负责核算至诊断就绪，DS-D负责模型证据至可执行重核计划；允许自行跑纯测试/只读数据审计，禁止native。主会话不再重复接手模块内部测试。下方恢复时的小票分工已被新策略扩展，实时句柄以新策略为线索核对。**
+
 实时句柄见 `validation/coordination/runtime-recovery-20260912/dispatch.json`。新派发均已返回running；必须实时读取，不把此快照当永久状态。
 
 - DeepSeek A：只写probe工具与对应测试，修输入symlink/越界保护；主会话已封存旧执行副本。
