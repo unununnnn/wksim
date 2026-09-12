@@ -40,3 +40,11 @@ to print a compact summary instead of duplicating the full report on stdout.
 This completes one owned ground diagnostic and its trace/identity/cleanup
 verification. It is explicitly `acceptance_eligible=false`: not a flight,
 long-duration rate test, mixed/PV acceptance, G6 budget result or Full completion.
+
+## Offline timing localization
+
+`timing-analysis.json` locates the reported `worst_lateness_ns=77256332` at the `rate_group_start` for tick 12180: actual start `83602032273`, ideal start `83524775941` (77.256332ms). The matching group ends at `83605358728`. This starts 203.738653ms after the formal trace stopped at `83398293620`. The 5,627,292-byte bootstrap prefix and its recorded 72,915,263ns filter transition remain separate from the formal analysis.
+
+The retained evidence therefore does not directly distinguish runqueue waiting, a blocking write, or model waiting at that exact late group. The artifact records only temporal context: formal-window write bounds and sampled scheduler/model timings. Its syscall parser treats unprefixed `sys_write` fd/count fields as hexadecimal, as printed by tracefs; no diagnostic overhead is subtracted and no causal claim is made.
+
+The window comparison in `timing-analysis.json` finds 75.797718ms maximum group-end lateness inside formal (75.846061ms at group start); the 52 groups after formal stop through manager completion stay in the same 75.085218–77.118608ms end-lateness band, with the 77.256332ms start-phase maximum and no isolated teardown jump. Sparse CPU timing has one post-stop sample at tick 12000 and none near tick 12184, so this comparison remains a timing association with the stated window-coverage limit.

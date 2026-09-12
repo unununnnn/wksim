@@ -2,6 +2,14 @@
 
 ## 最新检查点（优先于下方历史记录）
 
+接续状态：`c63e3c2` 已推送真实M1成功原件及全部核验。所有真实运行/构建handle均已终态：69221成功、18341消息构建成功、21242 bridge构建失败。**当前无真实native执行**。M1 timing-analysis新增已在工作区：formal内max lateness75.797718ms，最大77.256332ms在formal停止后203.738653ms；formal期间主要累积，不能从停止后的峰值编造kernel因果。
+
+M2 bridge两次失败均保存在RflySim /root/wksim-ros1-bridge-humble-8oGKuV：bridge-build.log是msg-only ROS1 overlay导出traj_utils但无library；改用完整EGO ROS1 overlay后，bridge-build-full-ego.log于FormationAssign的std::vector<bool>序列化模板&vec.front()/memcpy失败。OMP Task22a现只写外部ros1_bridge/resource/interface_factories.cpp.em和验证源；必须在重编前检查长度前缀已由streamVectorLength处理，不能重复写，且空vector不可front()。主会话未用-fpermissive、未删接口。官方源码仍以611755fd...为patch基线。
+
+M3 #83必须fresh-build Control：rWolCy里trajectory_bridge源码SHA仍旧，缺0555f96的egress/transport模块。Luna gridmap已改4文件显式依赖闭包（build-joint-control.sh、Control CMake、sealer、test），还在补安装态必须的2份冻结Bspline.msg数据与envelope包内路径选择；尚未native build/提交。保持v2及严格repo/staged/install检查，不可仅改pins。主会话要求构建后从repo外、仅install PYTHONPATH实际构造decoder/节点，不能靠repo fallback。原AP mixed和Rzj3Pf消息候选可复用，原0.5x/100ms/10s/60s门槛不变。
+
+Claude18z仍在只读核对EGO start_time与callback时刻零延迟假设及原条款。外部read --format compact可能显示旧progress；用json格式的progress最后一项与result作为状态依据，不凭旧compact评论判无进展。
+
 最新已核验：kernel-bpf-03（session69221）**已退出0**，不要继续等待/重启。run scheduler-086648004be0 / epoch1c404fd36f8543e19b9d083c8e437cdc，正式10.000188298s，321461条formal事件全部在窗口内且PID过滤正确；9任务/5owner的BPF+raw proc前后证明、全部零loss计数、BPF提前解绑、trace instance删除、epoch groups清理和source hashes均独立通过。场景tick12184无fault，短段0.9937333x、worst lateness77.256332ms；只是一场ground diagnostic，acceptance_eligible=false，不是PV/60s倍率/Full通过。原始及gzip副本在validation/scheduler-kernel-bpf-20260912-03，75份文件已Windows逐项校验；CLI后续改为简短stdout，完整report仍在run_log.json。
 
 M2 native消息构建（session18341）也**已退出0**：RflySim /root/wksim-ros1-bridge-humble-8oGKuV/messages_ws 的 prometheus_msgs 47.5s、wksim_msgs4.94s，总52.5s；bridge本体尚未构建。当前没有真实native/SITL/ROS/BPF/构建进程。三Luna已续派：scheduler离线分析77ms迟到、gridmap核对#83 final-PV原准入与control资源、cloud核对新消息overlay与bridge编译配置；Claude18z只读核对真实EGO时间因果与原条款。

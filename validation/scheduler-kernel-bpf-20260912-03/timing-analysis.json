@@ -1,0 +1,1939 @@
+{
+  "formal_context": {
+    "fc_storage_summary": [
+      {
+        "operations": [
+          {
+            "complete_calls": 103,
+            "failed_or_short": 0,
+            "maximum_ns": 119000,
+            "median_ns": 11000,
+            "over_1ms": 0,
+            "p99_ns": 63000,
+            "syscall": "write"
+          },
+          {
+            "complete_calls": 0,
+            "failed_or_short": 0,
+            "maximum_ns": null,
+            "median_ns": null,
+            "over_1ms": 0,
+            "p99_ns": null,
+            "syscall": "fsync"
+          },
+          {
+            "complete_calls": 0,
+            "failed_or_short": 0,
+            "maximum_ns": null,
+            "median_ns": null,
+            "over_1ms": 0,
+            "p99_ns": null,
+            "syscall": "fdatasync"
+          }
+        ],
+        "owner": "ap_fc",
+        "role": "ap_fc/log_io"
+      },
+      {
+        "operations": [
+          {
+            "complete_calls": 0,
+            "failed_or_short": 0,
+            "maximum_ns": null,
+            "median_ns": null,
+            "over_1ms": 0,
+            "p99_ns": null,
+            "syscall": "write"
+          },
+          {
+            "complete_calls": 0,
+            "failed_or_short": 0,
+            "maximum_ns": null,
+            "median_ns": null,
+            "over_1ms": 0,
+            "p99_ns": null,
+            "syscall": "fsync"
+          },
+          {
+            "complete_calls": 0,
+            "failed_or_short": 0,
+            "maximum_ns": null,
+            "median_ns": null,
+            "over_1ms": 0,
+            "p99_ns": null,
+            "syscall": "fdatasync"
+          }
+        ],
+        "owner": "px4_fc",
+        "role": "px4_fc/logger"
+      }
+    ],
+    "global_controls_unchanged": true,
+    "instance_removed": true,
+    "loss_free": true,
+    "note": "Formal-only analyzer output was generated from the filtered trace section; bootstrap scheduler events and the 72915263ns filter transition were not fed into the formal analysis.",
+    "trace_write_summary": [
+      {
+        "complete_writes": 9947,
+        "kind": "trace_file",
+        "maximum_ns": 339000,
+        "median_ns": 6000,
+        "over_1ms": 0,
+        "p99_ns": 73000,
+        "role": "ap_worker",
+        "short_or_failed_writes": 0
+      },
+      {
+        "complete_writes": 9947,
+        "kind": "rpc_stdout",
+        "maximum_ns": 237000,
+        "median_ns": 3000,
+        "over_1ms": 0,
+        "p99_ns": 15000,
+        "role": "ap_worker",
+        "short_or_failed_writes": 0
+      },
+      {
+        "complete_writes": 9947,
+        "kind": "trace_file",
+        "maximum_ns": 341000,
+        "median_ns": 6000,
+        "over_1ms": 0,
+        "p99_ns": 71000,
+        "role": "px4_worker",
+        "short_or_failed_writes": 0
+      },
+      {
+        "complete_writes": 9947,
+        "kind": "rpc_stdout",
+        "maximum_ns": 246000,
+        "median_ns": 2000,
+        "over_1ms": 0,
+        "p99_ns": 11000,
+        "role": "px4_worker",
+        "short_or_failed_writes": 0
+      }
+    ]
+  },
+  "inputs": {
+    "analyzer": "tools\\analyze_joint_scheduler.py",
+    "analyzer_sha256": "0e405ffe5eb76ed34ebeccb5ae51753068817a8735f2f6531d808b138b456c8d",
+    "capture_metadata": "linux/capture/metadata.json",
+    "full_trace_sha256": "6857dd7b787264333a9108c6603a2712cb1158e8a6ac9d85153d872da78efa86",
+    "rate_log": "linux/runs/scheduler-086648004be0/epochs/1c404fd36f8543e19b9d083c8e437cdc/rate.jsonl.gz",
+    "rate_log_sha256": "e922a09c9456aecdd32602b76079c16cb2280d668a7a867355532436e18aa592",
+    "replay_sha256": "6aca3a54dc6250d077bd66fe7b1ae64f16a2143bb817de2aa932f6b6c34cae51",
+    "report": "linux/report.json",
+    "summary": "summary.json",
+    "trace_archive": "linux/capture/trace.txt.gz",
+    "wire_log": "linux/runs/scheduler-086648004be0/epochs/1c404fd36f8543e19b9d083c8e437cdc/wire.jsonl.gz",
+    "wire_log_sha256": "4a691d604ba1d14fea582dab06abd16beac0d1e4486c2324990984cdce5978d2"
+  },
+  "offline_only": true,
+  "rate_context": {
+    "groups_inside_formal_capture": 2486,
+    "groups_total": 3036,
+    "rate_segment_end": {
+      "anchor": {
+        "tick": 40,
+        "transition": false,
+        "wall_ns": 71384775941
+      },
+      "completed_groups": 3036,
+      "epoch": "1c404fd36f8543e19b9d083c8e437cdc",
+      "issued_monotonic_ns": 83606262397,
+      "kind": "rate_segment_end",
+      "latched": false,
+      "measured_rate": 0.9937332950208015,
+      "measurement": "timed_segment",
+      "reason": "stop",
+      "request_id": "config",
+      "requested_rate": 1.0,
+      "segment_id": 1,
+      "steady_after_ns": 73384775941,
+      "tick": 12184,
+      "worst_lateness_ns": 77256332
+    },
+    "replay": "GREEN",
+    "replay_limitation": "Replays captured boundary timestamps through real JointRate, not underlying workload or OS scheduling. Release delay includes caller work, pacing and scheduling; it does not identify their cause.",
+    "replay_segments": [
+      {
+        "first_tick": 40,
+        "group_duration_max_ns": 13379210,
+        "group_duration_median_ns": 3142625.5,
+        "group_duration_p99_ns": 4202974,
+        "group_over_period_count": 71,
+        "groups": 3036,
+        "last_tick": 12184,
+        "phase_first_ns": 16818,
+        "phase_last_ns": 77256332,
+        "preceding_group_excess_sum_ns": 37080649,
+        "rate": 1.0,
+        "segment_id": 1,
+        "summed_positive_phase_increment_ns": 77239514,
+        "top_phase_spikes": [
+          {
+            "actual_start_ns": 73288794807,
+            "gap_from_previous_end_ns": 56799,
+            "phase_increment_ns": 9436009,
+            "preceding_group_duration_ns": 13379210,
+            "preceding_group_excess_ns": 9379210,
+            "residual_release_delay_ns": 56799,
+            "tick": 1928
+          },
+          {
+            "actual_start_ns": 73367507055,
+            "gap_from_previous_end_ns": 109185,
+            "phase_increment_ns": 6190458,
+            "preceding_group_duration_ns": 10081273,
+            "preceding_group_excess_ns": 6081273,
+            "residual_release_delay_ns": 109185,
+            "tick": 2000
+          },
+          {
+            "actual_start_ns": 76892503661,
+            "gap_from_previous_end_ns": 66003,
+            "phase_increment_ns": 4791656,
+            "preceding_group_duration_ns": 8725653,
+            "preceding_group_excess_ns": 4725653,
+            "residual_release_delay_ns": 66003,
+            "tick": 5504
+          },
+          {
+            "actual_start_ns": 72036590890,
+            "gap_from_previous_end_ns": 52861,
+            "phase_increment_ns": 2195940,
+            "preceding_group_duration_ns": 6143079,
+            "preceding_group_excess_ns": 2143079,
+            "residual_release_delay_ns": 52861,
+            "tick": 688
+          },
+          {
+            "actual_start_ns": 73854994749,
+            "gap_from_previous_end_ns": 1339142,
+            "phase_increment_ns": 1643775,
+            "preceding_group_duration_ns": 4304633,
+            "preceding_group_excess_ns": 304633,
+            "residual_release_delay_ns": 1339142,
+            "tick": 2484
+          },
+          {
+            "actual_start_ns": 78936375756,
+            "gap_from_previous_end_ns": 1796381,
+            "phase_increment_ns": 1430856,
+            "preceding_group_duration_ns": 3634475,
+            "preceding_group_excess_ns": 0,
+            "residual_release_delay_ns": 1430856,
+            "tick": 7536
+          },
+          {
+            "actual_start_ns": 82572523141,
+            "gap_from_previous_end_ns": 908973,
+            "phase_increment_ns": 1211046,
+            "preceding_group_duration_ns": 4302073,
+            "preceding_group_excess_ns": 302073,
+            "residual_release_delay_ns": 908973,
+            "tick": 11156
+          },
+          {
+            "actual_start_ns": 74313922104,
+            "gap_from_previous_end_ns": 537400,
+            "phase_increment_ns": 1194210,
+            "preceding_group_duration_ns": 4656810,
+            "preceding_group_excess_ns": 656810,
+            "residual_release_delay_ns": 537400,
+            "tick": 2940
+          },
+          {
+            "actual_start_ns": 74375088029,
+            "gap_from_previous_end_ns": 1204458,
+            "phase_increment_ns": 1132946,
+            "preceding_group_duration_ns": 3928488,
+            "preceding_group_excess_ns": 0,
+            "residual_release_delay_ns": 1132946,
+            "tick": 3000
+          },
+          {
+            "actual_start_ns": 83243971457,
+            "gap_from_previous_end_ns": 483303,
+            "phase_increment_ns": 1010518,
+            "preceding_group_duration_ns": 4527215,
+            "preceding_group_excess_ns": 527215,
+            "residual_release_delay_ns": 483303,
+            "tick": 11824
+          }
+        ],
+        "wall_duration_ns": 12220565969
+      }
+    ]
+  },
+  "run": {
+    "acceptance_eligible": false,
+    "baseline_commit": "6d38b54",
+    "epoch": "1c404fd36f8543e19b9d083c8e437cdc",
+    "run_id": "scheduler-086648004be0",
+    "scope": "owned ground scheduler diagnostic; not flight/long-run rate/Full"
+  },
+  "schema": "wksim.scheduler-timing-analysis.v1",
+  "stage_assessment": {
+    "blocking_write": {
+      "evidence": "The formal trace has no sys_write entry/exit covering the worst group because that group starts after capture_stop_ns.",
+      "fc_storage_context_formal_only": [
+        {
+          "operations": [
+            {
+              "complete_calls": 103,
+              "failed_or_short": 0,
+              "maximum_ns": 119000,
+              "median_ns": 11000,
+              "over_1ms": 0,
+              "p99_ns": 63000,
+              "syscall": "write"
+            },
+            {
+              "complete_calls": 0,
+              "failed_or_short": 0,
+              "maximum_ns": null,
+              "median_ns": null,
+              "over_1ms": 0,
+              "p99_ns": null,
+              "syscall": "fsync"
+            },
+            {
+              "complete_calls": 0,
+              "failed_or_short": 0,
+              "maximum_ns": null,
+              "median_ns": null,
+              "over_1ms": 0,
+              "p99_ns": null,
+              "syscall": "fdatasync"
+            }
+          ],
+          "owner": "ap_fc",
+          "role": "ap_fc/log_io"
+        },
+        {
+          "operations": [
+            {
+              "complete_calls": 0,
+              "failed_or_short": 0,
+              "maximum_ns": null,
+              "median_ns": null,
+              "over_1ms": 0,
+              "p99_ns": null,
+              "syscall": "write"
+            },
+            {
+              "complete_calls": 0,
+              "failed_or_short": 0,
+              "maximum_ns": null,
+              "median_ns": null,
+              "over_1ms": 0,
+              "p99_ns": null,
+              "syscall": "fsync"
+            },
+            {
+              "complete_calls": 0,
+              "failed_or_short": 0,
+              "maximum_ns": null,
+              "median_ns": null,
+              "over_1ms": 0,
+              "p99_ns": null,
+              "syscall": "fdatasync"
+            }
+          ],
+          "owner": "px4_fc",
+          "role": "px4_fc/logger"
+        }
+      ],
+      "parser_note": "Existing analyzer parse() treats unprefixed sys_write fd/count fields as hexadecimal, matching the trace print format.",
+      "status": "no_direct_evidence_at_worst",
+      "write_context_formal_only": [
+        {
+          "complete_writes": 9947,
+          "kind": "trace_file",
+          "maximum_ns": 339000,
+          "median_ns": 6000,
+          "over_1ms": 0,
+          "p99_ns": 73000,
+          "role": "ap_worker",
+          "short_or_failed_writes": 0
+        },
+        {
+          "complete_writes": 9947,
+          "kind": "rpc_stdout",
+          "maximum_ns": 237000,
+          "median_ns": 3000,
+          "over_1ms": 0,
+          "p99_ns": 15000,
+          "role": "ap_worker",
+          "short_or_failed_writes": 0
+        },
+        {
+          "complete_writes": 9947,
+          "kind": "trace_file",
+          "maximum_ns": 341000,
+          "median_ns": 6000,
+          "over_1ms": 0,
+          "p99_ns": 71000,
+          "role": "px4_worker",
+          "short_or_failed_writes": 0
+        },
+        {
+          "complete_writes": 9947,
+          "kind": "rpc_stdout",
+          "maximum_ns": 246000,
+          "median_ns": 2000,
+          "over_1ms": 0,
+          "p99_ns": 11000,
+          "role": "px4_worker",
+          "short_or_failed_writes": 0
+        }
+      ]
+    },
+    "model_wait": {
+      "evidence": "wire.jsonl has a step marker for tick 12180, but no diagnostic_step_cpu_timing row for tick 12180; retained diagnostic samples are periodic/slow samples.",
+      "nearest_prior_samples": {
+        "diagnostic_native_input_timing": {
+          "_distance_to_worst_start_ns": 182240964,
+          "ap_source_frame": 11999,
+          "epoch": "1c404fd36f8543e19b9d083c8e437cdc",
+          "issued_monotonic_s": 83.419804909,
+          "kind": "diagnostic_native_input_timing",
+          "limitation": "Retained slow(>2ms native wait)/periodic(tick%250) samples, not a full census. Each wait brackets only the supervisor wait_ap/wait_px4 call; acknowledge_ap, barrier/repair_input and all record writes are excluded and stay in the combined native_inputs stage. Supervisor off-CPU during a wait includes I/O wait and descheduling; it does not identify the native FC, host or Windows cause.",
+          "native_wait_wall_ns": 79306,
+          "px4_source_time_us": 11996000,
+          "tick": 12000,
+          "waits": [
+            {
+              "ap_frame": 12000,
+              "stack": "arducopter",
+              "thread_cpu_ns": 32984,
+              "wall_end_ns": 83419742037,
+              "wall_ns": 32967,
+              "wall_start_ns": 83419709070
+            },
+            {
+              "px4_time_us": 12000000,
+              "stack": "px4",
+              "thread_cpu_ns": 46370,
+              "wall_end_ns": 83419791309,
+              "wall_ns": 46339,
+              "wall_start_ns": 83419744970
+            }
+          ]
+        },
+        "diagnostic_runtime_loop_timing": {
+          "_distance_to_worst_start_ns": 182127044,
+          "complete": true,
+          "epoch": "1c404fd36f8543e19b9d083c8e437cdc",
+          "issued_monotonic_s": 83.419908461,
+          "kind": "diagnostic_runtime_loop_timing",
+          "limitation": "Sampled runtime intervals; pacing includes intended waits. Thread CPU and wall clocks have distinct read windows; no causal classification.",
+          "observed_tick": 12000,
+          "stages": {
+            "administration": {
+              "thread_cpu_ns": 13711,
+              "wall_ns": 13726
+            },
+            "clock_evidence": {
+              "thread_cpu_ns": 8430,
+              "wall_ns": 8500
+            },
+            "clock_publish": {
+              "thread_cpu_ns": 59646,
+              "wall_ns": 59613
+            },
+            "group_end_and_view": {
+              "thread_cpu_ns": 12761,
+              "wall_ns": 12728
+            },
+            "pacing": {
+              "thread_cpu_ns": 749,
+              "wall_ns": 814
+            },
+            "physics": {
+              "thread_cpu_ns": 419246,
+              "wall_ns": 579664
+            }
+          },
+          "tick": 12000,
+          "wall_end_ns": 83419905229,
+          "wall_start_ns": 83419230184
+        },
+        "diagnostic_step_cpu_timing": {
+          "_distance_to_worst_start_ns": 182219946,
+          "epoch": "1c404fd36f8543e19b9d083c8e437cdc",
+          "issued_monotonic_s": 83.419815618,
+          "kind": "diagnostic_step_cpu_timing",
+          "limitation": "Thread CPU separates execution from off-CPU time; off-CPU includes I/O wait and descheduling",
+          "stages": {
+            "encode_send": {
+              "thread_cpu_ns": 102607,
+              "wall_ns": 167268
+            },
+            "health_and_models": {
+              "thread_cpu_ns": 197835,
+              "wall_ns": 292931
+            },
+            "native_inputs": {
+              "thread_cpu_ns": 105976,
+              "wall_ns": 106681
+            }
+          },
+          "tick": 12000,
+          "wall_end_ns": 83419812327,
+          "wall_start_ns": 83419245447
+        }
+      },
+      "nearest_sample_note": "Nearest samples end about 182ms before the worst group and cannot be used to attribute its lateness.",
+      "status": "no_direct_stage_timing_at_worst",
+      "wire_step_tick_12180": [
+        {
+          "issued_monotonic_ns": 83600118429,
+          "issued_monotonic_s": 83.600118429,
+          "kind": "step",
+          "tick": 12180
+        }
+      ],
+      "wire_step_to_rate_group_start_ns": [
+        1913844
+      ]
+    },
+    "overall": "The exact worst group is temporally located, but this retained evidence cannot distinguish runqueue wait, blocking write, or model wait at that timestamp. The associations above are temporal evidence only and do not establish causality.",
+    "runqueue_wait": {
+      "evidence": "The formal trace has no scheduler events after event_ns_max; the worst group starts 203738653ns after capture_stop_ns.",
+      "formal_context_only": {
+        "note": "These are retained sampled waits, not a census and not the worst group.",
+        "recorded_native_waits": {
+          "by_native_path": [
+            {
+              "correlated_thread_totals": {
+                "ap_fc/DDS": {
+                  "blocked_before_wake_ns": 4786010,
+                  "off_cpu_ns": 4822010,
+                  "runnable_ns": 36000,
+                  "unknown_off_cpu_ns": 0
+                },
+                "ap_fc/arducopter": {
+                  "blocked_before_wake_ns": 3045078,
+                  "off_cpu_ns": 3186116,
+                  "runnable_ns": 141038,
+                  "unknown_off_cpu_ns": 0
+                },
+                "ap_fc/log_io": {
+                  "blocked_before_wake_ns": 4889010,
+                  "off_cpu_ns": 4958010,
+                  "runnable_ns": 69000,
+                  "unknown_off_cpu_ns": 0
+                },
+                "px4_fc/logger": {
+                  "blocked_before_wake_ns": 5006010,
+                  "off_cpu_ns": 5006010,
+                  "runnable_ns": 0,
+                  "unknown_off_cpu_ns": 0
+                },
+                "px4_fc/sim_send": {
+                  "blocked_before_wake_ns": 5006010,
+                  "off_cpu_ns": 5006010,
+                  "runnable_ns": 0,
+                  "unknown_off_cpu_ns": 0
+                },
+                "px4_fc/wq:lp_default": {
+                  "blocked_before_wake_ns": 5006010,
+                  "off_cpu_ns": 5006010,
+                  "runnable_ns": 0,
+                  "unknown_off_cpu_ns": 0
+                }
+              },
+              "maximum_recorded_ns": 1225937,
+              "median_recorded_ns": 163564,
+              "native_path": "AP input only",
+              "recorded_samples": 21,
+              "recorded_thread_cpu_ns": 2217229,
+              "recorded_waits_over_2ms": 0,
+              "recorded_wall_ns": 5006010,
+              "scheduler_totals": {
+                "blocked_before_wake_ns": 2796000,
+                "off_cpu_ns": 2851000,
+                "runnable_ns": 55000,
+                "unknown_off_cpu_ns": 0
+              }
+            },
+            {
+              "correlated_thread_totals": {
+                "ap_fc/DDS": {
+                  "blocked_before_wake_ns": 9793642,
+                  "off_cpu_ns": 10023926,
+                  "runnable_ns": 230284,
+                  "unknown_off_cpu_ns": 0
+                },
+                "ap_fc/arducopter": {
+                  "blocked_before_wake_ns": 10033645,
+                  "off_cpu_ns": 10104929,
+                  "runnable_ns": 71284,
+                  "unknown_off_cpu_ns": 0
+                },
+                "ap_fc/log_io": {
+                  "blocked_before_wake_ns": 10067926,
+                  "off_cpu_ns": 10131926,
+                  "runnable_ns": 64000,
+                  "unknown_off_cpu_ns": 0
+                },
+                "px4_fc/logger": {
+                  "blocked_before_wake_ns": 9723951,
+                  "off_cpu_ns": 9827091,
+                  "runnable_ns": 103140,
+                  "unknown_off_cpu_ns": 0
+                },
+                "px4_fc/sim_send": {
+                  "blocked_before_wake_ns": 9657249,
+                  "off_cpu_ns": 9761249,
+                  "runnable_ns": 104000,
+                  "unknown_off_cpu_ns": 0
+                },
+                "px4_fc/wq:lp_default": {
+                  "blocked_before_wake_ns": 9585926,
+                  "off_cpu_ns": 9613926,
+                  "runnable_ns": 28000,
+                  "unknown_off_cpu_ns": 0
+                }
+              },
+              "maximum_recorded_ns": 5583475,
+              "median_recorded_ns": 221177.0,
+              "native_path": "AP then PX4 inputs; not separated",
+              "recorded_samples": 20,
+              "recorded_thread_cpu_ns": 4617761,
+              "recorded_waits_over_2ms": 1,
+              "recorded_wall_ns": 10174926,
+              "scheduler_totals": {
+                "blocked_before_wake_ns": 5411000,
+                "off_cpu_ns": 5550000,
+                "runnable_ns": 139000,
+                "unknown_off_cpu_ns": 0
+              }
+            }
+          ],
+          "excluded_capture_boundary": 25,
+          "inside_capture": 41,
+          "limitation": "Biased retained samples: whole-step wall time >2ms or tick divisible by 250. Counts/medians are not population rates; unpaired boundary intervals remain unaccounted. AP-only waits do not identify an AP function, thread, or host cause.",
+          "recorded_samples": 66
+        }
+      },
+      "runnable_ns_at_worst": null,
+      "status": "no_direct_evidence_at_worst"
+    }
+  },
+  "trace_windows": {
+    "bootstrap": {
+      "bytes": 5627292,
+      "event_count": 31820,
+      "event_ns_max": 73325136000,
+      "event_ns_min": 71054077000,
+      "offset_bytes": 0,
+      "semantics": "sched_switch-only retained window before precise filters",
+      "sha256": "0d32c426803142cce2c03ab87cfda5cd581ecccb5189e3c05876c87e117e319d"
+    },
+    "filter_transition": {
+      "bootstrap_to_filtered_gap_ns": 72915263,
+      "filtered_transition_monotonic_ns": 73336091738,
+      "interpretation": "The bootstrap and formal traces are not concatenated into one continuous scheduler interval.",
+      "separate_windows": true
+    },
+    "formal": {
+      "boundary_counts": {
+        "open_off_cpu_at_end": 8,
+        "open_syncs_at_end": 0,
+        "open_syscalls_at_end": 0,
+        "open_writes_at_end": 0,
+        "switch_in_without_out": 8
+      },
+      "bytes": 44273034,
+      "capture_start_ns": 73398105322,
+      "capture_stop_ns": 83398293620,
+      "event_count": 321461,
+      "event_counts": {
+        "switch": 162926,
+        "wakeup": 78753,
+        "write_enter": 39891,
+        "write_exit": 39891
+      },
+      "event_ns_max": 83398250000,
+      "event_ns_min": 73398411000,
+      "offset_bytes": 5627292,
+      "sha256": "574da0c057b6b2cc62523f3e4d526e81fb78ee473c9cb933391785b2fb2efebe"
+    }
+  },
+  "window_comparison": {
+    "boundaries": {
+      "formal_capture_start_ns": 73398105322,
+      "formal_capture_stop_ns": 83398293620,
+      "formal_group_rule": "actual_start_ns >= formal_capture_start_ns and actual_end_ns <= formal_capture_stop_ns",
+      "manager_boundary_note": "report.finished_monotonic_ns is used as the available manager completion boundary; no rate group ends after the final logged group.",
+      "manager_finished_ns": 84784673352,
+      "post_formal_group_rule": "actual_end_ns > formal_capture_stop_ns and actual_end_ns <= manager_finished_ns"
+    },
+    "comparison": {
+      "formal_and_post_order_of_magnitude_note": "Formal groups already reach about 75.8ms lateness before capture stop. The 52 post-stop groups remain in the same 75.1-77.1ms end-lateness band; the maximum start-phase value is 77.256332ms. The timing logs show accumulation across the formal interval and no isolated teardown-sized jump, while they do not establish why the lateness accumulated.",
+      "formal_first_to_last_start_phase_increase_ns": 52502964,
+      "last_full_formal_to_first_group_crossing_stop_start_phase_change_ns": 633983,
+      "last_full_formal_to_max_post_start_phase_increase_ns": 1410271,
+      "window_limitation": "The formal scheduler trace stops at formal_capture_stop_ns. Rate groups and sparse CPU timing continue later, but they cannot reconstruct scheduler or write causes during the uncovered interval or manager teardown."
+    },
+    "formal_internal": {
+      "cpu_timing": {
+        "coverage_note": "The sampled CPU timing rows do not exactly match any of the formal top-five group end ticks; no nearest sample is substituted.",
+        "exact_top5_tick_matches": 0,
+        "first_sample_in_formal": [
+          {
+            "stages": {
+              "encode_send": {
+                "thread_cpu_ns": 40294,
+                "wall_ns": 40783
+              },
+              "health_and_models": {
+                "thread_cpu_ns": 249104,
+                "wall_ns": 417854
+              },
+              "native_inputs": {
+                "thread_cpu_ns": 64963,
+                "wall_ns": 169861
+              }
+            },
+            "tick": 2250,
+            "wall_end_ns": 73617763715,
+            "wall_start_ns": 73617135217
+          }
+        ],
+        "kind": "diagnostic_step_cpu_timing",
+        "last_sample_in_formal": [
+          {
+            "stages": {
+              "encode_send": {
+                "thread_cpu_ns": 30269,
+                "wall_ns": 30630
+              },
+              "health_and_models": {
+                "thread_cpu_ns": 317678,
+                "wall_ns": 428325
+              },
+              "native_inputs": {
+                "thread_cpu_ns": 51730,
+                "wall_ns": 144135
+              }
+            },
+            "tick": 11750,
+            "wall_end_ns": 83167283434,
+            "wall_start_ns": 83166680344
+          }
+        ],
+        "rows_in_formal_window": 41,
+        "sample_summary_in_formal": {
+          "encode_send": {
+            "thread_cpu_ns": {
+              "max_ns": 244012,
+              "median_ns": 54227,
+              "sum_ns": 3761483
+            },
+            "wall_ns": {
+              "max_ns": 281572,
+              "median_ns": 54994,
+              "sum_ns": 4183730
+            }
+          },
+          "health_and_models": {
+            "thread_cpu_ns": {
+              "max_ns": 769675,
+              "median_ns": 225420,
+              "sum_ns": 10042857
+            },
+            "wall_ns": {
+              "max_ns": 986146,
+              "median_ns": 368358,
+              "sum_ns": 15685052
+            }
+          },
+          "native_inputs": {
+            "thread_cpu_ns": {
+              "max_ns": 781528,
+              "median_ns": 124001,
+              "sum_ns": 6834990
+            },
+            "wall_ns": {
+              "max_ns": 5583475,
+              "median_ns": 179557,
+              "sum_ns": 15180936
+            }
+          },
+          "sample_count": 41,
+          "ticks": [
+            2250,
+            2500,
+            2750,
+            3000,
+            3250,
+            3500,
+            3750,
+            4000,
+            4250,
+            4500,
+            4750,
+            5000,
+            5250,
+            5281,
+            5500,
+            5504,
+            5750,
+            6000,
+            6250,
+            6500,
+            6750,
+            7000,
+            7250,
+            7500,
+            7750,
+            8000,
+            8250,
+            8500,
+            8750,
+            9000,
+            9250,
+            9500,
+            9750,
+            10000,
+            10250,
+            10500,
+            10750,
+            11000,
+            11250,
+            11500,
+            11750
+          ]
+        }
+      },
+      "first_full_group": {
+        "actual_end_ns": 73404099726,
+        "actual_start_ns": 73400119038,
+        "crosses_formal_stop": false,
+        "earliest_start_ns": 73400118995,
+        "end_tick": 2036,
+        "ideal_end_ns": 73380775941,
+        "ideal_start_ns": 73376775941,
+        "lateness_ns": 23323785,
+        "phase_end_lateness_ns": 23323785,
+        "phase_start_lateness_ns": 23343097,
+        "start_tick": 2032
+      },
+      "group_count": 2486,
+      "last10_full_groups_before_stop": [
+        {
+          "actual_end_ns": 83359362864,
+          "actual_start_ns": 83356331528,
+          "cpu_timing": {
+            "matching_rule": "exact end_tick only; no nearest-sample attribution",
+            "step_cpu_timing_exact": null
+          },
+          "crosses_formal_stop": false,
+          "earliest_start_ns": 83356331524,
+          "end_tick": 11940,
+          "ideal_end_ns": 83284775941,
+          "ideal_start_ns": 83280775941,
+          "lateness_ns": 74586923,
+          "phase_end_lateness_ns": 74586923,
+          "phase_start_lateness_ns": 75555587,
+          "start_tick": 11936
+        },
+        {
+          "actual_end_ns": 83363463486,
+          "actual_start_ns": 83360331530,
+          "cpu_timing": {
+            "matching_rule": "exact end_tick only; no nearest-sample attribution",
+            "step_cpu_timing_exact": null
+          },
+          "crosses_formal_stop": false,
+          "earliest_start_ns": 83360331528,
+          "end_tick": 11944,
+          "ideal_end_ns": 83288775941,
+          "ideal_start_ns": 83284775941,
+          "lateness_ns": 74687545,
+          "phase_end_lateness_ns": 74687545,
+          "phase_start_lateness_ns": 75555589,
+          "start_tick": 11940
+        },
+        {
+          "actual_end_ns": 83368573659,
+          "actual_start_ns": 83364331565,
+          "cpu_timing": {
+            "matching_rule": "exact end_tick only; no nearest-sample attribution",
+            "step_cpu_timing_exact": null
+          },
+          "crosses_formal_stop": false,
+          "earliest_start_ns": 83364331530,
+          "end_tick": 11948,
+          "ideal_end_ns": 83292775941,
+          "ideal_start_ns": 83288775941,
+          "lateness_ns": 75797718,
+          "phase_end_lateness_ns": 75797718,
+          "phase_start_lateness_ns": 75555624,
+          "start_tick": 11944
+        },
+        {
+          "actual_end_ns": 83371683828,
+          "actual_start_ns": 83368621923,
+          "cpu_timing": {
+            "matching_rule": "exact end_tick only; no nearest-sample attribution",
+            "step_cpu_timing_exact": null
+          },
+          "crosses_formal_stop": false,
+          "earliest_start_ns": 83368331565,
+          "end_tick": 11952,
+          "ideal_end_ns": 83296775941,
+          "ideal_start_ns": 83292775941,
+          "lateness_ns": 74907887,
+          "phase_end_lateness_ns": 74907887,
+          "phase_start_lateness_ns": 75845982,
+          "start_tick": 11948
+        },
+        {
+          "actual_end_ns": 83375929572,
+          "actual_start_ns": 83372621936,
+          "cpu_timing": {
+            "matching_rule": "exact end_tick only; no nearest-sample attribution",
+            "step_cpu_timing_exact": null
+          },
+          "crosses_formal_stop": false,
+          "earliest_start_ns": 83372621923,
+          "end_tick": 11956,
+          "ideal_end_ns": 83300775941,
+          "ideal_start_ns": 83296775941,
+          "lateness_ns": 75153631,
+          "phase_end_lateness_ns": 75153631,
+          "phase_start_lateness_ns": 75845995,
+          "start_tick": 11952
+        },
+        {
+          "actual_end_ns": 83379250087,
+          "actual_start_ns": 83376621946,
+          "cpu_timing": {
+            "matching_rule": "exact end_tick only; no nearest-sample attribution",
+            "step_cpu_timing_exact": null
+          },
+          "crosses_formal_stop": false,
+          "earliest_start_ns": 83376621936,
+          "end_tick": 11960,
+          "ideal_end_ns": 83304775941,
+          "ideal_start_ns": 83300775941,
+          "lateness_ns": 74474146,
+          "phase_end_lateness_ns": 74474146,
+          "phase_start_lateness_ns": 75846005,
+          "start_tick": 11956
+        },
+        {
+          "actual_end_ns": 83383655164,
+          "actual_start_ns": 83380621959,
+          "cpu_timing": {
+            "matching_rule": "exact end_tick only; no nearest-sample attribution",
+            "step_cpu_timing_exact": null
+          },
+          "crosses_formal_stop": false,
+          "earliest_start_ns": 83380621946,
+          "end_tick": 11964,
+          "ideal_end_ns": 83308775941,
+          "ideal_start_ns": 83304775941,
+          "lateness_ns": 74879223,
+          "phase_end_lateness_ns": 74879223,
+          "phase_start_lateness_ns": 75846018,
+          "start_tick": 11960
+        },
+        {
+          "actual_end_ns": 83387402042,
+          "actual_start_ns": 83384621976,
+          "cpu_timing": {
+            "matching_rule": "exact end_tick only; no nearest-sample attribution",
+            "step_cpu_timing_exact": null
+          },
+          "crosses_formal_stop": false,
+          "earliest_start_ns": 83384621959,
+          "end_tick": 11968,
+          "ideal_end_ns": 83312775941,
+          "ideal_start_ns": 83308775941,
+          "lateness_ns": 74626101,
+          "phase_end_lateness_ns": 74626101,
+          "phase_start_lateness_ns": 75846035,
+          "start_tick": 11964
+        },
+        {
+          "actual_end_ns": 83391402777,
+          "actual_start_ns": 83388621986,
+          "cpu_timing": {
+            "matching_rule": "exact end_tick only; no nearest-sample attribution",
+            "step_cpu_timing_exact": null
+          },
+          "crosses_formal_stop": false,
+          "earliest_start_ns": 83388621976,
+          "end_tick": 11972,
+          "ideal_end_ns": 83316775941,
+          "ideal_start_ns": 83312775941,
+          "lateness_ns": 74626836,
+          "phase_end_lateness_ns": 74626836,
+          "phase_start_lateness_ns": 75846045,
+          "start_tick": 11968
+        },
+        {
+          "actual_end_ns": 83396515733,
+          "actual_start_ns": 83392622002,
+          "cpu_timing": {
+            "matching_rule": "exact end_tick only; no nearest-sample attribution",
+            "step_cpu_timing_exact": null
+          },
+          "crosses_formal_stop": false,
+          "earliest_start_ns": 83392621986,
+          "end_tick": 11976,
+          "ideal_end_ns": 83320775941,
+          "ideal_start_ns": 83316775941,
+          "lateness_ns": 75739792,
+          "phase_end_lateness_ns": 75739792,
+          "phase_start_lateness_ns": 75846061,
+          "start_tick": 11972
+        }
+      ],
+      "last_full_group_before_stop": {
+        "actual_end_ns": 83396515733,
+        "actual_start_ns": 83392622002,
+        "crosses_formal_stop": false,
+        "earliest_start_ns": 83392621986,
+        "end_tick": 11976,
+        "ideal_end_ns": 83320775941,
+        "ideal_start_ns": 83316775941,
+        "lateness_ns": 75739792,
+        "phase_end_lateness_ns": 75739792,
+        "phase_start_lateness_ns": 75846061,
+        "start_tick": 11972
+      },
+      "max_group_end": {
+        "actual_end_ns": 83368573659,
+        "actual_start_ns": 83364331565,
+        "crosses_formal_stop": false,
+        "earliest_start_ns": 83364331530,
+        "end_tick": 11948,
+        "ideal_end_ns": 83292775941,
+        "ideal_start_ns": 83288775941,
+        "lateness_ns": 75797718,
+        "phase_end_lateness_ns": 75797718,
+        "phase_start_lateness_ns": 75555624,
+        "start_tick": 11944
+      },
+      "max_group_end_lateness_ns": 75797718,
+      "max_group_start_phase": {
+        "actual_end_ns": 83396515733,
+        "actual_start_ns": 83392622002,
+        "crosses_formal_stop": false,
+        "earliest_start_ns": 83392621986,
+        "end_tick": 11976,
+        "ideal_end_ns": 83320775941,
+        "ideal_start_ns": 83316775941,
+        "lateness_ns": 75739792,
+        "phase_end_lateness_ns": 75739792,
+        "phase_start_lateness_ns": 75846061,
+        "start_tick": 11972
+      },
+      "max_group_start_phase_lateness_ns": 75846061,
+      "top5_by_group_end_lateness": [
+        {
+          "actual_end_ns": 83368573659,
+          "actual_start_ns": 83364331565,
+          "cpu_timing": {
+            "matching_rule": "exact end_tick only; no nearest-sample attribution",
+            "step_cpu_timing_exact": null
+          },
+          "crosses_formal_stop": false,
+          "earliest_start_ns": 83364331530,
+          "end_tick": 11948,
+          "ideal_end_ns": 83292775941,
+          "ideal_start_ns": 83288775941,
+          "lateness_ns": 75797718,
+          "phase_end_lateness_ns": 75797718,
+          "phase_start_lateness_ns": 75555624,
+          "start_tick": 11944
+        },
+        {
+          "actual_end_ns": 83396515733,
+          "actual_start_ns": 83392622002,
+          "cpu_timing": {
+            "matching_rule": "exact end_tick only; no nearest-sample attribution",
+            "step_cpu_timing_exact": null
+          },
+          "crosses_formal_stop": false,
+          "earliest_start_ns": 83392621986,
+          "end_tick": 11976,
+          "ideal_end_ns": 83320775941,
+          "ideal_start_ns": 83316775941,
+          "lateness_ns": 75739792,
+          "phase_end_lateness_ns": 75739792,
+          "phase_start_lateness_ns": 75846061,
+          "start_tick": 11972
+        },
+        {
+          "actual_end_ns": 83340284449,
+          "actual_start_ns": 83336157600,
+          "cpu_timing": {
+            "matching_rule": "exact end_tick only; no nearest-sample attribution",
+            "step_cpu_timing_exact": null
+          },
+          "crosses_formal_stop": false,
+          "earliest_start_ns": 83336157587,
+          "end_tick": 11920,
+          "ideal_end_ns": 83264775941,
+          "ideal_start_ns": 83260775941,
+          "lateness_ns": 75508508,
+          "phase_end_lateness_ns": 75508508,
+          "phase_start_lateness_ns": 75381659,
+          "start_tick": 11916
+        },
+        {
+          "actual_end_ns": 83336016810,
+          "actual_start_ns": 83332157587,
+          "cpu_timing": {
+            "matching_rule": "exact end_tick only; no nearest-sample attribution",
+            "step_cpu_timing_exact": null
+          },
+          "crosses_formal_stop": false,
+          "earliest_start_ns": 83332157562,
+          "end_tick": 11916,
+          "ideal_end_ns": 83260775941,
+          "ideal_start_ns": 83256775941,
+          "lateness_ns": 75240869,
+          "phase_end_lateness_ns": 75240869,
+          "phase_start_lateness_ns": 75381646,
+          "start_tick": 11912
+        },
+        {
+          "actual_end_ns": 83375929572,
+          "actual_start_ns": 83372621936,
+          "cpu_timing": {
+            "matching_rule": "exact end_tick only; no nearest-sample attribution",
+            "step_cpu_timing_exact": null
+          },
+          "crosses_formal_stop": false,
+          "earliest_start_ns": 83372621923,
+          "end_tick": 11956,
+          "ideal_end_ns": 83300775941,
+          "ideal_start_ns": 83296775941,
+          "lateness_ns": 75153631,
+          "phase_end_lateness_ns": 75153631,
+          "phase_start_lateness_ns": 75845995,
+          "start_tick": 11952
+        }
+      ]
+    },
+    "post_formal_to_manager": {
+      "cpu_timing": {
+        "coverage_note": "The wire log has no sampled step CPU row near the final tick 12184; the only post-stop step sample is tick 12000, and no CPU sample covers the remaining manager teardown interval.",
+        "kind": "diagnostic_step_cpu_timing",
+        "rate_group_tail_to_manager_finished_ns": 1179314624,
+        "rows_after_formal_stop_before_manager_finished": 1,
+        "rows_after_last_rate_group_before_manager_finished": 0,
+        "samples": [
+          {
+            "stages": {
+              "encode_send": {
+                "thread_cpu_ns": 102607,
+                "wall_ns": 167268
+              },
+              "health_and_models": {
+                "thread_cpu_ns": 197835,
+                "wall_ns": 292931
+              },
+              "native_inputs": {
+                "thread_cpu_ns": 105976,
+                "wall_ns": 106681
+              }
+            },
+            "tick": 12000,
+            "wall_end_ns": 83419812327,
+            "wall_start_ns": 83419245447
+          }
+        ]
+      },
+      "first_group_crossing_formal_stop": {
+        "actual_end_ns": 83400187685,
+        "actual_start_ns": 83397255985,
+        "crosses_formal_stop": true,
+        "earliest_start_ns": 83396622002,
+        "end_tick": 11980,
+        "ideal_end_ns": 83324775941,
+        "ideal_start_ns": 83320775941,
+        "lateness_ns": 75411744,
+        "phase_end_lateness_ns": 75411744,
+        "phase_start_lateness_ns": 76480044,
+        "start_tick": 11976
+      },
+      "first_group_starting_after_formal_stop": {
+        "actual_end_ns": 83405403421,
+        "actual_start_ns": 83401256001,
+        "crosses_formal_stop": false,
+        "earliest_start_ns": 83401255985,
+        "end_tick": 11984,
+        "ideal_end_ns": 83328775941,
+        "ideal_start_ns": 83324775941,
+        "lateness_ns": 76627480,
+        "phase_end_lateness_ns": 76627480,
+        "phase_start_lateness_ns": 76480060,
+        "start_tick": 11980
+      },
+      "group_count": 52,
+      "max_group_end": {
+        "actual_end_ns": 83577894549,
+        "actual_start_ns": 83573937549,
+        "crosses_formal_stop": false,
+        "earliest_start_ns": 83573937531,
+        "end_tick": 12156,
+        "ideal_end_ns": 83500775941,
+        "ideal_start_ns": 83496775941,
+        "lateness_ns": 77118608,
+        "phase_end_lateness_ns": 77118608,
+        "phase_start_lateness_ns": 77161608,
+        "start_tick": 12152
+      },
+      "max_group_end_lateness_ns": 77118608,
+      "max_group_start_phase": {
+        "actual_end_ns": 83605358728,
+        "actual_start_ns": 83602032273,
+        "crosses_formal_stop": false,
+        "earliest_start_ns": 83602032268,
+        "end_tick": 12184,
+        "ideal_end_ns": 83528775941,
+        "ideal_start_ns": 83524775941,
+        "lateness_ns": 76582787,
+        "phase_end_lateness_ns": 76582787,
+        "phase_start_lateness_ns": 77256332,
+        "start_tick": 12180
+      },
+      "max_group_start_phase_lateness_ns": 77256332,
+      "sequence": [
+        {
+          "actual_end_ns": 83400187685,
+          "actual_start_ns": 83397255985,
+          "crosses_formal_stop": true,
+          "earliest_start_ns": 83396622002,
+          "end_tick": 11980,
+          "ideal_end_ns": 83324775941,
+          "ideal_start_ns": 83320775941,
+          "lateness_ns": 75411744,
+          "phase_end_lateness_ns": 75411744,
+          "phase_start_lateness_ns": 76480044,
+          "start_tick": 11976
+        },
+        {
+          "actual_end_ns": 83405403421,
+          "actual_start_ns": 83401256001,
+          "crosses_formal_stop": false,
+          "earliest_start_ns": 83401255985,
+          "end_tick": 11984,
+          "ideal_end_ns": 83328775941,
+          "ideal_start_ns": 83324775941,
+          "lateness_ns": 76627480,
+          "phase_end_lateness_ns": 76627480,
+          "phase_start_lateness_ns": 76480060,
+          "start_tick": 11980
+        },
+        {
+          "actual_end_ns": 83408533102,
+          "actual_start_ns": 83405484215,
+          "crosses_formal_stop": false,
+          "earliest_start_ns": 83405256001,
+          "end_tick": 11988,
+          "ideal_end_ns": 83332775941,
+          "ideal_start_ns": 83328775941,
+          "lateness_ns": 75757161,
+          "phase_end_lateness_ns": 75757161,
+          "phase_start_lateness_ns": 76708274,
+          "start_tick": 11984
+        },
+        {
+          "actual_end_ns": 83412400677,
+          "actual_start_ns": 83409484243,
+          "crosses_formal_stop": false,
+          "earliest_start_ns": 83409484215,
+          "end_tick": 11992,
+          "ideal_end_ns": 83336775941,
+          "ideal_start_ns": 83332775941,
+          "lateness_ns": 75624736,
+          "phase_end_lateness_ns": 75624736,
+          "phase_start_lateness_ns": 76708302,
+          "start_tick": 11988
+        },
+        {
+          "actual_end_ns": 83416910054,
+          "actual_start_ns": 83413484261,
+          "crosses_formal_stop": false,
+          "earliest_start_ns": 83413484243,
+          "end_tick": 11996,
+          "ideal_end_ns": 83340775941,
+          "ideal_start_ns": 83336775941,
+          "lateness_ns": 76134113,
+          "phase_end_lateness_ns": 76134113,
+          "phase_start_lateness_ns": 76708320,
+          "start_tick": 11992
+        },
+        {
+          "actual_end_ns": 83419893879,
+          "actual_start_ns": 83417484294,
+          "crosses_formal_stop": false,
+          "earliest_start_ns": 83417484261,
+          "end_tick": 12000,
+          "ideal_end_ns": 83344775941,
+          "ideal_start_ns": 83340775941,
+          "lateness_ns": 75117938,
+          "phase_end_lateness_ns": 75117938,
+          "phase_start_lateness_ns": 76708353,
+          "start_tick": 11996
+        },
+        {
+          "actual_end_ns": 83424622433,
+          "actual_start_ns": 83421484304,
+          "crosses_formal_stop": false,
+          "earliest_start_ns": 83421484294,
+          "end_tick": 12004,
+          "ideal_end_ns": 83348775941,
+          "ideal_start_ns": 83344775941,
+          "lateness_ns": 75846492,
+          "phase_end_lateness_ns": 75846492,
+          "phase_start_lateness_ns": 76708363,
+          "start_tick": 12000
+        },
+        {
+          "actual_end_ns": 83429050605,
+          "actual_start_ns": 83425484323,
+          "crosses_formal_stop": false,
+          "earliest_start_ns": 83425484304,
+          "end_tick": 12008,
+          "ideal_end_ns": 83352775941,
+          "ideal_start_ns": 83348775941,
+          "lateness_ns": 76274664,
+          "phase_end_lateness_ns": 76274664,
+          "phase_start_lateness_ns": 76708382,
+          "start_tick": 12004
+        },
+        {
+          "actual_end_ns": 83432414634,
+          "actual_start_ns": 83429484325,
+          "crosses_formal_stop": false,
+          "earliest_start_ns": 83429484323,
+          "end_tick": 12012,
+          "ideal_end_ns": 83356775941,
+          "ideal_start_ns": 83352775941,
+          "lateness_ns": 75638693,
+          "phase_end_lateness_ns": 75638693,
+          "phase_start_lateness_ns": 76708384,
+          "start_tick": 12008
+        },
+        {
+          "actual_end_ns": 83436803133,
+          "actual_start_ns": 83433484353,
+          "crosses_formal_stop": false,
+          "earliest_start_ns": 83433484325,
+          "end_tick": 12016,
+          "ideal_end_ns": 83360775941,
+          "ideal_start_ns": 83356775941,
+          "lateness_ns": 76027192,
+          "phase_end_lateness_ns": 76027192,
+          "phase_start_lateness_ns": 76708412,
+          "start_tick": 12012
+        },
+        {
+          "actual_end_ns": 83439914819,
+          "actual_start_ns": 83437484372,
+          "crosses_formal_stop": false,
+          "earliest_start_ns": 83437484353,
+          "end_tick": 12020,
+          "ideal_end_ns": 83364775941,
+          "ideal_start_ns": 83360775941,
+          "lateness_ns": 75138878,
+          "phase_end_lateness_ns": 75138878,
+          "phase_start_lateness_ns": 76708431,
+          "start_tick": 12016
+        },
+        {
+          "actual_end_ns": 83444219066,
+          "actual_start_ns": 83441484381,
+          "crosses_formal_stop": false,
+          "earliest_start_ns": 83441484372,
+          "end_tick": 12024,
+          "ideal_end_ns": 83368775941,
+          "ideal_start_ns": 83364775941,
+          "lateness_ns": 75443125,
+          "phase_end_lateness_ns": 75443125,
+          "phase_start_lateness_ns": 76708440,
+          "start_tick": 12020
+        },
+        {
+          "actual_end_ns": 83448094521,
+          "actual_start_ns": 83445484401,
+          "crosses_formal_stop": false,
+          "earliest_start_ns": 83445484381,
+          "end_tick": 12028,
+          "ideal_end_ns": 83372775941,
+          "ideal_start_ns": 83368775941,
+          "lateness_ns": 75318580,
+          "phase_end_lateness_ns": 75318580,
+          "phase_start_lateness_ns": 76708460,
+          "start_tick": 12024
+        },
+        {
+          "actual_end_ns": 83452685393,
+          "actual_start_ns": 83449484405,
+          "crosses_formal_stop": false,
+          "earliest_start_ns": 83449484401,
+          "end_tick": 12032,
+          "ideal_end_ns": 83376775941,
+          "ideal_start_ns": 83372775941,
+          "lateness_ns": 75909452,
+          "phase_end_lateness_ns": 75909452,
+          "phase_start_lateness_ns": 76708464,
+          "start_tick": 12028
+        },
+        {
+          "actual_end_ns": 83457084756,
+          "actual_start_ns": 83453484438,
+          "crosses_formal_stop": false,
+          "earliest_start_ns": 83453484405,
+          "end_tick": 12036,
+          "ideal_end_ns": 83380775941,
+          "ideal_start_ns": 83376775941,
+          "lateness_ns": 76308815,
+          "phase_end_lateness_ns": 76308815,
+          "phase_start_lateness_ns": 76708497,
+          "start_tick": 12032
+        },
+        {
+          "actual_end_ns": 83460498685,
+          "actual_start_ns": 83457484440,
+          "crosses_formal_stop": false,
+          "earliest_start_ns": 83457484438,
+          "end_tick": 12040,
+          "ideal_end_ns": 83384775941,
+          "ideal_start_ns": 83380775941,
+          "lateness_ns": 75722744,
+          "phase_end_lateness_ns": 75722744,
+          "phase_start_lateness_ns": 76708499,
+          "start_tick": 12036
+        },
+        {
+          "actual_end_ns": 83464821552,
+          "actual_start_ns": 83461484467,
+          "crosses_formal_stop": false,
+          "earliest_start_ns": 83461484440,
+          "end_tick": 12044,
+          "ideal_end_ns": 83388775941,
+          "ideal_start_ns": 83384775941,
+          "lateness_ns": 76045611,
+          "phase_end_lateness_ns": 76045611,
+          "phase_start_lateness_ns": 76708526,
+          "start_tick": 12040
+        },
+        {
+          "actual_end_ns": 83467861159,
+          "actual_start_ns": 83465484495,
+          "crosses_formal_stop": false,
+          "earliest_start_ns": 83465484467,
+          "end_tick": 12048,
+          "ideal_end_ns": 83392775941,
+          "ideal_start_ns": 83388775941,
+          "lateness_ns": 75085218,
+          "phase_end_lateness_ns": 75085218,
+          "phase_start_lateness_ns": 76708554,
+          "start_tick": 12044
+        },
+        {
+          "actual_end_ns": 83473230761,
+          "actual_start_ns": 83469484525,
+          "crosses_formal_stop": false,
+          "earliest_start_ns": 83469484495,
+          "end_tick": 12052,
+          "ideal_end_ns": 83396775941,
+          "ideal_start_ns": 83392775941,
+          "lateness_ns": 76454820,
+          "phase_end_lateness_ns": 76454820,
+          "phase_start_lateness_ns": 76708584,
+          "start_tick": 12048
+        },
+        {
+          "actual_end_ns": 83476201292,
+          "actual_start_ns": 83473484557,
+          "crosses_formal_stop": false,
+          "earliest_start_ns": 83473484525,
+          "end_tick": 12056,
+          "ideal_end_ns": 83400775941,
+          "ideal_start_ns": 83396775941,
+          "lateness_ns": 75425351,
+          "phase_end_lateness_ns": 75425351,
+          "phase_start_lateness_ns": 76708616,
+          "start_tick": 12052
+        },
+        {
+          "actual_end_ns": 83480681872,
+          "actual_start_ns": 83477484586,
+          "crosses_formal_stop": false,
+          "earliest_start_ns": 83477484557,
+          "end_tick": 12060,
+          "ideal_end_ns": 83404775941,
+          "ideal_start_ns": 83400775941,
+          "lateness_ns": 75905931,
+          "phase_end_lateness_ns": 75905931,
+          "phase_start_lateness_ns": 76708645,
+          "start_tick": 12056
+        },
+        {
+          "actual_end_ns": 83484298249,
+          "actual_start_ns": 83481484620,
+          "crosses_formal_stop": false,
+          "earliest_start_ns": 83481484586,
+          "end_tick": 12064,
+          "ideal_end_ns": 83408775941,
+          "ideal_start_ns": 83404775941,
+          "lateness_ns": 75522308,
+          "phase_end_lateness_ns": 75522308,
+          "phase_start_lateness_ns": 76708679,
+          "start_tick": 12060
+        },
+        {
+          "actual_end_ns": 83488291420,
+          "actual_start_ns": 83485484625,
+          "crosses_formal_stop": false,
+          "earliest_start_ns": 83485484620,
+          "end_tick": 12068,
+          "ideal_end_ns": 83412775941,
+          "ideal_start_ns": 83408775941,
+          "lateness_ns": 75515479,
+          "phase_end_lateness_ns": 75515479,
+          "phase_start_lateness_ns": 76708684,
+          "start_tick": 12064
+        },
+        {
+          "actual_end_ns": 83493529214,
+          "actual_start_ns": 83489550886,
+          "crosses_formal_stop": false,
+          "earliest_start_ns": 83489484625,
+          "end_tick": 12072,
+          "ideal_end_ns": 83416775941,
+          "ideal_start_ns": 83412775941,
+          "lateness_ns": 76753273,
+          "phase_end_lateness_ns": 76753273,
+          "phase_start_lateness_ns": 76774945,
+          "start_tick": 12068
+        },
+        {
+          "actual_end_ns": 83496846389,
+          "actual_start_ns": 83493585359,
+          "crosses_formal_stop": false,
+          "earliest_start_ns": 83493550886,
+          "end_tick": 12076,
+          "ideal_end_ns": 83420775941,
+          "ideal_start_ns": 83416775941,
+          "lateness_ns": 76070448,
+          "phase_end_lateness_ns": 76070448,
+          "phase_start_lateness_ns": 76809418,
+          "start_tick": 12072
+        },
+        {
+          "actual_end_ns": 83500238615,
+          "actual_start_ns": 83497592453,
+          "crosses_formal_stop": false,
+          "earliest_start_ns": 83497585359,
+          "end_tick": 12080,
+          "ideal_end_ns": 83424775941,
+          "ideal_start_ns": 83420775941,
+          "lateness_ns": 75462674,
+          "phase_end_lateness_ns": 75462674,
+          "phase_start_lateness_ns": 76816512,
+          "start_tick": 12076
+        },
+        {
+          "actual_end_ns": 83504366158,
+          "actual_start_ns": 83501674724,
+          "crosses_formal_stop": false,
+          "earliest_start_ns": 83501592453,
+          "end_tick": 12084,
+          "ideal_end_ns": 83428775941,
+          "ideal_start_ns": 83424775941,
+          "lateness_ns": 75590217,
+          "phase_end_lateness_ns": 75590217,
+          "phase_start_lateness_ns": 76898783,
+          "start_tick": 12080
+        },
+        {
+          "actual_end_ns": 83508445447,
+          "actual_start_ns": 83505674744,
+          "crosses_formal_stop": false,
+          "earliest_start_ns": 83505674724,
+          "end_tick": 12088,
+          "ideal_end_ns": 83432775941,
+          "ideal_start_ns": 83428775941,
+          "lateness_ns": 75669506,
+          "phase_end_lateness_ns": 75669506,
+          "phase_start_lateness_ns": 76898803,
+          "start_tick": 12084
+        },
+        {
+          "actual_end_ns": 83512743857,
+          "actual_start_ns": 83509674765,
+          "crosses_formal_stop": false,
+          "earliest_start_ns": 83509674744,
+          "end_tick": 12092,
+          "ideal_end_ns": 83436775941,
+          "ideal_start_ns": 83432775941,
+          "lateness_ns": 75967916,
+          "phase_end_lateness_ns": 75967916,
+          "phase_start_lateness_ns": 76898824,
+          "start_tick": 12088
+        },
+        {
+          "actual_end_ns": 83516925958,
+          "actual_start_ns": 83513674770,
+          "crosses_formal_stop": false,
+          "earliest_start_ns": 83513674765,
+          "end_tick": 12096,
+          "ideal_end_ns": 83440775941,
+          "ideal_start_ns": 83436775941,
+          "lateness_ns": 76150017,
+          "phase_end_lateness_ns": 76150017,
+          "phase_start_lateness_ns": 76898829,
+          "start_tick": 12092
+        },
+        {
+          "actual_end_ns": 83520946637,
+          "actual_start_ns": 83517674781,
+          "crosses_formal_stop": false,
+          "earliest_start_ns": 83517674770,
+          "end_tick": 12100,
+          "ideal_end_ns": 83444775941,
+          "ideal_start_ns": 83440775941,
+          "lateness_ns": 76170696,
+          "phase_end_lateness_ns": 76170696,
+          "phase_start_lateness_ns": 76898840,
+          "start_tick": 12096
+        },
+        {
+          "actual_end_ns": 83524850761,
+          "actual_start_ns": 83521692167,
+          "crosses_formal_stop": false,
+          "earliest_start_ns": 83521674781,
+          "end_tick": 12104,
+          "ideal_end_ns": 83448775941,
+          "ideal_start_ns": 83444775941,
+          "lateness_ns": 76074820,
+          "phase_end_lateness_ns": 76074820,
+          "phase_start_lateness_ns": 76916226,
+          "start_tick": 12100
+        },
+        {
+          "actual_end_ns": 83528277688,
+          "actual_start_ns": 83525692174,
+          "crosses_formal_stop": false,
+          "earliest_start_ns": 83525692167,
+          "end_tick": 12108,
+          "ideal_end_ns": 83452775941,
+          "ideal_start_ns": 83448775941,
+          "lateness_ns": 75501747,
+          "phase_end_lateness_ns": 75501747,
+          "phase_start_lateness_ns": 76916233,
+          "start_tick": 12104
+        },
+        {
+          "actual_end_ns": 83532800814,
+          "actual_start_ns": 83529692191,
+          "crosses_formal_stop": false,
+          "earliest_start_ns": 83529692174,
+          "end_tick": 12112,
+          "ideal_end_ns": 83456775941,
+          "ideal_start_ns": 83452775941,
+          "lateness_ns": 76024873,
+          "phase_end_lateness_ns": 76024873,
+          "phase_start_lateness_ns": 76916250,
+          "start_tick": 12108
+        },
+        {
+          "actual_end_ns": 83536725607,
+          "actual_start_ns": 83533692221,
+          "crosses_formal_stop": false,
+          "earliest_start_ns": 83533692191,
+          "end_tick": 12116,
+          "ideal_end_ns": 83460775941,
+          "ideal_start_ns": 83456775941,
+          "lateness_ns": 75949666,
+          "phase_end_lateness_ns": 75949666,
+          "phase_start_lateness_ns": 76916280,
+          "start_tick": 12112
+        },
+        {
+          "actual_end_ns": 83540775894,
+          "actual_start_ns": 83537692222,
+          "crosses_formal_stop": false,
+          "earliest_start_ns": 83537692221,
+          "end_tick": 12120,
+          "ideal_end_ns": 83464775941,
+          "ideal_start_ns": 83460775941,
+          "lateness_ns": 75999953,
+          "phase_end_lateness_ns": 75999953,
+          "phase_start_lateness_ns": 76916281,
+          "start_tick": 12116
+        },
+        {
+          "actual_end_ns": 83544031273,
+          "actual_start_ns": 83541692235,
+          "crosses_formal_stop": false,
+          "earliest_start_ns": 83541692222,
+          "end_tick": 12124,
+          "ideal_end_ns": 83468775941,
+          "ideal_start_ns": 83464775941,
+          "lateness_ns": 75255332,
+          "phase_end_lateness_ns": 75255332,
+          "phase_start_lateness_ns": 76916294,
+          "start_tick": 12120
+        },
+        {
+          "actual_end_ns": 83549849258,
+          "actual_start_ns": 83545692236,
+          "crosses_formal_stop": false,
+          "earliest_start_ns": 83545692235,
+          "end_tick": 12128,
+          "ideal_end_ns": 83472775941,
+          "ideal_start_ns": 83468775941,
+          "lateness_ns": 77073317,
+          "phase_end_lateness_ns": 77073317,
+          "phase_start_lateness_ns": 76916295,
+          "start_tick": 12124
+        },
+        {
+          "actual_end_ns": 83553051770,
+          "actual_start_ns": 83549890792,
+          "crosses_formal_stop": false,
+          "earliest_start_ns": 83549692236,
+          "end_tick": 12132,
+          "ideal_end_ns": 83476775941,
+          "ideal_start_ns": 83472775941,
+          "lateness_ns": 76275829,
+          "phase_end_lateness_ns": 76275829,
+          "phase_start_lateness_ns": 77114851,
+          "start_tick": 12128
+        },
+        {
+          "actual_end_ns": 83557084373,
+          "actual_start_ns": 83553890798,
+          "crosses_formal_stop": false,
+          "earliest_start_ns": 83553890792,
+          "end_tick": 12136,
+          "ideal_end_ns": 83480775941,
+          "ideal_start_ns": 83476775941,
+          "lateness_ns": 76308432,
+          "phase_end_lateness_ns": 76308432,
+          "phase_start_lateness_ns": 77114857,
+          "start_tick": 12132
+        },
+        {
+          "actual_end_ns": 83560654655,
+          "actual_start_ns": 83557890806,
+          "crosses_formal_stop": false,
+          "earliest_start_ns": 83557890798,
+          "end_tick": 12140,
+          "ideal_end_ns": 83484775941,
+          "ideal_start_ns": 83480775941,
+          "lateness_ns": 75878714,
+          "phase_end_lateness_ns": 75878714,
+          "phase_start_lateness_ns": 77114865,
+          "start_tick": 12136
+        },
+        {
+          "actual_end_ns": 83564804574,
+          "actual_start_ns": 83561890811,
+          "crosses_formal_stop": false,
+          "earliest_start_ns": 83561890806,
+          "end_tick": 12144,
+          "ideal_end_ns": 83488775941,
+          "ideal_start_ns": 83484775941,
+          "lateness_ns": 76028633,
+          "phase_end_lateness_ns": 76028633,
+          "phase_start_lateness_ns": 77114870,
+          "start_tick": 12140
+        },
+        {
+          "actual_end_ns": 83568895242,
+          "actual_start_ns": 83565937518,
+          "crosses_formal_stop": false,
+          "earliest_start_ns": 83565890811,
+          "end_tick": 12148,
+          "ideal_end_ns": 83492775941,
+          "ideal_start_ns": 83488775941,
+          "lateness_ns": 76119301,
+          "phase_end_lateness_ns": 76119301,
+          "phase_start_lateness_ns": 77161577,
+          "start_tick": 12144
+        },
+        {
+          "actual_end_ns": 83572637609,
+          "actual_start_ns": 83569937531,
+          "crosses_formal_stop": false,
+          "earliest_start_ns": 83569937518,
+          "end_tick": 12152,
+          "ideal_end_ns": 83496775941,
+          "ideal_start_ns": 83492775941,
+          "lateness_ns": 75861668,
+          "phase_end_lateness_ns": 75861668,
+          "phase_start_lateness_ns": 77161590,
+          "start_tick": 12148
+        },
+        {
+          "actual_end_ns": 83577894549,
+          "actual_start_ns": 83573937549,
+          "crosses_formal_stop": false,
+          "earliest_start_ns": 83573937531,
+          "end_tick": 12156,
+          "ideal_end_ns": 83500775941,
+          "ideal_start_ns": 83496775941,
+          "lateness_ns": 77118608,
+          "phase_end_lateness_ns": 77118608,
+          "phase_start_lateness_ns": 77161608,
+          "start_tick": 12152
+        },
+        {
+          "actual_end_ns": 83581296065,
+          "actual_start_ns": 83578032197,
+          "crosses_formal_stop": false,
+          "earliest_start_ns": 83577937549,
+          "end_tick": 12160,
+          "ideal_end_ns": 83504775941,
+          "ideal_start_ns": 83500775941,
+          "lateness_ns": 76520124,
+          "phase_end_lateness_ns": 76520124,
+          "phase_start_lateness_ns": 77256256,
+          "start_tick": 12156
+        },
+        {
+          "actual_end_ns": 83585217150,
+          "actual_start_ns": 83582032207,
+          "crosses_formal_stop": false,
+          "earliest_start_ns": 83582032197,
+          "end_tick": 12164,
+          "ideal_end_ns": 83508775941,
+          "ideal_start_ns": 83504775941,
+          "lateness_ns": 76441209,
+          "phase_end_lateness_ns": 76441209,
+          "phase_start_lateness_ns": 77256266,
+          "start_tick": 12160
+        },
+        {
+          "actual_end_ns": 83588551672,
+          "actual_start_ns": 83586032223,
+          "crosses_formal_stop": false,
+          "earliest_start_ns": 83586032207,
+          "end_tick": 12168,
+          "ideal_end_ns": 83512775941,
+          "ideal_start_ns": 83508775941,
+          "lateness_ns": 75775731,
+          "phase_end_lateness_ns": 75775731,
+          "phase_start_lateness_ns": 77256282,
+          "start_tick": 12164
+        },
+        {
+          "actual_end_ns": 83593000277,
+          "actual_start_ns": 83590032242,
+          "crosses_formal_stop": false,
+          "earliest_start_ns": 83590032223,
+          "end_tick": 12172,
+          "ideal_end_ns": 83516775941,
+          "ideal_start_ns": 83512775941,
+          "lateness_ns": 76224336,
+          "phase_end_lateness_ns": 76224336,
+          "phase_start_lateness_ns": 77256301,
+          "start_tick": 12168
+        },
+        {
+          "actual_end_ns": 83597072033,
+          "actual_start_ns": 83594032261,
+          "crosses_formal_stop": false,
+          "earliest_start_ns": 83594032242,
+          "end_tick": 12176,
+          "ideal_end_ns": 83520775941,
+          "ideal_start_ns": 83516775941,
+          "lateness_ns": 76296092,
+          "phase_end_lateness_ns": 76296092,
+          "phase_start_lateness_ns": 77256320,
+          "start_tick": 12172
+        },
+        {
+          "actual_end_ns": 83600186011,
+          "actual_start_ns": 83598032268,
+          "crosses_formal_stop": false,
+          "earliest_start_ns": 83598032261,
+          "end_tick": 12180,
+          "ideal_end_ns": 83524775941,
+          "ideal_start_ns": 83520775941,
+          "lateness_ns": 75410070,
+          "phase_end_lateness_ns": 75410070,
+          "phase_start_lateness_ns": 77256327,
+          "start_tick": 12176
+        },
+        {
+          "actual_end_ns": 83605358728,
+          "actual_start_ns": 83602032273,
+          "crosses_formal_stop": false,
+          "earliest_start_ns": 83602032268,
+          "end_tick": 12184,
+          "ideal_end_ns": 83528775941,
+          "ideal_start_ns": 83524775941,
+          "lateness_ns": 76582787,
+          "phase_end_lateness_ns": 76582787,
+          "phase_start_lateness_ns": 77256332,
+          "start_tick": 12180
+        }
+      ]
+    }
+  },
+  "worst_lateness": {
+    "actual_end_after_formal_stop_ns": 207065108,
+    "actual_start_after_formal_stop_ns": 203738653,
+    "group_end": {
+      "actual_end_ns": 83605358728,
+      "actual_start_ns": 83602032273,
+      "earliest_start_ns": 83602032268,
+      "end_tick": 12184,
+      "epoch": "1c404fd36f8543e19b9d083c8e437cdc",
+      "ideal_end_ns": 83528775941,
+      "ideal_start_ns": 83524775941,
+      "issued_monotonic_ns": 83605361953,
+      "kind": "rate_group_end",
+      "lateness_ns": 76582787,
+      "request_id": "config",
+      "requested_rate": 1.0,
+      "segment_id": 1,
+      "start_tick": 12180,
+      "tick": 12184,
+      "transition": false
+    },
+    "group_start": {
+      "actual_start_ns": 83602032273,
+      "earliest_start_ns": 83602032268,
+      "end_tick": 12184,
+      "epoch": "1c404fd36f8543e19b9d083c8e437cdc",
+      "ideal_end_ns": 83528775941,
+      "ideal_start_ns": 83524775941,
+      "issued_monotonic_ns": 83602043826,
+      "kind": "rate_group_start",
+      "lateness_ns": 77256332,
+      "request_id": "config",
+      "requested_rate": 1.0,
+      "segment_id": 1,
+      "start_tick": 12180,
+      "tick": 12180,
+      "transition": false
+    },
+    "inside_bootstrap_or_filter_gap": false,
+    "inside_formal_capture": false,
+    "location_note": "The 77.256332ms value is a captured rate phase lateness at tick 12180; it is not a scheduler-trace timestamp inside the formal trace window.",
+    "source": "rate_segment_end.worst_lateness_ns and matching rate_group_start.lateness_ns",
+    "stage": "rate_group_start / pacing phase",
+    "worst_lateness_ms": 77.256332,
+    "worst_lateness_ns": 77256332
+  }
+}
