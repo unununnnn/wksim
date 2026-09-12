@@ -6,7 +6,7 @@
 
 | 负责人 | 独占文件与交付 | 接续条件 |
 | --- | --- | --- |
-| OMP | compare_first_step_trace.py、对应纯测试、交付说明；修复主审实证的4个校验错误并重放真实原件 | 主会话验收后，基于稳定两端新schema扩展求解输入对齐；缺参考数据时不猜字段/端口角色 |
+| OMP | compare_first_step_trace.py、对应纯测试、交付说明；v2返修已复核；扩展实际mrdivide与参考run-05操作数/输出对照 | 主会话验收后，基于稳定两端新schema扩展求解输入对齐；缺参考数据时不猜字段/端口角色 |
 | Claude Code | build_first_step_solve_candidate.py及纯测试；基于两端实际相同操作数准备隔离求解诊断候选 | 交稳定SHA给主会话单步实跑；不改共享builder/recorder/probe或正式模型 |
 | 主会话 | 目标端builder/recorder、证据归档、跨模块验收、native、正式profile/catalog | 两端输入已证实相同、求解q结果1ULP不同；下一步验证独立诊断候选 |
 

@@ -1,0 +1,22 @@
+{
+  "valid_with_major": "aligned",
+  "correction": "v1 dtype mutation changed unused PostOutputs.derivatives metadata at event3. Its acceptance does not show a defect in the actual PostDerivatives comparison. Corrected negative case mutates a consumed PostDerivatives payload.",
+  "dropped": {
+    "status": "rejected",
+    "reasons": [
+      "reference dropped_events must be 0, got 1"
+    ]
+  },
+  "invalid_final_hex": {
+    "status": "rejected",
+    "reasons": [
+      "target update post_hex: non-hexadecimal number found in fromhex() arg at position 0"
+    ]
+  },
+  "consumed_derivative_dtype": {
+    "status": "rejected",
+    "reasons": [
+      "q0 q1 q2 q3: invalid hex payload: payload dtype/shape/hex correspondence differs: dtype='single' shape=[4, 1] hex_len=4"
+    ]
+  }
+}

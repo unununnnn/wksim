@@ -13,7 +13,7 @@
 
 | 席位 | thread / 当前turn | 独占交付 |
 | --- | --- | --- |
-| OMP | 6deb2e40-2240-4db2-8c7f-c06bf6724048 / 3c437171-b5a0-45da-9c26-487eb9512e7f | 比对器首版主审返修：合法with-major误拒，丢采/非法末态hex/错误dtype误收；作者负责全部校验与真实负例，保留v1报告。禁止改probe/recorder。 |
+| OMP | 6deb2e40-2240-4db2-8c7f-c06bf6724048 / c6ebf63a-f2d0-44ad-9374-5fa2b1a0fb0b | v2返修20纯测试通过；主审确认major接受、丢采/非法末态/实际使用derivative错误dtype拒绝。现扩展实际mrdivide+参考run05严格schema和操作数对照，保留历史报告。禁止改probe/recorder。 |
 | Claude Code | 48faf2f5-f74a-4ba4-ac85-4ae4d05c5801 / 23686638-0f45-472e-8ec9-edf268eaa168 | 参考probe和helper审查已交回；现准备独立build_first_step_solve_candidate.py及纯测试，统一有限非零对角矩阵乘倒数诊断分支，保留通用fallback，不编译/运行，不改共享源。 |
 
 OMP旧数值报告出现过把2墙秒当500组，以及将sleep_max总和减出“残余归因”的错误，均不采用。现有分类仅能定位阶段边界，不能证明OS/FC或纯off-CPU原因。新helper须先读源、核对真实父类行为与测试再接线。
@@ -54,7 +54,7 @@ spin v2已主审收口并完成下文0fsmugd1诊断：主会话去掉热路径�
 
 两端5次实际分子和矩阵全部逐位相同，仅seq2的q结果1ULP不同，已把首个映射差异定位到矩阵求解计算；前4次参考Product输出逐位等于实际pqr导数。离线n/j给目标b9，n*(1/j)给参考b8，仍未证明参考内部算法。见docs/2026-09-13-first-step-solve-boundary.md与execution-05/solve-comparison.json。Claude已接独立诊断候选准备，不改正式模型；候选下一步需主审、双WSL前检、独立编译/首步实跑，验证旧原件不变及是否减少差异；不能据首步通过关闭G6。
 
-比对器首版的4个真实错误保存在first-step-comparator-20260913/main-review-v1.json，OMP返修仍进行；未验收。Claude helper只读审查无阻断问题，实际run-04/05另补并验证Reshape路径。其旧字符串静态测试只作历史审查快照保留execution-04/reviewer-static-tests.py.txt，不以其替代新版实际运行。
+比对器v2的20项测试通过。main-review-v2.json更正v1的一项审查：event3的PostOutputs.derivatives未参与对照，改它的dtype不能证明比较缺陷；真正参与的PostDerivatives坏dtype、丢采和非法末态均已拒绝，合法major接受。v1保留，v2更正。当前代码由OMP继续扩展新求解schema，尚未冻结提交。Claude helper只读审查无阻断问题，实际run-04/05另补并验证Reshape路径。其旧字符串静态测试只作历史审查快照保留execution-04/reviewer-static-tests.py.txt，不以其替代新版实际运行。
 
 目标端mrdivide版已完成：Linux /root/wksim-first-step-trace-20260913-03，编译/run exit0，PGID671/696全空；13项纯测试通过。5次求解时间/major-minor序列正确，240主输出及4级状态/导数/更新与版本02逐位相同。stage2实际分子[1]=bc000013449033b2、结果[1]=bc56d4db33a987b9；5次实际目标惯性矩阵均diag(.0211,.0219,.0366)。只证明目标端，参考求解输入尚未观测。trace SHA9cee60eb5b3e5ccc96730f13423f5e0fa07de19654a481d32e9e885953f4bed3；证据validation/coordination/g6-target-mrdivide-20260913。
 
