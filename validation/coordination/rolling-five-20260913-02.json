@@ -1,0 +1,76 @@
+{
+  "schema": "wksim.available-harness-queue.v1",
+  "observed_at": "2026-09-12 17:11:54 UTC",
+  "roster": "OMP + 3 codebuddy + Claude Code",
+  "restart_authorized": false,
+  "native_window": "No new native run; agents limited to pure tests, bounded owned Python smoke and read-only source/evidence",
+  "strategy": "Module ownership and rolling acceptance; each idle thread read before send; no batch barrier. Reserve native resource window explicitly, never count broken backend as an active seat.",
+  "jobs": [
+    {
+      "role": "OMP：early-work分析器",
+      "harnessId": "omp",
+      "threadId": "6deb2e40-2240-4db2-8c7f-c06bf6724048",
+      "turnId": "439c936f-23d6-4c61-8c11-16e5f84366fd",
+      "delegationId": null,
+      "delegation_note": "Resumed existing thread; original delegationId unavailable, send returns no new delegationId",
+      "deepLink": "codex://threads/6deb2e40-2240-4db2-8c7f-c06bf6724048",
+      "status_at_dispatch": "running",
+      "assignment": "继续同一模块流水。先读适用AGENTS/CONTEXT和已知相关文件；未知结构按docs/codebase-memory.md原生fallback，源文件为证据。禁止native/ROS节点/飞控/模型/UE/MATLAB/构建、全库测试、嵌套代理、Git mutation、重启或修改进程调度。保护他人改动。只运行本任务纯测试/小型只读分析。完成内部修复后交稳定SHA、精确命令、结果和剩余阻断，不能只交计划。 当前Linux runner主会话已最终修R3 identity.segment=(rate.segment_id if rate is not None else None)，SHA65c7a86765a99d2173a62ffafaf56c43243674dd1e3cbbc1150147b4c56d8161，helper a5def2ba/test4cab冻结，103 passed/1skip/18subtests。不要再改这三个文件。新完整交付：仅在Windows项目写 tools/analyze_early_manager_work.py 和 validation/test_analyze_early_manager_work.py。读取Linux tools/early_manager_work_probe.py实际report schema，实现诊断报告纯离线分析CLI：按真实epoch/segment/window身份核验，有缺失/截断/跨界/错误保留状态；按五phase给实际有效样本wall/current-thread CPU分布及最大样本tick，明确独立phase和外层重叠不可相加，wall-CPU不是纯调度归因；不外推全程、不宣称性能通过。没有新native输入，使用真实helper生成的可控时钟夹具验证合法/身份错/负时间/缺失/截断/边界。不要创造多余通用框架。输出使用独占创建。"
+    },
+    {
+      "role": "codebuddy：独立审查",
+      "harnessId": "codebuddy",
+      "threadId": "98925ad6-4736-4dd2-8287-1132158e2b14",
+      "turnId": "c51df3f5-e09f-4131-8714-949176efbd0d",
+      "delegationId": "b83f9f44-8bc1-4cec-b0e1-b85cbe1e621f",
+      "delegation_note": "Original delegationId retained; followup creates a new turn",
+      "deepLink": "codex://threads/98925ad6-4736-4dd2-8287-1132158e2b14",
+      "status_at_dispatch": "running",
+      "assignment": "继续同一模块流水。先读适用AGENTS/CONTEXT和已知相关文件；未知结构按docs/codebase-memory.md原生fallback，源文件为证据。禁止native/ROS节点/飞控/模型/UE/MATLAB/构建、全库测试、嵌套代理、Git mutation、重启或修改进程调度。保护他人改动。只运行本任务纯测试/小型只读分析。完成内部修复后交稳定SHA、精确命令、结果和剩余阻断，不能只交计划。 当前工作1：只读复核Linux runner R3主修一行，runner SHA65c7a86765a99d2173a62ffafaf56c43243674dd1e3cbbc1150147b4c56d8161，确认rate初始化None可安全覆盖早期异常；只更新你自己的docs/coordination/codebuddy-early-work-review-20260913.md，避免重跑已通过34测试。完成立即工作2：独立审 tools/compare_owned_scheduling.py SHA033d8af81c8c785c5d28a6476aa909309f1bcae20f196d3d0c17b71b06103c7d 与test20cc4590。关注身份复用、缺失相等、禁用schedstats/负计数不能假0、对称匹配、输出覆盖。主会话40 tests通过，无需重复原测试；有疑点做定向独立反例。只写新docs/coordination/codebuddy-scheduling-comparison-review-20260913.md。不得改实现。"
+    },
+    {
+      "role": "codebuddy：慢组调用路径",
+      "harnessId": "codebuddy",
+      "threadId": "43972780-fcfe-4089-97ff-41ae1139b2dd",
+      "turnId": "8992b46f-e13e-4100-a755-9c6366319936",
+      "delegationId": "5cc8cb8d-cdee-4ac5-9e92-5bdc5aede772",
+      "delegation_note": "Original delegationId retained; followup creates a new turn",
+      "deepLink": "codex://threads/43972780-fcfe-4089-97ff-41ae1139b2dd",
+      "status_at_dispatch": "running",
+      "assignment": "继续同一模块流水。先读适用AGENTS/CONTEXT和已知相关文件；未知结构按docs/codebase-memory.md原生fallback，源文件为证据。禁止native/ROS节点/飞控/模型/UE/MATLAB/构建、全库测试、嵌套代理、Git mutation、重启或修改进程调度。保护他人改动。只运行本任务纯测试/小型只读分析。完成内部修复后交稳定SHA、精确命令、结果和剩余阻断，不能只交计划。 接续你C2相位包的Q1/Q2，做一个有界源码诊断：AP odom_valid/gps_status无效或EKF reset是否真正触发额外初始化、同步等待或DDS重建，能否位于已测sensor→actuator路径。使用图查询定位再实际读Linux本场冻结/清单绑定源码，区分当前源码与执行来源；仅关联文案不能当因果。只写新docs/coordination/c2-invalid-state-path-20260913.md和validation/coordination/c2-invalid-state-path-20260913/的最小可复核索引/脚本。交具体路径、条件、源SHA和可修缺陷；不存在路径明确排除该假设。不要重扫已有大型raw、不要扩展成泛泛报告。"
+    },
+    {
+      "role": "codebuddy：调度工具端到端验证",
+      "harnessId": "codebuddy",
+      "threadId": "390d430a-95ae-4ee6-8cd7-186d422e8634",
+      "turnId": "6bc533f2-f519-4ef5-b76f-20fdca4eb66c",
+      "delegationId": "959c02ae-2f07-4bbe-887a-e412b8756b94",
+      "delegation_note": "Original delegationId retained; followup creates a new turn",
+      "deepLink": "codex://threads/390d430a-95ae-4ee6-8cd7-186d422e8634",
+      "status_at_dispatch": "running",
+      "assignment": "继续同一模块流水。先读适用AGENTS/CONTEXT和已知相关文件；未知结构按docs/codebase-memory.md原生fallback，源文件为证据。禁止native/ROS节点/飞控/模型/UE/MATLAB/构建、全库测试、嵌套代理、Git mutation、重启或修改进程调度。保护他人改动。只运行本任务纯测试/小型只读分析。完成内部修复后交稳定SHA、精确命令、结果和剩余阻断，不能只交计划。 capture和compare源码现在冻结，不再改。主会话40 compare tests通过。接续一个最小端到端真实自有进程烟测：只准本次Python验证器自己pid及其自建普通Python子进程，严禁SITL/native模型/任何用户进程；在Linux采集before/after两快照，中间有限CPU工作，调用现有compare工具，核验相同boot/children原字节SHA/pid/start_ticks、非负CPU run delta，sched_schedstats=0则wait/timeslice必须null。若子进程退出/身份变要明确不可比较，不能伪造有效。仅写validation/coordination/owned-scheduling-e2e-20260913/和docs/coordination/owned-scheduling-e2e-20260913.md；已有单次smoke不重复。保留可复跑脚本/原始快照/比较结果/源SHA/自有子进程正常清理证据。运行总量控制10秒内，不改全局调度。"
+    },
+    {
+      "role": "Claude：G6数值失败定位",
+      "harnessId": "claude-code",
+      "threadId": "48faf2f5-f74a-4ba4-ac85-4ae4d05c5801",
+      "turnId": "5ed073dd-18ec-44ef-b44b-c58b5fdcfee8",
+      "delegationId": "0b3902b6-7aac-4235-969b-d76c27543034",
+      "delegation_note": "Original delegationId retained; followup creates a new turn",
+      "deepLink": "codex://threads/48faf2f5-f74a-4ba4-ac85-4ae4d05c5801",
+      "status_at_dispatch": "running",
+      "assignment": "继续同一模块流水。先读适用AGENTS/CONTEXT和已知相关文件；未知结构按docs/codebase-memory.md原生fallback，源文件为证据。禁止native/ROS节点/飞控/模型/UE/MATLAB/构建、全库测试、嵌套代理、Git mutation、重启或修改进程调度。保护他人改动。只运行本任务纯测试/小型只读分析。完成内部修复后交稳定SHA、精确命令、结果和剩余阻断，不能只交计划。 release CLI交付主会话WSL17 tests通过，源码测试冻结不再改。新有界任务：定位G6数值R1已有5684 failed values的首个真正分歧及输入/模型/单位/坐标契约。先读docs/coordination/short-cycle-goal.md、docs/coordination/acceptance-frontier.json、相关G6/票文档，源码结构先图工具。只读现有证据，不跑模型或MATLAB，不修改现有接受门。交最早分歧索引、输入源与执行源SHA、期待/实得、可证根因或最小缺失证据；仅允许纯离线数值对比脚本和测试。独占新tools/diagnose_g6_first_divergence.py、validation/test_g6_first_divergence.py、docs/coordination/g6-first-divergence-20260913.md及validation/coordination/g6-first-divergence-20260913/，若现存证据不足不要造实现框架，只交精确缺口。"
+    }
+  ],
+  "verified_deliveries": {
+    "release_cli": {
+      "source_sha256": "bd90c75a03fbc1f4e95c7b56ead58732b3efc66ce6ecc4144f4438b471a2eaa5",
+      "tests": "WSL release output + existing release audit: 17 passed"
+    },
+    "scheduling_comparison": {
+      "source_sha256": "033d8af81c8c785c5d28a6476aa909309f1bcae20f196d3d0c17b71b06103c7d",
+      "tests": "Windows comparison: 40 passed",
+      "acceptance": "independent review and owned-process e2e in progress"
+    }
+  }
+}

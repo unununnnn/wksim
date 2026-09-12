@@ -345,13 +345,34 @@ def audit(root):
                 rate_groups=groups,worst_lateness_ns=worst,evidence_sha256=hashes)
 
 
-if __name__=='__main__':
-    import argparse
+def main():
+    import argparse,os,sys
     parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('root');parser.add_argument('--output',required=True)
     args=parser.parse_args()
+    # A retained report is evidence: refuse to clobber it before any audit work.
+    # lexists (not exists) is dangling-symlink aware, so a symlinked output is
+    # rejected even when its target no longer exists.
+    if os.path.lexists(args.output):
+        print('Audit output already exists; refusing to overwrite retained evidence: '
+              +str(args.output),file=sys.stderr)
+        return 2
     try:report=audit(args.root)
     except Exception as error:report=dict(status='failed',error=repr(error),full_acceptance=False)
     report['auditor_sha256']=sha(__file__)
-    Path(args.output).write_text(json.dumps(report,indent=2)+'\n')
+    raw=json.dumps(report,indent=2)+'\n'
+    persisted=True
+    try:
+        with open(args.output,'x') as handle:handle.write(raw)
+    except FileExistsError:
+        # Lost the check/write race: the target appeared after the pre-audit
+        # check. Never overwrite it; the report still goes to stdout.
+        print('Audit output appeared during the run; refusing to overwrite retained evidence: '
+              +str(args.output),file=sys.stderr)
+        persisted=False
     print(json.dumps(report,indent=2))
-    raise SystemExit(0 if report['status']=='pass' else 1)
+    if not persisted:return 2
+    return 0 if report['status']=='pass' else 1
+
+
+if __name__=='__main__':
+    raise SystemExit(main())

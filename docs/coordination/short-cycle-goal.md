@@ -1,5 +1,11 @@
 # 当前 Goal 执行检查点
 
+## 2026-09-13 02:11 JST：五席即时接续（取代下面旧席位快照）
+
+主会话逐个读取精确任务，确认上一turn均completed后成功续派五个running turn；真实完整回执、独占文件与派发正文见validation/coordination/rolling-five-20260913-02.json。OMP负责early-work离线分析器；codebuddy审查负责R3一行闭合及调度比较器独立反例；codebuddy时序负责无效状态/复位是否实际位于慢路径；codebuddy调度负责自建Python进程双快照端到端验证；Claude负责G6已有5684失败值的首个分歧。没有新native启动。DeepSeek仍不可用，重启确认仍未收到，不计作运行席位。
+
+收取稳定交付后即时验收/返修/续派，不等待整批。主会话已确认release CLI仅输出保护变化，WSL输出与既有审计17项通过；比较器40项通过，独立审查与真实自有Python双快照仍进行。Linux early-probe runner主修R3 SHA65c7a86765a99d2173a62ffafaf56c43243674dd1e3cbbc1150147b4c56d8161，helper/test冻结，之前103passed/1skip/18subtests成立；本轮只开发独立分析器，不再改冻结runner。完整PV仍失败，G6仍未通过，全部原验收门保持。JSON仅为派发回执，不声称实现后台自动补位。
+
 2026-09-12最新：Goal active，createdAt1789219780；Full/G0–G6原目标和全部验收门保持。上一轮是实质进展：C1源码/测试交付、真实诊断运行、原件保留与独立核算，不能把失败场称通过。
 
 ## 最新用户要求：五个可用席位已实际派发
