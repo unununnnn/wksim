@@ -1,0 +1,273 @@
+"""Opt-in manager GC freeze candidate for the joint flight runner.
+
+What this is
+------------
+An *explicitly selected* experiment.  Only when the caller passes
+``--manager-gc-freeze`` on a PV/MIXED run does the manager (the
+``run_joint_flight.py`` process) move its current long-lived object graph into
+CPython's permanent generation:
+
+1. ``arm()``     -- at startup: verify GC is enabled and that nobody already
+                    owns a permanent generation, and record the pre-existing
+                    enabled/threshold/count state.
+2. ``prepare()`` -- after every task reports ``initialized`` and the model
+                    tick-0 snapshot has been verified, but before
+                    ``physics.connect()`` and the first rate anchor: exactly one
+                    ``gc.collect()`` followed by one ``gc.freeze()``.
+3. ``restore()`` -- in the runner's outer ``finally``, after all native
+                    cleanup: ``gc.unfreeze()`` for the graph this object froze.
+
+Boundaries
+----------
+* ``gc.disable()`` is never called and thresholds are never changed.  The only
+  mutating calls this module can make are ``collect``, ``freeze`` and
+  ``unfreeze``.
+* If the preset state is not ours (collector disabled, or a permanent
+  generation already exists) the run is refused *accurately* and nothing is
+  mutated.  We never unfreeze somebody else's object graph.
+* When the option is not selected, no GC state is read or touched at all.
+
+Evidence boundary
+-----------------
+This is a *candidate*, not a performance result.  The independent tick-107572
+observation (a gen2 collection whose interval is fully embedded inside a PX4
+wait window, ``collected=0``) supports reducing repeated manager scans of
+long-lived objects.  It does **not** support exclusive OS or flight-controller
+attribution, and a run that enables this option is not by itself a performance
+pass.
+"""
+
+import gc as _default_gc
+import time as _default_time
+
+MODULE_NAME = "tools/manager_gc_candidate.py"
+CLASSIFICATION = "candidate_not_performance_pass"
+
+# The only GC calls that mutate collector state.
+MUTATORS = ("collect", "freeze", "unfreeze")
+
+
+class ManagerGCFreezeError(RuntimeError):
+    """Refused to touch GC because the pre-existing state is not ours."""
+
+
+def _as_list(value):
+    if value is None:
+        return None
+    try:
+        return [int(item) for item in value]
+    except (TypeError, ValueError):
+        return list(value)
+
+
+class ManagerGCFreeze:
+    """Owns exactly one collect+freeze of the manager's long-lived graph.
+
+    ``gc_module`` and ``monotonic_ns`` are injectable so the ordering and the
+    exception/recovery paths can be verified without a live interpreter-wide
+    collector.
+    """
+
+    def __init__(self, *, enabled, gc_module=None, monotonic_ns=None,
+                 source_sha256=None):
+        self.enabled = bool(enabled)
+        self._gc = _default_gc if gc_module is None else gc_module
+        self._monotonic_ns = (_default_time.monotonic_ns if monotonic_ns is None
+                              else monotonic_ns)
+        self.source_sha256 = source_sha256
+        self._armed = False
+        self._prepared = False
+        self._restored = False
+        self._we_froze = False
+        self._original = None
+        self._before = None
+        self._after = None
+        self._activation = None
+        self._collected = None
+        self._restore_state = None
+        self._prepare_check = None
+        self.events = []
+
+    # -- internals ---------------------------------------------------------
+
+    def _emit(self, event, **fields):
+        record = {"event": event, "monotonic_ns": int(self._monotonic_ns())}
+        record.update(fields)
+        self.events.append(record)
+        return record
+
+    def _stats(self):
+        getter = getattr(self._gc, "get_stats", None)
+        if getter is None:
+            return None
+        try:
+            return getter()
+        except Exception:  # noqa: BLE001 - stats are diagnostic only
+            return None
+
+    def _snapshot(self, label):
+        return {
+            "label": label,
+            "freeze_count": int(self._gc.get_freeze_count()),
+            "counts": _as_list(self._gc.get_count()),
+            "stats": self._stats(),
+        }
+
+    # -- lifecycle ---------------------------------------------------------
+
+    def arm(self):
+        """Validate the preset state at startup; record it and change nothing."""
+        if not self.enabled:
+            self._emit("arm_skipped_disabled")
+            return self.report()
+        if self._armed:
+            raise ManagerGCFreezeError("manager GC freeze is already armed")
+
+        enabled = bool(self._gc.isenabled())
+        freeze_count = int(self._gc.get_freeze_count())
+        self._original = {
+            "gc_enabled": enabled,
+            "freeze_count": freeze_count,
+            "thresholds": _as_list(self._gc.get_threshold()),
+            "counts": _as_list(self._gc.get_count()),
+            "stats": self._stats(),
+        }
+        if not enabled:
+            raise ManagerGCFreezeError(
+                "manager GC freeze requires an enabled collector; refusing to "
+                "re-enable a collector someone else disabled "
+                "(freeze_count=%d)" % freeze_count)
+        if freeze_count:
+            raise ManagerGCFreezeError(
+                "manager GC freeze requires an unfrozen permanent generation; "
+                "found freeze_count=%d, refusing to unfreeze foreign state"
+                % freeze_count)
+
+        self._armed = True
+        self._emit("armed", gc_enabled=enabled, freeze_count=freeze_count,
+                   thresholds=self._original["thresholds"])
+        return self.report()
+
+    def _revalidate(self):
+        """Re-check the collector immediately before freezing.
+
+        External code may legally touch GC between ``arm()`` and
+        ``prepare()``.  Any drift is refused accurately and nothing is
+        mutated -- in particular we never unfreeze a permanent
+        generation that is not ours.
+        """
+        observed = {
+            "gc_enabled": bool(self._gc.isenabled()),
+            "freeze_count": int(self._gc.get_freeze_count()),
+            "thresholds": _as_list(self._gc.get_threshold()),
+        }
+        self._prepare_check = observed
+        expected = self._original or {}
+        if not observed["gc_enabled"]:
+            raise ManagerGCFreezeError(
+                "manager GC freeze: the collector was disabled between "
+                "arm and prepare; refusing to re-enable it (%r)"
+                % (observed,))
+        if observed["freeze_count"]:
+            raise ManagerGCFreezeError(
+                "manager GC freeze: a permanent generation appeared "
+                "between arm and prepare (freeze_count=%d); refusing to "
+                "unfreeze foreign state" % observed["freeze_count"])
+        if ("thresholds" in expected
+                and observed["thresholds"] != expected["thresholds"]):
+            raise ManagerGCFreezeError(
+                "manager GC freeze: thresholds changed between arm and "
+                "prepare (%r -> %r); refusing to freeze under different "
+                "settings" % (expected["thresholds"],
+                               observed["thresholds"]))
+        return observed
+
+    def prepare(self, *, monotonic_ns=None, clock_tick=None):
+        """One ``collect()`` then one ``freeze()``; never disable or retune."""
+        if not self.enabled:
+            self._emit("prepare_skipped_disabled")
+            return self.report()
+        if not self._armed:
+            raise ManagerGCFreezeError(
+                "manager GC freeze must be armed before prepare")
+        if self._prepared:
+            raise ManagerGCFreezeError("manager GC freeze is already prepared")
+
+        self._revalidate()
+        self._before = self._snapshot("before")
+        collected = self._gc.collect()
+        self._collected = collected
+        self._gc.freeze()
+        # Ownership is registered the instant freeze() returns, before any
+        # sampling that can raise: otherwise a failing post-sample would
+        # lose the graph and the runner's finally would never unfreeze it.
+        self._we_froze = True
+        self._after = self._snapshot("after")
+        self._prepared = True
+        moment = int(self._monotonic_ns() if monotonic_ns is None
+                     else monotonic_ns)
+        self._activation = {"moment_monotonic_ns": moment,
+                            "clock_tick": clock_tick}
+        self._emit("prepared", collected=collected,
+                   freeze_count_before=self._before["freeze_count"],
+                   freeze_count_after=self._after["freeze_count"],
+                   clock_tick=clock_tick)
+        return self.report()
+
+    def restore(self):
+        """Unfreeze exactly the graph this object froze, and nothing else."""
+        if not self.enabled:
+            self._restored = True
+            self._emit("restore_skipped_disabled")
+            return self.report()
+        if not self._we_froze:
+            # Either prepare never ran, or it failed before freezing: there is
+            # no graph of ours to release, and foreign state stays untouched.
+            self._restored = True
+            self._emit("restore_noop_not_owner")
+            return self.report()
+        if self._restored:
+            return self.report()
+
+        count_before = int(self._gc.get_freeze_count())
+        self._gc.unfreeze()
+        count_after = int(self._gc.get_freeze_count())
+        self._restore_state = {
+            "freeze_count_before_unfreeze": count_before,
+            "freeze_count_after_unfreeze": count_after,
+            "expected_original_freeze_count": self._before["freeze_count"],
+            "restored_to_original": count_after == self._before["freeze_count"],
+        }
+        self._restored = True
+        self._we_froze = False
+        self._emit("restored", **self._restore_state)
+        return self.report()
+
+    # -- reporting ---------------------------------------------------------
+
+    def report(self):
+        return {
+            "module": MODULE_NAME,
+            "classification": CLASSIFICATION,
+            "candidate": True,
+            "performance_pass": False,
+            "enabled": self.enabled,
+            "source_sha256": self.source_sha256,
+            "armed": self._armed,
+            "prepared": self._prepared,
+            "restored": self._restored,
+            "froze_own_graph": self._we_froze,
+            "original": self._original,
+            "freeze_count_before": (self._before or {}).get("freeze_count"),
+            "freeze_count_after": (self._after or {}).get("freeze_count"),
+            "collected_before_freeze": self._collected,
+            "prepare_check": self._prepare_check,
+            "activation": self._activation,
+            "before": self._before,
+            "after": self._after,
+            "restore": self._restore_state,
+            "events": self.events,
+            "note": ("diagnostic candidate only: reducing repeated manager scans "
+                     "of long-lived objects is not performance acceptance and "
+                     "does not attribute cost to the OS or flight controller"),
+        }

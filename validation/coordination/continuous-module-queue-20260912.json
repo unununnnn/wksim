@@ -10,37 +10,37 @@
     {
       "owner": "A",
       "threadId": "9e1df14f-9028-44dc-b5d6-c3da7c173a5a",
-      "turnId": "e14405f3-3b52-48b6-b5b6-c6d478c7a9a2",
+      "turnId": "b36934f2-4a7f-4cfd-b8ed-50592c558290",
       "harness": "deepseek-harness",
       "deepLink": "codex://threads/9e1df14f-9028-44dc-b5d6-c3da7c173a5a",
       "status_at_dispatch": "running",
       "delegationId": null,
       "delegation_note": "Existing child resumed; thread send does not return delegationId.",
-      "assignment": "收到C1稳定交付fd0b7ee6…/cbf7b018…，冻结这两个实现文件供独立审查；本轮不要再写runner或GC模块。立即接续已确认的两项过时夹具修复，独占Linux /root/wksim-release-acceptance-fe3/validation/test_joint_rate_probe.py与validation/test_joint_evidence.py，OMP另写test_gc_candidate_entry.py不冲突。补足真实runner合成namespace合同；数值NaN/Inf保留测试不要依赖被删除旧飞行归档，改为当前实际实现+临时输入验证原意（不填0、不丢错误），不能删断言或skip让绿。自己跑原6套相关纯测试，消除刚确认3项失败并保留原始失败说明。不能native/ROS/build/模型加载、不能改实现迎合测试、不能Git提交/嵌套代理。交两文件稳定SHA和真实测试计数，碰到实际实现问题记录供后续修，别扩大范围。新独立审查在任务98925ad6，报告docs/coordination/codebuddy-c1-execution-review-20260912.md；本轮只收集该报告问题，不改冻结实现。",
+      "assignment": "Readonly complete raw analysis of C1 ztdsk269 versus baseline 7bdfxkb; own new ds-c1-actual-analysis JSON/MD only. Source frozen.",
       "completed_delivery": "C1 implementation delivered: runner fd0b7ee6dfb99be7a2d6f580555c6f9bfcddf721e25f68e97761d7f5670df246; module cbf7b0186131c08d4055aea1fcafdb8e7cca36d9acfcb19cdac87938d8786e66. Agent reports 23 candidate checks passed; independent review pending."
     },
     {
       "owner": "B",
       "threadId": "34386db2-17a1-425b-a102-f910451c5c63",
-      "turnId": "c7a5e68c-f575-472c-94bc-706e768ed9a8",
+      "turnId": "c8466cde-d622-4d34-b96b-c484538c57e9",
       "harness": "deepseek-harness",
       "deepLink": "codex://threads/34386db2-17a1-425b-a102-f910451c5c63",
       "status_at_dispatch": "running",
       "delegationId": null,
       "delegation_note": "Existing child resumed; thread send does not return delegationId.",
-      "assignment": "策略更新：领取一个实现+验证完整包，当前项与后续直接连续执行，禁止只交建议。你独占Windows wksim NEW tools/compare_joint_gc_diagnostics.py、NEW validation/test_compare_joint_gc_diagnostics.py，以及你现有docs/plan/33-rate-measured-candidate-20260912.md和ds-7bdfxkb-diagnostic-analysis.json。当前：把已做7bdfxkb分析变为可复用只读比较器，输入两场result/rate/joint-wire(支持现有.gz)；输出真实同身份/同profile/同timing env/同async/AP-control-message基线兼容情况、GC gen2最大与总CPU、interval嵌套证据、最大entry/work-over、release excess及latch闭合；baseline没有GC候选而candidate必须明确freeze元数据及恢复，run/epoch不同合法但单场混身份拒绝。缺失/不兼容返回unavailable/rejected，不造零、不宣布performance_pass，不用两场相关性声称因果。复用已存在interval分析器，避免抄第二套。后续直接做：行为测试覆盖gzip/缺列/身份不兼容/无latch/负残差等实际合同，用原7bdfxkb只读自检可分析但不能冒充candidate；输出一份带原件SHA的自检结果到NEW validation/coordination/gc-diagnostic-comparator-20260912/。修正文档C1仅collect+freeze，绝不disable或调threshold；它是假说而不是必要条件，原文必要不充分/最多节省不能当实测保证。A独占Linux runner/GC模块，你不改。禁止native/ROS/build/模型加载、嵌套派发、提交Git。15–25分钟目标，模块内自行测试修复。",
+      "assignment": "Unaccepted comparator: fix object-count ==1 error and pre/timed/post GC windows. Cancel acknowledged twice but read remains running. No new writer assigned; do not pretend terminal.",
       "acceptance_feedback": "First comparator delivery not accepted: invented gc-freeze.json schema differs from real runner result.manager_gc_candidate and manager-gc-candidate.json. Resumed to consume real producer output and generate contract fixtures from actual ManagerGCFreeze.report; no manually manufactured evidence. Also remove nonexistent second collect from documentation."
     },
     {
       "owner": "D",
       "threadId": "2224f8dd-5384-4c21-a66c-6d1f4f68c7d0",
-      "turnId": "76f63ae9-ebaf-43c1-958a-8fdd26baa064",
+      "turnId": "d70dd83b-44c1-4688-80fc-673d6c1d512c",
       "harness": "deepseek-harness",
       "deepLink": "codex://threads/2224f8dd-5384-4c21-a66c-6d1f4f68c7d0",
       "status_at_dispatch": "running",
       "delegationId": null,
       "delegation_note": "Existing child resumed; thread send does not return delegationId.",
-      "assignment": "策略更新：模型分支从重复计划转为可测试交付。当前你独占Windows wksim tools/validate_generated_e0_lifecycle.py 与NEW validation/test_generated_e0_lifecycle_admission.py，以及你已有26-current-wrapper-recheck-plan.md。主会话读了run源码：在读取并验证manifest前就创建output目录；各source只校验父目录集合却未校验文件名对应key；源哈希直到创建cold与contract后才检查。请先审实际使用合同，最小重排为原始manifest/summary/library和六源身份完整核验后才允许创建输出/冷目录/调用编译器或模型。拒绝source symlink/名称不匹配/共同父目录逃逸/哈希不符/已有输出；不能改变有效输入编译参数/数值比较/4×1000步原门。不新造第二checker，不改旧证据与厂商源。后续直接实现纯行为测试（临时数据与mock subprocess/Model，无native），断言坏输入在spawn/加载和输出副作用之前被拒，验证合法当前manifest可通过只读准入。修复自己发现的本范围问题，交稳定SHA+精确Linux调用命令；不要把PowerShell命令称可直接在Windows运行，sys.platform要求linux。主会话随后安排真实生命周期运行，你本轮严禁编译/加载.so/ROS/UE/MATLAB、嵌套代理、Git提交。其他主工作区改动保护。"
+      "assignment": "Resume lifecycle admission corrections and tests; validate all source/library bytes before snapshot writes. Recover own truncated uncommitted plan only from reliable evidence; do not invent historical text."
     },
     {
       "owner": "OMP",
@@ -74,5 +74,16 @@
     "If blocked on shared files, do owned independent next step; no generic research to occupy slots.",
     "Track dispatch/start, stable delivery, accepted SHA, blockers and main acceptance delay; no fabricated speedup metrics."
   ],
-  "superseded_review": "7c740b88 completed with partial progress; not accepted as execution review. Replaced by fresh context."
+  "superseded_review": "7c740b88 completed with partial progress; not accepted as execution review. Replaced by fresh context.",
+  "native_result": {
+    "run_id": "joint-public-flight-ztdsk269",
+    "status": "failed",
+    "tick": 96624,
+    "lateness_ns": 100129488,
+    "manager_gc_freeze_after": 65783,
+    "manager_gc_restore_after": 0,
+    "cleanup_groups_empty": true,
+    "formal_acceptance": false,
+    "exec_session_36508": "terminal exit 1"
+  }
 }

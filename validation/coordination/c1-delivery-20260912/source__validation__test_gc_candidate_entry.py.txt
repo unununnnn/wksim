@@ -1,0 +1,195 @@
+"""Behavior tests for the C1 manager-GC-freeze entry (real parser, mocked native).
+
+Strategy: import the REAL ``tools/run_joint_flight.py`` and drive its real
+``main(argv)`` argparse + gate path, with ONLY the native execution entries
+(``run`` / ``task_main``) mocked. No shell script, no ROS, no model, no build.
+``parser.error`` paths are asserted as SystemExit(2) with run() never called.
+
+Mock limits (stated, not hidden): argument PARSING and profile/pairing GATES
+are behavior-verified; everything inside ``run()`` (preflight, admission,
+ManagerGCFreeze arm/restore, native children) is mocked away and explicitly
+NOT verified here. A is fixing the GC module; this package never edits it.
+
+Run from the worktree root:  python3 -B -m unittest validation.test_gc_candidate_entry
+"""
+import contextlib
+import io
+import sys
+import unittest
+import unittest.mock as mock
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+sys.path.insert(0, str(ROOT / "tools"))
+
+import run_joint_flight  # noqa: E402  (real module under test)
+from Simulator.wksim_runtime.joint_rate_probe import (  # noqa: E402
+    TIMING_PROBE_ENV,
+    timing_probe_enabled,
+)
+
+PV = run_joint_flight.PV_PROFILE
+MIXED = run_joint_flight.MIXED_PROFILE
+
+AP_MIXED = ("/root/wksim-ap-mixed-fhuf05l9/mixed-build.json",
+            "1e6250eff8873d6b2e52017b613c223ac29f8260fdf92aac2cf0c7cdcc6ce94c")
+CONTROL = ("/root/wksim-joint-control-c2IXOr/build.json",
+           "6fe8c0b30775a9ba83407302f602d0785876d307e5f1cb746afa3bf316cf5e7e")
+MESSAGE = ("/root/wksim-ros2-Rzj3Pf/message-build.json",
+           "29969da0702451e3fc6f1de40bc301a67284c4e7d5fae8f88c64773d27a96219")
+AP_CLOCK = ("/root/wksim-ap-clock-stop-0XQqdR/wksim-build.json",
+            "f347ba52f0fc33bc92e02edb5b4289ca289cb92f73852805e5ab3026e0f18c9b")
+
+# Retest argv derived from the 7bdfxkb pre-run identity: result.json shows
+# task_profile=full_xyz_pv_yaw_v1, async_model_evidence_requested=true, and the
+# retained ap/control/message build manifests hash-match these three identities
+# (verified 2026-09-12: 1e6250ef/6fe8c0b3/29969da0 prefixes).  The two timing
+# diagnostics are ENVIRONMENT variables (see TimingEnvTests); the parser only
+# sees argv.  No --planner-release-proof, no AP-PV pair, no PX4 override (the
+# PV gate itself rejects PX4 overrides: run_joint_flight.py:1192).
+RETEST_ARGV = [
+    "run",
+    "--task-profile", PV,
+    "--ap-mixed-manifest", AP_MIXED[0], "--ap-mixed-sha256", AP_MIXED[1],
+    "--control-manifest", CONTROL[0], "--control-sha256", CONTROL[1],
+    "--message-manifest", MESSAGE[0], "--message-sha256", MESSAGE[1],
+    "--async-model-evidence",
+]
+
+
+def call_main(argv):
+    """Drive real main(); return (run_args, exit_code)."""
+    with mock.patch.object(run_joint_flight, "run") as run_mock, \
+            mock.patch.object(run_joint_flight, "task_main") as task_mock, \
+            contextlib.redirect_stderr(io.StringIO()):
+        try:
+            run_joint_flight.main(argv)
+        except SystemExit as exit_:
+            return None, exit_.code
+    return run_mock.call_args[0][0] if run_mock.called else None, 0
+
+
+class GCFlagGateTests(unittest.TestCase):
+    """--manager-gc-freeze: no-option default, PV/MIXED allowed, others refused."""
+
+    def mixed_argv(self, *extra):
+        return ["run", "--task-profile", MIXED,
+                "--ap-mixed-manifest", AP_MIXED[0], "--ap-mixed-sha256", AP_MIXED[1],
+                "--control-manifest", CONTROL[0], "--control-sha256", CONTROL[1],
+                *extra]
+
+    def pv_argv(self, *extra):
+        return ["run", "--task-profile", PV,
+                "--ap-mixed-manifest", AP_MIXED[0], "--ap-mixed-sha256", AP_MIXED[1],
+                "--control-manifest", CONTROL[0], "--control-sha256", CONTROL[1],
+                "--message-manifest", MESSAGE[0], "--message-sha256", MESSAGE[1],
+                *extra]
+
+    def position_argv(self, *extra):
+        return ["run", "--task-profile", "position",
+                "--ap-manifest", AP_CLOCK[0], "--ap-sha256", AP_CLOCK[1],
+                "--control-manifest", CONTROL[0], "--control-sha256", CONTROL[1],
+                *extra]
+
+    def test_default_is_off_and_namespace_compatible(self):
+        # The original diagnostic argv WITHOUT the GC flag still parses: the
+        # default namespace gains manager_gc_freeze=False, nothing else moves.
+        args, code = call_main(self.pv_argv())
+        self.assertEqual(code, 0)
+        self.assertIs(args.manager_gc_freeze, False)
+        self.assertEqual(args.task_profile, PV)
+        self.assertIs(args.async_model_evidence, False)
+
+    def test_gc_flag_allowed_for_pv_and_mixed(self):
+        for argv in (self.pv_argv("--manager-gc-freeze"),
+                     self.mixed_argv("--manager-gc-freeze")):
+            args, code = call_main(argv)
+            self.assertEqual(code, 0)
+            self.assertIs(args.manager_gc_freeze, True)
+
+    def test_gc_flag_refused_for_position(self):
+        args, code = call_main(self.position_argv("--manager-gc-freeze"))
+        self.assertEqual(code, 2)          # parser.error, run() never called
+        self.assertIsNone(args)
+
+    def test_position_refuses_mixed_pair_and_message_candidate(self):
+        args, code = call_main([
+            "run", "--task-profile", "position",
+            "--ap-mixed-manifest", AP_MIXED[0], "--ap-mixed-sha256", AP_MIXED[1],
+            "--control-manifest", CONTROL[0], "--control-sha256", CONTROL[1]])
+        self.assertEqual(code, 2)
+        self.assertIsNone(args)
+
+    def test_pv_requires_message_pair_and_forbids_px4_override(self):
+        # message pair missing
+        args, code = call_main(["run", "--task-profile", PV,
+                                "--ap-mixed-manifest", AP_MIXED[0],
+                                "--ap-mixed-sha256", AP_MIXED[1],
+                                "--control-manifest", CONTROL[0],
+                                "--control-sha256", CONTROL[1]])
+        self.assertEqual(code, 2)
+        # PX4 override present
+        args, code = call_main(self.pv_argv(
+            "--px4-manifest", "/x.json", "--px4-sha256", "0" * 64))
+        self.assertEqual(code, 2)
+        # AP-PV pair mixed with mixed pair
+        args, code = call_main(self.pv_argv(
+            "--ap-pv-manifest", "/x.json", "--ap-pv-sha256", "0" * 64))
+        self.assertEqual(code, 2)
+
+
+class RetestArgvTests(unittest.TestCase):
+    """The 7bdfxkb-derived retest argv: async + AP mixed/c2IXOr/Rzj3Pf, no
+    planner-release, no AP-PV pair, no PX4 override."""
+
+    def test_retest_argv_parses_and_reaches_run(self):
+        args, code = call_main(RETEST_ARGV)
+        self.assertEqual(code, 0)
+        self.assertEqual(args.task_profile, PV)
+        self.assertIs(args.async_model_evidence, True)
+        self.assertEqual((args.ap_mixed_manifest, args.ap_mixed_sha256), AP_MIXED)
+        self.assertEqual((args.control_manifest, args.control_sha256), CONTROL)
+        self.assertEqual((args.message_manifest, args.message_sha256), MESSAGE)
+        self.assertIs(args.manager_gc_freeze, False)
+        self.assertIsNone(args.px4_manifest)
+        self.assertIsNone(args.ap_pv_manifest)
+        self.assertIs(args.planner_release_proof, False)
+
+    def test_retest_argv_with_gc_flag_parses(self):
+        args, code = call_main([*RETEST_ARGV, "--manager-gc-freeze"])
+        self.assertEqual(code, 0)
+        self.assertIs(args.manager_gc_freeze, True)
+        self.assertIs(args.async_model_evidence, True)
+
+
+class TimingEnvTests(unittest.TestCase):
+    """The two timing diagnostics are ENVIRONMENT gates, executed for real."""
+
+    def test_rate_probe_env_values(self):
+        self.assertFalse(timing_probe_enabled({}))
+        self.assertFalse(timing_probe_enabled({TIMING_PROBE_ENV: "0"}))
+        self.assertTrue(timing_probe_enabled({TIMING_PROBE_ENV: "1"}))
+        with self.assertRaises(ValueError):
+            timing_probe_enabled({TIMING_PROBE_ENV: "2"})
+
+    def test_cpu_timing_literal_contract(self):
+        # The reader is joint.py:54; this test pins the literal name/value so a
+        # rename breaks loudly instead of silently disabling the diagnostic.
+        text = (ROOT / "Simulator/wksim_core/joint.py").read_text(encoding="utf-8")
+        self.assertIn("os.environ.get('WKSIM_JOINT_CPU_TIMING') == '1'", text)
+
+
+class ShellForwardingContractTests(unittest.TestCase):
+    """Text-level contract of tools/run-joint-flight.sh (the script is NOT run)."""
+
+    def test_shell_forwards_to_run_subcommand(self):
+        text = (ROOT / "tools/run-joint-flight.sh").read_text(encoding="utf-8")
+        self.assertIn('exec python3 -B "$repo/tools/run_joint_flight.py" run "$@"',
+                      text)
+        self.assertIn("unshare --net --ipc --mount", text)
+        self.assertIn("ROS_DOMAIN_ID=77", text)
+
+
+if __name__ == "__main__":
+    unittest.main()

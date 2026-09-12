@@ -1,0 +1,385 @@
+"""Pure tests for the opt-in manager GC freeze candidate.
+
+No ROS, no SITL, no build, no raw scan.  Ordering, refusal and recovery are
+verified through an injected fake collector; one subprocess test exercises the
+real ``gc`` API inside its own interpreter so the module's actual calls are
+checked without touching this test process's collector.
+"""
+
+import json
+import subprocess
+import sys
+import unittest
+from pathlib import Path
+
+TOOLS = Path(__file__).resolve().parents[1] / "tools"
+sys.path.insert(0, str(TOOLS))
+
+from manager_gc_candidate import (  # noqa: E402
+    CLASSIFICATION,
+    ManagerGCFreeze,
+    ManagerGCFreezeError,
+)
+
+RUNNER = TOOLS / "run_joint_flight.py"
+
+
+class FakeGC:
+    """Records every call so ordering and non-mutation can be asserted."""
+
+    def __init__(self, enabled=True, freeze_count=0, threshold=(700, 10, 10),
+                 count=(1, 2, 3), collect_result=0, collect_raises=False,
+                 count_raise_when_frozen=False):
+        self.enabled = enabled
+        self.freeze_count = freeze_count
+        self.threshold = tuple(threshold)
+        self.count = tuple(count)
+        self.collect_result = collect_result
+        self.collect_raises = collect_raises
+        # _snapshot() reads count/freeze_count unguarded, so a raise here is the
+        # real "post-freeze sampling failed" path (get_stats is diagnostic-only
+        # and deliberately swallowed by the module).
+        self.count_raise_when_frozen = count_raise_when_frozen
+        self.calls = []
+        self.frozen_amount = 7
+
+    def isenabled(self):
+        self.calls.append("isenabled")
+        return self.enabled
+
+    def get_freeze_count(self):
+        self.calls.append("get_freeze_count")
+        return self.freeze_count
+
+    def get_threshold(self):
+        self.calls.append("get_threshold")
+        return self.threshold
+
+    def get_count(self):
+        self.calls.append("get_count")
+        if self.count_raise_when_frozen and self.freeze_count:
+            raise RuntimeError("post-freeze sampling exploded")
+        return self.count
+
+    def get_stats(self):
+        self.calls.append("get_stats")
+        return [dict(collections=5, collected=11, uncollectable=0)]
+
+    def collect(self):
+        self.calls.append("collect")
+        if self.collect_raises:
+            raise RuntimeError("collector exploded")
+        return self.collect_result
+
+    def freeze(self):
+        self.calls.append("freeze")
+        self.freeze_count += self.frozen_amount
+
+    def unfreeze(self):
+        self.calls.append("unfreeze")
+        self.freeze_count = 0
+
+    def mutators(self):
+        return [c for c in self.calls if c in ("collect", "freeze", "unfreeze")]
+
+
+class FakeGCTestCase(unittest.TestCase):
+    def build(self, **kwargs):
+        gc = FakeGC(**kwargs)
+        obj = ManagerGCFreeze(enabled=True, gc_module=gc,
+                              monotonic_ns=lambda: 123456789,
+                              source_sha256="a" * 64)
+        return gc, obj
+
+    # -- default path never touches GC -------------------------------------
+
+    def test_disabled_option_never_touches_the_collector(self):
+        gc = FakeGC()
+        obj = ManagerGCFreeze(enabled=False, gc_module=gc,
+                              monotonic_ns=lambda: 1)
+        obj.arm()
+        obj.prepare()
+        obj.restore()
+        self.assertEqual(gc.mutators(), [])
+        self.assertEqual(gc.calls, [], "disabled path must not even read GC state")
+        report = obj.report()
+        self.assertFalse(report["enabled"])
+        self.assertFalse(report["prepared"])
+        self.assertTrue(report["restored"])
+        self.assertFalse(report["froze_own_graph"])
+
+    # -- ordering ----------------------------------------------------------
+
+    def test_collect_immediately_precedes_freeze_after_arming(self):
+        gc, obj = self.build()
+        obj.arm()
+        self.assertEqual(gc.mutators(), [], "arm must not mutate the collector")
+        obj.prepare(clock_tick=0)
+        self.assertEqual(gc.mutators(), ["collect", "freeze"])
+        report = obj.report()
+        self.assertTrue(report["armed"])
+        self.assertTrue(report["prepared"])
+        self.assertEqual(report["freeze_count_before"], 0)
+        self.assertEqual(report["freeze_count_after"], 7)
+        self.assertEqual(report["activation"],
+                         {"moment_monotonic_ns": 123456789, "clock_tick": 0})
+        self.assertEqual(report["source_sha256"], "a" * 64)
+        self.assertEqual(report["collected_before_freeze"], 0)
+
+    def test_prepare_records_gc_stats_on_both_sides(self):
+        gc, obj = self.build()
+        obj.arm()
+        obj.prepare(clock_tick=0)
+        report = obj.report()
+        self.assertEqual(report["before"]["stats"][0]["collections"], 5)
+        self.assertEqual(report["after"]["stats"][0]["collected"], 11)
+
+    def test_prepare_before_arm_is_refused(self):
+        gc, obj = self.build()
+        with self.assertRaises(ManagerGCFreezeError):
+            obj.prepare(clock_tick=0)
+        self.assertEqual(gc.mutators(), [])
+
+    def test_prepare_twice_is_refused(self):
+        gc, obj = self.build()
+        obj.arm()
+        obj.prepare(clock_tick=0)
+        with self.assertRaises(ManagerGCFreezeError):
+            obj.prepare(clock_tick=0)
+        self.assertEqual(gc.mutators(), ["collect", "freeze"])
+
+    # -- ownership is registered before any sampling that can fail ---------
+
+    def test_freeze_ownership_survives_a_failing_post_snapshot(self):
+        """A raise after freeze() must not lose the graph we own."""
+        gc, obj = self.build(count_raise_when_frozen=True)
+        obj.arm()
+        with self.assertRaises(RuntimeError):
+            obj.prepare(clock_tick=0)
+        self.assertEqual(gc.mutators(), ["collect", "freeze"])
+        self.assertEqual(gc.freeze_count, 7, "the freeze really happened")
+        report = obj.report()
+        self.assertTrue(report["froze_own_graph"],
+                        "ownership must be registered before the risky sample")
+        self.assertFalse(report["prepared"])
+        # The runner's finally must therefore still release the graph.
+        obj.restore()
+        self.assertEqual(gc.mutators(), ["collect", "freeze", "unfreeze"])
+        self.assertEqual(gc.freeze_count, 0)
+        self.assertTrue(obj.report()["restored"])
+
+    # -- refusal preserves foreign state -----------------------------------
+
+    def test_preexisting_freeze_is_refused_and_foreign_state_is_not_released(self):
+        gc, obj = self.build(freeze_count=5)
+        with self.assertRaises(ManagerGCFreezeError):
+            obj.arm()
+        self.assertEqual(gc.freeze_count, 5)
+        self.assertEqual(gc.mutators(), [])
+        obj.restore()
+        self.assertEqual(gc.mutators(), [], "must not unfreeze foreign state")
+        self.assertEqual(gc.freeze_count, 5)
+        self.assertFalse(obj.report()["prepared"])
+
+    def test_disabled_collector_is_refused_without_reenabling(self):
+        gc, obj = self.build(enabled=False)
+        with self.assertRaises(ManagerGCFreezeError):
+            obj.arm()
+        self.assertFalse(gc.enabled, "must not re-enable someone else's collector")
+        self.assertEqual(gc.mutators(), [])
+        obj.restore()
+        self.assertEqual(gc.mutators(), [])
+
+    # -- drift between arm() and prepare() ---------------------------------
+
+    def test_external_freeze_between_arm_and_prepare_is_refused(self):
+        gc, obj = self.build()
+        obj.arm()
+        gc.freeze_count = 3          # somebody else froze in the meantime
+        with self.assertRaises(ManagerGCFreezeError):
+            obj.prepare(clock_tick=0)
+        self.assertEqual(gc.mutators(), [], "must not collect or freeze")
+        obj.restore()
+        self.assertEqual(gc.mutators(), [], "must never unfreeze foreign state")
+        self.assertEqual(gc.freeze_count, 3)
+
+    def test_external_disable_between_arm_and_prepare_is_refused(self):
+        gc, obj = self.build()
+        obj.arm()
+        gc.enabled = False
+        with self.assertRaises(ManagerGCFreezeError):
+            obj.prepare(clock_tick=0)
+        self.assertEqual(gc.mutators(), [])
+        self.assertFalse(gc.enabled, "must not re-enable the collector")
+
+    def test_external_threshold_change_between_arm_and_prepare_is_refused(self):
+        gc, obj = self.build(threshold=(700, 10, 10))
+        obj.arm()
+        gc.threshold = (900, 10, 10)
+        with self.assertRaises(ManagerGCFreezeError):
+            obj.prepare(clock_tick=0)
+        self.assertEqual(gc.mutators(), [])
+        self.assertEqual(gc.threshold, (900, 10, 10),
+                         "must not retune someone else's thresholds")
+
+    def test_prepare_check_is_reported(self):
+        gc, obj = self.build()
+        obj.arm()
+        obj.prepare(clock_tick=0)
+        check = obj.report()["prepare_check"]
+        self.assertEqual(check, {"gc_enabled": True, "freeze_count": 0,
+                                 "thresholds": [700, 10, 10]})
+
+    # -- exception recovery -------------------------------------------------
+
+    def test_collect_failure_does_not_freeze_and_restore_is_a_noop(self):
+        gc, obj = self.build(collect_raises=True)
+        obj.arm()
+        with self.assertRaises(RuntimeError):
+            obj.prepare(clock_tick=0)
+        self.assertEqual(gc.mutators(), ["collect"])
+        self.assertEqual(gc.freeze_count, 0)
+        obj.restore()
+        self.assertEqual(gc.mutators(), ["collect"], "no unfreeze after failed freeze")
+        report = obj.report()
+        self.assertFalse(report["froze_own_graph"])
+        self.assertFalse(report["prepared"])
+        self.assertTrue(report["restored"])
+
+    def test_restore_returns_the_graph_to_its_original_count(self):
+        gc, obj = self.build()
+        obj.arm()
+        obj.prepare(clock_tick=0)
+        self.assertEqual(gc.freeze_count, 7)
+        obj.restore()
+        self.assertEqual(gc.freeze_count, 0)
+        report = obj.report()
+        self.assertTrue(report["restored"])
+        self.assertFalse(report["froze_own_graph"])
+        self.assertTrue(report["restore"]["restored_to_original"])
+
+    def test_restore_twice_releases_only_once(self):
+        gc, obj = self.build()
+        obj.arm()
+        obj.prepare(clock_tick=0)
+        obj.restore()
+        obj.restore()
+        self.assertEqual(gc.mutators().count("unfreeze"), 1)
+
+    # -- original state preserved ------------------------------------------
+
+    def test_thresholds_and_enabled_state_are_recorded_and_untouched(self):
+        gc, obj = self.build(threshold=(1000, 25, 25))
+        obj.arm()
+        obj.prepare(clock_tick=0)
+        obj.restore()
+        self.assertEqual(gc.threshold, (1000, 25, 25))
+        self.assertTrue(gc.enabled)
+        self.assertFalse(hasattr(gc, "set_threshold"),
+                         "module must never retune thresholds")
+        self.assertEqual(obj.report()["original"]["thresholds"], [1000, 25, 25])
+        self.assertTrue(obj.report()["original"]["gc_enabled"])
+
+    def test_report_is_marked_candidate_not_performance_pass(self):
+        gc, obj = self.build()
+        obj.arm()
+        obj.prepare(clock_tick=0)
+        obj.restore()
+        report = obj.report()
+        self.assertEqual(report["classification"], CLASSIFICATION)
+        self.assertTrue(report["candidate"])
+        self.assertFalse(report["performance_pass"])
+        self.assertIn("not performance acceptance", report["note"])
+        json.dumps(report)  # must be serialisable for the run result
+
+
+class RealLifecycleTests(unittest.TestCase):
+    """Exercise the real gc API inside a separate, throwaway interpreter."""
+
+    SCRIPT = r"""
+import gc, json, sys
+sys.path.insert(0, sys.argv[1])
+from manager_gc_candidate import ManagerGCFreeze
+before = dict(enabled=gc.isenabled(), freeze=gc.get_freeze_count(),
+              thresholds=list(gc.get_threshold()))
+obj = ManagerGCFreeze(enabled=True, source_sha256="b" * 64)
+obj.arm()
+obj.prepare(clock_tick=0)
+report = obj.report()
+obj.restore()
+after = dict(enabled=gc.isenabled(), freeze=gc.get_freeze_count(),
+             thresholds=list(gc.get_threshold()))
+print(json.dumps(dict(before=before, frozen=report["freeze_count_after"],
+                      prepared=report["prepared"],
+                      check=report["prepare_check"],
+                      restored=obj.report()["restore"], after=after,
+                      classification=report["classification"])))
+"""
+
+    def test_real_interpreter_lifecycle_round_trips(self):
+        proc = subprocess.run([sys.executable, "-c", self.SCRIPT, str(TOOLS)],
+                              capture_output=True, text=True, timeout=120)
+        self.assertEqual(proc.returncode, 0, proc.stderr)
+        payload = json.loads(proc.stdout.strip().splitlines()[-1])
+        self.assertGreater(payload["frozen"], 0, "real freeze should add objects")
+        self.assertTrue(payload["prepared"])
+        self.assertEqual(payload["check"]["freeze_count"], 0)
+        self.assertTrue(payload["restored"]["restored_to_original"])
+        self.assertEqual(payload["after"]["freeze"], payload["before"]["freeze"])
+        self.assertEqual(payload["after"]["enabled"], payload["before"]["enabled"])
+        self.assertEqual(payload["after"]["thresholds"],
+                         payload["before"]["thresholds"])
+        self.assertEqual(payload["classification"], CLASSIFICATION)
+
+
+class RunnerWiringTests(unittest.TestCase):
+    """The runner must offer the opt-in flag and order it correctly."""
+
+    def setUp(self):
+        if not RUNNER.is_file():
+            self.skipTest("runner not present")
+        self.source = RUNNER.read_text(encoding="utf-8")
+
+    def test_runner_orders_arm_prepare_and_restore_correctly(self):
+        source = self.source
+        self.assertIn("--manager-gc-freeze", source)
+        self.assertIn("tools/manager_gc_candidate.py", source)
+
+        arm = source.index("manager_gc.arm()")
+        prepare = source.index("manager_gc.prepare(")
+        connect = source.index("physics.connect()")
+        cleanup = source.index("cleanup_children(result, children, child_specs,")
+        restore = source.index("manager_gc.restore()")
+
+        self.assertLess(arm, prepare, "arm must precede prepare")
+        self.assertLess(prepare, connect,
+                        "freeze must happen before physics.connect()")
+        self.assertLess(cleanup, restore,
+                        "restore must follow native cleanup in the finally")
+        self.assertLess(prepare, source.index("rate.reanchor("))
+
+    def test_restore_is_guarded_by_its_own_finally(self):
+        """A raising cleanup must still release the frozen graph."""
+        source = self.source
+        cleanup = source.index("cleanup_children(result, children, child_specs,")
+        restore = source.index("manager_gc.restore()")
+        between = source[cleanup:restore]
+        self.assertIn("finally:", between,
+                      "restore must sit in a finally guarding the cleanup block")
+
+    def test_gc_work_is_not_registered_as_an_exitstack_callback(self):
+        """Callbacks run while the clock may still be live and logs open."""
+        self.assertNotIn("resources.callback(manager_gc", self.source)
+        self.assertNotIn("enter_context(manager_gc", self.source)
+
+    def test_runner_restricts_the_flag_to_pv_and_mixed(self):
+        self.assertIn(
+            "if args.manager_gc_freeze and not (pv or mixed):", self.source)
+
+    def test_runner_uses_getattr_for_the_new_opt_in(self):
+        """Synthetic namespaces in other suites must keep working."""
+        self.assertIn("getattr(args, 'manager_gc_freeze', False)", self.source)
+
+
+if __name__ == "__main__":
+    unittest.main(verbosity=2)
