@@ -10,7 +10,34 @@ The raw decoder has no poison latch: a v1-only read method leaves an unexpected 
 
 Main-agent verification: 202 tests across envelope, pump, session, adapter and command egress passed, including malformed identity, schema drift, opt-in recovery, mixed-stream sequence order and the v1 parse-count regression.
 
-This does not enable control frames in the ROS1 sender or ROS2 transport node. Those integrations still need explicit mode selection and public stop/release ACK handling. A terminal planner session that stops publishing is not evidence that a real FC stopped its last P+V command. No trajectory-time gate or physics/freshness limit was changed.
+Control frames require explicit opt-in at both ends; the wiring below does not establish physical acceptance. A terminal planner session that stops publishing is not evidence that a real FC stopped its last P+V command. No trajectory-time gate or physics/freshness limit was changed.
+
+The sender and transport node now have explicit control-mode wiring; the default
+remains v1. On the sender, `~accept_control=true` enables the reviewed uav1 Bool
+gate topic plus private `~hold` and `~cancel` Empty topics. Encoding and TCP writes
+share one lock, a write failure retires the connection, and a sent terminal cancel
+suppresses subsequent output. Callback lock order is the wire order; it is not a
+guarantee of original publication order across ROS topics. Start the sender and
+establish its subscriptions before enabling planner output. The sender still
+has no transport ACK or automatic reconnect.
+
+On the transport node, control mode requires explicit cancel/expected-native
+modes. A consumed batch is folded before any publication, so a later gate-close
+or stop suppresses an earlier activation in that batch. Gate-open alone cannot
+resume an old trajectory. HOLD retains normal sampling; cancel waits for the
+existing pending command ACK at the original sample boundary before requesting
+release. Release observation uses the unchanged ROS operation clock and a 10s
+deadline; switching production `use_sim_time` is rejected. Setup request IDs are
+included in SessionState correlation and matched setup/revocation events are
+routed through the release classifier.
+
+Validation retained all original real-TCP regression tests. The combined
+generated-message/callback/TCP suites passed 25 tests in an isolated ROS2
+environment, including actual sender-core TCP bytes through hold/cancel and
+public request assembly. A further 131 sender/receiver/codec/pump tests passed,
+including blocked-write shutdown and concurrent frame ordering. ACKs in these
+tests are synthetic; live ROS1 subscriber wiring and real FC release remain
+unverified.
 
 ## Public release foundation
 
@@ -32,6 +59,5 @@ request events and foreign run/epoch events do not confirm the release.
 `build_ros_mode_request` assembles the generated SetupRequest without publishing
 or allocating IDs. Five valid mode variants and malformed identity/counter/time
 inputs were checked with actual ROS2 serialization. The related pure suites pass
-221 tests. Sender/node integration, timeout handling while waiting for release,
-and actual FC mode observation remain outstanding; this foundation is not a
+221 tests. Actual FC mode observation and live ROS1-to-public-control verification remain outstanding; this foundation is not a
 physical cancellation result.

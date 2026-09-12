@@ -18,8 +18,13 @@ counterpart of the committed ``bspline_ros1_relay.py`` and shares its discipline
 
 The field-extraction and frame-encoding core (``build_payload`` /
 ``encode_bspline_frame``) is pure and importable without ROS so it can be unit
-tested off-robot.  All ROS imports (``rospy``, the message class) and the socket
-send loop are confined to :func:`main`.
+tested off-robot. ROS imports and socket creation are confined to :func:`main`;
+``OrderedFrameSender`` serializes encoding/writes on an injected connection.
+
+Explicit ``~accept_control=true`` adds the upstream Bool output gate and
+private ``~hold``/``~cancel`` Empty inputs on the same sequence stream. The
+Bool is never treated as cancellation. These are requests with no transport
+ACK; a sent cancel does not prove that a flight controller stopped.
 
 Cross-distro import reality (honest): this script lives OUTSIDE the ``Simulator``
 package (the ``Modules`` tree is a PEP 420 namespace, not an installed package),
@@ -32,6 +37,7 @@ repository (in the Noetic WSL distro that is the mounted Windows repo, e.g.
 """
 from pathlib import Path
 import sys
+import threading
 
 # This script is not inside the Simulator package; make the repository importable
 # whether it is launched via rosrun, python3, or imported by a test.  Idempotent.
@@ -100,6 +106,69 @@ def encode_bspline_frame(encoder, message):
     return encoder.encode_frame(build_payload(message))
 
 
+class OrderedFrameSender:
+    """Serialize callback encoding and writes on one owned connection.
+
+    Wire order is lock acquisition order, not a promise about ROS ordering
+    across different topics. A write failure retires the connection; a sent
+    terminal cancel suppresses later output until a new sender is constructed.
+    """
+    def __init__(self, encoder, connection, *, accept_control=False):
+        if not isinstance(encoder, BsplineTcpEncoder):
+            raise ValueError("encoder must be a BsplineTcpEncoder")
+        if type(accept_control) is not bool:
+            raise ValueError("accept_control must be a strict bool")
+        if not all(callable(getattr(connection, name, None)) for name in ("sendall", "shutdown", "close")):
+            raise ValueError("connection must support sendall/shutdown/close")
+        self.encoder, self.connection = encoder, connection
+        self.accept_control = accept_control
+        self._lock = threading.Lock()
+        self._closed = False
+        self._cancel_sent = False
+
+    def _close_socket(self):
+        import socket
+        try:
+            self.connection.shutdown(socket.SHUT_RDWR)
+        except OSError:
+            pass
+        self.connection.close()
+
+    def close(self):
+        # Interrupt a blocked send before waiting for its encoding/write lock.
+        self._closed = True
+        self._close_socket()
+        with self._lock:
+            pass
+
+    def _send(self, encode):
+        if self._closed:
+            raise OSError("sender connection is closed")
+        if self._cancel_sent:
+            return False
+        frame = encode()
+        try:
+            self.connection.sendall(frame)
+        except OSError:
+            self._closed = True
+            self._close_socket()
+            raise
+        return True
+
+    def send_bspline(self, message):
+        with self._lock:
+            return self._send(lambda: encode_bspline_frame(self.encoder, message))
+
+    def send_control(self, control):
+        if not self.accept_control:
+            raise ValueError("control frames require explicit accept_control")
+        with self._lock:
+            sent = self._send(lambda: self.encoder.encode_control_frame(control))
+            if sent and control["kind"] == "cancel":
+                self._cancel_sent = True
+            return sent
+
+
 def main():
     # ROS imports are confined here so the conversion core stays ROS-less and
     # unit-testable on a machine without ROS1 installed.
@@ -116,13 +185,22 @@ def main():
     # Required, no default: the shared transport session id.  The encoder
     # validates its format and re-pins both message hashes at construction.
     session_id = rospy.get_param("~transport_session_id")
+    accept_control = rospy.get_param("~accept_control", False)
+    if type(accept_control) is not bool:
+        raise ValueError("accept_control must be a strict bool")
+    if accept_control and uav_id != 1:
+        raise ValueError("control transport currently supports the reviewed uav1 profile only")
     encoder = BsplineTcpEncoder(session_id)
 
     sock = socket.create_connection((host, port))
+    if accept_control:
+        sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+    sender = OrderedFrameSender(encoder, sock, accept_control=accept_control)
+    rospy.on_shutdown(sender.close)
 
-    def on_bspline(message):
+    def transmit(operation):
         try:
-            sock.sendall(encode_bspline_frame(encoder, message))
+            operation()
         except (BsplineEnvelopeError, ValueError) as error:
             # Malformed planner output is dropped fail-closed; no frame is sent.
             rospy.logerr_throttle(1.0, "Bspline TCP sender dropped a message: %s", error)
@@ -136,9 +214,28 @@ def main():
                 "with a NEW shared transport_session_id): %s", error)
             rospy.signal_shutdown("tcp connection failed")
 
-    rospy.Subscriber(topic, TrajUtilsBspline, on_bspline, queue_size=10)
-    rospy.loginfo("Streaming %s -> tcp://%s:%d (session %s)", topic, host, port, session_id)
-    rospy.spin()
+    subscribers = []
+    try:
+        if accept_control:
+            from std_msgs.msg import Bool, Empty
+            gate_topic = rospy.get_param("~gate_topic", "/uav1/prometheus/command/ego_command_stop_pub")
+            subscribers.append(rospy.Subscriber(
+                gate_topic, Bool,
+                lambda msg: transmit(lambda: sender.send_control({"kind": "gate", "open": msg.data})),
+                queue_size=10))
+            # These explicit wksim commands are distinct from EGO's output gate.
+            subscribers.append(rospy.Subscriber(
+                "~hold", Empty, lambda _msg: transmit(lambda: sender.send_control({"kind": "hold"})), queue_size=1))
+            subscribers.append(rospy.Subscriber(
+                "~cancel", Empty, lambda _msg: transmit(lambda: sender.send_control({"kind": "cancel"})), queue_size=1))
+        subscribers.append(rospy.Subscriber(
+            topic, TrajUtilsBspline, lambda msg: transmit(lambda: sender.send_bspline(msg)), queue_size=10))
+        rospy.loginfo("Streaming %s -> tcp://%s:%d (session %s)", topic, host, port, session_id)
+        rospy.spin()
+    finally:
+        for subscriber in subscribers:
+            subscriber.unregister()
+        sender.close()
 
 
 if __name__ == "__main__":

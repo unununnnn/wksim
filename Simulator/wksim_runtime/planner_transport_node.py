@@ -17,16 +17,30 @@ Discipline (identical to the ROS2 trajectory bridge, via shared pure seams in
   is required in production exactly like the bridge.
 - SessionState: ``session_state_decision`` (version/run/32-hex epoch/retired
   epochs/uav ids, uint gates, sequence==0, epoch-bind before monotonicity,
-  external command/request writer faults, mutation order preserved).
+  external command/request writer faults, mutation order preserved). An
+  in-flight release setup is correlated by its request_id exactly like a
+  pending command.
 - Single pending command, request/command high-water caps, TextInfo ACK
   correlation: owned by ``PlannerCommandEgress`` and the shared
-  ``classify_command_event``.
-- Wire assembly: ``build_ros_command_request`` from the trajectory bridge is
-  the ONLY symbolic->constant mapping for both writers.
+  ``classify_command_event`` / ``classify_setup_event``.
+- Wire assembly: ``build_ros_command_request`` and ``build_ros_mode_request``
+  from the trajectory bridge are the ONLY symbolic->constant mappings.
 - Drive schedule mirrors the bridge: an accepted frame publishes its first
   intent at the activation tick, then a 1 ms timer steps exactly every
   SAMPLE_STRIDE_TICKS; a missed tick, an un-acked pending command, or stale
   state at sample time all fail closed.
+
+v2 control carrier (opt-in, ``accept_control``): gate/hold/cancel frames are
+processed in exact transport-stream order. A closed gate halts trajectory
+scheduling; a reopened gate NEVER resumes the old trajectory -- only a NEW
+Bspline activation publishes again. An activation while the gate is closed
+faults. A control rejection halts the previous activation's outputs. A
+planner cancel halts scheduling immediately, keeps any pending command (its
+ACK is still enforced on the original next-sample boundary), and only then
+requests the public mode release through the egress -- with a 10-second
+same-domain observation deadline, fail-closed. hold/cancel generation
+changes are never mistaken for a Bspline activation: only an
+OUTCOME_ACTIVATED outcome triggers the first publish.
 
 Fail-closed: any pump/receiver/egress fault latches ``fault_reason``; the
 node stops publishing and polling until process restart. A poisoned pump is
@@ -34,8 +48,9 @@ NEVER auto-recovered: recovery requires a NEW transport_session_id, which the
 sender must mint -- this node refuses to auto-rewrite generations or session
 ids.
 
-The reverse channel (control_state/odom ROS2 -> ROS1) and the EGO stop
-carrier are separate slices; this node does not fake them.
+This node does NOT claim the FC has stopped: a confirmed release only proves
+the public two-phase acknowledgement; physical verification is a separate
+slice. The reverse channel (control_state/odom ROS2 -> ROS1) is out of scope.
 """
 
 import json
@@ -51,7 +66,7 @@ from rclpy.executors import ExternalShutdownException
 from rclpy.node import Node
 
 from prometheus_msgs.msg import TextInfo, UAVControlState
-from wksim_msgs.msg import CommandRequest, SessionState
+from wksim_msgs.msg import CommandRequest, SessionState, SetupRequest
 
 from Simulator.wksim_planning.ego_trajectory_adapter import (
     SAMPLE_STRIDE_TICKS,
@@ -61,6 +76,7 @@ from Simulator.wksim_planning.ego_trajectory_adapter import (
 from Simulator.wksim_planning.trajectory_session import TrajectorySession
 from Simulator.wksim_runtime.bspline_tcp_envelope import BsplineTcpDecoder
 from Simulator.wksim_runtime.planner_command_egress import (
+    DEFAULT_RELEASE_MODES,
     EgressFault,
     PlannerCommandEgress,
     authority_tick,
@@ -68,6 +84,7 @@ from Simulator.wksim_runtime.planner_command_egress import (
     session_state_fresh_and_owned,
 )
 from Simulator.wksim_runtime.planner_transport_pump import (
+    OUTCOME_ACTIVATED,
     PlannerTransportPump,
     PumpError,
 )
@@ -75,13 +92,19 @@ from Simulator.wksim_runtime.planner_transport_receiver import (
     PlannerTransportReceiver,
     ReceiverError,
 )
-from Simulator.wksim_runtime.trajectory_bridge import build_ros_command_request
+from Simulator.wksim_runtime.trajectory_bridge import (
+    build_ros_command_request,
+    build_ros_mode_request,
+)
 from Simulator.wksim_runtime.task import valid_state
 
 
 RECEIVE_POLL_SECONDS = 0.005
 DRIVE_SECONDS = TICK_NS / 1_000_000_000
 MAX_TRANSPORT_PORT = 65535
+RELEASE_OBSERVE_SECONDS = 10.0  # same-domain operation deadline (ControlNode discipline)
+SETUP_EVENT_KINDS = frozenset(
+    ("native_ack", "setup_received", "setup_completed", "setup_rejected", "control_revoked"))
 
 
 class PlannerTransportNode(Node):
@@ -91,6 +114,8 @@ class PlannerTransportNode(Node):
                  fallback_yaw=None, authority_anchor_ns=None,
                  listen_host=None, listen_port=None,
                  transport_session_id=None,
+                 accept_control=None, cancel_mode=None,
+                 expected_native_mode=None,
                  clock_ns=None, monotonic_s=None):
         super().__init__("wksim_planner_transport")
         self._listener = None
@@ -105,6 +130,9 @@ class PlannerTransportNode(Node):
             "listen_host": "",
             "listen_port": -1,
             "transport_session_id": "",
+            "accept_control": False,
+            "cancel_mode": "",
+            "expected_native_mode": "",
         }
 
         def parameter(name, supplied):
@@ -127,6 +155,10 @@ class PlannerTransportNode(Node):
             transport_session_id = self._explicit_text(
                 parameter("transport_session_id", transport_session_id),
                 "transport_session_id")
+            accept_control = parameter("accept_control", accept_control)
+            cancel_mode = parameter("cancel_mode", cancel_mode)
+            expected_native_mode = parameter(
+                "expected_native_mode", expected_native_mode)
             if len(run_id) > 64:
                 raise ValueError("run_id exceeds the CommandRequest wire limit")
             if type(uav_id) is not int or uav_id != 1:
@@ -139,6 +171,16 @@ class PlannerTransportNode(Node):
                 raise ValueError(
                     "transport_session_id must be exactly 32 lowercase hex "
                     "characters, configured identically on the ROS1 sender")
+            if type(accept_control) is not bool:
+                raise ValueError("accept_control must be a strict bool")
+            if accept_control:
+                # Opt-in control mode REQUIRES explicit release targets: the
+                # node never guesses an FC type or a release mode.
+                self._explicit_text(cancel_mode, "cancel_mode")
+                self._explicit_text(expected_native_mode, "expected_native_mode")
+                if cancel_mode not in DEFAULT_RELEASE_MODES:
+                    raise ValueError(
+                        f"cancel_mode must be one of {sorted(DEFAULT_RELEASE_MODES)}")
             if clock_ns is None and not self.get_parameter("use_sim_time").value:
                 raise ValueError(
                     "production planner transport requires use_sim_time=true")
@@ -151,7 +193,11 @@ class PlannerTransportNode(Node):
         self.fallback_yaw = fallback_yaw
         self.authority_anchor_ns = authority_anchor_ns
         self.transport_session_id = transport_session_id
+        self.accept_control = accept_control
+        self.cancel_mode = cancel_mode
+        self.expected_native_mode = expected_native_mode
         self._clock_ns = clock_ns or (lambda: self.get_clock().now().nanoseconds)
+        self._clock_is_injected = clock_ns is not None
         self._monotonic_s = monotonic_s or time.monotonic
 
         # Listening socket for the ROS1 Bspline TCP sender (Route-B origin).
@@ -178,10 +224,16 @@ class PlannerTransportNode(Node):
         self.last_clock_ns = None
         self.last_rejection = None
         self._next_drive_tick = None
+        self._trajectory_halted = False
+        self._release_intent = False
+        self._release_deadline_ns = None
 
         topic_root = f"/uav{uav_id}/prometheus"
         self.command_pub = self.create_publisher(
             CommandRequest, topic_root + "/v2/command", 10)
+        self.setup_pub = (
+            self.create_publisher(SetupRequest, topic_root + "/v2/setup", 10)
+            if accept_control else None)
         self._subscriptions = [
             self.create_subscription(
                 SessionState, topic_root + "/v2/state", self.on_session_state, 10),
@@ -234,6 +286,9 @@ class PlannerTransportNode(Node):
 
     # ---- authoritative clock ------------------------------------------------
     def _current_tick(self):
+        if not self._clock_is_injected and self.get_parameter("use_sim_time").value is not True:
+            self._fault("operation_clock_source_changed")
+            return None
         value = self._clock_ns()
         if type(value) is not int:
             self._fault("invalid_ros_clock")
@@ -284,6 +339,9 @@ class PlannerTransportNode(Node):
         self.session_sequence = int(msg.sequence)
         self.latest_state = msg
         self._next_drive_tick = None
+        self._trajectory_halted = False
+        self._release_intent = False
+        self._release_deadline_ns = None
         self.session = TrajectorySession(dict(
             run_id=self.run_id,
             mission_id=self.mission_id,
@@ -296,10 +354,12 @@ class PlannerTransportNode(Node):
         self.adapter = EgoTrajectoryAdapter(self.session)
         self.pump = PlannerTransportPump(
             self.adapter,
-            decoder=BsplineTcpDecoder(self.transport_session_id),
+            decoder=BsplineTcpDecoder(
+                self.transport_session_id, accept_control=self.accept_control),
             anchor_ns=self.authority_anchor_ns,
             initial_event_sequence=1,
             initial_current_tick=0,
+            accept_control=self.accept_control,
         )
         self.receiver = None  # built when the sender connects
         self.egress = PlannerCommandEgress(
@@ -311,6 +371,8 @@ class PlannerTransportNode(Node):
             control_epoch=self.epoch,
             clock_ns=self._clock_ns,
             initial_request_high_water=int(msg.last_request_id),
+            setup_publisher=(
+                self._publish_setup_envelope if self.accept_control else None),
         )
 
     def _drop_connection(self):
@@ -326,6 +388,15 @@ class PlannerTransportNode(Node):
         if self.fault_reason is not None:
             return False
         try:
+            pending_request_id = None
+            if self.egress is not None:
+                if self.egress.pending is not None:
+                    pending_request_id = self.egress.pending[0]
+                elif (self.egress.release is not None
+                        and not self.egress.release["confirmed"]):
+                    # Correlate the in-flight release setup by its request_id
+                    # exactly like a pending command.
+                    pending_request_id = self.egress.release["request_id"]
             action, reason = session_state_decision(
                 dict(
                     version_ok=(msg.version == SessionState.VERSION),
@@ -345,10 +416,7 @@ class PlannerTransportNode(Node):
                     session_command_high_water=(
                         self.session.last_command_id
                         if self.session is not None else 0),
-                    pending_request_id=(
-                        self.egress.pending[0]
-                        if self.egress is not None
-                        and self.egress.pending is not None else None),
+                    pending_request_id=pending_request_id,
                 ))
             if action == "ignore":
                 return False
@@ -370,13 +438,23 @@ class PlannerTransportNode(Node):
         except Exception:
             return self._fault("internal_callback_error")
 
-    # ---- publish seam ---------------------------------------------------------
+    # ---- publish seams ---------------------------------------------------------
     def _publish_envelope(self, envelope):
         request = build_ros_command_request(
             envelope["command"], run_id=envelope["run_id"],
             control_epoch=envelope["control_epoch"],
             request_id=envelope["request_id"])
         self.command_pub.publish(request)
+
+    def _publish_setup_envelope(self, envelope):
+        setup = envelope["setup"]
+        request = build_ros_mode_request(
+            mode=setup["px4_mode"],
+            stamp_ns=setup["stamp_sec"] * 1_000_000_000 + setup["stamp_nanosec"],
+            run_id=envelope["run_id"],
+            control_epoch=envelope["control_epoch"],
+            request_id=envelope["request_id"])
+        self.setup_pub.publish(request)
 
     # ---- receive loop ----------------------------------------------------------
     def _ensure_connection(self):
@@ -393,6 +471,22 @@ class PlannerTransportNode(Node):
         self.receiver = PlannerTransportReceiver(self.pump, connection=connection)
         return True
 
+    def _handle_activation(self, tick):
+        """First publish for one OUTCOME_ACTIVATED at its activation tick."""
+        if self.accept_control and not self.pump.output_gate_open:
+            # Opt-in mode: an activation must never publish while the planner
+            # output gate is closed (fail closed, nothing is fabricated).
+            return self._fault("activation_with_gate_closed")
+        if not self._state_fresh_and_owned():
+            return self._fault("state_not_fresh_or_owned_at_activation")
+        try:
+            self.egress.step_and_publish(tick, True, True)
+        except EgressFault as error:
+            return self._fault(error.reason)
+        self._trajectory_halted = False
+        self._next_drive_tick = tick + SAMPLE_STRIDE_TICKS
+        return True
+
     def on_receive_timer(self):
         if self.fault_reason is not None or self.pump is None:
             return False
@@ -401,7 +495,7 @@ class PlannerTransportNode(Node):
         tick = self._current_tick()
         if tick is None:
             return False
-        generation_before = self.pump.session_generation
+        gate_open = self.pump.output_gate_open if self.accept_control else True
         try:
             outcomes = self.receiver.poll(
                 identity=self._identity(), current_tick=tick,
@@ -413,28 +507,96 @@ class PlannerTransportNode(Node):
                     fallback_yaw=self.fallback_yaw))
         except (ReceiverError, PumpError) as error:
             return self._fault(f"transport_receive_failed:{error}")
-        if self.pump.session_generation != generation_before:
-            # A trajectory was activated at this tick: publish its first intent
-            # now (bridge on_bspline discipline) and schedule the stride steps.
-            if not self._state_fresh_and_owned():
-                return self._fault("state_not_fresh_or_owned_at_activation")
-            try:
-                self.egress.step_and_publish(tick, True, True)
-            except EgressFault as error:
-                return self._fault(error.reason)
-            self._next_drive_tick = tick + SAMPLE_STRIDE_TICKS
+        # The pump has already consumed this batch. Fold its ordered outcomes
+        # before publishing, so a later close/stop can suppress an activation
+        # from the same batch. Never publish the final adapter twice at one tick.
+        publish_activation = False
+        for outcome in outcomes:
+            if outcome.outcome == OUTCOME_ACTIVATED:
+                if not gate_open:
+                    return self._fault("activation_with_gate_closed")
+                publish_activation = True
+                self._trajectory_halted = False
+            elif outcome.outcome == "cancel":
+                # Planner cancel: halt scheduling NOW, keep any pending
+                # command (its ACK is still enforced on the original
+                # next-sample boundary), then arm the public release request.
+                self._trajectory_halted = True
+                self._release_intent = True
+                publish_activation = False
+            elif outcome.outcome == "gate_open":
+                gate_open = True
+            elif outcome.outcome == "hold":
+                publish_activation = False
+                self._trajectory_halted = not gate_open
+                if gate_open and self.egress.pending is None and (
+                        self._next_drive_tick is None or self._next_drive_tick <= tick):
+                    self._next_drive_tick = tick + SAMPLE_STRIDE_TICKS
+            elif outcome.outcome in ("gate_closed", "rejected_hold",
+                                     "rejected_cancel") or (
+                    outcome.outcome == "rejected_identity" and outcome.trajectory_id is None):
+                # Halt scheduling; a reopened gate never resumes the old
+                # trajectory (a NEW Bspline activation is required), and a
+                # rejected control must not leave the prior activation live.
+                self._trajectory_halted = True
+                publish_activation = False
+                if outcome.outcome == "gate_closed":
+                    gate_open = False
+        if publish_activation and not self._trajectory_halted:
+            return self._handle_activation(tick)
         return True
 
     # ---- drive loop --------------------------------------------------------------
+    def _drive_release(self):
+        """Advance the public release machine; returns False only on fault.
+
+        The pending command is never cleared to fake a cancellation: the
+        release is requested only after its ACK cleared the pending slot.
+        The observation deadline is fail-closed; an unconfirmed release is
+        never reported as an FC stop.
+        """
+        if not self._release_intent or self.egress is None:
+            return True
+        release = self.egress.release
+        if release is not None and release["confirmed"]:
+            self._release_intent = False
+            return True
+        if self._release_deadline_ns is not None and self.last_clock_ns > self._release_deadline_ns:
+            return self._fault("release_confirmation_deadline_exceeded")
+        if release is not None:
+            return True  # sent; awaiting the two-phase acknowledgement
+        if self.egress.pending is not None:
+            return True  # keep the pending command; retry after its ACK
+        if not self._state_fresh_and_owned():
+            return self._fault("release_state_not_fresh_or_owned")
+        try:
+            outcome, _envelope = self.egress.request_release(
+                mode=self.cancel_mode,
+                expected_native_mode=self.expected_native_mode,
+                owns_control=True, state_fresh=True)
+        except (EgressFault, ValueError) as error:
+            return self._fault(f"release_request_failed:{error}")
+        if outcome == "busy":
+            return True  # raced with a new pending; retry next tick
+        self._release_deadline_ns = self.last_clock_ns + int(RELEASE_OBSERVE_SECONDS * 1_000_000_000)
+        return True
+
     def on_drive_timer(self):
-        if (self.fault_reason is not None or self.egress is None
-                or self._next_drive_tick is None):
+        if self.fault_reason is not None or self.egress is None:
             return False
         tick = self._current_tick()
         if tick is None:
             return False
+        # The pending-command ACK boundary holds even while halted: an
+        # outstanding command must be acked before its next-sample tick.
+        if (self._trajectory_halted and self._next_drive_tick is not None
+                and tick >= self._next_drive_tick
+                and self.egress.pending is not None):
+            return self._fault("ack_not_received_before_next_sample")
+        if self._trajectory_halted or self._next_drive_tick is None:
+            return self._drive_release() if self._release_intent else False
         if tick < self._next_drive_tick:
-            return False
+            return self._drive_release() if self._release_intent else False
         if tick > self._next_drive_tick:
             return self._fault("missed_adapter_tick")
         if self.egress.pending is not None:
@@ -446,7 +608,7 @@ class PlannerTransportNode(Node):
         except EgressFault as error:
             return self._fault(error.reason)
         self._next_drive_tick += SAMPLE_STRIDE_TICKS
-        return True
+        return self._drive_release()
 
     # ---- ACK events -----------------------------------------------------------------
     def on_text_info(self, msg):
@@ -456,10 +618,16 @@ class PlannerTransportNode(Node):
             event = json.loads(msg.message)
         except (TypeError, ValueError):
             return self._fault("malformed_text_info")
+        kind = event.get("event") if isinstance(event, dict) else None
         try:
-            self.egress.on_command_event(
-                event, msg.message_type,
-                info_value=TextInfo.INFO, error_value=TextInfo.ERROR)
+            if kind in SETUP_EVENT_KINDS and self.egress.release is not None:
+                self.egress.on_setup_event(
+                    event, msg.message_type,
+                    info_value=TextInfo.INFO, error_value=TextInfo.ERROR)
+            else:
+                self.egress.on_command_event(
+                    event, msg.message_type,
+                    info_value=TextInfo.INFO, error_value=TextInfo.ERROR)
         except EgressFault as error:
             return self._fault(error.reason)
         return True
