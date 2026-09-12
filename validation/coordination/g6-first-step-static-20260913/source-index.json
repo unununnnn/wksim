@@ -1,0 +1,164 @@
+{
+  "generated_at": "2026-09-13",
+  "task": "G6 R1 first-step (k=0->1) divergence static localization (read-only)",
+  "scope_note": "No vendor/generated source or binary is copied here; entries are path + sha256 + line references plus captured command output. The pinned R1 patched generated cpp (a3eba68e...) and the target binary (c685817a...) are NOT currently on disk: the WSL build dir /root/wksim-major-recorder-j_3guvtn was cleaned (see r1-binary-absent.txt).",
+  "provenance_caveat": "build_major_model_recorder.py instrument() byte-removal proof establishes that the numerical SOURCE EXPRESSION is unchanged between original (a35d7c8f) and patched (a3eba68e) generated cpp (instrumentation-only hook). That is a source-text identity claim only; it is NOT a proof that the historical-execution binary was bit-equivalent to a fresh compile of the original source. The historical binary is not retained, so its bit content is not re-verifiable.",
+  "line_reference_basis": "Line numbers are from the original generated cpp (a35d7c8f) and match the R1 contract source refs. The patched cpp (a3eba68e) inserts +1 line after the top include and +3 lines after original line 7877, so patched lines = original+1 for these outport/derivative regions.",
+  "sources": {
+    "generated_cpp_original": {
+      "path": "work/quad-parameters-source-review-20260909/Exp1_MinModelTemp.cpp",
+      "sha256": "a35d7c8f39c94f2db8c27b19affee5b66c1b001c63ded334ba83c99f8be54019",
+      "role": "ERT-generated model; numerical SOURCE expression identical to R1 patched target (a3eba68e) per instrumentation-only proof (see provenance_caveat)"
+    },
+    "recorder_driver": {
+      "path": "tools/major_model_recorder.cpp",
+      "sha256": "d0a194b0cb4f60854f8a9f4f16de0199770dc05ec79d1c09c28184127c744051",
+      "role": "target-side step loop; captures major root outputs at t_k before the ODE update"
+    },
+    "reference_exporter": {
+      "path": "tools/export_model_reference.m",
+      "sha256": "bc435319e7ad58345dd5d3edae3d1ed575444a5ce06cbb7f4c56d0dd5dd82e91",
+      "role": "reference side; MATLAB R2022b Simulink normal mode, ode4, 1ms"
+    },
+    "recorder_builder_patch": {
+      "path": "tools/build_major_model_recorder.py",
+      "sha256": "a96bc275dd32f53c2cc23f4bfbf7572925b81fbe49a0a06b89703ea9952ab8b6",
+      "role": "instrument() proof that the patch is instrumentation-only (source-expression identity)"
+    },
+    "build_record": {
+      "path": "validation/numerical-conformance-gxxh6xhr/C3G/build.json",
+      "sha256": "6e16102ae1197a899eef554b9c938f5ca32220516fdd8630c7b8b1b19267cce3",
+      "role": "historical record of the actual build argv / compiler / target identity"
+    }
+  },
+  "build_and_isa": {
+    "historical_build_record": {
+      "argv": ["g++", "-std=c++17", "-O2", "-fno-fast-math", "-Wl,--no-undefined"],
+      "no_march_no_mfma": true,
+      "compiler": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0",
+      "target_triple": "x86_64-linux-gnu",
+      "source": "build.json (recorded at build time)"
+    },
+    "current_compiler_default_query": {
+      "note": "Query of THIS g++ 11.4.0's default target for the same flag set; read-only (-fsyntax-only), no model compiled, no artifact. This corroborates the build record but is a current-day query, not the historical binary.",
+      "march": "x86-64 (baseline)",
+      "mfma": "disabled",
+      "mavx2": "disabled",
+      "avx_avx512": "all disabled",
+      "ffp_contract": "fast (set, but baseline x86-64 has no FMA instruction to fuse into, so a*b+c -> mulsd+addsd)",
+      "evidence": "compiler-target-query.txt"
+    },
+    "missing_premise": "The historical R1 binary is not retained, so instruction-level (objdump) confirmation of THAT binary's FMA/ISA content is unavailable. The no-FMA conclusion for the target rests on the recorded build flags plus the compiler's default target for those flags; it does not directly observe the historical binary.",
+    "fma_conclusion_target": "ruled_out_for_target (baseline ISA has no FMA instruction), subject to the missing-binary premise above"
+  },
+  "computation_chain_original_cpp_lines": {
+    "ode4_solver": {
+      "function": "MulticopterModelClass::rt_ertODEUpdateContinuousStates",
+      "lines": "2970-3034",
+      "note": "Rounding is the subject, so the update is listed term-by-term as the source writes it, NOT algebraically simplified. 2.0*f is exact (power-of-two scaling, no rounding); the additions and the h/6 multiply and final add DO round.",
+      "stage_updates_exact_source_order": {
+        "temp_half": "line 2997: temp = 0.5 * h   (0.5 is a power of two -> exact rescale of h)",
+        "stage1": "lines 2998-3000: x[i] = y[i] + (temp*f0[i])   [m=temp*f0 rounds; x=y+m rounds]",
+        "stage2": "lines 3008-3010: x[i] = y[i] + (temp*f1[i])   [same temp=0.5h]",
+        "stage3": "lines 3017-3019: x[i] = y[i] + (h*f2[i])      [m=h*f2 rounds; x=y+m rounds]"
+      },
+      "weighted_update_exact_source_order": {
+        "temp_sixth": "line 3028: temp = h / 6.0   (h=0.001 is not exactly representable; the division rounds -> temp is a rounded constant)",
+        "inner_sum": "line 3030 inner: ((f0[i] + 2.0*f1[i]) + 2.0*f2[i]) + f3[i]   [2.0*f1,2.0*f2 exact; three left-to-right additions each round]",
+        "scale": "line 3030: temp * (inner_sum)   [rounds]",
+        "accumulate": "line 3030: x[i] = y[i] + temp*(inner_sum)   [rounds]"
+      },
+      "reference_ode4_note": "The reference (Simulink normal-mode ode4) is a DIFFERENT codebase; its exact FP ordering/coefficient form (e.g. a precomputed hB[j] weighted-sum form vs this temp*(sum) form) is internal and not FP-documented, so the reference's ODE4 rounding order is unobservable from available material -> unproven."
+    },
+    "derivatives": {
+      "function": "Exp1_MinModelTemp_derivatives (via _rtXdot)",
+      "lines": "8313-8347",
+      "detail": "_rtXdot->ubvbwb_CSTATE[i]=B.Sum_p[i] (body-velocity derivative; Sum_p at 7806-7814); _rtXdot->q0q1q2q3_CSTATE[i] (quaternion derivative, kinematic eq 7934-7956)."
+    },
+    "vehicle60_3_velocity_ned_north": {
+      "output_line": 7823,
+      "expression": "VehileInfo60d[3] = B.Product[0]",
+      "upstream": "B.Product[i] = sum_j VectorConcatenate[3i+j] * ubvbwb_CSTATE[j] (DCM . body velocity), multiply-accumulate loop at 4161-4163; VectorConcatenate = DCM built from normalized quaternion."
+    },
+    "vehicle60_11_euler_yaw": {
+      "output_line": 7846,
+      "expression": "VehileInfo60d[11] = rtb_sincos_o1_j_idx_0",
+      "upstream": "rt_atan2d_snf(2*(q1*q2 + q0*q3), (q0^2+q1^2) - q2^2 - q3^2) at 4228-4231 over the normalized quaternion (norm sqrt at 4183, divisions at 4194-4213). rt_atan2d_snf wraps std::atan2 (3628-3658)."
+    },
+    "vehicle60_15_quaternion_qz": {
+      "output_line": 7850,
+      "expression": "VehileInfo60d[15] = B.Merge_j[3]",
+      "upstream": "Merge_j = DCM->Quaternion (Shepperd sqrt: PositiveTrace 3042-3067 sqrt at 3052; NegativeTrace 3090-3284 sqrt at 3123/3182/3241) + sign fix, DCM from normalized quaternion."
+    },
+    "math_functions": {
+      "sqrt": "std::sqrt is IEEE-754 correctly rounded GIVEN its input. But its input (the sum-of-squares q0^2+..+q3^2, or traceDCM+constant for Shepperd) is itself an unobserved multiply-add/sum chain whose rounding can differ between engines; sqrt therefore neither localizes nor exonerates the normalization. See hypotheses.H3.",
+      "asin_atan2": "transcendental, NOT correctly rounded, libm-dependent (glibc vs MATLAB) -> live but partial candidate (euler only; cannot explain velocity[3] or quaternion[15])",
+      "multiply_add": "ODE4 update + DCM rotation + quaternion products; order/rounding differs between engines"
+    }
+  },
+  "observation_points_first_step_trace": {
+    "target_side_generated_c": [
+      "rt_ertODEUpdateContinuousStates: id->f[0..3] (ODE4 stage derivatives), id->y (state at t_k), x (post-update state), for the flat indices of ubvbwb_CSTATE and q0q1q2q3_CSTATE",
+      "Exp1_MinModelTemp_derivatives: _rtXdot->ubvbwb_CSTATE[0..2] (=B.Sum_p) and _rtXdot->q0q1q2q3_CSTATE[0..3]",
+      "output encodings at k=1: B.Product[0] (->VehileInfo60d[3]), rtb_sincos_o1_j_idx_0 + its atan2 args (->VehileInfo60d[11]), B.Merge_j[3] (->VehileInfo60d[15])",
+      "intermediates: quaternion norm sqrt (orig 4183) AND its sum-of-squares input, normalized q components (4194-4213), DCM (VectorConcatenate), Merge_j merge select (7769-7770)"
+    ],
+    "reference_side_observability": {
+      "summary": "R2022b normal mode CAN observe continuous states and block-method executions without changing model equations/solver/step, via execution-event listeners and the block run-time object. This is documented; per-stage granularity and derivative-value capture specifics are noted below.",
+      "execution_event_listener": {
+        "api": "h = add_exec_event_listener(blk, event, listener)",
+        "documented_events": ["PreDerivatives", "PostDerivatives", "PreOutputs", "PostOutputs", "PreUpdate", "PostUpdate"],
+        "listener_args": "(block runtime object, EventData with runtime object + event name)",
+        "registration": "only while a simulation is running; recommended in the model StartFcn callback to catch all events",
+        "limits": "cannot register for virtual blocks; does not change model equations/solver/step",
+        "doc": "https://www.mathworks.com/help/simulink/slref/add_exec_event_listener.html"
+      },
+      "runtime_object": {
+        "api": "rto = get_param(blk,'RuntimeObject')  (Simulink.RunTimeBlock)",
+        "exposes": "block I/O ports, parameters, sample times, states, DWork; read-only",
+        "availability": "every NONVIRTUAL block while running/paused; empty after stop; blocks removed by block-reduction have none",
+        "synchronization": "guaranteed only within a Level-2 MATLAB S-function or an event-listener callback; command-window reads may be stale unless 'Signal storage reuse' is cleared",
+        "state_capture": "the event-listener mechanism is documented to collect 'the value of block states before or after blocks compute their outputs or derivatives' (e.g. PostOutputs/PostDerivatives)",
+        "derivative_capture": "for an Integrator block the input port carries d(state)/dt, so a PreDerivatives/PostDerivatives listener reading the integrator input observes the derivative; the state is the integrator output at Outputs events",
+        "doc": "https://www.mathworks.com/help/simulink/ug/accessing-block-data-during-simulation.html"
+      },
+      "ode4_stage_visibility": {
+        "claim": "ode4 (RK4) evaluates the Derivatives method once per stage (4x per major step), so PreDerivatives/PostDerivatives listeners on the integrator blocks fire 4x per step and can in principle capture the four stage states/derivatives.",
+        "caveat_unproven": "The MathWorks pages do not explicitly document per-RK4-stage event granularity, so 4x/step firing is a structural inference from the solver, not a documented guarantee; it must be empirically confirmed before relying on it."
+      },
+      "current_slx_block_identifiers": {
+        "note": "Subsystem identifiers are taken from the generated cpp comments; full SLX block paths must be resolved from the SLX (not opened here - no MATLAB run).",
+        "velocity_integrator": "<S48>/ub,vb,wb (body velocity ubvbwb_CSTATE)",
+        "angular_rate_integrator": "<S48>/p,q,r (pqr_CSTATE)",
+        "position_integrator": "<S48>/xe,ye,ze (xeyeze_CSTATE)",
+        "quaternion_integrator": "<S51>/q0 q1 q2 q3 (q0q1q2q3_CSTATE)"
+      },
+      "mode_note": "The listener/RuntimeObject mechanism is a MATLAB-callback feature of normal (interpreted) mode; accelerator modes compile blocks to native code and are out of scope (this reference runs normal mode per the R1 contract)."
+    }
+  },
+  "hypotheses": {
+    "H1_target_fma_contraction": {
+      "verdict": "ruled_out_for_target",
+      "evidence": "Historical build record (build.json argv, no -march/-mfma) + current compiler default query (-march=x86-64 baseline, -mfma disabled). Baseline x86-64 (SSE2) has no FMA instruction, so a*b+c -> mulsd+addsd.",
+      "premise_kept": "The historical binary is not retained, so objdump-level confirmation of THAT binary is unavailable; conclusion rests on recorded flags + compiler default for those flags, not on reading the historical binary.",
+      "reference_side": "unproven (MATLAB normal-mode internal FMA/vectorization is opaque)"
+    },
+    "H2_transcendental_libm": {
+      "verdict": "unproven_partial",
+      "evidence": "std::asin (orig 7845) and rt_atan2d_snf/std::atan2 (orig 4228) are not correctly rounded and are libm-dependent; can differ ~1 ULP between glibc and MATLAB's libm. Explains only the Euler encoding [11]/[10]; cannot explain velocity[3] or quaternion[15] which use only mul/add/div/sqrt."
+    },
+    "H3_sqrt_normalization": {
+      "verdict": "unproven",
+      "correction": "Earlier draft wrongly ruled this out. std::sqrt is correctly rounded GIVEN its input, but the sqrt INPUT (the sum-of-squares q0^2+..+q3^2, or traceDCM+constant for Shepperd) is itself an unobserved multiply-add/sum chain whose rounding can differ between engines. Since that input is not observed, the normalization cannot be exonerated or localized; sqrt's correct rounding only makes it deterministic given a fixed input.",
+      "evidence": "sqrt correct rounding is per IEEE-754; the unobserved operand sums are the open term."
+    },
+    "H4_evaluation_order_two_engines": {
+      "verdict": "unproven_residual",
+      "evidence": "The two engines are different codebases sharing the model: reference = Simulink normal-mode interpreter (own ode4 + libm, host-optimized); target = generated ERT C (rt_ertODEUpdateContinuousStates, baseline x86-64, glibc). Evaluation order/rounding of the multiply-add chains and the ODE4 update can differ; exact first-diverging operation requires the first-step intra-step trace (not retained)."
+    }
+  },
+  "captured_outputs": {
+    "compiler_target_query": "compiler-target-query.txt",
+    "r1_binary_absent": "r1-binary-absent.txt"
+  }
+}

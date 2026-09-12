@@ -41,6 +41,8 @@ AP 通过现有 `ap_mixed_candidate.verify` 验证真正的 mixed schema、源�
 
 ## 当前检查点（2026-09-13，#84 前置/映射包）
 
+当前显式message证明接线已完成：从已完整核验的Control封存记录取唯一message候选，逐份核对flight/admission/identities与保留message-build.json及审计哈希，拒绝缺失/错绑；有效的prometheus_msgs与wksim_msgs资源使用Rzj3Pf完整包摘要，其余原生消息仍匹配原baseline/index。真实PV原件消息绑定与当前overlay已通过，旧MUlZd0环境被实际拒绝，Linux24项/52subtests通过。下面提及“message接线待实现”的历史状态由本段取代；仍没有mixed整场PASS，catalog保持空证据和零能力。
+
 主会话后续实测：同组合mixed场oxv29042在tick131760以100034744ns累计迟到失败，仍缺整场mixed证明，catalog不提升。后续profile/catalog与joint_profile.py的唯一写入者为主会话。直接核验又发现旧7模块列表不能接纳已封存15模块+2资产的c2；current Control分支现复用完整构建校验器，sealed历史分支逐项核验声明资产，真实两路径及Linux21项定向测试通过。下文“joint_profile.py无需改”是早期缺证据检查的有限结论，已由此实证更正；显式message清单与正式资源overlay的证明接线仍待完整适配。33-final-combo-rate-candidate.md的旧命令已在f6239b7之前标为历史。
 
 **状态**：正式行 `joint_quad_dds_mixed_pv_v1` 仍 `evidence=[]`；纯只读

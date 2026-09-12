@@ -13,8 +13,8 @@
 
 | 席位 | thread / 当前turn | 独占交付 |
 | --- | --- | --- |
-| OMP | 6deb2e40-2240-4db2-8c7f-c06bf6724048 / 79527a91-5587-4974-8bde-e3fe9f3a1383 | 新tools/rate_spin_cpu_probe.py、validation/test_rate_spin_cpu_probe.py及说明；继承真实JointRateTimingProbe，测释放边界附近相邻wall/线程CPU间隔。只交helper，主会话后续接线，不改原pacer/runner或调度。 |
-| Claude Code | 48faf2f5-f74a-4ba4-ac85-4ae4d05c5801 / 0630b2de-d013-4285-90ba-2afe75cfd4f8 | g6-first-step-static文档/证据；纠正sqrt与历史ISA过强结论，保留ODE4原始括号顺序，核实R2022b normal参考端观测API。诊断器/测试已交主会话，不再改。 |
+| OMP | 6deb2e40-2240-4db2-8c7f-c06bf6724048 / 7c06ac2c-a352-4f97-a7f5-d536ba95efe5 | Linux检出的tools/rate_spin_cpu_probe.py、validation/test_rate_spin_cpu_probe.py及说明；主审退回漏掉跨释放截止点的pair、CPU类型/倒退和异常遮蔽问题，正在修复。helper尚未验收，不跑native。 |
+| Claude Code | 48faf2f5-f74a-4ba4-ac85-4ae4d05c5801 / 2df32382-0c7a-4b9f-abb9-95ece5567054 | 新tools/probe_reference_first_step.m、可选map_reference_blocks.py及纯测试；离线解析SLX块路径，准备参考端监听诊断，仅代码/元数据，不执行MATLAB或模型，不改冻结导出脚本/SLX。 |
 
 OMP旧数值报告出现过把2墙秒当500组，以及将sleep_max总和减出“残余归因”的错误，均不采用。现有分类仅能定位阶段边界，不能证明OS/FC或纯off-CPU原因。新helper须先读源、核对真实父类行为与测试再接线。
 
@@ -41,14 +41,14 @@ OMP旧数值报告出现过把2墙秒当500组，以及将sleep_max总和减出�
 正式接线准备：
 1. OMP提供的readiness包确认正式行仍0DQQz9/evidence=[]。只找到已通过的当前PV一行；未找到同组合mixed整场PASS，不能复制PV凑两行。
 2. 主会话已修joint_profile._control：current分支复用未修改的完整joint_control_candidate.check；sealed历史分支核验声明资产。真实c2的current/sealed均通过，Linux21passed/46subtests。before/after在validation/33-formal-promotion/20260913-readiness。原7模块检查曾拒绝真实15模块+2资产；旧默认行未改。
-3. _mixed_proofs仍需完整适配当前显式message证明及资源overlay（现只接受ap/control两清单，实际PV还含message）。原空证据拒绝及无能力授予保持。具体计划在docs/2026-09-09-formal-mixed-profile-plan.md。
-4. 先收spin CPU helper，测量可区分的原因，再修倍率问题。原pacer/1ms/4tick/no-catchup/100ms及完整窗口不放宽。
+3. _mixed_proofs已支持Control封存的显式message：flight/admission/identities/保留message-build与审计摘要严格同绑，只覆写两个指定消息包，其余原生包仍按baseline/index匹配。真实1w6dru32消息证明及Rzj3Pf当前overlay通过，MUlZd0旧overlay实际拒绝；Linux24passed/52subtests。catalog仍缺mixed证明，ok=false、children=0、capabilities=[]；证据在20260913-readiness/message-*.json。
+4. 私有runner已准备--rate-spin-cpu-timing显式入口（只允许PV/MIXED且必须原RATE_TIMING_PROBE=1，提前验证helper导入、封存helper源；默认路径保留）。新entry与邻接纯测试35passed/11subtests；helper仍在修复，未接纳/未实跑，不能把mock factory入口测试当helper验证。下一步先收helper稳定SHA与实际跨deadline测试，再诊断倍率。原pacer/1ms/4tick/no-catchup/100ms及完整窗口不放宽。
 
 ## G6与模型证据
 
 - 已交付G6 first-divergence工具、测试与v1/v2/v3保留报告。主会话修read-once、数值/hex与manifest绑定、独占输出，并补拒绝相同值/正负零、非finite、bool假失败；实际重算与v3一致。
 - 当前工具SHA75e97e3c3188dd8982c769e1287b188dad9127385ce45302899ab751b8a04e00，测试61904a4e602eb357470c8dffe385b1c6b50a6ba470cdf6a110009b2d80cb28b4。Windows30passed/1已由先前Linux覆盖的symlink skip/5subtests；最终记录见validation/coordination/g6-first-divergence-20260913/main-verification-final.json。
-- 仍有5684个R1零预算失败；最早C3G/k1/Vehicle60[3]为2ULP。小误差不能排除全部合同问题，精确浮点运算原因未证。当前R1补丁cpp和二进制不在盘；静态原源/当前编译器不能冒充历史二进制证明。Claude正在补正。
+- 仍有5684个R1零预算失败；最早C3G/k1/Vehicle60[3]为2ULP。小误差不能排除全部合同问题，精确浮点运算原因未证。修正后的静态doc SHA3b0de981…/source-index e852aa6b…保留原ODE4括号顺序，sqrt输入未观测仍未证，历史二进制缺失/FMA判断前提明确；参考端事件粒度需要实际新诊断验证，不能假定每步4次。
 - #26 current-wrapper-01已完成4×1000/1ms冷重建与reset：wrapper150ddf3b…，library528db324…，480000值精确相同。详见docs/2026-09-12-current-wrapper-lifecycle.md；不要重跑。#9接口/环境反馈依赖仍OPEN，#26不能关闭，G6未完成。
 
 ## 运行资源与必须保持的规则
@@ -56,6 +56,7 @@ OMP旧数值报告出现过把2墙秒当500组，以及将sleep_max总和减出�
 - 当前冻结组合：AP /root/wksim-ap-mixed-fhuf05l9/mixed-build.json SHA1e6250ef…；Control /root/wksim-joint-control-c2IXOr/build.json SHA6fe8c0b3…；Message /root/wksim-ros2-Rzj3Pf/message-build.json SHA29969da0…。完整SHA和精确命令见当前final-combo合同及最近launch.sh。ZlTVa4是旧构建，已失配8份当前支持模块。
 - 保持固定PX4 /root/wksim-px4-state-ONa1Kw/wksim-build.json（d7e905b3…）与本场模型库e59ab914…的原准入链；不要给PV/MIXED传PX4 override。两native参数必须同时启用。
 - 新native前分别完成并检查两WSL进程扫描，再在另一调用启动；收口/暂停重负载代理，并以read确认终态。禁止终止用户进程或改全局内核/调度。当前无native活跃，最近19042/46644均终态。
+- 为缓解OMP的UNC连接抖动，主会话启动了15分钟自动退出的空闲WSL连接保持进程：exec session12541、PID605、start_ticks336、boot a295410e-b29d-4d4a-aadb-9bf16f4652df。它不是native/测试负载；不要当故障重启或终止其它进程，到期自然结束。
 - 使用干净env；ROS离线审计需要/opt/ros/humble、DDS、AP消息与Rzj3Pf环境。Bash脚本用Python写入并清除CR；不要重犯PowerShell管道在末行追加CR。
 - 已通过飞行不重跑。审计变化复核原件，保留失败报告，全部原AC证明后才关闭对应票；#33/#84/Full仍未完成，Goal不可complete。只精确git add，禁止发布厂商源码或.so。
 

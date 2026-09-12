@@ -1,0 +1,14 @@
+# g++ default target ISA / FMA query (read-only; -fsyntax-only, no model compiled, no artifact)
+# flags mirror build.json argv: -O2 -fno-fast-math -std=c++17, no -march
+## g++ --version
+g++ (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0
+## gcc -dumpmachine
+x86_64-linux-gnu
+## gcc -Q ... --help=target (ISA/FMA-relevant)
+  -march=                     		x86-64
+  -mavx                       		[disabled]
+  -mavx2                      		[disabled]
+  -mfma                       		[disabled]
+  -mfma4                      		[disabled]
+  -mfused-madd                		-ffp-contract=fast
+  -msse5                      		-mavx

@@ -218,12 +218,55 @@ def _raw_proof(pin, audit):
     return root
 
 
+def _candidate_message_packages(control):
+    """Message packages owned by the already-verified current Control seal."""
+    candidate = control.get('message_candidate')
+    if candidate is None:
+        return {}
+    if (not isinstance(candidate, dict) or not isinstance(candidate.get('root'), str)
+            or not isinstance(candidate.get('packages'), dict)
+            or set(candidate['packages']) != {'prometheus_msgs', 'wksim_msgs'}):
+        raise ValueError('Current Control message package set differs')
+    packages = {}
+    for name, item in candidate['packages'].items():
+        expected = Path(candidate['root'])/'install'/name
+        if not isinstance(item, dict):
+            raise ValueError('Current Control message package identity differs: '+name)
+        checksum = item.get('installed_sha256')
+        if (item.get('prefix') != str(expected) or not expected.is_absolute()
+                or not isinstance(checksum, str) or not re.fullmatch('[0-9a-f]{64}', checksum)):
+            raise ValueError('Current Control message package identity differs: '+name)
+        packages[name] = dict(prefix=str(expected), sha256=checksum, complete_snapshot=True)
+    return packages
+
+
+def _mixed_message_proof(root, flight, admission, audit, control):
+    candidate = control.get('message_candidate')
+    if candidate is None:
+        if flight.get('message_candidate') is not None or admission.get('message_candidate') is not None:
+            raise ValueError('Unbound message candidate in legacy mixed proof')
+        return
+    checksum = control.get('message_manifest_sha256')
+    if (not isinstance(checksum, str) or not re.fullmatch('[0-9a-f]{64}', checksum)
+            or control.get('message_manifest_path') != str(Path(candidate['root'])/'message-build.json')
+            or flight.get('message_candidate') != candidate
+            or admission.get('message_candidate') != candidate
+            or admission['identities'].get('message_candidate') != candidate
+            or admission.get('message_manifest_path') != control.get('message_manifest_path')
+            or admission.get('message_manifest_sha256') != checksum
+            or audit['evidence_sha256'].get('message-build.json') != checksum):
+        raise ValueError('Mixed/PV explicit message proof differs from selected Control')
+    if _pinned_json(dict(path=str(root/'message-build.json'), sha256=checksum)) != candidate:
+        raise ValueError('Retained message manifest differs from selected Control')
+
+
 def _mixed_proofs(p, records, identities):
     """Bind both audited task capabilities to one actual AP/PX4/control/model set."""
     if (len(p['evidence']) != 2 or {pin['task_profile'] for pin in p['evidence']} != set(MIXED_TASKS)):
         raise ValueError('Missing final mixed/PV capability flight proofs')
     resources = None
     healthy = None
+    candidate_packages = _candidate_message_packages(records['control'])
     for pin in p['evidence']:
         if set(pin) != {'task_profile', 'result', 'audit', 'admission'}:
             raise ValueError('Mixed capability proof descriptor schema differs')
@@ -254,7 +297,10 @@ def _mixed_proofs(p, records, identities):
         if admission['capability'] != capability:
             raise ValueError('Mixed/PV admitted task capability differs')
         manifests = {key: p['manifests'][key]['sha256'] for key in ('ap', 'control')}
-        if (flight['manifest_sha256'] != manifests
+        flight_manifests = dict(manifests)
+        if candidate_packages:
+            flight_manifests['message'] = records['control'].get('message_manifest_sha256')
+        if (flight['manifest_sha256'] != flight_manifests
                 or admission['manifest_sha256'] != manifests['ap']
                 or admission['control_manifest_sha256'] != manifests['control']
                 or admission['manifest_path'] != p['manifests']['ap']['path']
@@ -263,6 +309,7 @@ def _mixed_proofs(p, records, identities):
                 or flight['control_candidate'] != records['control']
                 or admission['control_candidate'] != records['control']):
             raise ValueError('Mixed/PV proof does not match selected AP/control pins')
+        _mixed_message_proof(root, flight, admission, audit, records['control'])
         for key in ('ap', 'control'):
             if audit['evidence_sha256'].get(key+'-build.json') != manifests[key]:
                 raise ValueError('Retained mixed build manifest differs: '+key)
@@ -305,6 +352,7 @@ def _mixed_proofs(p, records, identities):
                 or baseline['model']['library'] != p['model_library']):
             raise ValueError('Mixed/PV proof PX4/model identity differs')
         current = {key: baseline[key] for key in ('px4', 'model', 'message_packages', 'arducopter_agent', 'px4_agent')}
+        current['message_packages'] = dict(baseline['message_packages'], **candidate_packages)
         if resources is not None and current != resources:
             raise ValueError('Mixed/PV capability proofs use different resources')
         resources, healthy = current, flight
@@ -419,14 +467,16 @@ def check_resources(p, stacks=('arducopter', 'px4')):
         index=json.loads(INDEX.read_text())
         packages={name:pin for baseline in index['baselines'].values() for name,pin in baseline['message_packages'].items() if name!='prometheus_msgs'}
         packages.update({name:pin for name,pin in index['control_profiles']['session_v1']['installed_packages'].items() if name!='prometheus_control'})
+        if mixed:
+            packages.update(_candidate_message_packages(records['control']))
+            if proof_resources['message_packages'] != packages:
+                raise ValueError('Mixed/PV proof message packages differ')
         for name,pin in packages.items():
             if package_digest(pin['prefix'],complete=pin.get('complete_snapshot',False))!=pin['sha256']:
                 raise ValueError('Message content differs: '+name)
             _overlay(name,pin['prefix'])
         _overlay('prometheus_control',Path(p['control_workspace'])/'install/prometheus_control')
         result['identities']['message_packages']=packages
-        if mixed and proof_resources['message_packages'] != packages:
-            raise ValueError('Mixed/PV proof message packages differ')
         # Agent executable identities are inherited from the exact flown preflights.
         for stack,name in (('arducopter','ros-install/micro_ros_agent/lib/micro_ros_agent/micro_ros_agent'),('px4','agent-install/bin/MicroXRCEAgent')):
             if stack not in stacks:

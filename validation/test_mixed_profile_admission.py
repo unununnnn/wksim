@@ -134,6 +134,72 @@ class MixedProfileAdmissionTests(unittest.TestCase):
                 pins[key] = dict(path=str(path), sha256=joint.digest(path))
             p['evidence'].append(pins)
 
+    def add_current_messages(self, root, records, packets):
+        message_root = root/'messages'
+        candidate = dict(version=1, root=str(message_root), packages={
+            name: dict(prefix=str(message_root/'install'/name), installed_sha256=digit*64)
+            for name,digit in (('prometheus_msgs','8'), ('wksim_msgs','9'))})
+        message_path = message_root/'message-build.json'
+        message_root.mkdir()
+        message_path.write_text(json.dumps(candidate), encoding='utf-8')
+        checksum = joint.digest(message_path)
+        records['control'].update(message_candidate=candidate,
+                                  message_manifest_path=str(message_path), message_manifest_sha256=checksum)
+        for run, admission, flight, audit in packets:
+            (run/'message-build.json').write_bytes(message_path.read_bytes())
+            flight.update(message_candidate=copy.deepcopy(candidate))
+            flight['manifest_sha256']['message'] = checksum
+            admission.update(message_candidate=copy.deepcopy(candidate), message_manifest_path=str(message_path),
+                             message_manifest_sha256=checksum)
+            admission['identities']['message_candidate'] = copy.deepcopy(candidate)
+            audit['evidence_sha256']['message-build.json'] = checksum
+        return candidate
+
+    def test_current_message_proofs_supply_exact_current_overlay(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+            p, records, identities, packets = self.proof_fixture(root)
+            candidate = self.add_current_messages(root, records, packets)
+            self.seal(p, packets)
+            with patch.object(joint, '_raw_proof', side_effect=lambda pin,audit: Path(pin['result']['path']).parent):
+                _, resources = joint._mixed_proofs(p, records, identities)
+            self.assertEqual(set(resources['message_packages']), {'prometheus_msgs', 'wksim_msgs'})
+            for name, item in resources['message_packages'].items():
+                self.assertEqual(item['prefix'], candidate['packages'][name]['prefix'])
+                self.assertEqual(item['sha256'], candidate['packages'][name]['installed_sha256'])
+                self.assertIs(item['complete_snapshot'], True)
+
+    def test_current_message_proof_mismatches_cannot_fall_back_to_baseline(self):
+        changes = (
+            lambda a,f,u: f['manifest_sha256'].pop('message'),
+            lambda a,f,u: f.update(message_candidate=None),
+            lambda a,f,u: a.update(message_manifest_path='/wrong/message-build.json'),
+            lambda a,f,u: a.update(message_manifest_sha256='0'*64),
+            lambda a,f,u: a['identities'].pop('message_candidate'),
+            lambda a,f,u: u['evidence_sha256'].pop('message-build.json'),
+        )
+        for change in changes:
+            with self.subTest(change=change), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory).resolve()
+                p, records, identities, packets = self.proof_fixture(root)
+                self.add_current_messages(root, records, packets)
+                change(*packets[0][1:])
+                self.seal(p, packets)
+                with patch.object(joint, '_raw_proof', side_effect=lambda pin,audit: Path(pin['result']['path']).parent):
+                    with self.assertRaises(ValueError):
+                        joint._mixed_proofs(p, records, identities)
+
+    def test_retained_message_bytes_are_verified_not_just_recorded_hashes(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+            p, records, identities, packets = self.proof_fixture(root)
+            self.add_current_messages(root, records, packets)
+            self.seal(p, packets)
+            (packets[0][0]/'message-build.json').write_text('{}')
+            with patch.object(joint, '_raw_proof', side_effect=lambda pin,audit: Path(pin['result']['path']).parent):
+                with self.assertRaisesRegex(ValueError, 'SHA256'):
+                    joint._mixed_proofs(p, records, identities)
+
     def test_mixed_result_with_rate_timing_probe_is_rejected(self):
         markers = (None, {}, False, 'enabled', {'diagnostic': 'anything'})
         for marker in markers:
