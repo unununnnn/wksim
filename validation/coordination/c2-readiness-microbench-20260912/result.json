@@ -1,0 +1,120 @@
+{
+  "kind": "c2-readiness-microbench",
+  "schema": "wksim.c2-readiness-microbench.v1",
+  "scope": "readiness go/ready path handling only: the reduction is in Path construction frequency at identical FS-check frequency; nothing about PV/0.5x/100ms acceptance is claimed",
+  "shas": {
+    "new_runner": "c208b1d07a9054458e13b3f7bf74c145cb8641ec495e46fc7df5b6fb1626e408",
+    "old_runner": "fd0b7ee6dfb99be7a2d6f580555c6f9bfcddf721e25f68e97761d7f5670df246",
+    "old_runner_git": "7cb7e84"
+  },
+  "extraction": {
+    "method": "ast.parse of each runner source; while loop located by MAX_TICKS test; new arm = 4 pre-loop Assign blocks (go_path_initial/ready_paths_initial/pv_go_paths/pv_ready_paths, col_offset == loop-4) + 2 in-loop If blocks matched by 'go_path_initial'/'pv_go_paths'; old arm = 2 in-loop If blocks matched by \"live/'go.json'\"/\"pv-go-{leg}\"; blocks compiled verbatim and exec'd per tick"
+  },
+  "fixture": {
+    "ticks_per_pass": 20000,
+    "passes_per_arm": 5,
+    "warmup_passes_per_arm": 2,
+    "preexisting": [
+      "go.json",
+      "pv-go-1.json",
+      "pv-go-2.json",
+      "<stack>/ready.json",
+      "<stack>/pv-ready-<leg>.json"
+    ],
+    "workers": [
+      "arducopter",
+      "px4"
+    ],
+    "pv": true,
+    "save_calls": 0,
+    "json_loads_calls": 0
+  },
+  "fs_check_frequency": {
+    "new": {
+      "exists": 30000,
+      "is_file": 0
+    },
+    "old": {
+      "exists": 30000,
+      "is_file": 0
+    },
+    "identical": true
+  },
+  "samples": {
+    "new": [
+      {
+        "round": 0,
+        "wall_ns": 23331240,
+        "thread_cpu_ns": 23334877
+      },
+      {
+        "round": 1,
+        "wall_ns": 25404377,
+        "thread_cpu_ns": 25409063
+      },
+      {
+        "round": 2,
+        "wall_ns": 25575538,
+        "thread_cpu_ns": 25577814
+      },
+      {
+        "round": 3,
+        "wall_ns": 24951718,
+        "thread_cpu_ns": 24954593
+      },
+      {
+        "round": 4,
+        "wall_ns": 26023095,
+        "thread_cpu_ns": 26027124
+      }
+    ],
+    "old": [
+      {
+        "round": 0,
+        "wall_ns": 104553072,
+        "thread_cpu_ns": 104555692
+      },
+      {
+        "round": 1,
+        "wall_ns": 100118925,
+        "thread_cpu_ns": 100121731
+      },
+      {
+        "round": 2,
+        "wall_ns": 102596555,
+        "thread_cpu_ns": 102590869
+      },
+      {
+        "round": 3,
+        "wall_ns": 103590847,
+        "thread_cpu_ns": 103594360
+      },
+      {
+        "round": 4,
+        "wall_ns": 108499248,
+        "thread_cpu_ns": 108500884
+      }
+    ]
+  },
+  "medians": {
+    "new": {
+      "wall_ns_median": 25404377,
+      "thread_cpu_ns_median": 25409063,
+      "wall_ns_per_tick_median": 1270.21885,
+      "thread_cpu_ns_per_tick_median": 1270.45315
+    },
+    "old": {
+      "wall_ns_median": 103590847,
+      "thread_cpu_ns_median": 103594360,
+      "wall_ns_per_tick_median": 5179.54235,
+      "thread_cpu_ns_per_tick_median": 5179.718
+    },
+    "wall_ns_per_tick_delta": -3909.3234999999995,
+    "thread_cpu_ns_per_tick_delta": -3909.2648499999996
+  },
+  "limits": [
+    "exec-per-tick harness overhead is identical in both arms; only the delta is meaningful",
+    "one host, one process, no interleaving with other load; cold/hot mixing is not extrapolated",
+    "the fired branches (save/read content) never ran: fixture keeps go/pv-go files present"
+  ]
+}

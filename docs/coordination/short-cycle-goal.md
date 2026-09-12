@@ -2,6 +2,22 @@
 
 2026-09-12最新：Goal active，createdAt1789219780；Full/G0–G6原目标和全部验收门保持。上一轮是实质进展：C1源码/测试交付、真实诊断运行、原件保留与独立核算，不能把失败场称通过。
 
+## 2026-09-13 最新：C2完整场仍失败，转10墙秒分段诊断
+
+重启Codex的确认仍未收到；DeepSeek受管后台未恢复，**不执行重启脚本、不伪造turn/end**。下面是无需重启已实际推进的项目工作。
+
+OMP C2微基准已终态，源码/结果已主读核对：相同每20000tick 30000次exists调用，旧/新readiness片段中位数5179.54235/1270.21885ns/tick，差值约-3909ns，仅已有go文件的快路径；不代表整场性能。结果位于validation/coordination/c2-readiness-microbench-20260912，main-verification.json明确loop-4描述笔误(实际代码等于loop.col_offset)与tmpfs未记录、仅片段证据的边界。
+
+主会话分别检查两WSL无native并冻结source/manifest后实际跑C2完整PV：run joint-public-flight-lcgv0yte，epoch710fc8826ea54e6ebfe028d7d2e2228c；原件/root/wksim-release-acceptance-fe3/validation/joint-public-flight-lcgv0yte，live/root/wksim-joint-flight-t7vr8gqi，预约收据validation/33-final-combo-c2-20260913-01。保留C1开关及原全部门，只有Path构造外提、两诊断env均关闭。**FAILED**：tick73208，lateness100067614ns，wall198.068556916s；session44043已终态exit1，不能再poll/restart。source_unchanged=true；GC65782→65651→0；两栈async closed/complete且字节提交=写入(AP109574368/PX4114687590)；独立确认PGID1933–1942全空。绝对路径raw PV审计拒绝failed run，下游检查不计通过。
+
+保留包validation/33-final-combo-luna/c2-lcgv0yte。核算130042+99828597+108975=100067614；work_over51224765+release_excess48603832=99828597。真实墙钟分区：early249interval/creep706739/work_over0，crossing1/14ns，steady18041/creep99121844，其中work_over51224765ns。前三个大work区间为2764→2768(work22.689080ms,over14.689080ms)、2928→2932(work17.347295ms)、2772→2776(work14.504935ms)，主要尖峰已在anchor后约5.5–5.8墙秒；只诊断首2s会错过它们。
+
+**当前OMP任务**：thread6deb2e40-2240-4db2-8c7f-c06bf6724048，turn97434fe2-0de2-46c3-a8e2-b9ae1464857d running，实现tools/early_manager_work_probe.py、validation/test_early_manager_work_probe.py和Linux runner接线。--early-work-timing仅PV/MIXED且必须WKSIM_JOINT_CPU_TIMING=1与WKSIM_JOINT_RATE_TIMING_PROBE=1，错误组合在任何temp/native前拒绝；默认无诊断取时/样本/文件IO，**窗口首anchor起固定10墙秒**，steady_after只作2s分界标记；cap32768/truncated、跨界标注、内存缓冲，全部native清理后独立文件落盘；phase wall/当前线程CPU区分outer health/rate begin/physics/clock/post-advance，不能重叠加总。保留原所有操作次数/返回/异常/顺序/门。先审代码+纯测试，不启动新native。
+
+原OMP turne892b4cc已正常cancel→interrupted；app send_message_to_thread尝试返回External steering requires non-empty text而未送达，已改用cancel+CLI续派，不假称排队。codebuddy thread98925ad6的turnc7a77420已completed，仅在代码未出现时写了侦察报告(不通过)；报告误提WRITE_TIMING不适用于本runner，应以**CPU_TIMING+RATE_TIMING_PROBE**明确要求为准。代码落地后再按新SHA续派实际审查，旧报告不作为通过依据。
+
+#26/Full状态与既有通过证据保持；C2更快的微片段没有整场成功证明，#83仍OPEN。不要重复同配置盲跑。
+
 ## 用户指定卡死会话：恢复操作等待确认
 
 用户明确指出thread34386db2-17a1-425b-a102-f910451c5c63卡死。已读持久DSH日志：native session-092babe4-799e-45c1-84f2-ac6e4fe8533d turn10停在seq1503 step/end，缺turn/end；重复cancel仅返回ack，Host一直running。已确认同受管DSH后台其它五个session均有terminal，无其它DSH活跃任务，备份原journal、mapping、两未验收比较器文件到C:/Users/PC/.codex/repair-backups/ds-b-stuck-20260912，哈希一致。按PID/parent/命令路径核验后停止了CodexHost受管DSH node PID58652（不是用户DeepSeek桌面PID31408）。当前DeepSeek provider unavailable：适配器缓存已断开的127.0.0.1:58656，harness inspect --refresh true不能重建；未假称恢复成功。

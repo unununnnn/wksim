@@ -1,0 +1,13 @@
+{
+  "result_sha256": "e3ade0e5a979497c870b7056d0214e87c1d66218b2fd86723ac28818899f5cce",
+  "script_sha256": "c64750abd3aef048a16db0e0c21c54741c64811f4384b3c85da359c7a1a96597",
+  "checked_source_shape": true,
+  "equal_fs_call_counts": true,
+  "native_performance_claim": false,
+  "notes": [
+    "Only preexisting-go readiness fast path was measured; no save/read branches fired.",
+    "The extraction prose says loop-4, but the actual source uses equality with loop.col_offset; extracted four initial assignments and two If blocks are retained.",
+    "Temporary-directory filesystem type was not retained, so the brief report tmpfs assertion is not established.",
+    "Full C2 PV subsequently failed; the microbenchmark does not establish flight rate acceptance."
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "source_sha256": {
+    "tools/run_joint_flight.py": "c208b1d07a9054458e13b3f7bf74c145cb8641ec495e46fc7df5b6fb1626e408",
+    "tools/run-joint-flight.sh": "ea012da68bd8fcb3e25383197bf5a9f076aecfe5d3fd9a966675aa0d69fdc883",
+    "Simulator/wksim_runtime/joint_rate.py": "0b53a16acd65138b4623a9a8573ec8d643a2b78f4e27e8122c65efb9a6da25c4",
+    "Simulator/wksim_runtime/joint_rate_probe.py": "a8bac9ac84ba9960296bb6b43d6d39c6bbc17fa9fdc47adf7e05ce76d7066653",
+    "Simulator/wksim_core/joint.py": "f5433c2ec7e81794ffcfab26dce0feff18d4e1affdfb44f895a72e4ce0241d50",
+    "tools/manager_gc_candidate.py": "cbf7b0186131c08d4055aea1fcafdb8e7cca36d9acfcb19cdac87938d8786e66"
+  },
+  "manifest_sha256": {
+    "/root/wksim-ap-mixed-fhuf05l9/mixed-build.json": "1e6250eff8873d6b2e52017b613c223ac29f8260fdf92aac2cf0c7cdcc6ce94c",
+    "/root/wksim-joint-control-c2IXOr/build.json": "6fe8c0b30775a9ba83407302f602d0785876d307e5f1cb746afa3bf316cf5e7e",
+    "/root/wksim-ros2-Rzj3Pf/message-build.json": "29969da0702451e3fc6f1de40bc301a67284c4e7d5fae8f88c64773d27a96219",
+    "/root/wksim-px4-state-ONa1Kw/wksim-build.json": "d7e905b35250d184e185ada70e3fe43f0223f1c605832d81c3c58eeb123d4cb6"
+  },
+  "environment": {
+    "WKSIM_JOINT_CPU_TIMING": null,
+    "WKSIM_JOINT_RATE_TIMING_PROBE": null
+  },
+  "async_model_evidence": true,
+  "diagnostic_only": false,
+  "formal_acceptance": false,
+  "manager_gc_freeze": true,
+  "baseline_run": "joint-public-flight-vwen35gc",
+  "candidate_status": "C2_full_contract_unproven_attempt",
+  "reviewer_sha256": "0f412960c66c08904f62256e464d871cffd305b99b921afbf9a69865f8f59c21",
+  "review_limit": "CLI supported PV/MIXED only, no foreign GC mutator in executed runner. Do not infer ownership from frozen-count equality: a harmless independent interpreter demonstrated normal deallocation 6623->6622 without second freeze.",
+  "prerequisites": "Separate two-distro process checks, completed/quiet heavy agent tasks, actual CLI behavior delivery before native.",
+  "started_unix": 1789225405.9824922,
+  "native_checks": {
+    "Ubuntu-22.04": 1789225373.8668096,
+    "RflySim-20.04": 1789225374.2688208
+  },
+  "resource_note": "A/D/new-B/codebuddy/OMP terminal; managed DSH backend stopped pending explicit app-restart permission. No new native or heavy tests found in either WSL.",
+  "baseline_diagnostic": "joint-public-flight-ztdsk269",
+  "required": "Full two-leg PV, both native flags, 1ms/all numerical gates, 0.5x/100ms/full10s60s raw audit, clean exits and exact provenance. No pass from candidate flag.",
+  "change": "Only hoist immutable readiness paths; preserve FS call frequency, contents, 1000tick lead and all physical/rate gates.",
+  "private_commit": "208e0e4"
+}
