@@ -1,0 +1,1149 @@
+-- Using CATKIN_DEVEL_PREFIX: /root/wksim-ego-local-pGqjgO/devel
+-- Using CMAKE_PREFIX_PATH: /opt/ros/noetic
+-- This workspace overlays: /opt/ros/noetic
+-- Using PYTHON_EXECUTABLE: /usr/bin/python3
+-- Using Debian Python package layout
+-- Using empy: /usr/bin/empy
+-- Using CATKIN_ENABLE_TESTING: ON
+-- Call enable_testing()
+-- Using CATKIN_TEST_RESULTS_DIR: /root/wksim-ego-local-pGqjgO/build/test_results
+-- Forcing gtest/gmock from source, though one was otherwise available.
+-- Found gtest sources under '/usr/src/googletest': gtests will be built
+-- Found gmock sources under '/usr/src/googletest': gmock will be built
+-- Using Python nosetests: /usr/bin/nosetests3
+-- catkin 0.8.10
+-- BUILD_SHARED_LIBS is on
+-- BUILD_SHARED_LIBS is on
+-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-- ~~  traversing 7 packages in topological order:
+-- ~~  - quadrotor_msgs
+-- ~~  - prometheus_msgs
+-- ~~  - plan_env
+-- ~~  - path_searching
+-- ~~  - traj_utils
+-- ~~  - bspline_opt
+-- ~~  - ego_planner
+-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-- +++ processing catkin package: 'quadrotor_msgs'
+-- ==> add_subdirectory(wksim/Modules/common/quadrotor_msgs)
+CMake Deprecation Warning at wksim/Modules/common/quadrotor_msgs/CMakeLists.txt:1 (cmake_minimum_required):
+  Compatibility with CMake < 2.8.12 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value or use a ...<max> suffix to tell
+  CMake that the project does not need compatibility with older versions.
+
+
+-- Using these message generators: gencpp;geneus;genlisp;gennodejs;genpy
+-- quadrotor_msgs: 14 messages, 0 services
+-- +++ processing catkin package: 'prometheus_msgs'
+-- ==> add_subdirectory(wksim/Modules/common/prometheus_msgs)
+CMake Deprecation Warning at wksim/Modules/common/prometheus_msgs/CMakeLists.txt:1 (cmake_minimum_required):
+  Compatibility with CMake < 2.8.12 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value or use a ...<max> suffix to tell
+  CMake that the project does not need compatibility with older versions.
+
+
+-- Using these message generators: gencpp;geneus;genlisp;gennodejs;genpy
+-- Found Boost: /usr/lib/x86_64-linux-gnu/cmake/Boost-1.74.0/BoostConfig.cmake (found version "1.74.0") found components: system 
+-- Eigen found (include: /usr/include/eigen3, version: 3.4.0)
+-- Found Boost: /usr/lib/x86_64-linux-gnu/cmake/Boost-1.74.0/BoostConfig.cmake (found suitable version "1.74.0", minimum required is "1.65.0") found components: system filesystem date_time iostreams serialization 
+-- FLANN found (include: /usr/include, lib: /usr/lib/x86_64-linux-gnu/libflann_cpp.so)
+-- OpenNI found (version: 1.5.4.0, include: /usr/include/ni, lib: /usr/lib/libOpenNI.so;libusb::libusb)
+-- OpenNI2 found (version: 2.2.0.33, include: /usr/include/openni2, lib: /usr/lib/x86_64-linux-gnu/libOpenNI2.so;libusb::libusb)
+** WARNING ** io features related to pcap will be disabled
+-- Eigen found (include: /usr/include/eigen3, version: 3.4.0)
+-- OpenNI found (version: 1.5.4.0, include: /usr/include/ni, lib: /usr/lib/libOpenNI.so;libusb::libusb)
+-- OpenNI2 found (version: 2.2.0.33, include: /usr/include/openni2, lib: /usr/lib/x86_64-linux-gnu/libOpenNI2.so;libusb::libusb)
+-- Found Qhull version 8.0.2
+-- OpenNI found (version: 1.5.4.0, include: /usr/include/ni, lib: /usr/lib/libOpenNI.so;libusb::libusb)
+-- looking for PCL_COMMON
+-- looking for PCL_KDTREE
+-- looking for PCL_OCTREE
+-- looking for PCL_SEARCH
+-- looking for PCL_SAMPLE_CONSENSUS
+-- looking for PCL_FILTERS
+-- looking for PCL_2D
+-- looking for PCL_GEOMETRY
+-- looking for PCL_IO
+-- looking for PCL_FEATURES
+-- looking for PCL_ML
+-- looking for PCL_SEGMENTATION
+-- looking for PCL_VISUALIZATION
+-- looking for PCL_SURFACE
+-- looking for PCL_REGISTRATION
+-- looking for PCL_KEYPOINTS
+-- looking for PCL_TRACKING
+-- looking for PCL_RECOGNITION
+-- looking for PCL_STEREO
+-- looking for PCL_APPS
+-- looking for PCL_IN_HAND_SCANNER
+-- looking for PCL_MODELER
+-- looking for PCL_POINT_CLOUD_EDITOR
+-- looking for PCL_OUTOFCORE
+-- looking for PCL_PEOPLE
+-- Found PCL: pcl_common;pcl_kdtree;pcl_octree;pcl_search;pcl_sample_consensus;pcl_filters;pcl_io;pcl_features;pcl_ml;pcl_segmentation;pcl_visualization;pcl_surface;pcl_registration;pcl_keypoints;pcl_tracking;pcl_recognition;pcl_stereo;pcl_apps;pcl_outofcore;pcl_people;Boost::system;Boost::filesystem;Boost::date_time;Boost::iostreams;Boost::serialization;/usr/lib/libOpenNI.so;libusb::libusb;/usr/lib/x86_64-linux-gnu/libOpenNI2.so;libusb::libusb;VTK::ChartsCore;VTK::CommonColor;VTK::CommonComputationalGeometry;VTK::CommonCore;VTK::CommonDataModel;VTK::CommonExecutionModel;VTK::CommonMath;VTK::CommonMisc;VTK::CommonTransforms;VTK::FiltersCore;VTK::FiltersExtraction;VTK::FiltersGeneral;VTK::FiltersGeometry;VTK::FiltersModeling;VTK::FiltersSources;VTK::ImagingCore;VTK::ImagingSources;VTK::InteractionImage;VTK::InteractionStyle;VTK::InteractionWidgets;VTK::IOCore;VTK::IOGeometry;VTK::IOImage;VTK::IOLegacy;VTK::IOPLY;VTK::RenderingAnnotation;VTK::RenderingCore;VTK::RenderingContext2D;VTK::RenderingLOD;VTK::RenderingFreeType;VTK::ViewsCore;VTK::ViewsContext2D;VTK::RenderingOpenGL2;VTK::GUISupportQt;FLANN::FLANN;QHULL::QHULL  
+-- Generating .msg files for action prometheus_msgs/CheckForObjects /root/wksim-ego-local-pGqjgO/src/wksim/Modules/common/prometheus_msgs/action/CheckForObjects.action
+-- prometheus_msgs: 50 messages, 3 services
+-- +++ processing catkin package: 'plan_env'
+-- ==> add_subdirectory(wksim/Modules/ego_planner_swarm/plan_env)
+-- Using these message generators: gencpp;geneus;genlisp;gennodejs;genpy
+-- Eigen found (include: /usr/include/eigen3, version: 3.4.0)
+-- FLANN found (include: /usr/include, lib: /usr/lib/x86_64-linux-gnu/libflann_cpp.so)
+-- OpenNI found (version: 1.5.4.0, include: /usr/include/ni, lib: /usr/lib/libOpenNI.so;libusb::libusb)
+-- OpenNI2 found (version: 2.2.0.33, include: /usr/include/openni2, lib: /usr/lib/x86_64-linux-gnu/libOpenNI2.so;libusb::libusb)
+** WARNING ** io features related to pcap will be disabled
+-- Eigen found (include: /usr/include/eigen3, version: 3.4.0)
+-- OpenNI found (version: 1.5.4.0, include: /usr/include/ni, lib: /usr/lib/libOpenNI.so;libusb::libusb)
+-- OpenNI2 found (version: 2.2.0.33, include: /usr/include/openni2, lib: /usr/lib/x86_64-linux-gnu/libOpenNI2.so;libusb::libusb)
+-- Found Qhull version 8.0.2
+-- OpenNI found (version: 1.5.4.0, include: /usr/include/ni, lib: /usr/lib/libOpenNI.so;libusb::libusb)
+-- looking for PCL_COMMON
+-- looking for PCL_KDTREE
+-- looking for PCL_OCTREE
+-- looking for PCL_SEARCH
+-- looking for PCL_SAMPLE_CONSENSUS
+-- looking for PCL_FILTERS
+-- looking for PCL_2D
+-- looking for PCL_GEOMETRY
+-- looking for PCL_IO
+-- looking for PCL_FEATURES
+-- looking for PCL_ML
+-- looking for PCL_SEGMENTATION
+-- looking for PCL_VISUALIZATION
+-- looking for PCL_SURFACE
+-- looking for PCL_REGISTRATION
+-- looking for PCL_KEYPOINTS
+-- looking for PCL_TRACKING
+-- looking for PCL_RECOGNITION
+-- looking for PCL_STEREO
+-- looking for PCL_APPS
+-- looking for PCL_IN_HAND_SCANNER
+-- looking for PCL_MODELER
+-- looking for PCL_POINT_CLOUD_EDITOR
+-- looking for PCL_OUTOFCORE
+-- looking for PCL_PEOPLE
+-- Found PCL: pcl_common;pcl_kdtree;pcl_octree;pcl_search;pcl_sample_consensus;pcl_filters;pcl_io;pcl_features;pcl_ml;pcl_segmentation;pcl_visualization;pcl_surface;pcl_registration;pcl_keypoints;pcl_tracking;pcl_recognition;pcl_stereo;pcl_apps;pcl_outofcore;pcl_people;Boost::system;Boost::filesystem;Boost::date_time;Boost::iostreams;Boost::serialization;/usr/lib/libOpenNI.so;libusb::libusb;/usr/lib/x86_64-linux-gnu/libOpenNI2.so;libusb::libusb;VTK::ChartsCore;VTK::CommonColor;VTK::CommonComputationalGeometry;VTK::CommonCore;VTK::CommonDataModel;VTK::CommonExecutionModel;VTK::CommonMath;VTK::CommonMisc;VTK::CommonTransforms;VTK::FiltersCore;VTK::FiltersExtraction;VTK::FiltersGeneral;VTK::FiltersGeometry;VTK::FiltersModeling;VTK::FiltersSources;VTK::ImagingCore;VTK::ImagingSources;VTK::InteractionImage;VTK::InteractionStyle;VTK::InteractionWidgets;VTK::IOCore;VTK::IOGeometry;VTK::IOImage;VTK::IOLegacy;VTK::IOPLY;VTK::RenderingAnnotation;VTK::RenderingCore;VTK::RenderingContext2D;VTK::RenderingLOD;VTK::RenderingFreeType;VTK::ViewsCore;VTK::ViewsContext2D;VTK::RenderingOpenGL2;VTK::GUISupportQt;FLANN::FLANN;QHULL::QHULL (Required is at least version "1.7") 
+-- +++ processing catkin package: 'path_searching'
+-- ==> add_subdirectory(wksim/Modules/ego_planner_swarm/path_searching)
+-- Eigen found (include: /usr/include/eigen3, version: 3.4.0)
+-- FLANN found (include: /usr/include, lib: /usr/lib/x86_64-linux-gnu/libflann_cpp.so)
+-- OpenNI found (version: 1.5.4.0, include: /usr/include/ni, lib: /usr/lib/libOpenNI.so;libusb::libusb)
+-- OpenNI2 found (version: 2.2.0.33, include: /usr/include/openni2, lib: /usr/lib/x86_64-linux-gnu/libOpenNI2.so;libusb::libusb)
+** WARNING ** io features related to pcap will be disabled
+-- Eigen found (include: /usr/include/eigen3, version: 3.4.0)
+-- OpenNI found (version: 1.5.4.0, include: /usr/include/ni, lib: /usr/lib/libOpenNI.so;libusb::libusb)
+-- OpenNI2 found (version: 2.2.0.33, include: /usr/include/openni2, lib: /usr/lib/x86_64-linux-gnu/libOpenNI2.so;libusb::libusb)
+-- Found Qhull version 8.0.2
+-- OpenNI found (version: 1.5.4.0, include: /usr/include/ni, lib: /usr/lib/libOpenNI.so;libusb::libusb)
+-- looking for PCL_COMMON
+-- looking for PCL_KDTREE
+-- looking for PCL_OCTREE
+-- looking for PCL_SEARCH
+-- looking for PCL_SAMPLE_CONSENSUS
+-- looking for PCL_FILTERS
+-- looking for PCL_2D
+-- looking for PCL_GEOMETRY
+-- looking for PCL_IO
+-- looking for PCL_FEATURES
+-- looking for PCL_ML
+-- looking for PCL_SEGMENTATION
+-- looking for PCL_VISUALIZATION
+-- looking for PCL_SURFACE
+-- looking for PCL_REGISTRATION
+-- looking for PCL_KEYPOINTS
+-- looking for PCL_TRACKING
+-- looking for PCL_RECOGNITION
+-- looking for PCL_STEREO
+-- looking for PCL_APPS
+-- looking for PCL_IN_HAND_SCANNER
+-- looking for PCL_MODELER
+-- looking for PCL_POINT_CLOUD_EDITOR
+-- looking for PCL_OUTOFCORE
+-- looking for PCL_PEOPLE
+-- Using these message generators: gencpp;geneus;genlisp;gennodejs;genpy
+-- +++ processing catkin package: 'traj_utils'
+-- ==> add_subdirectory(wksim/Modules/ego_planner_swarm/traj_utils)
+-- Using these message generators: gencpp;geneus;genlisp;gennodejs;genpy
+-- Eigen found (include: /usr/include/eigen3, version: 3.4.0)
+-- FLANN found (include: /usr/include, lib: /usr/lib/x86_64-linux-gnu/libflann_cpp.so)
+-- OpenNI found (version: 1.5.4.0, include: /usr/include/ni, lib: /usr/lib/libOpenNI.so;libusb::libusb)
+-- OpenNI2 found (version: 2.2.0.33, include: /usr/include/openni2, lib: /usr/lib/x86_64-linux-gnu/libOpenNI2.so;libusb::libusb)
+** WARNING ** io features related to pcap will be disabled
+-- Eigen found (include: /usr/include/eigen3, version: 3.4.0)
+-- OpenNI found (version: 1.5.4.0, include: /usr/include/ni, lib: /usr/lib/libOpenNI.so;libusb::libusb)
+-- OpenNI2 found (version: 2.2.0.33, include: /usr/include/openni2, lib: /usr/lib/x86_64-linux-gnu/libOpenNI2.so;libusb::libusb)
+-- Found Qhull version 8.0.2
+-- OpenNI found (version: 1.5.4.0, include: /usr/include/ni, lib: /usr/lib/libOpenNI.so;libusb::libusb)
+-- looking for PCL_COMMON
+-- looking for PCL_KDTREE
+-- looking for PCL_OCTREE
+-- looking for PCL_SEARCH
+-- looking for PCL_SAMPLE_CONSENSUS
+-- looking for PCL_FILTERS
+-- looking for PCL_2D
+-- looking for PCL_GEOMETRY
+-- looking for PCL_IO
+-- looking for PCL_FEATURES
+-- looking for PCL_ML
+-- looking for PCL_SEGMENTATION
+-- looking for PCL_VISUALIZATION
+-- looking for PCL_SURFACE
+-- looking for PCL_REGISTRATION
+-- looking for PCL_KEYPOINTS
+-- looking for PCL_TRACKING
+-- looking for PCL_RECOGNITION
+-- looking for PCL_STEREO
+-- looking for PCL_APPS
+-- looking for PCL_IN_HAND_SCANNER
+-- looking for PCL_MODELER
+-- looking for PCL_POINT_CLOUD_EDITOR
+-- looking for PCL_OUTOFCORE
+-- looking for PCL_PEOPLE
+-- traj_utils: 3 messages, 0 services
+-- +++ processing catkin package: 'bspline_opt'
+-- ==> add_subdirectory(wksim/Modules/ego_planner_swarm/bspline_opt)
+-- Eigen found (include: /usr/include/eigen3, version: 3.4.0)
+-- FLANN found (include: /usr/include, lib: /usr/lib/x86_64-linux-gnu/libflann_cpp.so)
+-- OpenNI found (version: 1.5.4.0, include: /usr/include/ni, lib: /usr/lib/libOpenNI.so;libusb::libusb)
+-- OpenNI2 found (version: 2.2.0.33, include: /usr/include/openni2, lib: /usr/lib/x86_64-linux-gnu/libOpenNI2.so;libusb::libusb)
+** WARNING ** io features related to pcap will be disabled
+-- Eigen found (include: /usr/include/eigen3, version: 3.4.0)
+-- OpenNI found (version: 1.5.4.0, include: /usr/include/ni, lib: /usr/lib/libOpenNI.so;libusb::libusb)
+-- OpenNI2 found (version: 2.2.0.33, include: /usr/include/openni2, lib: /usr/lib/x86_64-linux-gnu/libOpenNI2.so;libusb::libusb)
+-- Found Qhull version 8.0.2
+-- OpenNI found (version: 1.5.4.0, include: /usr/include/ni, lib: /usr/lib/libOpenNI.so;libusb::libusb)
+-- looking for PCL_COMMON
+-- looking for PCL_KDTREE
+-- looking for PCL_OCTREE
+-- looking for PCL_SEARCH
+-- looking for PCL_SAMPLE_CONSENSUS
+-- looking for PCL_FILTERS
+-- looking for PCL_2D
+-- looking for PCL_GEOMETRY
+-- looking for PCL_IO
+-- looking for PCL_FEATURES
+-- looking for PCL_ML
+-- looking for PCL_SEGMENTATION
+-- looking for PCL_VISUALIZATION
+-- looking for PCL_SURFACE
+-- looking for PCL_REGISTRATION
+-- looking for PCL_KEYPOINTS
+-- looking for PCL_TRACKING
+-- looking for PCL_RECOGNITION
+-- looking for PCL_STEREO
+-- looking for PCL_APPS
+-- looking for PCL_IN_HAND_SCANNER
+-- looking for PCL_MODELER
+-- looking for PCL_POINT_CLOUD_EDITOR
+-- looking for PCL_OUTOFCORE
+-- looking for PCL_PEOPLE
+-- Using these message generators: gencpp;geneus;genlisp;gennodejs;genpy
+-- +++ processing catkin package: 'ego_planner'
+-- ==> add_subdirectory(wksim/Modules/ego_planner_swarm/plan_manage)
+-- Eigen found (include: /usr/include/eigen3, version: 3.4.0)
+-- FLANN found (include: /usr/include, lib: /usr/lib/x86_64-linux-gnu/libflann_cpp.so)
+-- OpenNI found (version: 1.5.4.0, include: /usr/include/ni, lib: /usr/lib/libOpenNI.so;libusb::libusb)
+-- OpenNI2 found (version: 2.2.0.33, include: /usr/include/openni2, lib: /usr/lib/x86_64-linux-gnu/libOpenNI2.so;libusb::libusb)
+** WARNING ** io features related to pcap will be disabled
+-- Eigen found (include: /usr/include/eigen3, version: 3.4.0)
+-- OpenNI found (version: 1.5.4.0, include: /usr/include/ni, lib: /usr/lib/libOpenNI.so;libusb::libusb)
+-- OpenNI2 found (version: 2.2.0.33, include: /usr/include/openni2, lib: /usr/lib/x86_64-linux-gnu/libOpenNI2.so;libusb::libusb)
+-- Found Qhull version 8.0.2
+-- OpenNI found (version: 1.5.4.0, include: /usr/include/ni, lib: /usr/lib/libOpenNI.so;libusb::libusb)
+-- looking for PCL_COMMON
+-- looking for PCL_KDTREE
+-- looking for PCL_OCTREE
+-- looking for PCL_SEARCH
+-- looking for PCL_SAMPLE_CONSENSUS
+-- looking for PCL_FILTERS
+-- looking for PCL_2D
+-- looking for PCL_GEOMETRY
+-- looking for PCL_IO
+-- looking for PCL_FEATURES
+-- looking for PCL_ML
+-- looking for PCL_SEGMENTATION
+-- looking for PCL_VISUALIZATION
+-- looking for PCL_SURFACE
+-- looking for PCL_REGISTRATION
+-- looking for PCL_KEYPOINTS
+-- looking for PCL_TRACKING
+-- looking for PCL_RECOGNITION
+-- looking for PCL_STEREO
+-- looking for PCL_APPS
+-- looking for PCL_IN_HAND_SCANNER
+-- looking for PCL_MODELER
+-- looking for PCL_POINT_CLOUD_EDITOR
+-- looking for PCL_OUTOFCORE
+-- looking for PCL_PEOPLE
+-- Using these message generators: gencpp;geneus;genlisp;gennodejs;genpy
+-- Installing devel-space wrapper /root/wksim-ego-local-pGqjgO/src/wksim/Modules/ego_planner_swarm/plan_manage/scripts/bspline_ros1_relay.py to /root/wksim-ego-local-pGqjgO/devel/lib/ego_planner
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /root/wksim-ego-local-pGqjgO/build
+[  0%] Built target nav_msgs_generate_messages_py
+[  0%] Built target geometry_msgs_generate_messages_py
+[  0%] Built target _quadrotor_msgs_generate_messages_check_deps_Px4ctrlDebug
+[  0%] Built target _quadrotor_msgs_generate_messages_check_deps_AuxCommand
+[  0%] Built target _quadrotor_msgs_generate_messages_check_deps_Corrections
+[  0%] Built target _quadrotor_msgs_generate_messages_check_deps_Gains
+[  0%] Built target _quadrotor_msgs_generate_messages_check_deps_OutputData
+[  0%] Built target _quadrotor_msgs_generate_messages_check_deps_PositionCommand
+[  0%] Built target _quadrotor_msgs_generate_messages_check_deps_PPROutputData
+[  0%] Built target _quadrotor_msgs_generate_messages_check_deps_Serial
+[  0%] Built target _quadrotor_msgs_generate_messages_check_deps_SO3Command
+[  0%] Built target _quadrotor_msgs_generate_messages_check_deps_StatusData
+[  0%] Built target _quadrotor_msgs_generate_messages_check_deps_TRPYCommand
+[  0%] Built target _quadrotor_msgs_generate_messages_check_deps_Odometry
+[  0%] Built target _quadrotor_msgs_generate_messages_check_deps_PolynomialTrajectory
+[  0%] Built target nav_msgs_generate_messages_cpp
+[  0%] Built target _quadrotor_msgs_generate_messages_check_deps_LQRTrajectory
+[  0%] Built target geometry_msgs_generate_messages_cpp
+[  0%] Built target nav_msgs_generate_messages_eus
+[  0%] Built target geometry_msgs_generate_messages_eus
+[  0%] Built target nav_msgs_generate_messages_lisp
+[  0%] Built target geometry_msgs_generate_messages_lisp
+[  0%] Built target nav_msgs_generate_messages_nodejs
+[  0%] Built target geometry_msgs_generate_messages_nodejs
+[  0%] Built target std_msgs_generate_messages_py
+[  0%] Built target actionlib_msgs_generate_messages_py
+[  0%] Built target _prometheus_msgs_generate_messages_check_deps_GimbalFollowTrackResSevice
+[  0%] Built target sensor_msgs_generate_messages_py
+[  0%] Built target _prometheus_msgs_generate_messages_check_deps_UAVState
+[  0%] Built target _prometheus_msgs_generate_messages_check_deps_MultiUAVState
+[  0%] Built target _prometheus_msgs_generate_messages_check_deps_UAVCommand
+[  0%] Built target _prometheus_msgs_generate_messages_check_deps_UAVControlState
+[  0%] Built target _prometheus_msgs_generate_messages_check_deps_TextInfo
+[  0%] Built target _prometheus_msgs_generate_messages_check_deps_UAVSetup
+[  0%] Built target _prometheus_msgs_generate_messages_check_deps_GlobalAruco
+[  0%] Built target _prometheus_msgs_generate_messages_check_deps_UGVState
+[  0%] Built target _prometheus_msgs_generate_messages_check_deps_UGVCommand
+[  0%] Built target _prometheus_msgs_generate_messages_check_deps_MultiUGVState
+[  0%] Built target _prometheus_msgs_generate_messages_check_deps_PositionReference
+[  0%] Built target _prometheus_msgs_generate_messages_check_deps_StationCommand
+[  0%] Built target _prometheus_msgs_generate_messages_check_deps_ArucoInfo
+[  0%] Built target _prometheus_msgs_generate_messages_check_deps_MultiArucoInfo
+[  0%] Built target _prometheus_msgs_generate_messages_check_deps_DetectionInfo
+[  0%] Built target _prometheus_msgs_generate_messages_check_deps_MultiDetectionInfo
+[  0%] Built target _prometheus_msgs_generate_messages_check_deps_BoundingBox
+[  0%] Built target _prometheus_msgs_generate_messages_check_deps_BoundingBoxes
+[  0%] Built target _prometheus_msgs_generate_messages_check_deps_SwarmCommand
+[  0%] Built target _prometheus_msgs_generate_messages_check_deps_FormationAssign
+[  0%] Built target _prometheus_msgs_generate_messages_check_deps_OffsetPose
+[  0%] Built target _prometheus_msgs_generate_messages_check_deps_GPSData
+[  0%] Built target _prometheus_msgs_generate_messages_check_deps_LinktrackNode2
+[  0%] Built target _prometheus_msgs_generate_messages_check_deps_LinktrackNodeframe2
+[  0%] Built target _prometheus_msgs_generate_messages_check_deps_DetectionInfoSub
+[  0%] Built target _prometheus_msgs_generate_messages_check_deps_GimbalControl
+[  0%] Built target _prometheus_msgs_generate_messages_check_deps_GimbalState
+[  0%] Built target _prometheus_msgs_generate_messages_check_deps_MultiDetectionInfoSub
+[  0%] Built target _prometheus_msgs_generate_messages_check_deps_WindowPosition
+[  0%] Built target _prometheus_msgs_generate_messages_check_deps_VisionDiff
+[  0%] Built target _prometheus_msgs_generate_messages_check_deps_Bspline
+[  0%] Built target _prometheus_msgs_generate_messages_check_deps_MultiBsplines
+[  0%] Built target _prometheus_msgs_generate_messages_check_deps_BasicDataTypeAndValue
+[  0%] Built target _prometheus_msgs_generate_messages_check_deps_Control
+[  0%] Built target _prometheus_msgs_generate_messages_check_deps_CustomDataSegment
+[  0%] Built target _prometheus_msgs_generate_messages_check_deps_ParamSettings
+[  0%] Built target _prometheus_msgs_generate_messages_check_deps_ROI
+[  0%] Built target _prometheus_msgs_generate_messages_check_deps_Target
+[  0%] Built target _prometheus_msgs_generate_messages_check_deps_TargetsInFrame
+[  0%] Built target _prometheus_msgs_generate_messages_check_deps_StartScript
+[  0%] Built target _prometheus_msgs_generate_messages_check_deps_LivoxCustomMsg
+[  0%] Built target _prometheus_msgs_generate_messages_check_deps_LivoxCustomPoint
+[  0%] Built target _prometheus_msgs_generate_messages_check_deps_CheckForObjectsAction
+[  0%] Built target _prometheus_msgs_generate_messages_check_deps_DepthCompressed
+[  0%] Built target _prometheus_msgs_generate_messages_check_deps_CheckForObjectsActionGoal
+[  0%] Built target _prometheus_msgs_generate_messages_check_deps_CheckForObjectsActionResult
+[  0%] Built target _prometheus_msgs_generate_messages_check_deps_CheckForObjectsGoal
+[  0%] Built target _prometheus_msgs_generate_messages_check_deps_CheckForObjectsActionFeedback
+[  0%] Built target _prometheus_msgs_generate_messages_check_deps_CheckForObjectsResult
+[  0%] Built target _prometheus_msgs_generate_messages_check_deps_CheckForObjectsFeedback
+[  0%] Built target _prometheus_msgs_generate_messages_check_deps_GetLocationSource
+[  0%] Built target _prometheus_msgs_generate_messages_check_deps_SwitchLocationSource
+[  0%] Built target std_msgs_generate_messages_cpp
+[  0%] Built target actionlib_msgs_generate_messages_cpp
+[  0%] Built target std_msgs_generate_messages_eus
+[  0%] Built target sensor_msgs_generate_messages_cpp
+[  0%] Built target actionlib_msgs_generate_messages_eus
+[  0%] Built target sensor_msgs_generate_messages_eus
+[  0%] Built target std_msgs_generate_messages_lisp
+[  0%] Built target actionlib_msgs_generate_messages_lisp
+[  0%] Built target sensor_msgs_generate_messages_lisp
+[  0%] Built target std_msgs_generate_messages_nodejs
+[  0%] Built target actionlib_msgs_generate_messages_nodejs
+[  0%] Built target sensor_msgs_generate_messages_nodejs
+[  0%] Built target tf_generate_messages_py
+[  0%] Built target roscpp_generate_messages_cpp
+[  0%] Built target roscpp_generate_messages_eus
+[  0%] Built target roscpp_generate_messages_lisp
+[  0%] Built target roscpp_generate_messages_nodejs
+[  0%] Built target roscpp_generate_messages_py
+[  0%] Built target rosgraph_msgs_generate_messages_cpp
+[  0%] Built target rosgraph_msgs_generate_messages_eus
+[  0%] Built target rosgraph_msgs_generate_messages_lisp
+[  0%] Built target rosgraph_msgs_generate_messages_nodejs
+[  0%] Built target actionlib_generate_messages_cpp
+[  0%] Built target rosgraph_msgs_generate_messages_py
+[  0%] Built target actionlib_generate_messages_lisp
+[  0%] Built target actionlib_generate_messages_eus
+[  0%] Built target actionlib_generate_messages_nodejs
+[  0%] Built target actionlib_generate_messages_py
+[  0%] Built target tf2_msgs_generate_messages_cpp
+[  0%] Built target tf2_msgs_generate_messages_eus
+[  0%] Built target tf2_msgs_generate_messages_lisp
+[  0%] Built target tf2_msgs_generate_messages_nodejs
+[  0%] Built target tf2_msgs_generate_messages_py
+[  0%] Built target visualization_msgs_generate_messages_cpp
+[  0%] Built target visualization_msgs_generate_messages_eus
+[  0%] Built target visualization_msgs_generate_messages_lisp
+[  0%] Built target visualization_msgs_generate_messages_nodejs
+[  0%] Built target visualization_msgs_generate_messages_py
+[  0%] Built target tf_generate_messages_eus
+[  0%] Built target tf_generate_messages_cpp
+[  0%] Built target tf_generate_messages_lisp
+[  0%] Built target tf_generate_messages_nodejs
+[  0%] Built target _traj_utils_generate_messages_check_deps_Bspline
+[  0%] Built target _traj_utils_generate_messages_check_deps_MultiBsplines
+[  0%] Built target _traj_utils_generate_messages_check_deps_DataDisp
+[  0%] Generating C++ code from quadrotor_msgs/AuxCommand.msg
+[  1%] Generating Python from MSG quadrotor_msgs/AuxCommand
+[  2%] Generating C++ code from quadrotor_msgs/Corrections.msg
+[  2%] Generating C++ code from quadrotor_msgs/Gains.msg
+[  3%] Generating C++ code from quadrotor_msgs/OutputData.msg
+[  3%] Generating Python from MSG quadrotor_msgs/Corrections
+[  3%] Generating C++ code from quadrotor_msgs/PositionCommand.msg
+[  3%] Generating Python from MSG quadrotor_msgs/Gains
+[  3%] Generating C++ code from quadrotor_msgs/PPROutputData.msg
+[  3%] Generating C++ code from quadrotor_msgs/Serial.msg
+[  3%] Generating Python from MSG quadrotor_msgs/OutputData
+[  3%] Generating C++ code from quadrotor_msgs/SO3Command.msg
+[  4%] Generating Python from MSG quadrotor_msgs/PositionCommand
+[  4%] Generating C++ code from quadrotor_msgs/StatusData.msg
+[  5%] Generating C++ code from quadrotor_msgs/TRPYCommand.msg
+[  5%] Generating Python from MSG quadrotor_msgs/PPROutputData
+[  5%] Generating C++ code from quadrotor_msgs/Odometry.msg
+[  5%] Generating Python from MSG quadrotor_msgs/Serial
+[  5%] Generating C++ code from quadrotor_msgs/PolynomialTrajectory.msg
+[  5%] Generating C++ code from quadrotor_msgs/LQRTrajectory.msg
+[  5%] Generating Python from MSG quadrotor_msgs/SO3Command
+[  6%] Generating C++ code from quadrotor_msgs/Px4ctrlDebug.msg
+[  6%] Built target quadrotor_msgs_generate_messages_cpp
+[  7%] Generating Python from MSG quadrotor_msgs/StatusData
+[  7%] Generating EusLisp code from quadrotor_msgs/AuxCommand.msg
+[  7%] Generating EusLisp code from quadrotor_msgs/Corrections.msg
+[  7%] Generating Python from MSG quadrotor_msgs/TRPYCommand
+[  8%] Generating EusLisp code from quadrotor_msgs/Gains.msg
+[  8%] Generating EusLisp code from quadrotor_msgs/OutputData.msg
+[  9%] Generating Python from MSG quadrotor_msgs/Odometry
+[  9%] Generating EusLisp code from quadrotor_msgs/PositionCommand.msg
+[ 10%] Generating EusLisp code from quadrotor_msgs/PPROutputData.msg
+[ 10%] Generating Python from MSG quadrotor_msgs/PolynomialTrajectory
+[ 10%] Generating EusLisp code from quadrotor_msgs/Serial.msg
+[ 11%] Generating EusLisp code from quadrotor_msgs/SO3Command.msg
+[ 11%] Generating Python from MSG quadrotor_msgs/LQRTrajectory
+[ 11%] Generating EusLisp code from quadrotor_msgs/StatusData.msg
+[ 11%] Generating EusLisp code from quadrotor_msgs/TRPYCommand.msg
+[ 11%] Generating Python from MSG quadrotor_msgs/Px4ctrlDebug
+[ 11%] Generating EusLisp code from quadrotor_msgs/Odometry.msg
+[ 11%] Generating EusLisp code from quadrotor_msgs/PolynomialTrajectory.msg
+[ 11%] Generating Python msg __init__.py for quadrotor_msgs
+[ 11%] Generating EusLisp code from quadrotor_msgs/LQRTrajectory.msg
+[ 11%] Generating EusLisp code from quadrotor_msgs/Px4ctrlDebug.msg
+[ 11%] Built target quadrotor_msgs_generate_messages_py
+[ 12%] Generating Lisp code from quadrotor_msgs/AuxCommand.msg
+[ 12%] Generating EusLisp manifest code for quadrotor_msgs
+[ 12%] Generating Lisp code from quadrotor_msgs/Corrections.msg
+[ 12%] Generating Lisp code from quadrotor_msgs/Gains.msg
+[ 12%] Generating Lisp code from quadrotor_msgs/OutputData.msg
+[ 13%] Generating Lisp code from quadrotor_msgs/PositionCommand.msg
+[ 13%] Generating Lisp code from quadrotor_msgs/PPROutputData.msg
+[ 13%] Built target quadrotor_msgs_generate_messages_eus
+[ 13%] Generating Lisp code from quadrotor_msgs/Serial.msg
+[ 13%] Generating Javascript code from quadrotor_msgs/AuxCommand.msg
+[ 13%] Generating Lisp code from quadrotor_msgs/SO3Command.msg
+[ 13%] Generating Javascript code from quadrotor_msgs/Corrections.msg
+[ 14%] Generating Lisp code from quadrotor_msgs/StatusData.msg
+[ 15%] Generating Javascript code from quadrotor_msgs/Gains.msg
+[ 15%] Generating Lisp code from quadrotor_msgs/TRPYCommand.msg
+[ 15%] Generating Javascript code from quadrotor_msgs/OutputData.msg
+[ 16%] Generating Lisp code from quadrotor_msgs/Odometry.msg
+[ 16%] Generating Javascript code from quadrotor_msgs/PositionCommand.msg
+[ 16%] Generating Lisp code from quadrotor_msgs/PolynomialTrajectory.msg
+[ 17%] Generating Javascript code from quadrotor_msgs/PPROutputData.msg
+[ 17%] Generating Lisp code from quadrotor_msgs/LQRTrajectory.msg
+[ 17%] Generating Javascript code from quadrotor_msgs/Serial.msg
+[ 17%] Generating Lisp code from quadrotor_msgs/Px4ctrlDebug.msg
+[ 18%] Generating Javascript code from quadrotor_msgs/SO3Command.msg
+[ 18%] Generating Javascript code from quadrotor_msgs/StatusData.msg
+[ 18%] Built target quadrotor_msgs_generate_messages_lisp
+[ 18%] Generating Python from MSG prometheus_msgs/UAVState
+[ 18%] Generating Javascript code from quadrotor_msgs/TRPYCommand.msg
+[ 18%] Generating Javascript code from quadrotor_msgs/Odometry.msg
+[ 18%] Generating Python from MSG prometheus_msgs/MultiUAVState
+[ 18%] Generating Javascript code from quadrotor_msgs/PolynomialTrajectory.msg
+[ 18%] Generating Javascript code from quadrotor_msgs/LQRTrajectory.msg
+[ 18%] Generating Python from MSG prometheus_msgs/UAVCommand
+[ 18%] Generating Javascript code from quadrotor_msgs/Px4ctrlDebug.msg
+[ 18%] Built target quadrotor_msgs_generate_messages_nodejs
+[ 19%] Generating C++ code from prometheus_msgs/UAVState.msg
+[ 19%] Generating Python from MSG prometheus_msgs/UAVControlState
+[ 20%] Generating C++ code from prometheus_msgs/MultiUAVState.msg
+[ 21%] Generating Python from MSG prometheus_msgs/UAVSetup
+[ 21%] Generating C++ code from prometheus_msgs/UAVCommand.msg
+[ 21%] Generating C++ code from prometheus_msgs/UAVControlState.msg
+[ 21%] Generating Python from MSG prometheus_msgs/TextInfo
+[ 21%] Generating C++ code from prometheus_msgs/UAVSetup.msg
+[ 21%] Generating Python from MSG prometheus_msgs/GlobalAruco
+[ 22%] Generating C++ code from prometheus_msgs/TextInfo.msg
+[ 22%] Generating C++ code from prometheus_msgs/GlobalAruco.msg
+[ 22%] Generating Python from MSG prometheus_msgs/UGVState
+[ 22%] Generating C++ code from prometheus_msgs/UGVState.msg
+[ 22%] Generating Python from MSG prometheus_msgs/UGVCommand
+[ 22%] Generating C++ code from prometheus_msgs/UGVCommand.msg
+[ 22%] Generating C++ code from prometheus_msgs/MultiUGVState.msg
+[ 22%] Generating Python from MSG prometheus_msgs/MultiUGVState
+[ 23%] Generating C++ code from prometheus_msgs/PositionReference.msg
+[ 23%] Generating C++ code from prometheus_msgs/StationCommand.msg
+[ 23%] Generating Python from MSG prometheus_msgs/PositionReference
+[ 24%] Generating C++ code from prometheus_msgs/ArucoInfo.msg
+[ 24%] Generating Python from MSG prometheus_msgs/StationCommand
+[ 25%] Generating C++ code from prometheus_msgs/MultiArucoInfo.msg
+[ 25%] Generating C++ code from prometheus_msgs/DetectionInfo.msg
+[ 26%] Generating Python from MSG prometheus_msgs/ArucoInfo
+[ 26%] Generating C++ code from prometheus_msgs/MultiDetectionInfo.msg
+[ 26%] Generating Python from MSG prometheus_msgs/MultiArucoInfo
+[ 26%] Generating C++ code from prometheus_msgs/BoundingBox.msg
+[ 26%] Generating C++ code from prometheus_msgs/BoundingBoxes.msg
+[ 26%] Generating Python from MSG prometheus_msgs/DetectionInfo
+[ 27%] Generating C++ code from prometheus_msgs/SwarmCommand.msg
+[ 27%] Generating C++ code from prometheus_msgs/FormationAssign.msg
+[ 28%] Generating Python from MSG prometheus_msgs/MultiDetectionInfo
+[ 28%] Generating C++ code from prometheus_msgs/OffsetPose.msg
+[ 28%] Generating Python from MSG prometheus_msgs/BoundingBox
+[ 28%] Generating C++ code from prometheus_msgs/GPSData.msg
+[ 29%] Generating C++ code from prometheus_msgs/LinktrackNode2.msg
+[ 29%] Generating Python from MSG prometheus_msgs/BoundingBoxes
+[ 29%] Generating C++ code from prometheus_msgs/LinktrackNodeframe2.msg
+[ 30%] Generating C++ code from prometheus_msgs/DetectionInfoSub.msg
+[ 30%] Generating Python from MSG prometheus_msgs/SwarmCommand
+[ 31%] Generating C++ code from prometheus_msgs/GimbalControl.msg
+[ 31%] Generating C++ code from prometheus_msgs/GimbalState.msg
+[ 31%] Generating Python from MSG prometheus_msgs/FormationAssign
+[ 31%] Generating C++ code from prometheus_msgs/MultiDetectionInfoSub.msg
+[ 32%] Generating Python from MSG prometheus_msgs/OffsetPose
+[ 32%] Generating C++ code from prometheus_msgs/VisionDiff.msg
+[ 33%] Generating C++ code from prometheus_msgs/WindowPosition.msg
+[ 33%] Generating Python from MSG prometheus_msgs/GPSData
+[ 34%] Generating C++ code from prometheus_msgs/Bspline.msg
+[ 34%] Generating Python from MSG prometheus_msgs/LinktrackNode2
+[ 34%] Generating C++ code from prometheus_msgs/MultiBsplines.msg
+[ 35%] Generating C++ code from prometheus_msgs/Control.msg
+[ 35%] Generating Python from MSG prometheus_msgs/LinktrackNodeframe2
+[ 35%] Generating C++ code from prometheus_msgs/BasicDataTypeAndValue.msg
+[ 36%] Generating Python from MSG prometheus_msgs/DetectionInfoSub
+[ 36%] Generating C++ code from prometheus_msgs/CustomDataSegment.msg
+[ 36%] Generating Python from MSG prometheus_msgs/GimbalControl
+[ 36%] Generating C++ code from prometheus_msgs/ParamSettings.msg
+[ 36%] Generating C++ code from prometheus_msgs/ROI.msg
+[ 37%] Generating Python from MSG prometheus_msgs/GimbalState
+[ 37%] Generating C++ code from prometheus_msgs/Target.msg
+[ 37%] Generating Python from MSG prometheus_msgs/MultiDetectionInfoSub
+[ 37%] Generating C++ code from prometheus_msgs/TargetsInFrame.msg
+[ 37%] Generating C++ code from prometheus_msgs/StartScript.msg
+[ 38%] Generating Python from MSG prometheus_msgs/VisionDiff
+[ 38%] Generating C++ code from prometheus_msgs/LivoxCustomMsg.msg
+[ 38%] Generating Python from MSG prometheus_msgs/WindowPosition
+[ 38%] Generating C++ code from prometheus_msgs/LivoxCustomPoint.msg
+[ 38%] Generating C++ code from prometheus_msgs/DepthCompressed.msg
+[ 39%] Generating Python from MSG prometheus_msgs/Bspline
+[ 39%] Generating C++ code from prometheus_msgs/CheckForObjectsAction.msg
+[ 39%] Generating Python from MSG prometheus_msgs/MultiBsplines
+[ 39%] Generating C++ code from prometheus_msgs/CheckForObjectsActionGoal.msg
+[ 40%] Generating C++ code from prometheus_msgs/CheckForObjectsActionResult.msg
+[ 41%] Generating Python from MSG prometheus_msgs/Control
+[ 41%] Generating C++ code from prometheus_msgs/CheckForObjectsActionFeedback.msg
+[ 41%] Generating C++ code from prometheus_msgs/CheckForObjectsGoal.msg
+[ 41%] Generating Python from MSG prometheus_msgs/BasicDataTypeAndValue
+[ 41%] Generating C++ code from prometheus_msgs/CheckForObjectsResult.msg
+[ 41%] Generating Python from MSG prometheus_msgs/CustomDataSegment
+[ 41%] Generating C++ code from prometheus_msgs/CheckForObjectsFeedback.msg
+[ 41%] Generating C++ code from prometheus_msgs/SwitchLocationSource.srv
+[ 41%] Generating Python from MSG prometheus_msgs/ParamSettings
+[ 41%] Generating C++ code from prometheus_msgs/GetLocationSource.srv
+[ 41%] Generating Python from MSG prometheus_msgs/ROI
+[ 41%] Generating C++ code from prometheus_msgs/GimbalFollowTrackResSevice.srv
+[ 41%] Generating Python from MSG prometheus_msgs/Target
+[ 41%] Built target prometheus_msgs_generate_messages_cpp
+[ 41%] Generating EusLisp code from prometheus_msgs/UAVState.msg
+[ 42%] Generating Python from MSG prometheus_msgs/TargetsInFrame
+[ 43%] Generating EusLisp code from prometheus_msgs/MultiUAVState.msg
+[ 44%] Generating Python from MSG prometheus_msgs/StartScript
+[ 45%] Generating EusLisp code from prometheus_msgs/UAVCommand.msg
+[ 45%] Generating EusLisp code from prometheus_msgs/UAVControlState.msg
+[ 46%] Generating Python from MSG prometheus_msgs/LivoxCustomMsg
+[ 46%] Generating EusLisp code from prometheus_msgs/UAVSetup.msg
+[ 46%] Generating EusLisp code from prometheus_msgs/TextInfo.msg
+[ 46%] Generating Python from MSG prometheus_msgs/LivoxCustomPoint
+[ 46%] Generating EusLisp code from prometheus_msgs/GlobalAruco.msg
+[ 46%] Generating EusLisp code from prometheus_msgs/UGVState.msg
+[ 46%] Generating Python from MSG prometheus_msgs/DepthCompressed
+[ 47%] Generating EusLisp code from prometheus_msgs/UGVCommand.msg
+[ 47%] Generating EusLisp code from prometheus_msgs/MultiUGVState.msg
+[ 47%] Generating Python from MSG prometheus_msgs/CheckForObjectsAction
+[ 48%] Generating EusLisp code from prometheus_msgs/PositionReference.msg
+[ 48%] Generating EusLisp code from prometheus_msgs/StationCommand.msg
+[ 48%] Generating Python from MSG prometheus_msgs/CheckForObjectsActionGoal
+[ 48%] Generating EusLisp code from prometheus_msgs/ArucoInfo.msg
+[ 50%] Generating EusLisp code from prometheus_msgs/MultiArucoInfo.msg
+[ 51%] Generating Python from MSG prometheus_msgs/CheckForObjectsActionResult
+[ 51%] Generating EusLisp code from prometheus_msgs/DetectionInfo.msg
+[ 51%] Generating EusLisp code from prometheus_msgs/MultiDetectionInfo.msg
+[ 51%] Generating Python from MSG prometheus_msgs/CheckForObjectsActionFeedback
+[ 52%] Generating EusLisp code from prometheus_msgs/BoundingBox.msg
+[ 52%] Generating EusLisp code from prometheus_msgs/BoundingBoxes.msg
+[ 52%] Generating Python from MSG prometheus_msgs/CheckForObjectsGoal
+[ 53%] Generating EusLisp code from prometheus_msgs/SwarmCommand.msg
+[ 53%] Generating Python from MSG prometheus_msgs/CheckForObjectsResult
+[ 53%] Generating EusLisp code from prometheus_msgs/FormationAssign.msg
+[ 53%] Generating EusLisp code from prometheus_msgs/OffsetPose.msg
+[ 53%] Generating Python from MSG prometheus_msgs/CheckForObjectsFeedback
+[ 54%] Generating EusLisp code from prometheus_msgs/GPSData.msg
+[ 55%] Generating EusLisp code from prometheus_msgs/LinktrackNode2.msg
+[ 55%] Generating Python code from SRV prometheus_msgs/SwitchLocationSource
+[ 55%] Generating EusLisp code from prometheus_msgs/LinktrackNodeframe2.msg
+[ 55%] Generating EusLisp code from prometheus_msgs/DetectionInfoSub.msg
+[ 55%] Generating Python code from SRV prometheus_msgs/GetLocationSource
+[ 55%] Generating EusLisp code from prometheus_msgs/GimbalControl.msg
+[ 55%] Generating EusLisp code from prometheus_msgs/GimbalState.msg
+[ 56%] Generating Python code from SRV prometheus_msgs/GimbalFollowTrackResSevice
+[ 56%] Generating EusLisp code from prometheus_msgs/MultiDetectionInfoSub.msg
+[ 56%] Generating EusLisp code from prometheus_msgs/VisionDiff.msg
+[ 56%] Generating Python msg __init__.py for prometheus_msgs
+[ 56%] Generating EusLisp code from prometheus_msgs/WindowPosition.msg
+[ 56%] Generating EusLisp code from prometheus_msgs/Bspline.msg
+[ 56%] Generating Python srv __init__.py for prometheus_msgs
+[ 56%] Generating EusLisp code from prometheus_msgs/MultiBsplines.msg
+[ 56%] Generating EusLisp code from prometheus_msgs/Control.msg
+[ 56%] Built target prometheus_msgs_generate_messages_py
+[ 57%] Generating Lisp code from prometheus_msgs/UAVState.msg
+[ 57%] Generating EusLisp code from prometheus_msgs/BasicDataTypeAndValue.msg
+[ 57%] Generating Lisp code from prometheus_msgs/MultiUAVState.msg
+[ 57%] Generating Lisp code from prometheus_msgs/UAVCommand.msg
+[ 57%] Generating EusLisp code from prometheus_msgs/CustomDataSegment.msg
+[ 57%] Generating Lisp code from prometheus_msgs/UAVControlState.msg
+[ 57%] Generating EusLisp code from prometheus_msgs/ParamSettings.msg
+[ 57%] Generating Lisp code from prometheus_msgs/UAVSetup.msg
+[ 58%] Generating Lisp code from prometheus_msgs/TextInfo.msg
+[ 58%] Generating EusLisp code from prometheus_msgs/ROI.msg
+[ 59%] Generating Lisp code from prometheus_msgs/GlobalAruco.msg
+[ 59%] Generating EusLisp code from prometheus_msgs/Target.msg
+[ 59%] Generating Lisp code from prometheus_msgs/UGVState.msg
+[ 59%] Generating Lisp code from prometheus_msgs/UGVCommand.msg
+[ 59%] Generating EusLisp code from prometheus_msgs/TargetsInFrame.msg
+[ 59%] Generating Lisp code from prometheus_msgs/MultiUGVState.msg
+[ 59%] Generating EusLisp code from prometheus_msgs/StartScript.msg
+[ 59%] Generating Lisp code from prometheus_msgs/PositionReference.msg
+[ 60%] Generating Lisp code from prometheus_msgs/StationCommand.msg
+[ 60%] Generating EusLisp code from prometheus_msgs/LivoxCustomMsg.msg
+[ 60%] Generating Lisp code from prometheus_msgs/ArucoInfo.msg
+[ 60%] Generating EusLisp code from prometheus_msgs/LivoxCustomPoint.msg
+[ 60%] Generating Lisp code from prometheus_msgs/MultiArucoInfo.msg
+[ 60%] Generating Lisp code from prometheus_msgs/DetectionInfo.msg
+[ 61%] Generating EusLisp code from prometheus_msgs/DepthCompressed.msg
+[ 61%] Generating Lisp code from prometheus_msgs/MultiDetectionInfo.msg
+[ 61%] Generating EusLisp code from prometheus_msgs/CheckForObjectsAction.msg
+[ 61%] Generating Lisp code from prometheus_msgs/BoundingBox.msg
+[ 61%] Generating Lisp code from prometheus_msgs/BoundingBoxes.msg
+[ 61%] Generating EusLisp code from prometheus_msgs/CheckForObjectsActionGoal.msg
+[ 61%] Generating Lisp code from prometheus_msgs/SwarmCommand.msg
+[ 61%] Generating EusLisp code from prometheus_msgs/CheckForObjectsActionResult.msg
+[ 62%] Generating Lisp code from prometheus_msgs/FormationAssign.msg
+[ 62%] Generating Lisp code from prometheus_msgs/OffsetPose.msg
+[ 63%] Generating EusLisp code from prometheus_msgs/CheckForObjectsActionFeedback.msg
+[ 63%] Generating Lisp code from prometheus_msgs/GPSData.msg
+[ 64%] Generating EusLisp code from prometheus_msgs/CheckForObjectsGoal.msg
+[ 64%] Generating Lisp code from prometheus_msgs/LinktrackNode2.msg
+[ 64%] Generating Lisp code from prometheus_msgs/LinktrackNodeframe2.msg
+[ 64%] Generating EusLisp code from prometheus_msgs/CheckForObjectsResult.msg
+[ 64%] Generating Lisp code from prometheus_msgs/DetectionInfoSub.msg
+[ 64%] Generating EusLisp code from prometheus_msgs/CheckForObjectsFeedback.msg
+[ 64%] Generating Lisp code from prometheus_msgs/GimbalControl.msg
+[ 64%] Generating EusLisp code from prometheus_msgs/SwitchLocationSource.srv
+[ 64%] Generating Lisp code from prometheus_msgs/GimbalState.msg
+[ 65%] Generating Lisp code from prometheus_msgs/MultiDetectionInfoSub.msg
+[ 66%] Generating EusLisp code from prometheus_msgs/GetLocationSource.srv
+[ 66%] Generating Lisp code from prometheus_msgs/VisionDiff.msg
+[ 66%] Generating EusLisp code from prometheus_msgs/GimbalFollowTrackResSevice.srv
+[ 67%] Generating Lisp code from prometheus_msgs/WindowPosition.msg
+[ 67%] Generating Lisp code from prometheus_msgs/Bspline.msg
+[ 67%] Generating EusLisp manifest code for prometheus_msgs
+[ 67%] Generating Lisp code from prometheus_msgs/MultiBsplines.msg
+[ 67%] Generating Lisp code from prometheus_msgs/Control.msg
+[ 68%] Generating Lisp code from prometheus_msgs/BasicDataTypeAndValue.msg
+[ 69%] Generating Lisp code from prometheus_msgs/CustomDataSegment.msg
+[ 70%] Generating Lisp code from prometheus_msgs/ParamSettings.msg
+[ 70%] Built target prometheus_msgs_generate_messages_eus
+[ 70%] Generating Lisp code from prometheus_msgs/ROI.msg
+[ 71%] Generating Javascript code from prometheus_msgs/UAVState.msg
+[ 71%] Generating Lisp code from prometheus_msgs/Target.msg
+[ 71%] Generating Javascript code from prometheus_msgs/MultiUAVState.msg
+[ 71%] Generating Lisp code from prometheus_msgs/TargetsInFrame.msg
+[ 71%] Generating Javascript code from prometheus_msgs/UAVCommand.msg
+[ 71%] Generating Javascript code from prometheus_msgs/UAVControlState.msg
+[ 71%] Generating Lisp code from prometheus_msgs/StartScript.msg
+[ 71%] Generating Javascript code from prometheus_msgs/UAVSetup.msg
+[ 71%] Generating Lisp code from prometheus_msgs/LivoxCustomMsg.msg
+[ 72%] Generating Javascript code from prometheus_msgs/TextInfo.msg
+[ 73%] Generating Lisp code from prometheus_msgs/LivoxCustomPoint.msg
+[ 74%] Generating Javascript code from prometheus_msgs/GlobalAruco.msg
+[ 74%] Generating Lisp code from prometheus_msgs/DepthCompressed.msg
+[ 74%] Generating Javascript code from prometheus_msgs/UGVState.msg
+[ 75%] Generating Lisp code from prometheus_msgs/CheckForObjectsAction.msg
+[ 75%] Generating Lisp code from prometheus_msgs/CheckForObjectsActionGoal.msg
+[ 75%] Generating Javascript code from prometheus_msgs/UGVCommand.msg
+[ 75%] Generating Lisp code from prometheus_msgs/CheckForObjectsActionResult.msg
+[ 75%] Generating Javascript code from prometheus_msgs/MultiUGVState.msg
+[ 75%] Generating Lisp code from prometheus_msgs/CheckForObjectsActionFeedback.msg
+[ 75%] Generating Javascript code from prometheus_msgs/PositionReference.msg
+[ 75%] Generating Lisp code from prometheus_msgs/CheckForObjectsGoal.msg
+[ 76%] Generating Javascript code from prometheus_msgs/StationCommand.msg
+[ 76%] Generating Lisp code from prometheus_msgs/CheckForObjectsResult.msg
+[ 77%] Generating Javascript code from prometheus_msgs/ArucoInfo.msg
+[ 78%] Generating Lisp code from prometheus_msgs/CheckForObjectsFeedback.msg
+[ 78%] Generating Javascript code from prometheus_msgs/MultiArucoInfo.msg
+[ 78%] Generating Lisp code from prometheus_msgs/SwitchLocationSource.srv
+[ 78%] Generating Javascript code from prometheus_msgs/DetectionInfo.msg
+[ 78%] Generating Lisp code from prometheus_msgs/GetLocationSource.srv
+[ 78%] Generating Javascript code from prometheus_msgs/MultiDetectionInfo.msg
+[ 78%] Generating Lisp code from prometheus_msgs/GimbalFollowTrackResSevice.srv
+[ 78%] Generating Javascript code from prometheus_msgs/BoundingBox.msg
+[ 78%] Built target prometheus_msgs_generate_messages_lisp
+[ 78%] Generating Python from MSG traj_utils/Bspline
+[ 78%] Generating Javascript code from prometheus_msgs/BoundingBoxes.msg
+[ 78%] Generating Javascript code from prometheus_msgs/SwarmCommand.msg
+[ 78%] Generating Python from MSG traj_utils/DataDisp
+[ 79%] Generating Javascript code from prometheus_msgs/FormationAssign.msg
+[ 79%] Generating Javascript code from prometheus_msgs/OffsetPose.msg
+[ 79%] Generating Python from MSG traj_utils/MultiBsplines
+[ 79%] Generating Javascript code from prometheus_msgs/GPSData.msg
+[ 79%] Generating Javascript code from prometheus_msgs/LinktrackNode2.msg
+[ 80%] Generating Python msg __init__.py for traj_utils
+[ 80%] Generating Javascript code from prometheus_msgs/LinktrackNodeframe2.msg
+[ 80%] Generating Javascript code from prometheus_msgs/DetectionInfoSub.msg
+[ 80%] Generating Javascript code from prometheus_msgs/GimbalControl.msg
+[ 80%] Built target traj_utils_generate_messages_py
+[ 81%] Generating C++ code from traj_utils/Bspline.msg
+[ 81%] Generating Javascript code from prometheus_msgs/GimbalState.msg
+[ 82%] Generating Javascript code from prometheus_msgs/MultiDetectionInfoSub.msg
+[ 82%] Generating C++ code from traj_utils/DataDisp.msg
+[ 82%] Generating Javascript code from prometheus_msgs/VisionDiff.msg
+[ 83%] Generating Javascript code from prometheus_msgs/WindowPosition.msg
+[ 83%] Generating C++ code from traj_utils/MultiBsplines.msg
+[ 84%] Generating Javascript code from prometheus_msgs/Bspline.msg
+[ 84%] Generating Javascript code from prometheus_msgs/MultiBsplines.msg
+[ 84%] Built target traj_utils_generate_messages_cpp
+[ 85%] Generating EusLisp code from traj_utils/Bspline.msg
+[ 86%] Generating Javascript code from prometheus_msgs/Control.msg
+[ 86%] Generating EusLisp code from traj_utils/DataDisp.msg
+[ 86%] Generating Javascript code from prometheus_msgs/BasicDataTypeAndValue.msg
+[ 86%] Generating Javascript code from prometheus_msgs/CustomDataSegment.msg
+[ 86%] Generating EusLisp code from traj_utils/MultiBsplines.msg
+[ 87%] Generating Javascript code from prometheus_msgs/ParamSettings.msg
+[ 87%] Generating EusLisp manifest code for traj_utils
+[ 87%] Generating Javascript code from prometheus_msgs/ROI.msg
+[ 87%] Generating Javascript code from prometheus_msgs/Target.msg
+[ 87%] Generating Javascript code from prometheus_msgs/TargetsInFrame.msg
+[ 87%] Generating Javascript code from prometheus_msgs/StartScript.msg
+[ 87%] Generating Javascript code from prometheus_msgs/LivoxCustomMsg.msg
+[ 87%] Built target traj_utils_generate_messages_eus
+[ 88%] Generating Javascript code from prometheus_msgs/LivoxCustomPoint.msg
+[ 88%] Generating Lisp code from traj_utils/Bspline.msg
+[ 88%] Generating Javascript code from prometheus_msgs/DepthCompressed.msg
+[ 89%] Generating Lisp code from traj_utils/DataDisp.msg
+[ 89%] Generating Javascript code from prometheus_msgs/CheckForObjectsAction.msg
+[ 89%] Generating Lisp code from traj_utils/MultiBsplines.msg
+[ 89%] Built target traj_utils_generate_messages_lisp
+[ 89%] Generating Javascript code from prometheus_msgs/CheckForObjectsActionGoal.msg
+[ 89%] Generating Javascript code from traj_utils/Bspline.msg
+[ 90%] Generating Javascript code from prometheus_msgs/CheckForObjectsActionResult.msg
+[ 90%] Generating Javascript code from traj_utils/DataDisp.msg
+[ 90%] Generating Javascript code from prometheus_msgs/CheckForObjectsActionFeedback.msg
+[ 91%] Generating Javascript code from traj_utils/MultiBsplines.msg
+[ 91%] Built target traj_utils_generate_messages_nodejs
+[ 91%] Generating Javascript code from prometheus_msgs/CheckForObjectsGoal.msg
+[ 91%] Built target quadrotor_msgs_generate_messages
+[ 91%] Built target traj_utils_generate_messages
+[ 91%] Generating Javascript code from prometheus_msgs/CheckForObjectsResult.msg
+[ 91%] Building CXX object wksim/Modules/ego_planner_swarm/traj_utils/CMakeFiles/traj_utils.dir/src/planning_visualization.cpp.o
+[ 91%] Generating Javascript code from prometheus_msgs/CheckForObjectsFeedback.msg
+[ 91%] Generating Javascript code from prometheus_msgs/SwitchLocationSource.srv
+[ 91%] Generating Javascript code from prometheus_msgs/GetLocationSource.srv
+[ 91%] Generating Javascript code from prometheus_msgs/GimbalFollowTrackResSevice.srv
+[ 91%] Built target prometheus_msgs_generate_messages_nodejs
+[ 91%] Building CXX object wksim/Modules/ego_planner_swarm/traj_utils/CMakeFiles/traj_utils.dir/src/polynomial_traj.cpp.o
+In file included from /usr/include/boost/smart_ptr/detail/sp_thread_sleep.hpp:22,
+                 from /usr/include/boost/smart_ptr/detail/yield_k.hpp:23,
+                 from /usr/include/boost/smart_ptr/detail/spinlock_gcc_atomic.hpp:14,
+                 from /usr/include/boost/smart_ptr/detail/spinlock.hpp:42,
+                 from /usr/include/boost/smart_ptr/detail/spinlock_pool.hpp:25,
+                 from /usr/include/boost/smart_ptr/shared_ptr.hpp:29,
+                 from /usr/include/boost/shared_ptr.hpp:17,
+                 from /opt/ros/noetic/include/ros/forwards.h:37,
+                 from /opt/ros/noetic/include/ros/common.h:37,
+                 from /opt/ros/noetic/include/ros/ros.h:43,
+                 from /root/wksim-ego-local-pGqjgO/src/wksim/Modules/ego_planner_swarm/traj_utils/include/traj_utils/planning_visualization.h:9,
+                 from /root/wksim-ego-local-pGqjgO/src/wksim/Modules/ego_planner_swarm/traj_utils/src/planning_visualization.cpp:1:
+/usr/include/boost/bind.hpp:36:1: note: ‘#pragma message: The practice of declaring the Bind placeholders (_1, _2, ...) in the global namespace is deprecated. Please use <boost/bind/bind.hpp> + using namespace boost::placeholders, or define BOOST_BIND_GLOBAL_PLACEHOLDERS to retain the current behavior.’
+   36 | BOOST_PRAGMA_MESSAGE(
+      | ^~~~~~~~~~~~~~~~~~~~
+/root/wksim-ego-local-pGqjgO/src/wksim/Modules/ego_planner_swarm/traj_utils/src/planning_visualization.cpp: In member function ‘void ego_planner::PlanningVisualization::displayMultiInitPathList(std::vector<std::vector<Eigen::Matrix<double, 3, 1> > >, double)’:
+/root/wksim-ego-local-pGqjgO/src/wksim/Modules/ego_planner_swarm/traj_utils/src/planning_visualization.cpp:186:23: warning: comparison of integer expressions of different signedness: ‘int’ and ‘std::vector<std::vector<Eigen::Matrix<double, 3, 1> > >::size_type’ {aka ‘long unsigned int’} [-Wsign-compare]
+  186 |     for ( int id=0; id<init_trajs.size(); id++ )
+      |                     ~~^~~~~~~~~~~~~~~~~~
+[ 91%] Built target prometheus_msgs_generate_messages
+[ 92%] Building CXX object wksim/Modules/ego_planner_swarm/plan_env/CMakeFiles/plan_env.dir/src/grid_map.cpp.o
+In file included from /usr/include/boost/smart_ptr/detail/sp_thread_sleep.hpp:22,
+                 from /usr/include/boost/smart_ptr/detail/yield_k.hpp:23,
+                 from /usr/include/boost/smart_ptr/detail/spinlock_gcc_atomic.hpp:14,
+                 from /usr/include/boost/smart_ptr/detail/spinlock.hpp:42,
+                 from /usr/include/boost/smart_ptr/detail/spinlock_pool.hpp:25,
+                 from /usr/include/boost/smart_ptr/shared_ptr.hpp:29,
+                 from /usr/include/boost/smart_ptr/shared_array.hpp:24,
+                 from /usr/include/boost/shared_array.hpp:17,
+                 from /opt/ros/noetic/include/ros/serialized_message.h:33,
+                 from /opt/ros/noetic/include/ros/serialization.h:36,
+                 from /opt/ros/noetic/include/sensor_msgs/Image.h:14,
+                 from /opt/ros/noetic/include/cv_bridge/cv_bridge.h:39,
+                 from /root/wksim-ego-local-pGqjgO/src/wksim/Modules/ego_planner_swarm/plan_env/include/plan_env/grid_map.h:6,
+                 from /root/wksim-ego-local-pGqjgO/src/wksim/Modules/ego_planner_swarm/plan_env/src/grid_map.cpp:9:
+/usr/include/boost/bind.hpp:36:1: note: ‘#pragma message: The practice of declaring the Bind placeholders (_1, _2, ...) in the global namespace is deprecated. Please use <boost/bind/bind.hpp> + using namespace boost::placeholders, or define BOOST_BIND_GLOBAL_PLACEHOLDERS to retain the current behavior.’
+   36 | BOOST_PRAGMA_MESSAGE(
+      | ^~~~~~~~~~~~~~~~~~~~
+[ 92%] Linking CXX shared library /root/wksim-ego-local-pGqjgO/devel/lib/libtraj_utils.so
+[ 92%] Built target traj_utils
+Consolidate compiler generated dependencies of target obj_generator
+[ 93%] Built target obj_generator
+Consolidate compiler generated dependencies of target laser_to_pointcloud
+[ 94%] Built target laser_to_pointcloud
+Consolidate compiler generated dependencies of target su17_depth_to_cloud
+[ 95%] Built target su17_depth_to_cloud
+[ 95%] Building CXX object wksim/Modules/ego_planner_swarm/plan_env/CMakeFiles/su17_rvl_encoder.dir/src/su17_rvl_encoder.cpp.o
+In file included from /usr/include/boost/smart_ptr/detail/sp_thread_sleep.hpp:22,
+                 from /usr/include/boost/smart_ptr/detail/yield_k.hpp:23,
+                 from /usr/include/boost/smart_ptr/detail/spinlock_gcc_atomic.hpp:14,
+                 from /usr/include/boost/smart_ptr/detail/spinlock.hpp:42,
+                 from /usr/include/boost/smart_ptr/detail/spinlock_pool.hpp:25,
+                 from /usr/include/boost/smart_ptr/shared_ptr.hpp:29,
+                 from /usr/include/boost/shared_ptr.hpp:17,
+                 from /opt/ros/noetic/include/ros/forwards.h:37,
+                 from /opt/ros/noetic/include/ros/common.h:37,
+                 from /opt/ros/noetic/include/ros/ros.h:43,
+                 from /root/wksim-ego-local-pGqjgO/src/wksim/Modules/ego_planner_swarm/plan_env/src/su17_rvl_encoder.cpp:1:
+/usr/include/boost/bind.hpp:36:1: note: ‘#pragma message: The practice of declaring the Bind placeholders (_1, _2, ...) in the global namespace is deprecated. Please use <boost/bind/bind.hpp> + using namespace boost::placeholders, or define BOOST_BIND_GLOBAL_PLACEHOLDERS to retain the current behavior.’
+   36 | BOOST_PRAGMA_MESSAGE(
+      | ^~~~~~~~~~~~~~~~~~~~
+In file included from /opt/ros/noetic/include/ros/ros.h:40,
+                 from /root/wksim-ego-local-pGqjgO/src/wksim/Modules/ego_planner_swarm/plan_env/src/su17_rvl_encoder.cpp:1:
+/root/wksim-ego-local-pGqjgO/src/wksim/Modules/ego_planner_swarm/plan_env/src/su17_rvl_encoder.cpp: In function ‘void depthCallback(const ImageConstPtr&)’:
+/root/wksim-ego-local-pGqjgO/src/wksim/Modules/ego_planner_swarm/plan_env/src/su17_rvl_encoder.cpp:60:19: warning: format ‘%zu’ expects argument of type ‘size_t’, but argument 8 has type ‘prometheus_msgs::DepthCompressed_<std::allocator<void> >::_height_type’ {aka ‘unsigned int’} [-Wformat=]
+   60 |         ROS_DEBUG("Encoded %zux%zu -> %zu bytes",
+      |                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   61 |                  compressed_msg.height, compressed_msg.width, compressed_data.size());
+      |                  ~~~~~~~~~~~~~~~~~~~~~
+      |                                 |
+      |                                 prometheus_msgs::DepthCompressed_<std::allocator<void> >::_height_type {aka unsigned int}
+/root/wksim-ego-local-pGqjgO/src/wksim/Modules/ego_planner_swarm/plan_env/src/su17_rvl_encoder.cpp:60:30: note: format string is defined here
+   60 |         ROS_DEBUG("Encoded %zux%zu -> %zu bytes",
+      |                            ~~^
+      |                              |
+      |                              long unsigned int
+      |                            %u
+In file included from /opt/ros/noetic/include/ros/ros.h:40,
+                 from /root/wksim-ego-local-pGqjgO/src/wksim/Modules/ego_planner_swarm/plan_env/src/su17_rvl_encoder.cpp:1:
+/root/wksim-ego-local-pGqjgO/src/wksim/Modules/ego_planner_swarm/plan_env/src/su17_rvl_encoder.cpp:60:19: warning: format ‘%zu’ expects argument of type ‘size_t’, but argument 9 has type ‘prometheus_msgs::DepthCompressed_<std::allocator<void> >::_width_type’ {aka ‘unsigned int’} [-Wformat=]
+   60 |         ROS_DEBUG("Encoded %zux%zu -> %zu bytes",
+      |                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   61 |                  compressed_msg.height, compressed_msg.width, compressed_data.size());
+      |                                         ~~~~~~~~~~~~~~~~~~~~
+      |                                                        |
+      |                                                        prometheus_msgs::DepthCompressed_<std::allocator<void> >::_width_type {aka unsigned int}
+/root/wksim-ego-local-pGqjgO/src/wksim/Modules/ego_planner_swarm/plan_env/src/su17_rvl_encoder.cpp:60:34: note: format string is defined here
+   60 |         ROS_DEBUG("Encoded %zux%zu -> %zu bytes",
+      |                                ~~^
+      |                                  |
+      |                                  long unsigned int
+      |                                %u
+[ 96%] Linking CXX executable /root/wksim-ego-local-pGqjgO/devel/lib/plan_env/su17_rvl_encoder
+[ 96%] Built target su17_rvl_encoder
+[ 96%] Building CXX object wksim/Modules/ego_planner_swarm/plan_env/CMakeFiles/su17_rvl_decoder.dir/src/su17_rvl_decoder.cpp.o
+In file included from /usr/include/boost/smart_ptr/detail/sp_thread_sleep.hpp:22,
+                 from /usr/include/boost/smart_ptr/detail/yield_k.hpp:23,
+                 from /usr/include/boost/smart_ptr/detail/spinlock_gcc_atomic.hpp:14,
+                 from /usr/include/boost/smart_ptr/detail/spinlock.hpp:42,
+                 from /usr/include/boost/smart_ptr/detail/spinlock_pool.hpp:25,
+                 from /usr/include/boost/smart_ptr/shared_ptr.hpp:29,
+                 from /usr/include/boost/shared_ptr.hpp:17,
+                 from /opt/ros/noetic/include/ros/forwards.h:37,
+                 from /opt/ros/noetic/include/ros/common.h:37,
+                 from /opt/ros/noetic/include/ros/ros.h:43,
+                 from /root/wksim-ego-local-pGqjgO/src/wksim/Modules/ego_planner_swarm/plan_env/src/su17_rvl_decoder.cpp:1:
+/usr/include/boost/bind.hpp:36:1: note: ‘#pragma message: The practice of declaring the Bind placeholders (_1, _2, ...) in the global namespace is deprecated. Please use <boost/bind/bind.hpp> + using namespace boost::placeholders, or define BOOST_BIND_GLOBAL_PLACEHOLDERS to retain the current behavior.’
+   36 | BOOST_PRAGMA_MESSAGE(
+      | ^~~~~~~~~~~~~~~~~~~~
+[ 96%] Building CXX object wksim/Modules/ego_planner_swarm/plan_env/CMakeFiles/plan_env.dir/src/raycast.cpp.o
+[ 96%] Linking CXX executable /root/wksim-ego-local-pGqjgO/devel/lib/plan_env/su17_rvl_decoder
+[ 96%] Built target su17_rvl_decoder
+[ 96%] Building CXX object wksim/Modules/ego_planner_swarm/plan_env/CMakeFiles/plan_env.dir/src/obj_predictor.cpp.o
+In file included from /usr/include/boost/smart_ptr/detail/sp_thread_sleep.hpp:22,
+                 from /usr/include/boost/smart_ptr/detail/yield_k.hpp:23,
+                 from /usr/include/boost/smart_ptr/detail/spinlock_gcc_atomic.hpp:14,
+                 from /usr/include/boost/smart_ptr/detail/spinlock.hpp:42,
+                 from /usr/include/boost/smart_ptr/detail/spinlock_pool.hpp:25,
+                 from /usr/include/boost/smart_ptr/shared_ptr.hpp:29,
+                 from /usr/include/boost/smart_ptr/shared_array.hpp:24,
+                 from /usr/include/boost/shared_array.hpp:17,
+                 from /opt/ros/noetic/include/ros/serialized_message.h:33,
+                 from /opt/ros/noetic/include/ros/serialization.h:36,
+                 from /opt/ros/noetic/include/geometry_msgs/PoseStamped.h:14,
+                 from /root/wksim-ego-local-pGqjgO/src/wksim/Modules/ego_planner_swarm/plan_env/include/plan_env/obj_predictor.h:31,
+                 from /root/wksim-ego-local-pGqjgO/src/wksim/Modules/ego_planner_swarm/plan_env/src/obj_predictor.cpp:26:
+/usr/include/boost/bind.hpp:36:1: note: ‘#pragma message: The practice of declaring the Bind placeholders (_1, _2, ...) in the global namespace is deprecated. Please use <boost/bind/bind.hpp> + using namespace boost::placeholders, or define BOOST_BIND_GLOBAL_PLACEHOLDERS to retain the current behavior.’
+   36 | BOOST_PRAGMA_MESSAGE(
+      | ^~~~~~~~~~~~~~~~~~~~
+/root/wksim-ego-local-pGqjgO/src/wksim/Modules/ego_planner_swarm/plan_env/src/obj_predictor.cpp: In member function ‘void fast_planner::ObjHistory::poseCallback(const PoseStampedConstPtr&)’:
+/root/wksim-ego-local-pGqjgO/src/wksim/Modules/ego_planner_swarm/plan_env/src/obj_predictor.cpp:56:23: warning: comparison of integer expressions of different signedness: ‘std::__cxx11::list<Eigen::Matrix<double, 4, 1> >::size_type’ {aka ‘long unsigned int’} and ‘int’ [-Wsign-compare]
+   56 |   if (history_.size() > queue_size_) history_.pop_front();
+      |       ~~~~~~~~~~~~~~~~^~~~~~~~~~~~~
+[ 96%] Linking CXX shared library /root/wksim-ego-local-pGqjgO/devel/lib/libplan_env.so
+[ 96%] Built target plan_env
+[ 96%] Building CXX object wksim/Modules/ego_planner_swarm/path_searching/CMakeFiles/path_searching.dir/src/dyn_a_star.cpp.o
+In file included from /usr/include/boost/smart_ptr/detail/sp_thread_sleep.hpp:22,
+                 from /usr/include/boost/smart_ptr/detail/yield_k.hpp:23,
+                 from /usr/include/boost/smart_ptr/detail/spinlock_gcc_atomic.hpp:14,
+                 from /usr/include/boost/smart_ptr/detail/spinlock.hpp:42,
+                 from /usr/include/boost/smart_ptr/detail/spinlock_pool.hpp:25,
+                 from /usr/include/boost/smart_ptr/shared_ptr.hpp:29,
+                 from /usr/include/boost/shared_ptr.hpp:17,
+                 from /opt/ros/noetic/include/ros/forwards.h:37,
+                 from /opt/ros/noetic/include/ros/common.h:37,
+                 from /opt/ros/noetic/include/ros/ros.h:43,
+                 from /root/wksim-ego-local-pGqjgO/src/wksim/Modules/ego_planner_swarm/path_searching/include/path_searching/dyn_a_star.h:5,
+                 from /root/wksim-ego-local-pGqjgO/src/wksim/Modules/ego_planner_swarm/path_searching/src/dyn_a_star.cpp:1:
+/usr/include/boost/bind.hpp:36:1: note: ‘#pragma message: The practice of declaring the Bind placeholders (_1, _2, ...) in the global namespace is deprecated. Please use <boost/bind/bind.hpp> + using namespace boost::placeholders, or define BOOST_BIND_GLOBAL_PLACEHOLDERS to retain the current behavior.’
+   36 | BOOST_PRAGMA_MESSAGE(
+      | ^~~~~~~~~~~~~~~~~~~~
+[ 96%] Linking CXX shared library /root/wksim-ego-local-pGqjgO/devel/lib/libpath_searching.so
+[ 96%] Built target path_searching
+[ 96%] Building CXX object wksim/Modules/ego_planner_swarm/bspline_opt/CMakeFiles/bspline_opt.dir/src/bspline_optimizer.cpp.o
+[ 96%] Building CXX object wksim/Modules/ego_planner_swarm/bspline_opt/CMakeFiles/bspline_opt.dir/src/uniform_bspline.cpp.o
+In file included from /usr/include/boost/smart_ptr/detail/sp_thread_sleep.hpp:22,
+                 from /usr/include/boost/smart_ptr/detail/yield_k.hpp:23,
+                 from /usr/include/boost/smart_ptr/detail/spinlock_gcc_atomic.hpp:14,
+                 from /usr/include/boost/smart_ptr/detail/spinlock.hpp:42,
+                 from /usr/include/boost/smart_ptr/detail/spinlock_pool.hpp:25,
+                 from /usr/include/boost/smart_ptr/shared_ptr.hpp:29,
+                 from /usr/include/boost/shared_ptr.hpp:17,
+                 from /opt/ros/noetic/include/ros/forwards.h:37,
+                 from /opt/ros/noetic/include/ros/common.h:37,
+                 from /opt/ros/noetic/include/ros/ros.h:43,
+                 from /root/wksim-ego-local-pGqjgO/src/wksim/Modules/ego_planner_swarm/bspline_opt/src/uniform_bspline.cpp:2:
+/usr/include/boost/bind.hpp:36:1: note: ‘#pragma message: The practice of declaring the Bind placeholders (_1, _2, ...) in the global namespace is deprecated. Please use <boost/bind/bind.hpp> + using namespace boost::placeholders, or define BOOST_BIND_GLOBAL_PLACEHOLDERS to retain the current behavior.’
+   36 | BOOST_PRAGMA_MESSAGE(
+      | ^~~~~~~~~~~~~~~~~~~~
+In file included from /usr/include/boost/smart_ptr/detail/sp_thread_sleep.hpp:22,
+                 from /usr/include/boost/smart_ptr/detail/yield_k.hpp:23,
+                 from /usr/include/boost/smart_ptr/detail/spinlock_gcc_atomic.hpp:14,
+                 from /usr/include/boost/smart_ptr/detail/spinlock.hpp:42,
+                 from /usr/include/boost/smart_ptr/detail/spinlock_pool.hpp:25,
+                 from /usr/include/boost/smart_ptr/shared_ptr.hpp:29,
+                 from /usr/include/boost/shared_ptr.hpp:17,
+                 from /opt/ros/noetic/include/ros/forwards.h:37,
+                 from /opt/ros/noetic/include/ros/common.h:37,
+                 from /opt/ros/noetic/include/ros/ros.h:43,
+                 from /root/wksim-ego-local-pGqjgO/src/wksim/Modules/ego_planner_swarm/path_searching/include/path_searching/dyn_a_star.h:5,
+                 from /root/wksim-ego-local-pGqjgO/src/wksim/Modules/ego_planner_swarm/bspline_opt/include/bspline_opt/bspline_optimizer.h:5,
+                 from /root/wksim-ego-local-pGqjgO/src/wksim/Modules/ego_planner_swarm/bspline_opt/src/bspline_optimizer.cpp:1:
+/usr/include/boost/bind.hpp:36:1: note: ‘#pragma message: The practice of declaring the Bind placeholders (_1, _2, ...) in the global namespace is deprecated. Please use <boost/bind/bind.hpp> + using namespace boost::placeholders, or define BOOST_BIND_GLOBAL_PLACEHOLDERS to retain the current behavior.’
+   36 | BOOST_PRAGMA_MESSAGE(
+      | ^~~~~~~~~~~~~~~~~~~~
+/root/wksim-ego-local-pGqjgO/src/wksim/Modules/ego_planner_swarm/bspline_opt/src/bspline_optimizer.cpp: In member function ‘bool ego_planner::BsplineOptimizer::rebound_optimize(double&)’:
+/root/wksim-ego-local-pGqjgO/src/wksim/Modules/ego_planner_swarm/bspline_opt/src/bspline_optimizer.cpp:1471:14: warning: unused variable ‘total_time_ms’ [-Wunused-variable]
+ 1471 |       double total_time_ms = (t2 - t0).toSec() * 1000;
+      |              ^~~~~~~~~~~~~
+[ 96%] Building CXX object wksim/Modules/ego_planner_swarm/bspline_opt/CMakeFiles/bspline_opt.dir/src/gradient_descent_optimizer.cpp.o
+[ 96%] Linking CXX shared library /root/wksim-ego-local-pGqjgO/devel/lib/libbspline_opt.so
+[ 96%] Built target bspline_opt
+[ 97%] Building CXX object wksim/Modules/ego_planner_swarm/plan_manage/CMakeFiles/ego_planner_node.dir/src/ego_planner_node.cpp.o
+[ 97%] Building CXX object wksim/Modules/ego_planner_swarm/plan_manage/CMakeFiles/traj_server.dir/src/traj_server.cpp.o
+In file included from /usr/include/boost/smart_ptr/detail/sp_thread_sleep.hpp:22,
+                 from /usr/include/boost/smart_ptr/detail/yield_k.hpp:23,
+                 from /usr/include/boost/smart_ptr/detail/spinlock_gcc_atomic.hpp:14,
+                 from /usr/include/boost/smart_ptr/detail/spinlock.hpp:42,
+                 from /usr/include/boost/smart_ptr/detail/spinlock_pool.hpp:25,
+                 from /usr/include/boost/smart_ptr/shared_ptr.hpp:29,
+                 from /usr/include/boost/smart_ptr/shared_array.hpp:24,
+                 from /usr/include/boost/shared_array.hpp:17,
+                 from /opt/ros/noetic/include/ros/serialized_message.h:33,
+                 from /opt/ros/noetic/include/ros/serialization.h:36,
+                 from /opt/ros/noetic/include/nav_msgs/Odometry.h:14,
+                 from /root/wksim-ego-local-pGqjgO/src/wksim/Modules/ego_planner_swarm/plan_manage/src/traj_server.cpp:2:
+/usr/include/boost/bind.hpp:36:1: note: ‘#pragma message: The practice of declaring the Bind placeholders (_1, _2, ...) in the global namespace is deprecated. Please use <boost/bind/bind.hpp> + using namespace boost::placeholders, or define BOOST_BIND_GLOBAL_PLACEHOLDERS to retain the current behavior.’
+   36 | BOOST_PRAGMA_MESSAGE(
+      | ^~~~~~~~~~~~~~~~~~~~
+In file included from /usr/include/boost/smart_ptr/detail/sp_thread_sleep.hpp:22,
+                 from /usr/include/boost/smart_ptr/detail/yield_k.hpp:23,
+                 from /usr/include/boost/smart_ptr/detail/spinlock_gcc_atomic.hpp:14,
+                 from /usr/include/boost/smart_ptr/detail/spinlock.hpp:42,
+                 from /usr/include/boost/smart_ptr/detail/spinlock_pool.hpp:25,
+                 from /usr/include/boost/smart_ptr/shared_ptr.hpp:29,
+                 from /usr/include/boost/shared_ptr.hpp:17,
+                 from /opt/ros/noetic/include/ros/forwards.h:37,
+                 from /opt/ros/noetic/include/ros/common.h:37,
+                 from /opt/ros/noetic/include/ros/ros.h:43,
+                 from /root/wksim-ego-local-pGqjgO/src/wksim/Modules/ego_planner_swarm/plan_manage/src/ego_planner_node.cpp:1:
+/usr/include/boost/bind.hpp:36:1: note: ‘#pragma message: The practice of declaring the Bind placeholders (_1, _2, ...) in the global namespace is deprecated. Please use <boost/bind/bind.hpp> + using namespace boost::placeholders, or define BOOST_BIND_GLOBAL_PLACEHOLDERS to retain the current behavior.’
+   36 | BOOST_PRAGMA_MESSAGE(
+      | ^~~~~~~~~~~~~~~~~~~~
+[ 97%] Linking CXX executable /root/wksim-ego-local-pGqjgO/devel/lib/ego_planner/traj_server
+[ 97%] Built target traj_server
+[ 97%] Building CXX object wksim/Modules/ego_planner_swarm/plan_manage/CMakeFiles/traj_server_for_prometheus.dir/src_for_prometheus/traj_server_for_prometheus.cpp.o
+In file included from /usr/include/boost/smart_ptr/detail/sp_thread_sleep.hpp:22,
+                 from /usr/include/boost/smart_ptr/detail/yield_k.hpp:23,
+                 from /usr/include/boost/smart_ptr/detail/spinlock_gcc_atomic.hpp:14,
+                 from /usr/include/boost/smart_ptr/detail/spinlock.hpp:42,
+                 from /usr/include/boost/smart_ptr/detail/spinlock_pool.hpp:25,
+                 from /usr/include/boost/smart_ptr/shared_ptr.hpp:29,
+                 from /usr/include/boost/shared_ptr.hpp:17,
+                 from /opt/ros/noetic/include/ros/forwards.h:37,
+                 from /opt/ros/noetic/include/ros/common.h:37,
+                 from /opt/ros/noetic/include/ros/ros.h:43,
+                 from /root/wksim-ego-local-pGqjgO/src/wksim/Modules/ego_planner_swarm/plan_manage/src_for_prometheus/traj_server_for_prometheus.cpp:1:
+/usr/include/boost/bind.hpp:36:1: note: ‘#pragma message: The practice of declaring the Bind placeholders (_1, _2, ...) in the global namespace is deprecated. Please use <boost/bind/bind.hpp> + using namespace boost::placeholders, or define BOOST_BIND_GLOBAL_PLACEHOLDERS to retain the current behavior.’
+   36 | BOOST_PRAGMA_MESSAGE(
+      | ^~~~~~~~~~~~~~~~~~~~
+[ 97%] Building CXX object wksim/Modules/ego_planner_swarm/plan_manage/CMakeFiles/ego_planner_node.dir/src/ego_replan_fsm.cpp.o
+[ 98%] Linking CXX executable /root/wksim-ego-local-pGqjgO/devel/lib/ego_planner/traj_server_for_prometheus
+[ 98%] Built target traj_server_for_prometheus
+[ 98%] Building CXX object wksim/Modules/ego_planner_swarm/plan_manage/CMakeFiles/pub_goal.dir/src_for_prometheus/pub_goal.cpp.o
+In file included from /usr/include/boost/smart_ptr/detail/sp_thread_sleep.hpp:22,
+                 from /usr/include/boost/smart_ptr/detail/yield_k.hpp:23,
+                 from /usr/include/boost/smart_ptr/detail/spinlock_gcc_atomic.hpp:14,
+                 from /usr/include/boost/smart_ptr/detail/spinlock.hpp:42,
+                 from /usr/include/boost/smart_ptr/detail/spinlock_pool.hpp:25,
+                 from /usr/include/boost/smart_ptr/shared_ptr.hpp:29,
+                 from /usr/include/boost/smart_ptr/shared_array.hpp:24,
+                 from /usr/include/boost/shared_array.hpp:17,
+                 from /opt/ros/noetic/include/ros/serialized_message.h:33,
+                 from /opt/ros/noetic/include/ros/serialization.h:36,
+                 from /opt/ros/noetic/include/nav_msgs/Path.h:14,
+                 from /root/wksim-ego-local-pGqjgO/src/wksim/Modules/ego_planner_swarm/plan_manage/include/plan_manage/ego_replan_fsm.h:7,
+                 from /root/wksim-ego-local-pGqjgO/src/wksim/Modules/ego_planner_swarm/plan_manage/src/ego_replan_fsm.cpp:2:
+/usr/include/boost/bind.hpp:36:1: note: ‘#pragma message: The practice of declaring the Bind placeholders (_1, _2, ...) in the global namespace is deprecated. Please use <boost/bind/bind.hpp> + using namespace boost::placeholders, or define BOOST_BIND_GLOBAL_PLACEHOLDERS to retain the current behavior.’
+   36 | BOOST_PRAGMA_MESSAGE(
+      | ^~~~~~~~~~~~~~~~~~~~
+In file included from /usr/include/boost/smart_ptr/detail/sp_thread_sleep.hpp:22,
+                 from /usr/include/boost/smart_ptr/detail/yield_k.hpp:23,
+                 from /usr/include/boost/smart_ptr/detail/spinlock_gcc_atomic.hpp:14,
+                 from /usr/include/boost/smart_ptr/detail/spinlock.hpp:42,
+                 from /usr/include/boost/smart_ptr/detail/spinlock_pool.hpp:25,
+                 from /usr/include/boost/smart_ptr/shared_ptr.hpp:29,
+                 from /usr/include/boost/shared_ptr.hpp:17,
+                 from /opt/ros/noetic/include/ros/forwards.h:37,
+                 from /opt/ros/noetic/include/ros/common.h:37,
+                 from /opt/ros/noetic/include/ros/ros.h:43,
+                 from /root/wksim-ego-local-pGqjgO/src/wksim/Modules/ego_planner_swarm/plan_manage/src_for_prometheus/pub_goal.cpp:1:
+/usr/include/boost/bind.hpp:36:1: note: ‘#pragma message: The practice of declaring the Bind placeholders (_1, _2, ...) in the global namespace is deprecated. Please use <boost/bind/bind.hpp> + using namespace boost::placeholders, or define BOOST_BIND_GLOBAL_PLACEHOLDERS to retain the current behavior.’
+   36 | BOOST_PRAGMA_MESSAGE(
+      | ^~~~~~~~~~~~~~~~~~~~
+[100%] Linking CXX executable /root/wksim-ego-local-pGqjgO/devel/lib/ego_planner/pub_goal
+[100%] Built target pub_goal
+[100%] Building CXX object wksim/Modules/ego_planner_swarm/plan_manage/CMakeFiles/pub_preset_goal.dir/src_for_prometheus/pub_preset_goal.cpp.o
+In file included from /usr/include/boost/smart_ptr/detail/sp_thread_sleep.hpp:22,
+                 from /usr/include/boost/smart_ptr/detail/yield_k.hpp:23,
+                 from /usr/include/boost/smart_ptr/detail/spinlock_gcc_atomic.hpp:14,
+                 from /usr/include/boost/smart_ptr/detail/spinlock.hpp:42,
+                 from /usr/include/boost/smart_ptr/detail/spinlock_pool.hpp:25,
+                 from /usr/include/boost/smart_ptr/shared_ptr.hpp:29,
+                 from /usr/include/boost/shared_ptr.hpp:17,
+                 from /opt/ros/noetic/include/ros/forwards.h:37,
+                 from /opt/ros/noetic/include/ros/common.h:37,
+                 from /opt/ros/noetic/include/ros/ros.h:43,
+                 from /root/wksim-ego-local-pGqjgO/src/wksim/Modules/ego_planner_swarm/plan_manage/src_for_prometheus/pub_preset_goal.cpp:1:
+/usr/include/boost/bind.hpp:36:1: note: ‘#pragma message: The practice of declaring the Bind placeholders (_1, _2, ...) in the global namespace is deprecated. Please use <boost/bind/bind.hpp> + using namespace boost::placeholders, or define BOOST_BIND_GLOBAL_PLACEHOLDERS to retain the current behavior.’
+   36 | BOOST_PRAGMA_MESSAGE(
+      | ^~~~~~~~~~~~~~~~~~~~
+/root/wksim-ego-local-pGqjgO/src/wksim/Modules/ego_planner_swarm/plan_manage/src/ego_replan_fsm.cpp: In member function ‘void ego_planner::EGOReplanFSM::enu_yaw_pub(float, Eigen::Vector3d)’:
+/root/wksim-ego-local-pGqjgO/src/wksim/Modules/ego_planner_swarm/plan_manage/src/ego_replan_fsm.cpp:279:37: warning: narrowing conversion of ‘((Eigen::DenseCoeffsBase<Eigen::Matrix<double, 3, 1>, 1>*)(& init_pt))->Eigen::DenseCoeffsBase<Eigen::Matrix<double, 3, 1>, 1>::operator()(0)’ from ‘Eigen::DenseCoeffsBase<Eigen::Matrix<double, 3, 1>, 1>::Scalar’ {aka ‘double’} to ‘float’ [-Wnarrowing]
+  279 |     yaw_data.position_ref = {init_pt(0),init_pt(1),init_pt(2)};
+      |                              ~~~~~~~^~~
+/root/wksim-ego-local-pGqjgO/src/wksim/Modules/ego_planner_swarm/plan_manage/src/ego_replan_fsm.cpp:279:48: warning: narrowing conversion of ‘((Eigen::DenseCoeffsBase<Eigen::Matrix<double, 3, 1>, 1>*)(& init_pt))->Eigen::DenseCoeffsBase<Eigen::Matrix<double, 3, 1>, 1>::operator()(1)’ from ‘Eigen::DenseCoeffsBase<Eigen::Matrix<double, 3, 1>, 1>::Scalar’ {aka ‘double’} to ‘float’ [-Wnarrowing]
+  279 |     yaw_data.position_ref = {init_pt(0),init_pt(1),init_pt(2)};
+      |                                         ~~~~~~~^~~
+/root/wksim-ego-local-pGqjgO/src/wksim/Modules/ego_planner_swarm/plan_manage/src/ego_replan_fsm.cpp:279:59: warning: narrowing conversion of ‘((Eigen::DenseCoeffsBase<Eigen::Matrix<double, 3, 1>, 1>*)(& init_pt))->Eigen::DenseCoeffsBase<Eigen::Matrix<double, 3, 1>, 1>::operator()(2)’ from ‘Eigen::DenseCoeffsBase<Eigen::Matrix<double, 3, 1>, 1>::Scalar’ {aka ‘double’} to ‘float’ [-Wnarrowing]
+  279 |     yaw_data.position_ref = {init_pt(0),init_pt(1),init_pt(2)};
+      |                                                    ~~~~~~~^~~
+/root/wksim-ego-local-pGqjgO/src/wksim/Modules/ego_planner_swarm/plan_manage/src/ego_replan_fsm.cpp: In member function ‘void ego_planner::EGOReplanFSM::changeFSMExecState(ego_planner::EGOReplanFSM::FSM_EXEC_STATE, std::string)’:
+/root/wksim-ego-local-pGqjgO/src/wksim/Modules/ego_planner_swarm/plan_manage/src/ego_replan_fsm.cpp:619:9: warning: unused variable ‘pre_s’ [-Wunused-variable]
+  619 |     int pre_s = int(exec_state_);
+      |         ^~~~~
+/root/wksim-ego-local-pGqjgO/src/wksim/Modules/ego_planner_swarm/plan_manage/src/ego_replan_fsm.cpp: In member function ‘bool ego_planner::EGOReplanFSM::callReboundReplan(bool, bool)’:
+/root/wksim-ego-local-pGqjgO/src/wksim/Modules/ego_planner_swarm/plan_manage/src/ego_replan_fsm.cpp:1030:14: warning: variable ‘stop_flag’ set but not used [-Wunused-but-set-variable]
+ 1030 |         bool stop_flag;
+      |              ^~~~~~~~~
+[100%] Linking CXX executable /root/wksim-ego-local-pGqjgO/devel/lib/ego_planner/pub_preset_goal
+[100%] Built target pub_preset_goal
+[100%] Building CXX object wksim/Modules/ego_planner_swarm/plan_manage/CMakeFiles/motion_goal_swarm.dir/src_for_prometheus/motion_goal_swarm.cpp.o
+In file included from /usr/include/boost/smart_ptr/detail/sp_thread_sleep.hpp:22,
+                 from /usr/include/boost/smart_ptr/detail/yield_k.hpp:23,
+                 from /usr/include/boost/smart_ptr/detail/spinlock_gcc_atomic.hpp:14,
+                 from /usr/include/boost/smart_ptr/detail/spinlock.hpp:42,
+                 from /usr/include/boost/smart_ptr/detail/spinlock_pool.hpp:25,
+                 from /usr/include/boost/smart_ptr/shared_ptr.hpp:29,
+                 from /usr/include/boost/shared_ptr.hpp:17,
+                 from /opt/ros/noetic/include/ros/forwards.h:37,
+                 from /opt/ros/noetic/include/ros/common.h:37,
+                 from /opt/ros/noetic/include/ros/ros.h:43,
+                 from /root/wksim-ego-local-pGqjgO/src/wksim/Modules/ego_planner_swarm/plan_manage/src_for_prometheus/motion_goal_swarm.cpp:1:
+/usr/include/boost/bind.hpp:36:1: note: ‘#pragma message: The practice of declaring the Bind placeholders (_1, _2, ...) in the global namespace is deprecated. Please use <boost/bind/bind.hpp> + using namespace boost::placeholders, or define BOOST_BIND_GLOBAL_PLACEHOLDERS to retain the current behavior.’
+   36 | BOOST_PRAGMA_MESSAGE(
+      | ^~~~~~~~~~~~~~~~~~~~
+/root/wksim-ego-local-pGqjgO/src/wksim/Modules/ego_planner_swarm/plan_manage/src_for_prometheus/motion_goal_swarm.cpp: In function ‘int main(int, char**)’:
+/root/wksim-ego-local-pGqjgO/src/wksim/Modules/ego_planner_swarm/plan_manage/src_for_prometheus/motion_goal_swarm.cpp:43:15: warning: variable ‘last_t’ set but not used [-Wunused-but-set-variable]
+   43 |     ros::Time last_t = ros::Time::now();
+      |               ^~~~~~
+[100%] Linking CXX executable /root/wksim-ego-local-pGqjgO/devel/lib/ego_planner/motion_goal_swarm
+[100%] Built target motion_goal_swarm
+[100%] Building CXX object wksim/Modules/ego_planner_swarm/plan_manage/CMakeFiles/ego_planner_node.dir/src/planner_manager.cpp.o
+In file included from /usr/include/boost/smart_ptr/detail/sp_thread_sleep.hpp:22,
+                 from /usr/include/boost/smart_ptr/detail/yield_k.hpp:23,
+                 from /usr/include/boost/smart_ptr/detail/spinlock_gcc_atomic.hpp:14,
+                 from /usr/include/boost/smart_ptr/detail/spinlock.hpp:42,
+                 from /usr/include/boost/smart_ptr/detail/spinlock_pool.hpp:25,
+                 from /usr/include/boost/smart_ptr/shared_ptr.hpp:29,
+                 from /usr/include/boost/shared_ptr.hpp:17,
+                 from /opt/ros/noetic/include/ros/forwards.h:37,
+                 from /opt/ros/noetic/include/ros/common.h:37,
+                 from /opt/ros/noetic/include/ros/ros.h:43,
+                 from /root/wksim-ego-local-pGqjgO/src/wksim/Modules/ego_planner_swarm/path_searching/include/path_searching/dyn_a_star.h:5,
+                 from /root/wksim-ego-local-pGqjgO/src/wksim/Modules/ego_planner_swarm/bspline_opt/include/bspline_opt/bspline_optimizer.h:5,
+                 from /root/wksim-ego-local-pGqjgO/src/wksim/Modules/ego_planner_swarm/plan_manage/include/plan_manage/planner_manager.h:6,
+                 from /root/wksim-ego-local-pGqjgO/src/wksim/Modules/ego_planner_swarm/plan_manage/src/planner_manager.cpp:2:
+/usr/include/boost/bind.hpp:36:1: note: ‘#pragma message: The practice of declaring the Bind placeholders (_1, _2, ...) in the global namespace is deprecated. Please use <boost/bind/bind.hpp> + using namespace boost::placeholders, or define BOOST_BIND_GLOBAL_PLACEHOLDERS to retain the current behavior.’
+   36 | BOOST_PRAGMA_MESSAGE(
+      | ^~~~~~~~~~~~~~~~~~~~
+[100%] Linking CXX executable /root/wksim-ego-local-pGqjgO/devel/lib/ego_planner/ego_planner_node
+[100%] Built target ego_planner_node
+Base path: /root/wksim-ego-local-pGqjgO
+Source space: /root/wksim-ego-local-pGqjgO/src
+Build space: /root/wksim-ego-local-pGqjgO/build
+Devel space: /root/wksim-ego-local-pGqjgO/devel
+Install space: /root/wksim-ego-local-pGqjgO/install
+####
+#### Running command: "cmake /root/wksim-ego-local-pGqjgO/src -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=17 -DCMAKE_CXX_STANDARD_REQUIRED=ON -DCMAKE_CXX_EXTENSIONS=OFF -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCATKIN_DEVEL_PREFIX=/root/wksim-ego-local-pGqjgO/devel -DCMAKE_INSTALL_PREFIX=/root/wksim-ego-local-pGqjgO/install -G Unix Makefiles" in "/root/wksim-ego-local-pGqjgO/build"
+####
+####
+#### Running command: "make -j2" in "/root/wksim-ego-local-pGqjgO/build"
+####

@@ -70,6 +70,9 @@ struct MappingParameters {
   double resolution_;
   Triple<double> map_size_;
   Triple<int> map_voxel_num_;
+  Triple<double> map_origin_{};
+  double resolution_inv_ = 0.0;
+  double virtual_ceil_height_ = -1.0;
 };
 ''' + helpers + r'''
 struct Harness {
@@ -110,7 +113,20 @@ int main() {
       checkedInflationSteps(33, params) != -1) return 4;
   params.resolution_ = 0;
   if (checkedInflationSteps(1, params) != -1) return 5;
-  std::cout << "7 actual C++ guard cases passed\n";
+  MappingParameters ceiling{0.1, {{20,12,6}}, {{200,120,60}}, {{0,0,0}}, 10.0, 5.5};
+  int ceil_id = -1;
+  if (!checkedVirtualCeilingId(ceiling, ceil_id) || ceil_id != 54) return 6;
+  ceiling.virtual_ceil_height_ = -0.1;
+  if (checkedVirtualCeilingId(ceiling, ceil_id) || ceil_id != -1) return 7;
+  ceiling.virtual_ceil_height_ = -0.5;
+  if (!checkedVirtualCeilingId(ceiling, ceil_id) || ceil_id != -1) return 8;
+  ceiling.virtual_ceil_height_ = std::numeric_limits<double>::quiet_NaN();
+  if (checkedVirtualCeilingId(ceiling, ceil_id) || ceil_id != -1) return 9;
+  ceiling.virtual_ceil_height_ = std::numeric_limits<double>::infinity();
+  if (checkedVirtualCeilingId(ceiling, ceil_id) || ceil_id != -1) return 10;
+  ceiling.virtual_ceil_height_ = 1e300;
+  if (checkedVirtualCeilingId(ceiling, ceil_id) || ceil_id != -1) return 11;
+  std::cout << "actual C++ guard and ceiling cases passed\n";
 }
 '''
         with tempfile.TemporaryDirectory(prefix='wksim-grid-ubsan-') as temp:
@@ -127,7 +143,7 @@ int main() {
                                     text=True, timeout=10)
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
             self.assertEqual(result.stderr, '')
-            self.assertIn('7 actual C++ guard cases passed', result.stdout)
+            self.assertIn('actual C++ guard and ceiling cases passed', result.stdout)
 
     @unittest.skipUnless(sys.platform == 'linux' and shutil.which('g++'),
                          'requires Linux g++ with UBSan')
@@ -158,6 +174,9 @@ struct MappingParameters {
   double resolution_;
   Triple<double> map_size_;
   Triple<int> map_voxel_num_;
+  Triple<double> map_origin_{};
+  double resolution_inv_ = 0.0;
+  double virtual_ceil_height_ = -1.0;
 };
 template<typename T> struct Vec3 {
   T entries[3];
@@ -210,6 +229,13 @@ int main() {
   const int cap_side = 2 * cap + 1;
   if (cap_side * cap_side * cap_side != 274625) return 12;
   if (checkedInflationSteps(33, coarse) != -1) return 13;
+  MappingParameters ceiling{0.1, {{20,12,6}}, {{200,120,60}}, {{0,0,0}}, 10.0, 5.5};
+  int ceil_id = -1;
+  if (!checkedVirtualCeilingId(ceiling, ceil_id) || ceil_id != 54) return 14;
+  ceiling.virtual_ceil_height_ = -0.1;
+  if (checkedVirtualCeilingId(ceiling, ceil_id) || ceil_id != -1) return 15;
+  ceiling.virtual_ceil_height_ = std::numeric_limits<double>::quiet_NaN();
+  if (checkedVirtualCeilingId(ceiling, ceil_id) || ceil_id != -1) return 16;
   std::cout << "actual C++ inflation geometry/index cases passed\n";
 }
 '''
@@ -233,6 +259,28 @@ int main() {
 
 class GridMapInflationConsumerContractTests(unittest.TestCase):
     """Static contract for the unified three-axis inflation slice (no ROS)."""
+
+    def test_virtual_ceiling_consumers_use_checked_in_map_index(self):
+        source = SOURCE.read_text(encoding='utf-8')
+        self.assertNotIn(
+            'floor((mp_.virtual_ceil_height_ - mp_.map_origin_(2)) * mp_.resolution_inv_) - 1',
+            source)
+        self.assertIn('bool checkedVirtualCeilingId(const MappingParameters& params, int& ceil_id)',
+                      source)
+        for signature in (
+                'void GridMap::clearAndInflateLocalMap(',
+                'void GridMap::cloudCallback('):
+            body = function_span(source, signature)
+            self.assertIn('checkedVirtualCeilingId(mp_, ceil_id)', body)
+            self.assertIn('ceil_id >= 0 && ceil_id < mp_.map_voxel_num_(2)', body)
+        publish_body = function_span(source, 'void GridMap::publishMapInflate(')
+        self.assertIn('checkedVirtualCeilingId(mp_, ceil_id)', publish_body)
+        self.assertIn('has_valid_ceil && z == ceil_id', publish_body)
+        init_body = source.split('void GridMap::initMap(', 1)[1].split(
+            'void GridMap::gridparam_Callback', 1)[0]
+        self.assertLess(
+            init_body.index('!std::isfinite(mp_.ground_height_)'),
+            init_body.index('mp_.virtual_ceil_height_ - mp_.ground_height_'))
 
     def test_no_divergent_z_inflation_semantics_remain(self):
         source = SOURCE.read_text(encoding='utf-8')

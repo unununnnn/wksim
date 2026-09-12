@@ -1,9 +1,10 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.8)
 project(path_searching)
 
 set(CMAKE_BUILD_TYPE "Release")
-ADD_COMPILE_OPTIONS(-std=c++11 )
-ADD_COMPILE_OPTIONS(-std=c++14 )
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -Wall -g")
 
 find_package(Eigen3 REQUIRED)
@@ -40,3 +41,4 @@ add_library( path_searching
 target_link_libraries( path_searching
     ${catkin_LIBRARIES} 
     )  
+add_dependencies(path_searching ${catkin_EXPORTED_TARGETS})

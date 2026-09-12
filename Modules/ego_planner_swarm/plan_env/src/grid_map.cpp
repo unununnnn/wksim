@@ -13,6 +13,7 @@ namespace {
 const std::string kGridMapParamPrefix = "/uav1_ego_planner_node/grid_map/";
 // Keep 2 * inf_step + 1 <= 65, so the temporary inflation cube stays <= 65^3.
 constexpr int kGridMapMaxInflationSteps = 32;
+constexpr double kGridMapVirtualCeilingDisabled = -0.5;
 
 const std::unordered_set<std::string> kGridMapInitializationOnly = {
     "uav_id", "resolution", "map_size_x", "map_size_y", "map_size_z", "map_origin_x", "map_origin_y",
@@ -140,6 +141,40 @@ int checkedInflationSteps(double inflation_m, const MappingParameters& params) {
   return static_cast<int>(steps);
 }
 
+// Return a safe z index for the virtual ceiling.  The historical sentinel
+// (height <= -0.5) disables the ceiling and leaves ceil_id at -1.  Every
+// enabled value must produce an in-map index before the double-to-int cast;
+// callers can therefore write toAddress only after checking ceil_id >= 0.
+bool checkedVirtualCeilingId(const MappingParameters& params, int& ceil_id) {
+  ceil_id = -1;
+  const double height = params.virtual_ceil_height_;
+  if (!std::isfinite(height)) {
+    return false;
+  }
+  if (height <= kGridMapVirtualCeilingDisabled) {
+    return true;
+  }
+  if (!std::isfinite(params.map_origin_(2)) ||
+      !std::isfinite(params.resolution_inv_) || params.resolution_inv_ <= 0.0 ||
+      params.map_voxel_num_(2) <= 0) {
+    return false;
+  }
+
+  const double scaled = (height - params.map_origin_(2)) * params.resolution_inv_;
+  if (!std::isfinite(scaled)) {
+    return false;
+  }
+  const double candidate = std::floor(scaled) - 1.0;
+  if (!std::isfinite(candidate) || candidate < 0.0 ||
+      candidate >= static_cast<double>(params.map_voxel_num_(2)) ||
+      candidate > static_cast<double>(std::numeric_limits<int>::max())) {
+    return false;
+  }
+
+  ceil_id = static_cast<int>(candidate);
+  return true;
+}
+
 }  // namespace
 
 void GridMap::initMap(ros::NodeHandle &nh)
@@ -230,6 +265,10 @@ void GridMap::initMap(ros::NodeHandle &nh)
     ROS_ERROR_STREAM("GridMap init aborted: grid_map/skip_pixel must be a positive integer, got "
                      << mp_.skip_pixel_);
     throw std::invalid_argument("Invalid GridMap skip_pixel");
+  }
+  if (!std::isfinite(mp_.ground_height_) || !std::isfinite(mp_.virtual_ceil_height_)) {
+    ROS_ERROR_STREAM("GridMap init aborted: ground_height and virtual_ceil_height must be finite");
+    throw std::invalid_argument("Invalid GridMap height");
   }
 
   // 虚拟天花板高度要小于等于ground_height+z_size，否则重置该高度
@@ -935,6 +974,8 @@ void GridMap::clearAndInflateLocalMap()
   const int inf_step = checkedInflationSteps(mp_.obstacles_inflation_, mp_);
   if (inf_step < 0)
     return;
+  int ceil_id = -1;
+  const bool has_valid_ceil = checkedVirtualCeilingId(mp_, ceil_id);
   /*clear outside local*/
   const int vec_margin = 5;
   // Eigen::Vector3i min_vec_margin = min_vec - Eigen::Vector3i(vec_margin,
@@ -1054,8 +1095,7 @@ void GridMap::clearAndInflateLocalMap()
       }
 
   // add virtual ceiling to limit flight height
-  if (mp_.virtual_ceil_height_ > -0.5) {
-    int ceil_id = floor((mp_.virtual_ceil_height_ - mp_.map_origin_(2)) * mp_.resolution_inv_) - 1;
+  if (has_valid_ceil && ceil_id >= 0 && ceil_id < mp_.map_voxel_num_(2)) {
     for (int x = md_.local_bound_min_(0); x <= md_.local_bound_max_(0); ++x)
       for (int y = md_.local_bound_min_(1); y <= md_.local_bound_max_(1); ++y) {
         md_.occupancy_buffer_inflate_[toAddress(x, y, ceil_id)] = 1;
@@ -1216,6 +1256,8 @@ void GridMap::cloudCallback(const sensor_msgs::PointCloud2ConstPtr &img)
   const int inf_step = checkedInflationSteps(mp_.obstacles_inflation_, mp_);
   if (inf_step < 0)
     return;
+  int ceil_id = -1;
+  const bool has_valid_ceil = checkedVirtualCeilingId(mp_, ceil_id);
 
   // 重置膨胀地图，重置范围：无人机当前位置、local_update_range_
   // 含义：使用当前时刻的点云数据来更新无人机特定范围内的地图信息
@@ -1310,9 +1352,8 @@ void GridMap::cloudCallback(const sensor_msgs::PointCloud2ConstPtr &img)
   // 虚拟天花板，可以通过这个参数来限制无人机的飞行高度
   // 疑问：为啥天花板在地图上加了一层，地面却没有加这一层呢？
   // 并且，即使不加这一层，无人机规划也不会超过地图z轴边缘啊
-  if (mp_.virtual_ceil_height_ > -0.5) 
+  if (has_valid_ceil && ceil_id >= 0 && ceil_id < mp_.map_voxel_num_(2))
   {
-    int ceil_id = floor((mp_.virtual_ceil_height_ - mp_.map_origin_(2)) * mp_.resolution_inv_) - 1;
     for (int x = md_.local_bound_min_(0); x <= md_.local_bound_max_(0); ++x)
       for (int y = md_.local_bound_min_(1); y <= md_.local_bound_max_(1); ++y) {
         md_.occupancy_buffer_inflate_[toAddress(x, y, ceil_id)] = 1;
@@ -1422,8 +1463,10 @@ void GridMap::publishMapInflate(bool all_info)
   // 确保min_cut、max_cut在整体地图范围之内
   boundIndex(min_cut);
   boundIndex(max_cut);
-  // 计算天花板索引
-  int ceil_id = floor((mp_.virtual_ceil_height_ - mp_.map_origin_(2)) * mp_.resolution_inv_) - 1;
+  // Compute the ceiling index only after validating finite arithmetic and the
+  // double-to-int range.  Invalid or disabled ceilings simply add no voxel.
+  int ceil_id = -1;
+  const bool has_valid_ceil = checkedVirtualCeilingId(mp_, ceil_id);
   // 遍历，将符合条件的点放入cloud中，并最后发布
   for (int x = min_cut(0); x <= max_cut(0); ++x)
     for (int y = min_cut(1); y <= max_cut(1); ++y)
@@ -1432,7 +1475,7 @@ void GridMap::publishMapInflate(bool all_info)
         if (md_.occupancy_buffer_inflate_[toAddress(x, y, z)] == 0)
           continue;
         // 忽略虚拟天花板的体素
-        if (z == ceil_id)
+        if (has_valid_ceil && z == ceil_id)
           continue;
         Eigen::Vector3d pos;
         indexToPos(Eigen::Vector3i(x, y, z), pos);

@@ -341,7 +341,7 @@ class PlannerLaunchContractTests(unittest.TestCase):
         self.assertIn("静态修复已覆盖", self.contract)
         self.assertIn("相机内参", self.contract)
         self.assertIn("最多 32 个 voxel", self.contract)
-        self.assertIn("未做 catkin/ROS 构建", self.contract)
+        self.assertIn("运行期参数事件验证仍未完成", self.contract)
 
     def test_scene_profile_values_and_hashes_match_contract(self):
         profile = PROFILE.EGO_SINGLE_BOX_V1

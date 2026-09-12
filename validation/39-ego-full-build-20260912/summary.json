@@ -1,0 +1,116 @@
+{
+  "status": "complete_ego_build_verified",
+  "verification_returncode": 0,
+  "verification_command": [
+    "cmake",
+    "--build",
+    "/root/wksim-ego-local-pGqjgO/build",
+    "--",
+    "-j2"
+  ],
+  "workspace": "/root/wksim-ego-local-pGqjgO",
+  "distro": "RflySim-20.04",
+  "baseline_commit": "af874a180ca5bd28276606d2f1d0d3bd96b4b302",
+  "source_sha256": {
+    "Modules/ego_planner_swarm/traj_utils/CMakeLists.txt": "446a808c94f99e0bbfd98b30b372f4242316eac7316ee389745d6f6a2bb51316",
+    "Modules/ego_planner_swarm/plan_env/CMakeLists.txt": "6e49d1fe281910ae1c4905ad5a10404bd77d24d388ec132c3f3669cd90f2ee00",
+    "Modules/ego_planner_swarm/path_searching/CMakeLists.txt": "1b5ddb899f85cfb7b69c95cdb3d3cefb008cc669f0effe93ab8827eeaf711e70",
+    "Modules/ego_planner_swarm/bspline_opt/CMakeLists.txt": "fbe9abb0830f2e5345f551c05d21575c59a26366703394b2b3c2993c2b25560c",
+    "Modules/ego_planner_swarm/plan_manage/CMakeLists.txt": "e151fe4ba759b79e257e74bf1138dda0bb7ee0d53cc2b05b63887854c593a7d7",
+    "Modules/ego_planner_swarm/plan_env/src/grid_map.cpp": "dfafa9202a1c3f7c6a194066643d9c338b6cfed83d9bf993f081d11f4b02902d",
+    "Modules/ego_planner_swarm/traj_utils/include/traj_utils/polynomial_traj.h": "6ede9d3d33734235c01b923537e2bfaadff722bb73a0b542bdf20c44d20710c5"
+  },
+  "source_manifest_sha256": "4f8940803c0ff9e7a01bd025d613ae4fd12cd921262278def3ab66e53d84a0b6",
+  "artifacts": {
+    "traj_utils": {
+      "path": "/root/wksim-ego-local-pGqjgO/devel/lib/libtraj_utils.so",
+      "sha256": "6ade48e671da76e231f77d2df77c5ab3632ef07a0a037fbf22f132162a77d799",
+      "bytes": 27869936
+    },
+    "plan_env": {
+      "path": "/root/wksim-ego-local-pGqjgO/devel/lib/libplan_env.so",
+      "sha256": "5c8c9061f3263187145a314a74cafb09087ed6f51cc9d47ca99821c7096cbdc6",
+      "bytes": 31168832
+    },
+    "path_searching": {
+      "path": "/root/wksim-ego-local-pGqjgO/devel/lib/libpath_searching.so",
+      "sha256": "f2d7d1826bdf0c53384be41abee30a1ec6eac0e8e31515f4dc791eae1df9f982",
+      "bytes": 6826584
+    },
+    "bspline_opt": {
+      "path": "/root/wksim-ego-local-pGqjgO/devel/lib/libbspline_opt.so",
+      "sha256": "85ba5229e22c10ee1878d23da4129320a50a160a37edbf5c9b5349743e011940",
+      "bytes": 28660176
+    },
+    "ego_planner_node": {
+      "path": "/root/wksim-ego-local-pGqjgO/devel/lib/ego_planner/ego_planner_node",
+      "sha256": "ad2d035bd7d4193fdad031fb4b738c9df36528e140ebf4f738506733c16c2649",
+      "bytes": 19555576
+    },
+    "traj_server": {
+      "path": "/root/wksim-ego-local-pGqjgO/devel/lib/ego_planner/traj_server",
+      "sha256": "6faf3e2d2bb4125b833f24535dd529d457ce645b63524b43697409363480a218",
+      "bytes": 1989968
+    },
+    "traj_server_for_prometheus": {
+      "path": "/root/wksim-ego-local-pGqjgO/devel/lib/ego_planner/traj_server_for_prometheus",
+      "sha256": "8612c09d0ec8ce48810ea3ccb299481c8ce53759e98b89b1ce5a00293ccbd793",
+      "bytes": 2857296
+    },
+    "pub_goal": {
+      "path": "/root/wksim-ego-local-pGqjgO/devel/lib/ego_planner/pub_goal",
+      "sha256": "ed30c969573aeac8d1208fd79be3aba661f13592851f6ccc43708db309a5d99d",
+      "bytes": 918448
+    },
+    "pub_preset_goal": {
+      "path": "/root/wksim-ego-local-pGqjgO/devel/lib/ego_planner/pub_preset_goal",
+      "sha256": "b63b383571813a293ab9f6c81c7b3ed3c09778519dba8c40fa2b81e87bc7fcce",
+      "bytes": 969648
+    },
+    "motion_goal_swarm": {
+      "path": "/root/wksim-ego-local-pGqjgO/devel/lib/ego_planner/motion_goal_swarm",
+      "sha256": "0ab84bd020dde391c30e7ec9a1bae00556a3a2a0201eb70f09ce5c1746f4c122",
+      "bytes": 1352520
+    }
+  },
+  "compiler_flags": {
+    "build/wksim/Modules/ego_planner_swarm/bspline_opt/CMakeFiles/bspline_opt.dir/flags.make": "CXX_FLAGS = -O3 -Wall -g -fPIC -fPIC -std=c++17",
+    "build/wksim/Modules/ego_planner_swarm/path_searching/CMakeFiles/path_searching.dir/flags.make": "CXX_FLAGS = -O3 -Wall -g -fPIC -fPIC -std=c++17",
+    "build/wksim/Modules/ego_planner_swarm/traj_utils/CMakeFiles/traj_utils.dir/flags.make": "CXX_FLAGS = -O3 -Wall -g -fPIC -std=c++17",
+    "build/wksim/Modules/ego_planner_swarm/plan_env/CMakeFiles/plan_env.dir/flags.make": "CXX_FLAGS = -O3 -Wall -g -fPIC -fPIC -std=c++17",
+    "build/wksim/Modules/ego_planner_swarm/plan_env/CMakeFiles/laser_to_pointcloud.dir/flags.make": "CXX_FLAGS = -O3 -Wall -g -std=c++17",
+    "build/wksim/Modules/ego_planner_swarm/plan_env/CMakeFiles/su17_depth_to_cloud.dir/flags.make": "CXX_FLAGS = -O3 -Wall -g -fPIC -std=c++17",
+    "build/wksim/Modules/ego_planner_swarm/plan_env/CMakeFiles/obj_generator.dir/flags.make": "CXX_FLAGS = -O3 -Wall -g -std=c++17",
+    "build/wksim/Modules/ego_planner_swarm/plan_env/CMakeFiles/su17_rvl_encoder.dir/flags.make": "CXX_FLAGS = -O3 -Wall -g -fPIC -std=c++17",
+    "build/wksim/Modules/ego_planner_swarm/plan_env/CMakeFiles/su17_rvl_decoder.dir/flags.make": "CXX_FLAGS = -O3 -Wall -g -fPIC -std=c++17",
+    "build/wksim/Modules/ego_planner_swarm/plan_manage/CMakeFiles/motion_goal_swarm.dir/flags.make": "CXX_FLAGS = -O3 -Wall -g -fPIC -std=c++17",
+    "build/wksim/Modules/ego_planner_swarm/plan_manage/CMakeFiles/traj_server_for_prometheus.dir/flags.make": "CXX_FLAGS = -O3 -Wall -g -fPIC -std=c++17",
+    "build/wksim/Modules/ego_planner_swarm/plan_manage/CMakeFiles/traj_server.dir/flags.make": "CXX_FLAGS = -O3 -Wall -g -fPIC -std=c++17",
+    "build/wksim/Modules/ego_planner_swarm/plan_manage/CMakeFiles/pub_preset_goal.dir/flags.make": "CXX_FLAGS = -O3 -Wall -g -fPIC -std=c++17",
+    "build/wksim/Modules/ego_planner_swarm/plan_manage/CMakeFiles/pub_goal.dir/flags.make": "CXX_FLAGS = -O3 -Wall -g -fPIC -std=c++17",
+    "build/wksim/Modules/ego_planner_swarm/plan_manage/CMakeFiles/ego_planner_node.dir/flags.make": "CXX_FLAGS = -O3 -Wall -g -fPIC -std=c++17",
+    "build/gtest/googlemock/CMakeFiles/gmock.dir/flags.make": "CXX_FLAGS = -O3 -DNDEBUG -fPIC -Wall -Wshadow -Wno-error=dangling-else -DGTEST_HAS_PTHREAD=1 -fexceptions -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -DGTEST_HAS_PTHREAD=1 -std=c++17",
+    "build/gtest/googlemock/CMakeFiles/gmock_main.dir/flags.make": "CXX_FLAGS = -O3 -DNDEBUG -fPIC -Wall -Wshadow -Wno-error=dangling-else -DGTEST_HAS_PTHREAD=1 -fexceptions -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -DGTEST_HAS_PTHREAD=1 -std=c++17",
+    "build/gtest/googletest/CMakeFiles/gtest_main.dir/flags.make": "CXX_FLAGS = -O3 -DNDEBUG -fPIC -Wall -Wshadow -Wno-error=dangling-else -DGTEST_HAS_PTHREAD=1 -fexceptions -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -DGTEST_HAS_PTHREAD=1 -std=c++17",
+    "build/gtest/googletest/CMakeFiles/gtest.dir/flags.make": "CXX_FLAGS = -O3 -DNDEBUG -fPIC -Wall -Wshadow -Wno-error=dangling-else -DGTEST_HAS_PTHREAD=1 -fexceptions -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -std=c++17"
+  },
+  "logs": {
+    "initial-missing-ParamSettings.log": "67f5b50d715fab702a37c61d7c48a25e2843627f23f83477a3bf6c9270396836",
+    "missing-DepthCompressed.log": "b2f3c52168613427c02a9eab395f6530d739dca2c03317ee06db5ebed9dd6780",
+    "local-initial-failure.log": "78e52321dd65c22a534ed1f9228cbfbc01773908c5f944cd692cb8fce3eb8c9b",
+    "full-build.log": "d42a4046dc6691ba353454ace1d6300f0b3a3050fd03e1851858f3af302292a0",
+    "verification.log": "40b22e95be65795861541706a0ab7d737bc1cd415516731ba9eb43e1aae06590",
+    "clean-environment.txt": "a76dab33905fc63a0af18f2b4d00657783f6b76a8fbf88e35311b37988a933f8"
+  },
+  "message_headers": {
+    "prometheus_msgs": 59,
+    "quadrotor_msgs": 14,
+    "traj_utils": 3
+  },
+  "scope": "Complete EGO build including 4 libraries and 6 planner executables; no ROS runtime, cloud ingress, trajectory, clearance or flight acceptance",
+  "failures_preserved": [
+    "ParamSettings.h missing due to message generation dependency",
+    "DepthCompressed.h missing on RVL utility targets; explicit target dependencies added"
+  ],
+  "environment_note": "Build-only PATH restricted to Linux tools; no global environment/config changes; source copied to private Linux workspace. Both attempted stop checks found builds already exited, so no process signals were sent."
+}

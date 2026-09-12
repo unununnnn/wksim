@@ -51,6 +51,7 @@ add_library( plan_env
     src/raycast.cpp
     src/obj_predictor.cpp 
     )
+add_dependencies(plan_env ${catkin_EXPORTED_TARGETS})
 target_link_libraries( plan_env
     ${catkin_LIBRARIES} 
     ${PCL_LIBRARIES}
@@ -91,5 +92,10 @@ target_link_libraries(su17_rvl_decoder
   ${catkin_LIBRARIES}
   ${OpenCV_LIBS}
   ${PCL_LIBRARIES}
-)    
+)
+
+foreach(message_consumer obj_generator laser_to_pointcloud su17_depth_to_cloud
+                         su17_rvl_encoder su17_rvl_decoder)
+  add_dependencies(${message_consumer} ${catkin_EXPORTED_TARGETS})
+endforeach()
     
