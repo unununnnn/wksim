@@ -14,15 +14,17 @@
 
 | 执行端 | 本切片 | 文件所有权 |
 | --- | --- | --- |
-| Luna `luna_ceiling_bounds` | 虚拟天花板负索引/非有限转换修复 | grid_map.cpp、test_grid_map_init_native.py |
-| Luna `luna_planner_build_readiness` | 完整 EGO 构建依赖与最小修复集 | 只读，不构建 |
-| Luna `luna_scheduler_shutdown_review` | Linux EOF、预检与进程组清理独立复核 | 只读 profile/host lifetime test |
-| Claude `4d5268f4-1d78-48ba-a5d6-aa800447cb1c` | launcher 失败清理证据与 cleanup_verified | Windows launcher 及其测试 |
-| Oh My Pi `6deb2e40-2240-4db2-8c7f-c06bf6724048` | collector pre-bootstrap/post-capture 身份接入 | collector 与对应夹具 |
-| agy `d0a07619-281c-408c-813a-d0784cee52a3` | 当前最多五项实际验收前沿 | acceptance-frontier.json |
+| Luna `luna2_scheduler_verify` | 已交付 M1 路径/进程组修复；map runner 窄审计已处理 | 当前只读，续派前核对状态 |
+| Luna `luna2_gridmap_probe` | 已交付真实 GridMap 探针与完整体素输入校验 | 当前已交付，主会话集成 |
+| Luna `luna2_cloud_publisher` | 已交付点云发布器、反向状态/时钟传输缺口核对 | 当前已交付，主会话集成 |
+| Claude `4d5268f4-1d78-48ba-a5d6-aa800447cb1c` | M1 launcher/profile 最后接口复核 | 只读及离线检查 |
+| Oh My Pi `6deb2e40-2240-4db2-8c7f-c06bf6724048` | TCP session 到公共 CommandRequest 出口 | planner_command_egress、trajectory_bridge 与测试 |
+| agy `d0a07619-281c-408c-813a-d0784cee52a3` | M1 实际资源与 source pin 准入核对 | 只读 |
 | 主会话 | 契约、集成、唯一真实执行线、提交与票据 | 不覆盖代理拥有的文件 |
 
 三个 Luna 明确选择 gpt-5.6-luna / xhigh；本次用户再次明确要求派发三端，已执行。不声称接口无法选择/核验的 Fast 设置。外部 harness 保持现有默认配置。
+
+最新已推送：`029fae1` 完整 EGO 构建；`214bdca` 实际 ROS 点云与 GridMap 占用验证。后者完整收到 11,000 个唯一体素，8 个查询通过，原始 132,000 字节独立核对一致；只代表地图输入，静态 odom 为测试夹具。ROS1 反向真实状态与共享 clock 传输尚缺，真实规划绕障和 Full 均未完成。上表为最近切片，执行状态每次实时读取。
 
 ## 缩短周期与质量门
 

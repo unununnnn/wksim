@@ -27,6 +27,26 @@ FC_THREADS={'ap_fc':('arducopter','log_io','DDS'),
 BASE_ROLES=('ap_worker','px4_worker','supervisor')
 TRACE_PIPE_FLAGS=os.O_RDONLY|getattr(os,'O_NONBLOCK',0)
 
+_REPO_ROOT = Path(__file__).resolve().parents[2]
+if str(_REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(_REPO_ROOT))
+
+from tools.wsl_snapshot_exchange import (  # noqa: E402
+    decode_json_strict,
+    make_snapshot_request,
+    publish_create_only,
+    verify_snapshot_response_binding,
+)
+from tools.wsl_root_task_snapshot import (  # noqa: E402
+    NSPID_RE,
+    NSTGID_RE,
+    PID_RE,
+    TGID_RE,
+    detect_local_pid_ns_inode,
+    parse_stat_identity,
+    verify_lsns_root,
+)
+
 
 def require(value,message):
     if not value: raise ValueError(message)
@@ -123,6 +143,193 @@ def select_leader(rows,owner_pid,comm):
     others=[row for row in rows
             if row.get('comm')==comm and row.get('local_tid')!=leader.get('local_tid')]
     return leader,others
+
+
+EXCHANGE_PHASE_PRE='pre_bootstrap_leaders'
+EXCHANGE_PHASE_POST='post_capture_tasks'
+EXCHANGE_TIMEOUT_S=20.0
+EXCHANGE_POLL_S=0.05
+
+
+def _owner_request_map(owners):
+    return {role:{'pid':int(meta['pid']),'start_ticks':int(meta['start_ticks'])}
+            for role,meta in owners.items()}
+
+
+def _reverify_task_evidence(task,ns):
+    """Re-validate one snapshot task from its retained raw lsns/stat/status/comm evidence."""
+    require(isinstance(task,dict),'Task record must be an object')
+    for field in ('global_tgid','global_tid','local_tgid','local_tid','start_ticks'):
+        value=task.get(field)
+        require(type(value) is int and value>0,'Task field must be a positive int: '+field)
+    require(isinstance(task.get('comm'),str) and bool(task['comm']),'Task comm missing')
+    evidence=task.get('evidence')
+    require(isinstance(evidence,dict),'Task lacks raw evidence')
+    require(evidence.get('ns_link')==f'pid:[{ns}]','Task ns link differs')
+    stat_a=evidence.get('stat_before');stat_b=evidence.get('stat_after')
+    require(isinstance(stat_a,str) and isinstance(stat_b,str),'Task stat evidence missing')
+    pid_a,comm_a,ticks_a=parse_stat_identity(stat_a,str(task['global_tid']))
+    pid_b,comm_b,ticks_b=parse_stat_identity(stat_b,str(task['global_tid']))
+    require((pid_a,comm_a,ticks_a)==(pid_b,comm_b,ticks_b),'Task stat evidence changed')
+    require(pid_a==str(task['global_tid']) and ticks_a==task['start_ticks'],
+            'Task stat evidence disagrees with record')
+    require(comm_a==task['comm']==evidence.get('comm'),'Task comm evidence differs')
+    status=evidence.get('status')
+    require(isinstance(status,str),'Task status evidence missing')
+    tgid=TGID_RE.search(status);pid_m=PID_RE.search(status)
+    nst=NSTGID_RE.search(status);nsp=NSPID_RE.search(status)
+    require(tgid and pid_m and nst and nsp,'Task status evidence incomplete')
+    require(int(tgid.group(1))==task['global_tgid'] and int(pid_m.group(1))==task['global_tid'],
+            'Task status IDs differ from record')
+    nst_chain=[int(v) for v in nst.group(1).split()];nsp_chain=[int(v) for v in nsp.group(1).split()]
+    require(len(nst_chain)==2 and len(nsp_chain)==2,'Task chain depth differs')
+    require(nst_chain[0]==task['global_tgid'] and nst_chain[1]==task['local_tgid'],
+            'Task NStgid chain disagrees with record')
+    require(nsp_chain[0]==task['global_tid'] and nsp_chain[1]==task['local_tid'],
+            'Task NSpid chain disagrees with record')
+
+
+def _exchange_roundtrip(args,metadata,owners,phase):
+    """Publish one bound snapshot request; verify binding and re-verify raw evidence."""
+    require(args.exchange_dir is not None,
+            '--map-comm capture requires --exchange-dir root snapshot proof')
+    exchange=Path(args.exchange_dir)
+    require(exchange.is_dir() and not exchange.is_symlink(),
+            'Exchange directory must be a real directory: '+str(exchange))
+    ns=detect_local_pid_ns_inode()
+    request=make_snapshot_request(run_id=args.run_id,epoch=args.epoch,boot_id=args.boot_id,
+                                  target_pid_ns=ns,collector=identity(os.getpid()),
+                                  owners=_owner_request_map(owners),phase=phase)
+    raw=publish_create_only(exchange/(phase+'.request.json'),request)
+    response_path=exchange/(phase+'.response.json')
+    deadline=time.monotonic()+EXCHANGE_TIMEOUT_S
+    while not response_path.exists():
+        require(time.monotonic()<deadline,'Snapshot response timed out: '+phase)
+        time.sleep(EXCHANGE_POLL_S)
+    response_bytes=response_path.read_bytes()
+    response=decode_json_strict(response_bytes)
+    verify_snapshot_response_binding(response,expected_request=request,
+                                     expected_request_bytes=raw,expected_boot_id=args.boot_id)
+    snapshot=response['snapshot']
+    lsns_evidence=snapshot.get('lsns_evidence')
+    require(isinstance(lsns_evidence,dict) and isinstance(lsns_evidence.get('raw'),str),
+            'Snapshot lacks raw lsns evidence')
+    lsns_proof=verify_lsns_root(lsns_evidence['raw'],ns)
+    tasks=snapshot.get('tasks')
+    require(isinstance(tasks,list) and bool(tasks),'Snapshot carries no task records')
+    for task in tasks:
+        _reverify_task_evidence(task,ns)
+    key=phase.replace('_','-')
+    metadata['exchange_'+key]=dict(request_sha256=hashlib.sha256(raw).hexdigest(),
+        response_sha256=hashlib.sha256(response_bytes).hexdigest(),
+        request_id=request['request_id'],target_pid_ns=ns,
+        lsns_root_ns=lsns_proof['root_ns'],tasks_reverified=len(tasks))
+    return snapshot
+
+
+def pre_bootstrap_leaders(args,metadata,owners):
+    """Prove owned process leaders from raw-verified root task records.
+
+    This runs before tracing/token publication and intentionally does not wait
+    for the required FC helper threads.  The ``leaders`` summary is retained
+    as an independently checked exchange artifact; it is never the source of
+    the identity used by the collector.
+    """
+    snapshot=_exchange_roundtrip(args,metadata,owners,EXCHANGE_PHASE_PRE)
+    leaders=snapshot.get('leaders')
+    require(isinstance(leaders,dict),'Root snapshot lacks leaders')
+    tasks=snapshot.get('tasks')
+    require(isinstance(tasks,list) and bool(tasks),'Root snapshot carries no tasks')
+    proven={}
+    leader_roles=BASE_ROLES+tuple(role for role in FC_THREADS if role in owners)
+    for role in leader_roles:
+        meta=owners[role]
+        rows=task_inventory(meta['pid'])
+        local_leaders=[row for row in rows if row['local_tid']==meta['pid']
+                       and row.get('local_tgid') in (None,meta['pid'])]
+        require(len(local_leaders)==1,'Owned leader absent/ambiguous locally: '+role)
+        local=local_leaders[0]
+        raw_leaders=[task for task in tasks
+                     if task.get('local_tid')==meta['pid']
+                     and task.get('local_tgid')==meta['pid']]
+        require(len(raw_leaders)==1,'Owned leader absent/ambiguous in root tasks: '+role)
+        rec=raw_leaders[0]
+        require(rec['global_tid']==rec['global_tgid'],
+                'Root task leader global tid/tgid differ: '+role)
+        summary=leaders.get(str(meta['pid']))
+        require(isinstance(summary,dict),'Owned leader missing from root snapshot: '+role)
+        require(summary==rec,'Leader summary differs from raw task: '+role)
+        require(rec['start_ticks']==meta['start_ticks']==local['start_ticks'],
+                'Leader start_ticks differ across views: '+role)
+        require(rec['comm']==local['comm'],'Leader comm differs across views: '+role)
+        proven[role]=dict(global_tid=rec['global_tid'],global_tgid=rec['global_tgid'],
+                          local_tid=rec['local_tid'],local_tgid=rec['local_tgid'],
+                          comm=rec['comm'],start_ticks=rec['start_ticks'],
+                          proof='root_snapshot_exchange')
+    metadata['pre_bootstrap_leaders']={role:dict(global_tid=p['global_tid'],
+                                                  global_tgid=p['global_tgid'],
+                                                  local_tid=p['local_tid'],
+                                                  local_tgid=p['local_tgid'],comm=p['comm'])
+                                       for role,p in proven.items()}
+    return proven
+
+
+def post_capture_tasks(args,metadata,owners,mapping):
+    """After tracing stops and the drain completes, prove every mapped target."""
+    snapshot=_exchange_roundtrip(args,metadata,owners,EXCHANGE_PHASE_POST)
+    tasks=snapshot.get('tasks')
+    require(isinstance(tasks,list) and bool(tasks),'Post snapshot carries no task records')
+    by_global={task['global_tid']:task for task in tasks}
+    targets={}
+    for role,leader in mapping['base_leaders'].items():
+        owner_role=role if role in owners else role.split('/')[0]
+        require('global_tgid' in leader,
+                'Mapped leader lacks global tgid: '+role)
+        targets[role]=dict(local_tid=leader['local_tid'],tgid=owners[owner_role]['pid'],
+                           global_tgid=leader['global_tgid'],
+                           comm=leader['comm'],start_ticks=leader['start_ticks'])
+    fc_leaders=mapping.get('fc_leaders',{})
+    if mapping['local_threads']:
+        require(isinstance(fc_leaders,dict),'Mapped FC leaders are missing')
+    post_fc_leaders={}
+    for fc_role in FC_THREADS:
+        if fc_role not in owners or not mapping['local_threads']:
+            continue
+        candidates=[task for task in tasks
+                    if task.get('local_tid')==owners[fc_role]['pid']
+                    and task.get('local_tgid')==owners[fc_role]['pid']]
+        require(len(candidates)==1,'FC leader absent/ambiguous in post tasks: '+fc_role)
+        leader=candidates[0]
+        require(leader['global_tid']==leader['global_tgid'],
+                'FC leader global tid/tgid differ: '+fc_role)
+        expected=fc_leaders.get(fc_role)
+        require(isinstance(expected,dict),'Mapped FC leader missing: '+fc_role)
+        for field in ('global_tid','global_tgid','local_tid','local_tgid','comm','start_ticks'):
+            require(leader[field]==expected[field],
+                    'FC leader identity changed: '+fc_role+'/'+field)
+        post_fc_leaders[fc_role]=leader
+    for role,thread in mapping['local_threads'].items():
+        fc_role=role.split('/')[0]
+        require(fc_role in post_fc_leaders,'Post FC leader proof missing: '+fc_role)
+        targets[role]=dict(local_tid=thread['local_tid'],tgid=owners[fc_role]['pid'],
+                           global_tgid=post_fc_leaders[fc_role]['global_tid'],
+                           comm=thread['comm'],start_ticks=thread['start_ticks'])
+    require(set(targets)==set(mapping['kernel_pids']),
+            'Post-capture target set differs from the mapped set')
+    verified={}
+    for role,target in targets.items():
+        global_tid=mapping['kernel_pids'][role]
+        rec=by_global.get(global_tid)
+        require(isinstance(rec,dict),'Mapped task absent from post-capture snapshot: '+role)
+        require(rec['global_tgid']==target['global_tgid'],
+                'Post-capture global tgid differs: '+role)
+        require(rec['local_tid']==target['local_tid'],'Post-capture local tid differs: '+role)
+        require(rec['local_tgid']==target['tgid'],'Post-capture tgid differs: '+role)
+        require(rec['comm']==target['comm'],'Post-capture comm differs: '+role)
+        require(rec['start_ticks']==target['start_ticks'],'Post-capture start_ticks differ: '+role)
+        verified[role]=global_tid
+    metadata['post_capture_tasks_proof']=dict(roles_verified=sorted(verified),count=len(verified))
+    return verified
 
 
 def required_fc_threads(owners):
@@ -410,7 +617,7 @@ def map_sched_switch_pids(instance,put,names,output,*,retain=False,expected=None
     return {role:values.pop() for role,values in candidates.items()}
 
 
-def map_kernel_pids(instance,put,owners,epoch,output,*,retain=False):
+def map_kernel_pids(instance,put,owners,epoch,output,*,retain=False,proven_leaders=None):
     """Correlate exact owned comm names while consuming bootstrap trace immediately.
 
     FC tasks may appear after the supervisor publishes the bootstrap token.  The
@@ -418,6 +625,13 @@ def map_kernel_pids(instance,put,owners,epoch,output,*,retain=False):
     local task inventory is sealed only after the event-driven trace drain has
     observed every name.  This prevents the 1 MiB private ring from filling
     while startup ownership is still converging.
+
+    With ``proven_leaders`` (from a root-namespace snapshot exchange) the three
+    base leaders and the AP arducopter leader are pinned to their root-proven
+    ``global_tid``; any other same-comm task is recorded as evidence only.  FC
+    threads keep the strict unique-comm temporary mapping; their local
+    NSpid[0] is never compared as if it were the global id.  The FC process
+    leader identities are carried separately for post-capture binding.
     """
     names={role:'wk'+epoch[:11]+suffix for role,suffix in (
         ('ap_worker','a'),('px4_worker','p'),('supervisor','s'))}
@@ -441,27 +655,60 @@ def map_kernel_pids(instance,put,owners,epoch,output,*,retain=False):
         base_leaders[role]=leader
         if others:
             same_comm_threads[role]=others
+    if proven_leaders is not None:
+        expected_roles=set(BASE_ROLES)|{role for role in FC_THREADS if role in owners}
+        require(set(proven_leaders)==expected_roles,
+                'Proven leaders must cover all owned base and FC roles')
+        for role in BASE_ROLES:
+            local=base_leaders[role];proven=proven_leaders[role]
+            require(proven['local_tid']==local['local_tid']
+                    and proven['comm']==local['comm']
+                    and proven['start_ticks']==local['start_ticks'],
+                    'Proven leader disagrees with the local inventory: '+role)
+            base_leaders[role]=dict(local,global_tid=proven['global_tid'],
+                                    global_tgid=proven['global_tgid'],
+                                    proof=proven['proof'])
+    fc_leaders={}
+    if proven_leaders is not None:
+        for fc_role in FC_THREADS:
+            if fc_role not in proven_leaders:
+                continue
+            fc=proven_leaders[fc_role]
+            require(fc['local_tid']==owners[fc_role]['pid'],
+                    'FC proven leader is not the owned process: '+fc_role)
+            fc_leaders[fc_role]=dict(global_tid=fc['global_tid'],
+                global_tgid=fc['global_tgid'],local_tid=fc['local_tid'],
+                local_tgid=fc['local_tgid'],comm=fc['comm'],
+                start_ticks=fc['start_ticks'],proof=fc['proof'])
+        if 'ap_fc' in fc_leaders:
+            ap=fc_leaders['ap_fc']
+            base_leaders['ap_fc/arducopter']=dict(global_tid=ap['global_tid'],
+                global_tgid=ap['global_tgid'],local_tid=ap['local_tid'],
+                local_tgid=ap['local_tgid'],comm=ap['comm'],
+                start_ticks=ap['start_ticks'],proof=ap['proof'])
     expected_base={name:dict(role=role,tgid=owners[role]['pid'],
                              tid=base_leaders[role]['local_tid'])
                    for role,name in names.items() if role in BASE_ROLES}
     comm_owners_before=scan_global_comm_owners(expected_base,allow_foreign=True)
     sched_switch_same_comm=[]
+    pinned={role:base_leaders[role]['global_tid'] for role in BASE_ROLES}
+    if proven_leaders is not None:
+        pinned['ap_fc/arducopter']=proven_leaders['ap_fc']['global_tid']
     mapped=map_sched_switch_pids(instance,put,names,output,retain=retain,
-                                 expected={role:base_leaders[role]['global_tid'] for role in BASE_ROLES},
+                                 expected=pinned,
                                  evidence=sched_switch_same_comm)
     require(len(set(mapped.values()))==len(mapped),'Kernel PID mappings are not distinct')
     # sched_switch reports the root-namespace (global) pid; bind it to the pinned
-    # leader's NSpid[0], never the namespace-local id (the WSL diagnostic split).
-    # The pinned-expected mapping above already selects it; this re-check is the
-    # fail-closed guard against a global/local swap (and holds even if the mapping
-    # were produced without the leader pins).
+    # leader's proven global_tid, never the namespace-local id (the WSL diagnostic
+    # split).  The pinned-expected mapping above already selects it; this re-check
+    # is the fail-closed guard against a global/local swap.
     for role in BASE_ROLES:
         require(mapped.get(role)==base_leaders[role]['global_tid'],
                 'Kernel/global leader identity differs: '+role)
+    if proven_leaders is not None:
+        require(mapped.get('ap_fc/arducopter')==proven_leaders['ap_fc']['global_tid'],
+                'Kernel/global AP leader identity differs')
     local_threads,inventories_after=wait_required_fc_threads(owners) if 'ap_fc' in owners else ({},{})
-    for role,thread in local_threads.items():
-        require(mapped.get(role)==thread['global_tid'],
-                'Kernel/global FC thread identity differs: '+role)
     expected={name:dict(role=role,tgid=(owners[role]['pid'] if role in BASE_ROLES else
         owners[role.split('/')[0]]['pid']),tid=(base_leaders[role]['local_tid'] if role in BASE_ROLES else
         local_threads[role]['local_tid'])) for role,name in names.items()}
@@ -471,6 +718,7 @@ def map_kernel_pids(instance,put,owners,epoch,output,*,retain=False):
     mapping_sha256=hashlib.sha256(mapping_trace.read_bytes()).hexdigest()
     mapping=dict(names=names,kernel_pids=mapped,
                 base_leaders=base_leaders,same_comm_threads=same_comm_threads,
+                fc_leaders=fc_leaders,
                 sched_switch_same_comm=sched_switch_same_comm,
                 local_threads=local_threads,inventories_before=inventories_after,
                 inventories_after=inventories_after,
@@ -480,11 +728,14 @@ def map_kernel_pids(instance,put,owners,epoch,output,*,retain=False):
                 mapping_timeout_s=MAPPING_TIMEOUT_S,
                 mapping_sha256=mapping_sha256,
                 mapping_trace_bytes=mapping_trace.stat().st_size,
+                leaders_proven_by=('root_snapshot_exchange' if proven_leaders is not None
+                                   else 'local_nspid_inventory'),
                 limitation=('A missing pinned leader, a snapshot-absent pinned owner, or a kernel/global '
-                            'pid that does not match the leader NSpid[0] fails closed; a foreign '
-                            'same-comm thread/PID is recorded as evidence once the leader is pinned by '
-                            'local_tid == owner pid; a transient foreign same-comm task absent from both '
-                            '/proc snapshots cannot be excluded'))
+                            'pid that does not match the pinned leader fails closed; a foreign '
+                            'same-comm thread/PID is recorded as evidence once the leader is pinned; '
+                            'FC threads keep strict unique-comm temporary mapping and are proven '
+                            'cross-domain by the post-capture root snapshot; a transient foreign '
+                            'same-comm task absent from all snapshots cannot be excluded'))
     encoded=(json.dumps(mapping,sort_keys=True,indent=2)+'\n').encode()
     (output/'pid-mapping-status.json').write_bytes(encoded)
     return mapping
@@ -709,7 +960,7 @@ def finalize_capture(path,inode,descriptor,metadata,output,before,owners,expecte
             metadata['loss_free']=bool(loss) and all(v==0 for c in loss.values() for v in c.values())
             metadata['duration_cap_met']=metadata['elapsed_s'] is not None and metadata['elapsed_s']<=20
             metadata['events_observed']=metadata.get('trace_bytes',0)>0
-            metadata['complete']=not metadata['errors'] and not cancelled and metadata.get('instance_removed',False) and metadata['loss_free'] and metadata['duration_cap_met'] and metadata['global_controls_unchanged'] and metadata['events_observed']
+            metadata['complete']=not metadata['errors'] and not cancelled and metadata.get('instance_removed',False) and metadata['loss_free'] and metadata['duration_cap_met'] and metadata['global_controls_unchanged'] and metadata['events_observed'] and bool(metadata.get('post_capture_tasks_proof'))
             metadata['status']='diagnostic_window_captured' if metadata['complete'] else 'diagnostic_partial'
         finally:
             try:
@@ -723,6 +974,8 @@ def finalize_capture(path,inode,descriptor,metadata,output,before,owners,expecte
 
 def collect(args,owners):
     require(os.geteuid()==0,'Capture requires root')
+    if set(owners)==set(BASE_ROLES):
+        raise ValueError('Capture requires full five-owner identity set including ap_fc and px4_fc')
     before=preflight(owners,args.boot_id)
     verify_roles(before['verified_owners'],args.run_id,args.epoch)
     output=args.output.resolve()
@@ -779,6 +1032,11 @@ def collect(args,owners):
         put('buffer_size_kb','1024')
         require('[mono]' in (path/'trace_clock').read_text(),'Instance mono clock not selected')
         require(args.map_comm,'Capture requires namespace-verified --map-comm')
+        require(args.exchange_dir is not None,
+                '--map-comm capture requires --exchange-dir root snapshot proof')
+        # Root-proof the base + FC process leaders BEFORE enabling tracing or
+        # publishing the bootstrap token; never waits for FC helper threads.
+        proven_leaders=pre_bootstrap_leaders(args,metadata,owners)
         bootstrap_started=time.monotonic_ns()
         metadata['bootstrap_started_monotonic_ns']=bootstrap_started
         metadata['bootstrap_semantics']='sched_switch-only retained window before precise filters'
@@ -798,7 +1056,8 @@ def collect(args,owners):
             args.run_id,args.epoch)
         metadata['gate_release']=gate_release
         metadata['capture_boundaries']['gate_release_monotonic_ns']=gate_release.get('released_monotonic_ns')
-        mapping=map_kernel_pids(path,put,owners,args.epoch,output,retain=True)
+        mapping=map_kernel_pids(path,put,owners,args.epoch,output,retain=True,
+                                proven_leaders=proven_leaders)
         metadata['pid_mapping']=mapping
         bootstrap_trace=output/'pid-mapping-trace.txt'
         bootstrap_raw=bootstrap_trace.read_bytes()
@@ -854,6 +1113,10 @@ def collect(args,owners):
                          +metadata['trace_sections']['boundary_bytes'])
         filtered_bytes=destination.tell()-filtered_offset
         metadata['trace_sections']['filtered']=dict(offset=filtered_offset,bytes=filtered_bytes)
+        # Tracing is stopped and this owned instance is fully drained; the
+        # post-capture root snapshot cannot block any trace drain.  Metadata may
+        # not complete without this proof.
+        post_capture_tasks(args,metadata,owners,mapping)
     except BaseException as error:
         metadata['errors'].append(type(error).__name__+': '+str(error))
     finally:
@@ -881,6 +1144,8 @@ def main():
     parser.add_argument('--capture-gate-release',type=Path,required=False)
     parser.add_argument('--duration',type=float,default=10.)
     parser.add_argument('--map-comm',action='store_true',help='Map exact per-run diagnostic comm names to kernel tracepoint IDs')
+    parser.add_argument('--exchange-dir',type=Path,
+                        help='Linux /mnt/c exchange directory for root snapshot proof (required with --map-comm)')
     args=parser.parse_args()
     require(0<args.duration<=20,'Duration must be >0 and <=20 seconds')
     owner_roles=BASE_ROLES+tuple(FC_THREADS)

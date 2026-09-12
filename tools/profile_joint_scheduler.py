@@ -245,40 +245,172 @@ def wait_owned_process(process, timeout, cancelled=None):
         time.sleep(min(.05, remaining))
 
 
+def _append_preflight_cleanup_error(result, message):
+    existing = result.get('preflight_cleanup_error')
+    result['preflight_cleanup_error'] = (
+        str(existing) + '; ' + str(message) if existing else str(message))
+
+
+def _record_component_started(result, role):
+    """Record a component handle as soon as its Popen call returns."""
+    expected_roles = {'preflight', 'manager', 'collector'}
+    started = result.get('components_started')
+    if started is None:
+        started = {name: False for name in expected_roles}
+        result['components_started'] = started
+    if (not isinstance(started, dict) or set(started) != expected_roles
+            or any(type(value) is not bool for value in started.values())):
+        raise RuntimeError('components_started schema is invalid')
+    started[role] = True
+
+
+def _reap_owned_handle(process, result, *, returncode_key, error_key, label):
+    """Reap an owned direct child when group identity cannot be used."""
+    def append(message):
+        existing = result.get(error_key)
+        result[error_key] = str(existing) + '; ' + str(message) if existing else str(message)
+
+    try:
+        live = process.poll() is None
+    except BaseException as error:
+        append(label+' handle poll failed: '+repr(error))
+        live = True
+    if live:
+        try:
+            process.terminate()
+        except ProcessLookupError:
+            pass
+        except BaseException as error:
+            append(label+' terminate failed: '+repr(error))
+        try:
+            process.wait(timeout=10)
+        except subprocess.TimeoutExpired as error:
+            append(repr(error))
+        except BaseException as error:
+            append(label+' wait failed: '+repr(error))
+    try:
+        live = process.poll() is None
+    except BaseException as error:
+        append(label+' handle poll failed: '+repr(error))
+        live = True
+    if live:
+        try:
+            process.kill()
+        except ProcessLookupError:
+            pass
+        except BaseException as error:
+            append(label+' kill failed: '+repr(error))
+        try:
+            process.wait(timeout=10)
+        except subprocess.TimeoutExpired as error:
+            append(repr(error))
+        except BaseException as error:
+            append(label+' final wait failed: '+repr(error))
+    try:
+        result[returncode_key] = process.poll()
+    except BaseException as error:
+        append(label+' handle poll failed: '+repr(error))
+        result[returncode_key] = None
+    if result[returncode_key] is None:
+        append('Owned '+label.lower()+' handle remains live')
+
+
+def _reap_preflight_handle(process, result):
+    """Reap an owned direct child when its procfs identity is unavailable."""
+    _reap_owned_handle(process, result, returncode_key='preflight_returncode',
+                       error_key='preflight_cleanup_error', label='Preflight')
+
+
 def run_owned_preflight(command, stream, result, cancelled=None):
     """Track the static preflight separately so host loss cannot orphan it."""
-    process = subprocess.Popen(command, cwd=ROOT, stdout=stream, stderr=subprocess.STDOUT,
-                               stdin=subprocess.DEVNULL, start_new_session=True)
-    expected = json_identity(process.pid)
-    result['preflight_identity'] = expected
+    process = None
+    expected = None
     snapshot = None
     try:
+        process = subprocess.Popen(command, cwd=ROOT, stdout=stream, stderr=subprocess.STDOUT,
+                                   stdin=subprocess.DEVNULL, start_new_session=True)
+        _record_component_started(result, 'preflight')
+        try:
+            expected = json_identity(process.pid)
+        except BaseException as error:
+            result['preflight_identity'] = None
+            raise RuntimeError('Preflight identity unavailable') from error
+        result['preflight_identity'] = expected
+        if not isinstance(expected, dict):
+            raise RuntimeError('Preflight identity unavailable')
+        # Capture ownership while the leader is alive. This is the proof used
+        # later if the leader exits before descendants in its private group.
+        snapshot = manager_group_snapshot(process, expected)
+        result['preflight_group_snapshot'] = [
+            dict(pid=pid, start_ticks=start) for pid, start in sorted(snapshot)]
         code = wait_owned_process(process, 180, cancelled)
         result['preflight_returncode'] = code
         return code
     finally:
-        if process.poll() is None:
-            try:
-                snapshot = manager_group_snapshot(process, expected)
-                kill_collector_group(process, expected)
-            except BaseException as error:
-                result['preflight_cleanup_error'] = repr(error)
-            try:
-                process.wait(timeout=10)
-            except subprocess.TimeoutExpired as error:
-                result['preflight_cleanup_error'] = repr(error)
-        result['preflight_returncode'] = process.poll()
-        if isinstance(expected, dict):
-            try:
+        if process is not None:
+            if snapshot is None:
+                _append_preflight_cleanup_error(result, 'Preflight group identity unavailable')
+                _reap_preflight_handle(process, result)
+                result['remaining_preflight_group'] = [True]
+            else:
+                previous_snapshot=snapshot
+                if process.poll() is None:
+                    try:
+                        # The leader is still alive here, so refresh ownership
+                        # immediately before signaling. This captures children
+                        # created after the startup snapshot.
+                        snapshot=manager_group_snapshot(process, expected)
+                        result['preflight_group_snapshot']=[
+                            dict(pid=pid,start_ticks=start)
+                            for pid,start in sorted(snapshot)]
+                    except BaseException as error:
+                        # If the leader exited during the refresh race, retain
+                        # only the prior leader-alive proof. A still-live leader
+                        # cannot be group-killed from a stale snapshot.
+                        if process.poll() is not None:
+                            snapshot=previous_snapshot
+                        else:
+                            snapshot=None
+                        _append_preflight_cleanup_error(
+                            result,'Preflight group snapshot refresh failed: '+repr(error))
+                try:
+                    if process.poll() is None and snapshot is not None:
+                        # The snapshot is mandatory: never signal an unverified
+                        # group member while retiring this owned direct child.
+                        kill_manager_group(process, expected, snapshot)
+                        try:
+                            process.wait(timeout=10)
+                        except subprocess.TimeoutExpired as error:
+                            _append_preflight_cleanup_error(result, repr(error))
+                except BaseException as error:
+                    _append_preflight_cleanup_error(result, repr(error))
                 if snapshot is not None:
-                    kill_manager_group_after_leader(expected, snapshot)
-                result['remaining_preflight_group'] = group_members(expected['pgid'])
-                if result['remaining_preflight_group']:
-                    result['preflight_cleanup_error'] = 'Owned preflight group remains'
-            except BaseException as error:
-                result['preflight_cleanup_error'] = repr(error)
-        elif process.returncode is None:
-            result['preflight_cleanup_error'] = 'Preflight identity unavailable while still live'
+                    try:
+                        # This also handles a leader that exited between snapshot
+                        # and the first poll: only saved members qualify.
+                        kill_manager_group_after_leader(expected, snapshot)
+                    except BaseException as error:
+                        _append_preflight_cleanup_error(result, repr(error))
+                try:
+                    still_live = process.poll() is None
+                except BaseException as error:
+                    _append_preflight_cleanup_error(result, 'Preflight handle poll failed: '+repr(error))
+                    still_live = True
+                if still_live:
+                    _reap_preflight_handle(process, result)
+                else:
+                    try:
+                        result['preflight_returncode'] = process.poll()
+                    except BaseException as error:
+                        _append_preflight_cleanup_error(result, 'Preflight handle poll failed: '+repr(error))
+                        result['preflight_returncode'] = None
+                try:
+                    result['remaining_preflight_group'] = group_members(expected['pgid'])
+                    if result['remaining_preflight_group']:
+                        _append_preflight_cleanup_error(result, 'Owned preflight group remains')
+                except BaseException as error:
+                    _append_preflight_cleanup_error(result, repr(error))
+                    result['remaining_preflight_group'] = [True]
 
 
 def epoch_groups_retired(product_result):
@@ -790,6 +922,8 @@ def retire_collector(collector,result):
     if collector.poll() is None:
         result['collector_cleanup_error']=str(result.get('collector_cleanup_error','')) + \
             '; Collector retirement could not be verified'
+        _reap_owned_handle(collector, result, returncode_key='collector_returncode',
+                           error_key='collector_cleanup_error', label='Collector')
     result['collector_returncode']=collector.poll()
 
 
@@ -899,17 +1033,40 @@ def retire_manager(manager,directory,result):
         except BaseException as error:
             result['manager_cleanup_error']=repr(error)
     if getattr(manager,'returncode',None) is None:
+        previous_snapshot=group_snapshot
         try:
-            kill_manager_group(manager,expected,group_snapshot)
-            result['manager_group_killed']=True
+            # The leader is still alive here, so refresh ownership immediately
+            # before signaling. Children may have appeared since startup.
+            group_snapshot=save_manager_group_snapshot(manager,result)
         except BaseException as error:
+            if manager.poll() is not None:
+                # Once the leader is gone, only the previously verified
+                # snapshot may be used to retire its former group.
+                group_snapshot=previous_snapshot
+            elif os.name != 'posix':
+                # Windows has no verified group-kill path here; the helper
+                # falls back to the owned Popen handle.  Keep the prior
+                # value so the existing handle cleanup still runs.
+                group_snapshot=previous_snapshot
+            else:
+                group_snapshot=None
             result['manager_cleanup_error']=str(result.get('manager_cleanup_error',''))+\
-                '; force kill: '+repr(error)
+                '; refresh group snapshot: '+repr(error)
+        if group_snapshot is not None or os.name != 'posix':
+            try:
+                kill_manager_group(manager,expected,group_snapshot)
+                result['manager_group_killed']=True
+            except BaseException as error:
+                result['manager_cleanup_error']=str(result.get('manager_cleanup_error',''))+\
+                    '; force kill: '+repr(error)
         try:
             manager.wait(timeout=10)
         except subprocess.TimeoutExpired:
             result['manager_cleanup_error']=str(result.get('manager_cleanup_error',''))+\
                 '; Manager still live after force kill'
+        if manager.poll() is None:
+            _reap_owned_handle(manager, result, returncode_key='manager_returncode',
+                               error_key='manager_cleanup_error', label='Manager')
     result['manager_returncode']=manager.poll()
     if (os.name=='posix' and getattr(manager,'returncode',None) is not None
             and group_snapshot is not None):
@@ -966,6 +1123,7 @@ def run(output, *, exchange_dir=None, watch_host_stdin=False):
                str(output/'experiment.json'), '--output-root', str(runs)]
     result = dict(status='diagnostic_partial', acceptance_eligible=False, run_id=run_id,
         directory=str(directory), command=command, boot_id=host_boot_id(),
+        components_started=dict(preflight=False, manager=False, collector=False),
         started_monotonic_ns=time.monotonic_ns(), source_sha256={str(p.relative_to(ROOT)):digest(p) for p in (
             Path(__file__).resolve(), COLLECTOR, ROOT/'Simulator/wksim_core/worker.py',
             hook_source,
@@ -1004,7 +1162,13 @@ def run(output, *, exchange_dir=None, watch_host_stdin=False):
                 'WKSIM_TRACE_CAPTURE_BOOTSTRAP_TOKEN','WKSIM_TRACE_CAPTURE_ACTIVE_TOKEN','PYTHONPATH')}
             manager = subprocess.Popen(command, cwd=ROOT, env=environment,
                 stdout=service, stderr=subprocess.STDOUT, start_new_session=True)
-            result['manager'] = json_identity(manager.pid)
+            _record_component_started(result, 'manager')
+            try:
+                result['manager'] = json_identity(manager.pid)
+                _identity_fields(result['manager'], 'Manager')
+            except BaseException as error:
+                result['manager'] = None
+                raise RuntimeError('Manager identity unavailable') from error
             if os.name=='posix' and result['manager'] is not None:
                 try:
                     save_manager_group_snapshot(manager,result)
@@ -1057,7 +1221,13 @@ def run(output, *, exchange_dir=None, watch_host_stdin=False):
             result['collector_command'] = argv
             collector = subprocess.Popen(argv, cwd=ROOT, stdout=trace_log,
                 stderr=subprocess.STDOUT, start_new_session=True)
-            result['collector'] = json_identity(collector.pid)
+            _record_component_started(result, 'collector')
+            try:
+                result['collector'] = json_identity(collector.pid)
+                _identity_fields(result['collector'], 'Collector')
+            except BaseException as error:
+                result['collector'] = None
+                raise RuntimeError('Collector identity unavailable') from error
             write_json(output/'capture-launch.json', result)
             result['capture_bootstrap'] = wait_capture_active(
                 bootstrap_token,collector,run_id,state['epoch'],manager=manager,

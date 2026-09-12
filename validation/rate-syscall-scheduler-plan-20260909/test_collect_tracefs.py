@@ -7,6 +7,11 @@ import tempfile
 from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
+import threading
+import time
+
+from tools.wsl_snapshot_exchange import decode_json_strict, make_snapshot_response, publish_create_only
+from validation.test_wsl_root_task_snapshot import VALID_LSNS, make_stat, make_status
 
 sys.path.insert(0,str(Path(__file__).resolve().parent))
 import collect_tracefs as collector
@@ -56,6 +61,34 @@ class Guards(unittest.TestCase):
                  patch.object(collector,'preflight',side_effect=ValueError('identity differs')):
                 with self.assertRaisesRegex(ValueError,'identity differs'):
                     collector.collect(SimpleNamespace(output=output,boot_id='bad'),{})
+            self.assertFalse(output.exists())
+
+    def test_capture_rejects_three_owner_set_before_preflight_or_trace_instance(self):
+        with tempfile.TemporaryDirectory() as temp:
+            output=Path(temp)/'new'
+            owners={'ap_worker':dict(pid=11,start_ticks=1000),
+                    'px4_worker':dict(pid=22,start_ticks=2000),
+                    'supervisor':dict(pid=33,start_ticks=3000)}
+            args=SimpleNamespace(output=output,boot_id='boot',run_id='run',epoch='a'*32)
+            with patch.object(collector.os,'geteuid',return_value=0,create=True), \
+                 patch.object(collector,'preflight') as preflight:
+                with self.assertRaisesRegex(ValueError,'ap_fc and px4_fc'):
+                    collector.collect(args,owners)
+            preflight.assert_not_called()
+            self.assertFalse(output.exists())
+
+    def test_capture_cli_rejects_three_owner_set(self):
+        with tempfile.TemporaryDirectory() as temp:
+            output=Path(temp)/'new'
+            argv=['collect_tracefs.py', '--ap-worker', '11:1000',
+                  '--px4-worker', '22:2000', '--supervisor', '33:3000',
+                  '--boot-id', 'boot', '--run-id', 'run', '--epoch', 'a'*32,
+                  '--output', str(output), '--capture-gate-release', str(Path(temp)/'release'),
+                  '--map-comm', '--exchange-dir', temp]
+            with patch.object(sys,'argv',argv), \
+                 patch.object(collector.os,'geteuid',return_value=0,create=True):
+                with self.assertRaisesRegex(ValueError,'ap_fc and px4_fc'):
+                    collector.main()
             self.assertFalse(output.exists())
 
     def test_boot_and_starttime_are_both_checked(self):
@@ -368,6 +401,232 @@ class Guards(unittest.TestCase):
             self.assertEqual((began,deadline),(123,1_000_000_123))
             self.assertEqual(calls,[('tracing_on','1')])
             self.assertEqual(json.loads(target.read_text())['state'],'active')
+
+
+NS_INODE = 4026532221
+BOOT = 'boot-under-test'
+EPOCH = 'a' * 32
+
+
+def make_task_record(global_tgid, global_tid, local_tgid, local_tid, comm, ticks):
+    stat = make_stat(global_tid, comm, ticks)
+    status = make_status(comm, global_tgid, global_tid,
+                         [global_tgid, local_tgid], [global_tid, local_tid])
+    return dict(global_tgid=global_tgid, global_tid=global_tid,
+                local_tgid=local_tgid, local_tid=local_tid, comm=comm,
+                start_ticks=ticks, is_leader=local_tid == local_tgid,
+                evidence=dict(stat_before=stat, stat_after=stat, status=status,
+                              comm=comm, ns_link=f'pid:[{NS_INODE}]'))
+
+
+def make_snapshot(owner_map, *, ticks_shift=0, drop_leader=None, include_fc_threads=False):
+    """owner_map: role -> (local_pid, ticks, comm, global_tid)."""
+    records = {}
+    tasks = []
+    for role, (pid, ticks, comm, gtid) in owner_map.items():
+        rec = make_task_record(gtid, gtid, pid, pid, comm, ticks + ticks_shift)
+        tasks.append(rec)
+        if role != drop_leader:
+            records[str(pid)] = rec
+    if include_fc_threads:
+        for role,names in collector.FC_THREADS.items():
+            pid,ticks,_comm,gtid=owner_map[role]
+            for offset,name in enumerate(names,1):
+                tasks.append(make_task_record(gtid,gtid+offset,pid,pid+offset,
+                                              name,ticks+offset))
+    return dict(lsns_evidence=dict(raw=VALID_LSNS), leaders=records, tasks=tasks)
+
+
+def make_post_mapping(owner_map, *, include_ap=False, include_threads=False):
+    base={role:dict(local_tid=pid,local_tgid=pid,comm=comm,
+                    start_ticks=ticks,global_tid=gtid,global_tgid=gtid)
+          for role,(pid,ticks,comm,gtid) in owner_map.items()
+          if role in collector.BASE_ROLES}
+    kernel={role:record['global_tid'] for role,record in base.items()}
+    if include_ap:
+        pid,ticks,comm,gtid=owner_map['ap_fc']
+        base['ap_fc/arducopter']=dict(local_tid=pid,local_tgid=pid,
+                                      comm=comm,start_ticks=ticks,
+                                      global_tid=gtid,global_tgid=gtid)
+        kernel['ap_fc/arducopter']=gtid
+    local_threads={}
+    fc_leaders={}
+    for fc_role,names in collector.FC_THREADS.items():
+        pid,ticks,comm,gtid=owner_map[fc_role]
+        fc_leaders[fc_role]=dict(local_tid=pid,local_tgid=pid,comm=comm,
+                                 start_ticks=ticks,global_tid=gtid,
+                                 global_tgid=gtid)
+        if include_threads:
+            for offset,name in enumerate(names,1):
+                role=fc_role+'/'+name
+                if role == 'ap_fc/arducopter' and include_ap:
+                    local_threads[role]=dict(local_tid=pid,local_tgid=pid,
+                                             comm=comm,start_ticks=ticks)
+                    continue
+                local_threads[role]=dict(local_tid=pid+offset,local_tgid=pid,
+                                         comm=name,start_ticks=ticks+offset)
+                kernel[role]=gtid+offset
+    return dict(base_leaders=base,fc_leaders=fc_leaders,
+                local_threads=local_threads,kernel_pids=kernel)
+
+
+class ExchangeIntegration(unittest.TestCase):
+    """Fixture-level two-phase exchange binding; no tracefs, no service process."""
+
+    def setUp(self):
+        self.dir = tempfile.TemporaryDirectory()
+        self.addCleanup(self.dir.cleanup)
+        self.exchange = Path(self.dir.name)
+        self.owners = {'ap_worker': {'pid': 11, 'start_ticks': 1000},
+                       'px4_worker': {'pid': 22, 'start_ticks': 2000},
+                       'supervisor': {'pid': 33, 'start_ticks': 3000},
+                       'ap_fc': {'pid': 44, 'start_ticks': 4000},
+                       'px4_fc': {'pid': 55, 'start_ticks': 5000}}
+        self.owner_map = {'ap_worker': (11, 1000, 'wk-alpha', 1011),
+                          'px4_worker': (22, 2000, 'wk-px4p', 1022),
+                          'supervisor': (33, 3000, 'wk-supers', 1033),
+                          'ap_fc': (44, 4000, 'arducopter', 1044),
+                          'px4_fc': (55, 5000, 'px4', 1055)}
+        self.args = SimpleNamespace(run_id='run-x', epoch=EPOCH, boot_id=BOOT,
+                                    exchange_dir=self.exchange)
+        self.patches = [
+            patch.object(collector, 'detect_local_pid_ns_inode', return_value=NS_INODE),
+            patch.object(collector, 'identity',
+                         return_value={'pid': 99, 'start_ticks': 9000}),
+        ]
+        for item in self.patches:
+            item.start()
+            self.addCleanup(item.stop)
+
+    def _service(self, phase, snapshot, mutate=None):
+        def serve():
+            req_path = self.exchange / (phase + '.request.json')
+            deadline = time.monotonic() + 5
+            while not req_path.exists() and time.monotonic() < deadline:
+                time.sleep(0.01)
+            raw = req_path.read_bytes()
+            req = decode_json_strict(raw)
+            response = make_snapshot_response(request=req, request_bytes=raw,
+                                              boot_id=BOOT, snapshot=snapshot)
+            if mutate is not None:
+                response = mutate(response)
+            publish_create_only(self.exchange / (phase + '.response.json'), response)
+        thread = threading.Thread(target=serve, daemon=True)
+        thread.start()
+        return thread
+
+    def _local_inventory(self, pid):
+        for role, (lpid, ticks, comm, gtid) in self.owner_map.items():
+            if lpid == pid:
+                return [dict(local_tid=pid, global_tid=gtid, comm=comm,
+                             start_ticks=ticks)]
+        raise AssertionError('unexpected pid')
+
+    def _pre(self, snapshot, mutate=None):
+        self._service(collector.EXCHANGE_PHASE_PRE, snapshot, mutate)
+        with patch.object(collector, 'task_inventory', side_effect=self._local_inventory):
+            return collector.pre_bootstrap_leaders(self.args, {}, self.owners)
+
+    def test_normal_two_phase_binding(self):
+        proven = self._pre(make_snapshot(self.owner_map))
+        self.assertEqual(proven['ap_fc']['global_tid'], 1044)
+        self.assertEqual(proven['px4_fc']['global_tgid'], 1055)
+        self.assertEqual(proven['supervisor']['proof'], 'root_snapshot_exchange')
+
+        metadata = {}
+        self._service(collector.EXCHANGE_PHASE_POST,
+                      make_snapshot(self.owner_map, include_fc_threads=True))
+        mapping = make_post_mapping(self.owner_map, include_ap=True, include_threads=True)
+        verified = collector.post_capture_tasks(self.args, metadata, self.owners, mapping)
+        self.assertEqual(verified, mapping['kernel_pids'])
+        self.assertEqual(metadata['post_capture_tasks_proof']['count'],
+                         len(mapping['kernel_pids']))
+
+    def test_pre_rejects_leader_summary_not_bound_to_raw_task(self):
+        snapshot = make_snapshot(self.owner_map)
+        snapshot['leaders']['44'] = dict(snapshot['leaders']['44'], global_tid=9999)
+        with self.assertRaisesRegex(ValueError, 'Leader summary differs from raw task'):
+            self._pre(snapshot)
+
+    def test_post_rejects_global_tgid_drift(self):
+        snapshot = make_snapshot(self.owner_map)
+        task = next(task for task in snapshot['tasks'] if task['comm'] == 'wk-alpha')
+        task['global_tgid'] = 9999
+        task['evidence']['status'] = make_status(task['comm'], 9999,
+                                                 task['global_tid'],
+                                                 [9999, task['local_tgid']],
+                                                 [task['global_tid'], task['local_tid']])
+        self._service(collector.EXCHANGE_PHASE_POST, snapshot)
+        mapping = make_post_mapping(self.owner_map)
+        with self.assertRaisesRegex(ValueError, 'global tgid differs'):
+            collector.post_capture_tasks(self.args, {}, self.owners, mapping)
+
+    def test_wrong_boot_rejected(self):
+        with self.assertRaisesRegex(ValueError, 'boot_id'):
+            self._pre(make_snapshot(self.owner_map),
+                      mutate=lambda r: dict(r, boot_id='other-boot'))
+
+    def test_wrong_epoch_rejected(self):
+        with self.assertRaisesRegex(ValueError, 'epoch'):
+            self._pre(make_snapshot(self.owner_map),
+                      mutate=lambda r: dict(r, epoch='b' * 32))
+
+    def test_wrong_owner_ticks_rejected(self):
+        with self.assertRaisesRegex(ValueError, 'start_ticks differ'):
+            self._pre(make_snapshot(self.owner_map, ticks_shift=1))
+
+    def test_thread_reuse_post_capture_rejected(self):
+        metadata = {}
+        reused = make_snapshot(self.owner_map, ticks_shift=7)
+        self._service(collector.EXCHANGE_PHASE_POST, reused)
+        mapping = make_post_mapping(self.owner_map)
+        with self.assertRaisesRegex(ValueError, 'start_ticks differ'):
+            collector.post_capture_tasks(self.args, metadata, self.owners, mapping)
+        self.assertNotIn('post_capture_tasks_proof', metadata)
+
+    def test_missing_post_target_fails_final_verification(self):
+        metadata = {}
+        partial = make_snapshot(self.owner_map, drop_leader='supervisor')
+        partial['tasks'] = [t for t in partial['tasks'] if t['comm'] != 'wk-supers']
+        self._service(collector.EXCHANGE_PHASE_POST, partial)
+        mapping = make_post_mapping(self.owner_map)
+        mapping['base_leaders'].pop('px4_worker')
+        mapping['kernel_pids'].pop('px4_worker')
+        with self.assertRaisesRegex(ValueError, 'absent from post-capture snapshot'):
+            collector.post_capture_tasks(self.args, metadata, self.owners, mapping)
+        self.assertNotIn('post_capture_tasks_proof', metadata)
+
+    def test_ap_same_comm_helper_is_evidence_not_ambiguity(self):
+        with tempfile.TemporaryDirectory() as temp:
+            output = Path(temp)
+            lines = iter([
+                'x  [0]  sched_switch: prev_comm=arducopter prev_pid=1055 prev_prio=59 prev_state=R ==> next_comm=other next_pid=1',
+                'x  [0]  sched_switch: prev_comm=arducopter prev_pid=1044 prev_prio=59 prev_state=R ==> next_comm=other next_pid=1',
+            ])
+            evidence = []
+
+            def fake_read(descriptor, count):
+                try:
+                    return next(lines).encode() + b'\n'
+                except StopIteration:
+                    return b''
+
+            with patch.object(collector.os, 'open', return_value=0), \
+                    patch.object(collector.os, 'read', side_effect=fake_read), \
+                    patch.object(collector.select, 'select', return_value=([0], [], [])), \
+                    patch.object(collector.os, 'close'), \
+                    patch.object(collector.time, 'monotonic', side_effect=[float(i) / 10 for i in range(40)]):
+                mapped = collector.map_sched_switch_pids(
+                    output, lambda *a: None, {'ap_fc/arducopter': 'arducopter'}, output,
+                    expected={'ap_fc/arducopter': 1044}, evidence=evidence)
+            self.assertEqual(mapped, {'ap_fc/arducopter': 1044})
+            self.assertEqual(evidence, [{'role': 'ap_fc/arducopter', 'comm': 'arducopter',
+                                         'kernel_pid': 1055}])
+
+    def test_completion_gate_requires_post_capture_proof(self):
+        source = (Path(collector.__file__).read_text(encoding='utf-8'))
+        line = next(l for l in source.splitlines() if "metadata['complete']=" in l)
+        self.assertIn("post_capture_tasks_proof", line)
 
 
 if __name__=='__main__':unittest.main()
