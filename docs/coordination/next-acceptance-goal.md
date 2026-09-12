@@ -10,6 +10,8 @@
 
 衡量进度：实际验收完成、关键阻塞解除、可复查失败原因。测试数量、代理报告和文档篇幅不算产品验收。
 
+最新 M1 实跑发现：`5374afc` rootproof-01 的预检通过，但 WSL system PNS0 仅是可见根，PID 与实际 sched_switch 不同；当前禁止用它证明 kernel-global。失败已保存在 `validation/scheduler-rootproof-20260912-01`，独立确认自有进程与 trace instance 全部退场。stdin 正常退出、partial metadata 收集和 gate 的既有 health 心跳已修，97 项 Ubuntu 检查通过。现有 GCC 编译的 BPF 自有 canary 已实际证明 local696→kernel1115；下一 M1 切片是五 owner/FC 线程真正内核绑定与生命周期证明，完成前不再盲跑。详见 short-cycle-goal.md 顶部最新检查点。
+
 ## 当前六端分工
 
 | 执行端 | 本切片 | 文件所有权 |

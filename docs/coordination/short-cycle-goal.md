@@ -2,6 +2,12 @@
 
 ## 最新检查点（优先于下方历史记录）
 
+2026-09-12 实跑更新（优先于以下旧检查点）：M1 `5374afc` 的新 rootproof-01 已失败并保留原件。预检通过、root snapshot交换成功，但WSL system PNS0不是initial kernel namespace：AP worker proc2350对应trace20191，supervisor1631对应18931，不能再用该视图冒充kernel-global。当前collector已增加明确拒绝，下一真实SITL诊断必须先完成真正kernelPID绑定，不重复盲跑。BPF自有canary已使用现有GCC实际通过，local696→kernel1115；只是单进程机制证明，五owner/FC线程前后证明和collector尚未接入。
+
+同场还暴露gate阻断health导致1.6766s permission间隔超过原0.5s lease，以及BufferedReader daemon退出rc134。两处已修，partial metadata也在finally核验并保留。Ubuntu组合97 passed/32 subtests（含真实EOF和stdin仍开放时正常退出）；新reader对原始失败metadata重验能证明清理但complete仍false。独立检查所有自有身份已退出、trace instance已删除，原Windows need_cleanup=true报告不重写。证据 validation/scheduler-rootproof-20260912-01 与 kernel-pid-canary-20260912。
+
+当前派发：Luna scheduler/gate修复均交付；第三Luna确认只有RflySim具有Noetic+Humble，构建官方ros1_bridge仍需准备ROS2消息overlay与bridge源码。OMP Task21x只写真实ROS2 TCP→公共CommandRequest薄装配器、暂禁测试；Claude18y只读核验PID scope拒绝；agy18-AI只读研究kernel helper多owner绑定。无当前SITL/ROS/native运行。Goal继续active，Full未完成。
+
 2026-09-12 最新实证：`029fae1` 已完成并推送完整 EGO 原生构建，全部 planner 可执行文件/消息与 19 份 C++17 编译配置已核验。随后真实 ROS1 GridMap run-01 通过：实际收到的 132000 字节点云与冻结中心逐字节一致，11000 唯一体素、8 个 occupancy 查询全部通过；证据 `validation/39-gridmap-cloud-20260912/`。仅使用独立 master 与明确的静态 odom 夹具，不代表规划/净空/飞行通过。
 
 M1 最新：Linux preflight 身份缺失、leader 退出残留、存活 leader 晚创建子进程快照已修；Windows launcher 严格清理报告与路径数据传递、collector 全五 owner/root PID 双阶段证明已联调。Ubuntu 当前相关三套检查 82 passed/30 subtests（含真实 EOF 子进程清理）。等待 Claude 最后接口核对与实际资源准入后，在全新目录真实诊断。当前无真实运行占用。三个 Luna 现用 luna2_scheduler_verify、luna2_gridmap_probe、luna2_cloud_publisher；完成状态须实时枚举后续派。OMP 正在实现公共 trajectory egress，agy 核对实际 M1 资源，Claude 只读 M1 联调；旧线程分工均为历史。

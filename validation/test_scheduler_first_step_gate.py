@@ -22,6 +22,32 @@ def load_hook():
 
 
 class FirstStepGateTests(unittest.TestCase):
+    def _bootstrap_fixture(self, root, epoch='a'*32):
+        capture = root/'capture'; capture.mkdir()
+        ready = root/'gate-ready.json'; release = root/'gate-release.json'
+        token = capture/'capture-bootstrap-active.json'
+        owner = dict(schema='wksim.private-tracefs.instance-owner.v1',
+                     collector_pid=456, collector_start_ticks=457,
+                     supervisor_pid=os.getpid(), supervisor_start_ticks=789,
+                     instance='/sys/kernel/tracing/instances/wksim-rate-'+epoch,
+                     instance_inode=[1, 2], run_id='run', epoch=epoch)
+        owner_path = capture/'instance-owner.json'
+        owner_path.write_text(json.dumps(owner, sort_keys=True)+'\n')
+        active = dict(schema='wksim.private-tracefs.capture-bootstrap-active.v1',
+                      state='bootstrap_active', phase='bootstrap_sched_switch',
+                      collector_pid=456, collector_start_ticks=457,
+                      supervisor_pid=os.getpid(), supervisor_start_ticks=789,
+                      instance=owner['instance'], instance_inode=[1, 2],
+                      run_id='run', epoch=epoch, started_monotonic_ns=100,
+                      published_monotonic_ns=200,
+                      instance_owner_sha256=hashlib.sha256(owner_path.read_bytes()).hexdigest())
+        return capture, ready, release, token, active
+
+    def _gate_env(self, ready, release, token, capture):
+        return dict(WKSIM_TRACE_GATE_READY=str(ready), WKSIM_TRACE_GATE_RELEASE=str(release),
+                    WKSIM_TRACE_CAPTURE_BOOTSTRAP_TOKEN=str(token),
+                    WKSIM_TRACE_CAPTURE_ACTIVE_TOKEN=str(capture/'capture-active.json'))
+
     def test_hook_publishes_tick_zero_release_bound_to_bootstrap_token(self):
         hook = load_hook()
         epoch = 'a'*32
@@ -52,7 +78,8 @@ class FirstStepGateTests(unittest.TestCase):
                                   WKSIM_TRACE_GATE_RELEASE=str(release),
                                   WKSIM_TRACE_CAPTURE_BOOTSTRAP_TOKEN=str(token),
                                   WKSIM_TRACE_CAPTURE_ACTIVE_TOKEN=str(capture/'capture-active.json'))
-                frame = SimpleNamespace(f_locals={'self': SimpleNamespace(clock=SimpleNamespace(tick=0))})
+                frame = SimpleNamespace(f_locals={'self': SimpleNamespace(
+                    clock=SimpleNamespace(tick=0), health=lambda: None)})
                 with patch.object(hook, '_self_start_ticks', return_value=789):
                     hook._first_step_gate(frame)
             finally:
@@ -102,7 +129,8 @@ class FirstStepGateTests(unittest.TestCase):
                 os.environ.update(WKSIM_TRACE_GATE_READY=str(ready),WKSIM_TRACE_GATE_RELEASE=str(release),
                                   WKSIM_TRACE_CAPTURE_BOOTSTRAP_TOKEN=str(token),
                                   WKSIM_TRACE_CAPTURE_ACTIVE_TOKEN=str(capture/'capture-active.json'))
-                frame=SimpleNamespace(f_locals={'self':SimpleNamespace(clock=SimpleNamespace(tick=0))})
+                frame=SimpleNamespace(f_locals={'self':SimpleNamespace(
+                    clock=SimpleNamespace(tick=0), health=lambda: None)})
                 with patch.object(hook,'_self_start_ticks',return_value=789):hook._first_step_gate(frame)
             finally:
                 os.environ.clear();os.environ.update(previous)
@@ -151,7 +179,8 @@ class FirstStepGateTests(unittest.TestCase):
                                   WKSIM_TRACE_GATE_RELEASE=str(release),
                                   WKSIM_TRACE_CAPTURE_BOOTSTRAP_TOKEN=str(token),
                                   WKSIM_TRACE_CAPTURE_ACTIVE_TOKEN=str(capture/'capture-active.json'))
-                frame = SimpleNamespace(f_locals={'self': SimpleNamespace(clock=SimpleNamespace(tick=0))})
+                frame = SimpleNamespace(f_locals={'self': SimpleNamespace(
+                    clock=SimpleNamespace(tick=0), health=lambda: None)})
                 with patch.object(hook, '_self_start_ticks', return_value=789):
                     hook._first_step_gate(frame)
             finally:
@@ -199,6 +228,93 @@ class FirstStepGateTests(unittest.TestCase):
                 with self.subTest(state=state, published=published), self.assertRaisesRegex(
                         RuntimeError, 'Capture-active token identity differs|publication precedes'):
                     hook._capture_active(token, ready)
+
+    def test_hook_services_health_while_waiting_without_advancing_clock(self):
+        hook = load_hook()
+        epoch = 'a'*32
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            capture, ready, release, token, active = self._bootstrap_fixture(root, epoch)
+            frame = SimpleNamespace(f_locals={'self': SimpleNamespace(clock=SimpleNamespace(tick=0))})
+            calls = []
+            fake_now = [100.0]
+
+            def monotonic():
+                value = fake_now[0]
+                fake_now[0] += .1
+                return value
+
+            def health():
+                calls.append(frame.f_locals['self'].clock.tick)
+                self.assertEqual(frame.f_locals['self'].clock.tick, 0)
+                if len(calls) == 7:
+                    token.write_text(json.dumps(active, sort_keys=True)+'\n')
+
+            frame.f_locals['self'].health = health
+
+            previous = os.environ.copy()
+            try:
+                os.environ.update(self._gate_env(ready, release, token, capture))
+                hook.run_id, hook.epoch = 'run', epoch
+                with (patch.object(hook, '_self_start_ticks', return_value=789),
+                      patch.object(hook.time, 'monotonic', side_effect=monotonic),
+                      patch.object(hook.time, 'sleep')):
+                    hook._first_step_gate(frame)
+            finally:
+                os.environ.clear(); os.environ.update(previous)
+            self.assertGreaterEqual(len(calls), 7)
+            self.assertEqual(set(calls), {0})
+            value = json.loads(release.read_text())
+            self.assertEqual(value['tick'], 0)
+            self.assertEqual(value['capture_token_schema'], active['schema'])
+            self.assertEqual(value['capture_token_sha256'], hashlib.sha256(token.read_bytes()).hexdigest())
+
+    def test_hook_aborts_immediately_when_health_fails(self):
+        hook = load_hook()
+        epoch = 'a'*32
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            capture, ready, release, token, _ = self._bootstrap_fixture(root, epoch)
+            frame = SimpleNamespace(f_locals={'self': SimpleNamespace(clock=SimpleNamespace(tick=0))})
+            calls = []
+
+            def health():
+                calls.append(1)
+                raise RuntimeError('health failure')
+
+            frame.f_locals['self'].health = health
+
+            previous = os.environ.copy()
+            try:
+                os.environ.update(self._gate_env(ready, release, token, capture))
+                hook.run_id, hook.epoch = 'run', epoch
+                with (patch.object(hook, '_self_start_ticks', return_value=789),
+                      patch.object(hook.time, 'sleep') as sleep):
+                    with self.assertRaisesRegex(RuntimeError, 'health failure'):
+                        hook._first_step_gate(frame)
+            finally:
+                os.environ.clear(); os.environ.update(previous)
+            self.assertEqual(calls, [1])
+            sleep.assert_not_called()
+            self.assertFalse(release.exists())
+
+    def test_hook_fails_closed_when_health_callback_is_missing(self):
+        hook = load_hook()
+        epoch = 'a'*32
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            capture, ready, release, token, _ = self._bootstrap_fixture(root, epoch)
+            frame = SimpleNamespace(f_locals={'self': SimpleNamespace(clock=SimpleNamespace(tick=0))})
+            previous = os.environ.copy()
+            try:
+                os.environ.update(self._gate_env(ready, release, token, capture))
+                hook.run_id, hook.epoch = 'run', epoch
+                with self.assertRaisesRegex(RuntimeError, 'callable physics health callback'):
+                    hook._first_step_gate(frame)
+            finally:
+                os.environ.clear(); os.environ.update(previous)
+            self.assertFalse(ready.exists())
+            self.assertFalse(release.exists())
 
 
 if __name__ == '__main__':

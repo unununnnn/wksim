@@ -14,6 +14,7 @@ from unittest.mock import Mock, patch
 from tools.profile_joint_scheduler import (
     check_host_cancelled, install_cleanup_signal_handlers,
     kill_manager_group,
+    _record_collector_capture,
     retire_manager,
     restore_cleanup_signal_handlers, run, run_owned_preflight,
     wait_owned_process, watch_host_input,
@@ -23,6 +24,18 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class SchedulerHostLifetimeTests(unittest.TestCase):
+    def test_host_fd_failure_requests_shutdown_instead_of_silently_disabling_watch(self):
+        stream = Mock()
+        stream.fileno.return_value = 19
+        notified = threading.Event()
+        with patch('tools.profile_joint_scheduler.os.name', 'posix'), \
+                patch('tools.profile_joint_scheduler.select.select', side_effect=OSError('closed fd')):
+            watcher = watch_host_input(stream, notified.set)
+            watcher.join(timeout=1)
+        self.assertTrue(notified.is_set())
+        self.assertFalse(watcher.is_alive())
+        stream.read.assert_not_called()
+
     def test_host_eof_emits_exactly_one_shutdown_notification(self):
         called = threading.Event()
         callback = Mock(side_effect=called.set)
@@ -30,6 +43,8 @@ class SchedulerHostLifetimeTests(unittest.TestCase):
         self.assertTrue(called.wait(1))
         callback.assert_called_once_with()
         stopped.set()
+        stopped.join(1)
+        self.assertFalse(stopped.is_alive())
 
     def test_signals_can_defer_interrupt_until_handle_is_recorded(self):
         cancelled = threading.Event()
@@ -259,6 +274,7 @@ except KeyboardInterrupt:
     result['interrupted']=True
 finally:
     stopped.set()
+    stopped.join(1)
     restore_cleanup_signal_handlers(previous)
 print(json.dumps(result))
 '''
@@ -270,6 +286,115 @@ print(json.dumps(result))
         self.assertIsInstance(receipt['preflight_returncode'], int)
         self.assertEqual(receipt['remaining_preflight_group'], [])
         self.assertNotIn('preflight_cleanup_error', receipt)
+
+    @unittest.skipUnless(os.name == 'posix', 'real Linux fd watcher')
+    def test_real_open_stdin_pipe_child_normal_exit_reaps_watcher(self):
+        program = r'''
+import json,os,sys
+from tools.profile_joint_scheduler import watch_host_input,run_owned_preflight
+stopped=watch_host_input(sys.stdin.buffer)
+result={}
+try:
+    with open(os.devnull,'w') as log:
+        result['preflight_returncode']=run_owned_preflight(
+            [sys.executable,'-B','-c','import sys; sys.exit(0)'], log, result)
+finally:
+    stopped.set()
+    stopped.join(1)
+    result['watcher_alive']=stopped.is_alive()
+print(json.dumps(result))
+'''
+        child = subprocess.Popen(
+            [sys.executable, '-B', '-c', program], cwd=ROOT,
+            stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        try:
+            code = child.wait(timeout=15)
+            stdout = child.stdout.read() if child.stdout is not None else b''
+            stderr = child.stderr.read() if child.stderr is not None else b''
+        finally:
+            if child.stdin is not None and not child.stdin.closed:
+                child.stdin.close()
+        self.assertEqual(code, 0, stderr.decode(errors='replace'))
+        receipt = json.loads(stdout)
+        self.assertEqual(receipt['preflight_returncode'], 0)
+        self.assertFalse(receipt['watcher_alive'])
+        self.assertEqual(receipt['remaining_preflight_group'], [])
+
+    def test_partial_collector_metadata_is_retained_after_retirement(self):
+        owners = {
+            role: {'pid': index, 'start_ticks': index + 100,
+                   'pgid': index, 'argv': [role]}
+            for index, role in enumerate(
+                ('ap_worker', 'px4_worker', 'supervisor', 'ap_fc', 'px4_fc'), 10)
+        }
+        collector = {'pid': 99, 'start_ticks': 199, 'pgid': 99, 'argv': ['collector']}
+        capture = {
+            'schema': 'wksim.private-tracefs.v1', 'run_id': 'run-1', 'epoch': 'e' * 32,
+            'instance': '/sys/kernel/tracing/instances/wksim-rate-one',
+            'instance_inode': [1, 2], 'collector_pid': 99, 'collector_start_ticks': 199,
+            'owners': {role: {'pid': value['pid'], 'start_ticks': value['start_ticks']}
+                       for role, value in owners.items()},
+            'complete': False, 'instance_removed': True,
+            'errors': ['post-capture proof failed'],
+        }
+        owner = {
+            'schema': 'wksim.private-tracefs.instance-owner.v1',
+            'instance': capture['instance'], 'instance_inode': capture['instance_inode'],
+            'collector_pid': 99, 'collector_start_ticks': 199,
+            'supervisor_pid': owners['supervisor']['pid'],
+            'supervisor_start_ticks': owners['supervisor']['start_ticks'],
+            'owners': owners, 'boot_id': 'boot-1', 'run_id': 'run-1', 'epoch': 'e' * 32,
+        }
+        with tempfile.TemporaryDirectory() as temp:
+            output = Path(temp) / 'capture'
+            output.mkdir()
+            (output / 'metadata.json').write_text(json.dumps(capture))
+            (output / 'instance-owner.json').write_text(json.dumps(owner))
+            result = {'run_id': 'run-1', 'epoch': 'e' * 32, 'boot_id': 'boot-1',
+                      'collector': collector, 'owners': owners}
+            _record_collector_capture(Path(temp), result)
+        self.assertEqual(result['capture'], capture)
+        self.assertFalse(result['capture']['complete'])
+        self.assertEqual(result['capture']['errors'], ['post-capture proof failed'])
+        self.assertNotIn('collector_cleanup_error', result)
+
+    def test_collector_metadata_identity_mismatch_is_rejected(self):
+        capture = {
+            'schema': 'wksim.private-tracefs.v1', 'run_id': 'run-1', 'epoch': 'e' * 32,
+            'instance': '/sys/kernel/tracing/instances/wksim-rate-one',
+            'instance_inode': [1, 2], 'collector_pid': 99, 'collector_start_ticks': 199,
+            'owners': {}, 'complete': False, 'instance_removed': True, 'errors': [],
+        }
+        owner = {
+            'schema': 'wksim.private-tracefs.instance-owner.v1',
+            'instance': capture['instance'], 'instance_inode': capture['instance_inode'],
+            'collector_pid': 98, 'collector_start_ticks': 198,
+            'supervisor_pid': 10, 'supervisor_start_ticks': 110,
+            'owners': {}, 'boot_id': 'boot-1', 'run_id': 'run-1', 'epoch': 'e' * 32,
+        }
+        with tempfile.TemporaryDirectory() as temp:
+            output = Path(temp) / 'capture'
+            output.mkdir()
+            (output / 'metadata.json').write_text(json.dumps(capture))
+            (output / 'instance-owner.json').write_text(json.dumps(owner))
+            result = {'run_id': 'run-1', 'epoch': 'e' * 32, 'boot_id': 'boot-1',
+                      'collector': {'pid': 99, 'start_ticks': 199}, 'owners': {}}
+            _record_collector_capture(Path(temp), result)
+        self.assertEqual(result['capture'], capture)
+        self.assertIn('collector_cleanup_error', result)
+        self.assertIn('identity', result['collector_cleanup_error'])
+
+    def test_missing_collector_metadata_is_rejected(self):
+        with tempfile.TemporaryDirectory() as temp:
+            (Path(temp) / 'capture').mkdir()
+            result = {
+                'run_id': 'run-1', 'epoch': 'e' * 32, 'boot_id': 'boot-1',
+                'collector': {'pid': 99, 'start_ticks': 199}, 'owners': {},
+            }
+            _record_collector_capture(Path(temp), result)
+        self.assertNotIn('capture', result)
+        self.assertIn('collector_cleanup_error', result)
+        self.assertIn('unavailable', result['collector_cleanup_error'])
 
 
 if __name__ == '__main__':

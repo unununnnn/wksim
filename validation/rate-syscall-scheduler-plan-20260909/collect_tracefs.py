@@ -215,6 +215,9 @@ def _exchange_roundtrip(args,metadata,owners,phase):
     require(isinstance(lsns_evidence,dict) and isinstance(lsns_evidence.get('raw'),str),
             'Snapshot lacks raw lsns evidence')
     lsns_proof=verify_lsns_root(lsns_evidence['raw'],ns)
+    require(lsns_proof['kernel_global_proven'],
+            'Visible WSL system PNS 0 is not the initial kernel PID namespace; '
+            'procfs IDs cannot pin sched_switch kernel IDs')
     tasks=snapshot.get('tasks')
     require(isinstance(tasks,list) and bool(tasks),'Snapshot carries no task records')
     for task in tasks:

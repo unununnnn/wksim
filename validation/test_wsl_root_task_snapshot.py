@@ -94,6 +94,7 @@ class WslRootTaskSnapshotSyntheticTests(unittest.TestCase):
     def test_verify_lsns_root_valid(self):
         proof = verify_lsns_root(VALID_LSNS, 4026532221)
         self.assertEqual(proof['root_ns'], 4026532209)
+        self.assertFalse(proof['kernel_global_proven'])
         self.assertEqual(proof['target_ns'], 4026532221)
         self.assertEqual(proof['root_pid'], 1)
         self.assertEqual(proof['target_pid'], 2)

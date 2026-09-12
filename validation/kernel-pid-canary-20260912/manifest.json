@@ -1,0 +1,26 @@
+{
+  "status": "self_only_helper_capability_pass",
+  "workspace": "/root/wksim-kernel-pid-canary-QV8nrl",
+  "distro": "Ubuntu-22.04",
+  "kernel": "6.6.87.2-microsoft-standard-WSL2",
+  "source": "validation/kernel_pid_canary.c",
+  "source_sha256": "6c57cfa7102766637d60c20fd57b504e95edbbf21f16a3cd5294c93021787e6f",
+  "binary_sha256": "71fbdf3007e8dfffbdf83d8d01e5cbac263e4d6f85e5d448ddccdf79e3c3ff3d",
+  "compiler": "gcc (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0",
+  "build_command": [
+    "gcc",
+    "-std=c11",
+    "-O2",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/validation/kernel_pid_canary.c",
+    "-o",
+    "/root/wksim-kernel-pid-canary-QV8nrl/canary"
+  ],
+  "no_binary_published": true,
+  "initial_kernel_mapping_via": "bpf_get_current_pid_tgid",
+  "namespace_mapping_via": "bpf_get_ns_current_pid_tgid",
+  "production_integration": false,
+  "five_owner_fc_coverage": false
+}

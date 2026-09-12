@@ -149,6 +149,9 @@ def _first_step_gate(frame):
     bootstrap_name = os.environ.get('WKSIM_TRACE_CAPTURE_BOOTSTRAP_TOKEN')
     if not bootstrap_name:
         raise RuntimeError('First-step gate requires a bootstrap capture token')
+    health = getattr(instance, 'health', None)
+    if not callable(health):
+        raise RuntimeError('First-step gate requires a callable physics health callback')
     gate_ready = Path(os.environ['WKSIM_TRACE_GATE_READY'])
     gate_release = Path(os.environ['WKSIM_TRACE_GATE_RELEASE'])
     active_token = Path(bootstrap_name)
@@ -162,6 +165,12 @@ def _first_step_gate(frame):
     token_sha256 = None
     owner_sha256 = None
     while time.monotonic() < deadline:
+        # Keep the runtime's supervision/lifecycle path alive while the
+        # diagnostic collector is preparing its bootstrap window.  This gate
+        # runs before the first advance, so health must not advance the clock.
+        health()
+        if getattr(clock, 'tick', None) != 0:
+            raise RuntimeError('Diagnostic first-step gate health changed clock tick')
         if active_token.exists():
             active, token_sha256, owner_sha256 = _capture_active(active_token, ready)
             break

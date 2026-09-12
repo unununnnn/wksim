@@ -1,11 +1,12 @@
 """WSL host-root procfs task snapshot exporter and verifier.
 
-Provides read-only, namespace-verified binding between container-local task
-identities (local_tid, local_tgid) and host kernel-global identities (global_tid,
-global_tgid).
+Provides read-only binding between distro-local task identities and the
+visible WSL system procfs view. The legacy global_tid/global_tgid field names
+refer to that procfs view; they are kernel-global only when
+kernel_global_proven is true. A visible PNS 0 alone does not prove this.
 
 Executed via a fixed argv invocation of ``wsl.exe -d <distro> --system -u root sh``
-against the WSL VM system container (root PID namespace PNS 0), preserving raw
+against the WSL system container (which may itself be nested), preserving raw
 bytes via base64 without requiring Python on the system host.
 """
 from __future__ import annotations
@@ -21,6 +22,9 @@ from typing import Any, Callable, Dict, List, Mapping, Optional, Sequence, Tuple
 DEFAULT_DISTRO = 'Ubuntu-22.04'
 DEFAULT_TIMEOUT_S = 5.0
 DEFAULT_MAX_BYTES = 2 * 1024 * 1024
+# Linux include/linux/proc_ns.h, PROC_PID_INIT_INO (v6.6).
+# https://github.com/torvalds/linux/blob/v6.6/include/linux/proc_ns.h
+INITIAL_KERNEL_PID_NS_INODE = 0xEFFFFFFC
 
 WSL_C_PATH = Path('/mnt/c/Windows/System32/wsl.exe')
 WSL_WIN_PATH = Path(r'C:\Windows\System32\wsl.exe')
@@ -97,7 +101,7 @@ def build_exporter_sh_script(target_ns_inode: int) -> str:
 
 
 def verify_lsns_root(lsns_text: str, target_ns_inode: int) -> dict[str, Any]:
-    """Verify that the host lsns output confirms a genuine root PID namespace (PNS 0).
+    """Verify the visible procfs namespace hierarchy, not PNS-0 global identity.
 
     Fails closed if the root namespace is not PNS 0, or if the target namespace
     is not a direct descendant of the verified root.
@@ -126,6 +130,7 @@ def verify_lsns_root(lsns_text: str, target_ns_inode: int) -> dict[str, Any]:
 
     return {
         'root_ns': root_ns,
+        'kernel_global_proven': root_ns == INITIAL_KERNEL_PID_NS_INODE,
         'target_ns': target_ns_inode,
         'root_pid': roots[0]['pid'],
         'target_pid': target_row['pid'],
@@ -368,6 +373,8 @@ def parse_exporter_output(
 
     return {
         'root_pid_ns': lsns_proof['root_ns'],
+        'kernel_global_proven': lsns_proof['kernel_global_proven'],
+        'pid_scope': 'initial_kernel' if lsns_proof['kernel_global_proven'] else 'visible_wsl_system',
         'target_pid_ns': target_ns_inode,
         'lsns_evidence': lsns_proof,
         'leaders': leaders_by_pid,

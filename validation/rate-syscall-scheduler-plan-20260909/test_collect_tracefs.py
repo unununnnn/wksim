@@ -11,7 +11,10 @@ import threading
 import time
 
 from tools.wsl_snapshot_exchange import decode_json_strict, make_snapshot_response, publish_create_only
-from validation.test_wsl_root_task_snapshot import VALID_LSNS, make_stat, make_status
+from validation.test_wsl_root_task_snapshot import VALID_LSNS as SYSTEM_VIEW_LSNS, make_stat, make_status
+
+# Successful mapping fixtures must represent the initial kernel namespace.
+VALID_LSNS = SYSTEM_VIEW_LSNS.replace('4026532209', '4026531836')
 
 sys.path.insert(0,str(Path(__file__).resolve().parent))
 import collect_tracefs as collector
@@ -531,6 +534,7 @@ class ExchangeIntegration(unittest.TestCase):
         proven = self._pre(make_snapshot(self.owner_map))
         self.assertEqual(proven['ap_fc']['global_tid'], 1044)
         self.assertEqual(proven['px4_fc']['global_tgid'], 1055)
+
         self.assertEqual(proven['supervisor']['proof'], 'root_snapshot_exchange')
 
         metadata = {}
@@ -541,6 +545,14 @@ class ExchangeIntegration(unittest.TestCase):
         self.assertEqual(verified, mapping['kernel_pids'])
         self.assertEqual(metadata['post_capture_tasks_proof']['count'],
                          len(mapping['kernel_pids']))
+
+    def test_visible_wsl_pns_zero_cannot_prove_kernel_pids(self):
+        snapshot = make_snapshot(self.owner_map)
+        snapshot['lsns_evidence']['raw'] = SYSTEM_VIEW_LSNS
+        # Even a claimed summary flag cannot override the raw namespace proof.
+        snapshot['kernel_global_proven'] = True
+        with self.assertRaisesRegex(ValueError, 'not the initial kernel PID namespace'):
+            self._pre(snapshot)
 
     def test_pre_rejects_leader_summary_not_bound_to_raw_task(self):
         snapshot = make_snapshot(self.owner_map)

@@ -1,0 +1,119 @@
+{
+  "boot_id": "edf68ecd-9bb2-4399-a43c-4c2fdbe3b5d3",
+  "collector_pid": 2321,
+  "collector_start_ticks": 72955,
+  "epoch": "d0f9ba4b0e6f470099ca3a83c14ea079",
+  "instance": "/sys/kernel/tracing/instances/wksim-rate-cf8639b0c73047f28fc2c49ef2e883bf",
+  "instance_inode": [
+    12,
+    126043
+  ],
+  "owners": {
+    "ap_fc": {
+      "argv": [
+        "/root/wksim-ap-clock-stop-OXQqdR/build/sitl/bin/arducopter",
+        "--model",
+        "JSON:127.0.0.1",
+        "--rate",
+        "1000",
+        "--speedup",
+        "3",
+        "--base-port",
+        "16600",
+        "--instance",
+        "11",
+        "--sysid",
+        "241",
+        "--sim-address",
+        "127.0.0.1",
+        "--sim-port-out",
+        "19002",
+        "--sim-port-in",
+        "19003",
+        "--rc-in-port",
+        "19004",
+        "--serial0",
+        "udpclient:127.0.0.1:14660",
+        "--serial1",
+        "none",
+        "--serial2",
+        "none",
+        "--defaults",
+        "/root/wksim-ap-clock-stop-OXQqdR/src/Tools/autotest/default_params/copter.parm,/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/Simulator/wksim_core/arducopter-quad-x.parm,/root/wksim-scheduler-probe-20260912-rootproof-01/runs/scheduler-cb5f52f63cd2/epochs/d0f9ba4b0e6f470099ca3a83c14ea079/arducopter/dds.parm",
+        "--home",
+        "40.1540302,116.2593683,50,0"
+      ],
+      "pgid": 1567,
+      "pid": 2288,
+      "start_ticks": 72953
+    },
+    "ap_worker": {
+      "argv": [
+        "/usr/bin/python3",
+        "-B",
+        "-m",
+        "Simulator.wksim_core.worker",
+        "--library",
+        "/root/wksim-private-tmp-cxrbwjyr/artifacts/wksim-model-ms14otyn/libwksim_model.so",
+        "--trace",
+        "/root/wksim-scheduler-probe-20260912-rootproof-01/runs/scheduler-cb5f52f63cd2/epochs/d0f9ba4b0e6f470099ca3a83c14ea079/arducopter-truth.jsonl",
+        "--epoch",
+        "d0f9ba4b0e6f470099ca3a83c14ea079"
+      ],
+      "pgid": 1567,
+      "pid": 2286,
+      "start_ticks": 72952
+    },
+    "px4_fc": {
+      "argv": [
+        "/root/wksim-px4-state-ONa1Kw/src/build/px4_sitl_default/bin/px4",
+        "-d",
+        "/root/wksim-px4-state-ONa1Kw/src/build/px4_sitl_default/etc",
+        "-t",
+        "/root/wksim-px4-state-ONa1Kw/src/test_data",
+        "-i",
+        "21",
+        "-w",
+        "/root/wksim-scheduler-probe-20260912-rootproof-01/runs/scheduler-cb5f52f63cd2/epochs/d0f9ba4b0e6f470099ca3a83c14ea079/px4"
+      ],
+      "pgid": 1567,
+      "pid": 2294,
+      "start_ticks": 72953
+    },
+    "px4_worker": {
+      "argv": [
+        "/usr/bin/python3",
+        "-B",
+        "-m",
+        "Simulator.wksim_core.worker",
+        "--library",
+        "/root/wksim-private-tmp-cxrbwjyr/artifacts/wksim-model-ms14otyn/libwksim_model.so",
+        "--trace",
+        "/root/wksim-scheduler-probe-20260912-rootproof-01/runs/scheduler-cb5f52f63cd2/epochs/d0f9ba4b0e6f470099ca3a83c14ea079/px4-truth.jsonl",
+        "--epoch",
+        "d0f9ba4b0e6f470099ca3a83c14ea079"
+      ],
+      "pgid": 1567,
+      "pid": 2290,
+      "start_ticks": 72953
+    },
+    "supervisor": {
+      "argv": [
+        "python3",
+        "-B",
+        "-m",
+        "Simulator.wksim_runtime.joint_runtime",
+        "/root/wksim-scheduler-probe-20260912-rootproof-01/runs/scheduler-cb5f52f63cd2",
+        "d0f9ba4b0e6f470099ca3a83c14ea079",
+        "1"
+      ],
+      "pgid": 1567,
+      "pid": 1567,
+      "start_ticks": 70788
+    }
+  },
+  "run_id": "scheduler-cb5f52f63cd2",
+  "schema": "wksim.private-tracefs.instance-owner.v1",
+  "supervisor_pid": 1567,
+  "supervisor_start_ticks": 70788
+}

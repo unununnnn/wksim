@@ -10,6 +10,7 @@ import json
 import math
 import os
 from pathlib import Path
+import select
 import signal
 import subprocess
 import sys
@@ -211,20 +212,74 @@ def restore_cleanup_signal_handlers(previous):
         signal.signal(signum,handler)
 
 
-def watch_host_input(stream, on_eof=None):
-    """Signal this Linux runner once on host EOF; never signal its children."""
-    stopped = threading.Event()
-    callback = on_eof or (lambda: os.kill(os.getpid(), signal.SIGTERM))
-    def watch():
+class _HostInputWatcher:
+    """Own the watcher thread so callers can stop and reap it explicitly."""
+
+    def __init__(self, stream, callback):
+        self._stopped = threading.Event()
+        self._thread = threading.Thread(target=self._watch, args=(stream, callback),
+                                         name='wksim-host-stdin')
+        self._thread.daemon = True
+        self._thread.start()
+
+    def _watch(self, stream, callback):
+        fd = None
         try:
-            while stream.read(1):
+            fd = stream.fileno()
+        except (AttributeError, OSError, ValueError):
+            pass
+
+        if os.name == 'posix' and isinstance(fd, int) and fd >= 0:
+            try:
+                while not self._stopped.is_set():
+                    readable, _, _ = select.select([fd], [], [], .1)
+                    if not readable:
+                        continue
+                    chunk = os.read(fd, 4096)
+                    if not chunk:
+                        break
+                if not self._stopped.is_set():
+                    callback()
+                return
+            except (OSError, ValueError):
+                # Once a real POSIX fd was selected, never fall back to a
+                # BufferedReader read: a closed or invalid fd must not leave
+                # the interpreter blocked on its internal buffer lock.
+                if not self._stopped.is_set():
+                    callback()
+                return
+
+        try:
+            while not self._stopped.is_set() and stream.read(1):
                 pass
         except (OSError, ValueError):
             pass
-        if not stopped.is_set():
+        if not self._stopped.is_set():
             callback()
-    threading.Thread(target=watch, name='wksim-host-stdin', daemon=True).start()
-    return stopped
+
+    def set(self):
+        self._stopped.set()
+
+    def is_set(self):
+        return self._stopped.is_set()
+
+    def wait(self, timeout=None):
+        return self._stopped.wait(timeout)
+
+    def clear(self):
+        self._stopped.clear()
+
+    def is_alive(self):
+        return self._thread.is_alive()
+
+    def join(self, timeout=None):
+        self._thread.join(timeout)
+
+
+def watch_host_input(stream, on_eof=None):
+    """Signal this Linux runner once on host EOF; never signal its children."""
+    callback = on_eof or (lambda: os.kill(os.getpid(), signal.SIGTERM))
+    return _HostInputWatcher(stream, callback)
 
 
 def check_host_cancelled(cancelled):
@@ -246,8 +301,12 @@ def wait_owned_process(process, timeout, cancelled=None):
 
 
 def _append_preflight_cleanup_error(result, message):
-    existing = result.get('preflight_cleanup_error')
-    result['preflight_cleanup_error'] = (
+    _append_cleanup_error(result, 'preflight_cleanup_error', message)
+
+
+def _append_cleanup_error(result, key, message):
+    existing = result.get(key)
+    result[key] = (
         str(existing) + '; ' + str(message) if existing else str(message))
 
 
@@ -927,6 +986,80 @@ def retire_collector(collector,result):
     result['collector_returncode']=collector.poll()
 
 
+def _record_collector_capture(output, result):
+    """Retain the collector's raw terminal metadata after its retirement."""
+    capture_path = Path(output) / 'capture' / 'metadata.json'
+    try:
+        capture = json.loads(capture_path.read_text())
+    except (OSError, json.JSONDecodeError) as error:
+        _append_cleanup_error(
+            result, 'collector_cleanup_error',
+            'Collector capture metadata is unavailable: '+repr(error))
+        return
+    if not isinstance(capture, dict):
+        _append_cleanup_error(result, 'collector_cleanup_error',
+                              'Collector capture metadata is malformed')
+        result['capture'] = capture
+        return
+    # Preserve the collector's original complete/errors fields verbatim.  A
+    # failed capture can still prove that its private instance was removed;
+    # callers must see that partial evidence instead of a fabricated success.
+    result['capture'] = capture
+    owner_path = Path(output) / 'capture' / 'instance-owner.json'
+    try:
+        owner, owner_sha256 = _read_instance_owner(owner_path)
+        result['capture_instance_owner'] = owner
+        expected_collector = result.get('collector')
+        _identity_subset_matches(
+            {'pid': capture.get('collector_pid'),
+             'start_ticks': capture.get('collector_start_ticks')},
+            expected_collector, 'Capture collector')
+        if (capture.get('schema') != 'wksim.private-tracefs.v1'
+                or capture.get('run_id') != result.get('run_id')
+                or capture.get('epoch') != result.get('epoch')
+                or capture.get('instance') != owner.get('instance')
+                or capture.get('instance_inode') != owner.get('instance_inode')
+                or capture.get('collector_pid') != owner.get('collector_pid')
+                or capture.get('collector_start_ticks') != owner.get('collector_start_ticks')):
+            raise RuntimeError('Collector capture metadata identity differs')
+        if owner.get('run_id') != result.get('run_id') or owner.get('epoch') != result.get('epoch'):
+            raise RuntimeError('Capture instance owner run/epoch differs')
+        if owner.get('boot_id') != result.get('boot_id'):
+            raise RuntimeError('Capture instance owner boot identity differs')
+        if (type(owner.get('instance')) is not str or not owner.get('instance')
+                or type(owner.get('instance_inode')) is not list
+                or len(owner['instance_inode']) != 2
+                or any(type(value) is not int or value <= 0
+                       for value in owner['instance_inode'])):
+            raise RuntimeError('Capture instance owner fields are invalid')
+        expected_owners = result.get('owners')
+        _validate_expected_owners(owner.get('owners'), expected_owners)
+        metadata_owners = capture.get('owners')
+        if (not isinstance(metadata_owners, dict)
+                or set(metadata_owners) != set(owner['owners'])):
+            raise RuntimeError('Collector capture owner role set differs')
+        for role, owner_identity in owner['owners'].items():
+            _identity_subset_matches(metadata_owners.get(role), owner_identity,
+                                     'Collector capture owner '+role)
+        _identity_subset_matches(
+            {'pid': owner.get('collector_pid'),
+             'start_ticks': owner.get('collector_start_ticks')},
+            expected_collector, 'Capture instance owner collector')
+        _identity_subset_matches(
+            {'pid': owner.get('supervisor_pid'),
+             'start_ticks': owner.get('supervisor_start_ticks')},
+            expected_owners.get('supervisor'), 'Capture instance owner supervisor')
+        if owner_sha256 and capture.get('instance_owner_sha256') is not None:
+            # The collector may include this digest in active-token metadata;
+            # when present in the terminal capture it must bind to this file.
+            if capture.get('instance_owner_sha256') != owner_sha256:
+                raise RuntimeError('Collector capture owner digest differs')
+    except BaseException as error:
+        _append_cleanup_error(
+            result, 'collector_cleanup_error',
+            'Collector capture metadata validation failed: '+repr(error))
+
+
 def kill_manager_group(manager,expected,group_snapshot=None):
     """Kill only the manager session after verifying this run still owns it."""
     if manager.poll() is not None:
@@ -1259,18 +1392,22 @@ def run(output, *, exchange_dir=None, watch_host_stdin=False):
             result['capture_owner_final'] = validate_capture_owner_final(
                 active_token,result['gate_ready'],result['collector'],owners,gate_release,
                 gate_token=bootstrap_token)
-            result['capture'] = json.loads((output/'capture/metadata.json').read_text())
             result['last_observation'] = json.loads((directory/'status.json').read_text())
     except (Exception, KeyboardInterrupt) as error:
         result['error'] = f'{type(error).__name__}: {error}'
     finally:
         if host_watch is not None:
             host_watch.set()
+            host_watch.join(timeout=1)
+            if host_watch.is_alive():
+                result['host_watch_cleanup_error'] = 'Host stdin watcher did not stop'
         try:
             try:
                 retire_collector(collector,result)
             except BaseException as error:
                 result['collector_cleanup_error']=repr(error)
+            if result.get('components_started', {}).get('collector'):
+                _record_collector_capture(output, result)
             try:
                 retire_manager(manager,directory,result)
             except BaseException as error:
@@ -1278,7 +1415,10 @@ def run(output, *, exchange_dir=None, watch_host_stdin=False):
             if (directory/'result.json').exists(): result['product_result'] = json.loads((directory/'result.json').read_text())
             result['epoch_groups_retired'] = epoch_groups_retired(result.get('product_result'))
             result['sources_unchanged'] = all(digest(ROOT/name) == sha for name, sha in result['source_sha256'].items())
-            if (result.get('capture', {}).get('complete')
+            capture = result.get('capture')
+            if (isinstance(capture, dict) and capture.get('complete') is True
+                    and capture.get('instance_removed') is True
+                    and failure_payload_clean(capture)
                     and result.get('manager_returncode')==0
                     and result.get('collector_returncode')==0
                     and not result.get('remaining_manager_group', [True]) and result['sources_unchanged']
