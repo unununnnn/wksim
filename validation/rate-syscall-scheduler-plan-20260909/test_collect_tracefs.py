@@ -658,5 +658,220 @@ class ExchangeIntegration(unittest.TestCase):
         line = next(l for l in source.splitlines() if "metadata['complete']=" in l)
         self.assertIn("post_capture_tasks_proof", line)
 
+    def test_bpf_mapping_drains_short_reads_before_expensive_inventory(self):
+        epoch='a'*32
+        names={role:'wk'+epoch[:11]+suffix for role,suffix in
+               (('ap_worker','a'),('px4_worker','p'),('supervisor','s'))}
+        names.update({role+'/'+comm:comm for role,comms in collector.FC_THREADS.items()
+                      for comm in comms})
+        roles=list(names)
+        owners={role:dict(pid=100+i,start_ticks=1000+i) for i,role in enumerate(
+            ('ap_worker','px4_worker','supervisor','ap_fc','px4_fc'))}
+        kernel_pids={role:900+i for i,role in enumerate(roles)}
+        events=[('prev_comm='+comm+' prev_pid='+str(kernel_pids[role])+
+                 ' prev_prio=120 prev_state=S ==> next_comm=idle next_pid=0\n').encode()
+                for role,comm in names.items()]
+        reads=iter(events)
+        read_counts=[]
+        inventory_calls=[]
+        bind_calls=[]
+        class Probe:
+            sampling_detached=False
+            dropped_updates=0
+            def stop_sampling(self):self.sampling_detached=True
+        probe=Probe()
+        def fake_read(descriptor,count):
+            read_counts.append(count)
+            try:return next(reads)
+            except StopIteration:raise BlockingIOError
+        def inventory(pid,retain_raw=False):
+            inventory_calls.append(pid)
+            return [dict(local_tid=pid,local_tgid=pid,comm='owned',start_ticks=1)]
+        def bind(*args):
+            bind_calls.append(args[3])
+            return dict(names=names,kernel_pids=kernel_pids)
+        with tempfile.TemporaryDirectory() as temp:
+            output=Path(temp)
+            from tools import kernel_pid_mapping
+            with patch.object(collector.os,'open',return_value=9), \
+                 patch.object(collector.os,'read',side_effect=fake_read), \
+                 patch.object(collector.os,'close') as close, \
+                 patch.object(collector.select,'select',return_value=([9],[],[])), \
+                 patch.object(collector.time,'monotonic',return_value=0.0), \
+                 patch.object(collector.time,'monotonic_ns',return_value=123), \
+                 patch.object(collector.time,'clock_gettime_ns',return_value=1_000_000_000,create=True), \
+                 patch.object(collector.os,'sysconf',return_value=100,create=True), \
+                 patch.object(collector,'verify'), \
+                 patch.object(collector,'task_inventory',side_effect=inventory), \
+                 patch.object(kernel_pid_mapping,'bind_tasks',side_effect=bind), \
+                 patch.object(kernel_pid_mapping,'verify_lifetimes',return_value={}):
+                mapping=collector.map_kernel_pids_bpf(
+                    Path(temp)/'instance',lambda *args:None,owners,epoch,output,probe,'boot')
+            self.assertTrue(probe.sampling_detached)
+            self.assertEqual(mapping['kernel_pids'],kernel_pids)
+            self.assertEqual(mapping['mapping_trace_bytes'],sum(map(len,events)))
+            self.assertEqual((output/'pid-mapping-trace.txt').read_bytes(),b''.join(events))
+            self.assertEqual(len(bind_calls),1)
+            self.assertEqual(len(inventory_calls),10)
+            self.assertEqual(read_counts[0],collector.MAPPING_READ_BYTES)
+            self.assertTrue(all(count==collector.MAPPING_READ_BYTES for count in read_counts))
+            close.assert_called_once_with(9)
+
+    def test_bpf_mapping_cross_deadline_after_final_recheck_is_rejected(self):
+        epoch='a'*32
+        names={role:'wk'+epoch[:11]+suffix for role,suffix in
+               (('ap_worker','a'),('px4_worker','p'),('supervisor','s'))}
+        names.update({role+'/'+comm:comm for role,comms in collector.FC_THREADS.items()
+                      for comm in comms})
+        roles=list(names)
+        owners={role:dict(pid=100+i,start_ticks=1000+i) for i,role in enumerate(
+            ('ap_worker','px4_worker','supervisor','ap_fc','px4_fc'))}
+        kernel_pids={role:900+i for i,role in enumerate(roles)}
+        events=[('prev_comm='+comm+' prev_pid='+str(kernel_pids[role])+
+                 ' prev_prio=120 prev_state=S ==> next_comm=idle next_pid=0\n').encode()
+                for role,comm in names.items()]
+        reads=iter(events)
+        class Clock:
+            value=0.0
+            def monotonic(self):return self.value
+        clock=Clock()
+        class Probe:
+            sampling_detached=False
+            dropped_updates=0
+            def stop_sampling(self):self.sampling_detached=True
+        probe=Probe()
+        def fake_read(descriptor,count):
+            try:return next(reads)
+            except StopIteration:raise BlockingIOError
+        def bind(*args):return dict(names=names,kernel_pids=kernel_pids)
+        def expire(*args):clock.value=3.1
+        with tempfile.TemporaryDirectory() as temp:
+            output=Path(temp)
+            from tools import kernel_pid_mapping
+            with patch.object(collector.os,'open',return_value=9), \
+                 patch.object(collector.os,'read',side_effect=fake_read), \
+                 patch.object(collector.os,'close'), \
+                 patch.object(collector.select,'select',return_value=([9],[],[])), \
+                 patch.object(collector.time,'monotonic',side_effect=clock.monotonic), \
+                 patch.object(collector.time,'clock_gettime_ns',return_value=1_000_000_000,create=True), \
+                 patch.object(collector.os,'sysconf',return_value=100,create=True), \
+                 patch.object(collector,'verify'), \
+                 patch.object(collector,'task_inventory',return_value=[]), \
+                 patch.object(kernel_pid_mapping,'bind_tasks',side_effect=bind), \
+                 patch.object(kernel_pid_mapping,'verify_lifetimes',side_effect=expire):
+                with self.assertRaisesRegex(ValueError,'crossed the three-second deadline'):
+                    collector.map_kernel_pids_bpf(
+                        Path(temp)/'instance',lambda *args:None,owners,epoch,output,probe,'boot')
+            self.assertTrue(probe.sampling_detached)
+            self.assertTrue((output/'pid-mapping-pending.json').exists())
+
+    def test_bpf_mapping_timeout_stops_tracing_and_retains_deadline_tail(self):
+        epoch='a'*32
+        names={role:'wk'+epoch[:11]+suffix for role,suffix in
+               (('ap_worker','a'),('px4_worker','p'),('supervisor','s'))}
+        names.update({role+'/'+comm:comm for role,comms in collector.FC_THREADS.items()
+                      for comm in comms})
+        owners={role:dict(pid=100+i,start_ticks=1000+i) for i,role in enumerate(
+            ('ap_worker','px4_worker','supervisor','ap_fc','px4_fc'))}
+        state={'selects':0,'stopped':False,'first':False,'tail':False}
+        calls=[]
+        class Clock:
+            value=0.0
+            def monotonic(self):return self.value
+        clock=Clock()
+        class Probe:
+            sampling_detached=False
+            dropped_updates=0
+        probe=Probe()
+        def fake_select(*args):
+            if state['selects']:
+                clock.value=3.1
+            state['selects']+=1
+            return ([9],[],[])
+        def fake_read(descriptor,count):
+            if not state['first']:
+                state['first']=True
+                return b'partial-before-deadline'
+            if state['stopped'] and not state['tail']:
+                state['tail']=True
+                return b'late-tail-after-deadline\n'
+            raise BlockingIOError
+        def fake_put(relative,value):
+            calls.append((relative,value))
+            if relative=='tracing_on' and value=='0':state['stopped']=True
+        with tempfile.TemporaryDirectory() as temp:
+            output=Path(temp)
+            from tools import kernel_pid_mapping
+            with patch.object(collector.os,'open',return_value=9), \
+                 patch.object(collector.os,'read',side_effect=fake_read), \
+                 patch.object(collector.os,'close'), \
+                 patch.object(collector.select,'select',side_effect=fake_select), \
+                 patch.object(collector.time,'monotonic',side_effect=clock.monotonic), \
+                 patch.object(collector,'verify'), \
+                 patch.object(collector,'task_inventory',return_value=[]), \
+                 patch.object(collector.os,'sysconf',return_value=100,create=True), \
+                 patch.object(kernel_pid_mapping,'bind_tasks',return_value=None):
+                with self.assertRaisesRegex(ValueError,'did not prove'):
+                    collector.map_kernel_pids_bpf(
+                        Path(temp)/'instance',fake_put,owners,epoch,output,probe,'boot')
+            self.assertIn(('tracing_on','0'),calls)
+            self.assertIn(('events/sched/sched_switch/enable','0'),calls)
+            self.assertEqual((output/'pid-mapping-trace.txt').read_bytes(),
+                             b'partial-before-deadline'+b'late-tail-after-deadline\n')
+            pending=json.loads((output/'pid-mapping-pending.json').read_text())
+            self.assertEqual(pending['deadline_tail_bytes'],len(b'late-tail-after-deadline\n'))
+            self.assertEqual(pending['partial_line_bytes'],len(b'partial-before-deadline'))
+            self.assertTrue(all(not pids for pids in pending['observed'].values()))
+
+    def test_bpf_mapping_error_stops_tracing_and_retains_tail(self):
+        epoch='a'*32
+        owners={role:dict(pid=100+i,start_ticks=1000+i) for i,role in enumerate(
+            ('ap_worker','px4_worker','supervisor','ap_fc','px4_fc'))}
+        state={'stopped':False,'first':False,'tail_index':0}
+        calls=[]
+        class Probe:
+            sampling_detached=False
+            dropped_updates=0
+        probe=Probe()
+        def fake_read(descriptor,count):
+            if not state['first']:
+                state['first']=True
+                return b'error-before-tail'
+            if state['stopped']:
+                tails=(b'x'*collector.MAPPING_READ_BYTES,b'error-tail\n')
+                if state['tail_index']<len(tails):
+                    chunk=tails[state['tail_index']]
+                    state['tail_index']+=1
+                    return chunk
+            raise BlockingIOError
+        def fake_put(relative,value):
+            calls.append((relative,value))
+            if relative=='tracing_on' and value=='0':state['stopped']=True
+        with tempfile.TemporaryDirectory() as temp:
+            output=Path(temp)
+            from tools import kernel_pid_mapping
+            with patch.object(collector.os,'open',return_value=9), \
+                 patch.object(collector.os,'read',side_effect=fake_read), \
+                 patch.object(collector.os,'close'), \
+                 patch.object(collector.select,'select',return_value=([9],[],[])), \
+                 patch.object(collector.time,'monotonic',return_value=0.0), \
+                 patch.object(collector,'verify'), \
+                 patch.object(collector,'task_inventory',return_value=[]), \
+                 patch.object(collector.os,'sysconf',return_value=100,create=True), \
+                 patch.object(kernel_pid_mapping,'bind_tasks',side_effect=ValueError('bind failed')):
+                with self.assertRaisesRegex(ValueError,'bind failed'):
+                    collector.map_kernel_pids_bpf(
+                        Path(temp)/'instance',fake_put,owners,epoch,output,probe,'boot')
+            self.assertIn(('tracing_on','0'),calls)
+            trace=(output/'pid-mapping-trace.txt').read_bytes()
+            self.assertTrue(trace.startswith(b'error-before-tail'))
+            self.assertTrue(trace.endswith(b'error-tail\n'))
+            self.assertEqual(len(trace),len(b'error-before-tail')+
+                             collector.MAPPING_READ_BYTES+len(b'error-tail\n'))
+            pending=json.loads((output/'pid-mapping-pending.json').read_text())
+            self.assertEqual(pending['deadline_tail_bytes'],
+                             collector.MAPPING_READ_BYTES+len(b'error-tail\n'))
+            self.assertTrue(all(not pids for pids in pending['observed'].values()))
+
 
 if __name__=='__main__':unittest.main()

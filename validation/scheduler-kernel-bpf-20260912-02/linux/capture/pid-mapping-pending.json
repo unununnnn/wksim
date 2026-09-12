@@ -1,0 +1,967 @@
+{
+  "observed": {
+    "wk7c16f0a5c08a": [
+      3858
+    ],
+    "wk7c16f0a5c08p": [
+      3862
+    ],
+    "wk7c16f0a5c08s": [
+      3267
+    ],
+    "arducopter": [
+      3860
+    ],
+    "log_io": [
+      4182
+    ],
+    "DDS": [],
+    "sim_send": [
+      4153
+    ],
+    "logger": [
+      4321,
+      4323
+    ],
+    "wq:lp_default": [
+      3883
+    ]
+  },
+  "partial_binding": {
+    "method": "kernel BPF namespace/current PID helpers plus owned procfs lifetimes",
+    "leaders_proven_by": "kernel_bpf_pid_helpers",
+    "names": {
+      "ap_worker": "wk7c16f0a5c08a",
+      "px4_worker": "wk7c16f0a5c08p",
+      "supervisor": "wk7c16f0a5c08s",
+      "ap_fc/arducopter": "arducopter",
+      "ap_fc/log_io": "log_io",
+      "ap_fc/DDS": "DDS",
+      "px4_fc/sim_send": "sim_send",
+      "px4_fc/logger": "logger",
+      "px4_fc/wq:lp_default": "wq:lp_default"
+    },
+    "kernel_pids": {
+      "ap_worker": 3858,
+      "px4_worker": 3862,
+      "supervisor": 3267,
+      "ap_fc/arducopter": 3860,
+      "ap_fc/log_io": 4182,
+      "ap_fc/DDS": 4327,
+      "px4_fc/sim_send": 4153,
+      "px4_fc/logger": 4321,
+      "px4_fc/wq:lp_default": 3883
+    },
+    "base_leaders": {
+      "ap_worker": {
+        "local_tid": 1894,
+        "local_tgid": 1894,
+        "global_tid": 3858,
+        "global_tgid": 3858,
+        "start_ticks": 16496,
+        "comm": "wk7c16f0a5c08a",
+        "proof": "kernel_bpf_pid_helpers",
+        "observed_boot_ns": 168509823141
+      },
+      "px4_worker": {
+        "local_tid": 1898,
+        "local_tgid": 1898,
+        "global_tid": 3862,
+        "global_tgid": 3862,
+        "start_ticks": 16496,
+        "comm": "wk7c16f0a5c08p",
+        "proof": "kernel_bpf_pid_helpers",
+        "observed_boot_ns": 168509840364
+      },
+      "supervisor": {
+        "local_tid": 1303,
+        "local_tgid": 1303,
+        "global_tid": 3267,
+        "global_tgid": 3267,
+        "start_ticks": 14442,
+        "comm": "wk7c16f0a5c08s",
+        "proof": "kernel_bpf_pid_helpers",
+        "observed_boot_ns": 168510207385
+      },
+      "ap_fc/arducopter": {
+        "local_tid": 1896,
+        "local_tgid": 1896,
+        "global_tid": 3860,
+        "global_tgid": 3860,
+        "start_ticks": 16496,
+        "comm": "arducopter",
+        "proof": "kernel_bpf_pid_helpers",
+        "observed_boot_ns": 168510043650
+      }
+    },
+    "fc_leaders": {
+      "ap_fc": {
+        "global_tid": 3860,
+        "global_tgid": 3860,
+        "local_tid": 1896,
+        "local_tgid": 1896,
+        "start_ticks": 16496,
+        "comm": "arducopter",
+        "proof": "kernel_bpf_tgid_from_owned_task"
+      },
+      "px4_fc": {
+        "global_tid": 3864,
+        "global_tgid": 3864,
+        "local_tid": 1900,
+        "local_tgid": 1900,
+        "start_ticks": 16497,
+        "comm": "px4",
+        "proof": "kernel_bpf_tgid_from_owned_task"
+      }
+    },
+    "local_threads": {
+      "ap_fc/arducopter": {
+        "local_tid": 1896,
+        "local_tgid": 1896,
+        "global_tid": 3860,
+        "global_tgid": 3860,
+        "start_ticks": 16496,
+        "comm": "arducopter",
+        "proof": "kernel_bpf_pid_helpers",
+        "observed_boot_ns": 168510043650
+      },
+      "ap_fc/log_io": {
+        "local_tid": 2218,
+        "local_tgid": 1896,
+        "global_tid": 4182,
+        "global_tgid": 3860,
+        "start_ticks": 16551,
+        "comm": "log_io",
+        "proof": "kernel_bpf_pid_helpers",
+        "observed_boot_ns": 168509895041
+      },
+      "ap_fc/DDS": {
+        "local_tid": 2363,
+        "local_tgid": 1896,
+        "global_tid": 4327,
+        "global_tgid": 3860,
+        "start_ticks": 16762,
+        "comm": "DDS",
+        "proof": "kernel_bpf_pid_helpers",
+        "observed_boot_ns": 168510311016
+      },
+      "px4_fc/sim_send": {
+        "local_tid": 2189,
+        "local_tgid": 1900,
+        "global_tid": 4153,
+        "global_tgid": 3864,
+        "start_ticks": 16536,
+        "comm": "sim_send",
+        "proof": "kernel_bpf_pid_helpers",
+        "observed_boot_ns": 168510206955
+      },
+      "px4_fc/logger": {
+        "local_tid": 2357,
+        "local_tgid": 1900,
+        "global_tid": 4321,
+        "global_tgid": 3864,
+        "start_ticks": 16580,
+        "comm": "logger",
+        "proof": "kernel_bpf_pid_helpers",
+        "observed_boot_ns": 168510178402
+      },
+      "px4_fc/wq:lp_default": {
+        "local_tid": 1919,
+        "local_tgid": 1900,
+        "global_tid": 3883,
+        "global_tgid": 3864,
+        "start_ticks": 16497,
+        "comm": "wq:lp_default",
+        "proof": "kernel_bpf_pid_helpers",
+        "observed_boot_ns": 168501379613
+      }
+    },
+    "targets": {
+      "ap_worker": {
+        "local_tid": 1894,
+        "local_tgid": 1894,
+        "global_tid": 3858,
+        "global_tgid": 3858,
+        "start_ticks": 16496,
+        "comm": "wk7c16f0a5c08a",
+        "proof": "kernel_bpf_pid_helpers",
+        "observed_boot_ns": 168509823141
+      },
+      "px4_worker": {
+        "local_tid": 1898,
+        "local_tgid": 1898,
+        "global_tid": 3862,
+        "global_tgid": 3862,
+        "start_ticks": 16496,
+        "comm": "wk7c16f0a5c08p",
+        "proof": "kernel_bpf_pid_helpers",
+        "observed_boot_ns": 168509840364
+      },
+      "supervisor": {
+        "local_tid": 1303,
+        "local_tgid": 1303,
+        "global_tid": 3267,
+        "global_tgid": 3267,
+        "start_ticks": 14442,
+        "comm": "wk7c16f0a5c08s",
+        "proof": "kernel_bpf_pid_helpers",
+        "observed_boot_ns": 168510207385
+      },
+      "ap_fc/arducopter": {
+        "local_tid": 1896,
+        "local_tgid": 1896,
+        "global_tid": 3860,
+        "global_tgid": 3860,
+        "start_ticks": 16496,
+        "comm": "arducopter",
+        "proof": "kernel_bpf_pid_helpers",
+        "observed_boot_ns": 168510043650
+      },
+      "ap_fc/log_io": {
+        "local_tid": 2218,
+        "local_tgid": 1896,
+        "global_tid": 4182,
+        "global_tgid": 3860,
+        "start_ticks": 16551,
+        "comm": "log_io",
+        "proof": "kernel_bpf_pid_helpers",
+        "observed_boot_ns": 168509895041
+      },
+      "ap_fc/DDS": {
+        "local_tid": 2363,
+        "local_tgid": 1896,
+        "global_tid": 4327,
+        "global_tgid": 3860,
+        "start_ticks": 16762,
+        "comm": "DDS",
+        "proof": "kernel_bpf_pid_helpers",
+        "observed_boot_ns": 168510311016
+      },
+      "px4_fc/sim_send": {
+        "local_tid": 2189,
+        "local_tgid": 1900,
+        "global_tid": 4153,
+        "global_tgid": 3864,
+        "start_ticks": 16536,
+        "comm": "sim_send",
+        "proof": "kernel_bpf_pid_helpers",
+        "observed_boot_ns": 168510206955
+      },
+      "px4_fc/logger": {
+        "local_tid": 2357,
+        "local_tgid": 1900,
+        "global_tid": 4321,
+        "global_tgid": 3864,
+        "start_ticks": 16580,
+        "comm": "logger",
+        "proof": "kernel_bpf_pid_helpers",
+        "observed_boot_ns": 168510178402
+      },
+      "px4_fc/wq:lp_default": {
+        "local_tid": 1919,
+        "local_tgid": 1900,
+        "global_tid": 3883,
+        "global_tgid": 3864,
+        "start_ticks": 16497,
+        "comm": "wq:lp_default",
+        "proof": "kernel_bpf_pid_helpers",
+        "observed_boot_ns": 168501379613
+      }
+    },
+    "bpf_records": {
+      "ap_worker": {
+        "kernel_ids": 16569983831826,
+        "local_tid": 1894,
+        "local_tgid": 1894,
+        "observed_boot_ns": 168509823141,
+        "comm": "wk7c16f0a5c08a"
+      },
+      "px4_worker": {
+        "kernel_ids": 16587163701014,
+        "local_tid": 1898,
+        "local_tgid": 1898,
+        "observed_boot_ns": 168509840364,
+        "comm": "wk7c16f0a5c08p"
+      },
+      "supervisor": {
+        "kernel_ids": 14031658159299,
+        "local_tid": 1303,
+        "local_tgid": 1303,
+        "observed_boot_ns": 168510207385,
+        "comm": "wk7c16f0a5c08s"
+      },
+      "ap_fc/arducopter": {
+        "kernel_ids": 16578573766420,
+        "local_tid": 1896,
+        "local_tgid": 1896,
+        "observed_boot_ns": 168510043650,
+        "comm": "arducopter"
+      },
+      "ap_fc/log_io": {
+        "kernel_ids": 16578573766742,
+        "local_tid": 2218,
+        "local_tgid": 1896,
+        "observed_boot_ns": 168509895041,
+        "comm": "log_io"
+      },
+      "ap_fc/DDS": {
+        "kernel_ids": 16578573766887,
+        "local_tid": 2363,
+        "local_tgid": 1896,
+        "observed_boot_ns": 168510311016,
+        "comm": "DDS"
+      },
+      "px4_fc/sim_send": {
+        "kernel_ids": 16595753635897,
+        "local_tid": 2189,
+        "local_tgid": 1900,
+        "observed_boot_ns": 168510206955,
+        "comm": "sim_send"
+      },
+      "px4_fc/logger": {
+        "kernel_ids": 16595753636065,
+        "local_tid": 2357,
+        "local_tgid": 1900,
+        "observed_boot_ns": 168510178402,
+        "comm": "logger"
+      },
+      "px4_fc/wq:lp_default": {
+        "kernel_ids": 16595753635627,
+        "local_tid": 1919,
+        "local_tgid": 1900,
+        "observed_boot_ns": 168501379613,
+        "comm": "wq:lp_default"
+      }
+    },
+    "clock_ticks": 100,
+    "observed_after_boot_ns": 168510341549,
+    "inventories_before": {
+      "ap_worker": [
+        {
+          "local_tid": 1894,
+          "global_tid": 1894,
+          "comm": "wk7c16f0a5c08a",
+          "start_ticks": 16496,
+          "evidence": {
+            "stat_before": "1894 (wk7c16f0a5c08a) S 1303 1303 1303 0 -1 4194304 2174 0 2 0 39 4 0 0 -41 -10 1 0 16496 26091520 4400 18446744073709551615 106937199022080 106937201846317 140736430573776 0 0 0 0 16781312 2 1 0 0 17 6 40 1 0 0 0 106937204209680 106937204493720 106937323147264 140736430580040 140736430580374 140736430580374 140736430587879 0\n",
+            "stat_after": "1894 (wk7c16f0a5c08a) S 1303 1303 1303 0 -1 4194304 2174 0 2 0 39 4 0 0 -41 -10 1 0 16496 26091520 4400 18446744073709551615 106937199022080 106937201846317 140736430573776 0 0 0 0 16781312 2 1 0 0 17 6 40 1 0 0 0 106937204209680 106937204493720 106937323147264 140736430580040 140736430580374 140736430580374 140736430587879 0\n",
+            "status": "Name:\twk7c16f0a5c08a\nUmask:\t0022\nState:\tS (sleeping)\nTgid:\t1894\nNgid:\t0\nPid:\t1894\nPPid:\t1303\nTracerPid:\t0\nUid:\t0\t0\t0\t0\nGid:\t0\t0\t0\t0\nFDSize:\t64\nGroups:\t0 \nNStgid:\t1894\nNSpid:\t1894\nNSpgid:\t1303\nNSsid:\t1303\nKthread:\t0\nVmPeak:\t   25588 kB\nVmSize:\t   25480 kB\nVmLck:\t       0 kB\nVmPin:\t       0 kB\nVmHWM:\t   17600 kB\nVmRSS:\t   17600 kB\nRssAnon:\t    7360 kB\nRssFile:\t   10240 kB\nRssShmem:\t       0 kB\nVmData:\t    8504 kB\nVmStk:\t     136 kB\nVmExe:\t    2760 kB\nVmLib:\t    6472 kB\nVmPTE:\t      88 kB\nVmSwap:\t       0 kB\nHugetlbPages:\t       0 kB\nCoreDumping:\t0\nTHP_enabled:\t1\nuntag_mask:\t0xffffffffffffffff\nThreads:\t1\nSigQ:\t0/63149\nSigPnd:\t0000000000000000\nShdPnd:\t0000000000000000\nSigBlk:\t0000000000000000\nSigIgn:\t0000000001001000\nSigCgt:\t0000000000000002\nCapInh:\t0000000000000000\nCapPrm:\t000001ffffffffff\nCapEff:\t000001ffffffffff\nCapBnd:\t000001ffffffffff\nCapAmb:\t0000000000000000\nNoNewPrivs:\t0\nSeccomp:\t0\nSeccomp_filters:\t0\nSpeculation_Store_Bypass:\tthread vulnerable\nSpeculationIndirectBranch:\tconditional enabled\nCpus_allowed:\t000ff\nCpus_allowed_list:\t0-7\nMems_allowed:\t00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001\nMems_allowed_list:\t0\nvoluntary_ctxt_switches:\t2983\nnonvoluntary_ctxt_switches:\t28\n",
+            "comm": "wk7c16f0a5c08a",
+            "ns_link": "pid:[4026532222]"
+          }
+        }
+      ],
+      "px4_worker": [
+        {
+          "local_tid": 1898,
+          "global_tid": 1898,
+          "comm": "wk7c16f0a5c08p",
+          "start_ticks": 16496,
+          "evidence": {
+            "stat_before": "1898 (wk7c16f0a5c08p) S 1303 1303 1303 0 -1 4194304 2178 0 1 0 36 6 0 0 -41 -10 1 0 16496 26095616 4320 18446744073709551615 102218012745728 102218015569965 140726863723744 0 0 0 0 16781312 2 1 0 0 17 7 40 1 0 0 0 102218017933328 102218018217368 102218076585984 140726863728975 140726863729302 140726863729302 140726863736807 0\n",
+            "stat_after": "1898 (wk7c16f0a5c08p) S 1303 1303 1303 0 -1 4194304 2178 0 1 0 36 6 0 0 -41 -10 1 0 16496 26095616 4320 18446744073709551615 102218012745728 102218015569965 140726863723744 0 0 0 0 16781312 2 1 0 0 17 7 40 1 0 0 0 102218017933328 102218018217368 102218076585984 140726863728975 140726863729302 140726863729302 140726863736807 0\n",
+            "status": "Name:\twk7c16f0a5c08p\nUmask:\t0022\nState:\tS (sleeping)\nTgid:\t1898\nNgid:\t0\nPid:\t1898\nPPid:\t1303\nTracerPid:\t0\nUid:\t0\t0\t0\t0\nGid:\t0\t0\t0\t0\nFDSize:\t64\nGroups:\t0 \nNStgid:\t1898\nNSpid:\t1898\nNSpgid:\t1303\nNSsid:\t1303\nKthread:\t0\nVmPeak:\t   25592 kB\nVmSize:\t   25484 kB\nVmLck:\t       0 kB\nVmPin:\t       0 kB\nVmHWM:\t   17280 kB\nVmRSS:\t   17280 kB\nRssAnon:\t    7360 kB\nRssFile:\t    9920 kB\nRssShmem:\t       0 kB\nVmData:\t    8508 kB\nVmStk:\t     136 kB\nVmExe:\t    2760 kB\nVmLib:\t    6472 kB\nVmPTE:\t      92 kB\nVmSwap:\t       0 kB\nHugetlbPages:\t       0 kB\nCoreDumping:\t0\nTHP_enabled:\t1\nuntag_mask:\t0xffffffffffffffff\nThreads:\t1\nSigQ:\t0/63149\nSigPnd:\t0000000000000000\nShdPnd:\t0000000000000000\nSigBlk:\t0000000000000000\nSigIgn:\t0000000001001000\nSigCgt:\t0000000000000002\nCapInh:\t0000000000000000\nCapPrm:\t000001ffffffffff\nCapEff:\t000001ffffffffff\nCapBnd:\t000001ffffffffff\nCapAmb:\t0000000000000000\nNoNewPrivs:\t0\nSeccomp:\t0\nSeccomp_filters:\t0\nSpeculation_Store_Bypass:\tthread vulnerable\nSpeculationIndirectBranch:\tconditional enabled\nCpus_allowed:\t000ff\nCpus_allowed_list:\t0-7\nMems_allowed:\t00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001\nMems_allowed_list:\t0\nvoluntary_ctxt_switches:\t2955\nnonvoluntary_ctxt_switches:\t80\n",
+            "comm": "wk7c16f0a5c08p",
+            "ns_link": "pid:[4026532222]"
+          }
+        }
+      ],
+      "supervisor": [
+        {
+          "local_tid": 1303,
+          "global_tid": 1303,
+          "comm": "wk7c16f0a5c08s",
+          "start_ticks": 14442,
+          "evidence": {
+            "stat_before": "1303 (wk7c16f0a5c08s) R 1279 1303 1303 0 -1 4194560 12515 738168 348 1 268 34 1134 579 -51 -10 19 0 14442 1013055488 16517 18446744073709551615 106667378450432 106667381274669 140722846035376 0 0 0 0 16781312 16386 0 0 0 17 1 50 1 0 0 0 106667383638032 106667383922072 106667634675712 140722846036514 140722846036680 140722846036680 140722846044135 0\n",
+            "stat_after": "1303 (wk7c16f0a5c08s) R 1279 1303 1303 0 -1 4194560 12515 738168 348 1 268 34 1134 579 -51 -10 19 0 14442 1013055488 16517 18446744073709551615 106667378450432 106667381274669 140722846035376 0 0 0 0 16781312 16386 0 0 0 17 1 50 1 0 0 0 106667383638032 106667383922072 106667634675712 140722846036514 140722846036680 140722846036680 140722846044135 0\n",
+            "status": "Name:\twk7c16f0a5c08s\nUmask:\t0022\nState:\tR (running)\nTgid:\t1303\nNgid:\t0\nPid:\t1303\nPPid:\t1279\nTracerPid:\t0\nUid:\t0\t0\t0\t0\nGid:\t0\t0\t0\t0\nFDSize:\t64\nGroups:\t0 \nNStgid:\t1303\nNSpid:\t1303\nNSpgid:\t1303\nNSsid:\t1303\nKthread:\t0\nVmPeak:\t  989312 kB\nVmSize:\t  989312 kB\nVmLck:\t       0 kB\nVmPin:\t       0 kB\nVmHWM:\t   66704 kB\nVmRSS:\t   66068 kB\nRssAnon:\t   36468 kB\nRssFile:\t   28800 kB\nRssShmem:\t     800 kB\nVmData:\t  450912 kB\nVmStk:\t     136 kB\nVmExe:\t    2760 kB\nVmLib:\t   49036 kB\nVmPTE:\t     360 kB\nVmSwap:\t       0 kB\nHugetlbPages:\t       0 kB\nCoreDumping:\t0\nTHP_enabled:\t1\nuntag_mask:\t0xffffffffffffffff\nThreads:\t19\nSigQ:\t0/63149\nSigPnd:\t0000000000000000\nShdPnd:\t0000000000000000\nSigBlk:\t0000000000000000\nSigIgn:\t0000000001001000\nSigCgt:\t0000000100004002\nCapInh:\t0000000000000000\nCapPrm:\t000001ffffffffff\nCapEff:\t000001ffffffffff\nCapBnd:\t000001ffffffffff\nCapAmb:\t0000000000000000\nNoNewPrivs:\t0\nSeccomp:\t0\nSeccomp_filters:\t0\nSpeculation_Store_Bypass:\tthread vulnerable\nSpeculationIndirectBranch:\tconditional enabled\nCpus_allowed:\t000ff\nCpus_allowed_list:\t0-7\nMems_allowed:\t00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001\nMems_allowed_list:\t0\nvoluntary_ctxt_switches:\t11880\nnonvoluntary_ctxt_switches:\t594\n",
+            "comm": "wk7c16f0a5c08s",
+            "ns_link": "pid:[4026532222]"
+          }
+        },
+        {
+          "local_tid": 1307,
+          "global_tid": 1307,
+          "comm": "python3",
+          "start_ticks": 14470,
+          "evidence": {
+            "stat_before": "1307 (python3) S 1279 1303 1303 0 -1 4194368 1 738168 0 1 6 0 1134 579 20 0 19 0 14470 1013055488 16517 18446744073709551615 106667378450432 106667381274669 140722846035376 0 0 0 0 16781312 16386 1 0 0 -1 3 0 0 0 0 0 106667383638032 106667383922072 106667634675712 140722846036514 140722846036680 140722846036680 140722846044135 0\n",
+            "stat_after": "1307 (python3) S 1279 1303 1303 0 -1 4194368 1 738168 0 1 6 0 1134 579 20 0 19 0 14470 1013055488 16517 18446744073709551615 106667378450432 106667381274669 140722846035376 0 0 0 0 16781312 16386 1 0 0 -1 3 0 0 0 0 0 106667383638032 106667383922072 106667634675712 140722846036514 140722846036680 140722846036680 140722846044135 0\n",
+            "status": "Name:\tpython3\nUmask:\t0022\nState:\tS (sleeping)\nTgid:\t1303\nNgid:\t0\nPid:\t1307\nPPid:\t1279\nTracerPid:\t0\nUid:\t0\t0\t0\t0\nGid:\t0\t0\t0\t0\nFDSize:\t64\nGroups:\t0 \nNStgid:\t1303\nNSpid:\t1307\nNSpgid:\t1303\nNSsid:\t1303\nKthread:\t0\nVmPeak:\t  989312 kB\nVmSize:\t  989312 kB\nVmLck:\t       0 kB\nVmPin:\t       0 kB\nVmHWM:\t   66704 kB\nVmRSS:\t   66068 kB\nRssAnon:\t   36468 kB\nRssFile:\t   28800 kB\nRssShmem:\t     800 kB\nVmData:\t  450912 kB\nVmStk:\t     136 kB\nVmExe:\t    2760 kB\nVmLib:\t   49036 kB\nVmPTE:\t     360 kB\nVmSwap:\t       0 kB\nHugetlbPages:\t       0 kB\nCoreDumping:\t0\nTHP_enabled:\t1\nuntag_mask:\t0xffffffffffffffff\nThreads:\t19\nSigQ:\t0/63149\nSigPnd:\t0000000000000000\nShdPnd:\t0000000000000000\nSigBlk:\t0000000000000000\nSigIgn:\t0000000001001000\nSigCgt:\t0000000100004002\nCapInh:\t0000000000000000\nCapPrm:\t000001ffffffffff\nCapEff:\t000001ffffffffff\nCapBnd:\t000001ffffffffff\nCapAmb:\t0000000000000000\nNoNewPrivs:\t0\nSeccomp:\t0\nSeccomp_filters:\t0\nSpeculation_Store_Bypass:\tthread vulnerable\nSpeculationIndirectBranch:\tconditional enabled\nCpus_allowed:\t000ff\nCpus_allowed_list:\t0-7\nMems_allowed:\t00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001\nMems_allowed_list:\t0\nvoluntary_ctxt_switches:\t1\nnonvoluntary_ctxt_switches:\t0\n",
+            "comm": "python3",
+            "ns_link": "pid:[4026532222]"
+          }
+        },
+        {
+          "local_tid": 1308,
+          "global_tid": 1308,
+          "comm": "python3",
+          "start_ticks": 14470,
+          "evidence": {
+            "stat_before": "1308 (python3) S 1279 1303 1303 0 -1 4194368 1 738168 0 1 6 0 1134 579 20 0 19 0 14470 1013055488 16517 18446744073709551615 106667378450432 106667381274669 140722846035376 0 0 0 0 16781312 16386 1 0 0 -1 6 0 0 0 0 0 106667383638032 106667383922072 106667634675712 140722846036514 140722846036680 140722846036680 140722846044135 0\n",
+            "stat_after": "1308 (python3) S 1279 1303 1303 0 -1 4194368 1 738168 0 1 6 0 1134 579 20 0 19 0 14470 1013055488 16517 18446744073709551615 106667378450432 106667381274669 140722846035376 0 0 0 0 16781312 16386 1 0 0 -1 6 0 0 0 0 0 106667383638032 106667383922072 106667634675712 140722846036514 140722846036680 140722846036680 140722846044135 0\n",
+            "status": "Name:\tpython3\nUmask:\t0022\nState:\tS (sleeping)\nTgid:\t1303\nNgid:\t0\nPid:\t1308\nPPid:\t1279\nTracerPid:\t0\nUid:\t0\t0\t0\t0\nGid:\t0\t0\t0\t0\nFDSize:\t64\nGroups:\t0 \nNStgid:\t1303\nNSpid:\t1308\nNSpgid:\t1303\nNSsid:\t1303\nKthread:\t0\nVmPeak:\t  989312 kB\nVmSize:\t  989312 kB\nVmLck:\t       0 kB\nVmPin:\t       0 kB\nVmHWM:\t   66704 kB\nVmRSS:\t   66068 kB\nRssAnon:\t   36468 kB\nRssFile:\t   28800 kB\nRssShmem:\t     800 kB\nVmData:\t  450912 kB\nVmStk:\t     136 kB\nVmExe:\t    2760 kB\nVmLib:\t   49036 kB\nVmPTE:\t     360 kB\nVmSwap:\t       0 kB\nHugetlbPages:\t       0 kB\nCoreDumping:\t0\nTHP_enabled:\t1\nuntag_mask:\t0xffffffffffffffff\nThreads:\t19\nSigQ:\t0/63149\nSigPnd:\t0000000000000000\nShdPnd:\t0000000000000000\nSigBlk:\t0000000000000000\nSigIgn:\t0000000001001000\nSigCgt:\t0000000100004002\nCapInh:\t0000000000000000\nCapPrm:\t000001ffffffffff\nCapEff:\t000001ffffffffff\nCapBnd:\t000001ffffffffff\nCapAmb:\t0000000000000000\nNoNewPrivs:\t0\nSeccomp:\t0\nSeccomp_filters:\t0\nSpeculation_Store_Bypass:\tthread vulnerable\nSpeculationIndirectBranch:\tconditional enabled\nCpus_allowed:\t000ff\nCpus_allowed_list:\t0-7\nMems_allowed:\t00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001\nMems_allowed_list:\t0\nvoluntary_ctxt_switches:\t1\nnonvoluntary_ctxt_switches:\t0\n",
+            "comm": "python3",
+            "ns_link": "pid:[4026532222]"
+          }
+        },
+        {
+          "local_tid": 1309,
+          "global_tid": 1309,
+          "comm": "python3",
+          "start_ticks": 14470,
+          "evidence": {
+            "stat_before": "1309 (python3) S 1279 1303 1303 0 -1 4194368 1 738168 0 1 6 0 1134 579 20 0 19 0 14470 1013055488 16517 18446744073709551615 106667378450432 106667381274669 140722846035376 0 0 0 0 16781312 16386 1 0 0 -1 7 0 0 0 0 0 106667383638032 106667383922072 106667634675712 140722846036514 140722846036680 140722846036680 140722846044135 0\n",
+            "stat_after": "1309 (python3) S 1279 1303 1303 0 -1 4194368 1 738168 0 1 6 0 1134 579 20 0 19 0 14470 1013055488 16517 18446744073709551615 106667378450432 106667381274669 140722846035376 0 0 0 0 16781312 16386 1 0 0 -1 7 0 0 0 0 0 106667383638032 106667383922072 106667634675712 140722846036514 140722846036680 140722846036680 140722846044135 0\n",
+            "status": "Name:\tpython3\nUmask:\t0022\nState:\tS (sleeping)\nTgid:\t1303\nNgid:\t0\nPid:\t1309\nPPid:\t1279\nTracerPid:\t0\nUid:\t0\t0\t0\t0\nGid:\t0\t0\t0\t0\nFDSize:\t64\nGroups:\t0 \nNStgid:\t1303\nNSpid:\t1309\nNSpgid:\t1303\nNSsid:\t1303\nKthread:\t0\nVmPeak:\t  989312 kB\nVmSize:\t  989312 kB\nVmLck:\t       0 kB\nVmPin:\t       0 kB\nVmHWM:\t   66704 kB\nVmRSS:\t   66068 kB\nRssAnon:\t   36468 kB\nRssFile:\t   28800 kB\nRssShmem:\t     800 kB\nVmData:\t  450912 kB\nVmStk:\t     136 kB\nVmExe:\t    2760 kB\nVmLib:\t   49036 kB\nVmPTE:\t     360 kB\nVmSwap:\t       0 kB\nHugetlbPages:\t       0 kB\nCoreDumping:\t0\nTHP_enabled:\t1\nuntag_mask:\t0xffffffffffffffff\nThreads:\t19\nSigQ:\t0/63149\nSigPnd:\t0000000000000000\nShdPnd:\t0000000000000000\nSigBlk:\t0000000000000000\nSigIgn:\t0000000001001000\nSigCgt:\t0000000100004002\nCapInh:\t0000000000000000\nCapPrm:\t000001ffffffffff\nCapEff:\t000001ffffffffff\nCapBnd:\t000001ffffffffff\nCapAmb:\t0000000000000000\nNoNewPrivs:\t0\nSeccomp:\t0\nSeccomp_filters:\t0\nSpeculation_Store_Bypass:\tthread vulnerable\nSpeculationIndirectBranch:\tconditional enabled\nCpus_allowed:\t000ff\nCpus_allowed_list:\t0-7\nMems_allowed:\t00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001\nMems_allowed_list:\t0\nvoluntary_ctxt_switches:\t1\nnonvoluntary_ctxt_switches:\t0\n",
+            "comm": "python3",
+            "ns_link": "pid:[4026532222]"
+          }
+        },
+        {
+          "local_tid": 1310,
+          "global_tid": 1310,
+          "comm": "python3",
+          "start_ticks": 14470,
+          "evidence": {
+            "stat_before": "1310 (python3) S 1279 1303 1303 0 -1 4194368 1 738168 0 1 6 0 1134 579 20 0 19 0 14470 1013055488 16517 18446744073709551615 106667378450432 106667381274669 140722846035376 0 0 0 0 16781312 16386 1 0 0 -1 1 0 0 0 0 0 106667383638032 106667383922072 106667634675712 140722846036514 140722846036680 140722846036680 140722846044135 0\n",
+            "stat_after": "1310 (python3) S 1279 1303 1303 0 -1 4194368 1 738168 0 1 6 0 1134 579 20 0 19 0 14470 1013055488 16517 18446744073709551615 106667378450432 106667381274669 140722846035376 0 0 0 0 16781312 16386 1 0 0 -1 1 0 0 0 0 0 106667383638032 106667383922072 106667634675712 140722846036514 140722846036680 140722846036680 140722846044135 0\n",
+            "status": "Name:\tpython3\nUmask:\t0022\nState:\tS (sleeping)\nTgid:\t1303\nNgid:\t0\nPid:\t1310\nPPid:\t1279\nTracerPid:\t0\nUid:\t0\t0\t0\t0\nGid:\t0\t0\t0\t0\nFDSize:\t64\nGroups:\t0 \nNStgid:\t1303\nNSpid:\t1310\nNSpgid:\t1303\nNSsid:\t1303\nKthread:\t0\nVmPeak:\t  989312 kB\nVmSize:\t  989312 kB\nVmLck:\t       0 kB\nVmPin:\t       0 kB\nVmHWM:\t   66704 kB\nVmRSS:\t   66068 kB\nRssAnon:\t   36468 kB\nRssFile:\t   28800 kB\nRssShmem:\t     800 kB\nVmData:\t  450912 kB\nVmStk:\t     136 kB\nVmExe:\t    2760 kB\nVmLib:\t   49036 kB\nVmPTE:\t     360 kB\nVmSwap:\t       0 kB\nHugetlbPages:\t       0 kB\nCoreDumping:\t0\nTHP_enabled:\t1\nuntag_mask:\t0xffffffffffffffff\nThreads:\t19\nSigQ:\t0/63149\nSigPnd:\t0000000000000000\nShdPnd:\t0000000000000000\nSigBlk:\t0000000000000000\nSigIgn:\t0000000001001000\nSigCgt:\t0000000100004002\nCapInh:\t0000000000000000\nCapPrm:\t000001ffffffffff\nCapEff:\t000001ffffffffff\nCapBnd:\t000001ffffffffff\nCapAmb:\t0000000000000000\nNoNewPrivs:\t0\nSeccomp:\t0\nSeccomp_filters:\t0\nSpeculation_Store_Bypass:\tthread vulnerable\nSpeculationIndirectBranch:\tconditional enabled\nCpus_allowed:\t000ff\nCpus_allowed_list:\t0-7\nMems_allowed:\t00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001\nMems_allowed_list:\t0\nvoluntary_ctxt_switches:\t1\nnonvoluntary_ctxt_switches:\t0\n",
+            "comm": "python3",
+            "ns_link": "pid:[4026532222]"
+          }
+        },
+        {
+          "local_tid": 1311,
+          "global_tid": 1311,
+          "comm": "python3",
+          "start_ticks": 14470,
+          "evidence": {
+            "stat_before": "1311 (python3) S 1279 1303 1303 0 -1 4194368 1 738168 0 1 6 0 1134 579 20 0 19 0 14470 1013055488 16517 18446744073709551615 106667378450432 106667381274669 140722846035376 0 0 0 0 16781312 16386 1 0 0 -1 4 0 0 0 0 0 106667383638032 106667383922072 106667634675712 140722846036514 140722846036680 140722846036680 140722846044135 0\n",
+            "stat_after": "1311 (python3) S 1279 1303 1303 0 -1 4194368 1 738168 0 1 6 0 1134 579 20 0 19 0 14470 1013055488 16517 18446744073709551615 106667378450432 106667381274669 140722846035376 0 0 0 0 16781312 16386 1 0 0 -1 4 0 0 0 0 0 106667383638032 106667383922072 106667634675712 140722846036514 140722846036680 140722846036680 140722846044135 0\n",
+            "status": "Name:\tpython3\nUmask:\t0022\nState:\tS (sleeping)\nTgid:\t1303\nNgid:\t0\nPid:\t1311\nPPid:\t1279\nTracerPid:\t0\nUid:\t0\t0\t0\t0\nGid:\t0\t0\t0\t0\nFDSize:\t64\nGroups:\t0 \nNStgid:\t1303\nNSpid:\t1311\nNSpgid:\t1303\nNSsid:\t1303\nKthread:\t0\nVmPeak:\t  989312 kB\nVmSize:\t  989312 kB\nVmLck:\t       0 kB\nVmPin:\t       0 kB\nVmHWM:\t   66704 kB\nVmRSS:\t   66068 kB\nRssAnon:\t   36468 kB\nRssFile:\t   28800 kB\nRssShmem:\t     800 kB\nVmData:\t  450912 kB\nVmStk:\t     136 kB\nVmExe:\t    2760 kB\nVmLib:\t   49036 kB\nVmPTE:\t     360 kB\nVmSwap:\t       0 kB\nHugetlbPages:\t       0 kB\nCoreDumping:\t0\nTHP_enabled:\t1\nuntag_mask:\t0xffffffffffffffff\nThreads:\t19\nSigQ:\t0/63149\nSigPnd:\t0000000000000000\nShdPnd:\t0000000000000000\nSigBlk:\t0000000000000000\nSigIgn:\t0000000001001000\nSigCgt:\t0000000100004002\nCapInh:\t0000000000000000\nCapPrm:\t000001ffffffffff\nCapEff:\t000001ffffffffff\nCapBnd:\t000001ffffffffff\nCapAmb:\t0000000000000000\nNoNewPrivs:\t0\nSeccomp:\t0\nSeccomp_filters:\t0\nSpeculation_Store_Bypass:\tthread vulnerable\nSpeculationIndirectBranch:\tconditional enabled\nCpus_allowed:\t000ff\nCpus_allowed_list:\t0-7\nMems_allowed:\t00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001\nMems_allowed_list:\t0\nvoluntary_ctxt_switches:\t1\nnonvoluntary_ctxt_switches:\t0\n",
+            "comm": "python3",
+            "ns_link": "pid:[4026532222]"
+          }
+        },
+        {
+          "local_tid": 1312,
+          "global_tid": 1312,
+          "comm": "python3",
+          "start_ticks": 14470,
+          "evidence": {
+            "stat_before": "1312 (python3) S 1279 1303 1303 0 -1 4194368 1 738168 0 1 6 0 1134 579 20 0 19 0 14470 1013055488 16517 18446744073709551615 106667378450432 106667381274669 140722846035376 0 0 0 0 16781312 16386 1 0 0 -1 0 0 0 0 0 0 106667383638032 106667383922072 106667634675712 140722846036514 140722846036680 140722846036680 140722846044135 0\n",
+            "stat_after": "1312 (python3) S 1279 1303 1303 0 -1 4194368 1 738168 0 1 6 0 1134 579 20 0 19 0 14470 1013055488 16517 18446744073709551615 106667378450432 106667381274669 140722846035376 0 0 0 0 16781312 16386 1 0 0 -1 0 0 0 0 0 0 106667383638032 106667383922072 106667634675712 140722846036514 140722846036680 140722846036680 140722846044135 0\n",
+            "status": "Name:\tpython3\nUmask:\t0022\nState:\tS (sleeping)\nTgid:\t1303\nNgid:\t0\nPid:\t1312\nPPid:\t1279\nTracerPid:\t0\nUid:\t0\t0\t0\t0\nGid:\t0\t0\t0\t0\nFDSize:\t64\nGroups:\t0 \nNStgid:\t1303\nNSpid:\t1312\nNSpgid:\t1303\nNSsid:\t1303\nKthread:\t0\nVmPeak:\t  989312 kB\nVmSize:\t  989312 kB\nVmLck:\t       0 kB\nVmPin:\t       0 kB\nVmHWM:\t   66704 kB\nVmRSS:\t   66068 kB\nRssAnon:\t   36468 kB\nRssFile:\t   28800 kB\nRssShmem:\t     800 kB\nVmData:\t  450912 kB\nVmStk:\t     136 kB\nVmExe:\t    2760 kB\nVmLib:\t   49036 kB\nVmPTE:\t     360 kB\nVmSwap:\t       0 kB\nHugetlbPages:\t       0 kB\nCoreDumping:\t0\nTHP_enabled:\t1\nuntag_mask:\t0xffffffffffffffff\nThreads:\t19\nSigQ:\t0/63149\nSigPnd:\t0000000000000000\nShdPnd:\t0000000000000000\nSigBlk:\t0000000000000000\nSigIgn:\t0000000001001000\nSigCgt:\t0000000100004002\nCapInh:\t0000000000000000\nCapPrm:\t000001ffffffffff\nCapEff:\t000001ffffffffff\nCapBnd:\t000001ffffffffff\nCapAmb:\t0000000000000000\nNoNewPrivs:\t0\nSeccomp:\t0\nSeccomp_filters:\t0\nSpeculation_Store_Bypass:\tthread vulnerable\nSpeculationIndirectBranch:\tconditional enabled\nCpus_allowed:\t000ff\nCpus_allowed_list:\t0-7\nMems_allowed:\t00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001\nMems_allowed_list:\t0\nvoluntary_ctxt_switches:\t1\nnonvoluntary_ctxt_switches:\t16\n",
+            "comm": "python3",
+            "ns_link": "pid:[4026532222]"
+          }
+        },
+        {
+          "local_tid": 1313,
+          "global_tid": 1313,
+          "comm": "python3",
+          "start_ticks": 14470,
+          "evidence": {
+            "stat_before": "1313 (python3) S 1279 1303 1303 0 -1 4194368 1 738168 0 1 6 0 1134 579 20 0 19 0 14470 1013055488 16517 18446744073709551615 106667378450432 106667381274669 140722846035376 0 0 0 0 16781312 16386 1 0 0 -1 5 0 0 0 0 0 106667383638032 106667383922072 106667634675712 140722846036514 140722846036680 140722846036680 140722846044135 0\n",
+            "stat_after": "1313 (python3) S 1279 1303 1303 0 -1 4194368 1 738168 0 1 6 0 1134 579 20 0 19 0 14470 1013055488 16517 18446744073709551615 106667378450432 106667381274669 140722846035376 0 0 0 0 16781312 16386 1 0 0 -1 5 0 0 0 0 0 106667383638032 106667383922072 106667634675712 140722846036514 140722846036680 140722846036680 140722846044135 0\n",
+            "status": "Name:\tpython3\nUmask:\t0022\nState:\tS (sleeping)\nTgid:\t1303\nNgid:\t0\nPid:\t1313\nPPid:\t1279\nTracerPid:\t0\nUid:\t0\t0\t0\t0\nGid:\t0\t0\t0\t0\nFDSize:\t64\nGroups:\t0 \nNStgid:\t1303\nNSpid:\t1313\nNSpgid:\t1303\nNSsid:\t1303\nKthread:\t0\nVmPeak:\t  989312 kB\nVmSize:\t  989312 kB\nVmLck:\t       0 kB\nVmPin:\t       0 kB\nVmHWM:\t   66704 kB\nVmRSS:\t   66068 kB\nRssAnon:\t   36468 kB\nRssFile:\t   28800 kB\nRssShmem:\t     800 kB\nVmData:\t  450912 kB\nVmStk:\t     136 kB\nVmExe:\t    2760 kB\nVmLib:\t   49036 kB\nVmPTE:\t     360 kB\nVmSwap:\t       0 kB\nHugetlbPages:\t       0 kB\nCoreDumping:\t0\nTHP_enabled:\t1\nuntag_mask:\t0xffffffffffffffff\nThreads:\t19\nSigQ:\t0/63149\nSigPnd:\t0000000000000000\nShdPnd:\t0000000000000000\nSigBlk:\t0000000000000000\nSigIgn:\t0000000001001000\nSigCgt:\t0000000100004002\nCapInh:\t0000000000000000\nCapPrm:\t000001ffffffffff\nCapEff:\t000001ffffffffff\nCapBnd:\t000001ffffffffff\nCapAmb:\t0000000000000000\nNoNewPrivs:\t0\nSeccomp:\t0\nSeccomp_filters:\t0\nSpeculation_Store_Bypass:\tthread vulnerable\nSpeculationIndirectBranch:\tconditional enabled\nCpus_allowed:\t000ff\nCpus_allowed_list:\t0-7\nMems_allowed:\t00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001\nMems_allowed_list:\t0\nvoluntary_ctxt_switches:\t1\nnonvoluntary_ctxt_switches:\t0\n",
+            "comm": "python3",
+            "ns_link": "pid:[4026532222]"
+          }
+        },
+        {
+          "local_tid": 1883,
+          "global_tid": 1883,
+          "comm": "python3",
+          "start_ticks": 16475,
+          "evidence": {
+            "stat_before": "1883 (python3) S 1279 1303 1303 0 -1 4194368 1 738168 0 1 0 0 1134 579 20 0 19 0 16475 1013055488 16517 18446744073709551615 106667378450432 106667381274669 140722846035376 0 0 0 0 16781312 16386 1 0 0 -1 3 0 0 0 0 0 106667383638032 106667383922072 106667634675712 140722846036514 140722846036680 140722846036680 140722846044135 0\n",
+            "stat_after": "1883 (python3) S 1279 1303 1303 0 -1 4194368 1 738168 0 1 0 0 1134 579 20 0 19 0 16475 1013055488 16517 18446744073709551615 106667378450432 106667381274669 140722846035376 0 0 0 0 16781312 16386 1 0 0 -1 3 0 0 0 0 0 106667383638032 106667383922072 106667634675712 140722846036514 140722846036680 140722846036680 140722846044135 0\n",
+            "status": "Name:\tpython3\nUmask:\t0022\nState:\tS (sleeping)\nTgid:\t1303\nNgid:\t0\nPid:\t1883\nPPid:\t1279\nTracerPid:\t0\nUid:\t0\t0\t0\t0\nGid:\t0\t0\t0\t0\nFDSize:\t64\nGroups:\t0 \nNStgid:\t1303\nNSpid:\t1883\nNSpgid:\t1303\nNSsid:\t1303\nKthread:\t0\nVmPeak:\t  989312 kB\nVmSize:\t  989312 kB\nVmLck:\t       0 kB\nVmPin:\t       0 kB\nVmHWM:\t   66704 kB\nVmRSS:\t   66068 kB\nRssAnon:\t   36468 kB\nRssFile:\t   28800 kB\nRssShmem:\t     800 kB\nVmData:\t  450912 kB\nVmStk:\t     136 kB\nVmExe:\t    2760 kB\nVmLib:\t   49036 kB\nVmPTE:\t     360 kB\nVmSwap:\t       0 kB\nHugetlbPages:\t       0 kB\nCoreDumping:\t0\nTHP_enabled:\t1\nuntag_mask:\t0xffffffffffffffff\nThreads:\t19\nSigQ:\t0/63149\nSigPnd:\t0000000000000000\nShdPnd:\t0000000000000000\nSigBlk:\t0000000000000000\nSigIgn:\t0000000001001000\nSigCgt:\t0000000100004002\nCapInh:\t0000000000000000\nCapPrm:\t000001ffffffffff\nCapEff:\t000001ffffffffff\nCapBnd:\t000001ffffffffff\nCapAmb:\t0000000000000000\nNoNewPrivs:\t0\nSeccomp:\t0\nSeccomp_filters:\t0\nSpeculation_Store_Bypass:\tthread vulnerable\nSpeculationIndirectBranch:\tconditional enabled\nCpus_allowed:\t000ff\nCpus_allowed_list:\t0-7\nMems_allowed:\t00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001\nMems_allowed_list:\t0\nvoluntary_ctxt_switches:\t1\nnonvoluntary_ctxt_switches:\t0\n",
+            "comm": "python3",
+            "ns_link": "pid:[4026532222]"
+          }
+        },
+        {
+          "local_tid": 1884,
+          "global_tid": 1884,
+          "comm": "python3",
+          "start_ticks": 16475,
+          "evidence": {
+            "stat_before": "1884 (python3) S 1279 1303 1303 0 -1 4194368 1 738168 0 1 0 0 1134 579 20 0 19 0 16475 1013055488 16517 18446744073709551615 106667378450432 106667381274669 140722846035376 0 0 0 0 16781312 16386 1 0 0 -1 5 0 0 0 0 0 106667383638032 106667383922072 106667634675712 140722846036514 140722846036680 140722846036680 140722846044135 0\n",
+            "stat_after": "1884 (python3) S 1279 1303 1303 0 -1 4194368 1 738168 0 1 0 0 1134 579 20 0 19 0 16475 1013055488 16517 18446744073709551615 106667378450432 106667381274669 140722846035376 0 0 0 0 16781312 16386 1 0 0 -1 5 0 0 0 0 0 106667383638032 106667383922072 106667634675712 140722846036514 140722846036680 140722846036680 140722846044135 0\n",
+            "status": "Name:\tpython3\nUmask:\t0022\nState:\tS (sleeping)\nTgid:\t1303\nNgid:\t0\nPid:\t1884\nPPid:\t1279\nTracerPid:\t0\nUid:\t0\t0\t0\t0\nGid:\t0\t0\t0\t0\nFDSize:\t64\nGroups:\t0 \nNStgid:\t1303\nNSpid:\t1884\nNSpgid:\t1303\nNSsid:\t1303\nKthread:\t0\nVmPeak:\t  989312 kB\nVmSize:\t  989312 kB\nVmLck:\t       0 kB\nVmPin:\t       0 kB\nVmHWM:\t   66704 kB\nVmRSS:\t   66068 kB\nRssAnon:\t   36468 kB\nRssFile:\t   28800 kB\nRssShmem:\t     800 kB\nVmData:\t  450912 kB\nVmStk:\t     136 kB\nVmExe:\t    2760 kB\nVmLib:\t   49036 kB\nVmPTE:\t     360 kB\nVmSwap:\t       0 kB\nHugetlbPages:\t       0 kB\nCoreDumping:\t0\nTHP_enabled:\t1\nuntag_mask:\t0xffffffffffffffff\nThreads:\t19\nSigQ:\t0/63149\nSigPnd:\t0000000000000000\nShdPnd:\t0000000000000000\nSigBlk:\t0000000000000000\nSigIgn:\t0000000001001000\nSigCgt:\t0000000100004002\nCapInh:\t0000000000000000\nCapPrm:\t000001ffffffffff\nCapEff:\t000001ffffffffff\nCapBnd:\t000001ffffffffff\nCapAmb:\t0000000000000000\nNoNewPrivs:\t0\nSeccomp:\t0\nSeccomp_filters:\t0\nSpeculation_Store_Bypass:\tthread vulnerable\nSpeculationIndirectBranch:\tconditional enabled\nCpus_allowed:\t000ff\nCpus_allowed_list:\t0-7\nMems_allowed:\t00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001\nMems_allowed_list:\t0\nvoluntary_ctxt_switches:\t1\nnonvoluntary_ctxt_switches:\t0\n",
+            "comm": "python3",
+            "ns_link": "pid:[4026532222]"
+          }
+        },
+        {
+          "local_tid": 1885,
+          "global_tid": 1885,
+          "comm": "python3",
+          "start_ticks": 16479,
+          "evidence": {
+            "stat_before": "1885 (python3) S 1279 1303 1303 0 -1 4194368 2 738168 0 1 0 0 1134 579 20 0 19 0 16479 1013055488 16517 18446744073709551615 106667378450432 106667381274669 140722846035376 0 0 0 0 16781312 16386 1 0 0 -1 6 0 0 0 0 0 106667383638032 106667383922072 106667634675712 140722846036514 140722846036680 140722846036680 140722846044135 0\n",
+            "stat_after": "1885 (python3) S 1279 1303 1303 0 -1 4194368 2 738168 0 1 0 0 1134 579 20 0 19 0 16479 1013055488 16517 18446744073709551615 106667378450432 106667381274669 140722846035376 0 0 0 0 16781312 16386 1 0 0 -1 6 0 0 0 0 0 106667383638032 106667383922072 106667634675712 140722846036514 140722846036680 140722846036680 140722846044135 0\n",
+            "status": "Name:\tpython3\nUmask:\t0022\nState:\tS (sleeping)\nTgid:\t1303\nNgid:\t0\nPid:\t1885\nPPid:\t1279\nTracerPid:\t0\nUid:\t0\t0\t0\t0\nGid:\t0\t0\t0\t0\nFDSize:\t64\nGroups:\t0 \nNStgid:\t1303\nNSpid:\t1885\nNSpgid:\t1303\nNSsid:\t1303\nKthread:\t0\nVmPeak:\t  989312 kB\nVmSize:\t  989312 kB\nVmLck:\t       0 kB\nVmPin:\t       0 kB\nVmHWM:\t   66704 kB\nVmRSS:\t   66068 kB\nRssAnon:\t   36468 kB\nRssFile:\t   28800 kB\nRssShmem:\t     800 kB\nVmData:\t  450912 kB\nVmStk:\t     136 kB\nVmExe:\t    2760 kB\nVmLib:\t   49036 kB\nVmPTE:\t     360 kB\nVmSwap:\t       0 kB\nHugetlbPages:\t       0 kB\nCoreDumping:\t0\nTHP_enabled:\t1\nuntag_mask:\t0xffffffffffffffff\nThreads:\t19\nSigQ:\t0/63149\nSigPnd:\t0000000000000000\nShdPnd:\t0000000000000000\nSigBlk:\t0000000000000000\nSigIgn:\t0000000001001000\nSigCgt:\t0000000100004002\nCapInh:\t0000000000000000\nCapPrm:\t000001ffffffffff\nCapEff:\t000001ffffffffff\nCapBnd:\t000001ffffffffff\nCapAmb:\t0000000000000000\nNoNewPrivs:\t0\nSeccomp:\t0\nSeccomp_filters:\t0\nSpeculation_Store_Bypass:\tthread vulnerable\nSpeculationIndirectBranch:\tconditional enabled\nCpus_allowed:\t000ff\nCpus_allowed_list:\t0-7\nMems_allowed:\t00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001\nMems_allowed_list:\t0\nvoluntary_ctxt_switches:\t4\nnonvoluntary_ctxt_switches:\t0\n",
+            "comm": "python3",
+            "ns_link": "pid:[4026532222]"
+          }
+        },
+        {
+          "local_tid": 1886,
+          "global_tid": 1886,
+          "comm": "python3",
+          "start_ticks": 16479,
+          "evidence": {
+            "stat_before": "1886 (python3) S 1279 1303 1303 0 -1 4194368 17 738168 0 1 0 0 1134 579 20 0 19 0 16479 1013055488 16517 18446744073709551615 106667378450432 106667381274669 140722846035376 0 0 0 0 16781312 16386 1 0 0 -1 4 0 0 0 0 0 106667383638032 106667383922072 106667634675712 140722846036514 140722846036680 140722846036680 140722846044135 0\n",
+            "stat_after": "1886 (python3) S 1279 1303 1303 0 -1 4194368 17 738168 0 1 0 0 1134 579 20 0 19 0 16479 1013055488 16517 18446744073709551615 106667378450432 106667381274669 140722846035376 0 0 0 0 16781312 16386 1 0 0 -1 4 0 0 0 0 0 106667383638032 106667383922072 106667634675712 140722846036514 140722846036680 140722846036680 140722846044135 0\n",
+            "status": "Name:\tpython3\nUmask:\t0022\nState:\tS (sleeping)\nTgid:\t1303\nNgid:\t0\nPid:\t1886\nPPid:\t1279\nTracerPid:\t0\nUid:\t0\t0\t0\t0\nGid:\t0\t0\t0\t0\nFDSize:\t64\nGroups:\t0 \nNStgid:\t1303\nNSpid:\t1886\nNSpgid:\t1303\nNSsid:\t1303\nKthread:\t0\nVmPeak:\t  989312 kB\nVmSize:\t  989312 kB\nVmLck:\t       0 kB\nVmPin:\t       0 kB\nVmHWM:\t   66704 kB\nVmRSS:\t   66068 kB\nRssAnon:\t   36468 kB\nRssFile:\t   28800 kB\nRssShmem:\t     800 kB\nVmData:\t  450912 kB\nVmStk:\t     136 kB\nVmExe:\t    2760 kB\nVmLib:\t   49036 kB\nVmPTE:\t     360 kB\nVmSwap:\t       0 kB\nHugetlbPages:\t       0 kB\nCoreDumping:\t0\nTHP_enabled:\t1\nuntag_mask:\t0xffffffffffffffff\nThreads:\t19\nSigQ:\t0/63149\nSigPnd:\t0000000000000000\nShdPnd:\t0000000000000000\nSigBlk:\t0000000000000000\nSigIgn:\t0000000001001000\nSigCgt:\t0000000100004002\nCapInh:\t0000000000000000\nCapPrm:\t000001ffffffffff\nCapEff:\t000001ffffffffff\nCapBnd:\t000001ffffffffff\nCapAmb:\t0000000000000000\nNoNewPrivs:\t0\nSeccomp:\t0\nSeccomp_filters:\t0\nSpeculation_Store_Bypass:\tthread vulnerable\nSpeculationIndirectBranch:\tconditional enabled\nCpus_allowed:\t000ff\nCpus_allowed_list:\t0-7\nMems_allowed:\t00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001\nMems_allowed_list:\t0\nvoluntary_ctxt_switches:\t416\nnonvoluntary_ctxt_switches:\t13\n",
+            "comm": "python3",
+            "ns_link": "pid:[4026532222]"
+          }
+        },
+        {
+          "local_tid": 1887,
+          "global_tid": 1887,
+          "comm": "python3",
+          "start_ticks": 16479,
+          "evidence": {
+            "stat_before": "1887 (python3) S 1279 1303 1303 0 -1 4194368 1 738168 1 1 0 0 1134 579 20 0 19 0 16479 1013055488 16517 18446744073709551615 106667378450432 106667381274669 140722846035376 0 0 0 0 16781312 16386 1 0 0 -1 1 0 0 0 0 0 106667383638032 106667383922072 106667634675712 140722846036514 140722846036680 140722846036680 140722846044135 0\n",
+            "stat_after": "1887 (python3) S 1279 1303 1303 0 -1 4194368 1 738168 1 1 0 0 1134 579 20 0 19 0 16479 1013055488 16517 18446744073709551615 106667378450432 106667381274669 140722846035376 0 0 0 0 16781312 16386 1 0 0 -1 1 0 0 0 0 0 106667383638032 106667383922072 106667634675712 140722846036514 140722846036680 140722846036680 140722846044135 0\n",
+            "status": "Name:\tpython3\nUmask:\t0022\nState:\tS (sleeping)\nTgid:\t1303\nNgid:\t0\nPid:\t1887\nPPid:\t1279\nTracerPid:\t0\nUid:\t0\t0\t0\t0\nGid:\t0\t0\t0\t0\nFDSize:\t64\nGroups:\t0 \nNStgid:\t1303\nNSpid:\t1887\nNSpgid:\t1303\nNSsid:\t1303\nKthread:\t0\nVmPeak:\t  989312 kB\nVmSize:\t  989312 kB\nVmLck:\t       0 kB\nVmPin:\t       0 kB\nVmHWM:\t   66704 kB\nVmRSS:\t   66068 kB\nRssAnon:\t   36468 kB\nRssFile:\t   28800 kB\nRssShmem:\t     800 kB\nVmData:\t  450912 kB\nVmStk:\t     136 kB\nVmExe:\t    2760 kB\nVmLib:\t   49036 kB\nVmPTE:\t     360 kB\nVmSwap:\t       0 kB\nHugetlbPages:\t       0 kB\nCoreDumping:\t0\nTHP_enabled:\t1\nuntag_mask:\t0xffffffffffffffff\nThreads:\t19\nSigQ:\t0/63149\nSigPnd:\t0000000000000000\nShdPnd:\t0000000000000000\nSigBlk:\t0000000000000000\nSigIgn:\t0000000001001000\nSigCgt:\t0000000100004002\nCapInh:\t0000000000000000\nCapPrm:\t000001ffffffffff\nCapEff:\t000001ffffffffff\nCapBnd:\t000001ffffffffff\nCapAmb:\t0000000000000000\nNoNewPrivs:\t0\nSeccomp:\t0\nSeccomp_filters:\t0\nSpeculation_Store_Bypass:\tthread vulnerable\nSpeculationIndirectBranch:\tconditional enabled\nCpus_allowed:\t000ff\nCpus_allowed_list:\t0-7\nMems_allowed:\t00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001\nMems_allowed_list:\t0\nvoluntary_ctxt_switches:\t1\nnonvoluntary_ctxt_switches:\t0\n",
+            "comm": "python3",
+            "ns_link": "pid:[4026532222]"
+          }
+        },
+        {
+          "local_tid": 1888,
+          "global_tid": 1888,
+          "comm": "python3",
+          "start_ticks": 16479,
+          "evidence": {
+            "stat_before": "1888 (python3) S 1279 1303 1303 0 -1 4194368 29 738168 1 1 0 0 1134 579 20 0 19 0 16479 1013055488 16517 18446744073709551615 106667378450432 106667381274669 140722846035376 0 0 0 0 16781312 16386 1 0 0 -1 4 0 0 0 0 0 106667383638032 106667383922072 106667634675712 140722846036514 140722846036680 140722846036680 140722846044135 0\n",
+            "stat_after": "1888 (python3) S 1279 1303 1303 0 -1 4194368 29 738168 1 1 0 0 1134 579 20 0 19 0 16479 1013055488 16517 18446744073709551615 106667378450432 106667381274669 140722846035376 0 0 0 0 16781312 16386 1 0 0 -1 4 0 0 0 0 0 106667383638032 106667383922072 106667634675712 140722846036514 140722846036680 140722846036680 140722846044135 0\n",
+            "status": "Name:\tpython3\nUmask:\t0022\nState:\tS (sleeping)\nTgid:\t1303\nNgid:\t0\nPid:\t1888\nPPid:\t1279\nTracerPid:\t0\nUid:\t0\t0\t0\t0\nGid:\t0\t0\t0\t0\nFDSize:\t64\nGroups:\t0 \nNStgid:\t1303\nNSpid:\t1888\nNSpgid:\t1303\nNSsid:\t1303\nKthread:\t0\nVmPeak:\t  989312 kB\nVmSize:\t  989312 kB\nVmLck:\t       0 kB\nVmPin:\t       0 kB\nVmHWM:\t   66704 kB\nVmRSS:\t   66068 kB\nRssAnon:\t   36468 kB\nRssFile:\t   28800 kB\nRssShmem:\t     800 kB\nVmData:\t  450912 kB\nVmStk:\t     136 kB\nVmExe:\t    2760 kB\nVmLib:\t   49036 kB\nVmPTE:\t     360 kB\nVmSwap:\t       0 kB\nHugetlbPages:\t       0 kB\nCoreDumping:\t0\nTHP_enabled:\t1\nuntag_mask:\t0xffffffffffffffff\nThreads:\t19\nSigQ:\t0/63149\nSigPnd:\t0000000000000000\nShdPnd:\t0000000000000000\nSigBlk:\t0000000000000000\nSigIgn:\t0000000001001000\nSigCgt:\t0000000100004002\nCapInh:\t0000000000000000\nCapPrm:\t000001ffffffffff\nCapEff:\t000001ffffffffff\nCapBnd:\t000001ffffffffff\nCapAmb:\t0000000000000000\nNoNewPrivs:\t0\nSeccomp:\t0\nSeccomp_filters:\t0\nSpeculation_Store_Bypass:\tthread vulnerable\nSpeculationIndirectBranch:\tconditional enabled\nCpus_allowed:\t000ff\nCpus_allowed_list:\t0-7\nMems_allowed:\t00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001\nMems_allowed_list:\t0\nvoluntary_ctxt_switches:\t72\nnonvoluntary_ctxt_switches:\t4\n",
+            "comm": "python3",
+            "ns_link": "pid:[4026532222]"
+          }
+        },
+        {
+          "local_tid": 1889,
+          "global_tid": 1889,
+          "comm": "python3",
+          "start_ticks": 16479,
+          "evidence": {
+            "stat_before": "1889 (python3) S 1279 1303 1303 0 -1 4194368 214 738168 0 1 1 0 1134 579 20 0 19 0 16479 1013055488 16517 18446744073709551615 106667378450432 106667381274669 140722846035376 0 0 0 0 16781312 16386 1 0 0 -1 3 0 0 0 0 0 106667383638032 106667383922072 106667634675712 140722846036514 140722846036680 140722846036680 140722846044135 0\n",
+            "stat_after": "1889 (python3) S 1279 1303 1303 0 -1 4194368 214 738168 0 1 1 0 1134 579 20 0 19 0 16479 1013055488 16517 18446744073709551615 106667378450432 106667381274669 140722846035376 0 0 0 0 16781312 16386 1 0 0 -1 3 0 0 0 0 0 106667383638032 106667383922072 106667634675712 140722846036514 140722846036680 140722846036680 140722846044135 0\n",
+            "status": "Name:\tpython3\nUmask:\t0022\nState:\tS (sleeping)\nTgid:\t1303\nNgid:\t0\nPid:\t1889\nPPid:\t1279\nTracerPid:\t0\nUid:\t0\t0\t0\t0\nGid:\t0\t0\t0\t0\nFDSize:\t64\nGroups:\t0 \nNStgid:\t1303\nNSpid:\t1889\nNSpgid:\t1303\nNSsid:\t1303\nKthread:\t0\nVmPeak:\t  989312 kB\nVmSize:\t  989312 kB\nVmLck:\t       0 kB\nVmPin:\t       0 kB\nVmHWM:\t   66704 kB\nVmRSS:\t   66068 kB\nRssAnon:\t   36468 kB\nRssFile:\t   28800 kB\nRssShmem:\t     800 kB\nVmData:\t  450912 kB\nVmStk:\t     136 kB\nVmExe:\t    2760 kB\nVmLib:\t   49036 kB\nVmPTE:\t     360 kB\nVmSwap:\t       0 kB\nHugetlbPages:\t       0 kB\nCoreDumping:\t0\nTHP_enabled:\t1\nuntag_mask:\t0xffffffffffffffff\nThreads:\t19\nSigQ:\t0/63149\nSigPnd:\t0000000000000000\nShdPnd:\t0000000000000000\nSigBlk:\t0000000000000000\nSigIgn:\t0000000001001000\nSigCgt:\t0000000100004002\nCapInh:\t0000000000000000\nCapPrm:\t000001ffffffffff\nCapEff:\t000001ffffffffff\nCapBnd:\t000001ffffffffff\nCapAmb:\t0000000000000000\nNoNewPrivs:\t0\nSeccomp:\t0\nSeccomp_filters:\t0\nSpeculation_Store_Bypass:\tthread vulnerable\nSpeculationIndirectBranch:\tconditional enabled\nCpus_allowed:\t000ff\nCpus_allowed_list:\t0-7\nMems_allowed:\t00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001\nMems_allowed_list:\t0\nvoluntary_ctxt_switches:\t426\nnonvoluntary_ctxt_switches:\t26\n",
+            "comm": "python3",
+            "ns_link": "pid:[4026532222]"
+          }
+        },
+        {
+          "local_tid": 1890,
+          "global_tid": 1890,
+          "comm": "python3",
+          "start_ticks": 16479,
+          "evidence": {
+            "stat_before": "1890 (python3) S 1279 1303 1303 0 -1 4194368 1 738168 0 1 0 0 1134 579 20 0 19 0 16479 1013055488 16517 18446744073709551615 106667378450432 106667381274669 140722846035376 0 0 0 0 16781312 16386 1 0 0 -1 5 0 0 0 0 0 106667383638032 106667383922072 106667634675712 140722846036514 140722846036680 140722846036680 140722846044135 0\n",
+            "stat_after": "1890 (python3) S 1279 1303 1303 0 -1 4194368 1 738168 0 1 0 0 1134 579 20 0 19 0 16479 1013055488 16517 18446744073709551615 106667378450432 106667381274669 140722846035376 0 0 0 0 16781312 16386 1 0 0 -1 5 0 0 0 0 0 106667383638032 106667383922072 106667634675712 140722846036514 140722846036680 140722846036680 140722846044135 0\n",
+            "status": "Name:\tpython3\nUmask:\t0022\nState:\tS (sleeping)\nTgid:\t1303\nNgid:\t0\nPid:\t1890\nPPid:\t1279\nTracerPid:\t0\nUid:\t0\t0\t0\t0\nGid:\t0\t0\t0\t0\nFDSize:\t64\nGroups:\t0 \nNStgid:\t1303\nNSpid:\t1890\nNSpgid:\t1303\nNSsid:\t1303\nKthread:\t0\nVmPeak:\t  989312 kB\nVmSize:\t  989312 kB\nVmLck:\t       0 kB\nVmPin:\t       0 kB\nVmHWM:\t   66704 kB\nVmRSS:\t   66068 kB\nRssAnon:\t   36468 kB\nRssFile:\t   28800 kB\nRssShmem:\t     800 kB\nVmData:\t  450912 kB\nVmStk:\t     136 kB\nVmExe:\t    2760 kB\nVmLib:\t   49036 kB\nVmPTE:\t     360 kB\nVmSwap:\t       0 kB\nHugetlbPages:\t       0 kB\nCoreDumping:\t0\nTHP_enabled:\t1\nuntag_mask:\t0xffffffffffffffff\nThreads:\t19\nSigQ:\t0/63149\nSigPnd:\t0000000000000000\nShdPnd:\t0000000000000000\nSigBlk:\t0000000000000000\nSigIgn:\t0000000001001000\nSigCgt:\t0000000100004002\nCapInh:\t0000000000000000\nCapPrm:\t000001ffffffffff\nCapEff:\t000001ffffffffff\nCapBnd:\t000001ffffffffff\nCapAmb:\t0000000000000000\nNoNewPrivs:\t0\nSeccomp:\t0\nSeccomp_filters:\t0\nSpeculation_Store_Bypass:\tthread vulnerable\nSpeculationIndirectBranch:\tconditional enabled\nCpus_allowed:\t000ff\nCpus_allowed_list:\t0-7\nMems_allowed:\t00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001\nMems_allowed_list:\t0\nvoluntary_ctxt_switches:\t1\nnonvoluntary_ctxt_switches:\t0\n",
+            "comm": "python3",
+            "ns_link": "pid:[4026532222]"
+          }
+        },
+        {
+          "local_tid": 1891,
+          "global_tid": 1891,
+          "comm": "python3",
+          "start_ticks": 16479,
+          "evidence": {
+            "stat_before": "1891 (python3) S 1279 1303 1303 0 -1 4194368 10 738168 0 1 0 1 1134 579 20 0 19 0 16479 1013055488 16517 18446744073709551615 106667378450432 106667381274669 140722846035376 0 0 0 0 16781312 16386 1 0 0 -1 5 0 0 0 0 0 106667383638032 106667383922072 106667634675712 140722846036514 140722846036680 140722846036680 140722846044135 0\n",
+            "stat_after": "1891 (python3) S 1279 1303 1303 0 -1 4194368 10 738168 0 1 0 1 1134 579 20 0 19 0 16479 1013055488 16517 18446744073709551615 106667378450432 106667381274669 140722846035376 0 0 0 0 16781312 16386 1 0 0 -1 5 0 0 0 0 0 106667383638032 106667383922072 106667634675712 140722846036514 140722846036680 140722846036680 140722846044135 0\n",
+            "status": "Name:\tpython3\nUmask:\t0022\nState:\tS (sleeping)\nTgid:\t1303\nNgid:\t0\nPid:\t1891\nPPid:\t1279\nTracerPid:\t0\nUid:\t0\t0\t0\t0\nGid:\t0\t0\t0\t0\nFDSize:\t64\nGroups:\t0 \nNStgid:\t1303\nNSpid:\t1891\nNSpgid:\t1303\nNSsid:\t1303\nKthread:\t0\nVmPeak:\t  989312 kB\nVmSize:\t  989312 kB\nVmLck:\t       0 kB\nVmPin:\t       0 kB\nVmHWM:\t   66704 kB\nVmRSS:\t   66068 kB\nRssAnon:\t   36468 kB\nRssFile:\t   28800 kB\nRssShmem:\t     800 kB\nVmData:\t  450912 kB\nVmStk:\t     136 kB\nVmExe:\t    2760 kB\nVmLib:\t   49036 kB\nVmPTE:\t     360 kB\nVmSwap:\t       0 kB\nHugetlbPages:\t       0 kB\nCoreDumping:\t0\nTHP_enabled:\t1\nuntag_mask:\t0xffffffffffffffff\nThreads:\t19\nSigQ:\t0/63149\nSigPnd:\t0000000000000000\nShdPnd:\t0000000000000000\nSigBlk:\t0000000000000000\nSigIgn:\t0000000001001000\nSigCgt:\t0000000100004002\nCapInh:\t0000000000000000\nCapPrm:\t000001ffffffffff\nCapEff:\t000001ffffffffff\nCapBnd:\t000001ffffffffff\nCapAmb:\t0000000000000000\nNoNewPrivs:\t0\nSeccomp:\t0\nSeccomp_filters:\t0\nSpeculation_Store_Bypass:\tthread vulnerable\nSpeculationIndirectBranch:\tconditional enabled\nCpus_allowed:\t000ff\nCpus_allowed_list:\t0-7\nMems_allowed:\t00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001\nMems_allowed_list:\t0\nvoluntary_ctxt_switches:\t899\nnonvoluntary_ctxt_switches:\t37\n",
+            "comm": "python3",
+            "ns_link": "pid:[4026532222]"
+          }
+        },
+        {
+          "local_tid": 1892,
+          "global_tid": 1892,
+          "comm": "python3",
+          "start_ticks": 16479,
+          "evidence": {
+            "stat_before": "1892 (python3) S 1279 1303 1303 0 -1 4194368 4 738168 0 1 0 0 1134 579 20 0 19 0 16479 1013055488 16517 18446744073709551615 106667378450432 106667381274669 140722846035376 0 0 0 0 16781312 16386 1 0 0 -1 3 0 0 0 0 0 106667383638032 106667383922072 106667634675712 140722846036514 140722846036680 140722846036680 140722846044135 0\n",
+            "stat_after": "1892 (python3) S 1279 1303 1303 0 -1 4194368 4 738168 0 1 0 0 1134 579 20 0 19 0 16479 1013055488 16517 18446744073709551615 106667378450432 106667381274669 140722846035376 0 0 0 0 16781312 16386 1 0 0 -1 3 0 0 0 0 0 106667383638032 106667383922072 106667634675712 140722846036514 140722846036680 140722846036680 140722846044135 0\n",
+            "status": "Name:\tpython3\nUmask:\t0022\nState:\tS (sleeping)\nTgid:\t1303\nNgid:\t0\nPid:\t1892\nPPid:\t1279\nTracerPid:\t0\nUid:\t0\t0\t0\t0\nGid:\t0\t0\t0\t0\nFDSize:\t64\nGroups:\t0 \nNStgid:\t1303\nNSpid:\t1892\nNSpgid:\t1303\nNSsid:\t1303\nKthread:\t0\nVmPeak:\t  989312 kB\nVmSize:\t  989312 kB\nVmLck:\t       0 kB\nVmPin:\t       0 kB\nVmHWM:\t   66704 kB\nVmRSS:\t   66068 kB\nRssAnon:\t   36468 kB\nRssFile:\t   28800 kB\nRssShmem:\t     800 kB\nVmData:\t  450912 kB\nVmStk:\t     136 kB\nVmExe:\t    2760 kB\nVmLib:\t   49036 kB\nVmPTE:\t     360 kB\nVmSwap:\t       0 kB\nHugetlbPages:\t       0 kB\nCoreDumping:\t0\nTHP_enabled:\t1\nuntag_mask:\t0xffffffffffffffff\nThreads:\t19\nSigQ:\t0/63149\nSigPnd:\t0000000000000000\nShdPnd:\t0000000000000000\nSigBlk:\t0000000000000000\nSigIgn:\t0000000001001000\nSigCgt:\t0000000100004002\nCapInh:\t0000000000000000\nCapPrm:\t000001ffffffffff\nCapEff:\t000001ffffffffff\nCapBnd:\t000001ffffffffff\nCapAmb:\t0000000000000000\nNoNewPrivs:\t0\nSeccomp:\t0\nSeccomp_filters:\t0\nSpeculation_Store_Bypass:\tthread vulnerable\nSpeculationIndirectBranch:\tconditional enabled\nCpus_allowed:\t000ff\nCpus_allowed_list:\t0-7\nMems_allowed:\t00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001\nMems_allowed_list:\t0\nvoluntary_ctxt_switches:\t21\nnonvoluntary_ctxt_switches:\t13\n",
+            "comm": "python3",
+            "ns_link": "pid:[4026532222]"
+          }
+        },
+        {
+          "local_tid": 1893,
+          "global_tid": 1893,
+          "comm": "python3",
+          "start_ticks": 16480,
+          "evidence": {
+            "stat_before": "1893 (python3) S 1279 1303 1303 0 -1 4194368 8 738168 0 1 0 0 1134 579 20 0 19 0 16480 1013055488 16517 18446744073709551615 106667378450432 106667381274669 140722846035376 0 0 0 0 16781312 16386 1 0 0 -1 3 0 0 0 0 0 106667383638032 106667383922072 106667634675712 140722846036514 140722846036680 140722846036680 140722846044135 0\n",
+            "stat_after": "1893 (python3) S 1279 1303 1303 0 -1 4194368 8 738168 0 1 0 0 1134 579 20 0 19 0 16480 1013055488 16517 18446744073709551615 106667378450432 106667381274669 140722846035376 0 0 0 0 16781312 16386 1 0 0 -1 3 0 0 0 0 0 106667383638032 106667383922072 106667634675712 140722846036514 140722846036680 140722846036680 140722846044135 0\n",
+            "status": "Name:\tpython3\nUmask:\t0022\nState:\tS (sleeping)\nTgid:\t1303\nNgid:\t0\nPid:\t1893\nPPid:\t1279\nTracerPid:\t0\nUid:\t0\t0\t0\t0\nGid:\t0\t0\t0\t0\nFDSize:\t64\nGroups:\t0 \nNStgid:\t1303\nNSpid:\t1893\nNSpgid:\t1303\nNSsid:\t1303\nKthread:\t0\nVmPeak:\t  989312 kB\nVmSize:\t  989312 kB\nVmLck:\t       0 kB\nVmPin:\t       0 kB\nVmHWM:\t   66704 kB\nVmRSS:\t   66068 kB\nRssAnon:\t   36468 kB\nRssFile:\t   28800 kB\nRssShmem:\t     800 kB\nVmData:\t  450912 kB\nVmStk:\t     136 kB\nVmExe:\t    2760 kB\nVmLib:\t   49036 kB\nVmPTE:\t     360 kB\nVmSwap:\t       0 kB\nHugetlbPages:\t       0 kB\nCoreDumping:\t0\nTHP_enabled:\t1\nuntag_mask:\t0xffffffffffffffff\nThreads:\t19\nSigQ:\t0/63149\nSigPnd:\t0000000000000000\nShdPnd:\t0000000000000000\nSigBlk:\t0000000000000000\nSigIgn:\t0000000001001000\nSigCgt:\t0000000100004002\nCapInh:\t0000000000000000\nCapPrm:\t000001ffffffffff\nCapEff:\t000001ffffffffff\nCapBnd:\t000001ffffffffff\nCapAmb:\t0000000000000000\nNoNewPrivs:\t0\nSeccomp:\t0\nSeccomp_filters:\t0\nSpeculation_Store_Bypass:\tthread vulnerable\nSpeculationIndirectBranch:\tconditional enabled\nCpus_allowed:\t000ff\nCpus_allowed_list:\t0-7\nMems_allowed:\t00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001\nMems_allowed_list:\t0\nvoluntary_ctxt_switches:\t139\nnonvoluntary_ctxt_switches:\t3\n",
+            "comm": "python3",
+            "ns_link": "pid:[4026532222]"
+          }
+        }
+      ],
+      "ap_fc": [
+        {
+          "local_tid": 1896,
+          "global_tid": 1896,
+          "comm": "arducopter",
+          "start_ticks": 16496,
+          "evidence": {
+            "stat_before": "1896 (arducopter) S 1303 1303 1303 0 -1 4194304 461 0 0 0 7 7 0 0 -41 -10 3 0 16496 162967552 2040 18446744073709551615 98143256584192 98143259817749 140733743238928 0 0 0 0 4096 17536 1 0 0 17 0 40 1 0 0 0 98143260662600 98143260872453 98143876616192 140733743247329 140733743247980 140733743247980 140733743255485 0\n",
+            "stat_after": "1896 (arducopter) S 1303 1303 1303 0 -1 4194304 461 0 0 0 7 7 0 0 -41 -10 3 0 16496 162967552 2040 18446744073709551615 98143256584192 98143259817749 140733743238928 0 0 0 0 4096 17536 1 0 0 17 0 40 1 0 0 0 98143260662600 98143260872453 98143876616192 140733743247329 140733743247980 140733743247980 140733743255485 0\n",
+            "status": "Name:\tarducopter\nUmask:\t0022\nState:\tS (sleeping)\nTgid:\t1896\nNgid:\t0\nPid:\t1896\nPPid:\t1303\nTracerPid:\t0\nUid:\t0\t0\t0\t0\nGid:\t0\t0\t0\t0\nFDSize:\t64\nGroups:\t0 \nNStgid:\t1896\nNSpid:\t1896\nNSpgid:\t1303\nNSsid:\t1303\nKthread:\t0\nVmPeak:\t  224684 kB\nVmSize:\t  159148 kB\nVmLck:\t       0 kB\nVmPin:\t       0 kB\nVmHWM:\t    8160 kB\nVmRSS:\t    8160 kB\nRssAnon:\t    1120 kB\nRssFile:\t    7040 kB\nRssShmem:\t       0 kB\nVmData:\t   17940 kB\nVmStk:\t     140 kB\nVmExe:\t    3160 kB\nVmLib:\t    3476 kB\nVmPTE:\t      80 kB\nVmSwap:\t       0 kB\nHugetlbPages:\t       0 kB\nCoreDumping:\t0\nTHP_enabled:\t1\nuntag_mask:\t0xffffffffffffffff\nThreads:\t3\nSigQ:\t0/63149\nSigPnd:\t0000000000000000\nShdPnd:\t0000000000000000\nSigBlk:\t0000000000000000\nSigIgn:\t0000000000001000\nSigCgt:\t0000000100004480\nCapInh:\t0000000000000000\nCapPrm:\t000001ffffffffff\nCapEff:\t000001ffffffffff\nCapBnd:\t000001ffffffffff\nCapAmb:\t0000000000000000\nNoNewPrivs:\t0\nSeccomp:\t0\nSeccomp_filters:\t0\nSpeculation_Store_Bypass:\tthread vulnerable\nSpeculationIndirectBranch:\tconditional enabled\nCpus_allowed:\t000ff\nCpus_allowed_list:\t0-7\nMems_allowed:\t00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001\nMems_allowed_list:\t0\nvoluntary_ctxt_switches:\t4953\nnonvoluntary_ctxt_switches:\t24\n",
+            "comm": "arducopter",
+            "ns_link": "pid:[4026532222]"
+          }
+        },
+        {
+          "local_tid": 2218,
+          "global_tid": 2218,
+          "comm": "log_io",
+          "start_ticks": 16551,
+          "evidence": {
+            "stat_before": "2218 (log_io) S 1303 1303 1303 0 -1 4194368 2 0 0 0 0 2 0 0 -41 -10 3 0 16551 162967552 2040 18446744073709551615 98143256584192 98143259817749 140733743238928 0 0 0 0 4096 17536 1 0 0 -1 3 40 1 0 0 0 98143260662600 98143260872453 98143876616192 140733743247329 140733743247980 140733743247980 140733743255485 0\n",
+            "stat_after": "2218 (log_io) S 1303 1303 1303 0 -1 4194368 2 0 0 0 0 2 0 0 -41 -10 3 0 16551 162967552 2040 18446744073709551615 98143256584192 98143259817749 140733743238928 0 0 0 0 4096 17536 1 0 0 -1 3 40 1 0 0 0 98143260662600 98143260872453 98143876616192 140733743247329 140733743247980 140733743247980 140733743255485 0\n",
+            "status": "Name:\tlog_io\nUmask:\t0022\nState:\tS (sleeping)\nTgid:\t1896\nNgid:\t0\nPid:\t2218\nPPid:\t1303\nTracerPid:\t0\nUid:\t0\t0\t0\t0\nGid:\t0\t0\t0\t0\nFDSize:\t64\nGroups:\t0 \nNStgid:\t1896\nNSpid:\t2218\nNSpgid:\t1303\nNSsid:\t1303\nKthread:\t0\nVmPeak:\t  224684 kB\nVmSize:\t  159148 kB\nVmLck:\t       0 kB\nVmPin:\t       0 kB\nVmHWM:\t    8160 kB\nVmRSS:\t    8160 kB\nRssAnon:\t    1120 kB\nRssFile:\t    7040 kB\nRssShmem:\t       0 kB\nVmData:\t   17940 kB\nVmStk:\t     140 kB\nVmExe:\t    3160 kB\nVmLib:\t    3476 kB\nVmPTE:\t      80 kB\nVmSwap:\t       0 kB\nHugetlbPages:\t       0 kB\nCoreDumping:\t0\nTHP_enabled:\t1\nuntag_mask:\t0xffffffffffffffff\nThreads:\t3\nSigQ:\t0/63149\nSigPnd:\t0000000000000000\nShdPnd:\t0000000000000000\nSigBlk:\t0000000000000000\nSigIgn:\t0000000000001000\nSigCgt:\t0000000100004480\nCapInh:\t0000000000000000\nCapPrm:\t000001ffffffffff\nCapEff:\t000001ffffffffff\nCapBnd:\t000001ffffffffff\nCapAmb:\t0000000000000000\nNoNewPrivs:\t0\nSeccomp:\t0\nSeccomp_filters:\t0\nSpeculation_Store_Bypass:\tthread vulnerable\nSpeculationIndirectBranch:\tconditional enabled\nCpus_allowed:\t000ff\nCpus_allowed_list:\t0-7\nMems_allowed:\t00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001\nMems_allowed_list:\t0\nvoluntary_ctxt_switches:\t2915\nnonvoluntary_ctxt_switches:\t10\n",
+            "comm": "log_io",
+            "ns_link": "pid:[4026532222]"
+          }
+        },
+        {
+          "local_tid": 2363,
+          "global_tid": 2363,
+          "comm": "DDS",
+          "start_ticks": 16762,
+          "evidence": {
+            "stat_before": "2363 (DDS) S 1303 1303 1303 0 -1 4194368 6 0 0 0 0 0 0 0 -41 -10 3 0 16762 162967552 2040 18446744073709551615 98143256584192 98143259817749 140733743238928 0 0 0 0 4096 17536 1 0 0 -1 4 40 1 0 0 0 98143260662600 98143260872453 98143876616192 140733743247329 140733743247980 140733743247980 140733743255485 0\n",
+            "stat_after": "2363 (DDS) S 1303 1303 1303 0 -1 4194368 6 0 0 0 0 0 0 0 -41 -10 3 0 16762 162967552 2040 18446744073709551615 98143256584192 98143259817749 140733743238928 0 0 0 0 4096 17536 1 0 0 -1 4 40 1 0 0 0 98143260662600 98143260872453 98143876616192 140733743247329 140733743247980 140733743247980 140733743255485 0\n",
+            "status": "Name:\tDDS\nUmask:\t0022\nState:\tS (sleeping)\nTgid:\t1896\nNgid:\t0\nPid:\t2363\nPPid:\t1303\nTracerPid:\t0\nUid:\t0\t0\t0\t0\nGid:\t0\t0\t0\t0\nFDSize:\t64\nGroups:\t0 \nNStgid:\t1896\nNSpid:\t2363\nNSpgid:\t1303\nNSsid:\t1303\nKthread:\t0\nVmPeak:\t  224684 kB\nVmSize:\t  159148 kB\nVmLck:\t       0 kB\nVmPin:\t       0 kB\nVmHWM:\t    8160 kB\nVmRSS:\t    8160 kB\nRssAnon:\t    1120 kB\nRssFile:\t    7040 kB\nRssShmem:\t       0 kB\nVmData:\t   17940 kB\nVmStk:\t     140 kB\nVmExe:\t    3160 kB\nVmLib:\t    3476 kB\nVmPTE:\t      80 kB\nVmSwap:\t       0 kB\nHugetlbPages:\t       0 kB\nCoreDumping:\t0\nTHP_enabled:\t1\nuntag_mask:\t0xffffffffffffffff\nThreads:\t3\nSigQ:\t0/63149\nSigPnd:\t0000000000000000\nShdPnd:\t0000000000000000\nSigBlk:\t0000000000000000\nSigIgn:\t0000000000001000\nSigCgt:\t0000000100004480\nCapInh:\t0000000000000000\nCapPrm:\t000001ffffffffff\nCapEff:\t000001ffffffffff\nCapBnd:\t000001ffffffffff\nCapAmb:\t0000000000000000\nNoNewPrivs:\t0\nSeccomp:\t0\nSeccomp_filters:\t0\nSpeculation_Store_Bypass:\tthread vulnerable\nSpeculationIndirectBranch:\tconditional enabled\nCpus_allowed:\t000ff\nCpus_allowed_list:\t0-7\nMems_allowed:\t00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001\nMems_allowed_list:\t0\nvoluntary_ctxt_switches:\t1050\nnonvoluntary_ctxt_switches:\t11\n",
+            "comm": "DDS",
+            "ns_link": "pid:[4026532222]"
+          }
+        }
+      ],
+      "px4_fc": [
+        {
+          "local_tid": 1900,
+          "global_tid": 1900,
+          "comm": "px4",
+          "start_ticks": 16497,
+          "evidence": {
+            "stat_before": "1900 (px4) S 1303 1303 1303 0 -1 4194560 183 26167 0 1 0 0 13 4 -41 -10 23 0 16497 1322184704 2000 18446744073709551615 105217718759424 105217723652616 140734211389824 0 0 0 0 4096 147458 1 0 0 17 5 40 1 0 0 0 105217723658432 105217723769416 105218085523456 140734211394950 140734211395255 140734211395255 140734211403704 0\n",
+            "stat_after": "1900 (px4) S 1303 1303 1303 0 -1 4194560 183 26167 0 1 0 0 13 4 -41 -10 23 0 16497 1322184704 2000 18446744073709551615 105217718759424 105217723652616 140734211389824 0 0 0 0 4096 147458 1 0 0 17 5 40 1 0 0 0 105217723658432 105217723769416 105218085523456 140734211394950 140734211395255 140734211395255 140734211403704 0\n",
+            "status": "Name:\tpx4\nUmask:\t0022\nState:\tS (sleeping)\nTgid:\t1900\nNgid:\t0\nPid:\t1900\nPPid:\t1303\nTracerPid:\t0\nUid:\t0\t0\t0\t0\nGid:\t0\t0\t0\t0\nFDSize:\t64\nGroups:\t0 \nNStgid:\t1900\nNSpid:\t1900\nNSpgid:\t1303\nNSsid:\t1303\nKthread:\t0\nVmPeak:\t 1291196 kB\nVmSize:\t 1291196 kB\nVmLck:\t       0 kB\nVmPin:\t       0 kB\nVmHWM:\t    8000 kB\nVmRSS:\t    8000 kB\nRssAnon:\t    1120 kB\nRssFile:\t    6880 kB\nRssShmem:\t       0 kB\nVmData:\t   37744 kB\nVmStk:\t     140 kB\nVmExe:\t    4780 kB\nVmLib:\t    3476 kB\nVmPTE:\t     160 kB\nVmSwap:\t       0 kB\nHugetlbPages:\t       0 kB\nCoreDumping:\t0\nTHP_enabled:\t1\nuntag_mask:\t0xffffffffffffffff\nThreads:\t23\nSigQ:\t0/63149\nSigPnd:\t0000000000000000\nShdPnd:\t0000000000000000\nSigBlk:\t0000000000000000\nSigIgn:\t0000000000001000\nSigCgt:\t0000000100024002\nCapInh:\t0000000000000000\nCapPrm:\t000001ffffffffff\nCapEff:\t000001ffffffffff\nCapBnd:\t000001ffffffffff\nCapAmb:\t0000000000000000\nNoNewPrivs:\t0\nSeccomp:\t0\nSeccomp_filters:\t0\nSpeculation_Store_Bypass:\tthread vulnerable\nSpeculationIndirectBranch:\tconditional enabled\nCpus_allowed:\t000ff\nCpus_allowed_list:\t0-7\nMems_allowed:\t00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001\nMems_allowed_list:\t0\nvoluntary_ctxt_switches:\t34\nnonvoluntary_ctxt_switches:\t0\n",
+            "comm": "px4",
+            "ns_link": "pid:[4026532222]"
+          }
+        },
+        {
+          "local_tid": 1914,
+          "global_tid": 1914,
+          "comm": "px4",
+          "start_ticks": 16497,
+          "evidence": {
+            "stat_before": "1914 (px4) S 1303 1303 1303 0 -1 4194368 6 26167 0 1 0 0 13 4 -41 -10 23 0 16497 1322184704 2000 18446744073709551615 105217718759424 105217723652616 140734211389824 0 0 0 0 4096 147458 1 0 0 -1 2 40 1 0 0 0 105217723658432 105217723769416 105218085523456 140734211394950 140734211395255 140734211395255 140734211403704 0\n",
+            "stat_after": "1914 (px4) S 1303 1303 1303 0 -1 4194368 6 26167 0 1 0 0 13 4 -41 -10 23 0 16497 1322184704 2000 18446744073709551615 105217718759424 105217723652616 140734211389824 0 0 0 0 4096 147458 1 0 0 -1 2 40 1 0 0 0 105217723658432 105217723769416 105218085523456 140734211394950 140734211395255 140734211395255 140734211403704 0\n",
+            "status": "Name:\tpx4\nUmask:\t0022\nState:\tS (sleeping)\nTgid:\t1900\nNgid:\t0\nPid:\t1914\nPPid:\t1303\nTracerPid:\t0\nUid:\t0\t0\t0\t0\nGid:\t0\t0\t0\t0\nFDSize:\t64\nGroups:\t0 \nNStgid:\t1900\nNSpid:\t1914\nNSpgid:\t1303\nNSsid:\t1303\nKthread:\t0\nVmPeak:\t 1291196 kB\nVmSize:\t 1291196 kB\nVmLck:\t       0 kB\nVmPin:\t       0 kB\nVmHWM:\t    8000 kB\nVmRSS:\t    8000 kB\nRssAnon:\t    1120 kB\nRssFile:\t    6880 kB\nRssShmem:\t       0 kB\nVmData:\t   37744 kB\nVmStk:\t     140 kB\nVmExe:\t    4780 kB\nVmLib:\t    3476 kB\nVmPTE:\t     160 kB\nVmSwap:\t       0 kB\nHugetlbPages:\t       0 kB\nCoreDumping:\t0\nTHP_enabled:\t1\nuntag_mask:\t0xffffffffffffffff\nThreads:\t23\nSigQ:\t0/63149\nSigPnd:\t0000000000000000\nShdPnd:\t0000000000000000\nSigBlk:\t0000000000000000\nSigIgn:\t0000000000001000\nSigCgt:\t0000000100024002\nCapInh:\t0000000000000000\nCapPrm:\t000001ffffffffff\nCapEff:\t000001ffffffffff\nCapBnd:\t000001ffffffffff\nCapAmb:\t0000000000000000\nNoNewPrivs:\t0\nSeccomp:\t0\nSeccomp_filters:\t0\nSpeculation_Store_Bypass:\tthread vulnerable\nSpeculationIndirectBranch:\tconditional enabled\nCpus_allowed:\t000ff\nCpus_allowed_list:\t0-7\nMems_allowed:\t00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001\nMems_allowed_list:\t0\nvoluntary_ctxt_switches:\t288\nnonvoluntary_ctxt_switches:\t2\n",
+            "comm": "px4",
+            "ns_link": "pid:[4026532222]"
+          }
+        },
+        {
+          "local_tid": 1915,
+          "global_tid": 1915,
+          "comm": "hpwork",
+          "start_ticks": 16497,
+          "evidence": {
+            "stat_before": "1915 (hpwork) S 1303 1303 1303 0 -1 4194368 2 26167 0 1 0 0 13 4 -99 -10 23 0 16497 1322184704 2000 18446744073709551615 105217718759424 105217723652616 140734211389824 0 0 0 0 4096 147458 1 0 0 -1 1 98 1 0 0 0 105217723658432 105217723769416 105218085523456 140734211394950 140734211395255 140734211395255 140734211403704 0\n",
+            "stat_after": "1915 (hpwork) S 1303 1303 1303 0 -1 4194368 2 26167 0 1 0 0 13 4 -99 -10 23 0 16497 1322184704 2000 18446744073709551615 105217718759424 105217723652616 140734211389824 0 0 0 0 4096 147458 1 0 0 -1 1 98 1 0 0 0 105217723658432 105217723769416 105218085523456 140734211394950 140734211395255 140734211395255 140734211403704 0\n",
+            "status": "Name:\thpwork\nUmask:\t0022\nState:\tS (sleeping)\nTgid:\t1900\nNgid:\t0\nPid:\t1915\nPPid:\t1303\nTracerPid:\t0\nUid:\t0\t0\t0\t0\nGid:\t0\t0\t0\t0\nFDSize:\t64\nGroups:\t0 \nNStgid:\t1900\nNSpid:\t1915\nNSpgid:\t1303\nNSsid:\t1303\nKthread:\t0\nVmPeak:\t 1291196 kB\nVmSize:\t 1291196 kB\nVmLck:\t       0 kB\nVmPin:\t       0 kB\nVmHWM:\t    8000 kB\nVmRSS:\t    8000 kB\nRssAnon:\t    1120 kB\nRssFile:\t    6880 kB\nRssShmem:\t       0 kB\nVmData:\t   37744 kB\nVmStk:\t     140 kB\nVmExe:\t    4780 kB\nVmLib:\t    3476 kB\nVmPTE:\t     160 kB\nVmSwap:\t       0 kB\nHugetlbPages:\t       0 kB\nCoreDumping:\t0\nTHP_enabled:\t1\nuntag_mask:\t0xffffffffffffffff\nThreads:\t23\nSigQ:\t0/63149\nSigPnd:\t0000000000000000\nShdPnd:\t0000000000000000\nSigBlk:\t0000000000000000\nSigIgn:\t0000000000001000\nSigCgt:\t0000000100024002\nCapInh:\t0000000000000000\nCapPrm:\t000001ffffffffff\nCapEff:\t000001ffffffffff\nCapBnd:\t000001ffffffffff\nCapAmb:\t0000000000000000\nNoNewPrivs:\t0\nSeccomp:\t0\nSeccomp_filters:\t0\nSpeculation_Store_Bypass:\tthread vulnerable\nSpeculationIndirectBranch:\tconditional enabled\nCpus_allowed:\t000ff\nCpus_allowed_list:\t0-7\nMems_allowed:\t00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001\nMems_allowed_list:\t0\nvoluntary_ctxt_switches:\t65\nnonvoluntary_ctxt_switches:\t4\n",
+            "comm": "hpwork",
+            "ns_link": "pid:[4026532222]"
+          }
+        },
+        {
+          "local_tid": 1916,
+          "global_tid": 1916,
+          "comm": "lpwork",
+          "start_ticks": 16497,
+          "evidence": {
+            "stat_before": "1916 (lpwork) S 1303 1303 1303 0 -1 4194368 2 26167 0 1 0 0 13 4 -2 -10 23 0 16497 1322184704 2000 18446744073709551615 105217718759424 105217723652616 140734211389824 0 0 0 0 4096 147458 1 0 0 -1 5 1 1 0 0 0 105217723658432 105217723769416 105218085523456 140734211394950 140734211395255 140734211395255 140734211403704 0\n",
+            "stat_after": "1916 (lpwork) S 1303 1303 1303 0 -1 4194368 2 26167 0 1 0 0 13 4 -2 -10 23 0 16497 1322184704 2000 18446744073709551615 105217718759424 105217723652616 140734211389824 0 0 0 0 4096 147458 1 0 0 -1 5 1 1 0 0 0 105217723658432 105217723769416 105218085523456 140734211394950 140734211395255 140734211395255 140734211403704 0\n",
+            "status": "Name:\tlpwork\nUmask:\t0022\nState:\tS (sleeping)\nTgid:\t1900\nNgid:\t0\nPid:\t1916\nPPid:\t1303\nTracerPid:\t0\nUid:\t0\t0\t0\t0\nGid:\t0\t0\t0\t0\nFDSize:\t64\nGroups:\t0 \nNStgid:\t1900\nNSpid:\t1916\nNSpgid:\t1303\nNSsid:\t1303\nKthread:\t0\nVmPeak:\t 1291196 kB\nVmSize:\t 1291196 kB\nVmLck:\t       0 kB\nVmPin:\t       0 kB\nVmHWM:\t    8000 kB\nVmRSS:\t    8000 kB\nRssAnon:\t    1120 kB\nRssFile:\t    6880 kB\nRssShmem:\t       0 kB\nVmData:\t   37744 kB\nVmStk:\t     140 kB\nVmExe:\t    4780 kB\nVmLib:\t    3476 kB\nVmPTE:\t     160 kB\nVmSwap:\t       0 kB\nHugetlbPages:\t       0 kB\nCoreDumping:\t0\nTHP_enabled:\t1\nuntag_mask:\t0xffffffffffffffff\nThreads:\t23\nSigQ:\t0/63149\nSigPnd:\t0000000000000000\nShdPnd:\t0000000000000000\nSigBlk:\t0000000000000000\nSigIgn:\t0000000000001000\nSigCgt:\t0000000100024002\nCapInh:\t0000000000000000\nCapPrm:\t000001ffffffffff\nCapEff:\t000001ffffffffff\nCapBnd:\t000001ffffffffff\nCapAmb:\t0000000000000000\nNoNewPrivs:\t0\nSeccomp:\t0\nSeccomp_filters:\t0\nSpeculation_Store_Bypass:\tthread vulnerable\nSpeculationIndirectBranch:\tconditional enabled\nCpus_allowed:\t000ff\nCpus_allowed_list:\t0-7\nMems_allowed:\t00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001\nMems_allowed_list:\t0\nvoluntary_ctxt_switches:\t65\nnonvoluntary_ctxt_switches:\t2\n",
+            "comm": "lpwork",
+            "ns_link": "pid:[4026532222]"
+          }
+        },
+        {
+          "local_tid": 1917,
+          "global_tid": 1917,
+          "comm": "wkr_hrt",
+          "start_ticks": 16497,
+          "evidence": {
+            "stat_before": "1917 (wkr_hrt) S 1303 1303 1303 0 -1 4194368 1 26167 0 1 0 0 13 4 -100 -10 23 0 16497 1322184704 2000 18446744073709551615 105217718759424 105217723652616 140734211389824 0 0 0 0 4096 147458 1 0 0 -1 2 99 1 0 0 0 105217723658432 105217723769416 105218085523456 140734211394950 140734211395255 140734211395255 140734211403704 0\n",
+            "stat_after": "1917 (wkr_hrt) S 1303 1303 1303 0 -1 4194368 1 26167 0 1 0 0 13 4 -100 -10 23 0 16497 1322184704 2000 18446744073709551615 105217718759424 105217723652616 140734211389824 0 0 0 0 4096 147458 1 0 0 -1 2 99 1 0 0 0 105217723658432 105217723769416 105218085523456 140734211394950 140734211395255 140734211395255 140734211403704 0\n",
+            "status": "Name:\twkr_hrt\nUmask:\t0022\nState:\tS (sleeping)\nTgid:\t1900\nNgid:\t0\nPid:\t1917\nPPid:\t1303\nTracerPid:\t0\nUid:\t0\t0\t0\t0\nGid:\t0\t0\t0\t0\nFDSize:\t64\nGroups:\t0 \nNStgid:\t1900\nNSpid:\t1917\nNSpgid:\t1303\nNSsid:\t1303\nKthread:\t0\nVmPeak:\t 1291196 kB\nVmSize:\t 1291196 kB\nVmLck:\t       0 kB\nVmPin:\t       0 kB\nVmHWM:\t    8000 kB\nVmRSS:\t    8000 kB\nRssAnon:\t    1120 kB\nRssFile:\t    6880 kB\nRssShmem:\t       0 kB\nVmData:\t   37744 kB\nVmStk:\t     140 kB\nVmExe:\t    4780 kB\nVmLib:\t    3476 kB\nVmPTE:\t     160 kB\nVmSwap:\t       0 kB\nHugetlbPages:\t       0 kB\nCoreDumping:\t0\nTHP_enabled:\t1\nuntag_mask:\t0xffffffffffffffff\nThreads:\t23\nSigQ:\t0/63149\nSigPnd:\t0000000000000000\nShdPnd:\t0000000000000000\nSigBlk:\t0000000000000000\nSigIgn:\t0000000000001000\nSigCgt:\t0000000100024002\nCapInh:\t0000000000000000\nCapPrm:\t000001ffffffffff\nCapEff:\t000001ffffffffff\nCapBnd:\t000001ffffffffff\nCapAmb:\t0000000000000000\nNoNewPrivs:\t0\nSeccomp:\t0\nSeccomp_filters:\t0\nSpeculation_Store_Bypass:\tthread vulnerable\nSpeculationIndirectBranch:\tconditional enabled\nCpus_allowed:\t000ff\nCpus_allowed_list:\t0-7\nMems_allowed:\t00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001\nMems_allowed_list:\t0\nvoluntary_ctxt_switches:\t833\nnonvoluntary_ctxt_switches:\t0\n",
+            "comm": "wkr_hrt",
+            "ns_link": "pid:[4026532222]"
+          }
+        },
+        {
+          "local_tid": 1918,
+          "global_tid": 1918,
+          "comm": "wq:manager",
+          "start_ticks": 16497,
+          "evidence": {
+            "stat_before": "1918 (wq:manager) S 1303 1303 1303 0 -1 4194368 10 26167 0 1 0 0 13 4 -100 -10 23 0 16497 1322184704 2000 18446744073709551615 105217718759424 105217723652616 140734211389824 0 0 0 0 4096 147458 1 0 0 -1 3 99 1 0 0 0 105217723658432 105217723769416 105218085523456 140734211394950 140734211395255 140734211395255 140734211403704 0\n",
+            "stat_after": "1918 (wq:manager) S 1303 1303 1303 0 -1 4194368 10 26167 0 1 0 0 13 4 -100 -10 23 0 16497 1322184704 2000 18446744073709551615 105217718759424 105217723652616 140734211389824 0 0 0 0 4096 147458 1 0 0 -1 3 99 1 0 0 0 105217723658432 105217723769416 105218085523456 140734211394950 140734211395255 140734211395255 140734211403704 0\n",
+            "status": "Name:\twq:manager\nUmask:\t0022\nState:\tS (sleeping)\nTgid:\t1900\nNgid:\t0\nPid:\t1918\nPPid:\t1303\nTracerPid:\t0\nUid:\t0\t0\t0\t0\nGid:\t0\t0\t0\t0\nFDSize:\t64\nGroups:\t0 \nNStgid:\t1900\nNSpid:\t1918\nNSpgid:\t1303\nNSsid:\t1303\nKthread:\t0\nVmPeak:\t 1291196 kB\nVmSize:\t 1291196 kB\nVmLck:\t       0 kB\nVmPin:\t       0 kB\nVmHWM:\t    8000 kB\nVmRSS:\t    8000 kB\nRssAnon:\t    1120 kB\nRssFile:\t    6880 kB\nRssShmem:\t       0 kB\nVmData:\t   37744 kB\nVmStk:\t     140 kB\nVmExe:\t    4780 kB\nVmLib:\t    3476 kB\nVmPTE:\t     160 kB\nVmSwap:\t       0 kB\nHugetlbPages:\t       0 kB\nCoreDumping:\t0\nTHP_enabled:\t1\nuntag_mask:\t0xffffffffffffffff\nThreads:\t23\nSigQ:\t0/63149\nSigPnd:\t0000000000000000\nShdPnd:\t0000000000000000\nSigBlk:\t0000000000000000\nSigIgn:\t0000000000001000\nSigCgt:\t0000000100024002\nCapInh:\t0000000000000000\nCapPrm:\t000001ffffffffff\nCapEff:\t000001ffffffffff\nCapBnd:\t000001ffffffffff\nCapAmb:\t0000000000000000\nNoNewPrivs:\t0\nSeccomp:\t0\nSeccomp_filters:\t0\nSpeculation_Store_Bypass:\tthread vulnerable\nSpeculationIndirectBranch:\tconditional enabled\nCpus_allowed:\t000ff\nCpus_allowed_list:\t0-7\nMems_allowed:\t00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001\nMems_allowed_list:\t0\nvoluntary_ctxt_switches:\t9\nnonvoluntary_ctxt_switches:\t0\n",
+            "comm": "wq:manager",
+            "ns_link": "pid:[4026532222]"
+          }
+        },
+        {
+          "local_tid": 1919,
+          "global_tid": 1919,
+          "comm": "wq:lp_default",
+          "start_ticks": 16497,
+          "evidence": {
+            "stat_before": "1919 (wq:lp_default) S 1303 1303 1303 0 -1 4194368 3 26167 0 1 0 0 13 4 -100 -10 23 0 16497 1322184704 2000 18446744073709551615 105217718759424 105217723652616 140734211389824 0 0 0 0 4096 147458 1 0 0 -1 1 99 1 0 0 0 105217723658432 105217723769416 105218085523456 140734211394950 140734211395255 140734211395255 140734211403704 0\n",
+            "stat_after": "1919 (wq:lp_default) S 1303 1303 1303 0 -1 4194368 3 26167 0 1 0 0 13 4 -100 -10 23 0 16497 1322184704 2000 18446744073709551615 105217718759424 105217723652616 140734211389824 0 0 0 0 4096 147458 1 0 0 -1 1 99 1 0 0 0 105217723658432 105217723769416 105218085523456 140734211394950 140734211395255 140734211395255 140734211403704 0\n",
+            "status": "Name:\twq:lp_default\nUmask:\t0022\nState:\tS (sleeping)\nTgid:\t1900\nNgid:\t0\nPid:\t1919\nPPid:\t1303\nTracerPid:\t0\nUid:\t0\t0\t0\t0\nGid:\t0\t0\t0\t0\nFDSize:\t64\nGroups:\t0 \nNStgid:\t1900\nNSpid:\t1919\nNSpgid:\t1303\nNSsid:\t1303\nKthread:\t0\nVmPeak:\t 1291196 kB\nVmSize:\t 1291196 kB\nVmLck:\t       0 kB\nVmPin:\t       0 kB\nVmHWM:\t    8000 kB\nVmRSS:\t    8000 kB\nRssAnon:\t    1120 kB\nRssFile:\t    6880 kB\nRssShmem:\t       0 kB\nVmData:\t   37744 kB\nVmStk:\t     140 kB\nVmExe:\t    4780 kB\nVmLib:\t    3476 kB\nVmPTE:\t     160 kB\nVmSwap:\t       0 kB\nHugetlbPages:\t       0 kB\nCoreDumping:\t0\nTHP_enabled:\t1\nuntag_mask:\t0xffffffffffffffff\nThreads:\t23\nSigQ:\t0/63149\nSigPnd:\t0000000000000000\nShdPnd:\t0000000000000000\nSigBlk:\t0000000000000000\nSigIgn:\t0000000000001000\nSigCgt:\t0000000100024002\nCapInh:\t0000000000000000\nCapPrm:\t000001ffffffffff\nCapEff:\t000001ffffffffff\nCapBnd:\t000001ffffffffff\nCapAmb:\t0000000000000000\nNoNewPrivs:\t0\nSeccomp:\t0\nSeccomp_filters:\t0\nSpeculation_Store_Bypass:\tthread vulnerable\nSpeculationIndirectBranch:\tconditional enabled\nCpus_allowed:\t000ff\nCpus_allowed_list:\t0-7\nMems_allowed:\t00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001\nMems_allowed_list:\t0\nvoluntary_ctxt_switches:\t155\nnonvoluntary_ctxt_switches:\t0\n",
+            "comm": "wq:lp_default",
+            "ns_link": "pid:[4026532222]"
+          }
+        },
+        {
+          "local_tid": 2111,
+          "global_tid": 2111,
+          "comm": "dataman",
+          "start_ticks": 16511,
+          "evidence": {
+            "stat_before": "2111 (dataman) S 1303 1303 1303 0 -1 4194368 2 26167 0 1 0 0 13 4 -41 -10 23 0 16511 1322184704 2000 18446744073709551615 105217718759424 105217723652616 140734211389824 0 0 0 0 4096 147458 1 0 0 -1 5 40 1 0 0 0 105217723658432 105217723769416 105218085523456 140734211394950 140734211395255 140734211395255 140734211403704 0\n",
+            "stat_after": "2111 (dataman) S 1303 1303 1303 0 -1 4194368 2 26167 0 1 0 0 13 4 -41 -10 23 0 16511 1322184704 2000 18446744073709551615 105217718759424 105217723652616 140734211389824 0 0 0 0 4096 147458 1 0 0 -1 5 40 1 0 0 0 105217723658432 105217723769416 105218085523456 140734211394950 140734211395255 140734211395255 140734211403704 0\n",
+            "status": "Name:\tdataman\nUmask:\t0022\nState:\tS (sleeping)\nTgid:\t1900\nNgid:\t0\nPid:\t2111\nPPid:\t1303\nTracerPid:\t0\nUid:\t0\t0\t0\t0\nGid:\t0\t0\t0\t0\nFDSize:\t64\nGroups:\t0 \nNStgid:\t1900\nNSpid:\t2111\nNSpgid:\t1303\nNSsid:\t1303\nKthread:\t0\nVmPeak:\t 1291196 kB\nVmSize:\t 1291196 kB\nVmLck:\t       0 kB\nVmPin:\t       0 kB\nVmHWM:\t    8000 kB\nVmRSS:\t    8000 kB\nRssAnon:\t    1120 kB\nRssFile:\t    6880 kB\nRssShmem:\t       0 kB\nVmData:\t   37744 kB\nVmStk:\t     140 kB\nVmExe:\t    4780 kB\nVmLib:\t    3476 kB\nVmPTE:\t     160 kB\nVmSwap:\t       0 kB\nHugetlbPages:\t       0 kB\nCoreDumping:\t0\nTHP_enabled:\t1\nuntag_mask:\t0xffffffffffffffff\nThreads:\t23\nSigQ:\t0/63149\nSigPnd:\t0000000000000000\nShdPnd:\t0000000000000000\nSigBlk:\t0000000000000000\nSigIgn:\t0000000000001000\nSigCgt:\t0000000100024002\nCapInh:\t0000000000000000\nCapPrm:\t000001ffffffffff\nCapEff:\t000001ffffffffff\nCapBnd:\t000001ffffffffff\nCapAmb:\t0000000000000000\nNoNewPrivs:\t0\nSeccomp:\t0\nSeccomp_filters:\t0\nSpeculation_Store_Bypass:\tthread vulnerable\nSpeculationIndirectBranch:\tconditional enabled\nCpus_allowed:\t000ff\nCpus_allowed_list:\t0-7\nMems_allowed:\t00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001\nMems_allowed_list:\t0\nvoluntary_ctxt_switches:\t30\nnonvoluntary_ctxt_switches:\t2\n",
+            "comm": "dataman",
+            "ns_link": "pid:[4026532222]"
+          }
+        },
+        {
+          "local_tid": 2188,
+          "global_tid": 2188,
+          "comm": "sim_rcv",
+          "start_ticks": 16536,
+          "evidence": {
+            "stat_before": "2188 (sim_rcv) S 1303 1303 1303 0 -1 4194368 9 26167 0 1 0 2 13 4 -100 -10 23 0 16536 1322184704 2000 18446744073709551615 105217718759424 105217723652616 140734211389824 0 0 0 0 4096 147458 1 0 0 -1 3 99 1 0 0 0 105217723658432 105217723769416 105218085523456 140734211394950 140734211395255 140734211395255 140734211403704 0\n",
+            "stat_after": "2188 (sim_rcv) S 1303 1303 1303 0 -1 4194368 9 26167 0 1 0 2 13 4 -100 -10 23 0 16536 1322184704 2000 18446744073709551615 105217718759424 105217723652616 140734211389824 0 0 0 0 4096 147458 1 0 0 -1 3 99 1 0 0 0 105217723658432 105217723769416 105218085523456 140734211394950 140734211395255 140734211395255 140734211403704 0\n",
+            "status": "Name:\tsim_rcv\nUmask:\t0022\nState:\tS (sleeping)\nTgid:\t1900\nNgid:\t0\nPid:\t2188\nPPid:\t1303\nTracerPid:\t0\nUid:\t0\t0\t0\t0\nGid:\t0\t0\t0\t0\nFDSize:\t64\nGroups:\t0 \nNStgid:\t1900\nNSpid:\t2188\nNSpgid:\t1303\nNSsid:\t1303\nKthread:\t0\nVmPeak:\t 1291196 kB\nVmSize:\t 1291196 kB\nVmLck:\t       0 kB\nVmPin:\t       0 kB\nVmHWM:\t    8000 kB\nVmRSS:\t    8000 kB\nRssAnon:\t    1120 kB\nRssFile:\t    6880 kB\nRssShmem:\t       0 kB\nVmData:\t   37744 kB\nVmStk:\t     140 kB\nVmExe:\t    4780 kB\nVmLib:\t    3476 kB\nVmPTE:\t     160 kB\nVmSwap:\t       0 kB\nHugetlbPages:\t       0 kB\nCoreDumping:\t0\nTHP_enabled:\t1\nuntag_mask:\t0xffffffffffffffff\nThreads:\t23\nSigQ:\t0/63149\nSigPnd:\t0000000000000000\nShdPnd:\t0000000000000000\nSigBlk:\t0000000000000000\nSigIgn:\t0000000000001000\nSigCgt:\t0000000100024002\nCapInh:\t0000000000000000\nCapPrm:\t000001ffffffffff\nCapEff:\t000001ffffffffff\nCapBnd:\t000001ffffffffff\nCapAmb:\t0000000000000000\nNoNewPrivs:\t0\nSeccomp:\t0\nSeccomp_filters:\t0\nSpeculation_Store_Bypass:\tthread vulnerable\nSpeculationIndirectBranch:\tconditional enabled\nCpus_allowed:\t000ff\nCpus_allowed_list:\t0-7\nMems_allowed:\t00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001\nMems_allowed_list:\t0\nvoluntary_ctxt_switches:\t722\nnonvoluntary_ctxt_switches:\t2\n",
+            "comm": "sim_rcv",
+            "ns_link": "pid:[4026532222]"
+          }
+        },
+        {
+          "local_tid": 2189,
+          "global_tid": 2189,
+          "comm": "sim_send",
+          "start_ticks": 16536,
+          "evidence": {
+            "stat_before": "2189 (sim_send) S 1303 1303 1303 0 -1 4194368 2 26167 0 1 2 0 13 4 -100 -10 23 0 16536 1322184704 2000 18446744073709551615 105217718759424 105217723652616 140734211389824 0 0 0 0 4096 147458 1 0 0 -1 5 99 1 0 0 0 105217723658432 105217723769416 105218085523456 140734211394950 140734211395255 140734211395255 140734211403704 0\n",
+            "stat_after": "2189 (sim_send) S 1303 1303 1303 0 -1 4194368 2 26167 0 1 2 0 13 4 -100 -10 23 0 16536 1322184704 2000 18446744073709551615 105217718759424 105217723652616 140734211389824 0 0 0 0 4096 147458 1 0 0 -1 5 99 1 0 0 0 105217723658432 105217723769416 105218085523456 140734211394950 140734211395255 140734211395255 140734211403704 0\n",
+            "status": "Name:\tsim_send\nUmask:\t0022\nState:\tS (sleeping)\nTgid:\t1900\nNgid:\t0\nPid:\t2189\nPPid:\t1303\nTracerPid:\t0\nUid:\t0\t0\t0\t0\nGid:\t0\t0\t0\t0\nFDSize:\t64\nGroups:\t0 \nNStgid:\t1900\nNSpid:\t2189\nNSpgid:\t1303\nNSsid:\t1303\nKthread:\t0\nVmPeak:\t 1291196 kB\nVmSize:\t 1291196 kB\nVmLck:\t       0 kB\nVmPin:\t       0 kB\nVmHWM:\t    8000 kB\nVmRSS:\t    8000 kB\nRssAnon:\t    1120 kB\nRssFile:\t    6880 kB\nRssShmem:\t       0 kB\nVmData:\t   37744 kB\nVmStk:\t     140 kB\nVmExe:\t    4780 kB\nVmLib:\t    3476 kB\nVmPTE:\t     160 kB\nVmSwap:\t       0 kB\nHugetlbPages:\t       0 kB\nCoreDumping:\t0\nTHP_enabled:\t1\nuntag_mask:\t0xffffffffffffffff\nThreads:\t23\nSigQ:\t0/63149\nSigPnd:\t0000000000000000\nShdPnd:\t0000000000000000\nSigBlk:\t0000000000000000\nSigIgn:\t0000000000001000\nSigCgt:\t0000000100024002\nCapInh:\t0000000000000000\nCapPrm:\t000001ffffffffff\nCapEff:\t000001ffffffffff\nCapBnd:\t000001ffffffffff\nCapAmb:\t0000000000000000\nNoNewPrivs:\t0\nSeccomp:\t0\nSeccomp_filters:\t0\nSpeculation_Store_Bypass:\tthread vulnerable\nSpeculationIndirectBranch:\tconditional enabled\nCpus_allowed:\t000ff\nCpus_allowed_list:\t0-7\nMems_allowed:\t00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001\nMems_allowed_list:\t0\nvoluntary_ctxt_switches:\t1289\nnonvoluntary_ctxt_switches:\t1\n",
+            "comm": "sim_send",
+            "ns_link": "pid:[4026532222]"
+          }
+        },
+        {
+          "local_tid": 2205,
+          "global_tid": 2205,
+          "comm": "wq:hp_default",
+          "start_ticks": 16549,
+          "evidence": {
+            "stat_before": "2205 (wq:hp_default) S 1303 1303 1303 0 -1 4194368 4 26167 0 1 0 0 13 4 -100 -10 23 0 16549 1322184704 2000 18446744073709551615 105217718759424 105217723652616 140734211389824 0 0 0 0 4096 147458 1 0 0 -1 6 99 1 0 0 0 105217723658432 105217723769416 105218085523456 140734211394950 140734211395255 140734211395255 140734211403704 0\n",
+            "stat_after": "2205 (wq:hp_default) S 1303 1303 1303 0 -1 4194368 4 26167 0 1 0 0 13 4 -100 -10 23 0 16549 1322184704 2000 18446744073709551615 105217718759424 105217723652616 140734211389824 0 0 0 0 4096 147458 1 0 0 -1 6 99 1 0 0 0 105217723658432 105217723769416 105218085523456 140734211394950 140734211395255 140734211395255 140734211403704 0\n",
+            "status": "Name:\twq:hp_default\nUmask:\t0022\nState:\tS (sleeping)\nTgid:\t1900\nNgid:\t0\nPid:\t2205\nPPid:\t1303\nTracerPid:\t0\nUid:\t0\t0\t0\t0\nGid:\t0\t0\t0\t0\nFDSize:\t64\nGroups:\t0 \nNStgid:\t1900\nNSpid:\t2205\nNSpgid:\t1303\nNSsid:\t1303\nKthread:\t0\nVmPeak:\t 1291196 kB\nVmSize:\t 1291196 kB\nVmLck:\t       0 kB\nVmPin:\t       0 kB\nVmHWM:\t    8000 kB\nVmRSS:\t    8000 kB\nRssAnon:\t    1120 kB\nRssFile:\t    6880 kB\nRssShmem:\t       0 kB\nVmData:\t   37744 kB\nVmStk:\t     140 kB\nVmExe:\t    4780 kB\nVmLib:\t    3476 kB\nVmPTE:\t     160 kB\nVmSwap:\t       0 kB\nHugetlbPages:\t       0 kB\nCoreDumping:\t0\nTHP_enabled:\t1\nuntag_mask:\t0xffffffffffffffff\nThreads:\t23\nSigQ:\t0/63149\nSigPnd:\t0000000000000000\nShdPnd:\t0000000000000000\nSigBlk:\t0000000000000000\nSigIgn:\t0000000000001000\nSigCgt:\t0000000100024002\nCapInh:\t0000000000000000\nCapPrm:\t000001ffffffffff\nCapEff:\t000001ffffffffff\nCapBnd:\t000001ffffffffff\nCapAmb:\t0000000000000000\nNoNewPrivs:\t0\nSeccomp:\t0\nSeccomp_filters:\t0\nSpeculation_Store_Bypass:\tthread vulnerable\nSpeculationIndirectBranch:\tconditional enabled\nCpus_allowed:\t000ff\nCpus_allowed_list:\t0-7\nMems_allowed:\t00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001\nMems_allowed_list:\t0\nvoluntary_ctxt_switches:\t623\nnonvoluntary_ctxt_switches:\t0\n",
+            "comm": "wq:hp_default",
+            "ns_link": "pid:[4026532222]"
+          }
+        },
+        {
+          "local_tid": 2216,
+          "global_tid": 2216,
+          "comm": "wq:manager",
+          "start_ticks": 16550,
+          "evidence": {
+            "stat_before": "2216 (wq:manager) S 1303 1303 1303 0 -1 4194368 4 26167 0 1 3 0 13 4 -100 -10 23 0 16550 1322184704 2000 18446744073709551615 105217718759424 105217723652616 140734211389824 0 0 0 0 4096 147458 1 0 0 -1 0 99 1 0 0 0 105217723658432 105217723769416 105218085523456 140734211394950 140734211395255 140734211395255 140734211403704 0\n",
+            "stat_after": "2216 (wq:manager) S 1303 1303 1303 0 -1 4194368 4 26167 0 1 3 0 13 4 -100 -10 23 0 16550 1322184704 2000 18446744073709551615 105217718759424 105217723652616 140734211389824 0 0 0 0 4096 147458 1 0 0 -1 0 99 1 0 0 0 105217723658432 105217723769416 105218085523456 140734211394950 140734211395255 140734211395255 140734211403704 0\n",
+            "status": "Name:\twq:manager\nUmask:\t0022\nState:\tS (sleeping)\nTgid:\t1900\nNgid:\t0\nPid:\t2216\nPPid:\t1303\nTracerPid:\t0\nUid:\t0\t0\t0\t0\nGid:\t0\t0\t0\t0\nFDSize:\t64\nGroups:\t0 \nNStgid:\t1900\nNSpid:\t2216\nNSpgid:\t1303\nNSsid:\t1303\nKthread:\t0\nVmPeak:\t 1291196 kB\nVmSize:\t 1291196 kB\nVmLck:\t       0 kB\nVmPin:\t       0 kB\nVmHWM:\t    8000 kB\nVmRSS:\t    8000 kB\nRssAnon:\t    1120 kB\nRssFile:\t    6880 kB\nRssShmem:\t       0 kB\nVmData:\t   37744 kB\nVmStk:\t     140 kB\nVmExe:\t    4780 kB\nVmLib:\t    3476 kB\nVmPTE:\t     160 kB\nVmSwap:\t       0 kB\nHugetlbPages:\t       0 kB\nCoreDumping:\t0\nTHP_enabled:\t1\nuntag_mask:\t0xffffffffffffffff\nThreads:\t23\nSigQ:\t0/63149\nSigPnd:\t0000000000000000\nShdPnd:\t0000000000000000\nSigBlk:\t0000000000000000\nSigIgn:\t0000000000001000\nSigCgt:\t0000000100024002\nCapInh:\t0000000000000000\nCapPrm:\t000001ffffffffff\nCapEff:\t000001ffffffffff\nCapBnd:\t000001ffffffffff\nCapAmb:\t0000000000000000\nNoNewPrivs:\t0\nSeccomp:\t0\nSeccomp_filters:\t0\nSpeculation_Store_Bypass:\tthread vulnerable\nSpeculationIndirectBranch:\tconditional enabled\nCpus_allowed:\t000ff\nCpus_allowed_list:\t0-7\nMems_allowed:\t00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001\nMems_allowed_list:\t0\nvoluntary_ctxt_switches:\t1974\nnonvoluntary_ctxt_switches:\t0\n",
+            "comm": "wq:manager",
+            "ns_link": "pid:[4026532222]"
+          }
+        },
+        {
+          "local_tid": 2217,
+          "global_tid": 2217,
+          "comm": "wq:rate_ctrl",
+          "start_ticks": 16550,
+          "evidence": {
+            "stat_before": "2217 (wq:rate_ctrl) S 1303 1303 1303 0 -1 4194368 7 26167 0 1 1 0 13 4 -100 -10 23 0 16550 1322184704 2000 18446744073709551615 105217718759424 105217723652616 140734211389824 0 0 0 0 4096 147458 1 0 0 -1 4 99 1 0 0 0 105217723658432 105217723769416 105218085523456 140734211394950 140734211395255 140734211395255 140734211403704 0\n",
+            "stat_after": "2217 (wq:rate_ctrl) S 1303 1303 1303 0 -1 4194368 7 26167 0 1 1 0 13 4 -100 -10 23 0 16550 1322184704 2000 18446744073709551615 105217718759424 105217723652616 140734211389824 0 0 0 0 4096 147458 1 0 0 -1 4 99 1 0 0 0 105217723658432 105217723769416 105218085523456 140734211394950 140734211395255 140734211395255 140734211403704 0\n",
+            "status": "Name:\twq:rate_ctrl\nUmask:\t0022\nState:\tS (sleeping)\nTgid:\t1900\nNgid:\t0\nPid:\t2217\nPPid:\t1303\nTracerPid:\t0\nUid:\t0\t0\t0\t0\nGid:\t0\t0\t0\t0\nFDSize:\t64\nGroups:\t0 \nNStgid:\t1900\nNSpid:\t2217\nNSpgid:\t1303\nNSsid:\t1303\nKthread:\t0\nVmPeak:\t 1291196 kB\nVmSize:\t 1291196 kB\nVmLck:\t       0 kB\nVmPin:\t       0 kB\nVmHWM:\t    8000 kB\nVmRSS:\t    8000 kB\nRssAnon:\t    1120 kB\nRssFile:\t    6880 kB\nRssShmem:\t       0 kB\nVmData:\t   37744 kB\nVmStk:\t     140 kB\nVmExe:\t    4780 kB\nVmLib:\t    3476 kB\nVmPTE:\t     160 kB\nVmSwap:\t       0 kB\nHugetlbPages:\t       0 kB\nCoreDumping:\t0\nTHP_enabled:\t1\nuntag_mask:\t0xffffffffffffffff\nThreads:\t23\nSigQ:\t0/63149\nSigPnd:\t0000000000000000\nShdPnd:\t0000000000000000\nSigBlk:\t0000000000000000\nSigIgn:\t0000000000001000\nSigCgt:\t0000000100024002\nCapInh:\t0000000000000000\nCapPrm:\t000001ffffffffff\nCapEff:\t000001ffffffffff\nCapBnd:\t000001ffffffffff\nCapAmb:\t0000000000000000\nNoNewPrivs:\t0\nSeccomp:\t0\nSeccomp_filters:\t0\nSpeculation_Store_Bypass:\tthread vulnerable\nSpeculationIndirectBranch:\tconditional enabled\nCpus_allowed:\t000ff\nCpus_allowed_list:\t0-7\nMems_allowed:\t00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001\nMems_allowed_list:\t0\nvoluntary_ctxt_switches:\t1041\nnonvoluntary_ctxt_switches:\t1\n",
+            "comm": "wq:rate_ctrl",
+            "ns_link": "pid:[4026532222]"
+          }
+        },
+        {
+          "local_tid": 2219,
+          "global_tid": 2219,
+          "comm": "wq:INS0",
+          "start_ticks": 16551,
+          "evidence": {
+            "stat_before": "2219 (wq:INS0) S 1303 1303 1303 0 -1 4194368 7 26167 0 1 1 1 13 4 -100 -10 23 0 16551 1322184704 2000 18446744073709551615 105217718759424 105217723652616 140734211389824 0 0 0 0 4096 147458 1 0 0 -1 7 99 1 0 0 0 105217723658432 105217723769416 105218085523456 140734211394950 140734211395255 140734211395255 140734211403704 0\n",
+            "stat_after": "2219 (wq:INS0) S 1303 1303 1303 0 -1 4194368 7 26167 0 1 1 1 13 4 -100 -10 23 0 16551 1322184704 2000 18446744073709551615 105217718759424 105217723652616 140734211389824 0 0 0 0 4096 147458 1 0 0 -1 7 99 1 0 0 0 105217723658432 105217723769416 105218085523456 140734211394950 140734211395255 140734211395255 140734211403704 0\n",
+            "status": "Name:\twq:INS0\nUmask:\t0022\nState:\tS (sleeping)\nTgid:\t1900\nNgid:\t0\nPid:\t2219\nPPid:\t1303\nTracerPid:\t0\nUid:\t0\t0\t0\t0\nGid:\t0\t0\t0\t0\nFDSize:\t64\nGroups:\t0 \nNStgid:\t1900\nNSpid:\t2219\nNSpgid:\t1303\nNSsid:\t1303\nKthread:\t0\nVmPeak:\t 1291196 kB\nVmSize:\t 1291196 kB\nVmLck:\t       0 kB\nVmPin:\t       0 kB\nVmHWM:\t    8000 kB\nVmRSS:\t    8000 kB\nRssAnon:\t    1120 kB\nRssFile:\t    6880 kB\nRssShmem:\t       0 kB\nVmData:\t   37744 kB\nVmStk:\t     140 kB\nVmExe:\t    4780 kB\nVmLib:\t    3476 kB\nVmPTE:\t     160 kB\nVmSwap:\t       0 kB\nHugetlbPages:\t       0 kB\nCoreDumping:\t0\nTHP_enabled:\t1\nuntag_mask:\t0xffffffffffffffff\nThreads:\t23\nSigQ:\t0/63149\nSigPnd:\t0000000000000000\nShdPnd:\t0000000000000000\nSigBlk:\t0000000000000000\nSigIgn:\t0000000000001000\nSigCgt:\t0000000100024002\nCapInh:\t0000000000000000\nCapPrm:\t000001ffffffffff\nCapEff:\t000001ffffffffff\nCapBnd:\t000001ffffffffff\nCapAmb:\t0000000000000000\nNoNewPrivs:\t0\nSeccomp:\t0\nSeccomp_filters:\t0\nSpeculation_Store_Bypass:\tthread vulnerable\nSpeculationIndirectBranch:\tconditional enabled\nCpus_allowed:\t000ff\nCpus_allowed_list:\t0-7\nMems_allowed:\t00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001\nMems_allowed_list:\t0\nvoluntary_ctxt_switches:\t1074\nnonvoluntary_ctxt_switches:\t2\n",
+            "comm": "wq:INS0",
+            "ns_link": "pid:[4026532222]"
+          }
+        },
+        {
+          "local_tid": 2220,
+          "global_tid": 2220,
+          "comm": "wq:INS1",
+          "start_ticks": 16554,
+          "evidence": {
+            "stat_before": "2220 (wq:INS1) S 1303 1303 1303 0 -1 4194368 1 26167 0 1 0 0 13 4 -100 -10 23 0 16554 1322184704 2000 18446744073709551615 105217718759424 105217723652616 140734211389824 0 0 0 0 4096 147458 1 0 0 -1 3 99 1 0 0 0 105217723658432 105217723769416 105218085523456 140734211394950 140734211395255 140734211395255 140734211403704 0\n",
+            "stat_after": "2220 (wq:INS1) S 1303 1303 1303 0 -1 4194368 1 26167 0 1 0 0 13 4 -100 -10 23 0 16554 1322184704 2000 18446744073709551615 105217718759424 105217723652616 140734211389824 0 0 0 0 4096 147458 1 0 0 -1 3 99 1 0 0 0 105217723658432 105217723769416 105218085523456 140734211394950 140734211395255 140734211395255 140734211403704 0\n",
+            "status": "Name:\twq:INS1\nUmask:\t0022\nState:\tS (sleeping)\nTgid:\t1900\nNgid:\t0\nPid:\t2220\nPPid:\t1303\nTracerPid:\t0\nUid:\t0\t0\t0\t0\nGid:\t0\t0\t0\t0\nFDSize:\t64\nGroups:\t0 \nNStgid:\t1900\nNSpid:\t2220\nNSpgid:\t1303\nNSsid:\t1303\nKthread:\t0\nVmPeak:\t 1291196 kB\nVmSize:\t 1291196 kB\nVmLck:\t       0 kB\nVmPin:\t       0 kB\nVmHWM:\t    8000 kB\nVmRSS:\t    8000 kB\nRssAnon:\t    1120 kB\nRssFile:\t    6880 kB\nRssShmem:\t       0 kB\nVmData:\t   37744 kB\nVmStk:\t     140 kB\nVmExe:\t    4780 kB\nVmLib:\t    3476 kB\nVmPTE:\t     160 kB\nVmSwap:\t       0 kB\nHugetlbPages:\t       0 kB\nCoreDumping:\t0\nTHP_enabled:\t1\nuntag_mask:\t0xffffffffffffffff\nThreads:\t23\nSigQ:\t0/63149\nSigPnd:\t0000000000000000\nShdPnd:\t0000000000000000\nSigBlk:\t0000000000000000\nSigIgn:\t0000000000001000\nSigCgt:\t0000000100024002\nCapInh:\t0000000000000000\nCapPrm:\t000001ffffffffff\nCapEff:\t000001ffffffffff\nCapBnd:\t000001ffffffffff\nCapAmb:\t0000000000000000\nNoNewPrivs:\t0\nSeccomp:\t0\nSeccomp_filters:\t0\nSpeculation_Store_Bypass:\tthread vulnerable\nSpeculationIndirectBranch:\tconditional enabled\nCpus_allowed:\t000ff\nCpus_allowed_list:\t0-7\nMems_allowed:\t00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001\nMems_allowed_list:\t0\nvoluntary_ctxt_switches:\t205\nnonvoluntary_ctxt_switches:\t0\n",
+            "comm": "wq:INS1",
+            "ns_link": "pid:[4026532222]"
+          }
+        },
+        {
+          "local_tid": 2221,
+          "global_tid": 2221,
+          "comm": "wq:INS2",
+          "start_ticks": 16555,
+          "evidence": {
+            "stat_before": "2221 (wq:INS2) S 1303 1303 1303 0 -1 4194368 1 26167 0 1 0 0 13 4 -100 -10 23 0 16555 1322184704 2000 18446744073709551615 105217718759424 105217723652616 140734211389824 0 0 0 0 4096 147458 1 0 0 -1 1 99 1 0 0 0 105217723658432 105217723769416 105218085523456 140734211394950 140734211395255 140734211395255 140734211403704 0\n",
+            "stat_after": "2221 (wq:INS2) S 1303 1303 1303 0 -1 4194368 1 26167 0 1 0 0 13 4 -100 -10 23 0 16555 1322184704 2000 18446744073709551615 105217718759424 105217723652616 140734211389824 0 0 0 0 4096 147458 1 0 0 -1 1 99 1 0 0 0 105217723658432 105217723769416 105218085523456 140734211394950 140734211395255 140734211395255 140734211403704 0\n",
+            "status": "Name:\twq:INS2\nUmask:\t0022\nState:\tS (sleeping)\nTgid:\t1900\nNgid:\t0\nPid:\t2221\nPPid:\t1303\nTracerPid:\t0\nUid:\t0\t0\t0\t0\nGid:\t0\t0\t0\t0\nFDSize:\t64\nGroups:\t0 \nNStgid:\t1900\nNSpid:\t2221\nNSpgid:\t1303\nNSsid:\t1303\nKthread:\t0\nVmPeak:\t 1291196 kB\nVmSize:\t 1291196 kB\nVmLck:\t       0 kB\nVmPin:\t       0 kB\nVmHWM:\t    8000 kB\nVmRSS:\t    8000 kB\nRssAnon:\t    1120 kB\nRssFile:\t    6880 kB\nRssShmem:\t       0 kB\nVmData:\t   37744 kB\nVmStk:\t     140 kB\nVmExe:\t    4780 kB\nVmLib:\t    3476 kB\nVmPTE:\t     160 kB\nVmSwap:\t       0 kB\nHugetlbPages:\t       0 kB\nCoreDumping:\t0\nTHP_enabled:\t1\nuntag_mask:\t0xffffffffffffffff\nThreads:\t23\nSigQ:\t0/63149\nSigPnd:\t0000000000000000\nShdPnd:\t0000000000000000\nSigBlk:\t0000000000000000\nSigIgn:\t0000000000001000\nSigCgt:\t0000000100024002\nCapInh:\t0000000000000000\nCapPrm:\t000001ffffffffff\nCapEff:\t000001ffffffffff\nCapBnd:\t000001ffffffffff\nCapAmb:\t0000000000000000\nNoNewPrivs:\t0\nSeccomp:\t0\nSeccomp_filters:\t0\nSpeculation_Store_Bypass:\tthread vulnerable\nSpeculationIndirectBranch:\tconditional enabled\nCpus_allowed:\t000ff\nCpus_allowed_list:\t0-7\nMems_allowed:\t00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001\nMems_allowed_list:\t0\nvoluntary_ctxt_switches:\t197\nnonvoluntary_ctxt_switches:\t1\n",
+            "comm": "wq:INS2",
+            "ns_link": "pid:[4026532222]"
+          }
+        },
+        {
+          "local_tid": 2224,
+          "global_tid": 2224,
+          "comm": "commander",
+          "start_ticks": 16570,
+          "evidence": {
+            "stat_before": "2224 (commander) S 1303 1303 1303 0 -1 4194368 8 26167 1 1 0 0 13 4 -91 -10 23 0 16570 1322184704 2000 18446744073709551615 105217718759424 105217723652616 140734211389824 0 0 0 0 4096 147458 1 0 0 -1 3 90 1 0 0 0 105217723658432 105217723769416 105218085523456 140734211394950 140734211395255 140734211395255 140734211403704 0\n",
+            "stat_after": "2224 (commander) S 1303 1303 1303 0 -1 4194368 8 26167 1 1 0 0 13 4 -91 -10 23 0 16570 1322184704 2000 18446744073709551615 105217718759424 105217723652616 140734211389824 0 0 0 0 4096 147458 1 0 0 -1 3 90 1 0 0 0 105217723658432 105217723769416 105218085523456 140734211394950 140734211395255 140734211395255 140734211403704 0\n",
+            "status": "Name:\tcommander\nUmask:\t0022\nState:\tS (sleeping)\nTgid:\t1900\nNgid:\t0\nPid:\t2224\nPPid:\t1303\nTracerPid:\t0\nUid:\t0\t0\t0\t0\nGid:\t0\t0\t0\t0\nFDSize:\t64\nGroups:\t0 \nNStgid:\t1900\nNSpid:\t2224\nNSpgid:\t1303\nNSsid:\t1303\nKthread:\t0\nVmPeak:\t 1291196 kB\nVmSize:\t 1291196 kB\nVmLck:\t       0 kB\nVmPin:\t       0 kB\nVmHWM:\t    8000 kB\nVmRSS:\t    8000 kB\nRssAnon:\t    1120 kB\nRssFile:\t    6880 kB\nRssShmem:\t       0 kB\nVmData:\t   37744 kB\nVmStk:\t     140 kB\nVmExe:\t    4780 kB\nVmLib:\t    3476 kB\nVmPTE:\t     160 kB\nVmSwap:\t       0 kB\nHugetlbPages:\t       0 kB\nCoreDumping:\t0\nTHP_enabled:\t1\nuntag_mask:\t0xffffffffffffffff\nThreads:\t23\nSigQ:\t0/63149\nSigPnd:\t0000000000000000\nShdPnd:\t0000000000000000\nSigBlk:\t0000000000000000\nSigIgn:\t0000000000001000\nSigCgt:\t0000000100024002\nCapInh:\t0000000000000000\nCapPrm:\t000001ffffffffff\nCapEff:\t000001ffffffffff\nCapBnd:\t000001ffffffffff\nCapAmb:\t0000000000000000\nNoNewPrivs:\t0\nSeccomp:\t0\nSeccomp_filters:\t0\nSpeculation_Store_Bypass:\tthread vulnerable\nSpeculationIndirectBranch:\tconditional enabled\nCpus_allowed:\t000ff\nCpus_allowed_list:\t0-7\nMems_allowed:\t00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001\nMems_allowed_list:\t0\nvoluntary_ctxt_switches:\t235\nnonvoluntary_ctxt_switches:\t62\n",
+            "comm": "commander",
+            "ns_link": "pid:[4026532222]"
+          }
+        },
+        {
+          "local_tid": 2257,
+          "global_tid": 2257,
+          "comm": "navigator",
+          "start_ticks": 16573,
+          "evidence": {
+            "stat_before": "2257 (navigator) S 1303 1303 1303 0 -1 4194368 4 26167 0 1 0 0 13 4 -56 -10 23 0 16573 1322184704 2000 18446744073709551615 105217718759424 105217723652616 140734211389824 0 0 0 0 4096 147458 1 0 0 -1 4 55 1 0 0 0 105217723658432 105217723769416 105218085523456 140734211394950 140734211395255 140734211395255 140734211403704 0\n",
+            "stat_after": "2257 (navigator) S 1303 1303 1303 0 -1 4194368 4 26167 0 1 0 0 13 4 -56 -10 23 0 16573 1322184704 2000 18446744073709551615 105217718759424 105217723652616 140734211389824 0 0 0 0 4096 147458 1 0 0 -1 4 55 1 0 0 0 105217723658432 105217723769416 105218085523456 140734211394950 140734211395255 140734211395255 140734211403704 0\n",
+            "status": "Name:\tnavigator\nUmask:\t0022\nState:\tS (sleeping)\nTgid:\t1900\nNgid:\t0\nPid:\t2257\nPPid:\t1303\nTracerPid:\t0\nUid:\t0\t0\t0\t0\nGid:\t0\t0\t0\t0\nFDSize:\t64\nGroups:\t0 \nNStgid:\t1900\nNSpid:\t2257\nNSpgid:\t1303\nNSsid:\t1303\nKthread:\t0\nVmPeak:\t 1291196 kB\nVmSize:\t 1291196 kB\nVmLck:\t       0 kB\nVmPin:\t       0 kB\nVmHWM:\t    8000 kB\nVmRSS:\t    8000 kB\nRssAnon:\t    1120 kB\nRssFile:\t    6880 kB\nRssShmem:\t       0 kB\nVmData:\t   37744 kB\nVmStk:\t     140 kB\nVmExe:\t    4780 kB\nVmLib:\t    3476 kB\nVmPTE:\t     160 kB\nVmSwap:\t       0 kB\nHugetlbPages:\t       0 kB\nCoreDumping:\t0\nTHP_enabled:\t1\nuntag_mask:\t0xffffffffffffffff\nThreads:\t23\nSigQ:\t0/63149\nSigPnd:\t0000000000000000\nShdPnd:\t0000000000000000\nSigBlk:\t0000000000000000\nSigIgn:\t0000000000001000\nSigCgt:\t0000000100024002\nCapInh:\t0000000000000000\nCapPrm:\t000001ffffffffff\nCapEff:\t000001ffffffffff\nCapBnd:\t000001ffffffffff\nCapAmb:\t0000000000000000\nNoNewPrivs:\t0\nSeccomp:\t0\nSeccomp_filters:\t0\nSpeculation_Store_Bypass:\tthread vulnerable\nSpeculationIndirectBranch:\tconditional enabled\nCpus_allowed:\t000ff\nCpus_allowed_list:\t0-7\nMems_allowed:\t00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001\nMems_allowed_list:\t0\nvoluntary_ctxt_switches:\t81\nnonvoluntary_ctxt_switches:\t3\n",
+            "comm": "navigator",
+            "ns_link": "pid:[4026532222]"
+          }
+        },
+        {
+          "local_tid": 2262,
+          "global_tid": 2262,
+          "comm": "uxrce_dds_clien",
+          "start_ticks": 16574,
+          "evidence": {
+            "stat_before": "2262 (uxrce_dds_clien) S 1303 1303 1303 0 -1 4194368 7 26167 0 1 0 0 13 4 -51 -10 23 0 16574 1322184704 2000 18446744073709551615 105217718759424 105217723652616 140734211389824 0 0 0 0 4096 147458 1 0 0 -1 3 50 1 0 0 0 105217723658432 105217723769416 105218085523456 140734211394950 140734211395255 140734211395255 140734211403704 0\n",
+            "stat_after": "2262 (uxrce_dds_clien) S 1303 1303 1303 0 -1 4194368 7 26167 0 1 0 0 13 4 -51 -10 23 0 16574 1322184704 2000 18446744073709551615 105217718759424 105217723652616 140734211389824 0 0 0 0 4096 147458 1 0 0 -1 3 50 1 0 0 0 105217723658432 105217723769416 105218085523456 140734211394950 140734211395255 140734211395255 140734211403704 0\n",
+            "status": "Name:\tuxrce_dds_clien\nUmask:\t0022\nState:\tS (sleeping)\nTgid:\t1900\nNgid:\t0\nPid:\t2262\nPPid:\t1303\nTracerPid:\t0\nUid:\t0\t0\t0\t0\nGid:\t0\t0\t0\t0\nFDSize:\t64\nGroups:\t0 \nNStgid:\t1900\nNSpid:\t2262\nNSpgid:\t1303\nNSsid:\t1303\nKthread:\t0\nVmPeak:\t 1291196 kB\nVmSize:\t 1291196 kB\nVmLck:\t       0 kB\nVmPin:\t       0 kB\nVmHWM:\t    8000 kB\nVmRSS:\t    8000 kB\nRssAnon:\t    1120 kB\nRssFile:\t    6880 kB\nRssShmem:\t       0 kB\nVmData:\t   37744 kB\nVmStk:\t     140 kB\nVmExe:\t    4780 kB\nVmLib:\t    3476 kB\nVmPTE:\t     160 kB\nVmSwap:\t       0 kB\nHugetlbPages:\t       0 kB\nCoreDumping:\t0\nTHP_enabled:\t1\nuntag_mask:\t0xffffffffffffffff\nThreads:\t23\nSigQ:\t0/63149\nSigPnd:\t0000000000000000\nShdPnd:\t0000000000000000\nSigBlk:\t0000000000000000\nSigIgn:\t0000000000001000\nSigCgt:\t0000000100024002\nCapInh:\t0000000000000000\nCapPrm:\t000001ffffffffff\nCapEff:\t000001ffffffffff\nCapBnd:\t000001ffffffffff\nCapAmb:\t0000000000000000\nNoNewPrivs:\t0\nSeccomp:\t0\nSeccomp_filters:\t0\nSpeculation_Store_Bypass:\tthread vulnerable\nSpeculationIndirectBranch:\tconditional enabled\nCpus_allowed:\t000ff\nCpus_allowed_list:\t0-7\nMems_allowed:\t00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001\nMems_allowed_list:\t0\nvoluntary_ctxt_switches:\t567\nnonvoluntary_ctxt_switches:\t85\n",
+            "comm": "uxrce_dds_clien",
+            "ns_link": "pid:[4026532222]"
+          }
+        },
+        {
+          "local_tid": 2328,
+          "global_tid": 2328,
+          "comm": "mavlink_if0",
+          "start_ticks": 16576,
+          "evidence": {
+            "stat_before": "2328 (mavlink_if0) S 1303 1303 1303 0 -1 4194368 10 26167 0 1 1 0 13 4 -51 -10 23 0 16576 1322184704 2000 18446744073709551615 105217718759424 105217723652616 140734211389824 0 0 0 0 4096 147458 1 0 0 -1 5 50 1 0 0 0 105217723658432 105217723769416 105218085523456 140734211394950 140734211395255 140734211395255 140734211403704 0\n",
+            "stat_after": "2328 (mavlink_if0) S 1303 1303 1303 0 -1 4194368 10 26167 0 1 1 0 13 4 -51 -10 23 0 16576 1322184704 2000 18446744073709551615 105217718759424 105217723652616 140734211389824 0 0 0 0 4096 147458 1 0 0 -1 5 50 1 0 0 0 105217723658432 105217723769416 105218085523456 140734211394950 140734211395255 140734211395255 140734211403704 0\n",
+            "status": "Name:\tmavlink_if0\nUmask:\t0022\nState:\tS (sleeping)\nTgid:\t1900\nNgid:\t0\nPid:\t2328\nPPid:\t1303\nTracerPid:\t0\nUid:\t0\t0\t0\t0\nGid:\t0\t0\t0\t0\nFDSize:\t64\nGroups:\t0 \nNStgid:\t1900\nNSpid:\t2328\nNSpgid:\t1303\nNSsid:\t1303\nKthread:\t0\nVmPeak:\t 1291196 kB\nVmSize:\t 1291196 kB\nVmLck:\t       0 kB\nVmPin:\t       0 kB\nVmHWM:\t    8000 kB\nVmRSS:\t    8000 kB\nRssAnon:\t    1120 kB\nRssFile:\t    6880 kB\nRssShmem:\t       0 kB\nVmData:\t   37744 kB\nVmStk:\t     140 kB\nVmExe:\t    4780 kB\nVmLib:\t    3476 kB\nVmPTE:\t     160 kB\nVmSwap:\t       0 kB\nHugetlbPages:\t       0 kB\nCoreDumping:\t0\nTHP_enabled:\t1\nuntag_mask:\t0xffffffffffffffff\nThreads:\t23\nSigQ:\t0/63149\nSigPnd:\t0000000000000000\nShdPnd:\t0000000000000000\nSigBlk:\t0000000000000000\nSigIgn:\t0000000000001000\nSigCgt:\t0000000100024002\nCapInh:\t0000000000000000\nCapPrm:\t000001ffffffffff\nCapEff:\t000001ffffffffff\nCapBnd:\t000001ffffffffff\nCapAmb:\t0000000000000000\nNoNewPrivs:\t0\nSeccomp:\t0\nSeccomp_filters:\t0\nSpeculation_Store_Bypass:\tthread vulnerable\nSpeculationIndirectBranch:\tconditional enabled\nCpus_allowed:\t000ff\nCpus_allowed_list:\t0-7\nMems_allowed:\t00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001\nMems_allowed_list:\t0\nvoluntary_ctxt_switches:\t694\nnonvoluntary_ctxt_switches:\t211\n",
+            "comm": "mavlink_if0",
+            "ns_link": "pid:[4026532222]"
+          }
+        },
+        {
+          "local_tid": 2329,
+          "global_tid": 2329,
+          "comm": "mavlink_rcv_if0",
+          "start_ticks": 16576,
+          "evidence": {
+            "stat_before": "2329 (mavlink_rcv_if0) S 1303 1303 1303 0 -1 4194368 3 26167 0 1 0 0 13 4 -51 -10 23 0 16576 1322184704 2000 18446744073709551615 105217718759424 105217723652616 140734211389824 0 0 0 0 4096 147458 1 0 0 -1 3 50 1 0 0 0 105217723658432 105217723769416 105218085523456 140734211394950 140734211395255 140734211395255 140734211403704 0\n",
+            "stat_after": "2329 (mavlink_rcv_if0) S 1303 1303 1303 0 -1 4194368 3 26167 0 1 0 0 13 4 -51 -10 23 0 16576 1322184704 2000 18446744073709551615 105217718759424 105217723652616 140734211389824 0 0 0 0 4096 147458 1 0 0 -1 3 50 1 0 0 0 105217723658432 105217723769416 105218085523456 140734211394950 140734211395255 140734211395255 140734211403704 0\n",
+            "status": "Name:\tmavlink_rcv_if0\nUmask:\t0022\nState:\tS (sleeping)\nTgid:\t1900\nNgid:\t0\nPid:\t2329\nPPid:\t1303\nTracerPid:\t0\nUid:\t0\t0\t0\t0\nGid:\t0\t0\t0\t0\nFDSize:\t64\nGroups:\t0 \nNStgid:\t1900\nNSpid:\t2329\nNSpgid:\t1303\nNSsid:\t1303\nKthread:\t0\nVmPeak:\t 1291196 kB\nVmSize:\t 1291196 kB\nVmLck:\t       0 kB\nVmPin:\t       0 kB\nVmHWM:\t    8000 kB\nVmRSS:\t    8000 kB\nRssAnon:\t    1120 kB\nRssFile:\t    6880 kB\nRssShmem:\t       0 kB\nVmData:\t   37744 kB\nVmStk:\t     140 kB\nVmExe:\t    4780 kB\nVmLib:\t    3476 kB\nVmPTE:\t     160 kB\nVmSwap:\t       0 kB\nHugetlbPages:\t       0 kB\nCoreDumping:\t0\nTHP_enabled:\t1\nuntag_mask:\t0xffffffffffffffff\nThreads:\t23\nSigQ:\t0/63149\nSigPnd:\t0000000000000000\nShdPnd:\t0000000000000000\nSigBlk:\t0000000000000000\nSigIgn:\t0000000000001000\nSigCgt:\t0000000100024002\nCapInh:\t0000000000000000\nCapPrm:\t000001ffffffffff\nCapEff:\t000001ffffffffff\nCapBnd:\t000001ffffffffff\nCapAmb:\t0000000000000000\nNoNewPrivs:\t0\nSeccomp:\t0\nSeccomp_filters:\t0\nSpeculation_Store_Bypass:\tthread vulnerable\nSpeculationIndirectBranch:\tconditional enabled\nCpus_allowed:\t000ff\nCpus_allowed_list:\t0-7\nMems_allowed:\t00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001\nMems_allowed_list:\t0\nvoluntary_ctxt_switches:\t274\nnonvoluntary_ctxt_switches:\t0\n",
+            "comm": "mavlink_rcv_if0",
+            "ns_link": "pid:[4026532222]"
+          }
+        },
+        {
+          "local_tid": 2357,
+          "global_tid": 2357,
+          "comm": "logger",
+          "start_ticks": 16580,
+          "evidence": {
+            "stat_before": "2357 (logger) S 1303 1303 1303 0 -1 4194368 224 26167 0 1 0 0 13 4 -75 -10 23 0 16580 1322184704 2000 18446744073709551615 105217718759424 105217723652616 140734211389824 0 0 0 0 4096 147458 1 0 0 -1 6 74 1 0 0 0 105217723658432 105217723769416 105218085523456 140734211394950 140734211395255 140734211395255 140734211403704 0\n",
+            "stat_after": "2357 (logger) S 1303 1303 1303 0 -1 4194368 224 26167 0 1 0 0 13 4 -75 -10 23 0 16580 1322184704 2000 18446744073709551615 105217718759424 105217723652616 140734211389824 0 0 0 0 4096 147458 1 0 0 -1 6 74 1 0 0 0 105217723658432 105217723769416 105218085523456 140734211394950 140734211395255 140734211395255 140734211403704 0\n",
+            "status": "Name:\tlogger\nUmask:\t0022\nState:\tS (sleeping)\nTgid:\t1900\nNgid:\t0\nPid:\t2357\nPPid:\t1303\nTracerPid:\t0\nUid:\t0\t0\t0\t0\nGid:\t0\t0\t0\t0\nFDSize:\t64\nGroups:\t0 \nNStgid:\t1900\nNSpid:\t2357\nNSpgid:\t1303\nNSsid:\t1303\nKthread:\t0\nVmPeak:\t 1291196 kB\nVmSize:\t 1291196 kB\nVmLck:\t       0 kB\nVmPin:\t       0 kB\nVmHWM:\t    8000 kB\nVmRSS:\t    8000 kB\nRssAnon:\t    1120 kB\nRssFile:\t    6880 kB\nRssShmem:\t       0 kB\nVmData:\t   37744 kB\nVmStk:\t     140 kB\nVmExe:\t    4780 kB\nVmLib:\t    3476 kB\nVmPTE:\t     160 kB\nVmSwap:\t       0 kB\nHugetlbPages:\t       0 kB\nCoreDumping:\t0\nTHP_enabled:\t1\nuntag_mask:\t0xffffffffffffffff\nThreads:\t23\nSigQ:\t0/63149\nSigPnd:\t0000000000000000\nShdPnd:\t0000000000000000\nSigBlk:\t0000000000000000\nSigIgn:\t0000000000001000\nSigCgt:\t0000000100024002\nCapInh:\t0000000000000000\nCapPrm:\t000001ffffffffff\nCapEff:\t000001ffffffffff\nCapBnd:\t000001ffffffffff\nCapAmb:\t0000000000000000\nNoNewPrivs:\t0\nSeccomp:\t0\nSeccomp_filters:\t0\nSpeculation_Store_Bypass:\tthread vulnerable\nSpeculationIndirectBranch:\tconditional enabled\nCpus_allowed:\t000ff\nCpus_allowed_list:\t0-7\nMems_allowed:\t00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001\nMems_allowed_list:\t0\nvoluntary_ctxt_switches:\t701\nnonvoluntary_ctxt_switches:\t26\n",
+            "comm": "logger",
+            "ns_link": "pid:[4026532222]"
+          }
+        },
+        {
+          "local_tid": 2359,
+          "global_tid": 2359,
+          "comm": "log_writer_file",
+          "start_ticks": 16580,
+          "evidence": {
+            "stat_before": "2359 (log_writer_file) S 1303 1303 1303 0 -1 4194368 0 26167 0 1 0 0 13 4 -75 -10 23 0 16580 1322184704 2000 18446744073709551615 105217718759424 105217723652616 140734211389824 0 0 0 0 4096 147458 1 0 0 -1 4 74 1 0 0 0 105217723658432 105217723769416 105218085523456 140734211394950 140734211395255 140734211395255 140734211403704 0\n",
+            "stat_after": "2359 (log_writer_file) S 1303 1303 1303 0 -1 4194368 0 26167 0 1 0 0 13 4 -75 -10 23 0 16580 1322184704 2000 18446744073709551615 105217718759424 105217723652616 140734211389824 0 0 0 0 4096 147458 1 0 0 -1 4 74 1 0 0 0 105217723658432 105217723769416 105218085523456 140734211394950 140734211395255 140734211395255 140734211403704 0\n",
+            "status": "Name:\tlog_writer_file\nUmask:\t0022\nState:\tS (sleeping)\nTgid:\t1900\nNgid:\t0\nPid:\t2359\nPPid:\t1303\nTracerPid:\t0\nUid:\t0\t0\t0\t0\nGid:\t0\t0\t0\t0\nFDSize:\t64\nGroups:\t0 \nNStgid:\t1900\nNSpid:\t2359\nNSpgid:\t1303\nNSsid:\t1303\nKthread:\t0\nVmPeak:\t 1291196 kB\nVmSize:\t 1291196 kB\nVmLck:\t       0 kB\nVmPin:\t       0 kB\nVmHWM:\t    8000 kB\nVmRSS:\t    8000 kB\nRssAnon:\t    1120 kB\nRssFile:\t    6880 kB\nRssShmem:\t       0 kB\nVmData:\t   37744 kB\nVmStk:\t     140 kB\nVmExe:\t    4780 kB\nVmLib:\t    3476 kB\nVmPTE:\t     160 kB\nVmSwap:\t       0 kB\nHugetlbPages:\t       0 kB\nCoreDumping:\t0\nTHP_enabled:\t1\nuntag_mask:\t0xffffffffffffffff\nThreads:\t23\nSigQ:\t0/63149\nSigPnd:\t0000000000000000\nShdPnd:\t0000000000000000\nSigBlk:\t0000000000000000\nSigIgn:\t0000000000001000\nSigCgt:\t0000000100024002\nCapInh:\t0000000000000000\nCapPrm:\t000001ffffffffff\nCapEff:\t000001ffffffffff\nCapBnd:\t000001ffffffffff\nCapAmb:\t0000000000000000\nNoNewPrivs:\t0\nSeccomp:\t0\nSeccomp_filters:\t0\nSpeculation_Store_Bypass:\tthread vulnerable\nSpeculationIndirectBranch:\tconditional enabled\nCpus_allowed:\t000ff\nCpus_allowed_list:\t0-7\nMems_allowed:\t00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001\nMems_allowed_list:\t0\nvoluntary_ctxt_switches:\t709\nnonvoluntary_ctxt_switches:\t10\n",
+            "comm": "log_writer_file",
+            "ns_link": "pid:[4026532222]"
+          }
+        }
+      ]
+    },
+    "same_comm_threads": {
+      "ap_worker": [],
+      "px4_worker": [],
+      "supervisor": []
+    }
+  }
+}

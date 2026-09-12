@@ -1,0 +1,262 @@
+{
+  "status": "failed",
+  "run_id": "scheduler-72e2be6fc16f",
+  "scene_epoch": "7c16f0a5c08e4770a07b7c7b06442adb",
+  "stack": "px4",
+  "uav_id": 2,
+  "task_mode": "initial",
+  "phases": [
+    {
+      "phase": "public_ready",
+      "wall_seconds": 3.2734621500000003,
+      "ros_time_ns": 2804000000,
+      "state": {
+        "header": {
+          "stamp": {
+            "sec": 2,
+            "nanosec": 784000000
+          },
+          "frame_id": "map"
+        },
+        "uav_id": 2,
+        "connected": true,
+        "armed": false,
+        "mode": "AUTO.LOITER",
+        "location_source": 4,
+        "odom_valid": true,
+        "gps_status": 3,
+        "gps_num": 10,
+        "position": [
+          0.003994327038526535,
+          0.002006411086767912,
+          0.02099609375
+        ],
+        "range": {
+          "nonfinite_number": "nan"
+        },
+        "latitude": 40.154029846191406,
+        "longitude": 116.25936889648438,
+        "altitude": 50.08599853515625,
+        "rel_alt": {
+          "nonfinite_number": "nan"
+        },
+        "velocity": [
+          0.0018023778684437275,
+          -0.007548297755420208,
+          0.0008384750108234584
+        ],
+        "attitude": [
+          0.0004777587892021984,
+          0.00016161960957106203,
+          1.5772167444229126
+        ],
+        "attitude_q": {
+          "x": 0.0001110458212602411,
+          "y": 0.00022641203894752828,
+          "z": 0.709373041674413,
+          "w": 0.7048331888837286
+        },
+        "attitude_rate": [
+          -1.5142057236516848e-05,
+          -0.0007059465278871357,
+          -0.0007130318554118276
+        ],
+        "battery_state": {
+          "nonfinite_number": "nan"
+        },
+        "battery_percetage": {
+          "nonfinite_number": "nan"
+        }
+      }
+    }
+  ],
+  "task_dwell_seconds": {
+    "hold": 5,
+    "waypoint": 2
+  },
+  "use_sim_time": true,
+  "task_profile": "public_position",
+  "error": "RuntimeError('Scene lifecycle failure: scene_stopped_control_released')",
+  "traceback": "Traceback (most recent call last):\n  File \"/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/Simulator/wksim_runtime/joint_task.py\", line 109, in run\n    task.pump()\n  File \"/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/Simulator/wksim_runtime/task.py\", line 279, in pump\n    self.task_time()\n  File \"/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/Simulator/wksim_runtime/task.py\", line 302, in task_time\n    raise RuntimeError(self.error)\nRuntimeError: Scene lifecycle failure: scene_stopped_control_released\n",
+  "task": {
+    "sent": [],
+    "events": [
+      {
+        "event": "native_input_rejected",
+        "event_id": 2,
+        "version": 1,
+        "run_id": "scheduler-72e2be6fc16f",
+        "control_epoch": "ff841b6e6e6f42d5b9d0a288c0fd0d0e",
+        "reason": "unmatched_ack",
+        "source": "ack",
+        "request_identity": [
+          0,
+          118
+        ],
+        "command": 211,
+        "request_id": 0
+      },
+      {
+        "event": "native_reset_observed",
+        "event_id": 3,
+        "version": 1,
+        "run_id": "scheduler-72e2be6fc16f",
+        "control_epoch": "ff841b6e6e6f42d5b9d0a288c0fd0d0e",
+        "kinds": [
+          "position"
+        ],
+        "active": false,
+        "request_id": 0
+      },
+      {
+        "event": "native_reset_observed",
+        "event_id": 4,
+        "version": 1,
+        "run_id": "scheduler-72e2be6fc16f",
+        "control_epoch": "ff841b6e6e6f42d5b9d0a288c0fd0d0e",
+        "kinds": [
+          "position"
+        ],
+        "active": false,
+        "request_id": 0
+      },
+      {
+        "event": "native_reset_observed",
+        "event_id": 5,
+        "version": 1,
+        "run_id": "scheduler-72e2be6fc16f",
+        "control_epoch": "ff841b6e6e6f42d5b9d0a288c0fd0d0e",
+        "kinds": [
+          "position"
+        ],
+        "active": false,
+        "request_id": 0
+      },
+      {
+        "event": "native_input_rejected",
+        "event_id": 6,
+        "version": 1,
+        "run_id": "scheduler-72e2be6fc16f",
+        "control_epoch": "ff841b6e6e6f42d5b9d0a288c0fd0d0e",
+        "reason": "unmatched_ack",
+        "source": "ack",
+        "request_identity": [
+          0,
+          118
+        ],
+        "command": 211,
+        "request_id": 0
+      },
+      {
+        "event": "native_reset_observed",
+        "event_id": 7,
+        "version": 1,
+        "run_id": "scheduler-72e2be6fc16f",
+        "control_epoch": "ff841b6e6e6f42d5b9d0a288c0fd0d0e",
+        "kinds": [
+          "yaw"
+        ],
+        "active": false,
+        "request_id": 0
+      },
+      {
+        "event": "scene_native_sources_bound",
+        "event_id": 8,
+        "version": 1,
+        "run_id": "scheduler-72e2be6fc16f",
+        "control_epoch": "ff841b6e6e6f42d5b9d0a288c0fd0d0e",
+        "scene_epoch": "7c16f0a5c08e4770a07b7c7b06442adb",
+        "native_endpoints": {
+          "/wksim_px4_21/fmu/out/vehicle_status_v1": "010f7f016b072b160000000000003c030000000000000000",
+          "/wksim_px4_21/fmu/out/vehicle_local_position_v1": "010f7f016b072b160000000000003a030000000000000000",
+          "/wksim_px4_21/fmu/out/vehicle_attitude": "010f7f016b072b1600000000000035030000000000000000",
+          "/wksim_px4_21/fmu/out/vehicle_odometry": "010f7f016b072b160000000000003b030000000000000000",
+          "/wksim_px4_21/fmu/out/vehicle_gps_position": "010f7f016b072b1600000000000039030000000000000000",
+          "/wksim_px4_21/fmu/out/vehicle_land_detected": "010f7f016b072b1600000000000034030000000000000000",
+          "/wksim_px4_21/fmu/out/estimator_status_flags": "010f7f016b072b160000000000002c030000000000000000"
+        },
+        "request_id": 0
+      }
+    ],
+    "protocol": "session_v1",
+    "run_id": "scheduler-72e2be6fc16f",
+    "control_epoch": "ff841b6e6e6f42d5b9d0a288c0fd0d0e",
+    "request_envelopes": [],
+    "control_restarts": [],
+    "final": {
+      "state": {
+        "header": {
+          "stamp": {
+            "sec": 2,
+            "nanosec": 984000000
+          },
+          "frame_id": "map"
+        },
+        "uav_id": 2,
+        "connected": true,
+        "armed": false,
+        "mode": "AUTO.LOITER",
+        "location_source": 4,
+        "odom_valid": true,
+        "gps_status": 3,
+        "gps_num": 10,
+        "position": [
+          0.004488608334213495,
+          0.00170247966889292,
+          0.021846771240234375
+        ],
+        "range": {
+          "nonfinite_number": "nan"
+        },
+        "latitude": 40.154029846191406,
+        "longitude": 116.25936889648438,
+        "altitude": 49.98400115966797,
+        "rel_alt": {
+          "nonfinite_number": "nan"
+        },
+        "velocity": [
+          -0.000468178914161399,
+          -0.006177649833261967,
+          0.0007917152252048254
+        ],
+        "attitude": [
+          0.0006945081986486912,
+          0.00020826174295507371,
+          1.576997995376587
+        ],
+        "attitude_q": {
+          "x": 0.00017092355228457752,
+          "y": 0.0003197089061324367,
+          "z": 0.7092959170153387,
+          "w": 0.7049107536963275
+        },
+        "attitude_rate": [
+          -0.004176401998847723,
+          -0.00202077254652977,
+          0.0026228551287204027
+        ],
+        "battery_state": {
+          "nonfinite_number": "nan"
+        },
+        "battery_percetage": {
+          "nonfinite_number": "nan"
+        }
+      },
+      "control_state": {
+        "header": {
+          "stamp": {
+            "sec": 2,
+            "nanosec": 984000000
+          },
+          "frame_id": "map"
+        },
+        "uav_id": 2,
+        "control_state": 0,
+        "pos_controller": 0,
+        "failsafe": false
+      }
+    }
+  },
+  "wall_seconds": 3.4866811010000163,
+  "worker_source_sha256": "9086963371db0139ace3d381b00802cdb188ece4329ade42e7ecdc9cd7294fa4"
+}

@@ -451,11 +451,6 @@ def filters(pids):
 
 MAPPING_TIMEOUT_S=3.
 MAPPING_SELECT_S=.01
-MAPPING_BIND_INTERVAL_S=.05
-MAPPING_DRAIN_BUDGET_S=.005
-MAPPING_DRAIN_BUDGET_BYTES=1024*1024
-MAPPING_READ_BYTES=1024*1024
-MAPPING_TAIL_DRAIN_TIMEOUT_S=.25
 FC_THREAD_TIMEOUT_S=15.
 BOOTSTRAP_SCHEMA='wksim.private-tracefs.capture-bootstrap-active.v1'
 ACTIVE_SCHEMA='wksim.private-tracefs.capture-active.v1'
@@ -468,42 +463,6 @@ def _sched_switch_pairs(line):
             r'prev_comm=(\S+)\s+prev_pid=(\d+)|next_comm=(\S+)\s+next_pid=(\d+)',line):
         pairs.append((match.group(1) or match.group(3),match.group(2) or match.group(4)))
     return pairs
-
-
-def _drain_bpf_trace(descriptor, pending, raw, observed, *, parse=True, deadline=None):
-    """Drain ready trace data tightly without letting procfs work block reads."""
-    started=time.monotonic()
-    drained=0
-    while (drained<MAPPING_DRAIN_BUDGET_BYTES
-           and time.monotonic()-started<MAPPING_DRAIN_BUDGET_S
-           and (deadline is None or time.monotonic()<deadline)):
-        count=MAPPING_READ_BYTES
-        try:chunk=os.read(descriptor,count)
-        except BlockingIOError:break
-        if not chunk:break
-        raw.extend(chunk)
-        drained+=len(chunk)
-        if not parse:continue
-        pending+=chunk
-        lines=pending.split(b'\n')
-        pending=lines.pop()
-        for line in lines:
-            for comm,pid in _sched_switch_pairs(line.decode(errors='replace')):
-                if comm in observed:observed[comm].add(int(pid))
-    return pending,drained
-
-
-def _drain_bpf_tail(descriptor, raw):
-    """Drain stopped trace data to EAGAIN/EOF under a separate cleanup limit."""
-    deadline=time.monotonic()+MAPPING_TAIL_DRAIN_TIMEOUT_S
-    drained=0
-    while time.monotonic()<deadline:
-        try:chunk=os.read(descriptor,MAPPING_READ_BYTES)
-        except BlockingIOError:return drained,True
-        if not chunk:return drained,True
-        raw.extend(chunk)
-        drained+=len(chunk)
-    return drained,False
 
 
 def scan_global_comm_owners(expected,proc_root=None,*,allow_foreign=False):
@@ -678,86 +637,64 @@ def map_kernel_pids_bpf(instance, put, owners, epoch, output, probe, expected_bo
     pending = b''
     mapping = None
     matched = False
-    primary = None
-    deadline_tail = bytearray()
     try:
         put('events/sched/sched_switch/filter', expression)
         put('events/sched/sched_switch/enable', '1')
         descriptor = os.open(instance/'trace_pipe', TRACE_PIPE_FLAGS)
         deadline = time.monotonic() + MAPPING_TIMEOUT_S
-        next_bind = 0.0
         while time.monotonic() < deadline:
+            verify(owners, expected_boot)
             ready, _, _ = select.select([descriptor], [], [],
                                         min(MAPPING_SELECT_S, max(0, deadline-time.monotonic())))
-            if ready and time.monotonic()<deadline:
-                pending,_=_drain_bpf_trace(descriptor,pending,raw,observed,deadline=deadline)
-            now=time.monotonic()
-            if now>=deadline:break
-            if now<next_bind:continue
-            next_bind=now+MAPPING_BIND_INTERVAL_S
-            verify(owners, expected_boot)
+            if ready:
+                try:
+                    chunk = os.read(descriptor, 1024*1024)
+                except BlockingIOError:
+                    chunk = b''
+                raw.extend(chunk)
+                pending += chunk
+                lines = pending.split(b'\n')
+                pending = lines.pop()
+                for line in lines:
+                    for comm, pid in _sched_switch_pairs(line.decode(errors='replace')):
+                        if comm in observed:
+                            observed[comm].add(int(pid))
             try:
-                inventories={role:task_inventory(owner['pid'],retain_raw=True)
-                             for role,owner in owners.items()}
-            except (FileNotFoundError,NotADirectoryError):
+                inventories = {role: task_inventory(owner['pid'], retain_raw=True)
+                               for role, owner in owners.items()}
+            except (FileNotFoundError, NotADirectoryError):
                 continue
-            mapping=bind_tasks(probe,owners,epoch,inventories,os.sysconf('SC_CLK_TCK'),
-                               lambda:time.clock_gettime_ns(time.CLOCK_BOOTTIME))
-            if mapping is None:continue
-            if not all(pid in observed[mapping['names'][role]]
-                       for role,pid in mapping['kernel_pids'].items()):continue
+            mapping = bind_tasks(probe, owners, epoch, inventories, os.sysconf('SC_CLK_TCK'),
+                                 lambda: time.clock_gettime_ns(time.CLOCK_BOOTTIME))
+            if mapping is None:
+                continue
+            if not all(pid in observed[mapping['names'][role]] for role, pid in mapping['kernel_pids'].items()):
+                continue
             # Detach before the formal timing/filter window. The retained map
             # stays readable, but there is no BPF sampling in that window.
             probe.stop_sampling()
-            require(probe.sampling_detached,'Kernel PID sampling was not detached')
-            require(probe.dropped_updates==0,'Kernel PID map dropped updates')
-            after={role:task_inventory(owner['pid'],retain_raw=True)
-                   for role,owner in owners.items()}
-            verify_lifetimes(mapping,owners,after)
-            require(time.monotonic()<deadline,
-                    'Kernel BPF mapping crossed the three-second deadline')
-            mapping['inventories_after']=after
-            mapping['bpf_sampling_detached']=True
-            mapping['bpf_detached_monotonic_ns']=time.monotonic_ns()
-            mapping['bpf_dropped_updates']=probe.dropped_updates
-            mapping['sched_switch_same_comm']=[dict(role=role,comm=comm,kernel_pid=pid)
-                for role,comm in names.items() for pid in sorted(observed[comm])
-                if pid!=mapping['kernel_pids'][role]]
-            matched=True
+            require(probe.sampling_detached, 'Kernel PID sampling was not detached')
+            require(probe.dropped_updates == 0, 'Kernel PID map dropped updates')
+            after = {role: task_inventory(owner['pid'], retain_raw=True) for role, owner in owners.items()}
+            verify_lifetimes(mapping, owners, after)
+            mapping['inventories_after'] = after
+            mapping['bpf_sampling_detached'] = True
+            mapping['bpf_detached_monotonic_ns'] = time.monotonic_ns()
+            mapping['bpf_dropped_updates'] = probe.dropped_updates
+            mapping['sched_switch_same_comm'] = [dict(role=role, comm=comm, kernel_pid=pid)
+                for role, comm in names.items() for pid in sorted(observed[comm])
+                if pid != mapping['kernel_pids'][role]]
+            matched = True
             break
-        require(matched,'Kernel BPF/trace mapping did not prove all owned targets before deadline')
-    except BaseException as error:
-        primary=error
+        require(matched, 'Kernel BPF/trace mapping did not prove all owned targets before deadline')
     finally:
-        cleanup_errors=[]
-        if not matched:
-            for relative,value in (('tracing_on','0'),
-                                   ('events/sched/sched_switch/enable','0')):
-                try:put(relative,value)
-                except BaseException as error:cleanup_errors.append(relative+': '+str(error))
         if descriptor is not None:
-            if not matched:
-                try:
-                    _,tail_complete=_drain_bpf_tail(descriptor,deadline_tail)
-                    if not tail_complete:
-                        cleanup_errors.append('trace_pipe tail drain deadline exceeded')
-                except BaseException as error:
-                    cleanup_errors.append('trace_pipe tail: '+str(error))
-            try:os.close(descriptor)
-            except BaseException as error:cleanup_errors.append('trace_pipe close: '+str(error))
-        try:(output/'pid-mapping-trace.txt').write_bytes(raw+deadline_tail)
-        except BaseException as error:cleanup_errors.append('mapping trace write: '+str(error))
+            os.close(descriptor)
+        (output/'pid-mapping-trace.txt').write_bytes(raw)
         if not matched:
-            try:(output/'pid-mapping-pending.json').write_text(json.dumps(
-                dict(observed={comm:sorted(pids) for comm,pids in observed.items()},
-                     partial_binding=mapping,deadline_tail_bytes=len(deadline_tail),
-                     partial_line_bytes=len(pending)),indent=2)+'\n')
-            except BaseException as error:cleanup_errors.append('pending evidence: '+str(error))
-        if cleanup_errors:
-            message='Kernel PID mapping cleanup failed: '+'; '.join(cleanup_errors)
-            if primary is not None:message=str(primary)+'; '+message
-            primary=ValueError(message)
-    if primary is not None:raise primary
+            (output/'pid-mapping-pending.json').write_text(json.dumps(
+                dict(observed={comm: sorted(pids) for comm, pids in observed.items()},
+                     partial_binding=mapping), indent=2)+'\n')
     mapping['mapping_sha256'] = hashlib.sha256(raw).hexdigest()
     mapping['mapping_trace_bytes'] = len(raw)
     mapping['mapping_source'] = 'kernel_bpf_plus_private_sched_switch'
