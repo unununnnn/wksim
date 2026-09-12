@@ -1,0 +1,72 @@
+{
+  "schema": "wksim.private-tracefs.startup-readiness.v1",
+  "state": "waiting",
+  "required": [
+    "supervisor",
+    "ap_worker",
+    "px4_worker",
+    "ap_fc",
+    "px4_fc"
+  ],
+  "observed": {
+    "supervisor": {
+      "pid": 1322,
+      "pgid": 1322,
+      "start_ticks": 4828,
+      "argv": [
+        "python3",
+        "-B",
+        "-m",
+        "Simulator.wksim_runtime.joint_runtime",
+        "/root/wksim-scheduler-probe-20260912-kernel-bpf-03/runs/scheduler-086648004be0",
+        "1c404fd36f8543e19b9d083c8e437cdc",
+        "1"
+      ]
+    },
+    "gate_ready": {
+      "schema": "wksim.private-tracefs.capture-gate-ready.v1",
+      "state": "ready",
+      "run_id": "scheduler-086648004be0",
+      "epoch": "1c404fd36f8543e19b9d083c8e437cdc",
+      "pid": 1322,
+      "start_ticks": 4828,
+      "tick": 0,
+      "published_monotonic_ns": 71098788801
+    }
+  },
+  "missing": [
+    "ap_worker",
+    "px4_worker",
+    "ap_fc",
+    "px4_fc"
+  ],
+  "authority": {
+    "version": 1,
+    "epoch": "1c404fd36f8543e19b9d083c8e437cdc",
+    "tick": 0,
+    "time_ns": 0,
+    "phase": "running",
+    "last_barrier_tick": 0,
+    "synchronized": false,
+    "pending_tick": null,
+    "single_remaining": 0,
+    "last_request_id": 0,
+    "fault": null,
+    "last_input_tick": 0,
+    "recoverable": false,
+    "input_pending": false
+  },
+  "phase": "starting",
+  "run_id": "scheduler-086648004be0",
+  "epoch": "1c404fd36f8543e19b9d083c8e437cdc",
+  "gate_ready": {
+    "schema": "wksim.private-tracefs.capture-gate-ready.v1",
+    "state": "ready",
+    "run_id": "scheduler-086648004be0",
+    "epoch": "1c404fd36f8543e19b9d083c8e437cdc",
+    "pid": 1322,
+    "start_ticks": 4828,
+    "tick": 0,
+    "published_monotonic_ns": 71098788801
+  }
+}

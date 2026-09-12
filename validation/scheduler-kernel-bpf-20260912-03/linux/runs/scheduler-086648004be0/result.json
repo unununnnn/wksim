@@ -1,0 +1,1586 @@
+{
+  "status": "stopped",
+  "kind": "joint_scene",
+  "run_id": "scheduler-086648004be0",
+  "instance_id": "c6adcc08b26543c39388ff45c57f6444",
+  "config": {
+    "schema_version": 1,
+    "kind": "joint_scene",
+    "run_id": "scheduler-086648004be0",
+    "runtime_profile": "joint_quad_dds_v1",
+    "requested_rate": 1.0,
+    "task": "public_position",
+    "task_dwell_seconds": {
+      "hold": 5,
+      "waypoint": 2
+    }
+  },
+  "epochs": [
+    {
+      "epoch": "1c404fd36f8543e19b9d083c8e437cdc",
+      "result": {
+        "version": 1,
+        "run_id": "scheduler-086648004be0",
+        "epoch": "1c404fd36f8543e19b9d083c8e437cdc",
+        "status": "stopped",
+        "children": {
+          "preflight": {
+            "argv": [
+              "/usr/bin/python3",
+              "-B",
+              "-m",
+              "Simulator.wksim_runtime.runtime",
+              "/root/wksim-scheduler-probe-20260912-kernel-bpf-03/runs/scheduler-086648004be0/config.json",
+              "--prepared",
+              "--preflight"
+            ],
+            "cwd": "/root/wksim-scheduler-probe-20260912-kernel-bpf-03/runs/scheduler-086648004be0/epochs/1c404fd36f8543e19b9d083c8e437cdc",
+            "priority": {
+              "target": 0,
+              "applied": 0,
+              "scheduler": {
+                "policy": "SCHED_OTHER",
+                "policy_value": 0,
+                "priority": 0,
+                "nice": 0,
+                "actual_policy": 0,
+                "actual_priority": 0
+              }
+            },
+            "identity": {
+              "pid": 1332,
+              "pgid": 1322,
+              "start_ticks": 4875,
+              "argv": [
+                "/usr/bin/python3",
+                "-B",
+                "-m",
+                "Simulator.wksim_runtime.runtime",
+                "/root/wksim-scheduler-probe-20260912-kernel-bpf-03/runs/scheduler-086648004be0/config.json",
+                "--prepared",
+                "--preflight"
+              ]
+            },
+            "preflight_execution": {
+              "started_monotonic_ns": 48752875322,
+              "required_scheduler": "SCHED_OTHER",
+              "required_priority": 0,
+              "required_nice": 0,
+              "launch_scheduler_check": "post_spawn_parent_observation",
+              "finished_monotonic_ns": 70159287571,
+              "elapsed_ns": 21406412249,
+              "elapsed_seconds": 21.406412249,
+              "outcome": "completed"
+            },
+            "returncode": 0
+          },
+          "arducopter-model": {
+            "argv": [
+              "/usr/bin/python3",
+              "-B",
+              "-m",
+              "Simulator.wksim_core.worker",
+              "--library",
+              "/root/wksim-private-tmp-cxrbwjyr/artifacts/wksim-model-ms14otyn/libwksim_model.so",
+              "--trace",
+              "/root/wksim-scheduler-probe-20260912-kernel-bpf-03/runs/scheduler-086648004be0/epochs/1c404fd36f8543e19b9d083c8e437cdc/arducopter-truth.jsonl",
+              "--epoch",
+              "1c404fd36f8543e19b9d083c8e437cdc"
+            ],
+            "cwd": "/root/wksim-scheduler-probe-20260912-kernel-bpf-03/runs/scheduler-086648004be0/epochs/1c404fd36f8543e19b9d083c8e437cdc/arducopter",
+            "identity": {
+              "pid": 1912,
+              "pgid": 1322,
+              "start_ticks": 7060,
+              "argv": [
+                "/usr/bin/python3",
+                "-B",
+                "-m",
+                "Simulator.wksim_core.worker",
+                "--library",
+                "/root/wksim-private-tmp-cxrbwjyr/artifacts/wksim-model-ms14otyn/libwksim_model.so",
+                "--trace",
+                "/root/wksim-scheduler-probe-20260912-kernel-bpf-03/runs/scheduler-086648004be0/epochs/1c404fd36f8543e19b9d083c8e437cdc/arducopter-truth.jsonl",
+                "--epoch",
+                "1c404fd36f8543e19b9d083c8e437cdc"
+              ]
+            },
+            "priority": {
+              "target": -10,
+              "applied": -10,
+              "scheduler": {
+                "policy": "SCHED_FIFO",
+                "priority": 40,
+                "reset_on_fork": false,
+                "actual_policy": 1,
+                "actual_priority": 40
+              }
+            },
+            "returncode": 0
+          },
+          "arducopter-agent": {
+            "argv": [
+              "/root/wksim-dds-VxM6Ni/ros-install/micro_ros_agent/lib/micro_ros_agent/micro_ros_agent",
+              "udp4",
+              "-p",
+              "12019",
+              "-v",
+              "4"
+            ],
+            "cwd": "/root/wksim-scheduler-probe-20260912-kernel-bpf-03/runs/scheduler-086648004be0/epochs/1c404fd36f8543e19b9d083c8e437cdc/arducopter",
+            "priority": {
+              "target": -5,
+              "applied": -5
+            },
+            "identity": {
+              "pid": 1913,
+              "pgid": 1322,
+              "start_ticks": 7060,
+              "argv": [
+                "/root/wksim-dds-VxM6Ni/ros-install/micro_ros_agent/lib/micro_ros_agent/micro_ros_agent",
+                "udp4",
+                "-p",
+                "12019",
+                "-v",
+                "4"
+              ]
+            },
+            "returncode": -15
+          },
+          "arducopter-fc": {
+            "argv": [
+              "/root/wksim-ap-clock-stop-OXQqdR/build/sitl/bin/arducopter",
+              "--model",
+              "JSON:127.0.0.1",
+              "--rate",
+              "1000",
+              "--speedup",
+              "3",
+              "--base-port",
+              "16600",
+              "--instance",
+              "11",
+              "--sysid",
+              "241",
+              "--sim-address",
+              "127.0.0.1",
+              "--sim-port-out",
+              "19002",
+              "--sim-port-in",
+              "19003",
+              "--rc-in-port",
+              "19004",
+              "--serial0",
+              "udpclient:127.0.0.1:14660",
+              "--serial1",
+              "none",
+              "--serial2",
+              "none",
+              "--defaults",
+              "/root/wksim-ap-clock-stop-OXQqdR/src/Tools/autotest/default_params/copter.parm,/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/Simulator/wksim_core/arducopter-quad-x.parm,/root/wksim-scheduler-probe-20260912-kernel-bpf-03/runs/scheduler-086648004be0/epochs/1c404fd36f8543e19b9d083c8e437cdc/arducopter/dds.parm",
+              "--home",
+              "40.1540302,116.2593683,50,0"
+            ],
+            "cwd": "/root/wksim-scheduler-probe-20260912-kernel-bpf-03/runs/scheduler-086648004be0/epochs/1c404fd36f8543e19b9d083c8e437cdc/arducopter",
+            "identity": {
+              "pid": 1914,
+              "pgid": 1322,
+              "start_ticks": 7061,
+              "argv": [
+                "/root/wksim-ap-clock-stop-OXQqdR/build/sitl/bin/arducopter",
+                "--model",
+                "JSON:127.0.0.1",
+                "--rate",
+                "1000",
+                "--speedup",
+                "3",
+                "--base-port",
+                "16600",
+                "--instance",
+                "11",
+                "--sysid",
+                "241",
+                "--sim-address",
+                "127.0.0.1",
+                "--sim-port-out",
+                "19002",
+                "--sim-port-in",
+                "19003",
+                "--rc-in-port",
+                "19004",
+                "--serial0",
+                "udpclient:127.0.0.1:14660",
+                "--serial1",
+                "none",
+                "--serial2",
+                "none",
+                "--defaults",
+                "/root/wksim-ap-clock-stop-OXQqdR/src/Tools/autotest/default_params/copter.parm,/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/Simulator/wksim_core/arducopter-quad-x.parm,/root/wksim-scheduler-probe-20260912-kernel-bpf-03/runs/scheduler-086648004be0/epochs/1c404fd36f8543e19b9d083c8e437cdc/arducopter/dds.parm",
+                "--home",
+                "40.1540302,116.2593683,50,0"
+              ]
+            },
+            "priority": {
+              "target": -10,
+              "applied": -10,
+              "scheduler": {
+                "policy": "SCHED_FIFO",
+                "priority": 40,
+                "reset_on_fork": false,
+                "actual_policy": 1,
+                "actual_priority": 40
+              }
+            },
+            "returncode": 0
+          },
+          "arducopter-control": {
+            "argv": [
+              "/usr/bin/python3",
+              "-m",
+              "prometheus_control.node",
+              "--ros-args",
+              "-p",
+              "flight_stack:=arducopter",
+              "-p",
+              "uav_id:=1",
+              "-p",
+              "native_prefix:=/ap",
+              "-p",
+              "native_system_id:=22",
+              "-p",
+              "arducopter_position_yaw:=true",
+              "-p",
+              "run_id:=scheduler-086648004be0",
+              "-p",
+              "use_sim_time:=true",
+              "-p",
+              "scene_epoch:=1c404fd36f8543e19b9d083c8e437cdc",
+              "-r",
+              "__node:=wksim_joint_arducopter_control"
+            ],
+            "cwd": "/root/wksim-scheduler-probe-20260912-kernel-bpf-03/runs/scheduler-086648004be0/epochs/1c404fd36f8543e19b9d083c8e437cdc/arducopter",
+            "priority": {
+              "target": -5,
+              "applied": -5
+            },
+            "identity": {
+              "pid": 1915,
+              "pgid": 1322,
+              "start_ticks": 7061,
+              "argv": [
+                "/usr/bin/python3",
+                "-m",
+                "prometheus_control.node",
+                "--ros-args",
+                "-p",
+                "flight_stack:=arducopter",
+                "-p",
+                "uav_id:=1",
+                "-p",
+                "native_prefix:=/ap",
+                "-p",
+                "native_system_id:=22",
+                "-p",
+                "arducopter_position_yaw:=true",
+                "-p",
+                "run_id:=scheduler-086648004be0",
+                "-p",
+                "use_sim_time:=true",
+                "-p",
+                "scene_epoch:=1c404fd36f8543e19b9d083c8e437cdc",
+                "-r",
+                "__node:=wksim_joint_arducopter_control"
+              ]
+            },
+            "returncode": 0
+          },
+          "px4-model": {
+            "argv": [
+              "/usr/bin/python3",
+              "-B",
+              "-m",
+              "Simulator.wksim_core.worker",
+              "--library",
+              "/root/wksim-private-tmp-cxrbwjyr/artifacts/wksim-model-ms14otyn/libwksim_model.so",
+              "--trace",
+              "/root/wksim-scheduler-probe-20260912-kernel-bpf-03/runs/scheduler-086648004be0/epochs/1c404fd36f8543e19b9d083c8e437cdc/px4-truth.jsonl",
+              "--epoch",
+              "1c404fd36f8543e19b9d083c8e437cdc"
+            ],
+            "cwd": "/root/wksim-scheduler-probe-20260912-kernel-bpf-03/runs/scheduler-086648004be0/epochs/1c404fd36f8543e19b9d083c8e437cdc/px4",
+            "identity": {
+              "pid": 1916,
+              "pgid": 1322,
+              "start_ticks": 7061,
+              "argv": [
+                "/usr/bin/python3",
+                "-B",
+                "-m",
+                "Simulator.wksim_core.worker",
+                "--library",
+                "/root/wksim-private-tmp-cxrbwjyr/artifacts/wksim-model-ms14otyn/libwksim_model.so",
+                "--trace",
+                "/root/wksim-scheduler-probe-20260912-kernel-bpf-03/runs/scheduler-086648004be0/epochs/1c404fd36f8543e19b9d083c8e437cdc/px4-truth.jsonl",
+                "--epoch",
+                "1c404fd36f8543e19b9d083c8e437cdc"
+              ]
+            },
+            "priority": {
+              "target": -10,
+              "applied": -10,
+              "scheduler": {
+                "policy": "SCHED_FIFO",
+                "priority": 40,
+                "reset_on_fork": false,
+                "actual_policy": 1,
+                "actual_priority": 40
+              }
+            },
+            "returncode": 0
+          },
+          "px4-agent": {
+            "argv": [
+              "/root/wksim-dds-VxM6Ni/agent-install/bin/MicroXRCEAgent",
+              "udp4",
+              "-p",
+              "18888",
+              "-v",
+              "4"
+            ],
+            "cwd": "/root/wksim-scheduler-probe-20260912-kernel-bpf-03/runs/scheduler-086648004be0/epochs/1c404fd36f8543e19b9d083c8e437cdc/px4",
+            "priority": {
+              "target": -5,
+              "applied": -5
+            },
+            "identity": {
+              "pid": 1917,
+              "pgid": 1322,
+              "start_ticks": 7061,
+              "argv": [
+                "/root/wksim-dds-VxM6Ni/agent-install/bin/MicroXRCEAgent",
+                "udp4",
+                "-p",
+                "18888",
+                "-v",
+                "4"
+              ]
+            },
+            "returncode": -15
+          },
+          "px4-fc": {
+            "argv": [
+              "/root/wksim-px4-state-ONa1Kw/src/build/px4_sitl_default/bin/px4",
+              "-d",
+              "/root/wksim-px4-state-ONa1Kw/src/build/px4_sitl_default/etc",
+              "-t",
+              "/root/wksim-px4-state-ONa1Kw/src/test_data",
+              "-i",
+              "21",
+              "-w",
+              "/root/wksim-scheduler-probe-20260912-kernel-bpf-03/runs/scheduler-086648004be0/epochs/1c404fd36f8543e19b9d083c8e437cdc/px4"
+            ],
+            "cwd": "/root/wksim-scheduler-probe-20260912-kernel-bpf-03/runs/scheduler-086648004be0/epochs/1c404fd36f8543e19b9d083c8e437cdc/px4",
+            "identity": {
+              "pid": 1918,
+              "pgid": 1322,
+              "start_ticks": 7061,
+              "argv": [
+                "/root/wksim-px4-state-ONa1Kw/src/build/px4_sitl_default/bin/px4",
+                "-d",
+                "/root/wksim-px4-state-ONa1Kw/src/build/px4_sitl_default/etc",
+                "-t",
+                "/root/wksim-px4-state-ONa1Kw/src/test_data",
+                "-i",
+                "21",
+                "-w",
+                "/root/wksim-scheduler-probe-20260912-kernel-bpf-03/runs/scheduler-086648004be0/epochs/1c404fd36f8543e19b9d083c8e437cdc/px4"
+              ]
+            },
+            "priority": {
+              "target": -10,
+              "applied": -10,
+              "scheduler": {
+                "policy": "SCHED_FIFO",
+                "priority": 40,
+                "reset_on_fork": false,
+                "actual_policy": 1,
+                "actual_priority": 40
+              }
+            },
+            "returncode": 0
+          },
+          "px4-control": {
+            "argv": [
+              "/usr/bin/python3",
+              "-m",
+              "prometheus_control.node",
+              "--ros-args",
+              "-p",
+              "flight_stack:=px4",
+              "-p",
+              "uav_id:=2",
+              "-p",
+              "native_prefix:=/wksim_px4_21",
+              "-p",
+              "native_system_id:=22",
+              "-p",
+              "arducopter_position_yaw:=true",
+              "-p",
+              "run_id:=scheduler-086648004be0",
+              "-p",
+              "use_sim_time:=true",
+              "-p",
+              "scene_epoch:=1c404fd36f8543e19b9d083c8e437cdc",
+              "-r",
+              "__node:=wksim_joint_px4_control"
+            ],
+            "cwd": "/root/wksim-scheduler-probe-20260912-kernel-bpf-03/runs/scheduler-086648004be0/epochs/1c404fd36f8543e19b9d083c8e437cdc/px4",
+            "priority": {
+              "target": -5,
+              "applied": -5
+            },
+            "identity": {
+              "pid": 1919,
+              "pgid": 1322,
+              "start_ticks": 7061,
+              "argv": [
+                "/usr/bin/python3",
+                "-m",
+                "prometheus_control.node",
+                "--ros-args",
+                "-p",
+                "flight_stack:=px4",
+                "-p",
+                "uav_id:=2",
+                "-p",
+                "native_prefix:=/wksim_px4_21",
+                "-p",
+                "native_system_id:=22",
+                "-p",
+                "arducopter_position_yaw:=true",
+                "-p",
+                "run_id:=scheduler-086648004be0",
+                "-p",
+                "use_sim_time:=true",
+                "-p",
+                "scene_epoch:=1c404fd36f8543e19b9d083c8e437cdc",
+                "-r",
+                "__node:=wksim_joint_px4_control"
+              ]
+            },
+            "returncode": 0
+          },
+          "arducopter-task-6fd2c9814c0f41688ab6c181a573f005": {
+            "argv": [
+              "/usr/bin/python3",
+              "-B",
+              "-m",
+              "Simulator.wksim_runtime.joint_task",
+              "/root/wksim-scheduler-probe-20260912-kernel-bpf-03/runs/scheduler-086648004be0/epochs/1c404fd36f8543e19b9d083c8e437cdc/tasks/6fd2c9814c0f41688ab6c181a573f005/arducopter/task-config.json"
+            ],
+            "cwd": "/root/wksim-scheduler-probe-20260912-kernel-bpf-03/runs/scheduler-086648004be0/epochs/1c404fd36f8543e19b9d083c8e437cdc/tasks/6fd2c9814c0f41688ab6c181a573f005/arducopter",
+            "priority": {
+              "target": -5,
+              "applied": -5
+            },
+            "identity": {
+              "pid": 1939,
+              "pgid": 1322,
+              "start_ticks": 7062,
+              "argv": [
+                "/usr/bin/python3",
+                "-B",
+                "-m",
+                "Simulator.wksim_runtime.joint_task",
+                "/root/wksim-scheduler-probe-20260912-kernel-bpf-03/runs/scheduler-086648004be0/epochs/1c404fd36f8543e19b9d083c8e437cdc/tasks/6fd2c9814c0f41688ab6c181a573f005/arducopter/task-config.json"
+              ]
+            },
+            "returncode": 1
+          },
+          "px4-task-6fd2c9814c0f41688ab6c181a573f005": {
+            "argv": [
+              "/usr/bin/python3",
+              "-B",
+              "-m",
+              "Simulator.wksim_runtime.joint_task",
+              "/root/wksim-scheduler-probe-20260912-kernel-bpf-03/runs/scheduler-086648004be0/epochs/1c404fd36f8543e19b9d083c8e437cdc/tasks/6fd2c9814c0f41688ab6c181a573f005/px4/task-config.json"
+            ],
+            "cwd": "/root/wksim-scheduler-probe-20260912-kernel-bpf-03/runs/scheduler-086648004be0/epochs/1c404fd36f8543e19b9d083c8e437cdc/tasks/6fd2c9814c0f41688ab6c181a573f005/px4",
+            "priority": {
+              "target": -5,
+              "applied": -5
+            },
+            "identity": {
+              "pid": 1943,
+              "pgid": 1322,
+              "start_ticks": 7063,
+              "argv": [
+                "/usr/bin/python3",
+                "-B",
+                "-m",
+                "Simulator.wksim_runtime.joint_task",
+                "/root/wksim-scheduler-probe-20260912-kernel-bpf-03/runs/scheduler-086648004be0/epochs/1c404fd36f8543e19b9d083c8e437cdc/tasks/6fd2c9814c0f41688ab6c181a573f005/px4/task-config.json"
+              ]
+            },
+            "returncode": -15
+          }
+        },
+        "tasks": {},
+        "action_results": [],
+        "host_boot_id": "e858cdf2-8c3e-4cee-9681-c9694ed43446",
+        "flight_completed": false,
+        "instance_id": "c6adcc08b26543c39388ff45c57f6444",
+        "generation": 1,
+        "task_profile": "public_position",
+        "async_evidence_requested": false,
+        "async_model_evidence_requested": false,
+        "requested_rate": 1.0,
+        "task_dwell_seconds": {
+          "hold": 5,
+          "waypoint": 2
+        },
+        "manager_priority": {
+          "target": -10,
+          "applied": -10
+        },
+        "manager_scheduler": {
+          "policy": "SCHED_FIFO",
+          "priority": 50,
+          "reset_on_fork": true,
+          "actual_policy": 1073741825,
+          "actual_priority": 50
+        },
+        "preflight_execution": {
+          "started_monotonic_ns": 48752875322,
+          "required_scheduler": "SCHED_OTHER",
+          "required_priority": 0,
+          "required_nice": 0,
+          "launch_scheduler_check": "post_spawn_parent_observation",
+          "finished_monotonic_ns": 70159287571,
+          "elapsed_ns": 21406412249,
+          "elapsed_seconds": 21.406412249,
+          "outcome": "completed"
+        },
+        "preflight": {
+          "ok": true,
+          "reasons": [],
+          "children_created": 0,
+          "profile": {
+            "id": "joint_quad_dds_v1",
+            "dds_workspace": "/root/wksim-dds-VxM6Ni",
+            "ap_message_workspace": "/root/wksim-ap-dds-yaw-state-4Wr27s",
+            "message_workspace": "/root/wksim-ros2-MUlZd0",
+            "control_workspace": "/root/wksim-joint-control-FVMjak",
+            "model_library": "/root/wksim-private-tmp-cxrbwjyr/artifacts/wksim-model-ms14otyn/libwksim_model.so",
+            "manifests": {
+              "ap": {
+                "path": "/root/wksim-ap-clock-stop-OXQqdR/wksim-build.json",
+                "sha256": "f347ba252fbfc33bc92baffba08660f33c3a0e4462e90177ba84bdc11408660a"
+              },
+              "px4": {
+                "path": "/root/wksim-px4-state-ONa1Kw/wksim-build.json",
+                "sha256": "d7e905b35250d184e185ada70e3fe43f0223f1c605832d81c3c58eeb123d4cb6"
+              },
+              "control": {
+                "path": "/root/wksim-joint-control-FVMjak/build.json",
+                "sha256": "f02edf158bf9b4d75cfd2221412bdbe83a10b21bc1642c97259294e12ef487a7"
+              }
+            },
+            "evidence": [
+              {
+                "result": {
+                  "path": "validation/joint-public-flight-x84vv0_y/result.json",
+                  "sha256": "7081fbb7994d352dd0e1300cc26d1225cf05a6f9490bfe3e81d93b69acef90f5"
+                },
+                "audit": {
+                  "path": "validation/joint-public-flight-x84vv0_y/audit.json",
+                  "sha256": "fd07c9435d7d35c2ad394635b4aff7422d55c88607d3fcca3f4e2762a141250b"
+                }
+              }
+            ],
+            "setup_files": [
+              "/opt/ros/humble/setup.bash",
+              "/root/wksim-dds-VxM6Ni/ros-install/local_setup.bash",
+              "/root/wksim-ap-dds-yaw-state-4Wr27s/ros-install/local_setup.bash",
+              "/root/wksim-ros2-MUlZd0/install/local_setup.bash",
+              "/root/wksim-joint-control-FVMjak/install/local_setup.bash"
+            ],
+            "control_source": "sealed_legacy",
+            "capabilities": [
+              "public_position",
+              "public_velocity_yaw"
+            ]
+          },
+          "configs": {
+            "arducopter": {
+              "schema_version": 1,
+              "run_id": "scheduler-086648004be0",
+              "vehicle_id": 1,
+              "model_profile": "quad_x",
+              "communication": "native_dds",
+              "control_protocol": "session_v1",
+              "capabilities": [
+                "native_position_mission"
+              ],
+              "dds_workspace": "/root/wksim-dds-VxM6Ni",
+              "prometheus_workspace": "/root/wksim-joint-control-FVMjak",
+              "px4_root": "/root/wksim-px4-state-ONa1Kw/src",
+              "model_library": "/root/wksim-private-tmp-cxrbwjyr/artifacts/wksim-model-ms14otyn/libwksim_model.so",
+              "stack": "arducopter",
+              "ap_candidate": "/root/wksim-ap-clock-stop-OXQqdR"
+            },
+            "px4": {
+              "schema_version": 1,
+              "run_id": "scheduler-086648004be0",
+              "vehicle_id": 1,
+              "model_profile": "quad_x",
+              "communication": "native_dds",
+              "control_protocol": "session_v1",
+              "capabilities": [
+                "native_position_mission"
+              ],
+              "dds_workspace": "/root/wksim-dds-VxM6Ni",
+              "prometheus_workspace": "/root/wksim-joint-control-FVMjak",
+              "px4_root": "/root/wksim-px4-state-ONa1Kw/src",
+              "model_library": "/root/wksim-private-tmp-cxrbwjyr/artifacts/wksim-model-ms14otyn/libwksim_model.so",
+              "stack": "px4"
+            }
+          },
+          "model_library": "/root/wksim-private-tmp-cxrbwjyr/artifacts/wksim-model-ms14otyn/libwksim_model.so",
+          "control_package": "/root/wksim-joint-control-FVMjak/install/prometheus_control/local/lib/python3.10/dist-packages/prometheus_control",
+          "identities": {
+            "ap": {
+              "path": "/root/wksim-ap-clock-stop-OXQqdR/build/sitl/bin/arducopter",
+              "sha256": "083971caff8883188488b02ec18a8ef17141fe948b520b3c597a6109e8c2d7de",
+              "commit": "1511f27194f1dcc3728270883047bdf022b3fd53",
+              "source_files": 24593
+            },
+            "px4": {
+              "path": "/root/wksim-px4-state-ONa1Kw/src/build/px4_sitl_default/bin/px4",
+              "sha256": "93b4ebe0d83a5897131ec24ee58d732c8999972bb7730f429fc396bc8d10602a",
+              "commit": "d6f12ad1c4f70ad3230afd7d86e971421e02fef4",
+              "source_files": 42012
+            },
+            "manifests": {
+              "ap": {
+                "path": "/root/wksim-ap-clock-stop-OXQqdR/wksim-build.json",
+                "sha256": "f347ba252fbfc33bc92baffba08660f33c3a0e4462e90177ba84bdc11408660a"
+              },
+              "px4": {
+                "path": "/root/wksim-px4-state-ONa1Kw/wksim-build.json",
+                "sha256": "d7e905b35250d184e185ada70e3fe43f0223f1c605832d81c3c58eeb123d4cb6"
+              },
+              "control": {
+                "path": "/root/wksim-joint-control-FVMjak/build.json",
+                "sha256": "f02edf158bf9b4d75cfd2221412bdbe83a10b21bc1642c97259294e12ef487a7"
+              }
+            },
+            "model": {
+              "schema_version": 2,
+              "archive": "/mnt/e/rflysimtools/RflySimAPIs/4.RflySimModel/1.BasicExps/e0_MinModelTemp/MulticopterModel.zip",
+              "archive_sha256": "d528b5d247e13d943f1eaa7a37fd3cb4d15c7e9bb7a6b0e5988a1423e59d05ed",
+              "archive_members": [
+                {
+                  "path": "e0_MinModelTemp/Exp1_MinModelTemp_ert_rtw/Exp1_MinModelTemp.cpp",
+                  "size": 324922,
+                  "sha256": "a35d7c8f39c94f2db8c27b19affee5b66c1b001c63ded334ba83c99f8be54019"
+                },
+                {
+                  "path": "e0_MinModelTemp/Exp1_MinModelTemp_ert_rtw/Exp1_MinModelTemp.h",
+                  "size": 140983,
+                  "sha256": "2d89ad1b492c5e70e80682a9f53896e0538260946a0180a2ca44e500ba1589bd"
+                },
+                {
+                  "path": "e0_MinModelTemp/Exp1_MinModelTemp_ert_rtw/rtwtypes.h",
+                  "size": 4520,
+                  "sha256": "9d5bd1a47f06fd3f6cb124a96d407a6296875763759ab9fb388296e6199a1716"
+                },
+                {
+                  "path": "R2022b/simulink/include/rtw_continuous.h",
+                  "size": 4353,
+                  "sha256": "8f2c78fdc5a097552078484c738aefcc944463c8834d2ca6319b76cedf526b18"
+                },
+                {
+                  "path": "R2022b/simulink/include/rtw_solver.h",
+                  "size": 10634,
+                  "sha256": "359ff69aa94a137e8b246721ead52e056dd4fdf11c35a7f92ebb9f14e0cda674"
+                }
+              ],
+              "source_files": [
+                {
+                  "path": "Exp1_MinModelTemp.cpp",
+                  "size": 324922,
+                  "sha256": "a35d7c8f39c94f2db8c27b19affee5b66c1b001c63ded334ba83c99f8be54019"
+                },
+                {
+                  "path": "Exp1_MinModelTemp.h",
+                  "size": 140983,
+                  "sha256": "2d89ad1b492c5e70e80682a9f53896e0538260946a0180a2ca44e500ba1589bd"
+                },
+                {
+                  "path": "rtwtypes.h",
+                  "size": 4520,
+                  "sha256": "9d5bd1a47f06fd3f6cb124a96d407a6296875763759ab9fb388296e6199a1716"
+                },
+                {
+                  "path": "rtw_continuous.h",
+                  "size": 4353,
+                  "sha256": "8f2c78fdc5a097552078484c738aefcc944463c8834d2ca6319b76cedf526b18"
+                },
+                {
+                  "path": "rtw_solver.h",
+                  "size": 10634,
+                  "sha256": "359ff69aa94a137e8b246721ead52e056dd4fdf11c35a7f92ebb9f14e0cda674"
+                }
+              ],
+              "wrapper": "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/Simulator/wksim_core/model.cpp",
+              "wrapper_sha256": "150ddf3bab66e9e59701791392f6d792a14346e0b75ecdfe94872095e72d0290",
+              "loader": "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/Simulator/wksim_core/model.py",
+              "loader_sha256": "3b0ae6f40594a30997fa66beba11466ca88f0c1a3b88c2322d4fee10f1ce4d41",
+              "library": "/root/wksim-private-tmp-cxrbwjyr/artifacts/wksim-model-ms14otyn/libwksim_model.so",
+              "library_sha256": "e59ab914e3ff8225ff303e05a885f8fa1eaedb05a95443f097920ca60a7f1c0b",
+              "argv": [
+                "g++",
+                "-std=c++17",
+                "-O2",
+                "-fno-fast-math",
+                "-fPIC",
+                "-shared",
+                "-Wl,--no-undefined",
+                "-I",
+                "/root/wksim-private-tmp-cxrbwjyr/artifacts/wksim-model-ms14otyn",
+                "/root/wksim-private-tmp-cxrbwjyr/artifacts/wksim-model-ms14otyn/Exp1_MinModelTemp.cpp",
+                "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/Simulator/wksim_core/model.cpp",
+                "-o",
+                "/root/wksim-private-tmp-cxrbwjyr/artifacts/wksim-model-ms14otyn/libwksim_model.so"
+              ],
+              "compiler": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0",
+              "profile": "generated-quad-x-1ms; local use; vendor redistribution not granted",
+              "platform": {
+                "system": "Linux",
+                "machine": "x86_64",
+                "libc": [
+                  "glibc",
+                  "2.35"
+                ],
+                "binary64_bytes": 8
+              },
+              "abi": {
+                "name": "wksim-model-c-v2",
+                "required_symbols": {
+                  "wk_model_create": "void*()",
+                  "wk_model_destroy": "void(void*)",
+                  "wk_model_initial_state": "int(void*,double*,int)",
+                  "wk_model_step": "int(void*,const double*,int,int,double*,int)",
+                  "wk_model_step_with_terrain": "int(void*,const double*,int,const double*,int,int,double*,int)"
+                },
+                "actuator_count": 16,
+                "terrain_count": 15,
+                "output_count": 120,
+                "output_layout": [
+                  "Vehicle60",
+                  "Sensor30",
+                  "HILGPS30"
+                ],
+                "dt_seconds": 0.001,
+                "initial_state": {
+                  "tick": 0,
+                  "read_only": true,
+                  "finite": true,
+                  "return_codes": [
+                    0,
+                    1,
+                    3
+                  ]
+                },
+                "step_return_codes": [
+                  0,
+                  1,
+                  2,
+                  3
+                ]
+              },
+              "dynamic_dependencies": [
+                "libc.so.6",
+                "libm.so.6",
+                "libstdc++.so.6"
+              ]
+            },
+            "message_packages": {
+              "px4_msgs": {
+                "prefix": "/root/wksim-dds-VxM6Ni/ros-install/px4_msgs",
+                "sha256": "4e925a5917bce0442f487b93c39763ee49a6c07662ef3b23560207a15f37ee3e"
+              },
+              "ardupilot_msgs": {
+                "prefix": "/root/wksim-ap-dds-yaw-state-4Wr27s/ros-install/ardupilot_msgs",
+                "sha256": "5ff82c59c182e5b904ce227ede45d6e9e046c6882d0f82a7453df231a9dac0aa"
+              },
+              "prometheus_msgs": {
+                "prefix": "/root/wksim-ros2-MUlZd0/install/prometheus_msgs",
+                "sha256": "fc5f25cd3bd19b3dae4c1c58ea303cd85c484dbf6e9c065ec082058ff987b806",
+                "complete_snapshot": true
+              },
+              "wksim_msgs": {
+                "prefix": "/root/wksim-ros2-MUlZd0/install/wksim_msgs",
+                "sha256": "fa5fadcb39d83bd1d2412b3b1d58955423a698236f19d9cf208956c120fdabe3",
+                "complete_snapshot": true
+              }
+            },
+            "arducopter_agent": {
+              "path": "/root/wksim-dds-VxM6Ni/ros-install/micro_ros_agent/lib/micro_ros_agent/micro_ros_agent",
+              "sha256": "aa4f7a2a861958d7ae76ce6c8a866558b8baf73b5aad0a7b7fed1f8e17af9791"
+            },
+            "px4_agent": {
+              "path": "/root/wksim-dds-VxM6Ni/agent-install/bin/MicroXRCEAgent",
+              "sha256": "c61334626f2b625fdee68f7326ca1dabdf788b16d991a0e6879903cf24edb4b7"
+            }
+          },
+          "capabilities": [
+            "public_position",
+            "public_velocity_yaw"
+          ],
+          "scope": "Pinned AP/PX4 quad-X joint DDS public tasks and approved recovery; admission is not flight readiness or complete G2/Full acceptance",
+          "config": {
+            "schema_version": 1,
+            "kind": "joint_scene",
+            "run_id": "scheduler-086648004be0",
+            "runtime_profile": "joint_quad_dds_v1",
+            "requested_rate": 1.0,
+            "task": "public_position",
+            "task_dwell_seconds": {
+              "hold": 5,
+              "waypoint": 2
+            }
+          }
+        },
+        "isolation": {
+          "net": "net:[4026532295]",
+          "ipc": "ipc:[4026532294]",
+          "mnt": "mnt:[4026532293]"
+        },
+        "private_temporary_files": {
+          "root": "/root/wksim-private-tmp-tk8sfzus",
+          "mount_namespace": "mnt:[4026532293]",
+          "device": 87,
+          "lower_device": 2096,
+          "artifact_directory": "/root/wksim-private-tmp-tk8sfzus/artifacts",
+          "command": [
+            "mount",
+            "-t",
+            "overlay",
+            "overlay",
+            "-o",
+            "lowerdir=/tmp,upperdir=/root/wksim-private-tmp-tk8sfzus/upper,workdir=/root/wksim-private-tmp-tk8sfzus/work",
+            "/tmp"
+          ],
+          "consumer_directories": []
+        },
+        "source_sha256": {
+          "Simulator/wksim_runtime/aruco_joint_task.py": "1fd7a6aec9716e110b9e4bf4c34fc46b99c89a504d6e69625f67dcc722a06b30",
+          "Simulator/wksim_runtime/aruco_publisher_guard.py": "28a531adf57c0bf6992f2fa077e2e86a7df7a70dc2fc506f60aeb003cd890bfd",
+          "Simulator/wksim_runtime/aruco_raw_capture.py": "d18c4c026fa825be7fb2a21c3245fbc15261f6a20b925c1ba2406cbdbdb344e3",
+          "Simulator/wksim_runtime/aruco_task.py": "4bfc31549ad19f820faf181fad5ccc890d542cdf3081dc2e0cdea951e362416f",
+          "Simulator/wksim_runtime/aruco_tracking_input.py": "d5a793f36c786929022d7508f952258cabe538af60a02ffea6d2ea25eddae53d",
+          "Simulator/wksim_runtime/attitude_task.py": "2240bd86fd93d3a16931eeb391f4ebf48de1bc284abd75fd81ee31fbaa004850",
+          "Simulator/wksim_runtime/bspline_tcp_envelope.py": "abb2e0a3d2c6ea5d8eac461e84e081daf163ac9a29fb76c81b5a5bbeb4a41e09",
+          "Simulator/wksim_runtime/build_identity.py": "9581d7085f3fb37629969e19635d1299fd40ca0a0f65ea7f4af6b85a5d6e8286",
+          "Simulator/wksim_runtime/config.py": "2cd852c66ff4c6b878203d937e2ef8d786c70446fc793d28aa4149941bfc1129",
+          "Simulator/wksim_runtime/contact_observer.py": "28d482bca60bfcb75419bb59b2ee08056cf1e0392b42e2d304ea1579b7391de7",
+          "Simulator/wksim_runtime/efficiency_task.py": "ebd16f429b6fcefe5b9809ef45d34272ff9e1ad5cf02c6edec9682ff65062010",
+          "Simulator/wksim_runtime/evidence.py": "4f7f2e601ce3c2edfe54c1c48ed35d41133304c2b1fa56a969148c6ccbbfcb7a",
+          "Simulator/wksim_runtime/evidence_stream.py": "74cd79b8385cb3987a1dab483b772e71452fc4e04fccd440dcfc50de1a9735e9",
+          "Simulator/wksim_runtime/gcs_relay.py": "7db20269c2c60a7c6b870eff2ec70986b1e374ef8791104089686f377497b957",
+          "Simulator/wksim_runtime/global_task.py": "ecacd83694f913edf33b47226063409bf55de6a81d4896700950e69598cc40db",
+          "Simulator/wksim_runtime/gnss_task.py": "b92612b72f74fad2bbf4eeed616bc3a73534f1012f91c3d8cb3a27e57e662844",
+          "Simulator/wksim_runtime/hex_task.py": "c2c4ddeee188fdc0cb961deb62fb66a8f3a78f7099eb993c39de827813a9e28a",
+          "Simulator/wksim_runtime/home_mutation.py": "aa075f174460d06de52c9675698744e520da82dcc8333c92d16a67af6c23501a",
+          "Simulator/wksim_runtime/independent_profile.py": "d75db87595b18a6bbe1cfaf5619831d477b2fe8fce7c6392df1e7f06fa8571af",
+          "Simulator/wksim_runtime/isolation.py": "92466d6e736f671031b5d53f01d8ebcfd2ab1aa6c28c9946e2f891087bb61c99",
+          "Simulator/wksim_runtime/joint_actions.py": "2e0139c776efe19cea957e6390e80d82f8aa2752b4656a984466403760a7eb13",
+          "Simulator/wksim_runtime/joint_aruco_profile.py": "6a2f0d143bb417a4f5594dd5c04dffe57bb8bd27274243c40b6241483543dab6",
+          "Simulator/wksim_runtime/joint_config.py": "e6d3818e82e5f2c88ec8ce18adb4c7bd02c1981752202fea9f7d499faf8ac696",
+          "Simulator/wksim_runtime/joint_evidence.py": "448bfa3d12f4ff4db621dca77eca789233bfbff9b3816461410e7667453fbb14",
+          "Simulator/wksim_runtime/joint_lifecycle.py": "41fe8829d319b86b5afc4020d03fc4b79d68292d9a8e98b872ff9e6414f6b4f2",
+          "Simulator/wksim_runtime/joint_monitor.py": "7d68f304a2ef4c80d7e10237854719b70fbc4499a22206cd59f157ff2011a997",
+          "Simulator/wksim_runtime/joint_parent.py": "cdbb3966b82153978224e583c5355671696d4083588d621d77e3a8ceac94abe6",
+          "Simulator/wksim_runtime/joint_profile.py": "82a53b00dcb8b0407d0acfc285369949f6cabc4de81998140b6899b681680b06",
+          "Simulator/wksim_runtime/joint_rate.py": "0b53a16acd65138b4623a9a8573ec8d643a2b78f4e27e8122c65efb9a6da25c4",
+          "Simulator/wksim_runtime/joint_rate_probe.py": "a8bac9ac84ba9960296bb6b43d6d39c6bbc17fa9fdc47adf7e05ce76d7066653",
+          "Simulator/wksim_runtime/joint_runtime.py": "6a7d027ad1ead8f113e064b03058fa45b9ad6f804daabe58a7a1c5a9c20a18aa",
+          "Simulator/wksim_runtime/joint_task.py": "9086963371db0139ace3d381b00802cdb188ece4329ade42e7ecdc9cd7294fa4",
+          "Simulator/wksim_runtime/joint_trajectory.py": "bf490c1a231e84d279b9e0de0d7852c3575bb63fb6dc33d4417ed86c5c1d7832",
+          "Simulator/wksim_runtime/loop_timing.py": "ca24e17663822bca967a353001223c78e36c86818a806f776b05b1655deffd53",
+          "Simulator/wksim_runtime/mission_actions.py": "cf393e07445c055b52b9addbe0c9026d0b94c2dae35727c8c1be23e986135119",
+          "Simulator/wksim_runtime/mission_cancel.py": "3b3eea6de07f79824ee8b04080f52dbac661189f2be31e5ef0d90e17140ace54",
+          "Simulator/wksim_runtime/mission_evidence.py": "ab020a344a929b7e9ed33ec1173b2cc126a685551572216e750ff4c67f5d828e",
+          "Simulator/wksim_runtime/mission_plan.py": "8e0c4943fbfbbe1ff1007c4ec8fa66717f8d4cd9ab56eaa4d7a8e121cac2a9f9",
+          "Simulator/wksim_runtime/mission_task.py": "cbbb475da1a091036a7ea4c76346d62a6d7a2a3b5870485768880aa72193e32f",
+          "Simulator/wksim_runtime/parameter_protocol.py": "b8cf9e91db44c64d64d9e3145c1b35f7a5769fe1a90e665c1008cdc17b96cfcc",
+          "Simulator/wksim_runtime/parameter_storage.py": "da14be4b3ec8ea66c45993d0313d8f2eb0c69b3282a7db0ddfa7b141b502e280",
+          "Simulator/wksim_runtime/pid_task.py": "3368bd0c9bc6c0284b02443b4524533733479afa7f9ea4e97d467d00bbb6a553",
+          "Simulator/wksim_runtime/planner_command_egress.py": "b04696cac61d5c9e0634b48d2f1691b1f88e8500c203df5f9219ffb1d061bce6",
+          "Simulator/wksim_runtime/planner_scene_binding.py": "da45997ec4caceb45cd6652717b71973d8be041e94f690ba89b7011e6ea1a0cf",
+          "Simulator/wksim_runtime/planner_transport_node.py": "7f01cdc2e9335062c1c9e79b22636a1a7d8a087fbadede61472d9377d7828029",
+          "Simulator/wksim_runtime/planner_transport_pump.py": "b08913e6cdfc7ab53c1cbac1637a9d34c11fcb5d3308342a38cd79440f134a99",
+          "Simulator/wksim_runtime/planner_transport_receiver.py": "170ae422249360094a375abd634cce9e89d989c045e18181e1b98d39856101a1",
+          "Simulator/wksim_runtime/preflight.py": "91f5df59306d7e841bae89f06a8612db7199824c1babbedf0aa12165ae02f677",
+          "Simulator/wksim_runtime/rc_task.py": "8f32769548d3325bd63b78528cfa373f2ea4cb3ccce94047b00293ca7120bfac",
+          "Simulator/wksim_runtime/replay.py": "884da1ec23f0a5f5ed37d040f8081d25c1e58a723ee9db5f62d745ac483088f6",
+          "Simulator/wksim_runtime/runtime.py": "084f827aef380c0ffc810f37bfc6a8da97db8276b619fec4bd7c5dfcabe011c4",
+          "Simulator/wksim_runtime/scene_clock.py": "a6dc143abf0f9119568090a5aaa0bf06a7fa5e617f107e9606fc6489819add3f",
+          "Simulator/wksim_runtime/task.py": "9791913df7ad61d229a151d4d1d0e5c2b3f32d127a7545096b43a32638f0dbbc",
+          "Simulator/wksim_runtime/telemetry.py": "e62be21faeec23fd1d70932b7b25fe1d668e167af76e0b6df2624a1d42849eb0",
+          "Simulator/wksim_runtime/telemetry_dialect.py": "fa9cec926c3ab0b7e5ce64849a652f76ebd2cf6361d45222d6c563dff728287a",
+          "Simulator/wksim_runtime/terrain_feedback.py": "8d0ee7cc362e25e9f601d5aa422520cf75be7d98e80f4d230adbfce523bfdde2",
+          "Simulator/wksim_runtime/trajectory_bridge.py": "98c1828865e9fe8966acb3cc66e3c757d881f10492549c31777ea28edb5ca2f6",
+          "Simulator/wksim_runtime/velocity_evidence.py": "918843d4aebe013c2ae6e2671e671e40353aff8a0e1b34795e2b4107e1fd201d",
+          "Simulator/wksim_runtime/write_timing.py": "53755da8afa87e7f9a4f84f6ec3fe366834c7b3aec8f4b9441617afb176d292f",
+          "Simulator/wksim_runtime/__init__.py": "a6c5443b9204b18974249c52ae93437ed165af0d1b463edfa518ee3acde4c440",
+          "Simulator/wksim_core/ap_json.py": "db3498d5df50aa3ab46601a8e899c6739e613d431a7d221ac57d2a86e1846469",
+          "Simulator/wksim_core/gnss_event.py": "b26953276fe1fbca0f073ee4807796e294194a33acbbd0f5140fecb63d81f75b",
+          "Simulator/wksim_core/joint.py": "f5433c2ec7e81794ffcfab26dce0feff18d4e1affdfb44f895a72e4ce0241d50",
+          "Simulator/wksim_core/joint_state_stream.py": "03001accbeaea9244c3a0950da2d0eaa524d4c697f57263a7cb2ab322ff57416",
+          "Simulator/wksim_core/model.py": "3b0ae6f40594a30997fa66beba11466ca88f0c1a3b88c2322d4fee10f1ce4d41",
+          "Simulator/wksim_core/model_parameters.py": "b339ae24a7b359a0eb656dccf703a0c004e0b216f1d9f870363e69a1f12e7b05",
+          "Simulator/wksim_core/motor_efficiency_event.py": "52972153618cc91a16d4ce6cc698db3d3108ed600c37235787a4d49ab77b1383",
+          "Simulator/wksim_core/motor_efficiency_model.py": "bff0ac733228692a3f2abfc77b644e7ea190d4c4c8d43187f8c4676f8cd11ef6",
+          "Simulator/wksim_core/px4_mavlink.py": "e8c903f2b4c84a261adf6f512c8437c51364143dc048d1ac2cb873e7cfb53260",
+          "Simulator/wksim_core/state_stream.py": "d0bf4534885170bc281394657558afbfa143d76360ac1157e1c0e60d9719a76e",
+          "Simulator/wksim_core/static_contact.py": "7b2699c317936f2615cbdcc1742939e932c030d495854dccad53dd924c65e0e1",
+          "Simulator/wksim_core/worker.py": "0becd1f3214b53c6169fb61ae010a969fb57a4ccbe26fb3ed3c3652c26ef7fab",
+          "Simulator/wksim_core/model.cpp": "150ddf3bab66e9e59701791392f6d792a14346e0b75ecdfe94872095e72d0290"
+        },
+        "runtime_images": {
+          "ready": {
+            "arducopter-model": {
+              "identity": {
+                "pid": 1912,
+                "pgid": 1322,
+                "start_ticks": 7060,
+                "argv": [
+                  "/usr/bin/python3",
+                  "-B",
+                  "-m",
+                  "Simulator.wksim_core.worker",
+                  "--library",
+                  "/root/wksim-private-tmp-cxrbwjyr/artifacts/wksim-model-ms14otyn/libwksim_model.so",
+                  "--trace",
+                  "/root/wksim-scheduler-probe-20260912-kernel-bpf-03/runs/scheduler-086648004be0/epochs/1c404fd36f8543e19b9d083c8e437cdc/arducopter-truth.jsonl",
+                  "--epoch",
+                  "1c404fd36f8543e19b9d083c8e437cdc"
+                ]
+              },
+              "executable": "/usr/bin/python3.10",
+              "executable_sha256": "7d51cd6b48b521277f5caa4610a82126e315fa2be4df069823a8b1eeb5bd4a86",
+              "maps_file": "arducopter-model-ready-maps.txt",
+              "maps_sha256": "9e97d70096b9071bce65db084c692548da3fe25fd5f41a94ffdc00aad1fa61b6",
+              "forbidden_libraries": []
+            },
+            "arducopter-fc": {
+              "identity": {
+                "pid": 1914,
+                "pgid": 1322,
+                "start_ticks": 7061,
+                "argv": [
+                  "/root/wksim-ap-clock-stop-OXQqdR/build/sitl/bin/arducopter",
+                  "--model",
+                  "JSON:127.0.0.1",
+                  "--rate",
+                  "1000",
+                  "--speedup",
+                  "3",
+                  "--base-port",
+                  "16600",
+                  "--instance",
+                  "11",
+                  "--sysid",
+                  "241",
+                  "--sim-address",
+                  "127.0.0.1",
+                  "--sim-port-out",
+                  "19002",
+                  "--sim-port-in",
+                  "19003",
+                  "--rc-in-port",
+                  "19004",
+                  "--serial0",
+                  "udpclient:127.0.0.1:14660",
+                  "--serial1",
+                  "none",
+                  "--serial2",
+                  "none",
+                  "--defaults",
+                  "/root/wksim-ap-clock-stop-OXQqdR/src/Tools/autotest/default_params/copter.parm,/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/Simulator/wksim_core/arducopter-quad-x.parm,/root/wksim-scheduler-probe-20260912-kernel-bpf-03/runs/scheduler-086648004be0/epochs/1c404fd36f8543e19b9d083c8e437cdc/arducopter/dds.parm",
+                  "--home",
+                  "40.1540302,116.2593683,50,0"
+                ]
+              },
+              "executable": "/root/wksim-ap-clock-stop-OXQqdR/build/sitl/bin/arducopter",
+              "executable_sha256": "083971caff8883188488b02ec18a8ef17141fe948b520b3c597a6109e8c2d7de",
+              "maps_file": "arducopter-fc-ready-maps.txt",
+              "maps_sha256": "17266acb532e8adb99c8ca072761c0faf1cdb661bee4561e434e67ffff5481de",
+              "forbidden_libraries": []
+            },
+            "px4-model": {
+              "identity": {
+                "pid": 1916,
+                "pgid": 1322,
+                "start_ticks": 7061,
+                "argv": [
+                  "/usr/bin/python3",
+                  "-B",
+                  "-m",
+                  "Simulator.wksim_core.worker",
+                  "--library",
+                  "/root/wksim-private-tmp-cxrbwjyr/artifacts/wksim-model-ms14otyn/libwksim_model.so",
+                  "--trace",
+                  "/root/wksim-scheduler-probe-20260912-kernel-bpf-03/runs/scheduler-086648004be0/epochs/1c404fd36f8543e19b9d083c8e437cdc/px4-truth.jsonl",
+                  "--epoch",
+                  "1c404fd36f8543e19b9d083c8e437cdc"
+                ]
+              },
+              "executable": "/usr/bin/python3.10",
+              "executable_sha256": "7d51cd6b48b521277f5caa4610a82126e315fa2be4df069823a8b1eeb5bd4a86",
+              "maps_file": "px4-model-ready-maps.txt",
+              "maps_sha256": "d0c6b56b218c29eb3a99785ebfbf10eecac5039b0852e5b8925c50caf4e6939d",
+              "forbidden_libraries": []
+            },
+            "px4-fc": {
+              "identity": {
+                "pid": 1918,
+                "pgid": 1322,
+                "start_ticks": 7061,
+                "argv": [
+                  "/root/wksim-px4-state-ONa1Kw/src/build/px4_sitl_default/bin/px4",
+                  "-d",
+                  "/root/wksim-px4-state-ONa1Kw/src/build/px4_sitl_default/etc",
+                  "-t",
+                  "/root/wksim-px4-state-ONa1Kw/src/test_data",
+                  "-i",
+                  "21",
+                  "-w",
+                  "/root/wksim-scheduler-probe-20260912-kernel-bpf-03/runs/scheduler-086648004be0/epochs/1c404fd36f8543e19b9d083c8e437cdc/px4"
+                ]
+              },
+              "executable": "/root/wksim-px4-state-ONa1Kw/src/build/px4_sitl_default/bin/px4",
+              "executable_sha256": "93b4ebe0d83a5897131ec24ee58d732c8999972bb7730f429fc396bc8d10602a",
+              "maps_file": "px4-fc-ready-maps.txt",
+              "maps_sha256": "0b4bad49862d58d69915287a040591280fb05f4f92f120b93c5167cb66d2b31a",
+              "forbidden_libraries": []
+            }
+          },
+          "stopping": {
+            "arducopter-model": {
+              "identity": {
+                "pid": 1912,
+                "pgid": 1322,
+                "start_ticks": 7060,
+                "argv": [
+                  "/usr/bin/python3",
+                  "-B",
+                  "-m",
+                  "Simulator.wksim_core.worker",
+                  "--library",
+                  "/root/wksim-private-tmp-cxrbwjyr/artifacts/wksim-model-ms14otyn/libwksim_model.so",
+                  "--trace",
+                  "/root/wksim-scheduler-probe-20260912-kernel-bpf-03/runs/scheduler-086648004be0/epochs/1c404fd36f8543e19b9d083c8e437cdc/arducopter-truth.jsonl",
+                  "--epoch",
+                  "1c404fd36f8543e19b9d083c8e437cdc"
+                ]
+              },
+              "executable": "/usr/bin/python3.10",
+              "executable_sha256": "7d51cd6b48b521277f5caa4610a82126e315fa2be4df069823a8b1eeb5bd4a86",
+              "maps_file": "arducopter-model-stopping-maps.txt",
+              "maps_sha256": "9e97d70096b9071bce65db084c692548da3fe25fd5f41a94ffdc00aad1fa61b6",
+              "forbidden_libraries": []
+            },
+            "arducopter-fc": {
+              "identity": {
+                "pid": 1914,
+                "pgid": 1322,
+                "start_ticks": 7061,
+                "argv": [
+                  "/root/wksim-ap-clock-stop-OXQqdR/build/sitl/bin/arducopter",
+                  "--model",
+                  "JSON:127.0.0.1",
+                  "--rate",
+                  "1000",
+                  "--speedup",
+                  "3",
+                  "--base-port",
+                  "16600",
+                  "--instance",
+                  "11",
+                  "--sysid",
+                  "241",
+                  "--sim-address",
+                  "127.0.0.1",
+                  "--sim-port-out",
+                  "19002",
+                  "--sim-port-in",
+                  "19003",
+                  "--rc-in-port",
+                  "19004",
+                  "--serial0",
+                  "udpclient:127.0.0.1:14660",
+                  "--serial1",
+                  "none",
+                  "--serial2",
+                  "none",
+                  "--defaults",
+                  "/root/wksim-ap-clock-stop-OXQqdR/src/Tools/autotest/default_params/copter.parm,/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/Simulator/wksim_core/arducopter-quad-x.parm,/root/wksim-scheduler-probe-20260912-kernel-bpf-03/runs/scheduler-086648004be0/epochs/1c404fd36f8543e19b9d083c8e437cdc/arducopter/dds.parm",
+                  "--home",
+                  "40.1540302,116.2593683,50,0"
+                ]
+              },
+              "executable": "/root/wksim-ap-clock-stop-OXQqdR/build/sitl/bin/arducopter",
+              "executable_sha256": "083971caff8883188488b02ec18a8ef17141fe948b520b3c597a6109e8c2d7de",
+              "maps_file": "arducopter-fc-stopping-maps.txt",
+              "maps_sha256": "454ac1444a82f17e2a18677934f2d8942d32ebb6eb0331f7662778c8a69b28e6",
+              "forbidden_libraries": []
+            },
+            "px4-model": {
+              "identity": {
+                "pid": 1916,
+                "pgid": 1322,
+                "start_ticks": 7061,
+                "argv": [
+                  "/usr/bin/python3",
+                  "-B",
+                  "-m",
+                  "Simulator.wksim_core.worker",
+                  "--library",
+                  "/root/wksim-private-tmp-cxrbwjyr/artifacts/wksim-model-ms14otyn/libwksim_model.so",
+                  "--trace",
+                  "/root/wksim-scheduler-probe-20260912-kernel-bpf-03/runs/scheduler-086648004be0/epochs/1c404fd36f8543e19b9d083c8e437cdc/px4-truth.jsonl",
+                  "--epoch",
+                  "1c404fd36f8543e19b9d083c8e437cdc"
+                ]
+              },
+              "executable": "/usr/bin/python3.10",
+              "executable_sha256": "7d51cd6b48b521277f5caa4610a82126e315fa2be4df069823a8b1eeb5bd4a86",
+              "maps_file": "px4-model-stopping-maps.txt",
+              "maps_sha256": "d0c6b56b218c29eb3a99785ebfbf10eecac5039b0852e5b8925c50caf4e6939d",
+              "forbidden_libraries": []
+            },
+            "px4-fc": {
+              "identity": {
+                "pid": 1918,
+                "pgid": 1322,
+                "start_ticks": 7061,
+                "argv": [
+                  "/root/wksim-px4-state-ONa1Kw/src/build/px4_sitl_default/bin/px4",
+                  "-d",
+                  "/root/wksim-px4-state-ONa1Kw/src/build/px4_sitl_default/etc",
+                  "-t",
+                  "/root/wksim-px4-state-ONa1Kw/src/test_data",
+                  "-i",
+                  "21",
+                  "-w",
+                  "/root/wksim-scheduler-probe-20260912-kernel-bpf-03/runs/scheduler-086648004be0/epochs/1c404fd36f8543e19b9d083c8e437cdc/px4"
+                ]
+              },
+              "executable": "/root/wksim-px4-state-ONa1Kw/src/build/px4_sitl_default/bin/px4",
+              "executable_sha256": "93b4ebe0d83a5897131ec24ee58d732c8999972bb7730f429fc396bc8d10602a",
+              "maps_file": "px4-fc-stopping-maps.txt",
+              "maps_sha256": "adb48303172ec6e1f4439ed370ec2e7d3be597d0d2993fa8d3ea85329b7f7884",
+              "forbidden_libraries": []
+            }
+          }
+        },
+        "initialization": {
+          "physical_tick": 0,
+          "models": {
+            "authority": {
+              "version": 1,
+              "epoch": "1c404fd36f8543e19b9d083c8e437cdc",
+              "tick": 0,
+              "time_ns": 0,
+              "phase": "running",
+              "last_barrier_tick": 0,
+              "synchronized": false,
+              "pending_tick": null,
+              "single_remaining": 0,
+              "last_request_id": 0,
+              "fault": null,
+              "last_input_tick": 0,
+              "recoverable": false,
+              "input_pending": false
+            },
+            "publications": 1,
+            "republications": 0,
+            "faulted_republications": 0,
+            "models": {
+              "arducopter": {
+                "version": 1,
+                "epoch": "1c404fd36f8543e19b9d083c8e437cdc",
+                "tick": 0,
+                "state": null
+              },
+              "px4": {
+                "version": 1,
+                "epoch": "1c404fd36f8543e19b9d083c8e437cdc",
+                "tick": 0,
+                "state": null
+              }
+            }
+          },
+          "initial_states": {
+            "px4": {
+              "version": 1,
+              "epoch": "1c404fd36f8543e19b9d083c8e437cdc",
+              "tick": 0,
+              "state": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "initial": true
+            },
+            "arducopter": {
+              "version": 1,
+              "epoch": "1c404fd36f8543e19b9d083c8e437cdc",
+              "tick": 0,
+              "state": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "initial": true
+            }
+          },
+          "terrain_feedback": {
+            "schema": "wksim.terrain-feedback-manifest.v1",
+            "scene_id": "static-plane-box-v1",
+            "scene_hash": "60ae50970e23d35e0a28b22694d61ca85c4e10af1f574a6ca9f07c79f7e03514",
+            "epoch": "1c404fd36f8543e19b9d083c8e437cdc",
+            "mapping": "state[k-1].Vehicle60 -> world ENU support height -> terrain[k].Terrain15D",
+            "worker_trace_field": "terrain",
+            "stacks": {
+              "arducopter": {
+                "body_id": "uav1"
+              },
+              "px4": {
+                "body_id": "uav2"
+              }
+            }
+          },
+          "task_execution_requires_explicit_go": true
+        },
+        "terminal_transition": {
+          "action": "stop",
+          "phase": "stopped",
+          "tick": 12184,
+          "issued_monotonic_ns": 83606394600
+        },
+        "stop_request": {
+          "version": 1,
+          "run_id": "scheduler-086648004be0",
+          "epoch": "1c404fd36f8543e19b9d083c8e437cdc",
+          "command_id": 83593340774,
+          "action": "stop",
+          "offer_token": "d1af595b62e84b81800d3de11c7b7585",
+          "token": "8ac0950f9d2f41a39038d60ae24eafa4"
+        },
+        "authority": {
+          "version": 1,
+          "epoch": "1c404fd36f8543e19b9d083c8e437cdc",
+          "tick": 12184,
+          "time_ns": 12184000000,
+          "phase": "stopped",
+          "last_barrier_tick": 12184,
+          "synchronized": true,
+          "pending_tick": null,
+          "single_remaining": 0,
+          "last_request_id": 1,
+          "fault": null,
+          "last_input_tick": 12184,
+          "recoverable": false,
+          "input_pending": false
+        },
+        "clock_publications": 12185,
+        "display_stream": {
+          "sent": 0,
+          "dropped": 0,
+          "sequence": 0,
+          "setup_error": null,
+          "last_error": null
+        },
+        "rate": {
+          "requested_rate": 1.0,
+          "request_id": "config",
+          "segment_id": 1,
+          "latched": false,
+          "anchor": null,
+          "measured_rate": null,
+          "measurement": "no_complete_timed_group",
+          "last_segment": {
+            "requested_rate": 1.0,
+            "request_id": "config",
+            "segment_id": 1,
+            "latched": false,
+            "anchor": {
+              "tick": 40,
+              "wall_ns": 71384775941,
+              "transition": false
+            },
+            "measured_rate": 0.9937332950208015,
+            "measurement": "timed_segment",
+            "completed_groups": 3036,
+            "worst_lateness_ns": 77256332,
+            "steady_after_ns": 73384775941
+          }
+        },
+        "cleanup_errors": [],
+        "wall_seconds": 35.443500151,
+        "changed_sources": [],
+        "physical_task_proof": null
+      },
+      "process_identity": 1322,
+      "network_namespace": "net:[4026532295]",
+      "namespace_objects": {
+        "net": "net:[4026532295]",
+        "ipc": "ipc:[4026532294]",
+        "mnt": "mnt:[4026532293]"
+      },
+      "namespace_comparison": "held_file_descriptors",
+      "remaining_group_members": []
+    }
+  ],
+  "run_dir": "/root/wksim-scheduler-probe-20260912-kernel-bpf-03/runs/scheduler-086648004be0",
+  "host_boot_id": "e858cdf2-8c3e-4cee-9681-c9694ed43446"
+}

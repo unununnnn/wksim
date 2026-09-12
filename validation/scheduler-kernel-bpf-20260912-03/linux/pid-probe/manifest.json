@@ -1,0 +1,55 @@
+{
+  "boot_id": "e858cdf2-8c3e-4cee-9681-c9694ed43446",
+  "compiler": "/usr/bin/gcc",
+  "compiler_argv": [
+    "/usr/bin/gcc",
+    "-shared",
+    "-fPIC",
+    "-std=c11",
+    "-O2",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-o",
+    "/root/wksim-scheduler-probe-20260912-kernel-bpf-03/pid-probe/libkernel_pid_probe.so",
+    "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/tools/kernel_pid_probe_native.c"
+  ],
+  "creator": {
+    "argv": [
+      "python3",
+      "tools/profile_joint_scheduler.py",
+      "--output",
+      "/root/wksim-scheduler-probe-20260912-kernel-bpf-03",
+      "--exchange-dir",
+      "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/validation/scheduler-kernel-bpf-20260912-03/exchange",
+      "--watch-host-stdin",
+      "--kernel-pid-probe"
+    ],
+    "pgid": 694,
+    "pid": 694,
+    "start_ticks": 400
+  },
+  "library_path": "/root/wksim-scheduler-probe-20260912-kernel-bpf-03/pid-probe/libkernel_pid_probe.so",
+  "library_sha256": "ed0273099ed0eb91cd0a5655d0efcb191b0d76cd2331c4e181046808b70affb6",
+  "link_tp_name": "sched_switch",
+  "link_type": "raw_tracepoint",
+  "map_info": {
+    "key_size": 4,
+    "map_id": 1,
+    "map_type": 1,
+    "max_entries": 4096,
+    "value_size": 40
+  },
+  "namespace": {
+    "dev": 4,
+    "ino": 4026532221,
+    "path": "/proc/self/ns/pid"
+  },
+  "prog_id": 20,
+  "prog_tag": "a5ccfcc1a1480417",
+  "run_id": "scheduler-086648004be0",
+  "schema": "wksim.kernel-pid-probe.v1",
+  "source_path": "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/tools/kernel_pid_probe_native.c",
+  "source_sha256": "acffdd42e1b9f970e0aa608abd4c3b87128d4df962fd7341389e46eaf810f6bf",
+  "verifier": "processed 45 insns (limit 1000000) max_states_per_insn 0 total_states 4 peak_states 4 mark_read 1\n"
+}

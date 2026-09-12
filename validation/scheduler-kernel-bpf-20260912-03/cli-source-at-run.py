@@ -865,11 +865,7 @@ def main(argv: list[str] | None = None) -> int:
             grace_period_s=args.grace_period,
             pid_binding=args.pid_binding,
         )
-        summary = dict(res)
-        report = summary.pop("report", None)
-        if isinstance(report, dict):
-            summary.update(run_id=report.get("run_id"), epoch=report.get("epoch"))
-        print(json.dumps(summary, indent=2))
+        print(json.dumps(res, indent=2))
         return 0
     except Exception as err:
         sys.stderr.write(f"Windows joint scheduler runner error: {err}\n")

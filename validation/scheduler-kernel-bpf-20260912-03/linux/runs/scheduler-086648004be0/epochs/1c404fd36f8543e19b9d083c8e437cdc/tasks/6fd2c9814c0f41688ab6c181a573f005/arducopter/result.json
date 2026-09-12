@@ -1,0 +1,132 @@
+{
+  "status": "failed",
+  "run_id": "scheduler-086648004be0",
+  "scene_epoch": "1c404fd36f8543e19b9d083c8e437cdc",
+  "stack": "arducopter",
+  "uav_id": 1,
+  "task_mode": "initial",
+  "phases": [],
+  "task_dwell_seconds": {
+    "hold": 5,
+    "waypoint": 2
+  },
+  "use_sim_time": true,
+  "task_profile": "public_position",
+  "error": "RuntimeError('Scene lifecycle failure: scene_stopped_control_released')",
+  "traceback": "Traceback (most recent call last):\n  File \"/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/Simulator/wksim_runtime/joint_task.py\", line 102, in run\n    task.wait('public_ready',lambda:(task.recovery_transport_fresh() if settings['mode']=='recovery' else task.fresh())\n  File \"/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/Simulator/wksim_runtime/task.py\", line 313, in wait\n    self.pump()\n  File \"/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/Simulator/wksim_runtime/task.py\", line 279, in pump\n    self.task_time()\n  File \"/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/Simulator/wksim_runtime/task.py\", line 302, in task_time\n    raise RuntimeError(self.error)\nRuntimeError: Scene lifecycle failure: scene_stopped_control_released\n",
+  "task": {
+    "sent": [],
+    "events": [
+      {
+        "event": "native_reset_observed",
+        "event_id": 2,
+        "version": 1,
+        "run_id": "scheduler-086648004be0",
+        "control_epoch": "dacb2ed240cc401698eaeb9755585503",
+        "kinds": [
+          "position"
+        ],
+        "active": false,
+        "request_id": 0
+      },
+      {
+        "event": "native_reset_observed",
+        "event_id": 3,
+        "version": 1,
+        "run_id": "scheduler-086648004be0",
+        "control_epoch": "dacb2ed240cc401698eaeb9755585503",
+        "kinds": [
+          "yaw"
+        ],
+        "active": false,
+        "request_id": 0
+      }
+    ],
+    "protocol": "session_v1",
+    "run_id": "scheduler-086648004be0",
+    "control_epoch": "dacb2ed240cc401698eaeb9755585503",
+    "request_envelopes": [],
+    "control_restarts": [],
+    "final": {
+      "state": {
+        "header": {
+          "stamp": {
+            "sec": 12,
+            "nanosec": 179000000
+          },
+          "frame_id": "map"
+        },
+        "uav_id": 1,
+        "connected": true,
+        "armed": false,
+        "mode": "STABILIZE",
+        "location_source": 4,
+        "odom_valid": false,
+        "gps_status": 6,
+        "gps_num": 10,
+        "position": [
+          {
+            "nonfinite_number": "nan"
+          },
+          {
+            "nonfinite_number": "nan"
+          },
+          {
+            "nonfinite_number": "nan"
+          }
+        ],
+        "range": {
+          "nonfinite_number": "nan"
+        },
+        "latitude": 40.154029846191406,
+        "longitude": 116.25936889648438,
+        "altitude": 50.0,
+        "rel_alt": {
+          "nonfinite_number": "nan"
+        },
+        "velocity": [
+          0.008023701608181,
+          0.0009084453340619802,
+          0.02522074058651924
+        ],
+        "attitude": [
+          0.0008004159317351878,
+          -0.00012194077135063708,
+          1.5531400442123413
+        ],
+        "attitude_q": {
+          "x": 0.00032820727067641033,
+          "y": 0.00023698901246995804,
+          "z": 0.700836834241354,
+          "w": 0.7133215038723788
+        },
+        "attitude_rate": [
+          0.000382169964723289,
+          -0.0001466881949454546,
+          0.017344659194350243
+        ],
+        "battery_state": {
+          "nonfinite_number": "nan"
+        },
+        "battery_percetage": {
+          "nonfinite_number": "nan"
+        }
+      },
+      "control_state": {
+        "header": {
+          "stamp": {
+            "sec": 12,
+            "nanosec": 179000000
+          },
+          "frame_id": "map"
+        },
+        "uav_id": 1,
+        "control_state": 0,
+        "pos_controller": 0,
+        "failsafe": false
+      }
+    }
+  },
+  "wall_seconds": 12.795988831999992,
+  "worker_source_sha256": "9086963371db0139ace3d381b00802cdb188ece4329ade42e7ecdc9cd7294fa4"
+}

@@ -1,0 +1,148 @@
+{
+  "version": 1,
+  "kind": "joint_scene",
+  "run_id": "scheduler-086648004be0",
+  "epoch": "1c404fd36f8543e19b9d083c8e437cdc",
+  "instance_id": "c6adcc08b26543c39388ff45c57f6444",
+  "generation": 1,
+  "epoch_dir": "/root/wksim-scheduler-probe-20260912-kernel-bpf-03/runs/scheduler-086648004be0/epochs/1c404fd36f8543e19b9d083c8e437cdc",
+  "phase": "stopped",
+  "authority": {
+    "version": 1,
+    "epoch": "1c404fd36f8543e19b9d083c8e437cdc",
+    "tick": 12184,
+    "time_ns": 12184000000,
+    "phase": "stopped",
+    "last_barrier_tick": 12184,
+    "synchronized": true,
+    "pending_tick": null,
+    "single_remaining": 0,
+    "last_request_id": 1,
+    "fault": null,
+    "last_input_tick": 12184,
+    "recoverable": false,
+    "input_pending": false
+  },
+  "task_state": "idle",
+  "allowed_actions": [],
+  "offer_token": "8addc16e253c439d804b53c544c959c2",
+  "issued_monotonic_s": 84.488484527,
+  "supervisor": {
+    "pid": 1322,
+    "pgid": 1322,
+    "start_ticks": 4828,
+    "argv": [
+      "python3",
+      "-B",
+      "-m",
+      "Simulator.wksim_runtime.joint_runtime",
+      "/root/wksim-scheduler-probe-20260912-kernel-bpf-03/runs/scheduler-086648004be0",
+      "1c404fd36f8543e19b9d083c8e437cdc",
+      "1"
+    ]
+  },
+  "last_command_id": 83593340774,
+  "participants": {},
+  "rate": {
+    "requested_rate": 1.0,
+    "request_id": "config",
+    "segment_id": 1,
+    "latched": false,
+    "anchor": null,
+    "measured_rate": null,
+    "measurement": "no_complete_timed_group",
+    "last_segment": {
+      "requested_rate": 1.0,
+      "request_id": "config",
+      "segment_id": 1,
+      "latched": false,
+      "anchor": {
+        "tick": 40,
+        "wall_ns": 71384775941,
+        "transition": false
+      },
+      "measured_rate": 0.9937332950208015,
+      "measurement": "timed_segment",
+      "completed_groups": 3036,
+      "worst_lateness_ns": 77256332,
+      "steady_after_ns": 73384775941
+    }
+  },
+  "display_stream": {
+    "enabled": false,
+    "sent": 0,
+    "dropped": 0,
+    "sequence": 0,
+    "setup_error": null,
+    "last_error": null
+  },
+  "task_dwell_seconds": {
+    "hold": 5,
+    "waypoint": 2
+  },
+  "task_progress": {
+    "px4": {
+      "phase": "public_ready",
+      "wall_seconds": 3.336441472000004,
+      "ros_time_ns": 2807000000,
+      "state": {
+        "header": {
+          "stamp": {
+            "sec": 2,
+            "nanosec": 784000000
+          },
+          "frame_id": "map"
+        },
+        "uav_id": 2,
+        "connected": true,
+        "armed": false,
+        "mode": "AUTO.LOITER",
+        "location_source": 4,
+        "odom_valid": true,
+        "gps_status": 3,
+        "gps_num": 10,
+        "position": [
+          0.003994327038526535,
+          0.002006411086767912,
+          0.02099609375
+        ],
+        "range": {
+          "nonfinite_number": "nan"
+        },
+        "latitude": 40.154029846191406,
+        "longitude": 116.25936889648438,
+        "altitude": 50.08599853515625,
+        "rel_alt": {
+          "nonfinite_number": "nan"
+        },
+        "velocity": [
+          0.0018023778684437275,
+          -0.007548297755420208,
+          0.0008384750108234584
+        ],
+        "attitude": [
+          0.0004777587892021984,
+          0.00016161960957106203,
+          1.5772167444229126
+        ],
+        "attitude_q": {
+          "x": 0.0001110458212602411,
+          "y": 0.00022641203894752828,
+          "z": 0.709373041674413,
+          "w": 0.7048331888837286
+        },
+        "attitude_rate": [
+          0.00397959491237998,
+          -0.0044343844056129456,
+          -0.0035093436017632484
+        ],
+        "battery_state": {
+          "nonfinite_number": "nan"
+        },
+        "battery_percetage": {
+          "nonfinite_number": "nan"
+        }
+      }
+    }
+  }
+}

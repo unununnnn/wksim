@@ -10,7 +10,7 @@
 
 衡量进度：实际验收完成、关键阻塞解除、可复查失败原因。测试数量、代理报告和文档篇幅不算产品验收。
 
-最新 M1 实跑发现：`5374afc` rootproof-01 的预检通过，但 WSL system PNS0 仅是可见根，PID 与实际 sched_switch 不同；当前禁止用它证明 kernel-global。失败已保存在 `validation/scheduler-rootproof-20260912-01`，独立确认自有进程与 trace instance 全部退场。stdin 正常退出、partial metadata 收集和 gate 的既有 health 心跳已修，97 项 Ubuntu 检查通过。现有 GCC 编译的 BPF 自有 canary 已实际证明 local696→kernel1115；下一 M1 切片是五 owner/FC 线程真正内核绑定与生命周期证明，完成前不再盲跑。详见 short-cycle-goal.md 顶部最新检查点。
+最新 M1：`6d38b54` 的 kernel-bpf-03 已完成并通过独立原始核验，正式10.000188298s、321461条事件全部在窗口和PID过滤内，9任务/5owner前后身份、零loss、BPF解绑及全部清理通过。场景tick12184无fault，worst lateness77.256332ms；这是一场ground diagnostic，不能关闭PV/倍率/Full父票。证据 validation/scheduler-kernel-bpf-20260912-03。下一M1/M3工作是分析现有trace并按#83原0.5x/100ms/10s/60s合同核对最终PV；#82已关闭。M2 RflySim消息overlay已真实构建，官方bridge源码已准备，bridge本体/真实反向状态与时钟/stop-cancel仍待完成。以short-cycle-goal.md顶部最新检查点为准。
 
 ## 当前六端分工
 

@@ -2,6 +2,16 @@
 
 ## 最新检查点（优先于下方历史记录）
 
+最新已核验：kernel-bpf-03（session69221）**已退出0**，不要继续等待/重启。run scheduler-086648004be0 / epoch1c404fd36f8543e19b9d083c8e437cdc，正式10.000188298s，321461条formal事件全部在窗口内且PID过滤正确；9任务/5owner的BPF+raw proc前后证明、全部零loss计数、BPF提前解绑、trace instance删除、epoch groups清理和source hashes均独立通过。场景tick12184无fault，短段0.9937333x、worst lateness77.256332ms；只是一场ground diagnostic，acceptance_eligible=false，不是PV/60s倍率/Full通过。原始及gzip副本在validation/scheduler-kernel-bpf-20260912-03，75份文件已Windows逐项校验；CLI后续改为简短stdout，完整report仍在run_log.json。
+
+M2 native消息构建（session18341）也**已退出0**：RflySim /root/wksim-ros1-bridge-humble-8oGKuV/messages_ws 的 prometheus_msgs 47.5s、wksim_msgs4.94s，总52.5s；bridge本体尚未构建。当前没有真实native/SITL/ROS/BPF/构建进程。三Luna已续派：scheduler离线分析77ms迟到、gridmap核对#83 final-PV原准入与control资源、cloud核对新消息overlay与bridge编译配置；Claude18z只读核对真实EGO时间因果与原条款。
+
+2026-09-12 当前真实执行：`6d38b54` 已推送bootstrap批量drain修复及kernel-bpf-02失败原件。唯一真实场次kernel-bpf-03现正在运行，Tool session **69221**，目录 `/root/wksim-scheduler-probe-20260912-kernel-bpf-03`，Windows evidence `validation/scheduler-kernel-bpf-20260912-03/exchange`，timeout240/grace100。必须先poll该handle/检查实际进程，不得重复启动；运行期间禁止测试/构建/归档重负载和运行源码修改。02的完整9个BPF内核ID已取得，但已读trace落后约1s、ring还有16475条，导致3s映射截止失败；不是DDS静默。退出cleanup_verified=true，所有原始失败保留。新reader保持3s/9target/5owner，仅分离快速drain和50ms proc检查，失败tail单独有界保存。
+
+最新提交：`0555f96`真实ROS2 TCP公共出口，同一session、高水位、ACK、2s状态预算及epoch/token不重用；67项callback/TCP检查+单独1项真实RMW测试通过，尚无真实ROS1 planner/FC/净空验收。`e68ffd8`内核BPF原生库/FD传递/真实五actor九task+proc/trace一致性；`2834161`修复WSL冷启动只读目录检查5s过短，03使用kernel_bpf模式。用户保护文件仍未暂存。
+
+M2构建准备已完成但未编译：RflySim `/root/wksim-ros1-bridge-humble-8oGKuV`，官方ros1_bridge master commit `611755fd917285316051cbea80507e8b2f6b7ec1`，56份ROS2 prometheus_msgs/wksim_msgs来源文件已复制并SHA记录preparation.json。Humble rosdistro指向master（无humble branch）；编译兼容仍需实际验证。两个distro默认net ns实测均4026531840，私有unshare net仍隔离；已有跨namespace通路是共享pathname AF_UNIX relay，不是现成socket FD传递。ROS1跨端连接和同一clock/stop/cancel还未完成。
+
 2026-09-12 实跑更新（优先于以下旧检查点）：M1 `5374afc` 的新 rootproof-01 已失败并保留原件。预检通过、root snapshot交换成功，但WSL system PNS0不是initial kernel namespace：AP worker proc2350对应trace20191，supervisor1631对应18931，不能再用该视图冒充kernel-global。当前collector已增加明确拒绝，下一真实SITL诊断必须先完成真正kernelPID绑定，不重复盲跑。BPF自有canary已使用现有GCC实际通过，local696→kernel1115；只是单进程机制证明，五owner/FC线程前后证明和collector尚未接入。
 
 同场还暴露gate阻断health导致1.6766s permission间隔超过原0.5s lease，以及BufferedReader daemon退出rc134。两处已修，partial metadata也在finally核验并保留。Ubuntu组合97 passed/32 subtests（含真实EOF和stdin仍开放时正常退出）；新reader对原始失败metadata重验能证明清理但complete仍false。独立检查所有自有身份已退出、trace instance已删除，原Windows need_cleanup=true报告不重写。证据 validation/scheduler-rootproof-20260912-01 与 kernel-pid-canary-20260912。

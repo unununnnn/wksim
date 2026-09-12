@@ -1,0 +1,128 @@
+{
+  "read_only": true,
+  "boot_id": "e858cdf2-8c3e-4cee-9681-c9694ed43446",
+  "instance_creation_not_tested": true,
+  "tracefs": "/sys/kernel/tracing",
+  "instances_available": true,
+  "clock_choices": "[local] global counter uptime perf mono mono_raw boot tai x86-tsc",
+  "global_controls": {
+    "tracing_on": "1",
+    "current_tracer": "nop",
+    "trace_clock": "[local] global counter uptime perf mono mono_raw boot tai x86-tsc"
+  },
+  "event_formats": {
+    "syscalls/sys_enter_write": "name: sys_enter_write\nID: 739\nformat:\n\tfield:unsigned short common_type;\toffset:0;\tsize:2;\tsigned:0;\n\tfield:unsigned char common_flags;\toffset:2;\tsize:1;\tsigned:0;\n\tfield:unsigned char common_preempt_count;\toffset:3;\tsize:1;\tsigned:0;\n\tfield:int common_pid;\toffset:4;\tsize:4;\tsigned:1;\n\n\tfield:int __syscall_nr;\toffset:8;\tsize:4;\tsigned:1;\n\tfield:unsigned int fd;\toffset:16;\tsize:8;\tsigned:0;\n\tfield:const char * buf;\toffset:24;\tsize:8;\tsigned:0;\n\tfield:size_t count;\toffset:32;\tsize:8;\tsigned:0;\n\nprint fmt: \"fd: 0x%08lx, buf: 0x%08lx, count: 0x%08lx\", ((unsigned long)(REC->fd)), ((unsigned long)(REC->buf)), ((unsigned long)(REC->count))\n",
+    "syscalls/sys_exit_write": "name: sys_exit_write\nID: 738\nformat:\n\tfield:unsigned short common_type;\toffset:0;\tsize:2;\tsigned:0;\n\tfield:unsigned char common_flags;\toffset:2;\tsize:1;\tsigned:0;\n\tfield:unsigned char common_preempt_count;\toffset:3;\tsize:1;\tsigned:0;\n\tfield:int common_pid;\toffset:4;\tsize:4;\tsigned:1;\n\n\tfield:int __syscall_nr;\toffset:8;\tsize:4;\tsigned:1;\n\tfield:long ret;\toffset:16;\tsize:8;\tsigned:1;\n\nprint fmt: \"0x%lx\", REC->ret\n",
+    "syscalls/sys_enter_fsync": "name: sys_enter_fsync\nID: 899\nformat:\n\tfield:unsigned short common_type;\toffset:0;\tsize:2;\tsigned:0;\n\tfield:unsigned char common_flags;\toffset:2;\tsize:1;\tsigned:0;\n\tfield:unsigned char common_preempt_count;\toffset:3;\tsize:1;\tsigned:0;\n\tfield:int common_pid;\toffset:4;\tsize:4;\tsigned:1;\n\n\tfield:int __syscall_nr;\toffset:8;\tsize:4;\tsigned:1;\n\tfield:unsigned int fd;\toffset:16;\tsize:8;\tsigned:0;\n\nprint fmt: \"fd: 0x%08lx\", ((unsigned long)(REC->fd))\n",
+    "syscalls/sys_exit_fsync": "name: sys_exit_fsync\nID: 898\nformat:\n\tfield:unsigned short common_type;\toffset:0;\tsize:2;\tsigned:0;\n\tfield:unsigned char common_flags;\toffset:2;\tsize:1;\tsigned:0;\n\tfield:unsigned char common_preempt_count;\toffset:3;\tsize:1;\tsigned:0;\n\tfield:int common_pid;\toffset:4;\tsize:4;\tsigned:1;\n\n\tfield:int __syscall_nr;\toffset:8;\tsize:4;\tsigned:1;\n\tfield:long ret;\toffset:16;\tsize:8;\tsigned:1;\n\nprint fmt: \"0x%lx\", REC->ret\n",
+    "syscalls/sys_enter_fdatasync": "name: sys_enter_fdatasync\nID: 897\nformat:\n\tfield:unsigned short common_type;\toffset:0;\tsize:2;\tsigned:0;\n\tfield:unsigned char common_flags;\toffset:2;\tsize:1;\tsigned:0;\n\tfield:unsigned char common_preempt_count;\toffset:3;\tsize:1;\tsigned:0;\n\tfield:int common_pid;\toffset:4;\tsize:4;\tsigned:1;\n\n\tfield:int __syscall_nr;\toffset:8;\tsize:4;\tsigned:1;\n\tfield:unsigned int fd;\toffset:16;\tsize:8;\tsigned:0;\n\nprint fmt: \"fd: 0x%08lx\", ((unsigned long)(REC->fd))\n",
+    "syscalls/sys_exit_fdatasync": "name: sys_exit_fdatasync\nID: 896\nformat:\n\tfield:unsigned short common_type;\toffset:0;\tsize:2;\tsigned:0;\n\tfield:unsigned char common_flags;\toffset:2;\tsize:1;\tsigned:0;\n\tfield:unsigned char common_preempt_count;\toffset:3;\tsize:1;\tsigned:0;\n\tfield:int common_pid;\toffset:4;\tsize:4;\tsigned:1;\n\n\tfield:int __syscall_nr;\toffset:8;\tsize:4;\tsigned:1;\n\tfield:long ret;\toffset:16;\tsize:8;\tsigned:1;\n\nprint fmt: \"0x%lx\", REC->ret\n",
+    "sched/sched_switch": "name: sched_switch\nID: 324\nformat:\n\tfield:unsigned short common_type;\toffset:0;\tsize:2;\tsigned:0;\n\tfield:unsigned char common_flags;\toffset:2;\tsize:1;\tsigned:0;\n\tfield:unsigned char common_preempt_count;\toffset:3;\tsize:1;\tsigned:0;\n\tfield:int common_pid;\toffset:4;\tsize:4;\tsigned:1;\n\n\tfield:char prev_comm[16];\toffset:8;\tsize:16;\tsigned:0;\n\tfield:pid_t prev_pid;\toffset:24;\tsize:4;\tsigned:1;\n\tfield:int prev_prio;\toffset:28;\tsize:4;\tsigned:1;\n\tfield:long prev_state;\toffset:32;\tsize:8;\tsigned:1;\n\tfield:char next_comm[16];\toffset:40;\tsize:16;\tsigned:0;\n\tfield:pid_t next_pid;\toffset:56;\tsize:4;\tsigned:1;\n\tfield:int next_prio;\toffset:60;\tsize:4;\tsigned:1;\n\nprint fmt: \"prev_comm=%s prev_pid=%d prev_prio=%d prev_state=%s%s ==> next_comm=%s next_pid=%d next_prio=%d\", REC->prev_comm, REC->prev_pid, REC->prev_prio, (REC->prev_state & ((((0x00000000 | 0x00000001 | 0x00000002 | 0x00000004 | 0x00000008 | 0x00000010 | 0x00000020 | 0x00000040) + 1) << 1) - 1)) ? __print_flags(REC->prev_state & ((((0x00000000 | 0x00000001 | 0x00000002 | 0x00000004 | 0x00000008 | 0x00000010 | 0x00000020 | 0x00000040) + 1) << 1) - 1), \"|\", { 0x00000001, \"S\" }, { 0x00000002, \"D\" }, { 0x00000004, \"T\" }, { 0x00000008, \"t\" }, { 0x00000010, \"X\" }, { 0x00000020, \"Z\" }, { 0x00000040, \"P\" }, { 0x00000080, \"I\" }) : \"R\", REC->prev_state & (((0x00000000 | 0x00000001 | 0x00000002 | 0x00000004 | 0x00000008 | 0x00000010 | 0x00000020 | 0x00000040) + 1) << 1) ? \"+\" : \"\", REC->next_comm, REC->next_pid, REC->next_prio\n",
+    "sched/sched_wakeup": "name: sched_wakeup\nID: 326\nformat:\n\tfield:unsigned short common_type;\toffset:0;\tsize:2;\tsigned:0;\n\tfield:unsigned char common_flags;\toffset:2;\tsize:1;\tsigned:0;\n\tfield:unsigned char common_preempt_count;\toffset:3;\tsize:1;\tsigned:0;\n\tfield:int common_pid;\toffset:4;\tsize:4;\tsigned:1;\n\n\tfield:char comm[16];\toffset:8;\tsize:16;\tsigned:0;\n\tfield:pid_t pid;\toffset:24;\tsize:4;\tsigned:1;\n\tfield:int prio;\toffset:28;\tsize:4;\tsigned:1;\n\tfield:int target_cpu;\toffset:32;\tsize:4;\tsigned:1;\n\nprint fmt: \"comm=%s pid=%d prio=%d target_cpu=%03d\", REC->comm, REC->pid, REC->prio, REC->target_cpu\n"
+  },
+  "verified_owners": {
+    "ap_worker": {
+      "pid": 1912,
+      "pgid": 1322,
+      "start_ticks": 7060,
+      "argv": [
+        "/usr/bin/python3",
+        "-B",
+        "-m",
+        "Simulator.wksim_core.worker",
+        "--library",
+        "/root/wksim-private-tmp-cxrbwjyr/artifacts/wksim-model-ms14otyn/libwksim_model.so",
+        "--trace",
+        "/root/wksim-scheduler-probe-20260912-kernel-bpf-03/runs/scheduler-086648004be0/epochs/1c404fd36f8543e19b9d083c8e437cdc/arducopter-truth.jsonl",
+        "--epoch",
+        "1c404fd36f8543e19b9d083c8e437cdc"
+      ]
+    },
+    "px4_worker": {
+      "pid": 1916,
+      "pgid": 1322,
+      "start_ticks": 7061,
+      "argv": [
+        "/usr/bin/python3",
+        "-B",
+        "-m",
+        "Simulator.wksim_core.worker",
+        "--library",
+        "/root/wksim-private-tmp-cxrbwjyr/artifacts/wksim-model-ms14otyn/libwksim_model.so",
+        "--trace",
+        "/root/wksim-scheduler-probe-20260912-kernel-bpf-03/runs/scheduler-086648004be0/epochs/1c404fd36f8543e19b9d083c8e437cdc/px4-truth.jsonl",
+        "--epoch",
+        "1c404fd36f8543e19b9d083c8e437cdc"
+      ]
+    },
+    "supervisor": {
+      "pid": 1322,
+      "pgid": 1322,
+      "start_ticks": 4828,
+      "argv": [
+        "python3",
+        "-B",
+        "-m",
+        "Simulator.wksim_runtime.joint_runtime",
+        "/root/wksim-scheduler-probe-20260912-kernel-bpf-03/runs/scheduler-086648004be0",
+        "1c404fd36f8543e19b9d083c8e437cdc",
+        "1"
+      ]
+    },
+    "ap_fc": {
+      "pid": 1914,
+      "pgid": 1322,
+      "start_ticks": 7061,
+      "argv": [
+        "/root/wksim-ap-clock-stop-OXQqdR/build/sitl/bin/arducopter",
+        "--model",
+        "JSON:127.0.0.1",
+        "--rate",
+        "1000",
+        "--speedup",
+        "3",
+        "--base-port",
+        "16600",
+        "--instance",
+        "11",
+        "--sysid",
+        "241",
+        "--sim-address",
+        "127.0.0.1",
+        "--sim-port-out",
+        "19002",
+        "--sim-port-in",
+        "19003",
+        "--rc-in-port",
+        "19004",
+        "--serial0",
+        "udpclient:127.0.0.1:14660",
+        "--serial1",
+        "none",
+        "--serial2",
+        "none",
+        "--defaults",
+        "/root/wksim-ap-clock-stop-OXQqdR/src/Tools/autotest/default_params/copter.parm,/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/Simulator/wksim_core/arducopter-quad-x.parm,/root/wksim-scheduler-probe-20260912-kernel-bpf-03/runs/scheduler-086648004be0/epochs/1c404fd36f8543e19b9d083c8e437cdc/arducopter/dds.parm",
+        "--home",
+        "40.1540302,116.2593683,50,0"
+      ]
+    },
+    "px4_fc": {
+      "pid": 1918,
+      "pgid": 1322,
+      "start_ticks": 7061,
+      "argv": [
+        "/root/wksim-px4-state-ONa1Kw/src/build/px4_sitl_default/bin/px4",
+        "-d",
+        "/root/wksim-px4-state-ONa1Kw/src/build/px4_sitl_default/etc",
+        "-t",
+        "/root/wksim-px4-state-ONa1Kw/src/test_data",
+        "-i",
+        "21",
+        "-w",
+        "/root/wksim-scheduler-probe-20260912-kernel-bpf-03/runs/scheduler-086648004be0/epochs/1c404fd36f8543e19b9d083c8e437cdc/px4"
+      ]
+    }
+  },
+  "filters_pending_kernel_mapping": true
+}
