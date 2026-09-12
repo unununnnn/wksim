@@ -5,8 +5,24 @@ For every adjacent pair this tool verifies the exact identity
 
     creep = previous_work_over + release_excess
 
-It does not claim that release_excess can be split into health checks, record
-writes, sleep overshoot, or scheduler delay without more instrumentation.
+It also closes the recorded failure latch against the measured increments:
+
+    recorded_latch_lateness_ns
+        = first_group_start_lateness_ns + creep_total_ns + terminal_unreconciled_ns
+
+The latch is the trailing ``rate_unmet`` record with the same epoch, segment,
+request and rate as the loaded schedule. The terminal increment is the
+remaining delay from the last group's start to the boundary that latched, so it
+covers both an end-of-group work overrun and a release-wait latch that fires
+before the next ``rate_group_start`` is written. When no matching latch exists
+the reconciliation is reported as ``unavailable`` with null values: a missing
+latch is never reported as a zero increment, and a latch belonging to another
+epoch/segment/request is isolated instead of being joined. The residual is
+never clamped, so a recorded latch below the measured increments fails closed.
+
+It does not claim that release_excess or the terminal increment can be split
+into health checks, record writes, sleep overshoot, or scheduler delay without
+more instrumentation.
 
 Usage: python3 -B tools/analyze_joint_rate_intervals.py TRACE --output NEW.json
 """
@@ -46,6 +62,7 @@ _INTEGER_FIELDS = (
     "actual_start_ns",
     "lateness_ns",
 )
+_LATCH_INTEGER_FIELDS = ("tick", "segment_id", "lateness_ns")
 
 
 def _integer(row, key, number):
@@ -180,6 +197,132 @@ def load_groups(path):
     }, groups
 
 
+def _latch_identity(row):
+    """Rate identity of one latch record, including the anchor transition."""
+    transition = row.get("transition")
+    anchor = row.get("anchor")
+    if transition is None and isinstance(anchor, dict):
+        transition = anchor.get("transition")
+    return (
+        row.get("epoch"), row.get("segment_id"), row.get("request_id"),
+        row.get("requested_rate"), transition,
+    )
+
+
+def load_latches(path):
+    """Load rate_unmet latch records in file order without joining schedules."""
+    latches = []
+    with Path(path).open(encoding="utf-8") as stream:
+        for number, line in enumerate(stream, 1):
+            try:
+                row = json.loads(line)
+            except json.JSONDecodeError as error:
+                raise ValueError(f"line {number}: malformed JSON: {error}") from error
+            if not isinstance(row, dict) or row.get("kind") != "rate_unmet":
+                continue
+            epoch = row.get("epoch")
+            if not isinstance(epoch, str) or _EPOCH.fullmatch(epoch) is None:
+                raise ValueError(
+                    f"line {number}: rate_unmet epoch must be 32 lowercase hex characters")
+            for key in _LATCH_INTEGER_FIELDS:
+                _integer(row, key, number)
+            request_id = row.get("request_id")
+            if not isinstance(request_id, str) or not request_id:
+                raise ValueError(
+                    f"line {number}: rate_unmet request_id must be a non-empty string")
+            rate = row.get("requested_rate")
+            if isinstance(rate, bool) or not isinstance(rate, (int, float)):
+                raise ValueError(f"line {number}: rate_unmet requested_rate must be numeric")
+            if row["lateness_ns"] < 0:
+                raise ValueError(f"line {number}: rate_unmet lateness_ns must be nonnegative")
+            latches.append(row)
+    return latches
+
+
+def _reconcile(identity, groups, creep_total_ns, latches):
+    """Close the recorded latch against first offset, creep and terminal excess."""
+    expected = (
+        identity["epoch"], identity["segment_id"], identity["request_id"],
+        identity["requested_rate"], identity["transition"],
+    )
+    first_lateness = groups[0]["actual_start_ns"] - groups[0]["ideal_start_ns"]
+    last = groups[-1]
+    last_start_lateness = last["actual_start_ns"] - last["ideal_start_ns"]
+    # Lateness is nonnegative by the trace's own definition (the group records
+    # are validated against max(0, actual - ideal)); only the residual below is
+    # deliberately left unclamped.
+    last_end_lateness = max(0, last["actual_end_ns"] - last["ideal_end_ns"])
+    if first_lateness < 0 or last_start_lateness < 0:
+        raise ValueError("group lateness is negative")
+    matching = []
+    foreign = []
+    for row in latches:
+        if _latch_identity(row) == expected:
+            matching.append(row)
+            continue
+        foreign.append({
+            "epoch": row["epoch"],
+            "segment_id": row["segment_id"],
+            "request_id": row["request_id"],
+            "tick": row["tick"],
+            "lateness_ns": row["lateness_ns"],
+        })
+    shared = {
+        "creep_total_ns": creep_total_ns,
+        "first_group_start_lateness_ns": first_lateness,
+        "last_group_start_lateness_ns": last_start_lateness,
+        "last_group_end_lateness_ns": last_end_lateness,
+        "last_group_boundary_tick": last["start_tick"] + TICKS_PER_GROUP,
+        "foreign_rate_unmet": foreign,
+    }
+    if not matching:
+        return {
+            **shared,
+            "status": "unavailable",
+            "reason": "no_rate_unmet_for_identity",
+            "rate_unmet_tick": None,
+            "recorded_latch_lateness_ns": None,
+            "latch_site": None,
+            "terminal_unreconciled_ns": None,
+            "closes": None,
+        }
+    if len(matching) > 1:
+        raise ValueError("multiple rate_unmet records share the loaded rate identity")
+    latch = matching[0]
+    recorded = latch["lateness_ns"]
+    boundary_tick = last["start_tick"] + TICKS_PER_GROUP
+    if latch["tick"] != boundary_tick:
+        raise ValueError(
+            f"rate_unmet boundary tick {latch['tick']} is not the last group boundary "
+            f"{boundary_tick}")
+    if recorded < last_end_lateness:
+        raise ValueError("recorded rate_unmet lateness is below the last group end lateness")
+    site = "end_group" if recorded == last_end_lateness else "begin_group_release_wait"
+    terminal = recorded - creep_total_ns - first_lateness
+    if terminal < 0:
+        raise ValueError(
+            f"terminal unreconciled increment is negative ({terminal} ns); the recorded "
+            "latch is below the measured increments")
+    site_terminal = (
+        last["work_ns"] - PERIOD_NS if site == "end_group"
+        else recorded - last_start_lateness
+    )
+    if terminal != site_terminal:
+        raise ValueError(
+            f"terminal increment {terminal} ns disagrees with the {site} value "
+            f"{site_terminal} ns")
+    return {
+        **shared,
+        "status": "reconciled",
+        "reason": None,
+        "rate_unmet_tick": latch["tick"],
+        "recorded_latch_lateness_ns": recorded,
+        "latch_site": site,
+        "terminal_unreconciled_ns": terminal,
+        "closes": True,
+    }
+
+
 def _buckets(values):
     result = {}
     for name, low, high in (
@@ -234,6 +377,7 @@ def analyze(path):
         return result
 
     trace_path = Path(path)
+    reconciliation = _reconcile(identity, groups, creep_total, load_latches(path))
     return {
         "schema": "wksim.rate-interval-attribution.v1",
         "status": "analyzed",
@@ -247,6 +391,10 @@ def analyze(path):
         "work_over_total_ns": work_over_total,
         "release_excess_total_ns": release_excess_total,
         "last_group_work_over_unattributed_ns": max(0, groups[-1]["work_ns"] - PERIOD_NS),
+        "first_group_start_lateness_ns": reconciliation["first_group_start_lateness_ns"],
+        "recorded_latch_lateness_ns": reconciliation["recorded_latch_lateness_ns"],
+        "terminal_unreconciled_ns": reconciliation["terminal_unreconciled_ns"],
+        "latch_reconciliation": reconciliation,
         "positive_creep_buckets": _buckets([item["creep_ns"] for item in intervals]),
         "positive_release_excess_buckets": _buckets(
             [item["release_excess_ns"] for item in intervals]
@@ -255,7 +403,8 @@ def analyze(path):
         "top_release_excess_intervals": rank("release_excess_ns", release_excess_total),
         "observable": [
             "group work", "between-group interval", "start-to-start creep",
-            "previous work-over", "release excess",
+            "previous work-over", "release excess", "first group start lateness",
+            "recorded rate_unmet latch", "terminal unreconciled increment",
         ],
         "not_separable_without_instrumentation": [
             "release excess split among health checks, record writes, sleep overshoot, and scheduler delay"
@@ -281,12 +430,15 @@ def main():
     except FileExistsError:
         print(json.dumps({"status": "failed", "error": "output already exists"}))
         return 1
-    print(json.dumps({
+    summary = {
         key: result.get(key) for key in (
             "status", "groups", "intervals", "creep_total_ns",
-            "work_over_total_ns", "release_excess_total_ns", "error",
+            "work_over_total_ns", "release_excess_total_ns",
+            "recorded_latch_lateness_ns", "terminal_unreconciled_ns", "error",
         )
-    }))
+    }
+    summary["latch_status"] = result.get("latch_reconciliation", {}).get("status")
+    print(json.dumps(summary))
     return 0 if result["status"] == "analyzed" else 1
 
 
