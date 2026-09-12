@@ -1,0 +1,21 @@
+{
+  "upstream": "https://github.com/ros2/ros1_bridge",
+  "upstream_commit": "611755fd917285316051cbea80507e8b2f6b7ec1",
+  "source_sha256": {
+    "template": "1ed9032820457e4ac474e5ae8823476e367eb336bf35103fd474760302abaa7d",
+    "extracted": "c4f5233153b367de1af383b39c7cdfce58e0cd202edc63980758387bbd91560d",
+    "test": "c6b4267466e2bd2655d44412d37f4f62afc2f7fbbee6315765eebdc592a3252f",
+    "ros_serialization_header": "8af1c61bde7ff515ffc57a47503d558668a3e199a1497c84d1bbc7bc0e56c8b4"
+  },
+  "native_check": {
+    "exit_code": 0,
+    "cxx": "g++",
+    "flags": [
+      "-std=c++17",
+      "-fsanitize=undefined",
+      "-fno-sanitize-recover=undefined",
+      "-D_GLIBCXX_ASSERTIONS"
+    ],
+    "scope": "actual extracted template compared to ROS1 bool serialization; no bridge runtime or physical acceptance"
+  }
+}

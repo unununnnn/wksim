@@ -10,15 +10,17 @@ heartbeat `wksim` 绑定同一任务，保持 ACTIVE、每三分钟检查一次�
 
 ## 已完成与证据范围
 
-- HEAD/origin 基线 b1ad906；c63e3c2 保留 M1 kernel-bpf-03 原件，b1ad906 提交 timing-analysis，不重复同一诊断。
+- HEAD/origin 已推进到 0769c3a（Control 安装闭包/实证/最终候选准入）；旧基线 b1ad906；c63e3c2 保留 M1 kernel-bpf-03 原件，b1ad906 提交 timing-analysis，不重复同一诊断。
 - M1 ground 诊断 formal 10.000188298 秒、321461 条事件；九任务/五 owner 前后身份、零 loss、BPF 解绑和清理通过；tick12184 无 fault，最差迟到 77.256332ms。仅诊断，不能充当 PV、长期倍率或 Full 验收。峰值在 formal 停止后 203.738653ms，不能编造内核因果。证据 `validation/scheduler-kernel-bpf-20260912-03/`。
 - 完整 EGO 构建 029fae1、真实 ROS1 11000 点云与八个 GridMap 占用查询 214bdca 已完成；静态 odom 是夹具，真实绕障/净空/飞行未通过。
 - ROS2 TCP 公共出口 0555f96 已完成 callback/传输及独立 RMW 检查；不是 FC 物理验收。
-- 执行 handle 69221、18341、21242 均已终态，不再等待。本轮没有新启动 native 运行；下次启动前核对实际进程。
+- 当前唯一 native 执行：RflySim-20.04 ros1_bridge 完整编译，handle **22543**，尚未终态，必须先 poll，禁止重复启动。日志 /root/wksim-ros1-bridge-humble-8oGKuV/bridge-build-bool-22b.log；首次观察已编译52对象，实际 cc1plus 存活。旧 handle 69221/18341/21242 和本轮 PV handle 81968 均已终态。
+
+本轮 #83 实跑 joint-public-flight-nqyqcagl 已 FAILED：tick53128 累计迟到104260439ns，原100ms门槛触发 RateUnmet。双机已起飞但任务未完成，source_unchanged=true、Control正常退出、十个自有PGID独立清理通过。证据 validation/33-final-combo-luna/20260912-nqyqcagl，完整原件仍保留；绝对路径 raw PV audit在 failed-run gate拒绝。#83仍OPEN/needs-triage，评论 issuecomment-5643302702。agy18-AL正在只写该证据目录的rate-analysis.json，不得覆盖其文件，不立即盲跑。
 
 ## 下一步：每次完成一个验收切片
 
-1. **M2 bridge 复核和实际编译。** RflySim `/root/wksim-ros1-bridge-humble-8oGKuV/messages_ws` 两包已构建；bridge 两次失败日志保留。OMP22a 已交付 vector<bool> 模板补丁和 `validation/ros1_bridge_vector_bool_serialization_check.cpp`，尚未主验/编译。先核对 ROS1 bool Serializer/LStream API、空 vector front()、测试是否覆盖实际模板；现有 helper 已处理长度前缀，不可重复。使用完整 EGO `/root/wksim-ego-local-pGqjgO/devel`，msg-only overlay 缺 traj_utils 库。官方基线 611755fd917285316051cbea80507e8b2f6b7ec1。不得删除 FormationAssign 或用 -fpermissive。
+1. **M2 bridge：先等待当前完整编译。** OMP22b完成后主会话已从真实模板抽取函数，以C++17/UBSan/libstdc++ assertions实际编译验证通过，包括非零bool字节/截断/空vector，证据 validation/ros1-bridge-bool-20260912。完整构建 handle22543 正在运行；工作区 /root/wksim-ros1-bridge-humble-8oGKuV，build-full-ego/install-full-ego，官方基线611755fd917285316051cbea80507e8b2f6b7ec1。完成后先检查退出码，再验证dynamic_bridge --print-pairs中Bspline、UAVControlState、Odometry、Clock。用完整EGO /root/wksim-ego-local-pGqjgO/devel，不能用缺traj_utils库的msg-only overlay；保留两次原失败日志，不删接口、不用-fpermissive。
 2. **M3 Control 安装闭包主验及 fresh build。** Luna gridmap 已交付显式 Python 模块、两份冻结 Bspline.msg、安装态 fallback、sealer 资产校验；报告 39 项纯 Python 检查通过，已由主会话完成 39 项检查、Ubuntu fresh build、仓库外安装态 smoke 和 live sealer 三方校验；Claude18-AA 独立只读复核无阻断。新候选 /root/wksim-joint-control-ZlTVa4/build.json，SHA 3d04d53a5c41d374ee623d16a265e8816d481e5d4433f23a60140a8e8184ecc4；证据 validation/control-install-20260912/，没有物理验收。改动在 envelope、message_pins、build-joint-control.sh、Control CMake、joint_control_candidate.py 及两套测试。构建后必须从 repo 外仅用 install PYTHONPATH 实例化 decoder/节点。旧 rWolCy runtime 过期，不能复用或只改 pins。然后按 #83 原 0.5x/100ms/10s/60s 及双 native flags 实跑；#82 已关闭。
 3. **M2 剩余闭环。** 真实反向 odom/control_state、同源 clock、stop/cancel、namespace 连接及实际绕障仍缺。Claude18z 已完成时序核对：生产端保存时刻和消费者零延迟/整毫秒要求冲突；保留原时间戳及无追赶约束，不擅加未来 δ 或放宽门槛。停发 Bool 不等于 terminal cancel，控制事件序号须由 pump 统一分配。
 

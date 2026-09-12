@@ -20,7 +20,7 @@ bash tools/run-joint-flight.sh \
   --control-sha256 3d04d53a5c41d374ee623d16a265e8816d481e5d4433f23a60140a8e8184ecc4 \
   --message-manifest /root/wksim-ros2-Rzj3Pf/message-build.json \
   --message-sha256 29969da0702451e3fc6f1de40bc301a67284c4e7d5fae8f88c64773d27a96219
-python3 -B tools/audit_pv_trajectory.py validation/ACTUAL_NEW_RUN --output validation/ACTUAL_NEW_AUDIT.json
+python3 -B tools/audit_pv_trajectory.py "$(realpath validation/ACTUAL_NEW_RUN)" --output validation/ACTUAL_NEW_AUDIT.json
 ```
 
 审计命令须在项目既有 ROS/message 环境中执行；`ACTUAL_NEW_RUN`、`ACTUAL_NEW_AUDIT` 由真实运行输出替换，审计输出不得写入原始证据目录。PV 审计显式分派到真实 mixed 身份审计，再执行原 PV 逐包/原生目标/每 1ms 物理/连续倍率检查。保留 mixed-source、PV 基线构建、八份原生文件、控制安装源码与执行源封存，并记录复用 mixed 身份审计器的 SHA。
