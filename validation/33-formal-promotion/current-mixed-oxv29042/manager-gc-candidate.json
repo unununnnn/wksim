@@ -1,0 +1,147 @@
+{
+  "module": "tools/manager_gc_candidate.py",
+  "classification": "candidate_not_performance_pass",
+  "candidate": true,
+  "performance_pass": false,
+  "enabled": true,
+  "source_sha256": "cbf7b0186131c08d4055aea1fcafdb8e7cca36d9acfcb19cdac87938d8786e66",
+  "armed": true,
+  "prepared": true,
+  "restored": true,
+  "froze_own_graph": false,
+  "original": {
+    "gc_enabled": true,
+    "freeze_count": 0,
+    "thresholds": [
+      700,
+      10,
+      10
+    ],
+    "counts": [
+      5,
+      1,
+      5
+    ],
+    "stats": [
+      {
+        "collections": 56,
+        "collected": 278,
+        "uncollectable": 0
+      },
+      {
+        "collections": 5,
+        "collected": 0,
+        "uncollectable": 0
+      },
+      {
+        "collections": 0,
+        "collected": 0,
+        "uncollectable": 0
+      }
+    ]
+  },
+  "freeze_count_before": 0,
+  "freeze_count_after": 65789,
+  "collected_before_freeze": 36,
+  "prepare_check": {
+    "gc_enabled": true,
+    "freeze_count": 0,
+    "thresholds": [
+      700,
+      10,
+      10
+    ]
+  },
+  "activation": {
+    "moment_monotonic_ns": 109915545866,
+    "clock_tick": 0
+  },
+  "before": {
+    "label": "before",
+    "freeze_count": 0,
+    "counts": [
+      521,
+      6,
+      3
+    ],
+    "stats": [
+      {
+        "collections": 1216,
+        "collected": 325,
+        "uncollectable": 0
+      },
+      {
+        "collections": 110,
+        "collected": 289,
+        "uncollectable": 0
+      },
+      {
+        "collections": 8,
+        "collected": 115,
+        "uncollectable": 0
+      }
+    ]
+  },
+  "after": {
+    "label": "after",
+    "freeze_count": 65789,
+    "counts": [
+      1,
+      0,
+      0
+    ],
+    "stats": [
+      {
+        "collections": 1216,
+        "collected": 325,
+        "uncollectable": 0
+      },
+      {
+        "collections": 110,
+        "collected": 289,
+        "uncollectable": 0
+      },
+      {
+        "collections": 9,
+        "collected": 151,
+        "uncollectable": 0
+      }
+    ]
+  },
+  "restore": {
+    "freeze_count_before_unfreeze": 65651,
+    "freeze_count_after_unfreeze": 0,
+    "expected_original_freeze_count": 0,
+    "restored_to_original": true
+  },
+  "events": [
+    {
+      "event": "armed",
+      "monotonic_ns": 60823851463,
+      "gc_enabled": true,
+      "freeze_count": 0,
+      "thresholds": [
+        700,
+        10,
+        10
+      ]
+    },
+    {
+      "event": "prepared",
+      "monotonic_ns": 109935225206,
+      "collected": 36,
+      "freeze_count_before": 0,
+      "freeze_count_after": 65789,
+      "clock_tick": 0
+    },
+    {
+      "event": "restored",
+      "monotonic_ns": 374561837896,
+      "freeze_count_before_unfreeze": 65651,
+      "freeze_count_after_unfreeze": 0,
+      "expected_original_freeze_count": 0,
+      "restored_to_original": true
+    }
+  ],
+  "note": "diagnostic candidate only: reducing repeated manager scans of long-lived objects is not performance acceptance and does not attribute cost to the OS or flight controller"
+}

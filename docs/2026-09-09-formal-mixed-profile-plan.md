@@ -38,3 +38,50 @@ AP 通过现有 `ap_mixed_candidate.verify` 验证真正的 mixed schema、源�
 本次只阅读指定源码与直接引用，无未知结构导航，未运行多余 CBM 刷新。目标文件原索引状态由主代理确认；不把索引就绪当作新逻辑已被索引的证据。
 
 已在 WSL 运行 `python3 -B -m unittest validation.test_joint_profile validation.test_mixed_profile_admission`：13 项通过。新增离线检查覆盖缺证明/越权描述符、错误 manifest-kind/control-source/capabilities、封存旧安装与当前源分离、错误 AP/PX4/Agent/source chain/pin、缺少 capability 参数、摘要篡改与原始路径逃逸。测试中的最小合成 packet 仅隔离检查交叉绑定，不进入 catalog，也不是飞行证明。Windows 原有 symlink 测试受创建符号链接权限限制，故最终在 WSL 原生 Linux 路径复核通过。
+
+## 当前检查点（2026-09-13，#84 前置/映射包）
+
+主会话后续实测：同组合mixed场oxv29042在tick131760以100034744ns累计迟到失败，仍缺整场mixed证明，catalog不提升。后续profile/catalog与joint_profile.py的唯一写入者为主会话。直接核验又发现旧7模块列表不能接纳已封存15模块+2资产的c2；current Control分支现复用完整构建校验器，sealed历史分支逐项核验声明资产，真实两路径及Linux21项定向测试通过。下文“joint_profile.py无需改”是早期缺证据检查的有限结论，已由此实证更正；显式message清单与正式资源overlay的证明接线仍待完整适配。33-final-combo-rate-candidate.md的旧命令已在f6239b7之前标为历史。
+
+**状态**：正式行 `joint_quad_dds_mixed_pv_v1` 仍 `evidence=[]`；纯只读
+`check_resources` 复核（无进程、提前返回）确认 `ok=false`，原因
+"Missing final mixed/PV capability flight proofs"。行内 workspace 钉仍为历史
+0DQQz9/MUlZd0，与已验收三元组（AP mixed fhuf05l9 `1e6250ef…`、Control c2IXOr
+`6fe8c0b3…`、message Rzj3Pf `29969da0…`）分叉，待换钉。
+
+**PV 证明行候选**（已落地、逐字核验）：`joint-public-flight-1w6dru32`
+（result `10044bf1…`、v2 raw 审计 `8140d80e…`、admission `6178bdbb…`），
+status pass / flight_completed / 无 cleanup 错误 / 无 rate_timing_probe /
+审计 result_sha 逐字指同场 / outstanding 空。**一行 PV 证明不冒充两份能力。**
+
+**mixed 证明行缺失**：实验工作区全部 `joint-public-flight-*/result.json` 按
+task_profile 有界索引（2026-09-13）无 `xy_velocity_z_position_yaw_v1` 运行；
+catalog/docs 引用仅历史 mixed `zk5_nukn`（不同组合，被 final-combo 合同排除）。
+不据此称全机没有。
+
+**下一场 mixed 命令（无探针，正式证据拒绝 rate_timing_probe 场）**：
+
+```bash
+cd /root/wksim-release-acceptance-fe3 && bash tools/run-joint-flight.sh \
+  --task-profile xy_velocity_z_position_yaw_v1 \
+  --ap-mixed-manifest /root/wksim-ap-mixed-fhuf05l9/mixed-build.json \
+  --ap-mixed-sha256 1e6250eff8873d6b2e52017b613c223ac29f8260fdf92aac2cf0c7cdcc6ce94c \
+  --control-manifest /root/wksim-joint-control-c2IXOr/build.json \
+  --control-sha256 6fe8c0b30775a9ba83407302f602d0785876d307e5f1cb746afa3bf316cf5e7e \
+  --message-manifest /root/wksim-ros2-Rzj3Pf/message-build.json \
+  --message-sha256 29969da0702451e3fc6f1de40bc301a67284c4e7d5fae8f88c64773d27a96219
+```
+
+**最低必需原始门**：运行完成/源码未变/控制正常关闭/无 cleanup 错误；mixed 原始
+审计 pass 且 outstanding 空、result_sha 指同场；admission 保持
+ok/experimental/未提升/未飞/children=0/reasons 空；能力描述恰为 mixed schema；
+清单钉匹配三元组且留存构建哈希相等；AP control argv 恰好双参数
+（pv_profile+mixed_profile）且审计 identity.control_profiles 确认两项。
+
+**待更新文件与唯一写入者交接**：`joint-profiles.json`（换钉+两行证据，归
+profile/catalog 所有者，#84 复核）；`33-final-combo-rate-candidate.md`（旧
+0DQQz9/OEvS3W 当前命令须降格为历史，归文档所有者）；`joint_profile.py` 与
+`audit_mixed_control.py` 本轮未发现需改。正式 launcher 公开入口由主会话消费。
+
+旧默认行与 legacy 证据未动；本节不宣称提升完成。机器可读记录：
+`validation/33-formal-promotion/20260913-readiness/readiness.json`。

@@ -88,15 +88,22 @@ def _firmware(record, stack):
 
 
 def _control(record, *, sealed=False):
-    if not sealed and record.get('version') != 2:
-        raise ValueError('Current control candidate requires manifest version 2')
+    if not sealed:
+        if record.get('version') != 2:
+            raise ValueError('Current control candidate requires manifest version 2')
+        # Use the same complete source/stage/install/message seal that built the
+        # current candidate; a second import-closure list had drifted to 7 files.
+        from tools.joint_control_candidate import check
+        manifest = Path(record['root'])/'build.json'
+        checked = check(manifest, digest(manifest))
+        if checked != record:
+            raise ValueError('Current control record differs from its manifest')
+        return checked['package']
     root = Path(record['root'])
     package = root/'install/prometheus_control'/PYTHON/'prometheus_control'
     if root.resolve(strict=True) != root or root.is_symlink() or str(package) != record['package']:
         raise ValueError('Control root/package differs')
     directories = (root/'src/prometheus_control/prometheus_control', package)
-    if not sealed:
-        directories = (REPO/'ros2/src/prometheus_control/prometheus_control', *directories)
     for directory in directories:
         if not directory.is_dir() or directory.is_symlink() or directory.resolve(strict=True) != directory:
             raise ValueError('Missing or symlinked control package')
@@ -109,31 +116,38 @@ def _control(record, *, sealed=False):
         if not actual or actual != record['python_sha256']:
             raise ValueError('Control source or installed file set differs')
     if record.get('version') == 2:
+        from tools.joint_control_candidate import SIMULATOR_ASSETS
+        assets = record.get('simulator_asset_sha256', {})
+        supported_assets = {namespace+'/'+name for namespace,names in SIMULATOR_ASSETS.items()
+                            for name in names}
+        if not isinstance(assets, dict) or assets and set(assets) != supported_assets:
+            raise ValueError('Sealed Simulator support asset set differs')
         simulator_bases = [root/'Simulator', root/'install/prometheus_control'/PYTHON/'Simulator']
-        if not sealed:
-            simulator_bases.insert(0, REPO/'Simulator')
         for base in simulator_bases:
             actual = {}
             for namespace, names in CONTROL_SIMULATOR_FILES.items():
                 directory = base/namespace
                 if not directory.is_dir() or directory.is_symlink():
                     raise ValueError('Missing or symlinked Simulator support package')
-                paths = ((directory/name for name in names) if base == REPO/'Simulator'
-                         else directory.rglob('*'))
-                for path in paths:
+                for path in directory.rglob('*'):
                     if path.is_symlink() or not path.resolve().is_relative_to(directory.resolve()):
                         raise ValueError('Simulator support path escapes source boundary')
                     if path.is_file() and '__pycache__' not in path.parts:
                         if path.suffix != '.py':
+                            if namespace+'/'+path.relative_to(directory).as_posix() in assets:
+                                continue
                             raise ValueError('Unexpected non-Python Simulator support content')
                         actual[namespace+'/'+path.relative_to(directory).as_posix()] = digest(path)
             if actual != record['simulator_python_sha256']:
                 raise ValueError('Simulator support source or installed file set differs')
+            for name, expected in assets.items():
+                path = base/name
+                if path.is_symlink() or path.resolve(strict=True) != path or digest(path) != expected:
+                    raise ValueError('Simulator support asset differs: '+name)
     # A sealed historical installation is checked against its own build inputs.
     # The current candidate has separate source/stage/install admission; evolving
     # its CMake targets cannot alter the bytes used to build the old installation.
-    build_bases = (root/'src/prometheus_control',) if sealed else (
-        REPO/'ros2/src/prometheus_control', root/'src/prometheus_control')
+    build_bases = (root/'src/prometheus_control',)
     for base in build_bases:
         for name, expected in record['build_inputs'].items():
             if digest(base/name) != expected:
@@ -149,8 +163,6 @@ def _control(record, *, sealed=False):
     builder_paths = []
     if record.get('version') == 2:
         builder_paths.append(root/'build-joint-control.sh')
-        if not sealed:
-            builder_paths.append(REPO/'tools/build-joint-control.sh')
     elif sealed and record.get('version') == 1:
         # These are the exact builders recorded by immutable pre-v2 candidates.
         if record['build_script_sha256'] not in LEGACY_CONTROL_BUILD_SCRIPTS:

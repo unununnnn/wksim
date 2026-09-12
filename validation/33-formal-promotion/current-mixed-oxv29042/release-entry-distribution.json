@@ -1,0 +1,108 @@
+{
+  "source_sha256": "8725b63c568783199b4a5e7d3de7df532003749b73d4c255131da4bcedee8b91",
+  "formula": "actual_start_ns - earliest_start_ns; includes entry already late due to previous group work, not exclusive scheduling attribution",
+  "groups": 32930,
+  "sum_ns": 99896540,
+  "median_ns": 19.0,
+  "p95_ns": 38,
+  "p99_ns": 99396,
+  "max_ns": 5547162,
+  "under_1us_count": 31589,
+  "under_1us_sum_ns": 601427,
+  "interval_release_excess_buckets": {
+    "0-10us": {
+      "count": 31074,
+      "sum_ns": 2380153
+    },
+    "10-100us": {
+      "count": 659,
+      "sum_ns": 26859054
+    },
+    "100-500us": {
+      "count": 323,
+      "sum_ns": 54031482
+    },
+    "0.5-1ms": {
+      "count": 2,
+      "sum_ns": 1370135
+    },
+    "1-2ms": {
+      "count": 0,
+      "sum_ns": 0
+    },
+    ">2ms": {
+      "count": 0,
+      "sum_ns": 0
+    },
+    "zero": {
+      "count": 871,
+      "sum_ns": 0
+    }
+  },
+  "phase_partition": {
+    "available": true,
+    "reason": null,
+    "boundary": {
+      "steady_after_ns": 112030174978,
+      "anchor_wall_ns": 110030174978,
+      "anchor_tick": 40,
+      "source": "rate_anchor",
+      "steady_after_minus_anchor_ns": 2000000000,
+      "groups_at_or_before_boundary": 250,
+      "groups_total": 32930
+    },
+    "classes": {
+      "early": {
+        "intervals": 249,
+        "creep_ns": 975731,
+        "work_over_ns": 0,
+        "release_excess_ns": 975731,
+        "first_previous_start_tick": 40,
+        "last_current_start_tick": 1036,
+        "crossing_interval": null
+      },
+      "crossing": {
+        "intervals": 1,
+        "creep_ns": 4,
+        "work_over_ns": 0,
+        "release_excess_ns": 4,
+        "first_previous_start_tick": 1036,
+        "last_current_start_tick": 1040,
+        "crossing_interval": {
+          "previous_start_tick": 1036,
+          "current_start_tick": 1040,
+          "previous_actual_start_ns": 112023266441,
+          "current_actual_start_ns": 112031266445,
+          "steady_after_ns": 112030174978,
+          "creep_ns": 4,
+          "previous_work_over_ns": 0,
+          "release_excess_ns": 4
+        }
+      },
+      "steady": {
+        "intervals": 32679,
+        "creep_ns": 98805073,
+        "work_over_ns": 15139984,
+        "release_excess_ns": 83665089,
+        "first_previous_start_tick": 1040,
+        "last_current_start_tick": 131756,
+        "crossing_interval": null
+      }
+    },
+    "closure": {
+      "intervals_total": 32929,
+      "intervals_partitioned": 32929,
+      "creep_total_ns": 99780808,
+      "creep_partitioned_ns": 99780808,
+      "creep_residual_ns": 0,
+      "work_over_total_ns": 15139984,
+      "work_over_partitioned_ns": 15139984,
+      "work_over_residual_ns": 0,
+      "release_excess_total_ns": 84640824,
+      "release_excess_partitioned_ns": 84640824,
+      "release_excess_residual_ns": 0,
+      "classes_are_disjoint": true,
+      "closes": true
+    }
+  }
+}

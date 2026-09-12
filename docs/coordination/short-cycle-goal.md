@@ -1,5 +1,17 @@
 # 当前 Goal 执行检查点
 
+## 最新：当前mixed真实场失败留证，正式Control校验已修；G6定位工具收口
+
+主会话按同一AP/Control/Message与已验证async+GC配置、关闭全部计时探针，实际跑mixed `joint-public-flight-oxv29042`（epoch18c96a7e0af9477092aa87e18239c23c）。在tick131760、LAND下降中触发RateUnmet100034744ns；wall313.978032933s，source_unchanged=true，cleanup_errors=[]，PGID2023–2032独立全空且boot与前检相同。Task未完成，不计任何整场通过；原mixed审计以Candidate run/cleanup did not pass拒绝。保留包validation/33-formal-promotion/current-mixed-oxv29042，约2.43MB压缩选取件，完整raw仍Linux。#83保持CLOSED，#84/Full未通过。
+
+核算：115732+99780808+138204=100034744ns；creep=15139984 work-over+84640824 release-excess。实际墙钟分区249early/975731ns、1crossing/4ns、32679steady/98805073ns；OMP初版500组/4.49ms分区作废。32,930个group start相对earliest的中位超额19ns，p95=38ns，31589组小于1us；这些开始时差含前组工作超额，不能一概叫调度延迟。既有xtj8wk8i计时原件中，894个entry/initial-health未迟到且release-excess≥10us的组共有71821720ns额外迟到，只有1组sleep_max_overshoot>1ms；sleep_max各组总和不是因果分解，不能相减构造“剩余归因”。下一探针只区分释放边界附近wall与线程CPU，原pacer与门不改。
+
+主会话发现被空证据提前拒绝遮住的正式校验缺陷：joint_profile._control(current)仍按7个旧模块检查，而真实已封存c2为15模块+2资产。现改为复用未修改的joint_control_candidate.check完整源/安装/资产/消息/构建验证，并比对传入record；sealed历史校验显式支持声明的两份资产，旧默认行不改。真实c2 current/sealed均通过；Linux21passed/46subtests（Windows旧symlink测试缺权限，未改成假通过）。证据位于20260913-readiness/formal-control-before.json与after.json。catalog仍空，不授予能力。_mixed_proofs对显式message证明/资源overlay仍需下一轮完整适配：当前代码只接受ap/control两清单，实际PV还含message；未用假mixed行绕过验证。
+
+G6诊断器read-once修复已主审并实际重算与v3逐项一致，原v1/v2保留。主会话又补拒绝相同值/正负零、非finite与bool被假称严格binary64失败；Windows30passed/1已由Linux验证的symlink skip/5subtests，原R1零预算不改。当前源75e97e3c3188dd8982c769e1287b188dad9127385ce45302899ab751b8a04e00，测试61904a4e602eb357470c8dffe385b1c6b50a6ba470cdf6a110009b2d80cb28b4，定位仍C3G/k1/Vehicle60[3]、2ULP；精确原因未证。main-verification-final.json明确旧作者29项Linux与当前标量修订的范围。
+
+实际接续：OMP turn79527a91-5587-4974-8bde-e3fe9f3a1383独占新rate_spin_cpu_probe.py/test及说明，继承真实诊断父类、每组有界CPU/wall gap记录，禁止改pacer/runner/全局调度或native；主会话后续接线。Claude turndaa6426c-8c5e-4d79-9d4b-f8ca4479b17f独占G6首步静态计算链/ISA/FMA调查，无模型执行/构建。当前无native，两个外部端运行；codebuddy配额与DSH重启确认边界保持。Goal active，上一轮与本轮均有实质进展，不是全局blocked。
+
 ## 最新：#83已CLOSED；#84/G6继续
 
 GitHub已实际关闭#83（completed），证据实现与原件选取包已推送941d584。OMP独立扫描确认新AP航点[55047,57047]与PX4[58893,60893]各2001个1ms样本零违例，AP最大速度0.49723<0.5；审计v2、result SHA与无探针身份同场。详见omp-formal-pv-review-20260913.md。OMP已立即续派turn7643da36-c5f7-4d0d-b446-8135a6e86447，独占docs/2026-09-09-formal-mixed-profile-plan.md当前检查点与validation/33-formal-promotion/20260913-readiness，查同组合mixed原件/正式profile映射；不修改catalog，不把一份PV证明充作两种能力。正式行当前仍0DQQz9/evidence=[]，已知私有validation范围未发现mixed场，仅说明该范围。Claude继续G6修订turn5ad55920，无新native在运行。#33/#84/Full保持OPEN/未完成。
