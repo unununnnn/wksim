@@ -4,7 +4,9 @@ import json
 from pathlib import Path
 import struct
 import sys
+import tempfile
 import unittest
+from unittest.mock import patch
 
 from Simulator.wksim_planning.ego_bspline_bridge import bridge_bspline
 from Simulator.wksim_planning.ego_evaluator import EgoSpline, UniformBspline
@@ -94,6 +96,47 @@ class BsplineTcpEnvelopeTests(unittest.TestCase):
 
         self.assertEqual(computed_ros1_sha, ROS1_BSPLINE_MSG_SHA256)
         self.assertEqual(computed_ros2_sha, ROS2_BSPLINE_MSG_SHA256)
+
+    def test_message_pin_fallback_requires_both_canonical_paths_absent(self):
+        """Installed modules use frozen assets only when the repo pair is absent."""
+        import Simulator.wksim_runtime.bspline_tcp_envelope as module
+
+        repo_root = Path(__file__).resolve().parent.parent
+        ros1_bytes = (repo_root / "Modules" / "common" / "prometheus_msgs" / "msg" / "Bspline.msg").read_bytes()
+        ros2_bytes = (repo_root / "ros2" / "src" / "prometheus_msgs" / "msg" / "Bspline.msg").read_bytes()
+        with tempfile.TemporaryDirectory() as temporary:
+            base = Path(temporary)
+            canonical = base / "canonical"
+            fallback = base / "message_pins"
+            canonical.mkdir()
+            fallback.mkdir()
+            canonical_ros1 = canonical / "ros1_Bspline.msg"
+            canonical_ros2 = canonical / "ros2_Bspline.msg"
+            fallback_ros1 = fallback / "ros1_Bspline.msg"
+            fallback_ros2 = fallback / "ros2_Bspline.msg"
+            canonical_ros1.write_bytes(ros1_bytes)
+            canonical_ros2.write_bytes(ros2_bytes)
+            fallback_ros1.write_bytes(ros1_bytes)
+            fallback_ros2.write_bytes(ros2_bytes)
+            with patch.object(module, "ROS1_MSG_FILE", canonical_ros1), \
+                    patch.object(module, "ROS2_MSG_FILE", canonical_ros2), \
+                    patch.object(module, "ROS1_MESSAGE_PIN_FILE", fallback_ros1), \
+                    patch.object(module, "ROS2_MESSAGE_PIN_FILE", fallback_ros2):
+                fallback_ros1.write_bytes(b'bad fallback must not replace canonical')
+                module._verify_repo_msg_pins(ROS1_BSPLINE_MSG_SHA256, ROS2_BSPLINE_MSG_SHA256)
+                fallback_ros1.write_bytes(ros1_bytes)
+                canonical_ros1.write_bytes(b'drifted canonical must fail despite valid fallback')
+                with self.assertRaises(BsplineEnvelopeError):
+                    module._verify_repo_msg_pins(ROS1_BSPLINE_MSG_SHA256, ROS2_BSPLINE_MSG_SHA256)
+                canonical_ros1.write_bytes(ros1_bytes)
+                canonical_ros2.unlink()
+                with self.assertRaisesRegex(BsplineEnvelopeError, "ros2 Bspline.msg missing"):
+                    module._verify_repo_msg_pins(ROS1_BSPLINE_MSG_SHA256, ROS2_BSPLINE_MSG_SHA256)
+                canonical_ros1.unlink()
+                module._verify_repo_msg_pins(ROS1_BSPLINE_MSG_SHA256, ROS2_BSPLINE_MSG_SHA256)
+                fallback_ros1.write_bytes(b'drifted installed asset')
+                with self.assertRaises(BsplineEnvelopeError):
+                    module._verify_repo_msg_pins(ROS1_BSPLINE_MSG_SHA256, ROS2_BSPLINE_MSG_SHA256)
 
     def test_no_ros_imports(self):
         """Verify that neither rospy nor rclpy has been imported."""

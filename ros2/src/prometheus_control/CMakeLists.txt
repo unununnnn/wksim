@@ -19,7 +19,19 @@ install(
     ${WKSIM_SIMULATOR_ROOT}/wksim_runtime/__init__.py
     ${WKSIM_SIMULATOR_ROOT}/wksim_runtime/task.py
     ${WKSIM_SIMULATOR_ROOT}/wksim_runtime/trajectory_bridge.py
+    ${WKSIM_SIMULATOR_ROOT}/wksim_runtime/planner_command_egress.py
+    ${WKSIM_SIMULATOR_ROOT}/wksim_runtime/planner_transport_node.py
+    ${WKSIM_SIMULATOR_ROOT}/wksim_runtime/planner_transport_receiver.py
+    ${WKSIM_SIMULATOR_ROOT}/wksim_runtime/planner_transport_pump.py
+    ${WKSIM_SIMULATOR_ROOT}/wksim_runtime/bspline_tcp_envelope.py
+    ${WKSIM_SIMULATOR_ROOT}/wksim_runtime/planner_scene_binding.py
   DESTINATION ${PYTHON_INSTALL_DIR}/Simulator/wksim_runtime
+)
+install(
+  FILES
+    ${WKSIM_SIMULATOR_ROOT}/wksim_runtime/message_pins/ros1_Bspline.msg
+    ${WKSIM_SIMULATOR_ROOT}/wksim_runtime/message_pins/ros2_Bspline.msg
+  DESTINATION ${PYTHON_INSTALL_DIR}/Simulator/wksim_runtime/message_pins
 )
 install(
   FILES
@@ -27,6 +39,8 @@ install(
     ${WKSIM_SIMULATOR_ROOT}/wksim_planning/ego_evaluator.py
     ${WKSIM_SIMULATOR_ROOT}/wksim_planning/ego_trajectory_adapter.py
     ${WKSIM_SIMULATOR_ROOT}/wksim_planning/trajectory_session.py
+    ${WKSIM_SIMULATOR_ROOT}/wksim_planning/ego_scene_admission.py
+    ${WKSIM_SIMULATOR_ROOT}/wksim_planning/scene_profile.py
   DESTINATION ${PYTHON_INSTALL_DIR}/Simulator/wksim_planning
 )
 install(

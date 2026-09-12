@@ -24,7 +24,10 @@ PV_PROFILE = 'full_xyz_pv_yaw_v1'
 STACKS = (('arducopter', 1), ('px4', 2))
 AP_SHA = '1e6250eff8873d6b2e52017b613c223ac29f8260fdf92aac2cf0c7cdcc6ce94c'
 CONTROL_SHA = 'd9fdfc74f4f241440dd1186ef38d0bde56026cd28e4b55897f38a11e7311909e'
-PV_CONTROL_SHA = 'a6a17b42f92cf6df4b92fe36b6e1e65f6e4e42f684daac4113091591a1802346'
+PV_CONTROL_SHA = '3d04d53a5c41d374ee623d16a265e8816d481e5d4433f23a60140a8e8184ecc4'
+# Retained runs remain auditable against their original candidate; this does
+# not admit that outdated candidate to a new flight.
+HISTORICAL_PV_CONTROL_SHA = 'a6a17b42f92cf6df4b92fe36b6e1e65f6e4e42f684daac4113091591a1802346'
 PV_MESSAGE_SHA = '29969da0702451e3fc6f1de40bc301a67284c4e7d5fae8f88c64773d27a96219'
 PV_SHA = 'e05e5c9d0b2b576d2cf1751b01557219d6da36998b22ded396ca33d7f5c4db62'
 BASE_SHA = 'f347ba252fbfc33bc92baffba08660f33c3a0e4462e90177ba84bdc11408660a'
@@ -153,11 +156,12 @@ def retained_identity(root, result, *, task_profile=None):
             native_submode=7, vertical_velocity_avoidance=False))
     require(admission['capability'] == capability, 'Mixed firmware task capability scope changed')
     selected_control_sha = admission['control_manifest_sha256']
-    allowed_control_sha = ({PV_CONTROL_SHA} if task_profile == PV_PROFILE
-                           else {CONTROL_SHA, PV_CONTROL_SHA})
+    message_control_shas = {PV_CONTROL_SHA, HISTORICAL_PV_CONTROL_SHA}
+    allowed_control_sha = (message_control_shas if task_profile == PV_PROFILE
+                           else {CONTROL_SHA, *message_control_shas})
     require(admission['manifest_sha256'] == AP_SHA and selected_control_sha in allowed_control_sha,
             'Frozen mixed build/control selection changed')
-    if selected_control_sha == PV_CONTROL_SHA:
+    if selected_control_sha in message_control_shas:
         require(message_identity.get('requested') is True
                 and result['manifest_sha256'].get('message') == PV_MESSAGE_SHA,
                 'Frozen current message candidate selection changed')

@@ -12,7 +12,9 @@
 
 最新 M1：`6d38b54` 的 kernel-bpf-03 已完成并通过独立原始核验，正式10.000188298s、321461条事件全部在窗口和PID过滤内，9任务/5owner前后身份、零loss、BPF解绑及全部清理通过。场景tick12184无fault，worst lateness77.256332ms；这是一场ground diagnostic，不能关闭PV/倍率/Full父票。证据 validation/scheduler-kernel-bpf-20260912-03。下一M1/M3工作是分析现有trace并按#83原0.5x/100ms/10s/60s合同核对最终PV；#82已关闭。M2 RflySim消息overlay已真实构建，官方bridge源码已准备，bridge本体/真实反向状态与时钟/stop-cancel仍待完成。以short-cycle-goal.md顶部最新检查点为准。
 
-## 当前六端分工
+## 历史阶段分工（不作为当前派发依据）
+
+以下表格保留阶段来源；当前交付、所有权和下一动作统一见 [当前检查点](short-cycle-goal.md)。续派前实时读取代理状态。
 
 | 执行端 | 本切片 | 文件所有权 |
 | --- | --- | --- |
@@ -38,6 +40,8 @@
 - 无进展超过 10 分钟先检查真实状态再拆分；不重复启动仍运行的任务。
 
 ## Goal 服务状态
+
+2026-09-12 再次排障：正式 get_goal 和只读数据库均为 active，无 token 预算、无 continuation deferral；当前任务 inProgress 且 error=null，实际桌面 CLI goals feature=true。没有发现需要清除的暂停状态。当前目标保留，heartbeat wksim 继续绑定同一任务；已精简当前检查点，将旧 blocked/进程记录完整归档。下面的重建事件属于先前历史，本次没有删除或重建 goal，也没有直接修改数据库。
 
 2026-09-12 用户要求修复 Goal。最新 get_goal 返回 null，旧 unfinished 阻塞记录已不存在；主会话通过正式 create_goal 接口重建，并再次 get_goal 确認 `status=active`，threadId 仍为 `01a08b94-d2fe-7361-9c43-2d54e9490f32`，createdAt=`1789170710`，未设置 token 预算。
 

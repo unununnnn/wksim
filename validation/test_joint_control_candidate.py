@@ -11,6 +11,44 @@ import joint_control_candidate as candidate
 
 
 class CandidateTests(unittest.TestCase):
+    def test_transport_runtime_packaging_closure_is_explicit(self):
+        expected = {
+            'wksim_runtime': {
+                '__init__.py', 'task.py', 'trajectory_bridge.py',
+                'planner_command_egress.py', 'planner_transport_node.py',
+                'planner_transport_receiver.py', 'planner_transport_pump.py',
+                'bspline_tcp_envelope.py', 'planner_scene_binding.py',
+            },
+            'wksim_planning': {
+                'ego_bspline_bridge.py', 'ego_evaluator.py',
+                'ego_trajectory_adapter.py', 'trajectory_session.py',
+                'ego_scene_admission.py', 'scene_profile.py',
+            },
+        }
+        expected_assets = {
+            'wksim_runtime/message_pins': {'ros1_Bspline.msg', 'ros2_Bspline.msg'},
+        }
+        self.assertEqual(
+            {package: set(names) for package, names in candidate.SIMULATOR_FILES.items()},
+            expected,
+        )
+        build_script = (candidate.REPO / 'tools/build-joint-control.sh').read_text()
+        cmake = (candidate.REPO / 'ros2/src/prometheus_control/CMakeLists.txt').read_text()
+        for package, names in expected.items():
+            for name in names:
+                with self.subTest(package=package, name=name):
+                    self.assertIn(name, build_script)
+                    self.assertIn(name, cmake)
+        self.assertEqual(
+            {package: set(names) for package, names in candidate.SIMULATOR_ASSETS.items()},
+            expected_assets,
+        )
+        for package, names in expected_assets.items():
+            for name in names:
+                with self.subTest(package=package, name=name):
+                    self.assertIn(name, build_script)
+                    self.assertIn(name, cmake)
+
     def test_source_install_and_manifest_tampering_are_rejected(self):
         with tempfile.TemporaryDirectory() as temporary:
             base=Path(temporary); repo=base/'repo'; root=base/'candidate'; package=repo/'package'
@@ -31,6 +69,12 @@ class CandidateTests(unittest.TestCase):
                     directory.mkdir(parents=True)
                     for name in names:
                         (directory/name).write_text('fixture simulator\n')
+            for namespace, names in candidate.SIMULATOR_ASSETS.items():
+                for directory in (repo/'Simulator'/namespace, root/'Simulator'/namespace,
+                                  root/'install/prometheus_control'/candidate.PYTHON/'Simulator'/namespace):
+                    directory.mkdir(parents=True)
+                    for name in names:
+                        (directory/name).write_bytes(b'fixture simulator asset\n')
             for source, installed_name in candidate.INSTALLED_INPUTS.items():
                 installed = root/'install/prometheus_control'/installed_name
                 installed.parent.mkdir(parents=True, exist_ok=True)
@@ -62,6 +106,16 @@ class CandidateTests(unittest.TestCase):
                 checksum=candidate.digest(manifest)
                 record = candidate.check(manifest,checksum)
                 self.assertEqual(record['version'],2)
+                self.assertEqual(
+                    set(record['simulator_python_sha256']),
+                    {package+'/'+name for package, names in candidate.SIMULATOR_FILES.items()
+                     for name in names},
+                )
+                self.assertEqual(
+                    set(record['simulator_asset_sha256']),
+                    {package+'/'+name for package, names in candidate.SIMULATOR_ASSETS.items()
+                     for name in names},
+                )
                 self.assertEqual(record['sealer_sha256'], candidate.digest(repo/'tools/joint_control_candidate.py'))
                 self.assertEqual(record['message_candidate'], messages)
                 self.assertEqual(record['message_manifest_path'], str(message_manifest))
@@ -93,6 +147,24 @@ class CandidateTests(unittest.TestCase):
                 simulator.write_text('tampered simulator\n')
                 with self.assertRaises(ValueError): candidate.check(manifest,checksum)
                 simulator.write_text('fixture simulator\n')
+                for asset_root in (repo/'Simulator', root/'Simulator',
+                                   root/'install/prometheus_control'/candidate.PYTHON/'Simulator'):
+                    asset_dir = asset_root/'wksim_runtime/message_pins'
+                    asset = asset_dir/'ros1_Bspline.msg'
+                    original = asset.read_bytes()
+                    with self.subTest(asset_root=asset_root):
+                        asset.write_bytes(b'tampered message asset\n')
+                        with self.assertRaises(ValueError): candidate.check(manifest,checksum)
+                        asset.unlink()
+                        with self.assertRaises((ValueError, FileNotFoundError)):
+                            candidate.check(manifest,checksum)
+                        asset.write_bytes(original)
+                installed_assets = root/'install/prometheus_control'/candidate.PYTHON/'Simulator/wksim_runtime/message_pins'
+                extra_asset = installed_assets/'unsealed.msg'
+                extra_asset.write_bytes(b'unsealed\n')
+                with self.assertRaises(ValueError): candidate.check(manifest,checksum)
+                extra_asset.unlink()
+                self.assertEqual(candidate.check(manifest,checksum), record)
                 entrypoint = root/'install/prometheus_control/lib/prometheus_control/trajectory_bridge_node'
                 entrypoint.write_text('tampered entrypoint\n')
                 with self.assertRaises(ValueError): candidate.check(manifest,checksum)

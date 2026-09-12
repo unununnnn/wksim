@@ -55,16 +55,43 @@ from typing import Any, Dict, List, NamedTuple, Optional, Tuple
 REPO_ROOT = Path(__file__).resolve().parents[2]
 ROS1_MSG_FILE = REPO_ROOT / "Modules" / "common" / "prometheus_msgs" / "msg" / "Bspline.msg"
 ROS2_MSG_FILE = REPO_ROOT / "ros2" / "src" / "prometheus_msgs" / "msg" / "Bspline.msg"
+MESSAGE_PIN_DIR = Path(__file__).resolve().parent / "message_pins"
+ROS1_MESSAGE_PIN_FILE = MESSAGE_PIN_DIR / "ros1_Bspline.msg"
+ROS2_MESSAGE_PIN_FILE = MESSAGE_PIN_DIR / "ros2_Bspline.msg"
+
+
+def _message_paths() -> Tuple[Path, Path]:
+    """Select repository messages, or the explicit installed asset fallback.
+
+    A partially present repository checkout must keep the original pair so
+    that the missing side is rejected.  The module-local assets are selected
+    only when both canonical repository paths are absent (including broken
+    links, which remain a rejection rather than an installation fallback).
+    """
+    canonical_present = any(
+        path.exists() or path.is_symlink()
+        for path in (ROS1_MSG_FILE, ROS2_MSG_FILE)
+    )
+    if canonical_present:
+        return ROS1_MSG_FILE, ROS2_MSG_FILE
+    return ROS1_MESSAGE_PIN_FILE, ROS2_MESSAGE_PIN_FILE
 
 
 def _verify_repo_msg_pins(
     ros1_sha256: str,
     ros2_sha256: str,
     *,
-    _ros1_path: Path = ROS1_MSG_FILE,
-    _ros2_path: Path = ROS2_MSG_FILE,
+    _ros1_path: Optional[Path] = None,
+    _ros2_path: Optional[Path] = None,
 ) -> None:
-    """Recompute both repository message hashes; reject drift or absence."""
+    """Recompute both pinned message hashes; reject drift or absence."""
+    if _ros1_path is None and _ros2_path is None:
+        _ros1_path, _ros2_path = _message_paths()
+    else:
+        # Explicit paths are retained for the offline test seam and preserve
+        # the old one-sided default behavior for callers of this helper.
+        _ros1_path = ROS1_MSG_FILE if _ros1_path is None else _ros1_path
+        _ros2_path = ROS2_MSG_FILE if _ros2_path is None else _ros2_path
     for path, expected, label in ((_ros1_path, ros1_sha256, "ros1"),
                                   (_ros2_path, ros2_sha256, "ros2")):
         if path.is_symlink() or not path.is_file():
