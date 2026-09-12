@@ -1180,13 +1180,9 @@ def collect(args,owners):
         metadata['bootstrap_semantics']='sched_switch-only retained window before precise filters'
         metadata['capture_boundaries']['bootstrap_raw_retained']=False
         metadata['bootstrap_stats_before']=statistics(path)
-        bootstrap_names=['wk'+args.epoch[:11]+'a','wk'+args.epoch[:11]+'p','wk'+args.epoch[:11]+'s']
-        if pid_probe is not None:
-            bootstrap_names.extend(comm for comms in FC_THREADS.values() for comm in comms)
-        metadata['bootstrap_filter_names']=bootstrap_names
         put('events/sched/sched_switch/filter',' || '.join(
             f'prev_comm == "{name}" || next_comm == "{name}"'
-            for name in bootstrap_names))
+            for name in ('wk'+args.epoch[:11]+'a','wk'+args.epoch[:11]+'p','wk'+args.epoch[:11]+'s')))
         put('events/sched/sched_switch/enable','1')
         put('tracing_on','1')
         bootstrap_payload=emit_capture_bootstrap(bootstrap_token,metadata)

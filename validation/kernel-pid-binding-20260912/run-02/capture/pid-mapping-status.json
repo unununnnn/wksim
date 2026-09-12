@@ -1,0 +1,466 @@
+{
+  "base_leaders": {
+    "ap_fc/arducopter": {
+      "comm": "arducopter",
+      "global_tgid": 4538,
+      "global_tid": 4538,
+      "local_tgid": 693,
+      "local_tid": 693,
+      "observed_boot_ns": 161834127048,
+      "proof": "kernel_bpf_pid_helpers",
+      "start_ticks": 16143
+    },
+    "ap_worker": {
+      "comm": "wkcd0ed394d99a",
+      "global_tgid": 4535,
+      "global_tid": 4535,
+      "local_tgid": 690,
+      "local_tid": 690,
+      "observed_boot_ns": 161834124244,
+      "proof": "kernel_bpf_pid_helpers",
+      "start_ticks": 16143
+    },
+    "px4_worker": {
+      "comm": "wkcd0ed394d99p",
+      "global_tgid": 4536,
+      "global_tid": 4536,
+      "local_tgid": 691,
+      "local_tid": 691,
+      "observed_boot_ns": 161834108994,
+      "proof": "kernel_bpf_pid_helpers",
+      "start_ticks": 16143
+    },
+    "supervisor": {
+      "comm": "wkcd0ed394d99s",
+      "global_tgid": 4537,
+      "global_tid": 4537,
+      "local_tgid": 692,
+      "local_tid": 692,
+      "observed_boot_ns": 161834086838,
+      "proof": "kernel_bpf_pid_helpers",
+      "start_ticks": 16143
+    }
+  },
+  "bpf_detached_monotonic_ns": 161836677956,
+  "bpf_dropped_updates": 0,
+  "bpf_records": {
+    "ap_fc/DDS": {
+      "comm": "DDS",
+      "kernel_ids": 19490561593792,
+      "local_tgid": 693,
+      "local_tid": 699,
+      "observed_boot_ns": 161834351121
+    },
+    "ap_fc/arducopter": {
+      "comm": "arducopter",
+      "kernel_ids": 19490561593786,
+      "local_tgid": 693,
+      "local_tid": 693,
+      "observed_boot_ns": 161834127048
+    },
+    "ap_fc/log_io": {
+      "comm": "log_io",
+      "kernel_ids": 19490561593789,
+      "local_tgid": 693,
+      "local_tid": 696,
+      "observed_boot_ns": 161834372603
+    },
+    "ap_worker": {
+      "comm": "wkcd0ed394d99a",
+      "kernel_ids": 19477676691895,
+      "local_tgid": 690,
+      "local_tid": 690,
+      "observed_boot_ns": 161834124244
+    },
+    "px4_fc/logger": {
+      "comm": "logger",
+      "kernel_ids": 19494856561086,
+      "local_tgid": 694,
+      "local_tid": 697,
+      "observed_boot_ns": 161834310483
+    },
+    "px4_fc/sim_send": {
+      "comm": "sim_send",
+      "kernel_ids": 19494856561084,
+      "local_tgid": 694,
+      "local_tid": 695,
+      "observed_boot_ns": 161834232372
+    },
+    "px4_fc/wq:lp_default": {
+      "comm": "wq:lp_default",
+      "kernel_ids": 19494856561087,
+      "local_tgid": 694,
+      "local_tid": 698,
+      "observed_boot_ns": 161834278767
+    },
+    "px4_worker": {
+      "comm": "wkcd0ed394d99p",
+      "kernel_ids": 19481971659192,
+      "local_tgid": 691,
+      "local_tid": 691,
+      "observed_boot_ns": 161834108994
+    },
+    "supervisor": {
+      "comm": "wkcd0ed394d99s",
+      "kernel_ids": 19486266626489,
+      "local_tgid": 692,
+      "local_tid": 692,
+      "observed_boot_ns": 161834086838
+    }
+  },
+  "bpf_sampling_detached": true,
+  "clock_ticks": 100,
+  "fc_leaders": {
+    "ap_fc": {
+      "comm": "arducopter",
+      "global_tgid": 4538,
+      "global_tid": 4538,
+      "local_tgid": 693,
+      "local_tid": 693,
+      "proof": "kernel_bpf_tgid_from_owned_task",
+      "start_ticks": 16143
+    },
+    "px4_fc": {
+      "comm": "px4",
+      "global_tgid": 4539,
+      "global_tid": 4539,
+      "local_tgid": 694,
+      "local_tid": 694,
+      "proof": "kernel_bpf_tgid_from_owned_task",
+      "start_ticks": 16143
+    }
+  },
+  "inventories_after": {
+    "ap_fc": [
+      {
+        "comm": "arducopter",
+        "global_tid": 693,
+        "local_tid": 693,
+        "start_ticks": 16143
+      },
+      {
+        "comm": "log_io",
+        "global_tid": 696,
+        "local_tid": 696,
+        "start_ticks": 16152
+      },
+      {
+        "comm": "DDS",
+        "global_tid": 699,
+        "local_tid": 699,
+        "start_ticks": 16152
+      }
+    ],
+    "ap_worker": [
+      {
+        "comm": "wkcd0ed394d99a",
+        "global_tid": 690,
+        "local_tid": 690,
+        "start_ticks": 16143
+      }
+    ],
+    "px4_fc": [
+      {
+        "comm": "px4",
+        "global_tid": 694,
+        "local_tid": 694,
+        "start_ticks": 16143
+      },
+      {
+        "comm": "sim_send",
+        "global_tid": 695,
+        "local_tid": 695,
+        "start_ticks": 16152
+      },
+      {
+        "comm": "logger",
+        "global_tid": 697,
+        "local_tid": 697,
+        "start_ticks": 16152
+      },
+      {
+        "comm": "wq:lp_default",
+        "global_tid": 698,
+        "local_tid": 698,
+        "start_ticks": 16152
+      }
+    ],
+    "px4_worker": [
+      {
+        "comm": "wkcd0ed394d99p",
+        "global_tid": 691,
+        "local_tid": 691,
+        "start_ticks": 16143
+      }
+    ],
+    "supervisor": [
+      {
+        "comm": "wkcd0ed394d99s",
+        "global_tid": 692,
+        "local_tid": 692,
+        "start_ticks": 16143
+      }
+    ]
+  },
+  "inventories_before": {
+    "ap_fc": [
+      {
+        "comm": "arducopter",
+        "global_tid": 693,
+        "local_tid": 693,
+        "start_ticks": 16143
+      },
+      {
+        "comm": "log_io",
+        "global_tid": 696,
+        "local_tid": 696,
+        "start_ticks": 16152
+      },
+      {
+        "comm": "DDS",
+        "global_tid": 699,
+        "local_tid": 699,
+        "start_ticks": 16152
+      }
+    ],
+    "ap_worker": [
+      {
+        "comm": "wkcd0ed394d99a",
+        "global_tid": 690,
+        "local_tid": 690,
+        "start_ticks": 16143
+      }
+    ],
+    "px4_fc": [
+      {
+        "comm": "px4",
+        "global_tid": 694,
+        "local_tid": 694,
+        "start_ticks": 16143
+      },
+      {
+        "comm": "sim_send",
+        "global_tid": 695,
+        "local_tid": 695,
+        "start_ticks": 16152
+      },
+      {
+        "comm": "logger",
+        "global_tid": 697,
+        "local_tid": 697,
+        "start_ticks": 16152
+      },
+      {
+        "comm": "wq:lp_default",
+        "global_tid": 698,
+        "local_tid": 698,
+        "start_ticks": 16152
+      }
+    ],
+    "px4_worker": [
+      {
+        "comm": "wkcd0ed394d99p",
+        "global_tid": 691,
+        "local_tid": 691,
+        "start_ticks": 16143
+      }
+    ],
+    "supervisor": [
+      {
+        "comm": "wkcd0ed394d99s",
+        "global_tid": 692,
+        "local_tid": 692,
+        "start_ticks": 16143
+      }
+    ]
+  },
+  "kernel_pids": {
+    "ap_fc/DDS": 4544,
+    "ap_fc/arducopter": 4538,
+    "ap_fc/log_io": 4541,
+    "ap_worker": 4535,
+    "px4_fc/logger": 4542,
+    "px4_fc/sim_send": 4540,
+    "px4_fc/wq:lp_default": 4543,
+    "px4_worker": 4536,
+    "supervisor": 4537
+  },
+  "leaders_proven_by": "kernel_bpf_pid_helpers",
+  "local_threads": {
+    "ap_fc/DDS": {
+      "comm": "DDS",
+      "global_tgid": 4538,
+      "global_tid": 4544,
+      "local_tgid": 693,
+      "local_tid": 699,
+      "observed_boot_ns": 161834351121,
+      "proof": "kernel_bpf_pid_helpers",
+      "start_ticks": 16152
+    },
+    "ap_fc/arducopter": {
+      "comm": "arducopter",
+      "global_tgid": 4538,
+      "global_tid": 4538,
+      "local_tgid": 693,
+      "local_tid": 693,
+      "observed_boot_ns": 161834127048,
+      "proof": "kernel_bpf_pid_helpers",
+      "start_ticks": 16143
+    },
+    "ap_fc/log_io": {
+      "comm": "log_io",
+      "global_tgid": 4538,
+      "global_tid": 4541,
+      "local_tgid": 693,
+      "local_tid": 696,
+      "observed_boot_ns": 161834372603,
+      "proof": "kernel_bpf_pid_helpers",
+      "start_ticks": 16152
+    },
+    "px4_fc/logger": {
+      "comm": "logger",
+      "global_tgid": 4539,
+      "global_tid": 4542,
+      "local_tgid": 694,
+      "local_tid": 697,
+      "observed_boot_ns": 161834310483,
+      "proof": "kernel_bpf_pid_helpers",
+      "start_ticks": 16152
+    },
+    "px4_fc/sim_send": {
+      "comm": "sim_send",
+      "global_tgid": 4539,
+      "global_tid": 4540,
+      "local_tgid": 694,
+      "local_tid": 695,
+      "observed_boot_ns": 161834232372,
+      "proof": "kernel_bpf_pid_helpers",
+      "start_ticks": 16152
+    },
+    "px4_fc/wq:lp_default": {
+      "comm": "wq:lp_default",
+      "global_tgid": 4539,
+      "global_tid": 4543,
+      "local_tgid": 694,
+      "local_tid": 698,
+      "observed_boot_ns": 161834278767,
+      "proof": "kernel_bpf_pid_helpers",
+      "start_ticks": 16152
+    }
+  },
+  "mapping_sha256": "e0135a8372512e2f233f562631d46fca31038b28976f07be753024e29bfdfa90",
+  "mapping_source": "kernel_bpf_plus_private_sched_switch",
+  "mapping_timeout_s": 3.0,
+  "mapping_trace_bytes": 3524,
+  "method": "kernel BPF namespace/current PID helpers plus owned procfs lifetimes",
+  "names": {
+    "ap_fc/DDS": "DDS",
+    "ap_fc/arducopter": "arducopter",
+    "ap_fc/log_io": "log_io",
+    "ap_worker": "wkcd0ed394d99a",
+    "px4_fc/logger": "logger",
+    "px4_fc/sim_send": "sim_send",
+    "px4_fc/wq:lp_default": "wq:lp_default",
+    "px4_worker": "wkcd0ed394d99p",
+    "supervisor": "wkcd0ed394d99s"
+  },
+  "observed_after_boot_ns": 161836132871,
+  "same_comm_threads": {
+    "ap_worker": [],
+    "px4_worker": [],
+    "supervisor": []
+  },
+  "sched_switch_same_comm": [],
+  "targets": {
+    "ap_fc/DDS": {
+      "comm": "DDS",
+      "global_tgid": 4538,
+      "global_tid": 4544,
+      "local_tgid": 693,
+      "local_tid": 699,
+      "observed_boot_ns": 161834351121,
+      "proof": "kernel_bpf_pid_helpers",
+      "start_ticks": 16152
+    },
+    "ap_fc/arducopter": {
+      "comm": "arducopter",
+      "global_tgid": 4538,
+      "global_tid": 4538,
+      "local_tgid": 693,
+      "local_tid": 693,
+      "observed_boot_ns": 161834127048,
+      "proof": "kernel_bpf_pid_helpers",
+      "start_ticks": 16143
+    },
+    "ap_fc/log_io": {
+      "comm": "log_io",
+      "global_tgid": 4538,
+      "global_tid": 4541,
+      "local_tgid": 693,
+      "local_tid": 696,
+      "observed_boot_ns": 161834372603,
+      "proof": "kernel_bpf_pid_helpers",
+      "start_ticks": 16152
+    },
+    "ap_worker": {
+      "comm": "wkcd0ed394d99a",
+      "global_tgid": 4535,
+      "global_tid": 4535,
+      "local_tgid": 690,
+      "local_tid": 690,
+      "observed_boot_ns": 161834124244,
+      "proof": "kernel_bpf_pid_helpers",
+      "start_ticks": 16143
+    },
+    "px4_fc/logger": {
+      "comm": "logger",
+      "global_tgid": 4539,
+      "global_tid": 4542,
+      "local_tgid": 694,
+      "local_tid": 697,
+      "observed_boot_ns": 161834310483,
+      "proof": "kernel_bpf_pid_helpers",
+      "start_ticks": 16152
+    },
+    "px4_fc/sim_send": {
+      "comm": "sim_send",
+      "global_tgid": 4539,
+      "global_tid": 4540,
+      "local_tgid": 694,
+      "local_tid": 695,
+      "observed_boot_ns": 161834232372,
+      "proof": "kernel_bpf_pid_helpers",
+      "start_ticks": 16152
+    },
+    "px4_fc/wq:lp_default": {
+      "comm": "wq:lp_default",
+      "global_tgid": 4539,
+      "global_tid": 4543,
+      "local_tgid": 694,
+      "local_tid": 698,
+      "observed_boot_ns": 161834278767,
+      "proof": "kernel_bpf_pid_helpers",
+      "start_ticks": 16152
+    },
+    "px4_worker": {
+      "comm": "wkcd0ed394d99p",
+      "global_tgid": 4536,
+      "global_tid": 4536,
+      "local_tgid": 691,
+      "local_tid": 691,
+      "observed_boot_ns": 161834108994,
+      "proof": "kernel_bpf_pid_helpers",
+      "start_ticks": 16143
+    },
+    "supervisor": {
+      "comm": "wkcd0ed394d99s",
+      "global_tgid": 4537,
+      "global_tid": 4537,
+      "local_tgid": 692,
+      "local_tid": 692,
+      "observed_boot_ns": 161834086838,
+      "proof": "kernel_bpf_pid_helpers",
+      "start_ticks": 16143
+    }
+  }
+}

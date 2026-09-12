@@ -1,7 +1,8 @@
-"""Unit tests for Windows host launcher for WSL joint scheduler profiling.
+"""Unit tests for the Windows host launcher for WSL joint scheduler profiling.
 
-Verifies process orchestration, stdin EOF signaling, bounded grace period waiting,
-refusal to kill wsl.exe or user processes, recording of need_cleanup and process identity,
+Verifies the default kernel PID probe path and the explicit legacy snapshot
+server path, stdin EOF signaling, bounded grace period waiting, refusal to kill
+wsl.exe or user processes, recording of cleanup state and process identity,
 verification of report.json evidence fields, Windows/WSL path conversion,
 rejection of non-fresh directories and UNC paths, file redirection of stdout/stderr,
 and handling of server spawn failures and KeyboardInterrupt.
@@ -23,6 +24,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from tools.run_joint_scheduler_windows import (
     DEFAULT_DISTRO,
+    DEFAULT_TIMEOUT_S,
     DEFAULT_GRACE_PERIOD_S,
     check_wsl_directory_status,
     is_strict_zero_int,
@@ -129,6 +131,71 @@ def _valid_report() -> dict[str, any]:
         },
         "product_result": _valid_product_result(),
     }
+
+
+_KERNEL_BPF_TASK_ROLES = [
+    "ap_worker",
+    "px4_worker",
+    "supervisor",
+    "ap_fc/arducopter",
+    "ap_fc/log_io",
+    "ap_fc/DDS",
+    "px4_fc/sim_send",
+    "px4_fc/logger",
+    "px4_fc/wq:lp_default",
+]
+
+
+def _kernel_bpf_report() -> dict[str, any]:
+    report = _valid_report()
+    report.update(
+        pid_binding="kernel_bpf",
+        pid_probe_manifest="/root/wksim-scheduler-probe-test/pid-probe/manifest.json",
+        pid_probe_transferred_to_collector=True,
+        pid_probe_parent_closed=True,
+    )
+    report["capture"].update(
+        pid_binding="kernel_bpf",
+        kernel_probe_manifest={"schema": "wksim.kernel-pid-probe.v1"},
+        kernel_probe_closed=True,
+        started_monotonic_ns=200,
+        capture_boundaries={"bpf_detached_monotonic_ns": 100},
+        pid_mapping={
+            "bpf_sampling_detached": True,
+            "bpf_detached_monotonic_ns": 100,
+            "bpf_dropped_updates": 0,
+        },
+        post_capture_tasks_proof={
+            "roles_verified": list(_KERNEL_BPF_TASK_ROLES),
+            "count": 9,
+            "owner_count": 5,
+            "source": "kernel_bpf_then_stable_proc_lifetimes",
+        },
+    )
+    return report
+
+
+def _kernel_bpf_preflight_cleanup_report() -> dict[str, any]:
+    return {
+        "pid_binding": "kernel_bpf",
+        "components_started": {role: False for role in ("preflight", "manager", "collector")},
+    }
+
+
+def _kernel_bpf_partial_cleanup_report() -> dict[str, any]:
+    report = _cleanup_clean_partial_report()
+    report.update(
+        pid_binding="kernel_bpf",
+        pid_probe_manifest="/root/wksim-scheduler-probe-test/pid-probe/manifest.json",
+        pid_probe_transferred_to_collector=True,
+        pid_probe_parent_closed=True,
+    )
+    report["capture"].update(
+        pid_binding="kernel_bpf",
+        kernel_probe_closed=True,
+        errors=["trace business loss"],
+    )
+    return report
 
 
 def _cleanup_clean_partial_report() -> dict[str, any]:
@@ -283,6 +350,7 @@ class TestRunJointSchedulerWindows(unittest.TestCase):
         result = run_joint_scheduler_windows(
             output_wsl=self.output_wsl,
             exchange_dir=self.exchange_dir,
+            pid_binding="wsl_system",
             timeout_s=10.0,
             popen_fn=mock_popen,
             read_report_fn=lambda out, d, w: _valid_report(),
@@ -291,6 +359,9 @@ class TestRunJointSchedulerWindows(unittest.TestCase):
 
         self.assertEqual(result["status"], "success")
         self.assertEqual(result["report_status"], "diagnostic_captured_and_retired")
+        self.assertEqual(result["pid_binding"], "wsl_system")
+        self.assertTrue(result["server_started"])
+        self.assertEqual(result["server_returncode"], 0)
         self.assertTrue(linux_proc.stdin.closed)
         self.assertFalse(linux_proc.killed)
 
@@ -310,8 +381,173 @@ class TestRunJointSchedulerWindows(unittest.TestCase):
         self.assertTrue(log_file.exists())
         log_data = json.loads(log_file.read_text())
         self.assertEqual(log_data["status"], "success")
+        self.assertEqual(log_data["pid_binding"], "wsl_system")
+        self.assertTrue(log_data["server_started"])
+        self.assertEqual(log_data["server_returncode"], 0)
         self.assertFalse(log_data["need_cleanup"])
         self.assertTrue(log_data["cleanup_verified"])
+
+    def test_kernel_bpf_happy_path_does_not_start_dummy_server(self):
+        linux_proc = MockProcess(cmd=["wsl"], pid=151, returncode=0)
+        captured_cmds = []
+
+        def mock_popen(cmd, **kwargs):
+            captured_cmds.append(cmd)
+            if "stdout" in kwargs and hasattr(kwargs["stdout"], "write"):
+                kwargs["stdout"].write(b"kernel probe output\n")
+            return linux_proc
+
+        result = run_joint_scheduler_windows(
+            output_wsl=self.output_wsl,
+            exchange_dir=self.exchange_dir,
+            timeout_s=10.0,
+            popen_fn=mock_popen,
+            read_report_fn=lambda out, d, w: _kernel_bpf_report(),
+            check_wsl_dir_fn=lambda p, d, w: False,
+        )
+
+        self.assertEqual(len(captured_cmds), 1)
+        linux_cmd = captured_cmds[0]
+        self.assertIn("--kernel-pid-probe", linux_cmd)
+        self.assertIn("--watch-host-stdin", linux_cmd)
+        self.assertIn("--exchange-dir", linux_cmd)
+        self.assertEqual(result["pid_binding"], "kernel_bpf")
+        self.assertFalse(result["server_started"])
+        self.assertIsNone(result["server_returncode"])
+        self.assertFalse((self.exchange_dir / "snapshot_server.stdout.log").exists())
+        self.assertFalse((self.exchange_dir / "snapshot_server.stderr.log").exists())
+
+        log_data = json.loads((self.exchange_dir / "run_log.json").read_text())
+        self.assertEqual(log_data["pid_binding"], "kernel_bpf")
+        self.assertFalse(log_data["server_started"])
+        self.assertIsNone(log_data["server_returncode"])
+
+    def test_default_kernel_bpf_rejects_old_report_without_mode_evidence(self):
+        linux_proc = MockProcess(cmd=["wsl"], pid=154, returncode=0)
+        captured_cmds = []
+
+        def mock_popen(cmd, **kwargs):
+            captured_cmds.append(cmd)
+            return linux_proc
+
+        with self.assertRaisesRegex(
+            RuntimeError, "Report validation failed: Kernel BPF report pid_binding"
+        ):
+            run_joint_scheduler_windows(
+                output_wsl=self.output_wsl,
+                exchange_dir=self.exchange_dir,
+                timeout_s=5.0,
+                popen_fn=mock_popen,
+                read_report_fn=lambda out, d, w: _valid_report(),
+                read_raw_report_fn=lambda out, d, w: _kernel_bpf_preflight_cleanup_report(),
+                check_wsl_dir_fn=lambda p, d, w: False,
+            )
+
+        self.assertEqual(len(captured_cmds), 1)
+        self.assertTrue(linux_proc.stdin.closed)
+        log_data = json.loads((self.exchange_dir / "run_log.json").read_text())
+        self.assertEqual(log_data["status"], "failed")
+        self.assertTrue(log_data["cleanup_verified"])
+        self.assertFalse(log_data["need_cleanup"])
+        self.assertFalse(log_data["server_started"])
+        self.assertIsNone(log_data["server_returncode"])
+
+    def test_kernel_bpf_success_rejects_missing_critical_evidence(self):
+        missing_detach = _kernel_bpf_report()
+        missing_detach["capture"]["pid_mapping"]["bpf_sampling_detached"] = False
+        with self.assertRaisesRegex(RuntimeError, "detachment is not proven"):
+            verify_report_evidence(missing_detach, pid_binding="kernel_bpf")
+
+        missing_drop_proof = _kernel_bpf_report()
+        missing_drop_proof["capture"]["pid_mapping"]["bpf_dropped_updates"] = 1
+        with self.assertRaisesRegex(RuntimeError, "bpf_dropped_updates"):
+            verify_report_evidence(missing_drop_proof, pid_binding="kernel_bpf")
+
+        missing_post_proof = _kernel_bpf_report()
+        del missing_post_proof["capture"]["post_capture_tasks_proof"]
+        with self.assertRaisesRegex(RuntimeError, "post_capture_tasks_proof"):
+            verify_report_evidence(missing_post_proof, pid_binding="kernel_bpf")
+
+        missing_close = _kernel_bpf_report()
+        missing_close["capture"]["kernel_probe_closed"] = False
+        with self.assertRaisesRegex(RuntimeError, "collector probe close"):
+            verify_report_evidence(missing_close, pid_binding="kernel_bpf")
+
+    def test_kernel_bpf_partial_cleanup_requires_close_but_allows_trace_failure(self):
+        clean, reason = verify_cleanup_evidence(
+            _kernel_bpf_partial_cleanup_report(), pid_binding="kernel_bpf"
+        )
+        self.assertTrue(clean, reason)
+
+        missing_close = _kernel_bpf_partial_cleanup_report()
+        del missing_close["capture"]["kernel_probe_closed"]
+        clean, reason = verify_cleanup_evidence(missing_close, pid_binding="kernel_bpf")
+        self.assertFalse(clean)
+        self.assertIn("kernel_probe_closed", reason)
+
+        preflight_only, reason = verify_cleanup_evidence(
+            _kernel_bpf_preflight_cleanup_report(), pid_binding="kernel_bpf"
+        )
+        self.assertTrue(preflight_only, reason)
+
+    def test_kernel_bpf_linux_failure_does_not_start_server(self):
+        linux_proc = MockProcess(cmd=["wsl"], pid=152, returncode=7)
+        captured_cmds = []
+
+        def mock_popen(cmd, **kwargs):
+            captured_cmds.append(cmd)
+            return linux_proc
+
+        with self.assertRaisesRegex(RuntimeError, "Linux runner failed with exit code 7"):
+            run_joint_scheduler_windows(
+                output_wsl=self.output_wsl,
+                exchange_dir=self.exchange_dir,
+                timeout_s=5.0,
+                grace_period_s=0.1,
+                popen_fn=mock_popen,
+                read_raw_report_fn=lambda out, d, w: _kernel_bpf_preflight_cleanup_report(),
+                check_wsl_dir_fn=lambda p, d, w: False,
+            )
+
+        self.assertEqual(len(captured_cmds), 1)
+        self.assertTrue(linux_proc.stdin.closed)
+        log_data = json.loads((self.exchange_dir / "run_log.json").read_text())
+        self.assertEqual(log_data["status"], "failed")
+        self.assertEqual(log_data["pid_binding"], "kernel_bpf")
+        self.assertFalse(log_data["server_started"])
+        self.assertIsNone(log_data["server_returncode"])
+
+    def test_kernel_bpf_timeout_signals_eof_without_server(self):
+        linux_proc = MockProcess(
+            cmd=["wsl"], pid=153, returncode=0, delay_exit=True, exit_on_stdin_close=True
+        )
+        captured_cmds = []
+
+        def mock_popen(cmd, **kwargs):
+            captured_cmds.append(cmd)
+            return linux_proc
+
+        with self.assertRaisesRegex(RuntimeError, "Execution timed out"):
+            run_joint_scheduler_windows(
+                output_wsl=self.output_wsl,
+                exchange_dir=self.exchange_dir,
+                timeout_s=0.05,
+                poll_interval_s=0.01,
+                grace_period_s=0.1,
+                popen_fn=mock_popen,
+                read_raw_report_fn=lambda out, d, w: _kernel_bpf_preflight_cleanup_report(),
+                check_wsl_dir_fn=lambda p, d, w: False,
+            )
+
+        self.assertEqual(len(captured_cmds), 1)
+        self.assertTrue(linux_proc.stdin.closed)
+        self.assertFalse(linux_proc.killed)
+        log_data = json.loads((self.exchange_dir / "run_log.json").read_text())
+        self.assertEqual(log_data["status"], "failed")
+        self.assertEqual(log_data["pid_binding"], "kernel_bpf")
+        self.assertFalse(log_data["server_started"])
+        self.assertIsNone(log_data["server_returncode"])
+        self.assertFalse((self.exchange_dir / "snapshot_server.stdout.log").exists())
 
     def test_server_failure_closes_stdin_and_waits(self):
         linux_proc = MockProcess(cmd=["wsl"], pid=201, returncode=0, delay_exit=True, exit_on_stdin_close=True)
@@ -326,6 +562,7 @@ class TestRunJointSchedulerWindows(unittest.TestCase):
             run_joint_scheduler_windows(
                 output_wsl=self.output_wsl,
                 exchange_dir=self.exchange_dir,
+                pid_binding="wsl_system",
                 timeout_s=5.0,
                 grace_period_s=0.1,
                 popen_fn=mock_popen,
@@ -359,6 +596,7 @@ class TestRunJointSchedulerWindows(unittest.TestCase):
             run_joint_scheduler_windows(
                 output_wsl=self.output_wsl,
                 exchange_dir=self.exchange_dir,
+                pid_binding="wsl_system",
                 timeout_s=5.0,
                 grace_period_s=0.1,
                 popen_fn=failing_server_popen,
@@ -374,6 +612,8 @@ class TestRunJointSchedulerWindows(unittest.TestCase):
         log_data = json.loads((self.exchange_dir / "run_log.json").read_text())
         self.assertEqual(log_data["status"], "failed")
         self.assertIn("Simulated server spawn failure", log_data["failure_reason"])
+        self.assertFalse(log_data["server_started"])
+        self.assertIsNone(log_data["server_returncode"])
         self.assertTrue(log_data["cleanup_verified"])
         self.assertFalse(log_data["need_cleanup"])
 
@@ -393,6 +633,7 @@ class TestRunJointSchedulerWindows(unittest.TestCase):
             run_joint_scheduler_windows(
                 output_wsl=self.output_wsl,
                 exchange_dir=self.exchange_dir,
+                pid_binding="wsl_system",
                 timeout_s=5.0,
                 grace_period_s=0.1,
                 popen_fn=interrupting_popen,
@@ -423,6 +664,7 @@ class TestRunJointSchedulerWindows(unittest.TestCase):
             run_joint_scheduler_windows(
                 output_wsl=self.output_wsl,
                 exchange_dir=self.exchange_dir,
+                pid_binding="wsl_system",
                 timeout_s=0.05,
                 poll_interval_s=0.01,
                 grace_period_s=0.1,
@@ -449,6 +691,7 @@ class TestRunJointSchedulerWindows(unittest.TestCase):
             run_joint_scheduler_windows(
                 output_wsl=self.output_wsl,
                 exchange_dir=self.exchange_dir,
+                pid_binding="wsl_system",
                 timeout_s=2.0,
                 grace_period_s=0.05,
                 popen_fn=mock_popen,
@@ -488,6 +731,7 @@ class TestRunJointSchedulerWindows(unittest.TestCase):
             run_joint_scheduler_windows(
                 output_wsl=self.output_wsl,
                 exchange_dir=self.exchange_dir,
+                pid_binding="wsl_system",
                 timeout_s=5.0,
                 grace_period_s=0.1,
                 popen_fn=mock_popen,
@@ -524,6 +768,7 @@ class TestRunJointSchedulerWindows(unittest.TestCase):
             run_joint_scheduler_windows(
                 output_wsl=self.output_wsl,
                 exchange_dir=self.exchange_dir,
+                pid_binding="wsl_system",
                 timeout_s=5.0,
                 grace_period_s=0.1,
                 popen_fn=mock_popen,
@@ -556,6 +801,7 @@ class TestRunJointSchedulerWindows(unittest.TestCase):
             run_joint_scheduler_windows(
                 output_wsl=self.output_wsl,
                 exchange_dir=self.exchange_dir,
+                pid_binding="wsl_system",
                 timeout_s=5.0,
                 grace_period_s=0.1,
                 popen_fn=mock_popen,
@@ -578,65 +824,74 @@ class TestRunJointSchedulerWindows(unittest.TestCase):
         nested = _valid_report()
         nested['product_result']['epochs'][0]['result']['detail'] = {'error': 'unretired child'}
         with self.assertRaisesRegex(RuntimeError, 'nested failure evidence'):
-            verify_report_evidence(nested)
+            verify_report_evidence(nested, pid_binding="wsl_system")
         capture_error = _valid_report()
         capture_error['capture']['errors'] = ['lost trace records']
         with self.assertRaisesRegex(RuntimeError, 'nested failure evidence'):
-            verify_report_evidence(capture_error)
+            verify_report_evidence(capture_error, pid_binding="wsl_system")
 
         # 1. False treated as 0 must be REJECTED
         bad_rc = _valid_report()
         bad_rc["manager_returncode"] = False
         with self.assertRaisesRegex(RuntimeError, "manager_returncode must be exact int 0"):
-            verify_report_evidence(bad_rc)
+            verify_report_evidence(bad_rc, pid_binding="wsl_system")
 
         bad_col_rc = _valid_report()
         bad_col_rc["collector_returncode"] = False
         with self.assertRaisesRegex(RuntimeError, "collector_returncode must be exact int 0"):
-            verify_report_evidence(bad_col_rc)
+            verify_report_evidence(bad_col_rc, pid_binding="wsl_system")
 
         # 2. Truthy strings treated as True must be REJECTED
         bad_flag = _valid_report()
         bad_flag["epoch_groups_retired"] = "true"
         with self.assertRaisesRegex(RuntimeError, "epoch_groups_retired must be True"):
-            verify_report_evidence(bad_flag)
+            verify_report_evidence(bad_flag, pid_binding="wsl_system")
 
         bad_source = _valid_report()
         bad_source["sources_unchanged"] = 1
         with self.assertRaisesRegex(RuntimeError, "sources_unchanged must be True"):
-            verify_report_evidence(bad_source)
+            verify_report_evidence(bad_source, pid_binding="wsl_system")
 
         # 3. remaining_manager_group not []
         bad_group = _valid_report()
         bad_group["remaining_manager_group"] = [{"pid": 999}]
         with self.assertRaisesRegex(RuntimeError, "remaining_manager_group must be \\[\\]"):
-            verify_report_evidence(bad_group)
+            verify_report_evidence(bad_group, pid_binding="wsl_system")
 
         # 4. capture complete not True
         bad_cap1 = _valid_report()
         bad_cap1["capture"]["complete"] = "true"
         with self.assertRaisesRegex(RuntimeError, "capture.complete must be True"):
-            verify_report_evidence(bad_cap1)
+            verify_report_evidence(bad_cap1, pid_binding="wsl_system")
 
         # 5. capture instance_removed not True
         bad_cap2 = _valid_report()
         bad_cap2["capture"]["instance_removed"] = False
         with self.assertRaisesRegex(RuntimeError, "capture.instance_removed must be True"):
-            verify_report_evidence(bad_cap2)
+            verify_report_evidence(bad_cap2, pid_binding="wsl_system")
 
         # 6. product_result not clean
         bad_prod = _valid_report()
         bad_prod["product_result"]["status"] = "failed"
         with self.assertRaisesRegex(RuntimeError, "product_result is not clean"):
-            verify_report_evidence(bad_prod)
+            verify_report_evidence(bad_prod, pid_binding="wsl_system")
 
         # 7. cleanup error keys
         bad_cleanup = _valid_report()
         bad_cleanup["collector_cleanup_error"] = "Tracefs busy"
         with self.assertRaisesRegex(RuntimeError, "nested failure evidence"):
-            verify_report_evidence(bad_cleanup)
+            verify_report_evidence(bad_cleanup, pid_binding="wsl_system")
 
     def test_invalid_parameters_types(self):
+        self.assertEqual(DEFAULT_TIMEOUT_S, 240.0)
+
+        with self.assertRaisesRegex(ValueError, "pid_binding must be one of"):
+            run_joint_scheduler_windows(
+                self.output_wsl,
+                self.exchange_dir,
+                pid_binding="invalid",
+            )
+
         for bad_val in (-1.0, 0.0, float("nan"), float("inf"), True, False, "60"):
             with self.subTest(timeout_s=bad_val):
                 with self.assertRaises(ValueError):
@@ -666,6 +921,7 @@ class TestRunJointSchedulerWindows(unittest.TestCase):
                 "--distro", DEFAULT_DISTRO,
                 "--timeout", "10.0",
                 "--grace-period", "1.0",
+                "--pid-binding", "wsl_system",
             ])
             self.assertEqual(rc, 0)
 
@@ -682,83 +938,85 @@ class TestVerifyCleanupEvidence(unittest.TestCase):
     """Direct checks of the cleanup-only verifier against the real report schema."""
 
     def test_partial_but_fully_retired_report_verifies(self):
-        ok, reason = verify_cleanup_evidence(_cleanup_clean_partial_report())
+        ok, reason = verify_cleanup_evidence(
+            _cleanup_clean_partial_report(), pid_binding="wsl_system"
+        )
         self.assertTrue(ok, reason)
 
     def test_full_success_report_also_verifies(self):
-        ok, reason = verify_cleanup_evidence(_valid_report())
+        ok, reason = verify_cleanup_evidence(_valid_report(), pid_binding="wsl_system")
         self.assertTrue(ok, reason)
 
     def test_non_dict_report_rejected(self):
-        ok, reason = verify_cleanup_evidence("not a dict")
+        ok, reason = verify_cleanup_evidence("not a dict", pid_binding="wsl_system")
         self.assertFalse(ok)
         self.assertIn("not a dict", reason)
 
     def test_missing_residue_evidence_is_unknown_not_clean(self):
         report = _cleanup_clean_partial_report()
         del report["remaining_preflight_group"]
-        ok, reason = verify_cleanup_evidence(report)
+        ok, reason = verify_cleanup_evidence(report, pid_binding="wsl_system")
         self.assertFalse(ok)
         self.assertIn("remaining_preflight_group", reason)
 
     def test_missing_group_snapshot_is_unknown_not_clean(self):
         report = _cleanup_clean_partial_report()
         del report["manager_group_snapshot"]
-        ok, reason = verify_cleanup_evidence(report)
+        ok, reason = verify_cleanup_evidence(report, pid_binding="wsl_system")
         self.assertFalse(ok)
         self.assertIn("manager_group_snapshot", reason)
 
     def test_residue_rejects(self):
         report = _cleanup_clean_partial_report()
         report["remaining_manager_group"] = [{"pid": 999}]
-        ok, reason = verify_cleanup_evidence(report)
+        ok, reason = verify_cleanup_evidence(report, pid_binding="wsl_system")
         self.assertFalse(ok)
         self.assertIn("remaining_manager_group", reason)
 
     def test_live_collector_returncode_none_rejects(self):
         report = _cleanup_clean_partial_report()
         report["collector_returncode"] = None
-        ok, reason = verify_cleanup_evidence(report)
+        ok, reason = verify_cleanup_evidence(report, pid_binding="wsl_system")
         self.assertFalse(ok)
         self.assertIn("collector_returncode", reason)
 
     def test_cleanup_error_rejects(self):
         report = _cleanup_clean_partial_report()
         report["manager_cleanup_error"] = "force kill failed"
-        ok, reason = verify_cleanup_evidence(report)
+        ok, reason = verify_cleanup_evidence(report, pid_binding="wsl_system")
         self.assertFalse(ok)
         self.assertIn("manager_cleanup_error", reason)
 
     def test_trace_instance_not_removed_rejects(self):
         report = _cleanup_clean_partial_report()
         report["capture"]["instance_removed"] = False
-        ok, reason = verify_cleanup_evidence(report)
+        ok, reason = verify_cleanup_evidence(report, pid_binding="wsl_system")
         self.assertFalse(ok)
         self.assertIn("instance_removed", reason)
 
     def test_epoch_groups_not_retired_rejects(self):
         report = _cleanup_clean_partial_report()
         report["epoch_groups_retired"] = False
-        ok, reason = verify_cleanup_evidence(report)
+        ok, reason = verify_cleanup_evidence(report, pid_binding="wsl_system")
         self.assertFalse(ok)
         self.assertIn("epoch_groups_retired", reason)
 
     def test_missing_components_started_is_unknown(self):
         report = _cleanup_clean_partial_report()
         del report["components_started"]
-        ok, reason = verify_cleanup_evidence(report)
+        ok, reason = verify_cleanup_evidence(report, pid_binding="wsl_system")
         self.assertFalse(ok)
         self.assertIn("components_started", reason)
 
     def test_three_components_explicitly_not_started_can_be_clean(self):
         report = {"components_started": {role: False for role in ("preflight", "manager", "collector")}}
-        ok, reason = verify_cleanup_evidence(report)
+        ok, reason = verify_cleanup_evidence(report, pid_binding="wsl_system")
         self.assertTrue(ok, reason)
 
     def test_started_component_missing_returncode_is_unknown(self):
         report = _cleanup_clean_partial_report()
         report["collector_returncode"] = None
-        ok, reason = verify_cleanup_evidence(report)
+        ok, reason = verify_cleanup_evidence(report, pid_binding="wsl_system")
         self.assertFalse(ok)
         self.assertIn("collector_returncode", reason)
 
@@ -766,13 +1024,13 @@ class TestVerifyCleanupEvidence(unittest.TestCase):
         report = _cleanup_clean_partial_report()
         report["status"] = "failed"
         report["capture"]["errors"] = ["trace loss"]
-        ok, reason = verify_cleanup_evidence(report)
+        ok, reason = verify_cleanup_evidence(report, pid_binding="wsl_system")
         self.assertTrue(ok, reason)
 
     def test_nested_cleanup_error_rejects_even_when_resources_look_clean(self):
         report = _cleanup_clean_partial_report()
         report["capture"]["cleanup_error"] = "tracefs instance removal failed"
-        ok, reason = verify_cleanup_evidence(report)
+        ok, reason = verify_cleanup_evidence(report, pid_binding="wsl_system")
         self.assertFalse(ok)
         self.assertIn("nested cleanup failure", reason)
 

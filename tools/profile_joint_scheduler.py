@@ -1227,7 +1227,7 @@ def retire_manager(manager,directory,result):
         result['remaining_manager_group']=[True]
 
 
-def run(output, *, exchange_dir=None, watch_host_stdin=False):
+def run(output, *, exchange_dir=None, watch_host_stdin=False, kernel_pid_probe=False):
     if exchange_dir is not None:
         exchange_dir = Path(exchange_dir)
         if (not exchange_dir.is_absolute() or exchange_dir.is_symlink()
@@ -1263,6 +1263,12 @@ def run(output, *, exchange_dir=None, watch_host_stdin=False):
             ROOT/'Simulator/wksim_core/joint.py', ROOT/'Simulator/wksim_runtime/joint_rate.py',
             ROOT/'Simulator/wksim_runtime/joint_runtime.py')})
     manager = collector = None
+    pid_probe = None
+    if kernel_pid_probe:
+        for name in ('tools/kernel_pid_probe.py', 'tools/kernel_pid_probe_native.c',
+                     'tools/kernel_pid_mapping.py'):
+            result['source_sha256'][name] = digest(ROOT/name)
+        result['pid_binding'] = 'kernel_bpf'
     # Defer signal exceptions to explicit checkpoints, so child handles and
     # identities are recorded before cancellation enters the finally block.
     cancelled = threading.Event()
@@ -1282,6 +1288,13 @@ def run(output, *, exchange_dir=None, watch_host_stdin=False):
         if code or result.get('preflight_cleanup_error'):
             raise RuntimeError('Resource preflight rejected probe or did not retire cleanly')
         check_host_cancelled(cancelled)
+        if kernel_pid_probe:
+            from tools.kernel_pid_probe import create_probe
+            # Attach before children exist, so their startup context switches
+            # can establish namespace/kernel identity without blocking input.
+            pid_probe = create_probe(output/'pid-probe', run_id, result['boot_id'])
+            result['pid_probe_manifest'] = str(pid_probe.manifest_path)
+            check_host_cancelled(cancelled)
         with (output/'service.log').open('x') as service, (output/'collector.log').open('x') as trace_log:
             environment = dict(os.environ, WKSIM_JOINT_CPU_TIMING='1', WKSIM_TRACE_RUN=run_id,
                 WKSIM_TRACE_HOOK_OUTPUT=str(hook), WKSIM_TRACE_GATE_READY=str(gate_ready),
@@ -1351,10 +1364,20 @@ def run(output, *, exchange_dir=None, watch_host_stdin=False):
                 argv += ['--'+role.replace('_', '-'), f"{identity['pid']}:{identity['start_ticks']}"]
             if exchange_dir is not None:
                 argv += ['--exchange-dir', str(exchange_dir)]
+            inherited_fds = ()
+            if pid_probe is not None:
+                inherited_fds = tuple(pid_probe.inherited_fds())
+                argv += ['--kernel-pid-probe-manifest', str(pid_probe.manifest_path),
+                         '--kernel-pid-map-fd', str(inherited_fds[0]),
+                         '--kernel-pid-link-fd', str(inherited_fds[1])]
             result['collector_command'] = argv
             collector = subprocess.Popen(argv, cwd=ROOT, stdout=trace_log,
-                stderr=subprocess.STDOUT, start_new_session=True)
+                stderr=subprocess.STDOUT, start_new_session=True,
+                **({'pass_fds': inherited_fds} if inherited_fds else {}))
             _record_component_started(result, 'collector')
+            if pid_probe is not None:
+                pid_probe.release_parent_after_spawn()
+                result['pid_probe_transferred_to_collector'] = True
             try:
                 result['collector'] = json_identity(collector.pid)
                 _identity_fields(result['collector'], 'Collector')
@@ -1408,6 +1431,12 @@ def run(output, *, exchange_dir=None, watch_host_stdin=False):
                 result['collector_cleanup_error']=repr(error)
             if result.get('components_started', {}).get('collector'):
                 _record_collector_capture(output, result)
+            if pid_probe is not None:
+                try:
+                    pid_probe.close()
+                    result['pid_probe_parent_closed'] = True
+                except BaseException as error:
+                    result['pid_probe_cleanup_error'] = repr(error)
             try:
                 retire_manager(manager,directory,result)
             except BaseException as error:
@@ -1439,6 +1468,8 @@ if __name__ == '__main__':
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--exchange-dir', type=Path)
     parser.add_argument('--watch-host-stdin', action='store_true')
+    parser.add_argument('--kernel-pid-probe', action='store_true')
     args = parser.parse_args()
-    result = run(args.output, exchange_dir=args.exchange_dir, watch_host_stdin=args.watch_host_stdin)
+    result = run(args.output, exchange_dir=args.exchange_dir, watch_host_stdin=args.watch_host_stdin,
+                 kernel_pid_probe=args.kernel_pid_probe)
     raise SystemExit(0 if result['status'] == 'diagnostic_captured_and_retired' else 1)

@@ -1,12 +1,15 @@
 """Windows host launcher for WSL joint scheduler profiling.
 
-Launches the WSL Linux profiling runner and the Windows host snapshot server in parallel,
-monitors process lifecycle under a unified deadline, communicates shutdown via host stdin EOF,
-and strictly verifies diagnostic and cleanup retirement evidence before declaring success.
+The default kernel PID probe runs only the Linux profiling runner.  The legacy
+``wsl_system`` mode additionally launches the Windows host snapshot server for
+the old exchange protocol.  Both modes monitor process lifecycle under a
+unified deadline, communicate shutdown via host stdin EOF, and strictly verify
+diagnostic and cleanup retirement evidence before declaring success.
 """
 from __future__ import annotations
 
 import argparse
+from contextlib import ExitStack
 import json
 import math
 import os
@@ -26,7 +29,20 @@ from tools.wsl_snapshot_exchange import publish_create_only, decode_json_strict
 from tools.profile_joint_scheduler import product_result_clean, failure_payload_clean
 
 DEFAULT_DISTRO = "Ubuntu-22.04"
+DEFAULT_TIMEOUT_S = 240.0
 DEFAULT_GRACE_PERIOD_S = 100.0
+PID_BINDING_CHOICES = ("kernel_bpf", "wsl_system")
+KERNEL_BPF_TASK_ROLES = frozenset({
+    "ap_worker",
+    "px4_worker",
+    "supervisor",
+    "ap_fc/arducopter",
+    "ap_fc/log_io",
+    "ap_fc/DDS",
+    "px4_fc/sim_send",
+    "px4_fc/logger",
+    "px4_fc/wq:lp_default",
+})
 COMPONENT_ROLES = ("preflight", "manager", "collector")
 COMPONENT_EVIDENCE_FIELDS = {
     "preflight": (
@@ -278,8 +294,107 @@ def read_linux_report_file(
     return proc.stdout.decode("utf-8", errors="replace")
 
 
-def verify_report_evidence(report: Any) -> dict[str, Any]:
+def _verify_kernel_bpf_success(report: dict[str, Any]) -> None:
+    if report.get("pid_binding") != "kernel_bpf":
+        raise RuntimeError("Kernel BPF report pid_binding must be exactly 'kernel_bpf'")
+
+    manifest_path = report.get("pid_probe_manifest")
+    if not isinstance(manifest_path, str) or not manifest_path:
+        raise RuntimeError("Kernel BPF report pid_probe_manifest is missing")
+    if report.get("pid_probe_transferred_to_collector") is not True:
+        raise RuntimeError("Kernel BPF probe transfer is not proven")
+    if report.get("pid_probe_parent_closed") is not True:
+        raise RuntimeError("Kernel BPF parent probe close is not proven")
+
+    capture = report.get("capture")
+    if not isinstance(capture, dict):
+        raise RuntimeError("Kernel BPF report capture is missing")
+    if capture.get("pid_binding") != "kernel_bpf":
+        raise RuntimeError("Kernel BPF capture pid_binding must be exactly 'kernel_bpf'")
+    if not isinstance(capture.get("kernel_probe_manifest"), dict):
+        raise RuntimeError("Kernel BPF capture manifest is missing")
+    if capture.get("kernel_probe_closed") is not True:
+        raise RuntimeError("Kernel BPF collector probe close is not proven")
+
+    mapping = capture.get("pid_mapping")
+    if not isinstance(mapping, dict):
+        raise RuntimeError("Kernel BPF pid_mapping is missing")
+    if mapping.get("bpf_sampling_detached") is not True:
+        raise RuntimeError("Kernel BPF sampling detachment is not proven")
+    if not is_strict_zero_int(mapping.get("bpf_dropped_updates")):
+        raise RuntimeError("Kernel BPF bpf_dropped_updates must be exact int 0")
+    detached_ns = mapping.get("bpf_detached_monotonic_ns")
+    if not _is_recorded_int(detached_ns) or detached_ns <= 0:
+        raise RuntimeError("Kernel BPF detach timestamp is missing")
+
+    boundaries = capture.get("capture_boundaries")
+    if not isinstance(boundaries, dict):
+        raise RuntimeError("Kernel BPF capture boundaries are missing")
+    boundary_detached_ns = boundaries.get("bpf_detached_monotonic_ns")
+    if boundary_detached_ns != detached_ns:
+        raise RuntimeError("Kernel BPF detach timestamp is not bound to capture boundaries")
+    started_ns = capture.get("started_monotonic_ns")
+    if not _is_recorded_int(started_ns) or started_ns <= 0:
+        raise RuntimeError("Kernel BPF formal capture start timestamp is missing")
+    if detached_ns >= started_ns:
+        raise RuntimeError("Kernel BPF sampling detached after formal capture began")
+
+    proof = capture.get("post_capture_tasks_proof")
+    if not isinstance(proof, dict):
+        raise RuntimeError("Kernel BPF post_capture_tasks_proof is missing")
+    roles = proof.get("roles_verified")
+    if (
+        not isinstance(roles, list)
+        or len(roles) != len(KERNEL_BPF_TASK_ROLES)
+        or set(roles) != KERNEL_BPF_TASK_ROLES
+    ):
+        raise RuntimeError("Kernel BPF post_capture_tasks_proof must contain exactly 9 roles")
+    if type(proof.get("count")) is not int or proof.get("count") != 9:
+        raise RuntimeError("Kernel BPF post_capture_tasks_proof count must be exact int 9")
+    if type(proof.get("owner_count")) is not int or proof.get("owner_count") != 5:
+        raise RuntimeError("Kernel BPF post_capture_tasks_proof owner_count must be exact int 5")
+    if proof.get("source") != "kernel_bpf_then_stable_proc_lifetimes":
+        raise RuntimeError("Kernel BPF post-capture proof source is not native BPF proof")
+
+
+def _verify_kernel_bpf_cleanup(report: dict[str, Any]) -> tuple[bool, str]:
+    """Verify only probe mode/retirement for a failed or cancelled kernel run."""
+    if report.get("pid_binding") != "kernel_bpf":
+        return False, "kernel_bpf cleanup report pid_binding is missing or mismatched"
+
+    has_manifest = "pid_probe_manifest" in report
+    has_transfer = "pid_probe_transferred_to_collector" in report
+    if has_manifest and (not isinstance(report.get("pid_probe_manifest"), str)
+                         or not report["pid_probe_manifest"]):
+        return False, "pid_probe_manifest is malformed"
+    if has_transfer and report.get("pid_probe_transferred_to_collector") is not True:
+        return False, "pid_probe_transferred_to_collector is not True"
+
+    if has_manifest or has_transfer:
+        if report.get("pid_probe_parent_closed") is not True:
+            return False, "pid_probe_parent_closed is not proven"
+
+    capture = report.get("capture")
+    if capture is not None:
+        if not isinstance(capture, dict):
+            return False, "capture is malformed"
+        if capture.get("pid_binding") != "kernel_bpf":
+            return False, "kernel_bpf capture pid_binding is missing or mismatched"
+        if not has_transfer:
+            return False, "kernel_bpf capture exists without probe transfer evidence"
+        if capture.get("kernel_probe_closed") is not True:
+            return False, "kernel_probe_closed is not proven after probe transfer"
+    elif has_transfer:
+        return False, "kernel_probe_closed is not proven after probe transfer"
+    return True, "kernel BPF probe creation/transfer cleanup is proven"
+
+
+def verify_report_evidence(
+    report: Any, *, pid_binding: str = "kernel_bpf"
+) -> dict[str, Any]:
     """Strictly verify report.json against profile_joint_scheduler retirement invariants."""
+    if pid_binding not in PID_BINDING_CHOICES:
+        raise ValueError(f"pid_binding must be one of {PID_BINDING_CHOICES!r}, got: {pid_binding!r}")
     if not isinstance(report, dict):
         raise ValueError(f"report.json content must be a dict, got: {type(report).__name__}")
     if not failure_payload_clean(report):
@@ -332,10 +447,15 @@ def verify_report_evidence(report: Any) -> dict[str, Any]:
     if components != {role: True for role in COMPONENT_ROLES}:
         raise RuntimeError(f"Full report requires all components_started=True, got: {components!r}")
 
+    if pid_binding == "kernel_bpf":
+        _verify_kernel_bpf_success(report)
+
     return report
 
 
-def verify_cleanup_evidence(report: Any) -> tuple[bool, str]:
+def verify_cleanup_evidence(
+    report: Any, *, pid_binding: str = "kernel_bpf"
+) -> tuple[bool, str]:
     """Verify cleanup-only evidence from a raw (possibly partial) Linux report.
 
     Distinct from verify_report_evidence: this never requires the diagnostic
@@ -344,8 +464,14 @@ def verify_cleanup_evidence(report: Any) -> tuple[bool, str]:
     NOT proof of cleanliness.  Only fields the real profile_joint_scheduler
     schema actually writes are consulted; nothing is fabricated.
     """
+    if pid_binding not in PID_BINDING_CHOICES:
+        return False, f"invalid pid_binding: {pid_binding!r}"
     if not isinstance(report, dict):
         return False, f"report is not a dict: {type(report).__name__}"
+    if pid_binding == "kernel_bpf":
+        probe_ok, probe_reason = _verify_kernel_bpf_cleanup(report)
+        if not probe_ok:
+            return False, probe_reason
     return _verify_component_cleanup(report)
 
 
@@ -354,6 +480,8 @@ def verify_run_cleanup(
     distro: str,
     wsl_bin: str,
     reader_fn: Callable[[str, str, str], dict[str, Any]] | None = None,
+    *,
+    pid_binding: str = "kernel_bpf",
 ) -> tuple[bool, str]:
     """Read this run's raw Linux report (no success criteria) and verify cleanup."""
     try:
@@ -363,7 +491,7 @@ def verify_run_cleanup(
             report = decode_json_strict(read_linux_report_file(output_wsl, distro, wsl_bin))
     except Exception as err:
         return False, f"cleanup unverified: raw report unreadable: {err}"
-    return verify_cleanup_evidence(report)
+    return verify_cleanup_evidence(report, pid_binding=pid_binding)
 
 
 def read_linux_report(
@@ -371,6 +499,8 @@ def read_linux_report(
     distro: str = DEFAULT_DISTRO,
     wsl_bin: str = "wsl.exe",
     reader_fn: Callable[[str, str, str], dict[str, Any]] | None = None,
+    *,
+    pid_binding: str = "kernel_bpf",
 ) -> dict[str, Any]:
     """Read and strictly verify report.json from WSL output directory."""
     if reader_fn is not None:
@@ -379,7 +509,7 @@ def read_linux_report(
         raw_text = read_linux_report_file(output_wsl, distro, wsl_bin)
         report = decode_json_strict(raw_text)
 
-    return verify_report_evidence(report)
+    return verify_report_evidence(report, pid_binding=pid_binding)
 
 
 def run_joint_scheduler_windows(
@@ -387,7 +517,7 @@ def run_joint_scheduler_windows(
     exchange_dir: Path | str,
     *,
     distro: str = DEFAULT_DISTRO,
-    timeout_s: float = 60.0,
+    timeout_s: float = DEFAULT_TIMEOUT_S,
     grace_period_s: float = DEFAULT_GRACE_PERIOD_S,
     poll_interval_s: float = 0.05,
     wsl_bin: Path | str | None = None,
@@ -395,8 +525,15 @@ def run_joint_scheduler_windows(
     read_report_fn: Callable[[str, str, str], dict[str, Any]] | None = None,
     read_raw_report_fn: Callable[[str, str, str], dict[str, Any]] | None = None,
     check_wsl_dir_fn: Callable[[str, str, str], bool] | None = None,
+    pid_binding: str = "kernel_bpf",
 ) -> dict[str, Any]:
-    """Orchestrate parallel WSL profiling runner and Windows snapshot server."""
+    """Run the Linux profiler, optionally with the legacy Windows snapshot server."""
+    if pid_binding not in PID_BINDING_CHOICES:
+        raise ValueError(
+            f"pid_binding must be one of {PID_BINDING_CHOICES!r}, got: {pid_binding!r}"
+        )
+
+    use_wsl_system = pid_binding == "wsl_system"
     if (
         isinstance(timeout_s, bool)
         or not isinstance(timeout_s, (int, float))
@@ -440,6 +577,8 @@ def run_joint_scheduler_windows(
         "--exchange-dir", linux_exchange_dir,
         "--watch-host-stdin",
     ]
+    if pid_binding == "kernel_bpf":
+        cmd_linux.append("--kernel-pid-probe")
 
     cmd_server = [
         sys.executable,
@@ -454,7 +593,7 @@ def run_joint_scheduler_windows(
     start_mono = time.monotonic()
     deadline = start_mono + timeout_s
 
-    # Redirect stdout and stderr to actual files in exchange_dir to prevent pipe deadlocks
+    # Redirect stdout and stderr to actual files in exchange_dir to prevent pipe deadlocks.
     l_stdout_file = exchange_path / "wsl_runner.stdout.log"
     l_stderr_file = exchange_path / "wsl_runner.stderr.log"
     s_stdout_file = exchange_path / "snapshot_server.stdout.log"
@@ -462,17 +601,18 @@ def run_joint_scheduler_windows(
 
     linux_proc = None
     server_proc = None
+    server_started = False
     failure_reason = None
     need_cleanup = False
     cleanup_verified = False
     cleanup_reason = None
     linux_identity = None
 
-    with l_stdout_file.open("wb") as l_out_f, \
-         l_stderr_file.open("wb") as l_err_f, \
-         s_stdout_file.open("wb") as s_out_f, \
-         s_stderr_file.open("wb") as s_err_f:
-
+    with ExitStack() as stack:
+        l_out_f = stack.enter_context(l_stdout_file.open("wb"))
+        l_err_f = stack.enter_context(l_stderr_file.open("wb"))
+        s_out_f = stack.enter_context(s_stdout_file.open("wb")) if use_wsl_system else None
+        s_err_f = stack.enter_context(s_stderr_file.open("wb")) if use_wsl_system else None
         try:
             # Launch Linux runner with stdin=PIPE kept open
             linux_proc = act_popen(
@@ -488,12 +628,14 @@ def run_joint_scheduler_windows(
                 "output_wsl": linux_output_dir,
             }
 
-            # Launch Windows snapshot server
-            server_proc = act_popen(
-                cmd_server,
-                stdout=s_out_f,
-                stderr=s_err_f,
-            )
+            if use_wsl_system:
+                # Launch Windows snapshot server only for the legacy protocol.
+                server_proc = act_popen(
+                    cmd_server,
+                    stdout=s_out_f,
+                    stderr=s_err_f,
+                )
+                server_started = True
 
             while True:
                 now = time.monotonic()
@@ -501,18 +643,23 @@ def run_joint_scheduler_windows(
                     failure_reason = f"Execution timed out after {timeout_s:.1f}s"
                     break
 
-                s_rc = server_proc.poll()
                 l_rc = linux_proc.poll()
 
-                if s_rc is not None and s_rc != 0:
-                    failure_reason = f"Snapshot server failed with exit code {s_rc}"
-                    break
-
+                if use_wsl_system:
+                    s_rc = server_proc.poll()
+                    if s_rc is not None and s_rc != 0:
+                        failure_reason = f"Snapshot server failed with exit code {s_rc}"
+                        break
                 if l_rc is not None and l_rc != 0:
                     failure_reason = f"Linux runner failed with exit code {l_rc}"
                     break
 
-                if s_rc == 0 and l_rc == 0:
+                if use_wsl_system:
+                    complete = s_rc == 0 and l_rc == 0
+                else:
+                    complete = l_rc == 0
+
+                if complete:
                     break
 
                 time.sleep(poll_interval_s)
@@ -554,6 +701,7 @@ def run_joint_scheduler_windows(
                         cleanup_verified, cleanup_reason = verify_run_cleanup(
                             linux_output_dir, distro, wsl_executable,
                             reader_fn=read_raw_report_fn,
+                            pid_binding=pid_binding,
                         )
                         need_cleanup = not cleanup_verified
                 else:
@@ -594,6 +742,8 @@ def run_joint_scheduler_windows(
                     "distro": distro,
                     "output_wsl": linux_output_dir,
                     "exchange_dir": str(exchange_path),
+                    "pid_binding": pid_binding,
+                    "server_started": server_started,
                     "linux_returncode": linux_proc.poll() if linux_proc else None,
                     "server_returncode": server_proc.poll() if server_proc else None,
                     "need_cleanup": need_cleanup,
@@ -616,6 +766,8 @@ def run_joint_scheduler_windows(
         "distro": distro,
         "output_wsl": linux_output_dir,
         "exchange_dir": str(exchange_path),
+        "pid_binding": pid_binding,
+        "server_started": server_started,
         "linux_returncode": linux_proc.poll() if linux_proc else None,
         "server_returncode": server_proc.poll() if server_proc else None,
         "need_cleanup": need_cleanup,
@@ -637,13 +789,15 @@ def run_joint_scheduler_windows(
     # Both exited with code 0: now verify report.json evidence
     try:
         report = read_linux_report(
-            linux_output_dir, distro=distro, wsl_bin=wsl_executable, reader_fn=read_report_fn
+            linux_output_dir, distro=distro, wsl_bin=wsl_executable,
+            reader_fn=read_report_fn, pid_binding=pid_binding,
         )
     except Exception as err:
         # Diagnostic evidence rejected: process exit codes alone do not prove
         # cleanup, so verify cleanup-only evidence from the raw report.
         cleanup_verified, cleanup_reason = verify_run_cleanup(
-            linux_output_dir, distro, wsl_executable, reader_fn=read_raw_report_fn
+            linux_output_dir, distro, wsl_executable,
+            reader_fn=read_raw_report_fn, pid_binding=pid_binding,
         )
         need_cleanup = not cleanup_verified
         log_record["status"] = "failed"
@@ -670,6 +824,9 @@ def run_joint_scheduler_windows(
         "output_wsl": linux_output_dir,
         "exchange_dir": str(exchange_path),
         "distro": distro,
+        "pid_binding": pid_binding,
+        "server_started": server_started,
+        "server_returncode": server_proc.poll() if server_proc else None,
         "elapsed_s": time.monotonic() - start_mono,
         "cleanup_verified": True,
         "report_status": report.get("status"),
@@ -683,8 +840,19 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--output-wsl", required=True, help="Fresh Linux output directory (/root/wksim-scheduler-probe-*).")
     parser.add_argument("--exchange-dir", type=Path, required=True, help="Fresh local Windows exchange directory.")
     parser.add_argument("--distro", default=DEFAULT_DISTRO, help=f"WSL distribution name (default: {DEFAULT_DISTRO}).")
-    parser.add_argument("--timeout", type=float, default=60.0, help="Total timeout in seconds.")
+    parser.add_argument(
+        "--timeout",
+        type=float,
+        default=DEFAULT_TIMEOUT_S,
+        help=f"Total startup and run timeout in seconds (default: {DEFAULT_TIMEOUT_S:.1f}).",
+    )
     parser.add_argument("--grace-period", type=float, default=DEFAULT_GRACE_PERIOD_S, help="Grace period for Linux self-termination.")
+    parser.add_argument(
+        "--pid-binding",
+        choices=PID_BINDING_CHOICES,
+        default="kernel_bpf",
+        help="PID evidence binding mode (default: kernel_bpf; wsl_system is legacy).",
+    )
     args = parser.parse_args(argv)
 
     try:
@@ -694,6 +862,7 @@ def main(argv: list[str] | None = None) -> int:
             distro=args.distro,
             timeout_s=args.timeout,
             grace_period_s=args.grace_period,
+            pid_binding=args.pid_binding,
         )
         print(json.dumps(res, indent=2))
         return 0

@@ -21,6 +21,24 @@ import collect_tracefs as collector
 
 
 class Guards(unittest.TestCase):
+    def test_bootstrap_tail_is_retained_before_formal_filters(self):
+        calls = []
+        with tempfile.TemporaryDirectory() as temporary:
+            output = Path(temporary)
+            (output/'pid-mapping-trace.txt').write_bytes(b'first\n')
+            mapping = {}
+            with patch.object(collector.os, 'open', return_value=99), \
+                    patch.object(collector.os, 'read', side_effect=[b'last\n', BlockingIOError()]), \
+                    patch.object(collector.os, 'close') as close:
+                collector.seal_bootstrap(output, lambda name, value: calls.append((name, value)),
+                                         output, mapping)
+            self.assertEqual(calls, [('tracing_on', '0')])
+            self.assertEqual((output/'pid-mapping-trace.txt').read_bytes(), b'first\nlast\n')
+            self.assertEqual(mapping['mapping_trace_bytes'], 11)
+            self.assertEqual(mapping['bootstrap_seal']['retained_tail_bytes'], 5)
+            self.assertEqual(mapping['mapping_sha256'], hashlib.sha256(b'first\nlast\n').hexdigest())
+            close.assert_called_once_with(99)
+
     def test_owner_fields_are_positive_integers(self):
         self.assertEqual(collector.owner('123:456'),dict(pid=123,start_ticks=456))
         for value in ('0:3','3:0','3:4:5','3;4','abc','-3:4'):
