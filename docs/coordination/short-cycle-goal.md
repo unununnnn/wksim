@@ -1,6 +1,8 @@
 # 当前 Goal 执行检查点
 
-## 最新：#83限定切片的完整原始审计已PASS，待工单收口；#84/G6继续
+## 最新：#83已CLOSED；#84/G6继续
+
+GitHub已实际关闭#83（completed），证据实现与原件选取包已推送941d584。OMP独立扫描确认新AP航点[55047,57047]与PX4[58893,60893]各2001个1ms样本零违例，AP最大速度0.49723<0.5；审计v2、result SHA与无探针身份同场。详见omp-formal-pv-review-20260913.md。OMP已立即续派turn7643da36-c5f7-4d0d-b446-8135a6e86447，独占docs/2026-09-09-formal-mixed-profile-plan.md当前检查点与validation/33-formal-promotion/20260913-readiness，查同组合mixed原件/正式profile映射；不修改catalog，不把一份PV证明充作两种能力。正式行当前仍0DQQz9/evidence=[]，已知私有validation范围未发现mixed场，仅说明该范围。Claude继续G6修订turn5ad55920，无新native在运行。#33/#84/Full保持OPEN/未完成。
 
 新场1w6dru32（epoch a160e99bb6ac46b4a09f0b36b3daeed7），runner exit0/pass、tick116004、wall283.260591381s、无两timing/early-work字段，最坏迟到89299145ns；PGID2060–2069独立全空。raw-pv-audit-v2.json完整PASS，SHA8140d80e5695bb377dedaef7198cb67811456a2429bab005085b2a5926f0e8c4，主会话复核全部302输入SHA及result绑定。27,493个10s和21,245个60s完整滑窗、两栈两段各12,001个1ms参考样本、全部原物理/端点/停止/LAND门通过。详见docs/2026-09-13-final-combo-pv-pass.md与validation/33-final-combo-luna/pv-settle-1w6dru32。#82已CLOSED；#83待推送与收口，#33/#84/Full未完成，不标Goal complete。
 

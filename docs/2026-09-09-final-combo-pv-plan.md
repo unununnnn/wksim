@@ -27,7 +27,7 @@ python3 -B tools/audit_pv_trajectory.py "$(realpath validation/ACTUAL_NEW_RUN)" 
 
 审计命令须在项目既有 ROS/message 环境中执行；`ACTUAL_NEW_RUN`、`ACTUAL_NEW_AUDIT` 由真实运行输出替换，审计输出不得写入原始证据目录。PV 审计显式分派到真实 mixed 身份审计，再执行原 PV 逐包/原生目标/每 1ms 物理/连续倍率检查。保留 mixed-source、PV 基线构建、八份原生文件、控制安装源码与执行源封存，并记录复用 mixed 身份审计器的 SHA。
 
-2026-09-13 入场修复待实跑：xtj8wk8i原件在AP航点窗口前两个1ms样本分别为0.505341/0.502214m/s，原0.5m/s门如实失败。新任务只在fresh的估计速度≤0.4m/s时宣布waypoint_reached，之后仍按原0.5m/s、2秒完整保持与原位置/yaw门检查；这只提供入场余量，不是已验证修复。命令延续已实现的manager-gc-freeze：首次物理推进前一次collect/freeze，结束恢复原状态，GC启用状态/阈值保持；是否满足性能要求只由新原件判断。正式尝试关闭WKSIM_JOINT_CPU_TIMING和WKSIM_JOINT_RATE_TIMING_PROBE，不传early-work-timing。
+2026-09-13 入场修复已由新场1w6dru32验证：xtj8wk8i原件在AP航点窗口前两个1ms样本分别为0.505341/0.502214m/s，原0.5m/s门如实失败。新任务只在fresh的估计速度≤0.4m/s时宣布waypoint_reached，之后仍按原0.5m/s、2秒完整保持与原位置/yaw门检查；新场完整原始审计与独立航点逐1ms复核通过，见[结果](2026-09-13-final-combo-pv-pass.md)。命令延续已实现的manager-gc-freeze：首次物理推进前一次collect/freeze，结束恢复原状态，GC启用状态/阈值保持。正式尝试关闭WKSIM_JOINT_CPU_TIMING和WKSIM_JOINT_RATE_TIMING_PROBE，不传early-work-timing。
 
 物理合同完全继承 [P+V 冻结合同](2026-09-09-pv-flight-plan.md)：两段各 12s XYZ P+V/yaw 轨迹，每 1ms 检查位置 ≤0.5m、逐轴速度 ≤0.3m/s、yaw ≤0.15rad；端点准备/保持各 2s，两次停止准备 2s/保持 4s，速度 ≤0.25m/s、漂移 ≤1m，第二段使用实际新锚点，最后显式退出绝对控制并正常 LAND。0.5×、100ms 迟到限、全部完整 10s/60s 滑窗 2%/1% 限及最终停止边界保持不变。
 
