@@ -2,6 +2,14 @@
 
 2026-09-12最新：Goal active，createdAt1789219780；Full/G0–G6原目标和全部验收门保持。上一轮是实质进展：C1源码/测试交付、真实诊断运行、原件保留与独立核算，不能把失败场称通过。
 
+## 本轮新增完成：当前 wrapper 独立冷重建/重置
+
+主会话已实际执行 `validation/codegen-e0-lifecycle-current-wrapper-01/`：audit pass，4×1000步/1ms/120维、480000值四周期精确一致；原库与cold库SHA528db324…相同；43项输入/历史哈希不变；两个子进程exit0，PGID705/706独立确认空。冷库/root/wksim-codegen-e0-cold-907225b3b06c/libwksim_e0.so。详见docs/2026-09-12-current-wrapper-lifecycle.md与validation/coordination/native-inputs-20260912/current-lifecycle-01.json。
+
+执行validator SHA ec883644acce248921c9775451699ce2c149311d438b720e3e21c361571a2098，准入52项Ubuntu root行为测试与独立codebuddy复核通过。外层bash全部native/后置哈希检查后有多余CR命令exit1，属于包装尾部错误，已单列，不重跑native。已通过场不得重复；未覆盖terrain全语义/可选DLL/G6。实时gh确认#24 CLOSED/#9 OPEN/#26 OPEN，历史pinmanifest保持。
+
+最新任务：A turn931c9ab3-638d-4eae-b80b-942e74115ad1修C1分析错误（2秒非20秒预热、窗口端点、旧分析器、条件采样均值/因果混淆），两分析文件暂不验收；OMP turn735f022c-e46a-464d-aaf4-d643908b0460独立复核该测量。D turnac063e4c-3300-4501-b4fa-d2ca5d5b586d只做当前#26五AC到真实证据映射和文档收口，不再改已运行validator；codebuddy turnffcabb64-026d-41b2-bda2-8eb580a912ab已完成current-lifecycle源码审查。原B状态仍异常且半成品不依赖，不虚报终态。下方旧D“未验收/未执行”状态由本节取代。
+
 ## 最新真实场：C1 freeze-only，失败原件已保留
 
 - run：joint-public-flight-ztdsk269，epoch7d9b3af3441242b687a19e388a9df0d6。

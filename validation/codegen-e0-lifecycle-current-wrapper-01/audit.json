@@ -1,0 +1,81 @@
+{
+  "status": "pass",
+  "schema": "wksim.generated-e0-lifecycle.v1",
+  "runs": [
+    {
+      "name": "original",
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/tools/validate_generated_e0_lifecycle.py",
+        "--probe",
+        "/root/wksim-codegen-e0-build-current-wrapper-01/libwksim_e0.so",
+        "--output",
+        "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/validation/codegen-e0-lifecycle-current-wrapper-01/original"
+      ],
+      "identity": {
+        "pid": 705,
+        "pgid": 705,
+        "start_ticks": 196595,
+        "argv": [
+          "/usr/bin/python3",
+          "-B",
+          "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/tools/validate_generated_e0_lifecycle.py",
+          "--probe",
+          "/root/wksim-codegen-e0-build-current-wrapper-01/libwksim_e0.so",
+          "--output",
+          "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/validation/codegen-e0-lifecycle-current-wrapper-01/original"
+        ]
+      },
+      "returncode": 0
+    },
+    {
+      "name": "cold",
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/tools/validate_generated_e0_lifecycle.py",
+        "--probe",
+        "/root/wksim-codegen-e0-cold-907225b3b06c/libwksim_e0.so",
+        "--output",
+        "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/validation/codegen-e0-lifecycle-current-wrapper-01/cold"
+      ],
+      "identity": {
+        "pid": 706,
+        "pgid": 706,
+        "start_ticks": 196622,
+        "argv": [
+          "/usr/bin/python3",
+          "-B",
+          "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/tools/validate_generated_e0_lifecycle.py",
+          "--probe",
+          "/root/wksim-codegen-e0-cold-907225b3b06c/libwksim_e0.so",
+          "--output",
+          "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/validation/codegen-e0-lifecycle-current-wrapper-01/cold"
+        ]
+      },
+      "returncode": 0
+    }
+  ],
+  "ticks_per_cycle": 1000,
+  "cycles": 4,
+  "compared_values": 480000,
+  "clock_tolerance_s": 1e-08,
+  "library_sha256": "528db3241baa43ef79166fbba74f6a4176aa2d82bf7c238bfe8f8db68267b328",
+  "cold_library": "/root/wksim-codegen-e0-cold-907225b3b06c/libwksim_e0.so",
+  "source_sha256": {
+    "Exp1_MinModelTemp.cpp": "2c25b3fa08c996c8f2ed1a7feae5558062cd722ae5d350cc8a25caf2be10b274",
+    "Exp1_MinModelTemp.h": "7601dbd721f0502e4bd67758d86cc21abf8e5c9568a31fb3160283df1df8c4bc",
+    "rtwtypes.h": "1b08664b70d40d08ee2952ca47254bd16a9e045be8b5edc9781fe620fb7c199f",
+    "model.cpp": "150ddf3bab66e9e59701791392f6d792a14346e0b75ecdfe94872095e72d0290",
+    "rtw_continuous.h": "8f2c78fdc5a097552078484c738aefcc944463c8834d2ca6319b76cedf526b18",
+    "rtw_solver.h": "359ff69aa94a137e8b246721ead52e056dd4fdf11c35a7f92ebb9f14e0cda674"
+  },
+  "raw_sha256": {
+    "original/cycle-0.jsonl": "0979200da666f80d679203f07c47effd5d7385d3a0ddb1fe2b30e1bbc70b7553",
+    "original/cycle-1.jsonl": "0979200da666f80d679203f07c47effd5d7385d3a0ddb1fe2b30e1bbc70b7553",
+    "cold/cycle-0.jsonl": "0979200da666f80d679203f07c47effd5d7385d3a0ddb1fe2b30e1bbc70b7553",
+    "cold/cycle-1.jsonl": "0979200da666f80d679203f07c47effd5d7385d3a0ddb1fe2b30e1bbc70b7553"
+  },
+  "limitation": "Independent Linux reconstruction and reset only; no flight or MATLAB numeric oracle"
+}
