@@ -1,0 +1,186 @@
+{
+  "schema": "codebuddy.core-native-audit-review.v1",
+  "reviewer": "CodeBuddy (independent adversarial, pure-Python static)",
+  "date": "2026-09-13",
+  "subject": {
+    "repo": "unununnnn/wksim",
+    "cwd": "C:/Users/PC/Documents/odid编译/wksim",
+    "audited_commit": "34d607698f90ea5a83901b511baaf4aee7bdd595",
+    "audited_commit_subject": "Pin accepted native load sites in core audit",
+    "head_start": "1a8d5083b70461e6e6984566f7298c993f0c5392",
+    "head_end": "287f8ec0e65c2e10b80b450904592f8349aed107",
+    "concurrent_commits": [
+      "0a1caa116e31700155a7abb567176c48668c0e8e",
+      "287f8ec0e65c2e10b80b450904592f8349aed107"
+    ],
+    "concurrent_commits_touched_in_scope_files": false,
+    "commit_34d6076_is_ancestor": true,
+    "architecture_ancestor_f333316": true,
+    "python": "3.13.11"
+  },
+  "scope": {
+    "writable_dir": "validation/coordination/codebuddy-core-native-audit-review-20260913-01/",
+    "in_scope_files": [
+      "tools/audit_core_no_vendor_dll.py",
+      "validation/test_audit_core_no_vendor_dll.py",
+      "Simulator/wksim_runtime/perf_capture.py",
+      "Simulator/wksim_runtime/netns_handoff.py"
+    ],
+    "not_executed": ["native code", "build", "ROS", "flight control", "model", "UE", "MATLAB"],
+    "native_libraries_loaded": false,
+    "processes_spawned": false,
+    "existing_files_modified": false,
+    "git_add_commit_push": false
+  },
+  "in_scope_sha256": {
+    "tools/audit_core_no_vendor_dll.py": "e773d69b2b61ea465b411ddd8e0977cfc96af6e2fee6a488628cd26d9c27c608",
+    "validation/test_audit_core_no_vendor_dll.py": "f02f862e6f4df9c3a2779affeae44be2173b94e73aa5ec070452e3d59863983e",
+    "Simulator/wksim_runtime/perf_capture.py": "c196616fe8324eed2d8b294ef52aaec1f982eb5330abbeb7ee17094399f32e0f",
+    "Simulator/wksim_runtime/netns_handoff.py": "3cfea24602fb6c703898be4bac6e81f71a38a0175260b08d2bad58ba9b973575",
+    "docs/plan/75-core-no-dll-audit.md": "1ca31d2a5435fe5d924b8397194743df9b017618a05d0d4b0f10a89a5237ed0e"
+  },
+  "baseline": {
+    "test_command": "python -B -m pytest validation/test_audit_core_no_vendor_dll.py -q",
+    "test_result": "90 passed, 1 skipped, 117 subtests passed",
+    "real_repo_audit_command": "python -B tools/audit_core_no_vendor_dll.py",
+    "real_repo_audit_exit": 0,
+    "real_repo_audit_status": "pass",
+    "real_repo_audit_violations": []
+  },
+  "severity_rollup": {"P0": 0, "P1": 3, "P2": 3},
+  "verdict": "No P0. Three P1 false negatives share one root cause: the pinned-site validators check token/guard presence but establish no control-flow or data-flow association between guard and load, and constrain no symbol surface on the admitted libc handle. All ten adversarial mutations passed the audit (status=pass) while the sole control mutation was correctly rejected.",
+  "findings": [
+    {
+      "id": "P1-1",
+      "severity": "P1",
+      "title": "caller_path_sha256 checks guard presence, not effectiveness or order relative to the load",
+      "file": "tools/audit_core_no_vendor_dll.py",
+      "lines": "324-388 (esp. 347-387, return 388); falsified claim at 11-19 and 1952-1957",
+      "mechanism": "_perf_recorder_load_shape_ok walks the enclosing function and only requires the guard tokens to appear anywhere: Path(<param>) 347-357, library.open 358-361, is_absolute/is_file/suffix 362-364, '.so' 365-366, '0123456789abcdef' 367-368, hashlib.sha256() 369-372, len(<param>)==64 and <digest>.hexdigest() != <param> 373-387. It never checks that the guard is evaluated, that its failure branch raises/aborts, or that it executes before the pinned load.",
+      "poc": [
+        {"mutation": "perf_capture.py:39 -> 'if digest.hexdigest() != library_sha256 and False:'", "observed": "status=pass"},
+        {"mutation": "perf_capture.py:40 -> 'pass'", "observed": "status=pass"},
+        {"mutation": "perf_capture.py:30 -> '(not library.is_absolute() or library.suffix != \".so\" or not library.is_file()) and False:'", "observed": "status=pass"},
+        {"mutation": "perf_capture.py:33 -> 'or any(c not in \"0123456789abcdef\" for c in library_sha256)) and False:'", "observed": "status=pass"},
+        {"mutation": "reorder: keep the pinned CDLL statement byte-identical on line 51 but execute it before the digest gate (gate moved to lines 52-57)", "observed": "status=pass"}
+      ],
+      "impact": "The audit returns status=pass with violations=[] while the .so is dlopen'd before verification (ELF initializers run) or with an arbitrary SHA256 param. Directly contradicts the certified 'after an exact SHA256 gate' claim.",
+      "minimal_fix": "Require the digest Compare(NotEq) and the path guard each to be the direct test of an ast.If whose body contains ast.Raise (reject BoolOp-wrapped tests, which kills 'and False'; require a Raise, which kills 'pass'); require those If statements to lexically precede the pinned load in the same function body, failing closed when not linearizable."
+    },
+    {
+      "id": "P1-2",
+      "severity": "P1",
+      "title": "Digest is not bound to the file that is loaded (no data-flow association)",
+      "file": "tools/audit_core_no_vendor_dll.py",
+      "lines": "324-388; flags opens_path 358-361, sha256_constructor 369-372, digest_gate 373-380",
+      "mechanism": "opens_path only requires that some library.open(...) call exists; it does not require the bytes consumed by digest.update to come from that stream. digest_gate only requires hexdigest() and a function parameter in a NotEq; it does not require digest to be fed from the loaded path. The evidence doc section 3.2 claims 'reads the same path with open'; the code does not enforce it.",
+      "poc": [
+        {"mutation": "perf_capture.py:38 -> 'digest.update(b\"\")'", "observed": "status=pass"},
+        {"mutation": "perf_capture.py:36 -> 'with (library.open(\"rb\"), Path(\"/etc/hostname\").open(\"rb\"))[1] as stream:'", "observed": "status=pass"}
+      ],
+      "impact": "The SHA gate can hash an unrelated file (or empty input) while str(library) is still loaded; the loaded bytes never participate in verification, yet the audit passes.",
+      "minimal_fix": "Require the with context_expr to be exactly path_name.open(...) (an ast.Call; reject Tuple/Subscript context), and require digest.update(...) to appear inside that with body fed from the stream.read loop."
+    },
+    {
+      "id": "P1-3",
+      "severity": "P1",
+      "title": "Pinned libc handle is an unrestricted native-call surface: it can be borrowed as a new dlopen/symbol loader",
+      "file": "tools/audit_core_no_vendor_dll.py",
+      "lines": "391-444 (_libc_setns_load_shape_ok); root cause _abstract untagging at 935-936; rules 1665-1670 and 1791-1801; falsified claim at 114-119 and 14-16",
+      "mechanism": "_libc_setns_load_shape_ok proves setns is used (argtypes installed, CLONE_NEWNET call, get_errno) but not that only setns is used. Because _abstract returns an untagged value for the admitted ctypes.CDLL(...) call (935-936), the bound handle is not recognized by is_loader_expr, so handle.<symbol> calls are invisible to both rule 6c and the load-site rule.",
+      "poc": [
+        {"mutation": "insert at netns_handoff.py:186 -> 'libc.system(b\"id\")'", "observed": "status=pass"},
+        {"mutation": "insert at netns_handoff.py:186 -> 'libc.open(b\"/etc/passwd\", 0)'", "observed": "status=pass"},
+        {"mutation": "insert at netns_handoff.py:186 -> 'libc.dlopen(b\"/tmp/x.so\", 2)'", "observed": "status=pass; a genuine native dynamic loader call"}
+      ],
+      "impact": "ctypes.CDLL(None) exposes the whole process-image symbol table; one inserted line yields a new dlopen/system/execve native surface while the audit certifies 'no native surface beyond the pinned load sites'. Newly introduced by 34d6076: before the commit netns_handoff.py:183 was itself rejected, so no passing tree could hold this libc handle.",
+      "minimal_fix": "In _libc_setns_load_shape_ok, walk the function (and module) and fail on any ast.Attribute whose value is the handle and whose attr is not 'setns' (setns.argtypes/restype are part of the setns chain and remain allowed). Optionally tag the value bound from an admitted pinned CDLL as ctypes_loader and reject any non-reviewed use."
+    },
+    {
+      "id": "P2-1",
+      "severity": "P2",
+      "title": "Regression tests do not cover the three false negatives",
+      "file": "validation/test_audit_core_no_vendor_dll.py",
+      "lines": "967-973, 975-979 (guard tests only remove the whole expression via 'if False:'); 989-1004 (call-shape variants); 1020-1053 (libc constant/arg/loader variants)",
+      "mechanism": "Existing negative tests cover wholesale deletion of a guard expression and call-shape drift, but not token-preserving neutralization ('and False'), raise->pass, guard/load ordering, digest-source rebinding, or extra libc symbols.",
+      "poc": [
+        {"mutation": "none; coverage gap evidenced by P1-1/P1-2/P1-3 all passing the full suite unchanged", "observed": "90 passed, 1 skipped"}
+      ],
+      "impact": "The suite gives false assurance that the pinned exceptions are fail-closed against semantic weakening.",
+      "minimal_fix": "Port the ten mutations from repro_pinned_native_load.py into PinnedNativeLoadSiteTests as negative tests asserting status=='failed'."
+    },
+    {
+      "id": "P2-2",
+      "severity": "P2",
+      "title": "Authoritative ticket doc and tool/claim wording drift from actual enforcement",
+      "file": "docs/plan/75-core-no-dll-audit.md",
+      "lines": "8 (still says exactly one dynamic-library load call); tool claim at tools/audit_core_no_vendor_dll.py:1952-1957 and docstring 11-19; evidence section 3.2/3.3",
+      "mechanism": "The tool now certifies three load sites while ticket invariant #1 still states '恰好一处'. The docstring/claim and the commit's evidence doc additionally claim 'after an exact SHA256 gate', 'reads the same path with open' and 'only the Linux setns syscall', which P1-1/P1-2/P1-3 falsify.",
+      "poc": [
+        {"mutation": "none; text comparison between tool claim and docs/plan/75 line 8", "observed": "mismatch"}
+      ],
+      "impact": "Compatibility/auditability drift: the documented proof boundary exceeds the code's real proof power; docs/plan/75 was not updated by this commit.",
+      "minimal_fix": "Update invariant #1 to 'one model site plus two pinned native sites', and narrow the claim/docstring to what the code proves (or tighten the code per P1-1/P1-2/P1-3 first and keep the stronger wording)."
+    },
+    {
+      "id": "P2-3",
+      "severity": "P2",
+      "title": "Absolute line pinning brittleness; hash-then-path-load TOCTOU note",
+      "file": "tools/audit_core_no_vendor_dll.py",
+      "lines": "107-120 (hardcoded lines 51 and 183); perf_capture.py:36-39 (hash) vs 51 (dlopen by path)",
+      "mechanism": "Any unrelated edit (e.g. an extra import) to the two modules shifts the pinned line numbers and fails the audit by design. Separately, the recorder hashes by content then dlopens by path, so the static gate cannot bind hashed bytes to loaded bytes.",
+      "poc": [
+        {"mutation": "informational; see harness case load_precedes_gate and the digest-source cases", "observed": "n/a"}
+      ],
+      "impact": "Fail-closed noise on unrelated commits (intended tradeoff); the claim wording must not be read as byte-verification. Informational, not a defect in the commit's intent.",
+      "minimal_fix": "Document the pinned-line coupling; consider pinning by enclosing-callable plus call-text rather than raw line number if churn becomes a problem."
+    }
+  ],
+  "test_coverage_assessment": {
+    "cover": [
+      "whole-guard removal (if False:) for sha and path gates",
+      "recorder call-shape variants (missing use_errno, hardcoded/literal path, other loaders)",
+      "second load site / loader alias in a pinned file",
+      "libc CLONE_NEWNET constant drift, setns arg drift, path/None/loader variants, unbound handle",
+      "pinned file missing, count lock, duplicate entries, unknown shape",
+      "adjacent/nested/copied-file borrowing of either exception",
+      "baseline fixture and real-repo pass"
+    ],
+    "gap": [
+      "token-preserving guard neutralization (and False) — P1-1",
+      "raise removal (guard retained) — P1-1",
+      "guard vs load ordering — P1-1",
+      "digest source not bound to the loaded path — P1-2",
+      "extra libc symbols / dlopen through the pinned handle — P1-3"
+    ],
+    "gap_evidenced_by": "all ten adversarial mutations passed the unmodified suite and the audit"
+  },
+  "compatibility": {
+    "model_py_logic_unchanged": true,
+    "allowed_cdll_count_still_locked_to_one": true,
+    "other_loader_reflection_rules_unchanged": true,
+    "real_repo_audit_pass_at_head_end": true,
+    "broken_consumers_found": [],
+    "documentation_drift": "docs/plan/75-core-no-dll-audit.md:8"
+  },
+  "non_findings_verified_sound": [
+    "file/line/line-sha256/call-text/callable pins fail closed on drift",
+    "allowlist count locked to 2 with duplicate and unknown-shape rejection",
+    "pinned-file absence rejected",
+    "adjacent, nested and copied files cannot borrow either exception",
+    "an appended second ctypes.CDLL in a pinned file is rejected (rule 6c + load-site)",
+    "telemetry_dialect.py:20 dynamic-exec allowlist and model.py:15 / joint_runtime.py:478 vendor allowlist unaffected"
+  ],
+  "artifacts": [
+    "review.md",
+    "review.json",
+    "repro_pinned_native_load.py",
+    "repro_output.txt",
+    "repro_output.json",
+    "baseline_test_output.txt",
+    "real_repo_audit.json",
+    "real_repo_audit.err",
+    "SHA256SUMS",
+    ".gitattributes"
+  ]
+}

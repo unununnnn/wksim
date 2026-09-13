@@ -1,0 +1,90 @@
+[
+  {
+    "case": "baseline_unchanged",
+    "expected": "pass",
+    "status": "pass",
+    "violations": [],
+    "bypass_confirmed": true
+  },
+  {
+    "case": "sha_gate_condition_neutralized_AND_False",
+    "expected": "pass",
+    "status": "pass",
+    "violations": [],
+    "bypass_confirmed": true
+  },
+  {
+    "case": "sha_gate_raise_replaced_by_pass",
+    "expected": "pass",
+    "status": "pass",
+    "violations": [],
+    "bypass_confirmed": true
+  },
+  {
+    "case": "path_gate_condition_neutralized_AND_False",
+    "expected": "pass",
+    "status": "pass",
+    "violations": [],
+    "bypass_confirmed": true
+  },
+  {
+    "case": "digest_not_bound_to_loaded_file",
+    "expected": "pass",
+    "status": "pass",
+    "violations": [],
+    "bypass_confirmed": true
+  },
+  {
+    "case": "load_precedes_sha_gate",
+    "expected": "pass",
+    "status": "pass",
+    "violations": [],
+    "bypass_confirmed": true
+  },
+  {
+    "case": "libc_handle_reused_for_arbitrary_symbol",
+    "expected": "pass",
+    "status": "pass",
+    "violations": [],
+    "bypass_confirmed": true
+  },
+  {
+    "case": "libc_handle_used_for_file_open",
+    "expected": "pass",
+    "status": "pass",
+    "violations": [],
+    "bypass_confirmed": true
+  },
+  {
+    "case": "libc_handle_reused_as_dlopen_loader",
+    "expected": "pass",
+    "status": "pass",
+    "violations": [],
+    "bypass_confirmed": true
+  },
+  {
+    "case": "hash_decoy_open_hashes_other_file",
+    "expected": "pass",
+    "status": "pass",
+    "violations": [],
+    "bypass_confirmed": true
+  },
+  {
+    "case": "sha_shape_guard_neutralized_AND_False",
+    "expected": "pass",
+    "status": "pass",
+    "violations": [],
+    "bypass_confirmed": true
+  },
+  {
+    "case": "control_appended_extra_cdll_must_fail",
+    "expected": "failed",
+    "status": "failed",
+    "violations": [
+      "unexpected dynamic-load site: Simulator/wksim_runtime/perf_capture.py:118 (ctypes.CDLL)",
+      "forbidden loader reference outside the pinned call (CDLL) at Simulator/wksim_runtime/perf_capture.py:118",
+      "hardcoded library literal at Simulator/wksim_runtime/perf_capture.py: 'vendor/x.so'"
+    ],
+    "bypass_confirmed": false
+  }
+]

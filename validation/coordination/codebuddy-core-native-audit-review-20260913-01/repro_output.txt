@@ -1,0 +1,29 @@
+[pass  ] baseline_unchanged
+[pass  ] sha_gate_condition_neutralized_AND_False
+[pass  ] sha_gate_raise_replaced_by_pass
+[pass  ] path_gate_condition_neutralized_AND_False
+[pass  ] digest_not_bound_to_loaded_file
+[pass  ] load_precedes_sha_gate
+[pass  ] libc_handle_reused_for_arbitrary_symbol
+[pass  ] libc_handle_used_for_file_open
+[pass  ] libc_handle_reused_as_dlopen_loader
+[pass  ] hash_decoy_open_hashes_other_file
+[pass  ] sha_shape_guard_neutralized_AND_False
+[failed] control_appended_extra_cdll_must_fail
+          - unexpected dynamic-load site: Simulator/wksim_runtime/perf_capture.py:118 (ctypes.CDLL)
+          - forbidden loader reference outside the pinned call (CDLL) at Simulator/wksim_runtime/perf_capture.py:118
+          - hardcoded library literal at Simulator/wksim_runtime/perf_capture.py: 'vendor/x.so'
+
+=== SUMMARY ===
+BYPASS             baseline_unchanged
+BYPASS             sha_gate_condition_neutralized_AND_False
+BYPASS             sha_gate_raise_replaced_by_pass
+BYPASS             path_gate_condition_neutralized_AND_False
+BYPASS             digest_not_bound_to_loaded_file
+BYPASS             load_precedes_sha_gate
+BYPASS             libc_handle_reused_for_arbitrary_symbol
+BYPASS             libc_handle_used_for_file_open
+BYPASS             libc_handle_reused_as_dlopen_loader
+BYPASS             hash_decoy_open_hashes_other_file
+BYPASS             sha_shape_guard_neutralized_AND_False
+rejected(correct)  control_appended_extra_cdll_must_fail
