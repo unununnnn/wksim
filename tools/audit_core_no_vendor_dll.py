@@ -8,6 +8,15 @@ packages (wksim_core, wksim_runtime, wksim_planning):
    the caller-supplied path (``str(Path(library).resolve())``) with no
    hardcoded vendor/Windows DLL literal; ``from ctypes import CDLL``,
    ``getattr(ctypes, ...)`` and attribute-chain variants are all detected;
+1b. contain exactly two further native load sites, each pinned by file, line,
+   line SHA256, exact call text, enclosing callable and AST shape: the
+   diagnostic perf recorder may load only the caller-supplied absolute ``.so``
+   path after an exact lowercase SHA256 gate, and the namespace handoff may
+   take only the current-process libc handle (``ctypes.CDLL(None,
+   use_errno=True)``) for the Linux ``setns`` syscall.  Another file, another
+   ``ctypes`` loader attribute, another argument list, another enclosing
+   callable, a moved or edited line, or a removed guard fails closed, so the
+   exception cannot be borrowed by adjacent code;
 2. never reference vendor artifacts (``.dll``, ``CopterSim.exe``,
    ``DllSimCtrlAPI``, ``RflySim``) in Python source outside an exact
    line-and-content-pinned allowlist;
@@ -48,6 +57,7 @@ CONFIG_SOURCES = ("Simulator/wksim_runtime/config.py",
 EXPECTED_MODEL_LIBS = frozenset({"libwksim_model.so"})
 EXPECTED_ALLOWLIST_COUNT = 2
 EXPECTED_DYNAMIC_EXEC_COUNT = 1
+EXPECTED_PINNED_NATIVE_LOAD_SITES = 2
 
 FORBIDDEN_LOADABLE_EXTENSIONS = frozenset({".dll", ".pyd", ".so", ".dylib", ".exe"})
 BYTECODE_EXTENSIONS = frozenset({".pyc", ".pyo"})
@@ -85,11 +95,35 @@ KNOWN_DYNAMIC_EXEC = (
      "isolated generated per-firmware MAVLink dialect loader executing pre-hashed bytes"),
 )
 
+# Native load sites outside the caller-supplied model CDLL.  Each entry is
+# (relative path, 1-based line, sha256 of that exact line, exact call text,
+# enclosing class or None, enclosing function, shape id, justification).  The
+# shape id selects the AST validator below.  There is no other way to satisfy
+# this audit: another file, another ctypes loader attribute, another argument
+# list, another enclosing callable, a moved or edited line, a removed guard or a
+# hardcoded path fails closed.  The list length is pinned and may not grow.
+PINNED_RECORDER_SHAPE = "caller_path_sha256"
+PINNED_LIBC_SHAPE = "libc_setns"
+KNOWN_NATIVE_LOAD_SITES = (
+    ("Simulator/wksim_runtime/perf_capture.py", 51,
+     "40d2a210cd6b8c23ffac1c00127c1c0023b473e7e98f193405ecb57320b7d2f7",
+     "ctypes.CDLL(str(library), use_errno=True)",
+     "PerfStreamCapture", "__init__", PINNED_RECORDER_SHAPE,
+     "diagnostic perf recorder for the reviewed kernel; loads only the "
+     "caller-supplied absolute .so path after an exact lowercase SHA256 gate"),
+    ("Simulator/wksim_runtime/netns_handoff.py", 183,
+     "8a9e06d9f78664a3654c91950aa35b2534506854e1ce5cdfe0edefccbdab8966",
+     "ctypes.CDLL(None, use_errno=True)",
+     None, "enter_namespace", PINNED_LIBC_SHAPE,
+     "current-process libc handle used only for the Linux setns syscall; no "
+     "library path is resolved"),
+)
+
 _LOAD_NAMES = frozenset({"CDLL", "PyDLL", "WinDLL", "OleDLL", "LoadLibrary", "dlopen"})
 _LOADER_ATTRS = frozenset({"cdll", "windll", "oledll"})
 # pythonapi is a pre-bound PyDLL of the running interpreter: a live native-call
 # surface with no vendor-DLL semantics.  It is forbidden in core all the same,
-# because this audit certifies "no native surface beyond the one pinned CDLL".
+# because this audit certifies "no native surface beyond the pinned load sites".
 _FORBIDDEN_CPYTHON_ATTRS = frozenset({"pythonapi"})
 _IMPORTLIB_LOADER_NAMES = frozenset({"ExtensionFileLoader", "SourcelessFileLoader"})
 _ALL_LOADER_TOKENS = _LOAD_NAMES | _LOADER_ATTRS
@@ -237,6 +271,246 @@ def _model_allowed_loader_call_ids(tree):
                 and owner is not None and owner.name == "Model"
                 and any(parameter.arg == "library" for parameter in parameters)):
             allowed.add(id(node.func))
+    return allowed
+
+
+def _is_ctypes_attribute(expr, name):
+    """True iff ``expr`` is exactly ``ctypes.<name>`` on the module name."""
+    return (isinstance(expr, ast.Attribute) and expr.attr == name
+            and isinstance(expr.value, ast.Name) and expr.value.id == "ctypes")
+
+
+def _is_use_errno_true(call):
+    """True iff the call passes exactly ``use_errno=True`` and nothing else."""
+    return ([keyword.arg for keyword in call.keywords] == ["use_errno"]
+            and isinstance(call.keywords[0].value, ast.Constant)
+            and call.keywords[0].value.value is True)
+
+
+def _calls_attribute(expr, name):
+    return (isinstance(expr, ast.Call) and isinstance(expr.func, ast.Attribute)
+            and expr.func.attr == name)
+
+
+def _function_parameters(function):
+    names = {argument.arg for argument in
+             (list(function.args.posonlyargs) + list(function.args.args)
+              + list(function.args.kwonlyargs))}
+    if function.args.vararg is not None:
+        names.add(function.args.vararg.arg)
+    if function.args.kwarg is not None:
+        names.add(function.args.kwarg.arg)
+    return names
+
+
+def _enclosing_callable(node, parents):
+    parent = parents.get(id(node))
+    while parent is not None:
+        if isinstance(parent, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            return parent
+        parent = parents.get(id(parent))
+    return None
+
+
+def _enclosing_class_node(node, parents):
+    parent = parents.get(id(node))
+    while parent is not None:
+        if isinstance(parent, ast.ClassDef):
+            return parent
+        parent = parents.get(id(parent))
+    return None
+
+
+def _perf_recorder_load_shape_ok(call, function, parameters):
+    """Shape of the recorder CDLL: caller path parameter plus an exact SHA gate.
+
+    The argument must be ``str(library)`` where ``library`` is built as
+    ``Path(<parameter>)``, the absolute-existing-``.so`` path gates must be
+    present, and the file content must be hashed with ``hashlib.sha256`` and
+    compared against a caller-supplied exact lowercase SHA256 before the load.
+    A hardcoded path, a missing guard or an extra load site cannot satisfy it.
+    """
+    if len(call.args) != 1 or not _is_use_errno_true(call):
+        return False
+    if not _is_ctypes_attribute(call.func, "CDLL"):
+        return False
+    argument = call.args[0]
+    if not (isinstance(argument, ast.Call) and isinstance(argument.func, ast.Name)
+            and argument.func.id == "str" and len(argument.args) == 1
+            and not argument.keywords and isinstance(argument.args[0], ast.Name)):
+        return False
+    path_name = argument.args[0].id
+    observed = {"suffix": False, "is_absolute": False, "is_file": False}
+    flags = {"path_from_parameter": False, "so_literal": False,
+             "sha256_constructor": False, "sha_length_gate": False,
+             "sha_charset_gate": False, "digest_gate": False, "opens_path": False}
+    for node in ast.walk(function):
+        if (isinstance(node, ast.Assign) and len(node.targets) == 1
+                and isinstance(node.targets[0], ast.Name)
+                and node.targets[0].id == path_name
+                and isinstance(node.value, ast.Call)
+                and isinstance(node.value.func, ast.Name)
+                and node.value.func.id == "Path" and len(node.value.args) == 1
+                and not node.value.keywords
+                and isinstance(node.value.args[0], ast.Name)
+                and node.value.args[0].id in parameters):
+            flags["path_from_parameter"] = True
+        if (isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)
+                and node.func.attr == "open" and isinstance(node.func.value, ast.Name)
+                and node.func.value.id == path_name):
+            flags["opens_path"] = True
+        if (isinstance(node, ast.Attribute) and isinstance(node.value, ast.Name)
+                and node.value.id == path_name and node.attr in observed):
+            observed[node.attr] = True
+        if isinstance(node, ast.Constant) and node.value == ".so":
+            flags["so_literal"] = True
+        if isinstance(node, ast.Constant) and node.value == "0123456789abcdef":
+            flags["sha_charset_gate"] = True
+        if (isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)
+                and node.func.attr == "sha256" and isinstance(node.func.value, ast.Name)
+                and node.func.value.id == "hashlib"):
+            flags["sha256_constructor"] = True
+        if (isinstance(node, ast.Compare) and len(node.ops) == 1
+                and isinstance(node.ops[0], ast.NotEq) and len(node.comparators) == 1):
+            left, right = node.left, node.comparators[0]
+            if ((_calls_attribute(left, "hexdigest") and isinstance(right, ast.Name)
+                 and right.id in parameters)
+                    or (_calls_attribute(right, "hexdigest") and isinstance(left, ast.Name)
+                        and left.id in parameters)):
+                flags["digest_gate"] = True
+            if (isinstance(left, ast.Call) and isinstance(left.func, ast.Name)
+                    and left.func.id == "len" and len(left.args) == 1
+                    and isinstance(left.args[0], ast.Name)
+                    and left.args[0].id in parameters
+                    and isinstance(node.comparators[0], ast.Constant)
+                    and node.comparators[0].value == 64):
+                flags["sha_length_gate"] = True
+    return all(observed.values()) and all(flags.values())
+
+
+def _libc_setns_load_shape_ok(call, function, tree):
+    """Shape of the libc handle: ``ctypes.CDLL(None, use_errno=True)`` for setns.
+
+    The handle must come from the current process image (``None``, never a
+    path), be bound to a local name, install ``setns`` argtypes, call ``setns``
+    with the module-level Linux ``CLONE_NEWNET`` flag, and read errno through
+    ctypes.  No library path and no other symbol surface is involved.
+    """
+    if len(call.args) != 1 or not _is_use_errno_true(call):
+        return False
+    if not _is_ctypes_attribute(call.func, "CDLL"):
+        return False
+    if not (isinstance(call.args[0], ast.Constant) and call.args[0].value is None):
+        return False
+    handle = None
+    for node in ast.walk(function):
+        if (isinstance(node, ast.Assign) and len(node.targets) == 1
+                and isinstance(node.targets[0], ast.Name) and node.value is call):
+            handle = node.targets[0].id
+    if handle is None:
+        return False
+    flag = None
+    for node in tree.body:
+        if (isinstance(node, ast.Assign) and len(node.targets) == 1
+                and isinstance(node.targets[0], ast.Name)
+                and node.targets[0].id == "CLONE_NEWNET"
+                and isinstance(node.value, ast.Constant)):
+            flag = node.value.value
+    if flag != 0x40000000:
+        return False
+    setns_call = setns_argtypes = errno_read = False
+    for node in ast.walk(function):
+        if (isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)
+                and node.func.attr == "setns" and isinstance(node.func.value, ast.Name)
+                and node.func.value.id == handle
+                and len(node.args) == 2 and isinstance(node.args[1], ast.Name)
+                and node.args[1].id == "CLONE_NEWNET"):
+            setns_call = True
+        if (isinstance(node, ast.Assign) and len(node.targets) == 1
+                and isinstance(node.targets[0], ast.Attribute)
+                and node.targets[0].attr == "argtypes"
+                and isinstance(node.targets[0].value, ast.Attribute)
+                and node.targets[0].value.attr == "setns"
+                and isinstance(node.targets[0].value.value, ast.Name)
+                and node.targets[0].value.value.id == handle
+                and isinstance(node.value, ast.Tuple) and len(node.value.elts) == 2
+                and all(_is_ctypes_attribute(element, "c_int")
+                        for element in node.value.elts)):
+            setns_argtypes = True
+        if (isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)
+                and node.func.attr == "get_errno" and isinstance(node.func.value, ast.Name)
+                and node.func.value.id == "ctypes"):
+            errno_read = True
+    return setns_call and setns_argtypes and errno_read
+
+
+def _check_pinned_native_load_sites(root, report, files):
+    """Pin the non-model native load allowlist itself (count, files, duplicates)."""
+    if len(KNOWN_NATIVE_LOAD_SITES) != EXPECTED_PINNED_NATIVE_LOAD_SITES:
+        _fail(report, f"pinned native load site count must be exactly "
+                      f"{EXPECTED_PINNED_NATIVE_LOAD_SITES}, got {len(KNOWN_NATIVE_LOAD_SITES)}")
+    paths = [pin[0] for pin in KNOWN_NATIVE_LOAD_SITES]
+    if len(set(paths)) != len(paths):
+        _fail(report, "pinned native load site list has duplicate files")
+    pairs = [(pin[0], pin[1]) for pin in KNOWN_NATIVE_LOAD_SITES]
+    if len(set(pairs)) != len(pairs):
+        _fail(report, "pinned native load site list has duplicate file/line entries")
+    present = {relative for relative, _, _ in files}
+    for path in paths:
+        if path not in present:
+            _fail(report, f"pinned native load site file missing or not a core .py: {path}")
+
+
+def _pinned_native_load_ids(tree, relative, text, report):
+    """Verify the pinned native load sites of one file and return allowed ids.
+
+    An entry is allowed only when the pinned line still hashes to the pinned
+    content, holds exactly one loader call with the pinned enclosing callable
+    and the pinned AST shape.  Anything else fails closed and returns no id, so
+    the surrounding loader rules reject the site as well.
+    """
+    pins = [pin for pin in KNOWN_NATIVE_LOAD_SITES if pin[0] == relative]
+    if not pins:
+        return set()
+    parents = {}
+    for parent in ast.walk(tree):
+        for child in ast.iter_child_nodes(parent):
+            parents[id(child)] = parent
+    lines = text.splitlines()
+    allowed = set()
+    for path, number, line_sha, call_text, owner, function_name, shape, _ in pins:
+        line = lines[number - 1] if 0 < number <= len(lines) else None
+        if line is None or _line_sha256(line) != line_sha or call_text not in line:
+            _fail(report, f"pinned native load site missing, moved or edited: {path}:{number}")
+            continue
+        calls = [node for node in ast.walk(tree)
+                 if isinstance(node, ast.Call) and node.lineno == number
+                 and isinstance(node.func, ast.Attribute) and node.func.attr in _LOAD_NAMES]
+        if len(calls) != 1:
+            _fail(report, f"pinned native load site must be exactly one loader call "
+                          f"at {path}:{number}")
+            continue
+        call = calls[0]
+        function = _enclosing_callable(call, parents)
+        owner_node = _enclosing_class_node(call, parents)
+        observed_owner = None if owner_node is None else owner_node.name
+        expected = function_name if owner is None else f"{owner}.{function_name}"
+        if function is None or function.name != function_name or observed_owner != owner:
+            _fail(report, f"pinned native load site callable drift at {path}:{number}: "
+                          f"expected {expected}")
+            continue
+        if shape == PINNED_RECORDER_SHAPE:
+            ok = _perf_recorder_load_shape_ok(call, function, _function_parameters(function))
+        elif shape == PINNED_LIBC_SHAPE:
+            ok = _libc_setns_load_shape_ok(call, function, tree)
+        else:
+            _fail(report, f"unknown pinned native load site shape {shape!r} "
+                          f"at {path}:{number}")
+            continue
+        if not ok:
+            _fail(report, f"pinned native load site shape drift ({shape}) at {path}:{number}")
+            continue
+        allowed.add(id(call.func))
     return allowed
 
 
@@ -888,7 +1162,8 @@ def _check_load_sites(root, report, files, allowed_dynamic_exec):
                         changed = True
         allowed_loader_attrs = (
             _model_allowed_loader_call_ids(tree)
-            if relative == "Simulator/wksim_core/model.py" else set())
+            if relative == "Simulator/wksim_core/model.py"
+            else _pinned_native_load_ids(tree, relative, text, report))
 
         def _resolved_container(expr, seen=()):
             if not isinstance(expr, ast.Name) or expr.id not in container_bindings:
@@ -1519,8 +1794,9 @@ def _check_load_sites(root, report, files, allowed_dynamic_exec):
                         isinstance(func, ast.Name) and func.id in aliases) or (
                         bool(_abstract(func).tags & {"ctypes_loader", "unknown_loader"}))
                 if loads_library:
-                    if relative == "Simulator/wksim_core/model.py" and id(func) in allowed_loader_attrs:
-                        allowed_count += 1
+                    if id(func) in allowed_loader_attrs:
+                        if relative == "Simulator/wksim_core/model.py":
+                            allowed_count += 1
                     else:
                         _fail(report, f"unexpected dynamic-load site: {relative}:{node.lineno} ({'.'.join(func_parts) or 'alias'})")
 
@@ -1676,7 +1952,9 @@ def audit(root=ROOT):
     report = {"schema": REPORT_SCHEMA,
               "status": "pass",
               "claim": ("default autonomous core has exactly one caller-supplied "
-                        "libwksim_*.so load site and no vendor DLL surface"),
+                        "libwksim_*.so load site, one pinned caller-path+SHA256 "
+                        "perf-recorder load site and one pinned current-process "
+                        "libc setns handle, and no vendor DLL surface"),
               "non_claims": [
                   "static audit only; not the #75 fresh-directory run",
                   "does not approve or load any vendor ABI",
@@ -1691,6 +1969,7 @@ def audit(root=ROOT):
     files = _iter_core_python(resolved, report)
     _check_loadable_artifacts(resolved, report)
     allowed_dynamic_exec = _check_dynamic_exec_allowlist(resolved, report, files)
+    _check_pinned_native_load_sites(resolved, report, files)
     _check_load_sites(resolved, report, files, allowed_dynamic_exec)
     _check_vendor_references(resolved, report, files)
     _check_config_surface(resolved, report)

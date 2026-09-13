@@ -1,0 +1,18 @@
+# ds-core-native-load-audit-fix-20260913-01 交付哈希（SHA256，LF 行尾）
+# 计算方式：python -B 读取原始字节（不执行、不加载任何库、不构建）
+# 自嵌限制：audit.md 与 hashes.txt 的自身哈希无法自包含，在交付回复中给出。
+
+e773d69b2b61ea465b411ddd8e0977cfc96af6e2fee6a488628cd26d9c27c608  tools/audit_core_no_vendor_dll.py
+f02f862e6f4df9c3a2779affeae44be2173b94e73aa5ec070452e3d59863983e  validation/test_audit_core_no_vendor_dll.py
+
+705fd4d6451a31d36b3df7de96f83f30ac976c9b4a6d1e51671d8e2f33e2d0da  validation/coordination/ds-core-native-load-audit-fix-20260913-01/.gitattributes
+de3b8dd998e439df6cc894ba146eb5488b254f18c9be77a87b555679a0cc128c  validation/coordination/ds-core-native-load-audit-fix-20260913-01/audit.json
+5079db2b8b2aa8ad5783e9b3a20546469dff69a6724ae16abe604224e12a6741  validation/coordination/ds-core-native-load-audit-fix-20260913-01/test-output.txt
+9c13b126f2c82d4fc28e1bf62a006e15eeb6e91d19798d4b41958df1d4bf5f72  validation/coordination/ds-core-native-load-audit-fix-20260913-01/regression-output.txt
+
+# 钉定的只读输入（本次未修改；审计钉定其行内容哈希）
+c196616fe8324eed2d8b294ef52aaec1f982eb5330abbeb7ee17094399f32e0f  Simulator/wksim_runtime/perf_capture.py
+3cfea24602fb6c703898be4bac6e81f71a38a0175260b08d2bad58ba9b973575  Simulator/wksim_runtime/netns_handoff.py
+3b0ae6f40594a30997fa66beba11466ca88f0c1a3b88c2322d4fee10f1ce4d41  Simulator/wksim_core/model.py
+6a7d027ad1ead8f113e064b03058fa45b9ad6f804daabe58a7a1c5a9c20a18aa  Simulator/wksim_runtime/joint_runtime.py
+fa9cec926c3ab0b7e5ce64849a652f76ebd2cf6361d45222d6c563dff728287a  Simulator/wksim_runtime/telemetry_dialect.py

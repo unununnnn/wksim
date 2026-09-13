@@ -34,10 +34,27 @@ JOINT = {"profiles": [{"id": "p", "model_library": "/p/libwksim_model.so"}]}
 
 
 TELEMETRY_DIALECT_PY = (ROOT / "Simulator/wksim_runtime/telemetry_dialect.py").read_text(encoding="utf-8")
+# The fixture must carry the real pinned native load sites, so that a drifted or
+# borrowed exception is exercised by the same audit path the repository uses.
+PERF_CAPTURE_PY = (ROOT / "Simulator/wksim_runtime/perf_capture.py").read_text(encoding="utf-8")
+NETNS_HANDOFF_PY = (ROOT / "Simulator/wksim_runtime/netns_handoff.py").read_text(encoding="utf-8")
+
+
+def _replace_line(text, number, replacement):
+    """Replace one 1-based line, keeping every other line number in place."""
+    lines = text.splitlines()
+    lines[number - 1] = replacement
+    return "\n".join(lines) + "\n"
+
+
+def _insert_line(text, number, inserted):
+    lines = text.splitlines()
+    lines.insert(number - 1, inserted)
+    return "\n".join(lines) + "\n"
 
 
 def _fixture(root, model_py=MODEL_PY, extra_files=None, cap=None, joint=None,
-             example=None):
+             example=None, omit=()):
     core = root / "Simulator/wksim_core"
     runtime = root / "Simulator/wksim_runtime"
     planning = root / "Simulator/wksim_planning"
@@ -49,6 +66,8 @@ def _fixture(root, model_py=MODEL_PY, extra_files=None, cap=None, joint=None,
     (runtime / "config.py").write_text(CONFIG_PY, encoding="utf-8")
     (runtime / "joint_config.py").write_text(CONFIG_PY, encoding="utf-8")
     (runtime / "telemetry_dialect.py").write_text(TELEMETRY_DIALECT_PY, encoding="utf-8")
+    (runtime / "perf_capture.py").write_text(PERF_CAPTURE_PY, encoding="utf-8")
+    (runtime / "netns_handoff.py").write_text(NETNS_HANDOFF_PY, encoding="utf-8")
     (planning / "__init__.py").write_text("", encoding="utf-8")
     for name in ("arducopter-session.json", "px4-session.json"):
         (runtime / "examples" / name).write_text(
@@ -61,6 +80,10 @@ def _fixture(root, model_py=MODEL_PY, extra_files=None, cap=None, joint=None,
         path = root / relative
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(text, encoding="utf-8")
+    for relative in omit:
+        path = root / relative
+        if path.is_file():
+            path.unlink()
     return root
 
 
@@ -850,6 +873,222 @@ class ReflectionBypassTests(unittest.TestCase):
         self.assertEqual(list(_sys.path), before_path)
         after_modules = {n for n in _sys.modules if n == "Simulator" or n.startswith("Simulator.")}
         self.assertEqual(after_modules, before_modules)
+
+
+class PinnedNativeLoadSiteTests(unittest.TestCase):
+    """Two non-model native load sites are pinned; nothing may borrow either.
+
+    The recorder CDLL is legitimate only because the caller supplies an absolute
+    ``.so`` path that is hashed and compared against a caller-supplied exact
+    lowercase SHA256 before the load.  The handoff CDLL is legitimate only
+    because it takes the current-process image (``None``) and only calls the
+    Linux ``setns`` syscall.  Every test below tries to widen one of those two
+    exceptions: another file, another loader attribute, another argument, another
+    enclosing callable, a drifted line or a removed guard.
+    """
+
+    def setUp(self):
+        self.dir = tempfile.TemporaryDirectory()
+        self.addCleanup(self.dir.cleanup)
+        self.root = Path(self.dir.name)
+
+    def audit(self, **kwargs):
+        with mock.patch.object(audit_mod, "KNOWN_VENDOR_REFERENCES", MOCK_ALLOWLIST):
+            return audit_mod.audit(_fixture(self.root, **kwargs))
+
+    def assertFailsAt(self, report, path, number):
+        self.assertEqual(report["status"], "failed")
+        self.assertTrue(any(path in item and f":{number}" in item
+                            for item in report["violations"]), report["violations"])
+
+    def test_pinned_native_load_table_is_frozen(self):
+        self.assertEqual(audit_mod.EXPECTED_PINNED_NATIVE_LOAD_SITES, 2)
+        observed = {(pin[0], pin[1], pin[6]) for pin in audit_mod.KNOWN_NATIVE_LOAD_SITES}
+        self.assertEqual(observed, {
+            ("Simulator/wksim_runtime/perf_capture.py", 51,
+             audit_mod.PINNED_RECORDER_SHAPE),
+            ("Simulator/wksim_runtime/netns_handoff.py", 183,
+             audit_mod.PINNED_LIBC_SHAPE),
+        })
+        for path, number, line_sha, call_text, owner, function, _, _ in audit_mod.KNOWN_NATIVE_LOAD_SITES:
+            line = (ROOT / path).read_text(encoding="utf-8").splitlines()[number - 1]
+            self.assertIn(call_text, line, path)
+            self.assertEqual(audit_mod._line_sha256(line), line_sha, path)
+            self.assertTrue(owner is None or owner.isidentifier(), path)
+            self.assertTrue(function.isidentifier(), path)
+
+    def test_fixture_with_real_pinned_sites_passes(self):
+        report = self.audit()
+        self.assertEqual(report["violations"], [])
+        self.assertEqual(report["status"], "pass")
+
+    def test_real_core_needs_the_pinned_exception(self):
+        with mock.patch.object(audit_mod, "KNOWN_NATIVE_LOAD_SITES", ()):
+            report = audit_mod.audit(ROOT)
+        self.assertEqual(report["status"], "failed")
+        self.assertTrue(any("perf_capture.py:51" in v for v in report["violations"]),
+                        report["violations"])
+        self.assertTrue(any("netns_handoff.py:183" in v for v in report["violations"]),
+                        report["violations"])
+
+    def test_adjacent_file_cannot_borrow_the_recorder_exception(self):
+        for label, relative in (
+            ("sibling", "Simulator/wksim_runtime/perf_capture_copy.py"),
+            ("nested", "Simulator/wksim_runtime/sub/perf_capture.py"),
+            ("core_package", "Simulator/wksim_core/perf_capture.py"),
+        ):
+            with self.subTest(label=label):
+                report = self.audit(extra_files={relative: PERF_CAPTURE_PY})
+                self.assertEqual(report["status"], "failed")
+                self.assertTrue(any(f"unexpected dynamic-load site: {relative}:51" in v
+                                    for v in report["violations"]), report["violations"])
+
+    def test_adjacent_file_cannot_borrow_the_libc_exception(self):
+        relative = "Simulator/wksim_runtime/netns_handoff_copy.py"
+        report = self.audit(extra_files={relative: NETNS_HANDOFF_PY})
+        self.assertEqual(report["status"], "failed")
+        self.assertTrue(any(f"unexpected dynamic-load site: {relative}:183" in v
+                            for v in report["violations"]), report["violations"])
+
+    def test_recorder_line_drift_rejected(self):
+        drifted = _insert_line(PERF_CAPTURE_PY, 1, "# drift")
+        report = self.audit(extra_files={"Simulator/wksim_runtime/perf_capture.py": drifted})
+        self.assertTrue(any("pinned native load site missing, moved or edited" in v
+                            and "perf_capture.py:51" in v for v in report["violations"]),
+                        report["violations"])
+
+    def test_libc_line_drift_rejected(self):
+        drifted = _insert_line(NETNS_HANDOFF_PY, 1, "# drift")
+        report = self.audit(extra_files={"Simulator/wksim_runtime/netns_handoff.py": drifted})
+        self.assertTrue(any("pinned native load site missing, moved or edited" in v
+                            and "netns_handoff.py:183" in v for v in report["violations"]),
+                        report["violations"])
+
+    def test_recorder_sha_gate_removal_rejected(self):
+        # Blanking the digest comparison keeps line 51 in place: only the
+        # caller-path+SHA256 guard is gone, and the site must fail closed.
+        weakened = _replace_line(PERF_CAPTURE_PY, 39, "        if False:")
+        report = self.audit(extra_files={"Simulator/wksim_runtime/perf_capture.py": weakened})
+        self.assertTrue(any("pinned native load site shape drift (caller_path_sha256)" in v
+                            for v in report["violations"]), report["violations"])
+
+    def test_recorder_path_gate_removal_rejected(self):
+        weakened = _replace_line(PERF_CAPTURE_PY, 30, "        if False:")
+        report = self.audit(extra_files={"Simulator/wksim_runtime/perf_capture.py": weakened})
+        self.assertTrue(any("pinned native load site shape drift (caller_path_sha256)" in v
+                            for v in report["violations"]), report["violations"])
+
+    def test_recorder_wrong_enclosing_callable_rejected(self):
+        renamed = PERF_CAPTURE_PY.replace("    def __init__(self, library_path",
+                                          "    def initialize(self, library_path")
+        self.assertNotEqual(renamed, PERF_CAPTURE_PY)
+        report = self.audit(extra_files={"Simulator/wksim_runtime/perf_capture.py": renamed})
+        self.assertTrue(any("pinned native load site callable drift" in v
+                            for v in report["violations"]), report["violations"])
+
+    def test_recorder_argument_variants_rejected(self):
+        for label, line in (
+            ("missing_use_errno", "        self._library = ctypes.CDLL(str(library))"),
+            ("hardcoded_path",
+             "        self._library = ctypes.CDLL('/opt/vendor.so', use_errno=True)"),
+            ("literal_path",
+             "        self._library = ctypes.CDLL(str('/tmp/x.so'), use_errno=True)"),
+            ("other_loader",
+             "        self._library = ctypes.PyDLL(str(library), use_errno=True)"),
+            ("win_loader",
+             "        self._library = ctypes.WinDLL(str(library), use_errno=True)"),
+        ):
+            with self.subTest(label=label):
+                modified = _replace_line(PERF_CAPTURE_PY, 51, line)
+                report = self.audit(extra_files={"Simulator/wksim_runtime/perf_capture.py": modified})
+                self.assertFailsAt(report, "perf_capture.py", 51)
+
+    def test_recorder_second_load_site_rejected(self):
+        appended = PERF_CAPTURE_PY + "\n\ndef extra():\n    return ctypes.CDLL(None, use_errno=True)\n"
+        report = self.audit(extra_files={"Simulator/wksim_runtime/perf_capture.py": appended})
+        self.assertEqual(report["status"], "failed")
+        self.assertTrue(any(v.startswith("unexpected dynamic-load site: "
+                                         "Simulator/wksim_runtime/perf_capture.py")
+                            for v in report["violations"]), report["violations"])
+
+    def test_recorder_loader_alias_rejected(self):
+        appended = PERF_CAPTURE_PY + "\n\nloader = ctypes.CDLL\n"
+        report = self.audit(extra_files={"Simulator/wksim_runtime/perf_capture.py": appended})
+        self.assertTrue(any("forbidden dynamic loader assignment alias" in v
+                            for v in report["violations"]), report["violations"])
+
+    def test_libc_flag_constant_drift_rejected(self):
+        drifted = _replace_line(NETNS_HANDOFF_PY, 19, "CLONE_NEWNET = 0x40000001")
+        report = self.audit(extra_files={"Simulator/wksim_runtime/netns_handoff.py": drifted})
+        self.assertTrue(any("pinned native load site shape drift (libc_setns)" in v
+                            for v in report["violations"]), report["violations"])
+
+    def test_libc_setns_call_drift_rejected(self):
+        drifted = _replace_line(NETNS_HANDOFF_PY, 186,
+                                "            if libc.setns(received[0], 0) != 0:")
+        report = self.audit(extra_files={"Simulator/wksim_runtime/netns_handoff.py": drifted})
+        self.assertTrue(any("pinned native load site shape drift (libc_setns)" in v
+                            for v in report["violations"]), report["violations"])
+
+    def test_libc_argument_variants_rejected(self):
+        for label, line in (
+            ("path_argument",
+             "            libc = ctypes.CDLL('libc.so.6', use_errno=True)"),
+            ("resolved_path",
+             "            libc = ctypes.CDLL(str(Path('/tmp/x').resolve()), use_errno=True)"),
+            ("missing_use_errno", "            libc = ctypes.CDLL(None)"),
+            ("other_loader",
+             "            libc = ctypes.WinDLL(None, use_errno=True)"),
+            ("unbound_handle", "            ctypes.CDLL(None, use_errno=True)"),
+        ):
+            with self.subTest(label=label):
+                modified = _replace_line(NETNS_HANDOFF_PY, 183, line)
+                report = self.audit(extra_files={"Simulator/wksim_runtime/netns_handoff.py": modified})
+                self.assertFailsAt(report, "netns_handoff.py", 183)
+
+    def test_libc_loader_alias_rejected(self):
+        appended = NETNS_HANDOFF_PY + "\n\nloader = ctypes.CDLL\n"
+        report = self.audit(extra_files={"Simulator/wksim_runtime/netns_handoff.py": appended})
+        self.assertTrue(any("forbidden dynamic loader assignment alias" in v
+                            for v in report["violations"]), report["violations"])
+
+    def test_pinned_site_file_missing_rejected(self):
+        report = self.audit(omit=("Simulator/wksim_runtime/netns_handoff.py",))
+        self.assertTrue(any("pinned native load site file missing or not a core .py: "
+                            "Simulator/wksim_runtime/netns_handoff.py" in v
+                            for v in report["violations"]), report["violations"])
+
+    def test_pinned_native_load_allowlist_count_locked(self):
+        with mock.patch.object(audit_mod, "KNOWN_NATIVE_LOAD_SITES", ()):
+            report = audit_mod.audit(_fixture(self.root))
+            self.assertTrue(any("pinned native load site count must be exactly 2" in v
+                                for v in report["violations"]), report["violations"])
+
+        three = audit_mod.KNOWN_NATIVE_LOAD_SITES + (
+            ("Simulator/wksim_runtime/extra.py", 1, "0" * 64, "ctypes.CDLL('x')",
+             None, "f", audit_mod.PINNED_RECORDER_SHAPE, "dummy"),)
+        with mock.patch.object(audit_mod, "KNOWN_NATIVE_LOAD_SITES", three):
+            report3 = audit_mod.audit(_fixture(self.root))
+            self.assertTrue(any("pinned native load site count must be exactly 2" in v
+                                for v in report3["violations"]), report3["violations"])
+
+    def test_unknown_pinned_shape_fails_closed(self):
+        pin = list(audit_mod.KNOWN_NATIVE_LOAD_SITES[0])
+        pin[6] = "unsupported_shape"
+        with mock.patch.object(audit_mod, "KNOWN_NATIVE_LOAD_SITES", (tuple(pin),)), \
+                mock.patch.object(audit_mod, "EXPECTED_PINNED_NATIVE_LOAD_SITES", 1):
+            report = audit_mod.audit(_fixture(self.root))
+        self.assertTrue(any("unknown pinned native load site shape" in v
+                            for v in report["violations"]), report["violations"])
+
+    def test_pinned_native_load_allowlist_duplicate_files_rejected(self):
+        duplicated = audit_mod.KNOWN_NATIVE_LOAD_SITES + (
+            audit_mod.KNOWN_NATIVE_LOAD_SITES[0],)
+        with mock.patch.object(audit_mod, "KNOWN_NATIVE_LOAD_SITES", duplicated), \
+                mock.patch.object(audit_mod, "EXPECTED_PINNED_NATIVE_LOAD_SITES", 3):
+            report = audit_mod.audit(_fixture(self.root))
+        self.assertTrue(any("duplicate files" in v or "duplicate file/line" in v
+                            for v in report["violations"]), report["violations"])
 
 
 if __name__ == "__main__":
