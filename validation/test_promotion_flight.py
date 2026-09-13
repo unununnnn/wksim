@@ -311,19 +311,45 @@ class PromotionFlightTests(unittest.TestCase):
     def test_session_catalog_is_candidate_only_and_requires_current_control(self):
         before = preflight.INDEX.read_bytes()
         index = json.loads(before)
-        paths = [preflight.REPO / p['result'] for p in index['control_profiles']['session_v1']['evidence'].values()]
-        sources = json.loads(paths[0].read_text())['prometheus']['implementation_sha256']
-        with tempfile.TemporaryDirectory() as directory:
-            with patch.object(preflight, 'control_sources', return_value={'not-flown.py': 'new'}):
-                with self.assertRaisesRegex(ValueError, 'current pinned control'):
-                    rebuild.session(paths, Path(directory))
-            self.assertEqual(list(Path(directory).iterdir()), [])
-            with patch.object(preflight, 'control_sources', return_value=sources):
-                rebuild.session(paths, Path(directory))
-            candidate = json.loads((Path(directory) / 'capability-index.candidate.json').read_text())
-            self.assertEqual(candidate, index)
-            with patch.object(preflight, 'control_sources', return_value=sources), self.assertRaises(FileExistsError):
-                rebuild.session(paths, Path(directory))
+        sources = {'session.py': 'current'}
+        validation = preflight.REPO / 'validation'
+        with tempfile.TemporaryDirectory(dir=validation) as directory:
+            root = Path(directory)
+            paths = []
+            evidence = {}
+            for stack in ('px4', 'arducopter'):
+                path = root / stack / 'result.json'
+                path.parent.mkdir()
+                path.write_text(json.dumps(dict(
+                    stack=stack,
+                    prometheus_workspace=index['control_profiles']['session_v1']['workspace'],
+                    prometheus=dict(implementation_sha256=sources),
+                )))
+                paths.append(path)
+                evidence[stack] = dict(
+                    result=path.relative_to(preflight.REPO).as_posix(),
+                    result_sha256=hashlib.sha256(path.read_bytes()).hexdigest(),
+                )
+            index['control_profiles']['session_v1']['evidence'] = evidence
+            fixture_index = root / 'capability-index.json'
+            fixture_index.write_text(json.dumps(index))
+            output = root / 'output'
+            output.mkdir()
+            with patch.object(preflight, 'INDEX', fixture_index), \
+                    patch.object(preflight, 'control_profile') as profile_check:
+                with patch.object(preflight, 'control_sources', return_value={'not-flown.py': 'new'}):
+                    with self.assertRaisesRegex(ValueError, 'current pinned control'):
+                        rebuild.session(paths, output)
+                self.assertEqual(list(output.iterdir()), [])
+                with patch.object(preflight, 'control_sources', return_value=sources):
+                    rebuild.session(paths, output)
+                candidate = json.loads((output / 'capability-index.candidate.json').read_text())
+                self.assertEqual(candidate, index)
+                self.assertEqual([call.args[2] for call in profile_check.call_args_list],
+                                 ['px4', 'arducopter'])
+                with patch.object(preflight, 'control_sources', return_value=sources), \
+                        self.assertRaises(FileExistsError):
+                    rebuild.session(paths, output)
         self.assertEqual(preflight.INDEX.read_bytes(), before)
 
 
