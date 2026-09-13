@@ -1,0 +1,901 @@
+{
+  "schema": "wksim.9-vendor-abi-defer-boundary.v1",
+  "kind": "branch_isolation_contract",
+  "issue": 9,
+  "layer": "proposed",
+  "authority": "proposal_only",
+  "effective": false,
+  "date": "2026-09-14",
+  "title": "Vendor DLL ABI defer boundary and branch-isolation contract (PROPOSED, not a decision)",
+  "purpose": [
+    "Record the observed evidence that the vendor DLL ABI half of #9 is unavailable from official sources and is DEFERRED with explicit unlock preconditions.",
+    "Record in a tracked artifact that the unknown vendor DLL ABI branch blocks only #27, #28, #73, #74, #76, #77, #78 while the reviewed native wk_model_* C ABI path stays usable.",
+    "State explicitly that this record makes no owner decision: it neither closes nor rejects #9, and it does not close #26 or #29."
+  ],
+  "claim_text": "PROPOSED branch-isolation record only: the vendor DLL ABI half of #9 is deferred with five unlock preconditions, the affected tickets stay open and unfixed, #9, #26 and #29 keep their parent dependencies, the native wk_model_* C ABI path is recorded usable and separate from the vendor DLL ABI, and the owner decision stays undecided for both halves.",
+  "observed_at": {
+    "head": "768526aafa1e48c342c5c8840a9154e8ed90f68d",
+    "branch": "main",
+    "baseline_ancestor": "f333316e6efa6b299b4288a9d91fb2bccedfb9d6",
+    "origin_main": "768526aafa1e48c342c5c8840a9154e8ed90f68d",
+    "baseline_ancestor_is_ancestor_of_head": true,
+    "recorded_utc": "2026-09-14T00:00:00Z"
+  },
+  "evidence_policy": {
+    "digest_algorithm": "sha256",
+    "digest_encoding": "lowercase_hex",
+    "evidence_class_decision_affecting": "committed_repository_artifact",
+    "evidence_class_context_only": "host_external_read_only",
+    "require_tracked_at_head": true,
+    "fail_closed_on": [
+      "unknown_key",
+      "missing_key",
+      "duplicate_key",
+      "wrong_type",
+      "uppercase_or_malformed_digest",
+      "unreadable_path",
+      "path_not_tracked_at_head",
+      "path_absent_from_head_tree",
+      "digest_mismatch_worktree",
+      "digest_mismatch_head_blob",
+      "host_external_digest_mismatch_when_present",
+      "host_external_pin_promoted_to_decision",
+      "rejection_or_closure_or_acceptance_claim",
+      "owner_decision_made",
+      "dependency_satisfied_by_defer",
+      "native_vendor_shared_dependency",
+      "native_path_vendor_reference",
+      "affected_or_closure_set_drift",
+      "issue_action_performed"
+    ]
+  },
+  "observed": {
+    "vendor_dll_abi_availability": {
+      "status": "official_source_unavailable",
+      "conclusion": "deferred_pending_official_header_and_authorized_sample",
+      "unlock_preconditions_source": "docs/plan/9-abi-environment-accepted.md:28-34",
+      "unlock_preconditions_count": 5,
+      "unlock_preconditions": [
+        "per-sample manifest: export name, calling convention, pointer/array lengths, float/double/integer types, return type and error codes",
+        "units, coordinates, time, ownership and write timing of every input/output field",
+        "state diagram for load -> init -> input -> step -> read -> reset new epoch -> terminate/unload",
+        "isolation results for DLL crash, step error, short output, repeated reset and thread/UDP residue",
+        "file SHA, provenance/license and permitted local use; readable header or wrapper source"
+      ],
+      "official_source_gaps": [
+        {
+          "abi_item": "authoritative_c_prototypes",
+          "observed": "absent"
+        },
+        {
+          "abi_item": "calling_convention",
+          "observed": "absent"
+        },
+        {
+          "abi_item": "exact_float_or_double_width_on_the_export_side",
+          "observed": "absent"
+        },
+        {
+          "abi_item": "return_and_error_contract",
+          "observed": "absent"
+        },
+        {
+          "abi_item": "buffer_ownership_and_lifetime",
+          "observed": "absent"
+        },
+        {
+          "abi_item": "lifecycle_state_machine",
+          "observed": "absent"
+        },
+        {
+          "abi_item": "thread_and_isolation_contract",
+          "observed": "absent"
+        },
+        {
+          "abi_item": "license_and_redistribution_rights",
+          "observed": "absent"
+        }
+      ],
+      "unavailable_count": 8,
+      "unavailable_of_total": 8,
+      "evidence_pin_ids": [
+        "abi_accepted",
+        "abi_evidence",
+        "abi_facts"
+      ],
+      "note": "Counts are this record's own read of the pinned artifacts; a transmission-layer struct pack letter is not an export signature."
+    },
+    "three_way_terrain_shape_contradiction": {
+      "evidence_pin_ids": [
+        "vendor_control_wrapper"
+      ],
+      "observations": [
+        {
+          "surface": "wrapper_docstring",
+          "observed_shape": "ii15f",
+          "observed_dimension": 15,
+          "file": "E:/rflysimtools/RflySimAPIs/RflySimSDK/ctrl/DllSimCtrlAPI.py",
+          "line": 783
+        },
+        {
+          "surface": "wrapper_udp_pack_and_fill",
+          "observed_shape": "ii20f",
+          "observed_dimension": 20,
+          "file": "E:/rflysimtools/RflySimAPIs/RflySimSDK/ctrl/DllSimCtrlAPI.py",
+          "line": 790,
+          "line_secondary": 795
+        },
+        {
+          "surface": "wrapper_ctypes_export_declaration",
+          "observed_shape": "double[15]",
+          "observed_dimension": 15,
+          "file": "E:/rflysimtools/RflySimAPIs/RflySimSDK/ctrl/DllSimCtrlAPI.py",
+          "line": 1276
+        }
+      ],
+      "contradiction": "One vendor file states three different terrain shapes across docstring (ii15f), UDP pack (ii20f with a 20-slot fill) and the ctypes export declaration (double[15]); no source in this checkout resolves which surface is authoritative.",
+      "resolution_gap": "The terrain shape is unresolved at the export-name level and at the width level, so no vendor terrain channel can be assumed to match the native double[15] terrain argument.",
+      "wksim_native_impact": "none",
+      "wksim_native_reason": "wksim refuses any terrain_count other than 15 on its own export Simulator/wksim_core/model.cpp:91 and enforces len(terrain) != 15 in Simulator/wksim_core/model.py:153-164, so the vendor contradiction cannot be inherited by the native path.",
+      "native_evidence_pin_ids": [
+        "native_model_cpp",
+        "native_model_py"
+      ],
+      "blocks_issue_ids": [
+        27,
+        28,
+        73,
+        74,
+        76,
+        77,
+        78
+      ],
+      "does_not_block_issue_ids": [
+        26,
+        29
+      ],
+      "role": "blocker_only"
+    },
+    "native_wk_model_abi_path": {
+      "status": "available_and_reviewed_in_source",
+      "evidence_pin_ids": [
+        "native_model_cpp",
+        "native_model_py",
+        "native_ac_evidence"
+      ],
+      "exported_symbols": [
+        "wk_model_create",
+        "wk_model_destroy",
+        "wk_model_initial_state",
+        "wk_model_step",
+        "wk_model_step_with_terrain"
+      ],
+      "export_declaration_file": "Simulator/wksim_core/model.cpp",
+      "export_declaration_lines": "53-94",
+      "terrain_argument_guard_line": 91,
+      "python_declaration_lines": "113-132",
+      "terrain_path_lines": "153-184",
+      "declared_return_codes": "0 success, 1 invalid arguments, 2 model error, 3 non-finite state",
+      "reviewed_evidence_pin_id": "native_terrain_probe_result",
+      "reviewed_evidence_summary": "Tracked probe result records status=passed for the native terrain-input seam with a deterministic native-I/O stub.",
+      "legacy_vendor_abi_compatibility_claimed": false,
+      "isolated_from_vendor_abi": true,
+      "evidence_that_observation_is_repository_local": [
+        "Every symbol named is declared in this repository's own wrapper source.",
+        "The pinned probe result is a tracked repository artifact.",
+        "No decision-affecting pin for this observation is a host-external vendor path."
+      ]
+    },
+    "native_vendor_isolation": {
+      "shared_media_files": [],
+      "native_path_may_be_used_without_vendor_abi": true,
+      "vendor_path_may_be_used_from_inferred_shapes": false,
+      "native_evidence_pin_ids": [
+        "native_model_cpp",
+        "native_model_py",
+        "native_ac_evidence",
+        "native_terrain_probe_result"
+      ],
+      "vendor_evidence_pin_ids": [
+        "abi_accepted",
+        "abi_evidence"
+      ],
+      "rule": "The native wk_model_* C ABI and the deferred vendor DLL ABI are separate tracks with no shared media files; usability of one never implies usability of the other."
+    },
+    "observed_tickets": {
+      "9": {
+        "state": "OPEN",
+        "parent_dependencies": [],
+        "open_dependency_on_9": false,
+        "role": "carrier_ticket_two_halves"
+      },
+      "26": {
+        "state": "OPEN",
+        "parent_dependencies": [
+          9
+        ],
+        "open_dependency_on_9": true,
+        "role": "native_path_parent_unaffected_by_defer"
+      },
+      "27": {
+        "state": "OPEN",
+        "parent_dependencies": [
+          9
+        ],
+        "open_dependency_on_9": true,
+        "role": "vendor_abi_dependent"
+      },
+      "28": {
+        "state": "OPEN",
+        "parent_dependencies": [
+          9
+        ],
+        "open_dependency_on_9": true,
+        "role": "vendor_abi_dependent"
+      },
+      "29": {
+        "state": "OPEN",
+        "parent_dependencies": [
+          9,
+          17,
+          23
+        ],
+        "open_dependency_on_9": true,
+        "role": "environment_half_unaffected_by_vendor_defer"
+      },
+      "73": {
+        "state": "OPEN",
+        "parent_dependencies": [
+          9
+        ],
+        "open_dependency_on_9": true,
+        "role": "vendor_abi_dependent"
+      },
+      "74": {
+        "state": "OPEN",
+        "parent_dependencies": [
+          9
+        ],
+        "open_dependency_on_9": true,
+        "role": "vendor_abi_dependent"
+      },
+      "76": {
+        "state": "OPEN",
+        "parent_dependencies": [
+          9
+        ],
+        "open_dependency_on_9": true,
+        "role": "vendor_abi_dependent"
+      },
+      "77": {
+        "state": "OPEN",
+        "parent_dependencies": [
+          9
+        ],
+        "open_dependency_on_9": true,
+        "role": "vendor_abi_dependent"
+      },
+      "78": {
+        "state": "OPEN",
+        "parent_dependencies": [
+          9
+        ],
+        "open_dependency_on_9": true,
+        "role": "vendor_abi_dependent"
+      }
+    },
+    "issue_state_snapshot": {
+      "source": "gh issue view --repo unununnnn/wksim --json number,state,labels",
+      "read_only": true,
+      "note": "Observation of ticket state and labels at the recorded time; it asserts nothing about future state and performs no mutation.",
+      "issues": {
+        "9": {
+          "state": "OPEN",
+          "labels": [
+            "wayfinder:grilling"
+          ]
+        },
+        "26": {
+          "state": "OPEN",
+          "labels": [
+            "ready-for-agent"
+          ]
+        },
+        "27": {
+          "state": "OPEN",
+          "labels": [
+            "ready-for-agent"
+          ]
+        },
+        "28": {
+          "state": "OPEN",
+          "labels": [
+            "ready-for-agent"
+          ]
+        },
+        "29": {
+          "state": "OPEN",
+          "labels": [
+            "ready-for-agent"
+          ]
+        },
+        "73": {
+          "state": "OPEN",
+          "labels": [
+            "wayfinder:task",
+            "needs-triage"
+          ]
+        },
+        "74": {
+          "state": "OPEN",
+          "labels": [
+            "wayfinder:task",
+            "ready-for-agent"
+          ]
+        },
+        "76": {
+          "state": "OPEN",
+          "labels": [
+            "wayfinder:task",
+            "ready-for-agent"
+          ]
+        },
+        "77": {
+          "state": "OPEN",
+          "labels": [
+            "wayfinder:task",
+            "ready-for-agent"
+          ]
+        },
+        "78": {
+          "state": "OPEN",
+          "labels": [
+            "wayfinder:task",
+            "ready-for-agent"
+          ]
+        }
+      }
+    },
+    "open_dependency_edges_preserved": [
+      {
+        "issue": 9,
+        "depends_on_issue": null,
+        "state": "OPEN",
+        "satisfied_by_this_defer": false,
+        "evidence_pin_ids": [
+          "abi_accepted"
+        ]
+      },
+      {
+        "issue": 26,
+        "depends_on_issue": 9,
+        "state": "OPEN",
+        "satisfied_by_this_defer": false,
+        "evidence_pin_ids": [
+          "native_ac_evidence"
+        ]
+      },
+      {
+        "issue": 27,
+        "depends_on_issue": 9,
+        "state": "OPEN",
+        "satisfied_by_this_defer": false,
+        "evidence_pin_ids": [
+          "abi_accepted"
+        ]
+      },
+      {
+        "issue": 28,
+        "depends_on_issue": 9,
+        "state": "OPEN",
+        "satisfied_by_this_defer": false,
+        "evidence_pin_ids": [
+          "abi_accepted"
+        ]
+      },
+      {
+        "issue": 29,
+        "depends_on_issue": 9,
+        "state": "OPEN",
+        "satisfied_by_this_defer": false,
+        "evidence_pin_ids": [
+          "terrain_manifest"
+        ]
+      },
+      {
+        "issue": 73,
+        "depends_on_issue": 9,
+        "state": "OPEN",
+        "satisfied_by_this_defer": false,
+        "evidence_pin_ids": [
+          "abi_accepted"
+        ]
+      },
+      {
+        "issue": 74,
+        "depends_on_issue": 9,
+        "state": "OPEN",
+        "satisfied_by_this_defer": false,
+        "evidence_pin_ids": [
+          "abi_accepted"
+        ]
+      },
+      {
+        "issue": 76,
+        "depends_on_issue": 9,
+        "state": "OPEN",
+        "satisfied_by_this_defer": false,
+        "evidence_pin_ids": [
+          "abi_accepted"
+        ]
+      },
+      {
+        "issue": 77,
+        "depends_on_issue": 9,
+        "state": "OPEN",
+        "satisfied_by_this_defer": false,
+        "evidence_pin_ids": [
+          "abi_accepted"
+        ]
+      },
+      {
+        "issue": 78,
+        "depends_on_issue": 9,
+        "state": "OPEN",
+        "satisfied_by_this_defer": false,
+        "evidence_pin_ids": [
+          "abi_accepted"
+        ]
+      }
+    ]
+  },
+  "policy": {
+    "defer_class": "deferred_with_explicit_unlock_preconditions",
+    "rejection_class": "not_decided",
+    "closure_class": "not_decided",
+    "affected": [
+      27,
+      28,
+      73,
+      74,
+      76,
+      77,
+      78
+    ],
+    "does_not_affect": [
+      26,
+      29
+    ],
+    "must_remain_open": [
+      9,
+      26,
+      27,
+      28,
+      29,
+      73,
+      74,
+      76,
+      77,
+      78
+    ],
+    "closure_requires": [
+      "official vendor header or wrapper source",
+      "authorized sample DLL built from that header",
+      "the five unlock preconditions",
+      "an explicit owner decision on #9"
+    ],
+    "acceptance_claimed": false,
+    "acceptance_status_recommended": "not_ready",
+    "implementation_authorized": false,
+    "adr_required_before_any_acceptance": true
+  },
+  "owner_decision": {
+    "state": "not_made",
+    "made_by": null,
+    "recorded_utc": null,
+    "undecided_option": "Formally abandon, or keep waiting for, the legacy/new DLL run path (previously item A1) - the choice remains with the owner.",
+    "observed_owner_evidence": [
+      {
+        "pin_id": "abi_accepted",
+        "lines": "18-36",
+        "observed": "DLL ABI half is evidence-blocked; five entry preconditions must all be present before any ABI implementation ticket is dispatched."
+      },
+      {
+        "pin_id": "abi_evidence",
+        "lines": "47",
+        "observed": "The autonomous core uses its own wk_model_create/step/destroy-style interface; this is not an implicit compatibility claim against the legacy wrapper ABI."
+      },
+      {
+        "pin_id": "native_ac_evidence",
+        "lines": "177",
+        "observed": "The optional old/new ABI DLL path uses project-owned C entry semantics (wk_model_create/step/destroy) and does not involve the vendor DLL ABI."
+      }
+    ],
+    "observed_owner_evidence_count": 3,
+    "observed_evidence_interpretation": "The observed owner evidence supports DEFER (blocked, official source unavailable) and supports the separate usability of the native wk_model_* ABI path. It contains no statement permanently abandoning the vendor DLL path.",
+    "rejection_evidence_found": false,
+    "rejection_decided": false,
+    "closure_decided": false,
+    "decision_text": null,
+    "must_not_be_inferred_from_this_record": [
+      "the vendor DLL ABI branch is rejected",
+      "the vendor DLL ABI branch is permanently abandoned",
+      "the vendor DLL ABI branch is closed",
+      "#9 is closed",
+      "the environment or terrain half of #9 is accepted by this record",
+      "#26 or #29 may be closed because of this defer"
+    ]
+  },
+  "recommendation": {
+    "this_record_effect": "records_a_defer_boundary_only",
+    "recommendation_scope": "advisory_until_an_explicit_owner_decision_exists",
+    "defer_vendor_dll_abi": true,
+    "reject_vendor_dll_abi": false,
+    "close_issue_9": false,
+    "close_issue_26": false,
+    "close_issue_29": false,
+    "native_path_remains_usable": true,
+    "recommended_actions": [
+      {
+        "action_id": "R1",
+        "statement": "Keep the vendor DLL ABI half deferred with its five unlock preconditions unchanged.",
+        "target_issues": [
+          9,
+          27,
+          28,
+          73,
+          74,
+          76,
+          77,
+          78
+        ],
+        "evidence_pin_ids": [
+          "abi_accepted"
+        ]
+      },
+      {
+        "action_id": "R2",
+        "statement": "Keep every affected ticket open; the defer satisfies no dependency edge.",
+        "target_issues": [
+          9,
+          27,
+          28,
+          73,
+          74,
+          76,
+          77,
+          78
+        ],
+        "evidence_pin_ids": [
+          "abi_accepted"
+        ]
+      },
+      {
+        "action_id": "R3",
+        "statement": "Record the branch isolation in a tracked document so the native wk_model_* path is not gated on the vendor ABI.",
+        "target_issues": [
+          26,
+          29
+        ],
+        "evidence_pin_ids": [
+          "native_ac_evidence",
+          "native_model_cpp"
+        ]
+      }
+    ],
+    "label_recommendations": {
+      "performed": false,
+      "add": [
+        {
+          "issue": 9,
+          "label": "ready-for-human",
+          "reason": "The wait-versus-abandon choice on the legacy/new DLL run path needs an explicit human decision."
+        }
+      ],
+      "remove": [
+        {
+          "issue": 27,
+          "label": "ready-for-agent",
+          "reason": "Blocked by the #9 DLL ABI preconditions.",
+          "alternative_label": "needs-info"
+        },
+        {
+          "issue": 28,
+          "label": "ready-for-agent",
+          "reason": "Blocked by the #9 DLL ABI preconditions.",
+          "alternative_label": "needs-info"
+        },
+        {
+          "issue": 74,
+          "label": "ready-for-agent",
+          "reason": "Blocked by the #9 DLL ABI preconditions.",
+          "alternative_label": "needs-info"
+        },
+        {
+          "issue": 76,
+          "label": "ready-for-agent",
+          "reason": "Blocked by the #9 DLL ABI preconditions.",
+          "alternative_label": "needs-info"
+        },
+        {
+          "issue": 77,
+          "label": "ready-for-agent",
+          "reason": "Blocked by the #9 DLL ABI preconditions.",
+          "alternative_label": "needs-info"
+        },
+        {
+          "issue": 78,
+          "label": "ready-for-agent",
+          "reason": "Blocked by the #9 DLL ABI preconditions.",
+          "alternative_label": "needs-info"
+        }
+      ],
+      "keep": [
+        {
+          "issue": 9,
+          "label": "wayfinder:grilling"
+        },
+        {
+          "issue": 73,
+          "label": "needs-triage"
+        }
+      ],
+      "forbidden": [
+        {
+          "issue": 27,
+          "label": "wontfix",
+          "reason": "Rejection is undecided by the owner."
+        },
+        {
+          "issue": 28,
+          "label": "wontfix",
+          "reason": "Rejection is undecided by the owner."
+        },
+        {
+          "issue": 73,
+          "label": "wontfix",
+          "reason": "Rejection is undecided by the owner."
+        },
+        {
+          "issue": 74,
+          "label": "wontfix",
+          "reason": "Rejection is undecided by the owner."
+        },
+        {
+          "issue": 76,
+          "label": "wontfix",
+          "reason": "Rejection is undecided by the owner."
+        },
+        {
+          "issue": 77,
+          "label": "wontfix",
+          "reason": "Rejection is undecided by the owner."
+        },
+        {
+          "issue": 78,
+          "label": "wontfix",
+          "reason": "Rejection is undecided by the owner."
+        }
+      ]
+    },
+    "comment_recommendations": {
+      "performed": false,
+      "items": [
+        {
+          "issue": 9,
+          "statement": "Record the official-source availability table, the three-way terrain shape contradiction, and that defer is not reject."
+        },
+        {
+          "issue": 73,
+          "statement": "Cross-reference the #9 defer boundary; blocked-until-five-preconditions still holds."
+        }
+      ]
+    },
+    "proposed_actions": {
+      "closure_performed": false,
+      "rejection_performed": false,
+      "label_change_performed": false,
+      "comment_posted": false,
+      "acceptance_granted": false,
+      "github_mutated": false
+    }
+  },
+  "evidence_pins": {
+    "abi_accepted": {
+      "evidence_class": "committed_repository_artifact",
+      "path": "docs/plan/9-abi-environment-accepted.md",
+      "sha256": "0053b43d5ed156d6b14d5d5a5f80acc0ea280c3609d11a96ed9a5913c83bac4c",
+      "role": "Tracked contract that approves the environment/vision half, states the DLL ABI evidence block, lists the five unlock preconditions and the #27/#28 blocked conclusion."
+    },
+    "abi_evidence": {
+      "evidence_class": "committed_repository_artifact",
+      "path": "docs/plan/9-abi-environment-evidence.md",
+      "sha256": "606cb49eb7f226946793df8a6d0e536c867e00d5e9a431c47595a39cb1e91331",
+      "role": "Tracked evidence contract naming the wrapper float/double and symbol-name conflicts and forbidding approval from inferred ctypes shapes."
+    },
+    "abi_facts": {
+      "evidence_class": "committed_repository_artifact",
+      "path": "validation/lunar-57-6d85dab1b5ff4b84a3a5e58b1fc467a1/abi-facts.json",
+      "sha256": "438ca221e83678e8c9ee0092cc8e4a12fdec98e95cb2100d473a3053f788ae56",
+      "role": "Tracked slice evidence behind the ABI evidence contract."
+    },
+    "native_ac_evidence": {
+      "evidence_class": "committed_repository_artifact",
+      "path": "docs/plan/26-current-source-ac-evidence-20260912.md",
+      "sha256": "4070bf4bdb87e60a9ad1eb45d8f1512e2bdfbf060cba3e9d94ec13dbbb544a79",
+      "role": "Tracked statement that the optional old/new ABI DLL path uses project-owned C entry semantics and does not involve the vendor DLL ABI."
+    },
+    "native_model_cpp": {
+      "evidence_class": "committed_repository_artifact",
+      "path": "Simulator/wksim_core/model.cpp",
+      "sha256": "150ddf3bab66e9e59701791392f6d792a14346e0b75ecdfe94872095e72d0290",
+      "role": "Reviewed native C ABI source: wk_model_create/destroy/initial_state/step/step_with_terrain, with the terrain_count != 15 guard at line 91."
+    },
+    "native_model_py": {
+      "evidence_class": "committed_repository_artifact",
+      "path": "Simulator/wksim_core/model.py",
+      "sha256": "3b0ae6f40594a30997fa66beba11466ca88f0c1a3b88c2322d4fee10f1ce4d41",
+      "role": "Python-side native declaration table (113-132) and the terrain path rejecting any dimension other than 15 (153-184)."
+    },
+    "native_terrain_probe_result": {
+      "evidence_class": "committed_repository_artifact",
+      "path": "validation/lunar-29-terrain-reset-c8f05c6e/result.json",
+      "sha256": "2c55cc62ae594210bbd5189015b3acbcbf3d35f295a23cb25e923871f3a08fe8",
+      "role": "Tracked probe result with status=passed for the native terrain-input seam and a deterministic native-I/O stub; it is not a vendor ABI proof."
+    },
+    "terrain_closure_report": {
+      "evidence_class": "committed_repository_artifact",
+      "path": "docs/plan/29-terrain-closure-report.md",
+      "sha256": "edff1cd2d9a77ea218937616b512a964deb40e42d47a91b6c7a24392ff1cfcd6",
+      "role": "Tracked #29 closure report whose AC1-AC5 judgments stay bounded to its own evidence set."
+    },
+    "terrain_manifest": {
+      "evidence_class": "committed_repository_artifact",
+      "path": "docs/plan/29-terrain-evidence-manifest.json",
+      "sha256": "c1e4fe54fa83d735b1c4084f4ecbf52d35e4a5d583dfef6baa82f5e06ee69b18",
+      "role": "Tracked manifest with status=partial_open, acceptance=false and blocking_issue=9; it keeps #29's parent dependency on #9 open."
+    },
+    "environment_contract_accepted": {
+      "evidence_class": "committed_repository_artifact",
+      "path": "docs/2026-09-07_environment-contract-accepted.md",
+      "sha256": "7f41e4958fd2b34d2f551265e8c16b1a2973fbfc981b49757452f73f5aecc56d",
+      "role": "Tracked body of the 2026-09-07 user answer that approved the environment/vision contract."
+    },
+    "remaining_gates_proposal": {
+      "evidence_class": "committed_repository_artifact",
+      "path": "docs/plan/remaining-gates-proposal.md",
+      "sha256": "abf10c663c235c151207bba142fa4e8798cb02617142465c3b5a46f3d04d7098",
+      "role": "Tracked proposal that the 2026-09-07 answer bound to."
+    },
+    "vendor_control_wrapper": {
+      "evidence_class": "host_external_read_only",
+      "path": "E:/rflysimtools/RflySimAPIs/RflySimSDK/ctrl/DllSimCtrlAPI.py",
+      "sha256": "0a2a30e91fe55590aec198f1e852a6d45d6aa34c029557de62880d0b81cf5420",
+      "role": "Read-only vendor wrapper cited for the three-way terrain shape contradiction; it is a host file, is not tracked in this repository, and is not authority for any decision.",
+      "authority": "context_only"
+    },
+    "vendor_sample_dll": {
+      "evidence_class": "host_external_read_only",
+      "path": "E:/rflysimtools/CopterSim/external/model/MulticopterNOpx4.dll",
+      "sha256": "0179c58f14f8140302c1ec1a36ae455e88146c64099be1cd6a633cb174afe7e8",
+      "role": "Read-only vendor binary hash; never loaded, never executed, never modified, not tracked, not authority.",
+      "authority": "context_only"
+    }
+  },
+  "host_bounded_gaps": {
+    "vendor_header_absence": [
+      {
+        "path": "E:/rflysimtools/CopterSim",
+        "observed_file_type_count": 0,
+        "observed_file_types": [
+          "*.h",
+          "*.hpp",
+          "*.c",
+          "*.cpp",
+          "*.def",
+          "*.lib"
+        ],
+        "observation": "A read-only count of source-like files under the vendor installation is zero, so no readable header or wrapper source exists on this host."
+      }
+    ],
+    "environment_acceptance_json": {
+      "path": "validation/remaining-gates-20260907/environment-acceptance.json",
+      "sha256": "c3f4a9f7bdc4992297a9efaa8869a5e251aa08b8c6855e95967135bee1edd4cf",
+      "tracked": false,
+      "reason": "The recorded 2026-09-07 answer and proposal hash live in an untracked path, so it cannot be promoted to a decision-affecting pin."
+    },
+    "audit_report": {
+      "path": "validation/coordination/codebuddy-9-decision-audit-20260914-02/report.md",
+      "sha256": "3fe004762e1d97634847f0e8f04f3b49e0ab028861bd3cfd6028de72dee83593",
+      "tracked": false,
+      "reason": "The independent audit report is untracked local-only evidence; it may be cited as context but never as authority or as a decision-affecting pin."
+    },
+    "audit_evidence_json": {
+      "path": "validation/coordination/codebuddy-9-decision-audit-20260914-02/evidence.json",
+      "sha256": "400f34a512067d461f06d83f5eb5b906f715aef581351201f8ed5b98d589d89d",
+      "tracked": false,
+      "reason": "Audit evidence bundle is untracked local-only; cited as context only."
+    },
+    "interface_decision_packet": {
+      "path": "docs/coordination/ds-interface-decision-packet-20260912.md",
+      "sha256": "a7cfe224f2528a5651c6037eae7cf1547ae57e1dfe210c7792308ad247d5e382",
+      "tracked": false,
+      "reason": "The decision packet is untracked and self-declares that it does not decide for the user, so it is not authority for this contract."
+    },
+    "acceptance_frontier": {
+      "path": "docs/coordination/acceptance-frontier.json",
+      "sha256": "885ea287c58ee412a1577cff18428a8b9425ff4b70e0c0ed9433bf18d46a16c2",
+      "tracked": false,
+      "reason": "The acceptance frontier is untracked; its branch-isolation note is context for the gap this record closes, not authority."
+    }
+  },
+  "unresolved_blockers": [
+    {
+      "blocker_id": "B-9-TERRAIN-THREE-WAY-SHAPE",
+      "severity": "blocking",
+      "statement": "The vendor terrain channel has no single authoritative shape: wrapper docstring says ii15f, the UDP pack uses ii20f with a 20-slot fill, and the ctypes export declaration says double[15], so no vendor terrain mapping may be assumed.",
+      "blocks": [
+        27,
+        28,
+        73,
+        74,
+        76,
+        77,
+        78
+      ],
+      "does_not_block": [
+        26,
+        29
+      ],
+      "evidence_pin_ids": [
+        "vendor_control_wrapper",
+        "native_model_cpp",
+        "native_model_py"
+      ]
+    },
+    {
+      "blocker_id": "B-9-OWNER-DECISION-ABSENT",
+      "severity": "blocking_for_closure_only",
+      "statement": "No owner decision exists on whether to keep waiting for or to abandon the legacy/new DLL run path, so #9 cannot be closed on this record.",
+      "blocks": [
+        9
+      ],
+      "does_not_block": [
+        26,
+        29
+      ],
+      "evidence_pin_ids": [
+        "abi_accepted"
+      ]
+    }
+  ],
+  "scope_limits": {
+    "tracked_artifacts_created": [
+      "docs/plan/9-vendor-abi-defer-boundary.json",
+      "docs/plan/9-vendor-abi-defer-boundary.md",
+      "validation/test_issue_9_defer_boundary.py"
+    ],
+    "native_run_performed": false,
+    "model_run_performed": false,
+    "ue_run_performed": false,
+    "ros_or_dds_run_performed": false,
+    "fc_or_sitl_run_performed": false,
+    "matlab_run_performed": false,
+    "build_performed": false,
+    "issue_83_touched": false,
+    "vendor_dll_loaded": false,
+    "vendor_install_modified": false,
+    "github_mutated": false,
+    "existing_files_edited": false,
+    "git_staging_performed": false
+  },
+  "non_claims": [
+    "This record does not decide anything; it is PROPOSED and has no authority.",
+    "This record does not reject, abandon or close the vendor DLL ABI branch.",
+    "This record does not close #9, #26 or #29, and it does not satisfy any dependency edge.",
+    "This record does not accept the environment or terrain half of #9.",
+    "This record does not assert that any vendor DLL ABI is compatible or parseable.",
+    "This record does not run native, model, ROS, FC, UE, MATLAB, build or #83 work.",
+    "This record does not treat any untracked coordination file as authority."
+  ]
+}
