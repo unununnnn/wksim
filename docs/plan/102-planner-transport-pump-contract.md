@@ -104,6 +104,7 @@ the two commits, the frame and its outcome may be gone from both ledgers.
 | `bridge_rejected` | `rejected_bridge` (detail carries the bridge reason) | True | False |
 | `invalid_grid` | `rejected_grid` | True | False |
 | `clearance_violation` | `rejected_clearance` | True | False |
+| `continuous_clearance_unproven` | `rejected_continuous` | True | False |
 | `map_violation` | `rejected_map` | True | False |
 | `adapter_rejected` | `rejected_adapter` | True | False |
 | transport validation failure | `poison` | False | False |
@@ -164,8 +165,10 @@ This slice does **not**:
 - mint any identifier — `trajectory_id` comes from the payload, `event_sequence`
   is a session-scoped ordering counter, generation is read from public session
   state;
-- claim continuous-curve or flight safety — scene clearance inherits the admission
-  gate's `sampled_segment_checked` / `continuous_proof=False` honesty bound;
+- claim flight safety — scene clearance inherits the admission gate's honesty
+  bound: the geometric continuous-curve control-hull certificate when strict
+  mode is on (the default), the sampled/segment check when it is explicitly
+  opted out (`strict_continuous=False`);
 - produce force, impulse, or Terrain15D/terrain coupling — the obstacle is a
   vertical AABB, not terrain;
 - drive the control/execution path — it never calls `step`/`next_output`, never
@@ -197,6 +200,8 @@ planner/SITL/UE/MATLAB/wall clock) verifies this contract on Windows and WSL:
   `MemoryError`/`RuntimeError` propagation; direct `Identity` generation bounds;
   adapter rejection on a non-increasing `trajectory_id`; `event_sequence` spent
   only on activation across a mixed clear/collision/clear stream.
+  a strict continuous-certificate rejection recorded as `rejected_continuous`
+  with the same two-commit boundary and no `event_sequence` spent;
 - `PumpPoisonRecoveryTests` — poison latches, refuses further bytes, and freezes
   the decoder high-water; `recover` builds a new transport session and a new
   generation while preserving command high-water and continuing

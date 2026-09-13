@@ -87,12 +87,18 @@ PUMP_REASONS = (
 
 # Admission rejection reason -> pump outcome.  All of these happen AFTER
 # read_frame() committed the transport sequence, hence transport_consumed=True.
+# Every reason the admission gate can emit must stay mapped, so the strict
+# continuous-certificate reason is NOT collapsed into "rejected_clearance".
+# An unmapped reason is a gate/pump contract breach: _admission_outcome()
+# resolves through this table with EXPLICIT indexing and raises instead of
+# disguising the frame as an adapter rejection.
 _ADMISSION_REASON_TO_OUTCOME = {
     "identity_mismatch": "rejected_identity",
     "invalid_mapping": "rejected_mapping",
     "bridge_rejected": "rejected_bridge",
     "invalid_grid": "rejected_grid",
     "clearance_violation": "rejected_clearance",
+    "continuous_clearance_unproven": "rejected_continuous",
     "map_violation": "rejected_map",
     "adapter_rejected": "rejected_adapter",
 }
@@ -108,8 +114,9 @@ NON_CLAIMS = (
     "non-regression",
     "no identifier minting; trajectory_id comes from the payload and "
     "event_sequence is a session-scoped ordering counter spent only on committed activation or control events",
-    "no continuous-curve or flight-safety claim; scene clearance inherits the "
-    "admission gate's sampled/segment-checked honesty bound",
+    "no flight-safety claim; scene clearance inherits the admission gate's "
+    "honesty bound -- the geometric continuous-curve certificate when strict "
+    "mode is on, the sampled/segment check when it is off",
     "no force, impulse, or Terrain15D; the obstacle is a vertical AABB, not terrain",
     "does not publish or execute control output; it admits trajectories and "
     "applies explicit stop events to the offline session",
@@ -150,6 +157,23 @@ def _strict_int(value: Any, reason: str, name: str, maximum: int) -> int:
 def _detail(error: SceneAdmissionError) -> str:
     bridge_reason = getattr(error, "bridge_reason", None)
     return f"{error.reason}:{bridge_reason}" if bridge_reason else error.reason
+
+
+def _admission_outcome(error: SceneAdmissionError) -> str:
+    """Resolve an admission rejection reason to its pump outcome, fail-closed.
+
+    Every reason ``admit()`` can raise must be a key of
+    ``_ADMISSION_REASON_TO_OUTCOME``.  An unmapped reason means the gate and
+    the pump disagree on the contract; recording ANY outcome would mislabel
+    the frame (the historical silent fallback mislabeled it as
+    ``rejected_adapter``), so this raises a loud, reason-naming error instead.
+    No FrameOutcome is fabricated and no event_sequence is spent.
+    """
+    try:
+        return _ADMISSION_REASON_TO_OUTCOME[error.reason]
+    except KeyError:
+        raise RuntimeError(
+            f"unmapped scene admission reason: {error.reason!r}") from None
 
 
 def _parse_identity(identity: Any):
@@ -545,7 +569,7 @@ class PlannerTransportPump:
             # NO event_sequence is spent.
             return FrameOutcome(
                 transport_sequence=transport_sequence, trajectory_id=trajectory_id,
-                outcome=_ADMISSION_REASON_TO_OUTCOME.get(error.reason, "rejected_adapter"),
+                outcome=_admission_outcome(error),
                 transport_consumed=True, session_activated=False, event_sequence=None,
                 detail=_detail(error), report=error.report)
         # Activated: the session committed.  Only now is the event_sequence spent.

@@ -1,0 +1,42 @@
+{
+  "schema": "wksim.g3-continuous-clearance-final-seal.v1",
+  "checked_at": "2026-09-14",
+  "head_before_source_commit": "c6f23db",
+  "verdict": "pass",
+  "scope": "pure-python-g3-continuous-clearance-slice",
+  "tests": {
+    "probe": {"passed": 28, "failed": 0},
+    "ego_scene_admission": {"passed": 42, "failed": 0},
+    "planner_transport_pump": {"passed": 57, "failed": 0},
+    "planner_transport_receiver": {"passed": 27, "failed": 0}
+  },
+  "source_sha256": {
+    "Simulator/wksim_planning/ego_scene_admission.py": "f88fa9c67b0410b8d7e65145008b21173959c03b6f0773c841cdb5e7e3ff7eca",
+    "Simulator/wksim_runtime/planner_transport_pump.py": "c9b541b4fb6112b09aacdb405838aa2f3c8935e144a21067f9c420f473279d27",
+    "docs/plan/102-planner-transport-pump-contract.md": "0b28fa3485589f218b8699beef8114eaa566745726c4533dba34f767ddc946ba",
+    "docs/plan/102-trajectory-scene-admission-contract.md": "083557fa419cbf8fab1b3c3f00a6bf0963716226f8c4f04282d49f3428c6ae05",
+    "validation/test_ego_scene_admission.py": "a41b5bce887da374877c09e6fc7922cafeacb3d55c6f1bb1d4f969f445dc00b2",
+    "validation/test_planner_transport_pump.py": "9f5be8631e83552ab6e8a2e995bfb6ead6c3d8cb9d9807b1b389c34af422e1a7"
+  },
+  "covered": [
+    "strict-pass evidence labelling",
+    "ulp-boundary fail-closed labelling",
+    "continuous counterexample rejected",
+    "gap-free span and active-hull semantics",
+    "repeated-knot rejection",
+    "admission outcome mapping completeness",
+    "unknown-reason atomicity and recovery",
+    "legacy sampled-mode compatibility",
+    "pump two-commit behavior",
+    "contract documentation alignment"
+  ],
+  "probe_repairs": [
+    "replace invalid integer start_time with protocol time object",
+    "reuse one encoder so transport sequence advances",
+    "expect bridge_rejected on the public repeated-knot path while retaining direct certificate non_monotone_knots coverage"
+  ],
+  "non_claims": [
+    "does not close issue 102 or issue 39",
+    "no ROS, flight controller, UE, MATLAB, native build, dynamics, tracking error, or flight-safety claim"
+  ]
+}

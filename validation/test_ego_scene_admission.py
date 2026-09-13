@@ -4,9 +4,19 @@ No ROS, no planner, no socket, no SITL/UE/MATLAB, no wall clock.  The admission
 gate consumes the decoder's bridge-mapping output shape directly (the TCP module
 is intentionally not imported here, so this suite is independent of it), bridges
 it to an EgoSpline, checks the sampled polyline against the committed
-ego-single-box-v1 obstacle AABB and map envelope, and only on a pass activates
-the adapter exactly once.  The result is honestly a sampled/segment check, never
-a continuous-curve safety proof.
+ego-single-box-v1 obstacle AABB and map envelope, certifies the CONTINUOUS curve
+from the B-spline control-point convex hulls, and only on a pass activates the
+adapter exactly once.
+
+Two honest evidence modes are covered:
+  * strict (default): a PASS carries ``convex_hull_span_certified`` +
+    ``continuous_proof=True``; a curve whose control hulls intrude the margin is
+    rejected as ``continuous_clearance_unproven`` even when the 10 ms sampled
+    polyline of the same curve looks clean (the alternating-control-point
+    witness), and a certificate that cannot be built fails closed;
+  * legacy (``strict_continuous=False``): the sampled polyline is the only
+    evidence and the label stays ``sampled_segment_checked`` /
+    ``continuous_proof=False``.
 
 Scene geometry under test (committed ego-single-box-v1):
   obstacle AABB  min=(-0.5,-1.0,0.0) max=(0.5,1.0,5.5)
@@ -14,9 +24,10 @@ Scene geometry under test (committed ego-single-box-v1):
   vehicle_radius 0.35, required_clearance 0.30  (margin 0.65)
 """
 import math
+import random
 import unittest
 
-from Simulator.wksim_planning.ego_evaluator import EgoSpline, UniformBspline
+from Simulator.wksim_planning.ego_evaluator import EgoSpline, SplineError, UniformBspline
 from Simulator.wksim_planning.ego_trajectory_adapter import EgoTrajectoryAdapter
 from Simulator.wksim_planning.trajectory_session import TrajectorySession
 from Simulator.wksim_runtime.planner_scene_binding import (
@@ -24,15 +35,19 @@ from Simulator.wksim_runtime.planner_scene_binding import (
     PlannerSceneBinding,
 )
 from Simulator.wksim_planning.ego_scene_admission import (
+    CONTINUOUS_EVIDENCE_KIND,
     DEFAULT_SAMPLE_PERIOD_S,
     EVIDENCE_KIND,
     MAX_ADMISSION_SAMPLES,
     NON_CLAIMS,
+    STRUCTURAL_CERTIFICATE_REASON,
     SceneAdmissionError,
     TrajectorySceneAdmission,
     assess_spline_clearance,
+    certify_continuous_clearance,
     _sample_times,
 )
+from Simulator.wksim_planning.scene_profile import segment_clearance
 
 IDENTITY = dict(run_id="run-a", mission_id="mission-a", uav_id=1, control_epoch="epoch-a",
                 planner_generation=0, command_high_water=0)
@@ -75,14 +90,53 @@ def make_spline(cps):
     return EgoSpline(3, list(UniformBspline(3, cps, 0.1).knots), [tuple(p) for p in cps])
 
 
-def make_mapping(cps, *, traj_id=1, start_time_ns=0, order=3, drone_id=0):
+def make_spline_with_knots(cps, knots):
+    """Build an EgoSpline with an explicit (possibly repeated-knot) knot vector."""
+    return EgoSpline(3, list(knots), [tuple(p) for p in cps])
+
+
+# The audit's decisive counterexample (validation/coordination/
+# ds-g3-closure-frontier-20260913-01, section G): alternating control points at
+# knot interval 0.005 s whose curve period equals the 0.010 s sample stride, so
+# every sample lands on the curve's x-peak and the sampled gate sees a clean
+# 0.40 m while the continuous curve dips to ~0.20 m (0.10 m inside the 0.30 m
+# requirement).
+WITNESS_CENTER, WITNESS_AMPLITUDE, WITNESS_KNOT_H, WITNESS_POINTS = 1.15, 0.30, 0.005, 203
+
+
+def witness_cps():
+    return [(WITNESS_CENTER - WITNESS_AMPLITUDE * ((-1) ** i), 0.0, 2.0)
+            for i in range(WITNESS_POINTS)]
+
+
+def witness_knots():
+    return list(UniformBspline(3, witness_cps(), WITNESS_KNOT_H).knots)
+
+
+def witness_spline():
+    return make_spline_with_knots(witness_cps(), witness_knots())
+
+
+def dense_min_clearance(spline, samples=20_000):
+    """Independent dense scan of the CONTINUOUS curve (never the admission grid)."""
+    duration = spline.duration
+    best = math.inf
+    previous = spline.position_at(0.0)
+    for index in range(1, samples + 1):
+        current = spline.position_at(duration * index / samples)
+        best = min(best, segment_clearance(previous, current))
+        previous = current
+    return best
+
+
+def make_mapping(cps, *, traj_id=1, start_time_ns=0, order=3, drone_id=0, knot_h=0.1):
     """Build the decoder-output bridge mapping shape that bridge_bspline consumes."""
     return {
         "drone_id": drone_id,
         "order": order,
         "traj_id": traj_id,
         "start_time": start_time_ns,                 # integer nanoseconds (decoded form)
-        "knots": list(UniformBspline(order, cps, 0.1).knots),
+        "knots": list(UniformBspline(order, cps, knot_h).knots),
         "pos_pts": [tuple(float(c) for c in p) for p in cps],
         "yaw_pts": [],
         "yaw_dt": 0.0,
@@ -198,11 +252,12 @@ class ClearanceAssessmentTests(unittest.TestCase):
         self.assertEqual(report.end_point, tuple(spline.position_at(spline.duration)))
 
     def test_honest_sampled_segment_labelling(self):
-        report = assess_spline_clearance(make_spline(clear_cps()))
-        # The result is a sampled/segment check, never a continuous-curve proof.
+        # Legacy sampled-only mode keeps the original honesty label verbatim.
+        report = assess_spline_clearance(make_spline(clear_cps()), strict_continuous=False)
         self.assertFalse(report.continuous_proof)
         self.assertEqual(report.evidence_kind, "sampled_segment_checked")
         self.assertEqual(report.evidence_kind, EVIDENCE_KIND)
+        self.assertIsNone(report.continuous_certificate)
         text = " ".join(report.non_claims).lower()
         self.assertIn("sampled polyline", text)
         self.assertIn("continuous", text)
@@ -211,6 +266,27 @@ class ClearanceAssessmentTests(unittest.TestCase):
         self.assertIn("flight", text)
         # No 0.010 s stride is advertised as a continuous-safety sufficiency.
         self.assertIn("not a proof", text)
+
+    def test_strict_mode_labels_continuous_proof(self):
+        report = assess_spline_clearance(make_spline(clear_cps()))     # strict is the default
+        self.assertTrue(report.admitted)
+        self.assertTrue(report.continuous_proof)
+        self.assertEqual(report.evidence_kind, CONTINUOUS_EVIDENCE_KIND)
+        self.assertEqual(report.evidence_kind, "convex_hull_span_certified")
+        self.assertIsNotNone(report.continuous_certificate)
+        self.assertTrue(report.continuous_certificate.proven)
+        text = " ".join(report.non_claims).lower()
+        self.assertIn("convex hull", text)
+        self.assertIn("continuous", text)
+        self.assertIn("terrain15d", text)
+        self.assertIn("not a proof", text)
+
+    def test_strict_flag_must_be_a_strict_bool(self):
+        for bad in (1, 0, "yes", None):
+            with self.subTest(bad=bad):
+                self.assert_admission_error(
+                    "invalid_grid", assess_spline_clearance, make_spline(clear_cps()),
+                    strict_continuous=bad)
 
     def test_identity_fields_come_from_committed_binding(self):
         report = assess_spline_clearance(make_spline(clear_cps()))
@@ -239,6 +315,326 @@ class ClearanceAssessmentTests(unittest.TestCase):
         self.assert_admission_error(
             "invalid_grid", assess_spline_clearance, make_spline(clear_cps()),
             sample_period_s=1e-9)
+
+
+class ContinuousCertificateTests(unittest.TestCase):
+    """The continuous control-hull certificate: sound, conservative, fail-closed."""
+
+    def assert_admission_error(self, reason, callable_obj, *args, **kwargs):
+        with self.assertRaises(SceneAdmissionError) as ctx:
+            callable_obj(*args, **kwargs)
+        self.assertEqual(ctx.exception.reason, reason)
+        return ctx.exception
+
+    def interval_cover(self, certificate):
+        return [(start, end) for start, end, _, _ in certificate.intervals]
+
+    def test_witness_is_rejected_despite_clean_sampled_grid(self):
+        """The audit's 0.20 m true-min witness must never be admitted again."""
+        spline = witness_spline()
+        report = assess_spline_clearance(spline)
+        # The sampled polyline of the SAME curve still looks clean ...
+        self.assertGreaterEqual(report.min_obstacle_clearance, REQUIRED_CLEARANCE)
+        # ... but the report is not admitted and says exactly why.
+        self.assertFalse(report.admitted)
+        self.assertEqual(report.violation["kind"], "continuous_clearance_unproven")
+        self.assertFalse(report.continuous_proof)
+        self.assertEqual(report.evidence_kind, EVIDENCE_KIND)
+        certificate = report.continuous_certificate
+        self.assertIsNotNone(certificate)
+        self.assertFalse(certificate.proven)
+        self.assertIsNone(certificate.structural_reason)
+        self.assertEqual(certificate.interval_count, WITNESS_POINTS - 3)   # 200 intervals
+        # The certificate's own number is the true continuous minimum (the control
+        # hull touches the margin), not the 0.40 m the sampled grid reported.
+        self.assertLess(certificate.min_net_obstacle_clearance, REQUIRED_CLEARANCE)
+        self.assertAlmostEqual(certificate.min_net_obstacle_clearance, 0.0, delta=1e-9)
+        self.assertGreater(certificate.min_hull_inset_clearance, 0.0)
+
+    def test_witness_true_minimum_is_independently_violating(self):
+        """Cross-check: a dense independent scan agrees the curve intrudes."""
+        spline = witness_spline()
+        truth = dense_min_clearance(spline)
+        self.assertLess(truth, REQUIRED_CLEARANCE - 1e-6)
+        self.assertGreaterEqual(REQUIRED_CLEARANCE - truth, 0.05)
+        # The conservative certificate reports a value no larger than the truth.
+        certificate = certify_continuous_clearance(spline)
+        self.assertLessEqual(certificate.min_net_obstacle_clearance, truth + 1e-9)
+
+    def test_witness_rejection_is_stable_under_finer_and_coarser_grids(self):
+        """No sampling stride can turn the witness into an admitted trajectory."""
+        spline = witness_spline()
+        for step in (0.05, 0.01, 0.005, 0.001):
+            with self.subTest(step=step):
+                report = assess_spline_clearance(spline, sample_period_s=step)
+                self.assertFalse(report.admitted)
+                self.assertFalse(report.continuous_proof)
+                # 10 ms is the only stride the witness fools end to end: it is
+                # exactly the one that leaves the sampled gate clean, so the
+                # continuous certificate is the gate that rejects there.
+                reported_kinds = {report.violation["kind"]}
+                if step == DEFAULT_SAMPLE_PERIOD_S:
+                    self.assertEqual(reported_kinds, {"continuous_clearance_unproven"})
+                    self.assertGreaterEqual(report.min_obstacle_clearance, REQUIRED_CLEARANCE)
+                else:
+                    self.assertTrue(
+                        reported_kinds & {"continuous_clearance_unproven", "obstacle_clearance"})
+
+    def test_safe_parallel_curve_with_1cm_margin_is_proved(self):
+        """A curve 1 cm beyond the required margin must be accepted (soundness)."""
+        cps = [(WITNESS_CENTER + 0.01, 0.0, 2.0) for _ in range(WITNESS_POINTS)]
+        spline = make_spline_with_knots(cps, witness_knots())
+        report = assess_spline_clearance(spline)
+        self.assertTrue(report.admitted)
+        self.assertTrue(report.continuous_proof)
+        self.assertEqual(report.evidence_kind, CONTINUOUS_EVIDENCE_KIND)
+        certificate = report.continuous_certificate
+        # Control hull x in [1.16, 1.16] -> obstacle gap = 1.16 - 0.5 = 0.66.
+        self.assertAlmostEqual(certificate.min_net_obstacle_clearance, 0.66 - VEHICLE_RADIUS,
+                               delta=1e-12)
+        self.assertGreaterEqual(certificate.min_net_obstacle_clearance, REQUIRED_CLEARANCE)
+        # And the dense scan confirms the true curve is at least that clear.
+        self.assertGreaterEqual(dense_min_clearance(spline, samples=400), REQUIRED_CLEARANCE)
+
+    def test_small_safe_sinusoid_is_proved(self):
+        cps = [(WITNESS_CENTER + 0.02 + 0.01 * math.sin(i * math.pi / 25.0), 0.0, 2.0)
+               for i in range(WITNESS_POINTS)]
+        spline = make_spline_with_knots(cps, witness_knots())
+        report = assess_spline_clearance(spline)
+        self.assertTrue(report.admitted)
+        self.assertTrue(report.continuous_proof)
+        self.assertGreater(report.continuous_certificate.min_net_obstacle_clearance,
+                           REQUIRED_CLEARANCE)
+        self.assertGreaterEqual(dense_min_clearance(spline, samples=400), REQUIRED_CLEARANCE)
+
+    def test_threshold_equality_is_accepted_and_the_adjacent_double_below_is_rejected(self):
+        """Exact-boundary determinism: the certificate tests `>= required_clearance`.
+
+        Geometry is chosen so the hull<->obstacle gap is a single exact axis
+        difference: the control box straddles the obstacle x-slab (so the x
+        separation is zero) and overlaps it in z, leaving the gap exactly
+        ``y_min - 1.0`` -- no sqrt rounding is involved.  ``y = 1.65`` is itself
+        one double BELOW the requirement (0.65 - 0.35 rounds down to
+        0.29999999999999993), so the adjacent double above it is the smallest
+        accepted centreline height.
+        """
+        boundary = 1.0 + REQUIRED_CLEARANCE + VEHICLE_RADIUS      # y = 1.65
+        just_below = boundary
+        just_above = math.nextafter(boundary, math.inf)
+
+        def certificate_for(y_low):
+            cps = [(float(index) * 0.5 - 1.5, y_low, 2.0) for index in range(7)]
+            return assess_spline_clearance(make_spline(cps)).continuous_certificate
+
+        below = certificate_for(just_below)
+        self.assertEqual(below.obstacle_hull_gap, just_below - 1.0)
+        self.assertEqual(below.min_net_obstacle_clearance, (just_below - 1.0) - VEHICLE_RADIUS)
+        self.assertLess(below.min_net_obstacle_clearance, REQUIRED_CLEARANCE)
+        self.assertFalse(below.proven)
+
+        above = certificate_for(just_above)
+        self.assertEqual(above.obstacle_hull_gap, just_above - 1.0)
+        self.assertGreaterEqual(above.min_net_obstacle_clearance, REQUIRED_CLEARANCE)
+        self.assertTrue(above.proven)
+
+    def test_map_inset_boundary_equality_is_accepted_and_below_is_rejected(self):
+        """Envelope face equality passes; an intrusion past the inset fails closed.
+
+        The map floor is ``z = 0.0`` and the margin is ``0.35 + 0.30``, so the
+        certificate's ``z - (floor + margin)`` arithmetic is exactly tangent at
+        ``z = 0.65``: that centreline is proved (``inset_clearance >= 0.0``) while
+        one centimetre lower is rejected.  The certificate's own decision is a
+        plain ``>= 0.0`` on the multi-axis inset minimum, so a *few-ulp* intrusion
+        can still be absorbed by the face arithmetic; the pre-existing sampled
+        envelope gate keeps its stricter rounding on the same tangent centreline,
+        so the report as a whole is never more permissive than before.
+        """
+        def certificate_for(z_low):
+            cps = [(3.0, 3.0, z_low) for _ in range(7)]
+            return certify_continuous_clearance(make_spline(cps))
+
+        tangent = 0.65
+        self.assertTrue(certificate_for(tangent).proven)
+        self.assertGreaterEqual(certificate_for(tangent).min_hull_inset_clearance, 0.0)
+        self.assertTrue(certificate_for(math.nextafter(tangent, math.inf)).proven)
+
+        outside = certificate_for(tangent - 0.01)
+        self.assertFalse(outside.proven)
+        self.assertLess(outside.min_hull_inset_clearance, 0.0)
+        # The certificate is not weaker than the sampled envelope on the same
+        # centreline; where it ADDS power is curvature between samples, which is
+        # covered for the obstacle case by the witness test above.
+        report = assess_spline_clearance(make_spline([(3.0, 3.0, 0.5)] * 8))
+        self.assertFalse(report.admitted)
+        self.assertFalse(report.continuous_proof)
+        self.assertLess(report.continuous_certificate.min_hull_inset_clearance, 0.0)
+
+    def test_rejected_boundary_report_never_claims_continuous_proof(self):
+        """A strict rejection must not publish the certified-pass labels.
+
+        Review ds-g3-continuous-clearance-review-20260913-01 (P2-1): within one
+        ulp of the margin the sampled gate can reject while the control-hull
+        certificate still proves.  Such a report must carry
+        ``continuous_proof=False`` / ``sampled_segment_checked``; publishing
+        ``convex_hull_span_certified`` on a rejected report would contradict the
+        contract ("continuous_proof True only on a strict pass").
+        """
+        boundary_scenes = [
+            ((0.0, 1.6500000000000001, 2.75), "obstacle_clearance"),
+            ((3.0, 3.0, 0.6499999999999999), "map_envelope"),
+            ((3.0, 3.0, 0.65), "map_envelope"),
+        ]
+        for point, kind in boundary_scenes:
+            with self.subTest(point=point):
+                report = assess_spline_clearance(make_spline([point] * 7))
+                self.assertFalse(report.admitted)
+                self.assertEqual(report.violation["kind"], kind)
+                # The certificate itself still proves at these ulp-boundary
+                # scenes; the report must not turn that into a pass claim.
+                self.assertTrue(report.continuous_certificate.proven)
+                self.assertFalse(report.continuous_proof)
+                self.assertEqual(report.evidence_kind, EVIDENCE_KIND)
+
+    def test_randomized_cover_is_a_sound_outer_bound(self):
+        """Seeded cross-check: the certificate is never contradicted by the curve.
+
+        For a fixed pseudo-random family of splines (no wall clock, no OS RNG):
+        1. every densely sampled curve point must lie inside the AABB of the active
+           control points of the interval that claims to contain it (+1e-9), which
+           is the soundness claim the cover rests on;
+        2. a `proven` certificate must never coexist with a dense-scan clearance
+           violation, i.e. the certificate never admits an intruding curve.
+        """
+        generator = random.Random(20260913)
+        checked = 0
+        proven = 0
+        for _ in range(120):
+            count = generator.randint(4, 10)
+            knot_h = generator.choice((0.05, 0.1, 0.2))
+            origin_x = generator.uniform(-3.0, 4.0)
+            cps = [(origin_x + generator.uniform(-1.2, 1.2) + index * knot_h,
+                    generator.uniform(-2.5, 2.5), generator.uniform(0.4, 5.0))
+                   for index in range(count)]
+            spline = make_spline_with_knots(cps, list(UniformBspline(3, cps, knot_h).knots))
+            certificate = certify_continuous_clearance(spline)
+            if certificate.structural_reason is not None:
+                continue
+            checked += 1
+            duration = spline.duration
+            for start_u, end_u, first, last in certificate.intervals:
+                active = spline.position._points[first - 3:last + 1]
+                low = [min(point[axis] for point in active) for axis in range(3)]
+                high = [max(point[axis] for point in active) for axis in range(3)]
+                for step in range(21):
+                    point = spline.position_at(start_u + (end_u - start_u) * step / 20.0)
+                    for axis in range(3):
+                        self.assertLessEqual(max(low[axis] - point[axis], point[axis] - high[axis]),
+                                             1e-9)
+            dense = min(
+                segment_clearance(spline.position_at(duration * index / 400.0),
+                                  spline.position_at(duration * (index + 1) / 400.0))
+                for index in range(400))
+            if certificate.proven:
+                proven += 1
+                self.assertGreaterEqual(dense, REQUIRED_CLEARANCE - 1e-6)
+        self.assertGreater(checked, 100)
+        self.assertGreater(proven, 0)
+
+    def test_repeated_knots_cannot_reach_the_certificate(self):
+        """Repeated knots are fail-closed everywhere; the grouping is dead code.
+
+        No repeated-knot vector can be constructed through the public bridge
+        path (pinned here), and a tampered repeated knot is rejected fail-closed
+        as ``non_monotone_knots`` BEFORE the interval walk (see
+        ``test_non_monotone_knots_fail_closed``).  The certificate's
+        repeated-knot grouping and degenerate-span skip are therefore
+        unreachable defensive code, never a live soundness argument.
+        """
+        cps = [(float(index) * 0.2, 3.0, 1.0) for index in range(10)]
+        repeated = [0.0, 0.0, 0.0, 0.0, 0.05, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.3, 0.3, 0.3]
+        self.assertEqual(len(repeated), len(cps) + 4)
+        with self.assertRaises(SplineError):
+            make_spline_with_knots(cps, repeated)
+
+    def test_degenerate_curve_collapses_to_one_certified_interval(self):
+        """A curve short enough to live in one span still gets a full-domain cover."""
+        cps = [(3.0, 3.0, 1.0), (3.0, 3.0, 1.0), (3.0, 3.0, 1.0), (3.0, 3.0, 1.0)]
+        knots = [-0.3, -0.2, -0.1, 0.0, 0.1, 0.2, 0.3, 0.4]
+        spline = make_spline_with_knots(cps, knots)
+        self.assertEqual(len(knots), len(cps) + 4)
+        self.assertEqual(spline.duration, 0.1)
+        report = assess_spline_clearance(spline)
+        self.assertTrue(report.admitted)
+        certificate = report.continuous_certificate
+        self.assertTrue(certificate.proven)
+        self.assertEqual(certificate.interval_count, 1)
+        self.assertEqual(self.interval_cover(certificate), [(0.0, 0.1)])
+        self.assertEqual(certificate.domain_start_u, 0.0)
+        self.assertEqual(certificate.domain_end_u, 0.1)
+        # The single active set is the full control set (the only span there is).
+        self.assertEqual(certificate.intervals[0][2:], (3, 3))
+        self.assertEqual(certificate.control_point_count, 4)
+
+    def test_malformed_certificate_structure_fails_closed(self):
+        """A structurally broken spline must never be admitted by default."""
+        spline = make_spline(clear_cps())
+        spline.position._knots = list(spline.position._knots[:-1])   # knot cardinality broken
+        report = assess_spline_clearance(spline)
+        certificate = report.continuous_certificate
+        self.assertFalse(certificate.proven)
+        self.assertEqual(certificate.structural_reason, STRUCTURAL_CERTIFICATE_REASON)
+        self.assertEqual(certificate.interval_count, 0)
+        self.assertEqual(certificate.min_net_obstacle_clearance, -math.inf)
+        self.assertFalse(report.admitted)
+        self.assertEqual(report.violation["kind"], "continuous_clearance_unproven")
+        self.assertEqual(report.violation["structural_reason"], STRUCTURAL_CERTIFICATE_REASON)
+        self.assertFalse(report.continuous_proof)
+        # The malformed-certificate case is decided by the certificate alone.
+        self.assertGreaterEqual(report.min_obstacle_clearance, REQUIRED_CLEARANCE)
+
+    def test_non_monotone_knots_fail_closed(self):
+        spline = make_spline(clear_cps())
+        knots = list(spline.position._knots)
+        knots[5] = knots[4]
+        spline.position._knots = knots
+        certificate = certify_continuous_clearance(spline)
+        self.assertFalse(certificate.proven)
+        self.assertEqual(certificate.structural_reason, "non_monotone_knots")
+
+    def test_certificate_rejects_malformed_inputs(self):
+        self.assert_admission_error("invalid_binding", certify_continuous_clearance,
+                                    make_spline(clear_cps()), binding=object())
+        self.assert_admission_error("invalid_spline", certify_continuous_clearance, object())
+
+    def test_legacy_mode_keeps_witness_admitted_and_labelled_sampled(self):
+        """The pre-fix behaviour stays reachable, explicitly and unambiguously."""
+        report = assess_spline_clearance(witness_spline(), strict_continuous=False)
+        self.assertTrue(report.admitted)
+        self.assertFalse(report.continuous_proof)
+        self.assertEqual(report.evidence_kind, EVIDENCE_KIND)
+        self.assertIsNone(report.continuous_certificate)
+        self.assertIsNone(report.violation)
+
+    def test_clear_polyline_certificate_is_fully_covered(self):
+        spline = make_spline(clear_cps())
+        certificate = certify_continuous_clearance(spline)
+        self.assertTrue(certificate.proven)
+        self.assertEqual(certificate.control_point_count, len(clear_cps()))
+        self.assertEqual(certificate.knot_count, len(clear_cps()) + 4)
+        self.assertEqual(certificate.interval_count, len(clear_cps()) - 3)
+        self.assertEqual(certificate.order, 3)
+        cover = self.interval_cover(certificate)
+        self.assertAlmostEqual(cover[0][0], 0.0)
+        self.assertAlmostEqual(cover[-1][1], spline.duration)
+        self.assertTrue(all(cover[i][1] == cover[i + 1][0] for i in range(len(cover) - 1)))
+        # Every interval's active set is a real p+1 window inside the control points.
+        for _, _, first, last in certificate.intervals:
+            self.assertEqual(last - first + 1, 1)             # uniform knots: one span each
+            self.assertGreaterEqual(first, 3)
+            self.assertLessEqual(last, certificate.control_point_count - 1)
+            # The convex-hull bound is the p+1 control points P_{k-p}..P_k.
+            active = spline.position._points[first - 3:last + 1]
+            self.assertEqual(len(active), 4)
 
 
 class AdmissionWiringTests(unittest.TestCase):
@@ -292,6 +688,43 @@ class AdmissionWiringTests(unittest.TestCase):
             identity=identity_for(session), event_sequence=1, current_tick=0, fallback_yaw=0.0)
         self.assertEqual(len(calls), 0)
         self.assertEqual(session_snapshot(session), before)
+
+    def test_continuous_unproven_never_calls_adapter(self):
+        """The audit witness must be rejected at the seam, atomically."""
+        session, adapter, controller = make_controller()
+        calls = spy_on_activate(adapter)
+        before = session_snapshot(session)
+        error = self.assert_admission_error(
+            "continuous_clearance_unproven", controller.admit,
+            make_mapping(witness_cps(), traj_id=1, knot_h=WITNESS_KNOT_H),
+            identity=identity_for(session), event_sequence=1, current_tick=0, fallback_yaw=0.0)
+        self.assertEqual(len(calls), 0)                       # adapter untouched
+        self.assertEqual(session_snapshot(session), before)   # session unchanged
+        self.assertIsNotNone(error.report)
+        self.assertFalse(error.report.admitted)
+        self.assertEqual(error.report.violation["kind"], "continuous_clearance_unproven")
+        self.assertGreaterEqual(error.report.min_obstacle_clearance, REQUIRED_CLEARANCE)
+        self.assertFalse(error.report.continuous_proof)
+        # The transport/caller burned nothing: the same traj_id can be retried
+        # through the legacy channel and still activate exactly once.
+        legacy = TrajectorySceneAdmission(adapter, anchor_ns=0, strict_continuous=False)
+        report, accepted = legacy.admit(
+            make_mapping(witness_cps(), traj_id=1, knot_h=WITNESS_KNOT_H),
+            identity=identity_for(session), event_sequence=1, current_tick=0, fallback_yaw=0.0)
+        self.assertEqual(accepted, 1)
+        self.assertEqual(len(calls), 1)
+        self.assertFalse(report.continuous_proof)
+        self.assertEqual(session.generation, 1)
+
+    def test_construction_validates_strict_continuous(self):
+        session = TrajectorySession(dict(IDENTITY))
+        adapter = EgoTrajectoryAdapter(session)
+        for bad in (1, 0, "yes", None):
+            with self.subTest(bad=bad):
+                with self.assertRaises(SceneAdmissionError) as ctx:
+                    TrajectorySceneAdmission(adapter, anchor_ns=0, strict_continuous=bad)
+                self.assertEqual(ctx.exception.reason, "invalid_grid")
+        self.assertTrue(TrajectorySceneAdmission(adapter, anchor_ns=0)._strict_continuous)
 
     def test_identity_mismatch_never_calls_adapter(self):
         session, adapter, controller = make_controller()

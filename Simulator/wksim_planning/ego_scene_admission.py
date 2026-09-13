@@ -22,18 +22,40 @@ and only on a pass calls ``EgoTrajectoryAdapter.replan_and_activate`` exactly
 once.  Every failure path leaves the adapter, the TrajectorySession, its event
 sequence, and its generation untouched.
 
-CRITICAL HONESTY BOUNDARY (read before relying on a PASS):
-  The clearance result is computed by sampling the spline on a fixed, explicit,
-  bounded time grid (including the exact endpoints t=0 and t=duration) and then
-  checking each straight segment between adjacent samples.  It therefore proves
-  something about the SAMPLED POLYLINE ONLY.  A cubic B-spline does not in
+CRITICAL HONESTY BOUNDARY (read before relying on a PASS) -- two distinct modes:
+
+  LEGACY SAMPLED MODE (``strict_continuous=False``; still reachable, still
+  honest): the clearance result is computed by sampling the spline on a fixed,
+  explicit, bounded time grid (including the exact endpoints t=0 and t=duration)
+  and then checking each straight segment between adjacent samples.  It therefore
+  proves something about the SAMPLED POLYLINE ONLY.  A cubic B-spline does not in
   general coincide with the chords between its samples, so this is NOT a proof
-  that the continuous curve keeps clearance between sample instants.  The
-  deterministic 0.010 s grid is the adapter's streaming cadence used as an
-  evaluation grid; it is NOT claimed to be a sufficient condition for
-  continuous-curve safety.  Every report is labelled ``sampled_segment_checked``
-  with ``continuous_proof=False``.  A tighter grid raises sample density but can
-  never turn a sampled check into a continuous guarantee.
+  that the continuous curve keeps clearance between sample instants.  A report
+  from this mode is labelled ``sampled_segment_checked`` with
+  ``continuous_proof=False``.  A tighter grid raises sample density but can never
+  turn a sampled check into a continuous guarantee.
+
+  STRICT MODE (the default, ``strict_continuous=True``): after the sampled gate,
+  the WHOLE CONTINUOUS CURVE is certified from the B-spline convex-hull property
+  without sampling it on any grid.  On a knot interval ``[u_k, u_{k+1})`` a
+  degree-``p`` B-spline curve is a convex combination of the active control
+  points ``P_{k-p}..P_k``, hence inside their axis-aligned bounding box.  The
+  certificate tiles the exact clamped domain ``[u_p, u_{m-p}]`` with those
+  intervals, and requires, for EVERY interval, that its control-hull AABB is at
+  least ``vehicle_radius + required_clearance`` away from the obstacle AABB and
+  at least ``vehicle_radius + required_clearance`` INSIDE the map AABB.  Because
+  the certificate is a union bound over convex hulls it covers every instant of
+  the curve, including the interiors that a finite grid can straddle; a curve
+  that passes it is proved clear for the geometric model below.  A curve whose
+  control hulls intrude is REJECTED with reason ``continuous_clearance_unproven``
+  even when the 10 ms sampled polyline looks clean -- that alternating-control-point
+  witness used to be wrongly admitted.
+  If the certificate cannot be built at all (malformed internal spline
+  structure) it FAILS CLOSED: no PASS is issued.
+  What strict mode still does not claim: no dynamics, tracking error, controller
+  lag, force/impulse, sensor, planner, or flight safety.  The spatial extent
+  behind ``vehicle_radius`` is assumed spherical, and the obstacle is assumed to
+  be exactly the committed AABB for the whole trajectory duration.
 
 Non-claims: this module does no force, impulse, UE, SITL, ROS, planner, socket,
 or flight work, and it never reads or drives Terrain15D -- the obstacle is a
@@ -76,6 +98,11 @@ DEFAULT_SAMPLE_PERIOD_S = SAMPLE_PERIOD_S          # 0.010 s
 MAX_ADMISSION_SAMPLES = 1_000_000
 
 EVIDENCE_KIND = "sampled_segment_checked"
+# Evidence kind of a STRICT-mode PASS: the continuous curve was certified from
+# the control-point convex hulls on a finite partition of the exact domain, not
+# from a time grid.  Existing consumers of "sampled_segment_checked" keep seeing
+# that value on every legacy/sampled-only path.
+CONTINUOUS_EVIDENCE_KIND = "convex_hull_span_certified"
 
 ADMISSION_REASONS = (
     "invalid_adapter",
@@ -88,15 +115,19 @@ ADMISSION_REASONS = (
     "bridge_rejected",
     "clearance_violation",
     "map_violation",
+    "continuous_clearance_unproven",
     "adapter_rejected",
 )
 
 NON_CLAIMS = (
-    "clearance is proven only for the sampled polyline of straight segments, "
-    "not for the continuous B-spline curve between sample instants",
+    "strict mode proves the continuous curve only through the B-spline convex "
+    "hull property (control-point AABB per knot interval); the legacy "
+    "strict_continuous=False path proves only the sampled polyline of straight "
+    "segments, not the continuous curve between sample instants",
     "the deterministic 0.010 s grid is an evaluation cadence, not a proof that "
     "the stride is sufficient for continuous-curve safety",
-    "no force, impulse, UE, SITL, ROS, planner, socket, or flight claim",
+    "no dynamics, tracking-error, controller-lag, force, impulse, UE, SITL, ROS, "
+    "planner, socket, or flight claim",
     "the obstacle is a vertical AABB; Terrain15D / terrain-height is never read "
     "or driven",
     "no identifier is minted and no wall clock is read",
@@ -119,12 +150,46 @@ class SceneAdmissionError(ValueError):
 
 
 @dataclass(frozen=True)
+class ContinuousClearanceCertificate:
+    """Honest evidence for the continuous-curve (control-hull) certificate.
+
+    ``proven`` is True only when EVERY knot interval of the exact clamped domain
+    passed both the obstacle-gap and the map-inset test, i.e. the continuous
+    curve is enclosed by certified convex hulls.  When it is False,
+    ``structural_reason`` names the fail-closed cause and no clearance claim is
+    made: the ``min_*`` fields then carry no proof weight, they are reported for
+    diagnosis only.
+    """
+
+    proven: bool
+    evidence_kind: str
+    order: int
+    control_point_count: int
+    knot_count: int
+    interval_count: int
+    domain_start_u: float
+    domain_end_u: float
+    obstacle_hull_gap: float                  # min interval AABB <-> obstacle AABB gap (centreline)
+    min_net_obstacle_clearance: float         # obstacle_hull_gap - vehicle_radius
+    min_hull_inset_clearance: float           # min interval AABB distance inside the inset map AABB
+    required_clearance: float
+    vehicle_radius: float
+    structural_reason: Optional[str] = None
+    intervals: Tuple[Tuple[float, float, int, int], ...] = ()
+    non_claims: Tuple[str, ...] = NON_CLAIMS
+
+
+@dataclass(frozen=True)
 class SceneClearanceReport:
     """Honest evidence for one spline assessment.
 
-    ``evidence_kind`` is always ``sampled_segment_checked`` and
-    ``continuous_proof`` is always False: the numbers below describe the sampled
-    polyline, never the continuous B-spline between samples.
+    ``evidence_kind`` is ``convex_hull_span_certified`` with
+    ``continuous_proof=True`` when the strict continuous certificate passed, and
+    ``sampled_segment_checked`` with ``continuous_proof=False`` on every
+    sampled-only path (legacy mode, or a strict run that failed closed).  The
+    sampled numbers always describe the sampled polyline, never the continuous
+    B-spline between samples; ``continuous_certificate`` carries the separate
+    continuous evidence and is ``None`` outside strict mode.
     """
 
     admitted: bool
@@ -147,6 +212,7 @@ class SceneClearanceReport:
     min_envelope_clearance: float           # min (inward face distance - radius) over samples
     violation: Optional[Mapping[str, Any]]  # first violation (time order), else None
     non_claims: Tuple[str, ...] = NON_CLAIMS
+    continuous_certificate: Optional[ContinuousClearanceCertificate] = None
 
 
 def _sample_period(value: Any) -> float:
@@ -206,18 +272,231 @@ def _inward_face_distance(point: Tuple[float, float, float], bounds) -> float:
     )
 
 
+def _aabb_gap(low_a, high_a, low_b, high_b) -> float:
+    """Exact Euclidean distance between two axis-aligned boxes (0.0 if they overlap).
+
+    Per axis the separation is ``max(0, a_lo - b_hi, b_lo - a_hi)`` and the 3D
+    distance is the Euclidean norm of the three separations.  All terms are exact
+    real quantities; only the final ``sqrt`` rounds once.
+    """
+    total = 0.0
+    for a_low, a_high, b_low, b_high in zip(low_a, high_a, low_b, high_b):
+        separation = max(a_low - b_high, b_low - a_high)
+        if separation > 0.0:
+            total += separation * separation
+    return math.sqrt(total)
+
+
+def _inset_clearance(low, high, inset_low, inset_high):
+    """Per-axis signed clearance of a box from staying inside an inset box.
+
+    Axis ``i`` is ``min(low_i - inset_low_i, inset_high_i - high_i)`` and is
+    ``>= 0`` exactly when the box is inside the inset box on that axis.  Returning
+    the three axes separately keeps the decision per-axis: a deep intrusion on one
+    axis can never be averaged away by a comfortable margin on another.
+    """
+    return tuple(
+        min(lo - face_low, face_high - hi)
+        for lo, hi, face_low, face_high in zip(low, high, inset_low, inset_high)
+    )
+
+
+STRUCTURAL_CERTIFICATE_REASON = "certificate_structure_invalid"
+
+
+def _control_hull_span_certificate(spline: EgoSpline, *,
+                                   binding: PlannerSceneBinding) -> ContinuousClearanceCertificate:
+    """Conservative continuous-curve clearance certificate (never samples the curve).
+
+    Algorithm (pure, deterministic, no native/ROS/planner work):
+
+    1. Read the bridge/evaluator-owned spline structure: order ``p``, monotone
+       knot vector ``u_0..u_m``, control points ``P_0..P_n`` with
+       ``len(knots) == n + p + 2``.  Any deviation from those invariants is
+       fail-closed: ``proven=False`` with ``structural_reason``.
+    2. Walk the knot span indices ``j`` of the evaluation domain
+       ``[u_p, u_{m-p}]``.  Any repeated (non-increasing) knot is rejected
+       fail-closed as ``non_monotone_knots`` BEFORE this walk, so every
+       certified interval is a plain strictly increasing span
+       ``[u_j, u_{j+1})`` whose active window ``P_{j-p}..P_j`` contains the
+       curve on that span.  (The repeated-knot grouping and degenerate-span
+       skip inside the walk are defensive only: the monotonicity gate makes
+       them unreachable.)
+    3. Require, per interval, ``aabb_gap(control_box, obstacle) - vehicle_radius
+       >= required_clearance`` and ``inset_clearance(control_box, map inset)
+       >= 0.0``.  The certificate passes only when ALL intervals pass.
+
+    Soundness: a degree-``p`` B-spline on a knot span is a convex combination of
+    its active control points, so the curve lies in their convex hull and hence
+    in their AABB; a finite, gap-free cover of the domain by such AABBs therefore
+    bounds the ENTIRE continuous curve.  Conservatism: the AABB is an outer
+    approximation of the hull and the gap-to-obstacle test is a box test, so some
+    genuinely safe curves are rejected -- never the reverse.
+
+    Public entry point: ``certify_continuous_clearance``.
+    """
+    if not isinstance(binding, PlannerSceneBinding):
+        raise SceneAdmissionError("invalid_binding", "binding must be a PlannerSceneBinding")
+    if not isinstance(spline, EgoSpline):
+        raise SceneAdmissionError("invalid_spline", "spline must be an EgoSpline")
+
+    profile = binding.profile
+    obstacle = profile.obstacle
+    map_bounds = profile.map_bounds
+    radius = profile.vehicle_radius
+    required = profile.required_clearance
+    margin = radius + required
+    inset_low = tuple(low + margin for low in map_bounds.minimum)
+    inset_high = tuple(high - margin for high in map_bounds.maximum)
+
+    def unproven(reason: str, *, order: int, controls: int, knots: int,
+                 start_u: float, end_u: float) -> ContinuousClearanceCertificate:
+        return ContinuousClearanceCertificate(
+            proven=False,
+            evidence_kind=CONTINUOUS_EVIDENCE_KIND,
+            order=order,
+            control_point_count=controls,
+            knot_count=knots,
+            interval_count=0,
+            domain_start_u=start_u,
+            domain_end_u=end_u,
+            obstacle_hull_gap=0.0,
+            min_net_obstacle_clearance=-math.inf,
+            min_hull_inset_clearance=-math.inf,
+            required_clearance=required,
+            vehicle_radius=radius,
+            structural_reason=reason,
+        )
+
+    try:
+        position = spline.position
+        order = position.order
+        knots = tuple(position.knots)
+        control_points = tuple(position._points)
+    except (AttributeError, TypeError) as error:
+        raise SceneAdmissionError(
+            "invalid_spline", "spline structure is unreadable for the certificate") from error
+
+    knot_count = len(knots)
+    control_count = len(control_points)
+    if (isinstance(order, bool) or type(order) is not int or order < 1
+            or control_count < order + 1
+            or knot_count != control_count + order + 1):
+        return unproven(STRUCTURAL_CERTIFICATE_REASON, order=order if type(order) is int else 0,
+                        controls=control_count, knots=knot_count, start_u=0.0, end_u=0.0)
+    for index in range(1, knot_count):
+        if not knots[index] > knots[index - 1]:
+            return unproven("non_monotone_knots", order=order, controls=control_count,
+                            knots=knot_count, start_u=0.0, end_u=0.0)
+
+    start_u = knots[order]
+    end_u = knots[control_count]                  # m - p = (n + p + 1) - p = n + 1
+    if not end_u > start_u:
+        return unproven("degenerate_domain", order=order, controls=control_count,
+                        knots=knot_count, start_u=start_u, end_u=end_u)
+
+    intervals = []
+    obstacle_low = obstacle.minimum
+    obstacle_high = obstacle.maximum
+    obstacle_gap = math.inf
+    inset_clearance = (math.inf, math.inf, math.inf)
+    index = order
+    while index <= control_count - 1:             # last span index is m - p - 1 = n
+        interval_start = knots[index]
+        interval_end = knots[index + 1]
+        if interval_end <= interval_start:        # repeated knot: zero-length span
+            index += 1
+            continue
+        last = index
+        while last + 1 <= control_count - 1 and knots[last + 1] == interval_start:
+            last += 1
+        active = control_points[index - order:last + 1]
+        low = tuple(min(point[axis] for point in active) for axis in range(3))
+        high = tuple(max(point[axis] for point in active) for axis in range(3))
+        obstacle_gap = min(obstacle_gap, _aabb_gap(low, high, obstacle_low, obstacle_high))
+        inset_clearance = tuple(
+            min(current, axis_clearance)
+            for current, axis_clearance in zip(inset_clearance,
+                                               _inset_clearance(low, high, inset_low, inset_high))
+        )
+        intervals.append((interval_start, interval_end, index, last))
+        index += 1
+
+    if not intervals:
+        # No non-degenerate interval can cover a positive-length domain, so the
+        # certificate proves nothing: fail closed rather than admit by default.
+        return unproven("no_non_degenerate_interval", order=order, controls=control_count,
+                        knots=knot_count, start_u=start_u, end_u=end_u)
+
+    net_obstacle = obstacle_gap - radius
+    # Per-axis inset decision: EVERY axis must keep the margin, so one axis'
+    # intrusion is never traded against another axis' slack.
+    proven = (net_obstacle >= required) and all(value >= 0.0 for value in inset_clearance)
+    return ContinuousClearanceCertificate(
+        proven=proven,
+        evidence_kind=CONTINUOUS_EVIDENCE_KIND,
+        order=order,
+        control_point_count=control_count,
+        knot_count=knot_count,
+        interval_count=len(intervals),
+        domain_start_u=start_u,
+        domain_end_u=end_u,
+        obstacle_hull_gap=obstacle_gap,
+        min_net_obstacle_clearance=net_obstacle,
+        min_hull_inset_clearance=min(inset_clearance),
+        required_clearance=required,
+        vehicle_radius=radius,
+        intervals=tuple(intervals),
+    )
+
+
+def certify_continuous_clearance(spline: EgoSpline, *,
+                                 binding: PlannerSceneBinding = EGO_SINGLE_BOX_BINDING
+                                 ) -> ContinuousClearanceCertificate:
+    """Public certificate entry point; see ``_control_hull_span_certificate``.
+
+    Raises SceneAdmissionError only for malformed inputs (bad binding type,
+    non-spline); an unprovable or structurally invalid certificate is RETURNED
+    with ``proven=False`` so callers decide fail-closed policy.
+    """
+    return _control_hull_span_certificate(spline, binding=binding)
+
+
+def _strict_continuous_flag(value: Any) -> bool:
+    if type(value) is not bool:
+        raise SceneAdmissionError("invalid_grid", "strict_continuous must be a strict bool")
+    return value
+
+
 def assess_spline_clearance(spline: EgoSpline, *, binding: PlannerSceneBinding = EGO_SINGLE_BOX_BINDING,
-                            sample_period_s: float = DEFAULT_SAMPLE_PERIOD_S) -> SceneClearanceReport:
+                            sample_period_s: float = DEFAULT_SAMPLE_PERIOD_S,
+                            strict_continuous: bool = True) -> SceneClearanceReport:
     """Assess one EgoSpline against the committed scene; never touches a session.
 
+    Both gates are evaluated on the SAME call so the honest evidence is complete:
+
+    - the sampled polyline gate always runs and always populates
+      ``min_obstacle_clearance`` / ``min_envelope_clearance``;
+    - with ``strict_continuous=True`` (default) the continuous control-hull
+      certificate additionally runs.  The report is admitted only when the
+      sampled polyline AND the continuous certificate pass.  A certificate that
+      cannot be built or cannot prove clearance makes the report NOT admitted
+      (``violation["kind"] == "continuous_clearance_unproven"``), i.e. strict
+      mode fails closed.  With ``strict_continuous=False`` the legacy
+      sampled-only behaviour is kept verbatim: ``continuous_proof`` stays False,
+      ``evidence_kind`` stays ``sampled_segment_checked``, and
+      ``continuous_certificate`` stays None.
+
     Returns a SceneClearanceReport.  Raises SceneAdmissionError only for malformed
-    inputs (bad binding, bad grid, non-spline, non-positive duration); a clearance
-    or map shortfall is reported via ``report.admitted is False`` + ``violation``,
-    not raised, so callers can inspect the honest evidence.
+    inputs (bad binding, bad grid, non-spline, non-positive duration, non-bool
+    mode); a clearance, map, or continuous-certificate shortfall is reported via
+    ``report.admitted is False`` + ``violation``, not raised, so callers can
+    inspect the honest evidence.
     """
     if not isinstance(binding, PlannerSceneBinding):
         raise SceneAdmissionError("invalid_binding", "binding must be a PlannerSceneBinding")
     step = _sample_period(sample_period_s)
+    require_continuous = _strict_continuous_flag(strict_continuous)
     if not isinstance(spline, EgoSpline):
         raise SceneAdmissionError("invalid_spline", "spline must be an EgoSpline")
     duration = spline.duration
@@ -272,11 +551,32 @@ def assess_spline_clearance(spline: EgoSpline, *, binding: PlannerSceneBinding =
         previous = point
 
     end_point = point
+    # Continuous gate: only reached when the sampled polyline is clean, so a
+    # sampled shortfall keeps reporting its own (first-in-time) reason and the
+    # certificate only decides the cases sampling cannot see.
+    certificate: Optional[ContinuousClearanceCertificate] = None
+    if require_continuous:
+        certificate = _control_hull_span_certificate(spline, binding=binding)
+        if not certificate.proven and violation is None:
+            violation = {
+                "kind": "continuous_clearance_unproven",
+                "structural_reason": certificate.structural_reason,
+                "clearance": certificate.min_net_obstacle_clearance,
+                "obstacle_hull_gap": certificate.obstacle_hull_gap,
+                "envelope_clearance": certificate.min_hull_inset_clearance,
+                "threshold": required_clearance,
+                "interval_count": certificate.interval_count,
+            }
+
     admitted = violation is None
+    # The certified-pass label is conjoined with admission: a strict report the
+    # sampled gate rejects must never publish continuous_proof=True even when
+    # the certificate itself proves (possible within one ulp of the margin).
+    continuous_proof = bool(admitted and certificate is not None and certificate.proven)
     return SceneClearanceReport(
         admitted=admitted,
-        evidence_kind=EVIDENCE_KIND,
-        continuous_proof=False,
+        evidence_kind=CONTINUOUS_EVIDENCE_KIND if continuous_proof else EVIDENCE_KIND,
+        continuous_proof=continuous_proof,
         scene_id=binding.scene_id,
         scene_hash=binding.scene_hash,
         geometry_id=binding.geometry_id,
@@ -293,6 +593,7 @@ def assess_spline_clearance(spline: EgoSpline, *, binding: PlannerSceneBinding =
         min_obstacle_clearance=min_obstacle,
         min_envelope_clearance=min_envelope,
         violation=violation,
+        continuous_certificate=certificate,
     )
 
 
@@ -305,10 +606,16 @@ class TrajectorySceneAdmission:
     pinned at construction and re-checked on every call BEFORE any geometry or
     adapter work; the generation, event-sequence, and tick monotonicity are enforced
     downstream by the bridge, adapter, and session.
+
+    ``strict_continuous`` (default True) selects the continuous-certificate gate:
+    on a pass the adapter is only activated when the CONTINUOUS curve is certified
+    clear (see ``assess_spline_clearance``).  Passing False restores the legacy
+    sampled-polyline-only admission for an explicitly opted-in caller.
     """
 
     def __init__(self, adapter: EgoTrajectoryAdapter, *, binding: PlannerSceneBinding = EGO_SINGLE_BOX_BINDING,
-                 anchor_ns: int, sample_period_s: float = DEFAULT_SAMPLE_PERIOD_S):
+                 anchor_ns: int, sample_period_s: float = DEFAULT_SAMPLE_PERIOD_S,
+                 strict_continuous: bool = True):
         if not isinstance(adapter, EgoTrajectoryAdapter):
             raise SceneAdmissionError("invalid_adapter", "adapter must be an EgoTrajectoryAdapter")
         if not isinstance(binding, PlannerSceneBinding):
@@ -319,6 +626,8 @@ class TrajectorySceneAdmission:
         self._binding = binding
         self._anchor_ns = anchor_ns
         self._sample_period_s = _sample_period(sample_period_s)
+        self._strict_continuous = _strict_continuous_flag(strict_continuous)
+
         session_identity = adapter.session.identity      # public, fixed for the session lifetime
         self._identity_tuple = (
             session_identity.run_id,
@@ -342,7 +651,8 @@ class TrajectorySceneAdmission:
         return candidate
 
     def assess(self, spline: EgoSpline) -> SceneClearanceReport:
-        return assess_spline_clearance(spline, binding=self._binding, sample_period_s=self._sample_period_s)
+        return assess_spline_clearance(spline, binding=self._binding, sample_period_s=self._sample_period_s,
+                                      strict_continuous=self._strict_continuous)
 
     def admit(self, mapping: Mapping[str, Any], *, identity: Any, event_sequence: int,
               current_tick: int, fallback_yaw: float):
@@ -353,7 +663,11 @@ class TrajectorySceneAdmission:
           1. identity stable-tuple gate (admission level),
           2. decode-mapping shape check,
           3. bridge_bspline (payload + authority-clock anchor/grid/past checks),
-          4. scene clearance + map envelope over the sampled polyline,
+          4. scene gate: the sampled polyline (clearance + map envelope) and, in
+             strict mode, the continuous control-hull certificate.  A sampled
+             shortfall keeps its existing reason (``clearance_violation`` /
+             ``map_violation``); an unprovable continuous certificate fails closed
+             as ``continuous_clearance_unproven``,
           5. only if admitted: a single adapter.replan_and_activate, which commits
              identity/epoch/tick/generation/trajectory atomically in the session.
 
@@ -375,11 +689,17 @@ class TrajectorySceneAdmission:
             raise SceneAdmissionError(
                 "bridge_rejected", f"bridge rejected the payload: {error.reason}",
                 bridge_reason=error.reason) from error
-        # 4. scene geometry gate over the sampled polyline.  On any shortfall the
-        #    adapter is NEVER called.
+        # 4. scene geometry gate (sampled polyline + strict continuous certificate).
+        #    On any shortfall the adapter is NEVER called.
         report = self.assess(spline)
         if not report.admitted:
-            reason = "map_violation" if report.violation["kind"] == "map_envelope" else "clearance_violation"
+            kind = report.violation["kind"]
+            if kind == "map_envelope":
+                reason = "map_violation"
+            elif kind == "continuous_clearance_unproven":
+                reason = "continuous_clearance_unproven"
+            else:
+                reason = "clearance_violation"
             raise SceneAdmissionError(reason, "scene clearance/map gate failed", report=report)
         # 5. admitted: the single, atomic adapter activation.  The session validates
         #    and commits event-sequence/generation/tick/trajectory in one operation,

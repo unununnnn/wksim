@@ -13,6 +13,10 @@ Scene geometry under test (committed ego-single-box-v1):
 import unittest
 
 from Simulator.wksim_planning.ego_evaluator import UniformBspline
+from Simulator.wksim_planning.ego_scene_admission import (
+    ADMISSION_REASONS,
+    SceneAdmissionError,
+)
 from Simulator.wksim_planning.ego_trajectory_adapter import (
     AdapterError,
     EgoTrajectoryAdapter,
@@ -36,6 +40,7 @@ from Simulator.wksim_runtime.planner_transport_pump import (
     OUTCOME_POISON,
     STATE_ACTIVE,
     STATE_POISONED,
+    _ADMISSION_REASON_TO_OUTCOME,
     FrameOutcome,
     PlannerTransportPump,
     PumpError,
@@ -75,14 +80,26 @@ def collision_cps():
     return [(float(i - 3) * 0.5, 0.0, 1.0) for i in range(7)]
 
 
-def make_payload(cps, *, traj_id=1, sec=0, nanosec=0, order=3, drone_id=0):
+# The audit's decisive counterexample (validation/coordination/
+# ds-g3-closure-frontier-20260913-01, section G): alternating control points at
+# knot interval 0.005 s whose curve period equals the 0.010 s sample stride, so
+# the sampled polyline looks clean while the continuous curve intrudes the margin.
+WITNESS_CENTER, WITNESS_AMPLITUDE, WITNESS_KNOT_H, WITNESS_POINTS = 1.15, 0.30, 0.005, 203
+
+
+def witness_cps():
+    return [(WITNESS_CENTER - WITNESS_AMPLITUDE * ((-1) ** i), 0.0, 2.0)
+            for i in range(WITNESS_POINTS)]
+
+
+def make_payload(cps, *, traj_id=1, sec=0, nanosec=0, order=3, drone_id=0, knot_h=0.1):
     """A valid raw Bspline payload for the encoder (ROS1-relay input shape)."""
     return {
         "drone_id": drone_id,
         "order": order,
         "traj_id": traj_id,
         "start_time": {"sec": sec, "nanosec": nanosec},
-        "knots": list(UniformBspline(order, cps, 0.1).knots),
+        "knots": list(UniformBspline(order, cps, knot_h).knots),
         "pos_pts": [tuple(p) for p in cps],
         "yaw_pts": [],
         "yaw_dt": 0.0,
@@ -182,6 +199,33 @@ class PumpReceiveTests(unittest.TestCase):
         self.assertEqual((session.state, session.generation, session.last_event_sequence),
                          ("WAITING", 0, None))                 # session untouched
         self.assertEqual(pump.next_event_sequence, 1)          # not burned
+
+    def test_continuous_unproven_reject_is_mapped_and_two_commit(self):
+        """The strict continuous gate must surface as its own pump outcome.
+
+        The witness payload's sampled polyline is clean (a 10 ms grid sees 0.40 m)
+        but its continuous curve intrudes the 0.30 m margin; the pump must record
+        ``rejected_continuous`` rather than silently folding it into
+        ``rejected_clearance`` or activating the session.
+        """
+        session, adapter, decoder, pump = make_pump()
+        frame = BsplineTcpEncoder(SESSION_ID).encode_frame(
+            make_payload(witness_cps(), traj_id=1, knot_h=WITNESS_KNOT_H))
+        outcomes = pump.feed(frame, identity=IDENTITY, current_tick=0, fallback_yaw=0.0)
+        self.assertEqual(len(outcomes), 1)
+        outcome = outcomes[0]
+        self.assertEqual(outcome.outcome, "rejected_continuous")
+        self.assertEqual(outcome.detail, "continuous_clearance_unproven")
+        self.assertTrue(outcome.transport_consumed)
+        self.assertFalse(outcome.session_activated)
+        self.assertIsNone(outcome.event_sequence)
+        self.assertIsNotNone(outcome.report)
+        self.assertEqual(outcome.report.violation["kind"], "continuous_clearance_unproven")
+        self.assertGreaterEqual(outcome.report.min_obstacle_clearance, 0.30)
+        self.assertFalse(outcome.report.continuous_proof)
+        self.assertEqual((session.state, session.generation, session.last_event_sequence),
+                         ("WAITING", 0, None))
+        self.assertEqual(pump.next_event_sequence, 1)
 
     def test_bridge_and_identity_rejects_are_recorded_without_activation(self):
         session, adapter, decoder, pump = make_pump()
@@ -1104,6 +1148,80 @@ class PumpControlCarrierTests(unittest.TestCase):
             new_encoder.encode_control_frame({"kind": "gate", "open": True}),
             identity=identity, current_tick=0, fallback_yaw=0.0)
         self.assertEqual([o.outcome for o in outcomes], [OUTCOME_POISON])
+
+
+class StubAdmission:
+    """Admission-gate stand-in that raises a caller-supplied error from admit()."""
+
+    def __init__(self, error):
+        self._error = error
+        self.calls = 0
+
+    def admit(self, *args, **kwargs):
+        self.calls += 1
+        raise self._error
+
+
+class PumpAdmissionOutcomeMappingTests(unittest.TestCase):
+    """The admission reason -> pump outcome table is exhaustive or fails closed."""
+
+    def test_every_reachable_admission_reason_is_mapped(self):
+        # ADMISSION_REASONS minus the table must be exactly the four reasons
+        # that admit() can never raise (construction-time or bridge-guaranteed;
+        # pinned by ds-g3-continuous-clearance-review-20260913-01 probe 5).
+        # Any OTHER unmapped reason -- in particular a newly added one whose
+        # table row was forgotten -- fails this test instead of silently
+        # becoming "rejected_adapter" at runtime.
+        self.assertEqual(
+            set(ADMISSION_REASONS) - set(_ADMISSION_REASON_TO_OUTCOME),
+            {"invalid_adapter", "invalid_anchor", "invalid_binding", "invalid_spline"})
+
+    def test_unknown_admission_reason_fails_closed(self):
+        """An unmapped reason raises; no session call, no event_sequence spent.
+
+        SceneAdmissionError's constructor pins reason to ADMISSION_REASONS, so
+        a genuinely unknown reason is simulated by overriding the attribute --
+        the exact shape a future gate/pump contract drift would take.
+        """
+        session, adapter, decoder, pump = make_pump()
+        real_admission = pump._admission
+        error = SceneAdmissionError("adapter_rejected", "placeholder")
+        error.reason = "future_unmapped_reason"
+        stub = StubAdmission(error)
+        pump._admission = stub
+        before = pump_snapshot(pump)
+        encoder = BsplineTcpEncoder(SESSION_ID)
+        frame = encoder.encode_frame(make_payload(clear_cps(), traj_id=1))
+        with self.assertRaises(RuntimeError) as ctx:
+            pump.feed(frame, identity=IDENTITY, current_tick=0, fallback_yaw=0.0)
+        self.assertIn("future_unmapped_reason", str(ctx.exception))
+        # Deterministic: the same frame shape on a fresh pump raises the
+        # identical, reason-naming error.
+        session2, adapter2, decoder2, pump2 = make_pump()
+        pump2._admission = StubAdmission(error)
+        with self.assertRaises(RuntimeError) as ctx2:
+            pump2.feed(BsplineTcpEncoder(SESSION_ID).encode_frame(
+                make_payload(clear_cps(), traj_id=1)),
+                identity=IDENTITY, current_tick=0, fallback_yaw=0.0)
+        self.assertEqual(str(ctx2.exception), str(ctx.exception))
+        # Transport committed exactly the one read_frame() decode (the honest
+        # two-commit boundary); NOTHING after it ran: no session activation,
+        # no adapter call, no event_sequence spent, pump still ACTIVE.
+        self.assertEqual(stub.calls, 1)
+        self.assertEqual(decoder.high_water_sequence, 1)
+        self.assertEqual(pump_snapshot(pump), before)
+        self.assertEqual(pump.state, STATE_ACTIVE)
+        self.assertEqual((session.state, session.generation, session.last_event_sequence),
+                         ("WAITING", 0, None))
+        self.assertEqual(adapter.trajectory_id, 0)
+        self.assertEqual(pump.next_event_sequence, 1)
+        # The pump is not poisoned or burned: with the real gate restored, the
+        # same legal frame activates on the SAME unconsumed event_sequence.
+        pump._admission = real_admission
+        outcomes = pump.feed(encoder.encode_frame(make_payload(clear_cps(), traj_id=2)),
+                             identity=IDENTITY, current_tick=0, fallback_yaw=0.0)
+        self.assertEqual([o.outcome for o in outcomes], [OUTCOME_ACTIVATED])
+        self.assertEqual(outcomes[0].event_sequence, 1)
 
 
 if __name__ == "__main__":
