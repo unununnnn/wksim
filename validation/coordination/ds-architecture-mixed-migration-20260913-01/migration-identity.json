@@ -1,0 +1,300 @@
+{
+  "receipt": "ds-architecture-mixed-migration-20260913-01",
+  "revision": 3,
+  "revision_reason": "v3: withdraw the false v2 claim that tools/run_joint_flight.py:329 reads async_model_evidence directly (it is getattr-guarded) and that validation/test_joint_rate_probe.py's line-401 case fails and needs a namespace repair; add the current candidate update pointer (fast-forward d45d1da -> 386f713 via main bundle, receipt architecture-candidate-sync-20260913-02); re-audit all hard claims against exact source and receipts; keep v2 corrections (rate arithmetic, tracked-modification count, manager-GC conditional, rate-probe optional, owned-region coherence)",
+  "checked_at_local": "2026-09-13",
+  "work_class": "new-architecture-acceptance-preparation",
+  "acceptance_run": false,
+  "writes": {
+    "windows_owned": [
+      "docs/coordination/ds-architecture-mixed-migration-20260913.md",
+      "validation/coordination/ds-architecture-mixed-migration-20260913-01/"
+    ],
+    "linux_checkouts_modified": false,
+    "implementation_modified": false,
+    "native_or_build_run": false,
+    "code_run": false
+  },
+  "checkouts": {
+    "windows_main": {
+      "cwd": "C:/Users/PC/Documents/odid编译/wksim",
+      "branch": "main",
+      "head": "386f713a7752515502fd2224e9186f2219674732",
+      "previous_head_at_v1": "1b3dfdcc106be18bcff8ff0e69269f6c7eab755d",
+      "ancestor_commit": "f333316e6efa6b299b4288a9d91fb2bccedfb9d6",
+      "ancestor_check": "git merge-base --is-ancestor f333316e6efa6b299b4288a9d91fb2bccedfb9d6 HEAD",
+      "ancestor_exit": 0,
+      "dirty_at_revision": true,
+      "tracked_modifications_at_revision": [
+        "docs/Prometheus.gitmodules.reference",
+        "validation/coordination/short-cycle-dispatches.json"
+      ]
+    },
+    "wsl_new_architecture_candidate": {
+      "distro": "Ubuntu-22.04",
+      "path": "/root/wksim-architecture-acceptance-20260913",
+      "branch": "codex/architecture-acceptance-20260913",
+      "head": "386f713a7752515502fd2224e9186f2219674732",
+      "head_at_v1_v2_snapshot": "d45d1dad81600b37fb41c945870ee455a3ee81f0",
+      "status_porcelain_lines": 0,
+      "untracked_count": 0,
+      "ancestor_exit": 0,
+      "sync_receipt": "validation/coordination/architecture-candidate-sync-20260913-02/receipt.json",
+      "sync_method": "git fetch main.bundle refs/heads/main:refs/remotes/main-coordinator/main; git merge --ff-only refs/remotes/main-coordinator/main",
+      "sync_private_wiring_migrated": false,
+      "sync_native_executed": false,
+      "sync_effect_on_this_report": "none: candidate runner is still 5527063f..., joint_rate_probe.py is still a8bac9ac..., validation/test_joint_rate_probe.py is still c3bfd1cd..., manager-GC artifacts are still absent, and the donor diffs are unchanged (472/50 runner, +27 probe)"
+    },
+    "wsl_historical_comparison_frozen": {
+      "distro": "Ubuntu-22.04",
+      "path": "/root/wksim-release-acceptance-fe3",
+      "branch": "codex/planner-release-validation",
+      "head": "db1200d115902eb9d47fca19cccb71a7b9c15147",
+      "ancestor_exit": 1,
+      "classification": "historical-comparison-only",
+      "tracked_modifications_count": 5,
+      "tracked_modifications": [
+        "Simulator/wksim_core/worker.py",
+        "Simulator/wksim_runtime/joint_rate_probe.py",
+        "docs/2026-09-09-final-combo-pv-plan.md",
+        "tools/audit_pv_trajectory.py",
+        "tools/run_joint_flight.py"
+      ],
+      "count_correction": "v1 prose said '4 tracked changes' while listing 5; the correct count is 5",
+      "note": ".gitignore:53 ignores /validation/*/, so untracked under validation/ is not evidence of new content"
+    }
+  },
+  "configured_rate": {
+    "class": "source-derived configuration fact",
+    "requested_rate": 0.5,
+    "request_id": "config",
+    "source": "tools/run_joint_flight.py:757 (hard-coded .5)",
+    "group_period_ns": 8000000,
+    "simulated_advance_per_group_ms": 4,
+    "statement": "4 ms simulated advance per 8 ms wall = 0.5x",
+    "tick_ns": 1000000,
+    "macro_ticks": 4,
+    "late_limit_ns": 100000000,
+    "max_ticks": 180000,
+    "wall_limit_s": 900,
+    "derived_full_run_bounds": {
+      "wall_900s_simulated_at_0_5x_s": 450,
+      "max_ticks_180000_simulated_s": 180,
+      "wall_seconds_for_180000_ticks_at_0_5x_s": 360,
+      "binding_when_healthy": "physics tick limit first (360 s wall)",
+      "note": "derived from bounds, not a measured complete-task duration"
+    },
+    "independent_corroboration": [
+      "tools/analyze_joint_rate_intervals.py:55 PERIOD_NS = 8_000_000",
+      "tools/analyze_joint_rate_intervals.py:104 requested_rate must be exactly 0.5",
+      "tools/analyze_joint_rate_intervals.py:111-112 ideal group period must be exactly 8 ms",
+      "docs/2026-09-09-mixed-flight-plan.md:3 0.5x common authority time, 900 wall s / 180000 tick"
+    ]
+  },
+  "observed_segment_aggregate": {
+    "class": "measured observation over the anchored rate segment only",
+    "run": "joint-public-flight-oayggl_s",
+    "path": "/root/wksim-release-acceptance-fe3/validation/joint-public-flight-oayggl_s",
+    "receipts_sha256": {
+      "result.json": "e9ac61dc4d52c10db7b396001273e5367d1a328148d85227189047add0636d0a",
+      "rate.jsonl": "d65849e69f3b36ad655473d7d7a5d46319f9e441787549d2673c7e8391988ff3",
+      "manager-gc-candidate.json": "614ccd051d6c37244536da54d656289eab57292bb426891953243aa330fb7bbb"
+    },
+    "anchor": {"tick": 40, "wall_ns": 100427426404, "request_id": "config", "requested_rate": 0.5, "segment_id": 1},
+    "latch": {"tick": 108004, "issued_monotonic_ns": 316456162907, "lateness_ns": 100644532, "requested_rate": 0.5, "latched": true, "reason": "resource_insufficient"},
+    "counts": {"rate_request": 1, "rate_anchor": 1, "rate_group_start": 26991, "rate_group_end": 26991, "rate_boundary_check": 0, "rate_unmet": 1, "rate_segment_end": 0},
+    "arithmetic": {
+      "segment_wall_ns": 216028736503,
+      "segment_wall_s": 216.028736503,
+      "segment_wall_formula": "316456162907 - 100427426404",
+      "segment_groups": 26991,
+      "segment_groups_formula": "(108004 - 40) / 4",
+      "segment_simulated_s": 107.964,
+      "segment_average_ratio": 0.49976684466930027,
+      "segment_average_ratio_formula": "107.964 / 216.028736503",
+      "scene_wall_s": 268.72185634100003,
+      "forbidden_mixed_ratio": 0.40176858507183316,
+      "forbidden_mixed_ratio_formula": "107.964 / 268.721856341",
+      "forbidden_mixed_ratio_note": "v1 reported this computation as 0.502; it is wrong in two ways: the arithmetic was wrong and it mixes scene wall duration (including pre-anchor initialization) with the anchored segment"
+    },
+    "gate_status": {
+      "full_sliding_window_rate_gate": "failed",
+      "phase_lateness_gate": "failed",
+      "first_group_start_lateness_ns": 133809,
+      "last_group_start_tick": 108000,
+      "last_group_start_lateness_ns": 97822909,
+      "terminal_latch_lateness_ns": 100644532,
+      "contract": [
+        "docs/2026-09-07_joint-rate-contract-accepted.md:14 each non-overlapping 10 s window within +/-2%, full 60 s effective segment within +/-1%, cumulative phase lateness <= 100 ms, all windows reported",
+        "docs/2026-09-09-final-combo-pv-plan.md:32 full 10 s/60 s sliding windows and the 100 ms limit retained",
+        "docs/2026-09-09-mixed-flight-plan.md:3 10s +/-2% / 60s +/-1% inherited from the P+V framework"
+      ]
+    },
+    "statement_discipline": [
+      "report only the observed segment aggregate 0.499767x",
+      "the complete sliding-window/rate gate failed; do NOT claim the average-rate requirement was accepted",
+      "keep the source-derived 0.5x distinct from the measured ratio",
+      "single boot 470ea486-9e18-4535-9d91-69de5a3a4572 and a single sample; no causal attribution; do not rerun this configuration"
+    ]
+  },
+  "manager_gc_distribution": {
+    "commit": "7cb7e8401776848fcb11e0a8dd2237c1eee2337b",
+    "commit_date": "2026-09-12 22:43:12 +0900",
+    "commit_files": {
+      "tools/manager_gc_candidate.py": "273 added",
+      "validation/test_manager_gc_candidate.py": "385 added",
+      "validation/test_gc_candidate_entry.py": "195 added",
+      "tools/run_joint_flight.py": "+53",
+      "validation/test_joint_evidence.py": "+33",
+      "validation/test_joint_rate_probe.py": "+21"
+    },
+    "branches_containing_commit": ["codex/planner-release-validation"],
+    "is_ancestor_of_main_head": false,
+    "main_worktree_consumer": {
+      "tools/compare_joint_gc_diagnostics.py": {"sha256": "808706c23f32a3d6371313b8bc5b1cb9b630345f4f4deec22bafaeda5e67d2fe", "git_state": "untracked"},
+      "validation/test_compare_joint_gc_diagnostics.py": {"sha256": "832d289668a1d437af24d1a5001096bf21a24c202e78f1758696b64ff6da7a11", "git_state": "untracked"},
+      "pin": "MANAGER_GC_SHA256 = cbf7b0186131c08d4055aea1fcafdb8e7cca36d9acfcb19cdac87938d8786e66",
+      "load_path_override": "WKSIM_MANAGER_GC_CANDIDATE env var, then \\\\wsl.localhost\\Ubuntu-22.04\\root\\wksim-release-acceptance-fe3\\tools\\manager_gc_candidate.py, then /root/wksim-release-acceptance-fe3/tools/manager_gc_candidate.py"
+    },
+    "absent_in_new_candidate": [
+      "tools/manager_gc_candidate.py",
+      "validation/test_manager_gc_candidate.py",
+      "validation/test_gc_candidate_entry.py",
+      "tools/compare_joint_gc_diagnostics.py",
+      "validation/test_compare_joint_gc_diagnostics.py"
+    ],
+    "formal_admission_dependency": false,
+    "formal_admission_evidence": "no manager_gc / gc-freeze / compare_joint_gc reference exists in Simulator/wksim_runtime/joint_profile.py",
+    "experimental_control_evidence": [
+      "active launchers pass --manager-gc-freeze",
+      "docs/2026-09-09-final-combo-pv-plan.md:18 accepted PV command includes --async-model-evidence --manager-gc-freeze",
+      "docs/coordination/codebuddy-gc-freeze-review-20260912.md:138 records 23/23 independent passes for validation/test_manager_gc_candidate.py"
+    ],
+    "classification": "conditional migration: required only if the launch option --manager-gc-freeze is retained; its absence does not make manager-GC a mandatory new-architecture dependency",
+    "v1_correction": "v1 wrongly asserted no same-named manager-GC test file existed; validation/test_manager_gc_candidate.py and validation/test_gc_candidate_entry.py both exist on the historical branch and on the historical worktree"
+  },
+  "file_reconciliation": {
+    "already_present_identical_do_not_migrate": [
+      {"path": "Simulator/wksim_core/worker.py", "sha256": "38f34a8f68efe8353f99703ec3ce1a18749ec7798933587f349b480dd638060c"},
+      {"path": "Simulator/wksim_runtime/joint_rate.py", "sha256": "0b53a16acd65138b4623a9a8573ec8d643a2b78f4e27e8122c65efb9a6da25c4"},
+      {"path": "Simulator/wksim_runtime/joint_profile.py", "sha256": "575adb530944f48fa164a127a88b5abb76991e522ee1dbb8e54ef10ccc6bf5a2", "owner": "main"},
+      {"path": "Simulator/wksim_runtime/evidence_stream.py", "sha256": "74cd79b8385cb3987a1dab483b772e71452fc4e04fccd440dcfc50de1a9735e9"},
+      {"path": "tools/capture_owned_scheduling.py", "sha256": "a3f3baddbe6e77bed5727e840ef6a4c7066291ce5f50c706f848e7b1716f8e9e"},
+      {"path": "tools/group_work_timing.py", "sha256": "a14d5e9c3c7e7c234972a8632d8da800ea9a91646f6b50e252675b38d30752db"},
+      {"path": "tools/rate_spin_cpu_probe.py", "sha256": "d3115c140cc3b1fb2500d8fd7c78321c62a81bd2928dae00eb894e1334d3ec40"},
+      {"path": "tools/run-joint-flight.sh", "sha256": "ea012da68bd8fcb3e25383197bf5a9f076aecfe5d3fd9a966675aa0d69fdc883"},
+      {"path": "tools/probe_release_audit_integrity.py", "sha256": "51342c48d1f7550fa2e353e107ec2a1005add409b514f469285dfc5381209a97", "note": "historical worktree copy 92a83f4e... is older; do not back-port"},
+      {"path": "validation/test_release_audit_integrity.py", "sha256": "dff20f4b0835c21961690fc453f548686027fc68ba59fc51e571e62b7ea62b8d", "note": "historical worktree copy 07997136... is older; do not back-port"},
+      {"path": "Simulator/wksim_core/model_parameters.py", "sha256": "9289c09f10037a426bd85d489c0f79c79927c72db148aeb8f0c26d776b892887", "note": "historical worktree copy b339ae24... is 12 lines older; do not back-port"}
+    ],
+    "conditional_migration": [
+      {
+        "path": "tools/run_joint_flight.py",
+        "condition": "retain the --manager-gc-freeze launch option",
+        "method": "surgical feature delta on the EXISTING new-architecture runner; do NOT copy the 522-line donor file",
+        "delta_size": "53 lines in commit 7cb7e84",
+        "hook_lines_in_donor": {"argparse": 1443, "sources": "571-572", "construct_arm": "586-594", "prepare": "1105-1106", "restore_report": "1305-1314", "main_gate": "1494-1495"},
+        "reference_full_donor_sha256": "1c600d7f018376f5c6fe333f0fd5da75798834c5f09e843078b0939142774373",
+        "reference_full_donor_diff_stat": "472 insertions, 50 deletions",
+        "existing_runner_sha256": "5527063f04db296d91818a46842207fb5e7ad449651ce23518b6522c0dc011b5",
+        "preserve": "keep Simulator/wksim_core/model_parameters.py in the runner sources list (the donor deleted it; that is a regression)"
+      },
+      {"path": "tools/manager_gc_candidate.py", "sha256": "cbf7b0186131c08d4055aea1fcafdb8e7cca36d9acfcb19cdac87938d8786e66", "lines": 273, "imports": ["gc", "time"], "condition": "same as runner delta"},
+      {"path": "validation/test_manager_gc_candidate.py", "sha256": "637c403c3fe5ea44d097fb89479b10d353d51b2684c4fb52cdcf5d017a6aa6ad", "bytes": 15726, "condition": "author-side test, migrate with the module"},
+      {"path": "validation/test_gc_candidate_entry.py", "sha256": "8580194384d843948ee4fa55435454558730d459cd9da201b0d2d7003dffd975", "bytes": 8869, "condition": "entry test that imports the real runner; verifies the migrated flag wiring"},
+      {"path": "tools/compare_joint_gc_diagnostics.py", "sha256": "808706c23f32a3d6371313b8bc5b1cb9b630345f4f4deec22bafaeda5e67d2fe", "condition": "optional; only if the new candidate must run the GC diagnostics comparison, using WKSIM_MANAGER_GC_CANDIDATE to point at the migrated module"},
+      {"path": "validation/test_compare_joint_gc_diagnostics.py", "sha256": "832d289668a1d437af24d1a5001096bf21a24c202e78f1758696b64ff6da7a11", "condition": "optional, with the comparator"}
+    ],
+    "optional_diagnostic": [
+      {
+        "path": "Simulator/wksim_runtime/joint_rate_probe.py",
+        "action": "additive delta only if probe diagnostics are wanted",
+        "donor_sha256": "7855409d1f28e955dc9fcafc2d90f94e13ef5ab35eb1a0d239b61a4c919a4be1",
+        "base_blob_in_new_candidate": "f2da1672511cd7d68e25972912b89dea2ccb8b8c",
+        "current_windows_and_new_candidate_sha256": "a8bac9ac84ba9960296bb6b43d6d39c6bbc17fa9fdc47adf7e05ce76d7066653",
+        "delta": "+27 insertions, 0 deletions",
+        "fields": ["last_sleep_before_ns", "last_sleep_after_ns", "last_sleep_requested_ns", "last_health_before_ns", "last_health_after_ns"],
+        "reclassification": "not mandatory for no-probe admission; the fields are only written when WKSIM_JOINT_RATE_TIMING_PROBE=1, and no existing test asserts them"
+      },
+      {
+        "path": "validation/test_joint_rate_probe.py",
+        "sha256_windows_and_new_candidate": "c3bfd1cdd4328c5a084bd7c5f9b9acfec774d008bc9b7ef448b69b2050bf47cb",
+        "historical_worktree_sha256": "66ad209bc7eb0bc39248fe154a25cc6d6dea8bbf7c50b760a33eb3eaf6c135d8",
+        "status": "PASSES as it stands; no repair required",
+        "verified_source": "tools/run_joint_flight.py:329 is async_model_evidence = getattr(args, 'async_model_evidence', False), i.e. getattr-guarded; line 332 is likewise getattr-guarded for model_promotion_flight",
+        "verified_execution": "python -m unittest validation.test_joint_rate_probe.JointRuntimeTimingProbeEntryTests.test_real_runner_source_manifest_and_source_unchanged_follow_probe_state -v -> Ran 1 test / OK (both stop-before-flight paths mocked, no native)",
+        "withdrawn_v2_claim": "v2 asserted this case fails with AttributeError and requires completing the SimpleNamespace; that claim contradicted exact source and the main-side run, and is withdrawn",
+        "conditional_note": "the donor's +21 test lines exist because the donor runner reads more plain attributes (e.g. planner_release_proof, manager_gc_freeze); only if such wiring is migrated must this test's namespace be kept in sync",
+        "do_not_overwrite_with": "66ad209bc7eb0bc39248fe154a25cc6d6dea8bbf7c50b760a33eb3eaf6c135d8"
+      }
+    ],
+    "do_not_migrate": [
+      {"path": "tools/early_manager_work_probe.py", "sha256": "a5def2ba01919ad0...", "lines": 304, "reason": "diagnostic only; probe markers are rejected by the formal mixed/PV gate (joint_profile.py:274-276)"},
+      {"path": "tools/planner_release_handoff.py", "sha256": "b1eeaf2d42cbc2ef...", "lines": 688, "reason": "#102 incomplete; changes PV runs to status=observed"},
+      {"path": "tools/planner_release_task.py", "sha256": "e0c3ae00b12d71a2...", "lines": 100, "reason": "same as above"},
+      {"path": "tools/audit_pv_trajectory.py", "historical_worktree_sha256": "920aab3cb52220229567e8a56d28adae69ea0adaa9ee45019b1f64c74b56423c", "reason": "PV audit direction, out of scope"}
+    ]
+  },
+  "impacted_tests": [
+    "validation/test_gc_candidate_entry.py",
+    "validation/test_manager_gc_candidate.py",
+    "validation/test_joint_rate_probe.py",
+    "validation/test_joint_profile.py",
+    "validation/test_owned_scheduling.py",
+    "validation/test_compare_joint_gc_diagnostics.py",
+    "validation/test_joint_rate.py",
+    "validation/test_analyze_joint_rate_probe.py",
+    "validation/test_joint_rate_intervals.py",
+    "validation/test_rate_tail_contract.py",
+    "validation/test_rate_fault.py",
+    "validation/test_audit_joint_rate.py",
+    "validation/test_mixed_profile_admission.py",
+    "validation/test_mixed_candidate.py",
+    "validation/test_mixed_control_evidence.py",
+    "validation/test_mixed_control_task.py",
+    "validation/test_ap_mixed_timeout.py",
+    "validation/test_worker_serialization_reuse.py",
+    "validation/test_joint_model_worker.py"
+  ],
+  "hard_claim_reaudit_v3": {
+    "method": "each claim re-checked by reading exact source lines and re-running read-only commands; the v2 line reference joint_rate.py:33-36 was corrected to :33-35 (period_ns is a property defined at :33-34 returning at :35)",
+    "corrected": [
+      {
+        "claim": "tools/run_joint_flight.py:329 reads async_model_evidence as a plain attribute",
+        "status": "FALSE, withdrawn",
+        "exact_source": "async_model_evidence = getattr(args, 'async_model_evidence', False)"
+      },
+      {
+        "claim": "validation/test_joint_rate_probe.py line-401 case fails on current source",
+        "status": "FALSE, withdrawn",
+        "exact_evidence": "main-side run: Ran 1 test / OK"
+      }
+    ],
+    "re_verified_true": [
+      "windows HEAD 386f713a7752515502fd2224e9186f2219674732 with ancestor exit 0",
+      "candidate now 386f713a... clean, ancestor exit 0 (per sync receipt)",
+      "configured rate 0.5 at tools/run_joint_flight.py:757; RATES=(0.5,1.0) joint_rate.py:5; period_ns=int(4_000_000/requested_rate) joint_rate.py:33-35; STEP_NS, MACRO_TICKS = 1_000_000, 4 at scene_clock.py:14",
+      "WALL_LIMIT, MAX_TICKS = 900, 180000 at run_joint_flight.py:49; LATE_LIMIT_NS=100_000_000 at joint_rate.py:6",
+      "segment wall 216028736503 ns; segment simulated 107.964 s; segment average 0.49976684466930027; forbidden mixed ratio 0.40176858507183316; sliding-window and 100 ms gates failed",
+      "main runner has no manager_gc/manager-gc reference",
+      "commit 7cb7e84 is contained only in codex/planner-release-validation and is not an ancestor of main HEAD",
+      "Simulator/wksim_runtime/joint_profile.py has no manager-GC reference; joint_profile.py:274-276 rejects only rate_timing_probe and group_work_timing markers",
+      "four validation/coordination launch.sh files pass --manager-gc-freeze",
+      "docs/2026-09-09-final-combo-pv-plan.md:18 accepted PV command includes --async-model-evidence --manager-gc-freeze",
+      "donor to candidate runner diff is 472 insertions / 50 deletions and probe diff is +27, unchanged after the candidate sync",
+      "candidate runner/probe/test SHAs equal the Windows ones; manager-GC artifacts absent in the candidate",
+      "run_joint_flight.py:386 keeps Simulator/wksim_core/model_parameters.py in sources",
+      "validation/test_owned_scheduling.py imports only tools.capture_owned_scheduling",
+      "tools/mixed_control_task.py:64-67 stable_hold with wall_limit_s=12.; leg 1 starts at :96-98"
+    ]
+  },
+  "not_claimed": [
+    "no new-architecture MIXED acceptance",
+    "no transfer of any historical PASS",
+    "no claim that the average-rate requirement was accepted (the sliding-window and 100 ms gates failed)",
+    "no measured complete MIXED duration",
+    "no performance verdict for the manager GC candidate",
+    "no claim that validation/test_joint_rate_probe.py fails or needs a fixture repair (withdrawn in v3)",
+    "no broad Full ledger"
+  ]
+}

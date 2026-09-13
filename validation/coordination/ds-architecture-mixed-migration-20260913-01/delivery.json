@@ -1,0 +1,74 @@
+{
+  "receipt": "ds-architecture-mixed-migration-20260913-01/delivery",
+  "revision": 3,
+  "revision_reason": "v3 withdraws the false v2 claim about tools/run_joint_flight.py:329 and the asserted existing test failure, adds the current candidate update pointer (fast-forward d45d1da -> 386f713), and re-audits all hard claims against exact source and receipts",
+  "delivered_at_local": "2026-09-13",
+  "write_ownership": "docs/coordination/ds-architecture-mixed-migration-20260913.md and validation/coordination/ds-architecture-mixed-migration-20260913-01/ only",
+  "no_commit_no_push": true,
+  "no_further_writes": true,
+  "no_code_or_test_changes": {
+    "production_source_changed": false,
+    "tests_changed": false,
+    "note": "no production or test file was modified; only the owned report and its receipts"
+  },
+  "artifacts": [
+    {
+      "path": "docs/coordination/ds-architecture-mixed-migration-20260913.md",
+      "sha256": "f3cbe35a996167217a03fdf6a883b697c9fd20de6f36e6d85b7aa150878c1741",
+      "git_state": "untracked (not added)"
+    },
+    {
+      "path": "validation/coordination/ds-architecture-mixed-migration-20260913-01/migration-identity.json",
+      "sha256": "265bba047ebb5933180286ef994abead6a9d2cf65c17b6163e73feb2200cf6a4",
+      "git_state": "ignored by .gitignore:53 (/validation/*/); retained as a local artifact"
+    },
+    {
+      "path": "validation/coordination/ds-architecture-mixed-migration-20260913-01/commands.md",
+      "sha256": "39a84efcfaf553a5ba5b8eb749201dfbd9e8d1b72a5575f621587ccf7650f7d2",
+      "git_state": "ignored by .gitignore:53; retained as a local artifact"
+    }
+  ],
+  "current_candidate_pointer": {
+    "path": "/root/wksim-architecture-acceptance-20260913",
+    "branch": "codex/architecture-acceptance-20260913",
+    "head": "386f713a7752515502fd2224e9186f2219674732",
+    "previous_snapshot_in_this_report": "d45d1dad81600b37fb41c945870ee455a3ee81f0",
+    "sync_receipt": "validation/coordination/architecture-candidate-sync-20260913-02/receipt.json",
+    "sync_clean": true,
+    "ancestor_exit": 0,
+    "private_wiring_migrated": false,
+    "native_executed": false,
+    "effect_on_findings": "none; the candidate runner (5527063f...), joint_rate_probe.py (a8bac9ac...), validation/test_joint_rate_probe.py (c3bfd1cd...), the absence of manager-GC artifacts, and the donor diffs (472/50 runner, +27 probe) are all unchanged"
+  },
+  "corrected_defects": {
+    "v2_false_claim_runner_line_329": {
+      "v2_claim": "tools/run_joint_flight.py:329 reads async_model_evidence as a plain attribute, so validation/test_joint_rate_probe.py's line-401 case must fail with AttributeError and needs its SimpleNamespace completed",
+      "v3_fact": "line 329 is async_model_evidence = getattr(args, 'async_model_evidence', False); line 332 is likewise getattr-guarded for model_promotion_flight",
+      "v3_execution_evidence": "main-side run of validation.test_joint_rate_probe.JointRuntimeTimingProbeEntryTests.test_real_runner_source_manifest_and_source_unchanged_follow_probe_state -v -> Ran 1 test / OK (both stop-before-flight paths mocked, no native)",
+      "action": "the asserted existing test failure and the proposed fixture repair are removed from the report and receipts; a re-audit table with the exact source line and command is added"
+    },
+    "v2_line_reference": {
+      "v2_claim": "joint_rate.py:33-36 for period_ns",
+      "v3_fact": "period_ns is a property defined at joint_rate.py:33-34 returning at :35"
+    },
+    "v2_false_claim_manager_gc_test_absence_from_v1": {
+      "status": "already corrected in v2; retained: validation/test_manager_gc_candidate.py (637c403c...) and validation/test_gc_candidate_entry.py (85801943...) both exist"
+    },
+    "retained_v2_corrections": [
+      "rate arithmetic: segment-anchored 0.49976684466930027; the forbidden scene-mixed value 0.40176858507183316 is recorded as forbidden; sliding-window and 100 ms gates FAILED and no acceptance of the average-rate requirement is claimed",
+      "historical comparison tracked-modification count is 5",
+      "manager-GC is a conditional migration (only if --manager-gc-freeze is retained) and must be a surgical feature delta, not a donor copy",
+      "rate_probe field additions are optional diagnostics, not required for no-probe admission",
+      "owned-region handling has exactly one coherent choice: delete block and flag together, or retain both"
+    ]
+  },
+  "boundary_confirmation": {
+    "linux_checkouts_written": false,
+    "implementation_or_native_written": false,
+    "build_or_run_performed": false,
+    "network_to_third_parties": false,
+    "full_ledger_produced": false,
+    "old_pass_substituted_for_new_acceptance": false,
+    "speculative_findings_added": false
+  }
+}

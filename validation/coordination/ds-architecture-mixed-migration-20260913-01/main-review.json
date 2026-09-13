@@ -1,0 +1,24 @@
+{
+  "checked_unix": 1789298104.6201918,
+  "final_agent_source_sha256": {
+    "docs/coordination/ds-architecture-mixed-migration-20260913.md": "f3cbe35a996167217a03fdf6a883b697c9fd20de6f36e6d85b7aa150878c1741",
+    "validation/coordination/ds-architecture-mixed-migration-20260913-01/migration-identity.json": "265bba047ebb5933180286ef994abead6a9d2cf65c17b6163e73feb2200cf6a4",
+    "validation/coordination/ds-architecture-mixed-migration-20260913-01/commands.md": "39a84efcfaf553a5ba5b8eb749201dfbd9e8d1b72a5575f621587ccf7650f7d2",
+    "validation/coordination/ds-architecture-mixed-migration-20260913-01/delivery.json": "333a9c22f3f6b3caf83f89d70e4cac2c0abccc9554b1a115230bcf0a329d10a1"
+  },
+  "classification": "read-only migration preparation",
+  "selected_conclusions": [
+    "Candidate fast-forwarded to386f713; no private wiring migrated",
+    "manager-GC is optional unless retaining old launcher flag; any migration must use minimal feature delta and keep model_parameters in source archive",
+    "rate probe additions are optional diagnostic fields, not no-probe admission requirements",
+    "Anchored aggregate 0.49976684466930027 does not pass failed sliding-window/100ms gates"
+  ],
+  "main_test": {
+    "command": "python -m unittest validation.test_joint_rate_probe.JointRuntimeTimingProbeEntryTests.test_real_runner_source_manifest_and_source_unchanged_follow_probe_state -v",
+    "exit_code": 0,
+    "tests": 1,
+    "result": "OK; both intentionally mocked stop-before-flight branches covered; no native",
+    "note": "Refutes v2 proposed existing test failure; v3 withdraws it."
+  },
+  "native_acceptance": false
+}

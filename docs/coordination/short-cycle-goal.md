@@ -86,3 +86,5 @@ CodeBuddy 原429与重置时刻保存在历史 [profile-sync dispatches](../../v
 - 独立perf记录器已完成真实编译、线程/错误策略/join/环形缓冲区/清理失败反例，正常约0.6秒保留256 raw字节并由独立consumer解出8记录/4对，全部自有进程退出；最终源码 `c0fa0530cd4d…`。stop采用 `void **handle` 明确返回所有权。见 [native baseline](../2026-09-13-perf-stream-recorder-admission.md)。该历史基线尚未包含后续内核计数器；整场开销/飞行接线仍未完成，不作为新架构或MIXED/Full通过。OMP任务已主动取消并确认interrupted，由main完成收口；此处为当时终态；后续派发见上方当前任务指针。
 
 - 当前选用 recorder `aa807f3b…`、consumer `dee9a3b5…`：6次编译、5类原生故障程序通过；正常8记录/4对由独立消费者确认完整；强制暂停reader得到26471丢失但0条LOST记录，正确拒绝；3类read故障路径通过。原件、内核适用条件和OMP终态审查见 [counter verdict](../../validation/coordination/perf-counter-integration-20260913-01/main-verdict.json)。旧哨兵源码与结果仅作为历史保留。并未获得MIXED/Full通过。
+
+- 新架构Linux候选已快进到 `386f713`，工作树clean、架构祖先exit0，10份选定源码与Windows提交逐字节一致；未迁私有接线、未运行native。见 [候选同步](../../validation/coordination/architecture-candidate-sync-20260913-02/receipt.json)。迁移调查v3见 [逐文件方案](ds-architecture-mixed-migration-20260913.md)；manager-GC和rate_probe扩展均是条件/可选项，不是未经证明的强制依赖。主会话实际单测已反证并撤回调查v2的“现存用例必失败”判断。
