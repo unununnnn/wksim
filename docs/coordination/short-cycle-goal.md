@@ -51,7 +51,7 @@
 ## 当前任务与负责人
 
 **不在本文件维护负责人表**（重复表会立刻过期）。实时席位、thread/turn、deepLink 与不可用席位只指向
-[perf-open-admission-20260913-01/dispatches.json](../../validation/coordination/perf-open-admission-20260913-01/dispatches.json)：
+[profile-sync-20260913-01/dispatches.json](../../validation/coordination/profile-sync-20260913-01/dispatches.json)：
 该文件记录 5 席在派发时的 `status_at_dispatch=running`（3 DeepSeek + Claude + OMP），以及 CodeBuddy 三席
 `quota_blocked`/429（`reset_jst=2026-09-13T20:54:20+09:00`，`retry_submitted=false`）。旧表已删除，不保留副本。
 
@@ -72,4 +72,6 @@
 - G6 同源入口 `tools/run_e0_same_source_conformance.py` 已存在；缺完整获批逐量预算，不能写成入口缺失，也不能用首步240标量对齐代替完整G6。旧R1的5684处失败保留。
 - #9 DLL ABI材料仍缺；#102依赖#29/#33真实场景，#62失败后#63/#64未解锁。这些不构成全局停工理由。
 - 根heartbeat `wksim` 保持PAUSED，由根Goal协调。卡死任务34386db2的Codex重启尚未获准；不运行重启脚本，不修改Goal数据库或补写turn/end。
-- 主仓库joint_profile.py最新正式门修复尚未同步私有Linux检出，任何正式准入前必须核对实际执行源码。
+- 私有Linux正式准入已同步并提交 `db1200d`：joint_profile.py `575adb530944…`、原测试 `4a7ce076f24f…`；18项Linux测试通过，冻结Control c2IXOr current/sealed两路实际校验通过。只同步两文件且有备份，config/preflight等他方修改未复制。见 [同步收据](../../validation/coordination/profile-sync-20260913-01/receipt.json)。正式MIXED仍缺通过证明。
+
+- 下一步并行模块：自线程有界raw记录器、严格离线消费者、独立17组合成夹具；合同见 [perf-stream contract](perf-stream-contract-20260913.md)。末尾pending LOST的完整性与C启动/停止线程安全仍阻断飞行接线，不能凭collector_complete或无LOST记录宣称无损。
