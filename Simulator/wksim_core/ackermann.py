@@ -38,9 +38,15 @@ class AckermannModel:
                 or not -1<=throttle<=1 or not -1<=steering<=1 or not 0<dt_s<=.02):
             raise ValueError('Signed actuator commands and dt in (0,.02] required')
         p=self.parameters
+        target_speed=throttle*p.max_speed_m_s
         acceleration=max(-p.max_acceleration_m_s2,min(p.max_acceleration_m_s2,
-            (throttle*p.max_speed_m_s-self.speed)/p.speed_response_s))
+            (target_speed-self.speed)/p.speed_response_s))
         following_speed=self.speed+acceleration*dt_s
+        # A step longer than the response constant would otherwise carry the speed past
+        # the current target; hold it on the target and report the realised increment.
+        if self.speed<target_speed<following_speed or following_speed<target_speed<self.speed:
+            following_speed=target_speed
+            acceleration=(following_speed-self.speed)/dt_s
         self.steering+=(steering*p.max_steering_rad-self.steering)*(1-math.exp(-dt_s/p.steering_response_s))
         average_speed=(self.speed+following_speed)/2
         yaw_rate=average_speed*math.tan(self.steering)/p.wheelbase_m

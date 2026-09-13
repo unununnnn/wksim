@@ -1,0 +1,125 @@
+{
+  "receipt": "ds-replay-bounds-20260913-01",
+  "checked_at": "2026-09-13T19:25:40+09:00",
+  "task_class": "new-development",
+  "actual_cwd": "C:/Users/PC/Documents/odid编译/wksim",
+  "branch": "main",
+  "head": "9e8ba03e43627918d5fab28aa59765a02fb068d1",
+  "architecture_ancestor": {
+    "commit": "f333316e6efa6b299b4288a9d91fb2bccedfb9d6",
+    "command": "git merge-base --is-ancestor f333316e6efa6b299b4288a9d91fb2bccedfb9d6 HEAD",
+    "exit_code": 0
+  },
+  "worktree_at_start": {
+    "pre_existing_modified": [
+      "docs/Prometheus.gitmodules.reference",
+      "validation/coordination/ds-perf-stream-consumer-20260913-01/perf_stream_consumer.py",
+      "validation/coordination/ds-perf-stream-recorder-20260913-01/wksim_perf_stream.c",
+      "validation/coordination/short-cycle-dispatches.json"
+    ],
+    "note": "Other seats' modifications and untracked files (including the perf directory) were left byte-identical; only the two files below were written.",
+    "pre_existing_untracked_count": 30
+  },
+  "module_interface": {
+    "module": "Simulator/wksim_runtime/replay.py",
+    "interface": "load_evidence(directory) offline evidence reading and size rejection",
+    "public_surface_unchanged": ["load_evidence", "select_records", "main", "STREAMS", "MAX_BYTES", "finite", "source_time", "event_kind"],
+    "added_private_helpers": ["_open_record_file(path)", "_read_bounded(path, limit)"],
+    "direct_dependencies": ["Python stdlib (argparse, hashlib, json, math, pathlib, sys)", "wksim_runtime.config._unique_object"],
+    "new_dependencies": []
+  },
+  "problem": "load_evidence() checked path.stat().st_size against MAX_BYTES and then called path.read_bytes(), an unbounded convenience read. If the record grew or was replaced inside that TOCTOU window, the 64 MiB promise was bypassed: the whole file was pulled into memory before a post-hoc length check. The same unbounded read_bytes() was used for the 'Evidence changed while reading' re-read.",
+  "change": [
+    "_read_bounded(path, limit) enforces the cap on bytes actually consumed: it requests at most limit + 1 bytes and returns None when more than limit bytes were read, so an oversized record is rejected without ever buffering it.",
+    "A record is accepted only after EOF (or when the consumed bytes are within the limit), so an accepted record is the complete file and never a silently truncated prefix.",
+    "path.stat() is retained only as an advisory fast reject; the bounded read is what holds when the stat value is stale.",
+    "The growth/replacement rejection reports 'the file grew or was replaced after the size check' instead of the removed post-hoc message.",
+    "The 'Evidence changed while reading' verification re-read now uses the same bounded reader; a record grown past the limit is reported as a change, not as evidence.",
+    "files[name] bytes/sha256 and every record raw_sha256 are computed from the exact bytes consumed by the bounded read."
+  ],
+  "preserved_semantics": [
+    "Symlink outside the run directory is still refused with 'Refusing evidence symlink outside run'.",
+    "Diagnostics unchanged: missing_file, invalid_result, malformed_record, unterminated_last_line, nonfinite_values, identity_mismatch, unknown_run_identity, source_time_regression, sequence_discontinuity.",
+    "Original JSON text (raw_json) and stream-then-original-line order are preserved.",
+    "Clock domains stay separate: physics, fc_boot, ros, unknown; receive_clock remains wall_elapsed:<stream>.",
+    "reader_status/mode/order/clock_mapping strings and the 'stop the run first' guard message are unchanged.",
+    "No physical re-simulation, no interpolation of old logs, no new inference of time from row number."
+  ],
+  "deliverables": [
+    {
+      "path": "Simulator/wksim_runtime/replay.py",
+      "state": "modified (not staged, not committed)",
+      "sha256": "4406b7f4e67606c869d5f5aea514e7b89ed1f616c4d00ea4bed4815a23e4f8e2",
+      "git_blob": "eef3978d418818111e1a92c76fac75eed80a7d98",
+      "parent_git_blob": "fd2212a4283637cad87c248307d91aa3f85e5806",
+      "diff": "40 insertions, 4 deletions"
+    },
+    {
+      "path": "validation/test_replay_read_limits.py",
+      "state": "new (untracked, not committed)",
+      "sha256": "f7c5c2f62cb1bf2f77e06dea2a37682cdfa942133d921889d6971ca2c2c219ac",
+      "git_blob": "c2abd4ef5efe4b8a4f1c0f45805503a8ef505154",
+      "tests": 17
+    }
+  ],
+  "tests": {
+    "runner": "python -m pytest (Python 3.13.11, pytest 9.1.1, offline; no runtime/native/SITL/model/ROS/UE/MATLAB)",
+    "new_file_result": "16 passed, 1 skipped",
+    "affected_suite": {
+      "command": "python -m pytest validation/test_replay_read_limits.py validation/test_wksim_replay.py validation/test_wksim_console_records.py validation/test_wksim_console_workspace.py -v",
+      "result": "57 passed, 1 skipped, 84 subtests passed in 18.55s",
+      "captured_output": "validation/coordination/ds-replay-bounds-20260913-01/pytest-affected-output.txt",
+      "captured_output_sha256": "b2899d0294afdc9ccc5cdf9351e1e2cb81e1c1c7eb193f7467d8db2a4bbcc1ed"
+    },
+    "covered": [
+      "record exactly at the limit is accepted, complete, and hashed over all consumed bytes",
+      "empty record at limit 0 accepted; one byte over the limit rejected",
+      "stale stat size cannot bypass the read cap (real file, stat lies, reader double observes request cap)",
+      "real-file read is capped with no reader double: rejection comes from the read, not the stat",
+      "file replaced between stat and read is rejected",
+      "reader that keeps growing is rejected, never accepted as truncated evidence",
+      "reader that ignores the requested size is still capped: exactly limit + 1 bytes requested",
+      "short reads are joined and the recorded hash binds the consumed bytes",
+      "change during the verification re-read is rejected and that re-read is bounded too",
+      "verification re-read grown past the limit is a change, not evidence",
+      "no unbounded Path.read_bytes call in the record path (patched to raise)",
+      "rejection performs no network, process, or filesystem write, and leaves no sticky state",
+      "diagnostics, line order, raw text, and clock domains survive the bounded reader",
+      "symlink outside the run refused (path double, plus a real-link case when the host permits)"
+    ],
+    "red_before_fix": {
+      "observed": "8 failed, 7 passed, 1 skipped against HEAD replay.py (fd2212a4) before the change",
+      "reproducible_probe": "validation/coordination/ds-replay-bounds-20260913-01/reproduce_prefix_race.py",
+      "probe_output": "validation/coordination/ds-replay-bounds-20260913-01/reproduce-prefix-race-output.json",
+      "probe_result": {
+        "limit_bytes": 64,
+        "record_bytes_on_disk": 1048604,
+        "before_fix_bytes_pulled_per_call": [1048604],
+        "before_fix_unbounded_read_bytes_calls": ["result.json"],
+        "after_fix_bytes_pulled_per_call": [],
+        "after_fix_outcome": "result.json exceeds offline reader limit 64 bytes; the file grew or was replaced after the size check",
+        "probe_exit_code": 0
+      },
+      "frozen_prefix_source": {
+        "path": "validation/coordination/ds-replay-bounds-20260913-01/replay-before-fix.py",
+        "origin": "git show HEAD:Simulator/wksim_runtime/replay.py",
+        "git_blob": "fd2212a4283637cad87c248307d91aa3f85e5806",
+        "sha256": "884da1ec23f0a5f5ed37d040f8081d25c1e58a723ee9db5f62d745ac483088f6"
+      }
+    }
+  },
+  "boundaries_not_verified": [
+    "The real-symlink test is skipped on this Windows host (WinError 1314, no symlink privilege); the refusal branch is covered only through a Path.resolve double here.",
+    "No test reads a real 64 MiB record: MAX_BYTES is asserted unchanged at 64 * 1024 * 1024 and the cap behaviour is exercised with small limits, so the full-size path is bounded by construction, not measured end to end.",
+    "No same-process test of a genuinely concurrently growing file: the race is exercised with stale-stat real files and reader doubles, not with a live writer process.",
+    "Peak buffered bytes for an accepted read is <= MAX_BYTES + 1 per chunk, with a transient join copy for multi-chunk reads (<= 2 * (limit + 1)); that peak was not measured on a large real record.",
+    "Only the Windows checkout was exercised; POSIX (including the WSL acceptance candidate) was not run.",
+    "Only the offline reader and its direct dependents were run; the wider validation suite and any console GUI interaction were not re-run."
+  ],
+  "not_done_and_still_required": [
+    "No git add, commit, or push; no GitHub comment or issue action; no change to /root/wksim-release-acceptance-fe3 or any frozen historical workspace.",
+    "No native, build, SITL, ROS node, UE, MATLAB, or vendor-model execution, and no flight re-run.",
+    "G4 complete-log obligation remains open and still needs parent acceptance; this receipt accepts neither the evidence reader for release nor any prior PASS."
+  ],
+  "stopped": "Writer stops after this receipt; the two delivered files are frozen at the hashes above."
+}

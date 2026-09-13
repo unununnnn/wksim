@@ -1,0 +1,20 @@
+{
+  "limit_bytes": 64,
+  "record_bytes_on_disk": 1048604,
+  "before_fix": {
+    "outcome": "result.json grew beyond the offline reader limit",
+    "unbounded_read_bytes_calls": [
+      "result.json"
+    ],
+    "bytes_pulled_per_call": [
+      1048604
+    ],
+    "has_bounded_reader_seam": false
+  },
+  "after_fix": {
+    "outcome": "result.json exceeds offline reader limit 64 bytes; the file grew or was replaced after the size check",
+    "unbounded_read_bytes_calls": [],
+    "bytes_pulled_per_call": [],
+    "has_bounded_reader_seam": true
+  }
+}

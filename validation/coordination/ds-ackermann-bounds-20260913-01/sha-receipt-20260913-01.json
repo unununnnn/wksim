@@ -1,0 +1,123 @@
+{
+  "receipt_id": "sha-receipt-20260913-01",
+  "task": "ds-ackermann-bounds-20260913-01",
+  "work_class": "new-development",
+  "status": "implemented/test-prepared",
+  "claim": "the Ackermann speed-response bound fix is implemented and its tests are prepared; the model tests have NOT been executed in this seat",
+  "checkout": {
+    "cwd": "C:/Users/PC/Documents/odid编译/wksim",
+    "branch": "main",
+    "head": "9e8ba03e43627918d5fab28aa59765a02fb068d1",
+    "architecture_ancestor": "f333316e6efa6b299b4288a9d91fb2bccedfb9d6",
+    "ancestor_check": "git merge-base --is-ancestor f333316e6efa6b299b4288a9d91fb2bccedfb9d6 HEAD",
+    "ancestor_exit_code": 0,
+    "worktree_note": "pre-existing modifications by other seats (docs/Prometheus.gitmodules.reference, validation/coordination/ds-perf-*, validation/coordination/short-cycle-dispatches.json) were left untouched; this seat wrote only the three owned paths below"
+  },
+  "module_interface": {
+    "module": "Simulator/wksim_core/ackermann.py",
+    "interface": "AckermannModel.step(*, throttle, steering, dt_s) and AckermannParameters speed-response boundary",
+    "reused": [
+      "Simulator/wksim_core/vehicle_state.py VehicleState (SI / NED / FRD)",
+      "Simulator/wksim_core/actuator_layout.py ACKERMANN named actuators",
+      "math, dataclasses (pre-existing direct dependencies)"
+    ],
+    "out_of_scope": [
+      "VehicleModel 1 ms interface and Quad adapter",
+      "vehicle-family mapping and rover_json transport",
+      "firmware, control, visual and deployment responsibilities",
+      "steering response, yaw/position integration, gravity term",
+      "unbounded external writes to model.speed above max_speed_m_s"
+    ]
+  },
+  "defect": {
+    "reported_by_main": "AckermannParameters(speed_response_s=0.0001) with defaults; 2000 x step(throttle=1, steering=0, dt_s=0.001) reached max speed 5.0010000000000785 above the declared max_speed 5",
+    "parameters_legal": true,
+    "mechanism": "explicit Euler response a = clamp((target-speed)/tau, +/-a_max), following = speed + a*dt crosses the current target whenever dt > tau (or when the clamped increment exceeds the remaining gap)",
+    "reproduced_again_in_this_seat": false
+  },
+  "fix": {
+    "shape": "hold following_speed on the current target when the explicit step would cross it, and report the realised increment as acceleration",
+    "bounded_approach": "speed after each step stays within [min(speed,target), max(speed,target)]",
+    "max_acceleration_preserved": "crossing implies |target-speed| < |a|*dt, so the rewritten realised increment |target-speed|/dt is strictly below the clamped |a| <= a_max",
+    "specific_force_matches_realised_increment": "acceleration is rewritten as (following_speed-self.speed)/dt_s in the crossing branch and remains the value returned in specific_force_frd_m_s2[0]",
+    "default_parameter_path_unchanged": "with tau=0.25 and the 0<dt_s<=.02 contract, dt/tau <= 0.08 < 1, so following never crosses the target and the new comparisons are both false; statement order, operators and types are otherwise unchanged",
+    "no_new_rejection": "no speed_response_s floor and no dt/tau constraint was added; __post_init__ still has exactly two Raise sites"
+  },
+  "produced": {
+    "Simulator/wksim_core/ackermann.py": {
+      "sha256": "cb0dea4c6d0ba3f541cf306cd23a730f728d8fa5642f7d7a70ba97783cb8c2ed",
+      "git_blob": "2d02acef606498d227a989440c4092b02b8c4022",
+      "bytes": 3137
+    },
+    "validation/test_ackermann_response_bounds.py": {
+      "sha256": "feea4b9589abc649ea026f4c4be51eb0449e5f7658f8a7f8823f8d5f3a37e13e",
+      "git_blob": "df08ffe991e707144f726a609635d443d2b993ab",
+      "bytes": 8232
+    },
+    "validation/coordination/ds-ackermann-bounds-20260913-01/check_ackermann_response_bounds_source.py": {
+      "sha256": "4d84d3fb546f6d8869a5a3bf93422826c9ed247364b684b22b648b463ed2c503",
+      "git_blob": "aeec048d178728181d7417aa80b2d8c0bed5e6d7",
+      "bytes": 8088
+    },
+    "validation/coordination/ds-ackermann-bounds-20260913-01/evidence/static-check.json": {
+      "sha256": "986e7c25ff0de0fe11794d3617f315d085c1b9898b0c01af540d488ecd8c4d47",
+      "git_blob": "2b5456faaf6b87b8c603b2a082977cc06e5d9bb5",
+      "bytes": 2263
+    },
+    "validation/coordination/ds-ackermann-bounds-20260913-01/README.md": {
+      "sha256": "e5912394dc7a32c1424daf75350cb5b5bc96f5716f66035c25671349a908eb14",
+      "git_blob": "3819ce1176acdf4c1cc34465bba234567878301a",
+      "bytes": 9470
+    },
+    "self": "sha-receipt-20260913-01.json (own hash omitted to avoid self-reference)"
+  },
+  "prepared_tests": {
+    "path": "validation/test_ackermann_response_bounds.py",
+    "executed": false,
+    "result": "not-run (test-prepared, never reported as passed)",
+    "cases": [
+      "test_small_response_constant_cannot_exceed_the_declared_max_speed (forward, small response constant)",
+      "test_small_response_constant_holds_the_reverse_speed_bound (reverse)",
+      "test_zero_throttle_brakes_to_rest_without_crossing_it (brake to rest)",
+      "test_crossing_step_reports_the_bounded_increment (crossing step, specific force)",
+      "test_reported_specific_force_is_the_realised_speed_increment (per-step increment identity, 5 parameter sets)",
+      "test_bound_holds_across_every_allowed_step_length (dt in .0001/.001/.005/.01/.02 x response constants)",
+      "test_default_parameters_keep_the_verified_response_path (bitwise old/new equivalence, 3 scenarios x dt .001/.02)",
+      "test_small_response_constants_stay_legal_parameters (legal params stay legal, invalid still rejected)",
+      "test_signed_command_and_step_contract_is_unchanged (dt and signed-command contract)"
+    ],
+    "main_commands": [
+      "python -m unittest validation.test_vehicle_models validation.test_ackermann_response_bounds -v",
+      "python -m unittest discover -s validation -p 'test_ackermann_response_bounds.py' -v"
+    ]
+  },
+  "static_checks": {
+    "tool": "validation/coordination/ds-ackermann-bounds-20260913-01/check_ackermann_response_bounds_source.py",
+    "method": "ast.parse only; the model, its tests, firmware, ROS, MATLAB and any build were not executed",
+    "command": "python validation/coordination/ds-ackermann-bounds-20260913-01/check_ackermann_response_bounds_source.py",
+    "exit_code": 0,
+    "checks": 25,
+    "failed": [],
+    "evidence": "evidence/static-check.json",
+    "ran_model_code": false,
+    "ran_model_tests": false
+  },
+  "unverified_boundaries": [
+    "the 9 prepared model cases were not executed; their assertions are statically reviewed only",
+    "default-parameter numerical identity is a static argument plus an unexecuted bitwise-equivalence case; validation.test_vehicle_models was not rerun",
+    "no native, build, SITL, ROS node, UE, MATLAB or vendor model was run; historic rover-reference receipts were not rerun and no old PASS is reused as current acceptance",
+    "only the throttle-to-speed response of AckermannModel.step is bounded; a caller writing model.speed directly above max_speed_m_s is still unbounded (unchanged semantics, out of scope)",
+    "no claim of new tire/slip/terrain physical accuracy is made"
+  ],
+  "constraints_honored": {
+    "wrote_only_owned_paths": true,
+    "protected_other_seat_modifications_and_perf_directory": true,
+    "no_git_add_commit_or_push": true,
+    "no_github_comment_or_issue_closure": true,
+    "no_native_build_sitl_ros_ue_matlab_or_model_execution": true,
+    "no_nested_agents": true,
+    "no_change_to_release_acceptance_worktree": true,
+    "stopped_writing_after_delivery": true
+  },
+  "blockers": []
+}

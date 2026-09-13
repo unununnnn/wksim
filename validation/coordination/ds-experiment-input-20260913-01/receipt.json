@@ -1,0 +1,119 @@
+{
+  "receipt": "ds-experiment-input-20260913-01",
+  "kind": "new-development delivery receipt",
+  "revision": 2,
+  "checked_at": "2026-09-13T19:29:24+09:00",
+  "workspace": {
+    "cwd": "C:/Users/PC/Documents/odid编译/wksim",
+    "branch": "main",
+    "head": "9e8ba03e43627918d5fab28aa59765a02fb068d1",
+    "ancestor_check": {
+      "command": "git merge-base --is-ancestor f333316e6efa6b299b4288a9d91fb2bccedfb9d6 HEAD",
+      "exit": 0
+    },
+    "worktree_note": "Concurrent other-agent modifications were present and were not touched: Simulator/wksim_core/ackermann.py, docs/Prometheus.gitmodules.reference, validation/coordination/ds-perf-stream-*, validation/coordination/short-cycle-dispatches.json, and untracked validation/test_{ackermann_response_bounds,replay_read_limits,scene_frontier_contract}.py plus pre-existing untracked docs/ and tools/ files. No git add, commit, push, or remote action was performed."
+  },
+  "receipt_location": "validation/coordination/ds-experiment-input-20260913-01/ is covered by .gitignore line 53 (/validation/*/), so this receipt and its negative-control artifacts are on-disk evidence only, not tracked content. The delivered implementation is the two tracked modifications plus the untracked test module listed in files.",
+  "module_interface": "Simulator/wksim_runtime/experiment_bundle.py document load/resolve, and tools/run_experiment.py input identity binding. Direct dependencies: Python standard library only, plus the existing experiment intent / local deployment separation. No second deployment or identity parser was introduced; duplicate-key and nonfinite-JSON validation, the resolve rules, the accepted success argv, and the rejection coverage are unchanged.",
+  "problem": "tools/run_experiment.py parsed each input with load_document() and then hashed the same path with Path.read_bytes(). A file change between those two reads recorded the new bytes' digest against the old parsed semantics, so the resolved plan could carry a false identity/hash pairing and still reach os.execvp (G4 reproducibility, #46-related; no native prerequisite is claimed here). resolve() also stored shallow copies, so a caller mutating its own intent/deployment objects after the call could rewrite the already-resolved plan record. A reviewer-supplied boundary closed in revision 2: with plan['inputs'] keyed by str(path), one file passed as both documents (identical path, `./` or `..` alias, link) made the second digest overwrite the first while the intent semantics still came from the first read.",
+  "changes": [
+    "experiment_bundle.py (revision 1, unchanged since): added _parse() as the single JSON validation path (duplicate keys, nonfinite constants); load_document() keeps its previous read_text behaviour on top of it.",
+    "experiment_bundle.py (revision 1): added load_document_with_digest(path) returning (document, sha256) from one single read of the same bytes.",
+    "experiment_bundle.py (revision 1): added document_digest(path) and verify_document_identity(path, digest), a fail-closed execution guard that never supplies the recorded digest.",
+    "experiment_bundle.py (revision 1): resolve() now returns deep copies of the intent and of the selected firmware release, so caller mutation cannot rewrite a resolved plan.",
+    "tools/run_experiment.py (revision 1): new resolve_plan() reads each input exactly once, sets plan['inputs'] from those same reads, and returns the (path, digest) pairs to re-verify; main() accepts an explicit argv for tests.",
+    "tools/run_experiment.py (revision 1): with --execute, every input is verified against its recorded digest before the platform check, chdir, and os.execvp; a changed or unreadable input raises RuntimeError and no process starts.",
+    "tools/run_experiment.py (revision 2): new canonical_document_path() and require_distinct_documents(); resolve_plan() calls the distinctness check before the first read, rejecting one file given as both documents (identical path, `./` and `..` aliases via normcase+realpath, and link/case aliases via os.path.samefile) with ValueError 'Experiment and deployment must be two distinct documents'. This keeps the two single reads from overwriting each other's digest key or mixing their semantics.",
+    "validation/test_experiment_bundle.py: reviewed, left unchanged (still 4 passing tests)."
+  ],
+  "files": [
+    {
+      "path": "Simulator/wksim_runtime/experiment_bundle.py",
+      "state": "modified (revision 1, not touched by revision 2)",
+      "git_blob_sha1": "2f2ba2a9fb5d6d5685223893d984d4776b30ef9a",
+      "sha256": "efa7a06128289b6ef3edcaf6f97454dc56b4919be5a3b2cd5f8ea4ff26ffaaf8"
+    },
+    {
+      "path": "tools/run_experiment.py",
+      "state": "modified (revision 2 alias boundary)",
+      "git_blob_sha1": "5e29eb41711d1818bc4c090b6c6689237dbd365b",
+      "sha256": "1f31be32ccb25a6f86fefb091fed242da94fa763a5c3e159735f04b06b75dd8c"
+    },
+    {
+      "path": "validation/test_experiment_input_identity.py",
+      "state": "added (14 tests, revision 2 added 3 alias-boundary tests)",
+      "git_blob_sha1": "a121d308c262666c160d73425fceea4bbf7a26f4",
+      "sha256": "50192166df807175aeea75e23336e5efb75fcec18d7f7fd1893d8ab5cad22e2b"
+    },
+    {
+      "path": "validation/coordination/ds-experiment-input-20260913-01/negative_control.py",
+      "state": "added (evidence script)",
+      "git_blob_sha1": "78de0a0391d290b646689c324d96e4a897246728",
+      "sha256": "413d47ebef7e395c40dd5e0665785e7226dd9eb8ef879080178dc495f784fa8d"
+    }
+  ],
+  "tests": {
+    "commands": [
+      "python -m py_compile tools/run_experiment.py validation/test_experiment_input_identity.py",
+      "python -m unittest validation.test_experiment_input_identity validation.test_experiment_bundle validation.test_vehicle_models validation.test_control_module_seams"
+    ],
+    "result": "Ran 28 tests, OK (exit 0); py_compile exit 0; no test skipped",
+    "breakdown": {
+      "validation/test_experiment_input_identity.py": "14 tests, all pass (includes test_one_file_cannot_serve_as_both_documents, test_one_inode_under_two_names_cannot_serve_as_both_documents, test_distinct_documents_are_still_accepted)",
+      "validation/test_experiment_bundle.py": "4 tests, all pass (unchanged)",
+      "validation/test_vehicle_models.py + validation/test_control_module_seams.py": "10 tests, all pass (adjacent-module regression; no shared code changed)"
+    },
+    "alias_boundary_evidence": "For the identical-path, `./` alias, `..` detour, and hard-link pairs the CLI raises ValueError 'Experiment and deployment must be two distinct documents' before the loader runs: run_experiment.load_document_with_digest is replaced by a mock with an AssertionError side effect and asserted never called, os.execvp is mocked and asserted never called, stdout stays empty, and the process exits 1. A real distinct pair still resolves with both keys present in plan['inputs'] in [experiment, deployment] order.",
+    "fault_injection_evidence": [
+      "A valid experiment file rewritten after the single read: the returned document and digest both still describe the original bytes, and the on-disk digest differs.",
+      "Rewriting the experiment and the deployment file respectively inside the read hook while --execute is requested: RuntimeError 'changed after it was read' or 'unreadable after it was read', os.execvp mocked and asserted never called, and the reported plan keeps the original semantics with the original digest.",
+      "Deleting the input before --execute: RuntimeError, no process.",
+      "--resolved-output pointing at an existing file: FileExistsError, pre-existing content byte-identical, os.execvp never called.",
+      "Illegal configurations (duplicate JSON key, NaN/Infinity constant, empty document, unimplemented kind, unknown algorithm, vehicle/firmware mismatch, ground intent with algorithms, non-UTF8 bytes): rejected before any process, os.execvp never called.",
+      "Caller mutation of intent/deployment nested values after resolve(): resolved plan and its deployment record unchanged, and mutating the plan does not change the caller objects.",
+      "Matching bytes still reach the mocked execvp boundary with the unchanged argv, including the unshare namespace wrapper for kind=ground_waypoints."
+    ],
+    "mocked_boundary": "os.execvp was replaced by unittest.mock.Mock in every --execute test; no real process was started and no real --execute ran."
+  },
+  "cli_parity": {
+    "command": "python tools/run_experiment.py <example>.json --deployment Simulator/wksim_runtime/examples/experiments/local-deployment.json",
+    "examples": [
+      "rate-control.json",
+      "copter-rate-control.json",
+      "ground-waypoints.json",
+      "rate-disturbance.json",
+      "copter-rate-disturbance.json"
+    ],
+    "result": "After the revision 2 alias check, all five still exit 0 and their stdout is byte-identical (sha256 equal) to the pre-change dry-run capture taken before any edit; rejection paths still exit 1 with the same ValueError.",
+    "stdout_sha256": {
+      "rate-control.json": "f5dce0d82f3923a9a330248ba22ca88c18fbce8277a0be4d9152a0000a2351a1",
+      "copter-rate-control.json": "160e61f5f469353a035a558522e39906bc31aab6c2350703b801328054666c2c",
+      "ground-waypoints.json": "221fd6491048293f77e19b33d6932c6d7b485be0d8421956e010e613a50e5b3e",
+      "rate-disturbance.json": "e0f32295c85239152b47d325b204439dee333cc141f38fd6891092d40c126bef",
+      "copter-rate-disturbance.json": "513092050b8cd055fbea5f0da83b2532e21ef38ea7f4b2ba22b6fead313263b7"
+    },
+    "alias_rejection": {
+      "command": "python tools/run_experiment.py <examples>/rate-control.json --deployment <examples>/./rate-control.json",
+      "result": "exit 1, empty stdout, ValueError 'Experiment and deployment must be two distinct documents'"
+    }
+  },
+  "negative_control": {
+    "script": "validation/coordination/ds-experiment-input-20260913-01/negative_control.py",
+    "output": "validation/coordination/ds-experiment-input-20260913-01/negative-control.txt",
+    "observed": "The pre-change two-read pattern (imported from HEAD:Simulator/wksim_runtime/experiment_bundle.py plus the HEAD runner body) records a digest equal to the rewritten file while its plan semantics come from the original file, and would have reached os.execvp; caller mutation also rewrote the pre-change plan. On the delivered path the digest always equals the parsed bytes, the rewritten file fails closed, and caller mutation leaves the resolved plan unchanged. Replaying the one-file alias pattern shows the single inputs key holding only the second digest while the intent came from the first read, and the delivered distinctness check rejects the identical, `./` and `..` pairs."
+  },
+  "not_verified": [
+    "No real --execute: os.execvp was only exercised through a mock. Actual WSL/Ubuntu-22.04 launch, unshare namespace setup, downstream runner behaviour, and any real SITL/model/firmware execution remain unverified in this delivery.",
+    "No firmware, model, SITL, ROS, UE, MATLAB, vendor-model or build action ran; no native candidate receipt or deployment manifest_sha256 was resolved at runtime.",
+    "The distinctness check is path-level: normcase + realpath plus os.path.samefile for link/case aliases. An alias that this host cannot resolve without the file (for example an unmounted bind mount or a network path that only exists on the target) is not detected here, and a TOCTOU swap between the check and the reads is theoretically possible, though both reads would then address canonical paths that the check already proved distinct.",
+    "The guard is a fail-closed check before execvp, not an atomic open: a change after the guard and before execvp is still theoretically possible. The invariant actually delivered is that the recorded digest always describes the bytes that produced the parsed semantics.",
+    "G4 reproducibility and #46 are not closed: no native prerequisite, acceptance run, or old PASS is claimed or reused.",
+    "Concurrent other-agent worktree changes (ackermann.py, perf receipts, new untracked tests) were neither reviewed nor validated here; no whole-repository regression was run."
+  ],
+  "integration_handoff": [
+    "Main session: rerun validation.test_experiment_bundle, validation.test_experiment_input_identity, and the adjacent model/control tests in the integration sweep before accepting this SHA pair.",
+    "Confirm no other runner or receipt consumer depends on tools/run_experiment.py internals: a repository-wide search found none besides validation/test_experiment_bundle.py, which does not import the CLI.",
+    "load_document() was kept for compatibility; new identity-sensitive callers should use load_document_with_digest() plus verify_document_identity().",
+    "Delivered files are frozen at the recorded blob SHA1/sha256 values; further writes require a new receipt revision."
+  ]
+}

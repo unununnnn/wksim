@@ -1,0 +1,83 @@
+{
+  "created_unix": 1789294965.403806,
+  "parentThreadId": "01a08b94-d2fe-7361-9c43-2d54e9490f32",
+  "cwd": "C:\\Users\\PC\\Documents\\odid编译\\wksim",
+  "branch": "main",
+  "head": "9e8ba03e43627918d5fab28aa59765a02fb068d1",
+  "architecture_baseline": "f333316e6efa6b299b4288a9d91fb2bccedfb9d6",
+  "ancestor_exit_code": 0,
+  "work_class": "new-development",
+  "harness": "deepseek-harness",
+  "verified_model_label": "DeepSeek / DeepSeek-V41-Flash",
+  "verified_thinking": "high",
+  "fast_setting_verified": false,
+  "native_allowed": false,
+  "tasks": [
+    {
+      "title": "实验输入身份",
+      "delegationId": "b5b6dd26-248b-46b7-8cf1-63e67d26bc23",
+      "threadId": "7c86a1ff-03b9-4948-b78e-221ae46d96cb",
+      "turnId": "34dabea8-2d13-4ab2-bc41-c9fb7db8392e",
+      "deepLink": "codex://threads/7c86a1ff-03b9-4948-b78e-221ae46d96cb",
+      "owned_files": [
+        "Simulator/wksim_runtime/experiment_bundle.py",
+        "tools/run_experiment.py",
+        "validation/test_experiment_bundle.py",
+        "validation/test_experiment_input_identity.py"
+      ],
+      "status_at_dispatch": "running",
+      "initial_turnId": "78ca2d8f-a2f4-4caf-8817-012a737857c3",
+      "status": "completed",
+      "status_checked_unix": 1789297232.235553,
+      "acceptance": "accepted-component-regression",
+      "final_source_sha256": {
+        "Simulator/wksim_runtime/experiment_bundle.py": "efa7a06128289b6ef3edcaf6f97454dc56b4919be5a3b2cd5f8ea4ff26ffaaf8",
+        "tools/run_experiment.py": "1f31be32ccb25a6f86fefb091fed242da94fa763a5c3e159735f04b06b75dd8c",
+        "validation/test_experiment_input_identity.py": "50192166df807175aeea75e23336e5efb75fcec18d7f7fd1893d8ab5cad22e2b"
+      }
+    },
+    {
+      "title": "Ackermann响应边界",
+      "delegationId": "533b8e83-0742-4ba6-ac0f-c411a432a841",
+      "threadId": "8de3a761-9e65-42aa-9411-7c31e1ebe463",
+      "turnId": "50e09450-bb68-417e-a6ad-95b122a1e769",
+      "deepLink": "codex://threads/8de3a761-9e65-42aa-9411-7c31e1ebe463",
+      "owned_files": [
+        "Simulator/wksim_core/ackermann.py",
+        "validation/test_ackermann_response_bounds.py"
+      ],
+      "status_at_dispatch": "running",
+      "initial_turnId": "2185b472-c712-458b-a556-0b1d83fb28fa",
+      "status": "completed",
+      "status_checked_unix": 1789297232.2355626,
+      "acceptance": "accepted-component-regression",
+      "final_source_sha256": {
+        "Simulator/wksim_core/ackermann.py": "cb0dea4c6d0ba3f541cf306cd23a730f728d8fa5642f7d7a70ba97783cb8c2ed",
+        "validation/test_ackermann_response_bounds.py": "7f8498336f551a6dc3e22c6d2be2fa97f12933eab8c03b39957853d3696be0ea"
+      }
+    },
+    {
+      "title": "离线回放读取上限",
+      "delegationId": "728faad3-fcb1-4c20-bd37-99869362382c",
+      "threadId": "5e6100ea-32b6-4320-82a2-fbe067914d6a",
+      "turnId": "fb60c42f-d007-4736-a5fe-17f7f042879e",
+      "deepLink": "codex://threads/5e6100ea-32b6-4320-82a2-fbe067914d6a",
+      "owned_files": [
+        "Simulator/wksim_runtime/replay.py",
+        "validation/test_replay_read_limits.py"
+      ],
+      "status_at_dispatch": "running",
+      "initial_turnId": "43fdc3ed-3f5b-4dab-b1eb-8aed756692e7",
+      "status": "completed",
+      "status_checked_unix": 1789297232.2355647,
+      "acceptance": "accepted-component-regression",
+      "final_source_sha256": {
+        "Simulator/wksim_runtime/replay.py": "593f32b1b4c55a3aef53f0ba32bc889002e0a4516d05a020882732251876ffdc",
+        "validation/test_replay_read_limits.py": "9a75a3f0a53c75b15bf01df743981bc86171c8535711af045022896e679d546c"
+      }
+    }
+  ],
+  "main_acceptance_receipt": "validation/coordination/three-deepseek-main-acceptance-20260913-01/linux-receipt.json",
+  "full_project_complete": false,
+  "note": "Status verified by codexhost thread read. Initial dispatch status is historical. Ackermann test received a main-coordinator roundoff-bound clarification after agent delivery; final Linux receipt pins the accepted test. Older agent receipts retain their historical revisions."
+}

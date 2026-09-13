@@ -2,7 +2,12 @@
 
 Only implemented experiment/vehicle/firmware combinations compile to commands.
 Build identity and source checks remain in the selected native launch adapter.
+Callers that must bind a document identity to its parsed semantics read each
+document once with `load_document_with_digest`; a later `verify_document_identity`
+is a fail-closed execution guard, never the source of the recorded digest.
 """
+import copy
+import hashlib
 import json
 from pathlib import Path,PurePosixPath
 import re
@@ -16,9 +21,34 @@ def _object(pairs):
     return result
 
 
-def load_document(path):
+def _parse(text):
     def invalid(value):raise ValueError('Nonfinite JSON constant: '+value)
-    return json.loads(Path(path).read_text(encoding='utf-8'),object_pairs_hook=_object,parse_constant=invalid)
+    return json.loads(text,object_pairs_hook=_object,parse_constant=invalid)
+
+
+def load_document(path):
+    return _parse(Path(path).read_text(encoding='utf-8'))
+
+
+def load_document_with_digest(path):
+    """Return `(document,sha256)`, both derived from one single read of the bytes."""
+    raw=Path(path).read_bytes()
+    return _parse(raw.decode('utf-8')),hashlib.sha256(raw).hexdigest()
+
+
+def document_digest(path):
+    """Digest the current bytes of a document for verification only."""
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+def verify_document_identity(path,digest):
+    """Fail closed when the bytes on disk no longer match a digest recorded at read time."""
+    try:
+        current=document_digest(path)
+    except OSError as error:
+        raise RuntimeError('Experiment input is unreadable after it was read: '+str(path)) from error
+    if current!=digest:
+        raise RuntimeError('Experiment input changed after it was read: '+str(path))
 
 
 def resolve(intent,deployment):
@@ -64,5 +94,7 @@ def resolve(intent,deployment):
         argv=['tools/run_rover_experiment.py','--manifest',path,'--sha256',checksum,'--path-controller',controller]
     else:
         raise ValueError('Unimplemented experiment kind')
-    return dict(schema_version=1,experiment_id=intent['id'],intent=dict(intent),deployment=dict(release),
-                python_argv=argv,production_admitted=False)
+    # The resolved record owns deep copies so a caller mutating its own intent or
+    # deployment objects afterwards cannot rewrite an already-resolved plan.
+    return dict(schema_version=1,experiment_id=intent['id'],intent=copy.deepcopy(intent),
+                deployment=copy.deepcopy(release),python_argv=argv,production_admitted=False)

@@ -81,45 +81,6 @@ def event_kind(row):
     return str(row.get('mavpackettype', 'state'))
 
 
-def _open_record_file(path):
-    """Open one evidence record for a bounded binary read.
-
-    Isolated as the only reader seam so the byte cap can be exercised with a
-    reader double instead of an oversized file on disk.
-    """
-    return path.open('rb')
-
-
-def _read_bounded(path, limit):
-    """Return the record bytes, or None when the record exceeds `limit`.
-
-    The cap is enforced on the bytes actually consumed, not on a previous
-    stat(): the file can grow or be replaced between that check and the read.
-    Consumed bytes accumulate into one bounded bytearray rather than a list of
-    per-read chunk objects, so many short reads cannot multiply allocation
-    overhead. At most `limit + 1` bytes are ever requested, and a reader that
-    hands back more than it was asked for is rejected at once instead of being
-    buffered, so an oversized record is never retained. An accepted result is
-    complete (EOF was reached), never a silently truncated prefix.
-    """
-    cap = limit + 1
-    buffer = bytearray()
-    with _open_record_file(path) as handle:
-        while len(buffer) < cap:
-            remaining = cap - len(buffer)
-            chunk = handle.read(remaining)
-            if not chunk:
-                break
-            if len(chunk) > remaining:
-                # A reader returning more than requested cannot be trusted with
-                # the cap: reject before storing anything past it.
-                return None
-            buffer += chunk
-    if len(buffer) > limit:
-        return None
-    return bytes(buffer)
-
-
 def load_evidence(directory):
     root = Path(directory).resolve(strict=True)
     if not root.is_dir():
@@ -134,14 +95,11 @@ def load_evidence(directory):
         if path.resolve().parent != root:
             raise ValueError(f'Refusing evidence symlink outside run: {name}')
         # ponytail: bounded in-memory reader; add streaming indexing for larger runs.
-        # The stat is only an advisory fast reject: a file can grow or be replaced
-        # before the read, so _read_bounded enforces the limit on consumed bytes.
         if path.stat().st_size > MAX_BYTES:
             raise ValueError(f'{name} exceeds offline reader limit {MAX_BYTES} bytes')
-        data = _read_bounded(path, MAX_BYTES)
-        if data is None:
-            raise ValueError(f'{name} exceeds offline reader limit {MAX_BYTES} bytes;'
-                             ' the file grew or was replaced after the size check')
+        data = path.read_bytes()
+        if len(data) > MAX_BYTES:
+            raise ValueError(f'{name} grew beyond the offline reader limit')
         files[name] = {'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()}
         return data
 
@@ -210,10 +168,8 @@ def load_evidence(directory):
                                 recorded_invalid=invalid, **identity,
                                 raw_sha256=hashlib.sha256(line).hexdigest(), raw_json=raw, payload=row))
     # Re-read hashes detects an active/growing run; never advertise a live snapshot as stable.
-    # The re-read is bounded too: a record that grew past the limit is a change, not evidence.
     for name, identity in files.items():
-        current = _read_bounded(root / name, MAX_BYTES)
-        if current is None or hashlib.sha256(current).hexdigest() != identity['sha256']:
+        if hashlib.sha256((root / name).read_bytes()).hexdigest() != identity['sha256']:
             raise ValueError(f'Evidence changed while reading: {name}; stop the run first')
     counts = {s: sum(r['stream'] == s for r in records) for s in STREAMS}
     return {'format_version': 1, 'mode': 'offline-records-not-resimulation',

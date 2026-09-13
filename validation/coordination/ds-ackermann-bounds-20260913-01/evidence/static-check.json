@@ -1,0 +1,53 @@
+{
+  "checker": "static AST only; the model, its tests, a firmware, ROS, MATLAB and any build were not run",
+  "checks": {
+    "all_prepared_tests_present": true,
+    "allowed_dt_sweep": true,
+    "brake_case": true,
+    "crossing_holds_the_target": true,
+    "default_path_equivalence": true,
+    "dt_contract_unchanged": true,
+    "every_behaviour_test_exercises_the_model": true,
+    "forward_case": true,
+    "no_new_response_floor": true,
+    "no_step_call_at_import_time": true,
+    "original_imports_kept": true,
+    "parameter_contract_test_does_not_step": true,
+    "parameter_rejection_unchanged": true,
+    "return_shape_unchanged": true,
+    "reverse_case": true,
+    "specific_force_is_reported_acceleration": true,
+    "specific_force_keeps_gravity_term": true,
+    "steering_response_unchanged": true,
+    "step_assigns_following_speed": true,
+    "step_bounds_the_crossing_step": true,
+    "step_has_only_input_and_crossing_branches": true,
+    "step_keeps_acceleration_clamp": true,
+    "step_keeps_explicit_euler_speed": true,
+    "step_requires_target_speed": true,
+    "test_has_main_guard": true
+  },
+  "failed": [],
+  "model_file": {
+    "path": "Simulator/wksim_core/ackermann.py",
+    "sha256": "cb0dea4c6d0ba3f541cf306cd23a730f728d8fa5642f7d7a70ba97783cb8c2ed",
+    "step_source_sha256": "d56a365204b66b88b1e33073f326fd3e1a1bcfdec7504a55c50a577bf8e7bce1"
+  },
+  "ran_model_code": false,
+  "ran_model_tests": false,
+  "test_file": {
+    "path": "validation/test_ackermann_response_bounds.py",
+    "sha256": "380b1c2308625279cf8fb7c4c39f4c70534ad4a2b87c72388d1ae1006add773e",
+    "test_methods": [
+      "test_bound_holds_across_every_allowed_step_length",
+      "test_crossing_step_reports_the_bounded_increment",
+      "test_default_parameters_keep_the_verified_response_path",
+      "test_reported_specific_force_is_the_realised_speed_increment",
+      "test_signed_command_and_step_contract_is_unchanged",
+      "test_small_response_constant_cannot_exceed_the_declared_max_speed",
+      "test_small_response_constant_holds_the_reverse_speed_bound",
+      "test_small_response_constants_stay_legal_parameters",
+      "test_zero_throttle_brakes_to_rest_without_crossing_it"
+    ]
+  }
+}

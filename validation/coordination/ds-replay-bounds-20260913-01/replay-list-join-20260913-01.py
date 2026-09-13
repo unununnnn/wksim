@@ -95,29 +95,21 @@ def _read_bounded(path, limit):
 
     The cap is enforced on the bytes actually consumed, not on a previous
     stat(): the file can grow or be replaced between that check and the read.
-    Consumed bytes accumulate into one bounded bytearray rather than a list of
-    per-read chunk objects, so many short reads cannot multiply allocation
-    overhead. At most `limit + 1` bytes are ever requested, and a reader that
-    hands back more than it was asked for is rejected at once instead of being
-    buffered, so an oversized record is never retained. An accepted result is
-    complete (EOF was reached), never a silently truncated prefix.
+    At most `limit + 1` bytes are requested, so an oversized record is rejected
+    without ever buffering it. An accepted result is complete (EOF was reached),
+    never a silently truncated prefix.
     """
-    cap = limit + 1
-    buffer = bytearray()
+    remaining = limit + 1
+    chunks = []
     with _open_record_file(path) as handle:
-        while len(buffer) < cap:
-            remaining = cap - len(buffer)
+        while remaining > 0:
             chunk = handle.read(remaining)
             if not chunk:
                 break
-            if len(chunk) > remaining:
-                # A reader returning more than requested cannot be trusted with
-                # the cap: reject before storing anything past it.
-                return None
-            buffer += chunk
-    if len(buffer) > limit:
-        return None
-    return bytes(buffer)
+            chunks.append(chunk)
+            remaining -= len(chunk)
+    data = chunks[0] if len(chunks) == 1 else b''.join(chunks)
+    return None if len(data) > limit else data
 
 
 def load_evidence(directory):

@@ -1,0 +1,118 @@
+{
+  "receipt": "ds-replay-bounds-20260913-01/round2-short-read-buffer",
+  "supersedes": "peak-memory claim in receipt.json (round 1); round-1 files are left untouched as history",
+  "checked_at": "2026-09-13T19:45:00+09:00",
+  "task_class": "new-development",
+  "cwd_note": "Dispatch named cwd C:/Users/PC/Documents/odid编译/wksim/main; that directory does not exist. Actual cwd is the project root C:/Users/PC/Documents/odid编译/wksim on branch main, which is what was verified and used.",
+  "actual_cwd": "C:/Users/PC/Documents/odid编译/wksim",
+  "branch": "main",
+  "head": "9e8ba03e43627918d5fab28aa59765a02fb068d1",
+  "architecture_ancestor": {
+    "commit": "f333316e6efa6b299b4288a9d91fb2bccedfb9d6",
+    "command": "git merge-base --is-ancestor f333316e6efa6b299b4288a9d91fb2bccedfb9d6 HEAD",
+    "exit_code": 0
+  },
+  "contracts_at_start": {
+    "read": ["AGENTS.md", "docs/architecture-implementation-20260912.md", "docs/coordination/architecture-continuation-20260913.md", "docs/coordination/module-delivery-policy-20260912.md"],
+    "unmodified_vs_head": true,
+    "check": "git diff --stat -- <the four files> produced no output"
+  },
+  "round1_revision_verified_before_editing": {
+    "replay.py_sha256": "4406b7f4e67606c869d5f5aea514e7b89ed1f616c4d00ea4bed4815a23e4f8e2",
+    "test_replay_read_limits.py_sha256": "f7c5c2f62cb1bf2f77e06dea2a37682cdfa942133d921889d6971ca2c2c219ac",
+    "conclusion": "the reviewed revision is exactly the round-1 delivered revision"
+  },
+  "accepted_review_finding": {
+    "finding": "_read_bounded accumulated a list of per-read chunk objects and joined them. With many short reads the retained bytes-object and list-pointer overhead scales with the number of reads, not with the limit, so the round-1 claim of a peak bounded by 2 * (limit + 1) was not guaranteed. The record-byte cap itself was never exceeded.",
+    "measured_confirmation": "For a 64 KiB record dripped one byte per read (65537 reads), the round-1 revision peaked at 5871057 traced bytes (89.585 x limit) versus 131986 traced bytes (2.014 x limit) for the delivered revision."
+  },
+  "change": [
+    "Consumed bytes accumulate into one bytearray instead of a list of per-read chunk objects; no per-read object is retained.",
+    "A reader returning len(chunk) > remaining is rejected immediately, before anything from that chunk is stored, so no oversized chunk is ever buffered or joined.",
+    "The loop condition is len(buffer) < limit + 1, so the total requested bytes remain capped at limit + 1 and the request sizes still shrink as bytes arrive.",
+    "An accepted record still requires EOF (or a short final read) with len(buffer) <= limit, so acceptance remains a complete record, never a truncated prefix.",
+    "One immutable bytes copy (<= limit) is made at the end; hashing, raw text, line order and the 'Evidence changed while reading' rejection semantics are unchanged."
+  ],
+  "measured_evidence": {
+    "probe": "validation/coordination/ds-replay-bounds-20260913-01/reproduce_short_read_memory.py",
+    "output": "validation/coordination/ds-replay-bounds-20260913-01/reproduce-short-read-memory-output.json",
+    "method": "python tracemalloc, 64 KiB record, drip reader allocating one fresh byte per read (65537 reads), request recording disabled so the double does not dominate; identical probe run against both revisions",
+    "round1_list_join": {
+      "accepted": true,
+      "bytes_returned": 65536,
+      "hash_matches_record": true,
+      "peak_traced_bytes": 5871057,
+      "peak_over_limit": 89.585
+    },
+    "delivered_single_buffer": {
+      "accepted": true,
+      "bytes_returned": 65536,
+      "hash_matches_record": true,
+      "peak_traced_bytes": 131986,
+      "peak_over_limit": 2.014
+    },
+    "threshold_factor": 4,
+    "probe_exit_code": 0,
+    "claim_scope": "This is one measured synthetic 1-byte-per-read case on CPython 3.13.11 / Windows, traced allocations only. No exact universal peak is claimed: the instrument excludes untraced interpreter and OS overhead, and bytearray overallocation slack is interpreter-specific."
+  },
+  "structural_bound_stated_not_measured": [
+    "Retained content is a single bytearray holding at most limit + 1 bytes.",
+    "One immutable bytes copy of at most limit bytes is made on an accepted read.",
+    "No object is retained per read, so allocation overhead no longer scales with the number of short reads.",
+    "No numeric peak for other chunk-size distributions or larger limits was measured."
+  ],
+  "deliverables": [
+    {
+      "path": "Simulator/wksim_runtime/replay.py",
+      "state": "modified (not staged, not committed)",
+      "sha256": "593f32b1b4c55a3aef53f0ba32bc889002e0a4516d05a020882732251876ffdc",
+      "git_blob": "1e00b0f0106e872e5fdf36cfa4309fccb0e0c61d",
+      "parent_git_blob": "fd2212a4283637cad87c248307d91aa3f85e5806",
+      "diff_vs_head": "48 insertions, 4 deletions"
+    },
+    {
+      "path": "validation/test_replay_read_limits.py",
+      "state": "new (untracked, not committed)",
+      "sha256": "9a75a3f0a53c75b15bf01df743981bc86171c8535711af045022896e679d546c",
+      "git_blob": "d37087fefed749d7f442af1d1eb59b8163032761",
+      "tests": 21
+    }
+  ],
+  "tests": {
+    "new_in_this_round": [
+      "byte-by-byte short reads at a small limit are accepted, with request sizes shrinking from limit + 1 and the hash binding the full record",
+      "an oversized chunk in the middle of the stream is rejected without any further read of that record",
+      "structural guard: the bounded reader accumulates in one bytearray and contains no per-chunk list append or join",
+      "measured peak allocation for a 64 KiB one-byte-per-read record stays below 4 x limit"
+    ],
+    "standalone": "20 passed, 1 skipped",
+    "affected_suite": {
+      "command": "python -m pytest validation/test_replay_read_limits.py validation/test_wksim_replay.py validation/test_wksim_console_records.py validation/test_wksim_console_workspace.py -v",
+      "result": "61 passed, 1 skipped, 84 subtests passed in 18.70s",
+      "captured_output": "validation/coordination/ds-replay-bounds-20260913-01/pytest-affected-output-round2.txt"
+    },
+    "round1_race_probe_rerun": {
+      "probe": "validation/coordination/ds-replay-bounds-20260913-01/reproduce_prefix_race.py",
+      "exit_code": 0,
+      "result": "unchanged: the frozen HEAD revision still shows the unbounded read, the delivered revision shows none and rejects with 'grew or was replaced'"
+    },
+    "environment": "Python 3.13.11, pytest 9.1.1, offline; no runtime/native/SITL/model/ROS/UE/MATLAB"
+  },
+  "boundaries_not_verified": [
+    "The measured peak covers one synthetic one-byte-per-read distribution at a 64 KiB limit on Windows/CPython 3.13.11; other distributions, larger limits and POSIX were not measured.",
+    "tracemalloc traces Python allocations only; it is not an OS RSS measurement and excludes untraced interpreter/OS overhead.",
+    "bytearray overallocation slack is interpreter-specific and is not asserted by any test.",
+    "Short-read behaviour of a real buffered file object was not exercised: io.BufferedReader returns the full requested amount for regular files, so the one-byte case exists only through reader doubles.",
+    "No real 64 MiB record was read; MAX_BYTES is asserted unchanged at 64 * 1024 * 1024 and the cap behaviour is exercised with small limits.",
+    "The real-symlink refusal test is still skipped on this host (WinError 1314); that branch is covered through a Path.resolve double.",
+    "No same-process concurrent-writer test; the TOCTOU race is reproduced with stale-stat real files and reader doubles.",
+    "Only the offline reader and its direct dependents were run; the wider validation suite and console GUI interaction were not re-run."
+  ],
+  "not_done_and_still_required": [
+    "No git add, commit or push; no GitHub comment or issue action; no change to other seats' files, the perf directory, or frozen historical workspaces such as /root/wksim-release-acceptance-fe3.",
+    "No native, build, SITL, ROS node, UE, MATLAB or vendor-model execution, and no flight re-run.",
+    "No new framework: the change stays inside the two owned files and remains stdlib plus wksim_runtime.config._unique_object.",
+    "G4 complete-log obligation remains open and still needs parent acceptance; this receipt accepts neither the evidence reader for release nor any prior PASS."
+  ],
+  "stopped": "Writer stops after this receipt; the two delivered files are frozen at the hashes above."
+}
