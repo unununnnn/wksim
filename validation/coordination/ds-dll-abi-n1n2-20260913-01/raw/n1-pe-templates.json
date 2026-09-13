@@ -1,0 +1,3913 @@
+{
+  "schema": "wksim.ds-dll-abi-n1n2.n1-pe-templates.v1",
+  "step": "n1",
+  "kind": "read-only PE header/import/export/version-table inventory",
+  "producer_reused": "work/coptersim-compat-20260905/inspect_pe.py",
+  "producer_sha256": "eb6d725f580e07b38aa50789e5703680aca5900fc5eb21085c2f54419ce6c223",
+  "producer_api_used": "inspect_pe.inspect(path) (pefile fast_load; static tables only)",
+  "execution": "none - no DLL/model/exe was loaded, mapped, executed, decompiled or disassembled",
+  "named_targets": [
+    {
+      "candidate_id": "e0-template-dll",
+      "role": "e0 template DLL (the binary the G6 provenance chain is bound to)",
+      "path": "E:\\rflysimtools\\RflySimAPIs\\4.RflySimModel\\1.BasicExps\\e0_MinModelTemp\\Exp1_MinModelTemp.dll",
+      "present": true,
+      "size": 235520,
+      "sha256": "30747a8d47ca76ed3a2c751eac212102dde6a3ab4b29ba8eaae5926d416ca91b",
+      "machine": "0x8664",
+      "family": "modern *30d/*60d family",
+      "dll_export_names": [
+        "DllDestroyModel",
+        "DllGetGpsPos",
+        "DllGetStep0",
+        "DllInitGpsPos",
+        "DllInitPosAngState",
+        "DllInputPWMs",
+        "DllReInitModel",
+        "DllTerrainIn15d",
+        "DlloutHILGPS30d",
+        "DlloutHILSensor30d",
+        "DlloutVehileInfo60d",
+        "Dllstep"
+      ],
+      "sha256_matches_recorded": true,
+      "recorded_sha256": "30747a8d47ca76ed3a2c751eac212102dde6a3ab4b29ba8eaae5926d416ca91b",
+      "recorded_in": "validation/model-reference-provenance-20260907/resource-hashes.json lines 13-16; docs/plan/model-reference-provenance.md:17",
+      "in_default_16_dll_inventory": false
+    },
+    {
+      "candidate_id": "e1-template-dll",
+      "role": "e1 template DLL (e1_MinModelTempLib)",
+      "path": "E:\\rflysimtools\\RflySimAPIs\\4.RflySimModel\\1.BasicExps\\e1_MinModelTempLib\\Exp1_MinModelTemp.dll",
+      "present": true,
+      "size": 242176,
+      "sha256": "c2fbfd4dc3a6338bcd040e59960af0c4c8c0925a0c583c4d9792e342d9558000",
+      "machine": "0x8664",
+      "family": "modern *30d/*60d family",
+      "dll_export_names": [
+        "DllDestroyModel",
+        "DllGetGpsPos",
+        "DllGetStep0",
+        "DllInitGpsPos",
+        "DllInitPosAngState",
+        "DllInputPWMs",
+        "DllReInitModel",
+        "DllTerrainIn15d",
+        "DlloutHILGPS30d",
+        "DlloutHILSensor30d",
+        "DlloutVehileInfo60d",
+        "Dllstep"
+      ],
+      "sha256_matches_recorded": null,
+      "recorded_sha256": null,
+      "recorded_in": "none - c7 records that the e1 export-name list had no path/size/SHA256",
+      "in_default_16_dll_inventory": false
+    },
+    {
+      "candidate_id": "deployed-model-dir-exp1",
+      "role": "deployed copy of the same filename in the CopterSim model directory (c5 second binary)",
+      "path": "E:\\rflysimtools\\CopterSim\\external\\model\\Exp1_MinModelTemp.dll",
+      "present": true,
+      "size": 230912,
+      "sha256": "8134aab646adda098b7c98a4daa17278dbed7a626a1811e18ed1a88288fb6a46",
+      "machine": "0x8664",
+      "family": "legacy-output-name family",
+      "dll_export_names": [
+        "DllDestroyModel",
+        "DllGetStep0",
+        "DllInitGpsPos",
+        "DllInitPosAngState",
+        "DllInputPWMs",
+        "DllReInitModel",
+        "DlloutModel3DInfo",
+        "DlloutputGPS",
+        "DlloutputSensors",
+        "Dllstep"
+      ],
+      "sha256_matches_recorded": true,
+      "recorded_sha256": "8134aab646adda098b7c98a4daa17278dbed7a626a1811e18ed1a88288fb6a46",
+      "recorded_in": "validation/coordination/ds-dll-abi-evidence-20260913-01/audit.json c5-exp1-two-binaries",
+      "in_default_16_dll_inventory": true
+    },
+    {
+      "candidate_id": "consumer-named-target",
+      "role": "the only DLL name hardcoded by the vendor consumer (DllSimCtrlAPI.py:2099); carries a different file name",
+      "path": "E:\\rflysimtools\\CopterSim\\external\\model\\MulticopterNOpx4.dll",
+      "present": true,
+      "size": 173568,
+      "sha256": "0179c58f14f8140302c1ec1a36ae455e88146c64099be1cd6a633cb174afe7e8",
+      "machine": "0x8664",
+      "family": "modern *30d/*60d family",
+      "dll_export_names": [
+        "DllDestroyModel",
+        "DllGetGpsPos",
+        "DllGetInitInputs",
+        "DllGetStep0",
+        "DllInitGpsPos",
+        "DllInitPosAngState",
+        "DllInputColls",
+        "DllInputPWMs",
+        "DllInputSILs",
+        "DllOutCopterData",
+        "DllReInitModel",
+        "DllTerrainIn15d",
+        "DlloutVehileInfo60d",
+        "Dllstep"
+      ],
+      "sha256_matches_recorded": null,
+      "recorded_sha256": null,
+      "recorded_in": "work/coptersim-compat-20260905/evidence/pe-inventory.json 16-DLL inventory, no per-file hash quoted",
+      "in_default_16_dll_inventory": true
+    }
+  ],
+  "binaries_by_sha256": {
+    "30747a8d47ca76ed3a2c751eac212102dde6a3ab4b29ba8eaae5926d416ca91b": {
+      "path": "E:\\rflysimtools\\RflySimAPIs\\4.RflySimModel\\1.BasicExps\\e0_MinModelTemp\\Exp1_MinModelTemp.dll",
+      "size": 235520,
+      "sha256": "30747a8d47ca76ed3a2c751eac212102dde6a3ab4b29ba8eaae5926d416ca91b",
+      "machine": "0x8664",
+      "optional_header_magic": "0x20b",
+      "has_clr_directory": false,
+      "sections": [
+        {
+          "name": ".text",
+          "raw_size": 141312,
+          "entropy": 6.15
+        },
+        {
+          "name": ".rdata",
+          "raw_size": 55808,
+          "entropy": 5.377
+        },
+        {
+          "name": ".data",
+          "raw_size": 25088,
+          "entropy": 2.878
+        },
+        {
+          "name": ".pdata",
+          "raw_size": 5120,
+          "entropy": 5.03
+        },
+        {
+          "name": ".gxfg",
+          "raw_size": 4608,
+          "entropy": 4.73
+        },
+        {
+          "name": ".gehcont",
+          "raw_size": 512,
+          "entropy": 0.061
+        },
+        {
+          "name": ".reloc",
+          "raw_size": 2048,
+          "entropy": 4.83
+        }
+      ],
+      "imports": {
+        "KERNEL32.dll": [
+          "RtlCaptureContext",
+          "RtlLookupFunctionEntry",
+          "RtlVirtualUnwind",
+          "UnhandledExceptionFilter",
+          "SetUnhandledExceptionFilter",
+          "GetCurrentProcess",
+          "TerminateProcess",
+          "IsProcessorFeaturePresent",
+          "IsDebuggerPresent",
+          "GetStartupInfoW",
+          "GetModuleHandleW",
+          "QueryPerformanceCounter",
+          "GetCurrentProcessId",
+          "GetCurrentThreadId",
+          "GetSystemTimeAsFileTime",
+          "InitializeSListHead",
+          "WriteConsoleW",
+          "RtlUnwindEx",
+          "InterlockedFlushSList",
+          "GetLastError",
+          "SetLastError",
+          "EnterCriticalSection",
+          "LeaveCriticalSection",
+          "DeleteCriticalSection",
+          "InitializeCriticalSectionAndSpinCount",
+          "TlsAlloc",
+          "TlsGetValue",
+          "TlsSetValue",
+          "TlsFree",
+          "FreeLibrary",
+          "GetProcAddress",
+          "LoadLibraryExW",
+          "EncodePointer",
+          "RaiseException",
+          "RtlPcToFileHeader",
+          "ExitProcess",
+          "GetModuleHandleExW",
+          "GetModuleFileNameW",
+          "HeapAlloc",
+          "HeapFree",
+          "FindClose",
+          "FindFirstFileExW",
+          "FindNextFileW",
+          "IsValidCodePage",
+          "GetACP",
+          "GetOEMCP",
+          "GetCPInfo",
+          "GetCommandLineA",
+          "GetCommandLineW",
+          "MultiByteToWideChar",
+          "WideCharToMultiByte",
+          "GetEnvironmentStringsW",
+          "FreeEnvironmentStringsW",
+          "FlsAlloc",
+          "FlsGetValue",
+          "FlsSetValue",
+          "FlsFree",
+          "LCMapStringW",
+          "GetProcessHeap",
+          "GetStdHandle",
+          "GetFileType",
+          "GetStringTypeW",
+          "HeapSize",
+          "HeapReAlloc",
+          "SetStdHandle",
+          "FlushFileBuffers",
+          "WriteFile",
+          "GetConsoleOutputCP",
+          "GetConsoleMode",
+          "SetFilePointerEx",
+          "CreateFileW",
+          "CloseHandle"
+        ]
+      },
+      "exports": [
+        {
+          "name": "?DllCreatModel@@YAXXZ",
+          "ordinal": 1,
+          "rva": "0x12130",
+          "forwarder": null
+        },
+        {
+          "name": "DllDestroyModel",
+          "ordinal": 2,
+          "rva": "0x12040",
+          "forwarder": null
+        },
+        {
+          "name": "DllGetGpsPos",
+          "ordinal": 3,
+          "rva": "0x11f00",
+          "forwarder": null
+        },
+        {
+          "name": "DllGetStep0",
+          "ordinal": 4,
+          "rva": "0x12060",
+          "forwarder": null
+        },
+        {
+          "name": "DllInitGpsPos",
+          "ordinal": 5,
+          "rva": "0x11e80",
+          "forwarder": null
+        },
+        {
+          "name": "DllInitPosAngState",
+          "ordinal": 6,
+          "rva": "0x11cd0",
+          "forwarder": null
+        },
+        {
+          "name": "DllInputPWMs",
+          "ordinal": 7,
+          "rva": "0x11c70",
+          "forwarder": null
+        },
+        {
+          "name": "DllReInitModel",
+          "ordinal": 8,
+          "rva": "0x11c50",
+          "forwarder": null
+        },
+        {
+          "name": "DllTerrainIn15d",
+          "ordinal": 9,
+          "rva": "0x11ca0",
+          "forwarder": null
+        },
+        {
+          "name": "DlloutHILGPS30d",
+          "ordinal": 10,
+          "rva": "0x11ff0",
+          "forwarder": null
+        },
+        {
+          "name": "DlloutHILSensor30d",
+          "ordinal": 11,
+          "rva": "0x11fa0",
+          "forwarder": null
+        },
+        {
+          "name": "DlloutVehileInfo60d",
+          "ordinal": 12,
+          "rva": "0x12090",
+          "forwarder": null
+        },
+        {
+          "name": "Dllstep",
+          "ordinal": 13,
+          "rva": "0x11f80",
+          "forwarder": null
+        }
+      ],
+      "version_strings": {},
+      "parse_warnings": [],
+      "limits": "Static tables only: no execution, decompilation, ABI type recovery, or packing verdict.",
+      "export_count_total": 13,
+      "dll_export_names": [
+        "DllDestroyModel",
+        "DllGetGpsPos",
+        "DllGetStep0",
+        "DllInitGpsPos",
+        "DllInitPosAngState",
+        "DllInputPWMs",
+        "DllReInitModel",
+        "DllTerrainIn15d",
+        "DlloutHILGPS30d",
+        "DlloutHILSensor30d",
+        "DlloutVehileInfo60d",
+        "Dllstep"
+      ],
+      "probed_names_present": [
+        "?DllCreatModel@@YAXXZ",
+        "DllDestroyModel",
+        "DllGetGpsPos",
+        "DllGetStep0",
+        "DllInitGpsPos",
+        "DllInitPosAngState",
+        "DllInputPWMs",
+        "DllReInitModel",
+        "DllTerrainIn15d",
+        "DlloutVehileInfo60d",
+        "Dllstep"
+      ],
+      "probed_names_absent": [
+        "DllCreatModel",
+        "DllDynModiParams",
+        "DllFaultParamAPI",
+        "DllGetExtToPX4",
+        "DllGetExtToUE4",
+        "DllGetInitInputs",
+        "DllInCtrlExt",
+        "DllInFromEU",
+        "DllInitParamAPI",
+        "DllInitPosAngStat",
+        "DllInputColls",
+        "DllInputDoubCtrls",
+        "DllInputSILs",
+        "DllInputTerrain",
+        "DllOutCopterData",
+        "DllinCollision20d",
+        "DllinSIL28d"
+      ],
+      "has_decorated_dllcreatmodel": true,
+      "has_undecorated_dllcreatmodel": false,
+      "family": "modern *30d/*60d family",
+      "legacy_present": [],
+      "modern_present": [
+        "DlloutHILGPS30d",
+        "DlloutHILSensor30d",
+        "DlloutVehileInfo60d"
+      ],
+      "sha256_matches_recorded": true,
+      "recorded_sha256": "30747a8d47ca76ed3a2c751eac212102dde6a3ab4b29ba8eaae5926d416ca91b",
+      "recorded_in": "validation/model-reference-provenance-20260907/resource-hashes.json lines 13-16; docs/plan/model-reference-provenance.md:17",
+      "roles": [
+        "e0-template-dll",
+        "same-filename-copy"
+      ],
+      "paths": [
+        "E:\\rflysimtools\\RflySimAPIs\\4.RflySimModel\\1.BasicExps\\e0_MinModelTemp\\Exp1_MinModelTemp.dll",
+        "E:\\rflysimtools\\RflySimAPIs\\4.RflySimModel\\1.BasicExps\\e0_MinModelTemp\\Exp1_MinModelTemp.dll"
+      ]
+    },
+    "c2fbfd4dc3a6338bcd040e59960af0c4c8c0925a0c583c4d9792e342d9558000": {
+      "path": "E:\\rflysimtools\\RflySimAPIs\\4.RflySimModel\\1.BasicExps\\e1_MinModelTempLib\\Exp1_MinModelTemp.dll",
+      "size": 242176,
+      "sha256": "c2fbfd4dc3a6338bcd040e59960af0c4c8c0925a0c583c4d9792e342d9558000",
+      "machine": "0x8664",
+      "optional_header_magic": "0x20b",
+      "has_clr_directory": false,
+      "sections": [
+        {
+          "name": ".text",
+          "raw_size": 147968,
+          "entropy": 6.062
+        },
+        {
+          "name": ".rdata",
+          "raw_size": 77824,
+          "entropy": 4.803
+        },
+        {
+          "name": ".data",
+          "raw_size": 3072,
+          "entropy": 1.92
+        },
+        {
+          "name": ".pdata",
+          "raw_size": 5120,
+          "entropy": 5.246
+        },
+        {
+          "name": ".gxfg",
+          "raw_size": 4608,
+          "entropy": 4.73
+        },
+        {
+          "name": ".gehcont",
+          "raw_size": 512,
+          "entropy": 0.061
+        },
+        {
+          "name": ".reloc",
+          "raw_size": 2048,
+          "entropy": 4.834
+        }
+      ],
+      "imports": {
+        "KERNEL32.dll": [
+          "RtlCaptureContext",
+          "RtlLookupFunctionEntry",
+          "RtlVirtualUnwind",
+          "UnhandledExceptionFilter",
+          "SetUnhandledExceptionFilter",
+          "GetCurrentProcess",
+          "TerminateProcess",
+          "IsProcessorFeaturePresent",
+          "IsDebuggerPresent",
+          "GetStartupInfoW",
+          "GetModuleHandleW",
+          "QueryPerformanceCounter",
+          "GetCurrentProcessId",
+          "GetCurrentThreadId",
+          "GetSystemTimeAsFileTime",
+          "InitializeSListHead",
+          "WriteConsoleW",
+          "RtlUnwindEx",
+          "InterlockedFlushSList",
+          "GetLastError",
+          "SetLastError",
+          "EnterCriticalSection",
+          "LeaveCriticalSection",
+          "DeleteCriticalSection",
+          "InitializeCriticalSectionAndSpinCount",
+          "TlsAlloc",
+          "TlsGetValue",
+          "TlsSetValue",
+          "TlsFree",
+          "FreeLibrary",
+          "GetProcAddress",
+          "LoadLibraryExW",
+          "EncodePointer",
+          "RaiseException",
+          "RtlPcToFileHeader",
+          "ExitProcess",
+          "GetModuleHandleExW",
+          "GetModuleFileNameW",
+          "HeapAlloc",
+          "HeapFree",
+          "FindClose",
+          "FindFirstFileExW",
+          "FindNextFileW",
+          "IsValidCodePage",
+          "GetACP",
+          "GetOEMCP",
+          "GetCPInfo",
+          "GetCommandLineA",
+          "GetCommandLineW",
+          "MultiByteToWideChar",
+          "WideCharToMultiByte",
+          "GetEnvironmentStringsW",
+          "FreeEnvironmentStringsW",
+          "FlsAlloc",
+          "FlsGetValue",
+          "FlsSetValue",
+          "FlsFree",
+          "LCMapStringW",
+          "GetProcessHeap",
+          "GetStdHandle",
+          "GetFileType",
+          "GetStringTypeW",
+          "HeapSize",
+          "HeapReAlloc",
+          "SetStdHandle",
+          "FlushFileBuffers",
+          "WriteFile",
+          "GetConsoleOutputCP",
+          "GetConsoleMode",
+          "SetFilePointerEx",
+          "CreateFileW",
+          "CloseHandle"
+        ]
+      },
+      "exports": [
+        {
+          "name": "?DllCreatModel@@YAXXZ",
+          "ordinal": 1,
+          "rva": "0x13b90",
+          "forwarder": null
+        },
+        {
+          "name": "DllDestroyModel",
+          "ordinal": 2,
+          "rva": "0x13aa0",
+          "forwarder": null
+        },
+        {
+          "name": "DllGetGpsPos",
+          "ordinal": 3,
+          "rva": "0x13960",
+          "forwarder": null
+        },
+        {
+          "name": "DllGetStep0",
+          "ordinal": 4,
+          "rva": "0x13ac0",
+          "forwarder": null
+        },
+        {
+          "name": "DllInitGpsPos",
+          "ordinal": 5,
+          "rva": "0x138e0",
+          "forwarder": null
+        },
+        {
+          "name": "DllInitPosAngState",
+          "ordinal": 6,
+          "rva": "0x13730",
+          "forwarder": null
+        },
+        {
+          "name": "DllInputPWMs",
+          "ordinal": 7,
+          "rva": "0x136d0",
+          "forwarder": null
+        },
+        {
+          "name": "DllReInitModel",
+          "ordinal": 8,
+          "rva": "0x136b0",
+          "forwarder": null
+        },
+        {
+          "name": "DllTerrainIn15d",
+          "ordinal": 9,
+          "rva": "0x13700",
+          "forwarder": null
+        },
+        {
+          "name": "DlloutHILGPS30d",
+          "ordinal": 10,
+          "rva": "0x13a50",
+          "forwarder": null
+        },
+        {
+          "name": "DlloutHILSensor30d",
+          "ordinal": 11,
+          "rva": "0x13a00",
+          "forwarder": null
+        },
+        {
+          "name": "DlloutVehileInfo60d",
+          "ordinal": 12,
+          "rva": "0x13af0",
+          "forwarder": null
+        },
+        {
+          "name": "Dllstep",
+          "ordinal": 13,
+          "rva": "0x139e0",
+          "forwarder": null
+        }
+      ],
+      "version_strings": {},
+      "parse_warnings": [],
+      "limits": "Static tables only: no execution, decompilation, ABI type recovery, or packing verdict.",
+      "export_count_total": 13,
+      "dll_export_names": [
+        "DllDestroyModel",
+        "DllGetGpsPos",
+        "DllGetStep0",
+        "DllInitGpsPos",
+        "DllInitPosAngState",
+        "DllInputPWMs",
+        "DllReInitModel",
+        "DllTerrainIn15d",
+        "DlloutHILGPS30d",
+        "DlloutHILSensor30d",
+        "DlloutVehileInfo60d",
+        "Dllstep"
+      ],
+      "probed_names_present": [
+        "?DllCreatModel@@YAXXZ",
+        "DllDestroyModel",
+        "DllGetGpsPos",
+        "DllGetStep0",
+        "DllInitGpsPos",
+        "DllInitPosAngState",
+        "DllInputPWMs",
+        "DllReInitModel",
+        "DllTerrainIn15d",
+        "DlloutVehileInfo60d",
+        "Dllstep"
+      ],
+      "probed_names_absent": [
+        "DllCreatModel",
+        "DllDynModiParams",
+        "DllFaultParamAPI",
+        "DllGetExtToPX4",
+        "DllGetExtToUE4",
+        "DllGetInitInputs",
+        "DllInCtrlExt",
+        "DllInFromEU",
+        "DllInitParamAPI",
+        "DllInitPosAngStat",
+        "DllInputColls",
+        "DllInputDoubCtrls",
+        "DllInputSILs",
+        "DllInputTerrain",
+        "DllOutCopterData",
+        "DllinCollision20d",
+        "DllinSIL28d"
+      ],
+      "has_decorated_dllcreatmodel": true,
+      "has_undecorated_dllcreatmodel": false,
+      "family": "modern *30d/*60d family",
+      "legacy_present": [],
+      "modern_present": [
+        "DlloutHILGPS30d",
+        "DlloutHILSensor30d",
+        "DlloutVehileInfo60d"
+      ],
+      "sha256_matches_recorded": null,
+      "recorded_sha256": null,
+      "recorded_in": "none - c7 records that the e1 export-name list had no path/size/SHA256",
+      "roles": [
+        "e1-template-dll",
+        "same-filename-copy"
+      ],
+      "paths": [
+        "E:\\rflysimtools\\RflySimAPIs\\4.RflySimModel\\1.BasicExps\\e1_MinModelTempLib\\Exp1_MinModelTemp.dll",
+        "E:\\rflysimtools\\RflySimAPIs\\4.RflySimModel\\1.BasicExps\\e1_MinModelTempLib\\Exp1_MinModelTemp.dll"
+      ]
+    },
+    "8134aab646adda098b7c98a4daa17278dbed7a626a1811e18ed1a88288fb6a46": {
+      "path": "E:\\rflysimtools\\CopterSim\\external\\model\\Exp1_MinModelTemp.dll",
+      "size": 230912,
+      "sha256": "8134aab646adda098b7c98a4daa17278dbed7a626a1811e18ed1a88288fb6a46",
+      "machine": "0x8664",
+      "optional_header_magic": "0x20b",
+      "has_clr_directory": false,
+      "sections": [
+        {
+          "name": ".text",
+          "raw_size": 144896,
+          "entropy": 5.986
+        },
+        {
+          "name": ".rdata",
+          "raw_size": 75776,
+          "entropy": 4.821
+        },
+        {
+          "name": ".data",
+          "raw_size": 2560,
+          "entropy": 1.989
+        },
+        {
+          "name": ".pdata",
+          "raw_size": 4096,
+          "entropy": 5.408
+        },
+        {
+          "name": ".gehcont",
+          "raw_size": 512,
+          "entropy": 0.061
+        },
+        {
+          "name": ".reloc",
+          "raw_size": 2048,
+          "entropy": 4.791
+        }
+      ],
+      "imports": {
+        "KERNEL32.dll": [
+          "RtlCaptureContext",
+          "RtlLookupFunctionEntry",
+          "RtlVirtualUnwind",
+          "IsDebuggerPresent",
+          "UnhandledExceptionFilter",
+          "SetUnhandledExceptionFilter",
+          "GetStartupInfoW",
+          "IsProcessorFeaturePresent",
+          "GetModuleHandleW",
+          "GetCurrentProcess",
+          "TerminateProcess",
+          "QueryPerformanceCounter",
+          "GetCurrentProcessId",
+          "GetCurrentThreadId",
+          "GetSystemTimeAsFileTime",
+          "InitializeSListHead",
+          "WriteConsoleW",
+          "RtlUnwindEx",
+          "InterlockedFlushSList",
+          "GetLastError",
+          "SetLastError",
+          "EnterCriticalSection",
+          "LeaveCriticalSection",
+          "DeleteCriticalSection",
+          "InitializeCriticalSectionAndSpinCount",
+          "TlsAlloc",
+          "TlsGetValue",
+          "TlsSetValue",
+          "TlsFree",
+          "FreeLibrary",
+          "GetProcAddress",
+          "LoadLibraryExW",
+          "RaiseException",
+          "ExitProcess",
+          "GetModuleHandleExW",
+          "GetModuleFileNameW",
+          "HeapAlloc",
+          "HeapFree",
+          "FindClose",
+          "FindFirstFileExW",
+          "FindNextFileW",
+          "IsValidCodePage",
+          "GetACP",
+          "GetOEMCP",
+          "GetCPInfo",
+          "GetCommandLineA",
+          "GetCommandLineW",
+          "MultiByteToWideChar",
+          "WideCharToMultiByte",
+          "GetEnvironmentStringsW",
+          "FreeEnvironmentStringsW",
+          "LCMapStringW",
+          "GetProcessHeap",
+          "GetStdHandle",
+          "GetFileType",
+          "GetStringTypeW",
+          "HeapSize",
+          "HeapReAlloc",
+          "SetStdHandle",
+          "FlushFileBuffers",
+          "WriteFile",
+          "GetConsoleOutputCP",
+          "GetConsoleMode",
+          "SetFilePointerEx",
+          "CreateFileW",
+          "CloseHandle"
+        ]
+      },
+      "exports": [
+        {
+          "name": "?DllCreatModel@@YAXXZ",
+          "ordinal": 1,
+          "rva": "0x1330",
+          "forwarder": null
+        },
+        {
+          "name": "DllDestroyModel",
+          "ordinal": 2,
+          "rva": "0x1260",
+          "forwarder": null
+        },
+        {
+          "name": "DllGetStep0",
+          "ordinal": 3,
+          "rva": "0x1280",
+          "forwarder": null
+        },
+        {
+          "name": "DllInitGpsPos",
+          "ordinal": 4,
+          "rva": "0x1160",
+          "forwarder": null
+        },
+        {
+          "name": "DllInitPosAngState",
+          "ordinal": 5,
+          "rva": "0x10a0",
+          "forwarder": null
+        },
+        {
+          "name": "DllInputPWMs",
+          "ordinal": 6,
+          "rva": "0x1050",
+          "forwarder": null
+        },
+        {
+          "name": "DllReInitModel",
+          "ordinal": 7,
+          "rva": "0x1030",
+          "forwarder": null
+        },
+        {
+          "name": "DlloutModel3DInfo",
+          "ordinal": 8,
+          "rva": "0x12b0",
+          "forwarder": null
+        },
+        {
+          "name": "DlloutputGPS",
+          "ordinal": 9,
+          "rva": "0x1230",
+          "forwarder": null
+        },
+        {
+          "name": "DlloutputSensors",
+          "ordinal": 10,
+          "rva": "0x1200",
+          "forwarder": null
+        },
+        {
+          "name": "Dllstep",
+          "ordinal": 11,
+          "rva": "0x11e0",
+          "forwarder": null
+        }
+      ],
+      "version_strings": {},
+      "parse_warnings": [],
+      "limits": "Static tables only: no execution, decompilation, ABI type recovery, or packing verdict.",
+      "export_count_total": 11,
+      "dll_export_names": [
+        "DllDestroyModel",
+        "DllGetStep0",
+        "DllInitGpsPos",
+        "DllInitPosAngState",
+        "DllInputPWMs",
+        "DllReInitModel",
+        "DlloutModel3DInfo",
+        "DlloutputGPS",
+        "DlloutputSensors",
+        "Dllstep"
+      ],
+      "probed_names_present": [
+        "?DllCreatModel@@YAXXZ",
+        "DllDestroyModel",
+        "DllGetStep0",
+        "DllInitGpsPos",
+        "DllInitPosAngState",
+        "DllInputPWMs",
+        "DllReInitModel",
+        "Dllstep"
+      ],
+      "probed_names_absent": [
+        "DllCreatModel",
+        "DllDynModiParams",
+        "DllFaultParamAPI",
+        "DllGetExtToPX4",
+        "DllGetExtToUE4",
+        "DllGetGpsPos",
+        "DllGetInitInputs",
+        "DllInCtrlExt",
+        "DllInFromEU",
+        "DllInitParamAPI",
+        "DllInitPosAngStat",
+        "DllInputColls",
+        "DllInputDoubCtrls",
+        "DllInputSILs",
+        "DllInputTerrain",
+        "DllOutCopterData",
+        "DllTerrainIn15d",
+        "DllinCollision20d",
+        "DllinSIL28d",
+        "DlloutVehileInfo60d"
+      ],
+      "has_decorated_dllcreatmodel": true,
+      "has_undecorated_dllcreatmodel": false,
+      "family": "legacy-output-name family",
+      "legacy_present": [
+        "DlloutModel3DInfo",
+        "DlloutputGPS",
+        "DlloutputSensors"
+      ],
+      "modern_present": [],
+      "sha256_matches_recorded": true,
+      "recorded_sha256": "8134aab646adda098b7c98a4daa17278dbed7a626a1811e18ed1a88288fb6a46",
+      "recorded_in": "validation/coordination/ds-dll-abi-evidence-20260913-01/audit.json c5-exp1-two-binaries",
+      "roles": [
+        "deployed-model-dir-exp1",
+        "same-filename-copy"
+      ],
+      "paths": [
+        "E:\\rflysimtools\\CopterSim\\external\\model\\Exp1_MinModelTemp.dll",
+        "E:\\rflysimtools\\CopterSim\\external\\model\\Exp1_MinModelTemp.dll"
+      ]
+    },
+    "0179c58f14f8140302c1ec1a36ae455e88146c64099be1cd6a633cb174afe7e8": {
+      "path": "E:\\rflysimtools\\CopterSim\\external\\model\\MulticopterNOpx4.dll",
+      "size": 173568,
+      "sha256": "0179c58f14f8140302c1ec1a36ae455e88146c64099be1cd6a633cb174afe7e8",
+      "machine": "0x8664",
+      "optional_header_magic": "0x20b",
+      "has_clr_directory": false,
+      "sections": [
+        {
+          "name": ".text",
+          "raw_size": 116736,
+          "entropy": 6.0
+        },
+        {
+          "name": ".rdata",
+          "raw_size": 46592,
+          "entropy": 4.996
+        },
+        {
+          "name": ".data",
+          "raw_size": 2560,
+          "entropy": 1.97
+        },
+        {
+          "name": ".pdata",
+          "raw_size": 4608,
+          "entropy": 4.87
+        },
+        {
+          "name": ".reloc",
+          "raw_size": 2048,
+          "entropy": 4.764
+        }
+      ],
+      "imports": {
+        "KERNEL32.dll": [
+          "RtlCaptureContext",
+          "RtlLookupFunctionEntry",
+          "RtlVirtualUnwind",
+          "IsDebuggerPresent",
+          "UnhandledExceptionFilter",
+          "SetUnhandledExceptionFilter",
+          "GetStartupInfoW",
+          "IsProcessorFeaturePresent",
+          "GetModuleHandleW",
+          "GetCurrentProcess",
+          "TerminateProcess",
+          "QueryPerformanceCounter",
+          "GetCurrentProcessId",
+          "GetCurrentThreadId",
+          "GetSystemTimeAsFileTime",
+          "InitializeSListHead",
+          "WriteConsoleW",
+          "RtlUnwindEx",
+          "InterlockedFlushSList",
+          "GetLastError",
+          "SetLastError",
+          "EnterCriticalSection",
+          "LeaveCriticalSection",
+          "DeleteCriticalSection",
+          "InitializeCriticalSectionAndSpinCount",
+          "TlsAlloc",
+          "TlsGetValue",
+          "TlsSetValue",
+          "TlsFree",
+          "FreeLibrary",
+          "GetProcAddress",
+          "LoadLibraryExW",
+          "RaiseException",
+          "ExitProcess",
+          "GetModuleHandleExW",
+          "GetModuleFileNameW",
+          "HeapAlloc",
+          "HeapFree",
+          "FindClose",
+          "FindFirstFileExW",
+          "FindNextFileW",
+          "IsValidCodePage",
+          "GetACP",
+          "GetOEMCP",
+          "GetCPInfo",
+          "GetCommandLineA",
+          "GetCommandLineW",
+          "MultiByteToWideChar",
+          "WideCharToMultiByte",
+          "GetEnvironmentStringsW",
+          "FreeEnvironmentStringsW",
+          "LCMapStringW",
+          "GetProcessHeap",
+          "GetStdHandle",
+          "GetFileType",
+          "GetStringTypeW",
+          "HeapSize",
+          "HeapReAlloc",
+          "SetStdHandle",
+          "FlushFileBuffers",
+          "WriteFile",
+          "GetConsoleCP",
+          "GetConsoleMode",
+          "SetFilePointerEx",
+          "CreateFileW",
+          "CloseHandle"
+        ]
+      },
+      "exports": [
+        {
+          "name": "?DllCreatModel@@YAXXZ",
+          "ordinal": 1,
+          "rva": "0x1550",
+          "forwarder": null
+        },
+        {
+          "name": "DllDestroyModel",
+          "ordinal": 2,
+          "rva": "0x1460",
+          "forwarder": null
+        },
+        {
+          "name": "DllGetGpsPos",
+          "ordinal": 3,
+          "rva": "0x1390",
+          "forwarder": null
+        },
+        {
+          "name": "DllGetInitInputs",
+          "ordinal": 4,
+          "rva": "0x1080",
+          "forwarder": null
+        },
+        {
+          "name": "DllGetStep0",
+          "ordinal": 5,
+          "rva": "0x1480",
+          "forwarder": null
+        },
+        {
+          "name": "DllInitGpsPos",
+          "ordinal": 6,
+          "rva": "0x1310",
+          "forwarder": null
+        },
+        {
+          "name": "DllInitPosAngState",
+          "ordinal": 7,
+          "rva": "0x1160",
+          "forwarder": null
+        },
+        {
+          "name": "DllInputColls",
+          "ordinal": 8,
+          "rva": "0x1100",
+          "forwarder": null
+        },
+        {
+          "name": "DllInputPWMs",
+          "ordinal": 9,
+          "rva": "0x1050",
+          "forwarder": null
+        },
+        {
+          "name": "DllInputSILs",
+          "ordinal": 10,
+          "rva": "0x10b0",
+          "forwarder": null
+        },
+        {
+          "name": "DllOutCopterData",
+          "ordinal": 11,
+          "rva": "0x1410",
+          "forwarder": null
+        },
+        {
+          "name": "DllReInitModel",
+          "ordinal": 12,
+          "rva": "0x1030",
+          "forwarder": null
+        },
+        {
+          "name": "DllTerrainIn15d",
+          "ordinal": 13,
+          "rva": "0x1130",
+          "forwarder": null
+        },
+        {
+          "name": "DlloutVehileInfo60d",
+          "ordinal": 14,
+          "rva": "0x14b0",
+          "forwarder": null
+        },
+        {
+          "name": "Dllstep",
+          "ordinal": 15,
+          "rva": "0x1440",
+          "forwarder": null
+        }
+      ],
+      "version_strings": {},
+      "parse_warnings": [],
+      "limits": "Static tables only: no execution, decompilation, ABI type recovery, or packing verdict.",
+      "export_count_total": 15,
+      "dll_export_names": [
+        "DllDestroyModel",
+        "DllGetGpsPos",
+        "DllGetInitInputs",
+        "DllGetStep0",
+        "DllInitGpsPos",
+        "DllInitPosAngState",
+        "DllInputColls",
+        "DllInputPWMs",
+        "DllInputSILs",
+        "DllOutCopterData",
+        "DllReInitModel",
+        "DllTerrainIn15d",
+        "DlloutVehileInfo60d",
+        "Dllstep"
+      ],
+      "probed_names_present": [
+        "?DllCreatModel@@YAXXZ",
+        "DllDestroyModel",
+        "DllGetGpsPos",
+        "DllGetInitInputs",
+        "DllGetStep0",
+        "DllInitGpsPos",
+        "DllInitPosAngState",
+        "DllInputColls",
+        "DllInputPWMs",
+        "DllInputSILs",
+        "DllOutCopterData",
+        "DllReInitModel",
+        "DllTerrainIn15d",
+        "DlloutVehileInfo60d",
+        "Dllstep"
+      ],
+      "probed_names_absent": [
+        "DllCreatModel",
+        "DllDynModiParams",
+        "DllFaultParamAPI",
+        "DllGetExtToPX4",
+        "DllGetExtToUE4",
+        "DllInCtrlExt",
+        "DllInFromEU",
+        "DllInitParamAPI",
+        "DllInitPosAngStat",
+        "DllInputDoubCtrls",
+        "DllInputTerrain",
+        "DllinCollision20d",
+        "DllinSIL28d"
+      ],
+      "has_decorated_dllcreatmodel": true,
+      "has_undecorated_dllcreatmodel": false,
+      "family": "modern *30d/*60d family",
+      "legacy_present": [],
+      "modern_present": [
+        "DlloutVehileInfo60d"
+      ],
+      "sha256_matches_recorded": null,
+      "recorded_sha256": null,
+      "recorded_in": "work/coptersim-compat-20260905/evidence/pe-inventory.json 16-DLL inventory, no per-file hash quoted",
+      "roles": [
+        "consumer-named-target"
+      ],
+      "paths": [
+        "E:\\rflysimtools\\CopterSim\\external\\model\\MulticopterNOpx4.dll"
+      ]
+    },
+    "63726f6da8d0e47732121f15781bc75322ea0bd90f94bd8f1c693b4d4be2e272": {
+      "path": "E:\\rflysimtools\\RflySimAPIs\\2.RflySimUsage\\1.BasicExps\\e2_DLL-Load\\Exp1_MinModelTemp.dll",
+      "size": 242176,
+      "sha256": "63726f6da8d0e47732121f15781bc75322ea0bd90f94bd8f1c693b4d4be2e272",
+      "machine": "0x8664",
+      "optional_header_magic": "0x20b",
+      "has_clr_directory": false,
+      "sections": [
+        {
+          "name": ".text",
+          "raw_size": 147968,
+          "entropy": 6.064
+        },
+        {
+          "name": ".rdata",
+          "raw_size": 77824,
+          "entropy": 4.802
+        },
+        {
+          "name": ".data",
+          "raw_size": 3072,
+          "entropy": 1.911
+        },
+        {
+          "name": ".pdata",
+          "raw_size": 5120,
+          "entropy": 5.251
+        },
+        {
+          "name": ".gxfg",
+          "raw_size": 4608,
+          "entropy": 4.73
+        },
+        {
+          "name": ".gehcont",
+          "raw_size": 512,
+          "entropy": 0.061
+        },
+        {
+          "name": ".reloc",
+          "raw_size": 2048,
+          "entropy": 4.845
+        }
+      ],
+      "imports": {
+        "KERNEL32.dll": [
+          "RtlCaptureContext",
+          "RtlLookupFunctionEntry",
+          "RtlVirtualUnwind",
+          "UnhandledExceptionFilter",
+          "SetUnhandledExceptionFilter",
+          "GetCurrentProcess",
+          "TerminateProcess",
+          "IsProcessorFeaturePresent",
+          "IsDebuggerPresent",
+          "GetStartupInfoW",
+          "GetModuleHandleW",
+          "QueryPerformanceCounter",
+          "GetCurrentProcessId",
+          "GetCurrentThreadId",
+          "GetSystemTimeAsFileTime",
+          "InitializeSListHead",
+          "WriteConsoleW",
+          "RtlUnwindEx",
+          "InterlockedFlushSList",
+          "GetLastError",
+          "SetLastError",
+          "EnterCriticalSection",
+          "LeaveCriticalSection",
+          "DeleteCriticalSection",
+          "InitializeCriticalSectionAndSpinCount",
+          "TlsAlloc",
+          "TlsGetValue",
+          "TlsSetValue",
+          "TlsFree",
+          "FreeLibrary",
+          "GetProcAddress",
+          "LoadLibraryExW",
+          "EncodePointer",
+          "RaiseException",
+          "RtlPcToFileHeader",
+          "ExitProcess",
+          "GetModuleHandleExW",
+          "GetModuleFileNameW",
+          "HeapAlloc",
+          "HeapFree",
+          "FindClose",
+          "FindFirstFileExW",
+          "FindNextFileW",
+          "IsValidCodePage",
+          "GetACP",
+          "GetOEMCP",
+          "GetCPInfo",
+          "GetCommandLineA",
+          "GetCommandLineW",
+          "MultiByteToWideChar",
+          "WideCharToMultiByte",
+          "GetEnvironmentStringsW",
+          "FreeEnvironmentStringsW",
+          "FlsAlloc",
+          "FlsGetValue",
+          "FlsSetValue",
+          "FlsFree",
+          "LCMapStringW",
+          "GetProcessHeap",
+          "GetStdHandle",
+          "GetFileType",
+          "GetStringTypeW",
+          "HeapSize",
+          "HeapReAlloc",
+          "SetStdHandle",
+          "FlushFileBuffers",
+          "WriteFile",
+          "GetConsoleOutputCP",
+          "GetConsoleMode",
+          "SetFilePointerEx",
+          "CreateFileW",
+          "CloseHandle"
+        ]
+      },
+      "exports": [
+        {
+          "name": "?DllCreatModel@@YAXXZ",
+          "ordinal": 1,
+          "rva": "0x13b70",
+          "forwarder": null
+        },
+        {
+          "name": "DllDestroyModel",
+          "ordinal": 2,
+          "rva": "0x13a80",
+          "forwarder": null
+        },
+        {
+          "name": "DllGetGpsPos",
+          "ordinal": 3,
+          "rva": "0x13940",
+          "forwarder": null
+        },
+        {
+          "name": "DllGetStep0",
+          "ordinal": 4,
+          "rva": "0x13aa0",
+          "forwarder": null
+        },
+        {
+          "name": "DllInitGpsPos",
+          "ordinal": 5,
+          "rva": "0x138c0",
+          "forwarder": null
+        },
+        {
+          "name": "DllInitPosAngState",
+          "ordinal": 6,
+          "rva": "0x13710",
+          "forwarder": null
+        },
+        {
+          "name": "DllInputPWMs",
+          "ordinal": 7,
+          "rva": "0x136b0",
+          "forwarder": null
+        },
+        {
+          "name": "DllReInitModel",
+          "ordinal": 8,
+          "rva": "0x13690",
+          "forwarder": null
+        },
+        {
+          "name": "DllTerrainIn15d",
+          "ordinal": 9,
+          "rva": "0x136e0",
+          "forwarder": null
+        },
+        {
+          "name": "DlloutHILGPS30d",
+          "ordinal": 10,
+          "rva": "0x13a30",
+          "forwarder": null
+        },
+        {
+          "name": "DlloutHILSensor30d",
+          "ordinal": 11,
+          "rva": "0x139e0",
+          "forwarder": null
+        },
+        {
+          "name": "DlloutVehileInfo60d",
+          "ordinal": 12,
+          "rva": "0x13ad0",
+          "forwarder": null
+        },
+        {
+          "name": "Dllstep",
+          "ordinal": 13,
+          "rva": "0x139c0",
+          "forwarder": null
+        }
+      ],
+      "version_strings": {},
+      "parse_warnings": [],
+      "limits": "Static tables only: no execution, decompilation, ABI type recovery, or packing verdict.",
+      "export_count_total": 13,
+      "dll_export_names": [
+        "DllDestroyModel",
+        "DllGetGpsPos",
+        "DllGetStep0",
+        "DllInitGpsPos",
+        "DllInitPosAngState",
+        "DllInputPWMs",
+        "DllReInitModel",
+        "DllTerrainIn15d",
+        "DlloutHILGPS30d",
+        "DlloutHILSensor30d",
+        "DlloutVehileInfo60d",
+        "Dllstep"
+      ],
+      "probed_names_present": [
+        "?DllCreatModel@@YAXXZ",
+        "DllDestroyModel",
+        "DllGetGpsPos",
+        "DllGetStep0",
+        "DllInitGpsPos",
+        "DllInitPosAngState",
+        "DllInputPWMs",
+        "DllReInitModel",
+        "DllTerrainIn15d",
+        "DlloutVehileInfo60d",
+        "Dllstep"
+      ],
+      "probed_names_absent": [
+        "DllCreatModel",
+        "DllDynModiParams",
+        "DllFaultParamAPI",
+        "DllGetExtToPX4",
+        "DllGetExtToUE4",
+        "DllGetInitInputs",
+        "DllInCtrlExt",
+        "DllInFromEU",
+        "DllInitParamAPI",
+        "DllInitPosAngStat",
+        "DllInputColls",
+        "DllInputDoubCtrls",
+        "DllInputSILs",
+        "DllInputTerrain",
+        "DllOutCopterData",
+        "DllinCollision20d",
+        "DllinSIL28d"
+      ],
+      "has_decorated_dllcreatmodel": true,
+      "has_undecorated_dllcreatmodel": false,
+      "family": "modern *30d/*60d family",
+      "legacy_present": [],
+      "modern_present": [
+        "DlloutHILGPS30d",
+        "DlloutHILSensor30d",
+        "DlloutVehileInfo60d"
+      ],
+      "sha256_matches_recorded": null,
+      "recorded_sha256": null,
+      "recorded_in": null,
+      "roles": [
+        "same-filename-copy"
+      ],
+      "paths": [
+        "E:\\rflysimtools\\RflySimAPIs\\2.RflySimUsage\\1.BasicExps\\e2_DLL-Load\\Exp1_MinModelTemp.dll"
+      ]
+    },
+    "d08b35d94f03cfb3ceb252bf01e4175b60a9a9566f80653563fe564072e25121": {
+      "path": "E:\\rflysimtools\\RflySimAPIs\\4.RflySimModel\\0.ApiExps\\10.InCollisionAPI\\2.inCollision20d\\Exp1_MinModelTemp.dll",
+      "size": 232448,
+      "sha256": "d08b35d94f03cfb3ceb252bf01e4175b60a9a9566f80653563fe564072e25121",
+      "machine": "0x8664",
+      "optional_header_magic": "0x20b",
+      "has_clr_directory": false,
+      "sections": [
+        {
+          "name": ".text",
+          "raw_size": 145920,
+          "entropy": 5.95
+        },
+        {
+          "name": ".rdata",
+          "raw_size": 76288,
+          "entropy": 4.817
+        },
+        {
+          "name": ".data",
+          "raw_size": 2560,
+          "entropy": 1.995
+        },
+        {
+          "name": ".pdata",
+          "raw_size": 4608,
+          "entropy": 5.074
+        },
+        {
+          "name": ".reloc",
+          "raw_size": 2048,
+          "entropy": 4.78
+        }
+      ],
+      "imports": {
+        "KERNEL32.dll": [
+          "RtlCaptureContext",
+          "RtlLookupFunctionEntry",
+          "RtlVirtualUnwind",
+          "IsDebuggerPresent",
+          "UnhandledExceptionFilter",
+          "SetUnhandledExceptionFilter",
+          "GetStartupInfoW",
+          "IsProcessorFeaturePresent",
+          "GetModuleHandleW",
+          "GetCurrentProcess",
+          "TerminateProcess",
+          "QueryPerformanceCounter",
+          "GetCurrentProcessId",
+          "GetCurrentThreadId",
+          "GetSystemTimeAsFileTime",
+          "InitializeSListHead",
+          "WriteConsoleW",
+          "RtlUnwindEx",
+          "InterlockedFlushSList",
+          "GetLastError",
+          "SetLastError",
+          "EnterCriticalSection",
+          "LeaveCriticalSection",
+          "DeleteCriticalSection",
+          "InitializeCriticalSectionAndSpinCount",
+          "TlsAlloc",
+          "TlsGetValue",
+          "TlsSetValue",
+          "TlsFree",
+          "FreeLibrary",
+          "GetProcAddress",
+          "LoadLibraryExW",
+          "RaiseException",
+          "ExitProcess",
+          "GetModuleHandleExW",
+          "GetModuleFileNameW",
+          "HeapAlloc",
+          "HeapFree",
+          "FindClose",
+          "FindFirstFileExW",
+          "FindNextFileW",
+          "IsValidCodePage",
+          "GetACP",
+          "GetOEMCP",
+          "GetCPInfo",
+          "GetCommandLineA",
+          "GetCommandLineW",
+          "MultiByteToWideChar",
+          "WideCharToMultiByte",
+          "GetEnvironmentStringsW",
+          "FreeEnvironmentStringsW",
+          "LCMapStringW",
+          "GetProcessHeap",
+          "GetStdHandle",
+          "GetFileType",
+          "GetStringTypeW",
+          "HeapSize",
+          "HeapReAlloc",
+          "SetStdHandle",
+          "FlushFileBuffers",
+          "WriteFile",
+          "GetConsoleCP",
+          "GetConsoleMode",
+          "SetFilePointerEx",
+          "CreateFileW",
+          "CloseHandle"
+        ]
+      },
+      "exports": [
+        {
+          "name": "?DllCreatModel@@YAXXZ",
+          "ordinal": 1,
+          "rva": "0x1540",
+          "forwarder": null
+        },
+        {
+          "name": "DllDestroyModel",
+          "ordinal": 2,
+          "rva": "0x1450",
+          "forwarder": null
+        },
+        {
+          "name": "DllGetGpsPos",
+          "ordinal": 3,
+          "rva": "0x1310",
+          "forwarder": null
+        },
+        {
+          "name": "DllGetStep0",
+          "ordinal": 4,
+          "rva": "0x1470",
+          "forwarder": null
+        },
+        {
+          "name": "DllInitGpsPos",
+          "ordinal": 5,
+          "rva": "0x1290",
+          "forwarder": null
+        },
+        {
+          "name": "DllInitPosAngState",
+          "ordinal": 6,
+          "rva": "0x10e0",
+          "forwarder": null
+        },
+        {
+          "name": "DllInputPWMs",
+          "ordinal": 7,
+          "rva": "0x1050",
+          "forwarder": null
+        },
+        {
+          "name": "DllReInitModel",
+          "ordinal": 8,
+          "rva": "0x1030",
+          "forwarder": null
+        },
+        {
+          "name": "DllTerrainIn15d",
+          "ordinal": 9,
+          "rva": "0x10b0",
+          "forwarder": null
+        },
+        {
+          "name": "DllinCollision20d",
+          "ordinal": 10,
+          "rva": "0x1080",
+          "forwarder": null
+        },
+        {
+          "name": "DlloutHILGPS30d",
+          "ordinal": 11,
+          "rva": "0x1400",
+          "forwarder": null
+        },
+        {
+          "name": "DlloutHILSensor30d",
+          "ordinal": 12,
+          "rva": "0x13b0",
+          "forwarder": null
+        },
+        {
+          "name": "DlloutVehileInfo60d",
+          "ordinal": 13,
+          "rva": "0x14a0",
+          "forwarder": null
+        },
+        {
+          "name": "Dllstep",
+          "ordinal": 14,
+          "rva": "0x1390",
+          "forwarder": null
+        }
+      ],
+      "version_strings": {},
+      "parse_warnings": [],
+      "limits": "Static tables only: no execution, decompilation, ABI type recovery, or packing verdict.",
+      "export_count_total": 14,
+      "dll_export_names": [
+        "DllDestroyModel",
+        "DllGetGpsPos",
+        "DllGetStep0",
+        "DllInitGpsPos",
+        "DllInitPosAngState",
+        "DllInputPWMs",
+        "DllReInitModel",
+        "DllTerrainIn15d",
+        "DllinCollision20d",
+        "DlloutHILGPS30d",
+        "DlloutHILSensor30d",
+        "DlloutVehileInfo60d",
+        "Dllstep"
+      ],
+      "probed_names_present": [
+        "?DllCreatModel@@YAXXZ",
+        "DllDestroyModel",
+        "DllGetGpsPos",
+        "DllGetStep0",
+        "DllInitGpsPos",
+        "DllInitPosAngState",
+        "DllInputPWMs",
+        "DllReInitModel",
+        "DllTerrainIn15d",
+        "DllinCollision20d",
+        "DlloutVehileInfo60d",
+        "Dllstep"
+      ],
+      "probed_names_absent": [
+        "DllCreatModel",
+        "DllDynModiParams",
+        "DllFaultParamAPI",
+        "DllGetExtToPX4",
+        "DllGetExtToUE4",
+        "DllGetInitInputs",
+        "DllInCtrlExt",
+        "DllInFromEU",
+        "DllInitParamAPI",
+        "DllInitPosAngStat",
+        "DllInputColls",
+        "DllInputDoubCtrls",
+        "DllInputSILs",
+        "DllInputTerrain",
+        "DllOutCopterData",
+        "DllinSIL28d"
+      ],
+      "has_decorated_dllcreatmodel": true,
+      "has_undecorated_dllcreatmodel": false,
+      "family": "modern *30d/*60d family",
+      "legacy_present": [],
+      "modern_present": [
+        "DlloutHILGPS30d",
+        "DlloutHILSensor30d",
+        "DlloutVehileInfo60d"
+      ],
+      "sha256_matches_recorded": null,
+      "recorded_sha256": null,
+      "recorded_in": null,
+      "roles": [
+        "same-filename-copy"
+      ],
+      "paths": [
+        "E:\\rflysimtools\\RflySimAPIs\\4.RflySimModel\\0.ApiExps\\10.InCollisionAPI\\2.inCollision20d\\Exp1_MinModelTemp.dll"
+      ]
+    },
+    "8bcde46c136f704f02f770a1e42da110178f921f3e4aeff31a2f8fca38a0b5cf": {
+      "path": "E:\\rflysimtools\\RflySimAPIs\\4.RflySimModel\\0.ApiExps\\11.inSILAPI\\3.inSIL28d\\1.sendSILIntDouble\\Exp1_MinModelTemp.dll",
+      "size": 242176,
+      "sha256": "8bcde46c136f704f02f770a1e42da110178f921f3e4aeff31a2f8fca38a0b5cf",
+      "machine": "0x8664",
+      "optional_header_magic": "0x20b",
+      "has_clr_directory": false,
+      "sections": [
+        {
+          "name": ".text",
+          "raw_size": 147968,
+          "entropy": 6.077
+        },
+        {
+          "name": ".rdata",
+          "raw_size": 77824,
+          "entropy": 4.81
+        },
+        {
+          "name": ".data",
+          "raw_size": 3072,
+          "entropy": 1.899
+        },
+        {
+          "name": ".pdata",
+          "raw_size": 5120,
+          "entropy": 5.206
+        },
+        {
+          "name": ".gxfg",
+          "raw_size": 4608,
+          "entropy": 4.73
+        },
+        {
+          "name": ".gehcont",
+          "raw_size": 512,
+          "entropy": 0.061
+        },
+        {
+          "name": ".reloc",
+          "raw_size": 2048,
+          "entropy": 4.845
+        }
+      ],
+      "imports": {
+        "KERNEL32.dll": [
+          "RtlCaptureContext",
+          "RtlLookupFunctionEntry",
+          "RtlVirtualUnwind",
+          "UnhandledExceptionFilter",
+          "SetUnhandledExceptionFilter",
+          "GetCurrentProcess",
+          "TerminateProcess",
+          "IsProcessorFeaturePresent",
+          "IsDebuggerPresent",
+          "GetStartupInfoW",
+          "GetModuleHandleW",
+          "QueryPerformanceCounter",
+          "GetCurrentProcessId",
+          "GetCurrentThreadId",
+          "GetSystemTimeAsFileTime",
+          "InitializeSListHead",
+          "WriteConsoleW",
+          "RtlUnwindEx",
+          "InterlockedFlushSList",
+          "GetLastError",
+          "SetLastError",
+          "EnterCriticalSection",
+          "LeaveCriticalSection",
+          "DeleteCriticalSection",
+          "InitializeCriticalSectionAndSpinCount",
+          "TlsAlloc",
+          "TlsGetValue",
+          "TlsSetValue",
+          "TlsFree",
+          "FreeLibrary",
+          "GetProcAddress",
+          "LoadLibraryExW",
+          "EncodePointer",
+          "RaiseException",
+          "RtlPcToFileHeader",
+          "ExitProcess",
+          "GetModuleHandleExW",
+          "GetModuleFileNameW",
+          "HeapAlloc",
+          "HeapFree",
+          "FindClose",
+          "FindFirstFileExW",
+          "FindNextFileW",
+          "IsValidCodePage",
+          "GetACP",
+          "GetOEMCP",
+          "GetCPInfo",
+          "GetCommandLineA",
+          "GetCommandLineW",
+          "MultiByteToWideChar",
+          "WideCharToMultiByte",
+          "GetEnvironmentStringsW",
+          "FreeEnvironmentStringsW",
+          "FlsAlloc",
+          "FlsGetValue",
+          "FlsSetValue",
+          "FlsFree",
+          "LCMapStringW",
+          "GetProcessHeap",
+          "GetStdHandle",
+          "GetFileType",
+          "GetStringTypeW",
+          "HeapSize",
+          "HeapReAlloc",
+          "SetStdHandle",
+          "FlushFileBuffers",
+          "WriteFile",
+          "GetConsoleOutputCP",
+          "GetConsoleMode",
+          "SetFilePointerEx",
+          "CreateFileW",
+          "CloseHandle"
+        ]
+      },
+      "exports": [
+        {
+          "name": "?DllCreatModel@@YAXXZ",
+          "ordinal": 1,
+          "rva": "0x13d00",
+          "forwarder": null
+        },
+        {
+          "name": "DllDestroyModel",
+          "ordinal": 2,
+          "rva": "0x13c10",
+          "forwarder": null
+        },
+        {
+          "name": "DllGetGpsPos",
+          "ordinal": 3,
+          "rva": "0x13aa0",
+          "forwarder": null
+        },
+        {
+          "name": "DllGetStep0",
+          "ordinal": 4,
+          "rva": "0x13c30",
+          "forwarder": null
+        },
+        {
+          "name": "DllInitGpsPos",
+          "ordinal": 5,
+          "rva": "0x13a20",
+          "forwarder": null
+        },
+        {
+          "name": "DllInitPosAngState",
+          "ordinal": 6,
+          "rva": "0x13870",
+          "forwarder": null
+        },
+        {
+          "name": "DllInputPWMs",
+          "ordinal": 7,
+          "rva": "0x137b0",
+          "forwarder": null
+        },
+        {
+          "name": "DllOutCopterData",
+          "ordinal": 8,
+          "rva": "0x13b20",
+          "forwarder": null
+        },
+        {
+          "name": "DllReInitModel",
+          "ordinal": 9,
+          "rva": "0x13790",
+          "forwarder": null
+        },
+        {
+          "name": "DllTerrainIn15d",
+          "ordinal": 10,
+          "rva": "0x13840",
+          "forwarder": null
+        },
+        {
+          "name": "DllinCollision20d",
+          "ordinal": 11,
+          "rva": "0x13810",
+          "forwarder": null
+        },
+        {
+          "name": "DllinSIL28d",
+          "ordinal": 12,
+          "rva": "0x137e0",
+          "forwarder": null
+        },
+        {
+          "name": "DlloutHILGPS30d",
+          "ordinal": 13,
+          "rva": "0x13bc0",
+          "forwarder": null
+        },
+        {
+          "name": "DlloutHILSensor30d",
+          "ordinal": 14,
+          "rva": "0x13b70",
+          "forwarder": null
+        },
+        {
+          "name": "DlloutVehileInfo60d",
+          "ordinal": 15,
+          "rva": "0x13c60",
+          "forwarder": null
+        },
+        {
+          "name": "Dllstep",
+          "ordinal": 16,
+          "rva": "0x13b50",
+          "forwarder": null
+        }
+      ],
+      "version_strings": {},
+      "parse_warnings": [],
+      "limits": "Static tables only: no execution, decompilation, ABI type recovery, or packing verdict.",
+      "export_count_total": 16,
+      "dll_export_names": [
+        "DllDestroyModel",
+        "DllGetGpsPos",
+        "DllGetStep0",
+        "DllInitGpsPos",
+        "DllInitPosAngState",
+        "DllInputPWMs",
+        "DllOutCopterData",
+        "DllReInitModel",
+        "DllTerrainIn15d",
+        "DllinCollision20d",
+        "DllinSIL28d",
+        "DlloutHILGPS30d",
+        "DlloutHILSensor30d",
+        "DlloutVehileInfo60d",
+        "Dllstep"
+      ],
+      "probed_names_present": [
+        "?DllCreatModel@@YAXXZ",
+        "DllDestroyModel",
+        "DllGetGpsPos",
+        "DllGetStep0",
+        "DllInitGpsPos",
+        "DllInitPosAngState",
+        "DllInputPWMs",
+        "DllOutCopterData",
+        "DllReInitModel",
+        "DllTerrainIn15d",
+        "DllinCollision20d",
+        "DllinSIL28d",
+        "DlloutVehileInfo60d",
+        "Dllstep"
+      ],
+      "probed_names_absent": [
+        "DllCreatModel",
+        "DllDynModiParams",
+        "DllFaultParamAPI",
+        "DllGetExtToPX4",
+        "DllGetExtToUE4",
+        "DllGetInitInputs",
+        "DllInCtrlExt",
+        "DllInFromEU",
+        "DllInitParamAPI",
+        "DllInitPosAngStat",
+        "DllInputColls",
+        "DllInputDoubCtrls",
+        "DllInputSILs",
+        "DllInputTerrain"
+      ],
+      "has_decorated_dllcreatmodel": true,
+      "has_undecorated_dllcreatmodel": false,
+      "family": "modern *30d/*60d family",
+      "legacy_present": [],
+      "modern_present": [
+        "DlloutHILGPS30d",
+        "DlloutHILSensor30d",
+        "DlloutVehileInfo60d"
+      ],
+      "sha256_matches_recorded": null,
+      "recorded_sha256": null,
+      "recorded_in": null,
+      "roles": [
+        "same-filename-copy"
+      ],
+      "paths": [
+        "E:\\rflysimtools\\RflySimAPIs\\4.RflySimModel\\0.ApiExps\\11.inSILAPI\\3.inSIL28d\\1.sendSILIntDouble\\Exp1_MinModelTemp.dll"
+      ]
+    },
+    "db33543c9b325345ddfb9f9cd04c9c5801517e81c2240c573291b97dc2a1455a": {
+      "path": "E:\\rflysimtools\\RflySimAPIs\\4.RflySimModel\\0.ApiExps\\11.inSILAPI\\3.inSIL28d\\2.sendInDoubCtrls\\Exp1_MinModelTemp.dll",
+      "size": 224768,
+      "sha256": "db33543c9b325345ddfb9f9cd04c9c5801517e81c2240c573291b97dc2a1455a",
+      "machine": "0x8664",
+      "optional_header_magic": "0x20b",
+      "has_clr_directory": false,
+      "sections": [
+        {
+          "name": ".text",
+          "raw_size": 138240,
+          "entropy": 6.017
+        },
+        {
+          "name": ".rdata",
+          "raw_size": 76288,
+          "entropy": 4.808
+        },
+        {
+          "name": ".data",
+          "raw_size": 2560,
+          "entropy": 1.976
+        },
+        {
+          "name": ".pdata",
+          "raw_size": 4608,
+          "entropy": 5.024
+        },
+        {
+          "name": ".reloc",
+          "raw_size": 2048,
+          "entropy": 4.785
+        }
+      ],
+      "imports": {
+        "KERNEL32.dll": [
+          "RtlCaptureContext",
+          "RtlLookupFunctionEntry",
+          "RtlVirtualUnwind",
+          "IsDebuggerPresent",
+          "UnhandledExceptionFilter",
+          "SetUnhandledExceptionFilter",
+          "GetStartupInfoW",
+          "IsProcessorFeaturePresent",
+          "GetModuleHandleW",
+          "GetCurrentProcess",
+          "TerminateProcess",
+          "QueryPerformanceCounter",
+          "GetCurrentProcessId",
+          "GetCurrentThreadId",
+          "GetSystemTimeAsFileTime",
+          "InitializeSListHead",
+          "WriteConsoleW",
+          "RtlUnwindEx",
+          "InterlockedFlushSList",
+          "GetLastError",
+          "SetLastError",
+          "EnterCriticalSection",
+          "LeaveCriticalSection",
+          "DeleteCriticalSection",
+          "InitializeCriticalSectionAndSpinCount",
+          "TlsAlloc",
+          "TlsGetValue",
+          "TlsSetValue",
+          "TlsFree",
+          "FreeLibrary",
+          "GetProcAddress",
+          "LoadLibraryExW",
+          "RaiseException",
+          "ExitProcess",
+          "GetModuleHandleExW",
+          "GetModuleFileNameW",
+          "HeapAlloc",
+          "HeapFree",
+          "FindClose",
+          "FindFirstFileExW",
+          "FindNextFileW",
+          "IsValidCodePage",
+          "GetACP",
+          "GetOEMCP",
+          "GetCPInfo",
+          "GetCommandLineA",
+          "GetCommandLineW",
+          "MultiByteToWideChar",
+          "WideCharToMultiByte",
+          "GetEnvironmentStringsW",
+          "FreeEnvironmentStringsW",
+          "LCMapStringW",
+          "GetProcessHeap",
+          "GetStdHandle",
+          "GetFileType",
+          "GetStringTypeW",
+          "HeapSize",
+          "HeapReAlloc",
+          "SetStdHandle",
+          "FlushFileBuffers",
+          "WriteFile",
+          "GetConsoleCP",
+          "GetConsoleMode",
+          "SetFilePointerEx",
+          "CreateFileW",
+          "CloseHandle"
+        ]
+      },
+      "exports": [
+        {
+          "name": "?DllCreatModel@@YAXXZ",
+          "ordinal": 1,
+          "rva": "0x15a0",
+          "forwarder": null
+        },
+        {
+          "name": "DllDestroyModel",
+          "ordinal": 2,
+          "rva": "0x14b0",
+          "forwarder": null
+        },
+        {
+          "name": "DllGetGpsPos",
+          "ordinal": 3,
+          "rva": "0x1340",
+          "forwarder": null
+        },
+        {
+          "name": "DllGetStep0",
+          "ordinal": 4,
+          "rva": "0x14d0",
+          "forwarder": null
+        },
+        {
+          "name": "DllInitGpsPos",
+          "ordinal": 5,
+          "rva": "0x12c0",
+          "forwarder": null
+        },
+        {
+          "name": "DllInitPosAngState",
+          "ordinal": 6,
+          "rva": "0x1110",
+          "forwarder": null
+        },
+        {
+          "name": "DllInputPWMs",
+          "ordinal": 7,
+          "rva": "0x1050",
+          "forwarder": null
+        },
+        {
+          "name": "DllOutCopterData",
+          "ordinal": 8,
+          "rva": "0x13c0",
+          "forwarder": null
+        },
+        {
+          "name": "DllReInitModel",
+          "ordinal": 9,
+          "rva": "0x1030",
+          "forwarder": null
+        },
+        {
+          "name": "DllTerrainIn15d",
+          "ordinal": 10,
+          "rva": "0x10e0",
+          "forwarder": null
+        },
+        {
+          "name": "DllinCollision20d",
+          "ordinal": 11,
+          "rva": "0x10b0",
+          "forwarder": null
+        },
+        {
+          "name": "DllinSIL28d",
+          "ordinal": 12,
+          "rva": "0x1080",
+          "forwarder": null
+        },
+        {
+          "name": "DlloutHILGPS30d",
+          "ordinal": 13,
+          "rva": "0x1460",
+          "forwarder": null
+        },
+        {
+          "name": "DlloutHILSensor30d",
+          "ordinal": 14,
+          "rva": "0x1410",
+          "forwarder": null
+        },
+        {
+          "name": "DlloutVehileInfo60d",
+          "ordinal": 15,
+          "rva": "0x1500",
+          "forwarder": null
+        },
+        {
+          "name": "Dllstep",
+          "ordinal": 16,
+          "rva": "0x13f0",
+          "forwarder": null
+        }
+      ],
+      "version_strings": {},
+      "parse_warnings": [],
+      "limits": "Static tables only: no execution, decompilation, ABI type recovery, or packing verdict.",
+      "export_count_total": 16,
+      "dll_export_names": [
+        "DllDestroyModel",
+        "DllGetGpsPos",
+        "DllGetStep0",
+        "DllInitGpsPos",
+        "DllInitPosAngState",
+        "DllInputPWMs",
+        "DllOutCopterData",
+        "DllReInitModel",
+        "DllTerrainIn15d",
+        "DllinCollision20d",
+        "DllinSIL28d",
+        "DlloutHILGPS30d",
+        "DlloutHILSensor30d",
+        "DlloutVehileInfo60d",
+        "Dllstep"
+      ],
+      "probed_names_present": [
+        "?DllCreatModel@@YAXXZ",
+        "DllDestroyModel",
+        "DllGetGpsPos",
+        "DllGetStep0",
+        "DllInitGpsPos",
+        "DllInitPosAngState",
+        "DllInputPWMs",
+        "DllOutCopterData",
+        "DllReInitModel",
+        "DllTerrainIn15d",
+        "DllinCollision20d",
+        "DllinSIL28d",
+        "DlloutVehileInfo60d",
+        "Dllstep"
+      ],
+      "probed_names_absent": [
+        "DllCreatModel",
+        "DllDynModiParams",
+        "DllFaultParamAPI",
+        "DllGetExtToPX4",
+        "DllGetExtToUE4",
+        "DllGetInitInputs",
+        "DllInCtrlExt",
+        "DllInFromEU",
+        "DllInitParamAPI",
+        "DllInitPosAngStat",
+        "DllInputColls",
+        "DllInputDoubCtrls",
+        "DllInputSILs",
+        "DllInputTerrain"
+      ],
+      "has_decorated_dllcreatmodel": true,
+      "has_undecorated_dllcreatmodel": false,
+      "family": "modern *30d/*60d family",
+      "legacy_present": [],
+      "modern_present": [
+        "DlloutHILGPS30d",
+        "DlloutHILSensor30d",
+        "DlloutVehileInfo60d"
+      ],
+      "sha256_matches_recorded": null,
+      "recorded_sha256": null,
+      "recorded_in": null,
+      "roles": [
+        "same-filename-copy"
+      ],
+      "paths": [
+        "E:\\rflysimtools\\RflySimAPIs\\4.RflySimModel\\0.ApiExps\\11.inSILAPI\\3.inSIL28d\\2.sendInDoubCtrls\\Exp1_MinModelTemp.dll"
+      ]
+    },
+    "db5add3a830369f3d63182e4a91ae2c71566076dbf9172efb28ac691bed6f3bb": {
+      "path": "E:\\rflysimtools\\RflySimAPIs\\4.RflySimModel\\3.CustExps\\e0_AdvApiExps\\5.ParamAPI\\1.initParams\\3.Matlab\\Exp1_MinModelTemp.dll",
+      "size": 225792,
+      "sha256": "db5add3a830369f3d63182e4a91ae2c71566076dbf9172efb28ac691bed6f3bb",
+      "machine": "0x8664",
+      "optional_header_magic": "0x20b",
+      "has_clr_directory": false,
+      "sections": [
+        {
+          "name": ".text",
+          "raw_size": 138240,
+          "entropy": 6.027
+        },
+        {
+          "name": ".rdata",
+          "raw_size": 77312,
+          "entropy": 4.764
+        },
+        {
+          "name": ".data",
+          "raw_size": 2560,
+          "entropy": 1.988
+        },
+        {
+          "name": ".pdata",
+          "raw_size": 4608,
+          "entropy": 5.01
+        },
+        {
+          "name": ".reloc",
+          "raw_size": 2048,
+          "entropy": 4.757
+        }
+      ],
+      "imports": {
+        "KERNEL32.dll": [
+          "RtlCaptureContext",
+          "RtlLookupFunctionEntry",
+          "RtlVirtualUnwind",
+          "IsDebuggerPresent",
+          "UnhandledExceptionFilter",
+          "SetUnhandledExceptionFilter",
+          "GetStartupInfoW",
+          "IsProcessorFeaturePresent",
+          "GetModuleHandleW",
+          "GetCurrentProcess",
+          "TerminateProcess",
+          "QueryPerformanceCounter",
+          "GetCurrentProcessId",
+          "GetCurrentThreadId",
+          "GetSystemTimeAsFileTime",
+          "InitializeSListHead",
+          "WriteConsoleW",
+          "RtlUnwindEx",
+          "InterlockedFlushSList",
+          "GetLastError",
+          "SetLastError",
+          "EnterCriticalSection",
+          "LeaveCriticalSection",
+          "DeleteCriticalSection",
+          "InitializeCriticalSectionAndSpinCount",
+          "TlsAlloc",
+          "TlsGetValue",
+          "TlsSetValue",
+          "TlsFree",
+          "FreeLibrary",
+          "GetProcAddress",
+          "LoadLibraryExW",
+          "RaiseException",
+          "ExitProcess",
+          "GetModuleHandleExW",
+          "GetModuleFileNameW",
+          "HeapAlloc",
+          "HeapFree",
+          "FindClose",
+          "FindFirstFileExW",
+          "FindNextFileW",
+          "IsValidCodePage",
+          "GetACP",
+          "GetOEMCP",
+          "GetCPInfo",
+          "GetCommandLineA",
+          "GetCommandLineW",
+          "MultiByteToWideChar",
+          "WideCharToMultiByte",
+          "GetEnvironmentStringsW",
+          "FreeEnvironmentStringsW",
+          "LCMapStringW",
+          "GetProcessHeap",
+          "GetStdHandle",
+          "GetFileType",
+          "GetStringTypeW",
+          "HeapSize",
+          "HeapReAlloc",
+          "SetStdHandle",
+          "FlushFileBuffers",
+          "WriteFile",
+          "GetConsoleCP",
+          "GetConsoleMode",
+          "SetFilePointerEx",
+          "CreateFileW",
+          "CloseHandle"
+        ]
+      },
+      "exports": [
+        {
+          "name": "?DllCreatModel@@YAXXZ",
+          "ordinal": 1,
+          "rva": "0x15a0",
+          "forwarder": null
+        },
+        {
+          "name": "?DllDynModiParams@@YAX_KQEAN@Z",
+          "ordinal": 2,
+          "rva": "0x15b0",
+          "forwarder": null
+        },
+        {
+          "name": "DllDestroyModel",
+          "ordinal": 3,
+          "rva": "0x14b0",
+          "forwarder": null
+        },
+        {
+          "name": "DllGetGpsPos",
+          "ordinal": 4,
+          "rva": "0x12e0",
+          "forwarder": null
+        },
+        {
+          "name": "DllGetStep0",
+          "ordinal": 5,
+          "rva": "0x14d0",
+          "forwarder": null
+        },
+        {
+          "name": "DllInitGpsPos",
+          "ordinal": 6,
+          "rva": "0x1260",
+          "forwarder": null
+        },
+        {
+          "name": "DllInitParamAPI",
+          "ordinal": 7,
+          "rva": "0x1420",
+          "forwarder": null
+        },
+        {
+          "name": "DllInitPosAngState",
+          "ordinal": 8,
+          "rva": "0x10b0",
+          "forwarder": null
+        },
+        {
+          "name": "DllInputPWMs",
+          "ordinal": 9,
+          "rva": "0x1050",
+          "forwarder": null
+        },
+        {
+          "name": "DllReInitModel",
+          "ordinal": 10,
+          "rva": "0x1030",
+          "forwarder": null
+        },
+        {
+          "name": "DllTerrainIn15d",
+          "ordinal": 11,
+          "rva": "0x1080",
+          "forwarder": null
+        },
+        {
+          "name": "DlloutHILGPS30d",
+          "ordinal": 12,
+          "rva": "0x13d0",
+          "forwarder": null
+        },
+        {
+          "name": "DlloutHILSensor30d",
+          "ordinal": 13,
+          "rva": "0x1380",
+          "forwarder": null
+        },
+        {
+          "name": "DlloutVehileInfo60d",
+          "ordinal": 14,
+          "rva": "0x1500",
+          "forwarder": null
+        },
+        {
+          "name": "Dllstep",
+          "ordinal": 15,
+          "rva": "0x1360",
+          "forwarder": null
+        }
+      ],
+      "version_strings": {},
+      "parse_warnings": [],
+      "limits": "Static tables only: no execution, decompilation, ABI type recovery, or packing verdict.",
+      "export_count_total": 15,
+      "dll_export_names": [
+        "DllDestroyModel",
+        "DllGetGpsPos",
+        "DllGetStep0",
+        "DllInitGpsPos",
+        "DllInitParamAPI",
+        "DllInitPosAngState",
+        "DllInputPWMs",
+        "DllReInitModel",
+        "DllTerrainIn15d",
+        "DlloutHILGPS30d",
+        "DlloutHILSensor30d",
+        "DlloutVehileInfo60d",
+        "Dllstep"
+      ],
+      "probed_names_present": [
+        "?DllCreatModel@@YAXXZ",
+        "DllDestroyModel",
+        "DllGetGpsPos",
+        "DllGetStep0",
+        "DllInitGpsPos",
+        "DllInitParamAPI",
+        "DllInitPosAngState",
+        "DllInputPWMs",
+        "DllReInitModel",
+        "DllTerrainIn15d",
+        "DlloutVehileInfo60d",
+        "Dllstep"
+      ],
+      "probed_names_absent": [
+        "DllCreatModel",
+        "DllDynModiParams",
+        "DllFaultParamAPI",
+        "DllGetExtToPX4",
+        "DllGetExtToUE4",
+        "DllGetInitInputs",
+        "DllInCtrlExt",
+        "DllInFromEU",
+        "DllInitPosAngStat",
+        "DllInputColls",
+        "DllInputDoubCtrls",
+        "DllInputSILs",
+        "DllInputTerrain",
+        "DllOutCopterData",
+        "DllinCollision20d",
+        "DllinSIL28d"
+      ],
+      "has_decorated_dllcreatmodel": true,
+      "has_undecorated_dllcreatmodel": false,
+      "family": "modern *30d/*60d family",
+      "legacy_present": [],
+      "modern_present": [
+        "DlloutHILGPS30d",
+        "DlloutHILSensor30d",
+        "DlloutVehileInfo60d"
+      ],
+      "sha256_matches_recorded": null,
+      "recorded_sha256": null,
+      "recorded_in": null,
+      "roles": [
+        "same-filename-copy"
+      ],
+      "paths": [
+        "E:\\rflysimtools\\RflySimAPIs\\4.RflySimModel\\3.CustExps\\e0_AdvApiExps\\5.ParamAPI\\1.initParams\\3.Matlab\\Exp1_MinModelTemp.dll"
+      ]
+    },
+    "d17b1c8efe41dfca264c6418efd52acb67a9d28e0b71cad28cd3510c48661c92": {
+      "path": "E:\\rflysimtools\\RflySimAPIs\\4.RflySimModel\\3.CustExps\\e0_AdvApiExps\\5.ParamAPI\\1.initParams\\3.Python\\Exp1_MinModelTemp.dll",
+      "size": 244224,
+      "sha256": "d17b1c8efe41dfca264c6418efd52acb67a9d28e0b71cad28cd3510c48661c92",
+      "machine": "0x8664",
+      "optional_header_magic": "0x20b",
+      "has_clr_directory": false,
+      "sections": [
+        {
+          "name": ".text",
+          "raw_size": 148992,
+          "entropy": 6.072
+        },
+        {
+          "name": ".rdata",
+          "raw_size": 78848,
+          "entropy": 4.762
+        },
+        {
+          "name": ".data",
+          "raw_size": 3072,
+          "entropy": 1.886
+        },
+        {
+          "name": ".pdata",
+          "raw_size": 5120,
+          "entropy": 5.255
+        },
+        {
+          "name": ".gxfg",
+          "raw_size": 4608,
+          "entropy": 4.73
+        },
+        {
+          "name": ".gehcont",
+          "raw_size": 512,
+          "entropy": 0.061
+        },
+        {
+          "name": ".reloc",
+          "raw_size": 2048,
+          "entropy": 4.824
+        }
+      ],
+      "imports": {
+        "KERNEL32.dll": [
+          "RtlCaptureContext",
+          "RtlLookupFunctionEntry",
+          "RtlVirtualUnwind",
+          "UnhandledExceptionFilter",
+          "SetUnhandledExceptionFilter",
+          "GetCurrentProcess",
+          "TerminateProcess",
+          "IsProcessorFeaturePresent",
+          "IsDebuggerPresent",
+          "GetStartupInfoW",
+          "GetModuleHandleW",
+          "QueryPerformanceCounter",
+          "GetCurrentProcessId",
+          "GetCurrentThreadId",
+          "GetSystemTimeAsFileTime",
+          "InitializeSListHead",
+          "WriteConsoleW",
+          "RtlUnwindEx",
+          "InterlockedFlushSList",
+          "GetLastError",
+          "SetLastError",
+          "EnterCriticalSection",
+          "LeaveCriticalSection",
+          "DeleteCriticalSection",
+          "InitializeCriticalSectionAndSpinCount",
+          "TlsAlloc",
+          "TlsGetValue",
+          "TlsSetValue",
+          "TlsFree",
+          "FreeLibrary",
+          "GetProcAddress",
+          "LoadLibraryExW",
+          "EncodePointer",
+          "RaiseException",
+          "RtlPcToFileHeader",
+          "ExitProcess",
+          "GetModuleHandleExW",
+          "GetModuleFileNameW",
+          "HeapAlloc",
+          "HeapFree",
+          "FindClose",
+          "FindFirstFileExW",
+          "FindNextFileW",
+          "IsValidCodePage",
+          "GetACP",
+          "GetOEMCP",
+          "GetCPInfo",
+          "GetCommandLineA",
+          "GetCommandLineW",
+          "MultiByteToWideChar",
+          "WideCharToMultiByte",
+          "GetEnvironmentStringsW",
+          "FreeEnvironmentStringsW",
+          "FlsAlloc",
+          "FlsGetValue",
+          "FlsSetValue",
+          "FlsFree",
+          "LCMapStringW",
+          "GetProcessHeap",
+          "GetStdHandle",
+          "GetFileType",
+          "GetStringTypeW",
+          "HeapSize",
+          "HeapReAlloc",
+          "SetStdHandle",
+          "FlushFileBuffers",
+          "WriteFile",
+          "GetConsoleOutputCP",
+          "GetConsoleMode",
+          "SetFilePointerEx",
+          "CreateFileW",
+          "CloseHandle"
+        ]
+      },
+      "exports": [
+        {
+          "name": "?DllCreatModel@@YAXXZ",
+          "ordinal": 1,
+          "rva": "0x13ef0",
+          "forwarder": null
+        },
+        {
+          "name": "?DllDynModiParams@@YAX_KQEAN@Z",
+          "ordinal": 2,
+          "rva": "0x13f00",
+          "forwarder": null
+        },
+        {
+          "name": "DllDestroyModel",
+          "ordinal": 3,
+          "rva": "0x13e00",
+          "forwarder": null
+        },
+        {
+          "name": "DllGetGpsPos",
+          "ordinal": 4,
+          "rva": "0x13c30",
+          "forwarder": null
+        },
+        {
+          "name": "DllGetStep0",
+          "ordinal": 5,
+          "rva": "0x13e20",
+          "forwarder": null
+        },
+        {
+          "name": "DllInitGpsPos",
+          "ordinal": 6,
+          "rva": "0x13bb0",
+          "forwarder": null
+        },
+        {
+          "name": "DllInitParamAPI",
+          "ordinal": 7,
+          "rva": "0x13d70",
+          "forwarder": null
+        },
+        {
+          "name": "DllInitPosAngState",
+          "ordinal": 8,
+          "rva": "0x13a00",
+          "forwarder": null
+        },
+        {
+          "name": "DllInputPWMs",
+          "ordinal": 9,
+          "rva": "0x139a0",
+          "forwarder": null
+        },
+        {
+          "name": "DllReInitModel",
+          "ordinal": 10,
+          "rva": "0x13980",
+          "forwarder": null
+        },
+        {
+          "name": "DllTerrainIn15d",
+          "ordinal": 11,
+          "rva": "0x139d0",
+          "forwarder": null
+        },
+        {
+          "name": "DlloutHILGPS30d",
+          "ordinal": 12,
+          "rva": "0x13d20",
+          "forwarder": null
+        },
+        {
+          "name": "DlloutHILSensor30d",
+          "ordinal": 13,
+          "rva": "0x13cd0",
+          "forwarder": null
+        },
+        {
+          "name": "DlloutVehileInfo60d",
+          "ordinal": 14,
+          "rva": "0x13e50",
+          "forwarder": null
+        },
+        {
+          "name": "Dllstep",
+          "ordinal": 15,
+          "rva": "0x13cb0",
+          "forwarder": null
+        }
+      ],
+      "version_strings": {},
+      "parse_warnings": [],
+      "limits": "Static tables only: no execution, decompilation, ABI type recovery, or packing verdict.",
+      "export_count_total": 15,
+      "dll_export_names": [
+        "DllDestroyModel",
+        "DllGetGpsPos",
+        "DllGetStep0",
+        "DllInitGpsPos",
+        "DllInitParamAPI",
+        "DllInitPosAngState",
+        "DllInputPWMs",
+        "DllReInitModel",
+        "DllTerrainIn15d",
+        "DlloutHILGPS30d",
+        "DlloutHILSensor30d",
+        "DlloutVehileInfo60d",
+        "Dllstep"
+      ],
+      "probed_names_present": [
+        "?DllCreatModel@@YAXXZ",
+        "DllDestroyModel",
+        "DllGetGpsPos",
+        "DllGetStep0",
+        "DllInitGpsPos",
+        "DllInitParamAPI",
+        "DllInitPosAngState",
+        "DllInputPWMs",
+        "DllReInitModel",
+        "DllTerrainIn15d",
+        "DlloutVehileInfo60d",
+        "Dllstep"
+      ],
+      "probed_names_absent": [
+        "DllCreatModel",
+        "DllDynModiParams",
+        "DllFaultParamAPI",
+        "DllGetExtToPX4",
+        "DllGetExtToUE4",
+        "DllGetInitInputs",
+        "DllInCtrlExt",
+        "DllInFromEU",
+        "DllInitPosAngStat",
+        "DllInputColls",
+        "DllInputDoubCtrls",
+        "DllInputSILs",
+        "DllInputTerrain",
+        "DllOutCopterData",
+        "DllinCollision20d",
+        "DllinSIL28d"
+      ],
+      "has_decorated_dllcreatmodel": true,
+      "has_undecorated_dllcreatmodel": false,
+      "family": "modern *30d/*60d family",
+      "legacy_present": [],
+      "modern_present": [
+        "DlloutHILGPS30d",
+        "DlloutHILSensor30d",
+        "DlloutVehileInfo60d"
+      ],
+      "sha256_matches_recorded": null,
+      "recorded_sha256": null,
+      "recorded_in": null,
+      "roles": [
+        "same-filename-copy"
+      ],
+      "paths": [
+        "E:\\rflysimtools\\RflySimAPIs\\4.RflySimModel\\3.CustExps\\e0_AdvApiExps\\5.ParamAPI\\1.initParams\\3.Python\\Exp1_MinModelTemp.dll"
+      ]
+    },
+    "45fd630766f0caa346c688724feb9767f5bd741b0b19772dcfdca5f62aa3a6b6": {
+      "path": "E:\\rflysimtools\\RflySimAPIs\\4.RflySimModel\\3.CustExps\\e0_AdvApiExps\\5.ParamAPI\\2.FaultInParams\\2.Matlab\\Exp1_MinModelTemp.dll",
+      "size": 226304,
+      "sha256": "45fd630766f0caa346c688724feb9767f5bd741b0b19772dcfdca5f62aa3a6b6",
+      "machine": "0x8664",
+      "optional_header_magic": "0x20b",
+      "has_clr_directory": false,
+      "sections": [
+        {
+          "name": ".text",
+          "raw_size": 138752,
+          "entropy": 5.976
+        },
+        {
+          "name": ".rdata",
+          "raw_size": 77312,
+          "entropy": 4.768
+        },
+        {
+          "name": ".data",
+          "raw_size": 2560,
+          "entropy": 1.976
+        },
+        {
+          "name": ".pdata",
+          "raw_size": 4608,
+          "entropy": 5.031
+        },
+        {
+          "name": ".reloc",
+          "raw_size": 2048,
+          "entropy": 4.757
+        }
+      ],
+      "imports": {
+        "KERNEL32.dll": [
+          "RtlCaptureContext",
+          "RtlLookupFunctionEntry",
+          "RtlVirtualUnwind",
+          "IsDebuggerPresent",
+          "UnhandledExceptionFilter",
+          "SetUnhandledExceptionFilter",
+          "GetStartupInfoW",
+          "IsProcessorFeaturePresent",
+          "GetModuleHandleW",
+          "GetCurrentProcess",
+          "TerminateProcess",
+          "QueryPerformanceCounter",
+          "GetCurrentProcessId",
+          "GetCurrentThreadId",
+          "GetSystemTimeAsFileTime",
+          "InitializeSListHead",
+          "WriteConsoleW",
+          "RtlUnwindEx",
+          "InterlockedFlushSList",
+          "GetLastError",
+          "SetLastError",
+          "EnterCriticalSection",
+          "LeaveCriticalSection",
+          "DeleteCriticalSection",
+          "InitializeCriticalSectionAndSpinCount",
+          "TlsAlloc",
+          "TlsGetValue",
+          "TlsSetValue",
+          "TlsFree",
+          "FreeLibrary",
+          "GetProcAddress",
+          "LoadLibraryExW",
+          "RaiseException",
+          "ExitProcess",
+          "GetModuleHandleExW",
+          "GetModuleFileNameW",
+          "HeapAlloc",
+          "HeapFree",
+          "FindClose",
+          "FindFirstFileExW",
+          "FindNextFileW",
+          "IsValidCodePage",
+          "GetACP",
+          "GetOEMCP",
+          "GetCPInfo",
+          "GetCommandLineA",
+          "GetCommandLineW",
+          "MultiByteToWideChar",
+          "WideCharToMultiByte",
+          "GetEnvironmentStringsW",
+          "FreeEnvironmentStringsW",
+          "LCMapStringW",
+          "GetProcessHeap",
+          "GetStdHandle",
+          "GetFileType",
+          "GetStringTypeW",
+          "HeapSize",
+          "HeapReAlloc",
+          "SetStdHandle",
+          "FlushFileBuffers",
+          "WriteFile",
+          "GetConsoleCP",
+          "GetConsoleMode",
+          "SetFilePointerEx",
+          "CreateFileW",
+          "CloseHandle"
+        ]
+      },
+      "exports": [
+        {
+          "name": "?DllCreatModel@@YAXXZ",
+          "ordinal": 1,
+          "rva": "0x1620",
+          "forwarder": null
+        },
+        {
+          "name": "DllDestroyModel",
+          "ordinal": 2,
+          "rva": "0x1530",
+          "forwarder": null
+        },
+        {
+          "name": "DllFaultParamAPI",
+          "ordinal": 3,
+          "rva": "0x14b0",
+          "forwarder": null
+        },
+        {
+          "name": "DllGetGpsPos",
+          "ordinal": 4,
+          "rva": "0x1340",
+          "forwarder": null
+        },
+        {
+          "name": "DllGetStep0",
+          "ordinal": 5,
+          "rva": "0x1550",
+          "forwarder": null
+        },
+        {
+          "name": "DllInitGpsPos",
+          "ordinal": 6,
+          "rva": "0x12c0",
+          "forwarder": null
+        },
+        {
+          "name": "DllInitPosAngState",
+          "ordinal": 7,
+          "rva": "0x1110",
+          "forwarder": null
+        },
+        {
+          "name": "DllInputPWMs",
+          "ordinal": 8,
+          "rva": "0x1050",
+          "forwarder": null
+        },
+        {
+          "name": "DllOutCopterData",
+          "ordinal": 9,
+          "rva": "0x13c0",
+          "forwarder": null
+        },
+        {
+          "name": "DllReInitModel",
+          "ordinal": 10,
+          "rva": "0x1030",
+          "forwarder": null
+        },
+        {
+          "name": "DllTerrainIn15d",
+          "ordinal": 11,
+          "rva": "0x10e0",
+          "forwarder": null
+        },
+        {
+          "name": "DllinCollision20d",
+          "ordinal": 12,
+          "rva": "0x10b0",
+          "forwarder": null
+        },
+        {
+          "name": "DllinSIL28d",
+          "ordinal": 13,
+          "rva": "0x1080",
+          "forwarder": null
+        },
+        {
+          "name": "DlloutHILGPS30d",
+          "ordinal": 14,
+          "rva": "0x1460",
+          "forwarder": null
+        },
+        {
+          "name": "DlloutHILSensor30d",
+          "ordinal": 15,
+          "rva": "0x1410",
+          "forwarder": null
+        },
+        {
+          "name": "DlloutVehileInfo60d",
+          "ordinal": 16,
+          "rva": "0x1580",
+          "forwarder": null
+        },
+        {
+          "name": "Dllstep",
+          "ordinal": 17,
+          "rva": "0x13f0",
+          "forwarder": null
+        }
+      ],
+      "version_strings": {},
+      "parse_warnings": [],
+      "limits": "Static tables only: no execution, decompilation, ABI type recovery, or packing verdict.",
+      "export_count_total": 17,
+      "dll_export_names": [
+        "DllDestroyModel",
+        "DllFaultParamAPI",
+        "DllGetGpsPos",
+        "DllGetStep0",
+        "DllInitGpsPos",
+        "DllInitPosAngState",
+        "DllInputPWMs",
+        "DllOutCopterData",
+        "DllReInitModel",
+        "DllTerrainIn15d",
+        "DllinCollision20d",
+        "DllinSIL28d",
+        "DlloutHILGPS30d",
+        "DlloutHILSensor30d",
+        "DlloutVehileInfo60d",
+        "Dllstep"
+      ],
+      "probed_names_present": [
+        "?DllCreatModel@@YAXXZ",
+        "DllDestroyModel",
+        "DllFaultParamAPI",
+        "DllGetGpsPos",
+        "DllGetStep0",
+        "DllInitGpsPos",
+        "DllInitPosAngState",
+        "DllInputPWMs",
+        "DllOutCopterData",
+        "DllReInitModel",
+        "DllTerrainIn15d",
+        "DllinCollision20d",
+        "DllinSIL28d",
+        "DlloutVehileInfo60d",
+        "Dllstep"
+      ],
+      "probed_names_absent": [
+        "DllCreatModel",
+        "DllDynModiParams",
+        "DllGetExtToPX4",
+        "DllGetExtToUE4",
+        "DllGetInitInputs",
+        "DllInCtrlExt",
+        "DllInFromEU",
+        "DllInitParamAPI",
+        "DllInitPosAngStat",
+        "DllInputColls",
+        "DllInputDoubCtrls",
+        "DllInputSILs",
+        "DllInputTerrain"
+      ],
+      "has_decorated_dllcreatmodel": true,
+      "has_undecorated_dllcreatmodel": false,
+      "family": "modern *30d/*60d family",
+      "legacy_present": [],
+      "modern_present": [
+        "DlloutHILGPS30d",
+        "DlloutHILSensor30d",
+        "DlloutVehileInfo60d"
+      ],
+      "sha256_matches_recorded": null,
+      "recorded_sha256": null,
+      "recorded_in": null,
+      "roles": [
+        "same-filename-copy"
+      ],
+      "paths": [
+        "E:\\rflysimtools\\RflySimAPIs\\4.RflySimModel\\3.CustExps\\e0_AdvApiExps\\5.ParamAPI\\2.FaultInParams\\2.Matlab\\Exp1_MinModelTemp.dll",
+        "E:\\rflysimtools\\RflySimAPIs\\4.RflySimModel\\3.CustExps\\e0_AdvApiExps\\5.ParamAPI\\2.FaultInParams\\3.Python\\Exp1_MinModelTemp.dll"
+      ]
+    },
+    "2b152593e62de5f1fa5ebdb2bd13a88c7c5e6102c69292660f70de10b7df82b7": {
+      "path": "E:\\rflysimtools\\RflySimAPIs\\4.RflySimModel\\3.CustExps\\e0_AdvApiExps\\5.ParamAPI\\3.DynModiParams\\Exp1_MinModelTemp.dll",
+      "size": 227328,
+      "sha256": "2b152593e62de5f1fa5ebdb2bd13a88c7c5e6102c69292660f70de10b7df82b7",
+      "machine": "0x8664",
+      "optional_header_magic": "0x20b",
+      "has_clr_directory": false,
+      "sections": [
+        {
+          "name": ".text",
+          "raw_size": 139776,
+          "entropy": 6.008
+        },
+        {
+          "name": ".rdata",
+          "raw_size": 77312,
+          "entropy": 4.775
+        },
+        {
+          "name": ".data",
+          "raw_size": 2560,
+          "entropy": 1.972
+        },
+        {
+          "name": ".pdata",
+          "raw_size": 4608,
+          "entropy": 5.022
+        },
+        {
+          "name": ".reloc",
+          "raw_size": 2048,
+          "entropy": 4.768
+        }
+      ],
+      "imports": {
+        "KERNEL32.dll": [
+          "RtlCaptureContext",
+          "RtlLookupFunctionEntry",
+          "RtlVirtualUnwind",
+          "IsDebuggerPresent",
+          "UnhandledExceptionFilter",
+          "SetUnhandledExceptionFilter",
+          "GetStartupInfoW",
+          "IsProcessorFeaturePresent",
+          "GetModuleHandleW",
+          "GetCurrentProcess",
+          "TerminateProcess",
+          "QueryPerformanceCounter",
+          "GetCurrentProcessId",
+          "GetCurrentThreadId",
+          "GetSystemTimeAsFileTime",
+          "InitializeSListHead",
+          "WriteConsoleW",
+          "RtlUnwindEx",
+          "InterlockedFlushSList",
+          "GetLastError",
+          "SetLastError",
+          "EnterCriticalSection",
+          "LeaveCriticalSection",
+          "DeleteCriticalSection",
+          "InitializeCriticalSectionAndSpinCount",
+          "TlsAlloc",
+          "TlsGetValue",
+          "TlsSetValue",
+          "TlsFree",
+          "FreeLibrary",
+          "GetProcAddress",
+          "LoadLibraryExW",
+          "RaiseException",
+          "ExitProcess",
+          "GetModuleHandleExW",
+          "GetModuleFileNameW",
+          "HeapAlloc",
+          "HeapFree",
+          "FindClose",
+          "FindFirstFileExW",
+          "FindNextFileW",
+          "IsValidCodePage",
+          "GetACP",
+          "GetOEMCP",
+          "GetCPInfo",
+          "GetCommandLineA",
+          "GetCommandLineW",
+          "MultiByteToWideChar",
+          "WideCharToMultiByte",
+          "GetEnvironmentStringsW",
+          "FreeEnvironmentStringsW",
+          "LCMapStringW",
+          "GetProcessHeap",
+          "GetStdHandle",
+          "GetFileType",
+          "GetStringTypeW",
+          "HeapSize",
+          "HeapReAlloc",
+          "SetStdHandle",
+          "FlushFileBuffers",
+          "WriteFile",
+          "GetConsoleCP",
+          "GetConsoleMode",
+          "SetFilePointerEx",
+          "CreateFileW",
+          "CloseHandle"
+        ]
+      },
+      "exports": [
+        {
+          "name": "?DllCreatModel@@YAXXZ",
+          "ordinal": 1,
+          "rva": "0x1770",
+          "forwarder": null
+        },
+        {
+          "name": "DllDestroyModel",
+          "ordinal": 2,
+          "rva": "0x1680",
+          "forwarder": null
+        },
+        {
+          "name": "DllDynModiParams",
+          "ordinal": 3,
+          "rva": "0x1590",
+          "forwarder": null
+        },
+        {
+          "name": "DllFaultParamAPI",
+          "ordinal": 4,
+          "rva": "0x1480",
+          "forwarder": null
+        },
+        {
+          "name": "DllGetExtToUE4",
+          "ordinal": 5,
+          "rva": "0x1360",
+          "forwarder": null
+        },
+        {
+          "name": "DllGetGpsPos",
+          "ordinal": 6,
+          "rva": "0x12e0",
+          "forwarder": null
+        },
+        {
+          "name": "DllGetStep0",
+          "ordinal": 7,
+          "rva": "0x16a0",
+          "forwarder": null
+        },
+        {
+          "name": "DllInCopterData",
+          "ordinal": 8,
+          "rva": "0x1390",
+          "forwarder": null
+        },
+        {
+          "name": "DllInCtrlExt",
+          "ordinal": 9,
+          "rva": "0x1640",
+          "forwarder": null
+        },
+        {
+          "name": "DllInFromUE",
+          "ordinal": 10,
+          "rva": "0x1610",
+          "forwarder": null
+        },
+        {
+          "name": "DllInitGpsPos",
+          "ordinal": 11,
+          "rva": "0x1260",
+          "forwarder": null
+        },
+        {
+          "name": "DllInitParamAPI",
+          "ordinal": 12,
+          "rva": "0x1500",
+          "forwarder": null
+        },
+        {
+          "name": "DllInitPosAngState",
+          "ordinal": 13,
+          "rva": "0x10b0",
+          "forwarder": null
+        },
+        {
+          "name": "DllInputPWMs",
+          "ordinal": 14,
+          "rva": "0x1050",
+          "forwarder": null
+        },
+        {
+          "name": "DllReInitModel",
+          "ordinal": 15,
+          "rva": "0x1030",
+          "forwarder": null
+        },
+        {
+          "name": "DllTerrainIn15d",
+          "ordinal": 16,
+          "rva": "0x1080",
+          "forwarder": null
+        },
+        {
+          "name": "DlloutHILGPS30d",
+          "ordinal": 17,
+          "rva": "0x1430",
+          "forwarder": null
+        },
+        {
+          "name": "DlloutHILSensor30d",
+          "ordinal": 18,
+          "rva": "0x13e0",
+          "forwarder": null
+        },
+        {
+          "name": "DlloutVehileInfo60d",
+          "ordinal": 19,
+          "rva": "0x16d0",
+          "forwarder": null
+        },
+        {
+          "name": "Dllstep",
+          "ordinal": 20,
+          "rva": "0x13c0",
+          "forwarder": null
+        }
+      ],
+      "version_strings": {},
+      "parse_warnings": [],
+      "limits": "Static tables only: no execution, decompilation, ABI type recovery, or packing verdict.",
+      "export_count_total": 20,
+      "dll_export_names": [
+        "DllDestroyModel",
+        "DllDynModiParams",
+        "DllFaultParamAPI",
+        "DllGetExtToUE4",
+        "DllGetGpsPos",
+        "DllGetStep0",
+        "DllInCopterData",
+        "DllInCtrlExt",
+        "DllInFromUE",
+        "DllInitGpsPos",
+        "DllInitParamAPI",
+        "DllInitPosAngState",
+        "DllInputPWMs",
+        "DllReInitModel",
+        "DllTerrainIn15d",
+        "DlloutHILGPS30d",
+        "DlloutHILSensor30d",
+        "DlloutVehileInfo60d",
+        "Dllstep"
+      ],
+      "probed_names_present": [
+        "?DllCreatModel@@YAXXZ",
+        "DllDestroyModel",
+        "DllDynModiParams",
+        "DllFaultParamAPI",
+        "DllGetExtToUE4",
+        "DllGetGpsPos",
+        "DllGetStep0",
+        "DllInCtrlExt",
+        "DllInitGpsPos",
+        "DllInitParamAPI",
+        "DllInitPosAngState",
+        "DllInputPWMs",
+        "DllReInitModel",
+        "DllTerrainIn15d",
+        "DlloutVehileInfo60d",
+        "Dllstep"
+      ],
+      "probed_names_absent": [
+        "DllCreatModel",
+        "DllGetExtToPX4",
+        "DllGetInitInputs",
+        "DllInFromEU",
+        "DllInitPosAngStat",
+        "DllInputColls",
+        "DllInputDoubCtrls",
+        "DllInputSILs",
+        "DllInputTerrain",
+        "DllOutCopterData",
+        "DllinCollision20d",
+        "DllinSIL28d"
+      ],
+      "has_decorated_dllcreatmodel": true,
+      "has_undecorated_dllcreatmodel": false,
+      "family": "modern *30d/*60d family",
+      "legacy_present": [],
+      "modern_present": [
+        "DlloutHILGPS30d",
+        "DlloutHILSensor30d",
+        "DlloutVehileInfo60d"
+      ],
+      "sha256_matches_recorded": null,
+      "recorded_sha256": null,
+      "recorded_in": null,
+      "roles": [
+        "same-filename-copy"
+      ],
+      "paths": [
+        "E:\\rflysimtools\\RflySimAPIs\\4.RflySimModel\\3.CustExps\\e0_AdvApiExps\\5.ParamAPI\\3.DynModiParams\\Exp1_MinModelTemp.dll"
+      ]
+    }
+  },
+  "same_filename_enumeration": {
+    "root": "E:\\rflysimtools",
+    "filename": "Exp1_MinModelTemp.dll",
+    "copy_count": 12,
+    "distinct_binaries": 11,
+    "copies": [
+      {
+        "path": "E:\\rflysimtools\\CopterSim\\external\\model\\Exp1_MinModelTemp.dll",
+        "size": 230912,
+        "sha256": "8134aab646adda098b7c98a4daa17278dbed7a626a1811e18ed1a88288fb6a46"
+      },
+      {
+        "path": "E:\\rflysimtools\\RflySimAPIs\\2.RflySimUsage\\1.BasicExps\\e2_DLL-Load\\Exp1_MinModelTemp.dll",
+        "size": 242176,
+        "sha256": "63726f6da8d0e47732121f15781bc75322ea0bd90f94bd8f1c693b4d4be2e272"
+      },
+      {
+        "path": "E:\\rflysimtools\\RflySimAPIs\\4.RflySimModel\\0.ApiExps\\10.InCollisionAPI\\2.inCollision20d\\Exp1_MinModelTemp.dll",
+        "size": 232448,
+        "sha256": "d08b35d94f03cfb3ceb252bf01e4175b60a9a9566f80653563fe564072e25121"
+      },
+      {
+        "path": "E:\\rflysimtools\\RflySimAPIs\\4.RflySimModel\\0.ApiExps\\11.inSILAPI\\3.inSIL28d\\1.sendSILIntDouble\\Exp1_MinModelTemp.dll",
+        "size": 242176,
+        "sha256": "8bcde46c136f704f02f770a1e42da110178f921f3e4aeff31a2f8fca38a0b5cf"
+      },
+      {
+        "path": "E:\\rflysimtools\\RflySimAPIs\\4.RflySimModel\\0.ApiExps\\11.inSILAPI\\3.inSIL28d\\2.sendInDoubCtrls\\Exp1_MinModelTemp.dll",
+        "size": 224768,
+        "sha256": "db33543c9b325345ddfb9f9cd04c9c5801517e81c2240c573291b97dc2a1455a"
+      },
+      {
+        "path": "E:\\rflysimtools\\RflySimAPIs\\4.RflySimModel\\1.BasicExps\\e0_MinModelTemp\\Exp1_MinModelTemp.dll",
+        "size": 235520,
+        "sha256": "30747a8d47ca76ed3a2c751eac212102dde6a3ab4b29ba8eaae5926d416ca91b"
+      },
+      {
+        "path": "E:\\rflysimtools\\RflySimAPIs\\4.RflySimModel\\1.BasicExps\\e1_MinModelTempLib\\Exp1_MinModelTemp.dll",
+        "size": 242176,
+        "sha256": "c2fbfd4dc3a6338bcd040e59960af0c4c8c0925a0c583c4d9792e342d9558000"
+      },
+      {
+        "path": "E:\\rflysimtools\\RflySimAPIs\\4.RflySimModel\\3.CustExps\\e0_AdvApiExps\\5.ParamAPI\\1.initParams\\3.Matlab\\Exp1_MinModelTemp.dll",
+        "size": 225792,
+        "sha256": "db5add3a830369f3d63182e4a91ae2c71566076dbf9172efb28ac691bed6f3bb"
+      },
+      {
+        "path": "E:\\rflysimtools\\RflySimAPIs\\4.RflySimModel\\3.CustExps\\e0_AdvApiExps\\5.ParamAPI\\1.initParams\\3.Python\\Exp1_MinModelTemp.dll",
+        "size": 244224,
+        "sha256": "d17b1c8efe41dfca264c6418efd52acb67a9d28e0b71cad28cd3510c48661c92"
+      },
+      {
+        "path": "E:\\rflysimtools\\RflySimAPIs\\4.RflySimModel\\3.CustExps\\e0_AdvApiExps\\5.ParamAPI\\2.FaultInParams\\2.Matlab\\Exp1_MinModelTemp.dll",
+        "size": 226304,
+        "sha256": "45fd630766f0caa346c688724feb9767f5bd741b0b19772dcfdca5f62aa3a6b6"
+      },
+      {
+        "path": "E:\\rflysimtools\\RflySimAPIs\\4.RflySimModel\\3.CustExps\\e0_AdvApiExps\\5.ParamAPI\\2.FaultInParams\\3.Python\\Exp1_MinModelTemp.dll",
+        "size": 226304,
+        "sha256": "45fd630766f0caa346c688724feb9767f5bd741b0b19772dcfdca5f62aa3a6b6"
+      },
+      {
+        "path": "E:\\rflysimtools\\RflySimAPIs\\4.RflySimModel\\3.CustExps\\e0_AdvApiExps\\5.ParamAPI\\3.DynModiParams\\Exp1_MinModelTemp.dll",
+        "size": 227328,
+        "sha256": "2b152593e62de5f1fa5ebdb2bd13a88c7c5e6102c69292660f70de10b7df82b7"
+      }
+    ],
+    "copies_not_previously_on_record": [
+      {
+        "path": "E:\\rflysimtools\\RflySimAPIs\\2.RflySimUsage\\1.BasicExps\\e2_DLL-Load\\Exp1_MinModelTemp.dll",
+        "size": 242176,
+        "sha256": "63726f6da8d0e47732121f15781bc75322ea0bd90f94bd8f1c693b4d4be2e272"
+      },
+      {
+        "path": "E:\\rflysimtools\\RflySimAPIs\\4.RflySimModel\\0.ApiExps\\10.InCollisionAPI\\2.inCollision20d\\Exp1_MinModelTemp.dll",
+        "size": 232448,
+        "sha256": "d08b35d94f03cfb3ceb252bf01e4175b60a9a9566f80653563fe564072e25121"
+      },
+      {
+        "path": "E:\\rflysimtools\\RflySimAPIs\\4.RflySimModel\\0.ApiExps\\11.inSILAPI\\3.inSIL28d\\1.sendSILIntDouble\\Exp1_MinModelTemp.dll",
+        "size": 242176,
+        "sha256": "8bcde46c136f704f02f770a1e42da110178f921f3e4aeff31a2f8fca38a0b5cf"
+      },
+      {
+        "path": "E:\\rflysimtools\\RflySimAPIs\\4.RflySimModel\\0.ApiExps\\11.inSILAPI\\3.inSIL28d\\2.sendInDoubCtrls\\Exp1_MinModelTemp.dll",
+        "size": 224768,
+        "sha256": "db33543c9b325345ddfb9f9cd04c9c5801517e81c2240c573291b97dc2a1455a"
+      },
+      {
+        "path": "E:\\rflysimtools\\RflySimAPIs\\4.RflySimModel\\1.BasicExps\\e1_MinModelTempLib\\Exp1_MinModelTemp.dll",
+        "size": 242176,
+        "sha256": "c2fbfd4dc3a6338bcd040e59960af0c4c8c0925a0c583c4d9792e342d9558000"
+      },
+      {
+        "path": "E:\\rflysimtools\\RflySimAPIs\\4.RflySimModel\\3.CustExps\\e0_AdvApiExps\\5.ParamAPI\\1.initParams\\3.Matlab\\Exp1_MinModelTemp.dll",
+        "size": 225792,
+        "sha256": "db5add3a830369f3d63182e4a91ae2c71566076dbf9172efb28ac691bed6f3bb"
+      },
+      {
+        "path": "E:\\rflysimtools\\RflySimAPIs\\4.RflySimModel\\3.CustExps\\e0_AdvApiExps\\5.ParamAPI\\1.initParams\\3.Python\\Exp1_MinModelTemp.dll",
+        "size": 244224,
+        "sha256": "d17b1c8efe41dfca264c6418efd52acb67a9d28e0b71cad28cd3510c48661c92"
+      },
+      {
+        "path": "E:\\rflysimtools\\RflySimAPIs\\4.RflySimModel\\3.CustExps\\e0_AdvApiExps\\5.ParamAPI\\2.FaultInParams\\2.Matlab\\Exp1_MinModelTemp.dll",
+        "size": 226304,
+        "sha256": "45fd630766f0caa346c688724feb9767f5bd741b0b19772dcfdca5f62aa3a6b6"
+      },
+      {
+        "path": "E:\\rflysimtools\\RflySimAPIs\\4.RflySimModel\\3.CustExps\\e0_AdvApiExps\\5.ParamAPI\\2.FaultInParams\\3.Python\\Exp1_MinModelTemp.dll",
+        "size": 226304,
+        "sha256": "45fd630766f0caa346c688724feb9767f5bd741b0b19772dcfdca5f62aa3a6b6"
+      },
+      {
+        "path": "E:\\rflysimtools\\RflySimAPIs\\4.RflySimModel\\3.CustExps\\e0_AdvApiExps\\5.ParamAPI\\3.DynModiParams\\Exp1_MinModelTemp.dll",
+        "size": 227328,
+        "sha256": "2b152593e62de5f1fa5ebdb2bd13a88c7c5e6102c69292660f70de10b7df82b7"
+      }
+    ]
+  },
+  "same_filename_identity": {
+    "shared_filename": "Exp1_MinModelTemp.dll",
+    "distinct_binaries": 11,
+    "distinct_dll_export_name_sets": 7,
+    "distinct_output_families": [
+      "legacy-output-name family",
+      "modern *30d/*60d family"
+    ],
+    "sha256_to_export_names": {
+      "2b152593e62de5f1fa5ebdb2bd13a88c7c5e6102c69292660f70de10b7df82b7": [
+        "DllDestroyModel",
+        "DllDynModiParams",
+        "DllFaultParamAPI",
+        "DllGetExtToUE4",
+        "DllGetGpsPos",
+        "DllGetStep0",
+        "DllInCopterData",
+        "DllInCtrlExt",
+        "DllInFromUE",
+        "DllInitGpsPos",
+        "DllInitParamAPI",
+        "DllInitPosAngState",
+        "DllInputPWMs",
+        "DllReInitModel",
+        "DllTerrainIn15d",
+        "DlloutHILGPS30d",
+        "DlloutHILSensor30d",
+        "DlloutVehileInfo60d",
+        "Dllstep"
+      ],
+      "30747a8d47ca76ed3a2c751eac212102dde6a3ab4b29ba8eaae5926d416ca91b": [
+        "DllDestroyModel",
+        "DllGetGpsPos",
+        "DllGetStep0",
+        "DllInitGpsPos",
+        "DllInitPosAngState",
+        "DllInputPWMs",
+        "DllReInitModel",
+        "DllTerrainIn15d",
+        "DlloutHILGPS30d",
+        "DlloutHILSensor30d",
+        "DlloutVehileInfo60d",
+        "Dllstep"
+      ],
+      "45fd630766f0caa346c688724feb9767f5bd741b0b19772dcfdca5f62aa3a6b6": [
+        "DllDestroyModel",
+        "DllFaultParamAPI",
+        "DllGetGpsPos",
+        "DllGetStep0",
+        "DllInitGpsPos",
+        "DllInitPosAngState",
+        "DllInputPWMs",
+        "DllOutCopterData",
+        "DllReInitModel",
+        "DllTerrainIn15d",
+        "DllinCollision20d",
+        "DllinSIL28d",
+        "DlloutHILGPS30d",
+        "DlloutHILSensor30d",
+        "DlloutVehileInfo60d",
+        "Dllstep"
+      ],
+      "63726f6da8d0e47732121f15781bc75322ea0bd90f94bd8f1c693b4d4be2e272": [
+        "DllDestroyModel",
+        "DllGetGpsPos",
+        "DllGetStep0",
+        "DllInitGpsPos",
+        "DllInitPosAngState",
+        "DllInputPWMs",
+        "DllReInitModel",
+        "DllTerrainIn15d",
+        "DlloutHILGPS30d",
+        "DlloutHILSensor30d",
+        "DlloutVehileInfo60d",
+        "Dllstep"
+      ],
+      "8134aab646adda098b7c98a4daa17278dbed7a626a1811e18ed1a88288fb6a46": [
+        "DllDestroyModel",
+        "DllGetStep0",
+        "DllInitGpsPos",
+        "DllInitPosAngState",
+        "DllInputPWMs",
+        "DllReInitModel",
+        "DlloutModel3DInfo",
+        "DlloutputGPS",
+        "DlloutputSensors",
+        "Dllstep"
+      ],
+      "8bcde46c136f704f02f770a1e42da110178f921f3e4aeff31a2f8fca38a0b5cf": [
+        "DllDestroyModel",
+        "DllGetGpsPos",
+        "DllGetStep0",
+        "DllInitGpsPos",
+        "DllInitPosAngState",
+        "DllInputPWMs",
+        "DllOutCopterData",
+        "DllReInitModel",
+        "DllTerrainIn15d",
+        "DllinCollision20d",
+        "DllinSIL28d",
+        "DlloutHILGPS30d",
+        "DlloutHILSensor30d",
+        "DlloutVehileInfo60d",
+        "Dllstep"
+      ],
+      "c2fbfd4dc3a6338bcd040e59960af0c4c8c0925a0c583c4d9792e342d9558000": [
+        "DllDestroyModel",
+        "DllGetGpsPos",
+        "DllGetStep0",
+        "DllInitGpsPos",
+        "DllInitPosAngState",
+        "DllInputPWMs",
+        "DllReInitModel",
+        "DllTerrainIn15d",
+        "DlloutHILGPS30d",
+        "DlloutHILSensor30d",
+        "DlloutVehileInfo60d",
+        "Dllstep"
+      ],
+      "d08b35d94f03cfb3ceb252bf01e4175b60a9a9566f80653563fe564072e25121": [
+        "DllDestroyModel",
+        "DllGetGpsPos",
+        "DllGetStep0",
+        "DllInitGpsPos",
+        "DllInitPosAngState",
+        "DllInputPWMs",
+        "DllReInitModel",
+        "DllTerrainIn15d",
+        "DllinCollision20d",
+        "DlloutHILGPS30d",
+        "DlloutHILSensor30d",
+        "DlloutVehileInfo60d",
+        "Dllstep"
+      ],
+      "d17b1c8efe41dfca264c6418efd52acb67a9d28e0b71cad28cd3510c48661c92": [
+        "DllDestroyModel",
+        "DllGetGpsPos",
+        "DllGetStep0",
+        "DllInitGpsPos",
+        "DllInitParamAPI",
+        "DllInitPosAngState",
+        "DllInputPWMs",
+        "DllReInitModel",
+        "DllTerrainIn15d",
+        "DlloutHILGPS30d",
+        "DlloutHILSensor30d",
+        "DlloutVehileInfo60d",
+        "Dllstep"
+      ],
+      "db33543c9b325345ddfb9f9cd04c9c5801517e81c2240c573291b97dc2a1455a": [
+        "DllDestroyModel",
+        "DllGetGpsPos",
+        "DllGetStep0",
+        "DllInitGpsPos",
+        "DllInitPosAngState",
+        "DllInputPWMs",
+        "DllOutCopterData",
+        "DllReInitModel",
+        "DllTerrainIn15d",
+        "DllinCollision20d",
+        "DllinSIL28d",
+        "DlloutHILGPS30d",
+        "DlloutHILSensor30d",
+        "DlloutVehileInfo60d",
+        "Dllstep"
+      ],
+      "db5add3a830369f3d63182e4a91ae2c71566076dbf9172efb28ac691bed6f3bb": [
+        "DllDestroyModel",
+        "DllGetGpsPos",
+        "DllGetStep0",
+        "DllInitGpsPos",
+        "DllInitParamAPI",
+        "DllInitPosAngState",
+        "DllInputPWMs",
+        "DllReInitModel",
+        "DllTerrainIn15d",
+        "DlloutHILGPS30d",
+        "DlloutHILSensor30d",
+        "DlloutVehileInfo60d",
+        "Dllstep"
+      ]
+    },
+    "members": [
+      {
+        "sha256": "2b152593e62de5f1fa5ebdb2bd13a88c7c5e6102c69292660f70de10b7df82b7",
+        "size": 227328,
+        "family": "modern *30d/*60d family",
+        "dll_export_count": 19,
+        "roles": [
+          "same-filename-copy"
+        ],
+        "paths": [
+          "E:\\rflysimtools\\RflySimAPIs\\4.RflySimModel\\3.CustExps\\e0_AdvApiExps\\5.ParamAPI\\3.DynModiParams\\Exp1_MinModelTemp.dll"
+        ]
+      },
+      {
+        "sha256": "30747a8d47ca76ed3a2c751eac212102dde6a3ab4b29ba8eaae5926d416ca91b",
+        "size": 235520,
+        "family": "modern *30d/*60d family",
+        "dll_export_count": 12,
+        "roles": [
+          "e0-template-dll",
+          "same-filename-copy"
+        ],
+        "paths": [
+          "E:\\rflysimtools\\RflySimAPIs\\4.RflySimModel\\1.BasicExps\\e0_MinModelTemp\\Exp1_MinModelTemp.dll",
+          "E:\\rflysimtools\\RflySimAPIs\\4.RflySimModel\\1.BasicExps\\e0_MinModelTemp\\Exp1_MinModelTemp.dll"
+        ]
+      },
+      {
+        "sha256": "45fd630766f0caa346c688724feb9767f5bd741b0b19772dcfdca5f62aa3a6b6",
+        "size": 226304,
+        "family": "modern *30d/*60d family",
+        "dll_export_count": 16,
+        "roles": [
+          "same-filename-copy"
+        ],
+        "paths": [
+          "E:\\rflysimtools\\RflySimAPIs\\4.RflySimModel\\3.CustExps\\e0_AdvApiExps\\5.ParamAPI\\2.FaultInParams\\2.Matlab\\Exp1_MinModelTemp.dll",
+          "E:\\rflysimtools\\RflySimAPIs\\4.RflySimModel\\3.CustExps\\e0_AdvApiExps\\5.ParamAPI\\2.FaultInParams\\3.Python\\Exp1_MinModelTemp.dll"
+        ]
+      },
+      {
+        "sha256": "63726f6da8d0e47732121f15781bc75322ea0bd90f94bd8f1c693b4d4be2e272",
+        "size": 242176,
+        "family": "modern *30d/*60d family",
+        "dll_export_count": 12,
+        "roles": [
+          "same-filename-copy"
+        ],
+        "paths": [
+          "E:\\rflysimtools\\RflySimAPIs\\2.RflySimUsage\\1.BasicExps\\e2_DLL-Load\\Exp1_MinModelTemp.dll"
+        ]
+      },
+      {
+        "sha256": "8134aab646adda098b7c98a4daa17278dbed7a626a1811e18ed1a88288fb6a46",
+        "size": 230912,
+        "family": "legacy-output-name family",
+        "dll_export_count": 10,
+        "roles": [
+          "deployed-model-dir-exp1",
+          "same-filename-copy"
+        ],
+        "paths": [
+          "E:\\rflysimtools\\CopterSim\\external\\model\\Exp1_MinModelTemp.dll",
+          "E:\\rflysimtools\\CopterSim\\external\\model\\Exp1_MinModelTemp.dll"
+        ]
+      },
+      {
+        "sha256": "8bcde46c136f704f02f770a1e42da110178f921f3e4aeff31a2f8fca38a0b5cf",
+        "size": 242176,
+        "family": "modern *30d/*60d family",
+        "dll_export_count": 15,
+        "roles": [
+          "same-filename-copy"
+        ],
+        "paths": [
+          "E:\\rflysimtools\\RflySimAPIs\\4.RflySimModel\\0.ApiExps\\11.inSILAPI\\3.inSIL28d\\1.sendSILIntDouble\\Exp1_MinModelTemp.dll"
+        ]
+      },
+      {
+        "sha256": "c2fbfd4dc3a6338bcd040e59960af0c4c8c0925a0c583c4d9792e342d9558000",
+        "size": 242176,
+        "family": "modern *30d/*60d family",
+        "dll_export_count": 12,
+        "roles": [
+          "e1-template-dll",
+          "same-filename-copy"
+        ],
+        "paths": [
+          "E:\\rflysimtools\\RflySimAPIs\\4.RflySimModel\\1.BasicExps\\e1_MinModelTempLib\\Exp1_MinModelTemp.dll",
+          "E:\\rflysimtools\\RflySimAPIs\\4.RflySimModel\\1.BasicExps\\e1_MinModelTempLib\\Exp1_MinModelTemp.dll"
+        ]
+      },
+      {
+        "sha256": "d08b35d94f03cfb3ceb252bf01e4175b60a9a9566f80653563fe564072e25121",
+        "size": 232448,
+        "family": "modern *30d/*60d family",
+        "dll_export_count": 13,
+        "roles": [
+          "same-filename-copy"
+        ],
+        "paths": [
+          "E:\\rflysimtools\\RflySimAPIs\\4.RflySimModel\\0.ApiExps\\10.InCollisionAPI\\2.inCollision20d\\Exp1_MinModelTemp.dll"
+        ]
+      },
+      {
+        "sha256": "d17b1c8efe41dfca264c6418efd52acb67a9d28e0b71cad28cd3510c48661c92",
+        "size": 244224,
+        "family": "modern *30d/*60d family",
+        "dll_export_count": 13,
+        "roles": [
+          "same-filename-copy"
+        ],
+        "paths": [
+          "E:\\rflysimtools\\RflySimAPIs\\4.RflySimModel\\3.CustExps\\e0_AdvApiExps\\5.ParamAPI\\1.initParams\\3.Python\\Exp1_MinModelTemp.dll"
+        ]
+      },
+      {
+        "sha256": "db33543c9b325345ddfb9f9cd04c9c5801517e81c2240c573291b97dc2a1455a",
+        "size": 224768,
+        "family": "modern *30d/*60d family",
+        "dll_export_count": 15,
+        "roles": [
+          "same-filename-copy"
+        ],
+        "paths": [
+          "E:\\rflysimtools\\RflySimAPIs\\4.RflySimModel\\0.ApiExps\\11.inSILAPI\\3.inSIL28d\\2.sendInDoubCtrls\\Exp1_MinModelTemp.dll"
+        ]
+      },
+      {
+        "sha256": "db5add3a830369f3d63182e4a91ae2c71566076dbf9172efb28ac691bed6f3bb",
+        "size": 225792,
+        "family": "modern *30d/*60d family",
+        "dll_export_count": 13,
+        "roles": [
+          "same-filename-copy"
+        ],
+        "paths": [
+          "E:\\rflysimtools\\RflySimAPIs\\4.RflySimModel\\3.CustExps\\e0_AdvApiExps\\5.ParamAPI\\1.initParams\\3.Matlab\\Exp1_MinModelTemp.dll"
+        ]
+      }
+    ]
+  },
+  "template_export_set_comparison": {
+    "e0_sha256": "30747a8d47ca76ed3a2c751eac212102dde6a3ab4b29ba8eaae5926d416ca91b",
+    "e1_sha256": "c2fbfd4dc3a6338bcd040e59960af0c4c8c0925a0c583c4d9792e342d9558000",
+    "export_name_sets_identical": true,
+    "size_delta_e1_minus_e0": 6656
+  },
+  "zero_occurrence_recheck": {
+    "binaries_inspected": 12,
+    "probe_verdicts": {
+      "DllInitPosAngStat": {
+        "present_in_binaries": [],
+        "absent_from_binaries": [
+          "0179c58f14f8140302c1ec1a36ae455e88146c64099be1cd6a633cb174afe7e8",
+          "2b152593e62de5f1fa5ebdb2bd13a88c7c5e6102c69292660f70de10b7df82b7",
+          "30747a8d47ca76ed3a2c751eac212102dde6a3ab4b29ba8eaae5926d416ca91b",
+          "45fd630766f0caa346c688724feb9767f5bd741b0b19772dcfdca5f62aa3a6b6",
+          "63726f6da8d0e47732121f15781bc75322ea0bd90f94bd8f1c693b4d4be2e272",
+          "8134aab646adda098b7c98a4daa17278dbed7a626a1811e18ed1a88288fb6a46",
+          "8bcde46c136f704f02f770a1e42da110178f921f3e4aeff31a2f8fca38a0b5cf",
+          "c2fbfd4dc3a6338bcd040e59960af0c4c8c0925a0c583c4d9792e342d9558000",
+          "d08b35d94f03cfb3ceb252bf01e4175b60a9a9566f80653563fe564072e25121",
+          "d17b1c8efe41dfca264c6418efd52acb67a9d28e0b71cad28cd3510c48661c92",
+          "db33543c9b325345ddfb9f9cd04c9c5801517e81c2240c573291b97dc2a1455a",
+          "db5add3a830369f3d63182e4a91ae2c71566076dbf9172efb28ac691bed6f3bb"
+        ],
+        "distinct_binaries_present": 0
+      },
+      "DllInputDoubCtrls": {
+        "present_in_binaries": [],
+        "absent_from_binaries": [
+          "0179c58f14f8140302c1ec1a36ae455e88146c64099be1cd6a633cb174afe7e8",
+          "2b152593e62de5f1fa5ebdb2bd13a88c7c5e6102c69292660f70de10b7df82b7",
+          "30747a8d47ca76ed3a2c751eac212102dde6a3ab4b29ba8eaae5926d416ca91b",
+          "45fd630766f0caa346c688724feb9767f5bd741b0b19772dcfdca5f62aa3a6b6",
+          "63726f6da8d0e47732121f15781bc75322ea0bd90f94bd8f1c693b4d4be2e272",
+          "8134aab646adda098b7c98a4daa17278dbed7a626a1811e18ed1a88288fb6a46",
+          "8bcde46c136f704f02f770a1e42da110178f921f3e4aeff31a2f8fca38a0b5cf",
+          "c2fbfd4dc3a6338bcd040e59960af0c4c8c0925a0c583c4d9792e342d9558000",
+          "d08b35d94f03cfb3ceb252bf01e4175b60a9a9566f80653563fe564072e25121",
+          "d17b1c8efe41dfca264c6418efd52acb67a9d28e0b71cad28cd3510c48661c92",
+          "db33543c9b325345ddfb9f9cd04c9c5801517e81c2240c573291b97dc2a1455a",
+          "db5add3a830369f3d63182e4a91ae2c71566076dbf9172efb28ac691bed6f3bb"
+        ],
+        "distinct_binaries_present": 0
+      }
+    },
+    "output_family_coexistence": {
+      "binaries_with_both_legacy_and_modern_output_names": [],
+      "binaries_with_legacy_only": [
+        "8134aab646adda098b7c98a4daa17278dbed7a626a1811e18ed1a88288fb6a46"
+      ],
+      "binaries_with_modern_only": [
+        "0179c58f14f8140302c1ec1a36ae455e88146c64099be1cd6a633cb174afe7e8",
+        "2b152593e62de5f1fa5ebdb2bd13a88c7c5e6102c69292660f70de10b7df82b7",
+        "30747a8d47ca76ed3a2c751eac212102dde6a3ab4b29ba8eaae5926d416ca91b",
+        "45fd630766f0caa346c688724feb9767f5bd741b0b19772dcfdca5f62aa3a6b6",
+        "63726f6da8d0e47732121f15781bc75322ea0bd90f94bd8f1c693b4d4be2e272",
+        "8bcde46c136f704f02f770a1e42da110178f921f3e4aeff31a2f8fca38a0b5cf",
+        "c2fbfd4dc3a6338bcd040e59960af0c4c8c0925a0c583c4d9792e342d9558000",
+        "d08b35d94f03cfb3ceb252bf01e4175b60a9a9566f80653563fe564072e25121",
+        "d17b1c8efe41dfca264c6418efd52acb67a9d28e0b71cad28cd3510c48661c92",
+        "db33543c9b325345ddfb9f9cd04c9c5801517e81c2240c573291b97dc2a1455a",
+        "db5add3a830369f3d63182e4a91ae2c71566076dbf9172efb28ac691bed6f3bb"
+      ]
+    }
+  }
+}
