@@ -1,0 +1,31 @@
+.........F.F..................
+======================================================================
+FAIL: test_ledger_validates_clean (validation.test_e0_budget_approval_provenance.LedgerContractTests.test_ledger_validates_clean)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\PC\AppData\Local\Temp\wksim-g6-bf-seq-win-before-budget-then-frame-zjkuqngi\validation\test_e0_budget_approval_provenance.py", line 1308, in test_ledger_validates_clean
+    self.assertEqual([], validate(self.ledger), violations_text(validate(self.ledger)))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != ['pin_untracked_or_staged_only: related ar[87 chars]ved']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'pin_untracked_or_staged_only: related artifact frame_datum_binding_inflight is tracked at HEAD and must become a pin or be removed'
+
+- []
++ ['pin_untracked_or_staged_only: related artifact frame_datum_binding_inflight '
++  'is tracked at HEAD and must become a pin or be removed'] : pin_untracked_or_staged_only: related artifact frame_datum_binding_inflight is tracked at HEAD and must become a pin or be removed
+
+======================================================================
+FAIL: test_related_artifacts_are_untracked_and_are_not_pins (validation.test_e0_budget_approval_provenance.LedgerContractTests.test_related_artifacts_are_untracked_and_are_not_pins)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\PC\AppData\Local\Temp\wksim-g6-bf-seq-win-before-budget-then-frame-zjkuqngi\validation\test_e0_budget_approval_provenance.py", line 1387, in test_related_artifacts_are_untracked_and_are_not_pins
+    self.assertFalse(tracked_at_head(artifact["path"]), artifact["id"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: True is not false : frame_datum_binding_inflight
+
+----------------------------------------------------------------------
+Ran 30 tests in 8.227s
+
+FAILED (failures=2)

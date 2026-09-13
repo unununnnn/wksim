@@ -1,0 +1,143 @@
+{
+  "schema": "wksim.g6-budget-related-source-final-review.review.v1",
+  "slice": "cursor-g6-budget-related-source-final-review-20260914-01",
+  "work_class": "independent-differential-final-review",
+  "verdict": "PASS",
+  "owner_approval": false,
+  "owner_approval_claimed": false,
+  "issues_closed": false,
+  "issues_closed_claimed": false,
+  "closed_tickets": [],
+  "cwd": "C:\\Users\\PC\\Documents\\odid编译\\wksim",
+  "branch": "main",
+  "head": "6eafdf9c0b734db07a9fe790c86b409d3468c10b",
+  "ancestor_f333316e_exit": 0,
+  "ancestor_source_exit": 0,
+  "source_head": "6eafdf9c0b734db07a9fe790c86b409d3468c10b",
+  "module": "validation.test_e0_budget_approval_provenance.validate",
+  "owned_files": [
+    "validation/coordination/cursor-g6-budget-related-source-final-review-20260914-01/**"
+  ],
+  "candidates_read_only": true,
+  "candidates_untouched": true,
+  "historical_receipts_untouched": true,
+  "git_mutated": false,
+  "windows_153_rerun": false,
+  "native_build_flight_83_rerun": false,
+  "temp_script_left": false,
+  "subagent_policy": {
+    "required": "gpt-5.6-luna xhigh Fast when dispatcher is not gpt-6-astra",
+    "available": false,
+    "action": "work_done_in_main_agent_no_substitution"
+  },
+  "read": [
+    "AGENTS.md",
+    "docs/architecture-implementation-20260912.md",
+    "docs/coordination/architecture-continuation-20260913.md",
+    "validation/coordination/cursor-g6-budget-related-source-p2-repair-20260914-01",
+    "validation/coordination/cursor-g6-budget-frame-final-review-20260914-01"
+  ],
+  "expected_candidate_sha256": {
+    "docs/plan/59-e0-budget-approval-provenance-20260914.md": "15b4f457912aef9f31537b4a3660d32e8d90110f042550aa0b6d5909f6d277bd",
+    "validation/e0-budget-approval-provenance-20260914.json": "2962931a28dfc3cc05e201dc23b6073c30948080de34279e9f5b21ae23544d3d",
+    "validation/test_e0_budget_approval_provenance.py": "6030470ab32e28fd3a4b8401e4eb92875d22c16d8b7e56e8edfd9002f0636b44"
+  },
+  "expected_hashes_matched": true,
+  "package_sha256": {
+    "DOC_REL": "15b4f457912aef9f31537b4a3660d32e8d90110f042550aa0b6d5909f6d277bd",
+    "LEDGER_REL": "2962931a28dfc3cc05e201dc23b6073c30948080de34279e9f5b21ae23544d3d",
+    "test_self_hashed": false
+  },
+  "new_runs": {
+    "win": {
+      "python": "3.13.11",
+      "related_source_p2_tests": {"ran": 14, "ok": true, "seconds": 5.113, "returncode": 0},
+      "hostile": {"pass": 17, "fail": 0}
+    },
+    "lin": {
+      "python": "3.10.12",
+      "related_source_p2_tests": {"ran": 14, "ok": true, "seconds": 89.878, "returncode": 0},
+      "hostile": {"pass": 17, "fail": 0, "json_complete": true, "heredoc_exit_artifact": true}
+    }
+  },
+  "reused_not_rerun": {
+    "windows_153": {
+      "rerun": false,
+      "source": "validation/coordination/cursor-g6-budget-related-source-p2-repair-20260914-01/captures/win-after-full.txt",
+      "independent_parse": {"ran": 153, "ok": true, "seconds": 153.278}
+    },
+    "sequence_matrix": {
+      "rerun": false,
+      "cells_parsed": 8,
+      "all_ok": true,
+      "p2_sha256sums_28_match": true
+    }
+  },
+  "gates": {
+    "validate_related_exact_id_path_sha256": true,
+    "validate_related_order_duplicate_extra_missing": true,
+    "validate_source_head_missing_fail_closed": true,
+    "validate_source_head_not_ancestor_fail_closed": true,
+    "check_git_false_structural_boundary": true,
+    "check_git_false_skips_source_head_probe": true,
+    "two_orders_and_empty_commit_reused_hash_ok": true,
+    "frame_trio_unchanged": true
+  },
+  "tokens": {
+    "related_artifact_mismatch": "exact id/path/sha256 triple, order, duplicate id/path, extra/missing",
+    "source_head_missing_or_not_ancestor": "validate(check_git=True) only"
+  },
+  "findings": [
+    {
+      "rank": 1,
+      "id": "F1-validate-related-triple",
+      "priority": "P1",
+      "status": "closed",
+      "fail_review": false,
+      "summary": "validate() exact-compares frozen related id/path/sha256 triples; path spelling, hash, order, duplicate, extra and missing fail closed"
+    },
+    {
+      "rank": 2,
+      "id": "F2-validate-source-head",
+      "priority": "P1",
+      "status": "closed",
+      "fail_review": false,
+      "summary": "validate(check_git=True) returns source_head_missing_or_not_ancestor for missing or non-ancestor SOURCE_HEAD"
+    },
+    {
+      "rank": 3,
+      "id": "F3-missing-win-envelope",
+      "priority": "P2",
+      "status": "historical-residual",
+      "fail_review": false,
+      "summary": "prior sequence-repair still lacks win-after-frame-then-budget.json / win-after-summary.json; not rewritten"
+    },
+    {
+      "rank": 4,
+      "id": "F4-cancelled-p3-full",
+      "priority": "P3",
+      "status": "CANCELLED_NOT_SCORED",
+      "fail_review": false,
+      "summary": "historical cancelled fourth full remains listed only"
+    },
+    {
+      "rank": 5,
+      "id": "F5-test-not-self-hashed",
+      "priority": "P3",
+      "status": "expected",
+      "fail_review": false,
+      "summary": "PACKAGE_SHA256 still does not pin the test file"
+    }
+  ],
+  "not_claimed": [
+    "owner approval",
+    "#59 closed",
+    "#10 closed",
+    "G6 acceptance",
+    "Full acceptance",
+    "R1 numerical_failed reversed",
+    "windows 153 rerun",
+    "#83 rerun",
+    "native/model/MATLAB/ROS/DDS/SITL/FC/UE/build/flight"
+  ]
+}

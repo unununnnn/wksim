@@ -1,0 +1,79 @@
+# Minimal add set for Budget/Frame cross-commit semantics
+# Source/ancestor pin 6eafdf9c0b734db07a9fe790c86b409d3468c10b
+# This file is an inventory, not a git add/commit.
+# Slice: cursor-g6-budget-frame-sequence-finalize-20260914-01
+
+## Verdict
+The six unignored candidates are sufficient for a disposable two-commit
+sequence. After either Budget→Frame or Frame→Budget, SOURCE_HEAD remains
+an ancestor, related_artifacts stay bound to tracked_at_source_head=false
+on that pin, and the stale frame related record is absent. Later current
+HEAD tracking of a related path does not auto-promote it to pin, owner,
+or derivation. This finalize did not stage or commit.
+
+## A. Normal add — budget (not ignored)
+docs/plan/59-e0-budget-approval-provenance-20260914.md
+  sha256 81a4c65d56f2c35cf617441822fc14b3d81e9da614c1ef3837ab6fca7f7d93a3
+  bytes 19267
+  reason plan text; PACKAGE_SHA256[DOC_REL]; docs/plan is not covered by /validation/*/
+  in_head false
+  ignored false
+
+validation/e0-budget-approval-provenance-20260914.json
+  sha256 a8c76498f86d48945842e5b9bd9361293ebc93c954e5b14661304abc9208204a
+  bytes 284045
+  reason ledger; PACKAGE_SHA256[LEDGER_REL]; file directly under validation/ is not ignored
+  in_head false
+  ignored false
+
+validation/test_e0_budget_approval_provenance.py
+  sha256 d74854f5e993fce6835ef1db63bcd4cf556a91c9c6d70b80ce18712087ba7c01
+  bytes 138557
+  reason suite module; not self-hashed by PACKAGE_SHA256
+  in_head false
+  ignored false
+
+## A. Normal add — frame (not ignored; bytes unchanged by the sequence repair)
+docs/plan/59-e0-frame-datum-binding-20260914.md
+  sha256 3fbb0e7fbdbc069a702dd0e8417c9b6a8dd3961575d5a188817990b280b553f8
+  bytes 15449
+  reason plan; git check-ignore exit 1
+  in_head false
+  ignored false
+
+validation/e0-frame-datum-binding-20260914.json
+  sha256 5d589075c128e2a22d24d88d7dea0ce753a68f4d46937386c581d3fae945b69f
+  bytes 105018
+  reason payload; stale related hash 33c4909919… must not be reintroduced
+  in_head false
+  ignored false
+
+validation/test_e0_frame_datum_binding.py
+  sha256 e412f2d1981fd02b34531426f31c6f010c96d15331bf41f30fc136cc59f10da6
+  bytes 77146
+  reason fail-closed validator
+  in_head false
+  ignored false
+
+## B. Already in HEAD — do not add
+Budget pins and frame pins archived by run_sequence_repair.py (28 unique
+HEAD paths). Includes numerical-conformance-v1.json, e0 manifests/RHS/
+mapping, G6 plan/tools, and the two already-tracked coordination pins.
+
+## C. Not required to run representative 30 / frame 12 / C1
+related_artifacts (three B1/B4 frontier files; untracked at source pin)
+named review/repair/finalize coordination directories
+this finalize directory
+the cancelled P3 Windows second-order after-empty full capture
+missing P2 envelopes win-after-frame-then-budget.json and win-after-summary.json
+
+## D. Commands (inventory only; this review did not run them)
+git add docs/plan/59-e0-budget-approval-provenance-20260914.md
+git add validation/e0-budget-approval-provenance-20260914.json
+git add validation/test_e0_budget_approval_provenance.py
+git add docs/plan/59-e0-frame-datum-binding-20260914.md
+git add validation/e0-frame-datum-binding-20260914.json
+git add validation/test_e0_frame_datum_binding.py
+
+# Inventory only. This finalize did not run git add/commit/stage/reset/clean
+# on the project repository.

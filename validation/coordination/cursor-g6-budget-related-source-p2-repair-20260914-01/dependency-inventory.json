@@ -1,0 +1,52 @@
+{
+  "schema": "wksim.g6-budget-related-source-p2.dependency-inventory.v1",
+  "slice": "cursor-g6-budget-related-source-p2-repair-20260914-01",
+  "owned_write": [
+    "docs/plan/59-e0-budget-approval-provenance-20260914.md",
+    "validation/e0-budget-approval-provenance-20260914.json",
+    "validation/test_e0_budget_approval_provenance.py",
+    "validation/coordination/cursor-g6-budget-related-source-p2-repair-20260914-01/**"
+  ],
+  "read_only_inputs": [
+    "validation/coordination/cursor-g6-budget-frame-final-review-20260914-01/review.md",
+    "validation/coordination/cursor-g6-budget-frame-final-review-20260914-01/hostile-matrix.json",
+    "docs/architecture-implementation-20260912.md",
+    "docs/coordination/architecture-continuation-20260913.md",
+    "AGENTS.md"
+  ],
+  "must_not_edit": [
+    "docs/plan/59-e0-frame-datum-binding-20260914.md",
+    "validation/e0-frame-datum-binding-20260914.json",
+    "validation/test_e0_frame_datum_binding.py",
+    "validation/test_g1_g5_offline_drift.py",
+    "validation/full-original-ac-gap-ledger-20260914.json",
+    "validation/coordination/cursor-g6-budget-frame-final-review-20260914-01/**",
+    "validation/coordination/cursor-g6-budget-frame-sequence-repair-20260914-01/**",
+    "validation/coordination/cursor-g6-budget-c1-takeover-20260914-01/**"
+  ],
+  "runtime_dependencies": {
+    "python": ["unittest", "json", "hashlib", "subprocess"],
+    "git": [
+      "show",
+      "ls-tree",
+      "cat-file -e SOURCE_HEAD^{commit}",
+      "merge-base --is-ancestor",
+      "diff HEAD",
+      "archive (temp trees only)",
+      "commit-tree (temp trees only)"
+    ],
+    "pins": "existing HEAD-tracked PIN_PATHS / PIN_SHA256; not modified"
+  },
+  "not_dependencies": [
+    "native",
+    "model",
+    "MATLAB",
+    "ROS",
+    "DDS",
+    "SITL",
+    "flight-controller",
+    "UE",
+    "build",
+    "#83"
+  ]
+}

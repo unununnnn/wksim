@@ -1,0 +1,276 @@
+{
+  "schema": "wksim.g6-budget-related-source-p2.run.v1",
+  "slice": "cursor-g6-budget-related-source-p2-repair-20260914-01",
+  "phase": "after",
+  "tag": "win",
+  "python": "3.13.11",
+  "platform": "Windows-11-10.0.28000-SP0",
+  "head": "6eafdf9c0b734db07a9fe790c86b409d3468c10b",
+  "branch": "main",
+  "ancestor_f333316e": 0,
+  "ancestor_source": 0,
+  "index_cached": "",
+  "candidates": {
+    "docs/plan/59-e0-budget-approval-provenance-20260914.md": {
+      "sha256": "15b4f457912aef9f31537b4a3660d32e8d90110f042550aa0b6d5909f6d277bd",
+      "bytes": 21203,
+      "cr_count": 0,
+      "lf_normalized": true,
+      "tracked_at_current_head": false,
+      "ignored_no_index": false,
+      "owned_this_slice": true
+    },
+    "validation/e0-budget-approval-provenance-20260914.json": {
+      "sha256": "2962931a28dfc3cc05e201dc23b6073c30948080de34279e9f5b21ae23544d3d",
+      "bytes": 285820,
+      "cr_count": 0,
+      "lf_normalized": true,
+      "tracked_at_current_head": false,
+      "ignored_no_index": false,
+      "owned_this_slice": true
+    },
+    "validation/test_e0_budget_approval_provenance.py": {
+      "sha256": "6030470ab32e28fd3a4b8401e4eb92875d22c16d8b7e56e8edfd9002f0636b44",
+      "bytes": 151778,
+      "cr_count": 0,
+      "lf_normalized": true,
+      "tracked_at_current_head": false,
+      "ignored_no_index": false,
+      "owned_this_slice": true
+    },
+    "docs/plan/59-e0-frame-datum-binding-20260914.md": {
+      "sha256": "3fbb0e7fbdbc069a702dd0e8417c9b6a8dd3961575d5a188817990b280b553f8",
+      "bytes": 15449,
+      "cr_count": 0,
+      "lf_normalized": true,
+      "tracked_at_current_head": false,
+      "ignored_no_index": false,
+      "owned_this_slice": false
+    },
+    "validation/e0-frame-datum-binding-20260914.json": {
+      "sha256": "5d589075c128e2a22d24d88d7dea0ce753a68f4d46937386c581d3fae945b69f",
+      "bytes": 105018,
+      "cr_count": 0,
+      "lf_normalized": true,
+      "tracked_at_current_head": false,
+      "ignored_no_index": false,
+      "owned_this_slice": false
+    },
+    "validation/test_e0_frame_datum_binding.py": {
+      "sha256": "e412f2d1981fd02b34531426f31c6f010c96d15331bf41f30fc136cc59f10da6",
+      "bytes": 77146,
+      "cr_count": 0,
+      "lf_normalized": true,
+      "tracked_at_current_head": false,
+      "ignored_no_index": false,
+      "owned_this_slice": false
+    }
+  },
+  "representative_30": {
+    "ran": 30,
+    "seconds": 9.472,
+    "ok": true,
+    "failed_banner": false,
+    "failures": 0,
+    "errors": 0,
+    "return_ok": true,
+    "label": "after-representative-30",
+    "returncode": 0,
+    "tag": "win",
+    "path": "captures/win-after-representative-30.txt",
+    "cwd": "C:\\Users\\PC\\Documents\\odid编译\\wksim"
+  },
+  "hostile": {
+    "p2_still_open": [],
+    "p2_closed": [
+      "P2-H18-source-head-missing-validate",
+      "P2-H18b-source-head-not-ancestor-validate",
+      "P2-H21-frame-path-backslash-current-hash",
+      "P2-H22-frame-path-dot-prefix-current-hash",
+      "P2-H23-duplicate-related-path",
+      "P2-H23b-related-hash-mismatch",
+      "P2-H23c-related-order-swap",
+      "P2-H23d-related-missing-record"
+    ],
+    "oracle_pass": 31,
+    "oracle_fail": 0,
+    "path": "captures/after-win-hostile.json"
+  },
+  "full_suite": null,
+  "sequences": [
+    {
+      "order": "budget-then-frame",
+      "tree": "C:\\Users\\PC\\AppData\\Local\\Temp\\wksim-g6-bf-p2-win-budget-then-frame-b17xfc23",
+      "archive": {
+        "method": "git archive HEAD -- <selected pin paths> streamed to disk",
+        "tar_bytes": 716800,
+        "path_count": 28,
+        "whole_repo_loaded_into_python": false
+      },
+      "disposable_git": {
+        "head": "6eafdf9c0b734db07a9fe790c86b409d3468c10b",
+        "head_equals_source": true,
+        "alternates": "C:\\Users\\PC\\Documents\\odid编译\\wksim\\.git\\objects",
+        "used_git_object_directory": false,
+        "project_repo_mutated": false,
+        "checkout_index_exit": 0
+      },
+      "first": {
+        "method": "update-index --add + write-tree + commit-tree",
+        "paths": [
+          "docs/plan/59-e0-budget-approval-provenance-20260914.md",
+          "validation/e0-budget-approval-provenance-20260914.json",
+          "validation/test_e0_budget_approval_provenance.py"
+        ],
+        "message": "disposable budget",
+        "parent": "6eafdf9c0b734db07a9fe790c86b409d3468c10b",
+        "tree_id": "192f7997d6dd691f44a0ca668aa78d9fcf042d47",
+        "commit": "6ea9627b7081b55cb2f65af08078f5aa48cee18b",
+        "head_equals_source": false,
+        "source_ancestor_exit": 0,
+        "project_repo_untouched": true
+      },
+      "second": {
+        "method": "update-index --add + write-tree + commit-tree",
+        "paths": [
+          "docs/plan/59-e0-frame-datum-binding-20260914.md",
+          "validation/e0-frame-datum-binding-20260914.json",
+          "validation/test_e0_frame_datum_binding.py"
+        ],
+        "message": "disposable frame",
+        "parent": "6ea9627b7081b55cb2f65af08078f5aa48cee18b",
+        "tree_id": "d2712ec31940fe6bad6a9127146982a543731226",
+        "commit": "ae95bd6bea63a6b2712b5a6ef0e7230b810152c9",
+        "head_equals_source": false,
+        "source_ancestor_exit": 0,
+        "project_repo_untouched": true
+      },
+      "after_both_budget_30": {
+        "ran": 30,
+        "seconds": 9.627,
+        "ok": true,
+        "failed_banner": false,
+        "failures": 0,
+        "errors": 0,
+        "return_ok": true,
+        "label": "seq-budget-then-frame-after-both-budget-30",
+        "returncode": 0,
+        "tag": "win",
+        "path": "captures/win-seq-budget-then-frame-after-both-budget-30.txt",
+        "cwd": "C:\\Users\\PC\\AppData\\Local\\Temp\\wksim-g6-bf-p2-win-budget-then-frame-b17xfc23"
+      },
+      "empty_commit": {
+        "method": "write-tree + commit-tree empty (same tree, new parent)",
+        "parent": "ae95bd6bea63a6b2712b5a6ef0e7230b810152c9",
+        "tree_id": "d2712ec31940fe6bad6a9127146982a543731226",
+        "commit": "60c70d042c7e6e9fa0b6be1ce5f09e1cc527eefb",
+        "head_moved": true,
+        "same_tree": true,
+        "source_ancestor_exit": 0,
+        "project_repo_untouched": true
+      },
+      "after_empty_budget_30": {
+        "ran": 30,
+        "seconds": 9.604,
+        "ok": true,
+        "failed_banner": false,
+        "failures": 0,
+        "errors": 0,
+        "return_ok": true,
+        "label": "seq-budget-then-frame-after-empty-budget-30",
+        "returncode": 0,
+        "tag": "win",
+        "path": "captures/win-seq-budget-then-frame-after-empty-budget-30.txt",
+        "cwd": "C:\\Users\\PC\\AppData\\Local\\Temp\\wksim-g6-bf-p2-win-budget-then-frame-b17xfc23"
+      },
+      "ok": true
+    },
+    {
+      "order": "frame-then-budget",
+      "tree": "C:\\Users\\PC\\AppData\\Local\\Temp\\wksim-g6-bf-p2-win-frame-then-budget-2s1q41s0",
+      "archive": {
+        "method": "git archive HEAD -- <selected pin paths> streamed to disk",
+        "tar_bytes": 716800,
+        "path_count": 28,
+        "whole_repo_loaded_into_python": false
+      },
+      "disposable_git": {
+        "head": "6eafdf9c0b734db07a9fe790c86b409d3468c10b",
+        "head_equals_source": true,
+        "alternates": "C:\\Users\\PC\\Documents\\odid编译\\wksim\\.git\\objects",
+        "used_git_object_directory": false,
+        "project_repo_mutated": false,
+        "checkout_index_exit": 0
+      },
+      "first": {
+        "method": "update-index --add + write-tree + commit-tree",
+        "paths": [
+          "docs/plan/59-e0-frame-datum-binding-20260914.md",
+          "validation/e0-frame-datum-binding-20260914.json",
+          "validation/test_e0_frame_datum_binding.py"
+        ],
+        "message": "disposable frame",
+        "parent": "6eafdf9c0b734db07a9fe790c86b409d3468c10b",
+        "tree_id": "6ca1639c1c3678bfe868fddbd8b04f7d8d825cb1",
+        "commit": "de229f471b6ac36eebbaace725e0c17b842737f7",
+        "head_equals_source": false,
+        "source_ancestor_exit": 0,
+        "project_repo_untouched": true
+      },
+      "second": {
+        "method": "update-index --add + write-tree + commit-tree",
+        "paths": [
+          "docs/plan/59-e0-budget-approval-provenance-20260914.md",
+          "validation/e0-budget-approval-provenance-20260914.json",
+          "validation/test_e0_budget_approval_provenance.py"
+        ],
+        "message": "disposable budget",
+        "parent": "de229f471b6ac36eebbaace725e0c17b842737f7",
+        "tree_id": "d2712ec31940fe6bad6a9127146982a543731226",
+        "commit": "cdbbd0cfb6ecb78de8b64b89987b6098d1bb4527",
+        "head_equals_source": false,
+        "source_ancestor_exit": 0,
+        "project_repo_untouched": true
+      },
+      "after_both_budget_30": {
+        "ran": 30,
+        "seconds": 9.474,
+        "ok": true,
+        "failed_banner": false,
+        "failures": 0,
+        "errors": 0,
+        "return_ok": true,
+        "label": "seq-frame-then-budget-after-both-budget-30",
+        "returncode": 0,
+        "tag": "win",
+        "path": "captures/win-seq-frame-then-budget-after-both-budget-30.txt",
+        "cwd": "C:\\Users\\PC\\AppData\\Local\\Temp\\wksim-g6-bf-p2-win-frame-then-budget-2s1q41s0"
+      },
+      "empty_commit": {
+        "method": "write-tree + commit-tree empty (same tree, new parent)",
+        "parent": "cdbbd0cfb6ecb78de8b64b89987b6098d1bb4527",
+        "tree_id": "d2712ec31940fe6bad6a9127146982a543731226",
+        "commit": "bd316ad185e8810109febcc87007421ab154d999",
+        "head_moved": true,
+        "same_tree": true,
+        "source_ancestor_exit": 0,
+        "project_repo_untouched": true
+      },
+      "after_empty_budget_30": {
+        "ran": 30,
+        "seconds": 9.555,
+        "ok": true,
+        "failed_banner": false,
+        "failures": 0,
+        "errors": 0,
+        "return_ok": true,
+        "label": "seq-frame-then-budget-after-empty-budget-30",
+        "returncode": 0,
+        "tag": "win",
+        "path": "captures/win-seq-frame-then-budget-after-empty-budget-30.txt",
+        "cwd": "C:\\Users\\PC\\AppData\\Local\\Temp\\wksim-g6-bf-p2-win-frame-then-budget-2s1q41s0"
+      },
+      "ok": true
+    }
+  ]
+}

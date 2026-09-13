@@ -1,0 +1,93 @@
+{
+  "schema": "wksim.g6-budget-related-source-p2.review.v1",
+  "slice": "cursor-g6-budget-related-source-p2-repair-20260914-01",
+  "work_class": "new-development / offline provenance repair",
+  "verdict": "p2_closed_in_validate_not_owner_approval",
+  "owner_approval_claimed": false,
+  "issues_closed_claimed": false,
+  "closed_tickets": [],
+  "cwd": "C:\\Users\\PC\\Documents\\odid编译\\wksim",
+  "branch": "main",
+  "head": "6eafdf9c0b734db07a9fe790c86b409d3468c10b",
+  "ancestor_f333316e_exit": 0,
+  "ancestor_source_exit": 0,
+  "module": "validation.test_e0_budget_approval_provenance.validate",
+  "owned_files": [
+    "docs/plan/59-e0-budget-approval-provenance-20260914.md",
+    "validation/e0-budget-approval-provenance-20260914.json",
+    "validation/test_e0_budget_approval_provenance.py",
+    "validation/coordination/cursor-g6-budget-related-source-p2-repair-20260914-01/**"
+  ],
+  "untouched": [
+    "frame trio",
+    "G1",
+    "G3",
+    "Full",
+    "historical receipts",
+    "main-repo git index"
+  ],
+  "not_launched": [
+    "native", "model", "MATLAB", "ROS", "DDS", "SITL", "FC", "UE", "build", "flight", "#83"
+  ],
+  "before_p2_open": [
+    "P2-H18-source-head-missing-validate",
+    "P2-H18b-source-head-not-ancestor-validate",
+    "P2-H21-frame-path-backslash-current-hash",
+    "P2-H22-frame-path-dot-prefix-current-hash",
+    "P2-H23-duplicate-related-path",
+    "P2-H23b-related-hash-mismatch"
+  ],
+  "after_p2_open": [],
+  "tokens": {
+    "related_artifact_mismatch": "exact id/path/sha256 triple, order, duplicate id/path, extra/missing",
+    "source_head_missing_or_not_ancestor": "validate(check_git=True) only"
+  },
+  "check_git_false_boundary": "structural triples/declarations/location class; no SOURCE_HEAD object or ancestor probe",
+  "runs": {
+    "windows": {
+      "python": "3.13.11",
+      "representative_30": {"ran": 30, "ok": true, "seconds": 9.472, "returncode": 0},
+      "hostile": {"oracle_pass": 31, "oracle_fail": 0, "p2_open": 0},
+      "full": {"ran": 153, "ok": true, "seconds": 153.278, "returncode": 0, "previous_full": 139},
+      "sequence": {
+        "budget_then_frame": {"after_both_s": 9.627, "after_empty_s": 9.604, "ok": true},
+        "frame_then_budget": {"after_both_s": 9.474, "after_empty_s": 9.555, "ok": true}
+      }
+    },
+    "ubuntu_22_04": {
+      "python": "3.10.12",
+      "representative_30": {"ran": 30, "ok": true, "seconds": 119.065, "returncode": 0},
+      "hostile": {"oracle_pass": 31, "oracle_fail": 0, "p2_open": 0},
+      "sequence": {
+        "budget_then_frame": {"after_both_s": 7.8, "after_empty_s": 8.683, "ok": true},
+        "frame_then_budget": {"after_both_s": 9.247, "after_empty_s": 9.258, "ok": true}
+      }
+    }
+  },
+  "findings": [
+    {
+      "id": "F1-validate-related-triple",
+      "priority": "P1",
+      "status": "closed",
+      "summary": "validate() now exact-compares frozen related id/path/sha256 triples"
+    },
+    {
+      "id": "F2-validate-source-head",
+      "priority": "P1",
+      "status": "closed",
+      "summary": "validate(check_git=True) returns source_head_missing_or_not_ancestor"
+    },
+    {
+      "id": "F3-missing-win-envelope",
+      "priority": "P2",
+      "status": "historical-residual",
+      "summary": "prior sequence-repair still lacks win-after-frame-then-budget.json / win-after-summary.json; not rewritten"
+    },
+    {
+      "id": "F4-test-not-self-hashed",
+      "priority": "P3",
+      "status": "expected",
+      "summary": "PACKAGE_SHA256 still does not pin the test file"
+    }
+  ]
+}
