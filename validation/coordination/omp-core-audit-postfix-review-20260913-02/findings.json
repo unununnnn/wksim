@@ -1,0 +1,137 @@
+{
+  "review": "omp-core-audit-postfix-review-20260913-02",
+  "date": "2026-09-13",
+  "scope": {
+    "object": "Uncommitted working-tree changes to tools/audit_core_no_vendor_dll.py and validation/test_audit_core_no_vendor_dll.py (the three P1 fixes responding to validation/coordination/codebuddy-core-native-audit-review-20260913-01)",
+    "mode": "adversarial read-only; pure AST + tempdir fixtures; no native loads, no .so/.dll bytes, no ROS/flight-control/model/UE/MATLAB, no process control",
+    "writes": "only validation/coordination/omp-core-audit-postfix-review-20260913-02/ (findings.json, summary.md, repro_tests.py, manifest.sha256)"
+  },
+  "checkout": {
+    "cwd": "C:/Users/PC/Documents/odid编译/wksim",
+    "head_at_start": "72ef95d (concurrent commits advanced HEAD during session)",
+    "head_at_end": "0106b90b31365481f8f60052a22e184039dce353",
+    "architecture_ancestor_f333316": "exit 0",
+    "in_scope_sha256_unchanged_across_session": true,
+    "in_scope_sha256": {
+      "tools/audit_core_no_vendor_dll.py": "7f91acfbe4aa2d60352007805de35f22b72af6dd38f7df30918cf728120b131d",
+      "validation/test_audit_core_no_vendor_dll.py": "c40441069b41f9e57ca73d3a0c9e64b382a3895bc76bd6ed554395613fb187c3",
+      "Simulator/wksim_runtime/perf_capture.py": "c196616fe8324eed2d8b294ef52aaec1f982eb5330abbeb7ee17094399f32e0f",
+      "Simulator/wksim_runtime/netns_handoff.py": "3cfea24602fb6c703898be4bac6e81f71a38a0175260b08d2bad58ba9b973575"
+    }
+  },
+  "verdict": {
+    "P0": 0,
+    "P1": 3,
+    "P2": 2,
+    "summary": "All three P1 fixes are NOT fail-closed. 15 of 17 repro cases bypass the new checks while the audit reports status=pass with zero violations; both controls (baseline pass, second-CDLL rejection) behave correctly, so the audit is alive but the new exception validation remains presence-based, not semantic."
+  },
+  "runs": [
+    {
+      "command": "python -B validation/coordination/omp-core-audit-postfix-review-20260913-02/repro_tests.py",
+      "exit_code": 0,
+      "result": "17 cases: 2 controls correct, 15 bypasses (audit pass where fail expected)",
+      "output_sha256": "753b4c78ad52a35dfc15120317c96f2f31c7b7f13f4ec0008dc41c33680093ca",
+      "determinism": "three runs byte-identical (same SHA256)"
+    },
+    {
+      "command": "python -B -m pytest validation/test_audit_core_no_vendor_dll.py -q",
+      "exit_code": 0,
+      "result": "99 passed, 1 skipped, 120 subtests passed",
+      "output_sha256": "c4d1c0a4e7c5b6277dbea6e3b1c643fe4c9b68e7b7a3f2d3399f528fa51d529c"
+    },
+    {
+      "command": "python -B tools/audit_core_no_vendor_dll.py",
+      "exit_code": 0,
+      "result": "status=pass, violations=[] on the real working tree",
+      "output_sha256": "de3b8dd998e439df6cc894ba146eb5488b254f18c9be77a87b555679a0cc128c",
+      "note": "byte-identical to the fix record's audit.json hash (de3b8dd9...) from ds-core-native-load-audit-fix-20260913-01"
+    }
+  ],
+  "findings": [
+    {
+      "id": "P1-1",
+      "severity": "P1",
+      "title": "Gate effectiveness fix is walk-based and reachability-blind: unreachable raise, dead outer condition, dead nested def, and swallowed raise all satisfy the gates",
+      "location": "tools/audit_core_no_vendor_dll.py: _if_body_raises (324-327), gate scan in _perf_recorder_load_shape_ok (449-498), lexical check at 452",
+      "root_cause": "ast.walk descends into any nesting depth. _if_body_raises accepts a Raise buried in an inner `if False:` / nested def; the gate scan accepts an If nested under a dead outer `if False:`, inside a never-called nested def, or inside a try whose except swallows the raise; `node.lineno < call.lineno` is lexical order, not dominance. _gate_test_intact only inspects the gate's own test, so neutralization one level up or down is invisible.",
+      "repro_cases": {
+        "A1_digest_gate_unreachable_raise": "perf_capture.py:40 -> `            if False: raise PerfCaptureError('Perf library SHA256 mismatch')` (one line, digest gate never fires: any content passes)",
+        "A2_path_gate_unreachable_raise": "perf_capture.py:31 -> `            if False: raise ...` (one line, path gate never fires: relative/non-.so/nonexistent paths pass)",
+        "A3_sha_gate_unreachable_raise": "perf_capture.py:34 -> `            if False: raise ...` (one line, SHA shape gate never fires)",
+        "B_digest_gate_under_dead_outer_if": "lines 39-40 -> outer `if False:` wrapping the intact digest gate (2 lines for 2, pinned line 51 holds)",
+        "F_gates_inside_dead_nested_def": "lines 30-40 -> never-called nested `def _verify(...)` holding all gates + digest feed; top level keeps only `library = Path(library_path)` and the pinned load: fully unverified dlopen with audit green",
+        "G_digest_gate_raise_swallowed": "lines 39-40 -> `try: <intact gate> / except PerfCaptureError: pass` (line-neutral via merging lines 47-50)"
+      },
+      "observed": "all six cases report status=pass, violations=[]; semantically each disables at least one gate while loading anyway",
+      "impact": "The three new tests (and-False, raise->pass, reorder) only cover exact-token deletion and whole-block reorder. Token-preserving reachability attacks defeat every gate; F defeats all gates and the digest binding at once. The docstring claim 'every gate dominates the load' is false.",
+      "minimal_fix": [
+        "Require each gate If to be a DIRECT element of the host function's body sequence (iterate function.body in order; do not ast.walk for gate discovery), and require the pinned CDLL statement to appear later in that same sequence. Gates nested in If/Try/While/For/FunctionDef/AsyncFunctionDef/ClassDef fail closed.",
+        "Replace _if_body_raises with an exact-shape check: the gate body must be exactly one unconditional ast.Raise (optionally preceded by a constant-docstring Expr). Any nested compound statement in the body fails closed.",
+        "Optionally also reject a gate whose Raise type is caught by an enclosing try in the same function (or simpler: reject gates not at top level, which already covers the try case)."
+      ]
+    },
+    {
+      "id": "P1-2",
+      "severity": "P1",
+      "title": "Digest/path dataflow fix lacks binding-count and read-size constraints: vacuous read(0), path rebinding after verification, digest rebinding all pass",
+      "location": "tools/audit_core_no_vendor_dll.py: token scan 381-413, feed check 416-444 (read size never inspected at 425-430; no uniqueness/no-rebind check for path_name/digest_name/stream_name)",
+      "root_cause": "The feed loop is matched structurally (lambda calls <stream>.read, sentinel b'', update(chunk)) but the read size argument is never validated, and no check requires the verified names to be bound exactly once or forbids rebinding between verification and load.",
+      "repro_cases": {
+        "C_vacuous_read_zero": "perf_capture.py:37 read(1024 * 1024) -> read(0): the iter() sentinel fires immediately, zero file bytes are hashed, digest is the empty-input hash (one-line edit; same class as the fixed digest.update(b''))",
+        "D_path_rebound_after_verify": "perf_capture.py:47 -> `        self.library_path = str(library); library = Path('/tmp/evil.so')` (one-line edit): all gates and the digest run on the caller's genuine file, then line 51 dlopens the rebound path. Full escape, no caller cooperation.",
+        "E_digest_rebound_during_feed": "perf_capture.py:38 -> `                digest.update(chunk); digest = hashlib.sha256()` (one-line edit): the gate compares a fresh empty digest, not the fed one"
+      },
+      "observed": "all three cases report status=pass, violations=[]",
+      "impact": "D fully decouples verified bytes from loaded bytes (the core invariant of the caller_path_sha256 exception). C/E reduce the digest gate to a constant comparison — the loaded file's content provably does not reach the comparison, the exact P1-2 regression class that was supposed to be fixed.",
+      "minimal_fix": [
+        "Count bindings: path_name, digest_name and stream_name must each be bound exactly once in the function (count ast.Assign/AnnAssign/AugAssign targets, ast.NamedExpr targets, for-targets and with optional_vars); any second binding fails closed.",
+        "Order: the path_name binding must lexically precede the with-block and all gates; the digest_name binding must lexically precede the with-block; the pinned load must be the last use of path_name (or, equivalently, no statement binding path_name may follow the with-block).",
+        "Require the read() call's size argument to be a positive integer constant or a BinOp product of positive integer constants; anything else (0, negative, name, call) fails closed."
+      ]
+    },
+    {
+      "id": "P1-3",
+      "severity": "P1",
+      "title": "CDLL(None) handle confinement is a three-pattern blacklist: walrus, container, lambda, return and comprehension escapes all reach arbitrary libc symbols including dlopen",
+      "location": "tools/audit_core_no_vendor_dll.py: handle scan 529-540 (only Attribute-on-Name, Assign/AnnAssign-from-Name, and getattr(handle) are rejected)",
+      "root_cause": "The scan blacklists three syntactic shapes instead of whitelisting the handle's allowed contexts. The abstract evaluator returns an untagged _StaticValue for the CDLL result (line 1064-1065), so once the handle leaves its name no downstream rule recognizes it — including the loader-token path, because container/subscript values carry no unknown_owner tag (case H5: dlopen via [libc][0] is also invisible).",
+      "repro_cases": {
+        "H1_handle_escape_walrus": "insert at netns_handoff.py:186: `            (h := libc).system(b'id')` — NamedExpr is not Assign; the attribute is on `h`, not `libc`",
+        "H2_handle_escape_container": "insert: `            [libc][0].system(b'id')` — attribute on a Subscript, not a Name",
+        "H3_handle_escape_lambda": "insert: `            (lambda: libc)().system(b'id')` — attribute on a Call, not a Name",
+        "H4_handle_escape_return": "line 194 `return dict(...)` -> `return libc` — Return is not scanned; every caller of enter_namespace receives the whole-process handle",
+        "H5_handle_escape_container_dlopen": "insert: `            [libc][0].dlopen(b'/tmp/x.so', 2)` — a REAL second native loader, invisible to both the handle scan and rule 6c/load-site tagging",
+        "H6_handle_escape_comprehension": "insert: `            [x.system(b'id') for x in [libc]]` — comprehension target renames the handle"
+      },
+      "observed": "all six cases report status=pass, violations=[]",
+      "impact": "The pinned exception 'used only for the Linux setns syscall' is defeated by a one-line insert that borrows the handle to any libc symbol or to dlopen itself — the same severity as the original P1-3, via channels the fix does not model (parameters, containers, closures, return values are all open).",
+      "minimal_fix": [
+        "Replace the blacklist with a parent-aware whitelist: build a parents map once, then for every ast.Name in the module with id == handle require its parent context to be exactly one of (a) the pinned Assign value, (b) the value of an Attribute `.setns` (load) or of `.setns.argtypes`/`.setns.restype` (store), (c) the func of the whitelisted setns call. Any other context — Return, Yield, Call argument, keyword, container element, NamedExpr, Lambda/comprehension body, default value, f-string — fails closed.",
+        "Keep the existing three blacklist checks as defense in depth, but the whitelist is the load-bearing rule.",
+        "Optional hardening per the original review: tag the pinned handle's abstract value as ctypes_loader so any non-whitelisted use is double-caught by rule 6c/load-site."
+      ]
+    },
+    {
+      "id": "P2-1",
+      "severity": "P2",
+      "title": "New regression tests cover token deletion/reorder but not reachability or binding attacks",
+      "location": "validation/test_audit_core_no_vendor_dll.py: new tests at 996-1043 and 1141-1159",
+      "detail": "Covered: `and False` neutralization, raise->pass, load-before-gate reorder, digest.update(b''), decoy-open subscript, direct other-symbol, direct alias. Missing: unreachable-raise (`if False: raise`), outer-condition wrapping, try/except swallow, dead nested def, read(0), path/digest rebinding, walrus/container/lambda/return/comprehension handle escapes.",
+      "minimal_fix": "Port the 15 bypass mutations from repro_tests.py into PinnedNativeLoadSiteTests as negative cases (each asserting status == 'failed')."
+    },
+    {
+      "id": "P2-2",
+      "severity": "P2",
+      "title": "Claim/docstring overclaim persists",
+      "location": "tools/audit_core_no_vendor_dll.py: docstring 356-365 ('so every gate dominates the load') and 507-510; claim string",
+      "detail": "Lexical precedence is not dominance (P1-1 cases B/F/G); 'any alias copy ... fails closed' is true only for direct Assign/AnnAssign aliases. docs/plan/75-core-no-dll-audit.md still states the old single-load-site invariant (already recorded as a known doc gap owned elsewhere; not modified here per scope).",
+      "minimal_fix": "After tightening the code per P1-1/P1-3, re-verify the wording; otherwise narrow the claim to what the checks prove."
+    }
+  ],
+  "verified_robust": [
+    "_gate_test_intact bool-only coverage is adequate within the detection shape: `and 0`/`or 1` style non-bool constants either change the top BoolOp type (digest gate requires a bare Compare; path/sha gates require BoolOp-Or -> detection fails -> fail closed) or over-fire an Or-gate (denial direction, not escape). Confirmed by code reading; not counted as a finding.",
+    "Both controls behave: unmodified fixture passes; an appended second ctypes.CDLL is rejected twice (unexpected dynamic-load site + forbidden loader reference).",
+    "Pinned-line hashes and host-function pinning were held constant in every mutation (asserted in repro_tests.py), so all 15 bypasses are attributable to the new shape logic, not to pin drift.",
+    "Real-repo audit and the full pure test suite both pass on the working tree (exit 0 each), so the bypasses are false negatives, not a broken baseline."
+  ]
+}
