@@ -1,0 +1,137 @@
+{
+  "receipt_id": "sha-receipt-20260913-10",
+  "review_scope": "independent review of the manager-only FIFO 50 -> 99 scheduling candidate (ds-manager99-candidate-20260913-01) against frozen baseline 1c600d7f",
+  "review_owner": "validation/coordination/ds-manager99-review-20260913-01",
+  "verdict": {
+    "only_manager_target_changed": "confirmed",
+    "model_fc_settings_unchanged": "confirmed",
+    "nice_unchanged": "confirmed",
+    "reset_on_fork_unchanged": "confirmed",
+    "clock_callback_threshold_command_unchanged": "confirmed",
+    "only_correct_pid_scheduled": "confirmed",
+    "errors_recorded_verbatim": "confirmed",
+    "blocking": false,
+    "findings": ["F2 comment says 'just below' a level the candidate equals", "F3 equal-priority FIFO does not preempt; no affinity/duty data", "F4 single-run single-host evidence cannot support a performance claim"]
+  },
+  "produced": {
+    "manager_schedule_probe.py": "8101e7bb04b480ed54870f9cb5b5a50a0e422c4f0f835746e6843f22293d55fd",
+    "captured_policy_analysis.py": "b0ca918fef165ab0c8c1472dd8798575f6307818c22d5b8ee75ba7448d108307",
+    "test_manager99_candidate.py": "2c1e92b5f0389d2ff3ef163ee7d008ba152698eab125727cb7c2b47a0e590b3a",
+    "run_manager99_review.py": "a9800b71bee80e6c2602fa7bce6e54bc8eb10263f4075d786c7210f1d1ae8a56",
+    "review-manager99-candidate.md": "5dd80f73fa597f2d5b562732b1a72f5c3174942575d7b8d5ed1ef558680d3e97",
+    "evidence/manager99-review.json": "07a753bee652c673db2c4a63f096de6183601b17d6427eacbc04e37cc6614ff9"
+  },
+  "rerun": {
+    "test_manager99_candidate.py": {"exit_code": 0, "result": "OK", "tests": 27},
+    "run_manager99_review.py": {"exit_code": 0}
+  },
+  "reviewed_sources": {
+    "validation/coordination/ds-manager99-candidate-20260913-01/candidate.py.txt": {
+      "sha256": "9b97c124cc75c582aabaf72db2051f96f2b4777855f39645f5a75fb2d2d1e839",
+      "bytes": 98579,
+      "lines": 1564
+    },
+    "validation/coordination/ds-manager99-candidate-20260913-01/candidate.json": {
+      "sha256": "1c45ca1d0f3d35c1cbaacb66e2f9e5c0b9eeefb1f8a49eb054c7b02538201661"
+    },
+    "validation/coordination/ds-manager99-candidate-20260913-01/candidate.diff": {
+      "sha256": "668475ec8d68e884253537e5ca7190448bbe82945c59b37ce44a32e5c15b5c7a"
+    },
+    "validation/coordination/ds-manager99-candidate-20260913-01/build_candidate.py": {
+      "sha256": "76e7594965625e9ec0aab2e5a2cf758913457346a2a0df217f8d0b33c14f8c75"
+    },
+    "validation/coordination/claude-owned-snapshot-wiring-20260913-01/run_joint_flight-owned-snapshot-candidate-v3.py.txt": {
+      "sha256": "1c600d7f018376f5c6fe333f0fd5da75798834c5f09e843078b0939142774373",
+      "bytes": 98262,
+      "lines": 1560,
+      "matches_frozen_pin": true
+    },
+    "validation/coordination/last-callbacks-run-20260913-01/flight/owned-scheduling-before.json": {
+      "sha256": "4647d5a2a6711839db813ba84bbeb9df5abf5d30796f3f38a0098f835736d4e7",
+      "bytes": 228813,
+      "role": "captured policy, phase before"
+    },
+    "validation/coordination/last-callbacks-run-20260913-01/flight/owned-scheduling-after.json": {
+      "sha256": "7cf3c046aecf5bde0da9558f65daf3bf3d07aa524cbf21adb2f16989e020c5cb",
+      "bytes": 331637,
+      "role": "captured policy, phase after"
+    },
+    "validation/coordination/last-callbacks-run-20260913-01/flight/owned-scheduling-targets.json": {
+      "sha256": "268825bb27300713a3800a6f057fd0cfc78a9f518a70981ccae2037580b6b757",
+      "bytes": 8123
+    }
+  },
+  "source_audit": {
+    "changed_hunks": 2,
+    "removed_snapshot_lines": [189, 192],
+    "semantic_removed": ["value['target_fifo_priority'] = 50 if role=='manager' else 40"],
+    "semantic_added": ["value['target_fifo_priority'] = 99 if role=='manager' else 40"],
+    "non_fifo_semantic_lines": [],
+    "added_lines_all_comments_except_the_fifo_assignment": true,
+    "fifo_assignments_snapshot": ["value['target_fifo_priority'] = 50 if role=='manager' else 40"],
+    "fifo_assignments_candidate": ["value['target_fifo_priority'] = 99 if role=='manager' else 40"],
+    "declared_diff_reproduced_byte_for_byte": true,
+    "candidate_json_fields_match_measured_values": true
+  },
+  "ledger_differential": {
+    "method": "candidate and snapshot scheduling() executed in-process against a fake os ledger; no kernel call",
+    "manager_differing_calls_per_evidence": {"False": 1, "True": 1},
+    "manager_difference": "sched_setscheduler(pid, SCHED_FIFO, 50) -> (pid, SCHED_FIFO, 99)",
+    "non_manager_roles": "model, fc, task, agent, service ledgers and result dicts byte-identical for async_model_evidence False and True"
+  },
+  "pid_targeting": {
+    "pids_tested": [1, 4242, 99999],
+    "every_call_carries_the_requested_pid": true,
+    "foreign_pids_observed": [],
+    "prio_process_used_for_nice": true,
+    "os_attribute_surface": ["setpriority", "getpriority", "PRIO_PROCESS", "SCHED_FIFO", "SCHED_RESET_ON_FORK", "sched_setscheduler", "sched_getscheduler", "sched_getparam", "sched_param"],
+    "no_process_creation_in_function": true
+  },
+  "failure_pass_through": {
+    "nice_eperm": {"nice_error_recorded": true, "actual_nice_absent": true, "fifo_request_still_runs": true, "getpriority_skipped_same_try": true},
+    "sched_eperm": {"scheduler_error_recorded": true, "actual_policy_absent": true, "actual_priority_absent": true, "nice_still_applied": true},
+    "both_denied": {"both_recorded_independently": true},
+    "readback_denied": {"scheduler_error_recorded": true, "actual_priority_absent": true, "actual_policy_kept": true},
+    "no_success_field_fabricated": true,
+    "success_reads_back_kernel_state": true
+  },
+  "captured_policy_boundary": {
+    "source": "successful v3 capture, single run, boot 2e7caa0c-f041-426f-a550-50acd12125c5, uptime 91.6 s",
+    "run_status": "failed (not an acceptance run)",
+    "run_source_pin": "tools/run_joint_flight.py = 1c600d7f018376f5c6fe333f0fd5da75798834c5f09e843078b0939142774373 (frozen baseline, candidate NOT applied)",
+    "manager_observed": {"pid": 812, "comm": "python3", "policy": "SCHED_FIFO", "rt_priority": 50, "nice": -10, "before_equals_after": true, "other_threads": "30 at SCHED_OTHER"},
+    "model_fc_observed": {"policy": "SCHED_FIFO", "rt_priority": 40},
+    "observed_rt_priorities": [50, 55, 74, 90, 98, 99],
+    "highest_observed_priority": 99,
+    "threads_at_99_by_role": {"px4-fc": 16},
+    "threads_at_98_by_role": {"px4-fc": 2},
+    "comm_at_99": ["sim_rcv", "sim_send", "wkr_hrt", "wq:INS0", "wq:INS1", "wq:INS2", "wq:hp_default", "wq:lp_default", "wq:manager", "wq:rate_ctrl"],
+    "comm_at_98": ["hpwork"],
+    "sched_rt_runtime_us": "950000",
+    "sched_rt_period_us": "1000000"
+  },
+  "findings": {
+    "F2": "the added comment claims the manager is raised to just below the 99-priority threads; 99 is the highest observed level, so the candidate would be level with those threads, not below; 'work-queue/hrtimer service threads' is broader than the observed comm names (wq:*, wkr_hrt, sim_rcv, sim_send) and the causal wording is not supported by the capture",
+    "F3": "equal-priority SCHED_FIFO threads do not preempt each other; the capture records no CPU affinity or duty data, so same-core contention with the 98/99 threads cannot be derived",
+    "F4": "one run on one host/boot; the 98/99 threads belong to the wrapper px4-fc process, not the runner; the snapshot cannot support a performance claim",
+    "R1": "scheduling() has three exits (nice failure, FIFO failure, success) and no applied-value assertion; runtime read-back should be compared to the target",
+    "R2": "nice and sched failures do not block each other (baseline semantics, unchanged)",
+    "R3": "candidate.json declares its opcodes indicative; measured opcodes match candidate.diff, no conflict"
+  },
+  "not_claimed": [
+    "no performance, latency or acceptance benefit from the manager 99 target",
+    "no real scheduling call was made by this review",
+    "no R1 or formal result is implied by the candidate or by the retained capture"
+  ],
+  "constraints_honored": {
+    "wrote_only_assigned_directory": true,
+    "read_only_over_author_files_and_captures": true,
+    "no_real_scheduling": true,
+    "no_model_ros_build_or_runtime_execution": true,
+    "no_new_framework_or_harness_added_to_the_runner": true,
+    "no_polling_wait": "candidate was already present; no waiting performed",
+    "no_nested_agents": true,
+    "no_git_mutation": true
+  },
+  "blockers": []
+}

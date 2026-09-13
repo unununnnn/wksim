@@ -1,0 +1,74 @@
+{
+  "acceptance": false,
+  "candidate_sha256": "9b97c124cc75c582aabaf72db2051f96f2b4777855f39645f5a75fb2d2d1e839",
+  "diff_sha256": "668475ec8d68e884253537e5ca7190448bbe82945c59b37ce44a32e5c15b5c7a",
+  "file_count": 10,
+  "files": [
+    {
+      "bytes": 98579,
+      "path": "candidate.py.txt",
+      "sha256": "9b97c124cc75c582aabaf72db2051f96f2b4777855f39645f5a75fb2d2d1e839"
+    },
+    {
+      "bytes": 1416,
+      "path": "candidate.diff",
+      "sha256": "668475ec8d68e884253537e5ca7190448bbe82945c59b37ce44a32e5c15b5c7a"
+    },
+    {
+      "bytes": 2803,
+      "path": "candidate.json",
+      "sha256": "3be29e93b2e9a82775782f4b6f0cf29fb80377cb10a64e75c727e6c178a51607"
+    },
+    {
+      "bytes": 7812,
+      "path": "build_candidate.py",
+      "sha256": "eb29e309c0e72a1911cfb7299b3bc6b05ca9f1c9557310d6ea8d693e9e6eac0a"
+    },
+    {
+      "bytes": 11954,
+      "path": "verify_candidate.py",
+      "sha256": "ae5174d0c29f9f5c7493f736267f7ec9bbdcec2dd73fb18329f6c164ee2d1a4e"
+    },
+    {
+      "bytes": 3528,
+      "path": "verify_reversibility.py",
+      "sha256": "5256106fd54de49cc01e65e3b9544d449ee7f70d0c2d51d86d885c9f0c3ee568"
+    },
+    {
+      "bytes": 4236,
+      "path": "README.md",
+      "sha256": "a8fd9458a8ae2768a7248eb193f50a1c666b9436fa861e29a4a3a3ee5d31e786"
+    },
+    {
+      "bytes": 4306,
+      "path": "write_manifest.py",
+      "sha256": "55510eb2190da926fcab5b645afad3a64de92852a60ffee25aad2f5ab59cf652"
+    },
+    {
+      "bytes": 11419,
+      "path": "evidence/candidate-verification.json",
+      "sha256": "b8cf99a0466553b8c717ee80ba83b85eea6ac64e04fe36a295e58fd461975a63"
+    },
+    {
+      "bytes": 453,
+      "path": "evidence/reversibility.json",
+      "sha256": "8bf97aab10cf84c9213b9de32c567fb51f9f39396d1e97d22f9159b5caa78abe"
+    }
+  ],
+  "frozen_base": {
+    "path": "validation/coordination/claude-owned-snapshot-wiring-20260913-01/run_joint_flight-owned-snapshot-candidate-v3.py.txt",
+    "sha256": "1c600d7f018376f5c6fe333f0fd5da75798834c5f09e843078b0939142774373"
+  },
+  "notes": [
+    "the change is one priority expression plus four comment lines and one comment correction; candidate.diff is the authoritative record",
+    "the inverse edit reproduces the frozen snapshot byte-for-byte",
+    "verified with a fake os ledger: manager target 50 -> 99, every other role and the whole call ledger unchanged, failure paths unchanged",
+    "no performance, latency or acceptance claim; the observed 11-process priorities are motivation, not causal proof",
+    "no native, scheduling, model, ROS, MATLAB or build operation was performed",
+    "no new flag, option or framework was added to the runner"
+  ],
+  "purpose": "minimal manager-only scheduling candidate: manager target FIFO 50 -> 99, not applied to any runtime, staging copy or process",
+  "scope": "validation/coordination/ds-manager99-candidate-20260913-01",
+  "status": "candidate_verified_as_manager_only",
+  "task": "ds-manager99-candidate-20260913-01"
+}

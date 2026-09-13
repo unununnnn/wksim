@@ -1,0 +1,432 @@
+{
+  "artifact": "ds-manager99-candidate-verification",
+  "version": "v1",
+  "snapshot": {
+    "path": "validation/coordination/claude-owned-snapshot-wiring-20260913-01/run_joint_flight-owned-snapshot-candidate-v3.py.txt",
+    "sha256": "1c600d7f018376f5c6fe333f0fd5da75798834c5f09e843078b0939142774373",
+    "matches_pin": true
+  },
+  "candidate": {
+    "path": "candidate.py.txt",
+    "sha256": "9b97c124cc75c582aabaf72db2051f96f2b4777855f39645f5a75fb2d2d1e839"
+  },
+  "method": [
+    "AST extraction of the scheduling function from both files",
+    "restricted exec with a recording fake os that performs no system call",
+    "role-by-role comparison of results, os call ledgers and failure paths"
+  ],
+  "roles_exercised": [
+    "manager",
+    "model",
+    "fc",
+    "task",
+    "agent",
+    "service"
+  ],
+  "observations": [
+    {
+      "role": "manager",
+      "async_model_evidence": false,
+      "snapshot_target_fifo_priority": 50,
+      "candidate_target_fifo_priority": 99,
+      "snapshot_result": {
+        "target_nice": -10,
+        "actual_nice": -10,
+        "target_fifo_priority": 50,
+        "actual_policy": 1,
+        "actual_priority": 40
+      },
+      "candidate_result": {
+        "target_nice": -10,
+        "actual_nice": -10,
+        "target_fifo_priority": 99,
+        "actual_policy": 1,
+        "actual_priority": 40
+      },
+      "os_calls_identical": false,
+      "priority_change": {
+        "role": "manager",
+        "snapshot": 50,
+        "candidate": 99
+      }
+    },
+    {
+      "role": "manager",
+      "async_model_evidence": true,
+      "snapshot_target_fifo_priority": 50,
+      "candidate_target_fifo_priority": 99,
+      "snapshot_result": {
+        "target_nice": -10,
+        "actual_nice": -10,
+        "target_fifo_priority": 50,
+        "reset_on_fork": true,
+        "actual_policy": 1,
+        "actual_priority": 40
+      },
+      "candidate_result": {
+        "target_nice": -10,
+        "actual_nice": -10,
+        "target_fifo_priority": 99,
+        "reset_on_fork": true,
+        "actual_policy": 1,
+        "actual_priority": 40
+      },
+      "os_calls_identical": false,
+      "priority_change": {
+        "role": "manager",
+        "snapshot": 50,
+        "candidate": 99
+      }
+    },
+    {
+      "role": "model",
+      "async_model_evidence": false,
+      "snapshot_target_fifo_priority": 40,
+      "candidate_target_fifo_priority": 40,
+      "snapshot_result": {
+        "target_nice": -10,
+        "actual_nice": -10,
+        "target_fifo_priority": 40,
+        "actual_policy": 1,
+        "actual_priority": 40
+      },
+      "candidate_result": {
+        "target_nice": -10,
+        "actual_nice": -10,
+        "target_fifo_priority": 40,
+        "actual_policy": 1,
+        "actual_priority": 40
+      },
+      "os_calls_identical": true,
+      "priority_change": null
+    },
+    {
+      "role": "model",
+      "async_model_evidence": true,
+      "snapshot_target_fifo_priority": 40,
+      "candidate_target_fifo_priority": 40,
+      "snapshot_result": {
+        "target_nice": -10,
+        "actual_nice": -10,
+        "target_fifo_priority": 40,
+        "reset_on_fork": true,
+        "actual_policy": 1,
+        "actual_priority": 40
+      },
+      "candidate_result": {
+        "target_nice": -10,
+        "actual_nice": -10,
+        "target_fifo_priority": 40,
+        "reset_on_fork": true,
+        "actual_policy": 1,
+        "actual_priority": 40
+      },
+      "os_calls_identical": true,
+      "priority_change": null
+    },
+    {
+      "role": "fc",
+      "async_model_evidence": false,
+      "snapshot_target_fifo_priority": 40,
+      "candidate_target_fifo_priority": 40,
+      "snapshot_result": {
+        "target_nice": -10,
+        "actual_nice": -10,
+        "target_fifo_priority": 40,
+        "actual_policy": 1,
+        "actual_priority": 40
+      },
+      "candidate_result": {
+        "target_nice": -10,
+        "actual_nice": -10,
+        "target_fifo_priority": 40,
+        "actual_policy": 1,
+        "actual_priority": 40
+      },
+      "os_calls_identical": true,
+      "priority_change": null
+    },
+    {
+      "role": "fc",
+      "async_model_evidence": true,
+      "snapshot_target_fifo_priority": 40,
+      "candidate_target_fifo_priority": 40,
+      "snapshot_result": {
+        "target_nice": -10,
+        "actual_nice": -10,
+        "target_fifo_priority": 40,
+        "actual_policy": 1,
+        "actual_priority": 40
+      },
+      "candidate_result": {
+        "target_nice": -10,
+        "actual_nice": -10,
+        "target_fifo_priority": 40,
+        "actual_policy": 1,
+        "actual_priority": 40
+      },
+      "os_calls_identical": true,
+      "priority_change": null
+    },
+    {
+      "role": "task",
+      "async_model_evidence": false,
+      "snapshot_target_fifo_priority": null,
+      "candidate_target_fifo_priority": null,
+      "snapshot_result": {
+        "target_nice": -5,
+        "actual_nice": -10
+      },
+      "candidate_result": {
+        "target_nice": -5,
+        "actual_nice": -10
+      },
+      "os_calls_identical": true,
+      "priority_change": null
+    },
+    {
+      "role": "task",
+      "async_model_evidence": true,
+      "snapshot_target_fifo_priority": null,
+      "candidate_target_fifo_priority": null,
+      "snapshot_result": {
+        "target_nice": -5,
+        "actual_nice": -10
+      },
+      "candidate_result": {
+        "target_nice": -5,
+        "actual_nice": -10
+      },
+      "os_calls_identical": true,
+      "priority_change": null
+    },
+    {
+      "role": "agent",
+      "async_model_evidence": false,
+      "snapshot_target_fifo_priority": null,
+      "candidate_target_fifo_priority": null,
+      "snapshot_result": {
+        "target_nice": -5,
+        "actual_nice": -10
+      },
+      "candidate_result": {
+        "target_nice": -5,
+        "actual_nice": -10
+      },
+      "os_calls_identical": true,
+      "priority_change": null
+    },
+    {
+      "role": "agent",
+      "async_model_evidence": true,
+      "snapshot_target_fifo_priority": null,
+      "candidate_target_fifo_priority": null,
+      "snapshot_result": {
+        "target_nice": -5,
+        "actual_nice": -10
+      },
+      "candidate_result": {
+        "target_nice": -5,
+        "actual_nice": -10
+      },
+      "os_calls_identical": true,
+      "priority_change": null
+    },
+    {
+      "role": "service",
+      "async_model_evidence": false,
+      "snapshot_target_fifo_priority": null,
+      "candidate_target_fifo_priority": null,
+      "snapshot_result": {
+        "target_nice": -5,
+        "actual_nice": -10
+      },
+      "candidate_result": {
+        "target_nice": -5,
+        "actual_nice": -10
+      },
+      "os_calls_identical": true,
+      "priority_change": null
+    },
+    {
+      "role": "service",
+      "async_model_evidence": true,
+      "snapshot_target_fifo_priority": null,
+      "candidate_target_fifo_priority": null,
+      "snapshot_result": {
+        "target_nice": -5,
+        "actual_nice": -10
+      },
+      "candidate_result": {
+        "target_nice": -5,
+        "actual_nice": -10
+      },
+      "os_calls_identical": true,
+      "priority_change": null
+    }
+  ],
+  "manager_ledger_differences": [
+    {
+      "async_model_evidence": false,
+      "snapshot": {
+        "call": "sched_param",
+        "args": [
+          50
+        ]
+      },
+      "candidate": {
+        "call": "sched_param",
+        "args": [
+          99
+        ]
+      }
+    },
+    {
+      "async_model_evidence": false,
+      "snapshot": {
+        "call": "sched_setscheduler",
+        "args": [
+          0,
+          1,
+          50
+        ]
+      },
+      "candidate": {
+        "call": "sched_setscheduler",
+        "args": [
+          0,
+          1,
+          99
+        ]
+      }
+    },
+    {
+      "async_model_evidence": true,
+      "snapshot": {
+        "call": "sched_param",
+        "args": [
+          50
+        ]
+      },
+      "candidate": {
+        "call": "sched_param",
+        "args": [
+          99
+        ]
+      }
+    },
+    {
+      "async_model_evidence": true,
+      "snapshot": {
+        "call": "sched_setscheduler",
+        "args": [
+          0,
+          1073741825,
+          50
+        ]
+      },
+      "candidate": {
+        "call": "sched_setscheduler",
+        "args": [
+          0,
+          1073741825,
+          99
+        ]
+      }
+    }
+  ],
+  "failure_cases": [
+    {
+      "failing_call": "setpriority",
+      "snapshot_result": {
+        "target_nice": -10,
+        "nice_error": "OSError('ledger-injected setpriority failure')",
+        "target_fifo_priority": 50,
+        "reset_on_fork": true,
+        "actual_policy": 1,
+        "actual_priority": 40
+      },
+      "candidate_result": {
+        "target_nice": -10,
+        "nice_error": "OSError('ledger-injected setpriority failure')",
+        "target_fifo_priority": 99,
+        "reset_on_fork": true,
+        "actual_policy": 1,
+        "actual_priority": 40
+      },
+      "same_outcome_keys": true,
+      "same_error_keys": true
+    },
+    {
+      "failing_call": "sched_setscheduler",
+      "snapshot_result": {
+        "target_nice": -10,
+        "actual_nice": -10,
+        "target_fifo_priority": 50,
+        "reset_on_fork": true,
+        "scheduler_error": "OSError('ledger-injected sched_setscheduler failure')"
+      },
+      "candidate_result": {
+        "target_nice": -10,
+        "actual_nice": -10,
+        "target_fifo_priority": 99,
+        "reset_on_fork": true,
+        "scheduler_error": "OSError('ledger-injected sched_setscheduler failure')"
+      },
+      "same_outcome_keys": true,
+      "same_error_keys": true
+    },
+    {
+      "failing_call": "sched_getscheduler",
+      "snapshot_result": {
+        "target_nice": -10,
+        "actual_nice": -10,
+        "target_fifo_priority": 50,
+        "reset_on_fork": true,
+        "scheduler_error": "OSError('ledger-injected sched_getscheduler failure')"
+      },
+      "candidate_result": {
+        "target_nice": -10,
+        "actual_nice": -10,
+        "target_fifo_priority": 99,
+        "reset_on_fork": true,
+        "scheduler_error": "OSError('ledger-injected sched_getscheduler failure')"
+      },
+      "same_outcome_keys": true,
+      "same_error_keys": true
+    },
+    {
+      "failing_call": "sched_getparam",
+      "snapshot_result": {
+        "target_nice": -10,
+        "actual_nice": -10,
+        "target_fifo_priority": 50,
+        "reset_on_fork": true,
+        "actual_policy": 1,
+        "scheduler_error": "OSError('ledger-injected sched_getparam failure')"
+      },
+      "candidate_result": {
+        "target_nice": -10,
+        "actual_nice": -10,
+        "target_fifo_priority": 99,
+        "reset_on_fork": true,
+        "actual_policy": 1,
+        "scheduler_error": "OSError('ledger-injected sched_getparam failure')"
+      },
+      "same_outcome_keys": true,
+      "same_error_keys": true
+    }
+  ],
+  "conclusion": {
+    "only_manager_priority_changed": true,
+    "non_manager_roles_byte_identical_results": true,
+    "no_scheduling_operation_performed": true
+  },
+  "not_claimed": [
+    "no performance, latency or acceptance claim of any kind",
+    "the evidence that motivated the candidate (11 process priorities observed before and after a real run) is not a causal proof and is not treated as one",
+    "no native, scheduling, model or runtime operation was performed here"
+  ],
+  "status": "candidate_verified_as_manager_only",
+  "findings": []
+}

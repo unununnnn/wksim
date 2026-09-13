@@ -1,0 +1,25 @@
+--- run_joint_flight-owned-snapshot-candidate-v3.py.txt
++++ candidate.py.txt
+@@ -183,16 +183,20 @@
+     try:
+         os.setpriority(os.PRIO_PROCESS,pid,value['target_nice'])
+         value['actual_nice'] = os.getpriority(os.PRIO_PROCESS,pid)
+     except OSError as error:
+         value['nice_error'] = repr(error)
+     if role in ('manager','model','fc'):
+-        value['target_fifo_priority'] = 50 if role=='manager' else 40
++        # Manager-only change under test: raise the manager target to FIFO/99,
++        # just below the 99-priority work-queue/hrtimer service threads observed on
++        # this host.  The model target stays 40, nice/-10 and the reset-on-fork rule
++        # are unchanged, so only the manager's own priority differs.
++        value['target_fifo_priority'] = 99 if role=='manager' else 40
+         # The manager must reset its children before Popen so the model worker's
+         # background writer cannot race the parent's post-spawn scheduling call
+-        # and inherit FIFO/50.  The model leader is then explicitly promoted to
++        # and inherit FIFO/99.  The model leader is then explicitly promoted to
+         # FIFO/40 with the same reset flag while its existing writer stays
+         # ordinary-scheduled.
+         reset_on_fork = role in ('manager', 'model') and async_model_evidence
+         if reset_on_fork:
+             value['reset_on_fork'] = True
+         try:

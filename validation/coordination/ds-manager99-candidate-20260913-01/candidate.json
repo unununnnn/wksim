@@ -1,0 +1,70 @@
+{
+  "candidate": "candidate.py.txt",
+  "candidate_bytes": 98579,
+  "candidate_lines": 1564,
+  "candidate_sha256": "9b97c124cc75c582aabaf72db2051f96f2b4777855f39645f5a75fb2d2d1e839",
+  "change": {
+    "comment_lines_added": 4,
+    "diff_is_authoritative": "candidate.diff and its sha256 are the record of the change; the SequenceMatcher opcodes below are indicative because a moved block can be aligned differently",
+    "edited_snapshot_lines": [
+      189,
+      192
+    ],
+    "function": "scheduling",
+    "new_expression": "value['target_fifo_priority'] = 99 if role=='manager' else 40",
+    "new_side_lines_flagged_by_opcodes": [
+      189,
+      190,
+      191,
+      192,
+      193,
+      196
+    ],
+    "old": "        value['target_fifo_priority'] = 50 if role=='manager' else 40",
+    "old_line_number": 189,
+    "old_side_lines_flagged_by_opcodes": [
+      189,
+      192
+    ],
+    "roles_affected": [
+      "manager"
+    ],
+    "roles_unaffected": [
+      "model",
+      "fc",
+      "task",
+      "agent",
+      "service"
+    ],
+    "second_edit": {
+      "new": "        # and inherit FIFO/99.  The model leader is then explicitly promoted to",
+      "old": "        # and inherit FIFO/50.  The model leader is then explicitly promoted to",
+      "reason": "the existing comment names the manager level and must follow the new value",
+      "snapshot_line": 192
+    }
+  },
+  "diff_sha256": "668475ec8d68e884253537e5ca7190448bbe82945c59b37ce44a32e5c15b5c7a",
+  "not_done": [
+    "no new flag or command-line option was added",
+    "no framework, harness or test hook was added to the runner",
+    "the change was not applied to the live runner, the staging copy, or any process",
+    "no native, scheduling or model operation was performed",
+    "no performance or acceptance claim is made from this candidate"
+  ],
+  "preserved_verbatim": [
+    "target_nice: -10 for manager/model/fc, -5 otherwise",
+    "model and fc target_fifo_priority: 40",
+    "reset_on_fork: role in (manager, model) and async_model_evidence",
+    "policy: SCHED_FIFO, plus SCHED_RESET_ON_FORK only when reset_on_fork",
+    "nice setpriority and getpriority calls and their error handling",
+    "sched_setscheduler / sched_getscheduler / sched_getparam calls and their error handling",
+    "every other line of the runner, including all clock, 1 ms, four-tick, no-catch-up, 100 ms, command and physical gates"
+  ],
+  "purpose": "minimal manager-only scheduling candidate: manager target FIFO 50 -> 99; not applied to any runtime or process",
+  "snapshot": {
+    "bytes": 98262,
+    "lines": 1560,
+    "path": "validation/coordination/claude-owned-snapshot-wiring-20260913-01/run_joint_flight-owned-snapshot-candidate-v3.py.txt",
+    "sha256": "1c600d7f018376f5c6fe333f0fd5da75798834c5f09e843078b0939142774373"
+  }
+}
