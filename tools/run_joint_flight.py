@@ -61,6 +61,97 @@ def candidate_rate_sources(_diagnostic):
     ]
 
 
+PERF_CAPTURE_SOURCES = (
+    'Simulator/wksim_runtime/perf_capture.py',
+    'Simulator/wksim_runtime/evidence.py',
+    'validation/coordination/ds-perf-stream-recorder-20260913-01/wksim_perf_stream.c',
+    'validation/coordination/ds-perf-stream-recorder-20260913-01/wksim_perf_stream.h',
+    'validation/coordination/ds-perf-stream-consumer-20260913-01/perf_stream_consumer.py',
+)
+
+
+def perf_capture_request(args):
+    library = getattr(args, 'perf_library', None)
+    checksum = getattr(args, 'perf_library_sha256', None)
+    if (library is None) != (checksum is None):
+        raise ValueError('--perf-library and --perf-library-sha256 must be supplied together')
+    if library is None:
+        return None
+    if args.task_profile != MIXED_PROFILE:
+        raise ValueError('Perf switch capture is only allowed for the MIXED task profile')
+    return library, checksum
+
+
+def perf_capture_boot_id():
+    from Simulator.wksim_runtime.evidence import host_boot_id
+    return host_boot_id()
+
+
+def start_perf_capture(capture, marker):
+    handle = capture.start()
+    marker.update(status='running', owner_pid=capture.owner_pid, owner_tid=capture.owner_tid,
+                  start_handle=handle)
+
+
+def finalize_perf_capture(result, live, capture, rate):
+    """Stop and seal diagnostic capture without allowing cleanup errors to escape."""
+    marker = result['perf_switch_capture']
+    try:
+        if capture is None:
+            raise RuntimeError('Perf capture was requested but not constructed')
+        if capture.owns_handle:
+            capture.stop()
+        if not capture.stop_completed:
+            raise RuntimeError('Perf capture did not complete a successful owner-thread stop')
+        if rate is None or not isinstance(rate.last_summary, dict):
+            raise RuntimeError('Perf capture lacks a completed MIXED rate segment')
+        anchor = rate.last_summary.get('anchor')
+        segment_id = rate.last_summary.get('segment_id')
+        start_ns = anchor.get('wall_ns') if isinstance(anchor, dict) else None
+        end_ns = rate.last_end
+        if (type(segment_id) is not int or type(start_ns) is not int or type(end_ns) is not int
+                or start_ns < 0 or start_ns >= end_ns):
+            raise RuntimeError('Perf capture MIXED rate window is incomplete')
+        raw = live/'perf-switch.raw'
+        meta_path = live/'perf-switch.meta.json'
+        meta = json.loads(meta_path.read_text())
+        boot_id = perf_capture_boot_id()
+        if (meta.get('boot_id') != boot_id or type(meta.get('owner_pid')) is not int
+                or type(meta.get('owner_tid')) is not int
+                or meta['owner_pid'] != capture.owner_pid or meta['owner_tid'] != capture.owner_tid):
+            raise RuntimeError('Perf capture metadata owner or boot identity differs')
+        enable_after_ns, disable_before_ns = meta.get('enable_after_ns'), meta.get('disable_before_ns')
+        if (type(enable_after_ns) is not int or type(disable_before_ns) is not int
+                or start_ns < enable_after_ns or end_ns > disable_before_ns):
+            raise RuntimeError('MIXED rate window lies outside the perf capture inner span')
+        captured_bytes = meta.get('captured_bytes')
+        if (type(captured_bytes) is not int or captured_bytes <= 0 or raw.stat().st_size != captured_bytes):
+            raise RuntimeError('Perf capture raw byte count differs from metadata')
+        if digest(capture.library_path) != capture.library_sha256:
+            raise RuntimeError('Perf capture library changed during the run')
+        windows_path = live/'perf-windows.json'
+        window = dict(id='mixed_rate_segment_%d' % segment_id,
+                      start_ns=start_ns, end_ns=end_ns)
+        save(windows_path, dict(schema='wksim.perf_windows.v1', boot_id=boot_id,
+             owner_pid=capture.owner_pid, owner_tid=capture.owner_tid,
+             clock_id='CLOCK_MONOTONIC', windows=[window]))
+        outputs = {}
+        for name, path in (('raw', raw), ('metadata', meta_path), ('windows', windows_path)):
+            if not path.is_file() or path.stat().st_size <= 0:
+                raise RuntimeError('Perf capture output missing or empty: '+name)
+            outputs[name] = dict(file=path.name, bytes=path.stat().st_size, sha256=digest(path))
+        marker.update(status='sealed_for_external_consumer', capture_lifecycle_complete=True,
+                      strict_consumer_passed=False, owner_pid=capture.owner_pid,
+                      owner_tid=capture.owner_tid, window=window, outputs=outputs,
+                      owns_handle_after=capture.owns_handle)
+    except BaseException as error:
+        marker.update(status='failed', capture_lifecycle_complete=False,
+                      strict_consumer_passed=False, error=repr(error),
+                      owns_handle_after=bool(capture and capture.owns_handle))
+        result['status'] = 'failed'
+        result.setdefault('error', 'Perf switch capture incomplete: '+repr(error))
+
+
 def candidate_environment(control, messages=None):
     env = control_environment(control)
     return message_environment(messages, env) if messages is not None else env
@@ -330,6 +421,7 @@ def run(args):
     if async_model_evidence and args.task_profile not in (PV_PROFILE, MIXED_PROFILE):
         raise ValueError('--async-model-evidence is only allowed for PV/MIXED task profiles')
     model_promotion_flight = getattr(args, 'model_promotion_flight', False)
+    perf_request = perf_capture_request(args)
     diagnostic_identity = timing_probe_identity() if timing_probe else None
     check_isolation()
     promotion_profile = None
@@ -373,13 +465,23 @@ def run(args):
                               takeoff_min_height_m=2.5, ground_abs_height_m=.3),
                   scope=__doc__)
     result['async_model_evidence_requested'] = async_model_evidence
+    if perf_request is not None:
+        library, checksum = perf_request
+        consumer = PERF_CAPTURE_SOURCES[-1]
+        result['perf_switch_capture'] = dict(
+            requested=True, classification='diagnostic_only', formal_evidence=False,
+            status='requested', library_path=library, library_sha256=checksum,
+            strict_consumer=dict(source=consumer, source_sha256=digest(REPO/consumer),
+                                 require_kernel_counter=True,
+                                 output='perf-decoded.json'),
+            strict_consumer_passed=False)
     if diagnostic_identity is not None:
         result['rate_timing_probe'] = dict(diagnostic_identity)
     print(json.dumps(dict(archive=str(archive), live=str(live))), flush=True)
     children, expected_exits = [], set()
     child_specs, dds_pending, dds_injection, dds_handled = {}, None, None, False
     clock, started = SceneClock(result['scene_epoch']), time.monotonic()
-    pause_probe = lifecycle = rate = messages = None
+    pause_probe = lifecycle = rate = messages = perf_capture = None
     sources = ['tools/run_joint_flight.py','tools/run-joint-flight.sh','tools/joint_control_candidate.py',
                'tools/pv_trajectory_task.py','tools/mixed_control_task.py',
                'tools/ap_clock_candidate.py','Simulator/wksim_core/joint.py','Simulator/wksim_core/worker.py',
@@ -404,6 +506,8 @@ def run(args):
                     'Simulator/wksim_runtime/joint-profiles.json','Simulator/wksim_runtime/build_identity.py']
     if async_model_evidence:
         sources += ['Simulator/wksim_runtime/evidence_stream.py']
+    if perf_request is not None:
+        sources += PERF_CAPTURE_SOURCES
     if pv:
         sources += ['docs/2026-09-09-pv-flight-plan.md']
     if mixed_firmware:
@@ -756,6 +860,10 @@ def run(args):
                         issued_monotonic_ns=time.monotonic_ns(), **fields), separators=(',', ':'))+'\n')
                 rate = make_joint_rate(clock.epoch, .5, record_rate, diagnostic=timing_probe)
                 record_rate('rate_bootstrap', classification='untimed_until_first_synchronized_barrier')
+                if perf_request is not None:
+                    from Simulator.wksim_runtime.perf_capture import PerfStreamCapture
+                    perf_capture = PerfStreamCapture(
+                        *perf_request, live/'perf-switch.raw', live/'perf-switch.meta.json')
             elif args.pause_probe or args.scene_lifecycle:
                 pause_probe = PauseProbe(node, clock, live, started, args.repeat_paused_clock)
                 resources.callback(pause_probe.close)
@@ -850,6 +958,8 @@ def run(args):
                 result['initialization'] = dict(physical_tick=0,tasks=initialized,models=snapshots,
                     task_execution_requires_go=True,completed_monotonic_ns=time.monotonic_ns())
             physics.connect()
+            if perf_capture is not None:
+                start_perf_capture(perf_capture, result['perf_switch_capture'])
             summaries = {name:dict(max_height_m=0., min_waypoint_error_m=1e30) for name in workers}
             land_pacing_next = None
             def advance():
@@ -987,6 +1097,8 @@ def run(args):
         result.update(error=repr(error),traceback=traceback.format_exc(),faulted_authority=clock.snapshot())
         print('Joint flight failed: '+repr(error),flush=True)
     finally:
+        if perf_request is not None:
+            finalize_perf_capture(result, live, perf_capture, rate)
         cleanup_children(result, children, child_specs,
                          async_model_evidence=async_model_evidence)
         for name,child,_ in children:
@@ -1070,6 +1182,8 @@ def main(argv=None):
         runner.add_argument('--'+name)
     runner.add_argument('--message-manifest')
     runner.add_argument('--message-sha256')
+    runner.add_argument('--perf-library')
+    runner.add_argument('--perf-library-sha256')
     runner.add_argument('--task-profile', choices=('position', PV_PROFILE, MIXED_PROFILE), default='position')
     runner.add_argument('--px4-manifest')
     runner.add_argument('--px4-sha256')
@@ -1129,6 +1243,11 @@ def main(argv=None):
         parser.error('Optional PX4 candidate requires both manifest and external SHA256')
     if args.role == 'run' and (args.message_manifest is None)!=(args.message_sha256 is None):
         parser.error('Explicit message candidate requires both manifest and external SHA256')
+    if args.role == 'run' and (args.perf_library is None)!=(args.perf_library_sha256 is None):
+        parser.error('Perf capture requires both library and external SHA256')
+    if (args.role == 'run' and args.perf_library is not None
+            and args.task_profile != MIXED_PROFILE):
+        parser.error('Perf capture is only allowed for the MIXED task profile')
     if args.role == 'task' and args.task_mode == 'recover' and (not args.scene_lifecycle or not args.start_token):
         parser.error('New recovery task requires a scene and explicit start token')
     return task_main(args) if args.role=='task' else run(args)
