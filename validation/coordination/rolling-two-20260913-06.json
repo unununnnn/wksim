@@ -1,0 +1,73 @@
+{
+  "checked_utc": "2026-09-13T00:21:17.476238+00:00",
+  "strategy": "Fresh session at substantial topic boundaries; same module revisions stay with owner. Queues are receipts, not autonomous schedulers.",
+  "tasks": [
+    {
+      "agent": "OMP",
+      "delegationId": "a3645063-5d72-434d-8d4e-4686e98b66e4",
+      "threadId": "51609e8d-e4ce-4a8e-8a0d-f7c896c24842",
+      "turnId": "4a870824-7894-4c4d-bfa5-c39c6b4c5219",
+      "deepLink": "codex://threads/51609e8d-e4ce-4a8e-8a0d-f7c896c24842",
+      "status": "running at dispatch",
+      "effective_model": "omp-model-v1.WyJraW1pLWNvZGUiLCJrMyJd",
+      "effective_thinking": "high",
+      "task": "Direct CPython3.10 release-wait extension + loader + pure tests; POSIX macro guard only in shared C; no native/build/WSL or production wiring"
+    },
+    {
+      "agent": "Claude Code",
+      "delegationId": "fd23dfec-8221-48e1-b631-0f67d6056438",
+      "threadId": "e64514a6-77c2-4b27-91a7-896c92a361fd",
+      "turnId": "d335c61d-1571-4faf-8fb9-37902133e73c",
+      "deepLink": "codex://threads/e64514a6-77c2-4b27-91a7-896c92a361fd",
+      "status": "running at followup dispatch",
+      "effective_model": "claude-model-v1.ZGVmYXVsdA",
+      "effective_thinking": "auto",
+      "task": "Read-only minimal wait integration and #84 source-proof impact review; only one contract note, no implementation or execution"
+    }
+  ],
+  "retired": [
+    {
+      "threadId": "48faf2f5-f74a-4ba4-ac85-4ae4d05c5801",
+      "turnId": "23686638-0f45-472e-8ec9-edf268eaa168",
+      "verified_status": "interrupted",
+      "reason": "Context-size scheduling change, not an assertion of crashed tool. No delivered files for interrupted turn."
+    },
+    {
+      "threadId": "6deb2e40-2240-4db2-8c7f-c06bf6724048",
+      "turnId": "f72fd24f-af11-4f86-a1fe-b6687bf446e0",
+      "verified_status": "completed",
+      "reason": "Independent experiment review delivered; next topic uses fresh OMP context."
+    }
+  ],
+  "goal_status": "active",
+  "native_running": false,
+  "unexpected_continuation": {
+    "threadId": "51609e8d-e4ce-4a8e-8a0d-f7c896c24842",
+    "turnId": "21ad94b2-c925-465b-a0bf-482bfc6d1e67",
+    "verified_terminal": "interrupted",
+    "visible_followup_user_message": false,
+    "origin": "not yet established",
+    "progress": "Entered compiler-validation phase despite original delegation excluding native/build execution",
+    "post_stop_scans": {
+      "Ubuntu-22.04": "found=[]",
+      "RflySim-20.04": "found=[]",
+      "boot_id": "6238d1af-7fb1-4fd0-b414-37cbf1b62b4a",
+      "checked_unix": [
+        1789255728.9051142,
+        1789255729.4825323
+      ]
+    },
+    "goal_db_read_only_check": "No child goal for either active external thread; parent remains active. No database was changed."
+  },
+  "scheduler": {
+    "heartbeat": "wksim PAUSED via official tool; all non-status configuration preserved",
+    "goal": "active, sole execution coordinator",
+    "unexpected_child_origin": "unknown; existence of root automation does not establish causality"
+  },
+  "completed_native_window": {
+    "benchmark": "native-release-wait-bench-20260913-02",
+    "samples": 3000,
+    "selected_for_production": false,
+    "keeper_remaining": false
+  }
+}

@@ -13,14 +13,14 @@
 
 | 席位 | thread / 当前turn | 独占交付 |
 | --- | --- | --- |
-| OMP（新会话） | 51609e8d-e4ce-4a8e-8a0d-f7c896c24842 / c73cbb49-a187-42b3-b5e5-635ea7eb85d2 | 仅读元数据调查越界续行21ad94b2来源；不写文件/数据库、不WSL/编译/native、不发起或取消任务。 |
-| Claude Code（新会话） | e64514a6-77c2-4b27-91a7-896c92a361fd / c935bf84-3b38-490a-b206-e1ce6e661e63 | 准备器已验收18测试/真实源相同；现独占native_release_wait.c/.py/test，补time.h、绝对库路径hash/load及int64保护，只纯测试、不WSL/native/构建。 |
+| OMP | 51609e8d-e4ce-4a8e-8a0d-f7c896c24842 / 4a870824-7894-4c4d-bfa5-c39c6b4c5219 | 直接CPython3.10扩展候选：native_release_wait_extension.c/.py/test；仅另可给原C的POSIX宏加ifndef，不改函数体。不编译/native/WSL，不接生产。 |
+| Claude Code | e64514a6-77c2-4b27-91a7-896c92a361fd / d335c61d-1571-4faf-8fb9-37902133e73c | 只读核对最小等待接线/时间戳语义与#84证明绑定，唯一写native-wait-integration-contract-20260913.md，不改实现，不运行测试/native。 |
 
-实际句柄/默认模型回执见rolling-two-20260913-05.json。旧Claude 48faf2f5线程已确认interrupted（23686638），历史约5.9MB且末工具已返回，调整新会话旨在减少上下文，不声称崩溃或证明延迟根因。旧OMP 6deb2e40线程最后f72fd24f审查已completed。主会话已收回比对器及准备器写权；准备器修复后18测试通过，真实源生成candidate SHA0107001b…与成功实验字节相同，reusable-builder-review-v2.json已验收；首版11测试/2处名称假设拒绝记录保留。
+最新句柄在rolling-two-20260913-06.json。主会话现掌握基准/C库/适配器，OMP可改C宏guard但该未验证修改不可混入已执行版本；当前C/py已从bench02快照精确暂存为18bf382d…/17328f02…，不要盲目重新add正在修改的C文件。准备器已验收18测试，源码candidate0107001b…与成功实验逐字相同。
 
-资源边界异常：OMP首轮defcac22已交付12个适配器假库测试，随后出现无可见新user消息的21ad94b2，进入编译阶段；主会话已cancel并read确认interrupted，两WSL独立扫描found=[]，没有把该轮当受控native证据。其当前C源加入POSIX宏但漏time.h，待Claude修复；勿直接编译未验收版本。只读goals_1.sqlite确认两个外部thread均无独立goal，续行触发源未知，未修改任何DB/全局设置。OMP调查元数据，Claude负责C模块纯修复；任何子代理自称主会话不赋予native权限。
+调度修复：已通过automation_update暂停同根任务每3分钟wksim heartbeat，Goal读回仍active；原prompt/周期/目标/名称/创建时间全部保留。证据native-release-wait-bench-20260913-02/scheduler-adjustment.json。只让Goal持续执行，避免双重唤醒；不要无故恢复重复heartbeat。OMP关于21ad94b2源调查未定位具体调用，其引用根turn时间早于该外部任务创建，heartbeat存在不是因果证明；来源仍unknown。21ad94b2已明确interrupted，两WSL当时无残留，未用该轮当受控native证据。两个子任务均无独立goal，Goal DB只读未改。
 
-三个codebuddy因429不可用，恢复时间2026-09-13 20:54:20 JST前不重复投递；DeepSeek受管后台仍待重启确认，Luna Fast未核验不替换用户选择。不把不可用席位计作运行。
+三个codebuddy因429不可用（2026-09-13 20:54:20 JST前不重投），DeepSeek后台仍待重启确认，Luna Fast未核验不替换用户选择。不虚报不可用席位。
 
 ## 已完成：#83
 
@@ -32,6 +32,11 @@
 - Task的fresh/估计速度≤.4入场余量已实跑；原2s/.5m/s保持及全部物理门保留。
 
 ## 当前#84阻断与下一步
+
+最新#84候选微基准：C最终1ms等待库真实构建，16个受控时钟C检查在UBSan下通过（含完整int64最后部分秒）；适配器14纯测试通过。bench01因.so和.py同名，Python误当扩展导入而失败，未产生样本；bench02改为libwksim_release_wait.so的同字节副本，真实3000样本成功，3种模式轮转各1000。Python返回延迟中位148.5ns/累计2.532098ms；CDLL2979ns/6.517725ms；PyDLL2424ns/5.822768ms。C内部7ns中位不能替代返回Python的实际时间，当前ctypes接法暂不接生产；下一步测直接CPython扩展是否消掉边界开销。详见docs/2026-09-13-native-release-wait-benchmark.md。不得据单进程基准称RateUnmet已修复。
+
+库SHA b695fcc7c86ea0e3ad5c6b56bc4ba5055725fc24c6b83da784c2664da2da4145，私有/root/wksim-native-release-wait-20260913-01与-02。源C18bf382d…/适配器17328f02…，rows SHAe0742388ce82efd2a68200b8ed024526d4323c6d6950b226c27345c6129df7c8，已独立重算全部分布/时序。PGID666/811/948/1087/1228均空。keepalive session73427/PID590/start_ticks6815已按boot身份核验后终止且会话exit0、PID不存在。第一次库编译前检boot与编译不同，不以该前检声明隔离；之后unit和bench前检/执行均d2131159-199f-4795-9a65-cbd9846b0155。未来native入口必须复验boot与前检相同，不同则重做前检；库编译不构成性能证据。
+
 
 同一当前组合mixed首次新场oxv29042失败：
 - epoch18c96a7e0af9477092aa87e18239c23c；Linux raw validation/joint-public-flight-oxv29042，live /root/wksim-joint-flight-8rmtytx5；收据validation/current-mixed-20260913-01。
