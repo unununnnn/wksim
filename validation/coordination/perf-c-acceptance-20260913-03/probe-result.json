@@ -1,0 +1,84 @@
+{
+  "tool": "perf_self_capability",
+  "version": "v2",
+  "classification": "capability_probe_only",
+  "full_acceptance": false,
+  "recorder": false,
+  "thread": {
+    "tid": 792,
+    "pid": 792
+  },
+  "contract": {
+    "pid_argument": 0,
+    "cpu_argument": -1,
+    "group_fd": -1,
+    "flags": "PERF_FLAG_FD_CLOEXEC",
+    "inherit": 0,
+    "exclude_kernel": 1,
+    "type": "PERF_TYPE_SOFTWARE",
+    "config": "PERF_COUNT_SW_DUMMY",
+    "context_switch": 1,
+    "sample_id_all": 1,
+    "sample_type": [
+      "PERF_SAMPLE_TID",
+      "PERF_SAMPLE_TIME",
+      "PERF_SAMPLE_CPU"
+    ],
+    "use_clockid": 1,
+    "clockid": "CLOCK_MONOTONIC",
+    "attr_size_used": 128,
+    "ring_data_pages": 8,
+    "data_size": 32768,
+    "sleep_rounds": 4,
+    "sleep_ns_each": 150000000,
+    "budget_ns": 900000000
+  },
+  "ring": {
+    "records": 8,
+    "bytes_consumed": 256,
+    "pending_at_start": 256,
+    "pending_at_end": 0,
+    "record_limit": 4096,
+    "head": 256,
+    "tail": 0
+  },
+  "switches": {
+    "switch_records": 8,
+    "switch_cpu_wide_records": 0,
+    "out": 4,
+    "in": 4,
+    "preempt_out": 0,
+    "double_out": 0,
+    "double_in": 0,
+    "trailing_out": 0,
+    "time_regressions": 0,
+    "first_time_ns": 7988133594,
+    "last_time_ns": 8588569800,
+    "cpu_last": 5,
+    "cpus_seen": 2
+  },
+  "anomalies": {
+    "lost_events": 0,
+    "lost_records": 0,
+    "lost_samples_records": 0,
+    "unknown_records": 0,
+    "malformed": 0,
+    "foreign_records": 0,
+    "missing_identity": 0
+  },
+  "elapsed_ns": 600490334,
+  "under_one_second": true,
+  "cpus_observed": [
+    5,
+    13
+  ],
+  "sampling": {
+    "instruction_pointer": false,
+    "stack": false,
+    "other_thread_data": false,
+    "cpu_wide": false
+  },
+  "verdict": "self_thread_switch_capable",
+  "verdict_reason": "ok",
+  "detail": "own-thread PERF_RECORD_SWITCH parsed"
+}

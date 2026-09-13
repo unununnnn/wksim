@@ -1,6 +1,6 @@
 # 当前 Goal 执行检查点
 
-- `checked_at`: `2026-09-13T16:43:22+09:00`（unix 1789285402）
+- `checked_at`: 2026-09-13T16:59:17+09:00
 - 本文件是**静态交接文档，不执行也不启动后台调度**；调度事实只以精确 thread read/wait 与 JSON 收据为准。
 - 来源：`validation/coordination/perf-open-admission-20260913-01/`（`dispatches.json` 派发于 unix 1789285339）、`validation/coordination/manager99-unprobed-20260913-01/`（`decision.json`/`rollback.json`/`terminal-cleanup.json`/`inflight.json`）、HEAD `820f532`、私有 Linux 检出实测 SHA。
 - 根 Goal 字符串中的"阵容"是创建时的历史值，**不是**实时状态；本文件不改写 Goal DB。
@@ -14,7 +14,7 @@
 
 ## 当前状态（唯一有效快照）
 
-- HEAD `820f532`（"Preserve failed unprobed manager99 trial and roll back priority candidate"）。
+- 上一已提交基线 `a781749`；本轮新增自线程perf能力实证，当前提交以 `git log -1` 为准。
 - 最新无探针场 **`oayggl_s` 失败**：`failed@tick108004`，epoch `afa75a2cb5eb45f48f34526780299ec3`，wall `268.721856341s`，`RateUnmet`。结果**无** `rate_timing_probe`/`owned_scheduling`/`group_work_timing` 键，`markers={}`，`source_unchanged=true`，`cleanup_errors=[]`；boot `470ea486-9e18-4535-9d91-69de5a3a4572` 下 PGID `2109–2118` 独立全空。flight session `48029` 终态；keeper `637`/`start 422` 身份核验后 SIGTERM、session `7873` 终态。
 - 私有 runner 已**回退**：`9b97c124…` → `1c600d7f…`（manager50）；`parent 7855409d`、`worker 38f34a8f` 及所有原门保持。`rollback.json` 记录 `manager_target_restored=50`、未改运行中进程与全局设置。
 - **当前无 native、无 keeper**；不重复 poll/restart `48029`、`637`、`7873`。
@@ -45,8 +45,8 @@
 - `#83` 已 CLOSED（`1w6dru32` PV 真实 PASS，详见 [final-combo PV pass](../2026-09-13-final-combo-pv-pass.md)）。
 - `#84`、G6、Full 均**未完成**，Goal 不可 complete；正式 mixed 证据集仍为空，`ok=false`。
 - G6：三参考首列 product `501/501`、division `429/501`，输出分别 vehicle `72` 处、sensor/GPS `61` 处与 division 形式不同（已推送 `1de316d`）。`aligned` **仅**表示结构对齐，不能据此宣称 G6 通过；缺口仍是有依据且 approved 的**逐量预算**。
-- 引擎/观测结论：主会话已**真实编译并运行** `open_self.c`（`cc -std=c11 -O2 -Wall -Wextra -Werror`，exit 0，`pid 755` exit 0）：**两种 `exclude_kernel`（0 与 1）均 open/close 成功**（`open_errno=0`、`close_errno=0`），事件始终未 enable、无 mmap/采样。但 `switch_records_verified=false`，**完整 D recorder 仍未验收**；且该结果只证明 root 执行环境下 open/close 可用，**不构成非特权进程可用性**。范围仍限 `pid=0`/`cpu=-1`/`inherit=0`、软件 DUMMY、`TID/TIME/CPU`、`CLOCK_MONOTONIC`；禁止 CPU-wide/其他 PID/全局 sysctl 或安装。D v1（LOST 偏移、CPU-wide 异身份、截断判定、先 parse 后 disable、返回码）已拒，完整程序已经编译，但尚未通过 C 自测。打开权限收据 [receipt.json](../../validation/coordination/perf-open-admission-20260913-01/receipt.json)、前检 [prechecks.json](../../validation/coordination/perf-open-admission-20260913-01/prechecks.json)、说明 [README.md](../../validation/coordination/perf-open-admission-20260913-01/README.md)。
-- 完整 perf 程序、作者自测与独立验收程序已通过 `cc -Wall -Wextra -Werror`；作者自测31检查4失败，DS-3继续返修。独立程序尚未执行：WSL换boot清除了先前 `/tmp` 构建目录，身份检查在启动前拒绝。下轮使用持久的主会话自有 `/root` 目录重建，保留本轮失败收据：[C acceptance](../../validation/coordination/perf-c-acceptance-20260913-01/receipt.json)。完整probe从未执行。
+
+- 自线程 perf 能力已实证：32作者检查、13独立用例和超时拒绝反例通过后，实际0.600490334秒记录4次切出/4次切入，无丢失、异身份或畸形；所有自有进程退出。源码SHA `02669b424c04…`，持久构建 `/root/wksim-perf-c-tests-k769545e`。见 [能力实证](../2026-09-13-self-thread-perf-capability.md)。这不证明整场开销或迟到原因；下一阶段录制必须保存raw记录并拒绝overflow。
 
 ## 当前任务与负责人
 

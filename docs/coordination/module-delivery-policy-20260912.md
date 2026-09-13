@@ -49,5 +49,5 @@
 ## 7. 未完成与停止条件
 
 - `#84`/G6/Full 未完成；`aligned` 只表示结构对齐，缺口仍是有依据且 approved 的逐量预算。
-- `perf_event_open` 自线程侧：主会话已**真实编译并运行** `open_self.c`，两种 `exclude_kernel`（0/1）均 open/close 成功（errno 0），但事件未 enable、`switch_records_verified=false`、**完整 D recorder 仍未验收**，且只证 root 环境下可用、不证非特权可用。范围仍限 `pid=0`/`cpu=-1`/`inherit=0`、软件 DUMMY、`TID/TIME/CPU`、`CLOCK_MONOTONIC`；D v1 已拒，修 v2 后主会话才编译自测。收据：[receipt.json](../../validation/coordination/perf-open-admission-20260913-01/receipt.json)、[prechecks.json](../../validation/coordination/perf-open-admission-20260913-01/prechecks.json)、[README.md](../../validation/coordination/perf-open-admission-20260913-01/README.md)。
+- 自线程perf能力已经短时实测通过；完整飞行录制尚未实现或验收。证据及边界见 [self-thread perf capability](../2026-09-13-self-thread-perf-capability.md)。
 - 本文件只描述策略与指针；任何实跑、编译、清理或恢复动作都需要主会话在一次带前检的启动中显式执行（见规则 14）。
