@@ -383,7 +383,7 @@ def run(args):
     sources = ['tools/run_joint_flight.py','tools/run-joint-flight.sh','tools/joint_control_candidate.py',
                'tools/pv_trajectory_task.py','tools/mixed_control_task.py',
                'tools/ap_clock_candidate.py','Simulator/wksim_core/joint.py','Simulator/wksim_core/worker.py',
-               'Simulator/wksim_core/model.py','Simulator/wksim_core/model.cpp',
+               'Simulator/wksim_core/model.py','Simulator/wksim_core/model_parameters.py','Simulator/wksim_core/model.cpp',
                'Simulator/wksim_core/ap_json.py','Simulator/wksim_core/px4_mavlink.py',
                'Simulator/wksim_runtime/scene_clock.py','Simulator/wksim_runtime/task.py',
                'tools/joint_pause_probe.py','Simulator/wksim_runtime/runtime.py',

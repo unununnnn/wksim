@@ -398,12 +398,13 @@ def preflight(config):
                 evidence['prometheus'].get('protocol', 'legacy_v1') != protocol):
             reject('invalid_evidence', 'Pinned flight result does not report this stack passing')
             return _finish_preflight_result(result, config)
+        firmware_root = 'ap_candidate' if stack == 'arducopter' else 'px4_root'
         roots = {key: Path(config[key]).resolve(strict=True) for key in
-                 ('dds_workspace', 'prometheus_workspace', 'px4_root')}
-        if stack == 'arducopter':
-            roots['ap_candidate'] = Path(config['ap_candidate']).resolve(strict=True)
+                 ('dds_workspace', 'prometheus_workspace', firmware_root)}
         # Explicit roots plus content hashes: a familiar basename grants no trust.
         for key, expected in baseline['roots'].items():
+            if key == 'px4_root' and stack == 'arducopter':
+                continue  # Historical dual-stack evidence is not an AP runtime dependency.
             # Relocation changes local storage, not historical flight evidence
             # or the firmware/content hashes required below.
             expected = index.get('resource_locations', {}).get(key, expected)

@@ -62,6 +62,18 @@ COMPONENTS = {"airframe": "fixed Quad X", "motor_count": 4,
               "rotation_sign_convention": "generated source: -1 anticlockwise, +1 clockwise"}
 
 
+def px4_quad_allocation():
+    """Derive the retained PX4 allocation from the model's rotor parameters."""
+    arm=FIXED['ModelParam_uavR']['value']/math.sqrt(2)
+    cm=FIXED['ModelParam_rotorCm']['value'];ct=FIXED['ModelParam_rotorCt']['value']
+    result={}
+    for rotor,(x,y) in enumerate(((arm,arm),(-arm,-arm),(arm,-arm),(-arm,arm))):
+        result[f'PX4_PARAM_CA_ROTOR{rotor}_PX']=str(x)
+        result[f'PX4_PARAM_CA_ROTOR{rotor}_PY']=str(y)
+        result[f'PX4_PARAM_CA_ROTOR{rotor}_KM']=str((1 if rotor<2 else -1)*cm/ct)
+    return result
+
+
 def canonical(value):
     return json.dumps(value, sort_keys=True, separators=(",", ":"), allow_nan=False)
 

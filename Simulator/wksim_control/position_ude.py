@@ -13,7 +13,7 @@ from dataclasses import dataclass
 import math
 from typing import Literal
 
-from .position_pid import PIDState, PIDReference, Vec3, _finite, _vector
+from .position_contract import PIDState, PIDReference, Vec3, _finite, _vector
 
 UPSTREAM_COMMIT = "5dcd8cfa764d558f3e15dcb88aa7d49e32c54cce"
 UPSTREAM_UDE_PATH = "Modules/uav_control/include/Position_Controller/pos_controller_UDE.h"

@@ -84,6 +84,8 @@ def run(admission, output, pid_config, config_path):
     source_names = ['tools/run_pid_flight.py','tools/run-pid-flight.sh','tools/pid_physics.py',
         'Simulator/wksim_runtime/pid_task.py','Simulator/wksim_runtime/pid-flight-v1.json',
         'Simulator/wksim_control/position_pid.py','Simulator/wksim_control/__init__.py',
+        'Simulator/wksim_control/position_contract.py','Simulator/wksim_control/controllers.py',
+        'Simulator/wksim_control/native_thrust.py',
         'tools/run_attitude_flight.py','tools/run-attitude-flight.sh','tools/attitude_physics.py',
         'tools/attitude_candidate.py','Simulator/wksim_runtime/attitude_task.py',
         'Simulator/wksim_runtime/attitude-entry-v1.json',
@@ -91,7 +93,7 @@ def run(admission, output, pid_config, config_path):
         'Simulator/wksim_runtime/task.py','Simulator/wksim_runtime/config.py',
         'Simulator/wksim_runtime/evidence.py','Simulator/wksim_runtime/telemetry_dialect.py',
         'Simulator/wksim_runtime/telemetry-dialects.json',
-        'Simulator/wksim_runtime/build_identity.py','Simulator/wksim_core/model.py',
+        'Simulator/wksim_runtime/build_identity.py','Simulator/wksim_core/model.py','Simulator/wksim_core/model_parameters.py',
         'Simulator/wksim_core/model.cpp','Simulator/wksim_core/ap_json.py',
         'Simulator/wksim_core/px4_mavlink.py','Simulator/wksim_core/state_stream.py',
         'Simulator/wksim_core/arducopter-quad-x.parm','Simulator/wksim_core/px4-rc.mavlink']

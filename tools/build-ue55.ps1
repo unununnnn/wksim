@@ -51,6 +51,8 @@ $assetInputs = @(foreach ($relative in $assetPaths) {
 $inputPaths = @(
     'Source/WksimVisual/WksimVisualGameMode.cpp',
     'Source/WksimVisual/WksimVisualGameMode.h',
+    'Source/WksimVisual/WksimVehicleVisual.cpp',
+    'Source/WksimVisual/WksimVehicleVisual.h',
     'Source/WksimVisual/WksimRgbSensor.cpp',
     'Source/WksimVisual/WksimRgbSensor.h',
     'Source/WksimVisual/WksimDepthSensor.cpp',
@@ -61,6 +63,7 @@ $inputPaths = @(
     'Source/WksimVisual.Target.cs',
     'Source/WksimVisualEditor.Target.cs',
     'Config/DefaultEngine.ini',
+    'Config/WksimVisualAssets.json',
     'Plugins/AeroTwinVisualRuntime/AeroTwinVisualRuntime.uplugin',
     'WksimVisual.uproject'
 )

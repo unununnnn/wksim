@@ -13,6 +13,62 @@ from Simulator.wksim_runtime.preflight import INDEX, REPO, digest, package_diges
 
 
 class PreflightTests(unittest.TestCase):
+    def test_selected_stack_still_requires_its_own_firmware(self):
+        ap = load_config(INDEX.parent / 'examples/arducopter.json')
+        ap.pop('px4_root', None)
+        self.assertNotIn('px4_root', validate_config(ap))
+        px4 = dict(ap, stack='px4')
+        del px4['ap_candidate']
+        with self.assertRaisesRegex(ConfigError, 'px4 requires px4_root'):
+            validate_config(px4)
+
+    def test_legacy_ap_admission_reads_own_firmware_without_peer_directory(self):
+        from Simulator.wksim_runtime import preflight as admission
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary).resolve()
+            cfg = dict(schema_version=1, run_id='ap-only', vehicle_id=1, stack='arducopter',
+                model_profile='quad_x', communication='native_dds', dds_workspace=str(root/'dds'),
+                prometheus_workspace=str(root/'control'), ap_candidate=str(root/'ap'))
+            # Windows paths cannot exercise the Linux resource contract.
+            if os.name != 'posix':
+                self.skipTest('Linux absolute resource paths')
+            for name in ('dds', 'control', 'ap'):
+                (root/name).mkdir()
+            firmware = root/'ap/build/sitl/bin/arducopter'
+            firmware.parent.mkdir(parents=True)
+            firmware.write_bytes(b'fixture only, not executable firmware')
+            firmware.chmod(0o700)
+            agent = root/'dds/ros-install/micro_ros_agent/lib/micro_ros_agent/micro_ros_agent'
+            agent.parent.mkdir(parents=True)
+            agent.write_bytes(b'fixture only, not a DDS agent')
+            agent.chmod(0o700)
+            evidence = dict(status='pass', stack='arducopter', prometheus={},
+                fc_binary_sha256=digest(firmware), fc_commit='fixture', agent_sha256=digest(agent),
+                model_build={'library': str(root/'missing-model.so')})
+            proof = root/'evidence.json'
+            proof.write_text(json.dumps(evidence))
+            baseline = dict(result=str(proof), result_sha256=digest(proof), roots={
+                key: cfg[key] for key in ('dds_workspace', 'prometheus_workspace', 'ap_candidate')})
+            baseline['roots']['px4_root'] = str(root/'not-installed-px4')
+            index = root/'index.json'
+            index.write_text(json.dumps(dict(capabilities=[dict(id='native_position_mission', admitted=True)],
+                                             known_unflown_candidates=[])))
+            with patch.object(admission, 'INDEX', index), \
+                    patch.object(admission, 'consumer_rejections', return_value=[]), \
+                    patch.object(admission, 'control_profile', return_value=baseline), \
+                    patch('subprocess.Popen', side_effect=AssertionError('no process may start')):
+                result = admission.preflight(cfg)
+                self.assertTrue(result['identities']['firmware']['match'])
+                self.assertTrue(result['identities']['agent']['match'])
+                self.assertEqual(result['children_created'], 0)
+                # Intentionally stop at the absent model; never claim full admission.
+                self.assertFalse(result['ok'])
+                self.assertIn('model_manifest_mismatch', [row['code'] for row in result['reasons']])
+                firmware.write_bytes(b'changed selected firmware')
+                rejected = admission.preflight(cfg)
+                self.assertFalse(rejected['identities']['firmware']['match'])
+                self.assertIn('identity_mismatch', [row['code'] for row in rejected['reasons']])
+
     def setUp(self):
         self.config = load_config(INDEX.parent / 'examples/arducopter.json')
 

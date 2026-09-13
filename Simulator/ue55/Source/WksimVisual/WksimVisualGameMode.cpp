@@ -1,4 +1,5 @@
 #include "WksimVisualGameMode.h"
+#include "WksimVehicleVisual.h"
 #include "WksimRgbFixture.h"
 #include "AssetCompilingManager.h"
 #include "Camera/CameraActor.h"
@@ -35,8 +36,6 @@ IMPLEMENT_PRIMARY_GAME_MODULE(FDefaultGameModuleImpl, WksimVisual, "WksimVisual"
 
 namespace
 {
-constexpr double HexAngles[] = {90, 270, 330, 150, 30, 210};
-constexpr int32 HexSpins[] = {1, -1, 1, -1, -1, 1};
 
 bool IsModelIdentity(const FString& Value)
 {
@@ -90,29 +89,6 @@ AWksimVisualGameMode::AWksimVisualGameMode()
     HUDClass = AWksimHud::StaticClass();
 }
 
-UStaticMeshComponent* AWksimVisualGameMode::AddPart(AActor* ModelActor, const FString& Name, const TCHAR* Asset,
-    const FVector& Location, const FVector& Scale, const FRotator& Rotation)
-{
-    UStaticMesh* Mesh = LoadObject<UStaticMesh>(nullptr, Asset);
-    if (!Mesh)
-    {
-        UE_LOG(LogTemp, Error, TEXT("WKSIM_MODEL required mesh missing: %s"), Asset);
-        FPlatformMisc::RequestExitWithStatus(true, 22);
-        return nullptr;
-    }
-    UStaticMeshComponent* Part = NewObject<UStaticMeshComponent>(ModelActor, *Name);
-    Part->SetStaticMesh(Mesh);
-    Part->SetMobility(EComponentMobility::Movable);
-    Part->SetupAttachment(ModelActor->GetRootComponent());
-    Part->SetRelativeLocation(Location);
-    Part->SetRelativeRotation(Rotation);
-    Part->SetRelativeScale3D(Scale);
-    Part->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-    Part->SetSimulatePhysics(false);
-    Part->RegisterComponent();
-    return Part;
-}
-
 void AWksimVisualGameMode::BeginPlay()
 {
     Super::BeginPlay();
@@ -162,6 +138,15 @@ void AWksimVisualGameMode::BeginPlay()
         }
         bHexConfiguration = true;
     }
+    VisualProfile = bHexConfiguration ? TEXT("hex") : TEXT("p450");
+    FParse::Value(FCommandLine::Get(), TEXT("WksimVisualProfile="), VisualProfile);
+    FParse::Value(FCommandLine::Get(), TEXT("WksimSourceMode="), SourceMode);
+    if (!(SourceMode == TEXT("live") || SourceMode == TEXT("replay") || SourceMode == TEXT("fixture")))
+    { FPlatformMisc::RequestExitWithStatus(true, 20); return; }
+    if ((bHexConfiguration && VisualProfile != TEXT("hex")) ||
+        (!bHexConfiguration && VisualProfile != TEXT("p450") &&
+         !(VisualProfile == TEXT("ackermann") && VehicleId == TEXT("1"))))
+    { FPlatformMisc::RequestExitWithStatus(true, 20); return; }
     if (!CaptureDirectory.IsEmpty()) IFileManager::Get().MakeDirectory(*CaptureDirectory, true);
     Socket = FUdpSocketBuilder(TEXT("WksimViewOnlyLoopback")).AsNonBlocking()
         .BoundToEndpoint(FIPv4Endpoint(FIPv4Address::InternalLoopback, static_cast<uint16>(Port)))
@@ -196,41 +181,15 @@ void AWksimVisualGameMode::BeginPlay()
         Model->SetRootComponent(Root);
         Root->SetMobility(EComponentMobility::Movable);
         Root->RegisterComponent();
-        // Prometheus P450 source geometry, with source SDF rotor origins retained.
-        // Geometry-only floor alignment never changes the authoritative Actor pose.
-        // This is a P450 visual, not a claim that baseline quad-X physics is calibrated
-        // to P450 inertial/aerodynamic parameters. See p450-visual-manifest.json.
-        UMaterialInterface* BodyMaterial = LoadObject<UMaterialInterface>(nullptr, TEXT("/Game/Wksim/P450/M_P450_Body.M_P450_Body"));
-        UMaterialInterface* RotorMaterial = LoadObject<UMaterialInterface>(nullptr, TEXT("/Game/Wksim/P450/M_P450_Rotor.M_P450_Rotor"));
-        if (!BodyMaterial || !RotorMaterial)
+        TArray<TObjectPtr<UStaticMeshComponent>> BuiltRotors;
+        if (!FWksimVehicleVisual::Build(VisualProfile, Model, BuiltRotors))
+        { FPlatformMisc::RequestExitWithStatus(true, 22); return; }
+        if (VehicleId == TEXT("joint")) JointVehicles[ModelIndex].Rotors = BuiltRotors;
+        else
         {
-            UE_LOG(LogTemp, Error, TEXT("WKSIM_MODEL required P450 material missing"));
-            FPlatformMisc::RequestExitWithStatus(true, 22);
-            return;
-        }
-        if (bHexConfiguration)
-        {
-            if (!CreateHexGeometry(Model, BodyMaterial, RotorMaterial)) return;
-            continue;
-        }
-        const FVector GeometryOffset(0, 0, 4.4560544192790985);
-        UStaticMeshComponent* Body = AddPart(Model, TEXT("P450Body"), TEXT("/Game/Wksim/P450/SM_p450.SM_p450"), GeometryOffset, FVector::OneVector);
-        if (!Body) return;
-        Body->SetMaterial(0, BodyMaterial);
-        const FVector Motors[] = {FVector(14.65, 14.7, 15.1), FVector(-14.65, -14.7, 15.1),
-                                 FVector(14.65, -14.7, 15.1), FVector(-14.65, 14.7, 15.1)};
-        const TCHAR* MotorNames[] = {TEXT("FR"), TEXT("RL"), TEXT("FL"), TEXT("RR")};
-        for (int32 Index = 0; Index < 4; ++Index)
-        {
-            UStaticMeshComponent* Rotor = AddPart(Model, FString::Printf(TEXT("P450Rotor_%s"), MotorNames[Index]),
-                Index < 2 ? TEXT("/Game/Wksim/P450/SM_p450_ccw.SM_p450_ccw") : TEXT("/Game/Wksim/P450/SM_p450_cw.SM_p450_cw"),
-                Motors[Index] + GeometryOffset, FVector::OneVector);
-            if (!Rotor) return;
-            Rotor->SetMaterial(0, RotorMaterial);
-            if (VehicleId == TEXT("joint")) JointVehicles[ModelIndex].Rotors.Add(Rotor);
-            else { Rotors.Add(Rotor); RotorRpm.Add(0.0); }
-            UE_LOG(LogTemp, Display, TEXT("WKSIM_MODEL rotor=%s source_sdf_index=%d origin_cm=%s yaw_sign=%d"),
-                MotorNames[Index], Index, *Rotor->GetRelativeLocation().ToString(), Index < 2 ? -1 : 1);
+            Rotors = BuiltRotors;
+            RotorRpm.Init(0.0, Rotors.Num());
+            if (bHexConfiguration) HexRotorPhase.Init(0.0, Rotors.Num());
         }
         if (VehicleId == TEXT("joint"))
         {
@@ -300,12 +259,71 @@ void AWksimVisualGameMode::BeginPlay()
         *RunId, *VehicleId, Port, *GetWorld()->GetMapName());
 }
 
+FString AWksimVisualGameMode::VisualLabel() const
+{
+    if (VisualProfile == TEXT("ackermann")) return TEXT("Ackermann flat ground / ") + SourceMode;
+    return bHexConfiguration ? TEXT("hex-X / source template") : TEXT("P450 visual / quad-X physics");
+}
+
+FString AWksimVisualGameMode::SourceLabel() const
+{
+    if (SourceMode == TEXT("fixture")) return TEXT("FIXTURE / synthetic pose input");
+    if (SourceMode == TEXT("replay")) return TEXT("REPLAY / recorded state");
+    return TEXT("LIVE / independent SITL physics");
+}
+
+bool AWksimVisualGameMode::ApplyVehiclePacket(const TSharedPtr<FJsonObject>& Object, FString& Ack)
+{
+    FString Kind, Run, Class, Profile, Visual, Mode, Clock;
+    int64 Version, Id, Sequence;
+    double Time = 0, Wall = 0;
+    TArray<double> P, Q;
+    if (Object->Values.Num() != 18 ||
+        !Object->TryGetStringField(TEXT("kind"), Kind) || Kind != TEXT("vehicle_state") ||
+        !IntegerField(Object, TEXT("version"), Version) || Version != 1 ||
+        !IntegerField(Object, TEXT("vehicle_id"), Id) || Id != 1 ||
+        !IntegerField(Object, TEXT("sequence"), Sequence) || Sequence <= LastSequence ||
+        !Object->TryGetStringField(TEXT("run_id"), Run) || Run != RunId ||
+        !Object->TryGetStringField(TEXT("vehicle_class"), Class) || Class != TEXT("ground_vehicle") ||
+        !Object->TryGetStringField(TEXT("model_profile"), Profile) || Profile.IsEmpty() || Profile.Len() > 64 ||
+        !Object->TryGetStringField(TEXT("visual_profile"), Visual) || Visual != VisualProfile ||
+        !Object->TryGetStringField(TEXT("source_mode"), Mode) ||
+        !(Mode == TEXT("live") || Mode == TEXT("replay") || Mode == TEXT("fixture")) ||
+        !Object->TryGetNumberField(TEXT("sim_time_s"), Time) || !FMath::IsFinite(Time) || Time <= SourceTime ||
+        !Object->TryGetStringField(TEXT("display_clock"), Clock) || Clock != TEXT("windows_utc_bound") ||
+        !Object->TryGetNumberField(TEXT("display_wall_time_s"), Wall) || !FMath::IsFinite(Wall) ||
+        UtcSeconds() - Wall > .75 || UtcSeconds() - Wall < -.25 ||
+        !VectorField(Object, TEXT("position_ned_m"), 3, P) ||
+        !VectorField(Object, TEXT("quaternion_wxyz"), 4, Q)) return false;
+    const TCHAR* Keys[] = {TEXT("position_frame"), TEXT("position_unit"), TEXT("body_frame"), TEXT("quaternion_order")};
+    const TCHAR* Values[] = {TEXT("NED"), TEXT("m"), TEXT("FRD"), TEXT("WXYZ")};
+    for (int32 Index = 0; Index < 4; ++Index)
+    {
+        FString Value;
+        if (!Object->TryGetStringField(Keys[Index], Value) || Value != Values[Index]) return false;
+    }
+    const double Norm = Q[0]*Q[0]+Q[1]*Q[1]+Q[2]*Q[2]+Q[3]*Q[3];
+    if (FMath::Abs(Norm - 1.0) > 1e-6) return false;
+    Vehicle->SetActorLocationAndRotation(FVector(P[0]*100, P[1]*100, -P[2]*100),
+        FQuat(-Q[1], -Q[2], Q[3], Q[0]), false, nullptr, ETeleportType::TeleportPhysics);
+    PositionNed = FVector(P[0], P[1], P[2]);
+    SourceTime = Time; DisplayWallTime = Wall; LastSequence = Sequence;
+    LastReceivedWall = FPlatformTime::Seconds(); SourceMode = Mode;
+    const FVector Actual = Vehicle->GetActorLocation();
+    const FQuat ActualQ = Vehicle->GetActorQuat();
+    Ack = FString::Printf(TEXT("{\"kind\":\"vehicle_actor\",\"run_id\":\"%s\",\"sequence\":%lld,\"sim_time_s\":%.9f,"
+        "\"ue_position_cm\":[%.9f,%.9f,%.9f],\"ue_quaternion_xyzw\":[%.9f,%.9f,%.9f,%.9f]}"),
+        *RunId, LastSequence, SourceTime, Actual.X, Actual.Y, Actual.Z, ActualQ.X, ActualQ.Y, ActualQ.Z, ActualQ.W);
+    return true;
+}
+
 bool AWksimVisualGameMode::ApplyPacket(const uint8* Bytes, int32 Count, FString& Ack)
 {
     const FUTF8ToTCHAR Text(reinterpret_cast<const ANSICHAR*>(Bytes), Count);
     TSharedPtr<FJsonObject> Object;
     if (!FJsonSerializer::Deserialize(TJsonReaderFactory<>::Create(FString(Text.Length(), Text.Get())), Object) || !Object) return false;
     if (bHexConfiguration) return ApplyHexPacket(Object, Ack);
+    if (VisualProfile == TEXT("ackermann")) return ApplyVehiclePacket(Object, Ack);
     if (VehicleId == TEXT("joint"))
     {
         FString Kind;
@@ -498,47 +516,6 @@ bool AWksimVisualGameMode::ApplyPacket(const uint8* Bytes, int32 Count, FString&
     return true;
 }
 
-bool AWksimVisualGameMode::CreateHexGeometry(AActor* Model, UMaterialInterface* BodyMaterial, UMaterialInterface* RotorMaterial)
-{
-    // Ground clearance is geometry-only; AuthoritativePose remains exactly source truth.
-    const FVector Offset(0, 0, 10);
-    auto Body = AddPart(Model, TEXT("HexBody"), TEXT("/Engine/BasicShapes/Cylinder.Cylinder"), Offset, FVector(.16, .16, .04));
-    if (!Body) return false;
-    Body->SetMaterial(0, BodyMaterial);
-    for (int32 Index = 0; Index < 6; ++Index)
-    {
-        const double Angle = FMath::DegreesToRadians(HexAngles[Index]);
-        const FVector Origin(22.5 * FMath::Cos(Angle), 22.5 * FMath::Sin(Angle), 0);
-        auto Arm = AddPart(Model, FString::Printf(TEXT("HexArm_M%d"), Index + 1), TEXT("/Engine/BasicShapes/Cube.Cube"),
-            Origin * .5 + Offset + FVector(0, 0, -2), FVector(.225, .018, .018), FRotator(0, HexAngles[Index], 0));
-        if (!Arm) return false;
-        Arm->SetMaterial(0, BodyMaterial);
-        auto Rotor = AddPart(Model, FString::Printf(TEXT("HexRotor_M%d"), Index + 1),
-            HexSpins[Index] > 0 ? TEXT("/Game/Wksim/P450/SM_p450_cw.SM_p450_cw") : TEXT("/Game/Wksim/P450/SM_p450_ccw.SM_p450_ccw"),
-            Origin + Offset, FVector::OneVector);
-        if (!Rotor) return false;
-        const FVector Extent = Rotor->GetStaticMesh()->GetBounds().BoxExtent;
-        const double Diameter = 2.0 * FMath::Max(Extent.X, Extent.Y);
-        if (!FMath::IsFinite(Diameter) || Diameter <= 0)
-        { FPlatformMisc::RequestExitWithStatus(true, 22); return false; }
-        Rotor->SetRelativeScale3D(FVector(18.0 / Diameter));
-        Rotor->SetMaterial(0, RotorMaterial);
-        Rotors.Add(Rotor);
-        RotorRpm.Add(0.0);
-        HexRotorPhase.Add(0.0);
-        UE_LOG(LogTemp, Display, TEXT("WKSIM_HEX motor=%d origin_cm=%s spin=%d mesh_extent_cm=%s uniform_scale=%.12f diameter_cm=18"),
-            Index + 1, *Rotor->GetRelativeLocation().ToString(), HexSpins[Index], *Extent.ToString(), 18.0 / Diameter);
-    }
-    for (int32 Index = 0; Index < 4; ++Index)
-    {
-        auto Leg = AddPart(Model, FString::Printf(TEXT("HexLandingLeg_%d"), Index), TEXT("/Engine/BasicShapes/Cube.Cube"),
-            FVector(Index < 2 ? -6 : 6, Index % 2 ? -6 : 6, -5) + Offset, FVector(.018, .018, .10));
-        if (!Leg) return false;
-        Leg->SetMaterial(0, BodyMaterial);
-    }
-    return true;
-}
-
 void AWksimVisualGameMode::HexActorAck(FString& Ack, int64 Request) const
 {
     auto Numbers = [](std::initializer_list<double> Values)
@@ -581,7 +558,7 @@ void AWksimVisualGameMode::HexActorAck(FString& Ack, int64 Request) const
         Entry->SetArrayField(TEXT("mesh_extent_cm"), Numbers({Extent.X, Extent.Y, Extent.Z}));
         Entry->SetArrayField(TEXT("scale"), Numbers({Scale.X, Scale.Y, Scale.Z}));
         Entry->SetNumberField(TEXT("rpm"), RotorRpm[Index]);
-        Entry->SetNumberField(TEXT("spin"), HexSpins[Index]);
+        Entry->SetNumberField(TEXT("spin"), FWksimVehicleVisual::HexSpins[Index]);
         Entry->SetNumberField(TEXT("yaw_deg"), Rotor->GetRelativeRotation().Yaw);
         Entry->SetNumberField(TEXT("phase_deg"), HexRotorPhase[Index]);
         Entries.Add(MakeShared<FJsonValueObject>(Entry));
@@ -647,7 +624,7 @@ bool AWksimVisualGameMode::ApplyHexPacket(const TSharedPtr<FJsonObject>& Object,
     const double Delta = HexStep < 0 ? 0.0 : (Step - HexStep) / 1000.0;
     for (int32 Index = 0; Index < 6; ++Index)
     {
-        HexRotorPhase[Index] += Rpm[Index] * 6.0 * Delta * HexSpins[Index];
+        HexRotorPhase[Index] += Rpm[Index] * 6.0 * Delta * FWksimVehicleVisual::HexSpins[Index];
         Rotors[Index]->SetRelativeRotation(FRotator(0, FMath::Fmod(HexRotorPhase[Index], 360.0), 0));
     }
     Vehicle->SetActorLocationAndRotation(FVector(P[0] * 100, P[1] * 100, -P[2] * 100),
@@ -915,6 +892,7 @@ void AWksimVisualGameMode::Tick(float DeltaSeconds)
                 bRenderReady = true;
                 UE_LOG(LogTemp, Display, TEXT("WKSIM_READY run=%s vehicle=%s port=%d world=%s assets_remaining=0 ready_ticks=%d fence=rhi model=%s"),
                     *RunId, *VehicleId, LaunchPort, *GetWorld()->GetMapName(), ReadyFrames,
+                    VisualProfile == TEXT("ackermann") ? TEXT("Ackermann_visual_ground_kinematic") :
                     bHexConfiguration ? TEXT("hex-X_source_template") : TEXT("P450_visual_quadX_physics"));
             }
         }
@@ -1187,9 +1165,9 @@ void AWksimHud::DrawHUD()
     DrawRect(FLinearColor(0.025, 0.04, 0.065, .88), 20, 20, 610, 132);
     DrawText(FString::Printf(TEXT("WKSIM  |  %s  |  UE 5.5  |  VIEW ONLY"), *Mode->VehicleId), FLinearColor::White, 34, 30, GEngine->GetMediumFont(), 1.1);
     DrawText(!Mode->IsRenderReady() ? TEXT("PREPARING DISPLAY / state processing independent") :
-        (Mode->IsStale() ? TEXT("STALE / waiting for authoritative state") : TEXT("LIVE / independent SITL physics")), StatusColor, 34, 64);
+        (Mode->IsStale() ? TEXT("STALE / waiting for authoritative state") : *Mode->SourceLabel()), StatusColor, 34, 64);
     DrawText(FString::Printf(TEXT("N %.3f  E %.3f  D %.3f m     SIM %.3f s"),
         Mode->PositionNed.X, Mode->PositionNed.Y, Mode->PositionNed.Z, Mode->SourceTime), FLinearColor::White, 34, 91);
     DrawText(FString::Printf(TEXT("Sequence %lld   Rejected %lld   %s"), Mode->LastSequence, Mode->Rejected,
-        Mode->IsHexConfiguration() ? TEXT("hex-X / source template") : TEXT("P450 visual / quad-X physics")), FLinearColor(.65, .75, .9), 34, 118);
+        *Mode->VisualLabel()), FLinearColor(.65, .75, .9), 34, 118);
 }

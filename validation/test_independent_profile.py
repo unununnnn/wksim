@@ -21,6 +21,18 @@ def config(stack='px4'):
 
 
 class IndependentProfileTests(unittest.TestCase):
+    def test_ap_selection_needs_only_its_own_firmware_root(self):
+        cfg = config('arducopter')
+        del cfg['px4_root']
+        normalized, _ = profile.select_config(cfg)
+        self.assertNotIn('px4_root', normalized)
+        self.assertEqual(normalized['ap_candidate'], cfg['ap_candidate'])
+        # Older configs may retain an unused peer path, but it cannot select AP.
+        normalized, _ = profile.select_config(dict(cfg, px4_root='/not-installed/px4'))
+        self.assertEqual(normalized['ap_candidate'], cfg['ap_candidate'])
+        with self.assertRaises(ValueError):
+            profile.select_config(dict(cfg, ap_candidate='/wrong'))
+
     def test_strict_selection_before_resource_checks(self):
         changes = [dict(runtime_profile='unknown'), dict(control_protocol='legacy_v1'),
                    dict(capabilities=['unknown']), dict(capabilities=['native_position_mission', 'full.2']),

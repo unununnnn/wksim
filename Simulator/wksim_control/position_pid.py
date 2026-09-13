@@ -6,28 +6,16 @@ owns its integral; the caller owns timing, mode admission and lifecycle resets.
 
 from dataclasses import dataclass
 import math
-from numbers import Real
 from typing import Literal
 
-Vec3 = tuple[float, float, float]
-Quat = tuple[float, float, float, float]
-GRAVITY = 9.8  # Fixed original PID convention, not a model gravity override.
+# Compatibility exports; shared contracts are owned outside this algorithm.
+from .position_contract import GRAVITY, Vec3, Quat, PIDState, PIDReference, _finite, _vector
+from .native_thrust import NativeThrustConfig
+from .controllers import select_controller
+
 UPSTREAM_COMMIT = "5dcd8cfa764d558f3e15dcb88aa7d49e32c54cce"
 UPSTREAM_PID_PATH = "Modules/uav_control/include/Position_Controller/pos_controller_PID.h"
 UPSTREAM_PID_SHA256 = "4f75efa91ead6518cf778a2b3294621944e842274a4c1826577fd32c63823f9e"
-
-
-def _finite(value: float, name: str) -> float:
-    # ROS fixed float arrays yield real scalars such as numpy.float32.
-    if isinstance(value, bool) or not isinstance(value, Real) or not math.isfinite(value):
-        raise ValueError(f"{name} must be a finite number")
-    return float(value)
-
-
-def _vector(value, size: int, name: str) -> tuple:
-    if not isinstance(value, (tuple, list)) or len(value) != size:
-        raise ValueError(f"{name} must have {size} components")
-    return tuple(_finite(x, name) for x in value)
 
 
 @dataclass(frozen=True)
@@ -54,34 +42,6 @@ class PIDConfig:
 
 
 @dataclass(frozen=True)
-class PIDState:
-    position_enu: Vec3
-    velocity_enu: Vec3
-    attitude_flu_to_enu: Quat
-
-    def __post_init__(self):
-        for name in ("position_enu", "velocity_enu"):
-            object.__setattr__(self, name, _vector(getattr(self, name), 3, name))
-        q = _vector(self.attitude_flu_to_enu, 4, "attitude_flu_to_enu")
-        if abs(math.hypot(*q) - 1.0) > 1e-6:
-            raise ValueError("attitude_flu_to_enu must be a unit wxyz quaternion")
-        object.__setattr__(self, "attitude_flu_to_enu", q)
-
-
-@dataclass(frozen=True)
-class PIDReference:
-    position_enu: Vec3
-    velocity_enu: Vec3 = (0.0, 0.0, 0.0)
-    acceleration_enu: Vec3 = (0.0, 0.0, 0.0)
-    yaw_enu_rad: float = 0.0
-
-    def __post_init__(self):
-        for name in ("position_enu", "velocity_enu", "acceleration_enu"):
-            object.__setattr__(self, name, _vector(getattr(self, name), 3, name))
-        object.__setattr__(self, "yaw_enu_rad", _finite(self.yaw_enu_rad, "yaw_enu_rad"))
-
-
-@dataclass(frozen=True)
 class PIDOutput:
     acceleration_enu: Vec3  # Feedback + feedforward, before force limiting; no gravity.
     force_enu_n: Vec3  # After original vertical and per-axis tilt limits.
@@ -90,41 +50,6 @@ class PIDOutput:
     integral: Vec3
     mass_kg: float
     controller: Literal["pid"] = "pid"
-
-
-@dataclass(frozen=True)
-class NativeThrustConfig:
-    """Local linear hover calibration for one stack and fixed model identity.
-
-    Preserves original u = (F dot body_z) / (mass * 9.8 / hover), clamped
-    [0.1, 1]. This is a calibration approximation, not a motor force law.
-    AP collective is +u; PX4 FRD thrust_body is (0, 0, -u). Frame/quaternion
-    conversion remains the existing attitude outlet's responsibility.
-    """
-
-    stack: Literal["arducopter", "px4"]
-    model_identity: str
-    mass_kg: float
-    hover_thrust: float
-
-    def __post_init__(self):
-        if self.stack not in ("arducopter", "px4"):
-            raise ValueError("unsupported thrust stack")
-        if not isinstance(self.model_identity, str) or not self.model_identity.strip():
-            raise ValueError("fixed model identity is required")
-        mass = _finite(self.mass_kg, "mass_kg")
-        hover = _finite(self.hover_thrust, "hover_thrust")
-        if mass <= 0 or not 0.1 <= hover <= 1.0:
-            raise ValueError("mass must be positive and calibrated hover must be in [0.1, 1]")
-        object.__setattr__(self, "mass_kg", mass)
-        object.__setattr__(self, "hover_thrust", hover)
-
-    def normalized_collective(self, output: PIDOutput, *, model_identity: str) -> float:
-        if model_identity != self.model_identity or output.mass_kg != self.mass_kg:
-            raise ValueError("PID thrust mapping model identity or mass mismatch")
-        thrust = _finite(output.projected_thrust_n, "projected_thrust_n")
-        normalized = thrust / (self.mass_kg * GRAVITY / self.hover_thrust)
-        return min(1.0, max(0.1, _finite(normalized, "normalized collective")))
 
 
 class PositionPID:
@@ -208,17 +133,3 @@ class PositionPID:
         output = PIDOutput(acc, tuple(force), rpy, thrust, tuple(integ), cfg.mass_kg)
         self._integral = output.integral
         return output
-
-
-def select_controller(name: str, config):
-    """Explicit typed selection; each instance starts with cleared state."""
-    if name == "pid":
-        return PositionPID(config)
-    if name == "ude":
-        # Local import avoids a cycle with UDE's shared state/reference types.
-        from .position_ude import PositionUDE
-        return PositionUDE(config)
-    if name == "ne":
-        from .position_ne import PositionNE
-        return PositionNE(config)
-    raise ValueError(f"unsupported external position controller: {name!r}")

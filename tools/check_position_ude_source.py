@@ -145,6 +145,8 @@ def run(evidence):
             identities[name] = {"working_sha256": pin, "upstream_lf_sha256": hashlib.sha256(original).hexdigest()}
             (evidence/Path(name).name).write_bytes(data)
         for name in ("Simulator/wksim_control/position_ude.py", "Simulator/wksim_control/position_pid.py",
+                     "Simulator/wksim_control/position_contract.py", "Simulator/wksim_control/controllers.py",
+                     "Simulator/wksim_control/native_thrust.py", "Simulator/wksim_control/__init__.py",
                      "tools/check_position_ude_source.py", "tools/check_position_pid_source.py",
                      "validation/test_position_ude.py"):
             data = (ROOT/name).read_bytes()

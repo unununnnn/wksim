@@ -32,7 +32,7 @@ def digest(path):
 def launch_spec(config, directory, library, *, fc_directory=None, physics_duration=600, admitted_capabilities=()):
     """Pinned launch semantics; no subprocesses or filesystem writes here."""
     ap = config['stack'] == 'arducopter'
-    dds, px4 = Path(config['dds_workspace']), Path(config['px4_root'])
+    dds = Path(config['dds_workspace'])
     core = REPO / 'Simulator/wksim_core'
     agent = dds / ('ros-install/micro_ros_agent/lib/micro_ros_agent/micro_ros_agent' if ap else 'agent-install/bin/MicroXRCEAgent')
     physics = [sys.executable, '-m', 'Simulator.wksim_core.' + ('ap_json' if ap else 'px4_mavlink'),
@@ -79,6 +79,7 @@ def launch_spec(config, directory, library, *, fc_directory=None, physics_durati
               '--serial0', 'udpclient:127.0.0.1:14660', '--serial1', 'none', '--serial2', 'none',
               '--defaults', defaults, '--home', '40.1540302,116.2593683,50,0']
     else:
+        px4 = Path(config['px4_root'])
         binary = px4 / 'build/px4_sitl_default/bin/px4'
         fc = [str(binary), '-d', str(px4 / 'build/px4_sitl_default/etc'),
               '-t', str(px4/'test_data'), '-i', '21', '-w', str(fc_directory or directory)]
@@ -86,11 +87,8 @@ def launch_spec(config, directory, library, *, fc_directory=None, physics_durati
                          PX4_SIM_SPEED_FACTOR='3', PX4_UXRCE_DDS_PORT='18888', PX4_UXRCE_DDS_NS='wksim_px4_21',
                          ROS_DOMAIN_ID='77', WKSIM_MAVLINK_LOCAL_PORT='18591', WKSIM_MAVLINK_REMOTE_PORT='14661',
                          PX4_PARAM_SIM_GZ_EN='0', PX4_PARAM_SIM_BAT_ENABLE='1', PX4_PARAM_UXRCE_DDS_SYNCT='0')
-        arm = 0.225 / math.sqrt(2)
-        for rotor, (x, y) in enumerate(((arm, arm), (-arm, -arm), (arm, -arm), (-arm, arm))):
-            overrides[f'PX4_PARAM_CA_ROTOR{rotor}_PX'] = str(x)
-            overrides[f'PX4_PARAM_CA_ROTOR{rotor}_PY'] = str(y)
-            overrides[f'PX4_PARAM_CA_ROTOR{rotor}_KM'] = str((1 if rotor < 2 else -1) * 2.783e-7 / 1.681e-5)
+        from Simulator.wksim_core.model_parameters import px4_quad_allocation
+        overrides.update(px4_quad_allocation())
         overrides['PATH'] = str(core) + os.pathsep + str(binary.parent) + os.pathsep + os.environ.get('PATH', '')
     result = dict(agent=[str(agent), 'udp4', '-p', '12019' if ap else '18888', '-v', '4'],
                   physics=physics, fc=fc, control=control, fc_environment=overrides)

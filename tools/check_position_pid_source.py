@@ -207,6 +207,9 @@ def run(compiler, eigen, evidence, protocol_path):
     for name, value in (("ros-shell.h", ROS_SHELL), ("UAVState-shell.h", STATE_SHELL), ("oracle.cpp", CPP)):
         (evidence / name).write_text(value, encoding="utf-8")
     for source in (Path(__file__), ROOT / "Simulator/wksim_control/position_pid.py",
+                   ROOT / "Simulator/wksim_control/position_contract.py",
+                   ROOT / "Simulator/wksim_control/controllers.py",
+                   ROOT / "Simulator/wksim_control/native_thrust.py",
                    ROOT / "Simulator/wksim_control/__init__.py"):
         shutil.copyfile(source, evidence / source.name)
     try:

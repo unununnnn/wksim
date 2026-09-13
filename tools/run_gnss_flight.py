@@ -88,7 +88,7 @@ def run(admission, output, scene_epoch):
         'Simulator/wksim_runtime/task.py','Simulator/wksim_runtime/runtime.py','Simulator/wksim_runtime/isolation.py',
         'Simulator/wksim_runtime/config.py','Simulator/wksim_runtime/joint_profile.py',
         'Simulator/wksim_runtime/build_identity.py','Simulator/wksim_core/gnss_event.py',
-        'Simulator/wksim_core/motor_efficiency_event.py','Simulator/wksim_core/model.py','Simulator/wksim_core/model.cpp',
+        'Simulator/wksim_core/motor_efficiency_event.py','Simulator/wksim_core/model.py','Simulator/wksim_core/model_parameters.py','Simulator/wksim_core/model.cpp',
         'Simulator/wksim_control/gnss_recovery_frame.py',
         'Simulator/wksim_core/px4_mavlink.py','Simulator/wksim_core/ap_json.py','Simulator/wksim_core/state_stream.py',
         'Simulator/wksim_core/arducopter-quad-x.parm','Simulator/wksim_core/px4-rc.mavlink']

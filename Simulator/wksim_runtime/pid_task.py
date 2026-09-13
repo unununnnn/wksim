@@ -11,8 +11,10 @@ import os
 from pathlib import Path
 import time
 
-from Simulator.wksim_control.position_pid import (
-    PIDConfig, PIDReference, PIDState, NativeThrustConfig, select_controller, _finite)
+from Simulator.wksim_control.position_contract import PIDReference, PIDState, _finite
+from Simulator.wksim_control.native_thrust import NativeThrustConfig
+from Simulator.wksim_control.controllers import (
+    select_controller, controller_config as make_controller_config, controller_implementation)
 from .attitude_task import AttitudeTask, MODE_TRUE, MODE_FALSE, hover_median, within
 from .evidence import write_json
 from .task import Task, grounded, state_time
@@ -34,21 +36,12 @@ def protocol_sha256(config):
 
 
 def implementation(config):
-    return {'pid': 'Simulator.wksim_control.position_pid.PositionPID',
-            'ude': 'Simulator.wksim_control.position_ude.PositionUDE',
-            'ne': 'Simulator.wksim_control.position_ne.PositionNE'}[config['controller']]
+    return controller_implementation(config['controller'])
 
 
 def controller_config(config):
-    if config['controller'] == 'pid':
-        return PIDConfig(config['model']['mass_kg'], **config['pid'])
-    if config['controller'] == 'ude':
-        from Simulator.wksim_control.position_ude import UDEConfig
-        return UDEConfig(config['model']['mass_kg'], **config['ude'])
-    if config['controller'] == 'ne':
-        from Simulator.wksim_control.position_ne import NEConfig
-        return NEConfig(config['model']['mass_kg'], **config['ne'])
-    raise ValueError('Unsupported external position controller')
+    name = config['controller']
+    return make_controller_config(name, config['model']['mass_kg'], config.get(name, {}))
 
 
 def load_config(path):
@@ -117,6 +110,7 @@ class PIDLoop:
         self.stamp = stamp
         collective = self.thrust.normalized_collective(output, model_identity=self.config['model']['identity'])
         row = dict(native_state_stamp_s=stamp, dt_s=dt, controller=self.config['controller'],
+            control_stage='external_position', firmware_inner_loop_replaced=False,
             state=asdict(state), reference=asdict(desired), output=asdict(output),
             normalized_collective=collective, native_thrust_convention=(
                 [0., 0., -collective] if self.thrust.stack == 'px4' else collective))
@@ -166,6 +160,7 @@ class PIDTask(AttitudeTask):
         # Reuse the observer's internal dictionary only. Never expose #34 step
         # completion or claim this task ran AttitudeTask.execute().
         self.attitude_result.update(controller=pid_config['controller'], status='not_started', protocol_sha256=protocol_sha256(pid_config),
+            control_stage='external_position', firmware_inner_loop_replaced=False,
             configuration=pid_config, scope=pid_config['scope'],
             observer_reuse='AttitudeTask observation/entry/preparation helpers; no attitude-step experiment',
             metrics=[], implementation=implementation(pid_config))

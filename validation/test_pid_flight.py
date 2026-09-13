@@ -70,6 +70,8 @@ class PIDCandidateTests(unittest.TestCase):
         self.assertAlmostEqual(row['dt_s'], .04)
         self.assertAlmostEqual(row['output']['integral'][2], .004)
         self.assertEqual(row['controller'], 'pid')
+        self.assertEqual(row['control_stage'], 'external_position')
+        self.assertIs(row['firmware_inner_loop_replaced'], False)
         before = loop.pid.integral
         self.assertIsNone(loop.update(1.04, state, target, active=True))
         self.assertEqual(loop.pid.integral, before)

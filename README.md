@@ -9,6 +9,8 @@ Prometheus 仿真工具链迁移开发：Windows UE5.5、WSL Ubuntu22.04、ROS2/
 - [规格、阶段目标与实施票据](docs/plan/README.md)
 - [运行入口与本机依赖](docs/wksim-runtime.md)
 - [独立项目、唯一远端与本机依赖位置](docs/project-isolation.md)
+- [模块解耦、跨载具扩展与固件内环 LQR/MPC 验证路线](docs/architecture-decoupling.md)
+- [解耦实施结果、双飞控内环对照与车辆实验入口](docs/architecture-implementation-20260912.md)
 - [ROS2 工作区](ros2/README.md)
 - [自主物理模型宿主](Simulator/wksim_core/README.md)
 - [UE5.5 显示](Simulator/ue55/README.md)

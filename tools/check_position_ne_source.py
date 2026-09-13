@@ -143,6 +143,10 @@ def run(evidence):
     frozen = protocol()
     (evidence / "protocol.json").write_text(json.dumps(frozen, sort_keys=True, indent=2), encoding="utf-8")
     sources = [Path(__file__), ROOT/"Simulator/wksim_control/position_ne.py",
+               ROOT/"Simulator/wksim_control/position_contract.py",
+               ROOT/"Simulator/wksim_control/controllers.py",
+               ROOT/"Simulator/wksim_control/native_thrust.py",
+               ROOT/"Simulator/wksim_control/__init__.py",
                ROOT/"Simulator/wksim_control/position_pid.py", ROOT/"validation/test_position_ne.py",
                ROOT/"tools/check_position_pid_source.py"]
     identities = {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in sources}

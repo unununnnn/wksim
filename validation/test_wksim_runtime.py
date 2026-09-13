@@ -33,6 +33,14 @@ def state(**fields):
 
 
 class RuntimeTests(unittest.TestCase):
+    def test_ap_plan_does_not_require_or_consume_px4_resources(self):
+        cfg = config('arducopter')
+        before = runtime.launch_spec(cfg, Path('/tmp/run'), Path('/tmp/model.so'))
+        del cfg['px4_root']
+        validated = runtime.validate_config(cfg)
+        self.assertNotIn('px4_root', validated)
+        self.assertEqual(runtime.launch_spec(validated, Path('/tmp/run'), Path('/tmp/model.so')), before)
+
     def setUp(self):
         isolation_check = patch.object(runtime, 'check_isolation')
         isolation_check.start()

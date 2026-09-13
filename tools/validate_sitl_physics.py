@@ -29,6 +29,8 @@ AP_ROOT = Path("/root/wksim-dependencies/ardupilot-1511f271")
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--stack", choices=("arducopter", "px4"), default="arducopter")
+    parser.add_argument("--motor-command-disturbance", action="store_true",
+                        help="Explicit one-motor 0.97 command multiplier for 1 s during the hold gate")
     parser.add_argument("--ap-root", type=Path, default=AP_ROOT)
     parser.add_argument("--px4-root", type=Path, default=Path("/root/wksim-dependencies/px4-d6f12ad1"))
     parser.add_argument("--physics-port", type=int)
@@ -133,6 +135,10 @@ def main():
     sources = [Path(__file__), REPO / "Simulator/wksim_core/model.py",
                REPO / "Simulator/wksim_core" / ("ap_json.py" if is_ap else "px4_mavlink.py"),
                REPO / "Simulator/wksim_core" / ("arducopter-quad-x.parm" if is_ap else "px4-rc.mavlink")]
+    if args.motor_command_disturbance:
+        sources.append(REPO/'tools/rate_fault_physics.py')
+        result['actuator_disturbance'] = dict(kind='motor0_command_97pct_1s',
+            event_path=str(result_dir/'rate-actuator-event.json'), input_trace=str(result_dir/'rate-actuator-inputs.jsonl'))
     if args.dds_workspace:
         sources += [REPO / "tools/sitl_dds.py", REPO / "tools/run-dds-validation.sh", REPO / "tools/validate_dds_schemas.py"]
     if args.prometheus_workspace:
@@ -196,7 +202,11 @@ def main():
                     "-p", "native_system_id:=22", "-p", "arducopter_position_yaw:=true",
                     "-p", "run_id:=" + result_dir.name], "prometheus-node", run_dir)
 
-        launch([sys.executable, "-m", "Simulator.wksim_core." + ("ap_json" if is_ap else "px4_mavlink"), "--library", str(library),
+        physics_entry = ([sys.executable, str(REPO/'tools/rate_fault_physics.py'), '--stack', args.stack,
+            '--event', str(result_dir/'rate-actuator-event.json'), '--input-trace', str(result_dir/'rate-actuator-inputs.jsonl')]
+            if args.motor_command_disturbance else
+            [sys.executable, '-m', 'Simulator.wksim_core.' + ('ap_json' if is_ap else 'px4_mavlink')])
+        launch([*physics_entry, "--library", str(library),
                 "--port", str(args.physics_port), "--trace", str(result_dir / "truth.jsonl"),
                 "--duration", "180"], "physics", REPO)
         if is_ap:
@@ -348,6 +358,17 @@ def main():
             command(22, [0, 0, 0, 0, 0, 0, 3])
         wait_for("takeoff height reached", lambda: latest["LOCAL_POSITION_NED"].z <= -2.5 and (not dds or dds.position_ned[2] <= -2.5), 25)
         hold_start = latest["LOCAL_POSITION_NED"].time_boot_ms
+        if args.motor_command_disturbance:
+            with (result_dir/'truth.jsonl').open() as stream:
+                completed = [line for line in stream if line.endswith('\n')]
+            if not completed:
+                raise ValueError('Cannot schedule a model-time disturbance without physical truth')
+            tick = round(json.loads(completed[-1])['time']*1000)
+            event = dict(schema='wksim.rate-actuator-fault.v1', channel=0,
+                         start_tick=tick+1000, end_tick=tick+2000, multiplier=.97)
+            from rate_fault_physics import publish_event
+            checksum = publish_event(result_dir/'rate-actuator-event.json', event)
+            result['actuator_disturbance'].update(event=event, event_sha256=checksum)
         hold_samples = []
         while latest["LOCAL_POSITION_NED"].time_boot_ms - hold_start < 5000:
             pump()

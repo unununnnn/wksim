@@ -35,7 +35,7 @@ SOURCE_NAMES = ['tools/hex_candidate.py', 'tools/run_hex_flight.py', 'tools/run-
     'Simulator/wksim_runtime/runtime.py', 'Simulator/wksim_runtime/isolation.py',
     'Simulator/wksim_runtime/task.py', 'Simulator/wksim_runtime/evidence.py',
     'Simulator/wksim_runtime/telemetry_dialect.py', 'Simulator/wksim_runtime/telemetry-dialects.json',
-    'Simulator/wksim_core/model.py', 'Simulator/wksim_core/model.cpp',
+    'Simulator/wksim_core/model.py','Simulator/wksim_core/model_parameters.py', 'Simulator/wksim_core/model.cpp',
     'Simulator/wksim_core/ap_json.py', 'Simulator/wksim_core/px4_mavlink.py',
     'Simulator/wksim_core/state_stream.py', 'Simulator/wksim_core/px4-rc.mavlink']
 

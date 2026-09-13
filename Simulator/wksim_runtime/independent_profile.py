@@ -23,10 +23,11 @@ def select_config(config):
         raise ValueError('Independent profile ground control restart is not admitted')
     p = joint_profile.select_profile('joint_quad_dds_v1')
     expected = dict(dds_workspace=p['dds_workspace'], prometheus_workspace=p['control_workspace'],
-                    px4_root=str(PurePosixPath(p['manifests']['px4']['path']).parent / 'src'),
                     model_library=p['model_library'])
     if normalized['stack'] == 'arducopter':
         expected['ap_candidate'] = str(PurePosixPath(p['manifests']['ap']['path']).parent)
+    else:
+        expected['px4_root'] = str(PurePosixPath(p['manifests']['px4']['path']).parent / 'src')
     for key, value in expected.items():
         if key == 'model_library' and key not in normalized:
             normalized[key] = value

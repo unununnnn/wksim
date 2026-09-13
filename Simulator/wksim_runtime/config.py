@@ -18,10 +18,10 @@ def validate_config(data):
     if not isinstance(data, dict):
         raise ConfigError("Configuration must be a JSON object")
     required = {'schema_version', 'run_id', 'vehicle_id', 'stack', 'model_profile',
-                'communication', 'dds_workspace', 'prometheus_workspace', 'px4_root'}
+                'communication', 'dds_workspace', 'prometheus_workspace'}
     optional = {'ap_candidate', 'capabilities', 'model_library', 'display_socket', 'control_protocol',
                 'restart_control_on_ground', 'mission', 'telemetry_socket', 'runtime_profile', 'gcs_udp_forward',
-                'promotion_flight', 'model_promotion_flight', 'global_reference'}
+                'promotion_flight', 'model_promotion_flight', 'global_reference', 'px4_root'}
     if required - data.keys():
         raise ConfigError('Missing fields: ' + ', '.join(sorted(required - data.keys())))
     if data.keys() - required - optional:
@@ -37,6 +37,8 @@ def validate_config(data):
             raise ConfigError(f'Unsupported {key}: {data[key]!r}; allowed: {choices}')
     if data['stack'] == 'arducopter' and 'ap_candidate' not in data:
         raise ConfigError('arducopter requires ap_candidate')
+    if data['stack'] == 'px4' and 'px4_root' not in data:
+        raise ConfigError('px4 requires px4_root')
     if data['stack'] == 'px4' and 'ap_candidate' in data:
         raise ConfigError('ap_candidate is only valid for arducopter')
     if data.get('control_protocol', 'legacy_v1') not in ('legacy_v1', 'session_v1'):
