@@ -43,6 +43,7 @@ PACKET_RELATIVE = "validation/e0-g6-solve-form-decision-20260914.json"
 PACKET = ROOT / PACKET_RELATIVE
 MARKDOWN = ROOT / "docs/plan/59-g6-solve-form-decision-20260914.md"
 COORD = ROOT / "validation/coordination/cursor-g6-solve-form-20260914-01"
+RECHECK_RELATIVE = "validation/coordination/cursor-g6-solve-form-20260914-01/recheck.json"
 
 SCHEMA = "wksim.59-g6-solve-form-decision.v1"
 KIND = "g6_b5_solve_form_decision_packet"
@@ -605,7 +606,12 @@ class RealPacketTests(unittest.TestCase):
             self.assertEqual(payload["status"], "aligned")
             self.assertFalse(payload.get("g6_acceptance", False))
         self.assertTrue(MARKDOWN.is_file())
-        recheck, _ = _load_json(COORD / "recheck.json")
+        recheck_path = ROOT / RECHECK_RELATIVE
+        recheck, _ = _load_json(recheck_path)
+        self.assertEqual(_sha256(recheck_path), _head_blob_sha256(RECHECK_RELATIVE))
+        self.assertEqual(recheck["packet_sha256"], _sha256(PACKET))
+        self.assertEqual(recheck["markdown_sha256"], _sha256(MARKDOWN))
+        self.assertEqual(recheck["test_sha256"], _sha256(Path(__file__)))
         self.assertFalse(recheck["g6_acceptance"])
         self.assertFalse(recheck["physical_accuracy"])
         self.assertTrue(recheck["discriminating_point"]["verified"])
@@ -616,6 +622,8 @@ class RealPacketTests(unittest.TestCase):
         self.assertEqual(recheck["source_pins"]["reference_run05"], document["pins"]["reference_run05"]["sha256"])
         self.assertEqual(recheck["source_pins"]["target_mrdivide"], document["pins"]["target_mrdivide"]["sha256"])
         self.assertEqual(recheck["source_pins"]["diagonal_candidate"], document["pins"]["diagonal_candidate"]["sha256"])
+        for pin_id in DERIVED_PINS:
+            self.assertEqual(recheck["recomputed_outputs"][pin_id], document["pins"][pin_id]["sha256"])
 
     def test_markdown_does_not_claim_acceptance(self):
         text = MARKDOWN.read_text(encoding="utf-8")
