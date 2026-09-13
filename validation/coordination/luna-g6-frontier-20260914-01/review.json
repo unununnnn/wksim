@@ -1,0 +1,124 @@
+{
+  "schema_version": 1,
+  "audit_id": "luna-g6-frontier-20260914-01",
+  "audit_date": "2026-09-14",
+  "scope": "read-only G6/Full frontier audit",
+  "prohibited_actions": {
+    "ros": false,
+    "flight_controller": false,
+    "model_runtime": false,
+    "ue": false,
+    "matlab": false,
+    "native": false,
+    "build": false
+  },
+  "workspace": {
+    "root": "C:/Users/PC/Documents/odid编译/wksim",
+    "branch": "main",
+    "head_at_probe": "9815355d0c325bc84512dc3a48d354ccbb6ac47f",
+    "architecture_ancestor": "f333316e6efa6b299b4288a9d91fb2bccedfb9d6",
+    "architecture_ancestor_exit_code": 0,
+    "worktree": "pre-existing dirty changes; no existing file was changed by this audit",
+    "budget_audit_declared_head": "abf1ac3934e3ad8dcfbcb5c7b4dc49712d407c18",
+    "identity_note": "budget audit is historical relative to the current probe checkout"
+  },
+  "verdict": {
+    "g6": "blocked_not_accepted",
+    "full": "incomplete",
+    "r1": "numerical_failed",
+    "goal_complete": false
+  },
+  "proven": [
+    "target first-step trace receipt reports compile exit 0 and run exit 0",
+    "first-step comparison is bounded to one case, one step, and 13 of 36 mapped states",
+    "earliest bounded difference is p,q,r stage 2 derivative index 1, reference bc56d4db33a987b8 vs target bc56d4db33a987b9",
+    "R1 retained diagnosis has 5684 failed values and marks the floating-point hypothesis unproven",
+    "pure Python checks passed: 82 passed, 1 skipped, 18 subtests; manifest validator status pass",
+    "full ledger has 96 entries and all 96 remain gaps with partial-evidence status"
+  ],
+  "not_proven": [
+    "approved per-quantity G6 numerical budgets",
+    "frame/datum binding for dynamic quantities",
+    "approved time/phase rule",
+    "complete same-source execution identity and 120-slot 501-sample run",
+    "physical accuracy or G6 acceptance",
+    "root cause of the first-step ULP divergence",
+    "Full completion across models, modes, hardware, protocols, planner, licensing, and formal entry"
+  ],
+  "blockers": [
+    {"id": "B1", "statement": "No approved abs/rel/RMS basis for any of 120 quantities."},
+    {"id": "B2", "statement": "Frame and datum are unbound for all 56 dynamic quantities."},
+    {"id": "B3", "statement": "All retained time/phase records are prospective_for_review with acceptance=false."},
+    {"id": "B4", "statement": "No frozen same-source contract has approved budgets plus complete execution identity."},
+    {"id": "B5", "statement": "p,q,r derivative operand chain is only partially observed; 13/36 state trace is insufficient."}
+  ],
+  "g6_budget_summary": {
+    "quantities_total": 120,
+    "quantities_audited_dynamic": 56,
+    "slots_with_any_approved_epsilon": 0,
+    "slots_with_frame_binding": 0,
+    "slots_with_datum_binding": 0,
+    "same_source_entry_status": "blocked (no approved per-quantity budget, no execution block)",
+    "physical_acceptance": false,
+    "g6_acceptance": false
+  },
+  "r1_summary": {
+    "failed_values": 5684,
+    "by_case": {"C0": 2, "C2G": 1943, "C3G": 3739},
+    "earliest_k": 1,
+    "hypothesis_status": "unproven"
+  },
+  "full_ledger": {
+    "generated_on": "2026-09-09",
+    "entries": 96,
+    "partial_evidence_entries": 96,
+    "gap_entries": 96,
+    "mechanical_source_set_matches": true
+  },
+  "github_issue_snapshot": {
+    "source_command": "gh issue list --repo unununnnn/wksim --state open --limit 200 --json number,title,labels,updatedAt",
+    "open_count": 23,
+    "key": [
+      {"number": 1, "state": "OPEN", "labels": ["wayfinder:map"]},
+      {"number": 9, "state": "OPEN", "labels": ["wayfinder:grilling"]},
+      {"number": 10, "state": "OPEN", "labels": ["ready-for-agent"]},
+      {"number": 26, "state": "OPEN", "labels": ["ready-for-agent"]},
+      {"number": 29, "state": "OPEN", "labels": ["ready-for-agent"]},
+      {"number": 33, "state": "OPEN", "labels": ["ready-for-agent"]},
+      {"number": 59, "state": "OPEN", "labels": ["wayfinder:task", "needs-triage"]},
+      {"number": 60, "state": "OPEN", "labels": ["wayfinder:task", "ready-for-agent"]},
+      {"number": 62, "state": "OPEN", "labels": ["wayfinder:task", "needs-triage"]},
+      {"number": 83, "state": "CLOSED", "labels": ["wayfinder:task", "needs-triage"]},
+      {"number": 84, "state": "OPEN", "labels": ["wayfinder:task", "ready-for-agent"]},
+      {"number": 102, "state": "OPEN", "labels": ["wayfinder:task", "ready-for-agent"]}
+    ],
+    "stale_ledger_example": "The 2026-09-09 ledger still prints some parent states that gh now reports as CLOSED; its own policy says those rows remain Full gaps."
+  },
+  "next_slice": {
+    "id": "g6-second-level-c3g-stage2-operand-boundary",
+    "owner": "main session (native/formal profile owner)",
+    "scope": "one C3G case, k=0->1, stage 2 p,q,r derivative index 1",
+    "capture": [
+      "rtb_IntegratorSecondOrderLimi_d[0..2]",
+      "Selector2[0..8]",
+      "M1[1]",
+      "Fd[0]",
+      "Sum1_a[1]",
+      "TT0gLR",
+      "Sum4_f[0..2]"
+    ],
+    "acceptance_of_slice": "binary64 hex comparison plus source/input/cleanup identities",
+    "write_boundary": "fresh staging/evidence only; do not edit old R1 contract, same-source entry, official profile, ledger, or existing builder/recorder",
+    "does_not_close": ["B1", "B2", "B3", "B4", "G6", "Full", "#59"]
+  },
+  "source_sha256": {
+    "docs/plan/10-g6-remediation-contract.md": "48da61ade51d46111db0be9a9288d93d4eec380251043c2e39bff66b74cae5c0",
+    "docs/plan/59-e0-same-source-command.md": "345caff0fd354717a64ed1dfac2c3ad33f87c72713cf3362483c395fb66b197e",
+    "docs/plan/59-e0-dynamic-budget-source-map.md": "35a56084105409329131add7d4b9e35be6d1a145c6e18268c96324805313cd42",
+    "docs/plan/full-remaining-ledger.json": "61a58c9065d5f6b0f243aa49cbd476f38a17ce29c7bf12175c194ba582c51b54",
+    "validation/coordination/g6-target-first-step-20260913/comparison-v2.json": "2a6b8fe9338224d64f0cc91fd4c66139b3422ca23c3032049cd529d6387ea3c9",
+    "validation/coordination/g6-first-divergence-20260913/v3/diagnosis.json": "f326f392a4de7f8171aec22d13de569f862e82f08da6b4979a2ba0791b14c73e",
+    "validation/coordination/ds-g6-budget-evidence-20260913-01/audit.json": "04604840d3b79f6cfe26e2cc4e2547f6c15b3f7cc66aa1da0cb69527f0bf0d66"
+  },
+  "artifacts": ["review.md", "review.json", "probe.py", "SHA256SUMS"]
+}
