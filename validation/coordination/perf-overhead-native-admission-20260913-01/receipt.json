@@ -1,0 +1,654 @@
+{
+  "directory": "/root/wksim-overhead-native-1npujbah",
+  "boot_id": "7a13f36a-5abd-4ee0-af9d-45303bfb9881",
+  "source_sha256": {
+    "bench_overhead.c": "e51535a4dfce2107dbc9f8f3f30e68ee094a3a38bb72d1158160fede969df2c7",
+    "fault_inject.c": "9208435d8f5a418213807b60b92564102e0d0adaccba7cb0673165410837b608",
+    "analyze_overhead.py": "9da94c6fb9980953550e141797f6c56ae4f9e8482b641365db08518f68dd277e",
+    "test_analyze_overhead.py": "c8ede1515beb6136a6406a0e550d70460fb7cc27d460c753766ada05cb12d79e",
+    "wksim_perf_stream.c": "aa807f3baaafcd64ed6174a49f8010b49798a74d139ead2d4eb69eafa503c1d2",
+    "wksim_perf_stream.h": "ef1eabf247107098dc59a314d99b8fc82d4c54dbddd58d645bcec35141a12823",
+    "perf_stream_consumer.py": "dee9a3b5c3cafb42e69836758ccaebd4dbd78e8fa569d203c7ca1d36a03179bc"
+  },
+  "commands": [
+    {
+      "name": "build-shared-recorder",
+      "argv": [
+        "cc",
+        "-std=c11",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pthread",
+        "-I.",
+        "-shared",
+        "-fPIC",
+        "-o",
+        "libwksim_perf_stream.so",
+        "wksim_perf_stream.c"
+      ],
+      "pid": 766,
+      "exit_code": 0,
+      "timed_out": false,
+      "pgid_empty": true,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "name": "build-bench",
+      "argv": [
+        "cc",
+        "-std=c11",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pthread",
+        "-I.",
+        "-o",
+        "bench",
+        "bench_overhead.c",
+        "-L.",
+        "-Wl,-rpath,/root/wksim-overhead-native-1npujbah",
+        "-lwksim_perf_stream"
+      ],
+      "pid": 772,
+      "exit_code": 0,
+      "timed_out": false,
+      "pgid_empty": true,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "name": "build-bench-fault",
+      "argv": [
+        "cc",
+        "-std=c11",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pthread",
+        "-I.",
+        "-o",
+        "bench-fault",
+        "bench_overhead.c",
+        "fault_inject.c",
+        "-L.",
+        "-Wl,-rpath,/root/wksim-overhead-native-1npujbah",
+        "-lwksim_perf_stream",
+        "-Wl,--wrap=clock_gettime",
+        "-Wl,--wrap=getrusage",
+        "-Wl,--wrap=fclose",
+        "-Wl,--wrap=wksim_perf_stop"
+      ],
+      "pid": 777,
+      "exit_code": 0,
+      "timed_out": false,
+      "pgid_empty": true,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "name": "inspect-exports",
+      "argv": [
+        "nm",
+        "-D",
+        "--defined-only",
+        "libwksim_perf_stream.so"
+      ],
+      "pid": 784,
+      "exit_code": 0,
+      "timed_out": false,
+      "pgid_empty": true,
+      "stdout": "0000000000003320 T wksim_perf_last_error\n0000000000003360 T wksim_perf_start\n0000000000003f30 T wksim_perf_stop\n",
+      "stderr": ""
+    },
+    {
+      "name": "smoke-disabled",
+      "argv": [
+        "./bench",
+        "320000000",
+        "8000000",
+        "disabled",
+        "/root/wksim-overhead-native-1npujbah/smoke-disabled"
+      ],
+      "pid": 785,
+      "exit_code": 0,
+      "timed_out": false,
+      "pgid_empty": true,
+      "stdout": "bench: mode=disabled iterations=40 loop_ns=315219177 owner_cpu_ns=426000 process_cpu_ns=426000\n",
+      "stderr": ""
+    },
+    {
+      "name": "smoke-enabled",
+      "argv": [
+        "./bench",
+        "320000000",
+        "8000000",
+        "enabled",
+        "/root/wksim-overhead-native-1npujbah/smoke-enabled"
+      ],
+      "pid": 786,
+      "exit_code": 0,
+      "timed_out": false,
+      "pgid_empty": true,
+      "stdout": "bench: mode=enabled iterations=40 loop_ns=315899376 owner_cpu_ns=785000 process_cpu_ns=1290000\n",
+      "stderr": ""
+    },
+    {
+      "name": "fault-baseline",
+      "argv": [
+        "./bench-fault",
+        "320000000",
+        "8000000",
+        "enabled",
+        "/root/wksim-overhead-native-1npujbah/fault-baseline"
+      ],
+      "pid": 789,
+      "exit_code": 0,
+      "timed_out": false,
+      "pgid_empty": true,
+      "stdout": "bench: mode=enabled iterations=40 loop_ns=316443952 owner_cpu_ns=1018000 process_cpu_ns=1379000\n",
+      "stderr": ""
+    },
+    {
+      "name": "fault-clock-start-begin",
+      "argv": [
+        "./bench-fault",
+        "320000000",
+        "8000000",
+        "enabled",
+        "/root/wksim-overhead-native-1npujbah/fault-clock-start-begin"
+      ],
+      "pid": 791,
+      "exit_code": 3,
+      "timed_out": false,
+      "pgid_empty": true,
+      "stdout": "",
+      "stderr": "fault_inject: clock_gettime call 1 fails by request\nfault_inject: wksim_perf_stop called\nbench: wksim_perf_stop: stop: no complete switch in/out pair was captured: no_switch_pair\nbench: run incomplete: instrumentation_before_loop (sleep_ok=1 clock_ok=1 retained=0 spans_ok=0 start_rc=0 stop_rc=-1)\n"
+    },
+    {
+      "name": "fault-clock-after-start",
+      "argv": [
+        "./bench-fault",
+        "320000000",
+        "8000000",
+        "enabled",
+        "/root/wksim-overhead-native-1npujbah/fault-clock-after-start"
+      ],
+      "pid": 794,
+      "exit_code": 3,
+      "timed_out": false,
+      "pgid_empty": true,
+      "stdout": "",
+      "stderr": "fault_inject: clock_gettime call 2 fails by request\nfault_inject: wksim_perf_stop called\nbench: wksim_perf_stop: stop: no complete switch in/out pair was captured: no_switch_pair\nbench: run incomplete: instrumentation_before_loop (sleep_ok=1 clock_ok=1 retained=0 spans_ok=0 start_rc=0 stop_rc=-1)\n"
+    },
+    {
+      "name": "fault-cpu-baseline",
+      "argv": [
+        "./bench-fault",
+        "320000000",
+        "8000000",
+        "enabled",
+        "/root/wksim-overhead-native-1npujbah/fault-cpu-baseline"
+      ],
+      "pid": 796,
+      "exit_code": 3,
+      "timed_out": false,
+      "pgid_empty": true,
+      "stdout": "",
+      "stderr": "fault_inject: getrusage(0) call 1 fails by request\nfault_inject: wksim_perf_stop called\nbench: wksim_perf_stop: stop: no complete switch in/out pair was captured: no_switch_pair\nbench: run incomplete: instrumentation_before_loop (sleep_ok=1 clock_ok=1 retained=0 spans_ok=0 start_rc=0 stop_rc=-1)\n"
+    },
+    {
+      "name": "fault-cpu-closing",
+      "argv": [
+        "./bench-fault",
+        "320000000",
+        "8000000",
+        "enabled",
+        "/root/wksim-overhead-native-1npujbah/fault-cpu-closing"
+      ],
+      "pid": 798,
+      "exit_code": 3,
+      "timed_out": false,
+      "pgid_empty": true,
+      "stdout": "",
+      "stderr": "fault_inject: getrusage(0) call 3 fails by request\nfault_inject: wksim_perf_stop called\nbench: run incomplete: instrumentation_after_loop (sleep_ok=1 clock_ok=1 retained=0 spans_ok=1 start_rc=0 stop_rc=0)\n"
+    },
+    {
+      "name": "fault-fclose",
+      "argv": [
+        "./bench-fault",
+        "320000000",
+        "8000000",
+        "disabled",
+        "/root/wksim-overhead-native-1npujbah/fault-fclose"
+      ],
+      "pid": 800,
+      "exit_code": 3,
+      "timed_out": false,
+      "pgid_empty": true,
+      "stdout": "",
+      "stderr": "fault_inject: fclose call 1 observed\nfault_inject: fclose call 2 observed\nfault_inject: fclose call 2 reports failure by request\nbench: cannot close /root/wksim-overhead-native-1npujbah/fault-fclose/timing.csv: Input/output error\nbench: outputs not accepted: csv_close\n"
+    },
+    {
+      "name": "fault-stop-report",
+      "argv": [
+        "./bench-fault",
+        "320000000",
+        "8000000",
+        "enabled",
+        "/root/wksim-overhead-native-1npujbah/fault-stop-report"
+      ],
+      "pid": 801,
+      "exit_code": 3,
+      "timed_out": false,
+      "pgid_empty": true,
+      "stdout": "",
+      "stderr": "fault_inject: successful stop reports failure with consumed handle\nbench: wksim_perf_stop: no error\nbench: run incomplete: recorder_rc (sleep_ok=1 clock_ok=1 retained=0 spans_ok=1 start_rc=0 stop_rc=-1)\n"
+    },
+    {
+      "name": "analyze-smoke",
+      "argv": [
+        "python3",
+        "-B",
+        "analyze_overhead.py",
+        "/root/wksim-overhead-native-1npujbah/smoke-disabled",
+        "/root/wksim-overhead-native-1npujbah/smoke-enabled",
+        "/root/wksim-overhead-native-1npujbah/overhead-smoke.json"
+      ],
+      "pid": 803,
+      "exit_code": 0,
+      "timed_out": false,
+      "pgid_empty": true,
+      "stdout": "workload: duration=320000000 ns period=8000000 ns iterations=40\nloop_span_ns           base=315218803    variant=315899243    delta=680440\nowner_thread_cpu_ns    base=426000       variant=785000       delta=359000\nprocess_cpu_ns         base=426000       variant=1290000      delta=864000\nmean_slip_ns           base=1635856      variant=1946980      delta=311124\np99_slip_ns            base=3217535      variant=3897941      delta=680406\nmean_start_to_end_ns   base=585          variant=618          delta=33\nmissed_deadlines       base=0            variant=0            delta=0\nclassification=diagnostic_only full_acceptance=false; no threshold applied\n",
+      "stderr": ""
+    },
+    {
+      "name": "consume-smoke-enabled",
+      "argv": [
+        "python3",
+        "-B",
+        "perf_stream_consumer.py",
+        "--raw",
+        "/root/wksim-overhead-native-1npujbah/smoke-enabled/switch.raw",
+        "--metadata",
+        "/root/wksim-overhead-native-1npujbah/smoke-enabled/switch.meta.json",
+        "--output",
+        "/root/wksim-overhead-native-1npujbah/smoke-enabled/decoded.json",
+        "--require-kernel-counter"
+      ],
+      "pid": 804,
+      "exit_code": 0,
+      "timed_out": false,
+      "pgid_empty": true,
+      "stdout": "{\"metadata_sha256\": \"6c865d2a2daf2efb2c4b5a5472e6597c0c6ac213d2a3808e69bd6ee587302562\", \"ok\": true, \"output\": \"/root/wksim-overhead-native-1npujbah/smoke-enabled/decoded.json\", \"pairs\": 40, \"raw_sha256\": \"77f4f000b761f9a93542b67d60a2711eb34f9b68d886d00513c12862cb44bc78\", \"records\": 80, \"windows\": 0}\n",
+      "stderr": ""
+    },
+    {
+      "name": "consume-fault-baseline",
+      "argv": [
+        "python3",
+        "-B",
+        "perf_stream_consumer.py",
+        "--raw",
+        "/root/wksim-overhead-native-1npujbah/fault-baseline/switch.raw",
+        "--metadata",
+        "/root/wksim-overhead-native-1npujbah/fault-baseline/switch.meta.json",
+        "--output",
+        "/root/wksim-overhead-native-1npujbah/fault-baseline/decoded.json",
+        "--require-kernel-counter"
+      ],
+      "pid": 805,
+      "exit_code": 0,
+      "timed_out": false,
+      "pgid_empty": true,
+      "stdout": "{\"metadata_sha256\": \"144a69c28f749f25184ccda1a210cb508b66d3be3f91c6cd9e0e0c0150a7bdf3\", \"ok\": true, \"output\": \"/root/wksim-overhead-native-1npujbah/fault-baseline/decoded.json\", \"pairs\": 40, \"raw_sha256\": \"faaadc4891d27a63aa27d3cdbe7949a5b6bb019933478efe85ce8c3b9cf8d637\", \"records\": 80, \"windows\": 0}\n",
+      "stderr": ""
+    },
+    {
+      "name": "consume-fault-stop-report",
+      "argv": [
+        "python3",
+        "-B",
+        "perf_stream_consumer.py",
+        "--raw",
+        "/root/wksim-overhead-native-1npujbah/fault-stop-report/switch.raw",
+        "--metadata",
+        "/root/wksim-overhead-native-1npujbah/fault-stop-report/switch.meta.json",
+        "--output",
+        "/root/wksim-overhead-native-1npujbah/fault-stop-report/decoded.json",
+        "--require-kernel-counter"
+      ],
+      "pid": 806,
+      "exit_code": 0,
+      "timed_out": false,
+      "pgid_empty": true,
+      "stdout": "{\"metadata_sha256\": \"79cbb537702cd190cde515e23431a0813cc735405c09bde52d4c3cde64d9bcb8\", \"ok\": true, \"output\": \"/root/wksim-overhead-native-1npujbah/fault-stop-report/decoded.json\", \"pairs\": 40, \"raw_sha256\": \"85bf0373d8bea38d1cde70ac64240b7d0471531ad03c0b2e0f6f200c5be0a41d\", \"records\": 80, \"windows\": 0}\n",
+      "stderr": ""
+    }
+  ],
+  "checks": [
+    {
+      "name": "builds_exit_zero",
+      "ok": true,
+      "detail": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "success_cases_exit_zero",
+      "ok": true,
+      "detail": {
+        "smoke-disabled": 0,
+        "smoke-enabled": 0,
+        "fault-baseline": 0
+      }
+    },
+    {
+      "name": "fault_cases_exit_nonzero",
+      "ok": true,
+      "detail": {
+        "fault-baseline": 0,
+        "fault-clock-start-begin": 3,
+        "fault-clock-after-start": 3,
+        "fault-cpu-baseline": 3,
+        "fault-cpu-closing": 3,
+        "fault-fclose": 3,
+        "fault-stop-report": 3
+      }
+    },
+    {
+      "name": "post_start_failures_reach_stop",
+      "ok": true,
+      "detail": {
+        "fault-clock-start-begin": "fault_inject: clock_gettime call 1 fails by request\nfault_inject: wksim_perf_stop called\nbench: wksim_perf_stop: stop: no complete switch in/out pair was captured: no_switch_pair\nbench: run incomplete: instrumentation_before_loop (sleep_ok=1 clock_ok=1 retained=0 spans_ok=0 start_rc=0 stop_rc=-1)\n",
+        "fault-clock-after-start": "fault_inject: clock_gettime call 2 fails by request\nfault_inject: wksim_perf_stop called\nbench: wksim_perf_stop: stop: no complete switch in/out pair was captured: no_switch_pair\nbench: run incomplete: instrumentation_before_loop (sleep_ok=1 clock_ok=1 retained=0 spans_ok=0 start_rc=0 stop_rc=-1)\n",
+        "fault-cpu-baseline": "fault_inject: getrusage(0) call 1 fails by request\nfault_inject: wksim_perf_stop called\nbench: wksim_perf_stop: stop: no complete switch in/out pair was captured: no_switch_pair\nbench: run incomplete: instrumentation_before_loop (sleep_ok=1 clock_ok=1 retained=0 spans_ok=0 start_rc=0 stop_rc=-1)\n",
+        "fault-cpu-closing": "fault_inject: getrusage(0) call 3 fails by request\nfault_inject: wksim_perf_stop called\nbench: run incomplete: instrumentation_after_loop (sleep_ok=1 clock_ok=1 retained=0 spans_ok=1 start_rc=0 stop_rc=0)\n"
+      }
+    },
+    {
+      "name": "failed_instrumentation_has_no_summary",
+      "ok": true,
+      "detail": [
+        "fault-clock-start-begin",
+        "fault-clock-after-start",
+        "fault-cpu-baseline",
+        "fault-cpu-closing"
+      ]
+    },
+    {
+      "name": "both_closes_observed",
+      "ok": true,
+      "detail": "fault_inject: fclose call 1 observed\nfault_inject: fclose call 2 observed\nfault_inject: fclose call 2 reports failure by request\nbench: cannot close /root/wksim-overhead-native-1npujbah/fault-fclose/timing.csv: Input/output error\nbench: outputs not accepted: csv_close\n"
+    },
+    {
+      "name": "consumed_stop_failure_rejected",
+      "ok": true,
+      "detail": "fault_inject: successful stop reports failure with consumed handle\nbench: wksim_perf_stop: no error\nbench: run incomplete: recorder_rc (sleep_ok=1 clock_ok=1 retained=0 spans_ok=1 start_rc=0 stop_rc=-1)\n"
+    },
+    {
+      "name": "analyzer_exit_zero",
+      "ok": true,
+      "detail": {
+        "name": "analyze-smoke",
+        "argv": [
+          "python3",
+          "-B",
+          "analyze_overhead.py",
+          "/root/wksim-overhead-native-1npujbah/smoke-disabled",
+          "/root/wksim-overhead-native-1npujbah/smoke-enabled",
+          "/root/wksim-overhead-native-1npujbah/overhead-smoke.json"
+        ],
+        "pid": 803,
+        "exit_code": 0,
+        "timed_out": false,
+        "pgid_empty": true,
+        "stdout": "workload: duration=320000000 ns period=8000000 ns iterations=40\nloop_span_ns           base=315218803    variant=315899243    delta=680440\nowner_thread_cpu_ns    base=426000       variant=785000       delta=359000\nprocess_cpu_ns         base=426000       variant=1290000      delta=864000\nmean_slip_ns           base=1635856      variant=1946980      delta=311124\np99_slip_ns            base=3217535      variant=3897941      delta=680406\nmean_start_to_end_ns   base=585          variant=618          delta=33\nmissed_deadlines       base=0            variant=0            delta=0\nclassification=diagnostic_only full_acceptance=false; no threshold applied\n",
+        "stderr": ""
+      }
+    },
+    {
+      "name": "strict_consumers_exit_zero",
+      "ok": true,
+      "detail": {
+        "consume-smoke-enabled": 0,
+        "consume-fault-baseline": 0,
+        "consume-fault-stop-report": 0
+      }
+    },
+    {
+      "name": "paired_workload_identical",
+      "ok": true,
+      "detail": {
+        "iterations": [
+          40,
+          40
+        ],
+        "body_checksum": [
+          11442116574413115393,
+          11442116574413115393
+        ]
+      }
+    },
+    {
+      "name": "same_boot",
+      "ok": true,
+      "detail": [
+        "7a13f36a-5abd-4ee0-af9d-45303bfb9881",
+        "7a13f36a-5abd-4ee0-af9d-45303bfb9881"
+      ]
+    },
+    {
+      "name": "all_process_groups_empty",
+      "ok": true,
+      "detail": [
+        {
+          "name": "build-shared-recorder",
+          "pgid_empty": true,
+          "timed_out": false
+        },
+        {
+          "name": "build-bench",
+          "pgid_empty": true,
+          "timed_out": false
+        },
+        {
+          "name": "build-bench-fault",
+          "pgid_empty": true,
+          "timed_out": false
+        },
+        {
+          "name": "inspect-exports",
+          "pgid_empty": true,
+          "timed_out": false
+        },
+        {
+          "name": "smoke-disabled",
+          "pgid_empty": true,
+          "timed_out": false
+        },
+        {
+          "name": "smoke-enabled",
+          "pgid_empty": true,
+          "timed_out": false
+        },
+        {
+          "name": "fault-baseline",
+          "pgid_empty": true,
+          "timed_out": false
+        },
+        {
+          "name": "fault-clock-start-begin",
+          "pgid_empty": true,
+          "timed_out": false
+        },
+        {
+          "name": "fault-clock-after-start",
+          "pgid_empty": true,
+          "timed_out": false
+        },
+        {
+          "name": "fault-cpu-baseline",
+          "pgid_empty": true,
+          "timed_out": false
+        },
+        {
+          "name": "fault-cpu-closing",
+          "pgid_empty": true,
+          "timed_out": false
+        },
+        {
+          "name": "fault-fclose",
+          "pgid_empty": true,
+          "timed_out": false
+        },
+        {
+          "name": "fault-stop-report",
+          "pgid_empty": true,
+          "timed_out": false
+        },
+        {
+          "name": "analyze-smoke",
+          "pgid_empty": true,
+          "timed_out": false
+        },
+        {
+          "name": "consume-smoke-enabled",
+          "pgid_empty": true,
+          "timed_out": false
+        },
+        {
+          "name": "consume-fault-baseline",
+          "pgid_empty": true,
+          "timed_out": false
+        },
+        {
+          "name": "consume-fault-stop-report",
+          "pgid_empty": true,
+          "timed_out": false
+        }
+      ]
+    }
+  ],
+  "boot_after": "7a13f36a-5abd-4ee0-af9d-45303bfb9881",
+  "ok": true,
+  "source_checkout": "C:\\Users\\PC\\Documents\\odid\u7f16\u8bd1\\wksim",
+  "source_head": "ee9312a2db212773ce651f85285160a67ce17c6b",
+  "architecture_ancestor_exit_code": 0,
+  "work_class": "new-development: synthetic perf diagnostic admission",
+  "architecture_acceptance": false,
+  "full_acceptance": false,
+  "captured_files": {
+    "overhead-smoke.json": {
+      "bytes": 3978,
+      "sha256": "52385efbadb5c14b203285f29f1ead2961ea913b9526192d86c19613318660e1"
+    },
+    "fault-baseline/result.json": {
+      "bytes": 1219,
+      "sha256": "47a4938a89502529850ab38a1ee5d235387ecac9b767840c0f78bdea12047e02"
+    },
+    "fault-baseline/decoded.json": {
+      "bytes": 13946,
+      "sha256": "5188eb0858efd7098c1cded1a30daa3d505f74352a7460aae1ec7512340a32d9"
+    },
+    "fault-baseline/switch.meta.json": {
+      "bytes": 1655,
+      "sha256": "144a69c28f749f25184ccda1a210cb508b66d3be3f91c6cd9e0e0c0150a7bdf3"
+    },
+    "fault-baseline/switch.raw": {
+      "bytes": 2560,
+      "sha256": "faaadc4891d27a63aa27d3cdbe7949a5b6bb019933478efe85ce8c3b9cf8d637"
+    },
+    "fault-baseline/timing.csv": {
+      "bytes": 1870,
+      "sha256": "9975e7ceec9444961bff31748a70dcedaa66556d0a31b2e8a6b3ee75532c2763"
+    },
+    "fault-clock-after-start/switch.meta.json": {
+      "bytes": 1773,
+      "sha256": "e8342023d9b4c16b6dd75bf11193d5d16d8d50d6d193b5806e0b0751fb5f9247"
+    },
+    "fault-clock-after-start/switch.raw": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "fault-cpu-baseline/switch.meta.json": {
+      "bytes": 1773,
+      "sha256": "f8427147fbb43915de416249907694833edbec9cbce37d99e0d9b21b976da008"
+    },
+    "fault-cpu-baseline/switch.raw": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "fault-fclose/result.json": {
+      "bytes": 1207,
+      "sha256": "516d5b5cc6fa296a179e3b90432dbc8dc753066b0480bdae2c8a72b80e2ed5c2"
+    },
+    "fault-fclose/timing.csv": {
+      "bytes": 1870,
+      "sha256": "3e5e196b7197f5fc8c6e3f2acba803c82a1648b2112dea88736ee6ca5b9d4b36"
+    },
+    "fault-stop-report/decoded.json": {
+      "bytes": 13971,
+      "sha256": "51a66d3e6233178432972cc6dc7aa7b466793cbe337b2549e6425daeb569c331"
+    },
+    "fault-stop-report/switch.meta.json": {
+      "bytes": 1657,
+      "sha256": "79cbb537702cd190cde515e23431a0813cc735405c09bde52d4c3cde64d9bcb8"
+    },
+    "fault-stop-report/switch.raw": {
+      "bytes": 2560,
+      "sha256": "85bf0373d8bea38d1cde70ac64240b7d0471531ad03c0b2e0f6f200c5be0a41d"
+    },
+    "smoke-enabled/result.json": {
+      "bytes": 1226,
+      "sha256": "0ed2727ee2323767106a659ea6bde8c899ae879c611040a06ad7d7303423047a"
+    },
+    "smoke-enabled/decoded.json": {
+      "bytes": 13863,
+      "sha256": "6e3075cb2421868bfe3420a4e45bc780f79760e767b87067712e7faa26825eba"
+    },
+    "smoke-enabled/switch.meta.json": {
+      "bytes": 1655,
+      "sha256": "6c865d2a2daf2efb2c4b5a5472e6597c0c6ac213d2a3808e69bd6ee587302562"
+    },
+    "smoke-enabled/switch.raw": {
+      "bytes": 2560,
+      "sha256": "77f4f000b761f9a93542b67d60a2711eb34f9b68d886d00513c12862cb44bc78"
+    },
+    "smoke-enabled/timing.csv": {
+      "bytes": 1870,
+      "sha256": "91d59e64bf9fe5845509cf3154fb918b00a459df523c4a7e82386987292501aa"
+    },
+    "fault-clock-start-begin/switch.meta.json": {
+      "bytes": 1773,
+      "sha256": "dc59bad91242cd4658ae433d33810508f4e485e4d64d3d640119831d00d81902"
+    },
+    "fault-clock-start-begin/switch.raw": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke-disabled/result.json": {
+      "bytes": 1206,
+      "sha256": "33b76731ca30c7f8f52f186c58e8f7fc8ae880f8367e4b237919eb17ba2b9b06"
+    },
+    "smoke-disabled/timing.csv": {
+      "bytes": 1870,
+      "sha256": "bd655b9eb2bc9cdd105d4a013206a5782d74534d4eae8683475b57bbe1debc08"
+    },
+    "fault-cpu-closing/switch.meta.json": {
+      "bytes": 1655,
+      "sha256": "62a17232726765e31a2561b5792be1226f15c088ee888a080488faa861f8d212"
+    },
+    "fault-cpu-closing/switch.raw": {
+      "bytes": 2560,
+      "sha256": "10f5b5254111932868d99d3e68f480e4ab7ee93ec76b1ae0c3b7af6164df8c59"
+    }
+  }
+}

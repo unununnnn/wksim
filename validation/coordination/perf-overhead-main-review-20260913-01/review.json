@@ -1,0 +1,53 @@
+{
+  "checked_unix": 1789303781,
+  "classification": "accepted diagnostic module with bounded native admission; whole-duration run pending",
+  "threadId": "ca00cdfe-65b6-4384-98ed-c281be8c60a8",
+  "turnId": "63980b1a-2b85-48e1-a090-df97674cef74",
+  "delegationId": "6be8d411-7660-4a59-a2e2-ff4ba1ffa8b4",
+  "deepLink": "codex://threads/ca00cdfe-65b6-4384-98ed-c281be8c60a8",
+  "source_sha256": {
+    "bench_overhead.c": "e51535a4dfce2107dbc9f8f3f30e68ee094a3a38bb72d1158160fede969df2c7",
+    "analyze_overhead.py": "9da94c6fb9980953550e141797f6c56ae4f9e8482b641365db08518f68dd277e",
+    "test_analyze_overhead.py": "c8ede1515beb6136a6406a0e550d70460fb7cc27d460c753766ada05cb12d79e",
+    "fault_inject.c": "9208435d8f5a418213807b60b92564102e0d0adaccba7cb0673165410837b608"
+  },
+  "agent_pure_tests": {
+    "checks": 25,
+    "failed": 0,
+    "native": false
+  },
+  "native_admission": {
+    "receipt": "validation/coordination/perf-overhead-native-admission-20260913-01/receipt.json",
+    "ok": true,
+    "duration_ns": 320000000,
+    "period_ns": 8000000,
+    "iterations_per_success_case": 40,
+    "commands": 17,
+    "successful_builds": 4,
+    "strict_consumer_cases": 3,
+    "fault_cases_rejected": 6,
+    "all_process_groups_empty": true,
+    "same_boot": true
+  },
+  "resolved_findings": [
+    "nonzero stop with consumed handle cannot return success",
+    "post-start instrumentation failures reach the owner-thread stop path",
+    "both output streams are closed and close failures reject the run",
+    "analyzer requires requested iteration count and matching body checksum",
+    "one-iteration input has a defined no-sample minimum-gap representation"
+  ],
+  "main_fault_harness_corrections": [
+    "link the recorder as a shared library so benchmark wrappers do not intercept recorder-thread clocks",
+    "use actual clock and SELF/THREAD call ordering, including short-circuit effects",
+    "add a real-stop-then-report-minus-one wrapper to isolate the consumed-handle stop predicate",
+    "log both fclose calls while still really closing the injected stream"
+  ],
+  "blockers": [],
+  "whole_duration_run": false,
+  "full_acceptance": false,
+  "architecture_acceptance": false,
+  "remaining": [
+    "paired whole-duration synthetic measurement under the selected workload",
+    "actual MIXED source/deployment/window binding and native flight acceptance"
+  ]
+}

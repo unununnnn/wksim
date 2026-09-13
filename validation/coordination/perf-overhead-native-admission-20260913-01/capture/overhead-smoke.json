@@ -1,0 +1,151 @@
+{
+  "classification": "diagnostic_only",
+  "full_acceptance": false,
+  "claim": "measured differences of a synthetic pacing loop; not the simulator, not a controller, not a flight, and not true whole-flight overhead",
+  "no_performance_threshold": true,
+  "workload": {
+    "requested_duration_ns": 320000000,
+    "requested_period_ns": 8000000,
+    "iterations": 40
+  },
+  "base": {
+    "mode": "disabled",
+    "body_checksum": 11442116574413115393,
+    "loop": {
+      "slip_ns": {
+        "count": 40,
+        "min_ns": 70450,
+        "median_ns": 1613267,
+        "p90_ns": 2952452,
+        "p99_ns": 3217535,
+        "max_ns": 3217535,
+        "sum_ns": 65434266,
+        "mean_ns": 1635856
+      },
+      "start_to_end_ns": {
+        "count": 40,
+        "min_ns": 529,
+        "median_ns": 539,
+        "p90_ns": 611,
+        "p99_ns": 1268,
+        "max_ns": 1268,
+        "sum_ns": 23435,
+        "mean_ns": 585
+      },
+      "end_minus_earliest_ns": {
+        "count": 40,
+        "min_ns": 67593,
+        "median_ns": 79088,
+        "p90_ns": 93926,
+        "p99_ns": 122536,
+        "max_ns": 122536,
+        "sum_ns": 3240970,
+        "mean_ns": 81024
+      },
+      "slipped_iterations": 40,
+      "missed_deadlines": 0,
+      "min_actual_start_gap_ns": 8067057,
+      "min_actual_start_gap_defined": true,
+      "first_ideal_start_ns": 7768841007,
+      "last_end_ns": 8084059810,
+      "loop_span_ns": 315218803
+    }
+  },
+  "variant": {
+    "mode": "enabled",
+    "body_checksum": 11442116574413115393,
+    "loop": {
+      "slip_ns": {
+        "count": 40,
+        "min_ns": 67869,
+        "median_ns": 1867545,
+        "p90_ns": 3621146,
+        "p99_ns": 3897941,
+        "max_ns": 3897941,
+        "sum_ns": 77879225,
+        "mean_ns": 1946980
+      },
+      "start_to_end_ns": {
+        "count": 40,
+        "min_ns": 530,
+        "median_ns": 539,
+        "p90_ns": 1263,
+        "p99_ns": 1302,
+        "max_ns": 1302,
+        "sum_ns": 24722,
+        "mean_ns": 618
+      },
+      "end_minus_earliest_ns": {
+        "count": 40,
+        "min_ns": 68404,
+        "median_ns": 95868,
+        "p90_ns": 118297,
+        "p99_ns": 159167,
+        "max_ns": 159167,
+        "sum_ns": 3922663,
+        "mean_ns": 98066
+      },
+      "slipped_iterations": 40,
+      "missed_deadlines": 0,
+      "min_actual_start_gap_ns": 8071507,
+      "min_actual_start_gap_defined": true,
+      "first_ideal_start_ns": 8172290190,
+      "last_end_ns": 8488189433,
+      "loop_span_ns": 315899243
+    }
+  },
+  "statistics_definition": "sorted ascending; median is the lower middle element; p90/p99 are index int(p*n) clamped to the last element",
+  "measured_deltas": {
+    "loop_span_ns": {
+      "base": 315218803,
+      "variant": 315899243,
+      "delta": 680440,
+      "delta_us": 680.44
+    },
+    "owner_thread_cpu_ns": {
+      "base": 426000,
+      "variant": 785000,
+      "delta": 359000,
+      "delta_us": 359.0
+    },
+    "process_cpu_ns": {
+      "base": 426000,
+      "variant": 1290000,
+      "delta": 864000,
+      "delta_us": 864.0
+    },
+    "mean_slip_ns": {
+      "base": 1635856,
+      "variant": 1946980,
+      "delta": 311124,
+      "delta_us": 311.124
+    },
+    "p99_slip_ns": {
+      "base": 3217535,
+      "variant": 3897941,
+      "delta": 680406,
+      "delta_us": 680.406
+    },
+    "mean_start_to_end_ns": {
+      "base": 585,
+      "variant": 618,
+      "delta": 33,
+      "delta_us": 0.033
+    },
+    "slipped_iterations": {
+      "base": 40,
+      "variant": 40,
+      "delta": 0,
+      "delta_us": 0.0
+    },
+    "missed_deadlines": {
+      "base": 0,
+      "variant": 0,
+      "delta": 0,
+      "delta_us": 0.0
+    },
+    "recorder_start_span_ns": 87209479,
+    "recorder_stop_span_ns": 10095922,
+    "explanation": "the two rows are separate processes measured at different times, so these deltas include scheduler noise, CPU migration and co-tenant activity; a small or zero getrusage delta means below-resolution, not zero cost"
+  }
+}
