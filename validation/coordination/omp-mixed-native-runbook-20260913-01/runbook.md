@@ -12,12 +12,12 @@
 | 项 | 结果 |
 | --- | --- |
 | cwd / 分支 | `C:/Users/PC/Documents/odid编译/wksim`，`main` |
-| HEAD（派发时 / 交付时） | `0a1caa116e31…` / `13096b508973…`（期间并发推进 `287f8ec`、`72ef95d`，均为仅证据提交；`git diff 0a1caa1..13096b5 -- tools/ Simulator/` 为空，全部钉值按文件 SHA 而非提交号生效） |
+| HEAD（派发时 / 本刷新交付时） | `0a1caa116e31…` / `c3d4916f72ad…`（并发推进链 `287f8ec`/`72ef95d`/`13096b5` 均为仅证据提交；`c3d4916` 是 runner P2-1 修复，仅触 `tools/run_joint_flight.py` 与其纯测试；本刷新已把钉值更新到 c3d4916 字节，其余钉值不变） |
 | 架构祖先 | `git merge-base --is-ancestor f333316e6efa6b299b4288a9d91fb2bccedfb9d6 HEAD` → exit 0 |
-| perf 接线提交 | `100ef1aafcc19c006d93eeb16b0c41e2352cdee6` 是当前 HEAD 祖先，**但不是候选同步点 `386f713` 的祖先** |
+| perf 接线提交 / P2-1 修复 | `100ef1aafcc1…`（接线）是当前 HEAD 祖先，**但不是候选同步点 `386f713` 的祖先**；`c3d4916f72ad…`（P2-1：marker 查找移入 `try`、缺失/畸形合成失败记录、不再逃出 `finally`；新增纯回归，主会话报告 10 tests OK）同为祖先 |
 | 被引用文件 SHA | 全部本地实算，见 §10 与 `runbook.json.source_sha256`；与最近 OMP/Codebuddy 审查记录逐字一致 |
 
-main 执行前重核（候选检出上）：`git -C /root/wksim-architecture-acceptance-20260913 rev-parse HEAD`、`status --porcelain` 必须为空、`merge-base --is-ancestor f333316… HEAD` exit 0、`merge-base --is-ancestor 100ef1a… HEAD` exit 0。
+main 执行前重核（候选检出上）：`git -C /root/wksim-architecture-acceptance-20260913 rev-parse HEAD`、`status --porcelain` 必须为空、`merge-base --is-ancestor f333316… HEAD` exit 0、`merge-base --is-ancestor c3d4916… HEAD` exit 0。
 
 ## 1. 冻结身份（逐项带来源；旧身份只作历史对照）
 
@@ -34,9 +34,9 @@ main 执行前重核（候选检出上）：`git -C /root/wksim-architecture-acc
 
 ## 2. 前置 A：候选检出同步（硬前置，当前不满足）
 
-候选 `/root/wksim-architecture-acceptance-20260913`（分支 `codex/architecture-acceptance-20260913`）最后核验于 `386f713a7752…`（见 `architecture-candidate-sync-20260913-02/receipt.json` 与库构建收据）。**`386f713` 不含 runner perf 接线 `100ef1a`**（`merge-base --is-ancestor 100ef1a 386f713` → exit 1）。不同步则候选 runner 没有 `--perf-library/--perf-library-sha256`，parser 直接 exit 2。
+候选 `/root/wksim-architecture-acceptance-20260913`（分支 `codex/architecture-acceptance-20260913`）最后核验于 `386f713a7752…`（见 `architecture-candidate-sync-20260913-02/receipt.json` 与库构建收据）。**`386f713` 既不含 runner perf 接线 `100ef1a`，也不含 P2-1 修复 `c3d4916`**（`merge-base --is-ancestor 100ef1a 386f713` → exit 1）。不同步则候选 runner 没有 `--perf-library/--perf-library-sha256`，parser 直接 exit 2。
 
-按既有机制快进（`architecture-candidate-sync-20260913-02/sync.py` 的方法：bundle → `git fetch <bundle> refs/heads/main:refs/remotes/main-coordinator/main` → `git merge --ff-only`），目标提交必须含 `100ef1a` 且下列文件逐字节等于 §10 钉值：`tools/run_joint_flight.py` `167a3c07…`、`tools/run-joint-flight.sh` `ea012da6…`、`Simulator/wksim_runtime/perf_capture.py` `c196616f…`、`joint_rate.py` `0b53a16a…`、`joint_profile.py` `90cc868b…`、recorder C/H、consumer `dee9a3b5…`。同步后重记候选 HEAD 与祖先检查到本场收据。**不迁移任何私有接线；不整目录覆盖。**
+按既有机制快进（`architecture-candidate-sync-20260913-02/sync.py` 的方法：bundle → `git fetch <bundle> refs/heads/main:refs/remotes/main-coordinator/main` → `git merge --ff-only`），目标提交必须含 `c3d4916` 且下列文件逐字节等于 §10 钉值：`tools/run_joint_flight.py` `c8577093…`、`tools/run-joint-flight.sh` `ea012da6…`、`Simulator/wksim_runtime/perf_capture.py` `c196616f…`、`joint_rate.py` `0b53a16a…`、`joint_profile.py` `90cc868b…`、recorder C/H、consumer `dee9a3b5…`。同步后重记候选 HEAD 与祖先检查到本场收据。**不迁移任何私有接线；不整目录覆盖。**
 
 ## 3. 前置 B：两 WSL 发行版进程扫描 + boot_id + 60 秒新鲜度
 
@@ -61,7 +61,7 @@ sha256sum /root/wksim-px4-state-ONa1Kw/wksim-build.json       # 期望 d7e905b3�
 sha256sum /root/wksim-perf-python-admission-apup9qju/libwksim_perf_stream.so  # 期望 37d96512…2130020
 ```
 
-`.so` 位于 `/root`（在 runner 的私有 `/tmp` overlay 之外，运行期可见）；launcher 在加载期间保持其字节稳定，runner 在 finalize 时重算摘要（`run_joint_flight.py:130-131`），不符即 fail-closed。
+`.so` 位于 `/root`（在 runner 的私有 `/tmp` overlay 之外，运行期可见）；launcher 在加载期间保持其字节稳定，runner 在 finalize 时重算摘要（`run_joint_flight.py:133-134`），不符即 fail-closed。
 
 ## 5. 主命令（完整 argv）
 
@@ -91,15 +91,15 @@ timeout --signal=TERM --kill-after=120 1500 \
 
 ### 超时只清理自有 PGID
 
-`timeout` 不带 `--foreground` 时把包装链放进**自己新建的进程组**并只向该组发信号：TERM → runner 的 `SIGTERM→InterruptedError`（`run_joint_flight.py:440-442`）→ 外层 `finally` 先 `finalize_perf_capture`（:1100-1101）再 `cleanup_children`（:1102）。飞行子进程全部由 `start_new_session=True` 启动（各自 PGID==各自 PID），**不在** timeout 组内，由 runner 自己的 `stop_children` 按 `killpg(child.pid, SIGTERM)→wait 5s→killpg(child.pid, SIGKILL)→wait 5s`（`runtime.py:100-123`）收口。`--kill-after=120` 的 KILL 仍只到同一个自有 PGID。若 runner 在 KILL 后仍不退出：只能按 `live/children-start.json` 逐个子进程**重核 pid+pgid+start_ticks 身份**后对其自有 PGID 发信号，随后重跑 §3 的两发行版扫描；**绝不**扫描或信号任何其它进程。
+`timeout` 不带 `--foreground` 时把包装链放进**自己新建的进程组**并只向该组发信号：TERM → runner 的 `SIGTERM→InterruptedError`（`run_joint_flight.py:446-448`）→ 外层 `finally` 先 `finalize_perf_capture`（:1106-1107）再 `cleanup_children`（:1108）。飞行子进程全部由 `start_new_session=True` 启动（各自 PGID==各自 PID），**不在** timeout 组内，由 runner 自己的 `stop_children` 按 `killpg(child.pid, SIGTERM)→wait 5s→killpg(child.pid, SIGKILL)→wait 5s`（`runtime.py:100-123`）收口。`--kill-after=120` 的 KILL 仍只到同一个自有 PGID。若 runner 在 KILL 后仍不退出：只能按 `live/children-start.json` 逐个子进程**重核 pid+pgid+start_ticks 身份**后对其自有 PGID 发信号，随后重跑 §3 的两发行版扫描；**绝不**扫描或信号任何其它进程。
 
 ## 6. runner 生命周期与不变量（逐行锚点，均不改动）
 
-- marker：`result['perf_switch_capture']` 建于 :468-477（外层 `try` 之前），`strict_consumer` 钉死 consumer 源路径+SHA、`require_kernel_counter=True`、输出名 `perf-decoded.json`。
-- 构造 :863-866（rate 创建后、首个子进程前）：构造器 fail-fast 校验内核 `6.6.87.2-microsoft-standard-WSL2`、绝对已存在 `.so`、精确小写 SHA、输出路径不存在（`perf_capture.py:26-63`）。
-- start :961-962（`physics.connect()` 后、主循环前）；owner pid+native tid 记录，每次操作复核（`perf_capture.py:78-80`）。
-- 窗口：`mixed_rate_segment_<segment_id>`，`start_ns=rate.last_summary['anchor']['wall_ns']`，`end_ns=rate.last_end`；必须落在捕获 inner span `[enable_after_ns, disable_before_ns]` 内；finalize 重读 host `boot_id` 与 meta 比对（:106-137）。
-- stop/密封：外层 `finally`（:1099-1101）先于 `cleanup_children`；任何捕获/窗口/密封/库身份失败 → `result.status='failed'`，fail-closed。
+- marker：`result['perf_switch_capture']` 建于 :474-483（外层 `try` 之前），`strict_consumer` 钉死 consumer 源路径+SHA、`require_kernel_counter=True`、输出名 `perf-decoded.json`。
+- 构造 :869-872（rate 创建后、首个子进程前）：构造器 fail-fast 校验内核 `6.6.87.2-microsoft-standard-WSL2`、绝对已存在 `.so`、精确小写 SHA、输出路径不存在（`perf_capture.py:26-63`）。
+- start :967-968（`physics.connect()` 后、主循环前）；owner pid+native tid 记录，每次操作复核（`perf_capture.py:78-80`）。
+- 窗口：`mixed_rate_segment_<segment_id>`，`start_ns=rate.last_summary['anchor']['wall_ns']`，`end_ns=rate.last_end`；必须落在捕获 inner span `[enable_after_ns, disable_before_ns]` 内；finalize 重读 host `boot_id` 与 meta 比对（:109-140）。
+- stop/密封：外层 `finally`（:1105-1107）先于 `cleanup_children`（:1108）；任何捕获/窗口/密封/库身份失败 → `result.status='failed'`，fail-closed。**P2-1 已修（c3d4916）**：marker 查找在 `try` 内（:100-102），缺失/畸形 marker 在 `except` 合成失败记录（:151-154），`KeyError` 不再可能逃出 `finally`、跳过 `cleanup_children`。
 - 速率不变量：1ms tick（`SceneClock.STEP_NS=1_000_000`）、4 tick 组（`MACRO_TICKS=4`）、0.5×（组周期 8ms）、无追赶（`begin_group` earliest=`max(ideal, previous_start+period_ns)`，`joint_rate.py:89-93`）、100ms 晚限（`LATE_LIMIT_NS=100_000_000`）、完整单段窗口（10s/60s 滑窗 2%/1% 预算照旧）。本运行一行不改这些。
 - 产物：archive=`validation/joint-public-flight-<新>`、live=`/root/wksim-joint-flight-<新>`（均 fresh mkdtemp）；`perf-switch.raw`、`perf-switch.meta.json`、`perf-windows.json` 随 `copytree` 入 archive；5 份 perf 源进 `source_sha256`/`source__*.txt`。
 
@@ -148,7 +148,7 @@ python3 -B validation/coordination/ds-perf-stream-consumer-20260913-01/perf_stre
 
 ## 9. 缺口与最近可复用收据（不猜，精确报告）
 
-- **G1（硬前置）**：候选检出最后核验于 `386f713`，不含 `100ef1a`；必须先按 §2 快进并逐字节核对。最近收据：`architecture-candidate-sync-20260913-02/receipt.json`、`perf-python-native-admission-20260913-01/build-receipt.json`（确认检出路径/分支/内核）。
+- **G1（硬前置）**：候选检出最后核验于 `386f713`，既不含 `100ef1a` 接线也不含 `c3d4916` P2-1 修复；必须先按 §2 快进并逐字节核对。最近收据：`architecture-candidate-sync-20260913-02/receipt.json`、`perf-python-native-admission-20260913-01/build-receipt.json`（确认检出路径/分支/内核）。
 - **G2**：当前 boot_id、候选工作树干净度、清单与 `.so` 的在盘字节无法由本 Windows 生产者在不启动 WSL 进程的前提下观测；全部列为运行时门（§3/§4），不作假设。最近收据：`perf-overhead-long-20260913-01/prechecks.json`、`perf-python-native-admission-20260913-01/run-receipt.json`。
 - **G3**：模型库 `…/libwksim_model.so` 无独立字节钉值（`short-cycle-goal.md` 只引 `e59ab914…` 链前缀）；与既往 MIXED 家族场次一样依赖 runner 自身的准入链核验。最近收据：`2026-09-13-final-combo-pv-pass.md`（1w6dru32 archive 内 `model-build.json`）、`validation/33-rate-profile/early-work-xtj8wk8i/bundle-manifest.json`。
 - **G4**：候选在 `386f713` 时只逐字节核验过 10 份选定源码；快进后必须按 §2 的全表重核。最近收据：同 G1。
@@ -157,7 +157,7 @@ python3 -B validation/coordination/ds-perf-stream-consumer-20260913-01/perf_stre
 
 | 文件 | SHA256 |
 | --- | --- |
-| `tools/run_joint_flight.py` | `167a3c0790dde0bbef3b7bd2fee24616bdc623852aa7478a4c9356f425a670bf` |
+| `tools/run_joint_flight.py` | `c8577093a62e4993c8048a69f4501984b3ee9045b8a73d26fb83aedc73acbb3b` |
 | `tools/run-joint-flight.sh` | `ea012da68bd8fcb3e25383197bf5a9f076aecfe5d3fd9a966675aa0d69fdc883` |
 | `tools/ap_mixed_candidate.py` | `5420e1443d58c66eca379b29d8bdb15ea044335dd343cca2d9da88d2364e368f` |
 | `tools/mixed_control_task.py` | `76adbd47fbe70c4fda4deabd893cc368b9fbd0ceeaabe4a6b7a59e597ed358fc` |
@@ -173,10 +173,10 @@ python3 -B validation/coordination/ds-perf-stream-consumer-20260913-01/perf_stre
 | `…/ds-perf-stream-recorder-20260913-01/wksim_perf_stream.c` | `aa807f3baaafcd64ed6174a49f8010b49798a74d139ead2d4eb69eafa503c1d2` |
 | `…/ds-perf-stream-recorder-20260913-01/wksim_perf_stream.h` | `ef1eabf247107098dc59a314d99b8fc82d4c54dbddd58d645bcec35141a12823` |
 | `…/ds-perf-stream-consumer-20260913-01/perf_stream_consumer.py` | `dee9a3b5c3cafb42e69836758ccaebd4dbd78e8fa569d203c7ca1d36a03179bc` |
-| `validation/test_run_joint_perf_capture.py` | `05ddf8638e804a87a1f4b32912c62237332e5ca16e63b39d420b26fe379d7ce0` |
+| `validation/test_run_joint_perf_capture.py` | `2b6448faef7aa3fe1ef039479aacf5dabe5d29969112b8b68aee457feb7e6128` |
 | `validation/test_perf_capture.py` | `f4d95ae49478729e2f4c3a508f9ef452d3f6b5acffd0c8a3301bc72155d4f3c3` |
 
-引用审查基线：OMP runner 审查（`omp-mixed-perf-runner-review-20260913-01`，无 P0/P1，4 项 P2 均为非阻断）、Codebuddy 准入链审查（`codebuddy-perf-admission-review-20260913-01`，阻断 0、非阻断 5）、Codebuddy 核心原生加载审查（`codebuddy-core-native-audit-review-20260913-01`，3 项 P1 针对**审计工具**的判定精度，不影响 runner/适配器字节本身）、接线审计（`ds-perf-mixed-hook-audit-20260913-01`）。
+引用审查基线：OMP runner 审查（`omp-mixed-perf-runner-review-20260913-01`，无 P0/P1；其 **P2-1「marker 查找在 fail-closed `try` 之外」已由 `c3d4916` 修复**，P2-2/3/4 仍为非阻断残余）、Codebuddy 准入链审查（`codebuddy-perf-admission-review-20260913-01`，阻断 0、非阻断 5）、Codebuddy 核心原生加载审查（`codebuddy-core-native-audit-review-20260913-01`，3 项 P1 针对**审计工具**的判定精度，不影响 runner/适配器字节本身）、接线审计（`ds-perf-mixed-hook-audit-20260913-01`）。
 
 ## 11. 停止声明
 

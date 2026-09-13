@@ -242,6 +242,19 @@ class InvariantTests(unittest.TestCase):
         cleanup = source.index('\n        cleanup_children(result, children, child_specs,')
         self.assertLess(finalize, cleanup)
 
+    def test_marker_lookup_inside_try_and_synthesized(self):
+        """c3d4916 (OMP review P2-1): no KeyError may escape the finally."""
+        source = (REPO / 'tools/run_joint_flight.py').read_text(encoding='utf-8')
+        body = source[source.index('def finalize_perf_capture'):
+                      source.index('def candidate_environment')]
+        try_at = body.index('\n    try:')
+        lookup = body.index("marker = result.get('perf_switch_capture')")
+        except_at = body.index('except BaseException')
+        synth = body.index("result['perf_switch_capture'] = marker")
+        self.assertLess(try_at, lookup)
+        self.assertLess(except_at, synth)
+        self.assertIn('marker is missing or malformed', body)
+
     def test_perf_capture_sources_pinned_in_runner(self):
         source = (REPO / 'tools/run_joint_flight.py').read_text(encoding='utf-8')
         for name in ('Simulator/wksim_runtime/perf_capture.py',
@@ -320,7 +333,7 @@ class RunbookMarkdownTests(unittest.TestCase):
                        '6fe8c0b30775a9ba83407302f602d0785876d307e5f1cb746afa3bf316cf5e7e',
                        '29969da0702451e3fc6f1de40bc301a67284c4e7d5fae8f88c64773d27a96219',
                        'd7e905b35250d184e185ada70e3fe43f0223f1c605832d81c3c58eeb123d4cb6',
-                       'perf_switch_capture', '100ef1a', '386f713'):
+                       'perf_switch_capture', '100ef1a', '386f713', 'c3d4916'):
             self.assertIn(needle, self.text)
 
     def test_markdown_documents_gaps_and_stop(self):

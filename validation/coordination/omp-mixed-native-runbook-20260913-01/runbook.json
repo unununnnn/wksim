@@ -12,11 +12,12 @@
     "cwd": "C:/Users/PC/Documents/odid编译/wksim",
     "branch": "main",
     "head_at_dispatch": "0a1caa116e31700155a7abb567176c48668c0e8e",
-    "head_at_authoring": "13096b5089736f3eaeba42d4bf314fc7ba7d81e9",
-    "head_drift_rule": "HEAD advanced 0a1caa1 -> 287f8ec -> 72ef95d -> 13096b5 during authoring (evidence-only commits). git diff 0a1caa1..13096b5 over tools/ and Simulator/ is empty, so every pinned source_sha256 below is valid on any of these heads. Runtime truth is pinned by file SHA256, not by commit.",
+    "head_at_authoring": "c3d4916f72adb901f44ab3fa4ea83b1d68be69b0",
+    "head_drift_rule": "HEAD advanced 0a1caa1 -> 287f8ec -> 72ef95d -> 13096b5 (evidence-only) -> c3d4916 (runner P2-1 fix: tools/run_joint_flight.py + its pure test only). This refresh pins the c3d4916 bytes; earlier pinned files unchanged. Runtime truth is pinned by file SHA256, not by commit.",
     "architecture_ancestor": "f333316e6efa6b299b4288a9d91fb2bccedfb9d6",
     "architecture_ancestor_exit_code": 0,
     "perf_wiring_commit": "100ef1aafcc19c006d93eeb16b0c41e2352cdee6",
+    "runner_p2_fix_commit": "c3d4916f72adb901f44ab3fa4ea83b1d68be69b0",
     "formal_gate_commit": "33c2b06"
   },
   "linux_target": {
@@ -26,7 +27,7 @@
     "branch": "codex/architecture-acceptance-20260913",
     "last_verified_head": "386f713a7752515502fd2224e9186f2219674732",
     "last_verified_head_contains_perf_wiring": false,
-    "required_commit_before_run": "100ef1aafcc19c006d93eeb16b0c41e2352cdee6",
+    "required_commit_before_run": "c3d4916f72adb901f44ab3fa4ea83b1d68be69b0",
     "kernel_release": "6.6.87.2-microsoft-standard-WSL2",
     "sync_receipt": "validation/coordination/architecture-candidate-sync-20260913-02/receipt.json",
     "library_build_receipt": "validation/coordination/perf-python-native-admission-20260913-01/build-receipt.json",
@@ -129,11 +130,12 @@
   },
   "runner_lifecycle": {
     "marker": "result['perf_switch_capture']",
-    "marker_created": "run_joint_flight.py:468-477, before the outer try, with classification=diagnostic_only, formal_evidence=False, strict_consumer_passed=False, and pinned strict_consumer source+sha256 with require_kernel_counter=True and output perf-decoded.json",
-    "construction": "run_joint_flight.py:863-866 after rate creation, before any child process; constructor fail-fast checks kernel release, absolute existing .so, exact lowercase SHA256, absent output paths (perf_capture.py:26-63)",
-    "start": "run_joint_flight.py:961-962 after physics.connect(), before the main loop; owner pid+native tid recorded",
-    "window": "finalize exports id mixed_rate_segment_<segment_id>, start_ns=rate.last_summary anchor wall_ns, end_ns=rate.last_end; requires the window inside the capture inner span [enable_after_ns, disable_before_ns] and re-reads host boot_id against metadata (run_joint_flight.py:106-137)",
-    "stop": "outer finally run_joint_flight.py:1099-1101, before cleanup_children at :1102; fail-closed: any capture/window/seal/library error sets result status=failed",
+    "marker_created": "run_joint_flight.py:474-483, before the outer try, with classification=diagnostic_only, formal_evidence=False, strict_consumer_passed=False, and pinned strict_consumer source+sha256 with require_kernel_counter=True and output perf-decoded.json",
+    "marker_p2_fix": "c3d4916 resolved OMP review P2-1: the marker lookup is inside the finalize try (run_joint_flight.py:100-102), a missing or malformed marker raises and is synthesized as a failed record (:151-154), so no KeyError can escape the finally and cleanup_children always runs",
+    "construction": "run_joint_flight.py:869-872 after rate creation, before any child process; constructor fail-fast checks kernel release, absolute existing .so, exact lowercase SHA256, absent output paths (perf_capture.py:26-63)",
+    "start": "run_joint_flight.py:967-968 after physics.connect(), before the main loop; owner pid+native tid recorded",
+    "window": "finalize exports id mixed_rate_segment_<segment_id>, start_ns=rate.last_summary anchor wall_ns, end_ns=rate.last_end; requires the window inside the capture inner span [enable_after_ns, disable_before_ns] and re-reads host boot_id against metadata (run_joint_flight.py:109-140)",
+    "stop": "outer finally run_joint_flight.py:1105-1107, before cleanup_children at :1108; fail-closed: any capture/window/seal/library error sets result status=failed",
     "cleanup": "cleanup_children -> stop_children (Simulator/wksim_runtime/runtime.py:100-123): killpg(child.pid, SIGTERM), wait 5 s, killpg(child.pid, SIGKILL), wait 5 s; every child was launched with start_new_session=True so each PGID equals its child pid; only own groups are ever signaled",
     "outputs": ["perf-switch.raw", "perf-switch.meta.json", "perf-windows.json"],
     "archive": "validation/joint-public-flight-<id> (fresh mkdtemp), live /root/wksim-joint-flight-<id> (fresh mkdtemp); shutil.copytree(live, archive) at the end",
@@ -177,7 +179,7 @@
     "post_run_sweep": "re-run the two-distro process scan (found must be [] and boot_id unchanged), and confirm every recorded child PGID empty; the runner already records children.*.remaining_group_members"
   },
   "failure_classification": {
-    "precondition_failed": "precheck found non-empty, boot_id mismatch, freshness > 60 s, candidate HEAD lacks 100ef1a, any manifest/library/source SHA mismatch - do not launch; no run exists",
+    "precondition_failed": "precheck found non-empty, boot_id mismatch, freshness > 60 s, candidate HEAD lacks c3d4916, any manifest/library/source SHA mismatch - do not launch; no run exists",
     "admission_failed": "mixed_admission.ok=false; run failed before children; marker stays requested/failed; not measured",
     "capture_construct_failed": "PerfStreamCapture constructor raised (kernel, library path/SHA, pre-existing outputs); fail-closed; not measured",
     "capture_start_failed": "start() nonzero or invalid handle; marker failed at finalize; not measured",
@@ -190,7 +192,7 @@
   "expected_archive_artifacts": ["result.json", "perf-switch.raw", "perf-switch.meta.json", "perf-windows.json", "rate.jsonl", "clock.jsonl", "joint-wire.jsonl", "children-start.json", "experimental-admission.json", "model-build.json", "ap-build.json", "control-build.json", "message-build.json", "mixed-source.json", "baseline-pv-build.json", "source__*.txt (includes the 5 perf capture sources)", "arducopter-control.log", "px4-control.log", "arducopter-truth.jsonl", "px4-truth.jsonl"],
   "expected_absent_artifacts": ["px4-build.json (no --px4-manifest was passed)", "perf-decoded.json inside result.json (decode is post-run only)"],
   "source_sha256": {
-    "tools/run_joint_flight.py": "167a3c0790dde0bbef3b7bd2fee24616bdc623852aa7478a4c9356f425a670bf",
+    "tools/run_joint_flight.py": "c8577093a62e4993c8048a69f4501984b3ee9045b8a73d26fb83aedc73acbb3b",
     "tools/run-joint-flight.sh": "ea012da68bd8fcb3e25383197bf5a9f076aecfe5d3fd9a966675aa0d69fdc883",
     "tools/ap_mixed_candidate.py": "5420e1443d58c66eca379b29d8bdb15ea044335dd343cca2d9da88d2364e368f",
     "tools/mixed_control_task.py": "76adbd47fbe70c4fda4deabd893cc368b9fbd0ceeaabe4a6b7a59e597ed358fc",
@@ -206,11 +208,11 @@
     "validation/coordination/ds-perf-stream-recorder-20260913-01/wksim_perf_stream.c": "aa807f3baaafcd64ed6174a49f8010b49798a74d139ead2d4eb69eafa503c1d2",
     "validation/coordination/ds-perf-stream-recorder-20260913-01/wksim_perf_stream.h": "ef1eabf247107098dc59a314d99b8fc82d4c54dbddd58d645bcec35141a12823",
     "validation/coordination/ds-perf-stream-consumer-20260913-01/perf_stream_consumer.py": "dee9a3b5c3cafb42e69836758ccaebd4dbd78e8fa569d203c7ca1d36a03179bc",
-    "validation/test_run_joint_perf_capture.py": "05ddf8638e804a87a1f4b32912c62237332e5ca16e63b39d420b26fe379d7ce0",
+    "validation/test_run_joint_perf_capture.py": "2b6448faef7aa3fe1ef039479aacf5dabe5d29969112b8b68aee457feb7e6128",
     "validation/test_perf_capture.py": "f4d95ae49478729e2f4c3a508f9ef452d3f6b5acffd0c8a3301bc72155d4f3c3"
   },
   "gaps": [
-    {"gap": "Candidate checkout /root/wksim-architecture-acceptance-20260913 was last verified at 386f713 which does NOT contain the runner perf wiring 100ef1a; main must fast-forward it to a commit containing 100ef1a whose pinned file SHA256s match this runbook before launching", "nearest_reusable_receipt": "validation/coordination/architecture-candidate-sync-20260913-02/receipt.json plus sync.py (bundle fetch + ff-only merge mechanism); build-receipt.json confirms the checkout path and branch"},
+    {"gap": "Candidate checkout /root/wksim-architecture-acceptance-20260913 was last verified at 386f713 which contains neither the runner perf wiring 100ef1a nor the P2-1 marker fix c3d4916; main must fast-forward it to a commit containing c3d4916 whose pinned file SHA256s match this runbook before launching", "nearest_reusable_receipt": "validation/coordination/architecture-candidate-sync-20260913-02/receipt.json plus sync.py (bundle fetch + ff-only merge mechanism); build-receipt.json confirms the checkout path and branch"},
     {"gap": "Current boot_id, candidate worktree cleanliness, on-disk manifest bytes and the pinned .so bytes cannot be observed from this Windows producer without starting WSL processes, which this package is forbidden to do; all are runtime gates listed in the runbook, not assumptions", "nearest_reusable_receipt": "validation/coordination/perf-overhead-long-20260913-01/prechecks.json (boot d01554f1..., found=[] on both distros) and validation/coordination/perf-python-native-admission-20260913-01/run-receipt.json (library sha 37d96512... at the same pinned path)"},
     {"gap": "Model library /root/wksim-private-tmp-cxrbwjyr/artifacts/wksim-model-ms14otyn/libwksim_model.so has no independent byte pin in repo evidence (short-cycle-goal references chain prefix e59ab914 only); the run relies on the runner's own admission-chain verification, exactly as previous MIXED-family runs did", "nearest_reusable_receipt": "docs/2026-09-13-final-combo-pv-pass.md (1w6dru32 model_build retained in its archive) and validation/33-rate-profile/early-work-xtj8wk8i/bundle-manifest.json"},
     {"gap": "Whether the candidate checkout carries identical bytes for every pinned file must be re-verified after sync; the 20260913-02 receipt verified 10 selected sources at 386f713, which predates the perf wiring", "nearest_reusable_receipt": "validation/coordination/architecture-candidate-sync-20260913-02/receipt.json"}

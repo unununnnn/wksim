@@ -4,7 +4,7 @@ test_consumer_flags (__main__.ConsumerCommandTests.test_consumer_flags) ... ok
 test_consumer_source_identity (__main__.ConsumerCommandTests.test_consumer_source_identity) ... ok
 test_exit_code_documentation (__main__.ConsumerCommandTests.test_exit_code_documentation) ... ok
 test_timing_probes_must_be_unset (__main__.EnvironmentTests.test_timing_probes_must_be_unset) ... ok
-test_head_resolves_and_drift_is_only_reported (__main__.GitStateTests.test_head_resolves_and_drift_is_only_reported) ... NOTE: HEAD drifted to 0106b90b31365481f8f60052a22e184039dce353 since authoring; file-SHA pins remain the authoritative gate
+test_head_resolves_and_drift_is_only_reported (__main__.GitStateTests.test_head_resolves_and_drift_is_only_reported) ... NOTE: HEAD drifted to d8ab11ba6725f87aa1907c9f6b73fa815648be1a since authoring; file-SHA pins remain the authoritative gate
 ok
 test_historical_identities_not_used (__main__.IdentityBindingTests.test_historical_identities_not_used) ... ok
 test_manifest_shas_match_ap_mixed_candidate_constants (__main__.IdentityBindingTests.test_manifest_shas_match_ap_mixed_candidate_constants) ... ok
@@ -13,6 +13,8 @@ test_px4_and_model_match_profile_catalog (__main__.IdentityBindingTests.test_px4
 test_adapter_kernel_and_owner_contract (__main__.InvariantTests.test_adapter_kernel_and_owner_contract) ... ok
 test_finalize_runs_before_cleanup_children (__main__.InvariantTests.test_finalize_runs_before_cleanup_children) ... ok
 test_formal_gate_rejects_perf_marker (__main__.InvariantTests.test_formal_gate_rejects_perf_marker) ... ok
+test_marker_lookup_inside_try_and_synthesized (__main__.InvariantTests.test_marker_lookup_inside_try_and_synthesized)
+c3d4916 (OMP review P2-1): no KeyError may escape the finally. ... ok
 test_perf_capture_sources_pinned_in_runner (__main__.InvariantTests.test_perf_capture_sources_pinned_in_runner) ... ok
 test_rate_invariants_unchanged_in_source (__main__.InvariantTests.test_rate_invariants_unchanged_in_source) ... ok
 test_argv_uses_only_real_runner_flags (__main__.MainCommandTests.test_argv_uses_only_real_runner_flags) ... ok
@@ -33,6 +35,6 @@ test_markdown_carries_the_pins (__main__.RunbookMarkdownTests.test_markdown_carr
 test_markdown_documents_gaps_and_stop (__main__.RunbookMarkdownTests.test_markdown_documents_gaps_and_stop) ... ok
 
 ----------------------------------------------------------------------
-Ran 32 tests in 0.008s
+Ran 33 tests in 0.013s
 
 OK

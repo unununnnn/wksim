@@ -5,7 +5,7 @@
 ## 审计的不变量（任一违反即 exit 2）
 
 1. **加载点白名单与动态执行面封闭（AST 级，P1）**：
-   - 核心三包全部 `.py` 经 AST 扫描，只允许 1 个模型加载点和 2 个额外原生加载点。模型加载点位于 `model.py` 的 `Model.__init__`，形态精确为 `ctypes.CDLL(str(Path(library).resolve()))`（调用方给径）；额外两处按文件、行号、行 SHA256、所属函数与 AST 形态钉定：`perf_capture.py` 的 `PerfStreamCapture.__init__` 仅在调用方给定的绝对 `.so` 路径通过小写 SHA256 校验后加载，`netns_handoff.py` 的 `enter_namespace` 仅通过 `ctypes.CDLL(None, use_errno=True)` 取得当前进程句柄并调用 `setns`；钉表长度固定为 2，任何新增、移动、内容或所属函数漂移均拒绝；
+   - 核心三包全部 `.py` 经 AST 扫描，只允许 1 个模型加载点和 2 个额外原生加载点。模型加载点位于 `model.py` 的 `Model.__init__`，形态精确为 `ctypes.CDLL(str(Path(library).resolve()))`（调用方给径）；额外两处按文件、行号、行 SHA256、所属函数、完整函数源码 SHA256 与 AST 形态钉定：`perf_capture.py` 的 `PerfStreamCapture.__init__` 仅在调用方给定的绝对 `.so` 路径通过小写 SHA256 校验后加载，`netns_handoff.py` 的 `enter_namespace` 仅通过 `ctypes.CDLL(None, use_errno=True)` 取得当前进程句柄并调用 `setns`；钉表长度固定为 2，任何新增、移动、函数内变异、内容或所属函数漂移均拒绝；
    - 拦截反射加载面：`from ctypes import CDLL/PyDLL`、`loader = ctypes.CDLL/WinDLL/...` 赋值别名及其调用、`ctypes.cdll/windll[...]` 下标访问与属性取库、`__import__('ctypes')`/`importlib` 动态导入再 `getattr` 间接调用、`getattr` 别名与 `__getattribute__`、`PyDLL`/`WinDLL`/`OleDLL`/`LoadLibrary`/`dlopen`、任何硬编码库字面量全部检出并保守拒绝；`m = ctypes` 模块赋值别名会被跟踪，其后续 `__dict__`/`vars`/下标面同样封闭；
    - 拦截字典反射面：`ctypes.__dict__` 属性访问、`ctypes.__dict__[loader]` 下标查找、`vars(ctypes)` 动态调用与 `vars(ctypes)[loader]` 下标访问、`.get("CDLL")` 等字典检索全部阻断；
    - 拦截 `operator.attrgetter` 反射面：直接导入、一级/多级 alias、`"".join` 静态拼接及未知/动态参数均保守拒绝；普通 `attrgetter("real")` 等不受影响。普通 dict 下标（`d["CDLL"]`）与普通 `vars()` 调用不误报——加载令牌切片/参数仅当其基对象链涉及 ctypes 时才拒绝；
