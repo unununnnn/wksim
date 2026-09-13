@@ -1,0 +1,166 @@
+{
+  "schema": "omp.g4-terrain-readiness.v1",
+  "checkpoint": "validation/coordination/omp-g4-terrain-readiness-20260913-01",
+  "checked_at": "2026-09-14",
+  "repo": "C:/Users/PC/Documents/odid编译/wksim (shared worktree)",
+  "head": "e05993f9a98dcbe53e72ea72878543a7dd9082e6 (2026-09-13 23:40:35 +0900)",
+  "read_only_constraints": "No existing file modified. Probe is pure Python, read-only: no .so/.dll load, no native/build/ROS/FC/model/UE/MATLAB, no process start/stop. gh used read-only (issue view). No git add/commit/push.",
+  "goal_mapping": {
+    "goal": "G4 Full 工具与互操作 (docs/plan/goal-objective.md:29; docs/plan/full-remaining-ledger.md:21)",
+    "terrain_interface_issue": "#29 坡面与障碍场景的物理反馈 (OPEN, 5/5 AC unchecked, ready-for-agent label)",
+    "supporting_contracts": [
+      "docs/plan/9-abi-environment-accepted.md",
+      "docs/plan/29-contact-observer-contract.md",
+      "docs/plan/29-102-scene-binding-contract.md",
+      "docs/plan/29-terrain-closure-report.md",
+      "docs/plan/29-terrain-evidence-manifest.json",
+      "docs/coordination/ds-scene-frontier-20260912.md",
+      "docs/coordination/ds-interface-decision-packet-20260912.md"
+    ]
+  },
+  "gh_readonly_verification_20260914": {
+    "#29": "OPEN, title 坡面与障碍场景的物理反馈, labels [ready-for-agent], 5 original ACs all unchecked, Blocked-by #17/#23/#9 still in force",
+    "#9": "OPEN (wayfinder:grilling); vendor DLL/plugin ABI NO-GO per 2026-09-11 comment; blocks contact-force/dynamic-terrain scope",
+    "#17": "CLOSED (2026-09-05)",
+    "#23": "CLOSED (2026-09-09; R1 numerical_failed boundary retained)",
+    "#79/#80/#81": "CLOSED (2026-09-10) - child closures do not satisfy parent ACs",
+    "#33": "OPEN - blocks #102 together with #29",
+    "#39": "OPEN",
+    "#102": "OPEN - full EGO avoidance still depends on #29 and #33",
+    "#26": "OPEN - separate codegen branch, do-not-conflict zone (see conflicts)"
+  },
+  "interfaces_inspected": {
+    "physics_geometry": "Simulator/wksim_core/static_contact.py (StaticScene: query/require_fresh/support_height_enu_m; wksim.contact.v1; wksim.static-scene.v1; TICK_NS=1_000_000)",
+    "runtime_observer": "Simulator/wksim_runtime/contact_observer.py (ContactObserver: observe_step/validate_envelope/recover/get_display_manifest; FROZEN_SCENE_SHA256=60ae5097...; freeze contract)",
+    "terrain_seam": "Simulator/wksim_runtime/terrain_feedback.py (vehicle60_to_enu_query_point; support_height_to_terrain15d; TerrainFeedback.query_terrain/manifest; 60/120/15 sizes; per-stack observers)",
+    "scene_config": "Simulator/wksim_runtime/static-scene-v1.json (scene_id static-plane-box-v1, ENU metre, box [2,0,0.5]/[1,1,1], sha 60ae5097...)",
+    "planner_binding": "Simulator/wksim_runtime/planner_scene_binding.py (EGO_SINGLE_BOX_BINDING: manifest/query/validate_manifest/load_manifest; wksim.planner-scene-binding.v1; wksim.planner-contact.v1; query planner-aabb-point-contact-v1; hashes 49da4ccc/08b88651/36025307/d14d6311/40ee9281)",
+    "planner_profile": "Simulator/wksim_planning/scene_profile.py (ego-single-box-v1, clearance/segment helpers, ReplanInput)",
+    "joint_wiring": "Simulator/wksim_core/joint.py:33,52,185-188 (terrain_feedback=None opt-in; req['terrain'] attach before receive_workers; fail-closed on missing prior state) and Simulator/wksim_runtime/joint_runtime.py:636-638,722 (TerrainFeedback(epoch) constructed and manifest recorded)",
+    "trajectory_session": "Simulator/wksim_planning/trajectory_session.py (fail-closed session identity/stop precedence; no ROS dependency)"
+  },
+  "probe": {
+    "file": "probe.py",
+    "output": "probe-output.json",
+    "command": "python -B validation/coordination/omp-g4-terrain-readiness-20260913-01/probe.py",
+    "result": {"total": 21, "passed": 21, "failed": 0, "status": "pass"},
+    "covers": [
+      "shape: static_contact/contact_observer/terrain_feedback/planner_scene_binding surfaces and joint wiring text",
+      "identity: static-scene-v1.json recomputed hash == embedded == 60ae5097...; display manifest; terrain manifest; planner binding five committed hashes and canonical-bytes->scene_hash; three identity layers pairwise distinct; evidence manifest still partial_open/acceptance=false/blocking_issue=9",
+      "fail-closed: scene_hash_mismatch, scene_not_found, foreign_epoch freeze, frozen-blocks-query (TerrainFeedback raises), stale_feedback, recover discipline, extra force field envelope rejected, Vehicle60->ENU mapping and rejections, Terrain15D mapping/zero canonicalization/NaN/bool, observer injection epoch mismatch and dict shape, query_terrain input validation, planner query identity boundary incl. legacy 60ae5097... and probe 4889e2ea... rejection"
+    ]
+  },
+  "pure_test_evidence": {
+    "command_a": "python -B -m unittest validation.test_contact_observer validation.test_terrain_feedback validation.test_static_contact validation.test_scene_frontier_contract",
+    "result_a": "Ran 62 tests, OK",
+    "command_b": "python -B -m unittest validation.test_joint_terrain_feedback validation.test_probe_joint_terrain_feedback validation.test_planner_scene_binding validation.test_scene_profile validation.test_audit_29_terrain_evidence validation.test_trajectory_session",
+    "result_b": "Ran 98 tests, OK (skipped=1: symlink creation requires Windows privilege in test_planner_scene_binding.test_manifest_file_path_is_validated; environmental, covered on WSL)",
+    "fixture_audits": [
+      "python -B validation/lunar-29-static-contact/audit.py -> {\"assertions\": 85, \"cases\": 13, \"skipped\": 0, \"status\": \"pass\"}",
+      "python -B validation/lunar-29-live-contact/audit.py -> {\"assertions\": 30895, \"rows\": 3253, \"skipped\": 0, \"status\": \"pass\"}"
+    ]
+  },
+  "satisfied": [
+    "AC1 (representation/contract layer): frozen physical representation static-plane-box-v1 with pinned hash 60ae5097..., display manifest wksim.display-manifest.v1 with same identity, feedback single-step validity (wksim.contact.v1 valid_from==valid_until==step)",
+    "AC2 (partial): static plane/box contact geometry audited independently; vertical terrain-height seam state[k-1].Vehicle60 -> ENU support height -> Terrain15D wired into JointPhysics; real generated-model probe evidence (elevated/elevated_reset exact replay, ticks=50, lunar-29-terrain-reset-c8f05c6e/result.json status=passed)",
+    "AC3 (contract layer): stale/future/foreign-epoch/scene-hash-mismatch freeze + explicit recover proven offline (lunar-29-live-contact freeze at frame 30019/boundary 29999, recover at 30039); display cannot modify physics",
+    "AC4 (boundary layer): WSL authority + display-only boundary retained; no visual offset masquerading as collision; planner binding manifest declares forces/impulses/terrain_response=false and visual_mirror binding_status=not_bound",
+    "AC5 (delivery layer): commands/identity/expected-vs-actual/failure boundaries recorded (#80/#81 commands.txt, probe result claims, retained first-failure directory)",
+    "Third identity layer regressions: validation/test_scene_frontier_contract.py pins three-layer pairwise distinction, probe-identity-never-planner-identity, injected-observer epoch fail-closed"
+  ],
+  "unsatisfied": [
+    "AC1: no real UE5.5 display run co-located with authoritative physics; display representation is still a display-only manifest, not a running UE binding (Simulator/ue55/*.py has zero occurrences of contact/terrain/scene_hash/scene_id)",
+    "AC2: no slope dynamics, contact force/impulse/stiffness/damping/friction, side-impact, or dynamic objects; AC2 'approved budget' for post-reset review not approved; probe native I/O is DeterministicNativeIOStub (AP ACK + 4 ms PX4 barrier), not an FC closed loop",
+    "AC3: no real UE display disconnect/reconnect run on the #29 scene; no UE/WSL/FC/ROS2/DDS joint clock closed-loop evidence",
+    "AC4: dynamic terrain/objects/slope-change/side-contact remain BLOCKED capability rows",
+    "Parent dependencies: #9 still OPEN (ABI NO-GO); #29 must stay OPEN until original deps and ACs are all met; #102 full EGO still depends on #29/#33",
+    "Numerical budgets (contact geometry tolerance, contact position/height error, freeze->recover step budget, slope/box sweep ranges) unapproved and must not be filled by agents"
+  ],
+  "minimal_loop_executable_now": {
+    "description": "Fully offline closed loop already executable in the main session today: scene_profile -> planner_scene_binding.query -> contact_observer.observe_step -> terrain_feedback.query_terrain -> JointPhysics tick wiring (joint.py:185-188), plus fixture audits. Verified in this checkpoint by probe.py (21/21) and 160 pure tests (62+98, 1 environmental skip).",
+    "commands": [
+      "python -B validation/coordination/omp-g4-terrain-readiness-20260913-01/probe.py",
+      "python -B -m unittest validation.test_contact_observer validation.test_terrain_feedback validation.test_static_contact validation.test_scene_frontier_contract",
+      "python -B -m unittest validation.test_joint_terrain_feedback validation.test_probe_joint_terrain_feedback validation.test_planner_scene_binding validation.test_scene_profile validation.test_audit_29_terrain_evidence validation.test_trajectory_session",
+      "python -B validation/lunar-29-static-contact/audit.py",
+      "python -B validation/lunar-29-live-contact/audit.py"
+    ],
+    "limit": "This loop proves interface shape, identity pinning and fail-closed semantics only. It is not UE/SITL/FC closed-loop evidence and must not be presented as #29 parent acceptance."
+  },
+  "blockers": {
+    "P0": [
+      {
+        "id": "P0-ue-consumer-and-driver-missing",
+        "what": "No UE-side consumer of wksim.display-manifest.v1 / wksim.contact.v1 and no run entry binding static-plane-box-v1/60ae5097... into a UE session; no #29-scene display disconnect/reconnect run",
+        "exact": "Simulator/ue55/*.py (no consumer symbols); missing tools/validate_29_scene_binding.py (proposed name in ds-interface-decision-packet-20260912.md section 5.4)",
+        "unblock": "Main session assigns writer and reserves isolated UE5.5 resource (E:/ue5.5/files/UE_5.5, staged build E:\\ue5.5\\build\\wksim-native-*, loopback UDP 19060); decisions C1/C2/C3 still pending user/main-session approval"
+      },
+      {
+        "id": "P0-fc-closed-loop-stub",
+        "what": "Terrain probe native I/O is a deterministic stub, not a flight-controller closed loop",
+        "exact": "tools/probe_joint_terrain_feedback.py DeterministicNativeIOStub (class at :409); result claims native_io stub",
+        "unblock": "Main session reserves isolated SITL/FC/ROS2/DDS resources; requires real joint run with terrain seam enabled"
+      },
+      {
+        "id": "P0-issue9-abi-nogo",
+        "what": "Parent dependency #9 OPEN; vendor DLL/plugin ABI NO-GO; blocks any contact-force/dynamic-terrain extension and any DLL adapter implementation",
+        "exact": "docs/plan/9-abi-environment-accepted.md:18-36; #9 comment 2026-09-11",
+        "unblock": "Authoritative ABI artifacts or formal abandonment of the DLL path (user decision); until then only reviewed wk_model_* seam"
+      }
+    ],
+    "P1": [
+      {
+        "id": "P1-unapproved-numerical-budgets",
+        "what": "AC2 'approved budget' and B-table budgets (geometry tolerance, height error, freeze/recover step budget, slope/box sweep) unapproved; agents must not fill them",
+        "exact": "docs/coordination/ds-interface-decision-packet-20260912.md section B",
+        "unblock": "HITL/user decision"
+      },
+      {
+        "id": "P1-identity-chain-not-colocated",
+        "what": "60ae5097... (fixture/display) and 4889e2ea... (real model probe) never landed in one reviewable chain with a UE run",
+        "exact": "docs/plan/29-terrain-evidence-manifest.json scene_identity_rule; closure report recommendation 2",
+        "unblock": "One controlled UE run recording both identity layers (depends on P0-ue-consumer-and-driver-missing)"
+      }
+    ],
+    "P2": [
+      {
+        "id": "P2-dynamic-terrain-capability-rows",
+        "what": "Dynamic terrain/objects, slope change, side contact remain capability rows only",
+        "exact": "29-terrain-closure-report.md AC4 row; scene frontier table",
+        "unblock": "Approved input/budget/failure semantics first; then new tickets"
+      },
+      {
+        "id": "P2-windows-symlink-test-skip",
+        "what": "One planner binding manifest-path test skips on Windows without symlink privilege",
+        "exact": "validation/test_planner_scene_binding.py test_manifest_file_path_is_validated",
+        "unblock": "Runs on WSL acceptance checkout; no code change needed"
+      }
+    ]
+  },
+  "next_implementation_slice": {
+    "name": "Display-scene binding gate: runtime-side contract module + pure tests (offline portion of ds-interface-decision-packet 5.4 items 1/3/4)",
+    "owned_new_files_only": [
+      "Simulator/wksim_runtime/display_scene_binding.py (new; wksim.display-manifest.v1 binding validation + freeze/recover frame evidence schema, no UE process control)",
+      "validation/test_display_scene_binding.py (new pure tests)",
+      "docs/plan/29-display-binding-contract.md (new contract record)"
+    ],
+    "forbidden_to_touch": [
+      "Simulator/wksim_planning/ego_scene_admission.py (currently modified by #102/G3 work)",
+      "Simulator/wksim_runtime/planner_transport_pump.py (currently modified)",
+      "tools/audit_26_closure_readiness.py, tools/audit_core_no_vendor_dll.py (currently modified by #26/core-audit)",
+      "validation/test_ego_scene_admission.py, validation/test_planner_transport_pump.py, validation/test_audit_26_closure_readiness.py, validation/test_audit_core_no_vendor_dll.py (currently modified)",
+      "docs/plan/102-planner-transport-pump-contract.md, docs/plan/102-trajectory-scene-admission-contract.md (currently modified)",
+      "docs/coordination/ds-scene-frontier-20260912.md, validation/test_scene_frontier_contract.py (DS-C delivered, stable)",
+      "Simulator/wksim_core/joint.py, worker.py, model.py (shared runtime; contract explicitly forbids observer-slice edits)",
+      "any UE asset, any .so/.dll, any existing evidence directory"
+    ],
+    "preconditions": "Main session confirms writer assignment; the actual UE run and driver (5.4 item 2) stay gated on decisions C1/C2/C3 and isolated resource reservation; budgets stay with HITL",
+    "conflict_check": "No overlap with currently modified files (git status at HEAD e05993f) owned by G3/#102 planner-transport work, #26 closure audit, or core no-vendor-DLL audit"
+  },
+  "non_claims": [
+    "This checkpoint runs no UE, SITL, FC, ROS, DDS, MATLAB, native build, or vendor model",
+    "No issue closed or edited; #29 remains OPEN",
+    "Old flight PASS results are not transferred; mixed/Full/G6 status unchanged",
+    "The offline loop is not a substitute for the missing UE co-located run or FC closed loop"
+  ]
+}

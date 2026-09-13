@@ -1,0 +1,118 @@
+{
+  "checks": [
+    {
+      "detail": "schema/tick/class surface OK",
+      "id": "shape.static_contact",
+      "status": "pass"
+    },
+    {
+      "detail": "observer surface OK; envelope carries no force/impulse fields",
+      "id": "shape.contact_observer",
+      "status": "pass"
+    },
+    {
+      "detail": "terrain seam surface OK",
+      "id": "shape.terrain_feedback",
+      "status": "pass"
+    },
+    {
+      "detail": "binding surface OK",
+      "id": "shape.planner_scene_binding",
+      "status": "pass"
+    },
+    {
+      "detail": "joint.py:33,52,185-188 and joint_runtime.py:636-638,722 wiring present",
+      "id": "shape.joint_wiring",
+      "status": "pass"
+    },
+    {
+      "detail": "fixture scene identity pinned: 60ae50970e23...",
+      "id": "identity.static_scene_config",
+      "status": "pass"
+    },
+    {
+      "detail": "display manifest bound to fixture identity",
+      "id": "identity.display_manifest",
+      "status": "pass"
+    },
+    {
+      "detail": "terrain feedback manifest identity OK",
+      "id": "identity.terrain_manifest",
+      "status": "pass"
+    },
+    {
+      "detail": "planner binding hashes pinned; canonical bytes hash to 40ee928113c1...",
+      "id": "identity.planner_binding_manifest",
+      "status": "pass"
+    },
+    {
+      "detail": "evidence manifest still declares partial_open with 3 unproven boundaries",
+      "id": "identity.three_layers",
+      "status": "pass"
+    },
+    {
+      "detail": "observer bind + tampered geometry both rejected (ContactError: scene_hash_mismatch)",
+      "id": "failclosed.scene_hash_mismatch",
+      "status": "pass"
+    },
+    {
+      "detail": "ContactError: scene_not_found",
+      "id": "failclosed.scene_not_found",
+      "status": "pass"
+    },
+    {
+      "detail": "foreign epoch freezes; frozen seam blocks queries (RuntimeError: ContactObserver for px4 is frozen (foreign_epoch))",
+      "id": "failclosed.foreign_epoch_and_frozen_block",
+      "status": "pass"
+    },
+    {
+      "detail": "repeated authority step frozen as stale_feedback",
+      "id": "failclosed.stale_feedback",
+      "status": "pass"
+    },
+    {
+      "detail": "recover requires freeze, forward step, fresh evidence",
+      "id": "failclosed.recover_discipline",
+      "status": "pass"
+    },
+    {
+      "detail": "envelope carrying an extra force field freezes as contact_invalid",
+      "id": "failclosed.external_envelope_with_force_field",
+      "status": "pass"
+    },
+    {
+      "detail": "Vehicle60 NED -> ENU mapping exact; length/bool/NaN rejected",
+      "id": "failclosed.vehicle60_mapping",
+      "status": "pass"
+    },
+    {
+      "detail": "support height -> Terrain15D exact; zero canonicalized; NaN/bool rejected",
+      "id": "failclosed.terrain15d_mapping",
+      "status": "pass"
+    },
+    {
+      "detail": "foreign-epoch injected observer fail-closed (RuntimeError: ContactObserver for arducopter froze at tick 1: foreign_epoch); dict shape enforced",
+      "id": "failclosed.observer_injection",
+      "status": "pass"
+    },
+    {
+      "detail": "unknown stack / wrong state size / non-finite state rejected",
+      "id": "failclosed.query_terrain_inputs",
+      "status": "pass"
+    },
+    {
+      "detail": "planner query: contact/no_contact valid; legacy and probe identities, wrong hash, unknown field, NaN, bad sim_time all rejected",
+      "id": "failclosed.planner_query_identity",
+      "status": "pass"
+    }
+  ],
+  "repo_relative_root": true,
+  "schema": "omp.g4-terrain-probe.v1",
+  "scope": "G4 terrain interface (#29): read-only pure-Python probe of interface shapes, config/message identity, and fail-closed semantics; no native/.so/.dll, ROS, FC, model, UE, MATLAB, or process control",
+  "summary": {
+    "failed": 0,
+    "passed": 21,
+    "status": "pass",
+    "total": 21
+  }
+}
