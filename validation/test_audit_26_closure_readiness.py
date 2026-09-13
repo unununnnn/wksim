@@ -964,10 +964,10 @@ class RealRepositoryTests(unittest.TestCase):
         ok = subprocess.run([sys.executable, "-B", str(ROOT / "tools/audit_26_closure_readiness.py")], capture_output=True, timeout=60)
         report = json.loads(ok.stdout.decode())
         self.assertEqual(report["blocking_issue"], 9)
-        if os.name == "nt" and not report["violations"]:
-            self.assertEqual(ok.returncode, 0, ok.stderr.decode())
-        else:
+        if report["violations"]:
             self.assertEqual(ok.returncode, 2, ok.stderr.decode())
+        else:
+            self.assertEqual(ok.returncode, 0, ok.stderr.decode())
         bad = subprocess.run([sys.executable, "-B", str(ROOT / "tools/audit_26_closure_readiness.py"), "--manifest", "absent.json"], capture_output=True, timeout=60)
         self.assertEqual(bad.returncode, 2)
 
