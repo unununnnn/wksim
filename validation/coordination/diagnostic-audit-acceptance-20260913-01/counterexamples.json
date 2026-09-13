@@ -1,0 +1,217 @@
+{
+  "tool": "ds_group_audit_verification",
+  "purpose": "verify the repaired audit against the independent reviewer counterexamples",
+  "work_dir": "C:/Users/PC/Documents/odid\u7f16\u8bd1/wksim/validation/coordination/claude-ds-audit-review-20260913-01/work",
+  "input_sha256_before": {
+    "rate.jsonl": "7aa7e3f4624a5128d1301e6ca1f7d4baaa239357d920154a185546a496202d01",
+    "rate-report.jsonl": "8f2d60a4adefdf0b96f5d3df19061a4f866bdede54267fcc39821be8e1e59c50",
+    "result.json": "9e2caf5c58a7011642a3580341b999c21ac53bd52f0718b3cd8ed4e2a6dc4c27",
+    "rate-e1.jsonl": "c5237fef69accce79ec24fd84de0c141a68ff196d0d057c78ce0b5f73dc2d8ad",
+    "rate-e2.jsonl": "17ba3ef49db94d7e422ec8ba2ba63bacc723418fc660a4a91322d681bfd75b98",
+    "rate-e3.jsonl": "b81c35cfdbaa1da1fe8d147784a50f835cf6cf948e84b9f5c8db970fad2a97b6",
+    "rate-e4.jsonl": "bb6c8fbcccb868b382e7f72ce3cd6c851d260fa307413c4b1513889e714496c2",
+    "result-e1.json": "6d82c2b40fca1338fdff3d80209bce479cb1fdc9ccfcfe134e8881fc42a66130",
+    "result-e2.json": "2659749f82be8babdf9aa0f275bb8e8ba9f2fecf9307ca8232dfba0355132c5c",
+    "result-e3.json": "3f66afa291da32d15fa61c7fbe01e242cb49e9d62f2573b67cda1b0fd982320f",
+    "result-e5a.json": "507e03ddd4ce4e03e2d38e57a1a78c099f84f4b48f5231e15e538a6bc31a57fc",
+    "result-e5b.json": "5ab7983a416dc080a642efb997bad5e42509a9cda94bf1a33f56c09a3d6088d8",
+    "reports-e5a.jsonl": "41c628ee9db45e730668bb2efbb5729b8d69185c57ee528e4606bd6d8185016f",
+    "reports-e5b.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reports-e3.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "input_sha256_after": {
+    "rate.jsonl": "7aa7e3f4624a5128d1301e6ca1f7d4baaa239357d920154a185546a496202d01",
+    "rate-report.jsonl": "8f2d60a4adefdf0b96f5d3df19061a4f866bdede54267fcc39821be8e1e59c50",
+    "result.json": "9e2caf5c58a7011642a3580341b999c21ac53bd52f0718b3cd8ed4e2a6dc4c27",
+    "rate-e1.jsonl": "c5237fef69accce79ec24fd84de0c141a68ff196d0d057c78ce0b5f73dc2d8ad",
+    "rate-e2.jsonl": "17ba3ef49db94d7e422ec8ba2ba63bacc723418fc660a4a91322d681bfd75b98",
+    "rate-e3.jsonl": "b81c35cfdbaa1da1fe8d147784a50f835cf6cf948e84b9f5c8db970fad2a97b6",
+    "rate-e4.jsonl": "bb6c8fbcccb868b382e7f72ce3cd6c851d260fa307413c4b1513889e714496c2",
+    "result-e1.json": "6d82c2b40fca1338fdff3d80209bce479cb1fdc9ccfcfe134e8881fc42a66130",
+    "result-e2.json": "2659749f82be8babdf9aa0f275bb8e8ba9f2fecf9307ca8232dfba0355132c5c",
+    "result-e3.json": "3f66afa291da32d15fa61c7fbe01e242cb49e9d62f2573b67cda1b0fd982320f",
+    "result-e5a.json": "507e03ddd4ce4e03e2d38e57a1a78c099f84f4b48f5231e15e538a6bc31a57fc",
+    "result-e5b.json": "5ab7983a416dc080a642efb997bad5e42509a9cda94bf1a33f56c09a3d6088d8",
+    "reports-e5a.jsonl": "41c628ee9db45e730668bb2efbb5729b8d69185c57ee528e4606bd6d8185016f",
+    "reports-e5b.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reports-e3.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "inputs_unchanged": true,
+  "cases": [
+    {
+      "case": "baseline_raw",
+      "note": "the archived raw flight must still pass with no finding",
+      "inputs": {
+        "rate": "rate.jsonl",
+        "reports": "rate-report.jsonl",
+        "result": "result.json"
+      },
+      "expected_verdict": "pass",
+      "actual_verdict": "pass",
+      "exit_code": 0,
+      "finding_codes": [],
+      "expected_codes": [],
+      "expectation_met": true,
+      "declared_vs_recomputed": true,
+      "over_budget_groups": 18,
+      "reports_emitted": 16
+    },
+    {
+      "case": "e1_missing_end",
+      "note": "final rate_group_end deleted; stream shows starts > ends",
+      "inputs": {
+        "rate": "rate-e1.jsonl",
+        "reports": "rate-report.jsonl",
+        "result": "result-e1.json"
+      },
+      "expected_verdict": "fail",
+      "actual_verdict": "fail",
+      "exit_code": 1,
+      "finding_codes": [
+        "rate-open-group-unclosed",
+        "rate-orphan-start",
+        "rate-stream-unbalanced"
+      ],
+      "expected_codes": [
+        "rate-orphan-start",
+        "rate-stream-unbalanced"
+      ],
+      "expectation_met": true,
+      "declared_vs_recomputed": true,
+      "over_budget_groups": 18,
+      "reports_emitted": 16
+    },
+    {
+      "case": "e2_duplicated_end",
+      "note": "last end row duplicated and appended after the unmet row",
+      "inputs": {
+        "rate": "rate-e2.jsonl",
+        "reports": "rate-report.jsonl",
+        "result": "result-e2.json"
+      },
+      "expected_verdict": "fail",
+      "actual_verdict": "fail",
+      "exit_code": 1,
+      "finding_codes": [
+        "rate-duplicate-end",
+        "rate-stream-unbalanced",
+        "result-incongruent-groups"
+      ],
+      "expected_codes": [
+        "rate-duplicate-end"
+      ],
+      "expectation_met": true,
+      "declared_vs_recomputed": true,
+      "over_budget_groups": 18,
+      "reports_emitted": 16
+    },
+    {
+      "case": "e3_tick_binding",
+      "note": "single-group stream; row ticks are 77/88 while boundaries are 0/4",
+      "inputs": {
+        "rate": "rate-e3.jsonl",
+        "reports": "reports-e3.jsonl",
+        "result": "result-e3.json"
+      },
+      "expected_verdict": "fail",
+      "actual_verdict": "fail",
+      "exit_code": 1,
+      "finding_codes": [
+        "rate-end-row-tick",
+        "rate-start-row-tick"
+      ],
+      "expected_codes": [
+        "rate-"
+      ],
+      "expectation_met": true,
+      "declared_vs_recomputed": true,
+      "over_budget_groups": 0,
+      "reports_emitted": 0
+    },
+    {
+      "case": "e4_globally_reordered_ends",
+      "note": "all starts then all ends: every end follows its own start, only the one-open-group invariant and the event-order reconciliation catch it",
+      "inputs": {
+        "rate": "rate-e4.jsonl",
+        "reports": "rate-report.jsonl",
+        "result": "result.json"
+      },
+      "expected_verdict": "fail",
+      "actual_verdict": "fail",
+      "exit_code": 1,
+      "finding_codes": [
+        "rate-end-group-mismatch",
+        "rate-group-overlap",
+        "rate-open-group-reconciliation",
+        "rate-stream-interleaving"
+      ],
+      "expected_codes": [
+        "rate-group-overlap",
+        "rate-open-group-reconciliation"
+      ],
+      "expectation_met": true,
+      "declared_vs_recomputed": true,
+      "over_budget_groups": 18,
+      "reports_emitted": 16
+    },
+    {
+      "case": "e5a_short_report_stream",
+      "note": "10 reports against 18 over-budget groups with a declared limit of 16",
+      "inputs": {
+        "rate": "rate.jsonl",
+        "reports": "reports-e5a.jsonl",
+        "result": "result-e5a.json"
+      },
+      "expected_verdict": "fail",
+      "actual_verdict": "fail",
+      "exit_code": 1,
+      "finding_codes": [
+        "report-cap-minimum",
+        "result-emit-minimum"
+      ],
+      "expected_codes": [
+        "report-cap-minimum"
+      ],
+      "expectation_met": true,
+      "declared_vs_recomputed": true,
+      "over_budget_groups": 18,
+      "reports_emitted": 10
+    },
+    {
+      "case": "e5b_empty_report_stream",
+      "note": "zero reports against 18 over-budget groups",
+      "inputs": {
+        "rate": "rate.jsonl",
+        "reports": "reports-e5b.jsonl",
+        "result": "result-e5b.json"
+      },
+      "expected_verdict": "fail",
+      "actual_verdict": "fail",
+      "exit_code": 1,
+      "finding_codes": [
+        "report-cap-minimum",
+        "result-emit-minimum"
+      ],
+      "expected_codes": [
+        "report-cap-minimum"
+      ],
+      "expectation_met": true,
+      "declared_vs_recomputed": true,
+      "over_budget_groups": 18,
+      "reports_emitted": 0
+    }
+  ],
+  "cases_passed": 7,
+  "cases_total": 7,
+  "gap_categorisation": [
+    {
+      "gaps_total": 48,
+      "gaps_intra_group": 48,
+      "gaps_crossing_rate_boundary": 0,
+      "four_step_relation_holds": true,
+      "audit_artifact": "evidence/joint-public-flight-rfw9nmbb-audit.json"
+    }
+  ],
+  "verdict": "pass",
+  "findings": []
+}
