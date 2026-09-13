@@ -15,13 +15,17 @@
 
 | 负责人 | thread / turn | 当前交付 |
 | --- | --- | --- |
-| DS-1 | 45decda4-b315-42b3-b7da-2b724dabfd4f / d2c4bb01-7947-4edd-9f16-9f4589383c3b | manager99最小候选已交付，等待独立复核后控制实验 |
-| DS-2 | e2a62dda-d7fa-43f0-bfdb-c62eb13ac86c / d24587bf-c171-4bdc-a2b4-dfc5ee927d50 | 对齐真实前后线程快照并核算有效CPU增量 |
-| DS-3 | 7849b551-87ef-4dd7-8322-cd7e72ea241d / b2c28bf0-fe1e-4bc1-81ab-d6e2f25a8115 | 独立复核仅manager优先级变化及错误路径 |
-| Claude | e64514a6-77c2-4b27-91a7-896c92a361fd / 080102fb-39ef-4a71-bd96-dce680e197ba | 对真实last-callback字段做有序分区和尾段分析 |
-| OMP | 51609e8d-e4ce-4a8e-8a0d-f7c896c24842 / 0c7df87e-d2e0-4a78-80c2-eb804cd42842 | 独立核验真实线程优先级、掩码和身份边界 |
+| DS-1 | 45decda4-b315-42b3-b7da-2b724dabfd4f / 25843a07-ed3c-47c0-a61f-207571aaf393 | 准备无探针99清单，不执行，待共同前缀结果支持 |
+| DS-2 | e2a62dda-d7fa-43f0-bfdb-c62eb13ac86c / 7e719f25-798e-4ecd-adea-e9895e8a9771 | 各场内部对齐CPU后按各自窗口归一化 |
+| DS-3 | 7849b551-87ef-4dd7-8322-cd7e72ea241d / 026faa21-1ac9-4274-8096-d892dc97e5a3 | 修正8ms/非started混计，独立比较共同完整前缀 |
+| Claude | e64514a6-77c2-4b27-91a7-896c92a361fd / a00337ac-97c7-48a8-a779-6d5ad5c8b007 | 按同一完整tick/阶段口径比较两场延迟分区 |
+| OMP | 51609e8d-e4ce-4a8e-8a0d-f7c896c24842 / 448b84ab-cbe8-4dae-afc9-ea5d963e24b6 | 核验99真实实现及其他角色/掩码/身份不变量 |
 
-最新状态：a45025b已推送5lfbcy43原件选取包与v3接线/复核。OMP v3最终7项通过并终态，主会话已独立执行同7项；不再等待旧审查。私有runner仍1c600d7f…、parent7855409d…、worker38f34a8f…，所有调度设置保持原值。manager99候选9b97c124…只在候选目录，尚未施加。
+最新状态：9d15b9d已推送且ls-remote确认。manager99候选已在私有runner应用并实际运行x39qjvkw；当前私有runner9b97c124…、parent7855409d…、worker38f34a8f…，主仓库Windows runner他方修改保留。只改变自有manager目标50→99，其他角色/nice/RESET_ON_FORK/全局参数未改。代码旧注释justbelow99不正确，实际为同级99。
+
+x39qjvkw已failed@tick109436，epoch7c8e3a038b05419a97e7fe9f97e0d04a，wall269.690976286s。前后快照11/11 captured、manager实际FIFO99，两相位validated；source_unchanged=true、cleanup_errors=[]，同boot5906186e-8181-42ff-8c56-d8ec2a26bd62下PGID2125–2134独立全空。flight session85236终态；keeper642/start432核验后SIGTERM，session39102终态。当前无native/keeper，不重复poll/restart。
+
+主会话只取两场都有start/end/started probe的22358组（start_tick36…89464，周期8000000ns），基线50与候选99的回调后尾段分别57419470ns/54569053ns，>=10us组653/607，最大3368965ns/359077ns，中位均45ns；窗口总57554662ns/55740918ns。差异有限、不同boot单次样本，尚不能宣称修复或因果。正在独立核算；完整运行更长不等于通过。若决定无探针验证仍必须完整原门，不能从诊断结果直接提升。句柄见manager99-run-20260913-01/dispatches.json。源/目标/前后快照/rate压缩原件均已封存，首次网络push失败后仅用命令级HTTP缓冲重试并确认远端，未改全局Git/TLS设置。
 
 5lfbcy43真实诊断已failed：epoch7e2aeb5b4ba04a76a5b422dde4d5d57e、tick89468、wall229.993620876s。source_unchanged=true，cleanup_errors=[]，同boot2e7caa0c-f041-426f-a550-50acd12125c5下PGID2076–2085全空；before/after均validated且11/11 captured。manager主线程FIFO50，PX4前后实有hpwork98、hrt/work queue/sim收发99，after还见commander90等；实际优先级差异已证，因果仍未证。Keeper600/start362核验后SIGTERM；flight15396与keeper95649均终态，禁止重poll/restart。当前无native/keeper。
 
