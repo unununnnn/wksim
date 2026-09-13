@@ -1,0 +1,102 @@
+{
+  "kind": "wksim.parent-probe-retention-prep.v1",
+  "classification": "diagnostic_only",
+  "full_acceptance": false,
+  "assigned_scope": "validation/coordination/ds-parent-probe-retention-20260913-01",
+  "target": {
+    "file": "tools/run_joint_flight.py",
+    "function": "make_joint_rate",
+    "pinned_sha256": "f5411627c2758f31d86da16b0bf38c469dda6fe4f03b89806bcb543db04ed63a",
+    "baseline_sha256": "f5411627c2758f31d86da16b0bf38c469dda6fe4f03b89806bcb543db04ed63a",
+    "candidate_sha256": "08e20642f82f9052284f3054ae91c57d5d7e77017fb996e11d748bb98a86db99",
+    "candidate_path": "C:\\Users\\PC\\Documents\\odid\u7f16\u8bd1\\wksim\\validation\\coordination\\ds-parent-probe-retention-20260913-01\\run_joint_flight-candidate.py.txt",
+    "reused_byte_identical": true
+  },
+  "patch": {
+    "function": "make_joint_rate",
+    "line_start_before": 62,
+    "line_end_before": 70,
+    "line_start_after": 63,
+    "line_end_after": 76,
+    "added_lines": 5,
+    "before": "def make_joint_rate(epoch, requested_rate, record, *, diagnostic, spin_cpu=False):\n    if spin_cpu:\n        if not diagnostic:\n            raise ValueError('Spin CPU probe requires the explicit rate timing probe')\n        from rate_spin_cpu_probe import JointRateSpinCpuProbe\n        rate_type = JointRateSpinCpuProbe\n    else:\n        rate_type = JointRateTimingProbe if diagnostic else JointRate\n    return rate_type(epoch, requested_rate, record)",
+    "after": "def make_joint_rate(epoch, requested_rate, record, *, diagnostic, spin_cpu=False):\n    if spin_cpu:\n        if not diagnostic:\n            raise ValueError('Spin CPU probe requires the explicit rate timing probe')\n        from rate_spin_cpu_probe import JointRateSpinCpuProbe\n        rate_type = JointRateSpinCpuProbe\n    else:\n        rate_type = JointRateTimingProbe if diagnostic else JointRate\n    rate = rate_type(epoch, requested_rate, record)\n    if diagnostic and not spin_cpu:\n        # Diagnostic history only: keep the latest sample. The parent probe\n        # appends every TimingSample and nothing reads the history.\n        rate.timings = collections.deque(rate.timings, maxlen=1)\n    return rate",
+    "import_added": "import collections"
+  },
+  "unchanged_by_construction": [
+    "default JointRate path: the diagnostic flag stays false, so only the original single return executes",
+    "spin_cpu branch: the new assignment is guarded by `not spin_cpu`, so JointRateSpinCpuProbe construction is untouched",
+    "parent module Simulator/wksim_runtime/joint_rate_probe.py: not edited; its pinned SHA still matches this archive copy",
+    "emitted records and every rate formula: the assignment touches only the retained history container"
+  ],
+  "retention": {
+    "before": "JointRateTimingProbe.timings is a list appended once per group; the runner never reads it, the spin child never reads it, and no production module reads it",
+    "reader_coverage": {
+      "attribute_reads_in_production": 0,
+      "attribute_reads_in_tests": [
+        "validation/test_joint_rate_probe.py:79",
+        "validation/test_joint_rate_probe.py:85",
+        "validation/test_joint_rate_probe.py:120",
+        "validation/test_joint_rate_probe.py:135"
+      ],
+      "reader_forms": [
+        ".timings[-1] (negative index; supported by deque)"
+      ],
+      "blockers": [],
+      "conclusion": "no reader requires more than the latest sample, so the bound is compatible; a deque was chosen over a custom container so that append and negative indexing keep working"
+    },
+    "after": "collections.deque(maxlen=1) assigned after construction"
+  },
+  "tests": {
+    "probe_bounded_and_type": {
+      "ok": true,
+      "length": 1,
+      "maxlen": 1
+    },
+    "retained_sample_is_latest": {
+      "ok": true
+    },
+    "emitted_records_unchanged_30_groups": {
+      "ok": true
+    },
+    "emitted_records_unchanged_rate_1x": {
+      "ok": true
+    },
+    "emitted_records_unchanged_coarser_sleep": {
+      "ok": true
+    },
+    "business_exceptions_unchanged": {
+      "ok": true,
+      "detail": {
+        "rate_group_without_anchor": "ValueError: Rate group lacks a current complete anchor",
+        "anchor_not_multiple_of_four": "ValueError: Rate anchor requires a complete four-tick boundary",
+        "invalid_rate": "ValueError: requested_rate must be 0.5 or 1",
+        "end_group_wrong_tick": "ValueError: Rate group did not complete exactly four ticks"
+      }
+    },
+    "candidate_make_joint_rate": {
+      "default_is_joint_rate": true,
+      "default_has_no_history_bound": true,
+      "default_constructor_record_emitted": true,
+      "diagnostic_is_timing_probe": true,
+      "diagnostic_history_is_bounded": true,
+      "diagnostic_constructor_record_emitted": true,
+      "diagnostic_public_api_matches_parent_class": true,
+      "spin_path_returns_stub": true,
+      "spin_history_not_bounded": true
+    },
+    "event_counts": {
+      "baseline": 92,
+      "candidate": 92
+    },
+    "parent_module_sha_matches_archive": {
+      "ok": true,
+      "sha256": "a8bac9ac84ba9960296bb6b43d6d39c6bbc17fa9fdc47adf7e05ce76d7066653"
+    }
+  },
+  "limits": [
+    "tests exercise the real parent probe with a scripted monotonic clock; no wall clock, no native/model/ROS/build and no rate-acceptance claim",
+    "the candidate is prepared as *.py.txt and is never applied to any checkout",
+    "the private runner itself is not imported here; only its pinned bytes are read"
+  ]
+}

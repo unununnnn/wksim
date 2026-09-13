@@ -1,0 +1,44 @@
+{
+  "boot_id": "9150ec13-5eb1-44e4-ab9e-152e451dfb9b",
+  "checked_at": 1789271959.780047,
+  "groups": [
+    2086,
+    2087,
+    2088,
+    2089,
+    2090,
+    2091,
+    2092,
+    2093,
+    2094,
+    2095
+  ],
+  "found": [],
+  "status": "failed",
+  "scene_epoch": "bf067fd133454585a0c2c62e9e2bcfb4",
+  "faulted_authority": {
+    "version": 1,
+    "epoch": "bf067fd133454585a0c2c62e9e2bcfb4",
+    "tick": 90132,
+    "time_ns": 90132000000,
+    "phase": "faulted",
+    "last_barrier_tick": 90132,
+    "synchronized": true,
+    "pending_tick": null,
+    "single_remaining": 0,
+    "last_request_id": 0,
+    "fault": "rate_unmet/resource_insufficient",
+    "last_input_tick": 90132,
+    "recoverable": false,
+    "input_pending": false
+  },
+  "source_unchanged": true,
+  "cleanup_errors": [],
+  "rate_timing_probe": {
+    "diagnostic": "joint_rate_timing_probe",
+    "classification": "diagnostic_only",
+    "production_performance": false,
+    "instrumentation_overhead": "opt-in probe overhead: extra monotonic clock reads, health/sleep wrapper dispatch, sample aggregation, and rate_timing_probe recording; not a production performance measurement"
+  },
+  "traceback": "Traceback (most recent call last):\n  File \"/root/wksim-release-acceptance-fe3/tools/run_joint_flight.py\", line 1008, in run\n    states = advance()\n  File \"/root/wksim-release-acceptance-fe3/tools/run_joint_flight.py\", line 974, in advance\n    rate.begin_group(clock.tick, physics_health)\n  File \"/root/wksim-release-acceptance-fe3/Simulator/wksim_runtime/joint_rate_probe.py\", line 215, in begin_group\n    super().begin_group(tick, measured_health)\n  File \"/root/wksim-release-acceptance-fe3/Simulator/wksim_runtime/joint_rate.py\", line 102, in begin_group\n    self.check(max(0,now-ideal))\n  File \"/root/wksim-release-acceptance-fe3/Simulator/wksim_runtime/joint_rate.py\", line 87, in check\n    raise RateUnmet(lateness)\nSimulator.wksim_runtime.joint_rate.RateUnmet: rate_unmet/resource_insufficient\n"
+}
