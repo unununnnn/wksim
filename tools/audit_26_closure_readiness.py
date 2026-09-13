@@ -15,6 +15,7 @@ import re
 import stat
 import subprocess
 import sys
+import tarfile
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_MANIFEST = ROOT / "docs/plan/26-closure-readiness-manifest.json"
@@ -92,6 +93,25 @@ EXPECTED_LIFECYCLE_RAW_KEYS = frozenset(
         "cold/cycle-0.jsonl",
         "cold/cycle-1.jsonl",
     }
+)
+LIFECYCLE_ARCHIVE_INDEX_RELATIVE = "validation/codegen-e0-lifecycle-01/archive.json"
+LIFECYCLE_ARCHIVE_RELATIVE = "validation/codegen-e0-lifecycle-01/raw-lifecycle.tar.gz"
+EXPECTED_LIFECYCLE_ARCHIVE_KEYS = frozenset(
+    {*EXPECTED_LIFECYCLE_RAW_KEYS, "original/process.json", "cold/process.json"}
+)
+MAX_LIFECYCLE_ARCHIVE_BYTES = 32 * 1024 * 1024
+MAX_LIFECYCLE_MEMBER_BYTES = 16 * 1024 * 1024
+MAX_LIFECYCLE_TOTAL_BYTES = 64 * 1024 * 1024
+MAX_LIFECYCLE_MEMBER_COUNT = len(EXPECTED_LIFECYCLE_ARCHIVE_KEYS)
+EXTERNAL_HEADER_SUFFIXES = {
+    "rtw_continuous.h": "simulink/include/rtw_continuous.h",
+    "rtw_solver.h": "simulink/include/rtw_solver.h",
+}
+BUILD_PRODUCT_RE = re.compile(
+    r"^/root/wksim-codegen-e0-build-short-cycle-[A-Za-z0-9._-]+/libwksim_e0\.so$"
+)
+COLD_PRODUCT_RE = re.compile(
+    r"^/root/wksim-codegen-e0-cold-[A-Za-z0-9._-]+/libwksim_e0\.so$"
 )
 
 
@@ -343,6 +363,240 @@ def _check_committed_identity(root, relative, path, report, label):
     return True
 
 
+def _record_host_bounded(
+    report,
+    *,
+    field,
+    path,
+    reason,
+    sha256=None,
+    size_bytes=None,
+    bound_by=None,
+    size_bound_by=None,
+):
+    """Record one exact host boundary without duplicating repeated path checks."""
+    entry = {
+        "field": field,
+        "path": path,
+        "reason": reason,
+        "verification": "not_performed_on_this_host",
+    }
+    if sha256 is not None:
+        entry["sha256"] = sha256
+    if size_bytes is not None:
+        entry["size_bytes"] = size_bytes
+    if bound_by is not None:
+        entry["bound_by"] = list(bound_by)
+        entry["bind_count"] = len(bound_by)
+    if size_bound_by is not None:
+        entry["size_bound_by"] = list(size_bound_by)
+    existing = report.setdefault("host_bounded", [])
+    prior = next(
+        (item for item in existing if item.get("field") == field and item.get("path") == path),
+        None,
+    )
+    if prior is None:
+        existing.append(entry)
+    else:
+        prior.update(entry)
+
+
+def _check_lifecycle_archive(root, expected_raw, report):
+    """Verify lifecycle raw bytes from the committed archive used by clean clones."""
+    index_path = _secure_file(
+        root,
+        LIFECYCLE_ARCHIVE_INDEX_RELATIVE,
+        report,
+        "lifecycle archive index",
+    )
+    if index_path is None:
+        return False
+    if not _check_committed_identity(
+        root,
+        LIFECYCLE_ARCHIVE_INDEX_RELATIVE,
+        index_path,
+        report,
+        "lifecycle archive index",
+    ):
+        return False
+    try:
+        index = _load_json(index_path, "lifecycle archive index")
+        _exact_keys(index, {"archive", "sha256", "bytes", "files"}, "lifecycle archive index")
+        if index["archive"] != "raw-lifecycle.tar.gz":
+            raise AuditDataError("lifecycle archive index filename differs")
+        _sha(index["sha256"], "lifecycle archive index.sha256")
+        archive_size = _strict_int(
+            index["bytes"], "lifecycle archive index.bytes", positive=True
+        )
+        if archive_size > MAX_LIFECYCLE_ARCHIVE_BYTES:
+            raise AuditDataError("lifecycle archive exceeds the retained size limit")
+        files = _object(index["files"], "lifecycle archive index.files")
+        _check_sha_map(
+            files,
+            "lifecycle archive index.files",
+            expected_keys=EXPECTED_LIFECYCLE_ARCHIVE_KEYS,
+        )
+        if {key: files[key] for key in EXPECTED_LIFECYCLE_RAW_KEYS} != expected_raw:
+            raise AuditDataError("lifecycle archive raw hashes differ from the pinned audit")
+    except (AuditDataError, TypeError, KeyError) as exc:
+        _fail(report, str(exc))
+        return False
+
+    archive_path = _secure_file(
+        root,
+        LIFECYCLE_ARCHIVE_RELATIVE,
+        report,
+        "lifecycle raw archive",
+    )
+    if archive_path is None:
+        return False
+    committed = _check_committed_identity(
+        root,
+        LIFECYCLE_ARCHIVE_RELATIVE,
+        archive_path,
+        report,
+        "lifecycle raw archive",
+    )
+    intact = _actual_file(
+        archive_path,
+        "lifecycle raw archive",
+        report,
+        sha256=index["sha256"],
+        size_bytes=archive_size,
+    )
+    if not (committed and intact):
+        return False
+    try:
+        with tarfile.open(archive_path, mode="r:gz") as archive:
+            members = []
+            names = set()
+            for member in archive:
+                if member.name in names:
+                    raise AuditDataError("lifecycle raw archive contains duplicate member names")
+                if len(members) >= MAX_LIFECYCLE_MEMBER_COUNT:
+                    raise AuditDataError("lifecycle raw archive has too many members")
+                names.add(member.name)
+                members.append(member)
+            if set(names) != set(files):
+                raise AuditDataError("lifecycle raw archive member set differs from its index")
+            if sum(member.size for member in members) > MAX_LIFECYCLE_TOTAL_BYTES:
+                raise AuditDataError("lifecycle raw archive exceeds the cumulative size limit")
+            for member in members:
+                name = _repo_relative(member.name, "lifecycle raw archive member")
+                if not member.isfile() or member.issym() or member.islnk():
+                    raise AuditDataError(
+                        f"lifecycle raw archive member is not a regular file: {name}"
+                    )
+                if member.size < 0 or member.size > MAX_LIFECYCLE_MEMBER_BYTES:
+                    raise AuditDataError(
+                        f"lifecycle raw archive member exceeds the size limit: {name}"
+                    )
+                extracted = archive.extractfile(member)
+                if extracted is None:
+                    raise AuditDataError(
+                        f"lifecycle raw archive member cannot be read: {name}"
+                    )
+                payload = extracted.read(member.size + 1)
+                if len(payload) != member.size:
+                    raise AuditDataError(
+                        f"lifecycle raw archive member size differs: {name}"
+                    )
+                observed = hashlib.sha256(payload).hexdigest()
+                if observed != files[name]:
+                    raise AuditDataError(
+                        f"lifecycle raw archive member hash drifted: {name}"
+                    )
+    except (AuditDataError, OSError, tarfile.TarError) as exc:
+        _fail(report, str(exc))
+        return False
+    return True
+
+
+def _header_source_suffix(value, basename):
+    """Classify availability only; committed digest bindings carry authority."""
+    expected = EXTERNAL_HEADER_SUFFIXES.get(basename)
+    if expected is None:
+        return None
+    normalized = str(value).replace("\\", "/")
+    return expected if normalized.endswith("/" + expected) else None
+
+
+def _expected_product_path(value, kind):
+    pattern = BUILD_PRODUCT_RE if kind == "build" else COLD_PRODUCT_RE
+    return type(value) is str and pattern.fullmatch(value) is not None
+
+
+def _verify_product_or_host_bound(
+    value, root, label, report, *, kind, sha256, size_bytes=None
+):
+    """Rehash a product when present; allow absence only at its exact receipt path."""
+    exact_path = _expected_product_path(value, kind)
+    if os.name == "nt" and type(value) is str and value.startswith("/") and not exact_path:
+        _fail(report, f"{label} missing product path is outside the approved boundary: {value}")
+        return False
+    failures_before = len(report.get("violations", []))
+    candidate = _provenance_path(value, root, label, report)
+    if candidate is None:
+        if exact_path and len(report.get("violations", [])) == failures_before:
+            _record_host_bounded(
+                report,
+                field=label,
+                path=value,
+                reason=(
+                    "exact historical build product is absent on this host; "
+                    "three committed receipts bind its digest and the build manifest binds its size"
+                ),
+                sha256=sha256,
+                size_bytes=size_bytes,
+                bound_by=(
+                    "validation/codegen-e0-build-short-cycle-01/build-manifest.json",
+                    "validation/codegen-e0-lifecycle-01/audit.json",
+                    "docs/plan/26-closure-readiness-manifest.json:matlab_free_lifecycle.requirements",
+                ),
+                size_bound_by=(
+                    "validation/codegen-e0-build-short-cycle-01/build-manifest.json",
+                ),
+            )
+            return True
+        return False
+    if candidate.is_symlink() or _is_reparse(candidate) or candidate.exists():
+        return _actual_file(
+            candidate,
+            label,
+            report,
+            sha256=sha256,
+            size_bytes=size_bytes,
+        )
+    if not exact_path:
+        return _actual_file(
+            candidate,
+            label,
+            report,
+            sha256=sha256,
+            size_bytes=size_bytes,
+        )
+    _record_host_bounded(
+        report,
+        field=label,
+        path=value,
+        reason=(
+            "exact historical build product is absent on this host; "
+            "three committed receipts bind its digest and the build manifest binds its size"
+        ),
+        sha256=sha256,
+        size_bytes=size_bytes,
+        bound_by=(
+            "validation/codegen-e0-build-short-cycle-01/build-manifest.json",
+            "validation/codegen-e0-lifecycle-01/audit.json",
+            "docs/plan/26-closure-readiness-manifest.json:matlab_free_lifecycle.requirements",
+        ),
+        size_bound_by=(
+            "validation/codegen-e0-build-short-cycle-01/build-manifest.json",
+        ),
+    )
+    return True
+
+
 def _provenance_path(value, root, label, report):
     """Resolve an absolute provenance path without treating it as repository data."""
     try:
@@ -357,12 +611,11 @@ def _provenance_path(value, root, label, report):
         # products).  Record it as host-bounded instead of reporting evidence
         # corruption; on a POSIX host the same path resolves and is checked
         # fail-closed by the callers.
-        report.setdefault("host_bounded", []).append(
-            {
-                "field": label,
-                "path": value,
-                "reason": "provenance path is not addressable on this host",
-            }
+        _record_host_bounded(
+            report,
+            field=label,
+            path=value,
+            reason="provenance path is not addressable on this host",
         )
         return None
     candidate = Path(candidate)
@@ -463,7 +716,7 @@ def _check_source_actual(item, basename, root, report, label, identities):
             size_bytes=item.get("size_bytes"),
         )
         return committed and intact
-    if basename in REQUIRED_GENERATED and _repo_relative_from_source(item["source_path"], root) is None:
+    if basename in REQUIRED_GENERATED:
         private_rel = _private_generated_relative_from_source(item["source_path"], basename)
         if private_rel is None:
             _fail(report, f"{label} generated source provenance escaped private source boundary: {item['source_path']}")
@@ -471,22 +724,54 @@ def _check_source_actual(item, basename, root, report, label, identities):
         failures_before = len(report.get("violations", []))
         source = _provenance_path(item["source_path"], root, f"{label}.source_path", report)
         if source is None:
-            return len(report.get("violations", [])) == failures_before
+            if len(report.get("violations", [])) == failures_before:
+                _record_host_bounded(
+                    report,
+                    field=f"{label}.source_path",
+                    path=item["source_path"],
+                    reason=(
+                        "private generated source is absent on this host; "
+                        f"committed manifests retain its exact {private_rel} digest and size"
+                    ),
+                    sha256=item.get("sha256"),
+                    size_bytes=item.get("size_bytes"),
+                    bound_by=(
+                        "validation/codegen-e0/short-cycle-codegen-01/generated-sources-manifest.json",
+                        "validation/codegen-e0-build-short-cycle-01/build-manifest.json",
+                        "validation/codegen-e0-lifecycle-01/audit.json",
+                    ),
+                    size_bound_by=(
+                        "validation/codegen-e0/short-cycle-codegen-01/generated-sources-manifest.json",
+                        "validation/codegen-e0-build-short-cycle-01/build-manifest.json",
+                    ),
+                )
+                return True
+            return False
         if not source.exists():
             # The generated bytes are intentionally excluded from the project.
             # Their committed manifests cross-bind path, size and digest.  A
             # clean host may therefore lack the historical private workspace;
             # record that verification limit without treating absence as
             # evidence corruption or importing the private source into Git.
-            report.setdefault("host_bounded", []).append(
-                {
-                    "field": f"{label}.source_path",
-                    "path": item["source_path"],
-                    "reason": (
-                        "private generated source is absent on this host; "
-                        f"committed manifests retain its exact {private_rel} digest and size"
-                    ),
-                }
+            _record_host_bounded(
+                report,
+                field=f"{label}.source_path",
+                path=item["source_path"],
+                reason=(
+                    "private generated source is absent on this host; "
+                    f"committed manifests retain its exact {private_rel} digest and size"
+                ),
+                sha256=item.get("sha256"),
+                size_bytes=item.get("size_bytes"),
+                bound_by=(
+                    "validation/codegen-e0/short-cycle-codegen-01/generated-sources-manifest.json",
+                    "validation/codegen-e0-build-short-cycle-01/build-manifest.json",
+                    "validation/codegen-e0-lifecycle-01/audit.json",
+                ),
+                size_bound_by=(
+                    "validation/codegen-e0/short-cycle-codegen-01/generated-sources-manifest.json",
+                    "validation/codegen-e0-build-short-cycle-01/build-manifest.json",
+                ),
             )
             return True
         return _actual_file(
@@ -496,6 +781,69 @@ def _check_source_actual(item, basename, root, report, label, identities):
             sha256=item.get("sha256"),
             size_bytes=item.get("size_bytes"),
         )
+    if basename in EXTERNAL_HEADER_SUFFIXES:
+        exact_suffix = _header_source_suffix(item["source_path"], basename)
+        failures_before = len(report.get("violations", []))
+        source = _provenance_path(
+            item["source_path"], root, f"{label}.source_path", report
+        )
+        if source is None:
+            if exact_suffix is not None and len(report.get("violations", [])) == failures_before:
+                _record_host_bounded(
+                    report,
+                    field=f"{label}.source_path",
+                    path=item["source_path"],
+                    reason=(
+                        "exact historical MATLAB header is absent on this host; "
+                        f"three committed receipts bind its {exact_suffix} digest and the build manifest binds its size"
+                    ),
+                    sha256=item.get("sha256"),
+                    size_bytes=item.get("size_bytes"),
+                    bound_by=(
+                        "validation/codegen-e0-build-short-cycle-01/build-manifest.json",
+                        "validation/codegen-e0-lifecycle-01/audit.json",
+                        "docs/plan/26-closure-readiness-manifest.json:matlab_free_lifecycle.requirements",
+                    ),
+                    size_bound_by=(
+                        "validation/codegen-e0-build-short-cycle-01/build-manifest.json",
+                    ),
+                )
+                return True
+            return False
+        if source.is_symlink() or _is_reparse(source) or source.exists():
+            return _actual_file(
+                source,
+                label,
+                report,
+                sha256=item.get("sha256"),
+                size_bytes=item.get("size_bytes"),
+            )
+        if exact_suffix is None:
+            _fail(
+                report,
+                f"{label} missing external header escaped the approved suffix: {item['source_path']}",
+            )
+            return False
+        _record_host_bounded(
+            report,
+            field=f"{label}.source_path",
+            path=item["source_path"],
+            reason=(
+                "exact historical MATLAB header is absent on this host; "
+                f"three committed receipts bind its {exact_suffix} digest and the build manifest binds its size"
+            ),
+            sha256=item.get("sha256"),
+            size_bytes=item.get("size_bytes"),
+            bound_by=(
+                "validation/codegen-e0-build-short-cycle-01/build-manifest.json",
+                "validation/codegen-e0-lifecycle-01/audit.json",
+                "docs/plan/26-closure-readiness-manifest.json:matlab_free_lifecycle.requirements",
+            ),
+            size_bound_by=(
+                "validation/codegen-e0-build-short-cycle-01/build-manifest.json",
+            ),
+        )
+        return True
     source = _provenance_path(item["source_path"], root, f"{label}.source_path", report)
     if source is None:
         return False
@@ -1124,9 +1472,6 @@ def _check_lifecycle_evidence(root, manifest, build, report):
         _strict_number(audit["clock_tolerance_s"], "lifecycle clock_tolerance_s", positive=True)
         _string(audit["limitation"], "lifecycle limitation")
         _sha(audit["library_sha256"], "lifecycle library_sha256")
-        cold_path = _provenance_path(audit["cold_library"], root, "lifecycle cold_library", report)
-        if cold_path is not None:
-            _actual_file(cold_path, "lifecycle cold_library", report, sha256=audit["library_sha256"])
         _check_sha_map(audit["source_sha256"], "lifecycle source_sha256")
         _check_sha_map(
             audit["raw_sha256"],
@@ -1186,11 +1531,7 @@ def _check_lifecycle_evidence(root, manifest, build, report):
             raise AuditDataError("lifecycle cycle totals are not cross-bound")
         if requirements["library_sha256"] != audit["library_sha256"] or requirements["raw_sha256"] != audit["raw_sha256"] or requirements["source_sha256"] != audit["source_sha256"]:
             raise AuditDataError("lifecycle hashes differ from pinned requirement maps")
-        raw_root = root / "validation/codegen-e0-lifecycle-01"
-        for key, expected in audit["raw_sha256"].items():
-            raw_path = _secure_file(raw_root, key, report, "lifecycle raw cycle")
-            if raw_path is not None:
-                _actual_file(raw_path, f"lifecycle raw cycle {key}", report, sha256=expected)
+        _check_lifecycle_archive(root, audit["raw_sha256"], report)
         if build is not None:
             if build["output_library"]["sha256"] != audit["library_sha256"]:
                 raise AuditDataError("lifecycle library hash differs from build output pin")
@@ -1203,23 +1544,24 @@ def _check_lifecycle_evidence(root, manifest, build, report):
             raise AuditDataError("lifecycle runs must include original and cold runs")
         if cold["_probe_path"] != audit["cold_library"]:
             raise AuditDataError("lifecycle cold --probe path is not exactly bound to cold_library")
-        cold_probe = _provenance_path(cold["_probe_path"], root, "lifecycle cold probe", report)
-        if cold_probe is not None:
-            _actual_file(
-                cold_probe,
-                "lifecycle cold probe",
-                report,
-                sha256=audit["library_sha256"],
-            )
-        output = _provenance_path(original["_probe_path"], root, "build output library", report)
-        if output is not None:
-            _actual_file(
-                output,
-                "build output library",
-                report,
-                sha256=audit["library_sha256"],
-                size_bytes=(build["output_library"]["size_bytes"] if build is not None else None),
-            )
+        _verify_product_or_host_bound(
+            cold["_probe_path"],
+            root,
+            "lifecycle cold_library/cold probe",
+            report,
+            kind="cold",
+            sha256=audit["library_sha256"],
+            size_bytes=(build["output_library"]["size_bytes"] if build is not None else None),
+        )
+        _verify_product_or_host_bound(
+            original["_probe_path"],
+            root,
+            "build output library",
+            report,
+            kind="build",
+            sha256=audit["library_sha256"],
+            size_bytes=(build["output_library"]["size_bytes"] if build is not None else None),
+        )
         for run in runs:
             run.pop("_probe_path", None)
         return audit
@@ -1364,6 +1706,8 @@ def audit(manifest_path=DEFAULT_MANIFEST, root=ROOT):
         "claim": "Local audit verifies a pinned OPEN #9 snapshot; it cannot close #26 or query GitHub in real time.",
         "violations": [],
         "host_bounded": [],
+        "host_bounded_count": 0,
+        "verified_on_host": False,
     }
     try:
         manifest_path = Path(manifest_path)
@@ -1381,7 +1725,11 @@ def audit(manifest_path=DEFAULT_MANIFEST, root=ROOT):
     build = _check_build_manifest(root, generated, report, identities)
     _check_lifecycle_evidence(root, manifest, build, report)
     _check_generated_not_tracked(root, build, report)
-    if not report["violations"]:
+    if report["violations"]:
+        report["host_bounded"] = []
+    else:
+        report["host_bounded_count"] = len(report["host_bounded"])
+        report["verified_on_host"] = report["host_bounded_count"] == 0
         report["status"] = "ready_blocked_by_formal_dependency"
     return report
 

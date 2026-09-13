@@ -2,6 +2,7 @@
 
 import copy
 import hashlib
+import io
 import json
 import os
 from pathlib import Path
@@ -9,6 +10,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import tarfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -96,7 +98,7 @@ def _fixture(root):
         report_by_name[basename]["bytes"] = source.stat().st_size
     _write(generated_manifest_path, generated_manifest)
     _write(codegen_report_path, codegen_report)
-    external_dir = root.parent / f"{root.name}-external-inputs"
+    external_dir = root.parent / f"{root.name}-external-inputs" / "simulink" / "include"
     external_dir.mkdir(parents=True, exist_ok=True)
     (external_dir / "rtw_continuous.h").write_bytes(b"// synthetic external continuous header fixture\n")
     (external_dir / "rtw_solver.h").write_bytes(b"// synthetic external solver header fixture\n")
@@ -129,13 +131,43 @@ def _fixture(root):
     lifecycle["source_sha256"] = {
         basename: item["sha256"] for basename, item in build["staged_sources"].items()
     }
-    raw_paths = []
     for key in lifecycle["raw_sha256"]:
         destination = root / "validation/codegen-e0-lifecycle-01" / Path(*key.split("/"))
         destination.parent.mkdir(parents=True, exist_ok=True)
         destination.write_bytes(b'{"synthetic_fixture":true}\n')
         lifecycle["raw_sha256"][key] = _sha(destination)
-        raw_paths.append(destination.relative_to(root).as_posix())
+    archive_members = {
+        key: (root / "validation/codegen-e0-lifecycle-01" / Path(*key.split("/"))).read_bytes()
+        for key in lifecycle["raw_sha256"]
+    }
+    archive_members.update(
+        {
+            "original/process.json": b'{"fixture":"original"}\n',
+            "cold/process.json": b'{"fixture":"cold"}\n',
+        }
+    )
+    archive_path = root / audit_mod.LIFECYCLE_ARCHIVE_RELATIVE
+    archive_path.parent.mkdir(parents=True, exist_ok=True)
+    with tarfile.open(archive_path, mode="w:gz") as archive:
+        for name, payload in archive_members.items():
+            info = tarfile.TarInfo(name=name)
+            info.size = len(payload)
+            info.mtime = 0
+            info.mode = 0o644
+            archive.addfile(info, io.BytesIO(payload))
+    archive_index_path = root / audit_mod.LIFECYCLE_ARCHIVE_INDEX_RELATIVE
+    _write(
+        archive_index_path,
+        {
+            "archive": "raw-lifecycle.tar.gz",
+            "sha256": _sha(archive_path),
+            "bytes": archive_path.stat().st_size,
+            "files": {
+                name: hashlib.sha256(payload).hexdigest()
+                for name, payload in archive_members.items()
+            },
+        },
+    )
     for run in lifecycle["runs"]:
         old_probe = run["command"][run["command"].index("--probe") + 1]
         probe = artifact if run["name"] == "original" else cold_artifact
@@ -163,8 +195,15 @@ def _fixture(root):
     manifest_path = root / "manifest.json"
     _write(manifest_path, manifest)
     _git(root, "init", "-q")
-    tracked = [*EVIDENCE_FILES, "Simulator/wksim_core/model.cpp", "manifest.json", *raw_paths,
-               "artifacts/libwksim_e0.so", "artifacts/cold/libwksim_e0.so"]
+    tracked = [
+        *EVIDENCE_FILES,
+        "Simulator/wksim_core/model.cpp",
+        "manifest.json",
+        audit_mod.LIFECYCLE_ARCHIVE_INDEX_RELATIVE,
+        audit_mod.LIFECYCLE_ARCHIVE_RELATIVE,
+        "artifacts/libwksim_e0.so",
+        "artifacts/cold/libwksim_e0.so",
+    ]
     # Pin conversion off so HEAD blob bytes equal the worktree bytes exactly,
     # then establish a real HEAD commit: HEAD-blob checks must not be
     # satisfiable by index registration alone.
@@ -503,6 +542,23 @@ class ClosureReadinessTests(unittest.TestCase):
             report["host_bounded"],
         )
 
+    def test_missing_private_source_lexically_inside_clone_is_host_bounded(self):
+        path = self.root / EVIDENCE_FILES[4]
+        build = json.loads(path.read_text(encoding="utf-8"))
+        item = build["staged_sources"]["Exp1_MinModelTemp.cpp"]
+        source = Path(item["source_path"])
+        self.assertEqual(source.resolve().is_relative_to(self.root.resolve()), True)
+        source.unlink()
+        report = self.report()
+        self.assertEqual(report["violations"], [], report["violations"])
+        bounded = next(
+            entry
+            for entry in report["host_bounded"]
+            if entry["field"] == "build manifest.staged_sources.Exp1_MinModelTemp.cpp.source_path"
+        )
+        self.assertEqual(bounded["bind_count"], 3)
+        self.assertEqual(len(bounded["size_bound_by"]), 2)
+
     def test_generated_source_outside_exact_private_boundary_is_rejected(self):
         path = self.root / EVIDENCE_FILES[4]
         build = json.loads(path.read_text(encoding="utf-8"))
@@ -514,6 +570,35 @@ class ClosureReadinessTests(unittest.TestCase):
         report = self.report()
         self.assertTrue(
             any("generated source provenance escaped private source boundary" in item for item in report["violations"]),
+            report["violations"],
+        )
+
+    def test_missing_exact_matlab_headers_are_host_bounded(self):
+        path = self.root / EVIDENCE_FILES[4]
+        build = json.loads(path.read_text(encoding="utf-8"))
+        for basename in audit_mod.EXTERNAL_HEADER_SUFFIXES:
+            Path(build["staged_sources"][basename]["source_path"]).unlink()
+        report = self.report()
+        self.assertEqual(report["violations"], [], report["violations"])
+        fields = {item["field"] for item in report["host_bounded"]}
+        for basename in audit_mod.EXTERNAL_HEADER_SUFFIXES:
+            field = f"build manifest.staged_sources.{basename}.source_path"
+            self.assertIn(field, fields)
+            bounded = next(item for item in report["host_bounded"] if item["field"] == field)
+            self.assertEqual(bounded["bind_count"], 3)
+            self.assertEqual(len(bounded["size_bound_by"]), 1)
+
+    def test_missing_matlab_header_outside_exact_suffix_is_rejected(self):
+        path = self.root / EVIDENCE_FILES[4]
+        build = json.loads(path.read_text(encoding="utf-8"))
+        item = build["staged_sources"]["rtw_solver.h"]
+        Path(item["source_path"]).unlink()
+        item["source_path"] = str(self.root.parent / "wrong" / "rtw_solver.h")
+        _write(path, build)
+        _refresh_pin(self.manifest, EVIDENCE_FILES[4], self.root)
+        report = self.report()
+        self.assertTrue(
+            any("external header escaped the approved suffix" in item for item in report["violations"]),
             report["violations"],
         )
 
@@ -693,6 +778,40 @@ class ClosureReadinessTests(unittest.TestCase):
         self.assertTrue(any("build output library" in item for item in report["violations"]))
         self.assertEqual(report["host_bounded"], [])
 
+    def test_missing_exact_build_products_are_host_bounded_after_cross_binding(self):
+        tag = self.root.name.replace("-", "_")
+        original_path = (
+            f"/root/wksim-codegen-e0-build-short-cycle-missing_{tag}/libwksim_e0.so"
+        )
+        cold_path = f"/root/wksim-codegen-e0-cold-missing_{tag}/libwksim_e0.so"
+        lifecycle_path = self.root / EVIDENCE_FILES[5]
+        lifecycle = json.loads(lifecycle_path.read_text(encoding="utf-8"))
+        lifecycle["cold_library"] = cold_path
+        replacements = {"original": original_path, "cold": cold_path}
+        for run in lifecycle["runs"]:
+            probe_index = run["command"].index("--probe") + 1
+            run["command"][probe_index] = replacements[run["name"]]
+            run["identity"]["argv"] = list(run["command"])
+        _write(lifecycle_path, lifecycle)
+        manifest = json.loads(self.manifest.read_text(encoding="utf-8"))
+        bindings = manifest["acceptance_evidence"]["matlab_free_lifecycle"]["requirements"]["run_bindings"]
+        for binding in bindings:
+            run = next(item for item in lifecycle["runs"] if item["name"] == binding["name"])
+            binding["argv"] = list(run["command"])
+        _write(self.manifest, manifest)
+        _refresh_pin(self.manifest, EVIDENCE_FILES[5], self.root)
+        report = self.report()
+        self.assertEqual(report["violations"], [], report["violations"])
+        bounded = {(item["field"], item["path"]) for item in report["host_bounded"]}
+        self.assertIn(("build output library", original_path), bounded)
+        self.assertIn(("lifecycle cold_library/cold probe", cold_path), bounded)
+        for item in report["host_bounded"]:
+            if item["path"] in {original_path, cold_path}:
+                self.assertEqual(item["bind_count"], 3)
+                self.assertEqual(len(item["size_bound_by"]), 1)
+        self.assertEqual(report["host_bounded_count"], len(report["host_bounded"]))
+        self.assertFalse(report["verified_on_host"])
+
     # -- vendor classification ----------------------------------------------
 
     @staticmethod
@@ -828,20 +947,127 @@ class ClosureReadinessTests(unittest.TestCase):
         report = self.report()
         self.assertTrue(any("vendor artifacts" in item for item in report["violations"]), report["violations"])
 
-    def test_raw_cycle_tamper_is_rejected(self):
+    def test_untracked_raw_cycle_shadow_is_not_authoritative(self):
         raw = self.root / "validation/codegen-e0-lifecycle-01/original/cycle-0.jsonl"
         raw.write_bytes(raw.read_bytes() + b"tamper\n")
         report = self.report()
-        self.assertTrue(any("raw cycle original/cycle-0.jsonl" in item and "drifted" in item for item in report["violations"]))
+        self.assertEqual(report["status"], "ready_blocked_by_formal_dependency", report)
+
+    def test_clean_clone_without_expanded_raw_cycles_uses_committed_archive(self):
+        raw_root = self.root / "validation/codegen-e0-lifecycle-01"
+        for key in audit_mod.EXPECTED_LIFECYCLE_RAW_KEYS:
+            (raw_root / Path(*key.split("/"))).unlink()
+        report = self.report()
+        self.assertEqual(report["status"], "ready_blocked_by_formal_dependency", report)
+
+    def test_lifecycle_archive_worktree_tamper_is_rejected(self):
+        archive = self.root / audit_mod.LIFECYCLE_ARCHIVE_RELATIVE
+        archive.write_bytes(archive.read_bytes() + b"tamper\n")
+        report = self.report()
+        self.assertEqual(report["status"], "not_ready")
+        self.assertTrue(
+            any("lifecycle raw archive" in item and "drifted" in item for item in report["violations"]),
+            report["violations"],
+        )
+
+    def test_lifecycle_archive_duplicate_member_is_rejected_after_commit(self):
+        archive_path = self.root / audit_mod.LIFECYCLE_ARCHIVE_RELATIVE
+        with tarfile.open(archive_path, mode="r:gz") as archive:
+            payloads = {
+                member.name: archive.extractfile(member).read()
+                for member in archive.getmembers()
+            }
+        duplicate_name = "original/cycle-0.jsonl"
+        with tarfile.open(archive_path, mode="w:gz") as archive:
+            for name, payload in [*payloads.items(), (duplicate_name, payloads[duplicate_name])]:
+                info = tarfile.TarInfo(name=name)
+                info.size = len(payload)
+                info.mtime = 0
+                info.mode = 0o644
+                archive.addfile(info, io.BytesIO(payload))
+        index_path = self.root / audit_mod.LIFECYCLE_ARCHIVE_INDEX_RELATIVE
+        index = json.loads(index_path.read_text(encoding="utf-8"))
+        index["sha256"] = _sha(archive_path)
+        index["bytes"] = archive_path.stat().st_size
+        _write(index_path, index)
+        _git(
+            self.root,
+            "add",
+            "--",
+            audit_mod.LIFECYCLE_ARCHIVE_INDEX_RELATIVE,
+            audit_mod.LIFECYCLE_ARCHIVE_RELATIVE,
+        )
+        _commit(self.root, "commit malformed duplicate archive")
+        report = self.report()
+        self.assertEqual(report["status"], "not_ready")
+        self.assertTrue(
+            any("duplicate member names" in item for item in report["violations"]),
+            report["violations"],
+        )
+
+    def test_lifecycle_archive_member_count_is_bounded_before_full_scan(self):
+        archive_path = self.root / audit_mod.LIFECYCLE_ARCHIVE_RELATIVE
+        with tarfile.open(archive_path, mode="r:gz") as archive:
+            payloads = {
+                member.name: archive.extractfile(member).read()
+                for member in archive.getmembers()
+            }
+        with tarfile.open(archive_path, mode="w:gz") as archive:
+            for name, payload in [*payloads.items(), ("extra.json", b"{}\n")]:
+                info = tarfile.TarInfo(name=name)
+                info.size = len(payload)
+                info.mtime = 0
+                info.mode = 0o644
+                archive.addfile(info, io.BytesIO(payload))
+        index_path = self.root / audit_mod.LIFECYCLE_ARCHIVE_INDEX_RELATIVE
+        index = json.loads(index_path.read_text(encoding="utf-8"))
+        index["sha256"] = _sha(archive_path)
+        index["bytes"] = archive_path.stat().st_size
+        _write(index_path, index)
+        _git(
+            self.root,
+            "add",
+            "--",
+            audit_mod.LIFECYCLE_ARCHIVE_INDEX_RELATIVE,
+            audit_mod.LIFECYCLE_ARCHIVE_RELATIVE,
+        )
+        _commit(self.root, "commit archive with excessive member count")
+        report = self.report()
+        self.assertEqual(report["status"], "not_ready")
+        self.assertTrue(
+            any("too many members" in item for item in report["violations"]),
+            report["violations"],
+        )
+        self.assertEqual(report["host_bounded"], [])
 
     def test_missing_cold_library_is_rejected(self):
         path = self.root / EVIDENCE_FILES[5]
         lifecycle = json.loads(path.read_text(encoding="utf-8"))
-        lifecycle["cold_library"] = str(self.root / "artifacts/cold/missing.so")
+        old_cold = lifecycle["cold_library"]
+        missing = str(self.root / "artifacts/cold/missing.so")
+        lifecycle["cold_library"] = missing
+        cold = next(run for run in lifecycle["runs"] if run["name"] == "cold")
+        cold["command"] = [missing if value == old_cold else value for value in cold["command"]]
+        cold["identity"]["argv"] = list(cold["command"])
         _write(path, lifecycle)
+        manifest = json.loads(self.manifest.read_text(encoding="utf-8"))
+        binding = next(
+            item
+            for item in manifest["acceptance_evidence"]["matlab_free_lifecycle"]["requirements"]["run_bindings"]
+            if item["name"] == "cold"
+        )
+        binding["argv"] = list(cold["command"])
+        _write(self.manifest, manifest)
         _refresh_pin(self.manifest, EVIDENCE_FILES[5], self.root)
         report = self.report()
-        self.assertTrue(any("cold_library" in item and "regular file" in item for item in report["violations"]))
+        self.assertTrue(
+            any(
+                "cold_library" in item
+                and ("regular file" in item or "approved boundary" in item)
+                for item in report["violations"]
+            ),
+            report["violations"],
+        )
 
     def test_cold_probe_must_equal_cold_library(self):
         path = self.root / EVIDENCE_FILES[5]
@@ -873,7 +1099,13 @@ class ClosureReadinessTests(unittest.TestCase):
         _write(path, lifecycle)
         _refresh_pin(self.manifest, EVIDENCE_FILES[5], self.root)
         report = self.report()
-        self.assertTrue(any("cold_library" in item and "hash drifted" in item for item in report["violations"]))
+        self.assertTrue(
+            any(
+                "cold_library" in item and ("hash drifted" in item or "size drifted" in item)
+                for item in report["violations"]
+            ),
+            report["violations"],
+        )
 
         self.manifest = _fixture(self.root)
         lifecycle_path = self.root / EVIDENCE_FILES[5]
@@ -1022,15 +1254,8 @@ class RealRepositoryTests(unittest.TestCase):
                 report["violations"],
             )
             return
-        if report["violations"]:
-            # Only a POSIX host that genuinely lacks the Linux-only /root
-            # products may still fail; on Windows the declared snapshot and
-            # the empty receipts must make the audit clean.
-            if os.name == "nt":
-                self.fail(f"unexpected violations on Windows: {report['violations']}")
-            self.assertEqual(report["status"], "not_ready")
-        else:
-            self.assertEqual(report["status"], "ready_blocked_by_formal_dependency")
+        self.assertEqual(report["violations"], [], report["violations"])
+        self.assertEqual(report["status"], "ready_blocked_by_formal_dependency")
 
     def test_real_host_bounded_items_are_reported_separately(self):
         report = self.report()
@@ -1038,27 +1263,31 @@ class RealRepositoryTests(unittest.TestCase):
             self.assertIn("field", item)
             self.assertIn("path", item)
             self.assertIn("reason", item)
+            self.assertEqual(item["verification"], "not_performed_on_this_host")
         if os.name == "nt":
             self.assertTrue(report["host_bounded"])
-        else:
-            for item in report["host_bounded"]:
-                self.assertIn(
-                    item["field"],
-                    {
-                        "build manifest.staged_sources.Exp1_MinModelTemp.cpp.source_path",
-                        "build manifest.staged_sources.Exp1_MinModelTemp.h.source_path",
-                        "build manifest.staged_sources.rtwtypes.h.source_path",
-                    },
-                )
+        allowed_fields = {
+            "build manifest.staged_sources.Exp1_MinModelTemp.cpp.source_path",
+            "build manifest.staged_sources.Exp1_MinModelTemp.h.source_path",
+            "build manifest.staged_sources.rtwtypes.h.source_path",
+            "build manifest.staged_sources.rtw_continuous.h.source_path",
+            "build manifest.staged_sources.rtw_solver.h.source_path",
+            "lifecycle cold_library/cold probe",
+            "build output library",
+        }
+        for item in report["host_bounded"]:
+            self.assertIn(item["field"], allowed_fields)
+            self.assertGreaterEqual(item.get("bind_count", 0), 3)
 
     def test_cli_exit_codes(self):
         ok = subprocess.run([sys.executable, "-B", str(ROOT / "tools/audit_26_closure_readiness.py")], capture_output=True, timeout=60)
         report = json.loads(ok.stdout.decode())
         self.assertEqual(report["blocking_issue"], 9)
-        if report["violations"]:
-            self.assertEqual(ok.returncode, 2, ok.stderr.decode())
-        else:
+        if self._declaration_committed():
+            self.assertEqual(report["violations"], [], report["violations"])
             self.assertEqual(ok.returncode, 0, ok.stderr.decode())
+        else:
+            self.assertEqual(ok.returncode, 2, ok.stderr.decode())
         bad = subprocess.run([sys.executable, "-B", str(ROOT / "tools/audit_26_closure_readiness.py"), "--manifest", "absent.json"], capture_output=True, timeout=60)
         self.assertEqual(bad.returncode, 2)
 
