@@ -1,0 +1,71 @@
+{
+  "schema": "wksim.prospective-vehicle-time-premise.v1",
+  "status": "evidence_for_review_only",
+  "acceptance": false,
+  "budget_approved": false,
+  "observable": "vehicle_time",
+  "output_block": "Vehicle60",
+  "output_index": 2,
+  "unit": "seconds",
+  "sample_phase": "runtime_after_step",
+  "observed_domain_ticks": [
+    1,
+    98684
+  ],
+  "arithmetic_domain_ticks": [
+    0,
+    98684
+  ],
+  "model_revision_scope": "flight-bound generated model used by rfw9nmbb; not automatically applicable to same-source11.8major sampling",
+  "arithmetic": "binary64 multiplication of the integer tick by binary64 literal0.001",
+  "ideal_reference": "exact rational tick/1000; distinct from its rounded binary64 image",
+  "wrapper_guard": "Existing absolute difference <=1e-8seconds against tick*0.001; this does not prove equality and is not a new G6budget",
+  "observations": {
+    "per_vehicle_rows": 98684,
+    "bitwise_product_matches_per_vehicle": 98684,
+    "correctly_rounded_reference_equal_ticks": 85555,
+    "correctly_rounded_reference_different_ticks": 13130,
+    "maximum_integer_lattice_distance": 1,
+    "maximum_absolute_error_seconds_rational": "1/109951162777600",
+    "maximum_error_over_forward_spacing_rational": "17/25"
+  },
+  "negative_case": "A5e-9second perturbation can satisfy existingwrapperguard while failing productidentity",
+  "provenance": [
+    {
+      "role": "executed_source",
+      "path": "Exp1_MinModelTemp.cpp",
+      "sha256": "a35d7c8f39c94f2db8c27b19affee5b66c1b001c63ded334ba83c99f8be54019",
+      "source_location": "flight_bound_generated_source",
+      "sha256_origin": "validation/joint-public-flight-rfw9nmbb/model-build.json source_files[0].sha256"
+    },
+    {
+      "role": "wrapper",
+      "path": "Simulator/wksim_core/model.cpp",
+      "sha256": "150ddf3bab66e9e59701791392f6d792a14346e0b75ecdfe94872095e72d0290",
+      "source_location": "working_tree",
+      "sha256_origin": "model-build.json wrapper_sha256"
+    },
+    {
+      "role": "guard_source",
+      "path": "Simulator/wksim_core/model.py",
+      "sha256": "3b0ae6f40594a30997fa66beba11466ca88f0c1a3b88c2322d4fee10f1ce4d41",
+      "source_location": "working_tree",
+      "sha256_origin": "archived flight result.json source_sha256 and model-build.json loader_sha256 (identical)"
+    },
+    {
+      "role": "wire_relation_source",
+      "path": "Simulator/wksim_core/joint.py",
+      "sha256": "3d6056b85a399cdcc2a0078815990f051d12475b7b319e753009aeeecdbfc8fa",
+      "source_location": "archived_snapshot",
+      "sha256_origin": "archived flight result.json source_sha256"
+    }
+  ],
+  "source_rule_sha256": "7779d7a37fe1ce75638fc4eafd59886d3ae74ac5e3af8c4503f0a2adacafbc30",
+  "vendor_code_excerpts_included": false,
+  "limits": [
+    "No physicalaccuracy claim",
+    "No abs/rel/RMSbudget approval",
+    "Runtimepost-step andG6major phase/revision must be bound separately",
+    "Fullretainedtrace verification by moduleowner; arithmetic independently enumerated by main"
+  ]
+}

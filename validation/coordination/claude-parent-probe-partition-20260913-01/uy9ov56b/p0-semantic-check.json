@@ -1,0 +1,31 @@
+{
+  "schema": "wksim.parent-probe-partition-p0-check.v3",
+  "old_result": "partition-result.json (v1, retained, untouched)",
+  "semantic_unchanged": true,
+  "data_diffs": [],
+  "added_top_level_keys": [
+    "latency",
+    "ordered_pass"
+  ],
+  "deliberate_changes": [
+    "limitations: reconciliation identity corrected to remaining+pre_edge==aggregates",
+    "ordered_pass: new validation metadata key (explicitly permitted)",
+    "uy9ov56b v3: nonstarted attempts gained matched_rate_unmet detail"
+  ],
+  "excluded_meta_keys": [
+    "schema",
+    "analyzer_sha256",
+    "limitations",
+    "ordered_pass"
+  ],
+  "old_schema": "wksim.parent-probe-partition.v1",
+  "new_schema": "wksim.parent-probe-partition.v2",
+  "ordered_pass_in_rerun": {
+    "enforced": true,
+    "rows": 46952,
+    "closed_in_order": 11737,
+    "attempts": 0,
+    "rate_unmet_rows": 1,
+    "invariant": "at most one open started group; start -> its started probe -> end in actual row order"
+  }
+}

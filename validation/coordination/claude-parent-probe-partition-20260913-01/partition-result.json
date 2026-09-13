@@ -1,0 +1,219 @@
+{
+  "schema": "wksim.parent-probe-partition.v1",
+  "classification": "diagnostic_only",
+  "full_acceptance": false,
+  "purpose": "classify a future large release gap using the EXISTING parent probe; no new instrumentation, no OS causal claim",
+  "analyzer_sha256": "448581d8e931573a1953bc55d26c20fc65ca7d563fea8e3e5c4ae8f8f75b6642",
+  "status": "ok",
+  "identity": {
+    "rate_file": "rate.jsonl.gz",
+    "rate_sha256": "8648d034453741f799e8a3348b1878d83287c2c1150dd2e3589fe4a678ecedec",
+    "rate_bytes": 3859324,
+    "rate_rows": 46952,
+    "source__tools__run_joint_flight.py.txt": "f5411627c2758f31d86da16b0bf38c469dda6fe4f03b89806bcb543db04ed63a",
+    "source__tools__rate_spin_cpu_probe.py.txt": "d3115c140cc3b1fb2500d8fd7c78321c62a81bd2928dae00eb894e1334d3ec40",
+    "repo:Simulator/wksim_runtime/joint_rate.py": "0b53a16acd65138b4623a9a8573ec8d643a2b78f4e27e8122c65efb9a6da25c4",
+    "repo:Simulator/wksim_runtime/joint_rate_probe.py": "a8bac9ac84ba9960296bb6b43d6d39c6bbc17fa9fdc47adf7e05ce76d7066653"
+  },
+  "epoch": "74bc4d6b57074d6c8df3fd74ea68e552",
+  "groups_started": 11737,
+  "groups_with_priorwork_attribution": 11736,
+  "initial_groups": 1,
+  "nonstarted_probe_attempts": [],
+  "rate_unmet_rows": [
+    {
+      "tick": 46988,
+      "lateness_ns": 100158534,
+      "completed_groups": 11737
+    }
+  ],
+  "partition_totals_ns": {
+    "priorwork_over_ns": 46023788,
+    "outside_begin_ns": 5443826,
+    "initial_health_ns": 3045020,
+    "remaining_begin_ns": 41404171,
+    "pre_edge_begin_ns": 42095295003,
+    "waited_ns": 95916805
+  },
+  "closure": {
+    "partition_sum_equals_S_minus_R_groups": 11737,
+    "aggregates_reconcile_with_begin_span_groups": 11737
+  },
+  "aggregate_probe_totals": {
+    "loop_health_ns": 2537272986,
+    "sleep_elapsed_ns": 28131094182,
+    "final_spin_other_ns": 11468332006,
+    "sleep_calls": 20686,
+    "sleep_max_overshoot_ns": 2656907
+  },
+  "extremes": {
+    "priorwork_over": [
+      {
+        "start_tick": 24388,
+        "ns": 9805258
+      },
+      {
+        "start_tick": 40228,
+        "ns": 6040060
+      },
+      {
+        "start_tick": 31272,
+        "ns": 4871920
+      },
+      {
+        "start_tick": 24408,
+        "ns": 3431839
+      },
+      {
+        "start_tick": 24336,
+        "ns": 3171237
+      }
+    ],
+    "outside_begin": [
+      {
+        "start_tick": 21252,
+        "ns": 1136315
+      },
+      {
+        "start_tick": 272,
+        "ns": 391981
+      },
+      {
+        "start_tick": 24388,
+        "ns": 380159
+      },
+      {
+        "start_tick": 11400,
+        "ns": 332471
+      },
+      {
+        "start_tick": 24336,
+        "ns": 290384
+      }
+    ],
+    "initial_health": [
+      {
+        "start_tick": 40,
+        "ns": 365981
+      },
+      {
+        "start_tick": 21252,
+        "ns": 238556
+      },
+      {
+        "start_tick": 31252,
+        "ns": 198234
+      },
+      {
+        "start_tick": 4956,
+        "ns": 173243
+      },
+      {
+        "start_tick": 24932,
+        "ns": 163751
+      }
+    ],
+    "remaining_begin": [
+      {
+        "start_tick": 24376,
+        "ns": 1678050
+      },
+      {
+        "start_tick": 23964,
+        "ns": 1114458
+      },
+      {
+        "start_tick": 40972,
+        "ns": 282517
+      },
+      {
+        "start_tick": 21900,
+        "ns": 263125
+      },
+      {
+        "start_tick": 43512,
+        "ns": 244901
+      }
+    ],
+    "waited": [
+      {
+        "start_tick": 24388,
+        "waited_ns": 10220896,
+        "partition": {
+          "priorwork_over_ns": 9805258,
+          "outside_begin_ns": 380159,
+          "initial_health_ns": 32124,
+          "remaining_begin_ns": 3355
+        }
+      },
+      {
+        "start_tick": 40228,
+        "waited_ns": 6292212,
+        "partition": {
+          "priorwork_over_ns": 6040060,
+          "outside_begin_ns": 149621,
+          "initial_health_ns": 99359,
+          "remaining_begin_ns": 3172
+        }
+      },
+      {
+        "start_tick": 31272,
+        "waited_ns": 5198293,
+        "partition": {
+          "priorwork_over_ns": 4871920,
+          "outside_begin_ns": 215838,
+          "initial_health_ns": 107068,
+          "remaining_begin_ns": 3467
+        }
+      },
+      {
+        "start_tick": 24408,
+        "waited_ns": 3717709,
+        "partition": {
+          "priorwork_over_ns": 3431839,
+          "outside_begin_ns": 175012,
+          "initial_health_ns": 107420,
+          "remaining_begin_ns": 3438
+        }
+      },
+      {
+        "start_tick": 24336,
+        "waited_ns": 3493421,
+        "partition": {
+          "priorwork_over_ns": 3171237,
+          "outside_begin_ns": 290384,
+          "initial_health_ns": 28758,
+          "remaining_begin_ns": 3042
+        }
+      }
+    ]
+  },
+  "around_unmet": [
+    {
+      "start_tick": 46984,
+      "end_tick": 46988,
+      "waited_ns": 431,
+      "partition": {
+        "priorwork_over_ns": 0,
+        "outside_begin_ns": 0,
+        "initial_health_ns": 0,
+        "remaining_begin_ns": 431
+      },
+      "aggregate_bounds_ns": {
+        "loop_health_ns": 0,
+        "loop_health_calls": 0,
+        "sleep_elapsed_ns": 0,
+        "sleep_calls": 0,
+        "final_spin_other_ns": 639744
+      }
+    }
+  ],
+  "limitations": [
+    "partitions cover [earliest_start, actual_start] only; work before R is the previous group, never this one",
+    "loop health / sleeps / final spin are aggregate durations without per-call timestamps; only totals and bounds are reported, no exact late portion inside them is assigned",
+    "the pre-edge begin loop [H,R) sits outside the [R,S] partition by design; it is reported as pre_edge_begin_ns and reconciles exactly: remaining_begin + pre_edge == loop_health + sleep_elapsed + final_spin_other",
+    "priorwork equivalence is claimed only within one segment at one fixed rate; segment-initial groups are reported separately",
+    "non-started attempts and rate_unmet rows are reported, never completed by fabrication; the run-ending rate_unmet has no probe sample by construction",
+    "single archived flight, single epoch; diagnostic_only, full_acceptance=false"
+  ]
+}

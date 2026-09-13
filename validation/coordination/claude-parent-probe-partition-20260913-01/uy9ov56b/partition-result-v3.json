@@ -1,0 +1,344 @@
+{
+  "schema": "wksim.parent-probe-partition.v2",
+  "classification": "diagnostic_only",
+  "full_acceptance": false,
+  "purpose": "classify a future large release gap using the EXISTING parent probe; no new instrumentation, no OS causal claim",
+  "analyzer_sha256": "b7f1e444349e6d56543478832f910793761af161cdd4bce42687b432f0397390",
+  "status": "ok",
+  "identity": {
+    "rate_file": "rate.jsonl",
+    "rate_sha256": "cfbf8b98a56bee71fe968a887af04f097609cb96cd3e94692d1f6eec7b5436f0",
+    "rate_bytes": 53986448,
+    "rate_rows": 67574,
+    "source__tools__run_joint_flight.py.txt": "08e20642f82f9052284f3054ae91c57d5d7e77017fb996e11d748bb98a86db99",
+    "source__Simulator__wksim_runtime__joint_rate.py.txt": "0b53a16acd65138b4623a9a8573ec8d643a2b78f4e27e8122c65efb9a6da25c4",
+    "source__Simulator__wksim_runtime__joint_rate_probe.py.txt": "a8bac9ac84ba9960296bb6b43d6d39c6bbc17fa9fdc47adf7e05ce76d7066653"
+  },
+  "epoch": "bf067fd133454585a0c2c62e9e2bcfb4",
+  "groups_started": 22523,
+  "ordered_pass": {
+    "enforced": true,
+    "rows": 67574,
+    "closed_in_order": 22523,
+    "attempts": 1,
+    "rate_unmet_rows": 1,
+    "invariant": "at most one open started group; start -> its started probe -> end in actual row order"
+  },
+  "groups_with_priorwork_attribution": 22522,
+  "initial_groups": 1,
+  "nonstarted_probe_attempts": [
+    {
+      "start_tick": 90132,
+      "end_tick": 90136,
+      "outcome": "rate_unmet",
+      "terminal_is_last_read_not_release": true,
+      "crossed_release_edge": true,
+      "entry_ns": 288582836605,
+      "initial_health_end_ns": 288582937505,
+      "terminal_ns": 288586627478,
+      "R_ns": 288586429991,
+      "ideal_start_ns": 288486511163,
+      "edge_carry_ns": 99918828,
+      "terminal_minus_R_ns": 197487,
+      "priorwork_equivalence": "same segment, same fixed period",
+      "prior_group": {
+        "segment_id": 1,
+        "start_tick": 90128,
+        "end_tick": 90132,
+        "actual_end_ns": 288582691645
+      },
+      "partition_until_terminal": {
+        "priorwork_over_ns": 0,
+        "outside_begin_ns": 0,
+        "initial_health_ns": 0,
+        "remaining_begin_ns": 197487
+      },
+      "matched_rate_unmet": {
+        "tick": 90132,
+        "lateness_ns": 100116315,
+        "completed_groups": 22523,
+        "reason": "resource_insufficient"
+      },
+      "aggregate_bounds_ns": {
+        "loop_health_ns": 172425,
+        "loop_health_calls": 1,
+        "sleep_elapsed_ns": 2320134,
+        "sleep_calls": 2,
+        "final_spin_other_ns": 1197414
+      }
+    }
+  ],
+  "rate_unmet_rows": [
+    {
+      "tick": 90132,
+      "lateness_ns": 100116315,
+      "completed_groups": 22523
+    }
+  ],
+  "partition_totals_ns": {
+    "priorwork_over_ns": 35935249,
+    "outside_begin_ns": 3114368,
+    "initial_health_ns": 3258185,
+    "remaining_begin_ns": 57611026,
+    "pre_edge_begin_ns": 84104411582,
+    "waited_ns": 99918828
+  },
+  "closure": {
+    "partition_sum_equals_S_minus_R_groups": 22523,
+    "aggregates_reconcile_with_begin_span_groups": 22523
+  },
+  "aggregate_probe_totals": {
+    "loop_health_ns": 4877148730,
+    "sleep_elapsed_ns": 57270096011,
+    "final_spin_other_ns": 22014777867,
+    "sleep_calls": 42392,
+    "sleep_max_overshoot_ns": 1554544
+  },
+  "latency": {
+    "reconciliation": "lateness_ns == (earliest-ideal) + (actual_start-earliest) verified per started group",
+    "edge_carry_total_ns": 1276905514570,
+    "waited_total_ns": 99918828,
+    "top_start_lateness": [
+      {
+        "start_tick": 90128,
+        "lateness_ns": 99918828,
+        "edge_carry_ns": 99918785,
+        "waited_ns": 43,
+        "partition": {
+          "priorwork_over_ns": 0,
+          "outside_begin_ns": 0,
+          "initial_health_ns": 0,
+          "remaining_begin_ns": 43
+        }
+      },
+      {
+        "start_tick": 90124,
+        "lateness_ns": 99918785,
+        "edge_carry_ns": 99918756,
+        "waited_ns": 29,
+        "partition": {
+          "priorwork_over_ns": 0,
+          "outside_begin_ns": 0,
+          "initial_health_ns": 0,
+          "remaining_begin_ns": 29
+        }
+      },
+      {
+        "start_tick": 90120,
+        "lateness_ns": 99918756,
+        "edge_carry_ns": 99918703,
+        "waited_ns": 53,
+        "partition": {
+          "priorwork_over_ns": 0,
+          "outside_begin_ns": 0,
+          "initial_health_ns": 0,
+          "remaining_begin_ns": 53
+        }
+      },
+      {
+        "start_tick": 90116,
+        "lateness_ns": 99918703,
+        "edge_carry_ns": 99918682,
+        "waited_ns": 21,
+        "partition": {
+          "priorwork_over_ns": 0,
+          "outside_begin_ns": 0,
+          "initial_health_ns": 0,
+          "remaining_begin_ns": 21
+        }
+      },
+      {
+        "start_tick": 90112,
+        "lateness_ns": 99918682,
+        "edge_carry_ns": 99918605,
+        "waited_ns": 77,
+        "partition": {
+          "priorwork_over_ns": 0,
+          "outside_begin_ns": 0,
+          "initial_health_ns": 0,
+          "remaining_begin_ns": 77
+        }
+      }
+    ],
+    "largest_wait_region_total": [
+      "remaining_begin_ns",
+      57611026
+    ],
+    "largest_single_wait_region": {
+      "region": "priorwork_over_ns",
+      "ns": 12593632,
+      "start_tick": 17852
+    }
+  },
+  "extremes": {
+    "priorwork_over": [
+      {
+        "start_tick": 17852,
+        "ns": 12593632
+      },
+      {
+        "start_tick": 25884,
+        "ns": 7379433
+      },
+      {
+        "start_tick": 5504,
+        "ns": 2896804
+      },
+      {
+        "start_tick": 2000,
+        "ns": 2267880
+      },
+      {
+        "start_tick": 76492,
+        "ns": 2184352
+      }
+    ],
+    "outside_begin": [
+      {
+        "start_tick": 76492,
+        "ns": 385403
+      },
+      {
+        "start_tick": 49316,
+        "ns": 358731
+      },
+      {
+        "start_tick": 25884,
+        "ns": 308545
+      },
+      {
+        "start_tick": 2000,
+        "ns": 300441
+      },
+      {
+        "start_tick": 41444,
+        "ns": 233487
+      }
+    ],
+    "initial_health": [
+      {
+        "start_tick": 23928,
+        "ns": 1178892
+      },
+      {
+        "start_tick": 49316,
+        "ns": 363417
+      },
+      {
+        "start_tick": 89560,
+        "ns": 206790
+      },
+      {
+        "start_tick": 79024,
+        "ns": 191012
+      },
+      {
+        "start_tick": 34400,
+        "ns": 162478
+      }
+    ],
+    "remaining_begin": [
+      {
+        "start_tick": 50304,
+        "ns": 565285
+      },
+      {
+        "start_tick": 49240,
+        "ns": 484800
+      },
+      {
+        "start_tick": 2124,
+        "ns": 284613
+      },
+      {
+        "start_tick": 30292,
+        "ns": 249380
+      },
+      {
+        "start_tick": 8324,
+        "ns": 238525
+      }
+    ],
+    "waited": [
+      {
+        "start_tick": 17852,
+        "waited_ns": 12877513,
+        "partition": {
+          "priorwork_over_ns": 12593632,
+          "outside_begin_ns": 169057,
+          "initial_health_ns": 113492,
+          "remaining_begin_ns": 1332
+        }
+      },
+      {
+        "start_tick": 25884,
+        "waited_ns": 7801646,
+        "partition": {
+          "priorwork_over_ns": 7379433,
+          "outside_begin_ns": 308545,
+          "initial_health_ns": 111941,
+          "remaining_begin_ns": 1727
+        }
+      },
+      {
+        "start_tick": 5504,
+        "waited_ns": 3173465,
+        "partition": {
+          "priorwork_over_ns": 2896804,
+          "outside_begin_ns": 177129,
+          "initial_health_ns": 98094,
+          "remaining_begin_ns": 1438
+        }
+      },
+      {
+        "start_tick": 76492,
+        "waited_ns": 2613516,
+        "partition": {
+          "priorwork_over_ns": 2184352,
+          "outside_begin_ns": 385403,
+          "initial_health_ns": 41781,
+          "remaining_begin_ns": 1980
+        }
+      },
+      {
+        "start_tick": 2000,
+        "waited_ns": 2598567,
+        "partition": {
+          "priorwork_over_ns": 2267880,
+          "outside_begin_ns": 300441,
+          "initial_health_ns": 28711,
+          "remaining_begin_ns": 1535
+        }
+      }
+    ]
+  },
+  "around_unmet": [
+    {
+      "start_tick": 90128,
+      "end_tick": 90132,
+      "waited_ns": 43,
+      "partition": {
+        "priorwork_over_ns": 0,
+        "outside_begin_ns": 0,
+        "initial_health_ns": 0,
+        "remaining_begin_ns": 43
+      },
+      "aggregate_bounds_ns": {
+        "loop_health_ns": 146908,
+        "loop_health_calls": 1,
+        "sleep_elapsed_ns": 2495834,
+        "sleep_calls": 2,
+        "final_spin_other_ns": 986410
+      }
+    }
+  ],
+  "limitations": [
+    "partitions cover [earliest_start, actual_start] only; work before R is the previous group, never this one",
+    "loop health / sleeps / final spin are aggregate durations without per-call timestamps; only totals and bounds are reported, no exact late portion inside them is assigned",
+    "the pre-edge begin loop [H,R) sits outside the [R,S] partition by design; it is reported as pre_edge_begin_ns and reconciles exactly: remaining_begin + pre_edge == loop_health + sleep_elapsed + final_spin_other",
+    "priorwork equivalence is claimed only within one segment at one fixed rate; segment-initial groups are reported separately",
+    "non-started attempts (a begin_group that raised) are partitioned only up to terminal, the last clock read at the failed check - never a release, and never a fabricated group start",
+    "start lateness reconciles per group as (earliest-ideal) edge carry plus the [R,S] partition; the largest latency region is identified by region totals with no OS causal claim",
+    "single archived flight, single epoch; diagnostic_only, full_acceptance=false"
+  ]
+}

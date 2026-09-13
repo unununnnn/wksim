@@ -1,0 +1,266 @@
+{
+  "schema": "wksim.parent-callback-subsets.v2",
+  "supersedes": "wksim.parent-callback-subsets.v1 (parent-subsets-uy9ov56b.json, preserved)",
+  "run_id": "joint-public-flight-uy9ov56b",
+  "inputs": {
+    "rate_jsonl": "cfbf8b98a56bee71fe968a887af04f097609cb96cd3e94692d1f6eec7b5436f0",
+    "probe_source": "a8bac9ac84ba9960296bb6b43d6d39c6bbc17fa9fdc47adf7e05ce76d7066653"
+  },
+  "started_rows": 22523,
+  "non_started_rows": 1,
+  "floor_ns": 10000,
+  "filters": {
+    "release_excess_ge_10us": {
+      "selected_total": 699,
+      "subsets": {
+        "sleep=zero,loop_health=zero": {
+          "rows": 29,
+          "selected_rows": 18,
+          "remaining_sum_ns": 33033,
+          "remaining_max_ns": 3147,
+          "release_excess_sum_ns": 42338248
+        },
+        "sleep=nonzero,loop_health=nonzero": {
+          "rows": 21288,
+          "selected_rows": 637,
+          "remaining_sum_ns": 50341257,
+          "remaining_max_ns": 284613,
+          "release_excess_sum_ns": 50341257
+        },
+        "sleep=nonzero,loop_health=zero": {
+          "rows": 1206,
+          "selected_rows": 44,
+          "remaining_sum_ns": 4801407,
+          "remaining_max_ns": 565285,
+          "release_excess_sum_ns": 4801407
+        }
+      }
+    },
+    "remaining_begin_ge_10us": {
+      "selected_total": 681,
+      "subsets": {
+        "sleep=zero,loop_health=zero": {
+          "rows": 29,
+          "selected_rows": 0,
+          "remaining_sum_ns": 0,
+          "remaining_max_ns": 0,
+          "release_excess_sum_ns": 0
+        },
+        "sleep=nonzero,loop_health=nonzero": {
+          "rows": 21288,
+          "selected_rows": 637,
+          "remaining_sum_ns": 50341257,
+          "remaining_max_ns": 284613,
+          "release_excess_sum_ns": 50341257
+        },
+        "sleep=nonzero,loop_health=zero": {
+          "rows": 1206,
+          "selected_rows": 44,
+          "remaining_sum_ns": 4801407,
+          "remaining_max_ns": 565285,
+          "release_excess_sum_ns": 4801407
+        }
+      }
+    }
+  },
+  "both_zero_subset": {
+    "rows": 29,
+    "observed_max_remaining_begin_ns": 3147,
+    "scope": "subset-local observation only; says nothing about callback-containing groups, where polling/descheduling inside the tail is not ruled out"
+  },
+  "largest_remaining": [
+    {
+      "start_tick": 50304,
+      "outcome": "started",
+      "release_excess_ns": 565285,
+      "_remaining_begin_ns": 565285,
+      "entry_ns": 208893808907,
+      "terminal_ns": 208896919321,
+      "earliest_start_ns": 208896354036,
+      "initial_health_end_ns": 208893909246,
+      "entry_to_initial_health_ns": 100339,
+      "loop_health_ns": 0,
+      "loop_health_calls": 0,
+      "sleep_calls": 1,
+      "sleep_elapsed_ns": 2997804,
+      "sleep_max_overshoot_ns": 1554544,
+      "final_spin_other_ns": 12271
+    },
+    {
+      "start_tick": 49240,
+      "outcome": "started",
+      "release_excess_ns": 484800,
+      "_remaining_begin_ns": 484800,
+      "entry_ns": 206764306976,
+      "terminal_ns": 206766391437,
+      "earliest_start_ns": 206765906637,
+      "initial_health_end_ns": 206764542273,
+      "entry_to_initial_health_ns": 235297,
+      "loop_health_ns": 0,
+      "loop_health_calls": 0,
+      "sleep_calls": 1,
+      "sleep_elapsed_ns": 393258,
+      "sleep_max_overshoot_ns": 31773,
+      "final_spin_other_ns": 1455906
+    },
+    {
+      "start_tick": 2124,
+      "outcome": "started",
+      "release_excess_ns": 284613,
+      "_remaining_begin_ns": 284613,
+      "entry_ns": 112471282906,
+      "terminal_ns": 112475876039,
+      "earliest_start_ns": 112475591426,
+      "initial_health_end_ns": 112471379155,
+      "entry_to_initial_health_ns": 96249,
+      "loop_health_ns": 295271,
+      "loop_health_calls": 1,
+      "sleep_calls": 2,
+      "sleep_elapsed_ns": 2931997,
+      "sleep_max_overshoot_ns": 34557,
+      "final_spin_other_ns": 1269616
+    },
+    {
+      "start_tick": 30292,
+      "outcome": "started",
+      "release_excess_ns": 249380,
+      "_remaining_begin_ns": 249380,
+      "entry_ns": 168851808164,
+      "terminal_ns": 168856178259,
+      "earliest_start_ns": 168855928879,
+      "initial_health_end_ns": 168851829533,
+      "entry_to_initial_health_ns": 21369,
+      "loop_health_ns": 167519,
+      "loop_health_calls": 1,
+      "sleep_calls": 2,
+      "sleep_elapsed_ns": 2946627,
+      "sleep_max_overshoot_ns": 32972,
+      "final_spin_other_ns": 1234580
+    },
+    {
+      "start_tick": 8324,
+      "outcome": "started",
+      "release_excess_ns": 238525,
+      "_remaining_begin_ns": 238525,
+      "entry_ns": 124879573626,
+      "terminal_ns": 124883770608,
+      "earliest_start_ns": 124883532083,
+      "initial_health_end_ns": 124879673072,
+      "entry_to_initial_health_ns": 99446,
+      "loop_health_ns": 302443,
+      "loop_health_calls": 1,
+      "sleep_calls": 2,
+      "sleep_elapsed_ns": 2569007,
+      "sleep_max_overshoot_ns": 38058,
+      "final_spin_other_ns": 1226086
+    },
+    {
+      "start_tick": 10888,
+      "outcome": "started",
+      "release_excess_ns": 236829,
+      "_remaining_begin_ns": 236829,
+      "entry_ns": 130010673545,
+      "terminal_ns": 130014267983,
+      "earliest_start_ns": 130014031154,
+      "initial_health_end_ns": 130010696643,
+      "entry_to_initial_health_ns": 23098,
+      "loop_health_ns": 221721,
+      "loop_health_calls": 1,
+      "sleep_calls": 2,
+      "sleep_elapsed_ns": 2116626,
+      "sleep_max_overshoot_ns": 39008,
+      "final_spin_other_ns": 1232993
+    },
+    {
+      "start_tick": 13248,
+      "outcome": "started",
+      "release_excess_ns": 233962,
+      "_remaining_begin_ns": 233962,
+      "entry_ns": 134730925321,
+      "terminal_ns": 134735386460,
+      "earliest_start_ns": 134735152498,
+      "initial_health_end_ns": 134731022357,
+      "entry_to_initial_health_ns": 97036,
+      "loop_health_ns": 261792,
+      "loop_health_calls": 1,
+      "sleep_calls": 2,
+      "sleep_elapsed_ns": 2930828,
+      "sleep_max_overshoot_ns": 80710,
+      "final_spin_other_ns": 1171483
+    },
+    {
+      "start_tick": 15272,
+      "outcome": "started",
+      "release_excess_ns": 230555,
+      "_remaining_begin_ns": 230555,
+      "entry_ns": 138779379575,
+      "terminal_ns": 138784210485,
+      "earliest_start_ns": 138783979930,
+      "initial_health_end_ns": 138779467842,
+      "entry_to_initial_health_ns": 88267,
+      "loop_health_ns": 287627,
+      "loop_health_calls": 1,
+      "sleep_calls": 2,
+      "sleep_elapsed_ns": 3217103,
+      "sleep_max_overshoot_ns": 24660,
+      "final_spin_other_ns": 1237913
+    },
+    {
+      "start_tick": 58604,
+      "outcome": "started",
+      "release_excess_ns": 228791,
+      "_remaining_begin_ns": 228791,
+      "entry_ns": 225498769954,
+      "terminal_ns": 225502527535,
+      "earliest_start_ns": 225502298744,
+      "initial_health_end_ns": 225498896340,
+      "entry_to_initial_health_ns": 126386,
+      "loop_health_ns": 244806,
+      "loop_health_calls": 1,
+      "sleep_calls": 2,
+      "sleep_elapsed_ns": 2163952,
+      "sleep_max_overshoot_ns": 29622,
+      "final_spin_other_ns": 1222437
+    },
+    {
+      "start_tick": 41072,
+      "outcome": "started",
+      "release_excess_ns": 223137,
+      "_remaining_begin_ns": 223137,
+      "entry_ns": 190421378615,
+      "terminal_ns": 190424954947,
+      "earliest_start_ns": 190424731810,
+      "initial_health_end_ns": 190421404142,
+      "entry_to_initial_health_ns": 25527,
+      "loop_health_ns": 214260,
+      "loop_health_calls": 1,
+      "sleep_calls": 2,
+      "sleep_elapsed_ns": 2133802,
+      "sleep_max_overshoot_ns": 34390,
+      "final_spin_other_ns": 1202743
+    }
+  ],
+  "last_non_started": {
+    "start_tick": 90132,
+    "outcome": "rate_unmet",
+    "release_excess_ns": 197487,
+    "_remaining_begin_ns": 197487,
+    "entry_ns": 288582836605,
+    "terminal_ns": 288586627478,
+    "earliest_start_ns": 288586429991,
+    "initial_health_end_ns": 288582937505,
+    "entry_to_initial_health_ns": 100900,
+    "loop_health_ns": 172425,
+    "loop_health_calls": 1,
+    "sleep_calls": 2,
+    "sleep_elapsed_ns": 2320134,
+    "sleep_max_overshoot_ns": 25672,
+    "final_spin_other_ns": 1197414
+  },
+  "limits": [
+    "Callback presence never implies the callback caused the late tail; aggregates do not allocate lateness.",
+    "Late-callback timestamps would LOCALIZE the tail regardless of cause; they do not establish callback responsibility.",
+    "Shifted measurement windows give intervals, never OS/CPU causes."
+  ],
+  "script_sha256": "e8bd9bd6ecce8c5a683af87e16062d20fc26e2b39416dcbf344c9e8e39b86000"
+}
