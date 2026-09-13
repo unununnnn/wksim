@@ -1,0 +1,38 @@
+{
+  "checked_unix": 1789290277.1880612,
+  "source_sha256": {
+    "wksim_perf_stream.c": "c0fa0530cd4d8e207c69451b379fa988510391016326aa98433e599c4d178af3",
+    "wksim_perf_stream.h": "ef1eabf247107098dc59a314d99b8fc82d4c54dbddd58d645bcec35141a12823",
+    "wksim_perf_stream_demo.c": "0b4556ff4049e2180e1dfa780c782af394df6c0ae5af4e04c2f949faca67e9d2",
+    "create_failure_case.c": "e39f34c137f60f0421af6ece3c3837d57b32611fc2fc3f723ed647fb23e236cd",
+    "join_failure_case.c": "e4ad424c77a6485d60a3d4210ad835a292e3a200b4f56fc9ab12666e8ca10442",
+    "ring_copy_cases.c": "c48a31a95aec1ac67e4a6c9a60f9235a8fc3a429266616c6286c6fe8bce8351b",
+    "policy_failure_case.c": "ce911ddb8b621d8b1709aa65261cf34fb845a0629024ec96c6462d67084b7d43",
+    "cleanup_failure_case.c": "c98297c2090acf673018aa90f3e7189c8a68ce2edbcefe9fc89c16f313d671fe"
+  },
+  "all_required_compiles_passed": true,
+  "native_cases": [
+    "create failure attributes/errno/FD and thread cleanup",
+    "join ESRCH retains handle, including failed start",
+    "4 raw-copy/wrap/ring-pressure/storage-pressure checks",
+    "bad policy rejected before enable with no leaked FD/thread",
+    "munmap failure reported in metadata and handle cleared"
+  ],
+  "cleanup_failure_rejected_by_consumer": true,
+  "normal_raw_records": 8,
+  "normal_pairs": 4,
+  "normal_raw_sha256": "a7ea953c6ac3abba154046bb5ca713bdf61aed0ac637f01146e334143e27d1f2",
+  "reader_policy": 0,
+  "normal_lifecycle": {
+    "disable_ok": true,
+    "reader_joined": true,
+    "join_failed": false,
+    "munmap_ok": true,
+    "close_ok": true
+  },
+  "all_owned_processes_exited": true,
+  "stream_completeness_proven": false,
+  "flight_executed": false,
+  "architecture_acceptance": false,
+  "architecture_scope": "Independent Linux perf module only; no model/controller/firmware/UE or old-workspace result is promoted to the new architecture. Windows integration checkout contains f333316; standalone build records exact source hashes."
+}

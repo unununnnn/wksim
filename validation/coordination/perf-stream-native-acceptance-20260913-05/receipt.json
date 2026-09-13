@@ -1,0 +1,209 @@
+{
+  "directory": "/root/wksim-stream-native-168t12kp",
+  "boot_id": "8a347d55-316e-4c74-a836-854391c69fcc",
+  "commands": [
+    {
+      "argv": [
+        "cc",
+        "-std=c11",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pthread",
+        "-I.",
+        "-o",
+        "demo",
+        "wksim_perf_stream_demo.c",
+        "wksim_perf_stream.c"
+      ],
+      "pid": 766,
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "",
+      "pgid_empty": true
+    },
+    {
+      "argv": [
+        "cc",
+        "-std=c11",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pthread",
+        "-I.",
+        "-Wl,--wrap=pthread_create",
+        "-o",
+        "create_failure",
+        "create_failure_case.c",
+        "wksim_perf_stream.c"
+      ],
+      "pid": 773,
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "",
+      "pgid_empty": true
+    },
+    {
+      "argv": [
+        "cc",
+        "-std=c11",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pthread",
+        "-I.",
+        "-Wl,--wrap=pthread_join",
+        "-o",
+        "join_failure",
+        "join_failure_case.c"
+      ],
+      "pid": 781,
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "",
+      "pgid_empty": true
+    },
+    {
+      "argv": [
+        "cc",
+        "-std=c11",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pthread",
+        "-I.",
+        "-o",
+        "ring_copy",
+        "ring_copy_cases.c"
+      ],
+      "pid": 786,
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "",
+      "pgid_empty": true
+    },
+    {
+      "argv": [
+        "cc",
+        "-std=c11",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pthread",
+        "-I.",
+        "-Wl,--wrap=pthread_getschedparam",
+        "-Wl,--wrap=ioctl",
+        "-o",
+        "policy_failure",
+        "policy_failure_case.c",
+        "wksim_perf_stream.c"
+      ],
+      "pid": 792,
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "",
+      "pgid_empty": true
+    },
+    {
+      "argv": [
+        "cc",
+        "-std=c11",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pthread",
+        "-I.",
+        "-Wl,--wrap=munmap",
+        "-o",
+        "cleanup_failure",
+        "cleanup_failure_case.c",
+        "wksim_perf_stream.c"
+      ],
+      "pid": 799,
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "",
+      "pgid_empty": true
+    },
+    {
+      "argv": [
+        "./create_failure"
+      ],
+      "pid": 807,
+      "exit_code": 0,
+      "stdout": "{\"passed\":true,\"start_result\":-1,\"saved_errno\":11,\"explicit_other_attributes\":true,\"create_calls\":1,\"fd_before\":4,\"fd_after\":4,\"tasks_before\":1,\"tasks_after\":1}\n",
+      "stderr": "",
+      "pgid_empty": true
+    },
+    {
+      "argv": [
+        "./join_failure"
+      ],
+      "pid": 808,
+      "exit_code": 0,
+      "stdout": "{\"passed\":true,\"join_result\":3,\"reader_running\":true,\"reader_joined\":false,\"join_failed\":true}\n{\"failed_start_handle_returned\":true}\n",
+      "stderr": "",
+      "pgid_empty": true
+    },
+    {
+      "argv": [
+        "./ring_copy"
+      ],
+      "pid": 809,
+      "exit_code": 0,
+      "stdout": "verbatim_unframed_bytes PASS\nwrapped_bytes_keep_monotonic_tail PASS\nring_pressure_rejects_before_copy PASS\nstorage_pressure_never_overruns PASS\n4 cases, 0 failures\n",
+      "stderr": "",
+      "pgid_empty": true
+    },
+    {
+      "argv": [
+        "./policy_failure"
+      ],
+      "pid": 810,
+      "exit_code": 0,
+      "stdout": "{\"passed\":true,\"result\":-1,\"saved_errno\":1,\"policy_reads\":1,\"enable_calls\":0,\"fd_before\":4,\"fd_after\":4,\"tasks_before\":1,\"tasks_after\":1}\n",
+      "stderr": "",
+      "pgid_empty": true
+    },
+    {
+      "argv": [
+        "./cleanup_failure",
+        "/root/wksim-stream-native-168t12kp/capture"
+      ],
+      "pid": 812,
+      "exit_code": 0,
+      "stdout": "{\"start_result\":0,\"stop_result\":-1,\"injected_munmap_failures\":2}\n",
+      "stderr": "",
+      "pgid_empty": true,
+      "metadata_reflects_cleanup_failure": true
+    }
+  ],
+  "source_sha256": {
+    "wksim_perf_stream.c": "c0fa0530cd4d8e207c69451b379fa988510391016326aa98433e599c4d178af3",
+    "wksim_perf_stream.h": "ef1eabf247107098dc59a314d99b8fc82d4c54dbddd58d645bcec35141a12823",
+    "wksim_perf_stream_demo.c": "0b4556ff4049e2180e1dfa780c782af394df6c0ae5af4e04c2f949faca67e9d2",
+    "create_failure_case.c": "e39f34c137f60f0421af6ece3c3837d57b32611fc2fc3f723ed647fb23e236cd",
+    "join_failure_case.c": "e4ad424c77a6485d60a3d4210ad835a292e3a200b4f56fc9ab12666e8ca10442",
+    "ring_copy_cases.c": "c48a31a95aec1ac67e4a6c9a60f9235a8fc3a429266616c6286c6fe8bce8351b",
+    "policy_failure_case.c": "ce911ddb8b621d8b1709aa65261cf34fb845a0629024ec96c6462d67084b7d43",
+    "cleanup_failure_case.c": "c98297c2090acf673018aa90f3e7189c8a68ce2edbcefe9fc89c16f313d671fe"
+  },
+  "capture_files": {
+    "cleanup.raw": "DgAAAAAgIAAsAwAALAMAANhqVhMCAAAAAQAAAAAAAAAOAAAAAAAgACwDAAAsAwAAMivwEwIAAAABAAAAAAAAAA==",
+    "cleanup.meta.json": "ewogICJzY2hlbWEiOiAid2tzaW0ucGVyZl9zd2l0Y2hfc3RyZWFtLnYxIiwKICAiY2xhc3NpZmljYXRpb24iOiAiZGlhZ25vc3RpY19vbmx5IiwKICAiZnVsbF9hY2NlcHRhbmNlIjogZmFsc2UsCiAgIm93bmVyX3BpZCI6IDgxMiwKICAib3duZXJfdGlkIjogODEyLAogICJib290X2lkIjogIjhhMzQ3ZDU1LTMxNmUtNGM3NC1hODM2LTg1NDM5MWM2OWZjYyIsCiAgImNsb2NrX2lkIjogIkNMT0NLX01PTk9UT05JQyIsCiAgImVuYWJsZV9iZWZvcmVfbnMiOiA4OTE0MzU2OTcxLAogICJlbmFibGVfYWZ0ZXJfbnMiOiA4OTE0MzU4NjAwLAogICJkaXNhYmxlX2JlZm9yZV9ucyI6IDg5MjQ0NTY2MzYsCiAgImRpc2FibGVfYWZ0ZXJfbnMiOiA4OTI0NDYyMTA0LAogICJyaW5nX2J5dGVzIjogNTI0Mjg4LAogICJkYXRhX29mZnNldCI6IDQwOTYsCiAgImRhdGFfc2l6ZSI6IDUyNDI4OCwKICAibWV0YV9nZW9tZXRyeV9leGFjdCI6IHRydWUsCiAgInN0b3JhZ2VfY2FwYWNpdHlfYnl0ZXMiOiAxMzQyMTc3MjgsCiAgImNhcHR1cmVkX2J5dGVzIjogNjQsCiAgInJhd19sZW5fcmVjb3JkX2FsaWduZWQiOiB0cnVlLAogICJtYXhfcmVjb3JkX2J5dGVzIjogMzIsCiAgInVucGFyc2VkX3RyYWlsaW5nX2J5dGVzIjogMCwKICAicmVhZGVyX3BvbGljeSI6IDAsCiAgInJlYWRlcl9wb2xpY3lfbmFtZSI6ICJTQ0hFRF9PVEhFUiIsCiAgImNhcHR1cmVkX3JlY29yZHMiOiAyLAogICJzd2l0Y2hfcmVjb3JkcyI6IDIsCiAgInN3aXRjaF9jcHVfd2lkZV9yZWNvcmRzIjogMCwKICAibG9zdF9yZWNvcmRzIjogMCwKICAibG9zdF9zYW1wbGVzX3JlY29yZHMiOiAwLAogICJ1bmtub3duX3JlY29yZHMiOiAwLAogICJzd2l0Y2hfb3V0IjogMSwKICAic3dpdGNoX2luIjogMSwKICAiY29tcGxldGVfcGFpcnMiOiAxLAogICJyaW5nX3ByZXNzdXJlX2V2ZW50cyI6IDAsCiAgInN0b3JhZ2VfcHJlc3N1cmVfZXZlbnRzIjogMCwKICAibG9zc2xlc3NuZXNzX3Byb3ZlbiI6IGZhbHNlLAogICJsb3NzbGVzc25lc3NfcmVhc29uIjogImEgcGVuZGluZyBQRVJGX1JFQ09SRF9MT1NUIGlzIG5vdCBmbHVzaGFibGUgYnkgUEVSRl9FVkVOVF9JT0NfRElTQUJMRSwgc28gY29sbGVjdG9yX2NvbXBsZXRlIGRvZXMgbm90IHByb3ZlIGEgbG9zc2xlc3MgY2FwdHVyZTsgZmxpZ2h0IGFkbWlzc2lvbiBzdGF5cyBibG9ja2VkIHBlbmRpbmcgdGhlIHN0b3Agc2VudGluZWwiLAogICJjb25maWciOiB7InBpZF9hcmd1bWVudCI6IDAsICJjcHVfYXJndW1lbnQiOiAtMSwgImluaGVyaXQiOiAwLCAiZXhjbHVkZV9rZXJuZWwiOiAxLCAiY29udGV4dF9zd2l0Y2giOiAxLCAic2FtcGxlX2lkX2FsbCI6IDEsICJzYW1wbGVfdHlwZSI6IFsiVElEIiwgIlRJTUUiLCAiQ1BVIl19LAogICJjb2xsZWN0b3JfY29tcGxldGUiOiBmYWxzZSwKICAiY29sbGVjdG9yX2Vycm9ycyI6IFt7ImNvZGUiOiAibXVubWFwIiwgInNhdmVkX2Vycm5vIjogNSwgImZyb21fb3duZXIiOiB0cnVlLCAid2hlcmUiOiAic3RvcDogbXVubWFwIHJpbmcifSwgeyJjb2RlIjogIm11bm1hcCIsICJzYXZlZF9lcnJubyI6IDUsICJmcm9tX293bmVyIjogdHJ1ZSwgIndoZXJlIjogInN0b3A6IG11bm1hcCBzdG9yYWdlIn1dLAogICJsaWZlY3ljbGUiOiB7ImRpc2FibGVfb2siOiB0cnVlLCAicmVhZGVyX2pvaW5lZCI6IHRydWUsICJqb2luX2ZhaWxlZCI6IGZhbHNlLCAibXVubWFwX29rIjogZmFsc2UsICJjbG9zZV9vayI6IHRydWV9LAogICJlbmFibGVfYXR0ZW1wdGVkIjogdHJ1ZQp9Cg=="
+  },
+  "boot_after": "8a347d55-316e-4c74-a836-854391c69fcc",
+  "binary_sha256": {
+    "demo": "bc6954465c85e5ab62c7e12cf5c87a3bf41737e7b02aaf405584be0db8c86eaa",
+    "create_failure": "fb67f451df1156432312b0af690826a4a81bfd884e3a69f0bc737933e68db70f",
+    "join_failure": "d6cbf4b10d0c52535d30f9b5cbeb5c50f0afce2b29c20fa210f0efea81a81bd0",
+    "ring_copy": "8a3333f3eae3ba521433773fe5335835d16bcdc86bb706558f74470ed5f3bef7",
+    "policy_failure": "c02489a3581ab201c7f8b45b3c78f5740e627aee51f354cbd93818d2b77dd048"
+  }
+}

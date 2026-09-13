@@ -20,16 +20,6 @@ int main(void) {
            stream.reader_running ? "true" : "false",
            stream.reader_joined ? "true" : "false",
            stream.join_failed ? "true" : "false");
-    if (pass) {
-        void *retained = NULL;
-        int aborted = start_abort(&stream, EIO, &retained);
-        int saved_errno = errno;
-        bool handed_back = aborted == -1 && saved_errno == EIO &&
-            retained == &stream && stream.reader_running && stream.join_failed;
-        printf("{\"failed_start_handle_returned\":%s}\n",
-               handed_back ? "true" : "false");
-        pass = pass && handed_back;
-    }
     pthread_mutex_destroy(&stream.error_lock);
     return pass ? 0 : 1;
 }

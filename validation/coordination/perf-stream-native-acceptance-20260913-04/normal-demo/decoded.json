@@ -1,0 +1,118 @@
+{
+  "capture": {
+    "boot_id": "edfa9f14-8deb-405a-a25c-fe6cb11989da",
+    "captured_bytes": 256,
+    "clock_id": "CLOCK_MONOTONIC",
+    "disable_after_ns": 7516788261,
+    "disable_before_ns": 7516785070,
+    "enable_after_ns": 6916410480,
+    "enable_before_ns": 6916408229,
+    "owner_pid": 767,
+    "owner_tid": 767,
+    "reader_policy": 0,
+    "ring_bytes": 524288,
+    "ring_pressure_guard_bytes": 4096,
+    "storage_capacity_bytes": 134217728
+  },
+  "classification": "diagnostic_only",
+  "decoded": {
+    "cpus": [
+      19
+    ],
+    "first_time_ns": 6916439294,
+    "last_time_ns": 7516769723,
+    "observed_span_ns": 600330429,
+    "pair_duration_max_ns": 150081592,
+    "pair_duration_total_ns": 600306899,
+    "pairs": 4,
+    "preempt_outs": 0,
+    "raw_time_bounds_used": {
+      "first_ns": 6916408229,
+      "kind": "outer_enable_before_to_disable_after",
+      "last_ns": 7516788261
+    },
+    "records": 8,
+    "switch_in": 4,
+    "switch_out": 4,
+    "window_time_bounds_used": {
+      "first_ns": 6916410480,
+      "kind": "inner_enable_after_to_disable_before",
+      "last_ns": 7516785070
+    }
+  },
+  "flight_conclusion": null,
+  "full_acceptance": false,
+  "inputs": {
+    "metadata_path": "/root/wksim-stream-native-vey637oh/normal-demo/switch-stream.meta.json",
+    "metadata_sha256": "2ae47254c3680afd5a3b655c8bedb0f815dd2159f2dde9be54322100150ecebe",
+    "raw_bytes": 256,
+    "raw_path": "/root/wksim-stream-native-vey637oh/normal-demo/switch-stream.raw",
+    "raw_sha256": "24162646aec3d4dd7a024f5bb970937768a8f4ca1472d44690114c4020e1c04d",
+    "windows_path": null,
+    "windows_sha256": null
+  },
+  "notes": [
+    "metadata and raw bytes are bound by SHA-256; the raw file length must equal captured_bytes exactly and must not exceed storage_capacity_bytes",
+    "LOST, LOST_SAMPLES, CPU_WIDE, unknown, truncated and unpaired records are errors, never skipped; non-switch records are classified by their own header size, not forced into a 32-byte slot",
+    "raw record timestamps are checked against the outer span [enable_before_ns, disable_after_ns]; windows use the inner enabled span [enable_after_ns, disable_before_ns]",
+    "window intersections are boundary observations in integer nanoseconds",
+    "stream_completeness_proven is false: this consumer cannot prove absence of loss from the retained bytes and the current metadata alone"
+  ],
+  "pairs": [
+    {
+      "cpu_changed": false,
+      "duration_ns": 150067340,
+      "in_cpu": 19,
+      "in_index": 1,
+      "in_time_ns": 7066506634,
+      "out_cpu": 19,
+      "out_index": 0,
+      "out_preempt": false,
+      "out_time_ns": 6916439294,
+      "sequence": 0
+    },
+    {
+      "cpu_changed": false,
+      "duration_ns": 150081592,
+      "in_cpu": 19,
+      "in_index": 3,
+      "in_time_ns": 7216596192,
+      "out_cpu": 19,
+      "out_index": 2,
+      "out_preempt": false,
+      "out_time_ns": 7066514600,
+      "sequence": 1
+    },
+    {
+      "cpu_changed": false,
+      "duration_ns": 150077135,
+      "in_cpu": 19,
+      "in_index": 5,
+      "in_time_ns": 7366682402,
+      "out_cpu": 19,
+      "out_index": 4,
+      "out_preempt": false,
+      "out_time_ns": 7216605267,
+      "sequence": 2
+    },
+    {
+      "cpu_changed": false,
+      "duration_ns": 150080832,
+      "in_cpu": 19,
+      "in_index": 7,
+      "in_time_ns": 7516769723,
+      "out_cpu": 19,
+      "out_index": 6,
+      "out_preempt": false,
+      "out_time_ns": 7366688891,
+      "sequence": 3
+    }
+  ],
+  "schema": "wksim.perf_switch_consumer.v1",
+  "scope": "decoded switch-pair boundaries and optional window intersections; not proof of which task ran, why scheduling occurred or exact CPU execution time",
+  "stream_completeness_proven": false,
+  "stream_completeness_reason": "the pending LOST check at stop is not yet specified in the contract, so a clean decode plus collector_complete=true does not prove the stream is lossless; LOST records that fell outside the retained bytes cannot be seen from here",
+  "tool": "wksim-perf-stream-consumer",
+  "tool_version": "1",
+  "windows": null
+}

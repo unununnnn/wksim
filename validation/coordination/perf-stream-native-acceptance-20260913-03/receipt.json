@@ -1,0 +1,40 @@
+{
+  "directory": "/root/wksim-stream-native-gdfhhtkh",
+  "boot_id": "e6b97a6f-8833-451b-b3e0-398ed71279e5",
+  "commands": [
+    {
+      "argv": [
+        "cc",
+        "-std=c11",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pthread",
+        "-I.",
+        "-o",
+        "demo",
+        "wksim_perf_stream_demo.c",
+        "wksim_perf_stream.c"
+      ],
+      "pid": 762,
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "wksim_perf_stream.c: In function \u2018settle_errors\u2019:\nwksim_perf_stream.c:188:58: error: \u2018%s\u2019 directive output may be truncated writing up to 207 bytes into a region of size 128 [-Werror=format-truncation=]\n  188 |     snprintf(wksim_last_error, sizeof wksim_last_error, \"%s\", text);\n      |                                                          ^~\n......\n  298 |         set_last_error(message);\n      |                        ~~~~~~~                            \nIn file included from /usr/include/stdio.h:894,\n                 from wksim_perf_stream.c:35:\n/usr/include/x86_64-linux-gnu/bits/stdio2.h:71:10: note: \u2018__builtin_snprintf\u2019 output between 1 and 208 bytes into a destination of size 128\n   71 |   return __builtin___snprintf_chk (__s, __n, __USE_FORTIFY_LEVEL - 1,\n      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n   72 |                                    __glibc_objsize (__s), __fmt,\n      |                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n   73 |                                    __va_arg_pack ());\n      |                                    ~~~~~~~~~~~~~~~~~\ncc1: all warnings being treated as errors\n",
+      "pgid_empty": true
+    }
+  ],
+  "source_sha256": {
+    "wksim_perf_stream.c": "ee0be135cb6aed19ecdbe5546e39eb9a6fec9fef9610e2457038594a0453961e",
+    "wksim_perf_stream.h": "47b148f2da7afb990c6813c37a0e0fba4c32225d69fc0d07aa2cf2126e8ca707",
+    "wksim_perf_stream_demo.c": "9b0ee95baa6e22d021cc61025e4b69cd735022d9f0bfb7a74d8a67f65cd3540b",
+    "create_failure_case.c": "e39f34c137f60f0421af6ece3c3837d57b32611fc2fc3f723ed647fb23e236cd",
+    "join_failure_case.c": "e4ad424c77a6485d60a3d4210ad835a292e3a200b4f56fc9ab12666e8ca10442",
+    "ring_copy_cases.c": "c48a31a95aec1ac67e4a6c9a60f9235a8fc3a429266616c6286c6fe8bce8351b",
+    "policy_failure_case.c": "ce911ddb8b621d8b1709aa65261cf34fb845a0629024ec96c6462d67084b7d43",
+    "cleanup_failure_case.c": "fc8bb38058d55936ac2f9deee459ec547309464854c5271eb966345f457e7b67"
+  },
+  "capture_files": {},
+  "boot_after": "e6b97a6f-8833-451b-b3e0-398ed71279e5",
+  "binary_sha256": {}
+}

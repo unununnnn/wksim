@@ -4,7 +4,7 @@
 
 主任务材料补充：[G6材料索引](../g6-material-index.md)已定位本机厂家开发/生成说明和传感器标定教材、MWLOG/MAT示例数据。它们是继续实现和误差分析的输入，尚未建立与当前e0模型全部验收量的计量/工况绑定，不能直接改填本合同缺失的精度预算；R1旧结果保持不变。
 
-2026-09-09。状态：`blocked_budget_and_same_source_entry`；本文件为可审阅设计，尚未冻结新的物理精度合同。#59 保持 OPEN / needs-triage。父 #10、G6、Full 开放；R1 继续 `numerical_failed`。
+历史记录（2026-09-09）：当时状态为 `blocked_budget_and_same_source_entry`。截至2026-09-13，同源入口已经实现，当前缺口是完整、有依据且获批的误差预算；不能把历史状态当成入口仍缺失。本文件尚未冻结新的物理精度合同。#59、父 #10、G6、Full 仍开放；R1 继续 `numerical_failed`。
 
 ## 要求与已有证据
 
@@ -28,7 +28,7 @@
 
 若取得ZIP11.0实际生成时SLX/init/库/生成清单，可另审同源11.0路线；当前未找到该成套材料，不据目录相邻推定。normal与新native的独立执行引擎能验实现一致性，但两者共享模型方程，不能单独证明实机准确性。
 
-[#70合同](26-generation-contract.md)当前记录本地生成权限凭据、实际工具checkout及生成/新源码准入/独立审计入口的缺口，远端#70仍OPEN / needs-triage。历史normal参考使用已获本机授权；不把缺少再分发权解释成禁止所有本地使用，也不以旧许可失败或后来的license test=1代替当前生成实证。厂商字节保持本地。
+[#70合同](26-generation-contract.md)中的权限和入口缺口应按其历史时间理解。2026-09-13主会话通过GitHub CLI核实：[#70](https://github.com/unununnnn/wksim/issues/70)已CLOSED（最后更新2026-09-11），[#26](https://github.com/unununnnn/wksim/issues/26)仍OPEN；当前同源11.8已生成并有采集/比较入口。#70关闭不等于#26、G6或Full通过。历史normal参考使用已获本机授权；不把缺少再分发权解释成禁止所有本地使用，也不以旧许可失败或license test=1代替实际生成证据。厂商字节保持本地。
 
 ## 采样、随机数和工况
 

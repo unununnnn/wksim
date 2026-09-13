@@ -25,10 +25,15 @@ runner change is authorized by this contract.
   raw records and require an independent loss/sequence audit as well.
 - Storage exhaustion or any collector error makes capture incomplete. No
   silent truncation, growth, overwrite, skipped records or success fallback.
-- `int wksim_perf_stop(void *handle, const char *raw_path, const char *meta_path)`
+- `int wksim_perf_stop(void **handle, const char *raw_path, const char *meta_path)`
   must run on the original owner thread. Disable before final drain; join the
   reader before using its storage or unmapping. Clean all owned resources on
   every path. Do not throw away the primary failure when cleanup also fails.
+  Caller passes &handle: clear it only after release; retain it on a failed join
+  or rejected call so ownership is observable even when the function returns -1.
+  Start can likewise return an error with a non-NULL retained handle if its
+  cleanup cannot join. Neither output is accepted unless stop returns zero;
+  metadata cannot certify its own final output-file close.
 - Stop writes raw bytes and metadata only after capture ended, using exclusive
   file creation and checked writes. Never overwrite existing evidence. A start
   failure must leave no active reader/event/mapping and return an error.

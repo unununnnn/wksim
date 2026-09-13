@@ -1,20 +1,20 @@
 # 当前 Goal 执行检查点
 
-- `checked_at`: 2026-09-13T16:59:17+09:00
+- `checked_at`: 2026-09-13T18:10:11+09:00
 - 本文件是**静态交接文档，不执行也不启动后台调度**；调度事实只以精确 thread read/wait 与 JSON 收据为准。
 - 来源：`validation/coordination/perf-open-admission-20260913-01/`（`dispatches.json` 派发于 unix 1789285339）、`validation/coordination/manager99-unprobed-20260913-01/`（`decision.json`/`rollback.json`/`terminal-cleanup.json`/`inflight.json`）、HEAD `820f532`、私有 Linux 检出实测 SHA。
 - 根 Goal 字符串中的"阵容"是创建时的历史值，**不是**实时状态；本文件不改写 Goal DB。
 
 ## 工作区与所有权
 
-- 主仓库：`C:/Users/PC/Documents/odid编译/wksim`，分支 `codex/independent-rgb-integration`，remote `unununnnn/wksim`。大量 controller/runtime/UE/rover 他方修改保留，禁止 `git add` 全库或覆盖。
-- 主会话独占 native、正式 profile/catalog、`joint_profile.py` 接线。实验 runner 只在 Linux 检出 `Ubuntu-22.04 /root/wksim-release-acceptance-fe3`（分支 `codex/planner-release-validation`）修改，第二发行版 `RflySim-20.04`。
+- 主仓库：`C:/Users/PC/Documents/odid编译/wksim`，开发主线 `main`（已包含架构基线 `f333316`，交接规则 `d45d1da`），remote `unununnnn/wksim`。大量 controller/runtime/UE/rover 他方修改保留，禁止 `git add` 全库或覆盖。
+- 主会话独占 native、正式 profile/catalog 与运行接线。默认新架构验收候选为 `Ubuntu-22.04 /root/wksim-architecture-acceptance-20260913`，分支 `codex/architecture-acceptance-20260913`，交接HEAD `d45d1da`；主会话已实际核验HEAD、工作树及 `f333316` 祖先检查退出码0。旧 `/root/wksim-release-acceptance-fe3`（`db1200d`）保留为明确标注的历史对照，不再默认写入新功能，原PASS不转移。第二发行版仍为 `RflySim-20.04`。
 - Windows `tools/run_joint_flight.py` 属其它工作，本次未改。**一个文件只有一个写入者**，交付并确认终态后才转移写入权；审查者只审稳定版本。
 - 队列/派发 JSON 是交接记录，**不是后台自动调度程序**；`THREAD_BUSY` 不算送达，cancel ack 不算终态。
 
-## 当前状态（唯一有效快照）
+## 当前主线与历史冻结飞行
 
-- 上一已提交基线 `a781749`；本轮新增自线程perf能力实证，当前提交以 `git log -1` 为准。
+- 当前开发主线已接纳 `d45d1da` 架构接续合同，包含 `f333316` 实施基线；当前提交以 `git log -1` 为准。新候选目前仅源码/离线验证，部署、私有接线和正式native准入仍pending。
 - 最新无探针场 **`oayggl_s` 失败**：`failed@tick108004`，epoch `afa75a2cb5eb45f48f34526780299ec3`，wall `268.721856341s`，`RateUnmet`。结果**无** `rate_timing_probe`/`owned_scheduling`/`group_work_timing` 键，`markers={}`，`source_unchanged=true`，`cleanup_errors=[]`；boot `470ea486-9e18-4535-9d91-69de5a3a4572` 下 PGID `2109–2118` 独立全空。flight session `48029` 终态；keeper `637`/`start 422` 身份核验后 SIGTERM、session `7873` 终态。
 - 私有 runner 已**回退**：`9b97c124…` → `1c600d7f…`（manager50）；`parent 7855409d`、`worker 38f34a8f` 及所有原门保持。`rollback.json` 记录 `manager_target_restored=50`、未改运行中进程与全局设置。
 - **当前无 native、无 keeper**；不重复 poll/restart `48029`、`637`、`7873`。
@@ -78,4 +78,6 @@
 
 - 离线decoder已主会话集成验收：84项作者检查、17组独立CLI夹具全过；原夹具自检曾把错误HHI头/PID布局/切换标志误报通过，已保留失败原件并按Linux ABI修正。见 [offline acceptance](../../validation/coordination/perf-stream-offline-acceptance-20260913-03/main-verdict.json)。这不证明stream无损。三个DeepSeek端本批再次终态失败；C记录器写入权已转给OMP（turn `931d6ae4-2b70-417c-89c9-b818b4be0411`），main只收稳定源码后做native验收，不再重复续派同一失败批次。
 
-- C记录器首轮真实编译被两处format-truncation/-Werror拒绝，demo和fault tests均未执行，自有编译进程同boot已退出。编译源快照与后续join/所有权等缺口见 [native admission review](../../validation/coordination/perf-stream-native-acceptance-20260913-01/MAIN_REVIEW.md)。OMP旧turn `931d6ae4-2b70-417c-89c9-b818b4be0411` 最近仍running；等精确终态再将该review续派，THREAD_BUSY不算已通知。
+
+- 主推进会话已实际阅读AGENTS、实施报告、接续合同及更新后的交付策略并接纳交接；以后每次新派发和续派记录cwd/HEAD、祖先检查、工作类别、module/interface、独占文件与受影响验收，集成复核实际diff。见 [交接确认](../../validation/coordination/perf-stream-native-acceptance-20260913-05/architecture-handoff-accepted.json)。旧私有接线只按需要逐文件适配到新候选，不整目录覆盖。
+- 独立perf记录器已完成真实编译、线程/错误策略/join/环形缓冲区/清理失败反例，正常约0.6秒保留256 raw字节并由独立consumer解出8记录/4对，全部自有进程退出；最终源码 `c0fa0530cd4d…`。stop采用 `void **handle` 明确返回所有权。见 [native baseline](../2026-09-13-perf-stream-recorder-admission.md)。仍未完成停止哨兵/整场开销/飞行接线，不作为新架构或MIXED/Full通过。OMP任务已主动取消并确认interrupted，由main完成收口；当前无外部实现或native进程在运行。
