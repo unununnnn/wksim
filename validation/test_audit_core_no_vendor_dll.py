@@ -1,5 +1,6 @@
 """Pure offline tests for the no-vendor-DLL core audit (#75 supporting gate)."""
 
+import ast
 import json
 from pathlib import Path
 import subprocess
@@ -51,6 +52,37 @@ def _insert_line(text, number, inserted):
     lines = text.splitlines()
     lines.insert(number - 1, inserted)
     return "\n".join(lines) + "\n"
+
+
+def _callable_source_sha(text, owner, function_name):
+    tree = ast.parse(text)
+    body = tree.body
+    if owner is not None:
+        owner_node = next(node for node in body
+                          if isinstance(node, ast.ClassDef) and node.name == owner)
+        body = owner_node.body
+    function = next(node for node in body
+                    if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+                    and node.name == function_name)
+    lines = text.splitlines()
+    return audit_mod._line_sha256(
+        "\n".join(lines[function.lineno - 1:function.end_lineno]))
+
+
+def _load_precedes_gate(text):
+    """Keep the pinned CDLL statement on physical line 51 but defer the SHA gate."""
+    lines = text.splitlines()
+    head = lines[25:29]          # 26-29 def/platform-if/raise/library=
+    guards = lines[29:34]        # 30-34 path guard + sha-shape guard
+    outputs = lines[40:46]       # 41-46 outputs checks
+    attrs = lines[46:50]         # 47-50 attribute copies
+    line51 = lines[50]
+    digest_block = lines[34:40]  # 35-40 digest compute + gate
+    assert "ctypes.CDLL(str(library), use_errno=True)" in line51
+    filler = ["        # deferred SHA256 gate: load now precedes verification"] * 6
+    new = lines[:25] + head + guards + outputs + attrs + filler + [line51] + digest_block + lines[51:]
+    assert new[50] == line51, "pinned line must land on line 51"
+    return "\n".join(new) + "\n"
 
 
 def _fixture(root, model_py=MODEL_PY, extra_files=None, cap=None, joint=None,
@@ -910,10 +942,19 @@ class PinnedNativeLoadSiteTests(unittest.TestCase):
             ("Simulator/wksim_runtime/netns_handoff.py", 183,
              audit_mod.PINNED_LIBC_SHAPE),
         })
+        callable_keys = {(pin[0], pin[4], pin[5])
+                         for pin in audit_mod.KNOWN_NATIVE_LOAD_SITES}
+        self.assertEqual(set(audit_mod.PINNED_NATIVE_CALLABLE_SHA256), callable_keys)
         for path, number, line_sha, call_text, owner, function, _, _ in audit_mod.KNOWN_NATIVE_LOAD_SITES:
-            line = (ROOT / path).read_text(encoding="utf-8").splitlines()[number - 1]
+            source = (ROOT / path).read_text(encoding="utf-8")
+            line = source.splitlines()[number - 1]
             self.assertIn(call_text, line, path)
             self.assertEqual(audit_mod._line_sha256(line), line_sha, path)
+            self.assertEqual(
+                _callable_source_sha(source, owner, function),
+                audit_mod.PINNED_NATIVE_CALLABLE_SHA256[(path, owner, function)],
+                path,
+            )
             self.assertTrue(owner is None or owner.isidentifier(), path)
             self.assertTrue(function.isidentifier(), path)
 
@@ -977,6 +1018,76 @@ class PinnedNativeLoadSiteTests(unittest.TestCase):
         report = self.audit(extra_files={"Simulator/wksim_runtime/perf_capture.py": weakened})
         self.assertTrue(any("pinned native load site shape drift (caller_path_sha256)" in v
                             for v in report["violations"]), report["violations"])
+
+    def test_recorder_sha_gate_neutralized_and_false_rejected(self):
+        # Token-preserving weakening: the comparison stays but ``and False``
+        # makes the digest gate unable to fire; it must fail closed.
+        weakened = _replace_line(PERF_CAPTURE_PY, 39,
+                                 "        if digest.hexdigest() != library_sha256 and False:")
+        report = self.audit(extra_files={"Simulator/wksim_runtime/perf_capture.py": weakened})
+        self.assertFailsAt(report, "perf_capture.py", 51)
+
+    def test_recorder_sha_gate_raise_removed_rejected(self):
+        # The comparison stays but the rejecting branch is gone.
+        weakened = _replace_line(PERF_CAPTURE_PY, 40, "            pass")
+        report = self.audit(extra_files={"Simulator/wksim_runtime/perf_capture.py": weakened})
+        self.assertFailsAt(report, "perf_capture.py", 51)
+
+    def test_recorder_path_gate_neutralized_and_false_rejected(self):
+        weakened = _replace_line(
+            PERF_CAPTURE_PY, 30,
+            "        if (not library.is_absolute() or library.suffix != '.so'"
+            " or not library.is_file()) and False:")
+        report = self.audit(extra_files={"Simulator/wksim_runtime/perf_capture.py": weakened})
+        self.assertFailsAt(report, "perf_capture.py", 51)
+
+    def test_recorder_sha_shape_gate_neutralized_and_false_rejected(self):
+        weakened = _replace_line(
+            PERF_CAPTURE_PY, 33,
+            "                or any(c not in '0123456789abcdef' for c in library_sha256)) and False:")
+        report = self.audit(extra_files={"Simulator/wksim_runtime/perf_capture.py": weakened})
+        self.assertFailsAt(report, "perf_capture.py", 51)
+
+    def test_recorder_load_preceding_sha_gate_rejected(self):
+        # The pinned load stays on line 51 but the digest gate is deferred
+        # below it, so the gate no longer dominates the load.
+        reordered = _load_precedes_gate(PERF_CAPTURE_PY)
+        report = self.audit(extra_files={"Simulator/wksim_runtime/perf_capture.py": reordered})
+        self.assertFailsAt(report, "perf_capture.py", 51)
+
+    def test_recorder_digest_decoupled_from_loaded_file_rejected(self):
+        # The digest degenerates to the empty-input hash while the gate stays.
+        weakened = _replace_line(PERF_CAPTURE_PY, 38, "                digest.update(b'')")
+        report = self.audit(extra_files={"Simulator/wksim_runtime/perf_capture.py": weakened})
+        self.assertFailsAt(report, "perf_capture.py", 51)
+
+    def test_recorder_decoy_open_hashes_other_file_rejected(self):
+        # ``library.open('rb')`` survives as a decoy while the hashed stream
+        # comes from a different file; the load still targets ``library``.
+        weakened = _replace_line(
+            PERF_CAPTURE_PY, 36,
+            "        with (library.open('rb'), Path('/etc/hostname').open('rb'))[1] as stream:")
+        report = self.audit(extra_files={"Simulator/wksim_runtime/perf_capture.py": weakened})
+        self.assertFailsAt(report, "perf_capture.py", 51)
+
+    def test_recorder_callable_pin_rejects_dead_guard_and_path_rebinding(self):
+        lines = PERF_CAPTURE_PY.splitlines()
+        lines[29] = "        if False:"
+        lines[30] = (
+            "            if not library.is_absolute() or library.suffix != '.so' "
+            "or not library.is_file(): raise PerfCaptureError('path rejected')"
+        )
+        dead_guard = "\n".join(lines) + "\n"
+        rebound = _replace_line(
+            PERF_CAPTURE_PY,
+            47,
+            "        self.library_path = str(library); library = Path('/tmp/evil.so')",
+        )
+        for label, weakened in (("dead_guard", dead_guard), ("path_rebound", rebound)):
+            with self.subTest(label=label):
+                report = self.audit(
+                    extra_files={"Simulator/wksim_runtime/perf_capture.py": weakened})
+                self.assertFailsAt(report, "perf_capture.py", 51)
 
     def test_recorder_wrong_enclosing_callable_rejected(self):
         renamed = PERF_CAPTURE_PY.replace("    def __init__(self, library_path",
@@ -1071,6 +1182,34 @@ class PinnedNativeLoadSiteTests(unittest.TestCase):
             report3 = audit_mod.audit(_fixture(self.root))
             self.assertTrue(any("pinned native load site count must be exactly 2" in v
                                 for v in report3["violations"]), report3["violations"])
+
+    def test_libc_handle_other_symbol_rejected(self):
+        # Borrowing the pinned handle for any symbol other than setns —
+        # including the real dlopen loader — must fail closed.
+        for label, inserted in (
+            ("system", "            libc.system(b'id')"),
+            ("open", "            libc.open(b'/etc/passwd', 0)"),
+            ("dlopen", "            libc.dlopen(b'/tmp/x.so', 2)"),
+        ):
+            with self.subTest(label=label):
+                modified = _insert_line(NETNS_HANDOFF_PY, 186, inserted)
+                report = self.audit(extra_files={"Simulator/wksim_runtime/netns_handoff.py": modified})
+                self.assertFailsAt(report, "netns_handoff.py", 183)
+
+    def test_libc_handle_alias_rejected(self):
+        # Copying the pinned handle would let an alias escape the symbol check.
+        modified = _insert_line(NETNS_HANDOFF_PY, 186, "            shadow = libc")
+        report = self.audit(extra_files={"Simulator/wksim_runtime/netns_handoff.py": modified})
+        self.assertFailsAt(report, "netns_handoff.py", 183)
+
+    def test_libc_callable_pin_rejects_container_handle_escape(self):
+        modified = _replace_line(
+            NETNS_HANDOFF_PY,
+            185,
+            "            bucket = [libc]; bucket[0].dlopen(b'/tmp/x.so', 2)",
+        )
+        report = self.audit(extra_files={"Simulator/wksim_runtime/netns_handoff.py": modified})
+        self.assertFailsAt(report, "netns_handoff.py", 183)
 
     def test_unknown_pinned_shape_fails_closed(self):
         pin = list(audit_mod.KNOWN_NATIVE_LOAD_SITES[0])

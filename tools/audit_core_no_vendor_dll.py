@@ -98,10 +98,12 @@ KNOWN_DYNAMIC_EXEC = (
 # Native load sites outside the caller-supplied model CDLL.  Each entry is
 # (relative path, 1-based line, sha256 of that exact line, exact call text,
 # enclosing class or None, enclosing function, shape id, justification).  The
-# shape id selects the AST validator below.  There is no other way to satisfy
-# this audit: another file, another ctypes loader attribute, another argument
-# list, another enclosing callable, a moved or edited line, a removed guard or a
-# hardcoded path fails closed.  The list length is pinned and may not grow.
+# shape id selects the AST validator below.  The complete enclosing callable is
+# separately pinned below, so a same-line bypass elsewhere in that callable
+# also fails closed.  There is no other way to satisfy this audit: another file,
+# another ctypes loader attribute, another argument list, another enclosing
+# callable, a moved or edited line, a removed guard or a hardcoded path fails
+# closed.  The list length is pinned and may not grow.
 PINNED_RECORDER_SHAPE = "caller_path_sha256"
 PINNED_LIBC_SHAPE = "libc_setns"
 KNOWN_NATIVE_LOAD_SITES = (
@@ -118,6 +120,18 @@ KNOWN_NATIVE_LOAD_SITES = (
      "current-process libc handle used only for the Linux setns syscall; no "
      "library path is resolved"),
 )
+
+# SHA256 of the complete enclosing callable source, normalized by splitlines()
+# and joined with ``\n`` without a trailing newline.  These pins are the hard
+# boundary for the two narrow native exceptions.  The AST shape validators add
+# readable semantic checks, but they are not a general control/data-flow proof;
+# any callable edit requires an explicit review and repin here.
+PINNED_NATIVE_CALLABLE_SHA256 = {
+    ("Simulator/wksim_runtime/perf_capture.py", "PerfStreamCapture", "__init__"):
+        "9e6b1b1f617ebe9d49dc7f2cf12ed9127babeef76f08efba5622e544ee47a3eb",
+    ("Simulator/wksim_runtime/netns_handoff.py", None, "enter_namespace"):
+        "f8c2ffa404a1ae9375db31e25ba20bd5145285c707c20df19ea2209d93c45c5e",
+}
 
 _LOAD_NAMES = frozenset({"CDLL", "PyDLL", "WinDLL", "OleDLL", "LoadLibrary", "dlopen"})
 _LOADER_ATTRS = frozenset({"cdll", "windll", "oledll"})
@@ -321,14 +335,46 @@ def _enclosing_class_node(node, parents):
     return None
 
 
+def _if_body_raises(if_node):
+    """True iff the ``if`` body is a real rejecting branch (contains raise)."""
+    return any(isinstance(node, ast.Raise)
+               for stmt in if_node.body for node in ast.walk(stmt))
+
+
+def _gate_test_intact(test):
+    """True iff no boolean constant can neutralize the gate (``and False``,
+    ``or True`` and friends fail closed)."""
+    return not any(isinstance(node, ast.Constant) and isinstance(node.value, bool)
+                   for node in ast.walk(test))
+
+
+def _is_suffix_gate_compare(compare, path_name):
+    """True iff compare is exactly ``<path>.suffix != '.so'`` (any operand order)."""
+    if (len(compare.ops) != 1 or len(compare.comparators) != 1
+            or not isinstance(compare.ops[0], ast.NotEq)):
+        return False
+    left, right = compare.left, compare.comparators[0]
+    for side, other in ((left, right), (right, left)):
+        if (isinstance(side, ast.Attribute) and side.attr == "suffix"
+                and isinstance(side.value, ast.Name) and side.value.id == path_name
+                and isinstance(other, ast.Constant) and other.value == ".so"):
+            return True
+    return False
+
+
 def _perf_recorder_load_shape_ok(call, function, parameters):
     """Shape of the recorder CDLL: caller path parameter plus an exact SHA gate.
 
     The argument must be ``str(library)`` where ``library`` is built as
-    ``Path(<parameter>)``, the absolute-existing-``.so`` path gates must be
-    present, and the file content must be hashed with ``hashlib.sha256`` and
-    compared against a caller-supplied exact lowercase SHA256 before the load.
-    A hardcoded path, a missing guard or an extra load site cannot satisfy it.
+    ``Path(<parameter>)``.  The absolute/``.so``/existing-path gate, the exact
+    lowercase SHA256 shape gate and the digest gate must each have the reviewed
+    rejecting shape and lexically precede the load.  The digest must be fed,
+    inside a ``with`` whose context expression is exactly
+    ``library.open(...)``, by a read loop over that same stream, and the digest
+    gate must compare that digest's ``hexdigest()`` against the same
+    caller-supplied parameter the SHA shape gate validated.  The enclosing
+    callable's exact source SHA pin supplies the fail-closed control/data-flow
+    boundary that these local shape checks cannot prove.
     """
     if len(call.args) != 1 or not _is_use_errno_true(call):
         return False
@@ -340,10 +386,10 @@ def _perf_recorder_load_shape_ok(call, function, parameters):
             and not argument.keywords and isinstance(argument.args[0], ast.Name)):
         return False
     path_name = argument.args[0].id
-    observed = {"suffix": False, "is_absolute": False, "is_file": False}
-    flags = {"path_from_parameter": False, "so_literal": False,
-             "sha256_constructor": False, "sha_length_gate": False,
-             "sha_charset_gate": False, "digest_gate": False, "opens_path": False}
+    path_from_parameter = False
+    digest_name = None
+    stream_with = None
+    stream_name = None
     for node in ast.walk(function):
         if (isinstance(node, ast.Assign) and len(node.targets) == 1
                 and isinstance(node.targets[0], ast.Name)
@@ -354,38 +400,115 @@ def _perf_recorder_load_shape_ok(call, function, parameters):
                 and not node.value.keywords
                 and isinstance(node.value.args[0], ast.Name)
                 and node.value.args[0].id in parameters):
-            flags["path_from_parameter"] = True
-        if (isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)
-                and node.func.attr == "open" and isinstance(node.func.value, ast.Name)
-                and node.func.value.id == path_name):
-            flags["opens_path"] = True
-        if (isinstance(node, ast.Attribute) and isinstance(node.value, ast.Name)
-                and node.value.id == path_name and node.attr in observed):
-            observed[node.attr] = True
-        if isinstance(node, ast.Constant) and node.value == ".so":
-            flags["so_literal"] = True
-        if isinstance(node, ast.Constant) and node.value == "0123456789abcdef":
-            flags["sha_charset_gate"] = True
-        if (isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)
-                and node.func.attr == "sha256" and isinstance(node.func.value, ast.Name)
-                and node.func.value.id == "hashlib"):
-            flags["sha256_constructor"] = True
-        if (isinstance(node, ast.Compare) and len(node.ops) == 1
-                and isinstance(node.ops[0], ast.NotEq) and len(node.comparators) == 1):
-            left, right = node.left, node.comparators[0]
-            if ((_calls_attribute(left, "hexdigest") and isinstance(right, ast.Name)
-                 and right.id in parameters)
-                    or (_calls_attribute(right, "hexdigest") and isinstance(left, ast.Name)
-                        and left.id in parameters)):
-                flags["digest_gate"] = True
-            if (isinstance(left, ast.Call) and isinstance(left.func, ast.Name)
-                    and left.func.id == "len" and len(left.args) == 1
-                    and isinstance(left.args[0], ast.Name)
-                    and left.args[0].id in parameters
-                    and isinstance(node.comparators[0], ast.Constant)
-                    and node.comparators[0].value == 64):
-                flags["sha_length_gate"] = True
-    return all(observed.values()) and all(flags.values())
+            path_from_parameter = True
+        if (isinstance(node, ast.Assign) and len(node.targets) == 1
+                and isinstance(node.targets[0], ast.Name)
+                and isinstance(node.value, ast.Call)
+                and isinstance(node.value.func, ast.Attribute)
+                and node.value.func.attr == "sha256"
+                and isinstance(node.value.func.value, ast.Name)
+                and node.value.func.value.id == "hashlib"
+                and not node.value.args and not node.value.keywords):
+            digest_name = node.targets[0].id
+        if isinstance(node, ast.With) and len(node.items) == 1:
+            item = node.items[0]
+            expression = item.context_expr
+            if (isinstance(expression, ast.Call)
+                    and isinstance(expression.func, ast.Attribute)
+                    and expression.func.attr == "open"
+                    and isinstance(expression.func.value, ast.Name)
+                    and expression.func.value.id == path_name
+                    and isinstance(item.optional_vars, ast.Name)):
+                stream_with = node
+                stream_name = item.optional_vars.id
+    if not path_from_parameter or digest_name is None or stream_with is None:
+        return False
+    # The hashed bytes must come from a read loop over the loaded file's own
+    # stream, bound to the digest object the gate later compares.
+    digest_fed = False
+    for node in ast.walk(stream_with):
+        if not (isinstance(node, ast.For) and isinstance(node.target, ast.Name)):
+            continue
+        iterator = node.iter
+        if not (isinstance(iterator, ast.Call) and isinstance(iterator.func, ast.Name)
+                and iterator.func.id == "iter" and len(iterator.args) == 2
+                and not iterator.keywords
+                and isinstance(iterator.args[0], ast.Lambda)
+                and not iterator.args[0].args.args
+                and isinstance(iterator.args[0].body, ast.Call)
+                and isinstance(iterator.args[0].body.func, ast.Attribute)
+                and iterator.args[0].body.func.attr == "read"
+                and isinstance(iterator.args[0].body.func.value, ast.Name)
+                and iterator.args[0].body.func.value.id == stream_name
+                and isinstance(iterator.args[1], ast.Constant)
+                and iterator.args[1].value == b""):
+            continue
+        digest_fed = any(
+            isinstance(inner, ast.Call) and isinstance(inner.func, ast.Attribute)
+            and inner.func.attr == "update"
+            and isinstance(inner.func.value, ast.Name)
+            and inner.func.value.id == digest_name
+            and len(inner.args) == 1 and not inner.keywords
+            and isinstance(inner.args[0], ast.Name)
+            and inner.args[0].id == node.target.id
+            for stmt in node.body for inner in ast.walk(stmt))
+    if not digest_fed:
+        return False
+    # Defense in depth for the reviewed gate shapes.  The enclosing-callable
+    # source pin prevents dead nesting, swallowed raises, rebinding and other
+    # same-line control/data-flow bypasses.
+    path_gate = sha_gate = digest_gate = False
+    sha_parameter = digest_parameter = None
+    for node in ast.walk(function):
+        if not isinstance(node, ast.If):
+            continue
+        if (node.lineno >= call.lineno or not _if_body_raises(node)
+                or not _gate_test_intact(node.test)):
+            continue
+        test_nodes = list(ast.walk(node.test))
+        constants = {sub.value for sub in test_nodes if isinstance(sub, ast.Constant)}
+        compares = [sub for sub in test_nodes if isinstance(sub, ast.Compare)]
+        if isinstance(node.test, ast.BoolOp) and isinstance(node.test.op, ast.Or):
+            path_attributes = {sub.attr for sub in test_nodes
+                               if isinstance(sub, ast.Attribute)
+                               and isinstance(sub.value, ast.Name)
+                               and sub.value.id == path_name}
+            if ({"is_absolute", "is_file"} <= path_attributes
+                    and any(_is_suffix_gate_compare(compare, path_name)
+                            for compare in compares)):
+                path_gate = True
+                continue
+            for compare in compares:
+                if (len(compare.ops) == 1 and isinstance(compare.ops[0], ast.NotEq)
+                        and len(compare.comparators) == 1
+                        and isinstance(compare.left, ast.Call)
+                        and isinstance(compare.left.func, ast.Name)
+                        and compare.left.func.id == "len"
+                        and len(compare.left.args) == 1
+                        and isinstance(compare.left.args[0], ast.Name)
+                        and compare.left.args[0].id in parameters
+                        and isinstance(compare.comparators[0], ast.Constant)
+                        and compare.comparators[0].value == 64
+                        and "0123456789abcdef" in constants
+                        and any(isinstance(sub, ast.Name)
+                                and sub.id == compare.left.args[0].id
+                                for sub in test_nodes)):
+                    sha_gate = True
+                    sha_parameter = compare.left.args[0].id
+            continue
+        compare = node.test
+        if (isinstance(compare, ast.Compare) and len(compare.ops) == 1
+                and isinstance(compare.ops[0], ast.NotEq)
+                and len(compare.comparators) == 1
+                and _calls_attribute(compare.left, "hexdigest")
+                and isinstance(compare.left.func.value, ast.Name)
+                and compare.left.func.value.id == digest_name
+                and isinstance(compare.comparators[0], ast.Name)
+                and compare.comparators[0].id in parameters):
+            digest_gate = True
+            digest_parameter = compare.comparators[0].id
+    return (path_gate and sha_gate and digest_gate
+            and sha_parameter is not None and sha_parameter == digest_parameter)
 
 
 def _libc_setns_load_shape_ok(call, function, tree):
@@ -394,7 +517,10 @@ def _libc_setns_load_shape_ok(call, function, tree):
     The handle must come from the current process image (``None``, never a
     path), be bound to a local name, install ``setns`` argtypes, call ``setns``
     with the module-level Linux ``CLONE_NEWNET`` flag, and read errno through
-    ctypes.  No library path and no other symbol surface is involved.
+    ctypes.  No library path and no other symbol surface is involved: any
+    attribute on the handle other than ``setns`` (whose ``argtypes``/``restype``
+    chain stays inside the ``setns`` attribute), any alias copy of the handle,
+    or any dynamic lookup on it fails closed.
     """
     if len(call.args) != 1 or not _is_use_errno_true(call):
         return False
@@ -409,6 +535,22 @@ def _libc_setns_load_shape_ok(call, function, tree):
             handle = node.targets[0].id
     if handle is None:
         return False
+    # The pinned handle exposes only the setns symbol.  ``libc.system``,
+    # ``libc.open``, ``libc.dlopen`` or any other attribute, an alias such as
+    # ``h2 = libc``, or a dynamic lookup such as ``getattr(libc, ...)`` would
+    # borrow the pinned exception into an unconstrained native call surface.
+    for node in ast.walk(tree):
+        if (isinstance(node, ast.Attribute) and isinstance(node.value, ast.Name)
+                and node.value.id == handle and node.attr != "setns"):
+            return False
+        if (isinstance(node, (ast.Assign, ast.AnnAssign))
+                and isinstance(node.value, ast.Name) and node.value.id == handle):
+            return False
+        if (isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
+                and node.func.id == "getattr" and node.args
+                and isinstance(node.args[0], ast.Name)
+                and node.args[0].id == handle):
+            return False
     flag = None
     for node in tree.body:
         if (isinstance(node, ast.Assign) and len(node.targets) == 1
@@ -455,6 +597,12 @@ def _check_pinned_native_load_sites(root, report, files):
     pairs = [(pin[0], pin[1]) for pin in KNOWN_NATIVE_LOAD_SITES]
     if len(set(pairs)) != len(pairs):
         _fail(report, "pinned native load site list has duplicate file/line entries")
+    callable_keys = {(pin[0], pin[4], pin[5]) for pin in KNOWN_NATIVE_LOAD_SITES}
+    if set(PINNED_NATIVE_CALLABLE_SHA256) != callable_keys:
+        _fail(report, "pinned native callable SHA table must exactly match the load-site table")
+    for key, value in PINNED_NATIVE_CALLABLE_SHA256.items():
+        if not isinstance(value, str) or re.fullmatch(r"[0-9a-f]{64}", value) is None:
+            _fail(report, f"pinned native callable SHA is malformed: {key!r}")
     present = {relative for relative, _, _ in files}
     for path in paths:
         if path not in present:
@@ -509,6 +657,18 @@ def _pinned_native_load_ids(tree, relative, text, report):
             continue
         if not ok:
             _fail(report, f"pinned native load site shape drift ({shape}) at {path}:{number}")
+            continue
+        callable_sha = PINNED_NATIVE_CALLABLE_SHA256.get((path, owner, function_name))
+        end_lineno = getattr(function, "end_lineno", None)
+        if (callable_sha is None or type(end_lineno) is not int
+                or not 0 < function.lineno <= end_lineno <= len(lines)):
+            _fail(report, f"pinned native load site callable source is unavailable "
+                          f"at {path}:{number}")
+            continue
+        callable_source = "\n".join(lines[function.lineno - 1:end_lineno])
+        if _line_sha256(callable_source) != callable_sha:
+            _fail(report, f"pinned native load site callable source drift "
+                          f"at {path}:{number}")
             continue
         allowed.add(id(call.func))
     return allowed
