@@ -1,0 +1,218 @@
+{
+  "schema": "wksim.omp_mixed_native_runbook.v1",
+  "title": "Real MIXED perf diagnostic run: precise execution runbook and read-only preflight",
+  "created": "2026-09-13",
+  "classification": "diagnostic_only",
+  "formal_evidence": false,
+  "producer_constraints": [
+    "This package ran no native code, ROS, flight controller, model, UE or MATLAB, and started or stopped no process",
+    "Only validation/coordination/omp-mixed-native-runbook-20260913-01/ was written; no existing file modified; no git add/commit/push performed by the producer"
+  ],
+  "authoring_host": {
+    "cwd": "C:/Users/PC/Documents/odid编译/wksim",
+    "branch": "main",
+    "head_at_dispatch": "0a1caa116e31700155a7abb567176c48668c0e8e",
+    "head_at_authoring": "13096b5089736f3eaeba42d4bf314fc7ba7d81e9",
+    "head_drift_rule": "HEAD advanced 0a1caa1 -> 287f8ec -> 72ef95d -> 13096b5 during authoring (evidence-only commits). git diff 0a1caa1..13096b5 over tools/ and Simulator/ is empty, so every pinned source_sha256 below is valid on any of these heads. Runtime truth is pinned by file SHA256, not by commit.",
+    "architecture_ancestor": "f333316e6efa6b299b4288a9d91fb2bccedfb9d6",
+    "architecture_ancestor_exit_code": 0,
+    "perf_wiring_commit": "100ef1aafcc19c006d93eeb16b0c41e2352cdee6",
+    "formal_gate_commit": "33c2b06"
+  },
+  "linux_target": {
+    "distro": "Ubuntu-22.04",
+    "secondary_distro": "RflySim-20.04",
+    "checkout": "/root/wksim-architecture-acceptance-20260913",
+    "branch": "codex/architecture-acceptance-20260913",
+    "last_verified_head": "386f713a7752515502fd2224e9186f2219674732",
+    "last_verified_head_contains_perf_wiring": false,
+    "required_commit_before_run": "100ef1aafcc19c006d93eeb16b0c41e2352cdee6",
+    "kernel_release": "6.6.87.2-microsoft-standard-WSL2",
+    "sync_receipt": "validation/coordination/architecture-candidate-sync-20260913-02/receipt.json",
+    "library_build_receipt": "validation/coordination/perf-python-native-admission-20260913-01/build-receipt.json",
+    "library_admission_receipt": "validation/coordination/perf-python-native-admission-20260913-01/run-receipt.json"
+  },
+  "identity": {
+    "ap_mixed_manifest": {
+      "path": "/root/wksim-ap-mixed-fhuf05l9/mixed-build.json",
+      "sha256": "1e6250eff8873d6b2e52017b613c223ac29f8260fdf92aac2cf0c7cdcc6ce94c",
+      "source": "Simulator/wksim_runtime/joint-profiles.json mixed row and tools/ap_mixed_candidate.py FINAL_AP_SHA"
+    },
+    "control_manifest": {
+      "path": "/root/wksim-joint-control-c2IXOr/build.json",
+      "sha256": "6fe8c0b30775a9ba83407302f602d0785876d307e5f1cb746afa3bf316cf5e7e",
+      "source": "tools/ap_mixed_candidate.py FINAL_CONTROL_SHA; current frozen candidate per docs/coordination/short-cycle-goal.md"
+    },
+    "message_manifest": {
+      "path": "/root/wksim-ros2-Rzj3Pf/message-build.json",
+      "sha256": "29969da0702451e3fc6f1de40bc301a67284c4e7d5fae8f88c64773d27a96219",
+      "source": "tools/ap_mixed_candidate.py FINAL_MESSAGE_SHA; mandatory for the MIXED task with the current control (admission rejects its absence)",
+      "required": true
+    },
+    "px4_manifest": {
+      "path": "/root/wksim-px4-state-ONa1Kw/wksim-build.json",
+      "sha256": "d7e905b35250d184e185ada70e3fe43f0223f1c605832d81c3c58eeb123d4cb6",
+      "binary_sha256": "93b4ebe0d83a5897131ec24ee58d732c8999972bb7730f429fc396bc8d10602a",
+      "source": "joint-profiles.json manifests.px4 pin; NOT a CLI flag - the MIXED CLI rejects --px4-manifest; verified through the admission baseline; expect no live/px4-build.json in the run archive"
+    },
+    "model_library": {
+      "path": "/root/wksim-private-tmp-cxrbwjyr/artifacts/wksim-model-ms14otyn/libwksim_model.so",
+      "sha256": null,
+      "source": "joint-profiles.json row joint_quad_dds_v1 model_library; ap_mixed_candidate.admit returns it as model_library and the runner verifies the original admission chain at runtime; no independent pre-run pin exists in repo evidence (short-cycle-goal references the e59ab914... chain by prefix only)"
+    },
+    "perf_library": {
+      "path": "/root/wksim-perf-python-admission-apup9qju/libwksim_perf_stream.so",
+      "sha256": "37d9651282bce0da059828056796683b94e780461f7918e60c3e1e77e2130020",
+      "source_sha256": {
+        "wksim_perf_stream.c": "aa807f3baaafcd64ed6174a49f8010b49798a74d139ead2d4eb69eafa503c1d2",
+        "wksim_perf_stream.h": "ef1eabf247107098dc59a314d99b8fc82d4c54dbddd58d645bcec35141a12823"
+      },
+      "exports": ["wksim_perf_start", "wksim_perf_stop", "wksim_perf_last_error"]
+    },
+    "historical_only_identities": [
+      {"name": "control 0DQQz9", "sha256_prefix": "25edbf81", "note": "still pinned in the formal catalog row joint_quad_dds_mixed_pv_v1; the diagnostic run overrides it via CLI; never used as this run's identity"},
+      {"name": "control rWolCy", "sha256_prefix": "a6a17b42", "note": "2026-09-12 refresh, superseded"},
+      {"name": "control ZlTVa4", "sha256_prefix": "3d04d53a", "note": "stale; mismatches 8 current Simulator support sources"},
+      {"name": "control OEvS3W", "sha256_prefix": "d9fdfc74", "note": "2026-09-09 historical mixed control; admitted only for its exact legacy path with no message candidate"}
+    ]
+  },
+  "precheck": {
+    "distros": ["Ubuntu-22.04", "RflySim-20.04"],
+    "invoke_per_distro": ["wsl.exe", "-d", "<distro>", "-u", "root", "--", "python3", "-"],
+    "markers": ["arducopter", "ardupilot", "px4", "micro_ros_agent", "microxrceagent", "prometheus_control", "planner_transport_node", "roscore", "rosmaster", "unrealeditor", "matlab", "cc1plus", "g++", "bpftrace", "run_joint_flight.py", "wksim_core.worker", "validate_generated_e0_lifecycle.py", "pytest", "run_e2e.py", "first_step_trace_recorder", "wksim-native-release-wait", "clock_cases", "wksim-release-extension-bench", "cc1"],
+    "skip_comm": ["bash", "sh", "dash", "timeout"],
+    "found_must_be_empty": true,
+    "same_boot_required": true,
+    "freshness_seconds": 60,
+    "freshness_rule": "at launch, re-read /proc/sys/kernel/random/boot_id on Ubuntu-22.04; require both distro checks to carry that same boot_id and -1 <= time.time() - checked_unix <= 60; identical to validation/coordination/manager99-run-20260913-01/launch.sh lines 11-14",
+    "script": "import json,os,pathlib,time\nmarkers=('arducopter','ardupilot','px4','micro_ros_agent','microxrceagent','prometheus_control','planner_transport_node','roscore','rosmaster','unrealeditor','matlab','cc1plus','g++','bpftrace','run_joint_flight.py','wksim_core.worker','validate_generated_e0_lifecycle.py','pytest','run_e2e.py','first_step_trace_recorder','wksim-native-release-wait','clock_cases','wksim-release-extension-bench','cc1')\nfound=[]\nfor p in pathlib.Path('/proc').iterdir():\n if not p.name.isdigit() or int(p.name)==os.getpid():continue\n try:\n  comm=(p/'comm').read_text().strip()\n  argv=(p/'cmdline').read_bytes().replace(b'\\0',b' ').decode(errors='replace')\n  if comm in ('bash','sh','dash','timeout'):continue\n  if any(m in (comm+' '+argv).lower() for m in markers):\n   found.append(dict(pid=int(p.name),comm=comm,argv=argv[:350]))\n except (FileNotFoundError,ProcessLookupError,PermissionError):pass\nprint(json.dumps(dict(checked_unix=time.time(),distro=os.environ.get('WSL_DISTRO_NAME'),boot_id=pathlib.Path('/proc/sys/kernel/random/boot_id').read_text().strip(),uptime=pathlib.Path('/proc/uptime').read_text().strip(),found=found)))",
+    "protocol_source": "validation/coordination/three-deepseek-main-acceptance-20260913-01/precheck.py (verbatim reuse); freshest executed example validation/coordination/perf-overhead-long-20260913-01/prechecks.json"
+  },
+  "environment": {
+    "export": {
+      "PATH": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "must_be_unset": ["CMAKE_PREFIX_PATH", "AMENT_PREFIX_PATH", "COLCON_PREFIX_PATH", "LD_LIBRARY_PATH", "PYTHONPATH", "ROS_PACKAGE_PATH", "ROS_DISTRO", "PKG_CONFIG_PATH", "WKSIM_JOINT_CPU_TIMING", "WKSIM_JOINT_RATE_TIMING_PROBE"],
+    "must_be_unset_reason": "WKSIM_JOINT_RATE_TIMING_PROBE/WKSIM_JOINT_CPU_TIMING are separate diagnostics that rewrite the measured path; the current runner has no mutual-exclusion guard (recommended but not implemented in 100ef1a), so the exclusion is enforced here operationally"
+  },
+  "main_command": {
+    "cwd": "/root/wksim-architecture-acceptance-20260913",
+    "wrapper": "bash tools/run-joint-flight.sh",
+    "wrapper_semantics": "unshare --net --ipc --mount --propagation private, then exec python3 -B <repo>/tools/run_joint_flight.py run <args>; sources the frozen ROS/DDS setup files; see tools/run-joint-flight.sh",
+    "timeout": {
+      "seconds": 1500,
+      "signal": "TERM",
+      "kill_after_seconds": 120,
+      "scope": "own process group only",
+      "command_form": "timeout --signal=TERM --kill-after=120 1500 bash tools/run-joint-flight.sh <argv>",
+      "semantics": "GNU timeout without --foreground places the wrapper chain in its own new process group and signals that group only; the runner installs SIGTERM -> InterruptedError so its finally runs finalize_perf_capture then cleanup_children; flight children live in separate sessions (start_new_session=True) and are never in the timeout group; KILL after 120 s reaches only that same own PGID",
+      "escalation": "if the runner does not exit after KILL, re-verify each child identity (pid+pgid+start_ticks) against live/children-start.json and signal only those recorded own PGIDs; never scan or signal anything else; then re-run the two-distro process scan"
+    },
+    "internal_bounds": {"wall_limit_seconds": 900, "max_ticks": 180000, "candidate_transport_init_seconds": 15},
+    "argv": [
+      "--task-profile", "xy_velocity_z_position_yaw_v1",
+      "--async-model-evidence",
+      "--ap-mixed-manifest", "/root/wksim-ap-mixed-fhuf05l9/mixed-build.json",
+      "--ap-mixed-sha256", "1e6250eff8873d6b2e52017b613c223ac29f8260fdf92aac2cf0c7cdcc6ce94c",
+      "--control-manifest", "/root/wksim-joint-control-c2IXOr/build.json",
+      "--control-sha256", "6fe8c0b30775a9ba83407302f602d0785876d307e5f1cb746afa3bf316cf5e7e",
+      "--message-manifest", "/root/wksim-ros2-Rzj3Pf/message-build.json",
+      "--message-sha256", "29969da0702451e3fc6f1de40bc301a67284c4e7d5fae8f88c64773d27a96219",
+      "--perf-library", "/root/wksim-perf-python-admission-apup9qju/libwksim_perf_stream.so",
+      "--perf-library-sha256", "37d9651282bce0da059828056796683b94e780461f7918e60c3e1e77e2130020"
+    ],
+    "async_model_evidence_rationale": "matches the standing main decision for this diagnostic family (docs/plan/33-rate-next-diagnostic-20260912.md section 4.3; launches xtj8wk8i and nqyqcagl); the parser accepts both forms, but this runbook fixes one canonical argv",
+    "forbidden_flags": ["--px4-manifest", "--px4-sha256", "--ap-manifest", "--ap-sha256", "--ap-pv-manifest", "--ap-pv-sha256", "--pause-probe", "--repeat-paused-clock", "--scene-lifecycle", "--scene-lease-loss", "--dds-loss", "--native-state-trace", "--probe-land-freshness", "--model-promotion-flight", "--manager-gc-freeze", "--early-work-timing", "--owned-scheduling-snapshot"],
+    "forbidden_flags_reason": "the MIXED CLI branch rejects alternate probes and other manifest families (run_joint_flight.py lines 1214-1220); --manager-gc-freeze/--early-work-timing/--owned-scheduling-snapshot existed only in the retired private runner and do not exist in this runner",
+    "effective_runner_argv_prefix": ["python3", "-B", "<repo>/tools/run_joint_flight.py", "run"]
+  },
+  "runner_lifecycle": {
+    "marker": "result['perf_switch_capture']",
+    "marker_created": "run_joint_flight.py:468-477, before the outer try, with classification=diagnostic_only, formal_evidence=False, strict_consumer_passed=False, and pinned strict_consumer source+sha256 with require_kernel_counter=True and output perf-decoded.json",
+    "construction": "run_joint_flight.py:863-866 after rate creation, before any child process; constructor fail-fast checks kernel release, absolute existing .so, exact lowercase SHA256, absent output paths (perf_capture.py:26-63)",
+    "start": "run_joint_flight.py:961-962 after physics.connect(), before the main loop; owner pid+native tid recorded",
+    "window": "finalize exports id mixed_rate_segment_<segment_id>, start_ns=rate.last_summary anchor wall_ns, end_ns=rate.last_end; requires the window inside the capture inner span [enable_after_ns, disable_before_ns] and re-reads host boot_id against metadata (run_joint_flight.py:106-137)",
+    "stop": "outer finally run_joint_flight.py:1099-1101, before cleanup_children at :1102; fail-closed: any capture/window/seal/library error sets result status=failed",
+    "cleanup": "cleanup_children -> stop_children (Simulator/wksim_runtime/runtime.py:100-123): killpg(child.pid, SIGTERM), wait 5 s, killpg(child.pid, SIGKILL), wait 5 s; every child was launched with start_new_session=True so each PGID equals its child pid; only own groups are ever signaled",
+    "outputs": ["perf-switch.raw", "perf-switch.meta.json", "perf-windows.json"],
+    "archive": "validation/joint-public-flight-<id> (fresh mkdtemp), live /root/wksim-joint-flight-<id> (fresh mkdtemp); shutil.copytree(live, archive) at the end",
+    "rate_invariants": {
+      "step_ns": 1000000,
+      "macro_ticks": 4,
+      "requested_rate": 0.5,
+      "group_period_ns": 8000000,
+      "late_limit_ns": 100000000,
+      "no_catchup": "begin_group earliest = max(ideal, previous_start + period_ns) (joint_rate.py:89-93)",
+      "complete_windows": "single segment, 10 s/60 s full sliding windows with 2%/1% budgets, unchanged by this run"
+    }
+  },
+  "post_run": {
+    "consumer": {
+      "cwd": "/root/wksim-architecture-acceptance-20260913",
+      "argv": ["python3", "-B", "validation/coordination/ds-perf-stream-consumer-20260913-01/perf_stream_consumer.py", "--raw", "<ARCHIVE>/perf-switch.raw", "--metadata", "<ARCHIVE>/perf-switch.meta.json", "--windows", "<ARCHIVE>/perf-windows.json", "--require-kernel-counter", "--output", "<ARCHIVE>/perf-decoded.json"],
+      "output_must_not_exist": true,
+      "exit_codes": {
+        "0": "decoded; stdout single-line JSON {ok:true, output, pairs, records, windows, raw_sha256, metadata_sha256}",
+        "3": "contract rejection; stderr {ok:false, reason, detail}; no output written",
+        "4": "IO error reading inputs"
+      },
+      "expected_output_fields": {
+        "schema": "wksim.perf_switch_consumer.v1",
+        "classification": "diagnostic_only",
+        "full_acceptance": false,
+        "flight_conclusion": null,
+        "stream_completeness_proven": true,
+        "window_completeness": {"method": "post_disable_kernel_event_loss_counter", "kernel_lost_count": 0},
+        "windows": "one entry mixed_rate_segment_<segment_id> with integer-ns intersections"
+      },
+      "binding_check": "report inputs.raw_sha256/metadata_sha256/windows_sha256 must equal result.json perf_switch_capture.outputs raw/metadata/windows sha256 byte-for-byte; mismatch means the archive was replaced - fail closed",
+      "rejection_reasons": ["kernel_loss_counter_required", "kernel_loss_counter_unavailable", "kernel_loss_counter_read_invalid", "kernel_loss_counter_value_invalid", "kernel_loss_counter_nonzero", "output_exists_refusing_overwrite", "windows_outside_capture_bounds", "metadata schema/config/lifecycle/collector rejections", "raw length != captured_bytes", "LOST/LOST_SAMPLES/CPU_WIDE/unknown/truncated records", "unpaired or non-alternating switches", "timestamps outside capture bounds", "foreign owner identity"]
+    },
+    "audit_order": [
+      "1. strict consumer on the archive (this package)",
+      "2. only then tools/audit_mixed_control.py <archive>, so its evidence_sha256 seals perf-decoded.json (audit reads every file under the archive root)",
+      "3. never write perf-decoded.json or any derived value back into result.json"
+    ],
+    "post_run_sweep": "re-run the two-distro process scan (found must be [] and boot_id unchanged), and confirm every recorded child PGID empty; the runner already records children.*.remaining_group_members"
+  },
+  "failure_classification": {
+    "precondition_failed": "precheck found non-empty, boot_id mismatch, freshness > 60 s, candidate HEAD lacks 100ef1a, any manifest/library/source SHA mismatch - do not launch; no run exists",
+    "admission_failed": "mixed_admission.ok=false; run failed before children; marker stays requested/failed; not measured",
+    "capture_construct_failed": "PerfStreamCapture constructor raised (kernel, library path/SHA, pre-existing outputs); fail-closed; not measured",
+    "capture_start_failed": "start() nonzero or invalid handle; marker failed at finalize; not measured",
+    "latched_no_window": "RateUnmet before close_segment('completed'): rate.last_summary is null, finalize fails closed ('lacks a completed MIXED rate segment'); raw/meta exist, no perf-windows.json; consumer without --windows is inspection-only; the complete-window measurement did not happen; latch is a legitimate diagnostic outcome, not a regression",
+    "sealed": "marker status sealed_for_external_consumer with outputs; run the strict consumer",
+    "consumer_rejected": "exit 3 with the reason taxonomy above; capture invalid as complete evidence; preserve all bytes, never retry over the same output name",
+    "consumer_io_error": "exit 4; fix the path problem; never delete evidence",
+    "timeout_path": "TERM at 1500 s -> runner finally cleans up (status failed with InterruptedError); KILL after 120 s only to the own timeout PGID; then identity-verified per-child PGID sweep and two-distro rescan"
+  },
+  "expected_archive_artifacts": ["result.json", "perf-switch.raw", "perf-switch.meta.json", "perf-windows.json", "rate.jsonl", "clock.jsonl", "joint-wire.jsonl", "children-start.json", "experimental-admission.json", "model-build.json", "ap-build.json", "control-build.json", "message-build.json", "mixed-source.json", "baseline-pv-build.json", "source__*.txt (includes the 5 perf capture sources)", "arducopter-control.log", "px4-control.log", "arducopter-truth.jsonl", "px4-truth.jsonl"],
+  "expected_absent_artifacts": ["px4-build.json (no --px4-manifest was passed)", "perf-decoded.json inside result.json (decode is post-run only)"],
+  "source_sha256": {
+    "tools/run_joint_flight.py": "167a3c0790dde0bbef3b7bd2fee24616bdc623852aa7478a4c9356f425a670bf",
+    "tools/run-joint-flight.sh": "ea012da68bd8fcb3e25383197bf5a9f076aecfe5d3fd9a966675aa0d69fdc883",
+    "tools/ap_mixed_candidate.py": "5420e1443d58c66eca379b29d8bdb15ea044335dd343cca2d9da88d2364e368f",
+    "tools/mixed_control_task.py": "76adbd47fbe70c4fda4deabd893cc368b9fbd0ceeaabe4a6b7a59e597ed358fc",
+    "tools/joint_control_candidate.py": "4e34bbfa8ff8bae874e29673a58df4f48445a2c325c5165cdf352b80f2c89131",
+    "tools/joint_message_candidate.py": "5babcdca4601a40befc804ed3e34d6dc9e8c0a05b827db43374dbc3dd90a9efe",
+    "Simulator/wksim_runtime/perf_capture.py": "c196616fe8324eed2d8b294ef52aaec1f982eb5330abbeb7ee17094399f32e0f",
+    "Simulator/wksim_runtime/evidence.py": "4f7f2e601ce3c2edfe54c1c48ed35d41133304c2b1fa56a969148c6ccbbfcb7a",
+    "Simulator/wksim_runtime/joint_rate.py": "0b53a16acd65138b4623a9a8573ec8d643a2b78f4e27e8122c65efb9a6da25c4",
+    "Simulator/wksim_runtime/joint_profile.py": "90cc868b8050b41e54ef0c38cf20104c58aefb97f07d1448dfd0be1f8633320a",
+    "Simulator/wksim_runtime/joint-profiles.json": "190582638d124814f7d10818925d0f0431eb8f2aa4366a5192a4ff653cb2f88a",
+    "Simulator/wksim_runtime/runtime.py": "11b9b326ff9972b999f3d22ecb053329afc9f443f623826d934b2c7154c136d2",
+    "Simulator/wksim_runtime/examples/joint-mixed.json": "f344fb3049cafd3a5b67df30eed71c2171d156babaaeddbd63349f94a92108cf",
+    "validation/coordination/ds-perf-stream-recorder-20260913-01/wksim_perf_stream.c": "aa807f3baaafcd64ed6174a49f8010b49798a74d139ead2d4eb69eafa503c1d2",
+    "validation/coordination/ds-perf-stream-recorder-20260913-01/wksim_perf_stream.h": "ef1eabf247107098dc59a314d99b8fc82d4c54dbddd58d645bcec35141a12823",
+    "validation/coordination/ds-perf-stream-consumer-20260913-01/perf_stream_consumer.py": "dee9a3b5c3cafb42e69836758ccaebd4dbd78e8fa569d203c7ca1d36a03179bc",
+    "validation/test_run_joint_perf_capture.py": "05ddf8638e804a87a1f4b32912c62237332e5ca16e63b39d420b26fe379d7ce0",
+    "validation/test_perf_capture.py": "f4d95ae49478729e2f4c3a508f9ef452d3f6b5acffd0c8a3301bc72155d4f3c3"
+  },
+  "gaps": [
+    {"gap": "Candidate checkout /root/wksim-architecture-acceptance-20260913 was last verified at 386f713 which does NOT contain the runner perf wiring 100ef1a; main must fast-forward it to a commit containing 100ef1a whose pinned file SHA256s match this runbook before launching", "nearest_reusable_receipt": "validation/coordination/architecture-candidate-sync-20260913-02/receipt.json plus sync.py (bundle fetch + ff-only merge mechanism); build-receipt.json confirms the checkout path and branch"},
+    {"gap": "Current boot_id, candidate worktree cleanliness, on-disk manifest bytes and the pinned .so bytes cannot be observed from this Windows producer without starting WSL processes, which this package is forbidden to do; all are runtime gates listed in the runbook, not assumptions", "nearest_reusable_receipt": "validation/coordination/perf-overhead-long-20260913-01/prechecks.json (boot d01554f1..., found=[] on both distros) and validation/coordination/perf-python-native-admission-20260913-01/run-receipt.json (library sha 37d96512... at the same pinned path)"},
+    {"gap": "Model library /root/wksim-private-tmp-cxrbwjyr/artifacts/wksim-model-ms14otyn/libwksim_model.so has no independent byte pin in repo evidence (short-cycle-goal references chain prefix e59ab914 only); the run relies on the runner's own admission-chain verification, exactly as previous MIXED-family runs did", "nearest_reusable_receipt": "docs/2026-09-13-final-combo-pv-pass.md (1w6dru32 model_build retained in its archive) and validation/33-rate-profile/early-work-xtj8wk8i/bundle-manifest.json"},
+    {"gap": "Whether the candidate checkout carries identical bytes for every pinned file must be re-verified after sync; the 20260913-02 receipt verified 10 selected sources at 386f713, which predates the perf wiring", "nearest_reusable_receipt": "validation/coordination/architecture-candidate-sync-20260913-02/receipt.json"}
+  ]
+}
