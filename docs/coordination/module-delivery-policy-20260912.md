@@ -6,13 +6,17 @@
 
 | 负责人 | thread / turn | 当前交付 |
 | --- | --- | --- |
-| DS-1 | 45decda4-b315-42b3-b7da-2b724dabfd4f / 25843a07-ed3c-47c0-a61f-207571aaf393 | 准备无探针99清单，不执行，待共同前缀结果支持 |
-| DS-2 | e2a62dda-d7fa-43f0-bfdb-c62eb13ac86c / 7e719f25-798e-4ecd-adea-e9895e8a9771 | 各场内部对齐CPU后按各自窗口归一化 |
-| DS-3 | 7849b551-87ef-4dd7-8322-cd7e72ea241d / 026faa21-1ac9-4274-8096-d892dc97e5a3 | 修正8ms/非started混计，独立比较共同完整前缀 |
-| Claude | e64514a6-77c2-4b27-91a7-896c92a361fd / a00337ac-97c7-48a8-a779-6d5ad5c8b007 | 按同一完整tick/阶段口径比较两场延迟分区 |
-| OMP | 51609e8d-e4ce-4a8e-8a0d-f7c896c24842 / 448b84ab-cbe8-4dae-afc9-ea5d963e24b6 | 核验99真实实现及其他角色/掩码/身份不变量 |
+| DS-1 | 45decda4-b315-42b3-b7da-2b724dabfd4f / 25843a07-ed3c-47c0-a61f-207571aaf393 | 旧99无探针计划已执行失败，不再排同配置 |
+| DS-2 | e2a62dda-d7fa-43f0-bfdb-c62eb13ac86c / 7e719f25-798e-4ecd-adea-e9895e8a9771 | CPU归一化交付已完成，等待必要的新数据 |
+| DS-3 | 7849b551-87ef-4dd7-8322-cd7e72ea241d / eae94dec-54d8-45ad-9da7-ff45a0c8fe8d | 修正自线程perf能力C程序及合成ring负例，只准备不编译 |
+| Claude | e64514a6-77c2-4b27-91a7-896c92a361fd / a46c0f45-01fd-4242-bf27-c6e8213704d0 | 核算无探针99失败原件与无探针50共同前缀 |
+| OMP | 51609e8d-e4ce-4a8e-8a0d-f7c896c24842 / 5300c0f7-df5e-4670-8661-75404427fadb | 独立核对perf自线程权限、记录布局和丢失边界 |
 
-最新状态：9d15b9d已推送且ls-remote确认。manager99候选已在私有runner应用并实际运行x39qjvkw；当前私有runner9b97c124…、parent7855409d…、worker38f34a8f…，主仓库Windows runner他方修改保留。只改变自有manager目标50→99，其他角色/nice/RESET_ON_FORK/全局参数未改。代码旧注释justbelow99不正确，实际为同级99。
+最新结论：无探针manager99场oayggl_s也failed@tick108004，epochafa75a2cb5eb45f48f34526780299ec3，wall268.721856341s；实际manager FIFO99，结果无rate_timing_probe/owned_scheduling/group_work_timing键。source_unchanged=true，cleanup_errors=[]，同boot470ea486-9e18-4535-9d91-69de5a3a4572下PGID2109–2118独立全空。flight48029终态；keeper637/start422身份核验后SIGTERM、session7873终态。当前无native/keeper。
+
+99未能满足原倍率门槛，停止重复99配置，私有runner已由9b97c124回退1c600d7f（manager50）；parent7855409d、worker38f34a8f和所有原门保持。Windows runner未改，历史PV不重跑。接续见manager99-unprobed-20260913-01/dispatches.json。当前3个代理在工作、2个交付完成待需要时接续，不虚报满载。
+
+下一步先证实perf_event_open自线程context-switch侧带能力，不直接接飞行。仅pid=0/cpu=-1/inherit=0、软件DUMMY、TID/TIME/CPU、CLOCK_MONOTONIC；禁止CPU-wide/其他PID/全局sysctl或安装。主机只读观察为Linux6.6.87.2 WSL2、perf_event_paranoid=2、头文件存在，不代表实际open可用。D v1存在LOST偏移/CPU-wide与异身份/截断判定、先parse后disable、返回码等问题，已拒，修v2后主会话才编译自测。OMP在独立复核；程序还未编译或运行。依据Linux man-pages perf_event_open(2)，文档能力与本机实证分开。
 
 x39qjvkw已failed@tick109436，epoch7c8e3a038b05419a97e7fe9f97e0d04a，wall269.690976286s。前后快照11/11 captured、manager实际FIFO99，两相位validated；source_unchanged=true、cleanup_errors=[]，同boot5906186e-8181-42ff-8c56-d8ec2a26bd62下PGID2125–2134独立全空。flight session85236终态；keeper642/start432核验后SIGTERM，session39102终态。当前无native/keeper，不重复poll/restart。
 

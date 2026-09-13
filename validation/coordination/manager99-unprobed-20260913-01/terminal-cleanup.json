@@ -1,0 +1,51 @@
+{
+  "checked_at": 1789283847.5440166,
+  "boot_id": "470ea486-9e18-4535-9d91-69de5a3a4572",
+  "groups": [
+    2109,
+    2110,
+    2111,
+    2112,
+    2113,
+    2114,
+    2115,
+    2116,
+    2117,
+    2118
+  ],
+  "found": [],
+  "status": "failed",
+  "epoch": "afa75a2cb5eb45f48f34526780299ec3",
+  "fault": {
+    "version": 1,
+    "epoch": "afa75a2cb5eb45f48f34526780299ec3",
+    "tick": 108004,
+    "time_ns": 108004000000,
+    "phase": "faulted",
+    "last_barrier_tick": 108004,
+    "synchronized": true,
+    "pending_tick": null,
+    "single_remaining": 0,
+    "last_request_id": 0,
+    "fault": "rate_unmet/resource_insufficient",
+    "last_input_tick": 108004,
+    "recoverable": false,
+    "input_pending": false
+  },
+  "source_unchanged": true,
+  "cleanup_errors": [],
+  "manager_scheduling": {
+    "target_nice": -10,
+    "actual_nice": -10,
+    "target_fifo_priority": 99,
+    "reset_on_fork": true,
+    "actual_policy": 1073741825,
+    "actual_priority": 99
+  },
+  "markers": {},
+  "traceback": "Traceback (most recent call last):\n  File \"/root/wksim-release-acceptance-fe3/tools/run_joint_flight.py\", line 1170, in run\n    states = advance()\n  File \"/root/wksim-release-acceptance-fe3/tools/run_joint_flight.py\", line 1160, in advance\n    rate.end_group(clock.tick)\n  File \"/root/wksim-release-acceptance-fe3/Simulator/wksim_runtime/joint_rate.py\", line 143, in end_group\n    self.check(lateness)\n  File \"/root/wksim-release-acceptance-fe3/Simulator/wksim_runtime/joint_rate.py\", line 87, in check\n    raise RateUnmet(lateness)\nSimulator.wksim_runtime.joint_rate.RateUnmet: rate_unmet/resource_insufficient\n",
+  "keeper_stopped": {
+    "pid": 637,
+    "start_ticks": 422
+  }
+}
