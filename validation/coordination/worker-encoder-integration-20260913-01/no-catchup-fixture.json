@@ -1,0 +1,39 @@
+{
+  "classification": "pure_regression_fixture",
+  "full_acceptance": false,
+  "source_sha256": "0b53a16acd65138b4623a9a8573ec8d643a2b78f4e27e8122c65efb9a6da25c4",
+  "original_JointRate_executed": true,
+  "production_source_modified": false,
+  "observations": [
+    {
+      "start_tick": 0,
+      "work_ns": 10000000,
+      "start_lateness_ns": 0,
+      "end_lateness_ns": 2000000,
+      "earliest_start_ns": 0
+    },
+    {
+      "start_tick": 4,
+      "work_ns": 4000000,
+      "start_lateness_ns": 2000000,
+      "end_lateness_ns": 0,
+      "earliest_start_ns": 8000000
+    },
+    {
+      "start_tick": 8,
+      "work_ns": 4000000,
+      "start_lateness_ns": 2000000,
+      "end_lateness_ns": 0,
+      "earliest_start_ns": 18000000
+    },
+    {
+      "start_tick": 12,
+      "work_ns": 4000000,
+      "start_lateness_ns": 2000000,
+      "end_lateness_ns": 0,
+      "earliest_start_ns": 26000000
+    }
+  ],
+  "finding": "Start drift survives later short work. End lateness may decrease. A catch-up recurrence cannot predict no-catch-up start drift.",
+  "scope": "Exact configured releases and fake clock; no native, no measured performance, no prediction from historical Windows microbench."
+}

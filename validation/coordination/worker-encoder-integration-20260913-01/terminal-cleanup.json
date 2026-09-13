@@ -1,0 +1,47 @@
+{
+  "boot_id": "9f076946-7482-45bb-9188-a75badaa1958",
+  "checked_at": 1789268971.2840354,
+  "groups": [
+    2210,
+    2211,
+    2212,
+    2213,
+    2214,
+    2215,
+    2216,
+    2217,
+    2218,
+    2219
+  ],
+  "found": [],
+  "python_processes": [
+    {
+      "pid": 683,
+      "cpu_ticks": 1,
+      "cmd": "python3 -u -c import os,pathlib,time,json; s=pathlib.Path('/proc/self/stat').read_text(); print(json.dumps({'purpose':'worker-encoder-flight-boot-keeper','pid':os.getpid(),'start_ticks':int(s[s.rfind(')')+2:].split()[19]),'boot_id':pathlib.Path('/proc/sys/kernel/random/boot_id').read_text().strip(),'expires_after_seconds':1200}),flush=True); time.s"
+    }
+  ],
+  "status": "failed",
+  "scene_epoch": "26acf41ac8904593a93427d530e59879",
+  "faulted_authority": {
+    "version": 1,
+    "epoch": "26acf41ac8904593a93427d530e59879",
+    "tick": 28604,
+    "time_ns": 28604000000,
+    "phase": "faulted",
+    "last_barrier_tick": 28604,
+    "synchronized": true,
+    "pending_tick": null,
+    "single_remaining": 0,
+    "last_request_id": 0,
+    "fault": "rate_unmet/resource_insufficient",
+    "last_input_tick": 28604,
+    "recoverable": false,
+    "input_pending": false
+  },
+  "source_unchanged": true,
+  "cleanup_errors": [],
+  "unowned_ap_after": null,
+  "markers": {},
+  "traceback": "Traceback (most recent call last):\n  File \"/root/wksim-release-acceptance-fe3/tools/run_joint_flight.py\", line 1002, in run\n    states = advance()\n  File \"/root/wksim-release-acceptance-fe3/tools/run_joint_flight.py\", line 992, in advance\n    rate.end_group(clock.tick)\n  File \"/root/wksim-release-acceptance-fe3/Simulator/wksim_runtime/joint_rate.py\", line 143, in end_group\n    self.check(lateness)\n  File \"/root/wksim-release-acceptance-fe3/Simulator/wksim_runtime/joint_rate.py\", line 87, in check\n    raise RateUnmet(lateness)\nSimulator.wksim_runtime.joint_rate.RateUnmet: rate_unmet/resource_insufficient\n"
+}

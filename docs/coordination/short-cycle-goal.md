@@ -9,28 +9,27 @@
 - Windows tools/run_joint_flight.py属于其它工作；实验runner只在上述Linux检出修改，并保留实际源SHA快照。最新主仓库joint_profile.py修复尚未同步到该Linux检出。
 - 队列JSON是交接记录，不是后台自动调度程序。先读精确thread终态再续派；THREAD_BUSY不算送达，cancel ack不算终态。
 
-## 当前新增六席与实际执行状态
+## 当前运行与模块负责人
 
-2026-09-13 用户明确要求新增 3 DeepSeek + 3 codebuddy。已逐个实际派发并读取结果：DeepSeek 三席均有源码/实现进展；codebuddy 三席均以429结束，没有工作交付。额度提示为2026-09-13 20:54:20 JST。不会把API创建成功当作任务执行成功，也不循环重试。
+当前5个外部执行端为3 DeepSeek、Claude、OMP。codebuddy三席均429结束，重置提示2026-09-13 20:54:20 JST；不把它们计入活跃数量，也不循环重试。根Goal仍active，三分钟heartbeat保持PAUSED。
 
-| 席位 | Harness | Task | 读取状态 | 独占范围 |
-| --- | --- | --- | --- | --- |
-| DS-1 | deepseek-harness | [45decda4-b315-42b3-b7da-2b724dabfd4f](codex://threads/45decda4-b315-42b3-b7da-2b724dabfd4f) | running | validation/coordination/ds-group-audit-20260913-01 |
-| DS-2 | deepseek-harness | [e2a62dda-d7fa-43f0-bfdb-c62eb13ac86c](codex://threads/e2a62dda-d7fa-43f0-bfdb-c62eb13ac86c) | running | validation/coordination/ds-hotpath-review-20260913-01 |
-| DS-3 | deepseek-harness | [7849b551-87ef-4dd7-8322-cd7e72ea241d](codex://threads/7849b551-87ef-4dd7-8322-cd7e72ea241d) | running | validation/coordination/ds-g6-guard-review-20260913-01 |
-| CB-1 | codebuddy | [ca59872f-0e41-4a7a-9b19-0936c664960c](codex://threads/ca59872f-0e41-4a7a-9b19-0936c664960c) | 429，未执行 | validation/coordination/cb-recorder-review-20260913-01 |
-| CB-2 | codebuddy | [e54c030f-8764-4bb6-912a-2983bf92c011](codex://threads/e54c030f-8764-4bb6-912a-2983bf92c011) | 429，未执行 | validation/coordination/cb-admission-review-20260913-01 |
-| CB-3 | codebuddy | [a369d683-177b-4d56-b32c-8fd0136eaaf8](codex://threads/a369d683-177b-4d56-b32c-8fd0136eaaf8) | 429，未执行 | validation/coordination/cb-evidence-pack-20260913-01 |
+| 负责人 | thread / turn | 当前交付 |
+| --- | --- | --- |
+| DS-1 | 45decda4-b315-42b3-b7da-2b724dabfd4f / 8d886e64-42af-4546-b3ae-8ec5909d44de | 完成独立审计5项缺口及48组内间隙分类修复，复核真实反例 |
+| DS-2 | e2a62dda-d7fa-43f0-bfdb-c62eb13ac86c / 6c752ecb-94f8-44a4-95b3-1ec502707e9c | 分析l6bxh4tn的61ms释放超额与真实时间分区 |
+| DS-3 | 7849b551-87ef-4dd7-8322-cd7e72ea241d / ec900180-79fa-4dc1-8656-afc841e5bb8d | 验证严格hex/目标序号修复及真实回放 |
+| Claude | e64514a6-77c2-4b27-91a7-896c92a361fd / a0f9fb5a-76fd-4fc8-b331-c9539bc80e33 | 独立复核G6比较器修复 |
+| OMP | 51609e8d-e4ce-4a8e-8a0d-f7c896c24842 / fa123975-8a94-4c9e-ac49-f2708ace8c63 | 纠正编码计时结论，检查自有进程调度证据和后续实验可行性 |
 
-codebuddy 三份任务已转移写权：CB-1→Claude e64514a6-77c2-4b27-91a7-896c92a361fd / turn 2a36e6d3-6924-4df4-8279-c1becfad8f0e，CB-2→OMP 51609e8d-e4ce-4a8e-8a0d-f7c896c24842 / turn da7033a6-bcac-49e0-a0a6-8fc3ca494de5；两者read确认running。CB-3由主会话接手，选取证据包、完整性检查与5项负例/正例已完成。实际为5个外部运行任务+主会话，不是6个外部代理都已工作。
+实时接续句柄与交付范围以validation/coordination/worker-encoder-integration-20260913-01/dispatches.json为准。模块负责人负责内部测试/修复；交付稳定SHA后独立复核、批量集成。审计器的5项真实反例尚待修复验收，旧pass报告不得作为完整审计工具可靠性的证明。G6严格hex/目标序号修复正在独立复核，不据作者自报测试通过合并。
 
-每个任务含主交付及独立接续项，本轮可自行完成两项后交付即停；协调者逐个读取终态、验收后续派，不等整批。明确文件范围，禁止子代理native/模型/ROS/MATLAB/UE/构建及修改正式门。完整delegationId/threadId/turnId/deepLink/model配置及任务说明在 validation/coordination/rolling-six-20260913-01.json。
+已推送ffb48b5、c1bfd42：准入独立测试与证据包10项检查、计时记录器/producer/独立对抗53项合并检查全部通过。G6合同已纠正旧“入口不存在”说法，当前缺口仍为有依据且approved的逐量预算。
 
-本轮接续已派发并读回：DS-1 turn39398e5d做交付目录/CPU窗口措辞修正并分析实际tick间隙；DS-2 turn1e22e586修正每tick收益与累计迟到的错误比较；OMP的准入测试5项与证据封存5项已批量通过，OMP已转turnf82cd18c核验编码器候选的WSL Python3.10等价性。Claude继续记录器对抗测试，DS-3继续G6验证。稳定交付收据及接续句柄在rolling-six-20260913-02/。修正G6合同中的过期“入口不存在”描述，现有同源入口已实现，缺口仍是有依据且approved的预算。未启动新native，原门不变。
+最新无探针MIXED l6bxh4tn失败：epoch26acf41ac8904593a93427d530e59879，tick28604，迟到104381463ns，wall112.660268145s，未起飞。7141组、12工作超额组；工作超额合计18492055ns，start22420单次释放超额61209261ns，待独立定位，不能归因OS或缓存编码器。无诊断标记，source_unchanged=true，cleanup_errors=[]；同boot9f076946-7482-45bb-9188-a75badaa1958下PGID2210–2219独立全空。Keeper683/start147141按身份核验后SIGTERM且session69716终态；flight session31296终态，禁止再poll/restart这两个句柄。
 
-根Goal仍是唯一持续协调器，原三分钟heartbeat保持PAUSED。DeepSeek新派发已恢复实际执行，但不能由此断言旧卡死task恢复；不执行未获批准的应用重启、不写Goal数据库。
+本场唯一运行候选是worker.py缓存JSONEncoder：原0becd1f3…→38f34a8f…；主仓库与私有检出已接线，真实worker协议/日志测试Windows和WSL各18项通过，OMP实际WSL3.10等价6项通过。微基准不是整场收益；失败场保持failed。私有joint.py/runner已恢复为诊断前f5433c2e…/f5411627…，rate/probe保持0b53a16a…/a8bac9ac…。拒绝的追赶投影没有接入。下一步基于61ms区间证据选择改动，不盲重跑同配置；全部原门及已通过PV保持。
 
-当前诊断 rfw9nmbb 已终态failed：epoch9b18d3d1322749db8e7dfccd7891b885，tick98684，RateUnmet，wall250.403797634s，source_unchanged=true、cleanup_errors=[]、flight_completed=false。有界记录器valid=true，24661完整组、18超额组、16报告、2超额报告按上限丢弃、0诊断错误。原件保留，不能正式提升。详情在 group-work-diagnostic-20260913-01/terminal-cleanup.json；后检WSL boot已变化，当前同号PGID全空只证明当前无残留，不作同boot清理证据，不向同号PID发信号。新的详细阶段证据由DS-1/DS-2并行分析。
+上一有界诊断rfw9nmbb仍保留：24661完整组、18超额/16详细报告/2显式丢弃，diagnostic_only且failed。其48个详细间隙全部在各自4tick组内，旧“16宏边界间隙”分析已被主审拒绝。源快照、失败原件和旧报告保留，不能把CPU与wall移位窗口差值称为精确离CPU时间。
 
 ## 已完成：#83
 

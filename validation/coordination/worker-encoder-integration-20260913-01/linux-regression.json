@@ -1,0 +1,24 @@
+{
+  "command": [
+    "wsl",
+    "-d",
+    "Ubuntu-22.04",
+    "--cd",
+    "/root/wksim-release-acceptance-fe3",
+    "--",
+    "env",
+    "-u",
+    "WK_MODEL_LIBRARY",
+    "python3",
+    "-B",
+    "-m",
+    "unittest",
+    "validation.test_worker_serialization_reuse",
+    "validation.test_joint_model_worker.ProtocolTests",
+    "-v"
+  ],
+  "exit_code": 0,
+  "output": "test_digest_failure_does_not_publish_sidecar (validation.test_worker_serialization_reuse.AsyncEvidenceIdentity) ... ok\ntest_writer_sidecar_records_closed_stream_identity (validation.test_worker_serialization_reuse.AsyncEvidenceIdentity) ... ok\ntest_extras_serialization_failure_has_no_trace_or_response (validation.test_worker_serialization_reuse.SerializationReuse) ... ok\ntest_initial_state_after_step_fails_closed_in_loop (validation.test_worker_serialization_reuse.SerializationReuse) ... ok\ntest_initial_state_read_is_one_shot_audited_and_never_steps (validation.test_worker_serialization_reuse.SerializationReuse) ... ok\ntest_invalid_initial_state_has_no_sidecar_or_response (validation.test_worker_serialization_reuse.SerializationReuse) ... ok\ntest_invalid_state_preserves_trace_before_validation_failure (validation.test_worker_serialization_reuse.SerializationReuse) ... ok\ntest_log_write_failure_propagates_before_response (validation.test_worker_serialization_reuse.SerializationReuse) ... ok\ntest_missing_initial_state_method_fails_closed (validation.test_worker_serialization_reuse.SerializationReuse) ... ok\ntest_nonfinite_state_serialization_failure_has_no_trace_or_response (validation.test_worker_serialization_reuse.SerializationReuse) ... ok\ntest_output_limit_still_prevents_publication_after_log (validation.test_worker_serialization_reuse.SerializationReuse) ... ok\ntest_second_initial_state_request_fails_closed (validation.test_worker_serialization_reuse.SerializationReuse) ... ok\ntest_second_lifetime_still_rejected (validation.test_worker_serialization_reuse.SerializationReuse) ... ok\ntest_step_and_snapshots_preserve_bytes_with_one_state_encode_per_response (validation.test_worker_serialization_reuse.SerializationReuse) ... ok\ntest_initial_request_boundaries (validation.test_joint_model_worker.ProtocolTests) ... ok\ntest_initial_response_validation (validation.test_joint_model_worker.ProtocolTests) ... ok\ntest_requests_and_boundaries (validation.test_joint_model_worker.ProtocolTests) ... ok\ntest_response_validation (validation.test_joint_model_worker.ProtocolTests) ... ok\n\n----------------------------------------------------------------------\nRan 18 tests in 0.008s\n\nOK\n",
+  "sha256": "38f34a8f68efe8353f99703ec3ce1a18749ec7798933587f349b480dd638060c",
+  "no_native_model": true
+}

@@ -1,0 +1,21 @@
+{
+  "reviewed_at": 1789268715.258239,
+  "previous_goal_turn": "progress: two tested batches committed and pushed as ffb48b5,c1bfd42",
+  "worker_main_and_private_sha256": "38f34a8f68efe8353f99703ec3ce1a18749ec7798933587f349b480dd638060c",
+  "regressions": {
+    "Windows": 18,
+    "WSL_Python310": 18
+  },
+  "pending_audit_corrections": [
+    {
+      "owner": "DS-1",
+      "source": "gap_map.py:336",
+      "issue": "macro_boundary=(index==2) is wrong: all48 retained gaps connect P+1..P+4 inside the same4tick group. The next begin_group occurs afterP+4, outside these gaps. Archived runner checks pre-advance clock.tick%4 then physics increments; do not classify gapP+3->P+4 as macro. Also proposed clock pairs have shifted CPU/wall windows, not exact offCPU."
+    },
+    {
+      "owner": "DS-2",
+      "issue": "Rejected and interrupted wrong catch-up rate projection. Author deleted rejected helper despite instruction to preserve; no production rate source changed. Rejection formula and interruption retained in this receipt and thread; do not claim full rejected source retained."
+    }
+  ],
+  "native_state": "prepared, not launched; gate next native on reviewed launch and heavy-task retirement; two fresh WSL checks required"
+}

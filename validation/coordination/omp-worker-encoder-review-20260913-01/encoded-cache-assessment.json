@@ -1,0 +1,133 @@
+{
+  "schema": "wksim.worker-encoded-cache-review.v1",
+  "python": "3.10.12 (main, Aug 31 2026, 10:18:17) [GCC 11.4.0]",
+  "source_sha256": "0becd1f3214b53c6169fb61ae010a969fb57a4ccbe26fb3ed3c3652c26ef7fab",
+  "module_imported": false,
+  "call_site_census": {
+    "_worker_loop": 5,
+    "receive_workers": 1
+  },
+  "equivalence": [
+    {
+      "payload": "request",
+      "original": "ok",
+      "candidate": "ok",
+      "identical": true
+    },
+    {
+      "payload": "request_terrain",
+      "original": "ok",
+      "candidate": "ok",
+      "identical": true
+    },
+    {
+      "payload": "response",
+      "original": "ok",
+      "candidate": "ok",
+      "identical": true
+    },
+    {
+      "payload": "initial_response",
+      "original": "ok",
+      "candidate": "ok",
+      "identical": true
+    },
+    {
+      "payload": "extras",
+      "original": "ok",
+      "candidate": "ok",
+      "identical": true
+    },
+    {
+      "payload": "extras_terrain",
+      "original": "ok",
+      "candidate": "ok",
+      "identical": true
+    },
+    {
+      "payload": "unicode_fields",
+      "original": "ok",
+      "candidate": "ok",
+      "identical": true
+    },
+    {
+      "payload": "int_keys",
+      "original": "ok",
+      "candidate": "ok",
+      "identical": true
+    },
+    {
+      "payload": "nested_empty",
+      "original": "ok",
+      "candidate": "ok",
+      "identical": true
+    },
+    {
+      "payload": "nan_state",
+      "original": [
+        "ValueError"
+      ],
+      "candidate": [
+        "ValueError"
+      ],
+      "identical": true
+    },
+    {
+      "payload": "inf_state",
+      "original": [
+        "ValueError"
+      ],
+      "candidate": [
+        "ValueError"
+      ],
+      "identical": true
+    },
+    {
+      "payload": "circular",
+      "original": [
+        "ValueError"
+      ],
+      "candidate": [
+        "ValueError"
+      ],
+      "identical": true
+    },
+    {
+      "payload": "tuple_key",
+      "original": [
+        "TypeError"
+      ],
+      "candidate": [
+        "TypeError"
+      ],
+      "identical": true
+    }
+  ],
+  "threading": {
+    "threads": 8,
+    "encodes_per_thread": 500,
+    "divergences": 0
+  },
+  "timing": {
+    "dumps": {
+      "iterations": 3000,
+      "min_ns": 19494,
+      "median_ns": 20635.5,
+      "p95_ns": 28729,
+      "p99_ns": 66635
+    },
+    "cached_encoder": {
+      "iterations": 3000,
+      "min_ns": 18651,
+      "median_ns": 20187.5,
+      "p95_ns": 23091,
+      "p99_ns": 33621
+    }
+  },
+  "limits": [
+    "Payload shapes follow the archived source; they are not captured bytes from a run.",
+    "Timing is a bounded pure-encoding microbenchmark on this host; min/median/p95/p99 are sample statistics, never upper bounds.",
+    "Thread safety conclusion is CPython-3.10-specific: encode() builds a fresh iterator per call and the encoder holds no mutable state, matching json's own module-scope _default_encoder pattern."
+  ],
+  "script_sha256": "b10f4c03409e650d6798e919c8cd09d839315a409fd0b6255931c498f6257691"
+}
