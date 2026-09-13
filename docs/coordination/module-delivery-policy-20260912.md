@@ -6,13 +6,13 @@
 
 | 负责人 | thread / turn | 当前交付 |
 | --- | --- | --- |
-| DS-1 | 45decda4-b315-42b3-b7da-2b724dabfd4f / d8f0ed2e-c011-4291-aa3a-94777dd3a886 | 验证时间规则v3，分清整数ULP距离与相对精确有理数的误差 |
-| DS-2 | e2a62dda-d7fa-43f0-bfdb-c62eb13ac86c / 1b8a5b44-c9d1-49c0-970f-7542c396aa0e | 只准备最后已完成sleep/loop-health时间字段，不增加时钟读取 |
-| DS-3 | 7849b551-87ef-4dd7-8322-cd7e72ea241d / 624fc129-a613-4ba6-a925-e311274b4a55 | 独立验证回调字段候选的时钟/回调/异常等价性 |
-| Claude | e64514a6-77c2-4b27-91a7-896c92a361fd / 2dff6812-a526-4015-91ca-a6505ae1f949 | 补齐父探针分析器全局流序校验并复核两场原件 |
-| OMP | 51609e8d-e4ce-4a8e-8a0d-f7c896c24842 / e7b7b0b6-005c-419f-bee5-556be244293e | 按sleep/loop-health有无分组，独立核算新场remaining区间 |
+| DS-1 | 45decda4-b315-42b3-b7da-2b724dabfd4f / 05d6825f-f7af-4058-a707-8ce06d96acaf | 核验同源11.8 major的sensor_time/gps_time单位与表达链 |
+| DS-2 | e2a62dda-d7fa-43f0-bfdb-c62eb13ac86c / 425d33b6-1464-4c64-8084-83d110068b0a | 退役错误的重复调度读取器，修正源码路径与实际运行的界限 |
+| DS-3 | 7849b551-87ef-4dd7-8322-cd7e72ea241d / 955fa6c5-c75f-4aaf-a729-c2ffecc3fd68 | 独立复核11.8 major vehicle_time绑定 |
+| Claude | e64514a6-77c2-4b27-91a7-896c92a361fd / 73f6801a-7122-4fba-b71e-37ef3dbe627f | 复用已有调度捕获工具，准备诊断runner接线与生命周期验证 |
+| OMP | 51609e8d-e4ce-4a8e-8a0d-f7c896c24842 / 63da7482-132b-4937-a2f6-45a47f069ba6 | 独立核对PX4编译/启动覆盖和自有线程快照方案 |
 
-实时接续句柄与交付范围以validation/coordination/parent-probe-run-20260913-01/dispatches.json为准。模块负责人负责内部测试/修复；交付稳定SHA后独立复核、批量集成。审计器5项缺口已修复，主会话独立反例7/7符合预期、20份交付哈希一致，5165781已推送；旧错误报告明确被v2替代。G6严格hex/目标序号修复经过52项作者检查及10项独立复核、15个输入/源码/回放哈希复验，13cf154已推送。aligned仍仅表示结构对齐，不能忽略numerator_equal/matrix_equal或据此宣称G6通过。
+实时接续句柄与交付范围以validation/coordination/next-native-observation-20260913-01/dispatches.json为准。模块负责人负责内部测试/修复；交付稳定SHA后独立复核、批量集成。审计器5项缺口已修复，主会话独立反例7/7符合预期、20份交付哈希一致，5165781已推送；旧错误报告明确被v2替代。G6严格hex/目标序号修复经过52项作者检查及10项独立复核、15个输入/源码/回放哈希复验，13cf154已推送。aligned仍仅表示结构对齐，不能忽略numerator_equal/matrix_equal或据此宣称G6通过。
 
 已推送ffb48b5、c1bfd42：准入独立测试与证据包10项检查、计时记录器/producer/独立对抗53项合并检查全部通过。G6合同已纠正旧“入口不存在”说法，当前缺口仍为有依据且approved的逐量预算。
 
@@ -23,6 +23,10 @@
 父探针诊断uy9ov56b已真实完成并失败：epochbf067fd133454585a0c2c62e9e2bcfb4，tick90132，wall232.496016401s，RateUnmet100116315ns。22523完整组及22524父探针记录（末次未成功begin单独报告）；无spin/census。源码未变、cleanup_errors=[]，同boot9150ec13-5eb1-44e4-ab9e-152e451dfb9b下PGID2086–2095独立全空。Keeper598/start337身份核验后SIGTERM，session20574终态；flight session67260终态，禁止重poll/restart。私有runner现08e20642…（父探针内存deque仅留最新1，完整JSONL保留），worker38f34a8f…、parenta8bac9ac…和rate0b53a16a…保持。Windows tools/run_joint_flight.py未改。
 
 本场started转移分区已由主会话独立核算：priorwork35935249ns、outside_begin3094328ns、initial_health3153715ns、remaining_begin57609467ns；这是释放超额区间，不是总等待时间或OS归因。最大单次释放超额12877513ns@17852，其中12593632ns来自前组工作。本场未重现61ms间隔。末次未开始尝试跨沿197487ns后触发，不能伪造成完成start。分析器在补流序拒绝，当前数字不等于其所有解析路径已验收。
+
+回调候选v2(7855409d…)已修复同组“先成功后失败”混配时间戳问题，独立旧/新实证与WSL Python3.10检查通过；OMP消费者v2(e6e7399b…)和真实生产者10新行+3旧行回放全部通过，cd876e7/db85c24已推送。它尚未施加到运行时：主/私有parent仍a8bac9ac…，私有runner仍08e20642…。已完成的流序分析器及G6有限范围时间算术以6b84e55推送；11.8 major时间绑定正在独立复核，不把11.0 runtime post-step前提直接套用。
+
+PX4冻结源码存在98/99优先级线程创建路径，高于manager FIFO50；尚未证明本场实际线程/回退路径，不能据此归因。B新写的snapshot_reader存在stat索引及身份校验问题，禁止使用，正在退役；复用现有tools/capture_owned_scheduling.py，准备仅在计时前及拆除资源前读取自有PID/TID。所有调度/亲和性/内核参数未改。RT预算950000/1000000的收据仅属于另一空闲boot，不能说明历史飞行有无节流。下一实跑待回调与调度快照接线验收、重负载停止、双WSL前检完成；不盲重跑、不重跑已过PV。
 
 新计划仅准备复用已有sleep/loop-health前后读数的最后回调字段，无新增时钟读取/节拍算法/阈值变化；独立验证后再决定是否必要实跑。已过PV不重跑，所有诊断保持diagnostic_only。G6 token边界修复已以d21eae1推送，13项新/旧真实实现回归、18项原测试及17项候选身份核验通过，模型候选字节不变。
 
