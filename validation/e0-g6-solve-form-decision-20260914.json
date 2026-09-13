@@ -1,0 +1,284 @@
+{
+  "schema": "wksim.59-g6-solve-form-decision.v1",
+  "kind": "g6_b5_solve_form_decision_packet",
+  "issue": 59,
+  "layer": "proposed",
+  "authority": "proposal_only",
+  "effective": false,
+  "date": "2026-09-14",
+  "title": "G6/B5 C3G first-step solve-form decision packet and diagonal-candidate recheck (PROPOSED, not a decision)",
+  "work_class": "new-development",
+  "g6_acceptance": false,
+  "physical_accuracy": false,
+  "r1_status": "numerical_failed",
+  "issues_closed": false,
+  "claim_text": "PROPOSED B5 solve-form observation only: on the pinned C3G first-step traces the discriminating solve difference is pair 2 / index 1 (1 ULP), residual and diagonal Selector2 match, direct division reproduces the mrdivide q, multiply-by-reciprocal reproduces the reference q, and the retained diagonal candidate matches the reference at that point. No owner option is chosen, B1 and B4 stay unfrozen, and G6/Full remain unaccepted.",
+  "observed_at": {
+    "head": "768526aafa1e48c342c5c8840a9154e8ed90f68d",
+    "branch": "main",
+    "baseline_ancestor": "f333316e6efa6b299b4288a9d91fb2bccedfb9d6",
+    "origin_main": "768526aafa1e48c342c5c8840a9154e8ed90f68d",
+    "baseline_ancestor_is_ancestor_of_head": true,
+    "ancestor_check_exit": 0,
+    "recorded_utc": "2026-09-14T00:00:00Z"
+  },
+  "evidence_policy": {
+    "digest_algorithm": "sha256",
+    "digest_encoding": "lowercase_hex",
+    "require_tracked_at_head": [
+      "reference_run05",
+      "target_mrdivide",
+      "diagonal_candidate"
+    ],
+    "fail_closed_on": [
+      "unknown_key",
+      "missing_key",
+      "wrong_type",
+      "malformed_hex",
+      "wrong_case_or_stage",
+      "non_diagonal_selector2",
+      "solve_form_mismatch",
+      "missing_pins",
+      "tampering",
+      "g6_or_physical_acceptance_claim",
+      "owner_decision_made",
+      "budget_or_contract_freeze"
+    ]
+  },
+  "pins": {
+    "reference_run05": {
+      "id": "reference_run05",
+      "path": "validation/coordination/g6-reference-probe-20260913/run-05/reference-first-step.json",
+      "sha256": "72ff7d8eaeee7854bf026d19a7ee37f38c061764ce5369d0dd5845b1aa084c62",
+      "tracked_at_head": true,
+      "role": "reference first-step observability with pqr_input_probe"
+    },
+    "target_mrdivide": {
+      "id": "target_mrdivide",
+      "path": "validation/coordination/g6-target-mrdivide-20260913/first-step-trace.jsonl",
+      "sha256": "9cee60eb5b3e5ccc96730f13423f5e0fa07de19654a481d32e9e885953f4bed3",
+      "tracked_at_head": true,
+      "role": "current generated-source mrdivide / division-form first-step trace"
+    },
+    "diagonal_candidate": {
+      "id": "diagonal_candidate",
+      "path": "validation/coordination/g6-diagonal-solve-candidate-20260913/first-step-trace.jsonl",
+      "sha256": "5e89b720dac275a4980df1881aae2dfde76d223ad9a0bc8dbeba15edaa1e1d09",
+      "tracked_at_head": true,
+      "role": "diagnostic-only uniform diagonal reciprocal-multiply first-step trace"
+    },
+    "comparison_v2": {
+      "id": "comparison_v2",
+      "path": "validation/coordination/g6-target-first-step-20260913/comparison-v2.json",
+      "sha256": "2a6b8fe9338224d64f0cc91fd4c66139b3422ca23c3032049cd529d6387ea3c9",
+      "tracked_at_head": true,
+      "role": "documented earliest first-step divergence binding"
+    },
+    "division_vs_reference": {
+      "id": "division_vs_reference",
+      "path": "validation/coordination/cursor-g6-solve-form-20260914-01/division-vs-reference.json",
+      "sha256": "bb45b0213dd9966c27e135bd173ebad5e250bdd51ae8cf108b0aa11ab8c2932d",
+      "tracked_at_head": false,
+      "role": "recomputed first-step compare of run-05 vs mrdivide"
+    },
+    "diagonal_vs_reference": {
+      "id": "diagonal_vs_reference",
+      "path": "validation/coordination/cursor-g6-solve-form-20260914-01/diagonal-vs-reference.json",
+      "sha256": "56a611f96f72e6bce2a5b4bd612105cc88a4c2208de2918c16339e21de2eabbd",
+      "tracked_at_head": false,
+      "role": "recomputed first-step compare of run-05 vs diagonal candidate"
+    },
+    "stage2_operand_boundary": {
+      "id": "stage2_operand_boundary",
+      "path": "validation/coordination/cursor-g6-solve-form-20260914-01/stage2-operand-boundary.json",
+      "sha256": "07b5b6c07060417151470b48ddf0510920977c4101718ab7156d3b36ff2ee634",
+      "tracked_at_head": false,
+      "role": "recomputed C3G stage-2 operand-boundary compare"
+    }
+  },
+  "identity": {
+    "case": "C3G",
+    "solver": "ode4",
+    "k": [0, 1],
+    "stage": 2,
+    "time_s": 0.0005,
+    "time_hex": "3f40624dd2f1a9fc",
+    "mrdivide_seq": 2,
+    "pair": 2,
+    "block": "p,q,r",
+    "field": "derivatives",
+    "index": 1,
+    "component": "q"
+  },
+  "selector2": {
+    "hex": [
+      "3f959b3d07c84b5e",
+      "0000000000000000",
+      "0000000000000000",
+      "0000000000000000",
+      "3f966cf41f212d77",
+      "0000000000000000",
+      "0000000000000000",
+      "0000000000000000",
+      "3fa2bd3c36113405"
+    ],
+    "diagonal": true,
+    "off_diagonal_indices": [1, 2, 3, 5, 6, 7],
+    "nominal_diag_kgm2": [0.0211, 0.0219, 0.0366]
+  },
+  "residual_pair2": [
+    "3befff6b7cf92ee9",
+    "bc000013449033b2",
+    "36ad0bb96b047c00"
+  ],
+  "discriminating_point": {
+    "verified": true,
+    "pair": 2,
+    "index": 1,
+    "mrdivide_seq": 2,
+    "stage": 2,
+    "field": "derivatives",
+    "block": "p,q,r",
+    "reference_hex": "bc56d4db33a987b8",
+    "division_hex": "bc56d4db33a987b9",
+    "diagonal_hex": "bc56d4db33a987b8",
+    "ulp_division_vs_reference": 1,
+    "ulp_diagonal_vs_reference": 0,
+    "only_solve_result_difference": true
+  },
+  "solve_forms": {
+    "operands_identical": true,
+    "residual_equal": true,
+    "selector2_equal": true,
+    "division_form": {
+      "rule": "y[i] = u0[i] / u1[4*i]",
+      "pair2_index1_hex": "bc56d4db33a987b9",
+      "matches_mrdivide_trace": true,
+      "matches_reference": false
+    },
+    "diagonal_reciprocal_form": {
+      "rule": "y[i] = u0[i] * (1.0 / u1[4*i])",
+      "pair2_index1_hex": "bc56d4db33a987b8",
+      "matches_diagonal_candidate": true,
+      "matches_reference": true
+    },
+    "offline_python_ieee754": {
+      "numerator_q": "bc000013449033b2",
+      "denominator_jyy": "3f966cf41f212d77",
+      "direct_division_hex": "bc56d4db33a987b9",
+      "multiply_reciprocal_hex": "bc56d4db33a987b8",
+      "causal_status": "unproven"
+    }
+  },
+  "recheck": {
+    "division_vs_reference_status": "aligned",
+    "diagonal_vs_reference_status": "aligned",
+    "stage2_status": "aligned",
+    "stage2_observation": "identical_operands_different_result",
+    "diagonal_earliest_difference": null,
+    "division_mapped_stage_difference_counts": {
+      "q0 q1 q2 q3": 2,
+      "p,q,r": 2,
+      "xe,ye,ze": 0,
+      "ub,vb,wb": 1
+    },
+    "diagonal_mapped_stage_difference_counts": {
+      "q0 q1 q2 q3": 0,
+      "p,q,r": 0,
+      "xe,ye,ze": 0,
+      "ub,vb,wb": 0
+    },
+    "aligned_means": "structure and binary64 values could be compared; not G6 or Full acceptance"
+  },
+  "unobserved_domain": {
+    "unmapped_states": 23,
+    "mapped_states": 13,
+    "total_states": 36,
+    "case_count": 1,
+    "cases": ["C3G"],
+    "step_count": 1,
+    "k": [0, 1],
+    "inertia": "diagonal_J_only",
+    "other_cases_unobserved": ["C0", "C2G"],
+    "remaining_major_samples_unobserved": 500,
+    "non_diagonal_inertia_unobserved": true,
+    "subterms_status": "unobserved",
+    "reference_solver_internals": "unproven"
+  },
+  "owner_options": [
+    {
+      "id": "adopt_diagonal_branch",
+      "label": "adopt diagonal branch",
+      "chosen": false,
+      "summary": "Keep the diagnostic uniform diagonal reciprocal-multiply branch as the candidate solve form for finite nonzero diagonal inertia."
+    },
+    {
+      "id": "retain_division_absorb_ulp",
+      "label": "retain division and absorb one ULP through a separately approved budget",
+      "chosen": false,
+      "summary": "Keep the current generated division/mrdivide form and, if ever accepted, absorb this 1 ULP only through a separately derived and approved B1 budget."
+    },
+    {
+      "id": "defer",
+      "label": "defer",
+      "chosen": false,
+      "summary": "Make no solve-form or budget change. #59, G6 and Full stay open."
+    }
+  ],
+  "owner_decision": {
+    "state": "not_made",
+    "chosen_option": null,
+    "made_by": null,
+    "recorded_utc": null,
+    "decision_text": null,
+    "must_not_be_inferred_from_this_record": [
+      "that the owner adopted the diagonal branch",
+      "that the owner retained division and approved a 1 ULP budget",
+      "that B1 120-quantity budgets are approved",
+      "that a new same-source contract (B4) is frozen",
+      "that #59, G6 or Full passed"
+    ]
+  },
+  "b1_b4_effects": {
+    "chosen_for_owner": false,
+    "B1": {
+      "name": "120-quantity budgets",
+      "current": "unapproved",
+      "per_option": {
+        "adopt_diagonal_branch": "This C3G first-step pair-2/index-1 1 ULP would no longer appear on the 13 mapped states if the candidate used the diagonal branch. That does not approve any of the 120 budgets, does not cover C0/C2G, the remaining 500 samples, or the 23 unmapped states, and does not authorize back-solving a budget from the vanished ULP.",
+        "retain_division_absorb_ulp": "Absorbing the 1 ULP would require a separately derived and approved per-quantity B1 budget. This packet does not write, derive, or approve that budget, and forbids using the observed 1 ULP as the budget value.",
+        "defer": "B1 remains unapproved. The existing same-source entry stays blocked for missing approved budgets."
+      }
+    },
+    "B4": {
+      "name": "new same-source contract freeze",
+      "current": "unfrozen",
+      "per_option": {
+        "adopt_diagonal_branch": "The candidate arithmetic would differ from the current generated mrdivide body. A later B4 freeze would have to record whether the candidate includes this diagnostic branch. This packet does not freeze B4. Independent 11.8 same-source Sensor30[10] differences remain outside this branch.",
+        "retain_division_absorb_ulp": "A later B4 freeze could keep the current division form. B4 is still not frozen here, and the entry still cannot run without approved B1 budgets.",
+        "defer": "B4 remains unfrozen. No model change and no new contract are recorded."
+      }
+    }
+  },
+  "non_claims": [
+    "aligned means the supplied C3G first-step traces could be compared",
+    "identical residual and Selector2 do not prove reference solver internals",
+    "1 ULP does not exclude libm, unmapped states, or another evaluation order",
+    "the diagonal candidate is diagnostic-only and is not a production model change",
+    "this slice does not approve G6 budgets, freeze B4, close #59, or accept G6 or Full"
+  ],
+  "scope_limits": {
+    "module": "docs and validation decision packet only",
+    "owned_files": [
+      "docs/plan/59-g6-solve-form-decision-20260914.md",
+      "validation/e0-g6-solve-form-decision-20260914.json",
+      "validation/test_e0_g6_solve_form_decision.py",
+      "validation/coordination/cursor-g6-solve-form-20260914-01/"
+    ],
+    "native_or_model_launched": false,
+    "matlab_launched": false,
+    "ros_fc_ue_build_launched": false,
+    "issues_mutated": false,
+    "git_mutated": false
+  }
+}
