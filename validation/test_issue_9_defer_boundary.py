@@ -1505,15 +1505,17 @@ class FailClosedVerifierTests(unittest.TestCase):
         self.assertIn("digest_mismatch_head_blob", codes)
 
     def test_pin_moved_to_untracked_path_fails_closed(self):
-        untracked = ROOT / "docs/coordination/ds-interface-decision-packet-20260912.md"
-        self.assertTrue(untracked.is_file(), "precondition: the packet exists locally")
+        with tempfile.TemporaryDirectory(dir=ROOT / "validation", prefix="issue9-untracked-") as folder:
+            untracked = Path(folder) / "packet.md"
+            untracked.write_bytes(b"synthetic untracked evidence\n")
+            relative = untracked.relative_to(ROOT).as_posix()
 
-        def change(doc):
-            pin = doc["evidence_pins"]["native_ac_evidence"]
-            pin["path"] = "docs/coordination/ds-interface-decision-packet-20260912.md"
-            pin["sha256"] = hashlib.sha256(untracked.read_bytes()).hexdigest()
+            def change(doc):
+                pin = doc["evidence_pins"]["native_ac_evidence"]
+                pin["path"] = relative
+                pin["sha256"] = hashlib.sha256(untracked.read_bytes()).hexdigest()
 
-        self.assertIn("path_not_tracked_at_head", self.codes(self.verify(self.mutate(change))))
+            self.assertIn("path_not_tracked_at_head", self.codes(self.verify(self.mutate(change))))
 
     def test_absolute_vendor_path_as_decision_pin_fails_closed(self):
         def change(doc):
