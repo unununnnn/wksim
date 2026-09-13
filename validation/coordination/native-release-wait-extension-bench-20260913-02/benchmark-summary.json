@@ -1,0 +1,163 @@
+{
+  "scope": "Single-process microbenchmark of final wait only; not a flight or production rate proof",
+  "primary_metric": "Python re-entry time minus deadline; C crossing time alone excludes adapter/GIL return costs",
+  "host": {
+    "python": "3.10.12",
+    "kernel": "6.6.87.2-microsoft-standard-WSL2",
+    "affinity": [
+      0
+    ],
+    "gc_enabled": true
+  },
+  "runtime_ns": 4154474114,
+  "library_sha256": "b695fcc7c86ea0e3ad5c6b56bc4ba5055725fc24c6b83da784c2664da2da4145",
+  "extension_sha256": "4d2314c37c7504bb1c98bce8fdafb2e9eeb9b79460abf40dc80f8374fdb4bfe1",
+  "adapter_sha256": "17328f020f6086f313c70a3b4f278e41a4b5772d0f8857ba327d52496096ec08",
+  "benchmark_sha256": "444705738b226ebeacb89c8b36632c5e6f508956aedb2c9fa077e89a3128c6dd",
+  "production_pacer_changed": false,
+  "resource_profile": {
+    "name": "own-thread-first-allowed-vcpu",
+    "before": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19
+    ],
+    "selected_cpu": 0
+  },
+  "modes": {
+    "python_poll": {
+      "observed_lateness_ns": {
+        "count": 1000,
+        "median_ns": 29.0,
+        "p95_ns": 7407,
+        "p99_ns": 117022,
+        "maximum_ns": 466517,
+        "total_ns": 3559315,
+        "over_10us": 46
+      },
+      "return_lateness_ns": {
+        "count": 1000,
+        "median_ns": 158.0,
+        "p95_ns": 7855,
+        "p99_ns": 119483,
+        "maximum_ns": 467840,
+        "total_ns": 3776265,
+        "over_10us": 48
+      },
+      "return_gap_ns": {
+        "count": 1000,
+        "median_ns": 121.0,
+        "p95_ns": 388,
+        "p99_ns": 1167,
+        "maximum_ns": 33358,
+        "total_ns": 216950,
+        "over_10us": 1
+      }
+    },
+    "cdll": {
+      "observed_lateness_ns": {
+        "count": 1000,
+        "median_ns": 7.0,
+        "p95_ns": 15,
+        "p99_ns": 114304,
+        "maximum_ns": 211640,
+        "total_ns": 2465869,
+        "over_10us": 33
+      },
+      "return_lateness_ns": {
+        "count": 1000,
+        "median_ns": 2431.5,
+        "p95_ns": 14455,
+        "p99_ns": 123690,
+        "maximum_ns": 225942,
+        "total_ns": 6321524,
+        "over_10us": 96
+      },
+      "return_gap_ns": {
+        "count": 1000,
+        "median_ns": 2358.0,
+        "p95_ns": 11136,
+        "p99_ns": 17068,
+        "maximum_ns": 131235,
+        "total_ns": 3855655,
+        "over_10us": 64
+      }
+    },
+    "pydll": {
+      "observed_lateness_ns": {
+        "count": 1000,
+        "median_ns": 7.0,
+        "p95_ns": 14,
+        "p99_ns": 34659,
+        "maximum_ns": 231345,
+        "total_ns": 1312405,
+        "over_10us": 22
+      },
+      "return_lateness_ns": {
+        "count": 1000,
+        "median_ns": 1638.5,
+        "p95_ns": 12011,
+        "p99_ns": 39846,
+        "maximum_ns": 241374,
+        "total_ns": 4320323,
+        "over_10us": 77
+      },
+      "return_gap_ns": {
+        "count": 1000,
+        "median_ns": 1593.5,
+        "p95_ns": 10040,
+        "p99_ns": 14536,
+        "maximum_ns": 69909,
+        "total_ns": 3007918,
+        "over_10us": 52
+      }
+    },
+    "direct": {
+      "observed_lateness_ns": {
+        "count": 1000,
+        "median_ns": 7.0,
+        "p95_ns": 15,
+        "p99_ns": 93578,
+        "maximum_ns": 201526,
+        "total_ns": 2648594,
+        "over_10us": 36
+      },
+      "return_lateness_ns": {
+        "count": 1000,
+        "median_ns": 530.0,
+        "p95_ns": 7363,
+        "p99_ns": 99463,
+        "maximum_ns": 202440,
+        "total_ns": 3949961,
+        "over_10us": 44
+      },
+      "return_gap_ns": {
+        "count": 1000,
+        "median_ns": 516.0,
+        "p95_ns": 4415,
+        "p99_ns": 7351,
+        "maximum_ns": 90543,
+        "total_ns": 1301367,
+        "over_10us": 6
+      }
+    }
+  },
+  "rows_sha256": "c677b0775cfbdc431ab7957a31d573f43b2be080319843fde2c235383334f7f7"
+}

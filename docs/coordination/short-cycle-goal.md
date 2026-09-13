@@ -13,12 +13,12 @@
 
 | 席位 | thread / 当前turn | 独占交付 |
 | --- | --- | --- |
-| OMP | 51609e8d-e4ce-4a8e-8a0d-f7c896c24842 / 4a870824-7894-4c4d-bfa5-c39c6b4c5219 | 直接CPython3.10扩展候选：native_release_wait_extension.c/.py/test；仅另可给原C的POSIX宏加ifndef，不改函数体。不编译/native/WSL，不接生产。 |
-| Claude Code | e64514a6-77c2-4b27-91a7-896c92a361fd / d335c61d-1571-4faf-8fb9-37902133e73c | 只读核对最小等待接线/时间戳语义与#84证明绑定，唯一写native-wait-integration-contract-20260913.md，不改实现，不运行测试/native。 |
+| OMP | 51609e8d-e4ce-4a8e-8a0d-f7c896c24842 / 813429cb-ecef-42a8-9e1e-f4da3f3904d8 | group-work-timing-integration-20260913/纯补丁准备脚本/测试：固定joint.py快照，仅新增兼容timing_census=False参数，True才交出全量现有诊断事件；不改生产文件、不native。 |
+| Claude Code | e64514a6-77c2-4b27-91a7-896c92a361fd / aa762e1a-eab2-4090-8548-7259d5ab7f44 | tools/group_work_timing.py及纯测试：当前4步+至多前组，实际work>period时emit，最多16报告；正常组不落盘；诊断不改业务、不掩盖异常。 |
 
-最新句柄在rolling-two-20260913-06.json。主会话现掌握基准/C库/适配器，OMP可改C宏guard但该未验证修改不可混入已执行版本；当前C/py已从bench02快照精确暂存为18bf382d…/17328f02…，不要盲目重新add正在修改的C文件。准备器已验收18测试，源码candidate0107001b…与成功实验逐字相同。
+两代理的C扩展/基准审查、原件工作超额分析、正式pin/诊断标记负例已交回。最新句柄见rolling-two-20260913-07.json。新有界记录器及私有源补丁仍未验收/接线；在其稳定后才由协调者审查、双WSL前检并执行下一次诊断。不要盲目重跑旧场或对准旧7个tick窗口。
 
-调度修复：已通过automation_update暂停同根任务每3分钟wksim heartbeat，Goal读回仍active；原prompt/周期/目标/名称/创建时间全部保留。证据native-release-wait-bench-20260913-02/scheduler-adjustment.json。只让Goal持续执行，避免双重唤醒；不要无故恢复重复heartbeat。OMP关于21ad94b2源调查未定位具体调用，其引用根turn时间早于该外部任务创建，heartbeat存在不是因果证明；来源仍unknown。21ad94b2已明确interrupted，两WSL当时无残留，未用该轮当受控native证据。两个子任务均无独立goal，Goal DB只读未改。
+同根三分钟wksim heartbeat已通过应用工具PAUSED，Goal仍active；原配置保留，不恢复重复执行器。21ad94b2具体续行来源仍unknown，不能据heartbeat/Goal并存作因果认定；两个外部thread无独立goal，数据库未写。子代理交付即停，不自称协调者进入native阶段。
 
 三个codebuddy因429不可用（2026-09-13 20:54:20 JST前不重投），DeepSeek后台仍待重启确认，Luna Fast未核验不替换用户选择。不虚报不可用席位。
 
@@ -32,6 +32,13 @@
 - Task的fresh/估计速度≤.4入场余量已实跑；原2s/.5m/s保持及全部物理门保留。
 
 ## 当前#84阻断与下一步
+
+本轮直接CPython扩展已真实编译/31接口检查通过；四模式每轮4000记录的两轮微基准均完成。默认20vCPU：Python返回中位145ns/累计2.435002ms，direct531.5ns/3.398046ms；仅基准线程vCPU0：Python158ns/3.776265ms，direct530ns/3.949961ms。后轮不同boot，不归因CPU固定；不改系统/用户进程。8000原始行已独立重算，仍未显示采用收益，因此停止扩展等待层，不接生产。详见docs/2026-09-13-direct-release-wait-evaluation.md。扩展SHA4d2314c37c7504bb1c98bce8fdafb2e9eeb9b79460abf40dc80f8374fdb4bfe1；私有/root/wksim-release-extension-bench-20260913-01/-02，PGID848/971/1096/752全空。keepalive session78702已结束，旧PID688/start426属8927adab boot；后轮408e35b0，不对新boot同号PID发信号。启动器现实际强制两前检found=[]/同boot/≤60秒，再Popen；不靠文字承诺。
+
+原失败oxv29042由OMP纯标准库全量读取495410行wire分析；7个work>8ms组，总超额15139984ns，主会话从已封存rate.gz独立重算32930组完全一致。最大start_tick127940/work13140957ns。native输入等待与tick间区域各有主导组，边界offset宽436151ns；错误tick对齐两种均空集。原启动脚本显式unset WKSIM_JOINT_CPU_TIMING，三类CPU诊断记录均0，不能从原件再拆CPU阶段。v1/v2报告与脚本在mixed-work-overrun-20260913，详见相应文档。不把残余归因OS，不用固定历史tick触发未来诊断。
+
+主会话已加正式_mixed_proofs必需joint_rate.py与joint_rate_probe.py源键，并拒绝rate_timing_probe/group_work_timing任一标记（不论值）。完整真实函数fixture Linux18tests/8subtests通过；Windows既有symlink权限限制保留。实际PV result.json.gz的两pacer源与raw-pv-audit-v2封存匹配，原pass有效历史不改；mixed仍failed，正式evidence仍空。joint_profile最新改动尚未同步私有Linux检出。源码/测试/核验见pacer-proof-binding-review及本轮main-verification.json。
+
 
 最新#84候选微基准：C最终1ms等待库真实构建，16个受控时钟C检查在UBSan下通过（含完整int64最后部分秒）；适配器14纯测试通过。bench01因.so和.py同名，Python误当扩展导入而失败，未产生样本；bench02改为libwksim_release_wait.so的同字节副本，真实3000样本成功，3种模式轮转各1000。Python返回延迟中位148.5ns/累计2.532098ms；CDLL2979ns/6.517725ms；PyDLL2424ns/5.822768ms。C内部7ns中位不能替代返回Python的实际时间，当前ctypes接法暂不接生产；下一步测直接CPython扩展是否消掉边界开销。详见docs/2026-09-13-native-release-wait-benchmark.md。不得据单进程基准称RateUnmet已修复。
 

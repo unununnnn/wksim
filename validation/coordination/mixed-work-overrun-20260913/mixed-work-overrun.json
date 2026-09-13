@@ -1,0 +1,321 @@
+{
+  "schema": "wksim.mixed-work-overrun.v1",
+  "run_id": "joint-public-flight-oxv29042",
+  "epoch": "18c96a7e0af9477092aa87e18239c23c",
+  "python": "3.10.12",
+  "method": {
+    "offset_model": "wire_absolute_ns = S + round(wall_seconds*1e9)",
+    "constraints": "per rate group: actual_start_ns < first group-interior wire event and last group-interior wire event < actual_end_ns (program order, captured source)",
+    "group_wire_ticks": "rate start_tick P owns wire ticks P+1..P+4; wrong alignments P..P+3 and P+2..P+5 must be rejected",
+    "selection": "every group with work_ns > period_ns (8 ms at 0.5x)"
+  },
+  "inputs": {
+    "rate_jsonl": "8725b63c568783199b4a5e7d3de7df532003749b73d4c255131da4bcedee8b91",
+    "joint_wire_jsonl": "20d0634e01503026eccc2163e071699aaffdc33b08d66727cfa1a932f3504c50",
+    "joint_py_snapshot": "f5433c2ec7e81794ffcfab26dce0feff18d4e1affdfb44f895a72e4ce0241d50",
+    "joint_rate_py_snapshot": "0b53a16acd65138b4623a9a8573ec8d643a2b78f4e27e8122c65efb9a6da25c4",
+    "run_joint_flight_py_snapshot": "65c7a86765a99d2173a62ffafaf56c43243674dd1e3cbbc1150147b4c56d8161"
+  },
+  "identity_checks": {
+    "rate_jsonl_matches_bundle_manifest": true,
+    "joint_rate_source_matches_bundle_manifest": true,
+    "runner_source_matches_bundle_manifest": true
+  },
+  "rate_identity": {
+    "epoch": "18c96a7e0af9477092aa87e18239c23c",
+    "segment_id": 1,
+    "request_id": "config",
+    "requested_rate": 0.5,
+    "transition": false
+  },
+  "period_ns": 8000000,
+  "groups_total": 32930,
+  "interval_totals": {
+    "creep_total_ns": 99780808,
+    "work_over_total_ns": 15139984,
+    "release_excess_total_ns": 84640824,
+    "last_group_work_over_ns": 0
+  },
+  "retained_analysis_crosscheck": {
+    "available": true,
+    "trace_sha256_matches": true,
+    "creep_total_matches": true,
+    "work_over_total_matches": true,
+    "release_excess_total_matches": true,
+    "last_group_unattributed_matches": true
+  },
+  "wire_kind_census": {
+    "actuator": 164692,
+    "connected": 1,
+    "sensor": 164700,
+    "step": 131760,
+    "barrier": 32940,
+    "gps": 1317
+  },
+  "wire_unexpected_kinds": [],
+  "tick_alignment_control": {
+    "true_P+1..P+4": true,
+    "wrong_P..P+3": false,
+    "wrong_P+2..P+5": false,
+    "wrong_alignments_rejected": true
+  },
+  "offset": {
+    "lower_ns": 60813433990,
+    "lower_bound_group": 38712,
+    "upper_ns": 60813870141,
+    "upper_bound_group": 94848,
+    "groups_used": 32930,
+    "groups_skipped": 0,
+    "nonempty": true,
+    "width_ns": 436151,
+    "verified_violations": 0
+  },
+  "aggregate": {
+    "overrun_group_count": 7,
+    "overrun_total_ns": 15139984,
+    "work_total_ns": 71139984,
+    "sensor_to_actuator_union_total_ns": 29926407,
+    "wire_interior_outside_native_total_ns": 30459778,
+    "boundary_total_ns": 10753799,
+    "boundary_split_interval_ns": [
+      7700742,
+      13806856
+    ],
+    "largest_overrun_group": {
+      "start_tick": 127940,
+      "work_ns": 13140957,
+      "work_over_ns": 5140957,
+      "sensor_to_actuator_union_ns": 8165479,
+      "wire_interior_outside_native_ns": 3732381
+    },
+    "largest_work_group": {
+      "start_tick": 127940,
+      "work_ns": 13140957,
+      "work_over_ns": 5140957,
+      "sensor_to_actuator_union_ns": 8165479,
+      "wire_interior_outside_native_ns": 3732381
+    }
+  },
+  "overrun_groups": [
+    {
+      "start_tick": 1996,
+      "end_tick": 2000,
+      "work_ns": 10322358,
+      "work_over_ns": 2322358,
+      "interior_ns": 8836527,
+      "boundary": {
+        "pre_lower_ns": 744485,
+        "pre_upper_ns": 1180636,
+        "post_lower_ns": 305195,
+        "post_upper_ns": 741346,
+        "total_ns": 1485831
+      },
+      "sensor_to_actuator_per_stack_ns": {
+        "arducopter": 836653,
+        "px4": 5945464
+      },
+      "sensor_to_actuator_union_ns": 6571583,
+      "wire_interior_outside_native_ns": 2264944,
+      "other_phases_ns": 3750775,
+      "largest_wire_gap": {
+        "gap_ns": 5734930,
+        "from": "actuator@2000",
+        "to": "actuator@2000"
+      },
+      "wire_event_count": 16
+    },
+    {
+      "start_tick": 5500,
+      "end_tick": 5504,
+      "work_ns": 9220281,
+      "work_over_ns": 1220281,
+      "interior_ns": 8441751,
+      "boundary": {
+        "pre_lower_ns": 225303,
+        "pre_upper_ns": 661454,
+        "post_lower_ns": 117076,
+        "post_upper_ns": 553227,
+        "total_ns": 778530
+      },
+      "sensor_to_actuator_per_stack_ns": {
+        "arducopter": 1002964,
+        "px4": 5424296
+      },
+      "sensor_to_actuator_union_ns": 6242375,
+      "wire_interior_outside_native_ns": 2199376,
+      "other_phases_ns": 2977906,
+      "largest_wire_gap": {
+        "gap_ns": 5239411,
+        "from": "actuator@5504",
+        "to": "actuator@5504"
+      },
+      "wire_event_count": 15
+    },
+    {
+      "start_tick": 47736,
+      "end_tick": 47740,
+      "work_ns": 8452778,
+      "work_over_ns": 452778,
+      "interior_ns": 4289602,
+      "boundary": {
+        "pre_lower_ns": 3673095,
+        "pre_upper_ns": 4109246,
+        "post_lower_ns": 53930,
+        "post_upper_ns": 490081,
+        "total_ns": 4163176
+      },
+      "sensor_to_actuator_per_stack_ns": {
+        "arducopter": 987175,
+        "px4": 516516
+      },
+      "sensor_to_actuator_union_ns": 1328072,
+      "wire_interior_outside_native_ns": 2961530,
+      "other_phases_ns": 7124706,
+      "largest_wire_gap": {
+        "gap_ns": 1180299,
+        "from": "step@47737",
+        "to": "sensor@47738"
+      },
+      "wire_event_count": 15
+    },
+    {
+      "start_tick": 57452,
+      "end_tick": 57456,
+      "work_ns": 10196259,
+      "work_over_ns": 2196259,
+      "interior_ns": 9108697,
+      "boundary": {
+        "pre_lower_ns": 539662,
+        "pre_upper_ns": 975813,
+        "post_lower_ns": 111749,
+        "post_upper_ns": 547900,
+        "total_ns": 1087562
+      },
+      "sensor_to_actuator_per_stack_ns": {
+        "arducopter": 2544580,
+        "px4": 492090
+      },
+      "sensor_to_actuator_union_ns": 2753595,
+      "wire_interior_outside_native_ns": 6355102,
+      "other_phases_ns": 7442664,
+      "largest_wire_gap": {
+        "gap_ns": 2702103,
+        "from": "step@57454",
+        "to": "sensor@57455"
+      },
+      "wire_event_count": 15
+    },
+    {
+      "start_tick": 87640,
+      "end_tick": 87644,
+      "work_ns": 11311134,
+      "work_over_ns": 3311134,
+      "interior_ns": 10498324,
+      "boundary": {
+        "pre_lower_ns": 269943,
+        "pre_upper_ns": 706094,
+        "post_lower_ns": 106716,
+        "post_upper_ns": 542867,
+        "total_ns": 812810
+      },
+      "sensor_to_actuator_per_stack_ns": {
+        "arducopter": 2250922,
+        "px4": 315851
+      },
+      "sensor_to_actuator_union_ns": 2406756,
+      "wire_interior_outside_native_ns": 8091568,
+      "other_phases_ns": 8904378,
+      "largest_wire_gap": {
+        "gap_ns": 3521251,
+        "from": "step@87642",
+        "to": "sensor@87643"
+      },
+      "wire_event_count": 15
+    },
+    {
+      "start_tick": 119280,
+      "end_tick": 119284,
+      "work_ns": 8496217,
+      "work_over_ns": 496217,
+      "interior_ns": 7313424,
+      "boundary": {
+        "pre_lower_ns": 634758,
+        "pre_upper_ns": 1070909,
+        "post_lower_ns": 111884,
+        "post_upper_ns": 548035,
+        "total_ns": 1182793
+      },
+      "sensor_to_actuator_per_stack_ns": {
+        "arducopter": 2306658,
+        "px4": 996599
+      },
+      "sensor_to_actuator_union_ns": 2458547,
+      "wire_interior_outside_native_ns": 4854877,
+      "other_phases_ns": 6037670,
+      "largest_wire_gap": {
+        "gap_ns": 1845385,
+        "from": "step@119283",
+        "to": "sensor@119284"
+      },
+      "wire_event_count": 15
+    },
+    {
+      "start_tick": 127940,
+      "end_tick": 127944,
+      "work_ns": 13140957,
+      "work_over_ns": 5140957,
+      "interior_ns": 11897860,
+      "boundary": {
+        "pre_lower_ns": 639493,
+        "pre_upper_ns": 1075644,
+        "post_lower_ns": 167453,
+        "post_upper_ns": 603604,
+        "total_ns": 1243097
+      },
+      "sensor_to_actuator_per_stack_ns": {
+        "arducopter": 7785574,
+        "px4": 513704
+      },
+      "sensor_to_actuator_union_ns": 8165479,
+      "wire_interior_outside_native_ns": 3732381,
+      "other_phases_ns": 4975478,
+      "largest_wire_gap": {
+        "gap_ns": 6865880,
+        "from": "sensor@127943",
+        "to": "actuator@127943"
+      },
+      "wire_event_count": 15
+    }
+  ],
+  "self_tests": [
+    {
+      "name": "positive_recovers_true_offset",
+      "passed": true,
+      "lower_ns": 35999500000,
+      "upper_ns": 36000500000
+    },
+    {
+      "name": "negative_empty_intersection",
+      "passed": true,
+      "lower_ns": 36000000000,
+      "upper_ns": 35999999999
+    },
+    {
+      "name": "union_never_sums_overlap",
+      "passed": true,
+      "union_ns": 30
+    }
+  ],
+  "limits": [
+    "Only same-run program order and relative wire timestamps are used; no tick is converted to wall seconds and no common clock origin is assumed.",
+    "The pre-sensor and post-step boundary parts share one S: their sum is exact, the split is an interval and is correlated across groups; never sum or treat them as independent.",
+    "AP and PX4 sensor->actuator spans overlap on macro ticks; per-stack totals are not additive and only the union is subtracted.",
+    "Interior spans are exact wire differences but still contain record, serialisation, I/O-wait and possible descheduling; no residual is attributed to the OS or to any single cause.",
+    "diagnostic_* wire kinds are excluded from order constraints.",
+    "This is one failed run's decomposition; it is not a full-run acceptance result."
+  ],
+  "script_sha256": "e5a0db2b3365f5d976b0948706f05fb6bdb561d16296f124f44c6b53d81595fe",
+  "native_executed": false,
+  "performance_pass": false,
+  "full_run_acceptance": false
+}

@@ -271,8 +271,9 @@ def _mixed_proofs(p, records, identities):
         if set(pin) != {'task_profile', 'result', 'audit', 'admission'}:
             raise ValueError('Mixed capability proof descriptor schema differs')
         flight, audit, admission = (_pinned_json(pin[key]) for key in ('result', 'audit', 'admission'))
-        if 'rate_timing_probe' in flight:
-            raise ValueError('Formal mixed/PV evidence cannot include rate_timing_probe')
+        for marker in ('rate_timing_probe', 'group_work_timing'):
+            if marker in flight:
+                raise ValueError('Formal mixed/PV evidence cannot include '+marker)
         task = pin['task_profile']
         if (flight['status'] != 'pass' or flight['flight_completed'] is not True
                 or flight['source_unchanged'] is not True or flight['control_shutdown_clean'] is not True
@@ -328,7 +329,9 @@ def _mixed_proofs(p, records, identities):
         sources = flight['source_sha256']
         required = {'tools/run_joint_flight.py', 'tools/ap_mixed_candidate.py',
                     'tools/prepare_ap_mixed_candidate.py', 'tools/verify_ap_pv_candidate.py',
-                    'Simulator/wksim_runtime/joint_profile.py', 'Simulator/wksim_core/model.py'}
+                    'Simulator/wksim_runtime/joint_profile.py', 'Simulator/wksim_core/model.py',
+                    'Simulator/wksim_runtime/joint_rate.py',
+                    'Simulator/wksim_runtime/joint_rate_probe.py'}
         if not required <= sources.keys():
             raise ValueError('Missing executed mixed proof source identity')
         for name, expected in sources.items():

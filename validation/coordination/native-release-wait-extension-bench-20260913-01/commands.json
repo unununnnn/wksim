@@ -1,0 +1,40 @@
+{
+  "output_dir": "/root/wksim-release-extension-bench-20260913-01",
+  "source_identities": {
+    "native_release_wait.c": "5af9e162c428e51122ed3618eaac562fc81185c7e239baa62eb86958faed5459",
+    "native_release_wait.py": "17328f020f6086f313c70a3b4f278e41a4b5772d0f8857ba327d52496096ec08",
+    "native_release_wait_extension.c": "866ff3813b7dffbad13f66614aaa9e354bb4e2a4479f712a8158ec96c0188c0a",
+    "native_release_wait_extension.py": "e50f6035d5c52e9c4cc0ee082834a2be42ac7a158fce2ca00ecdb165d04d273d",
+    "check_extension.py": "7a6b625f3ab157f3796b644ede4d3d4d762e4e1b0f5c63ec1fe84e104a3f2df4",
+    "benchmark.py": "a89a337f508521f9d153e2eff78a448cfdb30c6c5868b5e9388446590d9f336c"
+  },
+  "baseline_library_sha256": "b695fcc7c86ea0e3ad5c6b56bc4ba5055725fc24c6b83da784c2664da2da4145",
+  "common_c_change": "POSIX macro guard only; removing guard byte-restores previously tested C",
+  "preparation_note": "First preparation stopped on an incorrect CRLF-only removal assertion before compile; staged files were verified unchanged, removal now handles the actual LF bytes. No old outputs overwritten.",
+  "python_include": "/usr/include/python3.10",
+  "python_header_sha256": "70b04c40833bdfcdd72b0d3771afe67c74340ff2683b7d26b0dc8e95289263a7",
+  "compiler": "cc (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0",
+  "compile": [
+    "cc",
+    "-O2",
+    "-fPIC",
+    "-shared",
+    "-std=c11",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-I/usr/include/python3.10",
+    "-o",
+    "/root/wksim-release-extension-bench-20260913-01/_wksim_release_wait_native.cpython-310-x86_64-linux-gnu.so",
+    "/root/wksim-release-extension-bench-20260913-01/native_release_wait_extension.c",
+    "/root/wksim-release-extension-bench-20260913-01/native_release_wait.c"
+  ],
+  "interface": [
+    "python3",
+    "/root/wksim-release-extension-bench-20260913-01/check_extension.py"
+  ],
+  "benchmark": [
+    "python3",
+    "/root/wksim-release-extension-bench-20260913-01/benchmark.py"
+  ]
+}
