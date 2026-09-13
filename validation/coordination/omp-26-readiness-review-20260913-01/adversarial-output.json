@@ -1,0 +1,53 @@
+{
+  "A1_staged_uncommitted_counts_as_tracked": {
+    "attack_success": true,
+    "detail": "fixture repo has zero commits (rev-parse HEAD failed) yet the archived wrapper passed the 'tracked' check and the audit is ready"
+  },
+  "A2_untracked_declaration_still_authorizes": {
+    "attack_success": true,
+    "detail": "declaration file is untracked (ls-files failed) yet its identity was honored and the audit is ready"
+  },
+  "A3_declaration_content_drift_undetected": {
+    "attack_success": true,
+    "detail": "declaration mutated (wrong current_canonical_wrapper digest, rewritten purpose) and the audit still reports ready; the declared current-canonical digest is never cross-hashed"
+  },
+  "A4_wsl_receipt_trailing_payload": {
+    "attack_success": true,
+    "detail": "rflysim-named tracked file carrying a valid empty receipt plus trailing vendor text/base64 was classified as a clean receipt"
+  },
+  "E1_real_cli_host_bounded": {
+    "exit_code": 0,
+    "host_bounded_count": 3,
+    "host_bounded_fields": [
+      "build output library",
+      "lifecycle cold probe",
+      "lifecycle cold_library"
+    ],
+    "observation": "exit 0 / ready is reached on this Windows host only because the cold-library, cold-probe and build-output hash checks are skipped as host_bounded",
+    "status": "ready_blocked_by_formal_dependency",
+    "violations": []
+  },
+  "N1_malformed_declaration_fails_closed": {
+    "defense_holds": true,
+    "violations_sample": [
+      "historical wrapper identities is malformed JSON: duplicate JSON key: schema",
+      "build manifest.staged_sources.model.cpp size drifted: expected 31, observed 4070: C:\\Users\\PC\\AppData\\Local\\Temp\\tmpozl7vkbn\\Simulator\\wksim_core\\model.cpp"
+    ]
+  },
+  "N2_found_type_tricks_rejected": {
+    "defense_holds": true,
+    "per_value": {
+      "''": true,
+      "0": true,
+      "['rflysim-core']": true,
+      "[None]": true,
+      "{}": true
+    }
+  },
+  "N3_linux_missing_fail_closed_mechanism": {
+    "defense_holds": true,
+    "violations_sample": [
+      "lifecycle cold_library is not a regular file: C:\\Users\\PC\\AppData\\Local\\Temp\\tmpsnhnm8xo\\absent\\libwksim_e0.so"
+    ]
+  }
+}

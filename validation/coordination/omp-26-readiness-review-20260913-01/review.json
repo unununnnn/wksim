@@ -1,0 +1,89 @@
+{
+  "schema": "omp.26-readiness-review.v1",
+  "date": "2026-09-13",
+  "reviewer": "omp-main",
+  "head": "72ef95d28eaa87490292e77a81b1de515d606c1e",
+  "f333316_ancestor": true,
+  "scope": [
+    "tools/audit_26_closure_readiness.py",
+    "validation/test_audit_26_closure_readiness.py",
+    "validation/coordination/ds-26-pin-drift-20260913-01/historical-wrapper-identities.json",
+    "validation/lunar-20-epoch-1/case/run/epochs/2a8d5df1dd4244c3868dc7f38e85a369/source/Simulator/wksim_core/model.cpp"
+  ],
+  "verified_facts": {
+    "frozen_archived_sha256": "3f325678b1d85c9aa3fd07bd644d82935aa26d82885926defeced139f02ddf2c",
+    "frozen_archived_size_bytes": 1864,
+    "frozen_archived_at_head": true,
+    "frozen_archived_head_commit": "4e161e2",
+    "current_wrapper_sha256": "150ddf3bab66e9e59701791392f6d792a14346e0b75ecdfe94872095e72d0290",
+    "declaration_tracked": false,
+    "declaration_gitignore_rule": ".gitignore:53 /validation/*/",
+    "existing_tests": "42 run, OK, 2 skipped (symlink privilege)",
+    "real_cli_exit": 0,
+    "real_cli_status": "ready_blocked_by_formal_dependency",
+    "real_cli_host_bounded_count": 3
+  },
+  "findings": [
+    {
+      "id": "P1-1",
+      "severity": "P1",
+      "area": "provenance self-authorization",
+      "repro": ["A2_untracked_declaration_still_authorizes", "A3_declaration_content_drift_undetected"],
+      "summary": "The historical-wrapper identity declaration is the sole authorization for accepting a superseded wrapper digest, yet it is git-ignored (.gitignore:53 '/validation/*/'), untracked, not tracked-checked by the auditor, and not hash-pinned in the closure manifest unlike every other evidence class. Its current_canonical_wrapper digest is format-checked but never cross-hashed against the live file, so a stale or tampered declaration is undetectable. Any actor with working-tree write (archive extraction, dropped file) can declare new identities without modifying any pinned artifact.",
+      "fix": "Commit the declaration (exempt it from the ignore rule), require tracked-at-HEAD in _load_historical_identities, pin its sha256 in the closure manifest, and cross-hash current_canonical_wrapper against Simulator/wksim_core/model.cpp."
+    },
+    {
+      "id": "P1-2",
+      "severity": "P1",
+      "area": "git tracked check bypass via index",
+      "repro": ["A1_staged_uncommitted_counts_as_tracked"],
+      "summary": "_is_tracked uses 'git ls-files --error-unmatch', which is satisfied by any staged-but-never-committed index entry. The declared durability claim (archived_repo_path_tracked: true, 'durable') is therefore not enforced: an attacker can 'git add' a replacement archived copy without any commit. Today's real instance is sound (verified at HEAD, commit 4e161e2, byte-identical), but the check does not prove it.",
+      "fix": "Replace with 'git cat-file -e HEAD:<path>' plus blob-digest equality (git rev-parse HEAD:<path>), or 'git diff --quiet HEAD -- <path>' after ls-files."
+    },
+    {
+      "id": "P1-3",
+      "severity": "P1",
+      "area": "RflySim content classification trailing-payload bypass",
+      "repro": ["A4_wsl_receipt_trailing_payload"],
+      "summary": "_wsl_precheck_found decodes only the leading JSON value and ignores the remainder. A tracked rflysim-named file carrying a valid empty receipt plus arbitrary trailing text (base64-encoded DLL, vendor config, scripts) is classified as a clean 'nothing found' receipt. Only NUL bytes and a non-receipt leading document are caught.",
+      "fix": "Bound trailing content: after raw_decode accept only whitespace, or lines matching the documented 'wsl: ' warning form; anything else is an offender. Prefer storing receipts as pure single-document JSON."
+    },
+    {
+      "id": "P2-1",
+      "severity": "P2",
+      "area": "Windows host-bounded readiness signal",
+      "repro": ["E1_real_cli_host_bounded"],
+      "summary": "On Windows the cold_library, cold-probe and build-output byte re-hashes are skipped as host_bounded, yet status is ready_blocked_by_formal_dependency and exit is 0. On Linux the same /root products are missing and the audit fails closed (N3 mechanism verified), so no host can currently produce a fully verified pass; the only passing configuration is the skipping one. No should-fail path is swallowed (POSIX paths are genuinely unaddressable on Windows), but exit 0 does not distinguish 'all checks passed' from 'three declared-evidence checks skipped'.",
+      "fix": "Main acceptance should require an empty host_bounded list, or the tool should emit a distinct status/exit code when host_bounded is non-empty."
+    },
+    {
+      "id": "P2-2",
+      "severity": "P2",
+      "area": "declaration file read hardening",
+      "repro": [],
+      "summary": "_load_historical_identities reads the declaration without the _secure_file symlink/reparse-point guard applied to every other evidence file. Impact is low (content is strictly JSON-validated and the archived path is re-secured), but the asymmetry is unjustified.",
+      "fix": "Route the declaration through _secure_file before reading."
+    },
+    {
+      "id": "P2-3",
+      "severity": "P2",
+      "area": "vendor scan coverage",
+      "repro": [],
+      "summary": "_vendor_offenders inspects only tracked names containing 'rflysim' or ending .dll/.zip. Vendor binaries with other extensions (.so, .exe) and no rflysim substring are not content-classified. Scope appears intentional (vendor-runtime-named material), recorded for completeness.",
+      "fix": "Optional: extend the extension deny-list."
+    }
+  ],
+  "defenses_confirmed": [
+    "N1: malformed/duplicate-key declaration is a violation and exit 2 (fail-closed)",
+    "N2: found as string/0/{}/[null]/non-empty list is classified as vendor material",
+    "N3: addressable-but-missing provenance path is a violation, never host_bounded",
+    "missing declaration yields empty identity map; wrapper pinned to current source (fail-closed)",
+    "undeclared wrapper digest fails (test_undeclared_wrapper_digest_still_fails_closed)",
+    "archived copy missing/drifted/untracked all fail (three fixture tests)",
+    "POSIX-absolute provenance is never mapped onto the current drive on Windows",
+    "traversal/backslash/empty segments rejected in archived_repo_path via _repo_relative",
+    "duplicate JSON keys and non-finite numbers rejected by the strict loader",
+    "CLI exit 0 iff status ready_blocked_by_formal_dependency, 2 otherwise (test_cli_exit_codes)"
+  ],
+  "decision": "NOT approved for main acceptance: P1-1, P1-2 and P1-3 must be fixed or explicitly adjudicated first. No P0 found; the frozen-original binding itself (digest, size, HEAD tracking) is verified sound in the real repository."
+}
