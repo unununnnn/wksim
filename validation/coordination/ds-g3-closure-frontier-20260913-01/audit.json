@@ -1,0 +1,344 @@
+{
+  "schema": "wksim.g3-closure-frontier-audit.v1",
+  "audit_id": "ds-g3-closure-frontier-20260913-01",
+  "mode": "independent_read_only",
+  "requested_head": "0a1caa116e31700155a7abb567176c48668c0e8e",
+  "architecture_commit": "f333316e6efa6b299b4288a9d91fb2bccedfb9d6",
+  "architecture_commit_is_ancestor": true,
+  "cwd": "C:\\Users\\PC\\Documents\\odid编译\\wksim",
+  "head_observed_at_run": "027cf43018bded896aadfebace98e60e3afbba01",
+  "head_moved_during_audit": {
+    "occurred": true,
+    "sequence": [
+      "0a1caa116e31700155a7abb567176c48668c0e8e",
+      "287f8ec0e65c2e10b80b450904592f8349aed107",
+      "027cf43018bded896aadfebace98e60e3afbba01"
+    ],
+    "cited_artifacts_changed_since_requested_head": [],
+    "note": "Concurrent writer advanced HEAD twice; both new commits only add directories under validation/coordination/. None of the 13 cited artifacts changed, so findings apply to the requested base."
+  },
+  "checks_summary": {
+    "script": "check_g3_closure.py",
+    "output": "checks.json",
+    "total": 56,
+    "passed": 56,
+    "failed": []
+  },
+  "write_boundary": {
+    "only_writable_dir": "validation/coordination/ds-g3-closure-frontier-20260913-01/",
+    "files_delivered": [
+      ".gitattributes",
+      "audit.md",
+      "audit.json",
+      "check_g3_closure.py",
+      "checks.json",
+      "SHA256SUMS"
+    ],
+    "no_native_no_build_no_ros_no_fcu_no_model_no_ue_no_matlab": true,
+    "no_process_operations": true,
+    "no_issue_mutation": true,
+    "no_shared_code_modification": true,
+    "no_git_add_commit_push": true
+  },
+  "context_files": {
+    "CONTEXT-MAP.md": "absent_in_this_checkout",
+    "CONTEXT.md": {
+      "present": true,
+      "rewritten_by": "f333316",
+      "note": "Vocabulary glossary; no ADR directory exists (docs/adr/ absent), consistent with the plan docs' own statements."
+    },
+    "docs/adr/": "absent"
+  },
+  "issues_readonly": {
+    "29": { "state": "OPEN", "labels": ["ready-for-agent"], "closed_at": null, "updated_at": "2026-09-11T19:06:07Z" },
+    "79": { "state": "CLOSED" },
+    "80": { "state": "CLOSED" },
+    "81": { "state": "CLOSED" },
+    "9": { "state": "OPEN", "labels": ["wayfinder:grilling"] },
+    "17": { "state": "CLOSED" },
+    "23": { "state": "CLOSED" },
+    "102": { "state": "OPEN", "labels": ["wayfinder:task", "ready-for-agent"], "body_slice": "lunar-slice:39-planner-flight:v1" },
+    "39": { "state": "OPEN", "labels": ["ready-for-agent"] }
+  },
+  "cited_artifacts": [
+    { "kind": "pre-arch", "path": "docs/plan/29-terrain-closure-report.md", "sha256": "edff1cd2d9a77ea218937616b512a964deb40e42d47a91b6c7a24392ff1cfcd6", "last_commit": "2847c51 2026-09-11T17:13:43+09:00" },
+    { "kind": "pre-arch", "path": "docs/plan/102-trajectory-scene-admission-contract.md", "sha256": "cf0042f4db2aa32de82bc7725362403eb24b240bb2d2651ca2ff74fff9ab5b24", "last_commit": "c049954 2026-09-12T04:10:54+09:00" },
+    { "kind": "seam", "path": "Simulator/wksim_planning/ego_scene_admission.py", "sha256": "6671bc6f4b9654a2ed4fae7c4f0d3c32937da94a8c7fed10c875783feec8c40b", "last_commit": "c049954" },
+    { "kind": "seam", "path": "Simulator/wksim_planning/scene_profile.py", "sha256": "5a34e036194372241577b7187107eecc2c6be1777a7f51a4f189f87a6205f84c", "last_commit": "f627d19 2026-09-12T01:37:45+09:00" },
+    { "kind": "seam", "path": "Simulator/wksim_planning/ego_bspline_bridge.py", "sha256": "c696f936208ed9faed2575a9df1b6aa5e13acfd6c96f21a5d48b8d71a11aaa51", "last_commit": "d5c2efc 2026-09-11T16:55:37+09:00" },
+    { "kind": "seam", "path": "Simulator/wksim_planning/ego_evaluator.py", "sha256": "ad91915c5f61625c05497a9e64ece596c4aa336e03723e96efb2104b7ff9b1e2", "last_commit": "97d40da 2026-09-11T14:10:40+09:00" },
+    { "kind": "seam", "path": "Simulator/wksim_runtime/planner_scene_binding.py", "sha256": "da45997ec4caceb45cd6652717b71973d8be041e94f690ba89b7011e6ea1a0cf", "last_commit": "7a08bd5 2026-09-12T02:51:36+09:00" },
+    { "kind": "dep", "path": "Simulator/wksim_planning/ego_trajectory_adapter.py", "sha256": "1ebd161181e8dfe8d0388e1eaa307385df34b7247935a6da321d17a2243c515d", "last_commit": "68cc1d1 2026-09-12T15:03:50+09:00", "note": "changed after contract commit c049954" },
+    { "kind": "dep", "path": "Simulator/wksim_planning/trajectory_session.py", "sha256": "8887ec11edfc67e0aed8faf3e8768aec90bcdf9138d1f4c4b80733a847317df0", "last_commit": "042fef3 2026-09-12T13:34:33+09:00", "note": "changed after contract commit c049954" },
+    { "kind": "consumer", "path": "Simulator/wksim_runtime/planner_transport_pump.py", "sha256": "30e48e08801c22b7a2f7684ca154fa086f0f4dab3c6f60c8a8e4aa258ca76da5", "last_commit": "a379917 2026-09-12T14:42:04+09:00" },
+    { "kind": "transport", "path": "Simulator/wksim_runtime/bspline_tcp_envelope.py", "sha256": "f0dffe7fe3e8717a2ca4e3af7ac2d740266c89fa534b9a1a8dde814af8ee59a3", "last_commit": "a379917" },
+    { "kind": "test", "path": "validation/test_ego_scene_admission.py", "sha256": "3d9d00281fcae64afd654ba65036e819bea973145ec36284cdcb57667d777188", "last_commit": "c049954" },
+    { "kind": "29-evidence", "path": "validation/lunar-29-terrain-reset-c8f05c6e/result.json", "sha256": "2c55cc62ae594210bbd5189015b3acbcbf3d35f295a23cb25e923871f3a08fe8", "last_commit": "b8d141c 2026-09-11T17:00:34+09:00" }
+  ],
+  "evidence_classes": {
+    "current_architecture_reproducible": [
+      {
+        "evidence": "validation/lunar-29-static-contact/audit.py",
+        "command": "python -B validation/lunar-29-static-contact/audit.py",
+        "result": { "assertions": 85, "cases": 13, "skipped": 0, "status": "pass" },
+        "exit_code": 0,
+        "why_current": "stdlib-only (hashlib/json/sys/pathlib), reads frozen data files; architecture-independent; re-run at HEAD"
+      },
+      {
+        "evidence": "validation/lunar-29-live-contact/audit.py",
+        "command": "python -B validation/lunar-29-live-contact/audit.py",
+        "result": { "assertions": 30895, "rows": 3253, "skipped": 0, "status": "pass" },
+        "exit_code": 0,
+        "why_current": "stdlib-only; architecture-independent; re-run at HEAD"
+      },
+      {
+        "evidence": "validation/test_ego_scene_admission.py",
+        "command": "in-process unittest",
+        "result": { "tests_run": 22, "failures": 0, "errors": 0, "skipped": 0 },
+        "why_current": "seam/profile/binding/test bytes unchanged since authoring, and the suite still passes after its dependencies (ego_trajectory_adapter.py, trajectory_session.py) changed post-contract"
+      }
+    ],
+    "pre_architecture_historical": [
+      {
+        "artifact": "docs/plan/29-terrain-closure-report.md",
+        "author_commit": "2847c51",
+        "self_declared_baseline": "terrain evidence up to b8d141c; reviewed at ff6fc47",
+        "reason": "both baselines predate f333316"
+      },
+      {
+        "artifact": "docs/plan/102-trajectory-scene-admission-contract.md",
+        "author_commit": "c049954",
+        "reason": "authored 2026-09-12, predates f333316"
+      },
+      {
+        "artifact": "validation/lunar-29-terrain-reset-c8f05c6e/result.json",
+        "producing_commit": "b8d141c",
+        "reason": "predates f333316 AND its pinned source identity has drifted (see pin_drift)"
+      }
+    ],
+    "unverified_claims": [
+      "#29 AC2: slope / real-flight contact dynamics; contact force, impulse, stiffness, damping, friction; lateral collision; dynamic objects; FC closed loop",
+      "#29 AC3: actual UE5.5 display disconnect/reconnect run; UE/WSL/FC/ROS2/DDS joint-clock closed loop",
+      "#102/#39: real map->planner->public-control->flight arrival, no-contact, clearance, cancel/replan evidence",
+      "#9: vendor DLL/plugin ABI (wayfinder:grilling, NO-GO)"
+    ]
+  },
+  "pin_drift": {
+    "artifact": "validation/lunar-29-terrain-reset-c8f05c6e/result.json",
+    "artifact_sha256": "2c55cc62ae594210bbd5189015b3acbcbf3d35f295a23cb25e923871f3a08fe8",
+    "artifact_producing_commit": "b8d141c",
+    "artifact_status_field": "passed",
+    "artifact_library_sha256": "e59ab914e3ff8225ff303e05a885f8fa1eaedb05a95443f097920ca60a7f1c0b",
+    "pinned_source_count": 10,
+    "matching_at_head": 8,
+    "drifted": [
+      {
+        "path": "Simulator/wksim_core/model.py",
+        "pinned": "a88f4405cca87fa02d3dbaa66d280397f9d57aa269f5941059ddd80ef0c7ba0b",
+        "head": "3b0ae6f40594a30997fa66beba11466ca88f0c1a3b88c2322d4fee10f1ce4d41",
+        "pin_matched_at_producing_commit": true,
+        "head_last_commit": "0b1828a"
+      },
+      {
+        "path": "Simulator/wksim_core/worker.py",
+        "pinned": "dae21abdff34e887f65e6df4e0ecd0c004638cc1fcc16705acba0ebd78687c1c",
+        "head": "38f34a8f68efe8353f99703ec3ce1a18749ec7798933587f349b480dd638060c",
+        "pin_matched_at_producing_commit": true,
+        "head_last_commit": "1abf5f3 2026-09-13T12:15:59+09:00 (after f333316)"
+      }
+    ],
+    "artifact_reproducible_from_head": false,
+    "consequence": "Per AGENTS continuity rule this artifact is a historical comparison; it does not validate the new architecture. The #29 report's terrain-ingress / cold-reset replay support for AC2 is therefore downgraded to historical evidence."
+  },
+  "ac_verdicts": {
+    "29": {
+      "title": "坡面与障碍场景的物理反馈",
+      "state": "OPEN",
+      "ac1": { "verdict": "PASS (representation/evidence layer)", "current_architecture_reproducible": true },
+      "ac2": {
+        "verdict": "PARTIAL",
+        "proven_current": [
+          "#80 fixture: contact point/normal/penetration over plane, box top/side/edge band/surface, free space, and fresh/stale/future/foreign-epoch/scene-hash-mismatch feedback semantics (85 assertions, 13 cases, re-run at HEAD)",
+          "#81 record: per-row contact/no-contact over 3253 rows with explicit freeze/recover (30895 assertions, re-run at HEAD)",
+          "scene identity static-plane-box-v1, scene hash 60ae50970e23d35e0a28b22694d61ca85c4e10af1f574a6ca9f07c79f7e03514 shared by #80/#81 and display-manifest.json"
+        ],
+        "proven_historical_only": [
+          "generated-model terrain ingress, state reaction, and elevated cold-reset exact replay: sole carrier is result.json at b8d141c, whose model.py/worker.py pins have drifted"
+        ],
+        "not_proven": [
+          "slope / real-flight contact dynamics",
+          "contact force, impulse, stiffness, damping, friction",
+          "lateral collision and dynamic objects",
+          "FC closed loop (probe native I/O is a deterministic ACK / 4 ms barrier stub; not re-run here)"
+        ]
+      },
+      "ac3": {
+        "verdict": "PARTIAL",
+        "proven_current": [
+          "#81 run-config.json declares 1 ms frame and the 30000 < frame <= 30020 missing-feedback gap; events.json records freeze at frame 30019 with boundary_step=29999 and fresh recovery at frame 30039; auditor re-verified rows at HEAD",
+          "display-manifest.json pins display-only authority (physics in WSL; manifest cannot modify physics)"
+        ],
+        "not_proven": [
+          "actual UE5.5 display disconnect/reconnect run",
+          "UE/WSL/FC/ROS2/DDS joint-clock closed loop",
+          "render-frame independence in a live product path"
+        ]
+      },
+      "ac4": { "verdict": "PASS (capability row / boundary layer)" },
+      "ac5": { "verdict": "PASS (delivery/review layer)" },
+      "hash_layers_must_not_be_merged": {
+        "60ae50970e23d35e0a28b22694d61ca85c4e10af1f574a6ca9f07c79f7e03514": "#80/#81 frozen static fixture and display manifest (box centre [2,0,0.5] m)",
+        "4889e2ea32146b734a816281915842da1da27c0df78c588d688cd2656f2bb300": "generated-model probe scene identity from elevated tick-0 ENU"
+      },
+      "recommendation": "keep OPEN"
+    },
+    "102_contract": {
+      "doc": "docs/plan/102-trajectory-scene-admission-contract.md",
+      "self_declared_status": "offline geometry-admission slice only; does not close #102 or #39",
+      "identity_claims_verified": {
+        "scene_id": "ego-single-box-v1",
+        "scene_hash": "40ee928113c1ad6b2f9987c01506ee34171bd15099e6e7c9425496498cb8d0ba",
+        "profile_hash": "49da4cccaf3c172c510daa3cc3bd0ddad521669c4d64f3c8bc1a7fe71d9730f7",
+        "geometry_id": "ego-single-box-v1:obstacle",
+        "obstacle_min": [-0.5, -1.0, 0.0],
+        "obstacle_max": [0.5, 1.0, 5.5],
+        "map_min": [-10.0, -6.0, 0.0],
+        "map_max": [10.0, 6.0, 6.0],
+        "vehicle_radius": 0.35,
+        "required_clearance": 0.30,
+        "clearance_margin_published": 0.65,
+        "clearance_margin_actual_float": 0.6499999999999999,
+        "clearance_margin_note": "one ulp below the published 0.65; cosmetic only, no behavioral impact"
+      },
+      "constants_verified": {
+        "evidence_kind": "sampled_segment_checked",
+        "continuous_proof_on_admitted_report": false,
+        "default_sample_period_s": 0.01,
+        "max_admission_samples": 1000000,
+        "reason_code_count": 11
+      },
+      "grid_boundary_verified": {
+        "boundary_duration_s": 9999.99,
+        "exact_boundary_accepted_with_sample_count": 1000000,
+        "one_ulp_above_fails_closed_with": "invalid_grid",
+        "first_sample_is_literal_zero": true,
+        "last_sample_is_literal_duration": true
+      },
+      "wiring_verified": {
+        "runtime_consumer": "Simulator/wksim_runtime/planner_transport_pump.py",
+        "consumer_constructs_admission_at_line": 223,
+        "consumer_maps_clearance_violation_to": "rejected_clearance",
+        "consumer_declares_no_continuous_claim": true,
+        "other_references": [
+          "ros2/src/prometheus_control/CMakeLists.txt",
+          "tools/build-joint-control.sh"
+        ]
+      },
+      "evidence_identity_consistency": {
+        "seam_file_sha256": "6671bc6f4b9654a2ed4fae7c4f0d3c32937da94a8c7fed10c875783feec8c40b",
+        "matches_pinned_value_in": "validation/33-final-combo-luna/*/{control-build,result}.json",
+        "conclusion": "those committed evidence packs pin the same seam bytes as HEAD"
+      },
+      "not_proven": [
+        "continuous-curve safety (continuous_proof=False is load-bearing, see gap)",
+        "UE / SITL / ROS / socket / planner / wall clock / physical force response",
+        "real obstacle-avoidance flight (issue #102/#39 scope)"
+      ]
+    }
+  },
+  "gap": {
+    "id": "sampled-pass-can-hide-true-clearance-infringement",
+    "severity": "P1",
+    "severity_rationale": "Not P0: module, contract doc and transport pump all explicitly disclaim continuous proof, so nothing currently misrepresents a PASS. But clearance_violation -> rejected_clearance makes a PASS the operative 'clearance satisfied' signal used to commit a trajectory to the session, and the disclaimer is quantitatively load-bearing.",
+    "witness": {
+      "construction": "knot interval h=0.005 s; 203 alternating control points x in {0.85, 1.45}, y=0, z=2; duration ~1.0 s",
+      "mechanism": "curve x-period 2h = 0.010 s equals the default sample stride, so every sample lands on the curve peak (x=1.25) and the trough (x=1.05) falls exactly between samples",
+      "gate_result": {
+        "admitted": true,
+        "violation": null,
+        "min_obstacle_clearance": 0.39999999999999913,
+        "continuous_proof": false
+      },
+      "independent_continuous_scan": {
+        "method": "400000-point dense scan of the continuous curve using scene_profile.segment_clearance",
+        "true_min_obstacle_clearance": 0.19999999999999984
+      },
+      "required_clearance": 0.3,
+      "infringement_m": 0.10000000000000014,
+      "infringement_fraction_of_requirement": 0.3333333333333338,
+      "centerline_distance_to_box_face_m": 0.55,
+      "required_centerline_distance_m": 0.65,
+      "reachability": "Structurally valid bridge payload (order=3, len(knots)=len(pos_pts)+4, finite strictly-increasing knots, drone_id=0, empty yaw); the bridge imposes no amplitude or kinematic bound."
+    }
+  },
+  "prototype_sound_certificate": {
+    "basis": "B-spline convex-hull property: on knot span [u_k, u_{k+1}) the curve lies in the convex hull of active control points P_{k-p}..P_k; their AABB is a sound outer bound.",
+    "obstacle_rule": "aabb_gap(control_bbox, obstacle) - vehicle_radius >= required_clearance for every span",
+    "envelope_rule": "every control point inside the inset map AABB",
+    "span_count_per_case": 200,
+    "results": {
+      "witness_false_pass": { "min_obstacle_net_clearance": -1.1102230246251565e-16, "continuous_proof": false, "verdict": "correctly REJECTED" },
+      "constant_1cm_margin": { "min_obstacle_net_clearance": 0.30999999999999994, "continuous_proof": true, "verdict": "correctly ACCEPTED" },
+      "small_safe_sinusoid": { "min_obstacle_net_clearance": 0.31001973271571714, "continuous_proof": true, "verdict": "correctly ACCEPTED" }
+    },
+    "properties": [
+      "sound (rejects the sampled-check false PASS)",
+      "conservative (will reject some genuinely safe curves; tightening via exact convex-hull-AABB distance or Bezier subdivision is a later, still no-native refinement)",
+      "no native, pure Python, directly testable"
+    ],
+    "note": "Prototype lives only in check_g3_closure.py inside the audit directory; no shared code was modified."
+  },
+  "minimal_implementation_package_no_native": {
+    "mutually_exclusive_with": "main_exclusive_native_package",
+    "steps": [
+      {
+        "step": 1,
+        "action": "add new file Simulator/wksim_planning/ego_scene_admission_continuous.py",
+        "detail": "sound_span_certificate(spline, *, binding) -> ContinuousClearanceCertificate; fail-closed on malformed input reusing existing reason vocabulary; continuous_proof=True only when every span passes; use a distinct evidence_kind such as convex_hull_span_certified",
+        "touches_shared_code": false
+      },
+      {
+        "step": 2,
+        "action": "wire an optional default-on strict pass in TrajectorySceneAdmission.admit plus one new reason code (e.g. continuous_clearance_unproven)",
+        "detail": "keeps the existing reason->outcome map total so the pump can choose fail-closed or advisory",
+        "touches_shared_code": true,
+        "condition": "ONLY if the maintainer accepts invalidating the ego_scene_admission.py pin 6671bc6f...; otherwise keep the seam frozen and let planner_transport_pump.py call the new module directly"
+      },
+      {
+        "step": 3,
+        "action": "extend validation tests",
+        "detail": "freeze the witness as a regression (certificate must REJECT); cover exact threshold, +1 cm margin, envelope violation, and cross-check soundness against a dense scan",
+        "touches_shared_code": true
+      },
+      {
+        "step": 4,
+        "action": "update docs/plan/102-trajectory-scene-admission-contract.md",
+        "detail": "Honest evidence section, reason table, non_claims; do NOT silently drop continuous_proof=False for the sampled path",
+        "touches_shared_code": true
+      }
+    ],
+    "patch_boundary_summary": [
+      "new file only: Simulator/wksim_planning/ego_scene_admission_continuous.py",
+      "ego_scene_admission.py: 1 optional constructor kwarg + 1 reason code, only under the stated condition",
+      "validation/: new or extended tests",
+      "docs/plan/102-trajectory-scene-admission-contract.md: honest-evidence, reason table, non_claims"
+    ],
+    "shared_code_modified_by_this_audit": false
+  },
+  "main_exclusive_native_package": {
+    "must_not_be_attempted_in_this_audit": true,
+    "items": [
+      "clear the pin drift: re-run tools/probe_joint_terrain_feedback.py at HEAD, re-pin all 10 source hashes, re-produce validation/lunar-29-terrain-reset-*",
+      "#29 AC3: real UE5.5 display disconnect/reconnect plus UE/WSL/FC/ROS2/DDS joint-clock closed-loop evidence",
+      "#29 AC2: slope / lateral contact dynamics and force, impulse, stiffness, damping, friction (blocked by #9 ABI OPEN and #23 boundaries)",
+      "#102/#39: real planner -> public control -> flight arrival / no-contact / clearance / cancel-replan evidence on reserved SITL/FC resources"
+    ]
+  },
+  "delegation_note": "AGENTS requires non-gpt-6-astra dispatchers to use gpt-5.6-luna / xhigh / Fast for subagents. This session's interface cannot select or verify those settings, so per AGENTS the work was performed in the main agent and the limitation is reported here rather than substituting settings.",
+  "reproduce": {
+    "command": "python -B validation/coordination/ds-g3-closure-frontier-20260913-01/check_g3_closure.py",
+    "expected_stdout": "{\"failed\": [], \"passed\": 56, \"total\": 56}",
+    "writes": ["checks.json"]
+  },
+  "conclusion": "f333316 ancestor check passes and none of the 13 cited artifacts changed while HEAD advanced twice. Keep #29 OPEN: AC2 and AC3 are both PARTIAL. The AC1/AC4 fixture-layer evidence reproduces at HEAD, but AC2's generated-model terrain-ingress / cold-reset replay is downgraded to pre-f333316 historical evidence because wksim_core/model.py and wksim_core/worker.py pins have drifted. AC3 still lacks any UE / joint-clock closed loop. The #102 admission contract's declared scope holds at HEAD (22/22 tests, identities and constants verified, runtime wiring present). New P1 finding: the sampled gate admits a structurally valid payload whose continuous curve intrudes 0.10 m (33.3% of the requirement) into the clearance margin; continuous_proof=False is load-bearing rather than a formality. A no-native, directly encodable and testable minimal package is proposed, with a validated sound convex-hull certificate prototype, mutually exclusive with the main-owned native package."
+}

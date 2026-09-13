@@ -1,0 +1,708 @@
+{
+  "artifacts": {
+    "Simulator/wksim_planning/ego_bspline_bridge.py": {
+      "git_blob": "ae03b0d7465c15ad2378ef64930f2c5266ab226e",
+      "kind": "seam",
+      "last_commit": "d5c2efc 2026-09-11T16:55:37+09:00 Bridge normalized EGO Bspline payloads",
+      "present": true,
+      "sha256_file": "c696f936208ed9faed2575a9df1b6aa5e13acfd6c96f21a5d48b8d71a11aaa51"
+    },
+    "Simulator/wksim_planning/ego_evaluator.py": {
+      "git_blob": "f2591e21ec5a1b676928ca593af668227f7e735f",
+      "kind": "seam",
+      "last_commit": "97d40da 2026-09-11T14:10:40+09:00 Add offline EGO trajectory adapter",
+      "present": true,
+      "sha256_file": "ad91915c5f61625c05497a9e64ece596c4aa336e03723e96efb2104b7ff9b1e2"
+    },
+    "Simulator/wksim_planning/ego_scene_admission.py": {
+      "git_blob": "ab2233be3ad31d477b6a274b2b80d492658d2afe",
+      "kind": "seam",
+      "last_commit": "c049954 2026-09-12T04:10:54+09:00 Gate EGO trajectories against scene geometry",
+      "present": true,
+      "sha256_file": "6671bc6f4b9654a2ed4fae7c4f0d3c32937da94a8c7fed10c875783feec8c40b"
+    },
+    "Simulator/wksim_planning/ego_trajectory_adapter.py": {
+      "git_blob": "ea7133da9cc8d2a250fdf1431a1dbf2d94a53dbf",
+      "kind": "dep",
+      "last_commit": "68cc1d1 2026-09-12T15:03:50+09:00 Verify actual EGO output and preserve fractional trajectory durations",
+      "present": true,
+      "sha256_file": "1ebd161181e8dfe8d0388e1eaa307385df34b7247935a6da321d17a2243c515d"
+    },
+    "Simulator/wksim_planning/scene_profile.py": {
+      "git_blob": "40023629144acfd6c9ba5aa63a985255837eb91a",
+      "kind": "seam",
+      "last_commit": "f627d19 2026-09-12T01:37:45+09:00 Freeze offline EGO scene profile",
+      "present": true,
+      "sha256_file": "5a34e036194372241577b7187107eecc2c6be1777a7f51a4f189f87a6205f84c"
+    },
+    "Simulator/wksim_planning/trajectory_session.py": {
+      "git_blob": "5307cfe2b77957c324527c94b80136ca41cce7e1",
+      "kind": "dep",
+      "last_commit": "042fef3 2026-09-12T13:34:33+09:00 Bridge renamed Prometheus fields and make planner stop events atomic",
+      "present": true,
+      "sha256_file": "8887ec11edfc67e0aed8faf3e8768aec90bcdf9138d1f4c4b80733a847317df0"
+    },
+    "Simulator/wksim_runtime/bspline_tcp_envelope.py": {
+      "git_blob": "1c1f3aed863b579ae0aeae2e6ade929419f3ff4a",
+      "kind": "transport",
+      "last_commit": "a379917 2026-09-12T14:42:04+09:00 Add opt-in ordered planner control frames with identity and recovery guards",
+      "present": true,
+      "sha256_file": "f0dffe7fe3e8717a2ca4e3af7ac2d740266c89fa534b9a1a8dde814af8ee59a3"
+    },
+    "Simulator/wksim_runtime/planner_scene_binding.py": {
+      "git_blob": "2624680ac48a2ae5dab26ec2af2cf10a7f03d29f",
+      "kind": "seam",
+      "last_commit": "7a08bd5 2026-09-12T02:51:36+09:00 Bind planner scene geometry offline",
+      "present": true,
+      "sha256_file": "da45997ec4caceb45cd6652717b71973d8be041e94f690ba89b7011e6ea1a0cf"
+    },
+    "Simulator/wksim_runtime/planner_transport_pump.py": {
+      "git_blob": "ccf9bd5d2a41dad8a647da7b59256ecb905eeffc",
+      "kind": "consumer",
+      "last_commit": "a379917 2026-09-12T14:42:04+09:00 Add opt-in ordered planner control frames with identity and recovery guards",
+      "present": true,
+      "sha256_file": "30e48e08801c22b7a2f7684ca154fa086f0f4dab3c6f60c8a8e4aa258ca76da5"
+    },
+    "docs/plan/102-trajectory-scene-admission-contract.md": {
+      "git_blob": "c2a448fe0cfb30f345d855580a3c7bcb02b6d78e",
+      "kind": "pre-arch",
+      "last_commit": "c049954 2026-09-12T04:10:54+09:00 Gate EGO trajectories against scene geometry",
+      "present": true,
+      "sha256_file": "cf0042f4db2aa32de82bc7725362403eb24b240bb2d2651ca2ff74fff9ab5b24"
+    },
+    "docs/plan/29-terrain-closure-report.md": {
+      "git_blob": "b2f60767c726086a7ed87f79b195c8ff04337203",
+      "kind": "pre-arch",
+      "last_commit": "2847c51 2026-09-11T17:13:43+09:00 Map terrain evidence to parent acceptance",
+      "present": true,
+      "sha256_file": "edff1cd2d9a77ea218937616b512a964deb40e42d47a91b6c7a24392ff1cfcd6"
+    },
+    "validation/lunar-29-terrain-reset-c8f05c6e/result.json": {
+      "git_blob": "ed224a545ace1a8ff6c5cdc5e3a3c0f6fe52c6cf",
+      "kind": "29-evidence",
+      "last_commit": "b8d141c 2026-09-11T17:00:34+09:00 Verify elevated terrain cold reset",
+      "present": true,
+      "sha256_file": "2c55cc62ae594210bbd5189015b3acbcbf3d35f295a23cb25e923871f3a08fe8"
+    },
+    "validation/test_ego_scene_admission.py": {
+      "git_blob": "bb64f914ec22c0866518f9e0cd81624ee2918f9d",
+      "kind": "test",
+      "last_commit": "c049954 2026-09-12T04:10:54+09:00 Gate EGO trajectories against scene geometry",
+      "present": true,
+      "sha256_file": "3d9d00281fcae64afd654ba65036e819bea973145ec36284cdcb57667d777188"
+    }
+  },
+  "checks": [
+    {
+      "check": "audit_commit_is_ancestor_of_head",
+      "detail": "exit=0",
+      "ok": true
+    },
+    {
+      "check": "architecture_commit_is_ancestor",
+      "detail": "exit=0",
+      "ok": true
+    },
+    {
+      "check": "cited_artifacts_unchanged_since_audit_commit",
+      "detail": [],
+      "ok": true
+    },
+    {
+      "check": "artifact_present::docs/plan/29-terrain-closure-report.md",
+      "detail": "b2f60767c726",
+      "ok": true
+    },
+    {
+      "check": "artifact_present::docs/plan/102-trajectory-scene-admission-contract.md",
+      "detail": "c2a448fe0cfb",
+      "ok": true
+    },
+    {
+      "check": "artifact_present::Simulator/wksim_planning/ego_scene_admission.py",
+      "detail": "ab2233be3ad3",
+      "ok": true
+    },
+    {
+      "check": "artifact_present::Simulator/wksim_planning/scene_profile.py",
+      "detail": "40023629144a",
+      "ok": true
+    },
+    {
+      "check": "artifact_present::Simulator/wksim_planning/ego_bspline_bridge.py",
+      "detail": "ae03b0d7465c",
+      "ok": true
+    },
+    {
+      "check": "artifact_present::Simulator/wksim_planning/ego_evaluator.py",
+      "detail": "f2591e21ec5a",
+      "ok": true
+    },
+    {
+      "check": "artifact_present::Simulator/wksim_planning/ego_trajectory_adapter.py",
+      "detail": "ea7133da9cc8",
+      "ok": true
+    },
+    {
+      "check": "artifact_present::Simulator/wksim_planning/trajectory_session.py",
+      "detail": "5307cfe2b779",
+      "ok": true
+    },
+    {
+      "check": "artifact_present::Simulator/wksim_runtime/planner_scene_binding.py",
+      "detail": "2624680ac48a",
+      "ok": true
+    },
+    {
+      "check": "artifact_present::Simulator/wksim_runtime/planner_transport_pump.py",
+      "detail": "ccf9bd5d2a41",
+      "ok": true
+    },
+    {
+      "check": "artifact_present::Simulator/wksim_runtime/bspline_tcp_envelope.py",
+      "detail": "1c1f3aed863b",
+      "ok": true
+    },
+    {
+      "check": "artifact_present::validation/test_ego_scene_admission.py",
+      "detail": "bb64f914ec22",
+      "ok": true
+    },
+    {
+      "check": "artifact_present::validation/lunar-29-terrain-reset-c8f05c6e/result.json",
+      "detail": "ed224a545ace",
+      "ok": true
+    },
+    {
+      "check": "identity::scene_id",
+      "detail": {
+        "claimed": "ego-single-box-v1",
+        "derived": "ego-single-box-v1"
+      },
+      "ok": true
+    },
+    {
+      "check": "identity::scene_hash",
+      "detail": {
+        "claimed": "40ee928113c1ad6b2f9987c01506ee34171bd15099e6e7c9425496498cb8d0ba",
+        "derived": "40ee928113c1ad6b2f9987c01506ee34171bd15099e6e7c9425496498cb8d0ba"
+      },
+      "ok": true
+    },
+    {
+      "check": "identity::profile_hash",
+      "detail": {
+        "claimed": "49da4cccaf3c172c510daa3cc3bd0ddad521669c4d64f3c8bc1a7fe71d9730f7",
+        "derived": "49da4cccaf3c172c510daa3cc3bd0ddad521669c4d64f3c8bc1a7fe71d9730f7"
+      },
+      "ok": true
+    },
+    {
+      "check": "identity::geometry_id",
+      "detail": {
+        "claimed": "ego-single-box-v1:obstacle",
+        "derived": "ego-single-box-v1:obstacle"
+      },
+      "ok": true
+    },
+    {
+      "check": "identity::obstacle_min",
+      "detail": {
+        "claimed": [
+          -0.5,
+          -1.0,
+          0.0
+        ],
+        "derived": [
+          -0.5,
+          -1.0,
+          0.0
+        ]
+      },
+      "ok": true
+    },
+    {
+      "check": "identity::obstacle_max",
+      "detail": {
+        "claimed": [
+          0.5,
+          1.0,
+          5.5
+        ],
+        "derived": [
+          0.5,
+          1.0,
+          5.5
+        ]
+      },
+      "ok": true
+    },
+    {
+      "check": "identity::map_min",
+      "detail": {
+        "claimed": [
+          -10.0,
+          -6.0,
+          0.0
+        ],
+        "derived": [
+          -10.0,
+          -6.0,
+          0.0
+        ]
+      },
+      "ok": true
+    },
+    {
+      "check": "identity::map_max",
+      "detail": {
+        "claimed": [
+          10.0,
+          6.0,
+          6.0
+        ],
+        "derived": [
+          10.0,
+          6.0,
+          6.0
+        ]
+      },
+      "ok": true
+    },
+    {
+      "check": "identity::vehicle_radius",
+      "detail": {
+        "claimed": 0.35,
+        "derived": 0.35
+      },
+      "ok": true
+    },
+    {
+      "check": "identity::required_clearance",
+      "detail": {
+        "claimed": 0.3,
+        "derived": 0.3
+      },
+      "ok": true
+    },
+    {
+      "check": "identity::clearance_margin",
+      "detail": {
+        "claimed": 0.65,
+        "derived": 0.6499999999999999,
+        "exact_equality": false
+      },
+      "ok": true
+    },
+    {
+      "check": "evidence_kind_constant",
+      "detail": "sampled_segment_checked",
+      "ok": true
+    },
+    {
+      "check": "default_sample_period_10ms",
+      "detail": 0.01,
+      "ok": true
+    },
+    {
+      "check": "max_admission_samples",
+      "detail": 1000000,
+      "ok": true
+    },
+    {
+      "check": "reason_count_11",
+      "detail": [
+        "invalid_adapter",
+        "invalid_binding",
+        "invalid_anchor",
+        "invalid_grid",
+        "invalid_spline",
+        "invalid_mapping",
+        "identity_mismatch",
+        "bridge_rejected",
+        "clearance_violation",
+        "map_violation",
+        "adapter_rejected"
+      ],
+      "ok": true
+    },
+    {
+      "check": "non_claims_declare_sampled_only",
+      "detail": [
+        "clearance is proven only for the sampled polyline of straight segments, not for the continuous B-spline curve between sample instants",
+        "the deterministic 0.010 s grid is an evaluation cadence, not a proof that the stride is sufficient for continuous-curve safety",
+        "no force, impulse, UE, SITL, ROS, planner, socket, or flight claim",
+        "the obstacle is a vertical AABB; Terrain15D / terrain-height is never read or driven",
+        "no identifier is minted and no wall clock is read"
+      ],
+      "ok": true
+    },
+    {
+      "check": "grid_boundary_yields_max_samples",
+      "detail": 1000000,
+      "ok": true
+    },
+    {
+      "check": "grid_above_boundary_fails_closed",
+      "detail": "invalid_grid",
+      "ok": true
+    },
+    {
+      "check": "grid_starts_at_exact_zero",
+      "detail": 0.0,
+      "ok": true
+    },
+    {
+      "check": "grid_ends_at_exact_duration",
+      "detail": 9999.99,
+      "ok": true
+    },
+    {
+      "check": "safe_spline_is_admitted",
+      "detail": true,
+      "ok": true
+    },
+    {
+      "check": "admitted_report_continuous_proof_false",
+      "detail": false,
+      "ok": true
+    },
+    {
+      "check": "admitted_report_evidence_kind",
+      "detail": "sampled_segment_checked",
+      "ok": true
+    },
+    {
+      "check": "committed_suite_22_tests",
+      "detail": {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "tests_run": 22
+      },
+      "ok": true
+    },
+    {
+      "check": "committed_suite_all_pass",
+      "detail": {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "tests_run": 22
+      },
+      "ok": true
+    },
+    {
+      "check": "lunar29_static_contact_exit0",
+      "detail": 0,
+      "ok": true
+    },
+    {
+      "check": "lunar29_static_contact_status_pass",
+      "detail": {
+        "assertions": 85,
+        "cases": 13,
+        "skipped": 0,
+        "status": "pass"
+      },
+      "ok": true
+    },
+    {
+      "check": "lunar29_live_contact_exit0",
+      "detail": 0,
+      "ok": true
+    },
+    {
+      "check": "lunar29_live_contact_status_pass",
+      "detail": {
+        "assertions": 30895,
+        "rows": 3253,
+        "skipped": 0,
+        "status": "pass"
+      },
+      "ok": true
+    },
+    {
+      "check": "lunar29_static_assertions_85",
+      "detail": {
+        "assertions": 85,
+        "cases": 13,
+        "skipped": 0,
+        "status": "pass"
+      },
+      "ok": true
+    },
+    {
+      "check": "lunar29_live_assertions_30895",
+      "detail": {
+        "assertions": 30895,
+        "rows": 3253,
+        "skipped": 0,
+        "status": "pass"
+      },
+      "ok": true
+    },
+    {
+      "check": "terrain_reset_pin_drift_present",
+      "detail": [
+        "Simulator/wksim_core/model.py",
+        "Simulator/wksim_core/worker.py"
+      ],
+      "ok": true
+    },
+    {
+      "check": "gap_witness_grid_admits",
+      "detail": true,
+      "ok": true
+    },
+    {
+      "check": "gap_witness_declares_no_continuous_proof",
+      "detail": false,
+      "ok": true
+    },
+    {
+      "check": "gap_witness_true_curve_violates",
+      "detail": {
+        "required": 0.3,
+        "true": 0.19999999999999984
+      },
+      "ok": true
+    },
+    {
+      "check": "gap_witness_infringement_is_material",
+      "detail": 0.10000000000000014,
+      "ok": true
+    },
+    {
+      "check": "certificate_rejects_false_pass",
+      "detail": {
+        "continuous_proof": false,
+        "envelope_ok": true,
+        "min_envelope_margin": 1.35,
+        "min_obstacle_net_clearance": -1.1102230246251565e-16,
+        "obstacle_ok": false,
+        "span_count": 200
+      },
+      "ok": true
+    },
+    {
+      "check": "certificate_accepts_safe_curves",
+      "detail": {
+        "constant_1cm_margin": true,
+        "small_safe_sinusoid": true,
+        "witness_false_pass": false
+      },
+      "ok": true
+    },
+    {
+      "check": "seam_has_runtime_consumer",
+      "detail": [
+        "Simulator/wksim_runtime/planner_transport_pump.py",
+        "ros2/src/prometheus_control/CMakeLists.txt",
+        "tools/build-joint-control.sh"
+      ],
+      "ok": true
+    },
+    {
+      "check": "pump_declares_no_continuous_claim",
+      "detail": true,
+      "ok": true
+    }
+  ],
+  "checks_summary": {
+    "failed": [],
+    "passed": 56,
+    "total": 56
+  },
+  "committed_suite": {
+    "errors": 0,
+    "failures": 0,
+    "skipped": 0,
+    "tests_run": 22
+  },
+  "continuous_gap": {
+    "control_point_x_range": [
+      0.8499999999999999,
+      1.45
+    ],
+    "curve_x_at_t": [
+      1.25,
+      1.0499999999999998,
+      1.25,
+      1.0499999999999998,
+      1.2499999999999998
+    ],
+    "infringement_fraction_of_requirement": 0.3333333333333338,
+    "infringement_m": 0.10000000000000014,
+    "knot_interval_s": 0.005,
+    "required_clearance": 0.3,
+    "sample_stride_s": 0.01,
+    "sampled_grid_admitted": true,
+    "sampled_grid_min_obstacle_clearance": 0.39999999999999913,
+    "sampled_grid_violation": null,
+    "true_min_obstacle_clearance_400k": 0.19999999999999984
+  },
+  "contract": {
+    "derived_identities": {
+      "clearance_margin": 0.6499999999999999,
+      "geometry_id": "ego-single-box-v1:obstacle",
+      "map_max": [
+        10.0,
+        6.0,
+        6.0
+      ],
+      "map_min": [
+        -10.0,
+        -6.0,
+        0.0
+      ],
+      "obstacle_max": [
+        0.5,
+        1.0,
+        5.5
+      ],
+      "obstacle_min": [
+        -0.5,
+        -1.0,
+        0.0
+      ],
+      "profile_hash": "49da4cccaf3c172c510daa3cc3bd0ddad521669c4d64f3c8bc1a7fe71d9730f7",
+      "required_clearance": 0.3,
+      "scene_hash": "40ee928113c1ad6b2f9987c01506ee34171bd15099e6e7c9425496498cb8d0ba",
+      "scene_id": "ego-single-box-v1",
+      "vehicle_radius": 0.35
+    },
+    "grid_boundary_duration_s": 9999.99,
+    "sample_period_s": 0.01
+  },
+  "env": {
+    "architecture_commit": "f333316e6efa6b299b4288a9d91fb2bccedfb9d6",
+    "architecture_commit_is_ancestor": true,
+    "audit_commit": "0a1caa116e31700155a7abb567176c48668c0e8e",
+    "audit_commit_is_ancestor_of_head": true,
+    "cited_artifacts_changed_since_audit_commit": [],
+    "cwd": "C:\\Users\\PC\\Documents\\odid\u7f16\u8bd1\\wksim",
+    "head_observed_at_run": "027cf43018bded896aadfebace98e60e3afbba01",
+    "python": "3.13.11",
+    "repo_root": "C:\\Users\\PC\\Documents\\odid\u7f16\u8bd1\\wksim"
+  },
+  "lunar29_auditors": {
+    "live_contact": {
+      "exit_code": 0,
+      "result": {
+        "assertions": 30895,
+        "rows": 3253,
+        "skipped": 0,
+        "status": "pass"
+      }
+    },
+    "static_contact": {
+      "exit_code": 0,
+      "result": {
+        "assertions": 85,
+        "cases": 13,
+        "skipped": 0,
+        "status": "pass"
+      }
+    }
+  },
+  "schema": "wksim.g3-closure-frontier-audit.v1",
+  "sound_certificate_prototype": {
+    "constant_1cm_margin": {
+      "continuous_proof": true,
+      "envelope_ok": true,
+      "min_envelope_margin": 1.35,
+      "min_obstacle_net_clearance": 0.30999999999999994,
+      "obstacle_ok": true,
+      "span_count": 200
+    },
+    "small_safe_sinusoid": {
+      "continuous_proof": true,
+      "envelope_ok": true,
+      "min_envelope_margin": 1.35,
+      "min_obstacle_net_clearance": 0.31001973271571714,
+      "obstacle_ok": true,
+      "span_count": 200
+    },
+    "witness_false_pass": {
+      "continuous_proof": false,
+      "envelope_ok": true,
+      "min_envelope_margin": 1.35,
+      "min_obstacle_net_clearance": -1.1102230246251565e-16,
+      "obstacle_ok": false,
+      "span_count": 200
+    }
+  },
+  "terrain_reset_pin_drift": {
+    "artifact_reproducible_from_head": false,
+    "drift": [
+      {
+        "head": "3b0ae6f40594a30997fa66beba11466ca88f0c1a3b88c2322d4fee10f1ce4d41",
+        "head_last_commit": "0b1828a 2026-08-15T18:24:32+09:00 Admit current joint model ABI by flight",
+        "path": "Simulator/wksim_core/model.py",
+        "pin_matched_at_producing_commit": true,
+        "pinned": "a88f4405cca87fa02d3dbaa66d280397f9d57aa269f5941059ddd80ef0c7ba0b"
+      },
+      {
+        "head": "38f34a8f68efe8353f99703ec3ce1a18749ec7798933587f349b480dd638060c",
+        "head_last_commit": "1abf5f3 2026-09-13T12:15:59+09:00 Reuse worker JSON encoder and retain failed unprobed flight evidence",
+        "path": "Simulator/wksim_core/worker.py",
+        "pin_matched_at_producing_commit": true,
+        "pinned": "dae21abdff34e887f65e6df4e0ecd0c004638cc1fcc16705acba0ebd78687c1c"
+      }
+    ],
+    "pinned_artifact_status": "passed",
+    "pinned_count": 10,
+    "pinned_library_sha256": "e59ab914e3ff8225ff303e05a885f8fa1eaedb05a95443f097920ca60a7f1c0b",
+    "same": [
+      {
+        "head": "f5433c2ec7e81794ffcfab26dce0feff18d4e1affdfb44f895a72e4ce0241d50",
+        "path": "Simulator/wksim_core/joint.py",
+        "pinned": "f5433c2ec7e81794ffcfab26dce0feff18d4e1affdfb44f895a72e4ce0241d50"
+      },
+      {
+        "head": "150ddf3bab66e9e59701791392f6d792a14346e0b75ecdfe94872095e72d0290",
+        "path": "Simulator/wksim_core/model.cpp",
+        "pinned": "150ddf3bab66e9e59701791392f6d792a14346e0b75ecdfe94872095e72d0290"
+      },
+      {
+        "head": "7b2699c317936f2615cbdcc1742939e932c030d495854dccad53dd924c65e0e1",
+        "path": "Simulator/wksim_core/static_contact.py",
+        "pinned": "7b2699c317936f2615cbdcc1742939e932c030d495854dccad53dd924c65e0e1"
+      },
+      {
+        "head": "28d482bca60bfcb75419bb59b2ee08056cf1e0392b42e2d304ea1579b7391de7",
+        "path": "Simulator/wksim_runtime/contact_observer.py",
+        "pinned": "28d482bca60bfcb75419bb59b2ee08056cf1e0392b42e2d304ea1579b7391de7"
+      },
+      {
+        "head": "a6dc143abf0f9119568090a5aaa0bf06a7fa5e617f107e9606fc6489819add3f",
+        "path": "Simulator/wksim_runtime/scene_clock.py",
+        "pinned": "a6dc143abf0f9119568090a5aaa0bf06a7fa5e617f107e9606fc6489819add3f"
+      },
+      {
+        "head": "f2972aa228484be202f94327d7f8d932946e7d893283f7b1f4f6036c0357371e",
+        "path": "Simulator/wksim_runtime/static-scene-v1.json",
+        "pinned": "f2972aa228484be202f94327d7f8d932946e7d893283f7b1f4f6036c0357371e"
+      },
+      {
+        "head": "8d0ee7cc362e25e9f601d5aa422520cf75be7d98e80f4d230adbfce523bfdde2",
+        "path": "Simulator/wksim_runtime/terrain_feedback.py",
+        "pinned": "8d0ee7cc362e25e9f601d5aa422520cf75be7d98e80f4d230adbfce523bfdde2"
+      },
+      {
+        "head": "b44541fbe0b49f085d8cbcf1d64e714c239a7d88d6ac61bc1d7d502ca6fb2ca4",
+        "path": "tools/probe_joint_terrain_feedback.py",
+        "pinned": "b44541fbe0b49f085d8cbcf1d64e714c239a7d88d6ac61bc1d7d502ca6fb2ca4"
+      }
+    ]
+  },
+  "wiring": {
+    "consumers_referencing_seam": [
+      "Simulator/wksim_runtime/planner_transport_pump.py",
+      "ros2/src/prometheus_control/CMakeLists.txt",
+      "tools/build-joint-control.sh"
+    ],
+    "pump_declares_no_continuous_claim": true
+  }
+}
