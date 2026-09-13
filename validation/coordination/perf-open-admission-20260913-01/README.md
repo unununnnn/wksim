@@ -13,8 +13,9 @@ only; the full switch parser remains under repair and separate acceptance.
 checked both scans against the current boot and a 60-second freshness limit.
 `receipt.json` retains compiler argv, source and private binary SHA256,
 process exit status and same-boot empty process groups. Both child processes
-terminated; no keeper was used. Private build files remain under the
-receipt's `/tmp/wksim-perf-open-*` directory, outside Git.
+terminated; no keeper was used. Private build files were created under the
+receipt's `/tmp/wksim-perf-open-*` directory, outside Git. WSL may remove that
+directory when its boot changes; the retained receipt records the completed run.
 
 `dispatches.json` records the three DeepSeek follow-up turns, existing Claude
 and OMP turns, and the three CodeBuddy quota failures. These files are records;
