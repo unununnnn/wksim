@@ -1,0 +1,179 @@
+{
+  "schema": "wksim.perf_mixed_hook_audit.v1",
+  "audit": "ds-perf-mixed-hook-audit-20260913-01",
+  "checked_at": "2026-09-13T22:25:00+09:00",
+  "checked_unix": 1789305900,
+  "mode": "read_only_design_and_wiring_audit",
+  "task": "line-level read-only wiring audit for attaching the accepted PerfStreamCapture to the actual new-architecture MIXED rate window of tools/run_joint_flight.py",
+  "wrote": [
+    "validation/coordination/ds-perf-mixed-hook-audit-20260913-01/audit.md",
+    "validation/coordination/ds-perf-mixed-hook-audit-20260913-01/audit.json",
+    "validation/coordination/ds-perf-mixed-hook-audit-20260913-01/.gitattributes"
+  ],
+  "not_written": [
+    "tools/run_joint_flight.py",
+    "Simulator/wksim_runtime/perf_capture.py",
+    "Simulator/wksim_runtime/joint_rate.py",
+    "Simulator/wksim_runtime/joint_profile.py",
+    "tools/audit_mixed_control.py",
+    "tools/audit_pv_trajectory.py",
+    "any validation test",
+    "any shared ledger or dispatch JSON"
+  ],
+  "checkout": {
+    "cwd": "C:/Users/PC/Documents/odid编译/wksim",
+    "branch": "main",
+    "head_at_start": "abf1ac3934e3ad8dcfbcb5c7b4dc49712d407c18",
+    "head_at_end_observed": "7e1e137879a779f2b051b384c044e6e936878d53",
+    "head_moved_by": "concurrent main-coordinator evidence commits (0779f43, 7e1e137); none touched any file cited here",
+    "architecture_ancestor_commit": "f333316e6efa6b299b4288a9d91fb2bccedfb9d6",
+    "architecture_ancestor_exit_code_at_start": 0,
+    "architecture_ancestor_exit_code_at_end": 0,
+    "work_class": "new-development (read-only design/wiring audit; implementation not performed)",
+    "unrelated_dirty_tracked_files": [
+      "docs/Prometheus.gitmodules.reference",
+      "validation/coordination/short-cycle-dispatches.json"
+    ]
+  },
+  "reviewed_sha256": {
+    "tools/run_joint_flight.py": "5527063f04db296d91818a46842207fb5e7ad449651ce23518b6522c0dc011b5",
+    "Simulator/wksim_runtime/perf_capture.py": "c196616fe8324eed2d8b294ef52aaec1f982eb5330abbeb7ee17094399f32e0f",
+    "Simulator/wksim_runtime/joint_rate.py": "0b53a16acd65138b4623a9a8573ec8d643a2b78f4e27e8122c65efb9a6da25c4",
+    "Simulator/wksim_runtime/joint_profile.py": "575adb530944f48fa164a127a88b5abb76991e522ee1dbb8e54ef10ccc6bf5a2",
+    "Simulator/wksim_runtime/experiment_bundle.py": "efa7a06128289b6ef3edcaf6f97454dc56b4919be5a3b2cd5f8ea4ff26ffaaf8",
+    "Simulator/wksim_runtime/evidence.py": "4f7f2e601ce3c2edfe54c1c48ed35d41133304c2b1fa56a969148c6ccbbfcb7a",
+    "Simulator/wksim_runtime/runtime.py": "11b9b326ff9972b999f3d22ecb053329afc9f443f623826d934b2c7154c136d2",
+    "Simulator/wksim_runtime/scene_clock.py": "a6dc143abf0f9119568090a5aaa0bf06a7fa5e617f107e9606fc6489819add3f",
+    "tools/mixed_control_task.py": "76adbd47fbe70c4fda4deabd893cc368b9fbd0ceeaabe4a6b7a59e597ed358fc",
+    "tools/audit_mixed_control.py": "f7f8816674f9526d48c808cfb10a31ca47fa7d08c6263ff531fb13edddb40234",
+    "tools/audit_pv_trajectory.py": "920aab3cb52220229567e8a56d28adae69ea0adaa9ee45019b1f64c74b56423c",
+    "tools/audit_joint_rate.py": "fa4e55ae887d57aaafd2dd1fb431d2f967400737d4c5ee64d6a3649404b3276e",
+    "validation/test_perf_capture.py": "f4d95ae49478729e2f4c3a508f9ef452d3f6b5acffd0c8a3301bc72155d4f3c3",
+    "validation/test_joint_profile.py": "4a7ce076f24f92ac6b69f72d3308575db40ac1670b04973cacbcdb77111485a0",
+    "validation/test_mixed_profile_admission.py": "c0c5d11af216bd294a9c4a4b32f108d351c11ef153c10ae6ac366ccd5fa1efcc",
+    "validation/test_delivery_entry_contract.py": "682f3b20b29a1312becad6ec519fdb8434ff09270af118e55c23e3986cdcc808",
+    "validation/test_joint_rate_probe.py": "c3bfd1cdd4328c5a084bd7c5f9b9acfec774d008bc9b7ef448b69b2050bf47cb",
+    "validation/coordination/ds-perf-stream-recorder-20260913-01/wksim_perf_stream.c": "aa807f3baaafcd64ed6174a49f8010b49798a74d139ead2d4eb69eafa503c1d2",
+    "validation/coordination/ds-perf-stream-recorder-20260913-01/wksim_perf_stream.h": "ef1eabf247107098dc59a314d99b8fc82d4c54dbddd58d645bcec35141a12823",
+    "validation/coordination/ds-perf-stream-consumer-20260913-01/perf_stream_consumer.py": "dee9a3b5c3cafb42e69836758ccaebd4dbd78e8fa569d203c7ca1d36a03179bc",
+    "docs/coordination/perf-stream-contract-20260913.md": "af90d03c599584cd61a22520e22cff59d50c066d5e316c53cf6bc42ce12d65e7",
+    "docs/2026-09-13-perf-python-adapter.md": "5095b42dadc3d0d4fb441fd0db0acbcd4d4994adebafb3f7022329c920027c28",
+    "docs/2026-09-13-perf-kernel-loss-counter.md": "a5597c9c4c5be3b0f05dc4935ffed2129277bbd26119aee927bca4b06172c83d",
+    "validation/coordination/ds-perf-overhead-driver-20260913-01/README-overhead-driver.md": "2cd193d0b24347b364577a537e47aa6a1c87c137905ece59e0f1bdb53126f8cc",
+    "validation/coordination/perf-python-native-admission-20260913-01/build-receipt.json": "9be2a15ab2d4902e07f21681858392e0af829bf3a6ba9e6553d284ee0dbc3385",
+    "validation/coordination/perf-python-native-admission-20260913-01/run-receipt.json": "276c69708c0251c5db767c4b7a958be921f73ba5b7a7c0cc6f2f1cfd27723a27",
+    "deployed library /root/wksim-perf-python-admission-apup9qju/libwksim_perf_stream.so (read-only WSL probe)": "37d9651282bce0da059828056796683b94e780461f7918e60c3e1e77e2130020",
+    "acceptance worktree /root/wksim-architecture-acceptance-20260913/tools/run_joint_flight.py (read-only WSL probe)": "5527063f04db296d91818a46842207fb5e7ad449651ce23518b6522c0dc011b5",
+    "this audit.md": "8540ff7af953353acdfa12aa383bb8dd1b3d6d9aed7246dade40ec5d749d074e"
+  },
+  "key_findings": [
+    {
+      "id": "minimal_seam",
+      "verdict": "located",
+      "detail": "tools/run_joint_flight.py run(): construct before child creation (after line 758, before 780); start after physics.connect() (852) and immediately before the loop `while clock.tick < MAX_TICKS:` (878); stop at the top of the single outer `finally` (989) before cleanup_children (990). run() creates no Python threads and does not spin (rclpy.spin_once exists only in task_main), so all three calls are on the same launcher main thread that drives the 4-tick rate groups."
+    },
+    {
+      "id": "rate_window_bounds",
+      "verdict": "located",
+      "detail": "MIXED runs a single fixed 0.5 rate segment (make_joint_rate at 757; rate.set_rate is never called in this runner). The actual rate window is [rate.last_summary['anchor']['wall_ns'], rate.last_end]: anchor wall is stamped in JointRate.reanchor (joint_rate.py:52), last_end in end_group (joint_rate.py:141). This is the same segment audit_pv_trajectory.rate_windows() validates (len(segments)==1, anchor requested_rate 0.5, groups[-1].end_tick == final_authority.tick). Both Python time.monotonic_ns and the recorder CLOCK_MONOTONIC share one clock domain."
+    },
+    {
+      "id": "windows_contract",
+      "verdict": "located",
+      "detail": "The strict consumer requires wksim.perf_windows.v1 to bind boot_id/owner_pid/owner_tid/clock_id and to keep each window inside the inner enabled span [enable_after_ns, disable_before_ns] (perf_stream_consumer.py:396-451). The runner already has every needed value: Simulator/wksim_runtime/evidence.py:host_boot_id() matches the C boot_id format (36-char dashed UUID, truncated at newline, wksim_perf_stream.c:358-385) and PerfStreamCapture.owner_pid/owner_tid equal C getpid()/gettid() (wksim_perf_stream.c:679-680)."
+    },
+    {
+      "id": "cli_and_deployment_input",
+      "verdict": "located",
+      "detail": "Run_joint_flight.py consumes only CLI manifest/SHA pairs; the new-architecture deployment document cannot carry the perf pin because experiment_bundle.resolve enforces set(deployment)=={'schema_version','firmware_releases'} and set(release)=={'family','target','vehicle_model','manifest_linux','manifest_sha256'} (experiment_bundle.py:61-69). Recommended input is the optional --perf-library/--perf-library-sha256 pair (MIXED only), with the library path/SHA/kernel/boot recorded in the run result; no parallel deployment parser may be added."
+    },
+    {
+      "id": "output_dir_and_failure_policy",
+      "verdict": "located",
+      "detail": "Outputs live/perf-switch.raw, live/perf-switch.meta.json, live/perf-windows.json in the fresh mkdtemp `live` (parent exists, outputs absent, raw != meta), later sealed by the existing shutil.copytree(live, archive) at line 1039. Failure policy must be fail-closed: requested capture that is not complete must force result['status'] != 'pass' in the status reduction at lines 1031-1035, and the stop must run before cleanup_children so teardown can never lose the evidence; the stop block must never raise out of finally."
+    },
+    {
+      "id": "source_archive_identity",
+      "verdict": "located",
+      "detail": "Add Simulator/wksim_runtime/perf_capture.py (and optionally the recorder C/H) to `sources` (383-418) when requested. result['source_sha256'], live/source__*.txt and source_unchanged are all generated from the same dict, which preserves the strict equality audit_mixed_control.py:143-146 and audit_pv_trajectory.py:305-308 impose. The library is not archived (policy: no .so publication); record path + SHA + kernel + boot and re-digest after stop. Do not add perf fields to result['bounds'], which auditors compare exactly (audit_mixed_control.py:123-124)."
+    },
+    {
+      "id": "strict_consumer_post_processing",
+      "verdict": "located",
+      "detail": "Run the pinned consumer (dee9a3b5...) on the archive after the runner exits: --raw/--metadata/--windows/--require-kernel-counter --output <archive>/perf-decoded.json (a new filename; the tool refuses overwrite). Run it before tools/audit_mixed_control.py so the audit's all-file evidence_sha256 (audit_mixed_control.py:822) seals perf-decoded.json. Nothing from the decode may be written back into result.json."
+    },
+    {
+      "id": "formal_gate_marker",
+      "verdict": "blocker",
+      "detail": "joint_profile._mixed_proofs (Simulator/wksim_runtime/joint_profile.py:274-276) rejects formal mixed/PV evidence only for presence of 'rate_timing_probe' or 'group_work_timing'. The perf marker must be added to that presence check (and covered by pure tests) before any instrumented MIXED run may exist; otherwise a diagnostic-marker run could be admitted as formal MIXED/PV evidence. This audit does not claim that the formal gate permits diagnostic markers. Raw flight auditors deliberately tolerate diagnostics (audit_mixed_control.py:132-134 lists only alternate workflows), matching the rate_timing_probe precedent."
+    },
+    {
+      "id": "gates_preserved",
+      "verdict": "unchanged_by_plan",
+      "detail": "The plan touches no pacing/tick code: SceneClock.STEP_NS=1_000_000 / MACRO_TICKS=4, JointRate no-catch-up release (earliest=max(ideal, previous_start+period)), LATE_LIMIT_NS=100_000_000, complete 10s/60s sliding-window rate gates, and every identity/physical gate (sources, manifests, control_shutdown_clean, cleanup_errors, unowned_ap, truth bounds, native maps) stay exactly as they are. joint_rate.py is not modified (validation/test_joint_rate_probe.py:28 hard-pins its SHA 0b53a16a...)."
+    }
+  ],
+  "change_list": [
+    {"id": "C1", "target": "tools/run_joint_flight.py main() parser (1049-1075, 1087-1133)", "change": "add optional --perf-library and --perf-library-sha256; enforce the pair; allow only the MIXED task profile; make it mutually exclusive with WKSIM_JOINT_RATE_TIMING_PROBE inside run(); no effect when absent"},
+    {"id": "C2", "target": "tools/run_joint_flight.py sources (383-421)", "change": "when requested, append Simulator/wksim_runtime/perf_capture.py plus (recommended) the pinned recorder C/H to `sources`; the existing digest/archive/unchanged path handles the rest"},
+    {"id": "C3", "target": "tools/run_joint_flight.py lines 382 and 758-780", "change": "initialize `capture = None`; construct PerfStreamCapture(library, sha, live/'perf-switch.raw', live/'perf-switch.meta.json') before any child process is created (fail-fast on kernel/path/SHA/existing output)"},
+    {"id": "C4", "target": "tools/run_joint_flight.py after line 375 (before try at 422)", "change": "record the presence marker result['perf_switch_capture'] (classification diagnostic_only, full_acceptance false, requested true, library path+sha, kernel_release, boot_id=host_boot_id(), status) only when requested; add the perf_capture import"},
+    {"id": "C5", "target": "tools/run_joint_flight.py between 852 and 878", "change": "capture.start() plus record owner_pid/owner_tid; placed after the FIFO/50 manager promotion and after child creation/initialization so the reader cannot inherit FIFO unnoticed and the spawn burst stays outside the ring window"},
+    {"id": "C6", "target": "tools/run_joint_flight.py finally (989) and status reduction (1031-1035)", "change": "stop before cleanup_children inside a never-raising block; export perf-windows.json from rate.last_summary['anchor']['wall_ns'] and rate.last_end with id mixed_rate_segment_<segment_id>; require raw/meta/windows present, raw non-empty, digests sealed, library re-digest equal; set marker status complete only then; force status failed otherwise"},
+    {"id": "C7", "target": "Simulator/wksim_runtime/joint_profile.py:274", "change": "extend the presence-rejection tuple to ('rate_timing_probe','group_work_timing','perf_switch_capture'); add pure tests in validation/test_joint_profile.py and validation/test_mixed_profile_admission.py mirroring the existing marker tests"},
+    {"id": "C8", "target": "result records", "change": "record kernel_release/boot_id/library/library_sha256 and library_unchanged; optionally cross-check the SHA against the main-owned build receipt before the run"},
+    {"id": "C9", "target": "everything else", "change": "do not modify joint_rate.py, scene_clock.py, joint.py, perf_capture.py, perf_stream_consumer.py, audit thresholds, shared ledgers or dispatch JSON"}
+  ],
+  "consumer_post_processing": {
+    "when": "after the runner process exits, from main",
+    "where": "on the archived evidence directory (REPO/validation/joint-public-flight-*)",
+    "command_shape": "python3 -B perf_stream_consumer.py --raw <archive>/perf-switch.raw --metadata <archive>/perf-switch.meta.json --windows <archive>/perf-windows.json --require-kernel-counter --output <archive>/perf-decoded.json",
+    "ordering": "consumer first, then tools/audit_mixed_control.py, so the flight audit seals perf-decoded.json in its evidence_sha256",
+    "independence": "consumer SHA dee9a3b5...; its recorded input digests must equal the runner-sealed digests; no decoded value is written back into result.json",
+    "claim_boundary": "stream_completeness_proven covers the configured event capture inside the inner span only; not causal scheduling attribution, not physical accuracy, not MIXED/G6/Full acceptance"
+  },
+  "blockers": [
+    {
+      "id": "B1",
+      "title": "formal mixed/PV gate does not yet reject the perf diagnostic marker",
+      "evidence": "Simulator/wksim_runtime/joint_profile.py:274-276 presence check contains only rate_timing_probe and group_work_timing",
+      "required_before_any_instrumented_run": "apply C7 and its pure tests; until then an instrumented run must not be produced or admitted",
+      "note": "this audit does not claim the formal gate permits diagnostic markers"
+    },
+    {
+      "id": "B2",
+      "title": "runner identity diverges from the acceptance candidate worktree",
+      "evidence": "read-only WSL probe: /root/wksim-architecture-acceptance-20260913/tools/run_joint_flight.py equals 5527063f... today; candidates for perf_capture.py/joint_rate.py/recorder C+H/consumer/test already equal the Windows SHAs",
+      "required": "after C1-C6, sync the acceptance/running checkout to the same new runner bytes and re-record its SHA in the evidence before any native run"
+    }
+  ],
+  "risks_non_blocking": [
+    {"id": "R3", "detail": "new CLI options must stay optional: validation/test_mixed_control_task.py asserts existing selector accept/reject outcomes including real-subprocess exit 2"},
+    {"id": "R4", "detail": "joint_rate.py SHA is hard-pinned by validation/test_joint_rate_probe.py:28 and recorded in docs/coordination/ds-startup-cost-evidence-20260912.* and docs/plan/33-rate-next-diagnostic-20260912.md; the wiring must not touch it"},
+    {"id": "R6", "detail": "result['bounds'] is compared exactly by auditors; perf metadata must not be added there"},
+    {"id": "R7", "detail": "the rate timing probe modifies the very pacing path under measurement; perf and WKSIM_JOINT_RATE_TIMING_PROBE=1 must be mutually exclusive"},
+    {"id": "R9", "detail": "isolate_temporary_files() overlays /tmp, so the deployed .so pin must stay outside /tmp; the current pin is under /root"},
+    {"id": "R11", "detail": "starting the capture after child creation avoids a spawn burst that would press the 512 KiB ring's 4096-byte headroom guard"},
+    {"id": "R12", "detail": "capture length bound is about 360 s wall at 0.5 rate (WALL_LIMIT 900, MAX_TICKS 180000); the synthetic 360 s/8 ms run produced 2,880,064 raw bytes / 90,002 records / zero kernel loss, far below the 128 MiB storage cap, but that synthetic measurement is not a real-window overhead result"}
+  ],
+  "gaps_not_blocking": [
+    "native owner evidence covers only the main thread (owner_pid == owner_tid == 765); the wiring uses exactly that thread, but a non-main-thread owner remains uncovered",
+    "no native run was performed in this audit (forbidden), so the real MIXED-window overhead, real raw size, and recorder coexistence with the FIFO manager remain unmeasured",
+    "the adapter hard-checks kernel 6.6.87.2-microsoft-standard-WSL2; a kernel change requires revalidation",
+    "including the recorder C/H in the run's source archive is a completeness-vs-footprint choice; the library origin is authoritatively bound by the main-owned build receipt either way"
+  ],
+  "verification_performed": [
+    {"check": "python -B -m unittest validation.test_perf_capture -v", "result": "Ran 9 tests, OK", "native_loaded": false},
+    {"check": "python -B -m unittest validation.test_delivery_entry_contract -v", "result": "Ran 9 tests, OK", "native_loaded": false},
+    {"check": "re-hash every reviewed artifact at audit start, middle and end", "result": "all identical; audited files unaffected by the concurrent HEAD moves abf1ac3 -> 0779f43 -> 7e1e137"},
+    {"check": "git merge-base --is-ancestor f333316e... HEAD", "result": "exit 0 at start and at end"},
+    {"check": "read-only WSL probes (\\wsl$ paths, no process started)", "result": "deployed library present with SHA 37d96512...; acceptance worktree runner byte-equal to Windows 5527063f...; candidate contains identical perf_capture.py/joint_rate.py/recorder/consumer/test; candidate .git is a worktree of the Windows repository"},
+    {"check": "not performed", "result": "native execution, compilation, ROS, SITL, model, UE, MATLAB, background scheduling, process cleanup"}
+  ],
+  "verdict": "The minimal wiring seam, window derivation, CLI/deployment input, output directory, failure policy, source-archive identity and strict-consumer post-processing position are all located and consistent with the accepted PerfStreamCapture contract and the existing MIXED gates. Implementation is safe to start only after blocker B1 (formal-gate marker rejection plus its pure tests) and with blocker B2 (candidate runner identity sync) handled by main. No source, test, audit or ledger file was modified by this audit.",
+  "implementation_performed": false,
+  "flight_or_native_acceptance_claimed": false,
+  "formal_gate_allows_diagnostic_marker": false,
+  "architecture_acceptance": false,
+  "full_acceptance": false
+}

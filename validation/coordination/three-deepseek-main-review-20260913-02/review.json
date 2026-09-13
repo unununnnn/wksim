@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "recordedAtUtc": "2026-09-13T13:23:51.1027642Z",
+  "repositoryHeadBeforeReviewCommit": "0239f0e459bd8f5d7cdc6c25c0c6aa6687ead54f",
+  "reviewedDeliverables": [
+    {
+      "name": "actual-mixed-perf-hook-readonly-audit",
+      "threadId": "9d6cd442-88c3-4a33-a5cc-73d2eea60971",
+      "auditJsonSha256": "5fcb917f3ff9f3769f78d72f723724a4e3bced5a5a974e68ee9b9e6ba36e4ef0",
+      "auditMdSha256": "8540ff7af953353acdfa12aa383bb8dd1b3d6d9aed7246dade40ec5d749d074e",
+      "disposition": "accepted-as-read-only-design-evidence",
+      "implementationComplete": false,
+      "formalMixedAccepted": false
+    },
+    {
+      "name": "issue-9-dll-abi-evidence-gap",
+      "threadId": "c4de5be1-3862-4ac9-9abe-672fa560fcab",
+      "auditJsonSha256": "42e574e1f079f3f3017215db2ca60c46c8c8678ac773be9319f4cf5712692420",
+      "auditMdSha256": "5e00f5acad6120eab34780c8653dedaff0cef6ea76eccabf8405f1c83af554b7",
+      "disposition": "accepted-as-read-only-gap-evidence",
+      "issue9Closed": false,
+      "abiApproved": false
+    }
+  ],
+  "verification": [
+    {
+      "command": "py -3 -B -m unittest validation.test_perf_capture validation.test_delivery_entry_contract",
+      "exitCode": 0,
+      "result": "18 tests passed"
+    },
+    {
+      "command": "python -B -m unittest validation.test_validate_legacy_abi_manifest",
+      "python": "D:/date/miniconda/python.exe",
+      "jsonschemaVersion": "4.26.0",
+      "exitCode": 0,
+      "result": "23 tests passed with 1 skipped"
+    },
+    {
+      "command": "py -3 -B -m unittest validation.test_validate_legacy_abi_manifest",
+      "exitCode": 1,
+      "result": "environment failure: system py -3 has no jsonschema; this is not recorded as a code failure"
+    }
+  ],
+  "bytePolicy": {
+    "gitattributesSha256": "705fd4d6451a31d36b3df7de96f83f30ac976c9b4a6d1e51671d8e2f33e2d0da",
+    "rule": "* -text"
+  },
+  "retainedBlockers": [
+    "Perf capture remains diagnostic until the formal profile rejects its marker and actual runner integration plus independent strict consumption are completed.",
+    "Issue 9 remains blocked by missing authoritative ABI, named sample identity, lifecycle, layout, units, version and permission evidence."
+  ]
+}
