@@ -1,0 +1,30 @@
+{
+  "schema": "wksim.group-work-full-replay.v1",
+  "classification": "diagnostic_only",
+  "full_acceptance": false,
+  "routing_functions_extracted": [
+    "record_rate",
+    "record"
+  ],
+  "runner_imported": false,
+  "producer_fixture": "producer-recorder-replay.json:census_true",
+  "group_work_closes_9710000ns": true,
+  "four_cpu_windows": true,
+  "native_waits_inside_native_inputs_stage": true,
+  "ordinary_wire_events_preserved": true,
+  "cpu_and_native_diagnostics_not_written_to_wire": true,
+  "report_and_summary_match_producer_fixture": true,
+  "finish_summary_valid": true,
+  "fake_clock_reads": {
+    "wall": 6,
+    "ns": 2
+  },
+  "socket_subprocess_guards_not_triggered": true,
+  "source_sha256": {
+    "runner-candidate-v2.py.txt": "3bc281ea28b3787c0372a2c5cc57889aeb1d28bb16f4e85fcbdbd66d8d069932",
+    "producer-recorder-replay.json": "83d17fa63bdd258a53fe461b92e86d10848446bf874afb74b751af648d1c4bb2",
+    "tools/group_work_timing.py": "a14d5e9c3c7e7c234972a8632d8da800ea9a91646f6b50e252675b38d30752db",
+    "verify_full_replay.py": "2451f9feab3d1b61c31fd3bd39010c86949addade9d559c7d4b16e3deca3a807"
+  },
+  "scope": "In-memory replay of the producer fixture through the real extracted routing into the real recorder; no flight, no native code, no acceptance claim"
+}

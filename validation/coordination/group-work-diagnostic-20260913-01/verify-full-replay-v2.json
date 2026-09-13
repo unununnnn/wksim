@@ -1,0 +1,43 @@
+{
+  "schema": "wksim.group-work-full-replay.v2",
+  "classification": "diagnostic_only",
+  "full_acceptance": false,
+  "supersedes": "verify-full-replay.json",
+  "routing_functions_extracted": [
+    "record_rate",
+    "record"
+  ],
+  "runner_imported": false,
+  "input_fixture": "group-work-timing-integration-20260913/group-work-timing-fixture.json:runs.census_true",
+  "input_rows": {
+    "original_wire": 23,
+    "original_rate": 4
+  },
+  "output_rows": {
+    "ordinary_wire": 15,
+    "rate_log": 4,
+    "group_reports": 1
+  },
+  "diagnostics_routed_to_recorder_only": 8,
+  "group_work_closes_9710000ns": true,
+  "four_cpu_windows": true,
+  "native_waits_inside_native_inputs_stage": true,
+  "ordinary_wire_rows_byte_fields_equal": true,
+  "rate_rows_fields_equal": true,
+  "no_rows_invented_or_dropped": true,
+  "report_and_summary_match_independent_expectation": true,
+  "finish_summary_valid": true,
+  "fake_clock_reads": {
+    "wall": 15,
+    "ns": 4
+  },
+  "socket_subprocess_guards_not_triggered": true,
+  "source_sha256": {
+    "runner-candidate-v2.py.txt": "3bc281ea28b3787c0372a2c5cc57889aeb1d28bb16f4e85fcbdbd66d8d069932",
+    "group-work-timing-fixture.json": "a5abf2ea52c953adb0910b409f9b2c27bca28dcde074441781c467f3984d8a41",
+    "producer-recorder-replay.json": "83d17fa63bdd258a53fe461b92e86d10848446bf874afb74b751af648d1c4bb2",
+    "tools/group_work_timing.py": "a14d5e9c3c7e7c234972a8632d8da800ea9a91646f6b50e252675b38d30752db",
+    "verify_full_replay.py": "32ca481ca18a031768ded4d70b34de4d10c6bd610180efe3752e4275c29eb27a"
+  },
+  "scope": "In-memory replay of the real captured fixture stream through the real extracted routing into the real recorder; no flight, no native code, no acceptance claim"
+}

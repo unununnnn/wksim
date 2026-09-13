@@ -1,0 +1,210 @@
+"""Replay the producer fixture's census_true event order through the real routing.
+
+AST-extracts ONLY record/record_rate from runner-candidate-v2.py.txt (never
+imports or executes the runner), feeds the actual producer fixture sequence -
+reconstructed from the authoritative producer-recorder-replay.json - through
+those real routing functions into the real GroupWorkTiming(census=True), with
+StringIO replacing the wire/rate/group-report files and a fake clock/epoch/tick
+replacing real clocks. Pure memory: socket/subprocess entry points are rigged
+to raise for the whole replay. Writes one NEW result JSON; never overwrites.
+"""
+import ast
+import hashlib
+import io
+import json
+from pathlib import Path
+import socket
+import subprocess
+import sys
+import types
+from unittest.mock import patch
+
+HERE = Path(__file__).resolve().parent
+ROOT = HERE.parents[2]
+sys.path.insert(0, str(ROOT))
+from tools.group_work_timing import GroupWorkTiming
+
+ROUTING = HERE / 'runner-candidate-v2.py.txt'
+FIXTURE = HERE / 'producer-recorder-replay.json'
+EPOCH = 'fixture-epoch-group-work-timing'
+
+
+def sha256(path):
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+artifact = json.loads(FIXTURE.read_text(encoding='utf-8'))
+expected = artifact['census_true']
+report_spec = expected['report']
+preceding = report_spec['preceding_boundary']
+following = report_spec['following_boundary']
+
+# Rebuild the producer fixture's input rows from the authoritative artifact.
+windows = {window['tick']: window for window in report_spec['step_windows']}
+native_by_tick = {}
+for wait in report_spec['visible_native_waits']:
+    segment = {key: value for key, value in wait.items()
+               if key not in ('tick', 'stage_verified')}
+    native_by_tick.setdefault(wait['tick'], []).append(segment)
+
+start_fields = dict(segment_id=report_spec['segment_id'], request_id='config',
+                    requested_rate=report_spec['requested_rate'], transition=False,
+                    lateness_ns=preceding['lateness_ns'],
+                    start_tick=report_spec['start_tick'], end_tick=report_spec['end_tick'],
+                    ideal_start_ns=preceding['ideal_start_ns'],
+                    ideal_end_ns=following['ideal_end_ns'],
+                    earliest_start_ns=preceding['earliest_start_ns'],
+                    actual_start_ns=preceding['actual_start_ns'])
+end_fields = dict(segment_id=report_spec['segment_id'], request_id='config',
+                  requested_rate=report_spec['requested_rate'], transition=False,
+                  actual_end_ns=following['actual_end_ns'],
+                  lateness_ns=following['lateness_ns'],
+                  start_tick=report_spec['start_tick'], end_tick=report_spec['end_tick'],
+                  ideal_start_ns=preceding['ideal_start_ns'],
+                  ideal_end_ns=following['ideal_end_ns'],
+                  earliest_start_ns=preceding['earliest_start_ns'],
+                  actual_start_ns=preceding['actual_start_ns'])
+
+events = [('rate', 'rate_group_start', report_spec['start_tick'], start_fields)]
+for tick in range(report_spec['start_tick'] + 1, report_spec['end_tick'] + 1):
+    events.append(('wire', 'step', tick,
+                   dict(ap_source_frame=tick, px4_source_time_us=tick * 1000, model_ticks=4)))
+    if tick == 41:
+        events.append(('wire', 'sensor', tick, dict(stack='arducopter', packet_hex='00')))
+    if tick == 43:
+        events.append(('wire', 'diagnostic_gc_timing', tick, dict(generation=0)))
+    if tick in native_by_tick:
+        waits = native_by_tick[tick]
+        events.append(('wire', 'diagnostic_native_input_timing', tick,
+                       dict(ap_source_frame=tick, px4_source_time_us=tick * 1000,
+                            native_wait_wall_ns=sum(w['wall_ns'] for w in waits),
+                            waits=waits, limitation='fixture')))
+    window = windows[tick]
+    events.append(('wire', 'diagnostic_step_cpu_timing', tick,
+                   dict(wall_start_ns=window['wall_start_ns'],
+                        wall_end_ns=window['wall_end_ns'],
+                        stages={name: dict(stage) for name, stage in window['stages'].items()},
+                        limitation='fixture')))
+events.append(('rate', 'rate_group_end', report_spec['end_tick'], end_fields))
+
+# AST-extract only the two routing functions; the runner is never imported.
+parsed = ast.parse(ROUTING.read_text(encoding='utf-8'))
+nodes = []
+for name in ('record_rate', 'record'):
+    matches = [node for node in ast.walk(parsed)
+               if isinstance(node, ast.FunctionDef) and node.name == name]
+    assert len(matches) == 1
+    nodes += matches
+
+
+def forbidden(name):
+    def stub(*args, **kwargs):
+        raise AssertionError(name + ' must not be called')
+    return stub
+
+
+class FakeTime:
+    def __init__(self):
+        self.wall_reads = 0
+        self.ns_reads = 0
+
+    def monotonic(self):
+        self.wall_reads += 1
+        return 2.0
+
+    def monotonic_ns(self):
+        self.ns_reads += 1
+        return 2_000_000_000
+
+
+fake_time = FakeTime()
+clock = types.SimpleNamespace(epoch=EPOCH, tick=None)
+group_stream = io.StringIO()
+
+
+def emit_group_work(report):
+    group_stream.write(json.dumps(report, separators=(',', ':'), allow_nan=False) + '\n')
+
+
+recorder = GroupWorkTiming(emit=emit_group_work, census=True)
+namespace = dict(json=json, clock=clock, started=1.0, time=fake_time,
+                 wire=io.StringIO(), rate_log=io.StringIO(),
+                 diagnostic_identity=None, group_work_recorder=recorder,
+                 add_timing_probe_identity=forbidden('add_timing_probe_identity'))
+exec(compile(ast.Module(body=nodes, type_ignores=[]), str(ROUTING), 'exec'), namespace)
+
+guards = [patch.object(socket, 'socket', side_effect=AssertionError('socket forbidden')),
+          patch.object(socket, 'create_connection', side_effect=AssertionError('socket forbidden')),
+          patch.object(subprocess, 'Popen', side_effect=AssertionError('subprocess forbidden')),
+          patch.object(subprocess, 'run', side_effect=AssertionError('subprocess forbidden')),
+          patch.object(subprocess, 'call', side_effect=AssertionError('subprocess forbidden'))]
+for guard in guards:
+    guard.start()
+try:
+    for channel, kind, tick, fields in events:
+        clock.tick = tick
+        if channel == 'rate':
+            namespace['record_rate'](kind, **fields)
+        else:
+            namespace['record'](kind, **fields)
+finally:
+    for guard in guards:
+        guard.stop()
+
+summary = recorder.finish()
+wire_rows = [json.loads(line) for line in namespace['wire'].getvalue().splitlines()]
+rate_rows = [json.loads(line) for line in namespace['rate_log'].getvalue().splitlines()]
+reports = [json.loads(line) for line in group_stream.getvalue().splitlines()]
+wire_kinds = [row['kind'] for row in wire_rows]
+
+assert len(reports) == 1
+report = reports[0]
+assert report['work_ns'] == 9710000
+assert report['work_decomposition'] == dict(prefix_ns=20000,
+    step_durations_ns=[140000, 140000, 9090000, 240000],
+    step_gaps_ns=[20000, 20000, 20000], suffix_ns=20000, closes=True)
+assert [w['tick'] for w in report['step_windows']] == [41, 42, 43, 44]
+assert len(report['visible_native_waits']) == 5
+assert all(w['stage_verified'] for w in report['visible_native_waits'])
+# Ordinary events keep flowing to the wire; per-tick CPU/native diagnostics do not.
+assert wire_kinds == ['step', 'sensor', 'step', 'step', 'diagnostic_gc_timing', 'step']
+assert 'diagnostic_step_cpu_timing' not in wire_kinds
+assert 'diagnostic_native_input_timing' not in wire_kinds
+assert [row['kind'] for row in rate_rows] == ['rate_group_start', 'rate_group_end']
+assert all('issued_monotonic_ns' in row for row in rate_rows)
+# Byte-faithful against the actual producer fixture record.
+assert report == report_spec
+summary_wire = json.loads(json.dumps(summary))  # compare in on-the-wire JSON form
+if summary_wire != expected['summary']:
+    diff = {key: (summary_wire.get(key), expected['summary'].get(key))
+            for key in set(summary_wire) | set(expected['summary'])
+            if summary_wire.get(key) != expected['summary'].get(key)}
+    raise AssertionError('summary differs from producer fixture: ' + json.dumps(diff, indent=2))
+assert summary['valid'] is True
+assert summary['counts'] == dict(groups_complete=1, groups_incomplete=0,
+                                 over_budget_groups=1, reports_emitted=1,
+                                 reports_dropped=0, diagnostic_errors=0)
+assert fake_time.wall_reads == len(wire_rows) == 6
+assert fake_time.ns_reads == len(rate_rows) == 2
+
+result = dict(schema='wksim.group-work-full-replay.v1', classification='diagnostic_only',
+    full_acceptance=False,
+    routing_functions_extracted=['record_rate', 'record'], runner_imported=False,
+    producer_fixture='producer-recorder-replay.json:census_true',
+    group_work_closes_9710000ns=True, four_cpu_windows=True,
+    native_waits_inside_native_inputs_stage=True,
+    ordinary_wire_events_preserved=True,
+    cpu_and_native_diagnostics_not_written_to_wire=True,
+    report_and_summary_match_producer_fixture=True, finish_summary_valid=True,
+    fake_clock_reads=dict(wall=fake_time.wall_reads, ns=fake_time.ns_reads),
+    socket_subprocess_guards_not_triggered=True,
+    source_sha256={'runner-candidate-v2.py.txt': sha256(ROUTING),
+                   'producer-recorder-replay.json': sha256(FIXTURE),
+                   'tools/group_work_timing.py': sha256(ROOT / 'tools/group_work_timing.py'),
+                   'verify_full_replay.py': sha256(HERE / 'verify_full_replay.py')},
+    scope='In-memory replay of the producer fixture through the real extracted routing '
+          'into the real recorder; no flight, no native code, no acceptance claim')
+with (HERE / 'verify-full-replay.json').open('x', encoding='utf-8', newline='\n') as stream:
+    json.dump(result, stream, indent=2)
+    stream.write('\n')
+print(json.dumps(result))

@@ -1,0 +1,1082 @@
+{
+  "schema": "wksim.group-work-timing-fixture.v1",
+  "source_sha256": "f5433c2ec7e81794ffcfab26dce0feff18d4e1affdfb44f895a72e4ce0241d50",
+  "patched_sha256": "3d6056b85a399cdcc2a0078815990f051d12475b7b319e753009aeeecdbfc8fa",
+  "extracted_methods": [
+    "advance",
+    "finish_inputs",
+    "_native_wait"
+  ],
+  "fake_globals": [
+    "time",
+    "receive_workers",
+    "sensor_fields",
+    "json"
+  ],
+  "module_imported": false,
+  "constructor_called": false,
+  "slow_tick": 43,
+  "slow_wait_wall_ns": 9000000,
+  "runs": {
+    "census_false": {
+      "census": false,
+      "source_sha256": "f5433c2ec7e81794ffcfab26dce0feff18d4e1affdfb44f895a72e4ce0241d50",
+      "rate_rows": [
+        {
+          "kind": "rate_request",
+          "epoch": "fixture-epoch-group-work-timing",
+          "tick": 40,
+          "issued_monotonic_ns": 1000020000,
+          "request_id": "config",
+          "requested_rate": 0.5
+        },
+        {
+          "kind": "rate_anchor",
+          "epoch": "fixture-epoch-group-work-timing",
+          "tick": 40,
+          "issued_monotonic_ns": 1000040000,
+          "reason": "fixture",
+          "requested_rate": 0.5,
+          "request_id": "config",
+          "segment_id": 1,
+          "latched": false,
+          "anchor": {
+            "tick": 40,
+            "wall_ns": 1000030000,
+            "transition": false
+          },
+          "measured_rate": null,
+          "measurement": "timed_segment",
+          "completed_groups": 0,
+          "worst_lateness_ns": 0,
+          "steady_after_ns": 3000030000
+        },
+        {
+          "kind": "rate_group_start",
+          "epoch": "fixture-epoch-group-work-timing",
+          "tick": 40,
+          "issued_monotonic_ns": 1000070000,
+          "segment_id": 1,
+          "request_id": "config",
+          "requested_rate": 0.5,
+          "transition": false,
+          "lateness_ns": 30000,
+          "start_tick": 40,
+          "end_tick": 44,
+          "ideal_start_ns": 1000030000,
+          "ideal_end_ns": 1008030000,
+          "earliest_start_ns": 1000030000,
+          "actual_start_ns": 1000060000
+        },
+        {
+          "kind": "rate_group_end",
+          "epoch": "fixture-epoch-group-work-timing",
+          "tick": 44,
+          "issued_monotonic_ns": 1009720000,
+          "segment_id": 1,
+          "request_id": "config",
+          "requested_rate": 0.5,
+          "transition": false,
+          "actual_end_ns": 1009710000,
+          "lateness_ns": 1680000,
+          "start_tick": 40,
+          "end_tick": 44,
+          "ideal_start_ns": 1000030000,
+          "ideal_end_ns": 1008030000,
+          "earliest_start_ns": 1000030000,
+          "actual_start_ns": 1000060000
+        }
+      ],
+      "wire": [
+        {
+          "kind": "sensor",
+          "epoch": "fixture-epoch-group-work-timing",
+          "tick": 41,
+          "wall": 8.999999999992347e-05,
+          "stack": "arducopter",
+          "packet_hex": "0a7b2274696d657374616d70223a3136343030302e302c22696d75223a7b226779726f223a5b302e302c302e302c302e305d7d2c226e6f5f6c6f636b73746570223a66616c73652c226e6f5f74696d655f73796e63223a66616c73657d0a",
+          "source_frame": 40
+        },
+        {
+          "kind": "actuator",
+          "epoch": "fixture-epoch-group-work-timing",
+          "tick": 41,
+          "wall": 0.00017000000000000348,
+          "stack": "arducopter",
+          "frame": 41,
+          "commands": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "kind": "step",
+          "epoch": "fixture-epoch-group-work-timing",
+          "tick": 41,
+          "wall": 0.00018999999999991246,
+          "ap_source_frame": 40,
+          "px4_source_time_us": null,
+          "model_ticks": {
+            "arducopter": 41,
+            "px4": 41
+          }
+        },
+        {
+          "kind": "sensor",
+          "epoch": "fixture-epoch-group-work-timing",
+          "tick": 42,
+          "wall": 0.00022999999999995246,
+          "stack": "arducopter",
+          "packet_hex": "0a7b2274696d657374616d70223a3136383030302e302c22696d75223a7b226779726f223a5b302e302c302e302c302e305d7d2c226e6f5f6c6f636b73746570223a66616c73652c226e6f5f74696d655f73796e63223a66616c73657d0a",
+          "source_frame": 41
+        },
+        {
+          "kind": "actuator",
+          "epoch": "fixture-epoch-group-work-timing",
+          "tick": 42,
+          "wall": 0.00031000000000003247,
+          "stack": "arducopter",
+          "frame": 42,
+          "commands": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "kind": "step",
+          "epoch": "fixture-epoch-group-work-timing",
+          "tick": 42,
+          "wall": 0.00032999999999994145,
+          "ap_source_frame": 41,
+          "px4_source_time_us": null,
+          "model_ticks": {
+            "arducopter": 42,
+            "px4": 42
+          }
+        },
+        {
+          "kind": "sensor",
+          "epoch": "fixture-epoch-group-work-timing",
+          "tick": 43,
+          "wall": 0.00036999999999998145,
+          "stack": "arducopter",
+          "packet_hex": "0a7b2274696d657374616d70223a3137323030302e302c22696d75223a7b226779726f223a5b302e302c302e302c302e305d7d2c226e6f5f6c6f636b73746570223a66616c73652c226e6f5f74696d655f73796e63223a66616c73657d0a",
+          "source_frame": 42
+        },
+        {
+          "kind": "actuator",
+          "epoch": "fixture-epoch-group-work-timing",
+          "tick": 43,
+          "wall": 0.009399999999999853,
+          "stack": "arducopter",
+          "frame": 43,
+          "commands": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "kind": "step",
+          "epoch": "fixture-epoch-group-work-timing",
+          "tick": 43,
+          "wall": 0.009419999999999984,
+          "ap_source_frame": 42,
+          "px4_source_time_us": null,
+          "model_ticks": {
+            "arducopter": 43,
+            "px4": 43
+          }
+        },
+        {
+          "kind": "diagnostic_native_input_timing",
+          "epoch": "fixture-epoch-group-work-timing",
+          "tick": 43,
+          "wall": 0.009429999999999827,
+          "ap_source_frame": 42,
+          "px4_source_time_us": null,
+          "native_wait_wall_ns": 9020000,
+          "waits": [
+            {
+              "stack": "arducopter",
+              "wall_start_ns": 1000400000,
+              "wall_end_ns": 1009420000,
+              "wall_ns": 9020000,
+              "thread_cpu_ns": 1004000,
+              "ap_frame": 43
+            }
+          ],
+          "limitation": "Retained slow(>2ms native wait)/periodic(tick%250) samples, not a full census. Each wait brackets only the supervisor wait_ap/wait_px4 call; acknowledge_ap, barrier/repair_input and all record writes are excluded and stay in the combined native_inputs stage. Supervisor off-CPU during a wait includes I/O wait and descheduling; it does not identify the native FC, host or Windows cause."
+        },
+        {
+          "kind": "diagnostic_step_cpu_timing",
+          "epoch": "fixture-epoch-group-work-timing",
+          "tick": 43,
+          "wall": 0.009449999999999958,
+          "wall_start_ns": 1000360000,
+          "wall_end_ns": 1009450000,
+          "stages": {
+            "health_and_models": {
+              "wall_ns": 10000,
+              "thread_cpu_ns": 4000
+            },
+            "encode_send": {
+              "wall_ns": 20000,
+              "thread_cpu_ns": 4000
+            },
+            "native_inputs": {
+              "wall_ns": 9060000,
+              "thread_cpu_ns": 1012000
+            }
+          },
+          "limitation": "Thread CPU separates execution from off-CPU time; off-CPU includes I/O wait and descheduling"
+        },
+        {
+          "kind": "sensor",
+          "epoch": "fixture-epoch-group-work-timing",
+          "tick": 44,
+          "wall": 0.009479999999999933,
+          "stack": "arducopter",
+          "packet_hex": "0a7b2274696d657374616d70223a3137363030302e302c22696d75223a7b226779726f223a5b302e302c302e302c302e305d7d2c226e6f5f6c6f636b73746570223a66616c73652c226e6f5f74696d655f73796e63223a66616c73657d0a",
+          "source_frame": 43
+        },
+        {
+          "kind": "sensor",
+          "epoch": "fixture-epoch-group-work-timing",
+          "tick": 44,
+          "wall": 0.009489999999999998,
+          "stack": "px4",
+          "raw_hex": "fd68696c2d73656e736f720e",
+          "timestamp_us": 0
+        },
+        {
+          "kind": "actuator",
+          "epoch": "fixture-epoch-group-work-timing",
+          "tick": 44,
+          "wall": 0.009569999999999856,
+          "stack": "arducopter",
+          "frame": 44,
+          "commands": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "kind": "actuator",
+          "epoch": "fixture-epoch-group-work-timing",
+          "tick": 44,
+          "wall": 0.009649999999999936,
+          "stack": "px4",
+          "frame": 44,
+          "commands": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "kind": "barrier",
+          "epoch": "fixture-epoch-group-work-timing",
+          "tick": 44,
+          "wall": 0.009669999999999845,
+          "ap_next_frame": 44,
+          "px4_time_us": 44000,
+          "synchronized": true
+        },
+        {
+          "kind": "step",
+          "epoch": "fixture-epoch-group-work-timing",
+          "tick": 44,
+          "wall": 0.009679999999999911,
+          "ap_source_frame": 43,
+          "px4_source_time_us": null,
+          "model_ticks": {
+            "arducopter": 44,
+            "px4": 44
+          }
+        }
+      ],
+      "clock_calls": [
+        [
+          "begin_step",
+          41
+        ],
+        [
+          "commit",
+          41,
+          [
+            "arducopter",
+            "px4"
+          ]
+        ],
+        [
+          "acknowledge_ap",
+          41
+        ],
+        [
+          "begin_step",
+          42
+        ],
+        [
+          "commit",
+          42,
+          [
+            "arducopter",
+            "px4"
+          ]
+        ],
+        [
+          "acknowledge_ap",
+          42
+        ],
+        [
+          "begin_step",
+          43
+        ],
+        [
+          "commit",
+          43,
+          [
+            "arducopter",
+            "px4"
+          ]
+        ],
+        [
+          "acknowledge_ap",
+          43
+        ],
+        [
+          "begin_step",
+          44
+        ],
+        [
+          "commit",
+          44,
+          [
+            "arducopter",
+            "px4"
+          ]
+        ],
+        [
+          "acknowledge_ap",
+          44
+        ],
+        [
+          "barrier",
+          44,
+          44000,
+          true
+        ]
+      ],
+      "ap_sends": [
+        [
+          "\n{\"timestamp\":164000.0,\"imu\":{\"gyro\":[0.0,0.0,0.0]},\"no_lockstep\":false,\"no_time_sync\":false}\n",
+          [
+            "127.0.0.1",
+            19002
+          ]
+        ],
+        [
+          "\n{\"timestamp\":168000.0,\"imu\":{\"gyro\":[0.0,0.0,0.0]},\"no_lockstep\":false,\"no_time_sync\":false}\n",
+          [
+            "127.0.0.1",
+            19002
+          ]
+        ],
+        [
+          "\n{\"timestamp\":172000.0,\"imu\":{\"gyro\":[0.0,0.0,0.0]},\"no_lockstep\":false,\"no_time_sync\":false}\n",
+          [
+            "127.0.0.1",
+            19002
+          ]
+        ],
+        [
+          "\n{\"timestamp\":176000.0,\"imu\":{\"gyro\":[0.0,0.0,0.0]},\"no_lockstep\":false,\"no_time_sync\":false}\n",
+          [
+            "127.0.0.1",
+            19002
+          ]
+        ]
+      ],
+      "protocol_sends": [
+        "fd68696c2d73656e736f720e"
+      ],
+      "sleeps": [],
+      "work_ns": 9650000,
+      "step_cpu_rows": 1,
+      "native_input_rows": 1,
+      "tick_reached": 44
+    },
+    "census_true": {
+      "census": true,
+      "source_sha256": "f5433c2ec7e81794ffcfab26dce0feff18d4e1affdfb44f895a72e4ce0241d50",
+      "rate_rows": [
+        {
+          "kind": "rate_request",
+          "epoch": "fixture-epoch-group-work-timing",
+          "tick": 40,
+          "issued_monotonic_ns": 1000020000,
+          "request_id": "config",
+          "requested_rate": 0.5
+        },
+        {
+          "kind": "rate_anchor",
+          "epoch": "fixture-epoch-group-work-timing",
+          "tick": 40,
+          "issued_monotonic_ns": 1000040000,
+          "reason": "fixture",
+          "requested_rate": 0.5,
+          "request_id": "config",
+          "segment_id": 1,
+          "latched": false,
+          "anchor": {
+            "tick": 40,
+            "wall_ns": 1000030000,
+            "transition": false
+          },
+          "measured_rate": null,
+          "measurement": "timed_segment",
+          "completed_groups": 0,
+          "worst_lateness_ns": 0,
+          "steady_after_ns": 3000030000
+        },
+        {
+          "kind": "rate_group_start",
+          "epoch": "fixture-epoch-group-work-timing",
+          "tick": 40,
+          "issued_monotonic_ns": 1000070000,
+          "segment_id": 1,
+          "request_id": "config",
+          "requested_rate": 0.5,
+          "transition": false,
+          "lateness_ns": 30000,
+          "start_tick": 40,
+          "end_tick": 44,
+          "ideal_start_ns": 1000030000,
+          "ideal_end_ns": 1008030000,
+          "earliest_start_ns": 1000030000,
+          "actual_start_ns": 1000060000
+        },
+        {
+          "kind": "rate_group_end",
+          "epoch": "fixture-epoch-group-work-timing",
+          "tick": 44,
+          "issued_monotonic_ns": 1009780000,
+          "segment_id": 1,
+          "request_id": "config",
+          "requested_rate": 0.5,
+          "transition": false,
+          "actual_end_ns": 1009770000,
+          "lateness_ns": 1740000,
+          "start_tick": 40,
+          "end_tick": 44,
+          "ideal_start_ns": 1000030000,
+          "ideal_end_ns": 1008030000,
+          "earliest_start_ns": 1000030000,
+          "actual_start_ns": 1000060000
+        }
+      ],
+      "wire": [
+        {
+          "kind": "sensor",
+          "epoch": "fixture-epoch-group-work-timing",
+          "tick": 41,
+          "wall": 8.999999999992347e-05,
+          "stack": "arducopter",
+          "packet_hex": "0a7b2274696d657374616d70223a3136343030302e302c22696d75223a7b226779726f223a5b302e302c302e302c302e305d7d2c226e6f5f6c6f636b73746570223a66616c73652c226e6f5f74696d655f73796e63223a66616c73657d0a",
+          "source_frame": 40
+        },
+        {
+          "kind": "actuator",
+          "epoch": "fixture-epoch-group-work-timing",
+          "tick": 41,
+          "wall": 0.00017000000000000348,
+          "stack": "arducopter",
+          "frame": 41,
+          "commands": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "kind": "step",
+          "epoch": "fixture-epoch-group-work-timing",
+          "tick": 41,
+          "wall": 0.00018999999999991246,
+          "ap_source_frame": 40,
+          "px4_source_time_us": null,
+          "model_ticks": {
+            "arducopter": 41,
+            "px4": 41
+          }
+        },
+        {
+          "kind": "diagnostic_native_input_timing",
+          "epoch": "fixture-epoch-group-work-timing",
+          "tick": 41,
+          "wall": 0.00019999999999997797,
+          "ap_source_frame": 40,
+          "px4_source_time_us": null,
+          "native_wait_wall_ns": 70000,
+          "waits": [
+            {
+              "stack": "arducopter",
+              "wall_start_ns": 1000120000,
+              "wall_end_ns": 1000190000,
+              "wall_ns": 70000,
+              "thread_cpu_ns": 24000,
+              "ap_frame": 41
+            }
+          ],
+          "limitation": "Retained slow(>2ms native wait)/periodic(tick%250) samples, not a full census. Each wait brackets only the supervisor wait_ap/wait_px4 call; acknowledge_ap, barrier/repair_input and all record writes are excluded and stay in the combined native_inputs stage. Supervisor off-CPU during a wait includes I/O wait and descheduling; it does not identify the native FC, host or Windows cause."
+        },
+        {
+          "kind": "diagnostic_step_cpu_timing",
+          "epoch": "fixture-epoch-group-work-timing",
+          "tick": 41,
+          "wall": 0.00021999999999988695,
+          "wall_start_ns": 1000080000,
+          "wall_end_ns": 1000220000,
+          "stages": {
+            "health_and_models": {
+              "wall_ns": 10000,
+              "thread_cpu_ns": 4000
+            },
+            "encode_send": {
+              "wall_ns": 20000,
+              "thread_cpu_ns": 4000
+            },
+            "native_inputs": {
+              "wall_ns": 110000,
+              "thread_cpu_ns": 32000
+            }
+          },
+          "limitation": "Thread CPU separates execution from off-CPU time; off-CPU includes I/O wait and descheduling"
+        },
+        {
+          "kind": "sensor",
+          "epoch": "fixture-epoch-group-work-timing",
+          "tick": 42,
+          "wall": 0.00024999999999986144,
+          "stack": "arducopter",
+          "packet_hex": "0a7b2274696d657374616d70223a3136383030302e302c22696d75223a7b226779726f223a5b302e302c302e302c302e305d7d2c226e6f5f6c6f636b73746570223a66616c73652c226e6f5f74696d655f73796e63223a66616c73657d0a",
+          "source_frame": 41
+        },
+        {
+          "kind": "actuator",
+          "epoch": "fixture-epoch-group-work-timing",
+          "tick": 42,
+          "wall": 0.00032999999999994145,
+          "stack": "arducopter",
+          "frame": 42,
+          "commands": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "kind": "step",
+          "epoch": "fixture-epoch-group-work-timing",
+          "tick": 42,
+          "wall": 0.00034999999999985043,
+          "ap_source_frame": 41,
+          "px4_source_time_us": null,
+          "model_ticks": {
+            "arducopter": 42,
+            "px4": 42
+          }
+        },
+        {
+          "kind": "diagnostic_native_input_timing",
+          "epoch": "fixture-epoch-group-work-timing",
+          "tick": 42,
+          "wall": 0.00035999999999991594,
+          "ap_source_frame": 41,
+          "px4_source_time_us": null,
+          "native_wait_wall_ns": 70000,
+          "waits": [
+            {
+              "stack": "arducopter",
+              "wall_start_ns": 1000280000,
+              "wall_end_ns": 1000350000,
+              "wall_ns": 70000,
+              "thread_cpu_ns": 24000,
+              "ap_frame": 42
+            }
+          ],
+          "limitation": "Retained slow(>2ms native wait)/periodic(tick%250) samples, not a full census. Each wait brackets only the supervisor wait_ap/wait_px4 call; acknowledge_ap, barrier/repair_input and all record writes are excluded and stay in the combined native_inputs stage. Supervisor off-CPU during a wait includes I/O wait and descheduling; it does not identify the native FC, host or Windows cause."
+        },
+        {
+          "kind": "diagnostic_step_cpu_timing",
+          "epoch": "fixture-epoch-group-work-timing",
+          "tick": 42,
+          "wall": 0.0003799999999998249,
+          "wall_start_ns": 1000240000,
+          "wall_end_ns": 1000380000,
+          "stages": {
+            "health_and_models": {
+              "wall_ns": 10000,
+              "thread_cpu_ns": 4000
+            },
+            "encode_send": {
+              "wall_ns": 20000,
+              "thread_cpu_ns": 4000
+            },
+            "native_inputs": {
+              "wall_ns": 110000,
+              "thread_cpu_ns": 32000
+            }
+          },
+          "limitation": "Thread CPU separates execution from off-CPU time; off-CPU includes I/O wait and descheduling"
+        },
+        {
+          "kind": "sensor",
+          "epoch": "fixture-epoch-group-work-timing",
+          "tick": 43,
+          "wall": 0.00041000000000002146,
+          "stack": "arducopter",
+          "packet_hex": "0a7b2274696d657374616d70223a3137323030302e302c22696d75223a7b226779726f223a5b302e302c302e302c302e305d7d2c226e6f5f6c6f636b73746570223a66616c73652c226e6f5f74696d655f73796e63223a66616c73657d0a",
+          "source_frame": 42
+        },
+        {
+          "kind": "actuator",
+          "epoch": "fixture-epoch-group-work-timing",
+          "tick": 43,
+          "wall": 0.009439999999999893,
+          "stack": "arducopter",
+          "frame": 43,
+          "commands": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "kind": "step",
+          "epoch": "fixture-epoch-group-work-timing",
+          "tick": 43,
+          "wall": 0.009460000000000024,
+          "ap_source_frame": 42,
+          "px4_source_time_us": null,
+          "model_ticks": {
+            "arducopter": 43,
+            "px4": 43
+          }
+        },
+        {
+          "kind": "diagnostic_native_input_timing",
+          "epoch": "fixture-epoch-group-work-timing",
+          "tick": 43,
+          "wall": 0.009469999999999867,
+          "ap_source_frame": 42,
+          "px4_source_time_us": null,
+          "native_wait_wall_ns": 9020000,
+          "waits": [
+            {
+              "stack": "arducopter",
+              "wall_start_ns": 1000440000,
+              "wall_end_ns": 1009460000,
+              "wall_ns": 9020000,
+              "thread_cpu_ns": 1004000,
+              "ap_frame": 43
+            }
+          ],
+          "limitation": "Retained slow(>2ms native wait)/periodic(tick%250) samples, not a full census. Each wait brackets only the supervisor wait_ap/wait_px4 call; acknowledge_ap, barrier/repair_input and all record writes are excluded and stay in the combined native_inputs stage. Supervisor off-CPU during a wait includes I/O wait and descheduling; it does not identify the native FC, host or Windows cause."
+        },
+        {
+          "kind": "diagnostic_step_cpu_timing",
+          "epoch": "fixture-epoch-group-work-timing",
+          "tick": 43,
+          "wall": 0.009489999999999998,
+          "wall_start_ns": 1000400000,
+          "wall_end_ns": 1009490000,
+          "stages": {
+            "health_and_models": {
+              "wall_ns": 10000,
+              "thread_cpu_ns": 4000
+            },
+            "encode_send": {
+              "wall_ns": 20000,
+              "thread_cpu_ns": 4000
+            },
+            "native_inputs": {
+              "wall_ns": 9060000,
+              "thread_cpu_ns": 1012000
+            }
+          },
+          "limitation": "Thread CPU separates execution from off-CPU time; off-CPU includes I/O wait and descheduling"
+        },
+        {
+          "kind": "sensor",
+          "epoch": "fixture-epoch-group-work-timing",
+          "tick": 44,
+          "wall": 0.009519999999999973,
+          "stack": "arducopter",
+          "packet_hex": "0a7b2274696d657374616d70223a3137363030302e302c22696d75223a7b226779726f223a5b302e302c302e302c302e305d7d2c226e6f5f6c6f636b73746570223a66616c73652c226e6f5f74696d655f73796e63223a66616c73657d0a",
+          "source_frame": 43
+        },
+        {
+          "kind": "sensor",
+          "epoch": "fixture-epoch-group-work-timing",
+          "tick": 44,
+          "wall": 0.009530000000000038,
+          "stack": "px4",
+          "raw_hex": "fd68696c2d73656e736f720e",
+          "timestamp_us": 0
+        },
+        {
+          "kind": "actuator",
+          "epoch": "fixture-epoch-group-work-timing",
+          "tick": 44,
+          "wall": 0.009609999999999896,
+          "stack": "arducopter",
+          "frame": 44,
+          "commands": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "kind": "actuator",
+          "epoch": "fixture-epoch-group-work-timing",
+          "tick": 44,
+          "wall": 0.009689999999999976,
+          "stack": "px4",
+          "frame": 44,
+          "commands": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "kind": "barrier",
+          "epoch": "fixture-epoch-group-work-timing",
+          "tick": 44,
+          "wall": 0.009709999999999885,
+          "ap_next_frame": 44,
+          "px4_time_us": 44000,
+          "synchronized": true
+        },
+        {
+          "kind": "step",
+          "epoch": "fixture-epoch-group-work-timing",
+          "tick": 44,
+          "wall": 0.009719999999999951,
+          "ap_source_frame": 43,
+          "px4_source_time_us": null,
+          "model_ticks": {
+            "arducopter": 44,
+            "px4": 44
+          }
+        },
+        {
+          "kind": "diagnostic_native_input_timing",
+          "epoch": "fixture-epoch-group-work-timing",
+          "tick": 44,
+          "wall": 0.009730000000000016,
+          "ap_source_frame": 43,
+          "px4_source_time_us": null,
+          "native_wait_wall_ns": 140000,
+          "waits": [
+            {
+              "stack": "arducopter",
+              "wall_start_ns": 1009560000,
+              "wall_end_ns": 1009630000,
+              "wall_ns": 70000,
+              "thread_cpu_ns": 24000,
+              "ap_frame": 44
+            },
+            {
+              "stack": "px4",
+              "wall_start_ns": 1009640000,
+              "wall_end_ns": 1009710000,
+              "wall_ns": 70000,
+              "thread_cpu_ns": 24000,
+              "px4_time_us": 44000
+            }
+          ],
+          "limitation": "Retained slow(>2ms native wait)/periodic(tick%250) samples, not a full census. Each wait brackets only the supervisor wait_ap/wait_px4 call; acknowledge_ap, barrier/repair_input and all record writes are excluded and stay in the combined native_inputs stage. Supervisor off-CPU during a wait includes I/O wait and descheduling; it does not identify the native FC, host or Windows cause."
+        },
+        {
+          "kind": "diagnostic_step_cpu_timing",
+          "epoch": "fixture-epoch-group-work-timing",
+          "tick": 44,
+          "wall": 0.009749999999999925,
+          "wall_start_ns": 1009510000,
+          "wall_end_ns": 1009750000,
+          "stages": {
+            "health_and_models": {
+              "wall_ns": 10000,
+              "thread_cpu_ns": 4000
+            },
+            "encode_send": {
+              "wall_ns": 30000,
+              "thread_cpu_ns": 4000
+            },
+            "native_inputs": {
+              "wall_ns": 200000,
+              "thread_cpu_ns": 60000
+            }
+          },
+          "limitation": "Thread CPU separates execution from off-CPU time; off-CPU includes I/O wait and descheduling"
+        }
+      ],
+      "clock_calls": [
+        [
+          "begin_step",
+          41
+        ],
+        [
+          "commit",
+          41,
+          [
+            "arducopter",
+            "px4"
+          ]
+        ],
+        [
+          "acknowledge_ap",
+          41
+        ],
+        [
+          "begin_step",
+          42
+        ],
+        [
+          "commit",
+          42,
+          [
+            "arducopter",
+            "px4"
+          ]
+        ],
+        [
+          "acknowledge_ap",
+          42
+        ],
+        [
+          "begin_step",
+          43
+        ],
+        [
+          "commit",
+          43,
+          [
+            "arducopter",
+            "px4"
+          ]
+        ],
+        [
+          "acknowledge_ap",
+          43
+        ],
+        [
+          "begin_step",
+          44
+        ],
+        [
+          "commit",
+          44,
+          [
+            "arducopter",
+            "px4"
+          ]
+        ],
+        [
+          "acknowledge_ap",
+          44
+        ],
+        [
+          "barrier",
+          44,
+          44000,
+          true
+        ]
+      ],
+      "ap_sends": [
+        [
+          "\n{\"timestamp\":164000.0,\"imu\":{\"gyro\":[0.0,0.0,0.0]},\"no_lockstep\":false,\"no_time_sync\":false}\n",
+          [
+            "127.0.0.1",
+            19002
+          ]
+        ],
+        [
+          "\n{\"timestamp\":168000.0,\"imu\":{\"gyro\":[0.0,0.0,0.0]},\"no_lockstep\":false,\"no_time_sync\":false}\n",
+          [
+            "127.0.0.1",
+            19002
+          ]
+        ],
+        [
+          "\n{\"timestamp\":172000.0,\"imu\":{\"gyro\":[0.0,0.0,0.0]},\"no_lockstep\":false,\"no_time_sync\":false}\n",
+          [
+            "127.0.0.1",
+            19002
+          ]
+        ],
+        [
+          "\n{\"timestamp\":176000.0,\"imu\":{\"gyro\":[0.0,0.0,0.0]},\"no_lockstep\":false,\"no_time_sync\":false}\n",
+          [
+            "127.0.0.1",
+            19002
+          ]
+        ]
+      ],
+      "protocol_sends": [
+        "fd68696c2d73656e736f720e"
+      ],
+      "sleeps": [],
+      "work_ns": 9710000,
+      "step_cpu_rows": 4,
+      "native_input_rows": 4,
+      "tick_reached": 44
+    }
+  },
+  "mode_comparison": {
+    "ordinary_events_identical": true,
+    "clock_calls_identical": true,
+    "ap_sends_identical": true,
+    "protocol_sends_identical": true,
+    "tick_reached_identical": true,
+    "work_differs_only_by_diagnostic_reads": true
+  },
+  "script_sha256": "642ada292505592a16d97419e080224e1b4a628c01c718f28eb0cf95c8c9cd6c"
+}

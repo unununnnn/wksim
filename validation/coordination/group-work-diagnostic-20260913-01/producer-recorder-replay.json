@@ -1,0 +1,381 @@
+{
+  "census_false": {
+    "summary": {
+      "schema": "wksim.group-work-timing.v2",
+      "classification": "diagnostic_only",
+      "full_acceptance": false,
+      "field": "group_work_timing",
+      "reports_enabled": true,
+      "report_limit": 16,
+      "census": false,
+      "epoch": "fixture-epoch-group-work-timing",
+      "valid": true,
+      "invalid_reason": null,
+      "reasons": [],
+      "unfinished_group": null,
+      "counts": {
+        "groups_complete": 1,
+        "groups_incomplete": 0,
+        "over_budget_groups": 1,
+        "reports_emitted": 1,
+        "reports_dropped": 0,
+        "diagnostic_errors": 0
+      },
+      "limitations": [
+        "sampled mode retains diagnostic rows only for >2ms or tick%250==0 steps; coverage is marked, never a census; census mode requires all four cpu rows for the exact work decomposition",
+        "thread CPU is the recorded value; no OS cause is attributed from wall-CPU and CPU is never required to be <= wall",
+        "data errors make valid=false with reasons recorded; recorder faults invalidate this diagnostic only and never mask caller exceptions",
+        "the formal validator rejects the group_work_timing field; enabling it keeps the evidence diagnostic-only"
+      ]
+    },
+    "report": {
+      "kind": "group_work_timing",
+      "schema": "wksim.group-work-timing.v2",
+      "classification": "diagnostic_only",
+      "full_acceptance": false,
+      "census": false,
+      "epoch": "fixture-epoch-group-work-timing",
+      "segment_id": 1,
+      "start_tick": 40,
+      "end_tick": 44,
+      "requested_rate": 0.5,
+      "period_ns": 8000000,
+      "work_ns": 9650000,
+      "excess_ns": 1650000,
+      "preceding_boundary": {
+        "ideal_start_ns": 1000030000,
+        "earliest_start_ns": 1000030000,
+        "actual_start_ns": 1000060000,
+        "lateness_ns": 30000
+      },
+      "following_boundary": {
+        "ideal_end_ns": 1008030000,
+        "actual_end_ns": 1009710000,
+        "lateness_ns": 1680000
+      },
+      "phases": {
+        "health_and_models": {
+          "wall_ns": 10000,
+          "thread_cpu_ns": 4000,
+          "samples": 1
+        },
+        "encode_send": {
+          "wall_ns": 20000,
+          "thread_cpu_ns": 4000,
+          "samples": 1
+        },
+        "native_inputs": {
+          "wall_ns": 9060000,
+          "thread_cpu_ns": 1012000,
+          "samples": 1
+        }
+      },
+      "retained_steps": [
+        {
+          "tick": 43,
+          "wall_start_ns": 1000360000,
+          "wall_end_ns": 1009450000,
+          "wall_ns": 9090000,
+          "thread_cpu_ns": 1020000,
+          "gap_from_previous_retained_ns": null
+        }
+      ],
+      "visible_native_waits": [
+        {
+          "tick": 43,
+          "stage_verified": true,
+          "stack": "arducopter",
+          "wall_start_ns": 1000400000,
+          "wall_end_ns": 1009420000,
+          "wall_ns": 9020000,
+          "thread_cpu_ns": 1004000,
+          "ap_frame": 43
+        }
+      ],
+      "phase_coverage": "sampled: 1 of 4 steps carry diagnostic rows; not a census, no work decomposition"
+    }
+  },
+  "census_true": {
+    "summary": {
+      "schema": "wksim.group-work-timing.v2",
+      "classification": "diagnostic_only",
+      "full_acceptance": false,
+      "field": "group_work_timing",
+      "reports_enabled": true,
+      "report_limit": 16,
+      "census": true,
+      "epoch": "fixture-epoch-group-work-timing",
+      "valid": true,
+      "invalid_reason": null,
+      "reasons": [],
+      "unfinished_group": null,
+      "counts": {
+        "groups_complete": 1,
+        "groups_incomplete": 0,
+        "over_budget_groups": 1,
+        "reports_emitted": 1,
+        "reports_dropped": 0,
+        "diagnostic_errors": 0
+      },
+      "limitations": [
+        "sampled mode retains diagnostic rows only for >2ms or tick%250==0 steps; coverage is marked, never a census; census mode requires all four cpu rows for the exact work decomposition",
+        "thread CPU is the recorded value; no OS cause is attributed from wall-CPU and CPU is never required to be <= wall",
+        "data errors make valid=false with reasons recorded; recorder faults invalidate this diagnostic only and never mask caller exceptions",
+        "the formal validator rejects the group_work_timing field; enabling it keeps the evidence diagnostic-only"
+      ]
+    },
+    "report": {
+      "kind": "group_work_timing",
+      "schema": "wksim.group-work-timing.v2",
+      "classification": "diagnostic_only",
+      "full_acceptance": false,
+      "census": true,
+      "epoch": "fixture-epoch-group-work-timing",
+      "segment_id": 1,
+      "start_tick": 40,
+      "end_tick": 44,
+      "requested_rate": 0.5,
+      "period_ns": 8000000,
+      "work_ns": 9710000,
+      "excess_ns": 1710000,
+      "preceding_boundary": {
+        "ideal_start_ns": 1000030000,
+        "earliest_start_ns": 1000030000,
+        "actual_start_ns": 1000060000,
+        "lateness_ns": 30000
+      },
+      "following_boundary": {
+        "ideal_end_ns": 1008030000,
+        "actual_end_ns": 1009770000,
+        "lateness_ns": 1740000
+      },
+      "phases": {
+        "health_and_models": {
+          "wall_ns": 40000,
+          "thread_cpu_ns": 16000,
+          "samples": 4
+        },
+        "encode_send": {
+          "wall_ns": 90000,
+          "thread_cpu_ns": 16000,
+          "samples": 4
+        },
+        "native_inputs": {
+          "wall_ns": 9480000,
+          "thread_cpu_ns": 1136000,
+          "samples": 4
+        }
+      },
+      "retained_steps": [
+        {
+          "tick": 41,
+          "wall_start_ns": 1000080000,
+          "wall_end_ns": 1000220000,
+          "wall_ns": 140000,
+          "thread_cpu_ns": 40000,
+          "gap_from_previous_retained_ns": null
+        },
+        {
+          "tick": 42,
+          "wall_start_ns": 1000240000,
+          "wall_end_ns": 1000380000,
+          "wall_ns": 140000,
+          "thread_cpu_ns": 40000,
+          "gap_from_previous_retained_ns": 20000
+        },
+        {
+          "tick": 43,
+          "wall_start_ns": 1000400000,
+          "wall_end_ns": 1009490000,
+          "wall_ns": 9090000,
+          "thread_cpu_ns": 1020000,
+          "gap_from_previous_retained_ns": 20000
+        },
+        {
+          "tick": 44,
+          "wall_start_ns": 1009510000,
+          "wall_end_ns": 1009750000,
+          "wall_ns": 240000,
+          "thread_cpu_ns": 68000,
+          "gap_from_previous_retained_ns": 20000
+        }
+      ],
+      "visible_native_waits": [
+        {
+          "tick": 41,
+          "stage_verified": true,
+          "stack": "arducopter",
+          "wall_start_ns": 1000120000,
+          "wall_end_ns": 1000190000,
+          "wall_ns": 70000,
+          "thread_cpu_ns": 24000,
+          "ap_frame": 41
+        },
+        {
+          "tick": 42,
+          "stage_verified": true,
+          "stack": "arducopter",
+          "wall_start_ns": 1000280000,
+          "wall_end_ns": 1000350000,
+          "wall_ns": 70000,
+          "thread_cpu_ns": 24000,
+          "ap_frame": 42
+        },
+        {
+          "tick": 43,
+          "stage_verified": true,
+          "stack": "arducopter",
+          "wall_start_ns": 1000440000,
+          "wall_end_ns": 1009460000,
+          "wall_ns": 9020000,
+          "thread_cpu_ns": 1004000,
+          "ap_frame": 43
+        },
+        {
+          "tick": 44,
+          "stage_verified": true,
+          "stack": "arducopter",
+          "wall_start_ns": 1009560000,
+          "wall_end_ns": 1009630000,
+          "wall_ns": 70000,
+          "thread_cpu_ns": 24000,
+          "ap_frame": 44
+        },
+        {
+          "tick": 44,
+          "stage_verified": true,
+          "stack": "px4",
+          "wall_start_ns": 1009640000,
+          "wall_end_ns": 1009710000,
+          "wall_ns": 70000,
+          "thread_cpu_ns": 24000,
+          "px4_time_us": 44000
+        }
+      ],
+      "work_decomposition": {
+        "prefix_ns": 20000,
+        "step_durations_ns": [
+          140000,
+          140000,
+          9090000,
+          240000
+        ],
+        "step_gaps_ns": [
+          20000,
+          20000,
+          20000
+        ],
+        "suffix_ns": 20000,
+        "closes": true
+      },
+      "step_windows": [
+        {
+          "tick": 41,
+          "wall_start_ns": 1000080000,
+          "wall_end_ns": 1000220000,
+          "stages": {
+            "health_and_models": {
+              "wall_ns": 10000,
+              "thread_cpu_ns": 4000
+            },
+            "encode_send": {
+              "wall_ns": 20000,
+              "thread_cpu_ns": 4000
+            },
+            "native_inputs": {
+              "wall_ns": 110000,
+              "thread_cpu_ns": 32000
+            }
+          }
+        },
+        {
+          "tick": 42,
+          "wall_start_ns": 1000240000,
+          "wall_end_ns": 1000380000,
+          "stages": {
+            "health_and_models": {
+              "wall_ns": 10000,
+              "thread_cpu_ns": 4000
+            },
+            "encode_send": {
+              "wall_ns": 20000,
+              "thread_cpu_ns": 4000
+            },
+            "native_inputs": {
+              "wall_ns": 110000,
+              "thread_cpu_ns": 32000
+            }
+          }
+        },
+        {
+          "tick": 43,
+          "wall_start_ns": 1000400000,
+          "wall_end_ns": 1009490000,
+          "stages": {
+            "health_and_models": {
+              "wall_ns": 10000,
+              "thread_cpu_ns": 4000
+            },
+            "encode_send": {
+              "wall_ns": 20000,
+              "thread_cpu_ns": 4000
+            },
+            "native_inputs": {
+              "wall_ns": 9060000,
+              "thread_cpu_ns": 1012000
+            }
+          }
+        },
+        {
+          "tick": 44,
+          "wall_start_ns": 1009510000,
+          "wall_end_ns": 1009750000,
+          "stages": {
+            "health_and_models": {
+              "wall_ns": 10000,
+              "thread_cpu_ns": 4000
+            },
+            "encode_send": {
+              "wall_ns": 30000,
+              "thread_cpu_ns": 4000
+            },
+            "native_inputs": {
+              "wall_ns": 200000,
+              "thread_cpu_ns": 60000
+            }
+          }
+        }
+      ]
+    }
+  },
+  "sampled_rejected_as_census": {
+    "schema": "wksim.group-work-timing.v2",
+    "classification": "diagnostic_only",
+    "full_acceptance": false,
+    "field": "group_work_timing",
+    "reports_enabled": true,
+    "report_limit": 16,
+    "census": true,
+    "epoch": "fixture-epoch-group-work-timing",
+    "valid": false,
+    "invalid_reason": null,
+    "reasons": [
+      "rate_group_end tick 44: census group has 1 of 4 cpu rows"
+    ],
+    "unfinished_group": null,
+    "counts": {
+      "groups_complete": 0,
+      "groups_incomplete": 1,
+      "over_budget_groups": 0,
+      "reports_emitted": 0,
+      "reports_dropped": 0,
+      "diagnostic_errors": 1
+    },
+    "limitations": [
+      "sampled mode retains diagnostic rows only for >2ms or tick%250==0 steps; coverage is marked, never a census; census mode requires all four cpu rows for the exact work decomposition",
+      "thread CPU is the recorded value; no OS cause is attributed from wall-CPU and CPU is never required to be <= wall",
+      "data errors make valid=false with reasons recorded; recorder faults invalidate this diagnostic only and never mask caller exceptions",
+      "the formal validator rejects the group_work_timing field; enabling it keeps the evidence diagnostic-only"
+    ]
+  }
+}

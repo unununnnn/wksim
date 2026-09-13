@@ -1,0 +1,65 @@
+{
+  "checked_at": 1789268066.4962747,
+  "classification": "diagnostic_only",
+  "full_acceptance": false,
+  "batch_tests": [
+    {
+      "command": [
+        "python",
+        "-B",
+        "-m",
+        "unittest",
+        "validation.test_group_work_timing",
+        "-v"
+      ],
+      "exit_code": 0,
+      "output": "test_caller_emit_exception_propagates_unchanged (validation.test_group_work_timing.GroupWorkTimingTests.test_caller_emit_exception_propagates_unchanged) ... ok\ntest_census_exact_work_decomposition (validation.test_group_work_timing.GroupWorkTimingTests.test_census_exact_work_decomposition) ... ok\ntest_census_missing_cpu_row_incomplete_no_report (validation.test_group_work_timing.GroupWorkTimingTests.test_census_missing_cpu_row_incomplete_no_report) ... ok\ntest_cpu_window_outside_group_span_rejected (validation.test_group_work_timing.GroupWorkTimingTests.test_cpu_window_outside_group_span_rejected) ... ok\ntest_cpu_windows_overlapping_in_tick_order_rejected (validation.test_group_work_timing.GroupWorkTimingTests.test_cpu_windows_overlapping_in_tick_order_rejected) ... ok\ntest_disabled_recorder_counts_over_budget_without_reporting (validation.test_group_work_timing.GroupWorkTimingTests.test_disabled_recorder_counts_over_budget_without_reporting) ... ok\ntest_duplicate_and_cross_epoch_rows_counted_honestly (validation.test_group_work_timing.GroupWorkTimingTests.test_duplicate_and_cross_epoch_rows_counted_honestly) ... ok\ntest_duplicate_same_tick_cpu_rows_bounded_and_taint_group (validation.test_group_work_timing.GroupWorkTimingTests.test_duplicate_same_tick_cpu_rows_bounded_and_taint_group) ... ok\ntest_group_end_equation_tamper_rejected_and_incomplete (validation.test_group_work_timing.GroupWorkTimingTests.test_group_end_equation_tamper_rejected_and_incomplete) ... ok\ntest_inputs_never_mutated (validation.test_group_work_timing.GroupWorkTimingTests.test_inputs_never_mutated) ... ok\ntest_missing_step_marks_incomplete_and_invalid (validation.test_group_work_timing.GroupWorkTimingTests.test_missing_step_marks_incomplete_and_invalid) ... ok\ntest_native_wait_outside_native_inputs_stage_rejected (validation.test_group_work_timing.GroupWorkTimingTests.test_native_wait_outside_native_inputs_stage_rejected) ... ok\ntest_native_wait_without_same_tick_cpu_marked_unverified (validation.test_group_work_timing.GroupWorkTimingTests.test_native_wait_without_same_tick_cpu_marked_unverified) ... ok\ntest_normal_group_counted_only_no_emit_valid (validation.test_group_work_timing.GroupWorkTimingTests.test_normal_group_counted_only_no_emit_valid) ... ok\ntest_orphan_group_end_rejected (validation.test_group_work_timing.GroupWorkTimingTests.test_orphan_group_end_rejected) ... ok\ntest_out_of_order_native_after_cpu_taints_group (validation.test_group_work_timing.GroupWorkTimingTests.test_out_of_order_native_after_cpu_taints_group) ... ok\ntest_over_budget_report_boundary_equations (validation.test_group_work_timing.GroupWorkTimingTests.test_over_budget_report_boundary_equations) ... ok\ntest_periods_match_original (validation.test_group_work_timing.GroupWorkTimingTests.test_periods_match_original) ... ok\ntest_phase_sum_mismatch_rejected_row_not_attached (validation.test_group_work_timing.GroupWorkTimingTests.test_phase_sum_mismatch_rejected_row_not_attached) ... ok\ntest_rate_half_period_is_8ms_and_strictly_greater (validation.test_group_work_timing.GroupWorkTimingTests.test_rate_half_period_is_8ms_and_strictly_greater) ... ok\ntest_recorder_fault_invalidates_diagnostic_only (validation.test_group_work_timing.GroupWorkTimingTests.test_recorder_fault_invalidates_diagnostic_only) ... ok\ntest_report_cap_sixteen_and_dropped_counted (validation.test_group_work_timing.GroupWorkTimingTests.test_report_cap_sixteen_and_dropped_counted) ... ok\ntest_report_limit_capped_at_sixteen (validation.test_group_work_timing.GroupWorkTimingTests.test_report_limit_capped_at_sixteen) ... ok\ntest_second_report_carries_previous_complete_group (validation.test_group_work_timing.GroupWorkTimingTests.test_second_report_carries_previous_complete_group) ... ok\ntest_segment_regression_rejected_reanchor_allowed (validation.test_group_work_timing.GroupWorkTimingTests.test_segment_regression_rejected_reanchor_allowed) ... ok\ntest_unclosed_group_marked_unfinished_then_finalized (validation.test_group_work_timing.GroupWorkTimingTests.test_unclosed_group_marked_unfinished_then_finalized) ... ok\ntest_zero_length_wait_accepted (validation.test_group_work_timing.GroupWorkTimingTests.test_zero_length_wait_accepted) ... ok\n\n----------------------------------------------------------------------\nRan 27 tests in 0.004s\n\nOK\n"
+    },
+    {
+      "command": [
+        "python",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "validation/coordination/group-work-timing-integration-20260913",
+        "-p",
+        "test*.py",
+        "-v"
+      ],
+      "exit_code": 0,
+      "output": "{\"mode\": \"apply\", \"input\": \"C:\\\\Users\\\\PC\\\\Documents\\\\odid\\u7f16\\u8bd1\\\\wksim\\\\Simulator\\\\wksim_core\\\\joint.py\", \"output\": \"C:\\\\Users\\\\PC\\\\AppData\\\\Local\\\\Temp\\\\tmpzn48jon4\\\\patched.py\", \"input_sha256\": \"f5433c2ec7e81794ffcfab26dce0feff18d4e1affdfb44f895a72e4ce0241d50\", \"output_sha256\": \"3d6056b85a399cdcc2a0078815990f051d12475b7b319e753009aeeecdbfc8fa\", \"ast_parse\": \"ok\", \"module_executed\": false}\n{\"mode\": \"remove\", \"input\": \"C:\\\\Users\\\\PC\\\\AppData\\\\Local\\\\Temp\\\\tmpzn48jon4\\\\patched.py\", \"output\": \"C:\\\\Users\\\\PC\\\\AppData\\\\Local\\\\Temp\\\\tmpzn48jon4\\\\restored.py\", \"input_sha256\": \"3d6056b85a399cdcc2a0078815990f051d12475b7b319e753009aeeecdbfc8fa\", \"output_sha256\": \"f5433c2ec7e81794ffcfab26dce0feff18d4e1affdfb44f895a72e4ce0241d50\", \"ast_parse\": \"ok\", \"module_executed\": false}\n{\n  \"output\": \"C:\\\\Users\\\\PC\\\\AppData\\\\Local\\\\Temp\\\\tmpc8crxjmm\\\\fixture.json\",\n  \"work_ns\": {\n    \"census_false\": 9650000,\n    \"census_true\": 9710000\n  },\n  \"step_cpu_rows\": {\n    \"false\": 1,\n    \"true\": 4\n  },\n  \"native_input_rows\": {\n    \"false\": 1,\n    \"true\": 4\n  },\n  \"mode_comparison\": {\n    \"ordinary_events_identical\": true,\n    \"clock_calls_identical\": true,\n    \"ap_sends_identical\": true,\n    \"protocol_sends_identical\": true,\n    \"tick_reached_identical\": true,\n    \"work_differs_only_by_diagnostic_reads\": true\n  }\n}\ntest_apply_is_structurally_minimal_and_reversible (test_prepare_group_work_timing_patch.TimingCensusPatchTests.test_apply_is_structurally_minimal_and_reversible) ... ok\ntest_apply_rejects_double_insert_and_bad_anchor (test_prepare_group_work_timing_patch.TimingCensusPatchTests.test_apply_rejects_double_insert_and_bad_anchor) ... ok\ntest_cli_rejects_wrong_sha_existing_output_and_never_imports (test_prepare_group_work_timing_patch.TimingCensusPatchTests.test_cli_rejects_wrong_sha_existing_output_and_never_imports) ... ok\ntest_frozen_source_has_no_marker_and_four_unique_anchors (test_prepare_group_work_timing_patch.TimingCensusPatchTests.test_frozen_source_has_no_marker_and_four_unique_anchors) ... ok\ntest_remove_rejects_unpatched_or_partial_source (test_prepare_group_work_timing_patch.TimingCensusPatchTests.test_remove_rejects_unpatched_or_partial_source) ... ok\ntest_cli_writes_new_json_only (test_producer_fixture.ProducerFixtureTests.test_cli_writes_new_json_only) ... ok\ntest_complete_group_rows_and_real_order (test_producer_fixture.ProducerFixtureTests.test_complete_group_rows_and_real_order) ... ok\ntest_extraction_never_imports_or_constructs_original (test_producer_fixture.ProducerFixtureTests.test_extraction_never_imports_or_constructs_original) ... ok\ntest_ordinary_events_and_clock_identical_across_modes (test_producer_fixture.ProducerFixtureTests.test_ordinary_events_and_clock_identical_across_modes) ... ok\ntest_real_fields_on_wire_and_diagnostics (test_producer_fixture.ProducerFixtureTests.test_real_fields_on_wire_and_diagnostics) ... ok\ntest_sampling_modes (test_producer_fixture.ProducerFixtureTests.test_sampling_modes) ... ok\n\n----------------------------------------------------------------------\nRan 11 tests in 0.085s\n\nOK\n"
+    },
+    {
+      "command": [
+        "python",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "validation/coordination/cb-recorder-review-20260913-01",
+        "-p",
+        "test*.py",
+        "-v"
+      ],
+      "exit_code": 0,
+      "output": "test_bad_rate_type_and_bad_start_tick_rejected (test_cb_recorder_adversarial.AdversarialTests.test_bad_rate_type_and_bad_start_tick_rejected) ... ok\ntest_census_group_without_native_rows_reports_empty_waits (test_cb_recorder_adversarial.AdversarialTests.test_census_group_without_native_rows_reports_empty_waits) ... ok\ntest_census_native_tick_without_cpu_row_rejected (test_cb_recorder_adversarial.AdversarialTests.test_census_native_tick_without_cpu_row_rejected) ... ok\ntest_cpu_window_past_actual_end_rejected_at_group_end (test_cb_recorder_adversarial.AdversarialTests.test_cpu_window_past_actual_end_rejected_at_group_end) ... ok\ntest_duplicate_group_rows_rejected (test_cb_recorder_adversarial.AdversarialTests.test_duplicate_group_rows_rejected) ... ok\ntest_emit_failure_keeps_accounting_honest_and_recorder_live (test_cb_recorder_adversarial.AdversarialTests.test_emit_failure_keeps_accounting_honest_and_recorder_live) ... ok\ntest_finish_never_emits_and_is_idempotent (test_cb_recorder_adversarial.AdversarialTests.test_finish_never_emits_and_is_idempotent) ... ok\ntest_group_after_incomplete_skips_continuity_but_summary_invalid (test_cb_recorder_adversarial.AdversarialTests.test_group_after_incomplete_skips_continuity_but_summary_invalid) ... ok\ntest_ignored_kinds_do_not_bind_epoch (test_cb_recorder_adversarial.AdversarialTests.test_ignored_kinds_do_not_bind_epoch) ... ok\ntest_malformed_rows_rejected_without_tainting_group (test_cb_recorder_adversarial.AdversarialTests.test_malformed_rows_rejected_without_tainting_group) ... ok\ntest_missing_epoch_rejected (test_cb_recorder_adversarial.AdversarialTests.test_missing_epoch_rejected) ... ok\ntest_real_fixture_census_and_sampled_streams (test_cb_recorder_adversarial.AdversarialTests.test_real_fixture_census_and_sampled_streams) ... ok\ntest_reanchor_same_tick_and_earliest_equation (test_cb_recorder_adversarial.AdversarialTests.test_reanchor_same_tick_and_earliest_equation) ... ok\ntest_state_stays_bounded_under_floods (test_cb_recorder_adversarial.AdversarialTests.test_state_stays_bounded_under_floods) ... ok\ntest_zero_length_work_group_is_normal (test_cb_recorder_adversarial.AdversarialTests.test_zero_length_work_group_is_normal) ... ok\n\n----------------------------------------------------------------------\nRan 15 tests in 0.006s\n\nOK\n"
+    }
+  ],
+  "full_replay_v2_source_pins_match": true,
+  "sha256": {
+    "tools/group_work_timing.py": "a14d5e9c3c7e7c234972a8632d8da800ea9a91646f6b50e252675b38d30752db",
+    "validation/test_group_work_timing.py": "2febaa41bd4a4bf2ac68e34803c795d203fa34cfe9f0f5157e4c011f91d9afa9",
+    "validation/coordination/group-work-timing-integration-20260913/group-work-timing-fixture.json": "a5abf2ea52c953adb0910b409f9b2c27bca28dcde074441781c467f3984d8a41",
+    "validation/coordination/group-work-timing-integration-20260913/prepare_group_work_timing_patch.py": "1ede0328908f857f5ff6948c1a89bea4da2bb1162e68a2fa1f63656513ce4bc4",
+    "validation/coordination/group-work-timing-integration-20260913/producer_fixture.py": "642ada292505592a16d97419e080224e1b4a628c01c718f28eb0cf95c8c9cd6c",
+    "validation/coordination/group-work-timing-integration-20260913/test_prepare_group_work_timing_patch.py": "b591a1bc9060612fa67277c1f364f4b719c5a8c957ed844dfb31a6146584d4b9",
+    "validation/coordination/group-work-timing-integration-20260913/test_producer_fixture.py": "81cbd6dd64ad01cc1c8ae48f0806797437f3e7317284535fa64205a1cf08e30d",
+    "validation/coordination/cb-recorder-review-20260913-01/review.md": "f9090d4d4389bc0bbd8a88c399c5ba9f9131e4c2f10aef3ebe7a1e1242af1406",
+    "validation/coordination/cb-recorder-review-20260913-01/test_cb_recorder_adversarial.py": "60fb924c761b06f8f7d154e6c9772a993ba06054126542a181c1ae1bca7b417e"
+  },
+  "runtime_evidence": "rfw9nmbb failed; collector valid; no flight acceptance",
+  "review": "Claude terminal2a36e6d3, no blocking findings; tests15+existing27; parent integration also includes producer11"
+}
