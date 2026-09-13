@@ -1,0 +1,96 @@
+test_clock_source_cannot_change_under_an_operation (validation.test_control_operation_clock.OperationClockTests) ... ok
+test_default_wall_is_preserved (validation.test_control_operation_clock.OperationClockTests) ... ok
+test_invalid_clock_rejects_setup_before_native_side_effect (validation.test_control_operation_clock.OperationClockTests) ... ok
+test_invalid_clock_stops_already_active_cached_output (validation.test_control_operation_clock.OperationClockTests) ... ok
+test_simulation_duration_does_not_follow_wall (validation.test_control_operation_clock.OperationClockTests) ... ok
+test_ap_home_and_reset_epoch (validation.test_prometheus_native.NativeTests) ... ok
+test_ap_position_wire_and_explicit_capability (validation.test_prometheus_native.NativeTests) ... ok
+test_ap_service_ack_and_timeout (validation.test_prometheus_native.NativeTests) ... ok
+test_ap_state_flags_and_wire_roundtrip (validation.test_prometheus_native.NativeTests) ... ok
+test_ap_velocity_wire_and_capability (validation.test_prometheus_native.NativeTests) ... ok
+test_frames_and_quaternion_roundtrip (validation.test_prometheus_native.NativeTests) ... ok
+test_native_takeoff_alignment_before_command_stream (validation.test_prometheus_native.NativeTests) ... [INFO] [1789097948.361236028] [prometheus_native_control]: {"event": "started", "event_id": 1, "version": 1, "run_id": "native-takeoff-regression", "emitted_monotonic_ns": 30529653978, "emitted_unix_ns": 1789097948213569337, "control_epoch": "eca56afe1645463cbd58bda20ae67e6c", "stack": "px4", "native_prefix": "", "position_yaw": true, "operation_clock": "monotonic", "communication_clock": "monotonic", "request_id": 0}
+ok
+test_node_rejection_does_not_falsify_connection_or_resume (validation.test_prometheus_native.NativeTests) ... [INFO] [1789097948.379070693] [prometheus_native_control]: {"event": "started", "event_id": 1, "version": 1, "run_id": "native-node-regression", "emitted_monotonic_ns": 30694868026, "emitted_unix_ns": 1789097948378783112, "control_epoch": "867a87ecb0a74d7abcff3a6771d1d615", "stack": "px4", "native_prefix": "", "position_yaw": true, "operation_clock": "monotonic", "communication_clock": "monotonic", "request_id": 0}
+ok
+test_px_ground_alignment_and_native_takeoff (validation.test_prometheus_native.NativeTests) ... ok
+test_px_native_axes_and_ack_correlation (validation.test_prometheus_native.NativeTests) ... ok
+test_px_state_identity_and_epoch (validation.test_prometheus_native.NativeTests) ... ok
+test_px_velocity_wire_and_capability (validation.test_prometheus_native.NativeTests) ... ok
+test_all_task_and_mission_helper_calls_supply_own_id (validation.test_task_identity.IdentityTests) ... ok
+test_default_wait_wall_and_dwell_boot (validation.test_task_identity.IdentityTests) ... ok
+test_existing_session_filters_remain (validation.test_task_identity.IdentityTests) ... ok
+test_nested_identity_cannot_bind_or_mutate_even_matching_epoch (validation.test_task_identity.IdentityTests) ... ok
+test_strict_parameters_and_helper_defaults (validation.test_task_identity.IdentityTests) ... ok
+test_real_nodes_clock_and_isolation (validation.test_task_identity.RealRosTests) ... ok
+test_body_resume_keeps_recorded_enu_goal_and_restarts_whole_dwell (validation.test_wksim_mission_task.MissionTaskTests) ... ok
+test_cancel_airborne_without_ownership_or_stale_cannot_claim_success (validation.test_wksim_mission_task.MissionTaskTests) ... ok
+test_cancel_armed_ground_uses_only_ordinary_disarm (validation.test_wksim_mission_task.MissionTaskTests) ... ok
+test_cancel_before_move_dispatch_sends_nothing (validation.test_wksim_mission_task.MissionTaskTests) ... ok
+test_cancel_disarm_rejection_does_not_force_or_reacquire (validation.test_wksim_mission_task.MissionTaskTests) ... ok
+test_cancel_disarmed_ground_issues_zero_commands (validation.test_wksim_mission_task.MissionTaskTests) ... ok
+test_cancel_owned_airborne_lands_then_observes_ground (validation.test_wksim_mission_task.MissionTaskTests) ... ok
+test_dwell_false_resets_entire_window_without_accumulating_fragments (validation.test_wksim_mission_task.MissionTaskTests) ... ok
+test_dwell_never_settles_hits_wall_deadline (validation.test_wksim_mission_task.MissionTaskTests) ... ok
+test_dwell_stale_is_fatal_but_operator_release_interrupts (validation.test_wksim_mission_task.MissionTaskTests) ... ok
+test_execute_cancel_release_race_waits_for_explicit_resume (validation.test_wksim_mission_task.MissionTaskTests) ... ok
+test_execute_cancel_resolution_failure_is_failed (validation.test_wksim_mission_task.MissionTaskTests) ... ok
+test_execute_terminal_outcomes_are_distinct (validation.test_wksim_mission_task.MissionTaskTests) ... ok
+test_external_mode_control_state_and_failsafe_revoke_without_text (validation.test_wksim_mission_task.MissionTaskTests) ... ok
+test_external_pause_does_not_send_hold_and_cancel_waits_for_ground (validation.test_wksim_mission_task.MissionTaskTests) ... ok
+test_numpy_float32_visit_progress_serializes_real_files (validation.test_wksim_mission_task.MissionTaskTests) ... ok
+test_only_explicit_external_release_event_is_nonfatal (validation.test_wksim_mission_task.MissionTaskTests) ... ok
+test_operator_wait_excludes_only_the_paused_wall_interval (validation.test_wksim_mission_task.MissionTaskTests) ... ok
+test_pause_native_generation_change_cannot_resume (validation.test_wksim_mission_task.MissionTaskTests) ... ok
+test_pause_request_waits_for_ack_before_interrupting (validation.test_wksim_mission_task.MissionTaskTests) ... ok
+test_progress_serialization_failure_does_not_poison_records_or_files (validation.test_wksim_mission_task.MissionTaskTests) ... ok
+test_public_invalid_stale_and_error_win_over_cancel (validation.test_wksim_mission_task.MissionTaskTests) ... ok
+test_real_pause_resume_releases_then_waits_without_output (validation.test_wksim_mission_task.MissionTaskTests) ... ok
+test_send_latches_cancel_until_matching_ack_then_suppresses_next_move (validation.test_wksim_mission_task.MissionTaskTests) ... ok
+test_send_timeout_is_not_cancelled_and_restores_interruptibility (validation.test_wksim_mission_task.MissionTaskTests) ... ok
+test_session_high_water_does_not_change_inflight_ack_identity (validation.test_wksim_mission_task.MissionTaskTests) ... ok
+test_takeoff_can_be_paused_again_before_resumed_target_dispatch (validation.test_wksim_mission_task.MissionTaskTests) ... ok
+test_visit_cancel_after_ack_never_completes_waypoint (validation.test_wksim_mission_task.MissionTaskTests) ... ok
+test_visit_dwell_rejects_bad_position_speed_or_yaw (validation.test_wksim_mission_task.MissionTaskTests) ... ok
+test_visit_preserves_native_body_payload_and_estimates_snapshot (validation.test_wksim_mission_task.MissionTaskTests) ... ok
+test_visit_resolved_out_of_bounds_sends_nothing (validation.test_wksim_mission_task.MissionTaskTests) ... ok
+test_cleanup_terminates_owned_group_not_unrelated_process (validation.test_wksim_runtime.RuntimeTests) ... ok
+test_frozen_public_source_is_stale_even_with_new_receive (validation.test_wksim_runtime.RuntimeTests) ... ok
+test_ground_requires_valid_disarmed_finite_state (validation.test_wksim_runtime.RuntimeTests) ... ok
+test_ground_restart_config_requires_explicit_session_protocol (validation.test_wksim_runtime.RuntimeTests) ... ok
+test_launch_semantics_and_display_identity (validation.test_wksim_runtime.RuntimeTests) ... ok
+test_mission_physics_has_supervised_lifetime_not_a_hidden_pause_limit (validation.test_wksim_runtime.RuntimeTests) ... ok
+test_partial_start_failure_cleans_only_created_group (validation.test_wksim_runtime.RuntimeTests) ... preflight_admitted
+model_identity_checked
+resources_checked
+physics_listening
+{"status": "failed", "result": "/tmp/tmpyj8m2crk/runtime-test/result.json"}
+ok
+test_prearm_needs_fresh_native_health_for_current_mode (validation.test_wksim_runtime.RuntimeTests) ... ok
+test_preflight_rejection_creates_no_children_and_failed_result (validation.test_wksim_runtime.RuntimeTests) ... {"status": "failed", "result": "/tmp/tmp0w6025_o/runtime-test/result.json"}
+ok
+test_public_log_uses_full_topic_and_elapsed_wall (validation.test_wksim_runtime.RuntimeTests) ... ok
+test_restart_retains_ground_evidence_until_supervisor_check (validation.test_wksim_runtime.RuntimeTests) ... ok
+test_session_rejections_only_fail_the_matching_pending_request (validation.test_wksim_runtime.RuntimeTests) ... ok
+test_shared_namespace_rejected_before_output (validation.test_wksim_runtime.RuntimeTests) ... ok
+test_task_sequence_is_same_six_public_inputs (validation.test_wksim_runtime.RuntimeTests) ... ok
+test_telemetry_rate_profile_is_optional_and_only_changes_ap_stream_rates (validation.test_wksim_runtime.RuntimeTests) ... ok
+test_truth_requires_real_records_and_ignores_incomplete_tail (validation.test_wksim_runtime.RuntimeTests) ... ok
+test_handoff_readers_never_see_an_incomplete_json_file (validation.test_joint_evidence.EvidenceTests) ... ok
+test_preserves_invalid_numbers_without_filling_zero_or_losing_error (validation.test_joint_evidence.EvidenceTests) ... ok
+test_candidate_root_policy (validation.test_joint_control_candidate.CandidateTests) ... ok
+test_source_install_and_manifest_tampering_are_rejected (validation.test_joint_control_candidate.CandidateTests) ... ok
+test_repeated_sigterm_exits_normally_without_context_race (validation.test_control_shutdown.ShutdownTests) ... Evidence: /tmp/wksim-control-stop-qj17xasu
+ok
+test_sigterm_during_real_publish_does_not_invalidate_callback_context (validation.test_control_shutdown.ShutdownTests) ... Evidence: /tmp/wksim-control-stop-window-vh1bu6p8
+ok
+test_exercise_resume_checks_deadline_after_final_advance (validation.test_joint_lifecycle_deadline.LifecycleDeadlineTests) ... ok
+test_recovery_checks_deadline_even_when_advance_completes_readiness (validation.test_joint_lifecycle_deadline.LifecycleDeadlineTests) ... ok
+test_exited_child_has_explicit_missing_image_without_reading_reused_pid (validation.test_joint_retirement.RetirementTests) ... ok
+test_live_replacement_is_rejected_even_during_retirement (validation.test_joint_retirement.RetirementTests) ... ok
+test_resume_rejects_success_at_or_after_deadline (validation.test_joint_retirement.RetirementTests) ... ok
+
+----------------------------------------------------------------------
+Ran 81 tests in 7.946s
+
+OK

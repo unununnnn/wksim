@@ -1,0 +1,42 @@
+{
+  "schema": "wksim.hex-flight-protocol.v1",
+  "model_profile": "hex_x",
+  "model_identity": "sha256:d703da7f888e7110e402aa32ff911cabcb24e0b01afb8bbf4c9ec1ccb897276a",
+  "plan_identity": "sha256:319c5cba50eb11b81f70ac3ade707879c2fdba252335aa039674e93b9168e1a0",
+  "wall_watchdog_s": 300,
+  "parameter_read_timeout_s": 10,
+  "parameter_total_timeout_s": {
+    "arducopter": 45,
+    "px4": 90
+  },
+  "public_ready_timeout_s": 55,
+  "px4_prearm_timeout_s": 55,
+  "control_timeout_s": 40,
+  "takeoff_timeout_s": 25,
+  "takeoff_min_height_m": 2.5,
+  "hold_target_height_m": 3,
+  "hold_height_error_m": 0.6,
+  "hold_tilt_rad": 0.35,
+  "hold_duration_s": 5,
+  "waypoint_enu_m": [
+    2,
+    3,
+    3
+  ],
+  "waypoint_timeout_s": 20,
+  "waypoint_error_m": 0.5,
+  "waypoint_speed_mps": 0.5,
+  "waypoint_duration_s": 2,
+  "land_timeout_s": 30,
+  "ground_height_abs_lt_m": 0.3,
+  "physical_truth_max_age_s": 2,
+  "physical_truth_max_gap_s": 0.05,
+  "native_dt_s": 0.001,
+  "result_status": "observed_pending_independent_raw_audit",
+  "reset": "New invocation from an immutable terminal prior result; new run_id, processes, native storage, control_epoch and model tick zero; same configuration identity. No live session recovery.",
+  "px4_post_airframe_parameters": [
+    "CA_ROTOR0_PX",
+    "CA_ROTOR1_PX"
+  ],
+  "px4_parameter_application_reason": "Before-arm explicit zero X values after airframe defaults: an environment value equal to generic default0 is not retained as a user override by PX4 param set-default. All77 parameters are subsequently read back unchanged."
+}

@@ -1,0 +1,16 @@
+Working directory: C:/Users/PC/Documents/odid编译/wksim
+
+Read-only inputs:
+  Get-Content docs/plan/full-scope-expansion.md
+  Get-Content docs/plan/full-remaining-ledger.json
+  Get-Content docs/plan/full-followup-tickets.json
+  Get-Content Simulator/wksim_core/model_parameters.py
+  Get-Content docs/plan/full-contracts/ops-07.md
+  gh issue view 144 --repo unununnnn/wksim --json number,title,body,state,labels,comments
+  gh issue view 1 --repo unununnnn/wksim --json number,title,body,state,labels,comments
+
+Validation:
+  python -B validation/full-model-10-20260910-01/validate.py
+  git diff --check -- docs/plan/full-contracts/model-10.md docs/plan/full-contracts/model-10.json validation/full-model-10-20260910-01
+
+No vehicle model or observation path was implemented; no UE, FC, model, ROS, MATLAB or hardware process was started.

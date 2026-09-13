@@ -1,0 +1,87 @@
+{
+  "status": "diagnostic_partial",
+  "acceptance_eligible": false,
+  "run_id": "scheduler-086648004be0",
+  "directory": "/root/wksim-scheduler-probe-20260912-kernel-bpf-03/runs/scheduler-086648004be0",
+  "command": [
+    "taskset",
+    "-c",
+    "0-7",
+    "bash",
+    "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/tools/run-wksim.sh",
+    "/root/wksim-scheduler-probe-20260912-kernel-bpf-03/experiment.json",
+    "--output-root",
+    "/root/wksim-scheduler-probe-20260912-kernel-bpf-03/runs"
+  ],
+  "boot_id": "e858cdf2-8c3e-4cee-9681-c9694ed43446",
+  "components_started": {
+    "preflight": true,
+    "manager": true,
+    "collector": false
+  },
+  "started_monotonic_ns": 4430399170,
+  "source_sha256": {
+    "tools/profile_joint_scheduler.py": "97112465ad76ce1b4611a4dfe899d87017e299183684f021c8aa53a84cb80d21",
+    "validation/rate-syscall-scheduler-plan-20260909/collect_tracefs.py": "cc1014ed0f0f98b927736be2e28c076a1aed7f987f83fe2233818de775585505",
+    "Simulator/wksim_core/worker.py": "0becd1f3214b53c6169fb61ae010a969fb57a4ccbe26fb3ed3c3652c26ef7fab",
+    "validation/rate-remediation-ff63c72/sitecustomize.py": "f1f8c3242ad098a965e574a6a6159da90ca3ae7ca48a62bc49a2d9cd59ecf958",
+    "Simulator/wksim_core/joint.py": "f5433c2ec7e81794ffcfab26dce0feff18d4e1affdfb44f895a72e4ce0241d50",
+    "Simulator/wksim_runtime/joint_rate.py": "0b53a16acd65138b4623a9a8573ec8d643a2b78f4e27e8122c65efb9a6da25c4",
+    "Simulator/wksim_runtime/joint_runtime.py": "6a7d027ad1ead8f113e064b03058fa45b9ad6f804daabe58a7a1c5a9c20a18aa",
+    "tools/kernel_pid_probe.py": "6ae74b0a9f6950c2774b15e74bebe483361e1e86c0af8d771b19a11b784fdb95",
+    "tools/kernel_pid_probe_native.c": "acffdd42e1b9f970e0aa608abd4c3b87128d4df962fd7341389e46eaf810f6bf",
+    "tools/kernel_pid_mapping.py": "6f20473cc753ac8466b4aee66c98d05fb836b27131c71d6f2de6a3dbac169ec3",
+    "tools/wsl_root_task_snapshot.py": "8f15ccfde00f9cd12e52bfa21a764c3e6e1f032d1683d3c0879c8e5f635383f7",
+    "tools/wsl_snapshot_exchange.py": "138060bbdcc740b53a8b4ac01f29d549ae3871dbf7fffe540f44ff4722b39620",
+    "tools/serve_wsl_snapshot_requests.py": "38ae4a51d98cafd01acb8b65011dd3af63b94f9c1de130f6d2db6374668088ae",
+    "tools/run_joint_scheduler_windows.py": "c667785479e80e3425a11cfb296177388037bfc380ccae3507983fa605e04f55"
+  },
+  "pid_binding": "kernel_bpf",
+  "exchange_directory": "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/validation/scheduler-kernel-bpf-20260912-03/exchange",
+  "preflight_identity": {
+    "pid": 696,
+    "pgid": 696,
+    "start_ticks": 445,
+    "argv": []
+  },
+  "preflight_group_snapshot": [
+    {
+      "pid": 696,
+      "start_ticks": 445
+    }
+  ],
+  "preflight_returncode": 0,
+  "remaining_preflight_group": [],
+  "pid_probe_manifest": "/root/wksim-scheduler-probe-20260912-kernel-bpf-03/pid-probe/manifest.json",
+  "diagnostic_environment": {
+    "WKSIM_JOINT_CPU_TIMING": "1",
+    "WKSIM_TRACE_RUN": "scheduler-086648004be0",
+    "WKSIM_TRACE_HOOK_OUTPUT": "/root/wksim-scheduler-probe-20260912-kernel-bpf-03/hook",
+    "WKSIM_TRACE_GATE_READY": "/root/wksim-scheduler-probe-20260912-kernel-bpf-03/hook/gate-ready.json",
+    "WKSIM_TRACE_GATE_RELEASE": "/root/wksim-scheduler-probe-20260912-kernel-bpf-03/hook/gate-release.json",
+    "WKSIM_TRACE_CAPTURE_BOOTSTRAP_TOKEN": "/root/wksim-scheduler-probe-20260912-kernel-bpf-03/capture/capture-bootstrap-active.json",
+    "WKSIM_TRACE_CAPTURE_ACTIVE_TOKEN": "/root/wksim-scheduler-probe-20260912-kernel-bpf-03/capture/capture-active.json",
+    "PYTHONPATH": "/root/wksim-scheduler-probe-20260912-kernel-bpf-03/hook:"
+  },
+  "manager": {
+    "pid": 1298,
+    "pgid": 1298,
+    "start_ticks": 4755,
+    "argv": [
+      "taskset",
+      "-c",
+      "0-7",
+      "bash",
+      "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/tools/run-wksim.sh",
+      "/root/wksim-scheduler-probe-20260912-kernel-bpf-03/experiment.json",
+      "--output-root",
+      "/root/wksim-scheduler-probe-20260912-kernel-bpf-03/runs"
+    ]
+  },
+  "manager_group_snapshot": [
+    {
+      "pid": 1298,
+      "start_ticks": 4755
+    }
+  ]
+}

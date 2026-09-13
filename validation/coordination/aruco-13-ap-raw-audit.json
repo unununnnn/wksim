@@ -1,0 +1,970 @@
+{
+  "independent_raw_audit": true,
+  "scope": "Full offline raw-CDR/public-chain/provenance/loss-HOLD audit of a SUCCESSFUL capture (original status captured_pending_independent_audit). The auditor never emits pass: best verdict is pending with the uncovered items listed; this is not a flight pass or full acceptance, and the failed 08 run verdict is untouched.",
+  "case": "40-aruco-tracking-13-ap",
+  "original_capture_status": "captured_pending_independent_audit",
+  "run_id": "aruco-track-56b317f796",
+  "epoch": "3662bc056ae74e0abed662214a8010bd",
+  "capture_root": "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/validation/40-aruco-tracking-13-ap",
+  "auditor_sha256": "cb5418ea66b280b6feb7b7ad94dd67d8e46ea123c6cd60247282e409ea7f9e64",
+  "evidence_sha256": {
+    "report.json": "fd88570741c08cffbee9943903f22af9542bd079ca2e422ec9c21277bb49788e",
+    "run/result.json": "5b5ad5c525f25d799258ee510748c6fffd9ba4d335b88bb91921498538dae585",
+    "epoch_result": "6b60743a467979c0ad28c5291ff5b3b62d59f33786206bc2d955228c0441c45b",
+    "epoch_preflight": "e165367bd43a506d2fce00aab552d87e0f7354b59ab5f9ab29c4943c7a8733a0",
+    "frozen_profile_copy": "2b435df3fda4f7d7b1f8f3e902122037ac4ed07c86dbb385a5b9a0ed8d5f2b93"
+  },
+  "report_facts": {
+    "frames": 90,
+    "observations": 90,
+    "null_observations": 15,
+    "binding": {
+      "schema": "wksim.aruco-binding.v1",
+      "run_id": "aruco-track-56b317f796",
+      "epoch": "3662bc056ae74e0abed662214a8010bd",
+      "instance_id": "92afc23d14a34dc1b1e99b9244aeea90",
+      "generation": 1,
+      "stream_id": "48ee76439fd746b59d4a50e67097a48e",
+      "camera": {
+        "vehicle_id": 1,
+        "sensor_id": "front_rgb"
+      },
+      "first_step": 57820,
+      "profile_sha256": "2b435df3fda4f7d7b1f8f3e902122037ac4ed07c86dbb385a5b9a0ed8d5f2b93"
+    }
+  },
+  "full_audit": {
+    "status": "pass",
+    "result": {
+      "status": "pending",
+      "run_id": "aruco-track-56b317f796",
+      "epoch": "3662bc056ae74e0abed662214a8010bd",
+      "uncovered": [
+        "native_setpoint_correlation: raw PX4 TrajectorySetpoint / AP cmd_gps_pose CDR content is not yet mapped field-by-field to the public MOVE/HOLD it carries",
+        "native_fc_ack_or_action_completion: only public TextInfo acceptance is proven; no native FC ACK or action completion is claimed",
+        "dds_publisher_exclusivity and full executed process identity beyond the reconciled recorder/control build pins are outside this audit"
+      ],
+      "limitations": [
+        "Raw public chain and shared product timeline only; native setpoint closure, native ACK/action completion and publisher exclusivity are not certified."
+      ],
+      "loss_hold": {
+        "observations": 90,
+        "consumed": 89,
+        "moves": 74,
+        "holds": 13,
+        "frames_verified": 90,
+        "gate": "closed",
+        "cycles": 11,
+        "note": "public send+acceptance only; ACK is not action completion"
+      }
+    }
+  },
+  "loss_hold_content_gate": {
+    "status": "pass",
+    "result": {
+      "observations": 90,
+      "consumed": 89,
+      "moves": 74,
+      "holds": 13,
+      "frames_verified": 90,
+      "gate": "closed",
+      "cycles": 11,
+      "note": "public send+acceptance only; ACK is not action completion"
+    }
+  },
+  "frames_content_gate": {
+    "status": "pass",
+    "result": {
+      "frames_verified": 90
+    }
+  },
+  "stacks": {
+    "arducopter": {
+      "task_result": "run/epochs/3662bc056ae74e0abed662214a8010bd/tasks/8ba1823783dd458fbda33a51e08d2a8c/arducopter/result.json",
+      "task_status": "pass",
+      "task_result_size": 7017408,
+      "raw_capture_sha256": "fb3f39cd082f90775dca366bb5ec1d51d5ba3c23d716bf5e543b23a28e731e3f",
+      "task_result_sha256": "e9a61c34d2160d100ca4e2c650e972b85e5b3d47b0d19a650ce21fe6aeb37ae8",
+      "hash_chain": {
+        "status": "pass",
+        "samples": 21385,
+        "counts": {
+          "/uav1/prometheus/v2/state": 15802,
+          "/ap/wksim/local_state_v1": 3730,
+          "/ap/status": 156,
+          "/uav1/prometheus/text_info": 111,
+          "/uav1/prometheus/v2/setup": 4,
+          "/ap/cmd_gps_pose": 857,
+          "/uav1/prometheus/v2/command": 88,
+          "/ap/cmd_vel": 637
+        }
+      },
+      "provenance": {
+        "status": "pass",
+        "result": {
+          "builder_sha256": "1472819bddd5a80f42f94fb067322b72ade6c2387b28b856c426dc905bf3ba55",
+          "rc_take_source_sha256": "e618c33ba687520160c8d2cfb79b0da30e5047f3036549c47ca357f1c26dc38f",
+          "rc_take_lib_sha256": "f00ccb7da8da348e33e8dbb1200dd3244a73c3cf4f658024372009de06f9107c"
+        }
+      },
+      "public_chain": {
+        "status": "pass",
+        "result": {
+          "requests": 92,
+          "terminal": {
+            "1": "setup_completed",
+            "2": "setup_completed",
+            "3": "setup_completed",
+            "4": "command_accepted",
+            "5": "command_accepted",
+            "6": "command_accepted",
+            "7": "command_accepted",
+            "8": "command_accepted",
+            "9": "command_accepted",
+            "10": "command_accepted",
+            "11": "command_accepted",
+            "12": "command_accepted",
+            "13": "command_accepted",
+            "14": "command_accepted",
+            "15": "command_accepted",
+            "16": "command_accepted",
+            "17": "command_accepted",
+            "18": "command_accepted",
+            "19": "command_accepted",
+            "20": "command_accepted",
+            "21": "command_accepted",
+            "22": "command_accepted",
+            "23": "command_accepted",
+            "24": "command_accepted",
+            "25": "command_accepted",
+            "26": "command_accepted",
+            "27": "command_accepted",
+            "28": "command_accepted",
+            "29": "command_accepted",
+            "30": "command_accepted",
+            "31": "command_accepted",
+            "32": "command_accepted",
+            "33": "command_accepted",
+            "34": "command_accepted",
+            "35": "command_accepted",
+            "36": "command_accepted",
+            "37": "command_accepted",
+            "38": "command_accepted",
+            "39": "command_accepted",
+            "40": "command_accepted",
+            "41": "command_accepted",
+            "42": "command_accepted",
+            "43": "command_accepted",
+            "44": "command_accepted",
+            "45": "command_accepted",
+            "46": "command_accepted",
+            "47": "command_accepted",
+            "48": "command_accepted",
+            "49": "command_accepted",
+            "50": "command_accepted",
+            "51": "command_accepted",
+            "52": "command_accepted",
+            "53": "command_accepted",
+            "54": "command_accepted",
+            "55": "command_accepted",
+            "56": "command_accepted",
+            "57": "command_accepted",
+            "58": "command_accepted",
+            "59": "command_accepted",
+            "60": "command_accepted",
+            "61": "command_accepted",
+            "62": "command_accepted",
+            "63": "command_accepted",
+            "64": "command_accepted",
+            "65": "command_accepted",
+            "66": "command_accepted",
+            "67": "command_accepted",
+            "68": "command_accepted",
+            "69": "command_accepted",
+            "70": "command_accepted",
+            "71": "command_accepted",
+            "72": "command_accepted",
+            "73": "command_accepted",
+            "74": "command_accepted",
+            "75": "command_accepted",
+            "76": "command_accepted",
+            "77": "command_accepted",
+            "78": "command_accepted",
+            "79": "command_accepted",
+            "80": "command_accepted",
+            "81": "command_accepted",
+            "82": "command_accepted",
+            "83": "command_accepted",
+            "84": "command_accepted",
+            "85": "command_accepted",
+            "86": "command_accepted",
+            "87": "command_accepted",
+            "88": "command_accepted",
+            "89": "command_accepted",
+            "90": "command_accepted",
+            "91": "command_accepted",
+            "92": "setup_completed"
+          },
+          "session_states": 15802
+        }
+      },
+      "raw_facts": {
+        "requests": 92,
+        "terminal_events": {
+          "1": [
+            {
+              "event": "setup_completed",
+              "command_id": null,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "2": [
+            {
+              "event": "setup_completed",
+              "command_id": null,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "3": [
+            {
+              "event": "setup_completed",
+              "command_id": null,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "4": [
+            {
+              "event": "command_accepted",
+              "command_id": 1,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "5": [
+            {
+              "event": "command_accepted",
+              "command_id": 2,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "6": [
+            {
+              "event": "command_accepted",
+              "command_id": 3,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "7": [
+            {
+              "event": "command_accepted",
+              "command_id": 4,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "8": [
+            {
+              "event": "command_accepted",
+              "command_id": 5,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "9": [
+            {
+              "event": "command_accepted",
+              "command_id": 6,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "10": [
+            {
+              "event": "command_accepted",
+              "command_id": 7,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "11": [
+            {
+              "event": "command_accepted",
+              "command_id": 8,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "12": [
+            {
+              "event": "command_accepted",
+              "command_id": 9,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "13": [
+            {
+              "event": "command_accepted",
+              "command_id": 10,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "14": [
+            {
+              "event": "command_accepted",
+              "command_id": 11,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "15": [
+            {
+              "event": "command_accepted",
+              "command_id": 12,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "16": [
+            {
+              "event": "command_accepted",
+              "command_id": 13,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "17": [
+            {
+              "event": "command_accepted",
+              "command_id": 14,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "18": [
+            {
+              "event": "command_accepted",
+              "command_id": 15,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "19": [
+            {
+              "event": "command_accepted",
+              "command_id": 16,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "20": [
+            {
+              "event": "command_accepted",
+              "command_id": 17,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "21": [
+            {
+              "event": "command_accepted",
+              "command_id": 18,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "22": [
+            {
+              "event": "command_accepted",
+              "command_id": 19,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "23": [
+            {
+              "event": "command_accepted",
+              "command_id": 20,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "24": [
+            {
+              "event": "command_accepted",
+              "command_id": 21,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "25": [
+            {
+              "event": "command_accepted",
+              "command_id": 22,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "26": [
+            {
+              "event": "command_accepted",
+              "command_id": 23,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "27": [
+            {
+              "event": "command_accepted",
+              "command_id": 24,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "28": [
+            {
+              "event": "command_accepted",
+              "command_id": 25,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "29": [
+            {
+              "event": "command_accepted",
+              "command_id": 26,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "30": [
+            {
+              "event": "command_accepted",
+              "command_id": 27,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "31": [
+            {
+              "event": "command_accepted",
+              "command_id": 28,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "32": [
+            {
+              "event": "command_accepted",
+              "command_id": 29,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "33": [
+            {
+              "event": "command_accepted",
+              "command_id": 30,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "34": [
+            {
+              "event": "command_accepted",
+              "command_id": 31,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "35": [
+            {
+              "event": "command_accepted",
+              "command_id": 32,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "36": [
+            {
+              "event": "command_accepted",
+              "command_id": 33,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "37": [
+            {
+              "event": "command_accepted",
+              "command_id": 34,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "38": [
+            {
+              "event": "command_accepted",
+              "command_id": 35,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "39": [
+            {
+              "event": "command_accepted",
+              "command_id": 36,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "40": [
+            {
+              "event": "command_accepted",
+              "command_id": 37,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "41": [
+            {
+              "event": "command_accepted",
+              "command_id": 38,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "42": [
+            {
+              "event": "command_accepted",
+              "command_id": 39,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "43": [
+            {
+              "event": "command_accepted",
+              "command_id": 40,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "44": [
+            {
+              "event": "command_accepted",
+              "command_id": 41,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "45": [
+            {
+              "event": "command_accepted",
+              "command_id": 42,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "46": [
+            {
+              "event": "command_accepted",
+              "command_id": 43,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "47": [
+            {
+              "event": "command_accepted",
+              "command_id": 44,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "48": [
+            {
+              "event": "command_accepted",
+              "command_id": 45,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "49": [
+            {
+              "event": "command_accepted",
+              "command_id": 46,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "50": [
+            {
+              "event": "command_accepted",
+              "command_id": 47,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "51": [
+            {
+              "event": "command_accepted",
+              "command_id": 48,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "52": [
+            {
+              "event": "command_accepted",
+              "command_id": 49,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "53": [
+            {
+              "event": "command_accepted",
+              "command_id": 50,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "54": [
+            {
+              "event": "command_accepted",
+              "command_id": 51,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "55": [
+            {
+              "event": "command_accepted",
+              "command_id": 52,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "56": [
+            {
+              "event": "command_accepted",
+              "command_id": 53,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "57": [
+            {
+              "event": "command_accepted",
+              "command_id": 54,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "58": [
+            {
+              "event": "command_accepted",
+              "command_id": 55,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "59": [
+            {
+              "event": "command_accepted",
+              "command_id": 56,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "60": [
+            {
+              "event": "command_accepted",
+              "command_id": 57,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "61": [
+            {
+              "event": "command_accepted",
+              "command_id": 58,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "62": [
+            {
+              "event": "command_accepted",
+              "command_id": 59,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "63": [
+            {
+              "event": "command_accepted",
+              "command_id": 60,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "64": [
+            {
+              "event": "command_accepted",
+              "command_id": 61,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "65": [
+            {
+              "event": "command_accepted",
+              "command_id": 62,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "66": [
+            {
+              "event": "command_accepted",
+              "command_id": 63,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "67": [
+            {
+              "event": "command_accepted",
+              "command_id": 64,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "68": [
+            {
+              "event": "command_accepted",
+              "command_id": 65,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "69": [
+            {
+              "event": "command_accepted",
+              "command_id": 66,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "70": [
+            {
+              "event": "command_accepted",
+              "command_id": 67,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "71": [
+            {
+              "event": "command_accepted",
+              "command_id": 68,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "72": [
+            {
+              "event": "command_accepted",
+              "command_id": 69,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "73": [
+            {
+              "event": "command_accepted",
+              "command_id": 70,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "74": [
+            {
+              "event": "command_accepted",
+              "command_id": 71,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "75": [
+            {
+              "event": "command_accepted",
+              "command_id": 72,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "76": [
+            {
+              "event": "command_accepted",
+              "command_id": 73,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "77": [
+            {
+              "event": "command_accepted",
+              "command_id": 74,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "78": [
+            {
+              "event": "command_accepted",
+              "command_id": 75,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "79": [
+            {
+              "event": "command_accepted",
+              "command_id": 76,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "80": [
+            {
+              "event": "command_accepted",
+              "command_id": 77,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "81": [
+            {
+              "event": "command_accepted",
+              "command_id": 78,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "82": [
+            {
+              "event": "command_accepted",
+              "command_id": 79,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "83": [
+            {
+              "event": "command_accepted",
+              "command_id": 80,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "84": [
+            {
+              "event": "command_accepted",
+              "command_id": 81,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "85": [
+            {
+              "event": "command_accepted",
+              "command_id": 82,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "86": [
+            {
+              "event": "command_accepted",
+              "command_id": 83,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "87": [
+            {
+              "event": "command_accepted",
+              "command_id": 84,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "88": [
+            {
+              "event": "command_accepted",
+              "command_id": 85,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "89": [
+            {
+              "event": "command_accepted",
+              "command_id": 86,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "90": [
+            {
+              "event": "command_accepted",
+              "command_id": 87,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "91": [
+            {
+              "event": "command_accepted",
+              "command_id": 88,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ],
+          "92": [
+            {
+              "event": "setup_completed",
+              "command_id": null,
+              "control_epoch": "86fcebb2cc124557ae4d8cccdd0a0aba"
+            }
+          ]
+        },
+        "rejected_events": [],
+        "session_states": 15802,
+        "foreign_prometheus_samples": [],
+        "visual_move_requests": 74,
+        "hold_requests": 13
+      },
+      "adapter_chain": {
+        "status": "pass",
+        "result": {
+          "actions": 14314,
+          "sent": 87
+        }
+      }
+    },
+    "px4": {
+      "task_result": "run/epochs/3662bc056ae74e0abed662214a8010bd/tasks/8ba1823783dd458fbda33a51e08d2a8c/px4/result.json",
+      "task_status": "pass",
+      "task_result_size": 43147,
+      "raw_capture_sha256": "f8a59e0acac431895598f49f7d8b418946b9e4d96776cb9f68b1b73fabe24557",
+      "task_result_sha256": "150d52ddc88e71f25bac567f700c53c1415a086b3c06484996ff69d8fb980fdd",
+      "hash_chain": {
+        "status": "pass",
+        "samples": 21271,
+        "counts": {
+          "/uav2/prometheus/v2/state": 15710,
+          "/wksim_px4_21/fmu/out/vehicle_local_position_v1": 3892,
+          "/wksim_px4_21/fmu/out/vehicle_control_mode": 166,
+          "/wksim_px4_21/fmu/out/vehicle_status_v1": 164,
+          "/uav2/prometheus/text_info": 27,
+          "/uav2/prometheus/v2/setup": 4,
+          "/wksim_px4_21/fmu/in/vehicle_command": 6,
+          "/wksim_px4_21/fmu/in/trajectory_setpoint": 1301,
+          "/uav2/prometheus/v2/command": 1
+        }
+      },
+      "provenance": {
+        "status": "pass",
+        "result": {
+          "builder_sha256": "1472819bddd5a80f42f94fb067322b72ade6c2387b28b856c426dc905bf3ba55",
+          "rc_take_source_sha256": "e618c33ba687520160c8d2cfb79b0da30e5047f3036549c47ca357f1c26dc38f",
+          "rc_take_lib_sha256": "f00ccb7da8da348e33e8dbb1200dd3244a73c3cf4f658024372009de06f9107c"
+        }
+      },
+      "public_chain": {
+        "status": "pass",
+        "result": {
+          "requests": 5,
+          "terminal": {
+            "1": "setup_completed",
+            "2": "setup_completed",
+            "3": "setup_completed",
+            "4": "command_accepted",
+            "5": "setup_completed"
+          },
+          "session_states": 15710
+        }
+      },
+      "raw_facts": {
+        "requests": 5,
+        "terminal_events": {
+          "1": [
+            {
+              "event": "setup_completed",
+              "command_id": null,
+              "control_epoch": "b808ab09ff9744329103fe0399b43fa8"
+            }
+          ],
+          "2": [
+            {
+              "event": "setup_completed",
+              "command_id": null,
+              "control_epoch": "b808ab09ff9744329103fe0399b43fa8"
+            }
+          ],
+          "3": [
+            {
+              "event": "setup_completed",
+              "command_id": null,
+              "control_epoch": "b808ab09ff9744329103fe0399b43fa8"
+            }
+          ],
+          "4": [
+            {
+              "event": "command_accepted",
+              "command_id": 1,
+              "control_epoch": "b808ab09ff9744329103fe0399b43fa8"
+            }
+          ],
+          "5": [
+            {
+              "event": "setup_completed",
+              "command_id": null,
+              "control_epoch": "b808ab09ff9744329103fe0399b43fa8"
+            }
+          ]
+        },
+        "rejected_events": [],
+        "session_states": 15710,
+        "foreign_prometheus_samples": [],
+        "visual_move_requests": 0,
+        "hold_requests": 0
+      },
+      "adapter_chain": {
+        "status": "pass",
+        "result": {
+          "actions": 0,
+          "sent": 0
+        }
+      }
+    }
+  }
+}

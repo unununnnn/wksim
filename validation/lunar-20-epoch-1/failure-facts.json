@@ -1,0 +1,52 @@
+{
+  "issue": 62,
+  "date": "2026-09-10",
+  "attempt": 1,
+  "result": "FAILED RateUnmet at tick 7588 during ground readiness/task start; no steady window ever existed",
+  "fault": "RateUnmet",
+  "audit": "formal audit could not construct windows: flow.json absent (FileNotFoundError), same failure mode as 2026-09-09 attempt",
+  "candidate": "rate61-linux-cpuset8-v1 refreshed to HEAD f970fb8 (5-file delta from post-freeze production commits 1b3670b/573e19e/2953612/261bcf5/d64010f/1fdbab5); budgets unchanged",
+  "epochs_run": 1,
+  "epochs_remaining": "2 and 3 NOT run per ticket failure rule",
+  "runs": [
+    {
+      "evidence_id": "epoch-raw@de6ba7f2530e4607b91e154f9b8f79a3",
+      "expected_run_id": "rate61-cpu8-20260909-e1-e2561e27",
+      "epoch": "de6ba7f2530e4607b91e154f9b8f79a3",
+      "directory": "epoch-raw",
+      "expect": {
+        "tick": 7588,
+        "lateness_ns": 100312171,
+        "completed_groups": 1887,
+        "measured_rate": 0.9871539539890174
+      },
+      "sha256": {
+        "rate.jsonl": "662211692b26894f31e2f10a8dadaa98207a3ea6dc909b8bbf018b58fcdecbe0",
+        "clock.jsonl": "cb29f2c87ff76450522154fc8a060be2532f1df6172b28c2a8803e6a44d23098",
+        "scene-lifecycle.jsonl": "835ec8394e8f7bc4db5c19eb19cffb209cea26cff5261918746e811c38f22e53",
+        "faults.json": "1a339101e2d7d0838de944f4b853ec64a2a94d7f5bb822410a78f448481e5947",
+        "result.json": "eb10c685e64c5a077d7bb7595c6f054ec7ccbee498ef0122fa4ccc9dc643b354"
+      }
+    },
+    {
+      "evidence_id": "case-20260909@2a8d5df1dd4244c3868dc7f38e85a369",
+      "expected_run_id": "rate61-cpu8-20260909-e1-e2561e27",
+      "epoch": "2a8d5df1dd4244c3868dc7f38e85a369",
+      "directory": "case/run/epochs/2a8d5df1dd4244c3868dc7f38e85a369",
+      "expect": {
+        "tick": 19608,
+        "lateness_ns": 105497865,
+        "completed_groups": 4892,
+        "measured_rate": 0.994637564416662
+      },
+      "sha256": {
+        "rate.jsonl": "f0409c4fa35dba2468c45898c5bddaa32b9000c68bf346583b5132ebd5684bf3",
+        "clock.jsonl": "1c74768bae78208651674f35ad3cda0f358296665ad69c405726b773089e6142",
+        "scene-lifecycle.jsonl": "9404ef43ea7c42706e8890bf445abaeece3f2031835e128aa547182896b0c661",
+        "faults.json": "ff928b7732a6deaa33384009b77e59cafc2fcfb93ccc56eac013124187582737",
+        "result.json": "f8443ab1b46acb8a81ae2459a5d01ce34d6b80531dadc434053d32422572da79"
+      }
+    }
+  ],
+  "pin_authority": "v3: each evidence record has a unique evidence_id and epoch, while expected_run_id is checked against result.json.run_id and every scene message.run_id; runs[].sha256 is the sole consumed pin authority. The legacy top-level pin set was removed because its case/run/result.json pin 81da5a77116a42e052609188c9ba925bbe834a6c25f2807f19b3b1ec930fde91 contradicted the retained bytes e23404eac09fc9723322750e5021a8983ad90f4907d4237e489a9f1c3f9d612a (the 2026-09-09 case). Unconsumed drift is NOT re-pinned as pass; historical values remain in git history and issue #62 comments."
+}

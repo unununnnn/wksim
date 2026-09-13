@@ -1,0 +1,84 @@
+{
+  "kind": "33-formal-promotion-readiness",
+  "schema": "wksim.formal-promotion-readiness.v1",
+  "date": "2026-09-13",
+  "scope": "#84 prerequisite/mapping package only; no native/ROS/model/build, no flight, no Git mutation",
+  "formal_profile_row": {
+    "id": "joint_quad_dds_mixed_pv_v1",
+    "current_pins": {
+      "ap": "1e6250eff8873d6b2e52017b613c223ac29f8260fdf92aac2cf0c7cdcc6ce94c",
+      "control": "25edbf816e1b417028be73f409b211b48a1579cce4d63b0d9c6c9b5277e6d610",
+      "control_workspace": "/root/wksim-joint-control-0DQQz9",
+      "message_workspace": "/root/wksim-ros2-MUlZd0"
+    },
+    "evidence": [],
+    "check_resources_pure_result": {
+      "ok": false,
+      "reasons": [{"code": "joint_profile_rejected",
+                    "message": "Missing final mixed/PV capability flight proofs"}],
+      "children_created": 0,
+      "note": "Pure read-only check on 2026-09-13; early return before traversal; also shows the row still pins historical 0DQQz9/MUlZd0 workspaces, divergent from the accepted c2IXOr/Rzj3Pf identities"
+    }
+  },
+  "accepted_current_triple": {
+    "ap_mixed": {"path": "/root/wksim-ap-mixed-fhuf05l9/mixed-build.json",
+                  "sha256": "1e6250eff8873d6b2e52017b613c223ac29f8260fdf92aac2cf0c7cdcc6ce94c"},
+    "control": {"path": "/root/wksim-joint-control-c2IXOr/build.json",
+                 "sha256": "6fe8c0b30775a9ba83407302f602d0785876d307e5f1cb746afa3bf316cf5e7e"},
+    "message": {"path": "/root/wksim-ros2-Rzj3Pf/message-build.json",
+                 "sha256": "29969da0702451e3fc6f1de40bc301a67284c4e7d5fae8f88c64773d27a96219"}
+  },
+  "pv_proof_row_candidate": {
+    "task_profile": "full_xyz_pv_yaw_v1",
+    "run_id": "joint-public-flight-1w6dru32",
+    "result": {"path": "validation/joint-public-flight-1w6dru32/result.json",
+                "sha256": "10044bf18c92214f1c93b5461d45dd0c59add2198ad30dc6c237760f3f3758a4",
+                "root": "/root/wksim-release-acceptance-fe3",
+                "status": "pass", "flight_completed": true,
+                "source_unchanged": true, "control_shutdown_clean": true,
+                "cleanup_errors": []},
+    "audit": {"path": "validation/formal-pv-settle-20260913-01/raw-pv-audit-v2.json",
+               "sha256": "8140d80e5695bb377dedaef7198cb67811456a2429bab005085b2a5926f0e8c4",
+               "root": "/root/wksim-release-acceptance-fe3",
+               "status": "pass", "outstanding_checks": [],
+               "result_sha256": "10044bf18c92214f1c93b5461d45dd0c59add2198ad30dc6c237760f3f3758a4",
+               "no_rate_timing_probe": true},
+    "admission": {"path": "validation/joint-public-flight-1w6dru32/experimental-admission.json",
+                   "sha256": "6178bdbb7ba62371f5beef7a9eb4094c8967452b59c48c1015b98e2fd6fdc2a5",
+                   "root": "/root/wksim-release-acceptance-fe3",
+                   "ok": true, "experimental": true, "production_admitted": false,
+                   "flown": false, "children_created": 0},
+    "note": "candidate row only; the profile gate (_mixed_proofs) is the final arbiter"
+  },
+  "mixed_proof_row": {
+    "task_profile": "xy_velocity_z_position_yaw_v1",
+    "status": "MISSING",
+    "bounded_index": "all validation/joint-public-flight-*/result.json in the experiment worktree indexed by task_profile on 2026-09-13: no mixed-profile run; catalog/docs references list only historical mixed zk5_nukn (different combo/switches, excluded by the final-combo plan)",
+    "cannot_claim_absence_elsewhere": true
+  },
+  "next_probe_free_mixed_command": {
+    "note": "probe-free: formal evidence rejects rate_timing_probe flights (joint_profile.py:219-220); no diagnostic env or flags",
+    "command": "cd /root/wksim-release-acceptance-fe3 && bash tools/run-joint-flight.sh --task-profile xy_velocity_z_position_yaw_v1 --ap-mixed-manifest /root/wksim-ap-mixed-fhuf05l9/mixed-build.json --ap-mixed-sha256 1e6250eff8873d6b2e52017b613c223ac29f8260fdf92aac2cf0c7cdcc6ce94c --control-manifest /root/wksim-joint-control-c2IXOr/build.json --control-sha256 6fe8c0b30775a9ba83407302f602d0785876d307e5f1cb746afa3bf316cf5e7e --message-manifest /root/wksim-ros2-Rzj3Pf/message-build.json --message-sha256 29969da0702451e3fc6f1de40bc301a67284c4e7d5fae8f88c64773d27a96219"
+  },
+  "minimal_raw_gates_for_mixed_proof": [
+    "run completes: status pass, flight_completed true, source_unchanged, control_shutdown_clean, cleanup_errors empty",
+    "mixed raw audit pass with zero outstanding checks; result_sha256/admission/run identity match the run",
+    "experimental-admission.json: ok/experimental, production_admitted=false, flown=false, children_created=0, reasons empty",
+    "capability descriptor exactly the mixed schema (position_axes z, velocity_axes xy, native_submode 7, mask 2531)",
+    "manifest pins match the accepted triple; retained ap-build/control-build/message-build hash-equal",
+    "AP control argv carries BOTH -p arducopter_pv_profile:=full_xyz_pv_yaw_v1 and -p arducopter_mixed_profile:=xy_velocity_z_position_yaw_v1, and the audit identity.control_profiles confirms both"
+  ],
+  "files_needing_update_and_owners": {
+    "Simulator/wksim_runtime/joint-profiles.json": "row pins (0DQQz9->c2IXOr, MUlZd0->Rzj3Pf) + two evidence rows; owner: profile/catalog owner (Astra review per #84)",
+    "Simulator/wksim_runtime/joint_profile.py": "read-only reference for the gate; no change identified",
+    "tools/audit_mixed_control.py": "historical/current layering already correct; no change identified",
+    "docs/plan/33-final-combo-rate-candidate.md": "stale 0DQQz9/OEvS3W current commands must be demoted to history; owner: doc owner",
+    "formal launcher/public entry": "consumes capabilities after admission; owner: main session"
+  },
+  "non_claims": [
+    "no mixed-profile run exists in the indexed scope; absence elsewhere not claimed",
+    "one PV proof is not two capability proofs",
+    "old default row and legacy evidence untouched",
+    "no promotion claimed; #84 step-1 mapping package only"
+  ]
+}

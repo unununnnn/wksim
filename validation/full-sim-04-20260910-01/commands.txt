@@ -1,0 +1,17 @@
+Working directory: C:/Users/PC/Documents/odid编译/wksim
+
+Read-only inputs:
+  Get-Content docs/plan/full-scope-expansion.md
+  Get-Content docs/plan/full-remaining-ledger.json
+  Get-Content docs/plan/full-followup-tickets.json
+  Get-Content Simulator/wksim_core/README.md
+  Get-Content tools/probe_generated_model.py
+  Get-Content tools/probe_simulink_sampling.py
+  gh issue view 124 --repo unununnnn/wksim --json number,title,body,state,labels,comments
+  gh issue view 26 --repo unununnnn/wksim --json number,title,body,state,labels,comments
+
+Validation:
+  python -B validation/full-sim-04-20260910-01/validate.py
+  git diff --check -- docs/plan/full-contracts/sim-04.md docs/plan/full-contracts/sim-04.json validation/full-sim-04-20260910-01
+
+No model lifecycle code was implemented and no build or run was performed; no UE, FC, model, ROS, MATLAB or hardware process was started.

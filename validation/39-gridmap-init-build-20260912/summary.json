@@ -1,0 +1,59 @@
+{
+  "status": "plan_env_build_pass",
+  "scope": "GridMap initialization bounds and plan_env build only; no planner/ROS graph/flight acceptance",
+  "baseline_commit": "ba6acb656bdd58af0305c6971bf3b7ec32f33bf8",
+  "wsl_distribution": "RflySim-20.04",
+  "failed_directory": "/root/wksim-gridmap-build-7R5m6Z",
+  "passed_directory": "/root/wksim-gridmap-cxx17-ekhpBw",
+  "failure": "Installed log4cxx std::shared_mutex requires C++17; original C++14 build failed",
+  "source_sha256": {
+    "Modules/ego_planner_swarm/plan_env/CMakeLists.txt": "a7607d05f1174b012bcc3719db1ac5f43a364623ff4a8e28a7e924bbd1345553",
+    "Modules/ego_planner_swarm/plan_env/src/grid_map.cpp": "ad4d893c3778ffdeabd9868859851877dfe23b7f60e46dfb366ad7561d3d4c0f",
+    "validation/test_grid_map_param_safety.py": "f03fb61cbbefa3e353bfe91121435be2f2cf3eef8ca8e6bb9d69b8671e5072f3",
+    "validation/test_grid_map_init_native.py": "f25845620412fe65e61048649bf156a698700599c4c956a7fc0a9e0c156cf49c"
+  },
+  "library": {
+    "path": "/root/wksim-gridmap-cxx17-ekhpBw/devel/lib/libplan_env.so",
+    "sha256": "6003461696353695911f561f3a72fc795c945eb1c9db35cefb562cefc7fc6b35",
+    "bytes": 30612960
+  },
+  "commands": [
+    [
+      "cmake",
+      "-S",
+      "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/Modules/ego_planner_swarm/plan_env",
+      "-B",
+      "/root/wksim-gridmap-cxx17-ekhpBw/build",
+      "-DCATKIN_DEVEL_PREFIX=/root/wksim-gridmap-cxx17-ekhpBw/devel"
+    ],
+    [
+      "cmake",
+      "--build",
+      "/root/wksim-gridmap-cxx17-ekhpBw/build",
+      "--target",
+      "plan_env",
+      "-j2"
+    ]
+  ],
+  "validation": {
+    "windows": {
+      "tests": 23,
+      "skipped": 1
+    },
+    "ubuntu": {
+      "tests": 23,
+      "skipped": 0
+    },
+    "rflysim": {
+      "tests": 23,
+      "skipped": 0
+    },
+    "native": "Actual C++ source extracted for UBSan; seven product boundaries plus inflation edges; Python arithmetic mirror removed"
+  },
+  "logs": {
+    "cxx14-failure-build.log": "da810cbfb6a76aa28b91cac163885fb14fbf4d381f93e39c812aef3d4e16d490",
+    "cxx14-failure-configure.log": "fc0d993155ac9a6bf5677ef696a27b24d02c152d0a79c9bf370f87ae1208c452",
+    "cxx17-pass-build.log": "dd5e96366f382b28a9be015e5f9d67e7d108931ff756313f52df9050bbbbdefc",
+    "cxx17-pass-configure.log": "da4f671b881051e2d070dd21e0fe33163e75f4c86807d015d21b0e58a6e52f28"
+  }
+}

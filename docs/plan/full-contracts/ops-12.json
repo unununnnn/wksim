@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "issue": 163,
+  "stable_key": "full-ops-12",
+  "title": "Self-contained resource delivery",
+  "source": {
+    "file": "docs/plan/full-scope-expansion.md",
+    "line": 80,
+    "ledger_id": "OPS-12",
+    "ledger_file": "docs/plan/full-followup-tickets.json",
+    "parent_issues": [26, 1]
+  },
+  "status": "defined",
+  "evidence_status": "partial-evidence",
+  "full_complete": false,
+  "current_gap": "Compiling the vendor ZIP locally does not grant redistribution of its source; local UE staging content is the same class. A license-complete, clean-machine bootstrap and distribution boundary are not accepted.",
+  "atoms": [
+    {"id": "OPS-12-A", "name": "independence_from_proprietary_runtime", "status": "partial", "required": "Owned core builds and runs without the original program or closed DLLs; the first build still needs a local vendor ZIP", "owner": "build maintainer"},
+    {"id": "OPS-12-B", "name": "model_asset_availability", "status": "partial", "required": "Every model/asset obtainable via pinned source/hash like the P450 provenance CLI; local-only staging is not availability", "owner": "asset maintainer"},
+    {"id": "OPS-12-C", "name": "build_instructions", "status": "partial", "required": "Clean-machine bootstrap instructions that name every required local-only resource explicitly", "owner": "build maintainer"},
+    {"id": "OPS-12-D", "name": "source_licenses", "status": "blocked", "required": "License manifest covering vendor ZIP, UE staging and third-party assets with redistribution status", "owner": "release maintainer"},
+    {"id": "OPS-12-E", "name": "pinned_dependency_identity", "status": "partial", "required": "All runtime resources pinned by commit/SHA256 as done for PX4/AP firmware; unpinned resources enumerated", "owner": "build maintainer"},
+    {"id": "OPS-12-F", "name": "distribution_boundary", "status": "partial", "required": "Explicit publishable vs local-only boundary; git/submodule cleanup alone is not a distribution package", "owner": "release maintainer"}
+  ],
+  "resource_required": ["resource_id", "kind", "source", "source_commit", "source_sha256", "license", "redistribution_status", "owner", "required", "bootstrap_path", "local_only"],
+  "scope_rule": "local compilation success is not redistribution rights; a mounted local asset is not a deliverable asset",
+  "errors": ["accepted", "resource_missing", "license_unknown", "redistribution_denied", "hash_mismatch", "bootstrap_incomplete", "unpinned_dependency"],
+  "followups": [
+    {"key": "ops-12-license-inventory", "files": ["docs/<license-manifest>.json", "validation/<license-audit>"], "status": "proposed", "blocked_by": "Vendor ZIP and UE staging license determination"},
+    {"key": "ops-12-clean-bootstrap-audit", "files": ["docs/<bootstrap>.md", "validation/<bootstrap-audit>"], "status": "proposed", "blocked_by": "A clean-machine attempt recording each local-only requirement"},
+    {"key": "ops-12-asset-availability", "files": ["tools/prepare_p450_asset.py", "validation/<asset-availability-audit>"], "status": "proposed", "blocked_by": "Extending the provenance pattern to remaining assets"},
+    {"key": "ops-12-distribution-package", "files": ["docs/<distribution-boundary>.md"], "status": "proposed", "blocked_by": "License inventory completion"}
+  ],
+  "preserved": {"vendor_zip": "local-only build prerequisite; redistribution unconfirmed", "ue_staging": "local-only; never committed", "issue_26": "open generated-model build import", "full_complete": false}
+}

@@ -1,0 +1,632 @@
+{
+  "scope": "Actual #62 raw timing arithmetic, not new performance acceptance",
+  "groups": 4892,
+  "anchor_tick": 40,
+  "last_tick": 19608,
+  "wall_ns": 19673497865,
+  "phase_lateness_ns": 105497865,
+  "reconstructed_lateness_ns": 105497865,
+  "first_release_lateness_ns": 16079,
+  "previous_work_overrun_sum_ns": 57175054,
+  "residual_release_delay_sum_ns": 39652826,
+  "final_work_minus_period_ns": 8653906,
+  "work_summary_ns": {
+    "min": 1811907,
+    "median": 2611334.0,
+    "mean": 2681922.8683565003,
+    "p99": 3972081,
+    "max": 12653906
+  },
+  "groups_work_over_4ms": 45,
+  "wire_kinds": {
+    "actuator": 24502,
+    "connected": 1,
+    "sensor": 24510,
+    "step": 19608,
+    "barrier": 4902,
+    "gps": 196
+  },
+  "top_phase_increments": [
+    {
+      "previous_start_tick": 1924,
+      "next_start_tick": 1928,
+      "phase_increment_ns": 7539067,
+      "previous_work_overrun_ns": 7502613,
+      "residual_release_delay_ns": 36454
+    },
+    {
+      "previous_start_tick": 1932,
+      "next_start_tick": 1936,
+      "phase_increment_ns": 5590302,
+      "previous_work_overrun_ns": 5558588,
+      "residual_release_delay_ns": 31714
+    },
+    {
+      "previous_start_tick": 4548,
+      "next_start_tick": 4552,
+      "phase_increment_ns": 5236744,
+      "previous_work_overrun_ns": 4516990,
+      "residual_release_delay_ns": 719754
+    },
+    {
+      "previous_start_tick": 8588,
+      "next_start_tick": 8592,
+      "phase_increment_ns": 4286985,
+      "previous_work_overrun_ns": 4249285,
+      "residual_release_delay_ns": 37700
+    },
+    {
+      "previous_start_tick": 1996,
+      "next_start_tick": 2000,
+      "phase_increment_ns": 4230212,
+      "previous_work_overrun_ns": 4177604,
+      "residual_release_delay_ns": 52608
+    },
+    {
+      "previous_start_tick": 16692,
+      "next_start_tick": 16696,
+      "phase_increment_ns": 3840001,
+      "previous_work_overrun_ns": 3789057,
+      "residual_release_delay_ns": 50944
+    },
+    {
+      "previous_start_tick": 17532,
+      "next_start_tick": 17536,
+      "phase_increment_ns": 3673246,
+      "previous_work_overrun_ns": 3630070,
+      "residual_release_delay_ns": 43176
+    },
+    {
+      "previous_start_tick": 5500,
+      "next_start_tick": 5504,
+      "phase_increment_ns": 3563774,
+      "previous_work_overrun_ns": 3519815,
+      "residual_release_delay_ns": 43959
+    },
+    {
+      "previous_start_tick": 9936,
+      "next_start_tick": 9940,
+      "phase_increment_ns": 2543594,
+      "previous_work_overrun_ns": 0,
+      "residual_release_delay_ns": 2543594
+    },
+    {
+      "previous_start_tick": 1928,
+      "next_start_tick": 1932,
+      "phase_increment_ns": 2386647,
+      "previous_work_overrun_ns": 2346825,
+      "residual_release_delay_ns": 39822
+    },
+    {
+      "previous_start_tick": 11564,
+      "next_start_tick": 11568,
+      "phase_increment_ns": 2319346,
+      "previous_work_overrun_ns": 0,
+      "residual_release_delay_ns": 2319346
+    },
+    {
+      "previous_start_tick": 17244,
+      "next_start_tick": 17248,
+      "phase_increment_ns": 2203358,
+      "previous_work_overrun_ns": 0,
+      "residual_release_delay_ns": 2203358
+    }
+  ],
+  "longest_groups": [
+    {
+      "kind": "rate_group_end",
+      "epoch": "2a8d5df1dd4244c3868dc7f38e85a369",
+      "tick": 19608,
+      "issued_monotonic_ns": 88634553469,
+      "segment_id": 1,
+      "request_id": "config",
+      "requested_rate": 1.0,
+      "transition": false,
+      "actual_end_ns": 88634548486,
+      "lateness_ns": 105497865,
+      "start_tick": 19604,
+      "end_tick": 19608,
+      "ideal_start_ns": 88525050621,
+      "ideal_end_ns": 88529050621,
+      "earliest_start_ns": 88621894348,
+      "actual_start_ns": 88621894580,
+      "work_ns": 12653906,
+      "largest_wire_gaps": [
+        {
+          "before": {
+            "kind": "step",
+            "tick": 19607,
+            "issued_monotonic_s": 88.624899801
+          },
+          "after": {
+            "kind": "sensor",
+            "tick": 19608,
+            "issued_monotonic_s": 88.630483292,
+            "stack": "arducopter"
+          },
+          "gap_ns": 5583491
+        },
+        {
+          "before": {
+            "kind": "actuator",
+            "tick": 19608,
+            "issued_monotonic_s": 88.630955573,
+            "stack": "arducopter"
+          },
+          "after": {
+            "kind": "actuator",
+            "tick": 19608,
+            "issued_monotonic_s": 88.63434128,
+            "stack": "px4"
+          },
+          "gap_ns": 3385707
+        },
+        {
+          "before": {
+            "kind": "step",
+            "tick": 19606,
+            "issued_monotonic_s": 88.623149488
+          },
+          "after": {
+            "kind": "sensor",
+            "tick": 19607,
+            "issued_monotonic_s": 88.624651417,
+            "stack": "arducopter"
+          },
+          "gap_ns": 1501929
+        }
+      ]
+    },
+    {
+      "kind": "rate_group_end",
+      "epoch": "2a8d5df1dd4244c3868dc7f38e85a369",
+      "tick": 1928,
+      "issued_monotonic_ns": 70859127959,
+      "segment_id": 1,
+      "request_id": "config",
+      "requested_rate": 1.0,
+      "transition": false,
+      "actual_end_ns": 70859124110,
+      "lateness_ns": 10073489,
+      "start_tick": 1924,
+      "end_tick": 1928,
+      "ideal_start_ns": 70845050621,
+      "ideal_end_ns": 70849050621,
+      "earliest_start_ns": 70847621093,
+      "actual_start_ns": 70847621497,
+      "work_ns": 11502613,
+      "largest_wire_gaps": [
+        {
+          "before": {
+            "kind": "sensor",
+            "tick": 1926,
+            "issued_monotonic_s": 70.84892052,
+            "stack": "arducopter"
+          },
+          "after": {
+            "kind": "actuator",
+            "tick": 1926,
+            "issued_monotonic_s": 70.856697275,
+            "stack": "arducopter"
+          },
+          "gap_ns": 7776755
+        },
+        {
+          "before": {
+            "kind": "step",
+            "tick": 1927,
+            "issued_monotonic_s": 70.857816674
+          },
+          "after": {
+            "kind": "sensor",
+            "tick": 1928,
+            "issued_monotonic_s": 70.858515328,
+            "stack": "arducopter"
+          },
+          "gap_ns": 698654
+        },
+        {
+          "before": {
+            "kind": "step",
+            "tick": 1926,
+            "issued_monotonic_s": 70.856721016
+          },
+          "after": {
+            "kind": "sensor",
+            "tick": 1927,
+            "issued_monotonic_s": 70.857404413,
+            "stack": "arducopter"
+          },
+          "gap_ns": 683397
+        }
+      ]
+    },
+    {
+      "kind": "rate_group_end",
+      "epoch": "2a8d5df1dd4244c3868dc7f38e85a369",
+      "tick": 1936,
+      "issued_monotonic_ns": 70875109520,
+      "segment_id": 1,
+      "request_id": "config",
+      "requested_rate": 1.0,
+      "transition": false,
+      "actual_end_ns": 70875105799,
+      "lateness_ns": 18055178,
+      "start_tick": 1932,
+      "end_tick": 1936,
+      "ideal_start_ns": 70853050621,
+      "ideal_end_ns": 70857050621,
+      "earliest_start_ns": 70863160564,
+      "actual_start_ns": 70865547211,
+      "work_ns": 9558588,
+      "largest_wire_gaps": [
+        {
+          "before": {
+            "kind": "step",
+            "tick": 1935,
+            "issued_monotonic_s": 70.872045965
+          },
+          "after": {
+            "kind": "sensor",
+            "tick": 1936,
+            "issued_monotonic_s": 70.873856636,
+            "stack": "arducopter"
+          },
+          "gap_ns": 1810671
+        },
+        {
+          "before": {
+            "kind": "step",
+            "tick": 1933,
+            "issued_monotonic_s": 70.868599849
+          },
+          "after": {
+            "kind": "sensor",
+            "tick": 1934,
+            "issued_monotonic_s": 70.870136213,
+            "stack": "arducopter"
+          },
+          "gap_ns": 1536364
+        },
+        {
+          "before": {
+            "kind": "step",
+            "tick": 1934,
+            "issued_monotonic_s": 70.870216531
+          },
+          "after": {
+            "kind": "sensor",
+            "tick": 1935,
+            "issued_monotonic_s": 70.871407251,
+            "stack": "arducopter"
+          },
+          "gap_ns": 1190720
+        }
+      ]
+    },
+    {
+      "kind": "rate_group_end",
+      "epoch": "2a8d5df1dd4244c3868dc7f38e85a369",
+      "tick": 4552,
+      "issued_monotonic_ns": 73505025336,
+      "segment_id": 1,
+      "request_id": "config",
+      "requested_rate": 1.0,
+      "transition": false,
+      "actual_end_ns": 73505016875,
+      "lateness_ns": 31966254,
+      "start_tick": 4548,
+      "end_tick": 4552,
+      "ideal_start_ns": 73469050621,
+      "ideal_end_ns": 73473050621,
+      "earliest_start_ns": 73496499491,
+      "actual_start_ns": 73496499885,
+      "work_ns": 8516990,
+      "largest_wire_gaps": [
+        {
+          "before": {
+            "kind": "actuator",
+            "tick": 4552,
+            "issued_monotonic_s": 73.499271519,
+            "stack": "arducopter"
+          },
+          "after": {
+            "kind": "actuator",
+            "tick": 4552,
+            "issued_monotonic_s": 73.501365222,
+            "stack": "px4"
+          },
+          "gap_ns": 2093703
+        },
+        {
+          "before": {
+            "kind": "step",
+            "tick": 4551,
+            "issued_monotonic_s": 73.498614788
+          },
+          "after": {
+            "kind": "sensor",
+            "tick": 4552,
+            "issued_monotonic_s": 73.499173578,
+            "stack": "arducopter"
+          },
+          "gap_ns": 558790
+        },
+        {
+          "before": {
+            "kind": "step",
+            "tick": 4550,
+            "issued_monotonic_s": 73.497601282
+          },
+          "after": {
+            "kind": "sensor",
+            "tick": 4551,
+            "issued_monotonic_s": 73.498125606,
+            "stack": "arducopter"
+          },
+          "gap_ns": 524324
+        }
+      ]
+    },
+    {
+      "kind": "rate_group_end",
+      "epoch": "2a8d5df1dd4244c3868dc7f38e85a369",
+      "tick": 8592,
+      "issued_monotonic_ns": 77563218155,
+      "segment_id": 1,
+      "request_id": "config",
+      "requested_rate": 1.0,
+      "transition": false,
+      "actual_end_ns": 77563214863,
+      "lateness_ns": 50164242,
+      "start_tick": 8588,
+      "end_tick": 8592,
+      "ideal_start_ns": 77509050621,
+      "ideal_end_ns": 77513050621,
+      "earliest_start_ns": 77554965309,
+      "actual_start_ns": 77554965578,
+      "work_ns": 8249285,
+      "largest_wire_gaps": [
+        {
+          "before": {
+            "kind": "sensor",
+            "tick": 8590,
+            "issued_monotonic_s": 77.556284715,
+            "stack": "arducopter"
+          },
+          "after": {
+            "kind": "actuator",
+            "tick": 8590,
+            "issued_monotonic_s": 77.5611994,
+            "stack": "arducopter"
+          },
+          "gap_ns": 4914685
+        },
+        {
+          "before": {
+            "kind": "step",
+            "tick": 8591,
+            "issued_monotonic_s": 77.561928859
+          },
+          "after": {
+            "kind": "sensor",
+            "tick": 8592,
+            "issued_monotonic_s": 77.562751116,
+            "stack": "arducopter"
+          },
+          "gap_ns": 822257
+        },
+        {
+          "before": {
+            "kind": "step",
+            "tick": 8590,
+            "issued_monotonic_s": 77.56121316
+          },
+          "after": {
+            "kind": "sensor",
+            "tick": 8591,
+            "issued_monotonic_s": 77.561813407,
+            "stack": "arducopter"
+          },
+          "gap_ns": 600247
+        }
+      ]
+    },
+    {
+      "kind": "rate_group_end",
+      "epoch": "2a8d5df1dd4244c3868dc7f38e85a369",
+      "tick": 2000,
+      "issued_monotonic_ns": 70943325886,
+      "segment_id": 1,
+      "request_id": "config",
+      "requested_rate": 1.0,
+      "transition": false,
+      "actual_end_ns": 70943321516,
+      "lateness_ns": 22270895,
+      "start_tick": 1996,
+      "end_tick": 2000,
+      "ideal_start_ns": 70917050621,
+      "ideal_end_ns": 70921050621,
+      "earliest_start_ns": 70935143498,
+      "actual_start_ns": 70935143912,
+      "work_ns": 8177604,
+      "largest_wire_gaps": [
+        {
+          "before": {
+            "kind": "actuator",
+            "tick": 2000,
+            "issued_monotonic_s": 70.937838392,
+            "stack": "arducopter"
+          },
+          "after": {
+            "kind": "actuator",
+            "tick": 2000,
+            "issued_monotonic_s": 70.94315484,
+            "stack": "px4"
+          },
+          "gap_ns": 5316448
+        },
+        {
+          "before": {
+            "kind": "step",
+            "tick": 1999,
+            "issued_monotonic_s": 70.937087843
+          },
+          "after": {
+            "kind": "sensor",
+            "tick": 2000,
+            "issued_monotonic_s": 70.937675303,
+            "stack": "arducopter"
+          },
+          "gap_ns": 587460
+        },
+        {
+          "before": {
+            "kind": "step",
+            "tick": 1997,
+            "issued_monotonic_s": 70.935971306
+          },
+          "after": {
+            "kind": "sensor",
+            "tick": 1998,
+            "issued_monotonic_s": 70.936424125,
+            "stack": "arducopter"
+          },
+          "gap_ns": 452819
+        }
+      ]
+    },
+    {
+      "kind": "rate_group_end",
+      "epoch": "2a8d5df1dd4244c3868dc7f38e85a369",
+      "tick": 16696,
+      "issued_monotonic_ns": 85703355215,
+      "segment_id": 1,
+      "request_id": "config",
+      "requested_rate": 1.0,
+      "transition": false,
+      "actual_end_ns": 85703350973,
+      "lateness_ns": 86300352,
+      "start_tick": 16692,
+      "end_tick": 16696,
+      "ideal_start_ns": 85613050621,
+      "ideal_end_ns": 85617050621,
+      "earliest_start_ns": 85695561533,
+      "actual_start_ns": 85695561916,
+      "work_ns": 7789057,
+      "largest_wire_gaps": [
+        {
+          "before": {
+            "kind": "step",
+            "tick": 16693,
+            "issued_monotonic_s": 85.69690366
+          },
+          "after": {
+            "kind": "sensor",
+            "tick": 16694,
+            "issued_monotonic_s": 85.698526478,
+            "stack": "arducopter"
+          },
+          "gap_ns": 1622818
+        },
+        {
+          "before": {
+            "kind": "step",
+            "tick": 16695,
+            "issued_monotonic_s": 85.70126789
+          },
+          "after": {
+            "kind": "sensor",
+            "tick": 16696,
+            "issued_monotonic_s": 85.702868062,
+            "stack": "arducopter"
+          },
+          "gap_ns": 1600172
+        },
+        {
+          "before": {
+            "kind": "sensor",
+            "tick": 16695,
+            "issued_monotonic_s": 85.699832625,
+            "stack": "arducopter"
+          },
+          "after": {
+            "kind": "actuator",
+            "tick": 16695,
+            "issued_monotonic_s": 85.701223259,
+            "stack": "arducopter"
+          },
+          "gap_ns": 1390634
+        }
+      ]
+    },
+    {
+      "kind": "rate_group_end",
+      "epoch": "2a8d5df1dd4244c3868dc7f38e85a369",
+      "tick": 17536,
+      "issued_monotonic_ns": 86550292179,
+      "segment_id": 1,
+      "request_id": "config",
+      "requested_rate": 1.0,
+      "transition": false,
+      "actual_end_ns": 86550288127,
+      "lateness_ns": 93237506,
+      "start_tick": 17532,
+      "end_tick": 17536,
+      "ideal_start_ns": 86453050621,
+      "ideal_end_ns": 86457050621,
+      "earliest_start_ns": 86542657798,
+      "actual_start_ns": 86542658057,
+      "work_ns": 7630070,
+      "largest_wire_gaps": [
+        {
+          "before": {
+            "kind": "step",
+            "tick": 17535,
+            "issued_monotonic_s": 86.54748325
+          },
+          "after": {
+            "kind": "sensor",
+            "tick": 17536,
+            "issued_monotonic_s": 86.549831526,
+            "stack": "arducopter"
+          },
+          "gap_ns": 2348276
+        },
+        {
+          "before": {
+            "kind": "step",
+            "tick": 17534,
+            "issued_monotonic_s": 86.545161782
+          },
+          "after": {
+            "kind": "sensor",
+            "tick": 17535,
+            "issued_monotonic_s": 86.547259288,
+            "stack": "arducopter"
+          },
+          "gap_ns": 2097506
+        },
+        {
+          "before": {
+            "kind": "sensor",
+            "tick": 17534,
+            "issued_monotonic_s": 86.54371959,
+            "stack": "arducopter"
+          },
+          "after": {
+            "kind": "actuator",
+            "tick": 17534,
+            "issued_monotonic_s": 86.545120963,
+            "stack": "arducopter"
+          },
+          "gap_ns": 1401373
+        }
+      ]
+    }
+  ],
+  "inputs_sha256": {
+    "rate.jsonl": "f0409c4fa35dba2468c45898c5bddaa32b9000c68bf346583b5132ebd5684bf3",
+    "wire.jsonl": "a0708e7b823137157502f05d38ffffdea0947410397e12b33fa672500ac3c818"
+  }
+}

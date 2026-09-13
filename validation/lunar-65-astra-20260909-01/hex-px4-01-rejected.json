@@ -1,0 +1,87 @@
+{
+  "schema": "wksim.hex.flight.audit.v1",
+  "root": "/root/wksim-hex-flight-px4-01/hex-px4-01",
+  "passed": false,
+  "status": "rejected",
+  "checks": {
+    "result": {
+      "recorded_status": "failed",
+      "run_id": "hex-px4-01"
+    },
+    "cold_reset": {
+      "status": "not_present",
+      "passed": false,
+      "boundary": "No cold-reset flight evidence supplied"
+    },
+    "immutability": {
+      "passed": true,
+      "files": 43
+    }
+  },
+  "errors": [
+    {
+      "check": "identity",
+      "error": "ValueError: Runner recorded failure/incomplete lifecycle; not promotable"
+    },
+    {
+      "check": "physics",
+      "error": "ValueError: Physics foundation rejected: [{\"code\": \"terminal_failure\", \"message\": \"interrupted_or_failed terminal is not the expected owner retirement\", \"line\": 3726}]"
+    },
+    {
+      "check": "native_decode",
+      "error": "ValueError: MAVLink datagram/decoded payload differs"
+    },
+    {
+      "check": "retirement",
+      "error": "ValueError: Unsuccessful teardown"
+    }
+  ],
+  "scope": "Recorded Hex native chain and 1ms physical mission; no UE, aircraft calibration, G6 or Full claim",
+  "cold_reset_required": false,
+  "inputs_sha256": {
+    "result.json": "b9ee3709e29f4c54ed66ccae16a7dc941be7790383d3212df2d995314e844175",
+    "fc.log": "4987d5a63efb7f20919a4ae70660003a5528dee45c3c3267def2cb3cbf92bbac",
+    "prometheus.jsonl": "75857b87b6fd275474b099798d095b36a0aa24363e2f9469ed0c90483d29d495",
+    "isolation.json": "df97a0131edacdcbda8b44c131abfd9976684149a2e655cd0f3d286aca236f71",
+    "config.json": "19cafbec50bf4edd71e1a02c2a3f6801bd9be67374ad08e79e8c58446a448e41",
+    "control.maps": "edfc123f1dd362b79fbb70f36083c4b98fd8278495febdceef9bcdd11c4cdba1",
+    "physics.maps": "f1b6fe3920217ab5fa55bd86c4e8a69fdbfe48b5bf7dd0cb8c7e5bc35c00343e",
+    "dataman": "55cf902b00539fd43b45029e449392ebfab82acdda744f056fcbe3aa0b0c10c4",
+    "parameters_backup.bson": "881ab43852be41c18dd33b02b1c0de21b5680a0d2644bd6dafaaaf1e01d178e3",
+    "control.log": "e6aa7e4c5788698bae498c5549e283a84714bedf44f6f591e7f00c53c3639f06",
+    "physics.log": "13c4c0347adecf0a9cbf8525dba911294195e5287d45db78099fb0a68a9585e8",
+    "parameters.bson": "881ab43852be41c18dd33b02b1c0de21b5680a0d2644bd6dafaaaf1e01d178e3",
+    "physics-1ms.jsonl": "3ae87e07227cb4fa20e4e6a70f2e87610b8afa991c4a3cac7191a3c3bcdea6bc",
+    "agent.log": "3b4b9102b3fefefb595ef405310c561cf425d255c4a9501bf22ffab9715ecba9",
+    "protocol.json": "5f7c75daf721de77baa06575d825db7a2260aff3c24002c4122cbc2c3a513d86",
+    "truth.jsonl": "6ae7511fbb0f58a0f9fb80acf7826a08e3388bf76aafe2bfd3cf35f9b51b6e64",
+    "agent.maps": "d45a2d277ebfe088f98e13df5e6dbc9886b72f355db9cdbefaaa0e3cdb67affc",
+    "hex-progress.json": "035235b982daf23f065ef063ac227c67d3cc97c84cae64150a5dd6ba95540ca2",
+    "hex-native.jsonl": "9acf40348a67d8f5b9822e4432200b0ddd3492056193596308c2247567eb799c",
+    "admission.json": "45513834f3178c26e7e5eff4c7e4fbb3168d6d4daa22513d6737ef8a3b9c93e6",
+    "fc.maps": "edc6dfcd4ae5225a45ec5397b84b9fe9ec76373ce2c3ae0c8b42fff0c1d38abd",
+    "postflight-admission.json": "45513834f3178c26e7e5eff4c7e4fbb3168d6d4daa22513d6737ef8a3b9c93e6",
+    "log/2026-09-09/04_41_18.ulg": "e4ed703cd9ed6b94522e7ebc12ac808ce9bdac662ea52fd3790cab97feb516d5",
+    "run-source/Simulator/wksim_runtime/evidence.py": "4f7f2e601ce3c2edfe54c1c48ed35d41133304c2b1fa56a969148c6ccbbfcb7a",
+    "run-source/Simulator/wksim_runtime/telemetry_dialect.py": "fa9cec926c3ab0b7e5ce64849a652f76ebd2cf6361d45222d6c563dff728287a",
+    "run-source/Simulator/wksim_runtime/telemetry-dialects.json": "d412f62f8ce48164b924d596f67f37f0e10bf81a064958cb7667516a42db9a11",
+    "run-source/Simulator/wksim_runtime/hex_task.py": "2ab02f768973a5b0ee3def734e9643b533fceb6ddcd7d6094ad1557b913514b5",
+    "run-source/Simulator/wksim_runtime/hex-flight-v1.json": "171dacd51aba501c3d8e9e6a6933c580dd77c6d4381941cfaff19961a21ae4b4",
+    "run-source/Simulator/wksim_runtime/runtime.py": "7853410a294cd0d41356ff49a5976c001a78c3cc89e0722f7bd7e47147ca4d3c",
+    "run-source/Simulator/wksim_runtime/isolation.py": "92466d6e736f671031b5d53f01d8ebcfd2ab1aa6c28c9946e2f891087bb61c99",
+    "run-source/Simulator/wksim_runtime/task.py": "9791913df7ad61d229a151d4d1d0e5c2b3f32d127a7545096b43a32638f0dbbc",
+    "run-source/Simulator/wksim_core/px4_mavlink.py": "08b3d5fbf6754822572240ceb6beb289341bd0c6653455a35b60b3fb3d85ab3d",
+    "run-source/Simulator/wksim_core/model.cpp": "3f325678b1d85c9aa3fd07bd644d82935aa26d82885926defeced139f02ddf2c",
+    "run-source/Simulator/wksim_core/ap_json.py": "db3498d5df50aa3ab46601a8e899c6739e613d431a7d221ac57d2a86e1846469",
+    "run-source/Simulator/wksim_core/px4-rc.mavlink": "2c3cea474c5669b6c9ae241072a1c5f813f06ff771233e0f81721397c903d214",
+    "run-source/Simulator/wksim_core/state_stream.py": "d0bf4534885170bc281394657558afbfa143d76360ac1157e1c0e60d9719a76e",
+    "run-source/Simulator/wksim_core/model.py": "af767e9299e4282da8da168998605c02039ea64d9cc27bb33e9dce24d1a6b77a",
+    "run-source/tools/build_hex_model_candidate.py": "865cd979f5921019c13950a220d82756557190be57520e1e42f92b378a7595e6",
+    "run-source/tools/run_hex_flight.py": "ecd23eb4300ec86ee863ec50b6ea4d8ef8b014ab3f3abd8e6bb03be205de8523",
+    "run-source/tools/hex_launch_plan.py": "5576dc5326261d9edd5d68352189ac2923d1ff9c2a868f9e28bc6b4be612dd0f",
+    "run-source/tools/run-hex-flight.sh": "98ff3801c57e1bb8827ac3b5c9bae62941ededa3b1155d69f8d23b12fdc798d1",
+    "run-source/tools/hex_candidate.py": "337ed9fb3ff0423c7ec2da9c5e02530e413575c357349615408036830af31bbe",
+    "run-source/tools/hex_physics.py": "0465ebb40c2f8487a0af98fe2bf78cd056e237da30c3991c6063d8514e2e9a16"
+  },
+  "auditor_sha256": "3521e60140a5e2707aed00f62dde772a02968f8f077ada6aa20206676d0d660d"
+}

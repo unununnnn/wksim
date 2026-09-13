@@ -1,0 +1,131 @@
+{
+  "status": "failed",
+  "run_id": "scheduler-72e2be6fc16f",
+  "scene_epoch": "7c16f0a5c08e4770a07b7c7b06442adb",
+  "stack": "arducopter",
+  "uav_id": 1,
+  "task_mode": "initial",
+  "phases": [],
+  "task_dwell_seconds": {
+    "hold": 5,
+    "waypoint": 2
+  },
+  "use_sim_time": true,
+  "task_profile": "public_position",
+  "error": "RuntimeError('Scene lifecycle failure: scene_stopped_control_released')",
+  "traceback": "Traceback (most recent call last):\n  File \"/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/Simulator/wksim_runtime/joint_task.py\", line 102, in run\n    task.wait('public_ready',lambda:(task.recovery_transport_fresh() if settings['mode']=='recovery' else task.fresh())\n  File \"/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/Simulator/wksim_runtime/task.py\", line 313, in wait\n    self.pump()\n  File \"/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/Simulator/wksim_runtime/task.py\", line 279, in pump\n    self.task_time()\n  File \"/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/Simulator/wksim_runtime/task.py\", line 302, in task_time\n    raise RuntimeError(self.error)\nRuntimeError: Scene lifecycle failure: scene_stopped_control_released\n",
+  "task": {
+    "sent": [],
+    "events": [],
+    "protocol": "session_v1",
+    "run_id": "scheduler-72e2be6fc16f",
+    "control_epoch": "33adfb232e2a4313a369af547b38b7b2",
+    "request_envelopes": [],
+    "control_restarts": [],
+    "final": {
+      "state": {
+        "header": {
+          "stamp": {
+            "sec": 3,
+            "nanosec": 0
+          },
+          "frame_id": "map"
+        },
+        "uav_id": 1,
+        "connected": true,
+        "armed": false,
+        "mode": "STABILIZE",
+        "location_source": 4,
+        "odom_valid": false,
+        "gps_status": 0,
+        "gps_num": 0,
+        "position": [
+          {
+            "nonfinite_number": "nan"
+          },
+          {
+            "nonfinite_number": "nan"
+          },
+          {
+            "nonfinite_number": "nan"
+          }
+        ],
+        "range": {
+          "nonfinite_number": "nan"
+        },
+        "latitude": {
+          "nonfinite_number": "nan"
+        },
+        "longitude": {
+          "nonfinite_number": "nan"
+        },
+        "altitude": {
+          "nonfinite_number": "nan"
+        },
+        "rel_alt": {
+          "nonfinite_number": "nan"
+        },
+        "velocity": [
+          {
+            "nonfinite_number": "nan"
+          },
+          {
+            "nonfinite_number": "nan"
+          },
+          {
+            "nonfinite_number": "nan"
+          }
+        ],
+        "attitude": [
+          {
+            "nonfinite_number": "nan"
+          },
+          {
+            "nonfinite_number": "nan"
+          },
+          {
+            "nonfinite_number": "nan"
+          }
+        ],
+        "attitude_q": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        },
+        "attitude_rate": [
+          {
+            "nonfinite_number": "nan"
+          },
+          {
+            "nonfinite_number": "nan"
+          },
+          {
+            "nonfinite_number": "nan"
+          }
+        ],
+        "battery_state": {
+          "nonfinite_number": "nan"
+        },
+        "battery_percetage": {
+          "nonfinite_number": "nan"
+        }
+      },
+      "control_state": {
+        "header": {
+          "stamp": {
+            "sec": 3,
+            "nanosec": 0
+          },
+          "frame_id": "map"
+        },
+        "uav_id": 1,
+        "control_state": 0,
+        "pos_controller": 0,
+        "failsafe": false
+      }
+    }
+  },
+  "wall_seconds": 3.4886477580000133,
+  "worker_source_sha256": "9086963371db0139ace3d381b00802cdb188ece4329ade42e7ecdc9cd7294fa4"
+}

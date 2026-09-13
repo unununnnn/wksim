@@ -12,6 +12,13 @@ mkdir "$work/src"
 cp -a "$repo/ros2/src/prometheus_msgs" "$work/src/"
 cp -a "$repo/ros2/src/wksim_msgs" "$work/src/"
 cp -a "$repo/ros2/src/prometheus_control" "$work/src/"
+mkdir -p "$work/Simulator/wksim_runtime" "$work/Simulator/wksim_planning"
+for name in __init__.py task.py trajectory_bridge.py; do
+  cp -a "$repo/Simulator/wksim_runtime/$name" "$work/Simulator/wksim_runtime/"
+done
+for name in ego_bspline_bridge.py ego_evaluator.py ego_trajectory_adapter.py trajectory_session.py; do
+  cp -a "$repo/Simulator/wksim_planning/$name" "$work/Simulator/wksim_planning/"
+done
 python3 "$repo/tools/migrate_prometheus_interfaces.py" > "$evidence/source-check.json"
 python3 -m unittest discover -s "$repo/validation" -p test_prometheus_interfaces.py -v > "$evidence/unit-tests.log" 2>&1
 set +u
@@ -21,6 +28,7 @@ export CMAKE_BUILD_PARALLEL_LEVEL=4 MAKEFLAGS=-j4
 colcon --log-base "$evidence/colcon-log" build --base-paths "$work/src" \
     --packages-select prometheus_msgs wksim_msgs prometheus_control --build-base "$work/build" --install-base "$work/install" \
     --executor sequential --event-handlers console_direct+ --cmake-args -DCMAKE_BUILD_TYPE=Release \
+    "-DWKSIM_SIMULATOR_ROOT=$work/Simulator" \
     > "$evidence/build.log" 2>&1
 set +u
 source "$work/install/setup.bash"

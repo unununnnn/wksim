@@ -1,0 +1,11 @@
+{
+  "kind": "preflight-rejection-tool-transcript",
+  "run_id": "3b315dd1bb6447a29341aa3e72a4abbd",
+  "requested_output_root": "/root/wksim-global-flight-px4-20260910-02",
+  "native_processes_started": false,
+  "manifest": "/root/wksim-px4-home-8ch55V/home-build.json",
+  "manifest_sha256": "b511469642fbec85143229c5d1c004c865b2abeed4ed9952e5f66af5efdcef50",
+  "error": "ValueError: PX4 home candidate changed",
+  "location": "tools/px4_home_candidate.py:52 check: value != snapshot(path.parent)",
+  "note": "Original rejection was returned by the command tool before run-directory creation. The original build/manifest remains on disk. v2 removes process-specific ldd load addresses from semantic comparison and retains the complete original dependency-check log hash. Firmware and source are not rebuilt or overwritten by resealing."
+}

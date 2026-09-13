@@ -1,0 +1,48 @@
+{
+  "schema": "omp-aruco-integration-v1",
+  "date": "2026-09-10",
+  "baseline_commit": "514743fcb5b4941d2b83e60dcf8c7f6007ef07fd",
+  "ticket": 104,
+  "revision": "r2 fixes the three review findings on the r1 seam; still offline contract scope only",
+  "nature": "no SITL/UE/ROS/flight started; no existing core/control/runtime/UE source modified; no default profile, budget, evidence or issue state changed; no commit/push; no nested delegation; Claude Code's joint.py and agy's model-generation files untouched",
+  "deliverables": [
+    {"path": "Simulator/wksim_runtime/aruco_tracking_input.py", "sha256": "3a37e294bb84312499829aee2fa7da28ac53e479e0f3a34d63fa06afc540dd0a", "role": "joint-gated seam reusing TargetIntent unchanged; wksim.aruco-joint-authority.v1 + wksim.aruco-tracking-input.v1; explicit hold_action on every HOLD"},
+    {"path": "validation/test_aruco_tracking_input.py", "sha256": "fffe710c8df9c76dfa15131c03082fc0cacd7ac66d02cae6443cde166f328784", "role": "24 pure stdlib contract tests; default fixtures use the real #103 run-514743f-03 identity values"},
+    {"path": "docs/plan/40-aruco-run-contract.md", "sha256": "c0e1e07ba95d36f92a20040f9556030eaf84dac10ac7e018a19bad9261ef956b", "role": "actual interfaces, owners, budgets to pre-freeze, run-command requirements; flight marked UNVERIFIED"}
+  ],
+  "review_fixes": [
+    {"finding": "run_id is not hex32 (real #103 run_id aruco-scene-267899ace7)", "fix": "run_id now follows the project rule from Simulator/wksim_core/state_stream.py:15 ([A-Za-z0-9][A-Za-z0-9_-]{0,63}); epoch/instance/stream remain strict hex32 per Consumer.bind/Reader.set_epoch; tests use the real #103 identity values and boundary cases (65-char, leading -/_ rejected)"},
+    {"finding": "_step string path bypassed the 9007199254 bound; rebind allowed generation rollback on new epoch, retired epoch/stream revival, and identical rebind cleared TargetIntent dedup history", "fix": "_step caps both int and parsed-string paths at MAX_STEP; rebind follows Consumer.bind (aruco.py:84-103)/Reader.set_epoch (rgb.py:68-83): new binding requires strictly higher generation with a new epoch, same-epoch generation bump rejected, identical binding is a no-op preserving history, retired epochs/streams never revive, all checks run before any mutation, rebind authority_step must equal the record's value"},
+    {"finding": "HOLD -> command None does not stop a persisted velocity setpoint", "fix": "verified in source that CommandProcessor.step re-resolves the last accepted MOVE every cycle (ros2/src/prometheus_control/prometheus_control/command.py step/accept); seam HOLD records now carry hold_action {required:true, public_command:CURRENT_POS_HOVER} instructing the runtime task to publish the public CURRENT_POS_HOVER (UAVCommand.msg:10) via Task.send or follow its revocation path; the contract no longer claims not-publishing stops the vehicle"}
+  ],
+  "test_results": [
+    {"command": "python -B -m unittest validation.test_aruco_tracking_input -v", "result": "24 ran, OK, 0 failures, 0 errors, ~0.003s"},
+    {"command": "python -B -m unittest validation.test_target_intent -v", "result": "7 ran, OK (neighbor regression, module reused unchanged)"},
+    {"command": "python -B -m unittest validation.test_aruco_tracking_input validation.test_target_intent", "result": "31 ran, OK"}
+  ],
+  "new_negative_cases": [
+    "real #103 identity shape accepted (hyphenated non-hex32 run_id); run_id boundary 65 chars / leading - or _ rejected",
+    "epoch/stream/instance non-hex32 rejected",
+    "authority_step string above 9007199254 and oversized numeric strings rejected; boundary 9007199254 accepted",
+    "new-epoch rebind with same or lower generation rejected",
+    "same-epoch generation bump rejected",
+    "retired epoch and retired stream revival rejected",
+    "identical rebind is a no-op: duplicate target step still rejected afterwards (dedup history preserved)",
+    "rebind authority_step contradicting the record rejected",
+    "failed rebind leaves authority and TargetIntent history untouched (no partial rewrite)",
+    "HOLD record carries hold_action required/CURRENT_POS_HOVER; accepted intent carries hold_action None"
+  ],
+  "remaining_integration_points_for_main_session": [
+    "Simulator/wksim_runtime/config.py strict whitelist: explicit aruco-tracking-v1 profile carrying frozen contract identity; no default flight parameters",
+    "runtime.py:385 task factory + joint_runtime.py:130 supported_actions: joint task class wiring Consumer + seam; publish command_fields via Task.send only when non-None; on any HOLD record publish public CURRENT_POS_HOVER (or revoke) per hold_action; command_id strictly increasing (UAVCommand.msg:47-48)",
+    "authority assembly: wksim.aruco-joint-authority.v1 from joint status row + View RGB binding; keep existing Windows View / WSL runtime UDP + shared-path channel",
+    "scene side stays with #103 tools/validate_aruco_scene.py + audit_aruco_scene.py and the UE candidate; untouched"
+  ],
+  "unverified": [
+    "real dual-stack same-run appearance/motion/occlusion/recovery flight evidence (#104 completion condition)",
+    "frozen flight budgets (desired_body_flu_m/gain_per_s/max_speed_mps, age/distance/jump/reprojection gates) not preset",
+    "runner entry and independent same-run image/target/CDR/truth auditor do not exist",
+    "validation/40-aruco-flight/ intentionally not created in this slice"
+  ],
+  "untouched": "#103 evidence dirs and tools, all pre-existing sources, joint.py (Claude Code exclusive), model-generation drivers (agy exclusive), issue states"
+}

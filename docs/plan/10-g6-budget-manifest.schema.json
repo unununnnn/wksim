@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/unununnnn/wksim/schemas/10-g6-budget-manifest.schema.json",
+  "title": "G6 budget manifest skeleton (#10/#59)",
+  "description": "Per-slot budget skeleton for the 56 dynamic e0 observables. Budgets stay null until a derivation, domain and approval exist; no row may self-declare approval. v1 has no pinned identity-rule source, so identity_check is not an admitted status.",
+  "type": "object",
+  "required": ["schema_version", "kind", "acceptance", "inputs", "slot_count", "rows"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {"const": 1},
+    "kind": {"const": "g6_budget_manifest"},
+    "acceptance": {"const": false},
+    "inputs": {
+      "type": "object",
+      "required": ["rhs_references", "source_to_slot_manifest", "numerical_conformance"],
+      "additionalProperties": false,
+      "properties": {
+        "rhs_references": {
+          "type": "object",
+          "required": ["path", "sha256"],
+          "additionalProperties": false,
+          "properties": {
+            "path": {"const": "validation/e0-current-rhs-references-20260912.json"},
+            "sha256": {"const": "fa068cc78f8f93e695417d6e315002c799f1bd4d7ef03641a5b236be9cddc188"}
+          }
+        },
+        "source_to_slot_manifest": {
+          "type": "object",
+          "required": ["path", "sha256"],
+          "additionalProperties": false,
+          "properties": {
+            "path": {"const": "validation/e0-source-to-slot-manifest-20260911.json"},
+            "sha256": {"const": "e48982b4732e4fd84ea26390eb516b7e35aea93267aa741ef3c32538cefa6867"}
+          }
+        },
+        "numerical_conformance": {
+          "type": "object",
+          "required": ["path", "sha256"],
+          "additionalProperties": false,
+          "properties": {
+            "path": {"const": "Simulator/wksim_core/numerical-conformance-v1.json"},
+            "sha256": {"const": "23d72e26da5dfc7df0b41b96d090664d0ec022d777f6258e409bf7080f2c08f0"}
+          }
+        }
+      }
+    },
+    "slot_count": {"const": 56},
+    "rows": {
+      "type": "array",
+      "minItems": 56,
+      "maxItems": 56,
+      "items": {"$ref": "#/$defs/row"}
+    }
+  },
+  "$defs": {
+    "row": {
+      "type": "object",
+      "required": ["slot", "observable", "source_mapping", "unit", "frame",
+                   "datum", "sample_phase", "metric", "abs_budget",
+                   "rel_budget", "rms_budget", "derivation", "domain",
+                   "approval", "contract_sha256", "status"],
+      "additionalProperties": false,
+      "properties": {
+        "slot": {"type": "string", "pattern": "^\\w+\\[\\d+\\]$"},
+        "observable": {"type": "string", "minLength": 1},
+        "source_mapping": {
+          "type": "object",
+          "required": ["array", "index", "outport", "line_ranges"],
+          "additionalProperties": false,
+          "properties": {
+            "array": {"enum": ["Vehicle60", "Sensor30", "GPS30"]},
+            "index": {"type": "integer", "minimum": 0},
+            "outport": {"enum": ["VehileInfo60d", "HILSensor30d", "HILGPS30d"]},
+            "line_ranges": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 2,
+                "items": {"type": "integer", "minimum": 1}
+              }
+            }
+          }
+        },
+        "unit": {"oneOf": [{"type": "string", "minLength": 1}, {"type": "null"}]},
+        "frame": {"oneOf": [{"type": "string", "minLength": 1}, {"type": "null"}]},
+        "datum": {"oneOf": [{"type": "string", "minLength": 1}, {"type": "null"}]},
+        "sample_phase": {"oneOf": [{"type": "string", "minLength": 1}, {"type": "null"}]},
+        "metric": {"oneOf": [{"type": "string", "minLength": 1}, {"type": "null"}]},
+        "abs_budget": {"type": ["number", "null"]},
+        "rel_budget": {"type": ["number", "null"]},
+        "rms_budget": {"type": ["number", "null"]},
+        "derivation": {"oneOf": [{"type": "string", "minLength": 1}, {"type": "null"}]},
+        "domain": {"oneOf": [{"type": "string", "minLength": 1}, {"type": "null"}]},
+        "approval": {"oneOf": [{"type": "string", "minLength": 1}, {"type": "null"}]},
+        "contract_sha256": {
+          "oneOf": [
+            {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+            {"type": "null"}
+          ]
+        },
+        "status": {"enum": ["blocked", "pending_owner_decision"]}
+      }
+    }
+  }
+}

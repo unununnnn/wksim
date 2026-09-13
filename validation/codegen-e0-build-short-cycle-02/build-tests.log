@@ -1,0 +1,56 @@
+test_direct_help_works_outside_repository_without_pythonpath (validation.test_build_generated_e0.CommandLineEntryTests.test_direct_help_works_outside_repository_without_pythonpath) ... ok
+test_audit_ldd_output (validation.test_build_generated_e0.TestBuildGeneratedE0.test_audit_ldd_output)
+Test LDD audit cleanly identifies system libs vs prohibited vendor libraries. ... ok
+test_codegen_report_stages_and_licenses (validation.test_build_generated_e0.TestBuildGeneratedE0.test_codegen_report_stages_and_licenses)
+Test codegen-report.json stages completeness and licenses checkout validation. ... ok
+test_command_json_failure_conditions (validation.test_build_generated_e0.TestBuildGeneratedE0.test_command_json_failure_conditions)
+Test command.json non-zero return_code, timed_out, and cleanup_unverified are rejected. ... ok
+test_ldd_audit_missing_dependency (validation.test_build_generated_e0.TestBuildGeneratedE0.test_ldd_audit_missing_dependency)
+Test ldd audit flags 'not found' dynamic dependencies. ... ok
+test_ldd_violations_abort_compilation_run (validation.test_build_generated_e0.TestBuildGeneratedE0.test_ldd_violations_abort_compilation_run)
+Test build aborts and writes failed summary/command.json when ldd audit fails. ... ok
+test_manifest_path_traversal_and_duplicates (validation.test_build_generated_e0.TestBuildGeneratedE0.test_manifest_path_traversal_and_duplicates)
+Test manifest rejects traversal with '..', leading slashes, and duplicate basenames. ... ok
+test_missing_evidence_files_rejected (validation.test_build_generated_e0.TestBuildGeneratedE0.test_missing_evidence_files_rejected)
+Test missing any of the 6 required evidence files raises FileNotFoundError. ... ok
+test_mock_wsl_build_and_evaluate_success_with_test (validation.test_build_generated_e0.TestBuildGeneratedE0.test_mock_wsl_build_and_evaluate_success_with_test)
+Test end-to-end build workflow with mock WSL runner and execution probe. ... ok
+test_mock_wsl_compilation_failure_handling (validation.test_build_generated_e0.TestBuildGeneratedE0.test_mock_wsl_compilation_failure_handling)
+Test compiler failure logs output, writes failed summary and command.json, without unhandled exceptions. ... ok
+test_post_verification_failures (validation.test_build_generated_e0.TestBuildGeneratedE0.test_post_verification_failures)
+Test post-source and post-staged verification integrity failures. ... ok
+test_pre_compilation_staged_integrity_failure (validation.test_build_generated_e0.TestBuildGeneratedE0.test_pre_compilation_staged_integrity_failure)
+Test pre-compilation integrity check in WSL catches staged file alteration. ... ok
+test_probe_failure_preserves_summary (validation.test_build_generated_e0.TestBuildGeneratedE0.test_probe_failure_preserves_summary)
+Test probe execution failure writes test_failed summary and command.json without unhandled exception. ... ok
+test_staged_codegen_config_binding (validation.test_build_generated_e0.TestBuildGeneratedE0.test_staged_codegen_config_binding)
+Test binding between command.json cwd, codegen_config.json, and codegen_source_dir. ... ok
+test_summary_flags_rejected (validation.test_build_generated_e0.TestBuildGeneratedE0.test_summary_flags_rejected)
+Test summary.json flags: status, return_code, stages_ok, licenses_ok, tampered, timed_out, cleanup. ... ok
+test_to_wsl_path (validation.test_build_generated_e0.TestBuildGeneratedE0.test_to_wsl_path)
+Test Windows to WSL path translation. ... ok
+test_validate_build_id_valid_and_invalid (validation.test_build_generated_e0.TestBuildGeneratedE0.test_validate_build_id_valid_and_invalid)
+Test build_id accepts alphanumeric/hyphen/underscore and rejects traversal or illegal chars. ... ok
+test_validate_evidence_containment (validation.test_build_generated_e0.TestBuildGeneratedE0.test_validate_evidence_containment)
+Test evidence directory containment constraints. ... ok
+test_verify_external_prerequisites_missing_headers (validation.test_build_generated_e0.TestBuildGeneratedE0.test_verify_external_prerequisites_missing_headers)
+Test missing MathWorks headers raise FileNotFoundError. ... ok
+test_verify_external_prerequisites_missing_wrapper (validation.test_build_generated_e0.TestBuildGeneratedE0.test_verify_external_prerequisites_missing_wrapper)
+Test missing model.cpp wrapper raises FileNotFoundError. ... ok
+test_verify_generation_evidence_source_sha_mismatch (validation.test_build_generated_e0.TestBuildGeneratedE0.test_verify_generation_evidence_source_sha_mismatch)
+Test verification detects altered generated source file and raises SHA mismatch error. ... ok
+test_verify_generation_evidence_source_tampered (validation.test_build_generated_e0.TestBuildGeneratedE0.test_verify_generation_evidence_source_tampered)
+Test verification rejects generation evidence if source_tampered flag is set. ... ok
+test_verify_generation_evidence_status_not_generated (validation.test_build_generated_e0.TestBuildGeneratedE0.test_verify_generation_evidence_status_not_generated)
+Test verification rejects generation evidence with status != generated. ... ok
+test_verify_generation_evidence_success (validation.test_build_generated_e0.TestBuildGeneratedE0.test_verify_generation_evidence_success)
+Test generation evidence passes verification when all hashes match and status is generated. ... ok
+test_wsl_build_dir_security (validation.test_build_generated_e0.TestBuildGeneratedE0.test_wsl_build_dir_security)
+Test validate_wsl_build_dir enforces /root/wksim-codegen-e0-build- pattern and rejects traversal/quotes. ... ok
+test_wsl_check_dir_symlink_and_non_empty (validation.test_build_generated_e0.TestBuildGeneratedE0.test_wsl_check_dir_symlink_and_non_empty)
+Test WslRunner.check_dir_empty_or_new rejects symlinks and existing non-empty directories. ... ok
+
+----------------------------------------------------------------------
+Ran 26 tests in 0.350s
+
+OK

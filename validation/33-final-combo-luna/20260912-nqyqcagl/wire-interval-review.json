@@ -1,0 +1,62 @@
+{
+  "version": 1,
+  "run_id": "joint-public-flight-nqyqcagl",
+  "intervals": [
+    {
+      "from": {
+        "line": 178224,
+        "kind": "step",
+        "tick": 47402,
+        "stack": null,
+        "wall_seconds_decimal": "165.22457968700002"
+      },
+      "to": {
+        "line": 178225,
+        "kind": "sensor",
+        "tick": 47403,
+        "stack": "arducopter",
+        "wall_seconds_decimal": "165.23077763700002"
+      },
+      "delta_ns_decimal": "6197950.00000000000000"
+    },
+    {
+      "from": {
+        "line": 178227,
+        "kind": "step",
+        "tick": 47403,
+        "stack": null,
+        "wall_seconds_decimal": "165.23113557000005"
+      },
+      "to": {
+        "line": 178228,
+        "kind": "sensor",
+        "tick": 47404,
+        "stack": "arducopter",
+        "wall_seconds_decimal": "165.23770668100002"
+      },
+      "delta_ns_decimal": "6571110.99997000000000"
+    }
+  ],
+  "interpretation": "These intervals end at outgoing manager-to-ArduCopter sensor records. They do not measure receipt of AP sensor data; that protocol direction does not exist.",
+  "included_but_unseparated": [
+    "previous step record serialization and buffered wire write",
+    "clock DDS publication and clock-log write",
+    "outer-loop health, file checks and bookkeeping",
+    "next physical model worker RPC and associated validation",
+    "sensor encoding and nonblocking UDP send"
+  ],
+  "pacing_exclusion": {
+    "first_interval": "no group boundary at tick 47403",
+    "second_interval": {
+      "earliest_start_ns": 562819982980,
+      "previous_actual_end_ns": 562827606638,
+      "actual_start_ns": 562827879976,
+      "release_edge_already_passed": true
+    }
+  },
+  "limitations": [
+    "No exclusive attribution to model computation, filesystem I/O, OS descheduling or either FC.",
+    "Wire wall fields are original floating-point timestamps; Decimal differences preserve their recorded values, not additional clock precision.",
+    "These are PV-specific observations and are distinct from M1 kernel-wire-correlation.json."
+  ]
+}

@@ -1,0 +1,89 @@
+{
+  "schema": "wksim.continuous-module-queue.v2",
+  "observed_at_utc": "2026-09-12 13:33:18 UTC",
+  "goal_status": "active",
+  "goal_created_at": 1789219780,
+  "roster": "3 DeepSeek + codebuddy + OMP; five existing external tasks",
+  "execution": "Manual Codex orchestration during active Goal; no installed background scheduler or automatic message queue is claimed.",
+  "state_source": "thread read result for each exact thread; thread list can be stale",
+  "dispatches": [
+    {
+      "owner": "A",
+      "threadId": "9e1df14f-9028-44dc-b5d6-c3da7c173a5a",
+      "turnId": "b36934f2-4a7f-4cfd-b8ed-50592c558290",
+      "harness": "deepseek-harness",
+      "deepLink": "codex://threads/9e1df14f-9028-44dc-b5d6-c3da7c173a5a",
+      "status_at_dispatch": "running",
+      "delegationId": null,
+      "delegation_note": "Existing child resumed; thread send does not return delegationId.",
+      "assignment": "Readonly complete raw analysis of C1 ztdsk269 versus baseline 7bdfxkb; own new ds-c1-actual-analysis JSON/MD only. Source frozen.",
+      "completed_delivery": "C1 implementation delivered: runner fd0b7ee6dfb99be7a2d6f580555c6f9bfcddf721e25f68e97761d7f5670df246; module cbf7b0186131c08d4055aea1fcafdb8e7cca36d9acfcb19cdac87938d8786e66. Agent reports 23 candidate checks passed; independent review pending."
+    },
+    {
+      "owner": "B",
+      "threadId": "34386db2-17a1-425b-a102-f910451c5c63",
+      "turnId": "c8466cde-d622-4d34-b96b-c484538c57e9",
+      "harness": "deepseek-harness",
+      "deepLink": "codex://threads/34386db2-17a1-425b-a102-f910451c5c63",
+      "status_at_dispatch": "running",
+      "delegationId": null,
+      "delegation_note": "Existing child resumed; thread send does not return delegationId.",
+      "assignment": "Unaccepted comparator: fix object-count ==1 error and pre/timed/post GC windows. Cancel acknowledged twice but read remains running. No new writer assigned; do not pretend terminal.",
+      "acceptance_feedback": "First comparator delivery not accepted: invented gc-freeze.json schema differs from real runner result.manager_gc_candidate and manager-gc-candidate.json. Resumed to consume real producer output and generate contract fixtures from actual ManagerGCFreeze.report; no manually manufactured evidence. Also remove nonexistent second collect from documentation."
+    },
+    {
+      "owner": "D",
+      "threadId": "2224f8dd-5384-4c21-a66c-6d1f4f68c7d0",
+      "turnId": "d70dd83b-44c1-4688-80fc-673d6c1d512c",
+      "harness": "deepseek-harness",
+      "deepLink": "codex://threads/2224f8dd-5384-4c21-a66c-6d1f4f68c7d0",
+      "status_at_dispatch": "running",
+      "delegationId": null,
+      "delegation_note": "Existing child resumed; thread send does not return delegationId.",
+      "assignment": "Resume lifecycle admission corrections and tests; validate all source/library bytes before snapshot writes. Recover own truncated uncommitted plan only from reliable evidence; do not invent historical text."
+    },
+    {
+      "owner": "OMP",
+      "threadId": "6deb2e40-2240-4db2-8c7f-c06bf6724048",
+      "turnId": "d887a19b-cf24-4a74-a525-318da2527664",
+      "harness": "omp",
+      "deepLink": "codex://threads/6deb2e40-2240-4db2-8c7f-c06bf6724048",
+      "status_at_dispatch": "running",
+      "delegationId": null,
+      "delegation_note": "Existing child resumed; thread send does not return delegationId.",
+      "assignment": "策略更新：你负责C1入口的独立行为测试包，不再写新一轮AST/字符串绿灯报告。独占Linux Ubuntu-22.04 /root/wksim-release-acceptance-fe3/validation/test_gc_candidate_entry.py（新文件），以及Windows docs/coordination/omp-gc-entry-20260912.md（新文件）。只读同工作区tools/run_joint_flight.py与run-joint-flight.sh及manager_gc_candidate.py；A正在修GC模块，不修改其文件、不阻塞等待。当前：用真实argparse/main入口并mock掉native入口，验证GC flag无选项默认、PV/MIXED允许、其他profile拒绝、默认namespace兼容及原诊断argv可以解析；不要运行shell脚本启动ROS，只读shell转发合同或无副作用mock harness。后续：用7bdfxkb的pre-run identity/stdout生成无占位符复测argv断言，必须async+两timing env、AP mixed/c2IXOr/Rzj3Pf，不能planner-release/AP PV/PX4 override。此前文档中audit_joint_rate/audit_pv拒绝所有probe的说法错误，promotion硬门在joint_profile；只有实际parser/函数执行才能标行为验证，mock限度明确。A可能更改源码，最终记录实测SHA；出现实施缺陷写到你的报告供A读取，自己完成测试不改实现。禁止native/build/模型加载/嵌套派发/Git提交。"
+    },
+    {
+      "owner": "codebuddy",
+      "threadId": "98925ad6-4736-4dd2-8287-1132158e2b14",
+      "turnId": "7f326c40-4076-4a7f-bd3b-64b21d0225af",
+      "harness": "codebuddy",
+      "deepLink": "codex://threads/98925ad6-4736-4dd2-8287-1132158e2b14",
+      "status_at_dispatch": "running",
+      "delegationId": "b83f9f44-8bc1-4cec-b0e1-b85cbe1e621f",
+      "assignment": "Fresh independent Linux execution-source review. Only docs/coordination/codebuddy-c1-execution-review-20260912.md. Old Windows design report does not cover C1."
+    }
+  ],
+  "native_owner": "main; only after separately evaluated process checks in both WSL distros and quiescent heavy tasks",
+  "rules": [
+    "One writer per file. Current and independent next step are both authorized in each prompt.",
+    "A completed turn with progress text alone is not accepted delivery.",
+    "Within active turns check status at natural work boundaries and before native reservations; do not wait for all agents.",
+    "THREAD_BUSY is undelivered. Do not count retries as queued assignments.",
+    "Reviewer changes no implementation files. Findings go to module owner; main accepts against stable SHA.",
+    "If blocked on shared files, do owned independent next step; no generic research to occupy slots.",
+    "Track dispatch/start, stable delivery, accepted SHA, blockers and main acceptance delay; no fabricated speedup metrics."
+  ],
+  "superseded_review": "7c740b88 completed with partial progress; not accepted as execution review. Replaced by fresh context.",
+  "native_result": {
+    "run_id": "joint-public-flight-ztdsk269",
+    "status": "failed",
+    "tick": 96624,
+    "lateness_ns": 100129488,
+    "manager_gc_freeze_after": 65783,
+    "manager_gc_restore_after": 0,
+    "cleanup_groups_empty": true,
+    "formal_acceptance": false,
+    "exec_session_36508": "terminal exit 1"
+  }
+}

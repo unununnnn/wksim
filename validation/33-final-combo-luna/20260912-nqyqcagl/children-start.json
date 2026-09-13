@@ -1,0 +1,489 @@
+{
+  "arducopter-model": {
+    "identity": {
+      "pid": 2099,
+      "pgid": 2099,
+      "start_ticks": 46423,
+      "argv": [
+        "/usr/bin/python3",
+        "-B",
+        "-m",
+        "Simulator.wksim_core.worker",
+        "--library",
+        "/root/wksim-private-tmp-cxrbwjyr/artifacts/wksim-model-ms14otyn/libwksim_model.so",
+        "--trace",
+        "/root/wksim-joint-flight-0tosni88/arducopter-truth.jsonl",
+        "--epoch",
+        "293c42f44d224b47b3077a99ce3f3936",
+        "--async-evidence"
+      ]
+    },
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "-m",
+      "Simulator.wksim_core.worker",
+      "--library",
+      "/root/wksim-private-tmp-cxrbwjyr/artifacts/wksim-model-ms14otyn/libwksim_model.so",
+      "--trace",
+      "/root/wksim-joint-flight-0tosni88/arducopter-truth.jsonl",
+      "--epoch",
+      "293c42f44d224b47b3077a99ce3f3936",
+      "--async-evidence"
+    ],
+    "cwd": "/root/wksim-joint-flight-0tosni88/arducopter",
+    "runtime_python_root": "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim",
+    "scheduling": {
+      "target_nice": -10,
+      "actual_nice": -10,
+      "target_fifo_priority": 40,
+      "reset_on_fork": true,
+      "actual_policy": 1073741825,
+      "actual_priority": 40
+    }
+  },
+  "arducopter-agent": {
+    "identity": {
+      "pid": 2100,
+      "pgid": 2100,
+      "start_ticks": 46423,
+      "argv": [
+        "/root/wksim-dds-VxM6Ni/ros-install/micro_ros_agent/lib/micro_ros_agent/micro_ros_agent",
+        "udp4",
+        "-p",
+        "12019",
+        "-v",
+        "4"
+      ]
+    },
+    "argv": [
+      "/root/wksim-dds-VxM6Ni/ros-install/micro_ros_agent/lib/micro_ros_agent/micro_ros_agent",
+      "udp4",
+      "-p",
+      "12019",
+      "-v",
+      "4"
+    ],
+    "cwd": "/root/wksim-joint-flight-0tosni88/arducopter",
+    "scheduling": {
+      "target_nice": -5,
+      "actual_nice": -5
+    }
+  },
+  "arducopter-fc": {
+    "identity": {
+      "pid": 2101,
+      "pgid": 2101,
+      "start_ticks": 46423,
+      "argv": [
+        "/root/wksim-ap-mixed-fhuf05l9/build/sitl/bin/arducopter",
+        "--model",
+        "JSON:127.0.0.1",
+        "--rate",
+        "1000",
+        "--speedup",
+        "3",
+        "--base-port",
+        "16600",
+        "--instance",
+        "11",
+        "--sysid",
+        "241",
+        "--sim-address",
+        "127.0.0.1",
+        "--sim-port-out",
+        "19002",
+        "--sim-port-in",
+        "19003",
+        "--rc-in-port",
+        "19004",
+        "--serial0",
+        "udpclient:127.0.0.1:14660",
+        "--serial1",
+        "none",
+        "--serial2",
+        "none",
+        "--defaults",
+        "/root/wksim-ap-mixed-fhuf05l9/src/Tools/autotest/default_params/copter.parm,/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/Simulator/wksim_core/arducopter-quad-x.parm,/root/wksim-joint-flight-0tosni88/arducopter/dds.parm",
+        "--home",
+        "40.1540302,116.2593683,50,0"
+      ]
+    },
+    "argv": [
+      "/root/wksim-ap-mixed-fhuf05l9/build/sitl/bin/arducopter",
+      "--model",
+      "JSON:127.0.0.1",
+      "--rate",
+      "1000",
+      "--speedup",
+      "3",
+      "--base-port",
+      "16600",
+      "--instance",
+      "11",
+      "--sysid",
+      "241",
+      "--sim-address",
+      "127.0.0.1",
+      "--sim-port-out",
+      "19002",
+      "--sim-port-in",
+      "19003",
+      "--rc-in-port",
+      "19004",
+      "--serial0",
+      "udpclient:127.0.0.1:14660",
+      "--serial1",
+      "none",
+      "--serial2",
+      "none",
+      "--defaults",
+      "/root/wksim-ap-mixed-fhuf05l9/src/Tools/autotest/default_params/copter.parm,/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/Simulator/wksim_core/arducopter-quad-x.parm,/root/wksim-joint-flight-0tosni88/arducopter/dds.parm",
+      "--home",
+      "40.1540302,116.2593683,50,0"
+    ],
+    "cwd": "/root/wksim-joint-flight-0tosni88/arducopter",
+    "scheduling": {
+      "target_nice": -10,
+      "actual_nice": -10,
+      "target_fifo_priority": 40,
+      "actual_policy": 1,
+      "actual_priority": 40
+    },
+    "environment_overrides": {}
+  },
+  "arducopter-control": {
+    "identity": {
+      "pid": 2102,
+      "pgid": 2102,
+      "start_ticks": 46423,
+      "argv": [
+        "/usr/bin/python3",
+        "-B",
+        "-c",
+        "import importlib.util,pathlib; assert pathlib.Path(importlib.util.find_spec(\"prometheus_control\").origin).parent == pathlib.Path('/root/wksim-joint-control-ZlTVa4/install/prometheus_control/local/lib/python3.10/dist-packages/prometheus_control'); roots={'prometheus_msgs': '/root/wksim-ros2-Rzj3Pf/install/prometheus_msgs/local/lib/python3.10/dist-packages/prometheus_msgs', 'wksim_msgs': '/root/wksim-ros2-Rzj3Pf/install/wksim_msgs/local/lib/python3.10/dist-packages/wksim_msgs'}; assert all(pathlib.Path(importlib.util.find_spec(name).origin).parent == pathlib.Path(path) for name,path in roots.items()); import prometheus_control.node as n; n.main()",
+        "--ros-args",
+        "-p",
+        "flight_stack:=arducopter",
+        "-p",
+        "uav_id:=1",
+        "-p",
+        "native_prefix:=/ap",
+        "-p",
+        "native_system_id:=22",
+        "-p",
+        "arducopter_position_yaw:=true",
+        "-p",
+        "run_id:=joint-public-flight-nqyqcagl",
+        "-p",
+        "use_sim_time:=true",
+        "-r",
+        "__node:=wksim_joint_arducopter_control",
+        "-p",
+        "arducopter_pv_profile:=full_xyz_pv_yaw_v1",
+        "-p",
+        "arducopter_mixed_profile:=xy_velocity_z_position_yaw_v1"
+      ]
+    },
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "-c",
+      "import importlib.util,pathlib; assert pathlib.Path(importlib.util.find_spec(\"prometheus_control\").origin).parent == pathlib.Path('/root/wksim-joint-control-ZlTVa4/install/prometheus_control/local/lib/python3.10/dist-packages/prometheus_control'); roots={'prometheus_msgs': '/root/wksim-ros2-Rzj3Pf/install/prometheus_msgs/local/lib/python3.10/dist-packages/prometheus_msgs', 'wksim_msgs': '/root/wksim-ros2-Rzj3Pf/install/wksim_msgs/local/lib/python3.10/dist-packages/wksim_msgs'}; assert all(pathlib.Path(importlib.util.find_spec(name).origin).parent == pathlib.Path(path) for name,path in roots.items()); import prometheus_control.node as n; n.main()",
+      "--ros-args",
+      "-p",
+      "flight_stack:=arducopter",
+      "-p",
+      "uav_id:=1",
+      "-p",
+      "native_prefix:=/ap",
+      "-p",
+      "native_system_id:=22",
+      "-p",
+      "arducopter_position_yaw:=true",
+      "-p",
+      "run_id:=joint-public-flight-nqyqcagl",
+      "-p",
+      "use_sim_time:=true",
+      "-r",
+      "__node:=wksim_joint_arducopter_control",
+      "-p",
+      "arducopter_pv_profile:=full_xyz_pv_yaw_v1",
+      "-p",
+      "arducopter_mixed_profile:=xy_velocity_z_position_yaw_v1"
+    ],
+    "cwd": "/root/wksim-joint-flight-0tosni88/arducopter",
+    "scheduling": {
+      "target_nice": -5,
+      "actual_nice": -5
+    }
+  },
+  "arducopter-task": {
+    "identity": {
+      "pid": 2103,
+      "pgid": 2103,
+      "start_ticks": 46423,
+      "argv": [
+        "/usr/bin/python3",
+        "-B",
+        "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/tools/run_joint_flight.py",
+        "task",
+        "--stack",
+        "arducopter",
+        "--uav-id",
+        "1",
+        "--run-id",
+        "joint-public-flight-nqyqcagl",
+        "--scene-epoch",
+        "293c42f44d224b47b3077a99ce3f3936",
+        "--output",
+        "/root/wksim-joint-flight-0tosni88/arducopter",
+        "--task-mode",
+        "initial",
+        "--task-profile",
+        "full_xyz_pv_yaw_v1"
+      ]
+    },
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/tools/run_joint_flight.py",
+      "task",
+      "--stack",
+      "arducopter",
+      "--uav-id",
+      "1",
+      "--run-id",
+      "joint-public-flight-nqyqcagl",
+      "--scene-epoch",
+      "293c42f44d224b47b3077a99ce3f3936",
+      "--output",
+      "/root/wksim-joint-flight-0tosni88/arducopter",
+      "--task-mode",
+      "initial",
+      "--task-profile",
+      "full_xyz_pv_yaw_v1"
+    ],
+    "cwd": "/root/wksim-joint-flight-0tosni88/arducopter",
+    "scheduling": {
+      "target_nice": -5,
+      "actual_nice": -5
+    }
+  },
+  "px4-model": {
+    "identity": {
+      "pid": 2104,
+      "pgid": 2104,
+      "start_ticks": 46424,
+      "argv": [
+        "/usr/bin/python3",
+        "-B",
+        "-m",
+        "Simulator.wksim_core.worker",
+        "--library",
+        "/root/wksim-private-tmp-cxrbwjyr/artifacts/wksim-model-ms14otyn/libwksim_model.so",
+        "--trace",
+        "/root/wksim-joint-flight-0tosni88/px4-truth.jsonl",
+        "--epoch",
+        "293c42f44d224b47b3077a99ce3f3936",
+        "--async-evidence"
+      ]
+    },
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "-m",
+      "Simulator.wksim_core.worker",
+      "--library",
+      "/root/wksim-private-tmp-cxrbwjyr/artifacts/wksim-model-ms14otyn/libwksim_model.so",
+      "--trace",
+      "/root/wksim-joint-flight-0tosni88/px4-truth.jsonl",
+      "--epoch",
+      "293c42f44d224b47b3077a99ce3f3936",
+      "--async-evidence"
+    ],
+    "cwd": "/root/wksim-joint-flight-0tosni88/px4",
+    "runtime_python_root": "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim",
+    "scheduling": {
+      "target_nice": -10,
+      "actual_nice": -10,
+      "target_fifo_priority": 40,
+      "reset_on_fork": true,
+      "actual_policy": 1073741825,
+      "actual_priority": 40
+    }
+  },
+  "px4-agent": {
+    "identity": {
+      "pid": 2105,
+      "pgid": 2105,
+      "start_ticks": 46424,
+      "argv": [
+        "/root/wksim-dds-VxM6Ni/agent-install/bin/MicroXRCEAgent",
+        "udp4",
+        "-p",
+        "18888",
+        "-v",
+        "4"
+      ]
+    },
+    "argv": [
+      "/root/wksim-dds-VxM6Ni/agent-install/bin/MicroXRCEAgent",
+      "udp4",
+      "-p",
+      "18888",
+      "-v",
+      "4"
+    ],
+    "cwd": "/root/wksim-joint-flight-0tosni88/px4",
+    "scheduling": {
+      "target_nice": -5,
+      "actual_nice": -5
+    }
+  },
+  "px4-fc": {
+    "identity": {
+      "pid": 2106,
+      "pgid": 2106,
+      "start_ticks": 46424,
+      "argv": []
+    },
+    "argv": [
+      "/root/wksim-px4-state-ONa1Kw/src/build/px4_sitl_default/bin/px4",
+      "-d",
+      "/root/wksim-px4-state-ONa1Kw/src/build/px4_sitl_default/etc",
+      "-t",
+      "/root/wksim-px4-state-ONa1Kw/src/test_data",
+      "-i",
+      "21",
+      "-w",
+      "/root/wksim-joint-flight-0tosni88/px4"
+    ],
+    "cwd": "/root/wksim-joint-flight-0tosni88/px4",
+    "scheduling": {
+      "target_nice": -10,
+      "actual_nice": -10,
+      "target_fifo_priority": 40,
+      "actual_policy": 1,
+      "actual_priority": 40
+    },
+    "environment_overrides": {
+      "PX4_SYS_AUTOSTART": "10016",
+      "PX4_SIM_MODEL": "none_iris",
+      "PX4_SIM_HOST_ADDR": "127.0.0.1",
+      "PX4_SIM_SPEED_FACTOR": "3",
+      "PX4_UXRCE_DDS_PORT": "18888",
+      "PX4_UXRCE_DDS_NS": "wksim_px4_21",
+      "ROS_DOMAIN_ID": "77",
+      "WKSIM_MAVLINK_LOCAL_PORT": "18591",
+      "WKSIM_MAVLINK_REMOTE_PORT": "14661",
+      "PX4_PARAM_SIM_GZ_EN": "0",
+      "PX4_PARAM_SIM_BAT_ENABLE": "1",
+      "PX4_PARAM_UXRCE_DDS_SYNCT": "0",
+      "PX4_PARAM_CA_ROTOR0_PX": "0.15909902576697318",
+      "PX4_PARAM_CA_ROTOR0_PY": "0.15909902576697318",
+      "PX4_PARAM_CA_ROTOR0_KM": "0.016555621653777514",
+      "PX4_PARAM_CA_ROTOR1_PX": "-0.15909902576697318",
+      "PX4_PARAM_CA_ROTOR1_PY": "-0.15909902576697318",
+      "PX4_PARAM_CA_ROTOR1_KM": "0.016555621653777514",
+      "PX4_PARAM_CA_ROTOR2_PX": "0.15909902576697318",
+      "PX4_PARAM_CA_ROTOR2_PY": "-0.15909902576697318",
+      "PX4_PARAM_CA_ROTOR2_KM": "-0.016555621653777514",
+      "PX4_PARAM_CA_ROTOR3_PX": "-0.15909902576697318",
+      "PX4_PARAM_CA_ROTOR3_PY": "0.15909902576697318",
+      "PX4_PARAM_CA_ROTOR3_KM": "-0.016555621653777514",
+      "PATH": "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/Simulator/wksim_core:/root/wksim-px4-state-ONa1Kw/src/build/px4_sitl_default/bin:/opt/ros/humble/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+    }
+  },
+  "px4-control": {
+    "identity": {
+      "pid": 2107,
+      "pgid": 2107,
+      "start_ticks": 46424,
+      "argv": [
+        "/usr/bin/python3",
+        "-B",
+        "-c",
+        "import importlib.util,pathlib; assert pathlib.Path(importlib.util.find_spec(\"prometheus_control\").origin).parent == pathlib.Path('/root/wksim-joint-control-ZlTVa4/install/prometheus_control/local/lib/python3.10/dist-packages/prometheus_control'); roots={'prometheus_msgs': '/root/wksim-ros2-Rzj3Pf/install/prometheus_msgs/local/lib/python3.10/dist-packages/prometheus_msgs', 'wksim_msgs': '/root/wksim-ros2-Rzj3Pf/install/wksim_msgs/local/lib/python3.10/dist-packages/wksim_msgs'}; assert all(pathlib.Path(importlib.util.find_spec(name).origin).parent == pathlib.Path(path) for name,path in roots.items()); import prometheus_control.node as n; n.main()",
+        "--ros-args",
+        "-p",
+        "flight_stack:=px4",
+        "-p",
+        "uav_id:=2",
+        "-p",
+        "native_prefix:=/wksim_px4_21",
+        "-p",
+        "native_system_id:=22",
+        "-p",
+        "arducopter_position_yaw:=true",
+        "-p",
+        "run_id:=joint-public-flight-nqyqcagl",
+        "-p",
+        "use_sim_time:=true",
+        "-r",
+        "__node:=wksim_joint_px4_control"
+      ]
+    },
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "-c",
+      "import importlib.util,pathlib; assert pathlib.Path(importlib.util.find_spec(\"prometheus_control\").origin).parent == pathlib.Path('/root/wksim-joint-control-ZlTVa4/install/prometheus_control/local/lib/python3.10/dist-packages/prometheus_control'); roots={'prometheus_msgs': '/root/wksim-ros2-Rzj3Pf/install/prometheus_msgs/local/lib/python3.10/dist-packages/prometheus_msgs', 'wksim_msgs': '/root/wksim-ros2-Rzj3Pf/install/wksim_msgs/local/lib/python3.10/dist-packages/wksim_msgs'}; assert all(pathlib.Path(importlib.util.find_spec(name).origin).parent == pathlib.Path(path) for name,path in roots.items()); import prometheus_control.node as n; n.main()",
+      "--ros-args",
+      "-p",
+      "flight_stack:=px4",
+      "-p",
+      "uav_id:=2",
+      "-p",
+      "native_prefix:=/wksim_px4_21",
+      "-p",
+      "native_system_id:=22",
+      "-p",
+      "arducopter_position_yaw:=true",
+      "-p",
+      "run_id:=joint-public-flight-nqyqcagl",
+      "-p",
+      "use_sim_time:=true",
+      "-r",
+      "__node:=wksim_joint_px4_control"
+    ],
+    "cwd": "/root/wksim-joint-flight-0tosni88/px4",
+    "scheduling": {
+      "target_nice": -5,
+      "actual_nice": -5
+    }
+  },
+  "px4-task": {
+    "identity": {
+      "pid": 2114,
+      "pgid": 2114,
+      "start_ticks": 46424,
+      "argv": []
+    },
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/tools/run_joint_flight.py",
+      "task",
+      "--stack",
+      "px4",
+      "--uav-id",
+      "2",
+      "--run-id",
+      "joint-public-flight-nqyqcagl",
+      "--scene-epoch",
+      "293c42f44d224b47b3077a99ce3f3936",
+      "--output",
+      "/root/wksim-joint-flight-0tosni88/px4",
+      "--task-mode",
+      "initial",
+      "--task-profile",
+      "full_xyz_pv_yaw_v1"
+    ],
+    "cwd": "/root/wksim-joint-flight-0tosni88/px4",
+    "scheduling": {
+      "target_nice": -5,
+      "actual_nice": -5
+    }
+  }
+}

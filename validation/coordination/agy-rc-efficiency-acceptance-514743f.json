@@ -1,0 +1,232 @@
+{
+  "schema": "agy-rc-efficiency-acceptance-v1",
+  "baseline_commit": "514743f",
+  "generated": "2026-09-10",
+  "checked_by": "antigravity",
+  "summary": {
+    "total_tickets_evaluated": 9,
+    "closable_sub_tickets": 5,
+    "closable_parent_tickets_pending_review": 2,
+    "in_progress_tickets": 1,
+    "blocked_tickets": 1
+  },
+  "aruco_status": {
+    "issue_103": "in-progress",
+    "issue_104": "blocked_by_103",
+    "ue_candidate_implemented": true,
+    "ue_candidate_compiled": true,
+    "real_capture_in_progress": true,
+    "passed_claimed": false,
+    "source_components": [
+      "Simulator/ue55/Source/WksimVisual/WksimRgbFixture.cpp",
+      "Simulator/ue55/Source/WksimVisual/WksimRgbFixture.h",
+      "Simulator/ue55/Source/WksimVisual/WksimVisualGameMode.cpp",
+      "Simulator/wksim_console/visual.py"
+    ]
+  },
+  "tickets": [
+    {
+      "issue_number": 99,
+      "title": "[Astra] 接入RC控制权并交付可验证双栈入口",
+      "stable_key": "38-runtime-flight",
+      "type": "slice",
+      "parent_issue": 38,
+      "current_status": "OPEN",
+      "closable": true,
+      "closure_condition": "待 Astra 或主会话正式执行关闭操作",
+      "specific_ac_satisfied": [
+        "双栈覆盖 movement、recenter、yaw、stream-stall、mode-out、new-takeover 六大场景",
+        "逐包 GID 匹配，权威时间新鲜度检验，显式空中接管与中立意图恢复",
+        "断流记录原生 failsafe 响应，不伪称安全悬停",
+        "交付源码/配置身份、准确命令、原始结果和失败边界，仅关闭本子票"
+      ],
+      "evaluated_evidence": {
+        "report": "docs/2026-09-10-rc-flight-report.md",
+        "matrix": "validation/38-rc-flight/final-matrix.json",
+        "total_runs": 12,
+        "runs_passed": 12,
+        "auditor_sha256": "ace3a021bde74223f521acd122a513590419d8315209e50a6878186ddacffc9c",
+        "control_manifest": "/root/wksim-joint-control-WjBuqN/build.json",
+        "control_sha256": "ae5236af5052e81a256566a5e05d1840752fffb4d6f5cc512e0c0a5bb9e88c1d"
+      },
+      "failure_boundaries": "断流撤权后记录了 PX4 滑行 0.245m 及 AP 滑行 0.376m 的原生过渡位移真值；保留失败重试记录 rc-px4-movement-01 与 rc-px4-stream-stall-01。",
+      "missing_evidence": null
+    },
+    {
+      "issue_number": 38,
+      "title": "RC位置控制与任务显式交接",
+      "stable_key": "38-container",
+      "type": "container",
+      "parent_issue": null,
+      "current_status": "OPEN",
+      "closable": true,
+      "closure_condition": "待关闭子票 #99 并完成父容器复核后同步关闭",
+      "specific_ac_satisfied": [
+        "明确模拟源、通道、死区、有效期和失联动作（#97/#98）",
+        "真实双栈验证移动、回中保持、偏航和控制权交接（#99 12/12 PASS）",
+        "断流或外部模式切走后不自动抢回，区分失效与拒绝",
+        "仅位置 RC 闭环，交付实际命令与身份边界"
+      ],
+      "evaluated_evidence": {
+        "blockers": { "6": "CLOSED", "12": "CLOSED", "14": "CLOSED" },
+        "sub_issues": { "97": "CLOSED", "98": "CLOSED", "99": "OPEN_CLOSABLE" },
+        "matrix": "validation/38-rc-flight/final-matrix.json"
+      },
+      "failure_boundaries": "基于实验候选 Control (WjBuqN)，未提升正式默认生产配置；生产准入提升属于全库收口门禁，不阻塞本票关闭。",
+      "missing_evidence": null
+    },
+    {
+      "issue_number": 105,
+      "title": "[Astra] 实现一次真实单电机效率事件及重置",
+      "stable_key": "44-efficiency-seam",
+      "type": "slice",
+      "parent_issue": 44,
+      "current_status": "OPEN",
+      "closable": true,
+      "closure_condition": "待正式复核收口",
+      "specific_ac_satisfied": [
+        "单电机气动有效性损失（0 号电机 eta=0.97，持续 1000 步）进入 ODE4 子阶段推力/力矩方程",
+        "未缩放 PWM、未共享系数、未影响其余三路旋翼",
+        "7 个独立进程原生 bench 独立审计通过",
+        "7 项边界与负例测试通过，冷重置四路 eta=1.0 验证通过"
+      ],
+      "evaluated_evidence": {
+        "report": "docs/2026-09-10-motor-efficiency-native-report.md",
+        "archive_manifest": "validation/44-efficiency-native/archive.json",
+        "archive_sha256": "c6720434a4054b26934d68e42c3c898aad360edce4994723b9972d7051012467",
+        "library_path": "/root/wksim-efficiency-model-r97g_cit/libwksim_efficiency.so",
+        "library_sha256": "a7325ebf754f6e61ebf25c5382fb67343659454cc176c0a7d50f980b3dcb9199"
+      },
+      "failure_boundaries": "错身份/时间/字段、重复发布、额外旋翼被改、只改力矩日志未改原生物理等负例均正确锁存失败。",
+      "missing_evidence": null
+    },
+    {
+      "issue_number": 106,
+      "title": "[Luna] 运行一次无故障基线",
+      "stable_key": "44-baseline-run",
+      "type": "slice",
+      "parent_issue": 44,
+      "current_status": "OPEN",
+      "closable": true,
+      "closure_condition": "待正式复核收口",
+      "specific_ac_satisfied": [
+        "全新目录执行无故障基线运行，保留原始失败与实际退出记录",
+        "双栈独立审计通过，证据与退出身份完整"
+      ],
+      "evaluated_evidence": {
+        "report": "docs/2026-09-10-motor-efficiency-flight-report.md",
+        "matrix": "validation/44-efficiency-flight/matrix.json",
+        "runs": [
+          {
+            "run_id": "efficiency-px4-baseline-01",
+            "audit_status": "pass",
+            "result_sha256": "1833469c8631019ef343c7a572c4409b94a7d2d09cd7cb012337934fca89a573"
+          },
+          {
+            "run_id": "efficiency-arducopter-baseline-03",
+            "audit_status": "pass",
+            "result_sha256": "c95aaefc246a5bc900c8748ecb5ed4769650f28df524dabef37e83f5ad563350"
+          }
+        ]
+      },
+      "failure_boundaries": "保留历史失败场次 efficiency-arducopter-baseline-01 与 baseline-02，失败处理与降落逻辑完整留痕。",
+      "missing_evidence": null
+    },
+    {
+      "issue_number": 107,
+      "title": "[Luna] 运行一次单电机效率事件",
+      "stable_key": "44-fault-run",
+      "type": "slice",
+      "parent_issue": 44,
+      "current_status": "OPEN",
+      "closable": true,
+      "closure_condition": "待正式复核收口",
+      "specific_ac_satisfied": [
+        "稳定悬停 6000 步后施加 1000 步单电机效率故障",
+        "双栈故障运行独立审计通过，故障期间与恢复窗口误差在预算内",
+        "ODE4 逐阶段逐步读回核验一致，未缩放 PWM"
+      ],
+      "evaluated_evidence": {
+        "report": "docs/2026-09-10-motor-efficiency-flight-report.md",
+        "matrix": "validation/44-efficiency-flight/matrix.json",
+        "runs": [
+          {
+            "run_id": "efficiency-px4-fault-01",
+            "audit_status": "pass",
+            "result_sha256": "11ad6151223f5b534793d572ecc881b18fec4b561f1028fc7e02723ae99defbc"
+          },
+          {
+            "run_id": "efficiency-arducopter-fault-01",
+            "audit_status": "pass",
+            "result_sha256": "2f651f6c3db8467deb0f8ed721264c377bdb337d7af44e6c152f71cb7fbd868f"
+          }
+        ]
+      },
+      "failure_boundaries": "缺 terminal、PWM 缩放替代、预算篡改等负例均由审计器拒收。",
+      "missing_evidence": null
+    },
+    {
+      "issue_number": 108,
+      "title": "[Luna] 按相同种子重跑故障并检查重置",
+      "stable_key": "44-repeat-run",
+      "type": "slice",
+      "parent_issue": 44,
+      "current_status": "OPEN",
+      "closable": true,
+      "closure_condition": "待正式复核收口",
+      "specific_ac_satisfied": [
+        "相同初始原生随机状态（17 个整数）",
+        "新控制 epoch 与全新进程冷重置运行",
+        "重置后四路 eta=1.0 验证通过，双栈独立审计全部 PASS"
+      ],
+      "evaluated_evidence": {
+        "report": "docs/2026-09-10-motor-efficiency-flight-report.md",
+        "matrix": "validation/44-efficiency-flight/matrix.json",
+        "runs": [
+          {
+            "run_id": "efficiency-px4-fault-02",
+            "audit_status": "pass",
+            "result_sha256": "fd6f0c650850d40c484dcf5d488af0eb1a340d685b76bdc98fad69a93728c81c"
+          },
+          {
+            "run_id": "efficiency-arducopter-fault-02",
+            "audit_status": "pass",
+            "result_sha256": "7e12d34665bfb19479d7bb25224c410799fcdf25ad86847e2cf878465bf41cde"
+          }
+        ]
+      },
+      "failure_boundaries": "证明同种子在新进程内重复通过；闭环输入受飞控调度影响，不声称闭环轨迹逐位一致（#46 独立验收）。",
+      "missing_evidence": null
+    },
+    {
+      "issue_number": 44,
+      "title": "单电机效率故障的可复现实验",
+      "stable_key": "44-container",
+      "type": "container",
+      "parent_issue": null,
+      "current_status": "OPEN",
+      "closable": true,
+      "closure_condition": "待关闭子票 #105-#108 并完成父容器复核后同步关闭",
+      "specific_ac_satisfied": [
+        "故障时刻、持续时间、目标电机和幅值进入运行配置及记录",
+        "事件映射到实际模型执行器路径，真值和飞控反馈反映变化",
+        "使用预先批准的安全/失联与数值预算，重置后故障状态清除",
+        "无故障回归和相同种子重复实验通过（双栈 6/6 PASS）",
+        "交付实际命令、版本/身份、预期与结果、失败/未验证边界"
+      ],
+      "evaluated_evidence": {
+        "blockers": { "22": "CLOSED", "24": "CLOSED" },
+        "sub_issues": {
+          "105": "OPEN_CLOSABLE",
+          "106": "OPEN_CLOSABLE",
+          "107": "OPEN_CLOSABLE",
+          "108": "OPEN_CLOSABLE"
+        },
+        "flight_matrix": "validation/44-efficiency-flight/matrix.json",
+        "native_archive": "validation/44-efficiency-native/archive.json"
+      },
+      "failure_boundaries": "基于模型库 libwksim_efficiency.so 候选，未提升默认生产模型；生产默认模型提升属于全库收口门禁，不阻塞本票关闭。",
+      "missing_evidence": null
+    }
+  ]
+}

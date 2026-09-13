@@ -1,0 +1,115 @@
+--- a/libraries/AP_DDS/AP_DDS_ExternalControl.cpp
++++ b/libraries/AP_DDS/AP_DDS_ExternalControl.cpp
+@@ -8,6 +8,7 @@
+ 
+ #include <AP_ExternalControl/AP_ExternalControl.h>
+ #include <cmath>
++#include <limits>
+ 
+ bool AP_DDS_External_Control::handle_global_position_control(ardupilot_msgs_msg_GlobalPosition& cmd_pos)
+ {
+@@ -17,14 +18,16 @@
+     }
+ 
+     if (strcmp(cmd_pos.header.frame_id, MAP_FRAME) == 0) {
+-        constexpr uint16_t ignored_fields = GlobalPosition::IGNORE_VX |
+-            GlobalPosition::IGNORE_VY | GlobalPosition::IGNORE_VZ |
+-            GlobalPosition::IGNORE_AFX | GlobalPosition::IGNORE_AFY |
++        constexpr uint16_t velocity_fields = GlobalPosition::IGNORE_VX |
++            GlobalPosition::IGNORE_VY | GlobalPosition::IGNORE_VZ;
++        constexpr uint16_t required_ignored = GlobalPosition::IGNORE_AFX | GlobalPosition::IGNORE_AFY |
+             GlobalPosition::IGNORE_AFZ | GlobalPosition::IGNORE_YAW_RATE;
+-        // This DDS path implements a complete position, optionally with yaw.
+-        // Velocity/acceleration/partial-position/yaw-rate are not silently dropped.
+-        if ((cmd_pos.type_mask & ignored_fields) != ignored_fields ||
+-            (cmd_pos.type_mask & ~(ignored_fields | GlobalPosition::IGNORE_YAW)) != 0 ||
++        // Only complete position, with either no velocity or complete velocity.
++        // Acceleration, force, partial axes and yaw rate remain unsupported.
++        const uint16_t ignored_velocity = cmd_pos.type_mask & velocity_fields;
++        if ((cmd_pos.type_mask & required_ignored) != required_ignored ||
++            (cmd_pos.type_mask & ~(required_ignored | velocity_fields | GlobalPosition::IGNORE_YAW)) != 0 ||
++            (ignored_velocity != 0 && ignored_velocity != velocity_fields) ||
+             !std::isfinite(cmd_pos.latitude) || !std::isfinite(cmd_pos.longitude) ||
+             !std::isfinite(cmd_pos.altitude) ||
+             fabs(cmd_pos.latitude) > 90.0 || fabs(cmd_pos.longitude) > 180.0 ||
+@@ -43,6 +46,23 @@
+         }
+ 
+         Location loc(cmd_pos.latitude * 1E7, cmd_pos.longitude * 1E7, alt_cm, alt_frame);
++        if (ignored_velocity == 0) {
++            // map velocity is ENU, in m/s; reject overflow during double->float.
++            const auto &v = cmd_pos.velocity.linear;
++            if (!std::isfinite(v.x) || !std::isfinite(v.y) || !std::isfinite(v.z) ||
++                fabs(v.x) > std::numeric_limits<float>::max() ||
++                fabs(v.y) > std::numeric_limits<float>::max() ||
++                fabs(v.z) > std::numeric_limits<float>::max()) {
++                return false;
++            }
++            const Vector3f velocity_ned_ms {float(v.y), float(v.x), float(-v.z)};
++            if (!std::isfinite(velocity_ned_ms.x) || !std::isfinite(velocity_ned_ms.y) ||
++                !std::isfinite(velocity_ned_ms.z)) {
++                return false;
++            }
++            return external_control->set_global_position_velocity_and_yaw(loc, velocity_ned_ms,
++                use_yaw, use_yaw ? wrap_PI(radians(90.0f) - cmd_pos.yaw) : 0.0f);
++        }
+         if (use_yaw) {
+             // map is ENU/FLU; Guided uses absolute NED yaw, radians.
+             return external_control->set_global_position_and_yaw(loc, wrap_PI(radians(90.0f) - cmd_pos.yaw));
+--- a/libraries/AP_ExternalControl/AP_ExternalControl.h
++++ b/libraries/AP_ExternalControl/AP_ExternalControl.h
+@@ -46,6 +46,13 @@
+         return false;
+     }
+ 
++    // Complete global position + NED velocity feedforward, optional absolute yaw.
++    // Unsupported vehicles reject the whole request.
++    virtual bool set_global_position_velocity_and_yaw(const Location& loc, const Vector3f& velocity_ned_ms,
++                                                     bool use_yaw, float yaw_rad) WARN_IF_UNUSED {
++        return false;
++    }
++
+     /*
+         Arm the vehicle
+     */
+--- a/ArduCopter/AP_ExternalControl_Copter.h
++++ b/ArduCopter/AP_ExternalControl_Copter.h
+@@ -22,6 +22,8 @@
+     */
+     bool set_global_position(const Location& loc) override WARN_IF_UNUSED;
+     bool set_global_position_and_yaw(const Location& loc, float yaw_rad) override WARN_IF_UNUSED;
++    bool set_global_position_velocity_and_yaw(const Location& loc, const Vector3f& velocity_ned_ms,
++                                             bool use_yaw, float yaw_rad) override WARN_IF_UNUSED;
+ private:
+     /*
+       Return true if Copter is ready to handle external control data.
+--- a/ArduCopter/AP_ExternalControl_Copter.cpp
++++ b/ArduCopter/AP_ExternalControl_Copter.cpp
+@@ -43,6 +43,27 @@
+     return copter.mode_guided.set_destination(loc, true, yaw_rad, false, 0.0f, false);
+ }
+ 
++bool AP_ExternalControl_Copter::set_global_position_velocity_and_yaw(const Location& loc,
++    const Vector3f& velocity_ned_ms, bool use_yaw, float yaw_rad)
++{
++    if (!ready_for_external_control() ||
++        !std::isfinite(velocity_ned_ms.x) || !std::isfinite(velocity_ned_ms.y) ||
++        !std::isfinite(velocity_ned_ms.z) || (use_yaw && !std::isfinite(yaw_rad))) {
++        return false;
++    }
++    // Location resolves the requested height frame against the EKF origin,
++    // including failure when origin/home/terrain data needed for conversion is absent.
++    Vector3p position_ned_m;
++    if (!loc.get_vector_from_origin_NED_m(position_ned_m) ||
++        !std::isfinite(position_ned_m.x) || !std::isfinite(position_ned_m.y) ||
++        !std::isfinite(position_ned_m.z)) {
++        return false;
++    }
++    // Native Guided retains fence validation, target timestamp and timeout handling.
++    return copter.mode_guided.set_pos_vel_NED_m(position_ned_m, velocity_ned_ms,
++                                               use_yaw, use_yaw ? yaw_rad : 0.0f, false, 0.0f, false);
++}
++
+ bool AP_ExternalControl_Copter::ready_for_external_control()
+ {
+     return copter.flightmode->in_guided_mode() && copter.motors->armed();

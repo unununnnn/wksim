@@ -1,0 +1,1411 @@
+{
+  "status": "failed",
+  "experimental": true,
+  "production_admitted": false,
+  "stack": "arducopter",
+  "run_id": "efficiency-arducopter-baseline-02",
+  "config": {
+    "schema_version": 1,
+    "run_id": "efficiency-arducopter-baseline-02",
+    "vehicle_id": 1,
+    "stack": "arducopter",
+    "model_profile": "quad_x",
+    "communication": "native_dds",
+    "control_protocol": "session_v1",
+    "capabilities": [
+      "native_position_mission"
+    ],
+    "dds_workspace": "/root/wksim-dds-VxM6Ni",
+    "prometheus_workspace": "/root/wksim-joint-control-8EMCw6",
+    "px4_root": "/root/wksim-px4-state-ONa1Kw/src",
+    "model_library": "/root/wksim-efficiency-model-r97g_cit/libwksim_efficiency.so",
+    "ap_candidate": "/root/wksim-ap-clock-stop-OXQqdR"
+  },
+  "run_dir": "/root/wksim-efficiency-flight-arducopter-baseline-02/efficiency-arducopter-baseline-02",
+  "admission": {
+    "ok": true,
+    "config": {
+      "schema_version": 1,
+      "run_id": "efficiency-arducopter-baseline-02",
+      "vehicle_id": 1,
+      "stack": "arducopter",
+      "model_profile": "quad_x",
+      "communication": "native_dds",
+      "control_protocol": "session_v1",
+      "capabilities": [
+        "native_position_mission"
+      ],
+      "dds_workspace": "/root/wksim-dds-VxM6Ni",
+      "prometheus_workspace": "/root/wksim-joint-control-8EMCw6",
+      "px4_root": "/root/wksim-px4-state-ONa1Kw/src",
+      "model_library": "/root/wksim-efficiency-model-r97g_cit/libwksim_efficiency.so",
+      "ap_candidate": "/root/wksim-ap-clock-stop-OXQqdR"
+    },
+    "library": "/root/wksim-efficiency-model-r97g_cit/libwksim_efficiency.so",
+    "baseline": {
+      "ok": true,
+      "reasons": [],
+      "children_created": 0,
+      "profile": {
+        "id": "joint_quad_dds_v1",
+        "dds_workspace": "/root/wksim-dds-VxM6Ni",
+        "ap_message_workspace": "/root/wksim-ap-dds-yaw-state-4Wr27s",
+        "message_workspace": "/root/wksim-ros2-MUlZd0",
+        "control_workspace": "/root/wksim-joint-control-FVMjak",
+        "model_library": "/root/wksim-private-tmp-bhi18a3s/artifacts/wksim-model-qhdy93lm/libwksim_model.so",
+        "manifests": {
+          "ap": {
+            "path": "/root/wksim-ap-clock-stop-OXQqdR/wksim-build.json",
+            "sha256": "f347ba252fbfc33bc92baffba08660f33c3a0e4462e90177ba84bdc11408660a"
+          },
+          "px4": {
+            "path": "/root/wksim-px4-state-ONa1Kw/wksim-build.json",
+            "sha256": "d7e905b35250d184e185ada70e3fe43f0223f1c605832d81c3c58eeb123d4cb6"
+          },
+          "control": {
+            "path": "/root/wksim-joint-control-FVMjak/build.json",
+            "sha256": "f02edf158bf9b4d75cfd2221412bdbe83a10b21bc1642c97259294e12ef487a7"
+          }
+        },
+        "evidence": [
+          {
+            "result": {
+              "path": "validation/joint-public-flight-_cs_wxw_/result.json",
+              "sha256": "11ba582724292470177f4514043293d8e68717e8e64b7edfbd168f6bb056447d"
+            },
+            "audit": {
+              "path": "validation/joint-public-flight-_cs_wxw_/audit.json",
+              "sha256": "c2db43e16120f05032a67543a9d57216d8a199008b076d0a3fec0ae2ce0446ec"
+            }
+          }
+        ],
+        "setup_files": [
+          "/opt/ros/humble/setup.bash",
+          "/root/wksim-dds-VxM6Ni/ros-install/local_setup.bash",
+          "/root/wksim-ap-dds-yaw-state-4Wr27s/ros-install/local_setup.bash",
+          "/root/wksim-ros2-MUlZd0/install/local_setup.bash",
+          "/root/wksim-joint-control-FVMjak/install/local_setup.bash"
+        ],
+        "control_source": "sealed_legacy",
+        "capabilities": [
+          "public_position",
+          "public_velocity_yaw"
+        ]
+      },
+      "model_library": "/root/wksim-private-tmp-bhi18a3s/artifacts/wksim-model-qhdy93lm/libwksim_model.so",
+      "control_package": "/root/wksim-joint-control-FVMjak/install/prometheus_control/local/lib/python3.10/dist-packages/prometheus_control",
+      "identities": {
+        "ap": {
+          "path": "/root/wksim-ap-clock-stop-OXQqdR/build/sitl/bin/arducopter",
+          "sha256": "083971caff8883188488b02ec18a8ef17141fe948b520b3c597a6109e8c2d7de",
+          "commit": "1511f27194f1dcc3728270883047bdf022b3fd53",
+          "source_files": 24593
+        },
+        "manifests": {
+          "ap": {
+            "path": "/root/wksim-ap-clock-stop-OXQqdR/wksim-build.json",
+            "sha256": "f347ba252fbfc33bc92baffba08660f33c3a0e4462e90177ba84bdc11408660a"
+          },
+          "px4": {
+            "path": "/root/wksim-px4-state-ONa1Kw/wksim-build.json",
+            "sha256": "d7e905b35250d184e185ada70e3fe43f0223f1c605832d81c3c58eeb123d4cb6"
+          },
+          "control": {
+            "path": "/root/wksim-joint-control-FVMjak/build.json",
+            "sha256": "f02edf158bf9b4d75cfd2221412bdbe83a10b21bc1642c97259294e12ef487a7"
+          }
+        },
+        "model": {
+          "archive": "/mnt/e/rflysimtools/RflySimAPIs/4.RflySimModel/1.BasicExps/e0_MinModelTemp/MulticopterModel.zip",
+          "archive_sha256": "d528b5d247e13d943f1eaa7a37fd3cb4d15c7e9bb7a6b0e5988a1423e59d05ed",
+          "wrapper_sha256": "3f325678b1d85c9aa3fd07bd644d82935aa26d82885926defeced139f02ddf2c",
+          "library": "/root/wksim-private-tmp-bhi18a3s/artifacts/wksim-model-qhdy93lm/libwksim_model.so",
+          "library_sha256": "cc0bc2d10790043251f38bb6a53f4d774379dd37a02b09cceba43ac1fafb02b3",
+          "argv": [
+            "g++",
+            "-std=c++17",
+            "-O2",
+            "-fno-fast-math",
+            "-fPIC",
+            "-shared",
+            "-Wl,--no-undefined",
+            "-I",
+            "/root/wksim-private-tmp-bhi18a3s/artifacts/wksim-model-qhdy93lm",
+            "/root/wksim-private-tmp-bhi18a3s/artifacts/wksim-model-qhdy93lm/Exp1_MinModelTemp.cpp",
+            "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/Simulator/wksim_core/model.cpp",
+            "-o",
+            "/root/wksim-private-tmp-bhi18a3s/artifacts/wksim-model-qhdy93lm/libwksim_model.so"
+          ],
+          "compiler": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0",
+          "profile": "generated-quad-x-1ms; local use; vendor redistribution not granted"
+        },
+        "message_packages": {
+          "px4_msgs": {
+            "prefix": "/root/wksim-dds-VxM6Ni/ros-install/px4_msgs",
+            "sha256": "4e925a5917bce0442f487b93c39763ee49a6c07662ef3b23560207a15f37ee3e"
+          },
+          "ardupilot_msgs": {
+            "prefix": "/root/wksim-ap-dds-yaw-state-4Wr27s/ros-install/ardupilot_msgs",
+            "sha256": "5ff82c59c182e5b904ce227ede45d6e9e046c6882d0f82a7453df231a9dac0aa"
+          },
+          "prometheus_msgs": {
+            "prefix": "/root/wksim-ros2-MUlZd0/install/prometheus_msgs",
+            "sha256": "fc5f25cd3bd19b3dae4c1c58ea303cd85c484dbf6e9c065ec082058ff987b806",
+            "complete_snapshot": true
+          },
+          "wksim_msgs": {
+            "prefix": "/root/wksim-ros2-MUlZd0/install/wksim_msgs",
+            "sha256": "fa5fadcb39d83bd1d2412b3b1d58955423a698236f19d9cf208956c120fdabe3",
+            "complete_snapshot": true
+          }
+        },
+        "arducopter_agent": {
+          "path": "/root/wksim-dds-VxM6Ni/ros-install/micro_ros_agent/lib/micro_ros_agent/micro_ros_agent",
+          "sha256": "aa4f7a2a861958d7ae76ce6c8a866558b8baf73b5aad0a7b7fed1f8e17af9791"
+        }
+      },
+      "capabilities": [
+        "public_position",
+        "public_velocity_yaw"
+      ],
+      "scope": "Pinned AP/PX4 quad-X joint DDS public tasks and approved recovery; admission is not flight readiness or complete G2/Full acceptance"
+    },
+    "control": {
+      "version": 1,
+      "root": "/root/wksim-joint-control-8EMCw6",
+      "package": "/root/wksim-joint-control-8EMCw6/install/prometheus_control/local/lib/python3.10/dist-packages/prometheus_control",
+      "python_sha256": {
+        "__init__.py": "9a4edb373583bcf6f3d7eaa2522ad1544f63965b0e7f81167f858a0d09d44746",
+        "command.py": "5c23492d761444346a41707cd6027c2fe76acd47db7bd972686fc09ef5f8b25d",
+        "frames.py": "24086553882b31f0666159a1c9bf2929219420a0184dbb2b6683559d12e809b0",
+        "native_arducopter.py": "00b634da7b3e29b87251020fe1d5d74f88d2039c1312081dea67614eda4dcb2a",
+        "native_px4.py": "de40ae6175c7e1b23908a791b077b310da81a8d5c264ff4af2620a733a4b2fe6",
+        "node.py": "99b00957444a630883b6a00999b712e9c7c5b28bbb138d8e4e5a06ba608f237d",
+        "rc_transport.py": "e618c33ba687520160c8d2cfb79b0da30e5047f3036549c47ca357f1c26dc38f",
+        "scene.py": "370770a02fdde5e94fc54bed6f7e0d63a4c98c6dcadd0c3616ac1c14529cd333",
+        "session.py": "da64efa299288738d4520c6a23834c3201c34334f861a8de542fcaa91930b126",
+        "shaping.py": "56782d96f9fc6f7df3ddadf80cd8c09f474af81c5c183d20d3d26c2f9e66bc69"
+      },
+      "build_inputs": {
+        "CMakeLists.txt": "8e8791201c0bb04806fe68f729288e57fe2f0552aee8c38e85e0acd8e2abd591",
+        "package.xml": "6c7b9f84953ec2a9726c87e888ee72a3bf045724c0585558ba413f400f0a38b4",
+        "scripts/prometheus_control_node": "b73f77d5e2b74ea999fdd3174280c31d311061de20e2c2c7e8c56d44e4e6dcfc",
+        "src/rc_take.cpp": "d6969f1d872a904c794b8c045652946fa1bf5285401ac3ee747a24beee9c6ee6"
+      },
+      "build_log_sha256": "2fd729dc1f98916d9af31156bee8a4feee4a457aa392fe0c3933cfc33483da06",
+      "rc_transport_sha256": "f00ccb7da8da348e33e8dbb1200dd3244a73c3cf4f658024372009de06f9107c",
+      "build_script_sha256": "cee40ea5324de3f38613fd3e8f05bbfde2a5814b1c76e038ec26917795e3365c",
+      "scope": "experimental continuous joint ROS-time operations; no production admission"
+    },
+    "control_manifest": "/root/wksim-joint-control-8EMCw6/build.json",
+    "control_sha256": "e61239c514c45d6c65222277066a7ca629e6e2638b9877a040bdfc99643e7e2e",
+    "setup_files": [
+      "/opt/ros/humble/setup.bash",
+      "/root/wksim-dds-VxM6Ni/ros-install/local_setup.bash",
+      "/root/wksim-ap-dds-yaw-state-4Wr27s/ros-install/local_setup.bash",
+      "/root/wksim-ros2-MUlZd0/install/local_setup.bash",
+      "/root/wksim-joint-control-8EMCw6/install/local_setup.bash"
+    ],
+    "efficiency_model": {
+      "library_sha256": "a7325ebf754f6e61ebf25c5382fb67343659454cc176c0a7d50f980b3dcb9199",
+      "initial_random_state": [
+        891230338,
+        1442053344,
+        314883947,
+        780994175,
+        916952990,
+        1374521725,
+        1419942256,
+        1732199197,
+        1885358451,
+        1757290322,
+        1949184859,
+        1597244136,
+        1415905683,
+        839057443,
+        1694698216,
+        532846944,
+        732070229
+      ],
+      "initial_eta": [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "build_manifest": {
+        "schema": "wksim.rotor-efficiency-model.v1",
+        "archive": "/mnt/e/rflysimtools/RflySimAPIs/4.RflySimModel/1.BasicExps/e0_MinModelTemp/MulticopterModel.zip",
+        "archive_sha256": "d528b5d247e13d943f1eaa7a37fd3cb4d15c7e9bb7a6b0e5988a1423e59d05ed",
+        "library": "/root/wksim-efficiency-model-r97g_cit/libwksim_efficiency.so",
+        "files_sha256": {
+          "Exp1_MinModelTemp.cpp": "0166faa7b3a2b8c6f5876b944bebb18f5d5ca24e263968a1a4b90d4a93720865",
+          "Exp1_MinModelTemp.h": "692b17d61307d7145e90b625778a117b5f84760d3ef73e4c6241ea91ac446626",
+          "rtwtypes.h": "9d5bd1a47f06fd3f6cb124a96d407a6296875763759ab9fb388296e6199a1716",
+          "rtw_continuous.h": "8f2c78fdc5a097552078484c738aefcc944463c8834d2ca6319b76cedf526b18",
+          "rtw_solver.h": "359ff69aa94a137e8b246721ead52e056dd4fdf11c35a7f92ebb9f14e0cda674",
+          "original.cpp": "a35d7c8f39c94f2db8c27b19affee5b66c1b001c63ded334ba83c99f8be54019",
+          "original.h": "2d89ad1b492c5e70e80682a9f53896e0538260946a0180a2ca44e500ba1589bd",
+          "base_wrapper.cpp": "3f325678b1d85c9aa3fd07bd644d82935aa26d82885926defeced139f02ddf2c",
+          "motor_efficiency_native.h": "01d16607196ff85a55874a973248de9a65404e6d2cb739856985fcbbc0e30b0c",
+          "motor_efficiency_native.cpp": "d4437f041f48f0dddd659b1b7b079fce326ea651b9379cdde35abbbe1f159014",
+          "libwksim_efficiency.so": "a7325ebf754f6e61ebf25c5382fb67343659454cc176c0a7d50f980b3dcb9199"
+        },
+        "builder_sha256": "bff0ac733228692a3f2abfc77b644e7ea190d4c4c8d43187f8c4676f8cd11ef6",
+        "argv": [
+          "g++",
+          "-std=c++17",
+          "-O2",
+          "-fno-fast-math",
+          "-fPIC",
+          "-shared",
+          "-Wl,--no-undefined",
+          "-I",
+          "/root/wksim-efficiency-model-r97g_cit",
+          "/root/wksim-efficiency-model-r97g_cit/Exp1_MinModelTemp.cpp",
+          "/root/wksim-efficiency-model-r97g_cit/motor_efficiency_native.cpp",
+          "-o",
+          "/root/wksim-efficiency-model-r97g_cit/libwksim_efficiency.so"
+        ],
+        "compiler": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0",
+        "random_state_fields": [
+          [
+            "RandSeed",
+            3
+          ],
+          [
+            "RandSeed_g",
+            3
+          ],
+          [
+            "RandSeed_j",
+            3
+          ],
+          [
+            "RandSeed_l",
+            1
+          ],
+          [
+            "RandSeed_p",
+            1
+          ],
+          [
+            "RandSeed_ld",
+            3
+          ],
+          [
+            "RandSeed_ji",
+            3
+          ]
+        ],
+        "physical_semantics": "rotor0 thrust and reaction torque times eta; motor and gyro unchanged",
+        "production_admitted": false,
+        "flown": false,
+        "redistribution": "local supplied source use only"
+      },
+      "read_only_initialization_probe": true
+    }
+  },
+  "children": {
+    "physics": {
+      "argv": [
+        "/usr/bin/python3",
+        "-B",
+        "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/tools/efficiency_physics.py",
+        "--stack",
+        "arducopter",
+        "--library",
+        "/root/wksim-efficiency-model-r97g_cit/libwksim_efficiency.so",
+        "--port",
+        "19002",
+        "--trace",
+        "/root/wksim-efficiency-flight-arducopter-baseline-02/efficiency-arducopter-baseline-02/truth.jsonl",
+        "--profile",
+        "/root/wksim-efficiency-flight-arducopter-baseline-02/efficiency-arducopter-baseline-02/efficiency-profile.json",
+        "--run-id",
+        "efficiency-arducopter-baseline-02",
+        "--case",
+        "baseline"
+      ],
+      "cwd": "/root/wksim-efficiency-flight-arducopter-baseline-02/efficiency-arducopter-baseline-02",
+      "pid": 1033,
+      "pgid": 1033,
+      "proc_stat": "1033 (python3) R 779 1033 1033 0 -1 4194304 12 0 0 0 0 0 0 0 20 0 1 0 1737 6606848 40 18446744073709551615 97283139334144 97283142158381 140732682193888 0 0 0 0 0 0 0 0 0 17 19 0 0 0 0 0 97283144521744 97283144805784 97283657699328 140732682195667 140732682196148 140732682196148 140732682203111 0\n",
+      "executable": "/usr/bin/python3.10",
+      "returncode": 0
+    },
+    "agent": {
+      "argv": [
+        "/root/wksim-dds-VxM6Ni/ros-install/micro_ros_agent/lib/micro_ros_agent/micro_ros_agent",
+        "udp4",
+        "-p",
+        "12019",
+        "-v",
+        "4"
+      ],
+      "cwd": "/root/wksim-efficiency-flight-arducopter-baseline-02/efficiency-arducopter-baseline-02",
+      "pid": 1034,
+      "pgid": 1034,
+      "proc_stat": "1034 (micro_ros_agent) R 779 1034 1034 0 -1 4194304 25 0 0 0 0 0 0 0 20 0 1 0 1757 1409024 80 18446744073709551615 97354203172864 97354203426161 140725006908784 0 0 0 0 0 0 0 0 0 17 1 0 0 0 0 0 97354203573616 97354203582616 97354651824128 140725006914564 140725006914670 140725006914670 140725006921633 0\n",
+      "executable": "/root/wksim-dds-VxM6Ni/ros-install/micro_ros_agent/lib/micro_ros_agent/micro_ros_agent",
+      "returncode": -15
+    },
+    "fc": {
+      "argv": [
+        "/root/wksim-ap-clock-stop-OXQqdR/build/sitl/bin/arducopter",
+        "--model",
+        "JSON:127.0.0.1",
+        "--rate",
+        "1000",
+        "--speedup",
+        "1",
+        "--base-port",
+        "16600",
+        "--instance",
+        "11",
+        "--sysid",
+        "241",
+        "--sim-address",
+        "127.0.0.1",
+        "--sim-port-out",
+        "19002",
+        "--sim-port-in",
+        "19003",
+        "--rc-in-port",
+        "19004",
+        "--serial0",
+        "udpclient:127.0.0.1:14660",
+        "--serial1",
+        "none",
+        "--serial2",
+        "none",
+        "--defaults",
+        "/root/wksim-ap-clock-stop-OXQqdR/src/Tools/autotest/default_params/copter.parm,/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/Simulator/wksim_core/arducopter-quad-x.parm,/root/wksim-efficiency-flight-arducopter-baseline-02/efficiency-arducopter-baseline-02/dds.parm",
+        "--home",
+        "40.1540302,116.2593683,50,0"
+      ],
+      "cwd": "/root/wksim-efficiency-flight-arducopter-baseline-02/efficiency-arducopter-baseline-02",
+      "pid": 1041,
+      "pgid": 1041,
+      "proc_stat": "1041 (arducopter) R 779 1041 1041 0 -1 4194304 12 0 0 0 0 0 0 0 20 0 1 0 1759 5406720 0 18446744073709551615 103162798530560 103162801764117 140733251258784 0 0 0 0 0 0 0 0 0 17 9 0 0 0 0 0 103162802608968 103162802818821 103163493994496 140733251260970 140733251261578 140733251261578 140733251268541 0\n",
+      "executable": "/root/wksim-ap-clock-stop-OXQqdR/build/sitl/bin/arducopter",
+      "returncode": 0
+    },
+    "control": {
+      "argv": [
+        "/usr/bin/python3",
+        "-m",
+        "prometheus_control.node",
+        "--ros-args",
+        "-p",
+        "flight_stack:=arducopter",
+        "-p",
+        "uav_id:=1",
+        "-p",
+        "native_prefix:=/ap",
+        "-p",
+        "native_system_id:=22",
+        "-p",
+        "arducopter_position_yaw:=true",
+        "-p",
+        "run_id:=efficiency-arducopter-baseline-02"
+      ],
+      "cwd": "/root/wksim-efficiency-flight-arducopter-baseline-02/efficiency-arducopter-baseline-02",
+      "pid": 1043,
+      "pgid": 1043,
+      "proc_stat": "1043 (python3) R 779 1043 1043 0 -1 4194304 17 0 0 0 0 0 0 0 20 0 1 0 1761 6606848 80 18446744073709551615 103077748633600 103077751457837 140730638127648 0 0 0 0 0 0 0 0 0 17 12 0 0 0 0 0 103077753821200 103077754105240 103078103625728 140730638136280 140730638136500 140730638136500 140730638143463 0\n",
+      "executable": "/usr/bin/python3.10",
+      "returncode": 0
+    }
+  },
+  "phases": [
+    {
+      "phase": "physics_listening",
+      "wall_s": 0.21659216999999842
+    },
+    {
+      "phase": "agent_listening",
+      "wall_s": 0.23781727699999777
+    },
+    {
+      "phase": "physics_fc_coupled",
+      "wall_s": 0.258552310999999
+    },
+    {
+      "phase": "public_control_ready",
+      "wall_s": 41.347184683
+    },
+    {
+      "phase": "autonomous_hold_ready",
+      "wall_s": 41.447778524
+    },
+    {
+      "phase": "arming_completed",
+      "wall_s": 41.548344063
+    },
+    {
+      "phase": "command_takeoff_completed",
+      "wall_s": 48.038912592
+    },
+    {
+      "phase": "efficiency_point_accepted",
+      "wall_s": 48.040650092999996
+    },
+    {
+      "phase": "efficiency_point_reached",
+      "wall_s": 50.625260577999995
+    },
+    {
+      "phase": "failure_land_requested",
+      "wall_s": 51.092001757000006
+    },
+    {
+      "phase": "failure_landed",
+      "wall_s": 59.380859888
+    }
+  ],
+  "safe_landing": false,
+  "resources": {
+    "experiment_kind": "independent",
+    "run_id": "efficiency-arducopter-baseline-02",
+    "output": "/root/wksim-efficiency-flight-arducopter-baseline-02/efficiency-arducopter-baseline-02",
+    "network_namespace": "net:[4026532294]",
+    "ipc_namespace": "ipc:[4026532231]",
+    "shm_device": 85,
+    "vehicle_id": 1,
+    "ros_domain": 77,
+    "public_namespace": "/uav1/prometheus",
+    "native_prefix": "/ap",
+    "native_system_id": 241,
+    "xrce_client_key": 2863315899,
+    "ports": [
+      {
+        "protocol": "udp",
+        "port": 12019
+      },
+      {
+        "protocol": "udp",
+        "port": 19002
+      },
+      {
+        "protocol": "udp",
+        "port": 19003
+      },
+      {
+        "protocol": "udp",
+        "port": 19004
+      },
+      {
+        "protocol": "udp",
+        "port": 14660
+      }
+    ],
+    "display_socket": null,
+    "telemetry_socket": null,
+    "independent_clock": true,
+    "dds_transport": "private network and private /dev/shm"
+  },
+  "case": "baseline",
+  "scope": "Independent native-position motor efficiency; no joint-rate/G6 claim",
+  "source_sha256": {
+    "tools/run_efficiency_flight.py": "58c4d4e66fb38e6112ddfa32a988eab84b11c7de21401fb197bdb7a551c25607",
+    "tools/run-efficiency-flight.sh": "dd97438c7629765f686733b481a0b32bdfd687598447bca8d94ea62a05cb3218",
+    "tools/efficiency_physics.py": "d44c8f15feb5b098efbd4f0cf24f64fae82e766cb9c642d44f1b63bda9fae6c7",
+    "tools/audit_efficiency_flight.py": "ed73e46f2c96b97ce223824360b895715bf4a94d5e5afd5a82f3fadf041028a7",
+    "tools/rc_candidate.py": "485bbcfad0cccb0db883abd97f61595fe7bd73ac5bfeed10581531ef156fb0ec",
+    "tools/joint_control_candidate.py": "ca621094342f02a9f2784de3caf105d738c401717c5ace63b68d802f7c453885",
+    "tools/pid_physics.py": "5c57811dc2b1f86282b409ca59bc3bdd0cfec6a6a2981620d784e500c80dad78",
+    "Simulator/wksim_runtime/efficiency_task.py": "8cce5836ed4895b52eb1dc543abe2560b438e7616e2b9a48a7b4fb026213bc0b",
+    "Simulator/wksim_runtime/efficiency-flight-v1.json": "f2ad9a91612dbda09150ee99bad581fce3dda50b072733a9aea6ee5bb379ec47",
+    "Simulator/wksim_runtime/rc_task.py": "8f32769548d3325bd63b78528cfa373f2ea4cb3ccce94047b00293ca7120bfac",
+    "Simulator/wksim_runtime/task.py": "9791913df7ad61d229a151d4d1d0e5c2b3f32d127a7545096b43a32638f0dbbc",
+    "Simulator/wksim_runtime/runtime.py": "7853410a294cd0d41356ff49a5976c001a78c3cc89e0722f7bd7e47147ca4d3c",
+    "Simulator/wksim_runtime/config.py": "ab57bcd9723707857f212432e8be093209dd578b9eb6c453340027e4871861eb",
+    "Simulator/wksim_runtime/isolation.py": "92466d6e736f671031b5d53f01d8ebcfd2ab1aa6c28c9946e2f891087bb61c99",
+    "Simulator/wksim_runtime/joint_profile.py": "9b4fdafff268c576e42c5dfac2f3d3ed0f814b99fb85c6569a98a0edab3cac42",
+    "Simulator/wksim_core/motor_efficiency_model.py": "bff0ac733228692a3f2abfc77b644e7ea190d4c4c8d43187f8c4676f8cd11ef6",
+    "Simulator/wksim_core/motor_efficiency_event.py": "52972153618cc91a16d4ce6cc698db3d3108ed600c37235787a4d49ab77b1383",
+    "Simulator/wksim_core/motor_efficiency_native.cpp": "d4437f041f48f0dddd659b1b7b079fce326ea651b9379cdde35abbbe1f159014",
+    "Simulator/wksim_core/motor_efficiency_native.h": "01d16607196ff85a55874a973248de9a65404e6d2cb739856985fcbbc0e30b0c",
+    "Simulator/wksim_core/model.py": "af767e9299e4282da8da168998605c02039ea64d9cc27bb33e9dce24d1a6b77a",
+    "Simulator/wksim_core/model.cpp": "3f325678b1d85c9aa3fd07bd644d82935aa26d82885926defeced139f02ddf2c",
+    "Simulator/wksim_core/ap_json.py": "db3498d5df50aa3ab46601a8e899c6739e613d431a7d221ac57d2a86e1846469",
+    "Simulator/wksim_core/px4_mavlink.py": "e8c903f2b4c84a261adf6f512c8437c51364143dc048d1ac2cb873e7cfb53260",
+    "Simulator/wksim_core/state_stream.py": "d0bf4534885170bc281394657558afbfa143d76360ac1157e1c0e60d9719a76e",
+    "Simulator/wksim_core/arducopter-quad-x.parm": "823e8e3ca9d5648aa36de40c34aa3d6af0e52c8155909620ab1958b1302703e1",
+    "Simulator/wksim_core/px4-rc.mavlink": "2c3cea474c5669b6c9ae241072a1c5f813f06ff771233e0f81721397c903d214"
+  },
+  "launch_plan": {
+    "agent": [
+      "/root/wksim-dds-VxM6Ni/ros-install/micro_ros_agent/lib/micro_ros_agent/micro_ros_agent",
+      "udp4",
+      "-p",
+      "12019",
+      "-v",
+      "4"
+    ],
+    "physics": [
+      "/usr/bin/python3",
+      "-B",
+      "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/tools/efficiency_physics.py",
+      "--stack",
+      "arducopter",
+      "--library",
+      "/root/wksim-efficiency-model-r97g_cit/libwksim_efficiency.so",
+      "--port",
+      "19002",
+      "--trace",
+      "/root/wksim-efficiency-flight-arducopter-baseline-02/efficiency-arducopter-baseline-02/truth.jsonl",
+      "--profile",
+      "/root/wksim-efficiency-flight-arducopter-baseline-02/efficiency-arducopter-baseline-02/efficiency-profile.json",
+      "--run-id",
+      "efficiency-arducopter-baseline-02",
+      "--case",
+      "baseline"
+    ],
+    "fc": [
+      "/root/wksim-ap-clock-stop-OXQqdR/build/sitl/bin/arducopter",
+      "--model",
+      "JSON:127.0.0.1",
+      "--rate",
+      "1000",
+      "--speedup",
+      "1",
+      "--base-port",
+      "16600",
+      "--instance",
+      "11",
+      "--sysid",
+      "241",
+      "--sim-address",
+      "127.0.0.1",
+      "--sim-port-out",
+      "19002",
+      "--sim-port-in",
+      "19003",
+      "--rc-in-port",
+      "19004",
+      "--serial0",
+      "udpclient:127.0.0.1:14660",
+      "--serial1",
+      "none",
+      "--serial2",
+      "none",
+      "--defaults",
+      "/root/wksim-ap-clock-stop-OXQqdR/src/Tools/autotest/default_params/copter.parm,/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/Simulator/wksim_core/arducopter-quad-x.parm,/root/wksim-efficiency-flight-arducopter-baseline-02/efficiency-arducopter-baseline-02/dds.parm",
+      "--home",
+      "40.1540302,116.2593683,50,0"
+    ],
+    "control": [
+      "/usr/bin/python3",
+      "-m",
+      "prometheus_control.node",
+      "--ros-args",
+      "-p",
+      "flight_stack:=arducopter",
+      "-p",
+      "uav_id:=1",
+      "-p",
+      "native_prefix:=/ap",
+      "-p",
+      "native_system_id:=22",
+      "-p",
+      "arducopter_position_yaw:=true",
+      "-p",
+      "run_id:=efficiency-arducopter-baseline-02"
+    ],
+    "fc_environment": {}
+  },
+  "private_temporary_files": {
+    "root": "/root/wksim-private-tmp-1t4mxiwv",
+    "mount_namespace": "mnt:[4026532230]",
+    "device": 86,
+    "lower_device": 2096,
+    "artifact_directory": "/root/wksim-private-tmp-1t4mxiwv/artifacts",
+    "command": [
+      "mount",
+      "-t",
+      "overlay",
+      "overlay",
+      "-o",
+      "lowerdir=/tmp,upperdir=/root/wksim-private-tmp-1t4mxiwv/upper,workdir=/root/wksim-private-tmp-1t4mxiwv/work",
+      "/tmp"
+    ],
+    "consumer_directories": []
+  },
+  "launched_binary_sha256": "083971caff8883188488b02ec18a8ef17141fe948b520b3c597a6109e8c2d7de",
+  "launched_agent_sha256": "aa4f7a2a861958d7ae76ce6c8a866558b8baf73b5aad0a7b7fed1f8e17af9791",
+  "actual_control_sha256": {
+    "frames.py": "24086553882b31f0666159a1c9bf2929219420a0184dbb2b6683559d12e809b0",
+    "node.py": "99b00957444a630883b6a00999b712e9c7c5b28bbb138d8e4e5a06ba608f237d",
+    "session.py": "da64efa299288738d4520c6a23834c3201c34334f861a8de542fcaa91930b126",
+    "native_px4.py": "de40ae6175c7e1b23908a791b077b310da81a8d5c264ff4af2620a733a4b2fe6",
+    "command.py": "5c23492d761444346a41707cd6027c2fe76acd47db7bd972686fc09ef5f8b25d",
+    "scene.py": "370770a02fdde5e94fc54bed6f7e0d63a4c98c6dcadd0c3616ac1c14529cd333",
+    "shaping.py": "56782d96f9fc6f7df3ddadf80cd8c09f474af81c5c183d20d3d26c2f9e66bc69",
+    "rc_transport.py": "e618c33ba687520160c8d2cfb79b0da30e5047f3036549c47ca357f1c26dc38f",
+    "native_arducopter.py": "00b634da7b3e29b87251020fe1d5d74f88d2039c1312081dea67614eda4dcb2a",
+    "__init__.py": "9a4edb373583bcf6f3d7eaa2522ad1544f63965b0e7f81167f858a0d09d44746"
+  },
+  "error": "RuntimeError: efficiency_stable_six_seconds: integration threshold exceeded",
+  "task": {
+    "sent": [
+      {
+        "header": {
+          "stamp": {
+            "sec": 1789014806,
+            "nanosec": 574985744
+          },
+          "frame_id": "map"
+        },
+        "cmd": 1,
+        "arming": false,
+        "px4_mode": "AUTO.LOITER",
+        "control_state": ""
+      },
+      {
+        "header": {
+          "stamp": {
+            "sec": 1789014806,
+            "nanosec": 675435302
+          },
+          "frame_id": "map"
+        },
+        "cmd": 0,
+        "arming": true,
+        "px4_mode": "",
+        "control_state": ""
+      },
+      {
+        "header": {
+          "stamp": {
+            "sec": 1789014806,
+            "nanosec": 775997798
+          },
+          "frame_id": "map"
+        },
+        "cmd": 3,
+        "arming": false,
+        "px4_mode": "",
+        "control_state": "COMMAND_CONTROL"
+      },
+      {
+        "header": {
+          "stamp": {
+            "sec": 1789014813,
+            "nanosec": 266641139
+          },
+          "frame_id": "map"
+        },
+        "agent_cmd": 4,
+        "control_level": 0,
+        "move_mode": 0,
+        "position_ref": [
+          2.0,
+          3.0,
+          3.0
+        ],
+        "velocity_ref": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "acceleration_ref": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "yaw_ref": 0.0,
+        "yaw_rate_mode": false,
+        "yaw_rate_ref": 0.0,
+        "att_ref": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "latitude": 0.0,
+        "longitude": 0.0,
+        "altitude": 0.0,
+        "command_id": 1
+      },
+      {
+        "header": {
+          "stamp": {
+            "sec": 1789014816,
+            "nanosec": 253561069
+          },
+          "frame_id": "map"
+        },
+        "cmd": 1,
+        "arming": false,
+        "px4_mode": "AUTO.LAND",
+        "control_state": ""
+      }
+    ],
+    "events": [
+      {
+        "event": "native_reset_observed",
+        "event_id": 2,
+        "version": 1,
+        "run_id": "efficiency-arducopter-baseline-02",
+        "emitted_monotonic_ns": 21707219061,
+        "emitted_unix_ns": 1789014769576438953,
+        "control_epoch": "e84fdfa258a6424d8c8a6ac90fed7cae",
+        "kinds": [
+          "position"
+        ],
+        "active": false,
+        "request_id": 0
+      },
+      {
+        "event": "native_reset_observed",
+        "event_id": 3,
+        "version": 1,
+        "run_id": "efficiency-arducopter-baseline-02",
+        "emitted_monotonic_ns": 23156093427,
+        "emitted_unix_ns": 1789014771025313276,
+        "control_epoch": "e84fdfa258a6424d8c8a6ac90fed7cae",
+        "kinds": [
+          "yaw"
+        ],
+        "active": false,
+        "request_id": 0
+      },
+      {
+        "event": "native_reset_observed",
+        "event_id": 4,
+        "version": 1,
+        "run_id": "efficiency-arducopter-baseline-02",
+        "emitted_monotonic_ns": 37268266598,
+        "emitted_unix_ns": 1789014785137486307,
+        "control_epoch": "e84fdfa258a6424d8c8a6ac90fed7cae",
+        "kinds": [
+          "home"
+        ],
+        "active": false,
+        "request_id": 0
+      },
+      {
+        "event": "native_reset_observed",
+        "event_id": 5,
+        "version": 1,
+        "run_id": "efficiency-arducopter-baseline-02",
+        "emitted_monotonic_ns": 58664475268,
+        "emitted_unix_ns": 1789014806533695187,
+        "control_epoch": "e84fdfa258a6424d8c8a6ac90fed7cae",
+        "kinds": [
+          "position"
+        ],
+        "active": false,
+        "request_id": 0
+      },
+      {
+        "event": "setup_received",
+        "event_id": 6,
+        "version": 1,
+        "run_id": "efficiency-arducopter-baseline-02",
+        "emitted_monotonic_ns": 58706700872,
+        "emitted_unix_ns": 1789014806575920673,
+        "control_epoch": "e84fdfa258a6424d8c8a6ac90fed7cae",
+        "cmd": 1,
+        "stage": "simple",
+        "request_id": 1
+      },
+      {
+        "event": "native_ack",
+        "event_id": 7,
+        "version": 1,
+        "run_id": "efficiency-arducopter-baseline-02",
+        "emitted_monotonic_ns": 58724738734,
+        "emitted_unix_ns": 1789014806593958538,
+        "control_epoch": "e84fdfa258a6424d8c8a6ac90fed7cae",
+        "accepted": true,
+        "reason": "native_service_accepted",
+        "stage": "simple",
+        "request_id": 1
+      },
+      {
+        "event": "setup_completed",
+        "event_id": 8,
+        "version": 1,
+        "run_id": "efficiency-arducopter-baseline-02",
+        "emitted_monotonic_ns": 58805108621,
+        "emitted_unix_ns": 1789014806674328326,
+        "control_epoch": "e84fdfa258a6424d8c8a6ac90fed7cae",
+        "action": "mode",
+        "value": "AUTO.LOITER",
+        "native_mode": "LOITER",
+        "request_id": 1
+      },
+      {
+        "event": "setup_received",
+        "event_id": 9,
+        "version": 1,
+        "run_id": "efficiency-arducopter-baseline-02",
+        "emitted_monotonic_ns": 58806633739,
+        "emitted_unix_ns": 1789014806675853259,
+        "control_epoch": "e84fdfa258a6424d8c8a6ac90fed7cae",
+        "cmd": 0,
+        "stage": "simple",
+        "request_id": 2
+      },
+      {
+        "event": "native_ack",
+        "event_id": 10,
+        "version": 1,
+        "run_id": "efficiency-arducopter-baseline-02",
+        "emitted_monotonic_ns": 58825232587,
+        "emitted_unix_ns": 1789014806694452353,
+        "control_epoch": "e84fdfa258a6424d8c8a6ac90fed7cae",
+        "accepted": true,
+        "reason": "native_service_accepted",
+        "stage": "simple",
+        "request_id": 2
+      },
+      {
+        "event": "native_reset_observed",
+        "event_id": 11,
+        "version": 1,
+        "run_id": "efficiency-arducopter-baseline-02",
+        "emitted_monotonic_ns": 58835191947,
+        "emitted_unix_ns": 1789014806704411797,
+        "control_epoch": "e84fdfa258a6424d8c8a6ac90fed7cae",
+        "kinds": [
+          "home"
+        ],
+        "active": true,
+        "request_id": 2
+      },
+      {
+        "event": "setup_completed",
+        "event_id": 12,
+        "version": 1,
+        "run_id": "efficiency-arducopter-baseline-02",
+        "emitted_monotonic_ns": 58905617043,
+        "emitted_unix_ns": 1789014806774836725,
+        "control_epoch": "e84fdfa258a6424d8c8a6ac90fed7cae",
+        "action": "arm",
+        "value": true,
+        "native_mode": "LOITER",
+        "request_id": 2
+      },
+      {
+        "event": "takeover_reference",
+        "event_id": 13,
+        "version": 1,
+        "run_id": "efficiency-arducopter-baseline-02",
+        "emitted_monotonic_ns": 58907226116,
+        "emitted_unix_ns": 1789014806776445708,
+        "control_epoch": "e84fdfa258a6424d8c8a6ac90fed7cae",
+        "airborne": false,
+        "position_enu_m": [
+          0.0,
+          0.0,
+          3.0
+        ],
+        "yaw_enu_rad": 0.0,
+        "source_boot_ns": 41135000000,
+        "native_generation": 5,
+        "request_id": 3
+      },
+      {
+        "event": "setup_received",
+        "event_id": 14,
+        "version": 1,
+        "run_id": "efficiency-arducopter-baseline-02",
+        "emitted_monotonic_ns": 58907459652,
+        "emitted_unix_ns": 1789014806776679005,
+        "control_epoch": "e84fdfa258a6424d8c8a6ac90fed7cae",
+        "cmd": 3,
+        "stage": "external",
+        "request_id": 3
+      },
+      {
+        "event": "native_ack",
+        "event_id": 15,
+        "version": 1,
+        "run_id": "efficiency-arducopter-baseline-02",
+        "emitted_monotonic_ns": 58925656772,
+        "emitted_unix_ns": 1789014806794876485,
+        "control_epoch": "e84fdfa258a6424d8c8a6ac90fed7cae",
+        "accepted": true,
+        "reason": "native_service_accepted",
+        "stage": "external",
+        "request_id": 3
+      },
+      {
+        "event": "native_ack",
+        "event_id": 16,
+        "version": 1,
+        "run_id": "efficiency-arducopter-baseline-02",
+        "emitted_monotonic_ns": 59026393660,
+        "emitted_unix_ns": 1789014806895613814,
+        "control_epoch": "e84fdfa258a6424d8c8a6ac90fed7cae",
+        "accepted": true,
+        "reason": "native_service_accepted",
+        "stage": "takeoff",
+        "request_id": 3
+      },
+      {
+        "event": "native_reset_observed",
+        "event_id": 17,
+        "version": 1,
+        "run_id": "efficiency-arducopter-baseline-02",
+        "emitted_monotonic_ns": 64359088564,
+        "emitted_unix_ns": 1789014812228308393,
+        "control_epoch": "e84fdfa258a6424d8c8a6ac90fed7cae",
+        "kinds": [
+          "yaw"
+        ],
+        "active": true,
+        "request_id": 3
+      },
+      {
+        "event": "setup_completed",
+        "event_id": 18,
+        "version": 1,
+        "run_id": "efficiency-arducopter-baseline-02",
+        "emitted_monotonic_ns": 65392986349,
+        "emitted_unix_ns": 1789014813262206324,
+        "control_epoch": "e84fdfa258a6424d8c8a6ac90fed7cae",
+        "control_state": "COMMAND_CONTROL",
+        "native_mode": "GUIDED",
+        "request_id": 3
+      },
+      {
+        "event": "command_accepted",
+        "event_id": 19,
+        "version": 1,
+        "run_id": "efficiency-arducopter-baseline-02",
+        "emitted_monotonic_ns": 65398573738,
+        "emitted_unix_ns": 1789014813267793669,
+        "control_epoch": "e84fdfa258a6424d8c8a6ac90fed7cae",
+        "command_id": 1,
+        "agent_cmd": 4,
+        "request_id": 4
+      },
+      {
+        "event": "setup_received",
+        "event_id": 20,
+        "version": 1,
+        "run_id": "efficiency-arducopter-baseline-02",
+        "emitted_monotonic_ns": 68384905024,
+        "emitted_unix_ns": 1789014816254125289,
+        "control_epoch": "e84fdfa258a6424d8c8a6ac90fed7cae",
+        "cmd": 1,
+        "stage": "simple",
+        "request_id": 5
+      },
+      {
+        "event": "native_ack",
+        "event_id": 21,
+        "version": 1,
+        "run_id": "efficiency-arducopter-baseline-02",
+        "emitted_monotonic_ns": 68399518962,
+        "emitted_unix_ns": 1789014816268738746,
+        "control_epoch": "e84fdfa258a6424d8c8a6ac90fed7cae",
+        "accepted": true,
+        "reason": "native_service_accepted",
+        "stage": "simple",
+        "request_id": 5
+      },
+      {
+        "event": "setup_completed",
+        "event_id": 22,
+        "version": 1,
+        "run_id": "efficiency-arducopter-baseline-02",
+        "emitted_monotonic_ns": 68449442230,
+        "emitted_unix_ns": 1789014816318662122,
+        "control_epoch": "e84fdfa258a6424d8c8a6ac90fed7cae",
+        "action": "mode",
+        "value": "AUTO.LAND",
+        "native_mode": "LAND",
+        "request_id": 5
+      }
+    ],
+    "protocol": "session_v1",
+    "run_id": "efficiency-arducopter-baseline-02",
+    "control_epoch": "e84fdfa258a6424d8c8a6ac90fed7cae",
+    "request_envelopes": [
+      {
+        "version": 1,
+        "run_id": "efficiency-arducopter-baseline-02",
+        "control_epoch": "e84fdfa258a6424d8c8a6ac90fed7cae",
+        "request_id": 1,
+        "setup": {
+          "header": {
+            "stamp": {
+              "sec": 1789014806,
+              "nanosec": 574985744
+            },
+            "frame_id": "map"
+          },
+          "cmd": 1,
+          "arming": false,
+          "px4_mode": "AUTO.LOITER",
+          "control_state": ""
+        }
+      },
+      {
+        "version": 1,
+        "run_id": "efficiency-arducopter-baseline-02",
+        "control_epoch": "e84fdfa258a6424d8c8a6ac90fed7cae",
+        "request_id": 2,
+        "setup": {
+          "header": {
+            "stamp": {
+              "sec": 1789014806,
+              "nanosec": 675435302
+            },
+            "frame_id": "map"
+          },
+          "cmd": 0,
+          "arming": true,
+          "px4_mode": "",
+          "control_state": ""
+        }
+      },
+      {
+        "version": 1,
+        "run_id": "efficiency-arducopter-baseline-02",
+        "control_epoch": "e84fdfa258a6424d8c8a6ac90fed7cae",
+        "request_id": 3,
+        "setup": {
+          "header": {
+            "stamp": {
+              "sec": 1789014806,
+              "nanosec": 775997798
+            },
+            "frame_id": "map"
+          },
+          "cmd": 3,
+          "arming": false,
+          "px4_mode": "",
+          "control_state": "COMMAND_CONTROL"
+        }
+      },
+      {
+        "version": 1,
+        "run_id": "efficiency-arducopter-baseline-02",
+        "control_epoch": "e84fdfa258a6424d8c8a6ac90fed7cae",
+        "request_id": 4,
+        "command": {
+          "header": {
+            "stamp": {
+              "sec": 1789014813,
+              "nanosec": 266641139
+            },
+            "frame_id": "map"
+          },
+          "agent_cmd": 4,
+          "control_level": 0,
+          "move_mode": 0,
+          "position_ref": [
+            2.0,
+            3.0,
+            3.0
+          ],
+          "velocity_ref": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "acceleration_ref": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "yaw_ref": 0.0,
+          "yaw_rate_mode": false,
+          "yaw_rate_ref": 0.0,
+          "att_ref": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "latitude": 0.0,
+          "longitude": 0.0,
+          "altitude": 0.0,
+          "command_id": 1
+        }
+      },
+      {
+        "version": 1,
+        "run_id": "efficiency-arducopter-baseline-02",
+        "control_epoch": "e84fdfa258a6424d8c8a6ac90fed7cae",
+        "request_id": 5,
+        "setup": {
+          "header": {
+            "stamp": {
+              "sec": 1789014816,
+              "nanosec": 253561069
+            },
+            "frame_id": "map"
+          },
+          "cmd": 1,
+          "arming": false,
+          "px4_mode": "AUTO.LAND",
+          "control_state": ""
+        }
+      }
+    ],
+    "control_restarts": [],
+    "final": {
+      "state": {
+        "header": {
+          "stamp": {
+            "sec": 58,
+            "nanosec": 972000000
+          },
+          "frame_id": "map"
+        },
+        "uav_id": 1,
+        "connected": true,
+        "armed": false,
+        "mode": "LAND",
+        "location_source": 4,
+        "odom_valid": true,
+        "gps_status": 6,
+        "gps_num": 10,
+        "position": [
+          2.041980028152466,
+          3.0390045642852783,
+          -0.009999999776482582
+        ],
+        "range": NaN,
+        "latitude": 40.154056549072266,
+        "longitude": 116.25939178466797,
+        "altitude": 49.9900016784668,
+        "rel_alt": -0.009999999776482582,
+        "velocity": [
+          -0.03333588317036629,
+          -0.026085302233695984,
+          -0.004437895957380533
+        ],
+        "attitude": [
+          0.001891327672637999,
+          -0.00044619766413234174,
+          0.0009615381713956594
+        ],
+        "attitude_q": {
+          "x": 0.0009457708298960575,
+          "y": -0.00022264405747032294,
+          "z": 0.0004809798305498972,
+          "w": 0.9999994123026091
+        },
+        "attitude_rate": [
+          0.00021320334053598344,
+          -0.00436896039173007,
+          -0.0011055725626647472
+        ],
+        "battery_state": NaN,
+        "battery_percetage": NaN
+      },
+      "control_state": {
+        "header": {
+          "stamp": {
+            "sec": 58,
+            "nanosec": 972000000
+          },
+          "frame_id": "map"
+        },
+        "uav_id": 1,
+        "control_state": 0,
+        "pos_controller": 0,
+        "failsafe": false
+      }
+    },
+    "efficiency": {
+      "case": "baseline",
+      "profile": {
+        "schema": "wksim.efficiency-flight.v1",
+        "controller": "native_position",
+        "model_library": "/root/wksim-efficiency-model-r97g_cit/libwksim_efficiency.so",
+        "model_build_sha256": "e8e5aafa0352c851d67afbc617739c570ea9008b72750576ccaa343e87c1cef4",
+        "library_sha256": "a7325ebf754f6e61ebf25c5382fb67343659454cc176c0a7d50f980b3dcb9199",
+        "point_enu_m": [
+          2.0,
+          3.0,
+          3.0
+        ],
+        "yaw_enu_rad": 0.0,
+        "stable_seconds": 6.0,
+        "position_error_m": 0.3,
+        "speed_mps": 0.3,
+        "yaw_error_rad": 0.15,
+        "disturbance_error_m": 0.5,
+        "maximum_axis_tilt_deg": 15.0,
+        "minimum_height_m": 1.5,
+        "maximum_height_m": 4.5,
+        "maximum_distance_m": 4.0,
+        "maximum_native_dt_s": 0.2,
+        "public_acceptance_timeout_s": 0.2,
+        "failure_landing_timeout_s": 30.0,
+        "scope": "explicit independent baseline/fault native-position experiment; no external PID or G6 claim"
+      },
+      "phases": [
+        {
+          "phase": "public_control_ready",
+          "monotonic_ns": 58705551495,
+          "truth": {
+            "time": 40.94,
+            "position": [
+              0.0,
+              0.0,
+              -0.0
+            ],
+            "velocity": [
+              0.0,
+              0.0,
+              -0.0
+            ],
+            "yaw": 1.5707963267948966
+          },
+          "stream_id": "1a30766b233f4cdda9ae71e6fe1d9a09"
+        },
+        {
+          "phase": "autonomous_hold_ready",
+          "monotonic_ns": 58806168679,
+          "truth": {
+            "time": 41.04,
+            "position": [
+              0.0,
+              0.0,
+              -0.0
+            ],
+            "velocity": [
+              0.0,
+              0.0,
+              -0.0
+            ],
+            "yaw": 1.5707963267948966
+          },
+          "stream_id": "1a30766b233f4cdda9ae71e6fe1d9a09"
+        },
+        {
+          "phase": "arming_completed",
+          "monotonic_ns": 58906734494,
+          "truth": {
+            "time": 41.14,
+            "position": [
+              0.0,
+              0.0,
+              -0.0
+            ],
+            "velocity": [
+              0.0,
+              0.0,
+              -0.0
+            ],
+            "yaw": 1.5707963267948966
+          },
+          "stream_id": "1a30766b233f4cdda9ae71e6fe1d9a09"
+        },
+        {
+          "phase": "command_takeoff_completed",
+          "monotonic_ns": 65397290553,
+          "truth": {
+            "time": 47.64,
+            "position": [
+              -0.013350343231989309,
+              0.021041438917217634,
+              2.978669618271539
+            ],
+            "velocity": [
+              -4.63262528902836e-05,
+              0.005129546874852992,
+              -0.12599311782893263
+            ],
+            "yaw": 1.5719318296138056
+          },
+          "stream_id": "1a30766b233f4cdda9ae71e6fe1d9a09"
+        },
+        {
+          "phase": "efficiency_point_accepted",
+          "monotonic_ns": 65399036024,
+          "truth": {
+            "time": 47.64,
+            "position": [
+              -0.013350343231989309,
+              0.021041438917217634,
+              2.978669618271539
+            ],
+            "velocity": [
+              -4.63262528902836e-05,
+              0.005129546874852992,
+              -0.12599311782893263
+            ],
+            "yaw": 1.5719318296138056
+          },
+          "stream_id": "1a30766b233f4cdda9ae71e6fe1d9a09"
+        },
+        {
+          "phase": "efficiency_point_reached",
+          "monotonic_ns": 67983648884,
+          "truth": {
+            "time": 50.22,
+            "position": [
+              2.0587177474033664,
+              3.1620715460362727,
+              2.9569143395327537
+            ],
+            "velocity": [
+              0.11920153365393064,
+              0.23198044250041713,
+              0.021109162726783377
+            ],
+            "yaw": 0.04653675287289882
+          },
+          "stream_id": "1a30766b233f4cdda9ae71e6fe1d9a09"
+        },
+        {
+          "phase": "failure_land_requested",
+          "monotonic_ns": 68450388912,
+          "truth": {
+            "time": 50.68,
+            "position": [
+              2.0112904812184205,
+              3.121483714424167,
+              2.9663013934719635
+            ],
+            "velocity": [
+              -0.19941696533613926,
+              -0.24406148685043008,
+              0.007286463421230673
+            ],
+            "yaw": 0.03752497322738835
+          },
+          "stream_id": "1a30766b233f4cdda9ae71e6fe1d9a09"
+        },
+        {
+          "phase": "failure_landed",
+          "monotonic_ns": 76739219881,
+          "truth": {
+            "time": 58.980000000000004,
+            "position": [
+              2.0672462566549124,
+              3.0658221295314303,
+              -8.496715746168987e-05
+            ],
+            "velocity": [
+              4.380808251529104e-05,
+              4.5981454114834473e-05,
+              -0.0004756137786579569
+            ],
+            "yaw": -0.006244824070193999
+          },
+          "stream_id": "1a30766b233f4cdda9ae71e6fe1d9a09"
+        }
+      ],
+      "observer_reuse": "raw DDS only; no RC frames or RC scenario executed"
+    }
+  },
+  "cleanup_errors": [],
+  "children_reaped": true,
+  "source_unchanged": true,
+  "candidate_unchanged": true,
+  "wall_seconds": 59.896613384999995,
+  "stop_kind": "unsuccessful_isolated_teardown"
+}

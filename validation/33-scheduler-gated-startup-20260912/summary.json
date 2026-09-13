@@ -1,0 +1,101 @@
+{
+  "schema": "wksim.scheduler-gated-startup-failure.v1",
+  "status": "diagnostic_partial",
+  "acceptance_eligible": false,
+  "source_commit": "ce5d23dd1c7df71899fbe9a2ce0e52d510fa5777",
+  "source_directory": "/root/wksim-scheduler-probe-20260912-gated-01",
+  "run_id": "scheduler-c6bc7af31dba",
+  "epoch": "586209af37b94e278bc60547d68aa6e5",
+  "tree": {
+    "files": 132,
+    "bytes": 24449840,
+    "manifest_sha256": "b22bfccbd16d7ff1facf4ebf9751d6bcc1021317b5564c43e165c6d61296c846",
+    "manifest_definition": "SHA-256 of sorted UTF-8 lines path<TAB>bytes<TAB>file_sha256<LF>, relative to source_directory"
+  },
+  "failure": {
+    "outer_error": "TimeoutError: Native target startup",
+    "authority_fault": "Capture-active token was not published before first step",
+    "authority_tick": 0,
+    "gate_ready_published_monotonic_ns": 228004365333,
+    "fault_issued_monotonic_ns": 243017794812,
+    "capture_launch_present": false,
+    "capture_directory_present": false,
+    "gate_release_present": false,
+    "collector_spawned": false,
+    "conclusion": "The profile and collector required FC thread readiness before publishing capture-active, while the supervisor required capture-active before releasing physical tick zero. Native targets existed but the diagnostic startup order deadlocked and failed closed."
+  },
+  "gate_ready": {
+    "schema": "wksim.private-tracefs.capture-gate-ready.v1",
+    "state": "ready",
+    "tick": 0,
+    "pid": 1326,
+    "start_ticks": 18864,
+    "sha256": "984568c528c7a9f532ae82740470e7c9a32cbb93bfb684e1ca971f066227c106"
+  },
+  "wire": {
+    "rows": 64,
+    "ticks": [0],
+    "kinds": {
+      "actuator": 1,
+      "connected": 1,
+      "diagnostic_gc_timing": 61,
+      "diagnostic_runtime_loop_timing": 1
+    },
+    "sensor_events": 0,
+    "step_events": 0
+  },
+  "artifacts": {
+    "launch.json": {
+      "bytes": 2489,
+      "sha256": "1f33c085232b74dcf60b11b446b74ed54500a5d1df246cdcbce596afc2ac3697"
+    },
+    "report.json": {
+      "bytes": 71860,
+      "sha256": "2e301a67bd2a99d526dbccb3f33885a0807a30604b5d94434e4dbae947091ca5"
+    },
+    "runs/scheduler-c6bc7af31dba/status.json": {
+      "bytes": 1782,
+      "sha256": "acd16291f3c61cc811926fb8bfcaae07d8e70924e78910a72bf164a91889ea33"
+    },
+    "runs/scheduler-c6bc7af31dba/result.json": {
+      "bytes": 65376,
+      "sha256": "40312a89b139c17e431b11d3bf60d8b3b864cb7b97f9a6ed389dd27599c1a504"
+    },
+    "runs/scheduler-c6bc7af31dba/epochs/586209af37b94e278bc60547d68aa6e5/children.json": {
+      "bytes": 12583,
+      "sha256": "a332a85153bb191c13a977c2fd769447d6e9149a532b2394c0af4496f3caf6c6"
+    },
+    "runs/scheduler-c6bc7af31dba/epochs/586209af37b94e278bc60547d68aa6e5/faults.json": {
+      "bytes": 1157,
+      "sha256": "6f203d06e7d8b33df6c8859e6167bdfb31655cf1b5c9647df35a2b388fb7a27e"
+    },
+    "runs/scheduler-c6bc7af31dba/epochs/586209af37b94e278bc60547d68aa6e5/wire.jsonl": {
+      "bytes": 14996,
+      "sha256": "9c7de30cfcc65e768ee544eb1855992dc9d6f5b1d81fa2c40e9cc17aa4812de8"
+    }
+  },
+  "cleanup": {
+    "manager_returncode": 1,
+    "manager_cleanup_error": null,
+    "remaining_manager_group": [],
+    "epoch_groups_retired": true,
+    "sources_unchanged": true,
+    "residual_profile_processes": 0,
+    "residual_collector_processes": 0
+  },
+  "source_sha256": {
+    "Simulator/wksim_core/joint.py": "f5433c2ec7e81794ffcfab26dce0feff18d4e1affdfb44f895a72e4ce0241d50",
+    "Simulator/wksim_core/worker.py": "0becd1f3214b53c6169fb61ae010a969fb57a4ccbe26fb3ed3c3652c26ef7fab",
+    "Simulator/wksim_runtime/joint_rate.py": "0b53a16acd65138b4623a9a8573ec8d643a2b78f4e27e8122c65efb9a6da25c4",
+    "Simulator/wksim_runtime/joint_runtime.py": "d2f9dac25ef5b1b8e7830f294d252549bc6c64134fa1410f3eb2f1a40e1d9e5b",
+    "tools/profile_joint_scheduler.py": "e11610f0dcd4219d9599bff4bc773e8079b19c766893a68071080e4564002228",
+    "validation/rate-remediation-ff63c72/sitecustomize.py": "ab60436f49fb598d9c9efa3a0a159ff982d970d30fdcbad3e1c4dd261ca15c6f",
+    "validation/rate-syscall-scheduler-plan-20260909/collect_tracefs.py": "b96aaef3ba8cd5fbf093243a7c0d6d364f58683edc3a69fdd2ebb00876e24b3a"
+  },
+  "non_claims": [
+    "This retained ground failure is not a scheduler capture, rate pass, flight pass, or acceptance result.",
+    "No private tracefs instance was created and no scheduler, native-wait, storage, release-path, or model cause was measured.",
+    "No timing threshold, physical step, barrier, or catch-up policy was changed."
+  ],
+  "next_action": "Bootstrap a truthful private capture before releasing tick zero, then bind late FC threads and exact filters within the same retained window; validate offline and independently before one new real probe."
+}

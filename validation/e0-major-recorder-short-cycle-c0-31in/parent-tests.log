@@ -1,0 +1,56 @@
+test_boolean_cannot_impersonate_zero_or_one_in_raw_records (validation.test_generated_e0_major.TestGeneratedE0Major.test_boolean_cannot_impersonate_zero_or_one_in_raw_records) ... ok
+test_compilation_failure_preserves_logs_and_summary (validation.test_generated_e0_major.TestGeneratedE0Major.test_compilation_failure_preserves_logs_and_summary)
+Test compiler error returns failed summary and preserves command and error logs. ... ok
+test_instrument_already_patched_rejected (validation.test_generated_e0_major.TestGeneratedE0Major.test_instrument_already_patched_rejected)
+Test instrument rejects source file if wk_capture_major is already present. ... ok
+test_instrument_line_boundary_moved_rejected (validation.test_generated_e0_major.TestGeneratedE0Major.test_instrument_line_boundary_moved_rejected)
+Test instrument rejects source file if insertion context line boundary shifted from 7919. ... ok
+test_instrument_non_unique_or_missing_context_rejected (validation.test_generated_e0_major.TestGeneratedE0Major.test_instrument_non_unique_or_missing_context_rejected)
+Test instrument rejects missing or non-unique insertion context. ... ok
+test_instrument_success_and_invariants (validation.test_generated_e0_major.TestGeneratedE0Major.test_instrument_success_and_invariants)
+Test instrumentation accurately places callback at line 7919 and satisfies round-trip reversion. ... ok
+test_instrument_unreviewed_sha_rejected (validation.test_generated_e0_major.TestGeneratedE0Major.test_instrument_unreviewed_sha_rejected)
+Test instrument raises ValueError if source SHA does not match expected. ... ok
+test_missing_prerequisites (validation.test_generated_e0_major.TestGeneratedE0Major.test_missing_prerequisites)
+Test missing MathWorks headers or recorder source raises FileNotFoundError. ... ok
+test_mock_build_and_record_workflow_with_parity (validation.test_generated_e0_major.TestGeneratedE0Major.test_mock_build_and_record_workflow_with_parity)
+Test end-to-end major build and record workflow with mock WSL runner and parity check. ... ok
+test_parity_checker_31_input_parity_success (validation.test_generated_e0_major.TestGeneratedE0Major.test_parity_checker_31_input_parity_success)
+Test that matching 31-input major recorder and post reference pass with 0 discrepancies. ... ok
+test_parity_checker_corrupted_json_fails (validation.test_generated_e0_major.TestGeneratedE0Major.test_parity_checker_corrupted_json_fails)
+Test corrupt JSON line in record.jsonl fails parity check. ... ok
+test_parity_checker_many_discrepancies_counts_all_and_caps_samples (validation.test_generated_e0_major.TestGeneratedE0Major.test_parity_checker_many_discrepancies_counts_all_and_caps_samples)
+Test that discrepancy count reflects true total while sample list is capped at 10. ... ok
+test_parity_checker_missing_terminal_fails (validation.test_generated_e0_major.TestGeneratedE0Major.test_parity_checker_missing_terminal_fails)
+Test record.jsonl missing terminal major_recorder_end fails parity check. ... ok
+test_parity_checker_nan_output_fails (validation.test_generated_e0_major.TestGeneratedE0Major.test_parity_checker_nan_output_fails)
+Test non-finite (NaN) recorded value fails parity check explicitly. ... ok
+test_parity_checker_nonexistent_non_so_path_fails (validation.test_generated_e0_major.TestGeneratedE0Major.test_parity_checker_nonexistent_non_so_path_fails)
+Test that a non-existent non-.so reference path fails parity check. ... ok
+test_parity_checker_nonzero_terrain_with_so_ref_fails (validation.test_generated_e0_major.TestGeneratedE0Major.test_parity_checker_nonzero_terrain_with_so_ref_fails)
+Test input CSV with non-zero TerrainIn15d is rejected when reference is 16-PWM SO. ... ok
+test_parity_checker_out_of_order_step_fails (validation.test_generated_e0_major.TestGeneratedE0Major.test_parity_checker_out_of_order_step_fails)
+Test out-of-order step index k fails parity check. ... ok
+test_parity_checker_tiny_discrepancy_1e13_fails (validation.test_generated_e0_major.TestGeneratedE0Major.test_parity_checker_tiny_discrepancy_1e13_fails)
+Test that an exact discrepancy of 1e-13 causes parity check failure without tolerance slack. ... ok
+test_parity_discrepancy_fails_cleanly (validation.test_generated_e0_major.TestGeneratedE0Major.test_parity_discrepancy_fails_cleanly)
+Test parity discrepancy causes parity_failed status without relaxing tolerance. ... ok
+test_reference_library_sha_mismatch_rejected (validation.test_generated_e0_major.TestGeneratedE0Major.test_reference_library_sha_mismatch_rejected)
+Test WSL actual reference library SHA mismatch against manifest raises ValueError. ... ok
+test_reference_manifest_missing_rejected (validation.test_generated_e0_major.TestGeneratedE0Major.test_reference_manifest_missing_rejected)
+Test missing reference manifest raises FileNotFoundError. ... ok
+test_reference_manifest_unreviewed_cpp_sha_rejected (validation.test_generated_e0_major.TestGeneratedE0Major.test_reference_manifest_unreviewed_cpp_sha_rejected)
+Test reference manifest with wrong source CPP SHA256 raises ValueError. ... ok
+test_staging_dir_collision_rejected_and_non_destructive (validation.test_generated_e0_major.TestGeneratedE0Major.test_staging_dir_collision_rejected_and_non_destructive)
+Test staging directory collision raises FileExistsError without deleting or overwriting. ... ok
+test_staging_dir_preserved_after_build (validation.test_generated_e0_major.TestGeneratedE0Major.test_staging_dir_preserved_after_build)
+Test that private work/ staging directory is retained for post-mortem analysis. ... ok
+test_staging_dir_traversal_rejected (validation.test_generated_e0_major.TestGeneratedE0Major.test_staging_dir_traversal_rejected)
+Test staging directory path traversal raises ValueError. ... ok
+test_validate_wsl_major_dir (validation.test_generated_e0_major.TestGeneratedE0Major.test_validate_wsl_major_dir)
+Test validate_wsl_major_dir enforces ^/root/wksim-e0-major-[a-zA-Z0-9_-]+$. ... ok
+
+----------------------------------------------------------------------
+Ran 26 tests in 4.407s
+
+OK

@@ -1,0 +1,70 @@
+{
+  "schema": "wksim.rotor-efficiency-model.v1",
+  "archive": "/mnt/e/rflysimtools/RflySimAPIs/4.RflySimModel/1.BasicExps/e0_MinModelTemp/MulticopterModel.zip",
+  "archive_sha256": "d528b5d247e13d943f1eaa7a37fd3cb4d15c7e9bb7a6b0e5988a1423e59d05ed",
+  "library": "/root/wksim-efficiency-model-r97g_cit/libwksim_efficiency.so",
+  "files_sha256": {
+    "Exp1_MinModelTemp.cpp": "0166faa7b3a2b8c6f5876b944bebb18f5d5ca24e263968a1a4b90d4a93720865",
+    "Exp1_MinModelTemp.h": "692b17d61307d7145e90b625778a117b5f84760d3ef73e4c6241ea91ac446626",
+    "rtwtypes.h": "9d5bd1a47f06fd3f6cb124a96d407a6296875763759ab9fb388296e6199a1716",
+    "rtw_continuous.h": "8f2c78fdc5a097552078484c738aefcc944463c8834d2ca6319b76cedf526b18",
+    "rtw_solver.h": "359ff69aa94a137e8b246721ead52e056dd4fdf11c35a7f92ebb9f14e0cda674",
+    "original.cpp": "a35d7c8f39c94f2db8c27b19affee5b66c1b001c63ded334ba83c99f8be54019",
+    "original.h": "2d89ad1b492c5e70e80682a9f53896e0538260946a0180a2ca44e500ba1589bd",
+    "base_wrapper.cpp": "3f325678b1d85c9aa3fd07bd644d82935aa26d82885926defeced139f02ddf2c",
+    "motor_efficiency_native.h": "01d16607196ff85a55874a973248de9a65404e6d2cb739856985fcbbc0e30b0c",
+    "motor_efficiency_native.cpp": "d4437f041f48f0dddd659b1b7b079fce326ea651b9379cdde35abbbe1f159014",
+    "libwksim_efficiency.so": "a7325ebf754f6e61ebf25c5382fb67343659454cc176c0a7d50f980b3dcb9199"
+  },
+  "builder_sha256": "bff0ac733228692a3f2abfc77b644e7ea190d4c4c8d43187f8c4676f8cd11ef6",
+  "argv": [
+    "g++",
+    "-std=c++17",
+    "-O2",
+    "-fno-fast-math",
+    "-fPIC",
+    "-shared",
+    "-Wl,--no-undefined",
+    "-I",
+    "/root/wksim-efficiency-model-r97g_cit",
+    "/root/wksim-efficiency-model-r97g_cit/Exp1_MinModelTemp.cpp",
+    "/root/wksim-efficiency-model-r97g_cit/motor_efficiency_native.cpp",
+    "-o",
+    "/root/wksim-efficiency-model-r97g_cit/libwksim_efficiency.so"
+  ],
+  "compiler": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0",
+  "random_state_fields": [
+    [
+      "RandSeed",
+      3
+    ],
+    [
+      "RandSeed_g",
+      3
+    ],
+    [
+      "RandSeed_j",
+      3
+    ],
+    [
+      "RandSeed_l",
+      1
+    ],
+    [
+      "RandSeed_p",
+      1
+    ],
+    [
+      "RandSeed_ld",
+      3
+    ],
+    [
+      "RandSeed_ji",
+      3
+    ]
+  ],
+  "physical_semantics": "rotor0 thrust and reaction torque times eta; motor and gyro unchanged",
+  "production_admitted": false,
+  "flown": false,
+  "redistribution": "local supplied source use only"
+}

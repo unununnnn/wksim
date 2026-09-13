@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "issue": 161,
+  "stable_key": "full-ops-10",
+  "title": "Control, mission and algorithms",
+  "source": {
+    "file": "docs/plan/full-scope-expansion.md",
+    "line": 78,
+    "ledger_id": "OPS-10",
+    "ledger_file": "docs/plan/full-followup-tickets.json",
+    "parent_issues": [1, 35, 36, 37, 38, 39, 40]
+  },
+  "status": "defined",
+  "evidence_status": "partial-evidence",
+  "full_complete": false,
+  "current_gap": "Velocity/yaw (#32) and the attitude exit (#34) are verified; PID has source comparison/candidates and preflight, and UDE/NE, RC, planning and ArUco have existing chains. Fixed source mapping and per-experiment acceptance for the remaining public algorithms, demos and multi-vehicle formations are still missing.",
+  "atoms": [
+    {"id": "OPS-10-A", "name": "rc_modes", "status": "partial", "required": "RC_POS_CONTROL plus the other public RC modes with validated handoff; the #99 seam is a shared pure seam, not RC product acceptance", "owner": "control maintainer"},
+    {"id": "OPS-10-B", "name": "controller_paths", "status": "partial", "required": "PID/UDE/NE closed-loop selection with source comparison, preflight and per-stack acceptance; #35 selection remains open", "owner": "control maintainer"},
+    {"id": "OPS-10-C", "name": "mission_layer", "status": "partial", "required": "Mission plan/action/evidence lifecycle preserving the acceptance/completion distinction on both stacks", "owner": "mission maintainer"},
+    {"id": "OPS-10-D", "name": "planning_perception_demos", "status": "partial", "required": "Fixed source/version/hash mapping per public planning/perception demo; single planner and ArUco are first paths only", "owner": "algorithm maintainer"},
+    {"id": "OPS-10-E", "name": "multi_vehicle_formation", "status": "blocked", "required": "Owned multi-vehicle mission/formation capability on the joint scene; upstream swarm sources are not a port", "owner": "mission maintainer"},
+    {"id": "OPS-10-F", "name": "public_experiment_mapping", "status": "blocked", "required": "Per-item mapping of public Prometheus experiments with fixed source, version, hash and single-experiment acceptance", "owner": "validation maintainer"}
+  ],
+  "command_required": ["command_id", "source", "mode", "vehicle_id", "run_id", "epoch", "step", "sim_time_ns", "reference_kind", "reference_value", "precondition_state", "acceptance", "completion_window", "error_budget", "source_identity"],
+  "scope_rule": "command acceptance is not FC acknowledgement, task takeover or action completion; a verified single-experiment path is not the public algorithm set",
+  "errors": ["accepted", "unsupported_mode", "invalid_command", "nonfinite_value", "state_mismatch", "not_aligned", "takeover_required", "mission_rejected", "algorithm_unmapped", "formation_unsupported", "completion_timeout"],
+  "followups": [
+    {"key": "ops-10-rc-modes", "files": ["ros2/src/prometheus_control/prometheus_control/command.py", "Simulator/wksim_control/rc_input.py", "validation/<rc-modes-audit>"], "status": "proposed", "blocked_by": "Explicit RC mode list and native handoff design"},
+    {"key": "ops-10-controller-selection", "files": ["Simulator/wksim_control/position_pid.py", "Simulator/wksim_control/position_ude.py", "Simulator/wksim_control/position_ne.py", "validation/<controller-selection-audit>"], "status": "proposed", "blocked_by": "#35 selection decision and frozen comparison budget"},
+    {"key": "ops-10-demo-mapping", "files": ["docs/plan/<public-experiment-map>.json", "validation/<demo-mapping-audit>"], "status": "proposed", "blocked_by": "Fixed public experiment source list"},
+    {"key": "ops-10-formation-slice", "files": ["mission/formation source reserved after swarm decision", "validation/<formation-audit>"], "status": "proposed", "blocked_by": "Owned multi-vehicle formation source and joint-scene authority"}
+  ],
+  "preserved": {"issue_32": "closed velocity/yaw slice", "issue_34": "verified attitude exit", "issue_35": "open PID selection", "issue_99": "shared RC seam, not product acceptance", "full_complete": false}
+}

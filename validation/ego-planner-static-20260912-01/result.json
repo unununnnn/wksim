@@ -1,0 +1,61 @@
+{
+  "status": "failed",
+  "scope": "real planner with static fixtures only",
+  "physical_acceptance": false,
+  "source_sha256": {
+    "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/validation/run_ego_planner_probe.py": "bc17c07b15944f6ff6625fbcf9a17b12c87c56ff04c22ae6dc37896cf2059bac",
+    "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/Modules/ego_planner_swarm/plan_manage/launch_for_prometheus/advanced_param_wksim_single_box.xml": "12c5b0ad5234b81b7b592f5474719c3e513f043c642d7fbb76077ea3d15f225f",
+    "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/tools/publish_ego_profile_scene.py": "bde6484569dfd00e68dd33b790ea97a544ece3268910bc65d81928d656f3ef56",
+    "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/Simulator/wksim_planning/scene_profile.py": "5a34e036194372241577b7187107eecc2c6be1777a7f51a4f189f87a6205f84c"
+  },
+  "planner_binary": {
+    "path": "/root/wksim-ego-local-pGqjgO/devel/lib/ego_planner/ego_planner_node",
+    "sha256": "ad2d035bd7d4193fdad031fb4b738c9df36528e140ebf4f738506733c16c2649"
+  },
+  "fixture": {
+    "odom": [
+      -4.0,
+      0.0,
+      3.0
+    ],
+    "command_control_is_synthetic": true,
+    "clock_step_ns": 1000000,
+    "goal": [
+      4.0,
+      0.0,
+      3.0
+    ]
+  },
+  "namespace": {
+    "net": "net:[4026532255]",
+    "ipc": "ipc:[4026532254]",
+    "mnt": "mnt:[4026532253]"
+  },
+  "cloud": {
+    "profile_id": "ego-single-box-v1",
+    "profile_hash": "49da4cccaf3c172c510daa3cc3bd0ddad521669c4d64f3c8bc1a7fe71d9730f7",
+    "voxel_hash": "3602530733cf10fd0960212dc413b157e56e662d330b4b314a71f4c21abae638",
+    "source_voxel_set_hash": "05e106d726d80dafe18e1dae54261a8259012110c3aee05aa9bc9b77237d0bae",
+    "message_voxel_set_hash": "05e106d726d80dafe18e1dae54261a8259012110c3aee05aa9bc9b77237d0bae",
+    "message_matches_source_voxel_set": true,
+    "point_count": 11000,
+    "message_point_count": 11000,
+    "frame_alias": "world",
+    "topic": "/map_generator/global_cloud",
+    "wire_data_sha256": "d21cd43c56710a149d1f861642e1e27fa4ed8698851c837528728c202ac3ef63"
+  },
+  "error": "TimeoutError('EGO did not produce a B-spline within the fixture wall deadline')",
+  "traceback": "Traceback (most recent call last):\n  File \"/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/validation/run_ego_planner_probe.py\", line 134, in run\n    raise TimeoutError(\"EGO did not produce a B-spline within the fixture wall deadline\")\nTimeoutError: EGO did not produce a B-spline within the fixture wall deadline\n",
+  "children": {
+    "roscore": {
+      "pid": 473,
+      "returncode": 0
+    },
+    "planner": {
+      "pid": 586,
+      "returncode": 0
+    }
+  },
+  "source_unchanged": true,
+  "remaining_local_namespace_pids": []
+}

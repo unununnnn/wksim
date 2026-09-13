@@ -1,0 +1,17 @@
+Working directory: C:/Users/PC/Documents/odid编译/wksim
+
+Read-only inputs:
+  Get-Content docs/plan/remaining-gates-proposal.md
+  Get-Content docs/plan/9-abi-environment-evidence.md
+  Get-Content docs/2026-09-07_environment-contract-accepted.md
+  Get-Content validation/remaining-gates-20260907/environment-acceptance.json
+  Get-Content validation/lunar-57-6d85dab1b5ff4b84a3a5e58b1fc467a1/abi-facts.json
+  gh issue view 58 --repo unununnnn/wksim --json number,title,body,state,labels,comments
+  gh issue view 9 --repo unununnnn/wksim --json number,title,body,state,labels,comments
+  gh issue view 57 --repo unununnnn/wksim --json number,title,state,comments
+
+Validation:
+  python -B -c "import json;d=json.load(open('validation/lunar-58-fbf56d9d50e1df62/accepted-facts.json',encoding='utf-8'));assert d['blocked']['dll_abi']"
+  git diff --check -- docs/plan/9-abi-environment-accepted.md validation/lunar-58-fbf56d9d50e1df62
+
+No vendor DLL was loaded, executed or modified; no hardware command was sent; no UE, FC, model, ROS or MATLAB process was started.

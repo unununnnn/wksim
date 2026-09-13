@@ -1,0 +1,40 @@
+{
+  "status": "ready",
+  "number": 51,
+  "url": "https://github.com/unununnnn/wksim/issues/51",
+  "key": "35-ap-preflight",
+  "tier": "luna",
+  "working_directory": "C:\\Users\\PC\\Documents\\odid编译\\wksim",
+  "title": "[Luna] 执行一次 AP PID 只读准入",
+  "definition": {
+    "key": "35-ap-preflight",
+    "parent": 35,
+    "title": "执行一次 AP PID 只读准入",
+    "tier": "luna",
+    "owned_files": [
+      "validation/lunar-35-ap-preflight/ (new evidence)"
+    ],
+    "known_input_reports": [
+      "docs/2026-09-09-pid-controller-port.md",
+      "docs/2026-09-09-pid-flight-plan.md"
+    ],
+    "concrete_actions": [
+      "校验pid-flight-v1.json冻结SHA和本机候选资源",
+      "执行一次AP --preflight并保存原始stdout/exit",
+      "确认ok=true、原安装/消息路径正确、未启动FC/model/ROS节点"
+    ],
+    "verifiable_completion": "AP只读准入真实通过；失败保留OPEN并记录具体接缝。",
+    "prerequisite_keys": [],
+    "parent_dependencies": [
+      34
+    ],
+    "targeted_test_command": "bash tools/run-pid-flight.sh --stack arducopter --run-id pid-ap-preflight --config Simulator/wksim_runtime/pid-flight-v1.json --output-root /root/wksim-pid-flight-preflight-ap --preflight",
+    "command_status": "existing_command",
+    "readiness": "ready_when_explicit_dependencies_closed",
+    "failure_escalation_boundary": "保存新证据；未达到完成条件保持OPEN并标needs-triage。身份、预算或写入范围变化交Astra复核。",
+    "blocking_issue_numbers": [],
+    "priority": 2,
+    "dependency_rationale": "父票原Blocked by保留；本票源码/纯检查只按自身实际前置派发，父票最终关闭仍检查全部原依赖。"
+  },
+  "next_action": "先完整读取此GitHub子票；只做本票写入范围。真实运行使用新ID/目录，完成后再取下一票。"
+}

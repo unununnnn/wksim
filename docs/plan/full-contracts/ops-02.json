@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "issue": 153,
+  "stable_key": "full-ops-02",
+  "title": "Performance calculation",
+  "source": {
+    "file": "docs/plan/full-scope-expansion.md",
+    "line": 70,
+    "ledger_id": "OPS-02",
+    "ledger_file": "docs/plan/full-followup-tickets.json",
+    "parent_issue": 23,
+    "parent_state": "CLOSED"
+  },
+  "status": "defined",
+  "evidence_status": "partial-evidence",
+  "full_complete": false,
+  "current_gap": "The owned model boundary has normalized actuator inputs and some archived RPM-labelled output slots, but no accepted current, voltage, battery, power, energy or FlyEval formula/service contract.",
+  "atoms": [
+    {"id": "OPS-02-A", "name": "hover_time_endurance", "status": "blocked", "required": "Sourced battery/load/usable-energy contract and stop semantics", "owner": "model/physics maintainer"},
+    {"id": "OPS-02-B", "name": "throttle_hover_command", "status": "partial", "required": "Command-to-throttle mapping and calibration", "owner": "model/physics maintainer"},
+    {"id": "OPS-02-C", "name": "motor_current", "status": "blocked", "required": "Per-motor/total current source, units and calibration", "owner": "model/physics maintainer"},
+    {"id": "OPS-02-D", "name": "rotor_speed", "status": "partial", "required": "Independent four-motor RPM mapping and timing evidence", "owner": "model/physics maintainer"},
+    {"id": "OPS-02-E", "name": "input_power", "status": "blocked", "required": "Voltage/current source or explicitly sourced electrical model", "owner": "model/physics maintainer"},
+    {"id": "OPS-02-F", "name": "efficiency", "status": "blocked", "required": "Frozen useful-output and energy formula with denominator rules", "owner": "model/physics maintainer"},
+    {"id": "OPS-02-G", "name": "flyeval_reference_flow", "status": "blocked", "required": "Separate local/service formula, availability and comparison contract", "owner": "integration maintainer"}
+  ],
+  "required_binding": ["model_identity", "component_hashes", "configuration_identity", "run_id", "control_epoch", "authority_time", "sample_period", "calibration_identity", "formula_identity", "units"],
+  "result_fields": ["time_s", "command", "rpm", "current_a", "voltage_v", "power_w", "energy_j", "thrust_n", "efficiency"],
+  "missing_value_rule": "required channels are unavailable, never silently zero",
+  "formula_policy": "no formula approved until source, units, sampling boundary and version are frozen",
+  "errors": ["accepted", "unavailable", "source_mismatch", "invalid_unit", "non_finite", "stale_sample", "foreign_epoch", "zero_denominator", "formula_mismatch", "service_unavailable"],
+  "followups": [
+    {"key": "ops-02-local-metric-source", "files": ["Simulator/wksim_core/performance.py", "tools/<performance-runner>.py", "validation/<performance-source-tests>.py"], "status": "proposed", "blocked_by": "Electrical/propulsion source and units are not accepted"},
+    {"key": "ops-02-local-calculation-audit", "files": ["Simulator/wksim_core/performance.py", "validation/<performance-audit-tests>.py"], "status": "proposed", "blocked_by": "Local metric source"},
+    {"key": "ops-02-flyeval-adapter", "files": ["tools/<flyeval-adapter>.py", "validation/<flyeval-contract-tests>.py"], "status": "proposed", "blocked_by": "Endpoint/formula/authentication evidence"},
+    {"key": "ops-02-endurance-run", "files": ["runtime files reserved after model/battery review", "validation/<endurance-run>"] , "status": "proposed", "blocked_by": "Model, battery and safety budgets"}
+  ],
+  "preserved": {"issue_23_scope": "fixed numerical comparison delivery only", "r1": "numerical_failed", "hardware_and_service": "no hardware action and no external service call"}
+}

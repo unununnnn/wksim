@@ -1,0 +1,44 @@
+{
+  "ticket": 57,
+  "stable_key": "9-evidence",
+  "status": "evidence_contract_written_no_vendor_dll_execution",
+  "sources": {
+    "proposal": {
+      "path": "docs/plan/remaining-gates-proposal.md",
+      "sha256": "abf10c663c235c151207bba142fa4e8798cb02617142465c3b5a46f3d04d7098"
+    },
+    "dll_wrapper": {
+      "path": "E:/rflysimtools/RflySimAPIs/RflySimSDK/ctrl/DllSimCtrlAPI.py",
+      "sha256": "0a2a30e91fe55590aec198f1e852a6d45d6aa34c029557de62880d0b81cf5420"
+    },
+    "vision_api": {
+      "path": "E:/rflysimtools/RflySimAPIs/RflySimSDK/vision/VisionCaptureApi.py",
+      "sha256": "f69a3c50e0d335136b3d83070bf380e7579bd25dfd80ae291a2548d5b79dd7ee"
+    },
+    "hexa_xml": {
+      "path": "E:/rflysimtools/CopterSim/external/XML/Hexa.xml",
+      "sha256": "e5a7ddb311313d7cc0d0dda57783389ce7673f0fdaa9b1f6bc61230090a23e13"
+    },
+    "f450_xml": {
+      "path": "E:/rflysimtools/CopterSim/external/XML/F450.xml",
+      "sha256": "1215bbac83631c1a89a15c3b609cf88365a72fb832d9ee76eef7ca70b59e9489"
+    },
+    "sample": {
+      "path": "E:/rflysimtools/RflySimAPIs/4.RflySimModel/0.ApiExps/12.DllModelImport/9.ModelLoadCopterSim30100Python/DllSimCtrlAPITest.py",
+      "sha256": "3510c3a62611720d95ea65b08587713998b24aa607339a0dfa7413b69833b392"
+    }
+  },
+  "findings": [
+    "DllInputColls argtypes conflict: c_double[20] at lines 1235-1239 is overwritten by c_float[20] at lines 1292-1296.",
+    "DllInitPosAngStat is checked at lines 1248 and 1255 while DllInitPosAngState is accessed; same-name mismatch remains unverified.",
+    "DllOutCopterData is declared as double[32] output pointer/None return and later called through a wrapper with a newly allocated output array; no public C header confirms ABI.",
+    "Hexa.xml and F450.xml provide readable metadata but do not prove DLL/ZIP/SLX same-origin or public redistribution rights.",
+    "VisionSensorReq comment declares 16H28f and fields but no wksim epoch/authority-step contract."
+  ],
+  "decisions": {
+    "dll_policy": "unknown legacy/new ABI is rejected; autonomous wk_model API remains separate",
+    "static_geometry": "candidate only: ENU metres, z=0 plane plus 1m cube centered at [2,0,0.5]m",
+    "contact_expiry": "candidate only: wksim.contact.v1; one-authority-step validity; required stale feedback freezes joint scene",
+    "approval": "not approved; #9 decision remains open"
+  }
+}

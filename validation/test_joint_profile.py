@@ -66,6 +66,133 @@ class JointProfileTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError,'source snapshot'):
                     profile._firmware(record,'ap')
 
+    def test_sealed_build_inputs_belong_to_historical_install(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory).resolve()
+            repo=root/'repo'; candidate=root/'candidate'
+            package=candidate/'install/prometheus_control'/profile.PYTHON/'prometheus_control'
+            staged=candidate/'src/prometheus_control'
+            current=repo/'ros2/src/prometheus_control'
+            for base in (package, staged/'prometheus_control', current/'prometheus_control'):
+                base.mkdir(parents=True)
+                (base/'__init__.py').write_text('same')
+            (staged/'CMakeLists.txt').write_text('historical build')
+            (current/'CMakeLists.txt').write_text('new candidate build')
+            (candidate/'build.log').write_text('built')
+            (repo/'tools').mkdir(); (repo/'tools/build-joint-control.sh').write_text('builder')
+            record=dict(root=str(candidate),package=str(package),
+                python_sha256={'__init__.py':profile.digest(package/'__init__.py')},
+                build_inputs={'CMakeLists.txt':profile.digest(staged/'CMakeLists.txt')},
+                build_log_sha256=profile.digest(candidate/'build.log'),
+                build_script_sha256=profile.digest(repo/'tools/build-joint-control.sh'))
+            with patch.object(profile,'REPO',repo):
+                self.assertEqual(profile._control(record,sealed=True),str(package))
+                with self.assertRaisesRegex(ValueError,'requires manifest version 2'):
+                    profile._control(record,sealed=False)
+                (staged/'CMakeLists.txt').write_text('tampered historical build')
+                with self.assertRaisesRegex(ValueError,'build input'):
+                    profile._control(record,sealed=True)
+
+    def test_v2_control_checks_named_repo_support_and_complete_candidate_trees(self):
+        from tools import joint_control_candidate as candidate_builder
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory).resolve()
+            repo=root/'repo'; candidate=root/'candidate'
+            package=candidate/'install/prometheus_control'/profile.PYTHON/'prometheus_control'
+            staged=candidate/'src/prometheus_control'
+            current=repo/'ros2/src/prometheus_control'
+            for base in (package, staged/'prometheus_control', current/'prometheus_control'):
+                base.mkdir(parents=True)
+                (base/'__init__.py').write_text('same')
+            for namespace,names in candidate_builder.SIMULATOR_FILES.items():
+                for base in (repo/'Simulator', candidate/'Simulator',
+                             candidate/'install/prometheus_control'/profile.PYTHON/'Simulator'):
+                    (base/namespace).mkdir(parents=True,exist_ok=True)
+                    for name in names:
+                        (base/namespace/name).write_text(namespace+'/'+name)
+            for namespace,names in candidate_builder.SIMULATOR_ASSETS.items():
+                for base in (repo/'Simulator', candidate/'Simulator',
+                             candidate/'install/prometheus_control'/profile.PYTHON/'Simulator'):
+                    (base/namespace).mkdir(parents=True,exist_ok=True)
+                    for name in names:
+                        (base/namespace/name).write_text('asset:'+name)
+            # Unrelated repository modules are outside the installed closure.
+            (repo/'Simulator/wksim_runtime/unrelated.py').write_text('not a candidate input')
+            for name in candidate_builder.BUILD_INPUTS:
+                for base in (current,staged):
+                    path=base/name; path.parent.mkdir(parents=True,exist_ok=True)
+                    path.write_text(name)
+            for name,target in candidate_builder.INSTALLED_INPUTS.items():
+                installed=candidate/'install/prometheus_control'/target
+                installed.parent.mkdir(parents=True,exist_ok=True)
+                installed.write_bytes((current/name).read_bytes())
+            transport=candidate/'install/prometheus_control/lib/libwksim_rc_take.so'
+            transport.parent.mkdir(parents=True,exist_ok=True)
+            transport.write_bytes(b'fixture transport, never loaded')
+            (candidate/'build.log').write_text('built')
+            (repo/'tools').mkdir()
+            (repo/'tools/build-joint-control.sh').write_text('builder')
+            (repo/'tools/joint_control_candidate.py').write_text('fixture sealer')
+            (candidate/'build-joint-control.sh').write_text('builder')
+            message=root/'message-build.json';message.write_text('fixture messages')
+            with patch.object(profile,'REPO',repo), \
+                    patch.object(candidate_builder,'REPO',repo), \
+                    patch.object(candidate_builder,'PACKAGE',current), \
+                    patch.object(candidate_builder,'MESSAGE_MANIFEST',message), \
+                    patch.object(candidate_builder,'MESSAGE_SHA256',profile.digest(message)), \
+                    patch.object(candidate_builder,'check_messages',return_value={'fixture':True}), \
+                    patch.object(candidate_builder,'root_path',side_effect=lambda value:Path(value).resolve(strict=True)):
+                record=candidate_builder.snapshot(candidate)
+                (candidate/'build.json').write_text(json.dumps(record))
+                self.assertEqual(len(record['simulator_python_sha256']),15)
+                self.assertEqual(len(record['simulator_asset_sha256']),2)
+                self.assertEqual(profile._control(record,sealed=False),str(package))
+                self.assertEqual(profile._control(record,sealed=True),str(package))
+                with self.assertRaisesRegex(ValueError,'record differs'):
+                    profile._control(dict(record,scope='unbound record'),sealed=False)
+                (repo/'Simulator/wksim_runtime/task.py').write_text('tampered')
+                with self.assertRaisesRegex(ValueError,'Simulator'):
+                    profile._control(record,sealed=False)
+                (repo/'Simulator/wksim_runtime/task.py').write_text('wksim_runtime/task.py')
+                asset=candidate/'Simulator/wksim_runtime/message_pins/ros1_Bspline.msg'
+                original=asset.read_bytes();asset.write_text('tampered asset')
+                for sealed in (False,True):
+                    with self.subTest(sealed=sealed), self.assertRaisesRegex(ValueError,'Simulator.*asset'):
+                        profile._control(record,sealed=sealed)
+                asset.write_bytes(original)
+                extra=candidate/'Simulator/wksim_runtime/extra.py';extra.write_text('extra')
+                with self.assertRaisesRegex(ValueError,'Simulator support'):
+                    profile._control(record,sealed=True)
+                extra.unlink()
+                transport.write_bytes(b'changed transport')
+                with self.assertRaisesRegex(ValueError,'candidate changed'):
+                    profile._control(record,sealed=False)
+                transport.write_bytes(b'fixture transport, never loaded')
+                (candidate/'install/prometheus_control/lib/prometheus_control/trajectory_bridge_node').write_text('tampered')
+                with self.assertRaisesRegex(ValueError,'entry points'):
+                    profile._control(record,sealed=True)
+
+    def test_v1_sealed_control_requires_known_historical_builder(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory).resolve(); candidate=root/'candidate'
+            package=candidate/'install/prometheus_control'/profile.PYTHON/'prometheus_control'
+            staged=candidate/'src/prometheus_control'
+            for base in (package, staged/'prometheus_control'):
+                base.mkdir(parents=True); (base/'__init__.py').write_text('same')
+            (staged/'CMakeLists.txt').write_text('historical')
+            (candidate/'build.log').write_text('built')
+            record=dict(version=1,root=str(candidate),package=str(package),
+                python_sha256={'__init__.py':profile.digest(package/'__init__.py')},
+                build_inputs={'CMakeLists.txt':profile.digest(staged/'CMakeLists.txt')},
+                build_log_sha256=profile.digest(candidate/'build.log'),
+                build_script_sha256=next(iter(profile.LEGACY_CONTROL_BUILD_SCRIPTS)))
+            self.assertEqual(profile._control(record,sealed=True),str(package))
+            with self.assertRaisesRegex(ValueError,'requires manifest version 2'):
+                profile._control(record,sealed=False)
+            record['build_script_sha256']='0'*64
+            with self.assertRaisesRegex(ValueError,'Unknown legacy'):
+                profile._control(record,sealed=True)
+
 
 if __name__=='__main__':
     unittest.main()

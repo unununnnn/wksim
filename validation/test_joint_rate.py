@@ -9,12 +9,49 @@ from Simulator.wksim_runtime.joint_config import validate_joint_config
 from Simulator.wksim_runtime.joint_actions import validate_request,submit,Mailbox
 from Simulator.wksim_runtime.evidence import write_json
 from Simulator.wksim_runtime.joint_task import JointTask
+from tools.benchmark_joint_rate_release import simulate_creep
 
 
 class FakeWall:
     def __init__(self): self.ns=1_000_000_000
     def now(self): return self.ns
     def sleep(self,seconds): self.ns+=round(seconds*1e9)
+
+class EdgeClock:
+    def __init__(self):
+        self.anchor_ns = 1_000_000_000
+        self.ns = self.anchor_ns
+        self.now_calls = 0
+        self.sleep_requests = []
+
+    def now(self):
+        self.now_calls += 1
+        value = self.ns
+        self.ns += 100_000
+        return value
+
+    def sleep(self, seconds):
+        requested_ns = round(seconds * 1e9)
+        self.sleep_requests.append(requested_ns)
+        self.ns += requested_ns
+
+
+class SequenceClock:
+    def __init__(self, *values):
+        self.values = list(values)
+        self.last = values[-1]
+        self.now_calls = 0
+        self.sleep_requests = []
+
+    def now(self):
+        self.now_calls += 1
+        if self.values:
+            self.last = self.values.pop(0)
+        return self.last
+
+    def sleep(self, seconds):
+        self.sleep_requests.append(round(seconds * 1e9))
+
 
 
 class RateTests(unittest.TestCase):
@@ -67,6 +104,23 @@ class RateTests(unittest.TestCase):
         with self.assertRaises(ValueError): rate.reanchor(8,'escape')
         rate.reanchor(8,'recover_requested',recovery=True,transition=True)
         self.assertFalse(rate.latched)
+
+    def test_wait_oversleep_fails_before_the_next_group_or_physics(self):
+        class AdvancingWall(FakeWall):
+            def now(self):
+                self.ns+=1000
+                return self.ns
+            def sleep(self,seconds):
+                self.ns+=round(seconds*1e9)+150_000_000
+        wall=AdvancingWall();events=[]
+        rate=JointRate('a'*32,.5,lambda kind,**fields:events.append(kind),wall.now,wall.sleep)
+        rate.reanchor(4,'test')
+        rate.begin_group(4,lambda:None);wall.ns+=1_000_000;rate.end_group(8)
+        with self.assertRaises(RateUnmet): rate.begin_group(8,lambda:None)
+        self.assertTrue(rate.latched)
+        self.assertIsNone(rate.group)
+        self.assertEqual(rate.completed,1)
+        self.assertEqual(events.count('rate_group_start'),1)
 
     def test_slow_group_faults_only_after_complete_four_ticks(self):
         rate=self.rate()
@@ -185,5 +239,144 @@ class RateTests(unittest.TestCase):
         self.assertEqual(task.completed,'hold_completed')
         with self.assertRaises(RuntimeError): JointTask.dwell(task,'waypoint_completed',lambda:False,2)
 
+    def test_final_millisecond_spin_uses_clock_only_until_release(self):
+        clock = EdgeClock()
+        events = []
+        rate = JointRate('a'*32, .5, lambda kind, **row: events.append(dict(kind=kind, **row)),
+                         clock.now, clock.sleep)
+        rate.reanchor(4, 'test')
+        rate.begin_group(4, lambda: None)
+        clock.ns += 1_000_000
+        rate.end_group(8)
+        clock.ns = rate.previous_start + rate.period_ns - 1_500_000
+        checks = []
+        original_check = rate.check
 
-if __name__=='__main__': unittest.main()
+        def counted_check(lateness):
+            checks.append(lateness)
+            original_check(lateness)
+            clock.ns += 400_000  # Costly checks expose full-loop quantization.
+
+        rate.check = counted_check
+        health_calls = []
+        rate.begin_group(8, lambda: health_calls.append(clock.ns))
+        start = [row for row in events if row['kind'] == 'rate_group_start'][-1]
+
+        self.assertGreaterEqual(start['actual_start_ns'], start['earliest_start_ns'])
+        self.assertEqual(start['actual_start_ns'], start['earliest_start_ns'])
+        self.assertEqual(len(checks), 2)
+        self.assertEqual(len(health_calls), 1)
+        self.assertEqual(clock.sleep_requests, [400_000])
+
+    def test_previous_actual_start_constrains_next_group(self):
+        anchor = 1_000_000_000
+        clock = SequenceClock(
+            anchor,
+            anchor,
+            anchor + 8_200_000,
+            anchor + 9_200_000,
+            anchor + 9_200_000,
+            anchor + 16_000_000,
+            anchor + 16_250_000,
+        )
+        events = []
+        rate = JointRate('a'*32, .5, lambda kind, **row: events.append(dict(kind=kind, **row)),
+                         clock.now, clock.sleep)
+        rate.reanchor(4, 'test')
+        rate.begin_group(4, lambda: None)
+        rate.end_group(8)
+        rate.begin_group(8, lambda: None)
+        starts = [row for row in events if row['kind'] == 'rate_group_start']
+
+        self.assertGreaterEqual(starts[0]['actual_start_ns'], starts[0]['earliest_start_ns'])
+        self.assertEqual(starts[1]['ideal_start_ns'], anchor + 8_000_000)
+        self.assertEqual(
+            starts[1]['earliest_start_ns'],
+            starts[0]['actual_start_ns'] + rate.period_ns,
+        )
+        self.assertGreaterEqual(
+            starts[1]['actual_start_ns'],
+            starts[0]['actual_start_ns'] + rate.period_ns,
+        )
+
+    def test_final_spin_crossing_budget_fails_before_physics(self):
+        anchor = 1_000_000_000
+        clock = SequenceClock(
+            anchor,
+            anchor + 99_900_000,
+            anchor + 99_900_000,
+            anchor + 99_900_000,
+            anchor + 103_400_000,
+            anchor + 103_400_000,
+            anchor + 104_100_000,
+        )
+        events = []
+        rate = JointRate('a'*32, 1, lambda kind, **row: events.append(dict(kind=kind, **row)),
+                         clock.now, clock.sleep)
+        rate.reanchor(4, 'test')
+        rate.begin_group(4, lambda: None)
+        rate.end_group(8)
+
+        with self.assertRaises(RateUnmet) as failure:
+            rate.begin_group(8, lambda: None)
+
+        self.assertEqual(failure.exception.lateness_ns, LATE_LIMIT_NS + 100_000)
+        self.assertEqual(rate.completed, 1)
+        self.assertIsNone(rate.group)
+        self.assertEqual(
+            len([row for row in events if row['kind'] == 'rate_group_start']),
+            1,
+        )
+
+    def test_release_guard_contract_pinned(self):
+        """Pin the unchanged release guard: sleep(min(remaining-1ms, 2ms)) only
+        when remaining > 1ms, and the group never starts before its edge."""
+        class InstrumentedWall(FakeWall):
+            def __init__(self):
+                super().__init__(); self.sleeps = []
+            def now(self):
+                self.ns += 1000
+                return self.ns
+            def sleep(self, seconds):
+                self.sleeps.append(seconds)
+                self.ns += round(seconds * 1e9)  # Perfect sleep: no overshoot.
+        wall = InstrumentedWall(); events = []
+        rate = JointRate('a'*32, .5, lambda kind, **row: events.append(dict(kind=kind, **row)), wall.now, wall.sleep)
+        rate.reanchor(4, 'test')
+        for group in range(6):
+            rate.begin_group(4 + group * 4, lambda: None)
+            wall.ns += 1_000_000  # 1ms of physics work.
+            rate.end_group(8 + group * 4)
+            start = [row for row in events if row['kind'] == 'rate_group_start'][-1]
+            self.assertGreaterEqual(start['actual_start_ns'], start['earliest_start_ns'])
+        # Each group: work 1ms + spin overhead; sleep argument pinned.
+        self.assertTrue(wall.sleeps)
+        for seconds in wall.sleeps:
+            self.assertLessEqual(seconds, .002)
+            self.assertGreater(seconds, 0)
+        self.assertFalse(rate.latched)
+
+    def test_release_guard_never_sleeps_past_the_edge(self):
+        """A sub-guard sleep overshoot still starts on or before the edge."""
+        class OvershootingWall(FakeWall):
+            def sleep(self, seconds):
+                self.ns += round(seconds * 1e9) + 900_000  # 0.9ms overshoot stays inside.
+        wall = OvershootingWall()
+        rate = JointRate('a'*32, .5, lambda kind, **row: None, wall.now, wall.sleep)
+        rate.reanchor(4, 'test')
+        rate.begin_group(4, lambda: None)
+        wall.ns += 1_000_000
+        rate.end_group(8)
+        self.assertFalse(rate.latched)
+        self.assertEqual(rate.completed, 1)
+
+    def test_release_simulation_replays_repeated_sleep_calls(self):
+        work = [1_000_000, 1_000_000]
+        one = simulate_creep(work, [2_500_000], 1_000_000)
+        two = simulate_creep(work, [2_500_000], 2_000_000)
+        self.assertEqual(one['creep_ns'], 1_500_000)
+        self.assertEqual(two['creep_ns'], 500_000)
+        self.assertEqual(one['sleep_calls'], 2)
+        self.assertEqual(two['sleep_calls'], 2)
+
+if __name__=="__main__": unittest.main()

@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "issue": 129,
+  "stable_key": "full-comm-02",
+  "title": "UDP_Simple reference protocol",
+  "source": {
+    "file": "docs/plan/full-scope-expansion.md",
+    "line": 33,
+    "ledger_id": "COMM-02",
+    "ledger_file": "docs/plan/full-followup-tickets.json",
+    "parent_issues": [1]
+  },
+  "status": "defined",
+  "evidence_status": "no-evidence",
+  "full_complete": false,
+  "current_gap": "Field and time semantics, the quantities the simple layout drops, illegal-datagram rejection and original-SDK interop are unpinned; the manual's 112-byte SOut2SimulatorSimpleTime listing is a reference target, not an owned implementation.",
+  "atoms": [
+    {"id": "COMM-02-A", "name": "reference_layout_identity", "status": "blocked", "required": "Pinned 112-byte SOut2SimulatorSimpleTime field map with offsets, types, units and endianness", "owner": "protocol maintainer"},
+    {"id": "COMM-02-B", "name": "time_semantics", "status": "blocked", "required": "The embedded time field's epoch, unit and monotonicity pinned against authoritative time", "owner": "protocol maintainer"},
+    {"id": "COMM-02-C", "name": "dropped_quantities", "status": "blocked", "required": "Explicit mapping of which UDP_Full quantities the simple layout drops and the consumer impact", "owner": "protocol maintainer"},
+    {"id": "COMM-02-D", "name": "malformed_rejection", "status": "partial", "required": "Illegal-datagram rejection on this layout; owned readers prove the rejection pattern, not this protocol", "owner": "runtime maintainer"},
+    {"id": "COMM-02-E", "name": "sdk_interop_capture", "status": "blocked", "required": "Original-SDK interop with positive and negative datagrams captured", "owner": "validation maintainer"}
+  ],
+  "datagram_required": ["layout_id", "byte_length", "endianness", "field_map", "time_field", "time_unit", "time_epoch", "dropped_vs_full", "rate_hz", "source_identity", "target_address", "version", "source_sha256"],
+  "scope_rule": "the simple layout is a distinct protocol, not UDP_Full with a mode label; its time field must not be confused with authoritative sim time",
+  "errors": ["accepted", "layout_mismatch", "wrong_length", "unknown_field", "endianness_error", "time_semantics_unknown", "unmapped_dropped_quantity", "rate_unmet", "stale_datagram"],
+  "followups": [
+    {"key": "comm-02-layout-freeze", "files": ["docs/plan/<udp-simple-layout>.json", "validation/<layout-audit>"], "status": "proposed", "blocked_by": "Fixed manual/SDK source for the 112-byte field map and time field"},
+    {"key": "comm-02-dropped-mapping", "files": ["docs/plan/<udp-simple-dropped>.json"], "status": "proposed", "blocked_by": "UDP_Full frozen layout (COMM-01)"},
+    {"key": "comm-02-interop-capture", "files": ["validation/<udp-simple-capture>"], "status": "proposed", "blocked_by": "Original SDK observation and capture tooling"}
+  ],
+  "preserved": {"manual_listing": "112-byte SOut2SimulatorSimpleTime is reference material", "distinct_protocol": "not a relabelled UDP_Full", "full_complete": false}
+}

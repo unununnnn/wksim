@@ -42,6 +42,7 @@ class WKSIMVISUAL_API UWksimRgbSensor : public UActorComponent
 public:
     UWksimRgbSensor();
     bool Configure(const FWksimRgbConfig& InConfig, FString& Error);
+    bool UseCalibrationRendering();
     bool RequestCapture(const FWksimRgbRequest& Request, FString& Error);
     // Call every game tick. Returns only a completed current-generation metadata path.
     bool Poll(FString& MetadataPath, FString& Error);

@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "issue": 162,
+  "stable_key": "full-ops-11",
+  "title": "Logging and reproduction",
+  "source": {
+    "file": "docs/plan/full-scope-expansion.md",
+    "line": 79,
+    "ledger_id": "OPS-11",
+    "ledger_file": "docs/plan/full-followup-tickets.json",
+    "parent_issues": [16]
+  },
+  "status": "defined",
+  "evidence_status": "partial-evidence",
+  "full_complete": false,
+  "current_gap": "The existing JSONL offline replay does not complete the full recording system: bag and FC-native log integration, a complete event stream, deterministic re-simulation, capacity/retention policy and cross-platform determinism are not accepted.",
+  "atoms": [
+    {"id": "OPS-11-A", "name": "offline_replay", "status": "partial", "required": "Read-only replay of stopped experiments with raw rows, hashes and diagnostics; closed #16 slice is CLI/JSON review, not re-simulation", "owner": "runtime maintainer"},
+    {"id": "OPS-11-B", "name": "source_receive_time", "status": "partial", "required": "Per-record source time with explicit timebase plus receive time; unmapped cross-timebase identity stays unknown", "owner": "runtime maintainer"},
+    {"id": "OPS-11-C", "name": "bag_and_fc_native_logs", "status": "blocked", "required": "Bag recording and FC-native log binding to run identity in one record manifest", "owner": "validation maintainer"},
+    {"id": "OPS-11-D", "name": "complete_event_stream", "status": "partial", "required": "Whole-system event stream with ordering and identity; bounded task event records are subsets", "owner": "runtime maintainer"},
+    {"id": "OPS-11-E", "name": "resimulation", "status": "blocked", "required": "Deterministic re-simulation from records with numerical budget; replay alone cannot prove it", "owner": "physics maintainer"},
+    {"id": "OPS-11-F", "name": "capacity_gap_policy", "status": "partial", "required": "Capacity/rotation/retention and missing-segment policy; 64 MiB single-file cap with rejection is one rule", "owner": "runtime maintainer"}
+  ],
+  "record_required": ["run_id", "epoch", "vehicle_id", "stream_id", "sequence", "source_time", "source_timebase", "receive_time_ns", "record_kind", "raw_sha256", "validity", "schema", "source_identity"],
+  "scope_rule": "replayed acceptance or ACK text is never rewritten into action completion; replay of a record is not re-simulation",
+  "errors": ["accepted", "malformed_record", "invalid_result", "nonfinite_value", "duplicate_key", "identity_mismatch", "sequence_gap", "time_regression", "capacity_exceeded", "active_evidence", "unknown_timebase", "missing_segment"],
+  "followups": [
+    {"key": "ops-11-record-writer", "files": ["Simulator/wksim_runtime/<record-writer>.py", "validation/<record-writer-tests>.py"], "status": "proposed", "blocked_by": "Capacity/rotation/retention policy decision"},
+    {"key": "ops-11-fc-log-binding", "files": ["Simulator/wksim_runtime/<log-manifest>.py", "validation/<log-binding-audit>"], "status": "proposed", "blocked_by": "FC native log location and identity schema"},
+    {"key": "ops-11-resimulation-slice", "files": ["physics source reserved after numerical budget", "validation/<resimulation-audit>"], "status": "proposed", "blocked_by": "#23/G6 numerical budget confirmation"},
+    {"key": "ops-11-event-stream-contract", "files": ["Simulator/wksim_runtime/<event-stream>.py", "validation/<event-stream-tests>.py"], "status": "proposed", "blocked_by": "Whole-system event schema acceptance"}
+  ],
+  "preserved": {"issue_16": "closed offline replay slice", "replay_cap": "64 MiB single-file, read-only inputs", "resimulation": "explicitly out of scope of the replay tool", "full_complete": false}
+}

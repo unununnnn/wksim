@@ -1,0 +1,40 @@
+{
+  "status": "pass",
+  "role": "visitor",
+  "distro": "RflySim-20.04",
+  "boot_id": "15af2d7b-879d-4d04-8c46-86c9c3c3d9b7",
+  "initial_namespaces": {
+    "net": "net:[4026531840]",
+    "ipc": "ipc:[4026532317]",
+    "mnt": "mnt:[4026532316]"
+  },
+  "source_sha256": {
+    "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/validation/ros1_bridge_cross_distro_probe.py": "290558eb29a86ea222f24014fbfc33eed6c1bb9e1341802e624ba7538ae37d8c",
+    "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/Simulator/wksim_runtime/netns_handoff.py": "3cfea24602fb6c703898be4bac6e81f71a38a0175260b08d2bad58ba9b973575",
+    "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/validation/ros1_bridge_reverse_probe.py": "91ff15708469e11ad62015b134d3bef1a8aa928d171bdade799868145e99ab0e"
+  },
+  "physical_acceptance": false,
+  "udp_profile": {
+    "path": "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/Simulator/wksim_runtime/cross_namespace_dds.xml",
+    "sha256": "1d2f330c6eb88bcf55e7f41d572253d1cceda1500a0954c1e39ed61564888e95"
+  },
+  "handoff": {
+    "run_id": "cross-distro-ros-fixture",
+    "before": {
+      "net": "net:[4026531840]",
+      "mnt": "mnt:[4026532316]",
+      "ipc": "ipc:[4026532317]"
+    },
+    "after": {
+      "net": "net:[4026532232]",
+      "mnt": "mnt:[4026532316]",
+      "ipc": "ipc:[4026532317]"
+    }
+  },
+  "final_namespaces": {
+    "net": "net:[4026532232]",
+    "ipc": "ipc:[4026532317]",
+    "mnt": "mnt:[4026532316]"
+  },
+  "source_unchanged": true
+}

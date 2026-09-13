@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "issue": 133,
+  "stable_key": "full-comm-06",
+  "title": "Mavlink_NoGPS reference behavior",
+  "source": {
+    "file": "docs/plan/full-scope-expansion.md",
+    "line": 37,
+    "ledger_id": "COMM-06",
+    "ledger_file": "docs/plan/full-followup-tickets.json",
+    "parent_issues": [45]
+  },
+  "status": "defined",
+  "evidence_status": "partial-evidence",
+  "full_complete": false,
+  "current_gap": "The sensor/positioning and control conditions of the no-GPS mode are undefined; the GNSS fault slice is an event seam, not this mode's configuration contract.",
+  "atoms": [
+    {"id": "COMM-06-A", "name": "mode_sensor_set", "status": "blocked", "required": "Pinned sensor set the mode assumes (GPS absent, what remains)", "owner": "protocol maintainer"},
+    {"id": "COMM-06-B", "name": "positioning_conditions", "status": "blocked", "required": "Positioning/estimation conditions and validity without GPS", "owner": "protocol maintainer"},
+    {"id": "COMM-06-C", "name": "control_conditions", "status": "blocked", "required": "Which control modes and commands remain legal without GPS", "owner": "control maintainer"},
+    {"id": "COMM-06-D", "name": "gnss_fault_distinction", "status": "partial", "required": "The GNSS signal-loss seam stays an event; the mode is a declared configuration with different identity", "owner": "runtime maintainer"},
+    {"id": "COMM-06-E", "name": "reference_behavior", "status": "blocked", "required": "Observed reference interface behavior in the no-GPS mode", "owner": "validation maintainer"}
+  ],
+  "mode_required": ["mode_id", "sensor_set", "positioning_source", "validity_conditions", "permitted_control_modes", "epoch", "run_id", "vehicle_id", "source_identity"],
+  "scope_rule": "a GNSS interruption event inside a GPS-capable configuration is not the no-GPS mode; mode legality is declared per control path",
+  "errors": ["accepted", "gps_present", "positioning_unavailable", "control_mode_denied", "validity_unknown", "foreign_epoch", "unsupported_configuration"],
+  "followups": [
+    {"key": "comm-06-mode-freeze", "files": ["docs/plan/<nogps-mode>.json"], "status": "proposed", "blocked_by": "Reference observation of the no-GPS mode"},
+    {"key": "comm-06-control-matrix", "files": ["docs/plan/<nogps-control-matrix>.json", "validation/<nogps-control-audit>"], "status": "proposed", "blocked_by": "Mode freeze and control path inventory"},
+    {"key": "comm-06-live-slice", "files": ["Simulator/wksim_core/gnss_event.py", "validation/<nogps-live-audit>"], "status": "proposed", "blocked_by": "Mode contract; reuses the GNSS seam without relabelling it"}
+  ],
+  "preserved": {"issue_45": "open GNSS interruption seam; event, not mode", "full_complete": false}
+}

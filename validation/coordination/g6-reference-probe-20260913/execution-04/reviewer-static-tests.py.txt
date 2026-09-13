@@ -1,0 +1,91 @@
+"""Static source-contract checks for tools/probe_reference_first_step.m.
+
+No MATLAB/model is run: these tests read the .m source and assert the review
+fixes and the preserved invariants hold. They lock the pqr-input probe review:
+ishandle must not gate Simulink block handles, RunTimeBlock port counts come from
+NumInputPorts/NumOutputPorts (not numel of a method handle), all output ports are
+enumerated (not just output1), and the documented invariants (hash pins,
+CREATE_NEW, default-off, callback restore, workspace cleanup) are preserved.
+"""
+import re
+import unittest
+from pathlib import Path
+
+PROBE = Path(__file__).resolve().parents[1] / 'tools' / 'probe_reference_first_step.m'
+
+
+def _strip_comments(text):
+    out = []
+    for line in text.splitlines():
+        buf = []
+        in_str = False
+        for ch in line:
+            if ch == "'":
+                in_str = not in_str
+            if ch == '%' and not in_str:
+                break
+            buf.append(ch)
+        out.append(''.join(buf))
+    return '\n'.join(out)
+
+
+class ProbeSourceContractTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.raw = PROBE.read_text(encoding='utf-8')
+        cls.code = _strip_comments(cls.raw)
+
+    def test_ishandle_not_used_to_validate_block_handles(self):
+        # Simulink numeric block handles are not graphics/Java handles; ishandle
+        # would mis-reject them. No ishandle( call may remain in code.
+        self.assertNotIn('ishandle(', self.code)
+
+    def test_unresolved_source_uses_sentinel_and_get_param_probe(self):
+        self.assertIn('SrcBlockHandle', self.code)
+        self.assertIn('src_block ~= -1', self.code)          # -1 = no source (documented)
+        self.assertIn("get_param(src_block, 'BlockType')", self.code)  # get_param validation
+
+    def test_port_counts_use_documented_properties(self):
+        self.assertNotIn('numel(rto.InputPort', self.code)   # method handle, not a count
+        self.assertNotIn('numel(rto.OutputPort', self.code)
+        self.assertIn('rto.NumInputPorts', self.code)
+        self.assertIn('rto.NumOutputPorts', self.code)
+
+    def test_all_output_ports_enumerated_in_pqr_capture(self):
+        # the pqr upstream capture must enumerate outputs, not capture only output1
+        self.assertIn('rec.outputs', self.code)
+        self.assertRegex(self.code, r'for port = 1:n_out')
+
+    def test_opts_scalar_logical_validated(self):
+        self.assertIn('islogical(opts.probe_pqr_input)', self.code)
+        self.assertIn('isscalar(opts.probe_pqr_input)', self.code)
+
+    def test_default_off_and_no_product_identity_flag(self):
+        self.assertIn('opts.probe_pqr_input = false', self.code)
+        self.assertNotIn('is_product_block =', self.code)
+
+    def test_hash_pins_preserved(self):
+        # input CSV / model SLX / init.m SHA-256 pins retained
+        self.assertIn('721c88bf3f621923b98bb43251c50bae7817106a984be64345c0528d34d3adcf', self.raw)
+        self.assertIn('c232e2e9f71a195ba77af628370a0b0f977104870673c91955e51c528a9a3392', self.raw)
+        self.assertIn('9ca09a95bda57eee54eb6ba99982d091006ade28b6df1ef7446eb17b73de9991', self.raw)
+        self.assertIn('9.13.0.2049777 (R2022b)', self.raw)
+
+    def test_create_new_and_callback_restore_preserved(self):
+        self.assertIn('CREATE_NEW', self.code)
+        self.assertIn("set_param(model, 'StartFcn', orig_start)", self.code)
+        self.assertIn("set_param(model, 'InitFcn', orig_init)", self.code)
+        self.assertIn('close_system(model, 0)', self.code)
+
+    def test_workspace_cleanup_covers_new_mode_vars(self):
+        for name in ('wk_probe_log2', 'wk_probe_dropped2', 'wk_probe_pqr_target'):
+            self.assertIn(name, self.code)
+
+    def test_single_function_file_balanced(self):
+        functions = [l for l in self.raw.splitlines() if l.strip().startswith('function')]
+        self.assertGreaterEqual(len(functions), 1)
+        self.assertEqual(self.raw.splitlines()[-1].strip(), 'end')
+
+
+if __name__ == '__main__':
+    unittest.main()

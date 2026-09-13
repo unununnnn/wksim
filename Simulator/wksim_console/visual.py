@@ -96,19 +96,26 @@ class _Cancelled(Exception):
 class View:
     _resource = threading.Lock()
 
-    def __init__(self, directory, run_id, state_socket, repo=REPO, *, joint_instance=None, build_manifest=None, rgb_config=None, rgb_fixture_case=None):
+    def __init__(self, directory, run_id, state_socket, repo=REPO, *, joint_instance=None, build_manifest=None, rgb_config=None, rgb_fixture_case=None, depth_config=None):
         self.directory = Path(directory).resolve()
         self.repo = Path(repo).resolve()
         self.run_id, self.state_socket = run_id, state_socket
         self.joint_instance=joint_instance
         self.rgb_config=None
-        if rgb_fixture_case is not None and (type(rgb_fixture_case) is not int or not 0<=rgb_fixture_case<=3 or rgb_config is None):
-            raise ValueError('RGB calibration fixture needs a configured camera and case 0..3')
+        if rgb_fixture_case is not None and (type(rgb_fixture_case) is not int or not 0<=rgb_fixture_case<=5 or rgb_config is None):
+            raise ValueError('RGB calibration fixture needs a configured camera and case 0..5')
         self.rgb_fixture_case=rgb_fixture_case
         if rgb_config is not None:
             from Simulator.ue55.rgb import config
             if joint_instance is None:raise ValueError('RGB requires an authoritative joint step source')
             self.rgb_config=config(rgb_config)
+        self.depth_config=None
+        if depth_config is not None:
+            from Simulator.ue55.depth import config
+            if joint_instance is None:raise ValueError('Depth requires an authoritative joint step source')
+            self.depth_config=config(depth_config)
+            if self.rgb_config is not None and self.depth_config['notify_port']==self.rgb_config['notify_port']:
+                raise ValueError('RGB and depth require independent notification ports')
         self.display_fps=15 if joint_instance is not None else 30
         self._view_request_sequence=0
         self._actor_cursor=None
@@ -122,12 +129,15 @@ class View:
         self._ready = False
         self._started = False
         self._attempt = uuid.uuid4().hex
+        self.depth_stream_id = uuid.uuid4().hex
+        self.depth_enabled = depth_config is not None
         self.rgb_stream_id = self._attempt
-        self.rgb_enabled = rgb_config is not None
+        self.rgb_enabled = rgb_config is not None and self.rgb_fixture_case != 5
         self._root = self.directory / ('view-' + self._attempt)
         self.readback_path = self._root / 'actor.jsonl'
         self.frames_directory = self._root / 'frames'
         self.rgb_directory = self._root / 'rgb'
+        self.depth_directory = self._root / 'depth'
         self._latest = None
         self._cleanup_pending = False
 
@@ -205,6 +215,8 @@ class View:
                     processes=[dict(name=row['name'], argv=row['argv'], pid=row['process'].pid,
                                     returncode=row['process'].poll()) for row in self._children],
                     readback_path=str(self.readback_path), frames_directory=str(self.frames_directory),
+                    depth_directory=str(self.depth_directory), depth_config=self.depth_config,
+                    depth_stream_id=self.depth_stream_id, depth_enabled=self.depth_enabled,
                     rgb_directory=str(self.rgb_directory), rgb_config=self.rgb_config,
                     rgb_stream_id=self.rgb_stream_id,
                     rgb_enabled=self.rgb_enabled,
@@ -285,13 +297,19 @@ class View:
                 if self.rgb_fixture_case is not None:
                     rgb_args+=['-WksimRgbFixtureCase='+str(self.rgb_fixture_case),
                                '-WksimRgbFixtureManifest='+str(self._root/'rgb-fixture.json')]
+            depth_args=[]
+            if self.depth_config is not None:
+                depth_path=self._root/'depth-config.json'
+                depth_path.write_text(json.dumps(dict(self.depth_config,output_directory=str(self.depth_directory),
+                                                      stream_id=self.depth_stream_id),allow_nan=False)+'\n',encoding='utf-8')
+                depth_args=['-WksimDepthConfig='+str(depth_path)]
             ue = self._launch('ue', [str(ENGINE), build['project'],
                 '/Game/Maps/UrbanBlock?game=/Script/WksimVisual.WksimVisualGameMode',
                 '-game', '-windowed', '-ResX=1280', '-ResY=720', '-NoSound', '-NoSplash', '-unattended',
                 '-ExecCmds=' + DISPLAY_COMMANDS.replace('t.MaxFPS 30','t.MaxFPS '+str(self.display_fps)), '-WksimVehicle='+vehicle,
                 '-WksimRunId=' + self.run_id, '-WksimPort=' + str(PORT),
                 '-abslog=' + str(self._root / 'ue.log'), '-WksimCaptureDir=' + str(self.frames_directory),
-                *(['-WksimInstance='+self.joint_instance] if self.joint_instance is not None else []), *rgb_args], visible=True)
+                *(['-WksimInstance='+self.joint_instance] if self.joint_instance is not None else []), *rgb_args, *depth_args], visible=True)
             deadline = time.monotonic() + STARTUP_TIMEOUT
             marker = ('WKSIM_READY run=' + self.run_id + ' vehicle='+vehicle+' port=19060 ').encode()
             while marker not in _tail(self._root / 'ue.log'):
@@ -459,30 +477,37 @@ class View:
             return record
 
     def set_rgb_enabled(self, enabled):
-        """Accept capture stop/start; actual new PNGs establish completion."""
+        return self._set_capture_enabled('rgb',enabled)
+
+    def set_depth_enabled(self, enabled):
+        return self._set_capture_enabled('depth',enabled)
+
+    def _set_capture_enabled(self, kind, enabled):
+        """Accept capture stop/start; real new frames establish completion."""
         with self._mutex:
-            if self.rgb_config is None or type(enabled) is not bool or enabled==self.rgb_enabled:
-                raise ValueError('RGB needs an explicit state change on a configured camera')
+            if getattr(self,kind+"_config") is None or type(enabled) is not bool or enabled==getattr(self,kind+"_enabled"):
+                raise ValueError(kind+' needs an explicit state change on a configured camera')
             self.poll()
             if not self._ready or self._latest is None or self._state!='live':
                 raise ValueError('No current joint Actor identity')
             packet=self._latest['packet']
             self._view_request_sequence=max(self._view_request_sequence+1,int(time.monotonic()*1000))
-            new_stream=uuid.uuid4().hex if enabled else self.rgb_stream_id
-            request=dict(version=3,kind='rgb_stream_control',run_id=self.run_id,instance_id=self.joint_instance,
+            new_stream=uuid.uuid4().hex if enabled else getattr(self,kind+"_stream_id")
+            request=dict(version=3,kind=kind+'_stream_control',run_id=self.run_id,instance_id=self.joint_instance,
                          epoch=packet['epoch'],generation=packet['generation'],request_sequence=self._view_request_sequence,
-                         stream_id=self.rgb_stream_id,enabled=enabled,next_stream_id=new_stream)
+                         stream_id=getattr(self,kind+"_stream_id"),enabled=enabled,next_stream_id=new_stream)
             with socket.socket(socket.AF_INET,socket.SOCK_DGRAM) as peer:
                 peer.bind(('127.0.0.1',0));peer.settimeout(.75)
                 peer.sendto(json.dumps(request,separators=(',',':')).encode(),('127.0.0.1',PORT))
                 raw,sender=peer.recvfrom(8193)
             response=json.loads(raw)
-            if sender!=('127.0.0.1',PORT) or len(raw)>8192 or response!=dict(request,kind='rgb_stream_controlled'):
-                raise ValueError('Uncorrelated RGB control response')
-            self.rgb_stream_id,self.rgb_enabled=new_stream,enabled
+            if sender!=('127.0.0.1',PORT) or len(raw)>8192 or response!=dict(request,kind=kind+'_stream_controlled'):
+                raise ValueError('Uncorrelated '+kind+' control response')
+            setattr(self,kind+"_stream_id",new_stream)
+            setattr(self,kind+"_enabled",enabled)
             record=dict(request=request,response=response,observed_unix_s=time.time(),
                         completion='capture state accepted; new images require independent observation')
-            with (self._root/'rgb-actions.jsonl').open('a',encoding='utf-8') as stream:
+            with (self._root/(kind+'-actions.jsonl')).open('a',encoding='utf-8') as stream:
                 stream.write(json.dumps(record,allow_nan=False)+'\n')
             self._persist()
             return record

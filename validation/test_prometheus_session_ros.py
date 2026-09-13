@@ -60,6 +60,7 @@ class WireTests(unittest.TestCase):
                 if cls is SessionState:
                     msg.sequence = 23
                     msg.last_request_id = 2**63 + 7
+                    msg.command_high_water = 2**32 - 1
                     msg.native_generation = 3
                     msg.source_clock = 'fc_boot'
                     msg.source_received_valid = True
@@ -223,13 +224,18 @@ class SessionBoundary:
 
     def test_replay_cannot_replace_setpoint_or_resume_revoked_control(self):
         self.activate_fixture()
+        self.assertEqual(self.node.processor.last_command_id, 0)
+        self.assertEqual(self.states[-1].command_high_water, 0)
         msg = self.request('command', 1)
         self.send('command', msg, 'command_accepted')
+        self.assertEqual(self.node.processor.last_command_id, 1)
+        self.until(lambda: self.states[-1].command_high_water == 1)
         self.until(lambda: self.outputs() > 0)
         position_pub = (self.native.publishers['position'] if self.stack == 'px4'
                         else self.native.position_pub)
         prior_wire = serialize_message(position_pub.messages[-1])
         prior_count = len(position_pub.messages)
+        state_sequence = self.states[-1].sequence
         accepted = deepcopy(self.node.processor.command)
         replay = deepcopy(msg)
         replay.command.position_ref = [9., 9., 9.]
@@ -237,6 +243,9 @@ class SessionBoundary:
         duplicate_move = self.request('command', 2)
         duplicate_move.command.command_id = 1
         self.send('command', duplicate_move, 'command_rejected', 'command_id_not_increasing')
+        self.assertEqual(self.node.processor.last_command_id, 1)
+        self.until(lambda: self.states[-1].sequence > state_sequence)
+        self.assertEqual(self.states[-1].command_high_water, 1)
         self.assertEqual(self.node.processor.command, accepted)
         self.spin_for()
         self.assertGreater(len(position_pub.messages), prior_count)
@@ -283,6 +292,7 @@ class SessionBoundary:
         self.activate_fixture()
         old = self.request('command', 1)
         self.send('command', old, 'command_accepted')
+        self.assertEqual(self.node.processor.last_command_id, 1)
         self.until(lambda: self.outputs() > 0)
         session, native = self.node.session, self.native
         token = session.native_identity()
@@ -298,6 +308,8 @@ class SessionBoundary:
         self.assertNotEqual(self.node.session.epoch, old.control_epoch)
         self.assertNotEqual(self.node.session.native_identity(), token)
         self.assertEqual(self.node.session.last_request, 0)
+        self.assertEqual(self.node.processor.last_command_id, 0)
+        self.assertEqual(self.states[-1].command_high_water, 0)
         self.assertEqual(self.node.processor.control_state, Control.INIT)
         self.send('command', old, 'command_rejected', 'wrong_run_or_control_epoch')
         old_setup = self.request('setup')

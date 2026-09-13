@@ -1,0 +1,935 @@
+{
+  "status": "pass",
+  "scope": "mechanism canary, not real FCs",
+  "errors": [],
+  "cleanup": {
+    "ap_worker": 0,
+    "px4_worker": 0,
+    "supervisor": 0,
+    "ap_fc": 0,
+    "px4_fc": 0
+  },
+  "capture": {
+    "status": "pass",
+    "scope": "five actors / nine task PID binding only",
+    "errors": [],
+    "instance": "/sys/kernel/tracing/instances/wksim-rate-4362e72d99c7410aa228301b9b221be3",
+    "instance_inode": [
+      12,
+      16622
+    ],
+    "mapping": {
+      "method": "kernel BPF namespace/current PID helpers plus owned procfs lifetimes",
+      "leaders_proven_by": "kernel_bpf_pid_helpers",
+      "names": {
+        "ap_worker": "wkaa1ed94d306a",
+        "px4_worker": "wkaa1ed94d306p",
+        "supervisor": "wkaa1ed94d306s",
+        "ap_fc/arducopter": "arducopter",
+        "ap_fc/log_io": "log_io",
+        "ap_fc/DDS": "DDS",
+        "px4_fc/sim_send": "sim_send",
+        "px4_fc/logger": "logger",
+        "px4_fc/wq:lp_default": "wq:lp_default"
+      },
+      "kernel_pids": {
+        "ap_worker": 1105,
+        "px4_worker": 1106,
+        "supervisor": 1107,
+        "ap_fc/arducopter": 1108,
+        "ap_fc/log_io": 1111,
+        "ap_fc/DDS": 1113,
+        "px4_fc/sim_send": 1110,
+        "px4_fc/logger": 1112,
+        "px4_fc/wq:lp_default": 1114
+      },
+      "base_leaders": {
+        "ap_worker": {
+          "local_tid": 687,
+          "local_tgid": 687,
+          "global_tid": 1105,
+          "global_tgid": 1105,
+          "start_ticks": 401,
+          "comm": "wkaa1ed94d306a",
+          "proof": "kernel_bpf_pid_helpers",
+          "observed_boot_ns": 4421339245
+        },
+        "px4_worker": {
+          "local_tid": 688,
+          "local_tgid": 688,
+          "global_tid": 1106,
+          "global_tgid": 1106,
+          "start_ticks": 401,
+          "comm": "wkaa1ed94d306p",
+          "proof": "kernel_bpf_pid_helpers",
+          "observed_boot_ns": 4421466006
+        },
+        "supervisor": {
+          "local_tid": 689,
+          "local_tgid": 689,
+          "global_tid": 1107,
+          "global_tgid": 1107,
+          "start_ticks": 401,
+          "comm": "wkaa1ed94d306s",
+          "proof": "kernel_bpf_pid_helpers",
+          "observed_boot_ns": 4421378425
+        },
+        "ap_fc/arducopter": {
+          "local_tid": 690,
+          "local_tgid": 690,
+          "global_tid": 1108,
+          "global_tgid": 1108,
+          "start_ticks": 401,
+          "comm": "arducopter",
+          "proof": "kernel_bpf_pid_helpers",
+          "observed_boot_ns": 4421570646
+        }
+      },
+      "fc_leaders": {
+        "ap_fc": {
+          "global_tid": 1108,
+          "global_tgid": 1108,
+          "local_tid": 690,
+          "local_tgid": 690,
+          "start_ticks": 401,
+          "comm": "arducopter",
+          "proof": "kernel_bpf_tgid_from_owned_task"
+        },
+        "px4_fc": {
+          "global_tid": 1109,
+          "global_tgid": 1109,
+          "local_tid": 691,
+          "local_tgid": 691,
+          "start_ticks": 401,
+          "comm": "px4",
+          "proof": "kernel_bpf_tgid_from_owned_task"
+        }
+      },
+      "local_threads": {
+        "ap_fc/arducopter": {
+          "local_tid": 690,
+          "local_tgid": 690,
+          "global_tid": 1108,
+          "global_tgid": 1108,
+          "start_ticks": 401,
+          "comm": "arducopter",
+          "proof": "kernel_bpf_pid_helpers",
+          "observed_boot_ns": 4421570646
+        },
+        "ap_fc/log_io": {
+          "local_tid": 693,
+          "local_tgid": 690,
+          "global_tid": 1111,
+          "global_tgid": 1108,
+          "start_ticks": 409,
+          "comm": "log_io",
+          "proof": "kernel_bpf_pid_helpers",
+          "observed_boot_ns": 4421740759
+        },
+        "ap_fc/DDS": {
+          "local_tid": 695,
+          "local_tgid": 690,
+          "global_tid": 1113,
+          "global_tgid": 1108,
+          "start_ticks": 409,
+          "comm": "DDS",
+          "proof": "kernel_bpf_pid_helpers",
+          "observed_boot_ns": 4421836887
+        },
+        "px4_fc/sim_send": {
+          "local_tid": 692,
+          "local_tgid": 691,
+          "global_tid": 1110,
+          "global_tgid": 1109,
+          "start_ticks": 409,
+          "comm": "sim_send",
+          "proof": "kernel_bpf_pid_helpers",
+          "observed_boot_ns": 4421613726
+        },
+        "px4_fc/logger": {
+          "local_tid": 694,
+          "local_tgid": 691,
+          "global_tid": 1112,
+          "global_tgid": 1109,
+          "start_ticks": 409,
+          "comm": "logger",
+          "proof": "kernel_bpf_pid_helpers",
+          "observed_boot_ns": 4421511850
+        },
+        "px4_fc/wq:lp_default": {
+          "local_tid": 696,
+          "local_tgid": 691,
+          "global_tid": 1114,
+          "global_tgid": 1109,
+          "start_ticks": 409,
+          "comm": "wq:lp_default",
+          "proof": "kernel_bpf_pid_helpers",
+          "observed_boot_ns": 4421570317
+        }
+      },
+      "targets": {
+        "ap_worker": {
+          "local_tid": 687,
+          "local_tgid": 687,
+          "global_tid": 1105,
+          "global_tgid": 1105,
+          "start_ticks": 401,
+          "comm": "wkaa1ed94d306a",
+          "proof": "kernel_bpf_pid_helpers",
+          "observed_boot_ns": 4421339245
+        },
+        "px4_worker": {
+          "local_tid": 688,
+          "local_tgid": 688,
+          "global_tid": 1106,
+          "global_tgid": 1106,
+          "start_ticks": 401,
+          "comm": "wkaa1ed94d306p",
+          "proof": "kernel_bpf_pid_helpers",
+          "observed_boot_ns": 4421466006
+        },
+        "supervisor": {
+          "local_tid": 689,
+          "local_tgid": 689,
+          "global_tid": 1107,
+          "global_tgid": 1107,
+          "start_ticks": 401,
+          "comm": "wkaa1ed94d306s",
+          "proof": "kernel_bpf_pid_helpers",
+          "observed_boot_ns": 4421378425
+        },
+        "ap_fc/arducopter": {
+          "local_tid": 690,
+          "local_tgid": 690,
+          "global_tid": 1108,
+          "global_tgid": 1108,
+          "start_ticks": 401,
+          "comm": "arducopter",
+          "proof": "kernel_bpf_pid_helpers",
+          "observed_boot_ns": 4421570646
+        },
+        "ap_fc/log_io": {
+          "local_tid": 693,
+          "local_tgid": 690,
+          "global_tid": 1111,
+          "global_tgid": 1108,
+          "start_ticks": 409,
+          "comm": "log_io",
+          "proof": "kernel_bpf_pid_helpers",
+          "observed_boot_ns": 4421740759
+        },
+        "ap_fc/DDS": {
+          "local_tid": 695,
+          "local_tgid": 690,
+          "global_tid": 1113,
+          "global_tgid": 1108,
+          "start_ticks": 409,
+          "comm": "DDS",
+          "proof": "kernel_bpf_pid_helpers",
+          "observed_boot_ns": 4421836887
+        },
+        "px4_fc/sim_send": {
+          "local_tid": 692,
+          "local_tgid": 691,
+          "global_tid": 1110,
+          "global_tgid": 1109,
+          "start_ticks": 409,
+          "comm": "sim_send",
+          "proof": "kernel_bpf_pid_helpers",
+          "observed_boot_ns": 4421613726
+        },
+        "px4_fc/logger": {
+          "local_tid": 694,
+          "local_tgid": 691,
+          "global_tid": 1112,
+          "global_tgid": 1109,
+          "start_ticks": 409,
+          "comm": "logger",
+          "proof": "kernel_bpf_pid_helpers",
+          "observed_boot_ns": 4421511850
+        },
+        "px4_fc/wq:lp_default": {
+          "local_tid": 696,
+          "local_tgid": 691,
+          "global_tid": 1114,
+          "global_tgid": 1109,
+          "start_ticks": 409,
+          "comm": "wq:lp_default",
+          "proof": "kernel_bpf_pid_helpers",
+          "observed_boot_ns": 4421570317
+        }
+      },
+      "bpf_records": {
+        "ap_worker": {
+          "kernel_ids": 4745938863185,
+          "local_tid": 687,
+          "local_tgid": 687,
+          "observed_boot_ns": 4421339245,
+          "comm": "wkaa1ed94d306a"
+        },
+        "px4_worker": {
+          "kernel_ids": 4750233830482,
+          "local_tid": 688,
+          "local_tgid": 688,
+          "observed_boot_ns": 4421466006,
+          "comm": "wkaa1ed94d306p"
+        },
+        "supervisor": {
+          "kernel_ids": 4754528797779,
+          "local_tid": 689,
+          "local_tgid": 689,
+          "observed_boot_ns": 4421378425,
+          "comm": "wkaa1ed94d306s"
+        },
+        "ap_fc/arducopter": {
+          "kernel_ids": 4758823765076,
+          "local_tid": 690,
+          "local_tgid": 690,
+          "observed_boot_ns": 4421570646,
+          "comm": "arducopter"
+        },
+        "ap_fc/log_io": {
+          "kernel_ids": 4758823765079,
+          "local_tid": 693,
+          "local_tgid": 690,
+          "observed_boot_ns": 4421740759,
+          "comm": "log_io"
+        },
+        "ap_fc/DDS": {
+          "kernel_ids": 4758823765081,
+          "local_tid": 695,
+          "local_tgid": 690,
+          "observed_boot_ns": 4421836887,
+          "comm": "DDS"
+        },
+        "px4_fc/sim_send": {
+          "kernel_ids": 4763118732374,
+          "local_tid": 692,
+          "local_tgid": 691,
+          "observed_boot_ns": 4421613726,
+          "comm": "sim_send"
+        },
+        "px4_fc/logger": {
+          "kernel_ids": 4763118732376,
+          "local_tid": 694,
+          "local_tgid": 691,
+          "observed_boot_ns": 4421511850,
+          "comm": "logger"
+        },
+        "px4_fc/wq:lp_default": {
+          "kernel_ids": 4763118732378,
+          "local_tid": 696,
+          "local_tgid": 691,
+          "observed_boot_ns": 4421570317,
+          "comm": "wq:lp_default"
+        }
+      },
+      "clock_ticks": 100,
+      "observed_after_boot_ns": 4422916309,
+      "inventories_before": {
+        "ap_worker": [
+          {
+            "local_tid": 687,
+            "global_tid": 687,
+            "comm": "wkaa1ed94d306a",
+            "start_ticks": 401
+          }
+        ],
+        "px4_worker": [
+          {
+            "local_tid": 688,
+            "global_tid": 688,
+            "comm": "wkaa1ed94d306p",
+            "start_ticks": 401
+          }
+        ],
+        "supervisor": [
+          {
+            "local_tid": 689,
+            "global_tid": 689,
+            "comm": "wkaa1ed94d306s",
+            "start_ticks": 401
+          }
+        ],
+        "ap_fc": [
+          {
+            "local_tid": 690,
+            "global_tid": 690,
+            "comm": "arducopter",
+            "start_ticks": 401
+          },
+          {
+            "local_tid": 693,
+            "global_tid": 693,
+            "comm": "log_io",
+            "start_ticks": 409
+          },
+          {
+            "local_tid": 695,
+            "global_tid": 695,
+            "comm": "DDS",
+            "start_ticks": 409
+          }
+        ],
+        "px4_fc": [
+          {
+            "local_tid": 691,
+            "global_tid": 691,
+            "comm": "px4",
+            "start_ticks": 401
+          },
+          {
+            "local_tid": 692,
+            "global_tid": 692,
+            "comm": "sim_send",
+            "start_ticks": 409
+          },
+          {
+            "local_tid": 694,
+            "global_tid": 694,
+            "comm": "logger",
+            "start_ticks": 409
+          },
+          {
+            "local_tid": 696,
+            "global_tid": 696,
+            "comm": "wq:lp_default",
+            "start_ticks": 409
+          }
+        ]
+      },
+      "same_comm_threads": {
+        "ap_worker": [],
+        "px4_worker": [],
+        "supervisor": []
+      },
+      "inventories_after": {
+        "ap_worker": [
+          {
+            "local_tid": 687,
+            "global_tid": 687,
+            "comm": "wkaa1ed94d306a",
+            "start_ticks": 401
+          }
+        ],
+        "px4_worker": [
+          {
+            "local_tid": 688,
+            "global_tid": 688,
+            "comm": "wkaa1ed94d306p",
+            "start_ticks": 401
+          }
+        ],
+        "supervisor": [
+          {
+            "local_tid": 689,
+            "global_tid": 689,
+            "comm": "wkaa1ed94d306s",
+            "start_ticks": 401
+          }
+        ],
+        "ap_fc": [
+          {
+            "local_tid": 690,
+            "global_tid": 690,
+            "comm": "arducopter",
+            "start_ticks": 401
+          },
+          {
+            "local_tid": 693,
+            "global_tid": 693,
+            "comm": "log_io",
+            "start_ticks": 409
+          },
+          {
+            "local_tid": 695,
+            "global_tid": 695,
+            "comm": "DDS",
+            "start_ticks": 409
+          }
+        ],
+        "px4_fc": [
+          {
+            "local_tid": 691,
+            "global_tid": 691,
+            "comm": "px4",
+            "start_ticks": 401
+          },
+          {
+            "local_tid": 692,
+            "global_tid": 692,
+            "comm": "sim_send",
+            "start_ticks": 409
+          },
+          {
+            "local_tid": 694,
+            "global_tid": 694,
+            "comm": "logger",
+            "start_ticks": 409
+          },
+          {
+            "local_tid": 696,
+            "global_tid": 696,
+            "comm": "wq:lp_default",
+            "start_ticks": 409
+          }
+        ]
+      },
+      "bpf_sampling_detached": true,
+      "bpf_detached_monotonic_ns": 4423364961,
+      "bpf_dropped_updates": 0,
+      "sched_switch_same_comm": [],
+      "mapping_sha256": "685c4fec229caaaf0ebe17311e78e9287220a080f85ebf3aedcb24601be44e01",
+      "mapping_trace_bytes": 4742,
+      "mapping_source": "kernel_bpf_plus_private_sched_switch",
+      "mapping_timeout_s": 3.0
+    },
+    "stats_before": {
+      "raw": {
+        "cpu0": "entries: 0\noverrun: 0\ncommit overrun: 0\nbytes: 0\noldest event ts:     0.000000\nnow ts:     4.412723\ndropped events: 0\nread events: 0\n",
+        "cpu1": "entries: 0\noverrun: 0\ncommit overrun: 0\nbytes: 0\noldest event ts:     0.000000\nnow ts:     4.412742\ndropped events: 0\nread events: 0\n",
+        "cpu10": "entries: 0\noverrun: 0\ncommit overrun: 0\nbytes: 0\noldest event ts:     0.000000\nnow ts:     4.412751\ndropped events: 0\nread events: 0\n",
+        "cpu11": "entries: 0\noverrun: 0\ncommit overrun: 0\nbytes: 0\noldest event ts:     0.000000\nnow ts:     4.412758\ndropped events: 0\nread events: 0\n",
+        "cpu12": "entries: 0\noverrun: 0\ncommit overrun: 0\nbytes: 0\noldest event ts:     0.000000\nnow ts:     4.412765\ndropped events: 0\nread events: 0\n",
+        "cpu13": "entries: 0\noverrun: 0\ncommit overrun: 0\nbytes: 0\noldest event ts:     0.000000\nnow ts:     4.412771\ndropped events: 0\nread events: 0\n",
+        "cpu14": "entries: 0\noverrun: 0\ncommit overrun: 0\nbytes: 0\noldest event ts:     0.000000\nnow ts:     4.412778\ndropped events: 0\nread events: 0\n",
+        "cpu15": "entries: 0\noverrun: 0\ncommit overrun: 0\nbytes: 0\noldest event ts:     0.000000\nnow ts:     4.412784\ndropped events: 0\nread events: 0\n",
+        "cpu16": "entries: 0\noverrun: 0\ncommit overrun: 0\nbytes: 0\noldest event ts:     0.000000\nnow ts:     4.412791\ndropped events: 0\nread events: 0\n",
+        "cpu17": "entries: 0\noverrun: 0\ncommit overrun: 0\nbytes: 0\noldest event ts:     0.000000\nnow ts:     4.412798\ndropped events: 0\nread events: 0\n",
+        "cpu18": "entries: 0\noverrun: 0\ncommit overrun: 0\nbytes: 0\noldest event ts:     0.000000\nnow ts:     4.412804\ndropped events: 0\nread events: 0\n",
+        "cpu19": "entries: 0\noverrun: 0\ncommit overrun: 0\nbytes: 0\noldest event ts:     0.000000\nnow ts:     4.412811\ndropped events: 0\nread events: 0\n",
+        "cpu2": "entries: 0\noverrun: 0\ncommit overrun: 0\nbytes: 0\noldest event ts:     0.000000\nnow ts:     4.412817\ndropped events: 0\nread events: 0\n",
+        "cpu3": "entries: 0\noverrun: 0\ncommit overrun: 0\nbytes: 0\noldest event ts:     0.000000\nnow ts:     4.412824\ndropped events: 0\nread events: 0\n",
+        "cpu4": "entries: 0\noverrun: 0\ncommit overrun: 0\nbytes: 0\noldest event ts:     0.000000\nnow ts:     4.412831\ndropped events: 0\nread events: 0\n",
+        "cpu5": "entries: 0\noverrun: 0\ncommit overrun: 0\nbytes: 0\noldest event ts:     0.000000\nnow ts:     4.412838\ndropped events: 0\nread events: 0\n",
+        "cpu6": "entries: 0\noverrun: 0\ncommit overrun: 0\nbytes: 0\noldest event ts:     0.000000\nnow ts:     4.412844\ndropped events: 0\nread events: 0\n",
+        "cpu7": "entries: 0\noverrun: 0\ncommit overrun: 0\nbytes: 0\noldest event ts:     0.000000\nnow ts:     4.412851\ndropped events: 0\nread events: 0\n",
+        "cpu8": "entries: 0\noverrun: 0\ncommit overrun: 0\nbytes: 0\noldest event ts:     0.000000\nnow ts:     4.412857\ndropped events: 0\nread events: 0\n",
+        "cpu9": "entries: 0\noverrun: 0\ncommit overrun: 0\nbytes: 0\noldest event ts:     0.000000\nnow ts:     4.412864\ndropped events: 0\nread events: 0\n"
+      },
+      "loss_counts": {
+        "cpu0": {
+          "overrun": 0,
+          "commit overrun": 0,
+          "dropped events": 0
+        },
+        "cpu1": {
+          "overrun": 0,
+          "commit overrun": 0,
+          "dropped events": 0
+        },
+        "cpu10": {
+          "overrun": 0,
+          "commit overrun": 0,
+          "dropped events": 0
+        },
+        "cpu11": {
+          "overrun": 0,
+          "commit overrun": 0,
+          "dropped events": 0
+        },
+        "cpu12": {
+          "overrun": 0,
+          "commit overrun": 0,
+          "dropped events": 0
+        },
+        "cpu13": {
+          "overrun": 0,
+          "commit overrun": 0,
+          "dropped events": 0
+        },
+        "cpu14": {
+          "overrun": 0,
+          "commit overrun": 0,
+          "dropped events": 0
+        },
+        "cpu15": {
+          "overrun": 0,
+          "commit overrun": 0,
+          "dropped events": 0
+        },
+        "cpu16": {
+          "overrun": 0,
+          "commit overrun": 0,
+          "dropped events": 0
+        },
+        "cpu17": {
+          "overrun": 0,
+          "commit overrun": 0,
+          "dropped events": 0
+        },
+        "cpu18": {
+          "overrun": 0,
+          "commit overrun": 0,
+          "dropped events": 0
+        },
+        "cpu19": {
+          "overrun": 0,
+          "commit overrun": 0,
+          "dropped events": 0
+        },
+        "cpu2": {
+          "overrun": 0,
+          "commit overrun": 0,
+          "dropped events": 0
+        },
+        "cpu3": {
+          "overrun": 0,
+          "commit overrun": 0,
+          "dropped events": 0
+        },
+        "cpu4": {
+          "overrun": 0,
+          "commit overrun": 0,
+          "dropped events": 0
+        },
+        "cpu5": {
+          "overrun": 0,
+          "commit overrun": 0,
+          "dropped events": 0
+        },
+        "cpu6": {
+          "overrun": 0,
+          "commit overrun": 0,
+          "dropped events": 0
+        },
+        "cpu7": {
+          "overrun": 0,
+          "commit overrun": 0,
+          "dropped events": 0
+        },
+        "cpu8": {
+          "overrun": 0,
+          "commit overrun": 0,
+          "dropped events": 0
+        },
+        "cpu9": {
+          "overrun": 0,
+          "commit overrun": 0,
+          "dropped events": 0
+        }
+      }
+    },
+    "stats_after": {
+      "raw": {
+        "cpu0": "entries: 0\noverrun: 0\ncommit overrun: 0\nbytes: 0\noldest event ts:     0.000000\nnow ts:     4.424061\ndropped events: 0\nread events: 0\n",
+        "cpu1": "entries: 0\noverrun: 0\ncommit overrun: 0\nbytes: 0\noldest event ts:     0.000000\nnow ts:     4.424071\ndropped events: 0\nread events: 0\n",
+        "cpu10": "entries: 2\noverrun: 0\ncommit overrun: 0\nbytes: 136\noldest event ts:     4.419472\nnow ts:     4.424078\ndropped events: 0\nread events: 4\n",
+        "cpu11": "entries: 0\noverrun: 0\ncommit overrun: 0\nbytes: 0\noldest event ts:     0.000000\nnow ts:     4.424084\ndropped events: 0\nread events: 0\n",
+        "cpu12": "entries: 4\noverrun: 0\ncommit overrun: 0\nbytes: 272\noldest event ts:     4.419640\nnow ts:     4.424089\ndropped events: 0\nread events: 6\n",
+        "cpu13": "entries: 0\noverrun: 0\ncommit overrun: 0\nbytes: 0\noldest event ts:     0.000000\nnow ts:     4.424095\ndropped events: 0\nread events: 0\n",
+        "cpu14": "entries: 0\noverrun: 0\ncommit overrun: 0\nbytes: 0\noldest event ts:     0.000000\nnow ts:     4.424100\ndropped events: 0\nread events: 0\n",
+        "cpu15": "entries: 2\noverrun: 0\ncommit overrun: 0\nbytes: 136\noldest event ts:     4.419480\nnow ts:     4.424106\ndropped events: 0\nread events: 3\n",
+        "cpu16": "entries: 2\noverrun: 0\ncommit overrun: 0\nbytes: 136\noldest event ts:     4.421451\nnow ts:     4.424112\ndropped events: 0\nread events: 2\n",
+        "cpu17": "entries: 0\noverrun: 0\ncommit overrun: 0\nbytes: 0\noldest event ts:     0.000000\nnow ts:     4.424117\ndropped events: 0\nread events: 0\n",
+        "cpu18": "entries: 0\noverrun: 0\ncommit overrun: 0\nbytes: 0\noldest event ts:     0.000000\nnow ts:     4.424123\ndropped events: 0\nread events: 0\n",
+        "cpu19": "entries: 2\noverrun: 0\ncommit overrun: 0\nbytes: 136\noldest event ts:     4.421367\nnow ts:     4.424128\ndropped events: 0\nread events: 2\n",
+        "cpu2": "entries: 0\noverrun: 0\ncommit overrun: 0\nbytes: 0\noldest event ts:     0.000000\nnow ts:     4.424133\ndropped events: 0\nread events: 0\n",
+        "cpu3": "entries: 0\noverrun: 0\ncommit overrun: 0\nbytes: 0\noldest event ts:     0.000000\nnow ts:     4.424139\ndropped events: 0\nread events: 0\n",
+        "cpu4": "entries: 0\noverrun: 0\ncommit overrun: 0\nbytes: 0\noldest event ts:     0.000000\nnow ts:     4.424144\ndropped events: 0\nread events: 0\n",
+        "cpu5": "entries: 2\noverrun: 0\ncommit overrun: 0\nbytes: 136\noldest event ts:     4.421317\nnow ts:     4.424150\ndropped events: 0\nread events: 2\n",
+        "cpu6": "entries: 0\noverrun: 0\ncommit overrun: 0\nbytes: 0\noldest event ts:     0.000000\nnow ts:     4.424155\ndropped events: 0\nread events: 0\n",
+        "cpu7": "entries: 2\noverrun: 0\ncommit overrun: 0\nbytes: 136\noldest event ts:     4.419525\nnow ts:     4.424161\ndropped events: 0\nread events: 4\n",
+        "cpu8": "entries: 0\noverrun: 0\ncommit overrun: 0\nbytes: 0\noldest event ts:     0.000000\nnow ts:     4.424166\ndropped events: 0\nread events: 0\n",
+        "cpu9": "entries: 0\noverrun: 0\ncommit overrun: 0\nbytes: 0\noldest event ts:     4.419744\nnow ts:     4.424172\ndropped events: 0\nread events: 4\n"
+      },
+      "loss_counts": {
+        "cpu0": {
+          "overrun": 0,
+          "commit overrun": 0,
+          "dropped events": 0
+        },
+        "cpu1": {
+          "overrun": 0,
+          "commit overrun": 0,
+          "dropped events": 0
+        },
+        "cpu10": {
+          "overrun": 0,
+          "commit overrun": 0,
+          "dropped events": 0
+        },
+        "cpu11": {
+          "overrun": 0,
+          "commit overrun": 0,
+          "dropped events": 0
+        },
+        "cpu12": {
+          "overrun": 0,
+          "commit overrun": 0,
+          "dropped events": 0
+        },
+        "cpu13": {
+          "overrun": 0,
+          "commit overrun": 0,
+          "dropped events": 0
+        },
+        "cpu14": {
+          "overrun": 0,
+          "commit overrun": 0,
+          "dropped events": 0
+        },
+        "cpu15": {
+          "overrun": 0,
+          "commit overrun": 0,
+          "dropped events": 0
+        },
+        "cpu16": {
+          "overrun": 0,
+          "commit overrun": 0,
+          "dropped events": 0
+        },
+        "cpu17": {
+          "overrun": 0,
+          "commit overrun": 0,
+          "dropped events": 0
+        },
+        "cpu18": {
+          "overrun": 0,
+          "commit overrun": 0,
+          "dropped events": 0
+        },
+        "cpu19": {
+          "overrun": 0,
+          "commit overrun": 0,
+          "dropped events": 0
+        },
+        "cpu2": {
+          "overrun": 0,
+          "commit overrun": 0,
+          "dropped events": 0
+        },
+        "cpu3": {
+          "overrun": 0,
+          "commit overrun": 0,
+          "dropped events": 0
+        },
+        "cpu4": {
+          "overrun": 0,
+          "commit overrun": 0,
+          "dropped events": 0
+        },
+        "cpu5": {
+          "overrun": 0,
+          "commit overrun": 0,
+          "dropped events": 0
+        },
+        "cpu6": {
+          "overrun": 0,
+          "commit overrun": 0,
+          "dropped events": 0
+        },
+        "cpu7": {
+          "overrun": 0,
+          "commit overrun": 0,
+          "dropped events": 0
+        },
+        "cpu8": {
+          "overrun": 0,
+          "commit overrun": 0,
+          "dropped events": 0
+        },
+        "cpu9": {
+          "overrun": 0,
+          "commit overrun": 0,
+          "dropped events": 0
+        }
+      }
+    },
+    "loss_delta": {
+      "cpu0": {
+        "commit overrun": 0,
+        "dropped events": 0,
+        "overrun": 0
+      },
+      "cpu1": {
+        "commit overrun": 0,
+        "dropped events": 0,
+        "overrun": 0
+      },
+      "cpu10": {
+        "commit overrun": 0,
+        "dropped events": 0,
+        "overrun": 0
+      },
+      "cpu11": {
+        "commit overrun": 0,
+        "dropped events": 0,
+        "overrun": 0
+      },
+      "cpu12": {
+        "commit overrun": 0,
+        "dropped events": 0,
+        "overrun": 0
+      },
+      "cpu13": {
+        "commit overrun": 0,
+        "dropped events": 0,
+        "overrun": 0
+      },
+      "cpu14": {
+        "commit overrun": 0,
+        "dropped events": 0,
+        "overrun": 0
+      },
+      "cpu15": {
+        "commit overrun": 0,
+        "dropped events": 0,
+        "overrun": 0
+      },
+      "cpu16": {
+        "commit overrun": 0,
+        "dropped events": 0,
+        "overrun": 0
+      },
+      "cpu17": {
+        "commit overrun": 0,
+        "dropped events": 0,
+        "overrun": 0
+      },
+      "cpu18": {
+        "commit overrun": 0,
+        "dropped events": 0,
+        "overrun": 0
+      },
+      "cpu19": {
+        "commit overrun": 0,
+        "dropped events": 0,
+        "overrun": 0
+      },
+      "cpu2": {
+        "commit overrun": 0,
+        "dropped events": 0,
+        "overrun": 0
+      },
+      "cpu3": {
+        "commit overrun": 0,
+        "dropped events": 0,
+        "overrun": 0
+      },
+      "cpu4": {
+        "commit overrun": 0,
+        "dropped events": 0,
+        "overrun": 0
+      },
+      "cpu5": {
+        "commit overrun": 0,
+        "dropped events": 0,
+        "overrun": 0
+      },
+      "cpu6": {
+        "commit overrun": 0,
+        "dropped events": 0,
+        "overrun": 0
+      },
+      "cpu7": {
+        "commit overrun": 0,
+        "dropped events": 0,
+        "overrun": 0
+      },
+      "cpu8": {
+        "commit overrun": 0,
+        "dropped events": 0,
+        "overrun": 0
+      },
+      "cpu9": {
+        "commit overrun": 0,
+        "dropped events": 0,
+        "overrun": 0
+      }
+    },
+    "loss_free": true,
+    "post_capture_tasks_proof": {
+      "roles_verified": [
+        "ap_fc/DDS",
+        "ap_fc/arducopter",
+        "ap_fc/log_io",
+        "ap_worker",
+        "px4_fc/logger",
+        "px4_fc/sim_send",
+        "px4_fc/wq:lp_default",
+        "px4_worker",
+        "supervisor"
+      ],
+      "count": 9,
+      "owner_count": 5,
+      "source": "kernel_bpf_then_stable_proc_lifetimes"
+    },
+    "post_capture_tasks_inventory": {
+      "ap_worker": [
+        {
+          "local_tid": 687,
+          "global_tid": 687,
+          "comm": "wkaa1ed94d306a",
+          "start_ticks": 401
+        }
+      ],
+      "px4_worker": [
+        {
+          "local_tid": 688,
+          "global_tid": 688,
+          "comm": "wkaa1ed94d306p",
+          "start_ticks": 401
+        }
+      ],
+      "supervisor": [
+        {
+          "local_tid": 689,
+          "global_tid": 689,
+          "comm": "wkaa1ed94d306s",
+          "start_ticks": 401
+        }
+      ],
+      "ap_fc": [
+        {
+          "local_tid": 690,
+          "global_tid": 690,
+          "comm": "arducopter",
+          "start_ticks": 401
+        },
+        {
+          "local_tid": 693,
+          "global_tid": 693,
+          "comm": "log_io",
+          "start_ticks": 409
+        },
+        {
+          "local_tid": 695,
+          "global_tid": 695,
+          "comm": "DDS",
+          "start_ticks": 409
+        }
+      ],
+      "px4_fc": [
+        {
+          "local_tid": 691,
+          "global_tid": 691,
+          "comm": "px4",
+          "start_ticks": 401
+        },
+        {
+          "local_tid": 692,
+          "global_tid": 692,
+          "comm": "sim_send",
+          "start_ticks": 409
+        },
+        {
+          "local_tid": 694,
+          "global_tid": 694,
+          "comm": "logger",
+          "start_ticks": 409
+        },
+        {
+          "local_tid": 696,
+          "global_tid": 696,
+          "comm": "wq:lp_default",
+          "start_ticks": 409
+        }
+      ]
+    },
+    "instance_removed": true,
+    "probe_closed": true,
+    "global_controls_unchanged": true
+  },
+  "sources_unchanged": true
+}

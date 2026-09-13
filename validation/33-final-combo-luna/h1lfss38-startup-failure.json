@@ -1,0 +1,42 @@
+{
+  "schema": "wksim.final-combo-startup-failure.v1",
+  "run_id": "joint-public-flight-h1lfss38",
+  "runner_commit": "f49d4ea",
+  "scene_epoch": "e3404bf093ca42d1919746b91bedd1e5",
+  "result_sha256": "473574bf1392642bc76c7ed14ace222aa2b67701bebd104f0d0637e92b5b1170",
+  "manifests": {
+    "ap": "1e6250eff8873d6b2e52017b613c223ac29f8260fdf92aac2cf0c7cdcc6ce94c",
+    "control": "060f9677ed9ba2234c16fa7543319014cd3bb335f480af562780d79772be4080",
+    "message": "29969da0702451e3fc6f1de40bc301a67284c4e7d5fae8f88c64773d27a96219"
+  },
+  "model": {
+    "library_sha256": "e59ab914e3ff8225ff303e05a885f8fa1eaedb05a95443f097920ca60a7f1c0b",
+    "build_manifest_sha256": "f254b90ef53cbb5d6e034b7b58facd499f2073ee68bb1a509020108e3dbf2a24"
+  },
+  "failure": {
+    "tick": 0,
+    "synchronized": false,
+    "error": "RuntimeError('px4-model exited unexpectedly: 1')",
+    "root_cause": "The candidate-first Python overlay selected the partial control copy of Simulator.wksim_runtime, which does not contain evidence_stream.py.",
+    "arducopter_model_log_sha256": "41649b554c3003ec8987dcf39f3510488dbd10be67e4c5067b79a30a03917e51",
+    "px4_model_log_sha256": "41649b554c3003ec8987dcf39f3510488dbd10be67e4c5067b79a30a03917e51"
+  },
+  "correction": {
+    "commit": "b45aae8",
+    "behavior": "Model workers receive an explicit environment with the complete repository runtime ahead of partial control overlays.",
+    "verification": "Windows and WSL import regression passed; the next real run reached tick 89988."
+  },
+  "cleanup": {
+    "cleanup_errors": [],
+    "remaining_group_members": 0,
+    "control_shutdown_clean": false
+  },
+  "archive": {
+    "members": 263,
+    "bytes": 2153581,
+    "parts": 1,
+    "sha256": "abd0635c59a28d1c286673693d741665bc07a9071e39e0e5cfd04b1901bb4819",
+    "recombined_match": true
+  },
+  "limitations": "The run failed before the first synchronized physical tick and is not flight acceptance evidence."
+}

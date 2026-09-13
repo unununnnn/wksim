@@ -8,12 +8,12 @@ import json
 import math
 import time
 
-from Simulator.wksim_core.worker import receive_worker
+from Simulator.wksim_core.worker import receive_worker, receive_workers
 from prometheus_control.scene import TOPIC, PERIOD_SECONDS, LEASE_SECONDS
 
 
 class JointLifecycle:
-    def __init__(self, node, clock, publisher, directory, run_id, started, observer):
+    def __init__(self, node, clock, publisher, directory, run_id, started, observer, *, write_probe=None,log_factory=None):
         import rclpy
         from std_msgs.msg import String
         from rclpy.serialization import serialize_message
@@ -22,18 +22,22 @@ class JointLifecycle:
         self.observer, self.run_id, self.started = observer, run_id, started
         self.phase, self.sequence, self.next_publish = 'running', 0, 0.
         self.next_spin = 0.
+        self.write_probe = write_probe
         self.faulted_uav_ids = []
         self.acks, self.events, self.completed = {}, [], False
-        self.log = (directory/'scene-lifecycle.jsonl').open('x', buffering=1)
+        self.log = (log_factory(directory/'scene-lifecycle.jsonl',1) if log_factory else
+                    (directory/'scene-lifecycle.jsonl').open('x', buffering=1))
         self.publisher = node.create_publisher(String, TOPIC, 1)
         self.subscriptions = [node.create_subscription(String, TOPIC+f'/control/uav{uid}',
             lambda message, uid=uid: self.receive(uid, message), 1) for uid in (1, 2)]
         self.periodic(force=True)
 
     def record(self, kind, **fields):
-        self.log.write(json.dumps(dict(kind=kind, wall=time.monotonic()-self.started,
+        text=json.dumps(dict(kind=kind, wall=time.monotonic()-self.started,
             epoch=self.clock.epoch, tick=self.clock.tick, phase=self.phase, **fields),
-            allow_nan=False, separators=(',', ':'))+'\n')
+            allow_nan=False, separators=(',', ':'))+'\n'
+        if self.write_probe: self.write_probe.write(self.log,'lifecycle',text)
+        else: self.log.write(text)
 
     def receive(self, uid, message):
         self.record('ack_raw', uav_id=uid, cdr_hex=self.serialize(message).hex())
@@ -113,6 +117,14 @@ class JointLifecycle:
             faulted_republications=self.clock_publisher.faulted_republications,
             models={name:receive_worker(worker, dict(version=1, epoch=self.clock.epoch, snapshot=True),
                        self.clock.epoch) for name, worker in physics.workers.items()})
+
+    def initial_states(self, physics):
+        """Explicit one-shot tick-zero model reads; never steps the common clock."""
+        if self.clock.tick != 0:
+            raise RuntimeError('Explicit initial-state observation requires tick zero')
+        requests = {name: (worker, dict(version=1, epoch=self.clock.epoch, initial=True))
+                    for name, worker in physics.workers.items()}
+        return receive_workers(requests, self.clock.epoch)
 
     def communication_fault(self, reason, affected_uav_ids=None):
         self.clock.suspend(reason)

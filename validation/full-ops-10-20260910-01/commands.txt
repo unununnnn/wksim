@@ -1,0 +1,25 @@
+Working directory: C:/Users/PC/Documents/odid编译/wksim
+
+Read-only inputs:
+  Get-Content docs/plan/full-scope-expansion.md
+  Get-Content docs/plan/full-remaining-ledger.json
+  Get-Content docs/plan/full-followup-tickets.json
+  Get-Content docs/plan/38-rc-integration.md
+  Get-Content ros2/src/prometheus_control/prometheus_control/command.py
+  Get-Content Simulator/wksim_control/rc_input.py
+  Get-Content Simulator/wksim_control/position_pid.py
+  Get-Content Simulator/wksim_control/position_ude.py
+  Get-Content Simulator/wksim_control/position_ne.py
+  Get-Content Simulator/wksim_runtime/mission_plan.py
+  Get-Content Simulator/wksim_runtime/velocity_evidence.py
+  Get-Content Simulator/wksim_runtime/ude-flight-v1.json
+  Get-Content Simulator/wksim_runtime/ne-flight-v1.json
+  gh issue view 161 --repo unununnnn/wksim --json number,title,body,state,labels,comments
+  gh issue view 35 --repo unununnnn/wksim --json number,title,body,state,labels,comments
+  gh issue view 32 --repo unununnnn/wksim --json number,title,body,state,labels,comments
+
+Validation:
+  python -B validation/full-ops-10-20260910-01/validate.py
+  git diff --check -- docs/plan/full-contracts/ops-10.md docs/plan/full-contracts/ops-10.json validation/full-ops-10-20260910-01
+
+No controller, mission, RC-node or algorithm code was modified; no UE, FC, model, ROS, MATLAB or hardware process was started.

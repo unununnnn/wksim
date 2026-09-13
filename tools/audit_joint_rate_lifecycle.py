@@ -11,6 +11,57 @@ from audit_joint_product_lifecycle import retained_identity, raw_public
 from Simulator.wksim_runtime.joint_actions import validate_request
 
 
+PASS_TERMINAL_REASONS = frozenset(('set-rate', 'pause', 'resume_confirmed', 'stop'))
+
+
+def closed_rate_schedule(path, epoch, *, expected_terminal_reasons):
+    """Audit the production schedule with failure mode disabled.
+
+    A lifecycle run can only be PASS when its raw schedule closes without a
+    rate-unmet row.  The separate failure audit may certify a genuine
+    >100 ms fault, but this successful lifecycle audit must never consume that
+    escape hatch or relabel it as a completed run.
+    """
+    require(isinstance(expected_terminal_reasons, (list, tuple))
+            and all(isinstance(reason, str) and reason for reason in expected_terminal_reasons),
+            'Lifecycle terminal reason contract is missing or malformed')
+    try:
+        segments = schedule(path, epoch, allow_failure=False)
+    except (AssertionError, ValueError) as error:
+        raise ValueError('Lifecycle PASS schedule rejected: rate_unmet, >100ms lateness or catch-up: '
+                         + str(error)) from error
+    require(segments and all('failure' not in segment for segment in segments.values()),
+            'Lifecycle schedule contains a failure segment')
+    terminal = {}
+    for row in lines(path):
+        if row.get('kind') == 'rate_segment_end':
+            require(row.get('segment_id') not in terminal,
+                    'Lifecycle schedule repeats a segment terminal record')
+            terminal[row['segment_id']] = row
+    require(set(terminal) == set(segments),
+            'Lifecycle schedule lacks one terminal record per segment')
+    require(len(expected_terminal_reasons) == len(segments),
+            'Lifecycle terminal reason count differs from rate segments')
+    for (segment_id, segment), expected_reason in zip(segments.items(), expected_terminal_reasons):
+        anchor = segment['anchor']
+        end = terminal[segment_id]
+        require(end.get('completed_groups') == len(segment['groups']),
+                'Lifecycle segment summary disagrees with completed groups')
+        # A resume_requested anchor is a deliberate transition boundary: the
+        # producer closes it at resume_confirmed before another group can run.
+        require(segment['groups'] or anchor['anchor'].get('transition') is True,
+                'Lifecycle schedule closed a non-transition segment without a group')
+        require(end.get('reason') in PASS_TERMINAL_REASONS,
+                'Lifecycle segment has an unknown or failure terminal reason')
+        require(end.get('reason') == expected_reason,
+                f'Lifecycle segment {segment_id} terminal reason does not match production '
+                f'close/reanchor operation: expected {expected_reason!r}')
+        if anchor['anchor'].get('transition') is True:
+            require(end['reason'] == 'resume_confirmed',
+                    'Lifecycle transition segment did not close at resume confirmation')
+    return segments
+
+
 def audit(root):
     root = Path(root)
     flow, wrapper, run = [read(root / name) for name in ('flow.json', 'wrapper.json', 'run/result.json')]
@@ -94,7 +145,19 @@ def audit(root):
             selected[ack['uav_id']] = ack
         require(set(selected) == {1, 2}, 'Missing actual dual ready/fresh native-state ACKs: ' + phase)
         native_acks[phase] = selected
-    segments = schedule(directory / 'rate.jsonl', epoch)
+    terminal_reasons = []
+    for action in actions[1:]:
+        name = action['response']['action']
+        if name == 'set-rate':
+            terminal_reasons.append('set-rate')
+        elif name == 'pause':
+            terminal_reasons.append('pause')
+        elif name == 'resume':
+            terminal_reasons.append('resume_confirmed')
+        elif name == 'stop':
+            terminal_reasons.append('stop')
+    segments = closed_rate_schedule(directory / 'rate.jsonl', epoch,
+                                    expected_terminal_reasons=terminal_reasons)
     anchors = [s['anchor'] for s in segments.values()]
     require([a['reason'] for a in anchors] == ['synchronized_boundary', 'set-rate', 'set-rate',
             'resume_requested', 'resume_confirmed'], 'Rate anchors crossed expected lifecycle')
@@ -115,10 +178,13 @@ def audit(root):
     return dict(status='pass', epoch=epoch, scope='one retained formal rate/lifecycle behavior epoch',
         executed_source_sha256=result['source_sha256'], physical=physical, public_state_counts=counts,
         pause=dict(tick=frozen, wall_seconds=step_start-pause_start), exact_step_ticks=exact_steps,
+        rate_contract=dict(no_catch_up=True, over_100ms='fail_closed', pause_step_ticks=4,
+                           worst_lateness_ns=max(segment['worst_ns'] for segment in segments.values())),
         native_control_acks=native_acks,
         rate_segments=[dict(segment_id=s['anchor']['segment_id'], requested_rate=s['anchor']['requested_rate'],
-            anchor=s['anchor']['anchor'], completed_groups=len(s['groups']), worst_lateness_ns=s['worst_ns'])
-            for s in segments.values()],
+            anchor=s['anchor']['anchor'], completed_groups=len(s['groups']), worst_lateness_ns=s['worst_ns'],
+            terminal_reason=terminal_reasons[index])
+            for index, s in enumerate(segments.values())],
         limitations=['Retained executed sources only; this does not accept later source edits.',
             'One epoch and a brief 1x switch do not certify 1x throughput or three-epoch rate acceptance.',
             'Ready lifecycle ACKs attest the native-state/control pause/resume handshake; native task command ACKs are separately decoded by the product audit.',

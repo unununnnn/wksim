@@ -1,0 +1,40 @@
+{
+  "status": "ready",
+  "number": 54,
+  "url": "https://github.com/unununnnn/wksim/issues/54",
+  "key": "1-full-ledger",
+  "tier": "luna",
+  "working_directory": "C:\\Users\\PC\\Documents\\odid编译\\wksim",
+  "title": "[Luna] 逐项整理 Full 原规格覆盖台账（不判完成）",
+  "definition": {
+    "key": "1-full-ledger",
+    "parent": 1,
+    "title": "逐项整理 Full 原规格覆盖台账（不判完成）",
+    "tier": "luna",
+    "owned_files": [
+      "docs/plan/full-remaining-ledger.json (new)",
+      "docs/plan/full-remaining-ledger.md (new)"
+    ],
+    "known_input_reports": [
+      "docs/plan/full-migration-spec.md",
+      "docs/plan/full-scope-expansion.md",
+      "docs/plan/README.md"
+    ],
+    "concrete_actions": [
+      "给每项原Full用户故事/扩展行保留原文、源文件位置和稳定ID",
+      "逐项链接已有父票/报告，无法证明实现或无票覆盖的行明确列为gap",
+      "检查源ID集合与台账ID集合相等、无遗漏/重复；保留G0–G6和硬件边界，不宣称完成"
+    ],
+    "verifiable_completion": "完整、可机械核对的覆盖台账；所有未确认行显式保留。",
+    "prerequisite_keys": [],
+    "parent_dependencies": [],
+    "targeted_test_command": null,
+    "command_status": "implementation_contract",
+    "readiness": "ready_when_explicit_dependencies_closed",
+    "failure_escalation_boundary": "保存新证据；未达到完成条件保持OPEN并标needs-triage。身份、预算或写入范围变化交Astra复核。",
+    "blocking_issue_numbers": [],
+    "priority": 5,
+    "dependency_rationale": "父票原Blocked by保留；本票源码/纯检查只按自身实际前置派发，父票最终关闭仍检查全部原依赖。"
+  },
+  "next_action": "先完整读取此GitHub子票；只做本票写入范围。真实运行使用新ID/目录，完成后再取下一票。"
+}

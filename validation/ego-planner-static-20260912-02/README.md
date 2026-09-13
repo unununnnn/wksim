@@ -1,0 +1,11 @@
+# Actual EGO output with explicit static fixtures
+
+The two distribution process checks completed separately and found no matching native execution before launch. The real EGO binary then ran against the unchanged single-box XML and 11000-point scene. This fixture withheld synthetic COMMAND state until EGO published occupied voxels inside the obstacle, and stopped retransmitting the static cloud after that observation. It sent two clouds and observed 51184 inflated-map points. The static odometry was (-4,0,3); no FC or public command consumer was connected.
+
+EGO produced trajectory ID 1 with 33 control points and 37 knots. `bspline.ros1` contains its original serialized ROS1 message bytes, not an executable. `bspline.json` preserves normalized fields and receipt observations. Start time was 2601000000ns; the receiver's ROS clock also read 2601000000ns, while the fixture had most recently published tick 1602. These are distinct observations and do not establish a physical clock barrier.
+
+The existing 10ms sampled-polyline/segment assessment passed: 1082 samples, minimum obstacle clearance 0.9971919183081722m, no map violation. It is explicitly not a continuous-curve or physical-flight proof. See `geometry-assessment.json`.
+
+The first offline admission rejected the actual duration, 10.802539100943088s, because the adapter required durations to be whole milliseconds. That rejection remains in `geometry-assessment.json`. The adapter now preserves the original curve duration and ends at the first authority tick at/after it; it does not rewrite knots or start time. `fractional-duration-replay.json` records successful offline admission/replay from tick1601 to terminal HOLD at tick12404, with strictly increasing command IDs and no evaluation beyond the curve. The separate late-start restriction remains unchanged.
+
+All native children exited zero, no process remained in the local private network view, and recorded sources were unchanged. The previous timed-out fixture remains separate; its resource-overlap caveat prevents attributing its timeout to a single cause. This successful fixture is planner-output and offline-assessment evidence only, not #39/#102 or Full completion.

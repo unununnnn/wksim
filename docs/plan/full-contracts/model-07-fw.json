@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "issue": 140,
+  "stable_key": "full-model-07-fw",
+  "title": "Fixed-wing model",
+  "source": {
+    "file": "docs/plan/full-scope-expansion.md",
+    "line": 52,
+    "ledger_id": "MODEL-07",
+    "ledger_file": "docs/plan/full-followup-tickets.json",
+    "parent_issues": [1]
+  },
+  "status": "defined",
+  "evidence_status": "no-evidence",
+  "full_complete": false,
+  "current_gap": "Fixed-wing model source, control stack/actuators and flight conditions are missing; ArduCopter must not be forced to control a fixed-wing.",
+  "atoms": [
+    {"id": "MODEL-07-FW-A", "name": "model_source", "status": "blocked", "required": "Pinned fixed-wing model source with airfoil/aerodynamic parameters", "owner": "model maintainer"},
+    {"id": "MODEL-07-FW-B", "name": "control_stack_actuators", "status": "blocked", "required": "Declared control stack (e.g. ArduPlane-class) and actuator set: aileron/elevator/rudder/throttle", "owner": "control maintainer"},
+    {"id": "MODEL-07-FW-C", "name": "flight_conditions", "status": "blocked", "required": "Fixed-wing flight conditions (airspeed, stall, coordinated turn) with expected responses", "owner": "physics maintainer"},
+    {"id": "MODEL-07-FW-D", "name": "no_forced_arducopter", "status": "partial", "required": "Rule enforced: ArduCopter is never wired to control a fixed-wing", "owner": "validation maintainer"}
+  ],
+  "model_required": ["model_identity", "vehicle_class=fixed_wing", "aerodynamic_parameters", "actuator_set", "control_stack", "flight_conditions", "source", "source_sha256"],
+  "scope_rule": "a multicopter stack is never a fixed-wing controller; lift/stall semantics belong to the fixed-wing model",
+  "errors": ["accepted", "model_not_found", "source_unpinned", "actuator_unmapped", "stack_incompatible", "condition_undefined", "substitution_rejected"],
+  "followups": [
+    {"key": "model-07-fw-source", "files": ["docs/plan/<fixed-wing-source>.json"], "status": "proposed", "blocked_by": "Model source selection and license"},
+    {"key": "model-07-fw-stack", "files": ["docs/plan/<fixed-wing-stack>.md", "validation/<fixed-wing-audit>"], "status": "proposed", "blocked_by": "Model source and control stack decision"}
+  ],
+  "preserved": {"multicopter_stacks": "ArduCopter/PX4 multicopter evidence stays multicopter-only", "shared_row": "MODEL-07 row also covers the compound wing under #141", "full_complete": false}
+}

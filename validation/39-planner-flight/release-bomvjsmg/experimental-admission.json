@@ -1,0 +1,972 @@
+{
+  "ok": true,
+  "experimental": true,
+  "production_admitted": false,
+  "flown": false,
+  "children_created": 0,
+  "task_profile": "full_xyz_pv_yaw_v1",
+  "reasons": [],
+  "configs": {
+    "arducopter": {
+      "schema_version": 1,
+      "run_id": "joint-public-flight-bomvjsmg",
+      "vehicle_id": 1,
+      "model_profile": "quad_x",
+      "communication": "native_dds",
+      "control_protocol": "session_v1",
+      "capabilities": [
+        "native_position_mission"
+      ],
+      "dds_workspace": "/root/wksim-dds-VxM6Ni",
+      "prometheus_workspace": "/root/wksim-joint-control-FVMjak",
+      "px4_root": "/root/wksim-px4-state-ONa1Kw/src",
+      "model_library": "/root/wksim-private-tmp-cxrbwjyr/artifacts/wksim-model-ms14otyn/libwksim_model.so",
+      "stack": "arducopter",
+      "ap_candidate": "/root/wksim-ap-mixed-fhuf05l9"
+    },
+    "px4": {
+      "schema_version": 1,
+      "run_id": "joint-public-flight-bomvjsmg",
+      "vehicle_id": 1,
+      "model_profile": "quad_x",
+      "communication": "native_dds",
+      "control_protocol": "session_v1",
+      "capabilities": [
+        "native_position_mission"
+      ],
+      "dds_workspace": "/root/wksim-dds-VxM6Ni",
+      "prometheus_workspace": "/root/wksim-joint-control-FVMjak",
+      "px4_root": "/root/wksim-px4-state-ONa1Kw/src",
+      "model_library": "/root/wksim-private-tmp-cxrbwjyr/artifacts/wksim-model-ms14otyn/libwksim_model.so",
+      "stack": "px4"
+    }
+  },
+  "model_library": "/root/wksim-private-tmp-cxrbwjyr/artifacts/wksim-model-ms14otyn/libwksim_model.so",
+  "control_candidate": {
+    "version": 2,
+    "root": "/root/wksim-joint-control-c2IXOr",
+    "package": "/root/wksim-joint-control-c2IXOr/install/prometheus_control/local/lib/python3.10/dist-packages/prometheus_control",
+    "python_sha256": {
+      "__init__.py": "9a4edb373583bcf6f3d7eaa2522ad1544f63965b0e7f81167f858a0d09d44746",
+      "command.py": "5c23492d761444346a41707cd6027c2fe76acd47db7bd972686fc09ef5f8b25d",
+      "frames.py": "24086553882b31f0666159a1c9bf2929219420a0184dbb2b6683559d12e809b0",
+      "global_native.py": "cfab6a4696d7316141e48eb17a2696c0a0986bd821119e1a49d63905f68f9b72",
+      "native_arducopter.py": "d51abbdec52c580dad0a87536c9fa1377aa926929717d16c438359368c4db63e",
+      "native_px4.py": "b2160a1bcde3f819adfb2429737c8fc69ca6705c26e944d40e22d528eae58419",
+      "node.py": "fd9176b8ef2bbe6b3334eb7054b955d7a22f351992b6b3d7b2f67fd68aca2a9a",
+      "rc_transport.py": "e618c33ba687520160c8d2cfb79b0da30e5047f3036549c47ca357f1c26dc38f",
+      "scene.py": "370770a02fdde5e94fc54bed6f7e0d63a4c98c6dcadd0c3616ac1c14529cd333",
+      "session.py": "da64efa299288738d4520c6a23834c3201c34334f861a8de542fcaa91930b126",
+      "shaping.py": "56782d96f9fc6f7df3ddadf80cd8c09f474af81c5c183d20d3d26c2f9e66bc69"
+    },
+    "simulator_python_sha256": {
+      "wksim_runtime/__init__.py": "a6c5443b9204b18974249c52ae93437ed165af0d1b463edfa518ee3acde4c440",
+      "wksim_runtime/task.py": "9791913df7ad61d229a151d4d1d0e5c2b3f32d127a7545096b43a32638f0dbbc",
+      "wksim_runtime/trajectory_bridge.py": "18ce768ab4b2f769b7a2a2fc708e7197e444057ee322e7b9379e60e5ce3c969f",
+      "wksim_runtime/planner_command_egress.py": "365b01a79c0266d8076feac592bc41a3696bdcef2e1e26875fd1e391ffe3ea09",
+      "wksim_runtime/planner_transport_node.py": "ffc2964393eb67a5f0e3e5335d003e28241103e0070b762a87641e03998489ab",
+      "wksim_runtime/planner_transport_receiver.py": "70146463dd189199c68c150d70766230d25b533b2ef6f646845f918ab58db18c",
+      "wksim_runtime/planner_transport_pump.py": "30e48e08801c22b7a2f7684ca154fa086f0f4dab3c6f60c8a8e4aa258ca76da5",
+      "wksim_runtime/bspline_tcp_envelope.py": "f0dffe7fe3e8717a2ca4e3af7ac2d740266c89fa534b9a1a8dde814af8ee59a3",
+      "wksim_runtime/planner_scene_binding.py": "da45997ec4caceb45cd6652717b71973d8be041e94f690ba89b7011e6ea1a0cf",
+      "wksim_planning/ego_bspline_bridge.py": "c696f936208ed9faed2575a9df1b6aa5e13acfd6c96f21a5d48b8d71a11aaa51",
+      "wksim_planning/ego_evaluator.py": "ad91915c5f61625c05497a9e64ece596c4aa336e03723e96efb2104b7ff9b1e2",
+      "wksim_planning/ego_trajectory_adapter.py": "1ebd161181e8dfe8d0388e1eaa307385df34b7247935a6da321d17a2243c515d",
+      "wksim_planning/trajectory_session.py": "8887ec11edfc67e0aed8faf3e8768aec90bcdf9138d1f4c4b80733a847317df0",
+      "wksim_planning/ego_scene_admission.py": "6671bc6f4b9654a2ed4fae7c4f0d3c32937da94a8c7fed10c875783feec8c40b",
+      "wksim_planning/scene_profile.py": "5a34e036194372241577b7187107eecc2c6be1777a7f51a4f189f87a6205f84c"
+    },
+    "build_inputs": {
+      "CMakeLists.txt": "7bde80821f838fd69cafbfb2816fc175f573ed7c13d8fd36f28395c7c4a66395",
+      "package.xml": "e0d3cd3fded35db58d744ab67c806b2134d75c45fb1920813a23ae1dac7ceec2",
+      "scripts/prometheus_control_node": "b73f77d5e2b74ea999fdd3174280c31d311061de20e2c2c7e8c56d44e4e6dcfc",
+      "scripts/trajectory_bridge_node": "00bf70c8ff8fbf22124bd3304404c88391bbcac1c591f317857b558fa04b37dc",
+      "launch/trajectory_bridge.launch.py": "9a3ba39242927b84a23f16ca3882890fadf0471841dc230b8470478add25c483",
+      "src/rc_take.cpp": "d6969f1d872a904c794b8c045652946fa1bf5285401ac3ee747a24beee9c6ee6"
+    },
+    "simulator_asset_sha256": {
+      "wksim_runtime/message_pins/ros1_Bspline.msg": "08ab59c600038eaff054bab381c48f3bf16c693a34007c64b8ba98b8a44ee706",
+      "wksim_runtime/message_pins/ros2_Bspline.msg": "83922f2387a58be693aaad1f4d35d5421719e9288daa65ed5f48f27132c4dbe8"
+    },
+    "installed_inputs": {
+      "scripts/prometheus_control_node": "b73f77d5e2b74ea999fdd3174280c31d311061de20e2c2c7e8c56d44e4e6dcfc",
+      "scripts/trajectory_bridge_node": "00bf70c8ff8fbf22124bd3304404c88391bbcac1c591f317857b558fa04b37dc",
+      "launch/trajectory_bridge.launch.py": "9a3ba39242927b84a23f16ca3882890fadf0471841dc230b8470478add25c483"
+    },
+    "build_log_sha256": "c80622c50d79522a42d5a856e1000646864a9e1d8af47ca24cd8d0ca03f74fda",
+    "rc_transport_sha256": "f00ccb7da8da348e33e8dbb1200dd3244a73c3cf4f658024372009de06f9107c",
+    "build_script_sha256": "6898de3002f8b123aca24a9053c2a20d4fbd9a02c428a72c5eb53a7cf9e7b2e3",
+    "sealer_sha256": "4e34bbfa8ff8bae874e29673a58df4f48445a2c325c5165cdf352b80f2c89131",
+    "message_manifest_path": "/root/wksim-ros2-Rzj3Pf/message-build.json",
+    "message_manifest_sha256": "29969da0702451e3fc6f1de40bc301a67284c4e7d5fae8f88c64773d27a96219",
+    "message_candidate": {
+      "version": 1,
+      "root": "/root/wksim-ros2-Rzj3Pf",
+      "packages": {
+        "prometheus_msgs": {
+          "source_sha256": {
+            "CMakeLists.txt": "b3981b721ec221f8298f4da94e01adb62d4ee9817b5d9fb1f505f7aec73ff35a",
+            "LICENSE": "99d8e9b9475c9a99dee67218f2d540e5e567daeb97e821a3d48660bc126b693b",
+            "UPSTREAM.json": "1dc57578b253ae51b39ecb79b9f90054f4572917e84325405ec3ce249cf20b3c",
+            "action/CheckForObjects.action": "6db07a180af93996697a853bfbe0256fe0ac54f3640d4f4fff6693f2b3c83061",
+            "msg/ArucoInfo.msg": "dc610c50b2070b6b302e89147602478226a58edb373cfb6bf56cba04d23db0fb",
+            "msg/BasicDataTypeAndValue.msg": "d3674e706856ac07449d7b0c5ff4a025f02d5146519692680b59492f457aceca",
+            "msg/BoundingBox.msg": "68c85e253ae82ff86a1dad7f6a3fa6c16d53a5d2b61ef47d1cbaa0e60a0afd3f",
+            "msg/BoundingBoxes.msg": "d674b3bc438876fd2a364ad275fdf84c6aae18347cd4cc79f0c41548c12c8808",
+            "msg/Bspline.msg": "83922f2387a58be693aaad1f4d35d5421719e9288daa65ed5f48f27132c4dbe8",
+            "msg/Control.msg": "d0bbd5ac033b275ccd94b251f3291418c2f589be34f3f0bed7df3e1253f6be6c",
+            "msg/CustomDataSegment.msg": "1b248146fa8d5058ea1590faf9837c1f468f5c6bda6fe36d68d2478ccae178b7",
+            "msg/DepthCompressed.msg": "8b7262bcbc607862eb9588537f4e5d6279251028004325415c07410b02328f29",
+            "msg/DetectionInfo.msg": "da50a054cf925d86c9ed19c2bb9ec05a48820e6281cec7ff7dc507c32a7f08d5",
+            "msg/DetectionInfoSub.msg": "764bce6705944c1744d21d5f458d198781527c3c099553b8dddd46d29015b88d",
+            "msg/FormationAssign.msg": "ad8ec91154d60cb93ce43ab70c1266beff28a28a544c3c5ec086976ddfcaf7ad",
+            "msg/GPSData.msg": "0aabc7e4f63ae0247414112114128e13a64ad7529ff8824b19fcb90931ace3b2",
+            "msg/GimbalControl.msg": "b2e8b712db6895ae234b7da45d3501c482946742a0d24cf656cf2224f8355b7d",
+            "msg/GimbalState.msg": "9ea876178734fe33172ee58741a425b0a47e63b4a0cf5727d2ba487dbe196062",
+            "msg/GlobalAruco.msg": "6f84af2ac4d7eab9e117b18c18c2cf3754e5e7c41d1b279e983fc8e3a083fa5e",
+            "msg/LinktrackNode2.msg": "dc55da44ecb9e8ad79e47bb27ab31284b3bfde8702916ae6bfc6cd8ad8e7fe50",
+            "msg/LinktrackNodeframe2.msg": "9ce18d199f5be6a0ed67b189b924699df0aee8248482615cd38cb64eb0575879",
+            "msg/LivoxCustomMsg.msg": "cc5fd233a7eae1b066157d41e77355239f82491f02699ef51e1211b27d091601",
+            "msg/LivoxCustomPoint.msg": "c15970e30a96f690f0c9d0bd50baa81d43c7262fd5c780fa33fa60168bcc4dcb",
+            "msg/MultiArucoInfo.msg": "f55ce8414d3780d0c971dc7410fdf708a4fcb43d7ea8d0ec006efba77b458f81",
+            "msg/MultiBsplines.msg": "875dd656d34370921bdc47d1d1bd62c0d42bb5bf196006ff85d30a1a2d7adbe4",
+            "msg/MultiDetectionInfo.msg": "86311d37e507bffacb3d2cd9ccfbfde6478fde3e54b4dec5d2fdc6e409736749",
+            "msg/MultiDetectionInfoSub.msg": "89be0a81990b258313c65d7dac5cfccdc6106df48bf2b340c95e2c5cbcff243f",
+            "msg/MultiUAVState.msg": "60ae450f8e11f31228b6b4512967e2b30fcd13c36ae9a68428dbe0d6a3d391a8",
+            "msg/MultiUGVState.msg": "1104c1733e02f8faf3a14c9ed1d4a5cc16f76fe19f1dcb7d4963db2cfbce4b24",
+            "msg/OffsetPose.msg": "c834567f6cbce2b3f4575a6f7eeb14d4f909fddc0f5f69f03bb27e9aa90a8473",
+            "msg/ParamSettings.msg": "65ed8f63db4f63f576691875a0e965bab1b8414ccf1cee643644a91fb3bdf990",
+            "msg/PositionReference.msg": "2880e70e3a6e10b53d5bfbd8e1276a357792fd0b9f8375145ba15762f46907ff",
+            "msg/ROI.msg": "d27d425367a17f2976a0a9af2506cc307dd4763c88e4dc39feb88fd23e452dc6",
+            "msg/StartScript.msg": "d281113823d87a6fbe3d06f7fa02378039f248b8a08a2e51d9e6efc682641b25",
+            "msg/StationCommand.msg": "55d4b52afd593c3920226ab54b1176b7f123d7d7f144f7bcafd19885cd5bdfd2",
+            "msg/SwarmCommand.msg": "2fe84cbb360e74ca61b0004c80afabf9ddd46a4726d36ef3a2344110ff69f381",
+            "msg/Target.msg": "c62de7547ddf4848cb9ca9a5caba72a019b06e5eec9e7cdb6c4176a056ac4636",
+            "msg/TargetsInFrame.msg": "35c66f8a59511738ce1fdd6c33193f7393cc2a1745baf1c937a752f9ec6164e5",
+            "msg/TextInfo.msg": "438bef95310eb7de47cb620ced45b722cddf283293c8b730be955155d0eba9c9",
+            "msg/UAVCommand.msg": "6c5ec0afae45cb0971b494ed98bac12e3548e889f6452413f5f91f9830a9a189",
+            "msg/UAVControlState.msg": "4d9bd410ccb9e3deff40042eced42f14762f58cfebb42889ddb7f5c561371a36",
+            "msg/UAVSetup.msg": "101e063aa3644f85d029c48ef74e974dfdf728c22e4820d725ebd0afde7558ab",
+            "msg/UAVState.msg": "ef2e7ff61b76a5da78c8e067ff8645dbd8002890a5417711fd4816fae9b62925",
+            "msg/UGVCommand.msg": "602808b4abe7144fa9cadf96826a9871871924b814f2e07d70fe27e6b13ce5b0",
+            "msg/UGVState.msg": "42f04a5480b99dfc07dfc595f2c2afbd4ae187075519a90d4cbd51aa343a07c0",
+            "msg/VisionDiff.msg": "689a22e9fd916b37ebbd775406fa371f06af1916db43b212b3cb28bc40a1d165",
+            "msg/WindowPosition.msg": "a6bdde14c96b7ca538671615e9a60ccc332b1da9ded7ec539cbb2090fdfb306a",
+            "package.xml": "4a50980d2d6c9ef0874ca557c36e0c095e844e7d181f27875ebcfcc0fb6a6547",
+            "srv/GetLocationSource.srv": "fadc1bfddd753d6b26bec6b7016c1f0e09a727ac53b1c57686b82cb8d67f93ff",
+            "srv/GimbalFollowTrackResSevice.srv": "4fcaf72ff2d01d1976b43228baf8b3dc7a709eba10e512a5e12c6b35123e7e9c",
+            "srv/SwitchLocationSource.srv": "20f5dea3da8273c3db49ee57cb103c68f337ada807d369adec329dcdeb8ca5f9"
+          },
+          "prefix": "/root/wksim-ros2-Rzj3Pf/install/prometheus_msgs",
+          "installed_sha256": "88de3d0c99deb85b50258fe7159f4951d15877a0233d3e6f7f1929d27c504e77"
+        },
+        "wksim_msgs": {
+          "source_sha256": {
+            "CMakeLists.txt": "8ed40c548fa80686217b6b5266efafa6371a356d2640c4efb94999eabd382bc2",
+            "msg/CommandRequest.msg": "679736068a7e82f84f53b44aed299b0c64e54be435159e45a9ecf99b8e13f6b8",
+            "msg/SessionState.msg": "8b922a2d90b42acb65259a1c28105da7b29f925b0421fff91fd57aa2bbea64ab",
+            "msg/SetupRequest.msg": "1f45bb2d48f338ed3955c38789691c40e9afafb66b8dc790de995a38788bbb47",
+            "package.xml": "572b37d6510a8e0406c64e5430ea3a8dff859d5462c612a8bfc08063015f132c"
+          },
+          "prefix": "/root/wksim-ros2-Rzj3Pf/install/wksim_msgs",
+          "installed_sha256": "a4ad6ec8c44f632592d13e6ccf3018cef3a88998ce55eaef9bad688772f3bc94"
+        }
+      },
+      "evidence": "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/validation/prometheus-ros2-034mfLaK",
+      "evidence_sha256": {
+        "result.json": "67a7c8663b3109bc688cc609da1587453f067912c9008ead1f7b0374c7729480",
+        "workspace.txt": "d948c306bd53b2ce244fe8876c6240ccf5f4e4088715028e6a27f352751ecc0d",
+        "exit-code.txt": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+        "source-check.json": "1c4d0f52725e582b0ba040c7c6f4a5225987946bb754f0d43cde57bf8acba514",
+        "unit-tests.log": "873d1ac12f7ed160bcc15cb0641344b159cb19e0406c271dcbd178686ac80826",
+        "build.log": "639f739146aebe1f677b88d0d9d22456c1a6510b3a87a07e32eb45494ebba7a9",
+        "control-tests.log": "658f47dfc2ff82687bec7ae81bf0cf1e77da2ad497dece68e81eb17c00f5b785",
+        "runtime.log": "db70f0ecc5a7599128a277b5b1119ccedbc38eb01d7053cef7839bd435681ac3"
+      },
+      "build_script_sha256": "405c635b5be899b3a08d2e5629b697c0605e6284ba4a00ee26a485f870fc8451",
+      "scope": "Explicit current ROS 2 message overlay; historical flight pins remain unchanged"
+    },
+    "scope": "experimental continuous joint ROS-time operations; no production admission"
+  },
+  "message_candidate": {
+    "version": 1,
+    "root": "/root/wksim-ros2-Rzj3Pf",
+    "packages": {
+      "prometheus_msgs": {
+        "source_sha256": {
+          "CMakeLists.txt": "b3981b721ec221f8298f4da94e01adb62d4ee9817b5d9fb1f505f7aec73ff35a",
+          "LICENSE": "99d8e9b9475c9a99dee67218f2d540e5e567daeb97e821a3d48660bc126b693b",
+          "UPSTREAM.json": "1dc57578b253ae51b39ecb79b9f90054f4572917e84325405ec3ce249cf20b3c",
+          "action/CheckForObjects.action": "6db07a180af93996697a853bfbe0256fe0ac54f3640d4f4fff6693f2b3c83061",
+          "msg/ArucoInfo.msg": "dc610c50b2070b6b302e89147602478226a58edb373cfb6bf56cba04d23db0fb",
+          "msg/BasicDataTypeAndValue.msg": "d3674e706856ac07449d7b0c5ff4a025f02d5146519692680b59492f457aceca",
+          "msg/BoundingBox.msg": "68c85e253ae82ff86a1dad7f6a3fa6c16d53a5d2b61ef47d1cbaa0e60a0afd3f",
+          "msg/BoundingBoxes.msg": "d674b3bc438876fd2a364ad275fdf84c6aae18347cd4cc79f0c41548c12c8808",
+          "msg/Bspline.msg": "83922f2387a58be693aaad1f4d35d5421719e9288daa65ed5f48f27132c4dbe8",
+          "msg/Control.msg": "d0bbd5ac033b275ccd94b251f3291418c2f589be34f3f0bed7df3e1253f6be6c",
+          "msg/CustomDataSegment.msg": "1b248146fa8d5058ea1590faf9837c1f468f5c6bda6fe36d68d2478ccae178b7",
+          "msg/DepthCompressed.msg": "8b7262bcbc607862eb9588537f4e5d6279251028004325415c07410b02328f29",
+          "msg/DetectionInfo.msg": "da50a054cf925d86c9ed19c2bb9ec05a48820e6281cec7ff7dc507c32a7f08d5",
+          "msg/DetectionInfoSub.msg": "764bce6705944c1744d21d5f458d198781527c3c099553b8dddd46d29015b88d",
+          "msg/FormationAssign.msg": "ad8ec91154d60cb93ce43ab70c1266beff28a28a544c3c5ec086976ddfcaf7ad",
+          "msg/GPSData.msg": "0aabc7e4f63ae0247414112114128e13a64ad7529ff8824b19fcb90931ace3b2",
+          "msg/GimbalControl.msg": "b2e8b712db6895ae234b7da45d3501c482946742a0d24cf656cf2224f8355b7d",
+          "msg/GimbalState.msg": "9ea876178734fe33172ee58741a425b0a47e63b4a0cf5727d2ba487dbe196062",
+          "msg/GlobalAruco.msg": "6f84af2ac4d7eab9e117b18c18c2cf3754e5e7c41d1b279e983fc8e3a083fa5e",
+          "msg/LinktrackNode2.msg": "dc55da44ecb9e8ad79e47bb27ab31284b3bfde8702916ae6bfc6cd8ad8e7fe50",
+          "msg/LinktrackNodeframe2.msg": "9ce18d199f5be6a0ed67b189b924699df0aee8248482615cd38cb64eb0575879",
+          "msg/LivoxCustomMsg.msg": "cc5fd233a7eae1b066157d41e77355239f82491f02699ef51e1211b27d091601",
+          "msg/LivoxCustomPoint.msg": "c15970e30a96f690f0c9d0bd50baa81d43c7262fd5c780fa33fa60168bcc4dcb",
+          "msg/MultiArucoInfo.msg": "f55ce8414d3780d0c971dc7410fdf708a4fcb43d7ea8d0ec006efba77b458f81",
+          "msg/MultiBsplines.msg": "875dd656d34370921bdc47d1d1bd62c0d42bb5bf196006ff85d30a1a2d7adbe4",
+          "msg/MultiDetectionInfo.msg": "86311d37e507bffacb3d2cd9ccfbfde6478fde3e54b4dec5d2fdc6e409736749",
+          "msg/MultiDetectionInfoSub.msg": "89be0a81990b258313c65d7dac5cfccdc6106df48bf2b340c95e2c5cbcff243f",
+          "msg/MultiUAVState.msg": "60ae450f8e11f31228b6b4512967e2b30fcd13c36ae9a68428dbe0d6a3d391a8",
+          "msg/MultiUGVState.msg": "1104c1733e02f8faf3a14c9ed1d4a5cc16f76fe19f1dcb7d4963db2cfbce4b24",
+          "msg/OffsetPose.msg": "c834567f6cbce2b3f4575a6f7eeb14d4f909fddc0f5f69f03bb27e9aa90a8473",
+          "msg/ParamSettings.msg": "65ed8f63db4f63f576691875a0e965bab1b8414ccf1cee643644a91fb3bdf990",
+          "msg/PositionReference.msg": "2880e70e3a6e10b53d5bfbd8e1276a357792fd0b9f8375145ba15762f46907ff",
+          "msg/ROI.msg": "d27d425367a17f2976a0a9af2506cc307dd4763c88e4dc39feb88fd23e452dc6",
+          "msg/StartScript.msg": "d281113823d87a6fbe3d06f7fa02378039f248b8a08a2e51d9e6efc682641b25",
+          "msg/StationCommand.msg": "55d4b52afd593c3920226ab54b1176b7f123d7d7f144f7bcafd19885cd5bdfd2",
+          "msg/SwarmCommand.msg": "2fe84cbb360e74ca61b0004c80afabf9ddd46a4726d36ef3a2344110ff69f381",
+          "msg/Target.msg": "c62de7547ddf4848cb9ca9a5caba72a019b06e5eec9e7cdb6c4176a056ac4636",
+          "msg/TargetsInFrame.msg": "35c66f8a59511738ce1fdd6c33193f7393cc2a1745baf1c937a752f9ec6164e5",
+          "msg/TextInfo.msg": "438bef95310eb7de47cb620ced45b722cddf283293c8b730be955155d0eba9c9",
+          "msg/UAVCommand.msg": "6c5ec0afae45cb0971b494ed98bac12e3548e889f6452413f5f91f9830a9a189",
+          "msg/UAVControlState.msg": "4d9bd410ccb9e3deff40042eced42f14762f58cfebb42889ddb7f5c561371a36",
+          "msg/UAVSetup.msg": "101e063aa3644f85d029c48ef74e974dfdf728c22e4820d725ebd0afde7558ab",
+          "msg/UAVState.msg": "ef2e7ff61b76a5da78c8e067ff8645dbd8002890a5417711fd4816fae9b62925",
+          "msg/UGVCommand.msg": "602808b4abe7144fa9cadf96826a9871871924b814f2e07d70fe27e6b13ce5b0",
+          "msg/UGVState.msg": "42f04a5480b99dfc07dfc595f2c2afbd4ae187075519a90d4cbd51aa343a07c0",
+          "msg/VisionDiff.msg": "689a22e9fd916b37ebbd775406fa371f06af1916db43b212b3cb28bc40a1d165",
+          "msg/WindowPosition.msg": "a6bdde14c96b7ca538671615e9a60ccc332b1da9ded7ec539cbb2090fdfb306a",
+          "package.xml": "4a50980d2d6c9ef0874ca557c36e0c095e844e7d181f27875ebcfcc0fb6a6547",
+          "srv/GetLocationSource.srv": "fadc1bfddd753d6b26bec6b7016c1f0e09a727ac53b1c57686b82cb8d67f93ff",
+          "srv/GimbalFollowTrackResSevice.srv": "4fcaf72ff2d01d1976b43228baf8b3dc7a709eba10e512a5e12c6b35123e7e9c",
+          "srv/SwitchLocationSource.srv": "20f5dea3da8273c3db49ee57cb103c68f337ada807d369adec329dcdeb8ca5f9"
+        },
+        "prefix": "/root/wksim-ros2-Rzj3Pf/install/prometheus_msgs",
+        "installed_sha256": "88de3d0c99deb85b50258fe7159f4951d15877a0233d3e6f7f1929d27c504e77"
+      },
+      "wksim_msgs": {
+        "source_sha256": {
+          "CMakeLists.txt": "8ed40c548fa80686217b6b5266efafa6371a356d2640c4efb94999eabd382bc2",
+          "msg/CommandRequest.msg": "679736068a7e82f84f53b44aed299b0c64e54be435159e45a9ecf99b8e13f6b8",
+          "msg/SessionState.msg": "8b922a2d90b42acb65259a1c28105da7b29f925b0421fff91fd57aa2bbea64ab",
+          "msg/SetupRequest.msg": "1f45bb2d48f338ed3955c38789691c40e9afafb66b8dc790de995a38788bbb47",
+          "package.xml": "572b37d6510a8e0406c64e5430ea3a8dff859d5462c612a8bfc08063015f132c"
+        },
+        "prefix": "/root/wksim-ros2-Rzj3Pf/install/wksim_msgs",
+        "installed_sha256": "a4ad6ec8c44f632592d13e6ccf3018cef3a88998ce55eaef9bad688772f3bc94"
+      }
+    },
+    "evidence": "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/validation/prometheus-ros2-034mfLaK",
+    "evidence_sha256": {
+      "result.json": "67a7c8663b3109bc688cc609da1587453f067912c9008ead1f7b0374c7729480",
+      "workspace.txt": "d948c306bd53b2ce244fe8876c6240ccf5f4e4088715028e6a27f352751ecc0d",
+      "exit-code.txt": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "source-check.json": "1c4d0f52725e582b0ba040c7c6f4a5225987946bb754f0d43cde57bf8acba514",
+      "unit-tests.log": "873d1ac12f7ed160bcc15cb0641344b159cb19e0406c271dcbd178686ac80826",
+      "build.log": "639f739146aebe1f677b88d0d9d22456c1a6510b3a87a07e32eb45494ebba7a9",
+      "control-tests.log": "658f47dfc2ff82687bec7ae81bf0cf1e77da2ad497dece68e81eb17c00f5b785",
+      "runtime.log": "db70f0ecc5a7599128a277b5b1119ccedbc38eb01d7053cef7839bd435681ac3"
+    },
+    "build_script_sha256": "405c635b5be899b3a08d2e5629b697c0605e6284ba4a00ee26a485f870fc8451",
+    "scope": "Explicit current ROS 2 message overlay; historical flight pins remain unchanged"
+  },
+  "identities": {
+    "baseline": {
+      "ap": {
+        "path": "/root/wksim-ap-clock-stop-OXQqdR/build/sitl/bin/arducopter",
+        "sha256": "083971caff8883188488b02ec18a8ef17141fe948b520b3c597a6109e8c2d7de",
+        "commit": "1511f27194f1dcc3728270883047bdf022b3fd53",
+        "source_files": 24593
+      },
+      "px4": {
+        "path": "/root/wksim-px4-state-ONa1Kw/src/build/px4_sitl_default/bin/px4",
+        "sha256": "93b4ebe0d83a5897131ec24ee58d732c8999972bb7730f429fc396bc8d10602a",
+        "commit": "d6f12ad1c4f70ad3230afd7d86e971421e02fef4",
+        "source_files": 42012
+      },
+      "manifests": {
+        "ap": {
+          "path": "/root/wksim-ap-clock-stop-OXQqdR/wksim-build.json",
+          "sha256": "f347ba252fbfc33bc92baffba08660f33c3a0e4462e90177ba84bdc11408660a"
+        },
+        "px4": {
+          "path": "/root/wksim-px4-state-ONa1Kw/wksim-build.json",
+          "sha256": "d7e905b35250d184e185ada70e3fe43f0223f1c605832d81c3c58eeb123d4cb6"
+        },
+        "control": {
+          "path": "/root/wksim-joint-control-FVMjak/build.json",
+          "sha256": "f02edf158bf9b4d75cfd2221412bdbe83a10b21bc1642c97259294e12ef487a7"
+        }
+      },
+      "sealed_control": {
+        "version": 1,
+        "root": "/root/wksim-joint-control-FVMjak",
+        "package": "/root/wksim-joint-control-FVMjak/install/prometheus_control/local/lib/python3.10/dist-packages/prometheus_control",
+        "python_sha256": {
+          "__init__.py": "9a4edb373583bcf6f3d7eaa2522ad1544f63965b0e7f81167f858a0d09d44746",
+          "command.py": "5a37a7e1a00fe3764796ec3e5c1688d681a4ab30edc8a95b6c603324577d0d2f",
+          "frames.py": "24086553882b31f0666159a1c9bf2929219420a0184dbb2b6683559d12e809b0",
+          "native_arducopter.py": "63255819c43e2683c3125c0e7e07e5622f676c78bc83ce744cd60e9d9caa42dc",
+          "native_px4.py": "de40ae6175c7e1b23908a791b077b310da81a8d5c264ff4af2620a733a4b2fe6",
+          "node.py": "5dac263055de8ffcfaec16ffb69b91e652a406ae4193c0eabc9fd53eaedec4ab",
+          "scene.py": "370770a02fdde5e94fc54bed6f7e0d63a4c98c6dcadd0c3616ac1c14529cd333",
+          "session.py": "da64efa299288738d4520c6a23834c3201c34334f861a8de542fcaa91930b126",
+          "shaping.py": "56782d96f9fc6f7df3ddadf80cd8c09f474af81c5c183d20d3d26c2f9e66bc69"
+        },
+        "build_inputs": {
+          "CMakeLists.txt": "821a496b17b94ab4aca47ef699414e0c79a09196cc94907c55d57cd34e1174e0",
+          "package.xml": "e7527638b3ec0c74884fa77a5fcf9fd9b11e3b77ee011c9ef477927902bd81b6",
+          "scripts/prometheus_control_node": "b73f77d5e2b74ea999fdd3174280c31d311061de20e2c2c7e8c56d44e4e6dcfc"
+        },
+        "build_log_sha256": "412d27c375dcebc85c3c6d3d1bfc1cea317217512685759a2e533d775726feb0",
+        "build_script_sha256": "cee40ea5324de3f38613fd3e8f05bbfde2a5814b1c76e038ec26917795e3365c",
+        "scope": "experimental continuous joint ROS-time operations; no production admission"
+      },
+      "sealed_control_package": "/root/wksim-joint-control-FVMjak/install/prometheus_control/local/lib/python3.10/dist-packages/prometheus_control",
+      "model": {
+        "schema_version": 2,
+        "archive": "/mnt/e/rflysimtools/RflySimAPIs/4.RflySimModel/1.BasicExps/e0_MinModelTemp/MulticopterModel.zip",
+        "archive_sha256": "d528b5d247e13d943f1eaa7a37fd3cb4d15c7e9bb7a6b0e5988a1423e59d05ed",
+        "archive_members": [
+          {
+            "path": "e0_MinModelTemp/Exp1_MinModelTemp_ert_rtw/Exp1_MinModelTemp.cpp",
+            "size": 324922,
+            "sha256": "a35d7c8f39c94f2db8c27b19affee5b66c1b001c63ded334ba83c99f8be54019"
+          },
+          {
+            "path": "e0_MinModelTemp/Exp1_MinModelTemp_ert_rtw/Exp1_MinModelTemp.h",
+            "size": 140983,
+            "sha256": "2d89ad1b492c5e70e80682a9f53896e0538260946a0180a2ca44e500ba1589bd"
+          },
+          {
+            "path": "e0_MinModelTemp/Exp1_MinModelTemp_ert_rtw/rtwtypes.h",
+            "size": 4520,
+            "sha256": "9d5bd1a47f06fd3f6cb124a96d407a6296875763759ab9fb388296e6199a1716"
+          },
+          {
+            "path": "R2022b/simulink/include/rtw_continuous.h",
+            "size": 4353,
+            "sha256": "8f2c78fdc5a097552078484c738aefcc944463c8834d2ca6319b76cedf526b18"
+          },
+          {
+            "path": "R2022b/simulink/include/rtw_solver.h",
+            "size": 10634,
+            "sha256": "359ff69aa94a137e8b246721ead52e056dd4fdf11c35a7f92ebb9f14e0cda674"
+          }
+        ],
+        "source_files": [
+          {
+            "path": "Exp1_MinModelTemp.cpp",
+            "size": 324922,
+            "sha256": "a35d7c8f39c94f2db8c27b19affee5b66c1b001c63ded334ba83c99f8be54019"
+          },
+          {
+            "path": "Exp1_MinModelTemp.h",
+            "size": 140983,
+            "sha256": "2d89ad1b492c5e70e80682a9f53896e0538260946a0180a2ca44e500ba1589bd"
+          },
+          {
+            "path": "rtwtypes.h",
+            "size": 4520,
+            "sha256": "9d5bd1a47f06fd3f6cb124a96d407a6296875763759ab9fb388296e6199a1716"
+          },
+          {
+            "path": "rtw_continuous.h",
+            "size": 4353,
+            "sha256": "8f2c78fdc5a097552078484c738aefcc944463c8834d2ca6319b76cedf526b18"
+          },
+          {
+            "path": "rtw_solver.h",
+            "size": 10634,
+            "sha256": "359ff69aa94a137e8b246721ead52e056dd4fdf11c35a7f92ebb9f14e0cda674"
+          }
+        ],
+        "wrapper": "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/Simulator/wksim_core/model.cpp",
+        "wrapper_sha256": "150ddf3bab66e9e59701791392f6d792a14346e0b75ecdfe94872095e72d0290",
+        "loader": "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/Simulator/wksim_core/model.py",
+        "loader_sha256": "3b0ae6f40594a30997fa66beba11466ca88f0c1a3b88c2322d4fee10f1ce4d41",
+        "library": "/root/wksim-private-tmp-cxrbwjyr/artifacts/wksim-model-ms14otyn/libwksim_model.so",
+        "library_sha256": "e59ab914e3ff8225ff303e05a885f8fa1eaedb05a95443f097920ca60a7f1c0b",
+        "argv": [
+          "g++",
+          "-std=c++17",
+          "-O2",
+          "-fno-fast-math",
+          "-fPIC",
+          "-shared",
+          "-Wl,--no-undefined",
+          "-I",
+          "/root/wksim-private-tmp-cxrbwjyr/artifacts/wksim-model-ms14otyn",
+          "/root/wksim-private-tmp-cxrbwjyr/artifacts/wksim-model-ms14otyn/Exp1_MinModelTemp.cpp",
+          "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/Simulator/wksim_core/model.cpp",
+          "-o",
+          "/root/wksim-private-tmp-cxrbwjyr/artifacts/wksim-model-ms14otyn/libwksim_model.so"
+        ],
+        "compiler": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0",
+        "profile": "generated-quad-x-1ms; local use; vendor redistribution not granted",
+        "platform": {
+          "system": "Linux",
+          "machine": "x86_64",
+          "libc": [
+            "glibc",
+            "2.35"
+          ],
+          "binary64_bytes": 8
+        },
+        "abi": {
+          "name": "wksim-model-c-v2",
+          "required_symbols": {
+            "wk_model_create": "void*()",
+            "wk_model_destroy": "void(void*)",
+            "wk_model_initial_state": "int(void*,double*,int)",
+            "wk_model_step": "int(void*,const double*,int,int,double*,int)",
+            "wk_model_step_with_terrain": "int(void*,const double*,int,const double*,int,int,double*,int)"
+          },
+          "actuator_count": 16,
+          "terrain_count": 15,
+          "output_count": 120,
+          "output_layout": [
+            "Vehicle60",
+            "Sensor30",
+            "HILGPS30"
+          ],
+          "dt_seconds": 0.001,
+          "initial_state": {
+            "tick": 0,
+            "read_only": true,
+            "finite": true,
+            "return_codes": [
+              0,
+              1,
+              3
+            ]
+          },
+          "step_return_codes": [
+            0,
+            1,
+            2,
+            3
+          ]
+        },
+        "dynamic_dependencies": [
+          "libc.so.6",
+          "libm.so.6",
+          "libstdc++.so.6"
+        ]
+      },
+      "message_packages": {
+        "px4_msgs": {
+          "prefix": "/root/wksim-dds-VxM6Ni/ros-install/px4_msgs",
+          "sha256": "4e925a5917bce0442f487b93c39763ee49a6c07662ef3b23560207a15f37ee3e"
+        },
+        "ardupilot_msgs": {
+          "prefix": "/root/wksim-ap-dds-yaw-state-4Wr27s/ros-install/ardupilot_msgs",
+          "sha256": "5ff82c59c182e5b904ce227ede45d6e9e046c6882d0f82a7453df231a9dac0aa"
+        },
+        "prometheus_msgs": {
+          "prefix": "/root/wksim-ros2-MUlZd0/install/prometheus_msgs",
+          "sha256": "fc5f25cd3bd19b3dae4c1c58ea303cd85c484dbf6e9c065ec082058ff987b806",
+          "complete_snapshot": true
+        },
+        "wksim_msgs": {
+          "prefix": "/root/wksim-ros2-MUlZd0/install/wksim_msgs",
+          "sha256": "fa5fadcb39d83bd1d2412b3b1d58955423a698236f19d9cf208956c120fdabe3",
+          "complete_snapshot": true
+        }
+      },
+      "arducopter_agent": {
+        "path": "/root/wksim-dds-VxM6Ni/ros-install/micro_ros_agent/lib/micro_ros_agent/micro_ros_agent",
+        "sha256": "aa4f7a2a861958d7ae76ce6c8a866558b8baf73b5aad0a7b7fed1f8e17af9791"
+      },
+      "px4_agent": {
+        "path": "/root/wksim-dds-VxM6Ni/agent-install/bin/MicroXRCEAgent",
+        "sha256": "c61334626f2b625fdee68f7326ca1dabdf788b16d991a0e6879903cf24edb4b7"
+      },
+      "flight_evidence": [
+        {
+          "result": {
+            "path": "validation/joint-public-flight-x84vv0_y/result.json",
+            "sha256": "7081fbb7994d352dd0e1300cc26d1225cf05a6f9490bfe3e81d93b69acef90f5"
+          },
+          "audit": {
+            "path": "validation/joint-public-flight-x84vv0_y/audit.json",
+            "sha256": "fd07c9435d7d35c2ad394635b4aff7422d55c88607d3fcca3f4e2762a141250b"
+          }
+        }
+      ]
+    },
+    "ap_mixed": {
+      "status": "verified-built-not-admitted",
+      "production_admitted": false,
+      "flown": false,
+      "manifest_path": "/root/wksim-ap-mixed-fhuf05l9/mixed-build.json",
+      "manifest_sha256": "1e6250eff8873d6b2e52017b613c223ac29f8260fdf92aac2cf0c7cdcc6ce94c",
+      "candidate": {
+        "artifacts": {
+          "build.log": "3da319c299d499b476db23350e3b8a9ea962be5e55248a3f374aa83439ef5d4f",
+          "build/sitl/bin/arducopter": "509c60163b3fceb261d17ceb2d0814c10ec65846e5d8d6689375e3ee05ab731f",
+          "configure.log": "87a839ad92af54ce984ca34d98b0ee262797b1c06b84b64484d97fbed13f66a9"
+        },
+        "baseline_manifest_sha256": "e05e5c9d0b2b576d2cf1751b01557219d6da36998b22ded396ca33d7f5c4db62",
+        "baseline_root": "/root/wksim-ap-pv-vn04950x",
+        "candidate_root": "/root/wksim-ap-mixed-fhuf05l9",
+        "fixed_pv_baseline_unchanged": true,
+        "flown": false,
+        "patch_sha256": "6a19feb1261a31cc9a3670a9bde9e26da9eb961f1ef92e1a7b54f504513a952f",
+        "production_admitted": false,
+        "profile": "xy_velocity_z_position_yaw_v1",
+        "schema_version": 1,
+        "source_manifest_sha256": "347750d7fff400dda47e671597c1a34c031f71c06c9917dc214f7d16dd533fc9",
+        "source_unchanged_during_build": true,
+        "status": "built-not-admitted"
+      },
+      "binary": {
+        "path": "/root/wksim-ap-mixed-fhuf05l9/build/sitl/bin/arducopter",
+        "sha256": "509c60163b3fceb261d17ceb2d0814c10ec65846e5d8d6689375e3ee05ab731f"
+      },
+      "source_files": 24593,
+      "source_repositories": 22,
+      "source_manifest_sha256": "347750d7fff400dda47e671597c1a34c031f71c06c9917dc214f7d16dd533fc9",
+      "baseline_verification": {
+        "status": "verified-built-not-admitted",
+        "production_admitted": false,
+        "flown": false,
+        "manifest_path": "/root/wksim-ap-pv-vn04950x/pv-build.json",
+        "manifest_sha256": "e05e5c9d0b2b576d2cf1751b01557219d6da36998b22ded396ca33d7f5c4db62",
+        "candidate_root": "/root/wksim-ap-pv-vn04950x",
+        "commit": "1511f27194f1dcc3728270883047bdf022b3fd53",
+        "artifacts": {
+          "build/sitl/bin/arducopter": {
+            "sha256": "7dfeb027e06712380f499611e2ba1bc809ed71f74ae477807ac5b2d51d62bb44",
+            "size": 5825968,
+            "symlink": null
+          },
+          "configure.log": {
+            "sha256": "aeff58d3fda25afbcb5463ce51fc230f3941bace155b0dcd4844cb839529581f",
+            "size": 2978,
+            "symlink": null
+          },
+          "build.log": {
+            "sha256": "a12ea48b9e487461d04c082a8e2997a5a14fe684f75512cf14e392d5eaa69de6",
+            "size": 161404,
+            "symlink": null
+          }
+        },
+        "current_source_matches_prebuild_snapshot": true,
+        "fixed_baseline_unchanged": true,
+        "source_files": 24593,
+        "source_repositories": 22,
+        "source_manifest_sha256": "c65a91801f7488a2a239895a9d7c8f3ca2167d417180b4ff64ab2977ddf3970b",
+        "patch_sha256": "06e0610fb1346a309fb1f967c69c27e8c82900bd521c315565e082a14692b3cf",
+        "baseline_manifest_sha256": "f347ba252fbfc33bc92baffba08660f33c3a0e4462e90177ba84bdc11408660a",
+        "verifier_sha256": "2687ecab788f9a1ed5a69cfbe9ad4362f6a34597f6646f7dcdbaff5f815743d9",
+        "scope": "Current bytes and preserved build evidence only; no native behavior or flight acceptance"
+      },
+      "verifier_sha256": "5420e1443d58c66eca379b29d8bdb15ea044335dd343cca2d9da88d2364e368f",
+      "scope": "Current mixed build bytes only; no native behavior, experimental admission or flight proof"
+    },
+    "control_candidate": {
+      "version": 2,
+      "root": "/root/wksim-joint-control-c2IXOr",
+      "package": "/root/wksim-joint-control-c2IXOr/install/prometheus_control/local/lib/python3.10/dist-packages/prometheus_control",
+      "python_sha256": {
+        "__init__.py": "9a4edb373583bcf6f3d7eaa2522ad1544f63965b0e7f81167f858a0d09d44746",
+        "command.py": "5c23492d761444346a41707cd6027c2fe76acd47db7bd972686fc09ef5f8b25d",
+        "frames.py": "24086553882b31f0666159a1c9bf2929219420a0184dbb2b6683559d12e809b0",
+        "global_native.py": "cfab6a4696d7316141e48eb17a2696c0a0986bd821119e1a49d63905f68f9b72",
+        "native_arducopter.py": "d51abbdec52c580dad0a87536c9fa1377aa926929717d16c438359368c4db63e",
+        "native_px4.py": "b2160a1bcde3f819adfb2429737c8fc69ca6705c26e944d40e22d528eae58419",
+        "node.py": "fd9176b8ef2bbe6b3334eb7054b955d7a22f351992b6b3d7b2f67fd68aca2a9a",
+        "rc_transport.py": "e618c33ba687520160c8d2cfb79b0da30e5047f3036549c47ca357f1c26dc38f",
+        "scene.py": "370770a02fdde5e94fc54bed6f7e0d63a4c98c6dcadd0c3616ac1c14529cd333",
+        "session.py": "da64efa299288738d4520c6a23834c3201c34334f861a8de542fcaa91930b126",
+        "shaping.py": "56782d96f9fc6f7df3ddadf80cd8c09f474af81c5c183d20d3d26c2f9e66bc69"
+      },
+      "simulator_python_sha256": {
+        "wksim_runtime/__init__.py": "a6c5443b9204b18974249c52ae93437ed165af0d1b463edfa518ee3acde4c440",
+        "wksim_runtime/task.py": "9791913df7ad61d229a151d4d1d0e5c2b3f32d127a7545096b43a32638f0dbbc",
+        "wksim_runtime/trajectory_bridge.py": "18ce768ab4b2f769b7a2a2fc708e7197e444057ee322e7b9379e60e5ce3c969f",
+        "wksim_runtime/planner_command_egress.py": "365b01a79c0266d8076feac592bc41a3696bdcef2e1e26875fd1e391ffe3ea09",
+        "wksim_runtime/planner_transport_node.py": "ffc2964393eb67a5f0e3e5335d003e28241103e0070b762a87641e03998489ab",
+        "wksim_runtime/planner_transport_receiver.py": "70146463dd189199c68c150d70766230d25b533b2ef6f646845f918ab58db18c",
+        "wksim_runtime/planner_transport_pump.py": "30e48e08801c22b7a2f7684ca154fa086f0f4dab3c6f60c8a8e4aa258ca76da5",
+        "wksim_runtime/bspline_tcp_envelope.py": "f0dffe7fe3e8717a2ca4e3af7ac2d740266c89fa534b9a1a8dde814af8ee59a3",
+        "wksim_runtime/planner_scene_binding.py": "da45997ec4caceb45cd6652717b71973d8be041e94f690ba89b7011e6ea1a0cf",
+        "wksim_planning/ego_bspline_bridge.py": "c696f936208ed9faed2575a9df1b6aa5e13acfd6c96f21a5d48b8d71a11aaa51",
+        "wksim_planning/ego_evaluator.py": "ad91915c5f61625c05497a9e64ece596c4aa336e03723e96efb2104b7ff9b1e2",
+        "wksim_planning/ego_trajectory_adapter.py": "1ebd161181e8dfe8d0388e1eaa307385df34b7247935a6da321d17a2243c515d",
+        "wksim_planning/trajectory_session.py": "8887ec11edfc67e0aed8faf3e8768aec90bcdf9138d1f4c4b80733a847317df0",
+        "wksim_planning/ego_scene_admission.py": "6671bc6f4b9654a2ed4fae7c4f0d3c32937da94a8c7fed10c875783feec8c40b",
+        "wksim_planning/scene_profile.py": "5a34e036194372241577b7187107eecc2c6be1777a7f51a4f189f87a6205f84c"
+      },
+      "build_inputs": {
+        "CMakeLists.txt": "7bde80821f838fd69cafbfb2816fc175f573ed7c13d8fd36f28395c7c4a66395",
+        "package.xml": "e0d3cd3fded35db58d744ab67c806b2134d75c45fb1920813a23ae1dac7ceec2",
+        "scripts/prometheus_control_node": "b73f77d5e2b74ea999fdd3174280c31d311061de20e2c2c7e8c56d44e4e6dcfc",
+        "scripts/trajectory_bridge_node": "00bf70c8ff8fbf22124bd3304404c88391bbcac1c591f317857b558fa04b37dc",
+        "launch/trajectory_bridge.launch.py": "9a3ba39242927b84a23f16ca3882890fadf0471841dc230b8470478add25c483",
+        "src/rc_take.cpp": "d6969f1d872a904c794b8c045652946fa1bf5285401ac3ee747a24beee9c6ee6"
+      },
+      "simulator_asset_sha256": {
+        "wksim_runtime/message_pins/ros1_Bspline.msg": "08ab59c600038eaff054bab381c48f3bf16c693a34007c64b8ba98b8a44ee706",
+        "wksim_runtime/message_pins/ros2_Bspline.msg": "83922f2387a58be693aaad1f4d35d5421719e9288daa65ed5f48f27132c4dbe8"
+      },
+      "installed_inputs": {
+        "scripts/prometheus_control_node": "b73f77d5e2b74ea999fdd3174280c31d311061de20e2c2c7e8c56d44e4e6dcfc",
+        "scripts/trajectory_bridge_node": "00bf70c8ff8fbf22124bd3304404c88391bbcac1c591f317857b558fa04b37dc",
+        "launch/trajectory_bridge.launch.py": "9a3ba39242927b84a23f16ca3882890fadf0471841dc230b8470478add25c483"
+      },
+      "build_log_sha256": "c80622c50d79522a42d5a856e1000646864a9e1d8af47ca24cd8d0ca03f74fda",
+      "rc_transport_sha256": "f00ccb7da8da348e33e8dbb1200dd3244a73c3cf4f658024372009de06f9107c",
+      "build_script_sha256": "6898de3002f8b123aca24a9053c2a20d4fbd9a02c428a72c5eb53a7cf9e7b2e3",
+      "sealer_sha256": "4e34bbfa8ff8bae874e29673a58df4f48445a2c325c5165cdf352b80f2c89131",
+      "message_manifest_path": "/root/wksim-ros2-Rzj3Pf/message-build.json",
+      "message_manifest_sha256": "29969da0702451e3fc6f1de40bc301a67284c4e7d5fae8f88c64773d27a96219",
+      "message_candidate": {
+        "version": 1,
+        "root": "/root/wksim-ros2-Rzj3Pf",
+        "packages": {
+          "prometheus_msgs": {
+            "source_sha256": {
+              "CMakeLists.txt": "b3981b721ec221f8298f4da94e01adb62d4ee9817b5d9fb1f505f7aec73ff35a",
+              "LICENSE": "99d8e9b9475c9a99dee67218f2d540e5e567daeb97e821a3d48660bc126b693b",
+              "UPSTREAM.json": "1dc57578b253ae51b39ecb79b9f90054f4572917e84325405ec3ce249cf20b3c",
+              "action/CheckForObjects.action": "6db07a180af93996697a853bfbe0256fe0ac54f3640d4f4fff6693f2b3c83061",
+              "msg/ArucoInfo.msg": "dc610c50b2070b6b302e89147602478226a58edb373cfb6bf56cba04d23db0fb",
+              "msg/BasicDataTypeAndValue.msg": "d3674e706856ac07449d7b0c5ff4a025f02d5146519692680b59492f457aceca",
+              "msg/BoundingBox.msg": "68c85e253ae82ff86a1dad7f6a3fa6c16d53a5d2b61ef47d1cbaa0e60a0afd3f",
+              "msg/BoundingBoxes.msg": "d674b3bc438876fd2a364ad275fdf84c6aae18347cd4cc79f0c41548c12c8808",
+              "msg/Bspline.msg": "83922f2387a58be693aaad1f4d35d5421719e9288daa65ed5f48f27132c4dbe8",
+              "msg/Control.msg": "d0bbd5ac033b275ccd94b251f3291418c2f589be34f3f0bed7df3e1253f6be6c",
+              "msg/CustomDataSegment.msg": "1b248146fa8d5058ea1590faf9837c1f468f5c6bda6fe36d68d2478ccae178b7",
+              "msg/DepthCompressed.msg": "8b7262bcbc607862eb9588537f4e5d6279251028004325415c07410b02328f29",
+              "msg/DetectionInfo.msg": "da50a054cf925d86c9ed19c2bb9ec05a48820e6281cec7ff7dc507c32a7f08d5",
+              "msg/DetectionInfoSub.msg": "764bce6705944c1744d21d5f458d198781527c3c099553b8dddd46d29015b88d",
+              "msg/FormationAssign.msg": "ad8ec91154d60cb93ce43ab70c1266beff28a28a544c3c5ec086976ddfcaf7ad",
+              "msg/GPSData.msg": "0aabc7e4f63ae0247414112114128e13a64ad7529ff8824b19fcb90931ace3b2",
+              "msg/GimbalControl.msg": "b2e8b712db6895ae234b7da45d3501c482946742a0d24cf656cf2224f8355b7d",
+              "msg/GimbalState.msg": "9ea876178734fe33172ee58741a425b0a47e63b4a0cf5727d2ba487dbe196062",
+              "msg/GlobalAruco.msg": "6f84af2ac4d7eab9e117b18c18c2cf3754e5e7c41d1b279e983fc8e3a083fa5e",
+              "msg/LinktrackNode2.msg": "dc55da44ecb9e8ad79e47bb27ab31284b3bfde8702916ae6bfc6cd8ad8e7fe50",
+              "msg/LinktrackNodeframe2.msg": "9ce18d199f5be6a0ed67b189b924699df0aee8248482615cd38cb64eb0575879",
+              "msg/LivoxCustomMsg.msg": "cc5fd233a7eae1b066157d41e77355239f82491f02699ef51e1211b27d091601",
+              "msg/LivoxCustomPoint.msg": "c15970e30a96f690f0c9d0bd50baa81d43c7262fd5c780fa33fa60168bcc4dcb",
+              "msg/MultiArucoInfo.msg": "f55ce8414d3780d0c971dc7410fdf708a4fcb43d7ea8d0ec006efba77b458f81",
+              "msg/MultiBsplines.msg": "875dd656d34370921bdc47d1d1bd62c0d42bb5bf196006ff85d30a1a2d7adbe4",
+              "msg/MultiDetectionInfo.msg": "86311d37e507bffacb3d2cd9ccfbfde6478fde3e54b4dec5d2fdc6e409736749",
+              "msg/MultiDetectionInfoSub.msg": "89be0a81990b258313c65d7dac5cfccdc6106df48bf2b340c95e2c5cbcff243f",
+              "msg/MultiUAVState.msg": "60ae450f8e11f31228b6b4512967e2b30fcd13c36ae9a68428dbe0d6a3d391a8",
+              "msg/MultiUGVState.msg": "1104c1733e02f8faf3a14c9ed1d4a5cc16f76fe19f1dcb7d4963db2cfbce4b24",
+              "msg/OffsetPose.msg": "c834567f6cbce2b3f4575a6f7eeb14d4f909fddc0f5f69f03bb27e9aa90a8473",
+              "msg/ParamSettings.msg": "65ed8f63db4f63f576691875a0e965bab1b8414ccf1cee643644a91fb3bdf990",
+              "msg/PositionReference.msg": "2880e70e3a6e10b53d5bfbd8e1276a357792fd0b9f8375145ba15762f46907ff",
+              "msg/ROI.msg": "d27d425367a17f2976a0a9af2506cc307dd4763c88e4dc39feb88fd23e452dc6",
+              "msg/StartScript.msg": "d281113823d87a6fbe3d06f7fa02378039f248b8a08a2e51d9e6efc682641b25",
+              "msg/StationCommand.msg": "55d4b52afd593c3920226ab54b1176b7f123d7d7f144f7bcafd19885cd5bdfd2",
+              "msg/SwarmCommand.msg": "2fe84cbb360e74ca61b0004c80afabf9ddd46a4726d36ef3a2344110ff69f381",
+              "msg/Target.msg": "c62de7547ddf4848cb9ca9a5caba72a019b06e5eec9e7cdb6c4176a056ac4636",
+              "msg/TargetsInFrame.msg": "35c66f8a59511738ce1fdd6c33193f7393cc2a1745baf1c937a752f9ec6164e5",
+              "msg/TextInfo.msg": "438bef95310eb7de47cb620ced45b722cddf283293c8b730be955155d0eba9c9",
+              "msg/UAVCommand.msg": "6c5ec0afae45cb0971b494ed98bac12e3548e889f6452413f5f91f9830a9a189",
+              "msg/UAVControlState.msg": "4d9bd410ccb9e3deff40042eced42f14762f58cfebb42889ddb7f5c561371a36",
+              "msg/UAVSetup.msg": "101e063aa3644f85d029c48ef74e974dfdf728c22e4820d725ebd0afde7558ab",
+              "msg/UAVState.msg": "ef2e7ff61b76a5da78c8e067ff8645dbd8002890a5417711fd4816fae9b62925",
+              "msg/UGVCommand.msg": "602808b4abe7144fa9cadf96826a9871871924b814f2e07d70fe27e6b13ce5b0",
+              "msg/UGVState.msg": "42f04a5480b99dfc07dfc595f2c2afbd4ae187075519a90d4cbd51aa343a07c0",
+              "msg/VisionDiff.msg": "689a22e9fd916b37ebbd775406fa371f06af1916db43b212b3cb28bc40a1d165",
+              "msg/WindowPosition.msg": "a6bdde14c96b7ca538671615e9a60ccc332b1da9ded7ec539cbb2090fdfb306a",
+              "package.xml": "4a50980d2d6c9ef0874ca557c36e0c095e844e7d181f27875ebcfcc0fb6a6547",
+              "srv/GetLocationSource.srv": "fadc1bfddd753d6b26bec6b7016c1f0e09a727ac53b1c57686b82cb8d67f93ff",
+              "srv/GimbalFollowTrackResSevice.srv": "4fcaf72ff2d01d1976b43228baf8b3dc7a709eba10e512a5e12c6b35123e7e9c",
+              "srv/SwitchLocationSource.srv": "20f5dea3da8273c3db49ee57cb103c68f337ada807d369adec329dcdeb8ca5f9"
+            },
+            "prefix": "/root/wksim-ros2-Rzj3Pf/install/prometheus_msgs",
+            "installed_sha256": "88de3d0c99deb85b50258fe7159f4951d15877a0233d3e6f7f1929d27c504e77"
+          },
+          "wksim_msgs": {
+            "source_sha256": {
+              "CMakeLists.txt": "8ed40c548fa80686217b6b5266efafa6371a356d2640c4efb94999eabd382bc2",
+              "msg/CommandRequest.msg": "679736068a7e82f84f53b44aed299b0c64e54be435159e45a9ecf99b8e13f6b8",
+              "msg/SessionState.msg": "8b922a2d90b42acb65259a1c28105da7b29f925b0421fff91fd57aa2bbea64ab",
+              "msg/SetupRequest.msg": "1f45bb2d48f338ed3955c38789691c40e9afafb66b8dc790de995a38788bbb47",
+              "package.xml": "572b37d6510a8e0406c64e5430ea3a8dff859d5462c612a8bfc08063015f132c"
+            },
+            "prefix": "/root/wksim-ros2-Rzj3Pf/install/wksim_msgs",
+            "installed_sha256": "a4ad6ec8c44f632592d13e6ccf3018cef3a88998ce55eaef9bad688772f3bc94"
+          }
+        },
+        "evidence": "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/validation/prometheus-ros2-034mfLaK",
+        "evidence_sha256": {
+          "result.json": "67a7c8663b3109bc688cc609da1587453f067912c9008ead1f7b0374c7729480",
+          "workspace.txt": "d948c306bd53b2ce244fe8876c6240ccf5f4e4088715028e6a27f352751ecc0d",
+          "exit-code.txt": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+          "source-check.json": "1c4d0f52725e582b0ba040c7c6f4a5225987946bb754f0d43cde57bf8acba514",
+          "unit-tests.log": "873d1ac12f7ed160bcc15cb0641344b159cb19e0406c271dcbd178686ac80826",
+          "build.log": "639f739146aebe1f677b88d0d9d22456c1a6510b3a87a07e32eb45494ebba7a9",
+          "control-tests.log": "658f47dfc2ff82687bec7ae81bf0cf1e77da2ad497dece68e81eb17c00f5b785",
+          "runtime.log": "db70f0ecc5a7599128a277b5b1119ccedbc38eb01d7053cef7839bd435681ac3"
+        },
+        "build_script_sha256": "405c635b5be899b3a08d2e5629b697c0605e6284ba4a00ee26a485f870fc8451",
+        "scope": "Explicit current ROS 2 message overlay; historical flight pins remain unchanged"
+      },
+      "scope": "experimental continuous joint ROS-time operations; no production admission"
+    },
+    "message_candidate": {
+      "version": 1,
+      "root": "/root/wksim-ros2-Rzj3Pf",
+      "packages": {
+        "prometheus_msgs": {
+          "source_sha256": {
+            "CMakeLists.txt": "b3981b721ec221f8298f4da94e01adb62d4ee9817b5d9fb1f505f7aec73ff35a",
+            "LICENSE": "99d8e9b9475c9a99dee67218f2d540e5e567daeb97e821a3d48660bc126b693b",
+            "UPSTREAM.json": "1dc57578b253ae51b39ecb79b9f90054f4572917e84325405ec3ce249cf20b3c",
+            "action/CheckForObjects.action": "6db07a180af93996697a853bfbe0256fe0ac54f3640d4f4fff6693f2b3c83061",
+            "msg/ArucoInfo.msg": "dc610c50b2070b6b302e89147602478226a58edb373cfb6bf56cba04d23db0fb",
+            "msg/BasicDataTypeAndValue.msg": "d3674e706856ac07449d7b0c5ff4a025f02d5146519692680b59492f457aceca",
+            "msg/BoundingBox.msg": "68c85e253ae82ff86a1dad7f6a3fa6c16d53a5d2b61ef47d1cbaa0e60a0afd3f",
+            "msg/BoundingBoxes.msg": "d674b3bc438876fd2a364ad275fdf84c6aae18347cd4cc79f0c41548c12c8808",
+            "msg/Bspline.msg": "83922f2387a58be693aaad1f4d35d5421719e9288daa65ed5f48f27132c4dbe8",
+            "msg/Control.msg": "d0bbd5ac033b275ccd94b251f3291418c2f589be34f3f0bed7df3e1253f6be6c",
+            "msg/CustomDataSegment.msg": "1b248146fa8d5058ea1590faf9837c1f468f5c6bda6fe36d68d2478ccae178b7",
+            "msg/DepthCompressed.msg": "8b7262bcbc607862eb9588537f4e5d6279251028004325415c07410b02328f29",
+            "msg/DetectionInfo.msg": "da50a054cf925d86c9ed19c2bb9ec05a48820e6281cec7ff7dc507c32a7f08d5",
+            "msg/DetectionInfoSub.msg": "764bce6705944c1744d21d5f458d198781527c3c099553b8dddd46d29015b88d",
+            "msg/FormationAssign.msg": "ad8ec91154d60cb93ce43ab70c1266beff28a28a544c3c5ec086976ddfcaf7ad",
+            "msg/GPSData.msg": "0aabc7e4f63ae0247414112114128e13a64ad7529ff8824b19fcb90931ace3b2",
+            "msg/GimbalControl.msg": "b2e8b712db6895ae234b7da45d3501c482946742a0d24cf656cf2224f8355b7d",
+            "msg/GimbalState.msg": "9ea876178734fe33172ee58741a425b0a47e63b4a0cf5727d2ba487dbe196062",
+            "msg/GlobalAruco.msg": "6f84af2ac4d7eab9e117b18c18c2cf3754e5e7c41d1b279e983fc8e3a083fa5e",
+            "msg/LinktrackNode2.msg": "dc55da44ecb9e8ad79e47bb27ab31284b3bfde8702916ae6bfc6cd8ad8e7fe50",
+            "msg/LinktrackNodeframe2.msg": "9ce18d199f5be6a0ed67b189b924699df0aee8248482615cd38cb64eb0575879",
+            "msg/LivoxCustomMsg.msg": "cc5fd233a7eae1b066157d41e77355239f82491f02699ef51e1211b27d091601",
+            "msg/LivoxCustomPoint.msg": "c15970e30a96f690f0c9d0bd50baa81d43c7262fd5c780fa33fa60168bcc4dcb",
+            "msg/MultiArucoInfo.msg": "f55ce8414d3780d0c971dc7410fdf708a4fcb43d7ea8d0ec006efba77b458f81",
+            "msg/MultiBsplines.msg": "875dd656d34370921bdc47d1d1bd62c0d42bb5bf196006ff85d30a1a2d7adbe4",
+            "msg/MultiDetectionInfo.msg": "86311d37e507bffacb3d2cd9ccfbfde6478fde3e54b4dec5d2fdc6e409736749",
+            "msg/MultiDetectionInfoSub.msg": "89be0a81990b258313c65d7dac5cfccdc6106df48bf2b340c95e2c5cbcff243f",
+            "msg/MultiUAVState.msg": "60ae450f8e11f31228b6b4512967e2b30fcd13c36ae9a68428dbe0d6a3d391a8",
+            "msg/MultiUGVState.msg": "1104c1733e02f8faf3a14c9ed1d4a5cc16f76fe19f1dcb7d4963db2cfbce4b24",
+            "msg/OffsetPose.msg": "c834567f6cbce2b3f4575a6f7eeb14d4f909fddc0f5f69f03bb27e9aa90a8473",
+            "msg/ParamSettings.msg": "65ed8f63db4f63f576691875a0e965bab1b8414ccf1cee643644a91fb3bdf990",
+            "msg/PositionReference.msg": "2880e70e3a6e10b53d5bfbd8e1276a357792fd0b9f8375145ba15762f46907ff",
+            "msg/ROI.msg": "d27d425367a17f2976a0a9af2506cc307dd4763c88e4dc39feb88fd23e452dc6",
+            "msg/StartScript.msg": "d281113823d87a6fbe3d06f7fa02378039f248b8a08a2e51d9e6efc682641b25",
+            "msg/StationCommand.msg": "55d4b52afd593c3920226ab54b1176b7f123d7d7f144f7bcafd19885cd5bdfd2",
+            "msg/SwarmCommand.msg": "2fe84cbb360e74ca61b0004c80afabf9ddd46a4726d36ef3a2344110ff69f381",
+            "msg/Target.msg": "c62de7547ddf4848cb9ca9a5caba72a019b06e5eec9e7cdb6c4176a056ac4636",
+            "msg/TargetsInFrame.msg": "35c66f8a59511738ce1fdd6c33193f7393cc2a1745baf1c937a752f9ec6164e5",
+            "msg/TextInfo.msg": "438bef95310eb7de47cb620ced45b722cddf283293c8b730be955155d0eba9c9",
+            "msg/UAVCommand.msg": "6c5ec0afae45cb0971b494ed98bac12e3548e889f6452413f5f91f9830a9a189",
+            "msg/UAVControlState.msg": "4d9bd410ccb9e3deff40042eced42f14762f58cfebb42889ddb7f5c561371a36",
+            "msg/UAVSetup.msg": "101e063aa3644f85d029c48ef74e974dfdf728c22e4820d725ebd0afde7558ab",
+            "msg/UAVState.msg": "ef2e7ff61b76a5da78c8e067ff8645dbd8002890a5417711fd4816fae9b62925",
+            "msg/UGVCommand.msg": "602808b4abe7144fa9cadf96826a9871871924b814f2e07d70fe27e6b13ce5b0",
+            "msg/UGVState.msg": "42f04a5480b99dfc07dfc595f2c2afbd4ae187075519a90d4cbd51aa343a07c0",
+            "msg/VisionDiff.msg": "689a22e9fd916b37ebbd775406fa371f06af1916db43b212b3cb28bc40a1d165",
+            "msg/WindowPosition.msg": "a6bdde14c96b7ca538671615e9a60ccc332b1da9ded7ec539cbb2090fdfb306a",
+            "package.xml": "4a50980d2d6c9ef0874ca557c36e0c095e844e7d181f27875ebcfcc0fb6a6547",
+            "srv/GetLocationSource.srv": "fadc1bfddd753d6b26bec6b7016c1f0e09a727ac53b1c57686b82cb8d67f93ff",
+            "srv/GimbalFollowTrackResSevice.srv": "4fcaf72ff2d01d1976b43228baf8b3dc7a709eba10e512a5e12c6b35123e7e9c",
+            "srv/SwitchLocationSource.srv": "20f5dea3da8273c3db49ee57cb103c68f337ada807d369adec329dcdeb8ca5f9"
+          },
+          "prefix": "/root/wksim-ros2-Rzj3Pf/install/prometheus_msgs",
+          "installed_sha256": "88de3d0c99deb85b50258fe7159f4951d15877a0233d3e6f7f1929d27c504e77"
+        },
+        "wksim_msgs": {
+          "source_sha256": {
+            "CMakeLists.txt": "8ed40c548fa80686217b6b5266efafa6371a356d2640c4efb94999eabd382bc2",
+            "msg/CommandRequest.msg": "679736068a7e82f84f53b44aed299b0c64e54be435159e45a9ecf99b8e13f6b8",
+            "msg/SessionState.msg": "8b922a2d90b42acb65259a1c28105da7b29f925b0421fff91fd57aa2bbea64ab",
+            "msg/SetupRequest.msg": "1f45bb2d48f338ed3955c38789691c40e9afafb66b8dc790de995a38788bbb47",
+            "package.xml": "572b37d6510a8e0406c64e5430ea3a8dff859d5462c612a8bfc08063015f132c"
+          },
+          "prefix": "/root/wksim-ros2-Rzj3Pf/install/wksim_msgs",
+          "installed_sha256": "a4ad6ec8c44f632592d13e6ccf3018cef3a88998ce55eaef9bad688772f3bc94"
+        }
+      },
+      "evidence": "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/validation/prometheus-ros2-034mfLaK",
+      "evidence_sha256": {
+        "result.json": "67a7c8663b3109bc688cc609da1587453f067912c9008ead1f7b0374c7729480",
+        "workspace.txt": "d948c306bd53b2ce244fe8876c6240ccf5f4e4088715028e6a27f352751ecc0d",
+        "exit-code.txt": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+        "source-check.json": "1c4d0f52725e582b0ba040c7c6f4a5225987946bb754f0d43cde57bf8acba514",
+        "unit-tests.log": "873d1ac12f7ed160bcc15cb0641344b159cb19e0406c271dcbd178686ac80826",
+        "build.log": "639f739146aebe1f677b88d0d9d22456c1a6510b3a87a07e32eb45494ebba7a9",
+        "control-tests.log": "658f47dfc2ff82687bec7ae81bf0cf1e77da2ad497dece68e81eb17c00f5b785",
+        "runtime.log": "db70f0ecc5a7599128a277b5b1119ccedbc38eb01d7053cef7839bd435681ac3"
+      },
+      "build_script_sha256": "405c635b5be899b3a08d2e5629b697c0605e6284ba4a00ee26a485f870fc8451",
+      "scope": "Explicit current ROS 2 message overlay; historical flight pins remain unchanged"
+    },
+    "source_sha256": {
+      "tools/ap_mixed_candidate.py": "5420e1443d58c66eca379b29d8bdb15ea044335dd343cca2d9da88d2364e368f",
+      "tools/prepare_ap_mixed_candidate.py": "dd36f21a0edac7909e50acae86271b46836c7ca913890c0c8c379aa558b7f643",
+      "tools/ap_pv_candidate.py": "d572c22a1cc5a1fff7bce18d996d36d5742f20600343055a293ebeb4653a49ec",
+      "tools/verify_ap_pv_candidate.py": "2687ecab788f9a1ed5a69cfbe9ad4362f6a34597f6646f7dcdbaff5f815743d9",
+      "tools/joint_control_candidate.py": "4e34bbfa8ff8bae874e29673a58df4f48445a2c325c5165cdf352b80f2c89131",
+      "tools/joint_message_candidate.py": "5babcdca4601a40befc804ed3e34d6dc9e8c0a05b827db43374dbc3dd90a9efe",
+      "tools/run_joint_flight.py": "92e3c7dc9d4dde2b7ca38e16705c47a115e8f2a07cbecdd3eb84d7d1cacd073b",
+      "Simulator/wksim_runtime/joint_profile.py": "82a53b00dcb8b0407d0acfc285369949f6cabc4de81998140b6899b681680b06",
+      "Simulator/wksim_runtime/config.py": "2cd852c66ff4c6b878203d937e2ef8d786c70446fc793d28aa4149941bfc1129",
+      "Simulator/wksim_runtime/runtime.py": "084f827aef380c0ffc810f37bfc6a8da97db8276b619fec4bd7c5dfcabe011c4",
+      "Simulator/wksim_runtime/build_identity.py": "9581d7085f3fb37629969e19635d1299fd40ca0a0f65ea7f4af6b85a5d6e8286"
+    }
+  },
+  "candidate": {
+    "artifacts": {
+      "build.log": "3da319c299d499b476db23350e3b8a9ea962be5e55248a3f374aa83439ef5d4f",
+      "build/sitl/bin/arducopter": "509c60163b3fceb261d17ceb2d0814c10ec65846e5d8d6689375e3ee05ab731f",
+      "configure.log": "87a839ad92af54ce984ca34d98b0ee262797b1c06b84b64484d97fbed13f66a9"
+    },
+    "baseline_manifest_sha256": "e05e5c9d0b2b576d2cf1751b01557219d6da36998b22ded396ca33d7f5c4db62",
+    "baseline_root": "/root/wksim-ap-pv-vn04950x",
+    "candidate_root": "/root/wksim-ap-mixed-fhuf05l9",
+    "fixed_pv_baseline_unchanged": true,
+    "flown": false,
+    "patch_sha256": "6a19feb1261a31cc9a3670a9bde9e26da9eb961f1ef92e1a7b54f504513a952f",
+    "production_admitted": false,
+    "profile": "xy_velocity_z_position_yaw_v1",
+    "schema_version": 1,
+    "source_manifest_sha256": "347750d7fff400dda47e671597c1a34c031f71c06c9917dc214f7d16dd533fc9",
+    "source_unchanged_during_build": true,
+    "status": "built-not-admitted"
+  },
+  "candidate_verification": {
+    "status": "verified-built-not-admitted",
+    "production_admitted": false,
+    "flown": false,
+    "manifest_path": "/root/wksim-ap-mixed-fhuf05l9/mixed-build.json",
+    "manifest_sha256": "1e6250eff8873d6b2e52017b613c223ac29f8260fdf92aac2cf0c7cdcc6ce94c",
+    "candidate": {
+      "artifacts": {
+        "build.log": "3da319c299d499b476db23350e3b8a9ea962be5e55248a3f374aa83439ef5d4f",
+        "build/sitl/bin/arducopter": "509c60163b3fceb261d17ceb2d0814c10ec65846e5d8d6689375e3ee05ab731f",
+        "configure.log": "87a839ad92af54ce984ca34d98b0ee262797b1c06b84b64484d97fbed13f66a9"
+      },
+      "baseline_manifest_sha256": "e05e5c9d0b2b576d2cf1751b01557219d6da36998b22ded396ca33d7f5c4db62",
+      "baseline_root": "/root/wksim-ap-pv-vn04950x",
+      "candidate_root": "/root/wksim-ap-mixed-fhuf05l9",
+      "fixed_pv_baseline_unchanged": true,
+      "flown": false,
+      "patch_sha256": "6a19feb1261a31cc9a3670a9bde9e26da9eb961f1ef92e1a7b54f504513a952f",
+      "production_admitted": false,
+      "profile": "xy_velocity_z_position_yaw_v1",
+      "schema_version": 1,
+      "source_manifest_sha256": "347750d7fff400dda47e671597c1a34c031f71c06c9917dc214f7d16dd533fc9",
+      "source_unchanged_during_build": true,
+      "status": "built-not-admitted"
+    },
+    "binary": {
+      "path": "/root/wksim-ap-mixed-fhuf05l9/build/sitl/bin/arducopter",
+      "sha256": "509c60163b3fceb261d17ceb2d0814c10ec65846e5d8d6689375e3ee05ab731f"
+    },
+    "source_files": 24593,
+    "source_repositories": 22,
+    "source_manifest_sha256": "347750d7fff400dda47e671597c1a34c031f71c06c9917dc214f7d16dd533fc9",
+    "baseline_verification": {
+      "status": "verified-built-not-admitted",
+      "production_admitted": false,
+      "flown": false,
+      "manifest_path": "/root/wksim-ap-pv-vn04950x/pv-build.json",
+      "manifest_sha256": "e05e5c9d0b2b576d2cf1751b01557219d6da36998b22ded396ca33d7f5c4db62",
+      "candidate_root": "/root/wksim-ap-pv-vn04950x",
+      "commit": "1511f27194f1dcc3728270883047bdf022b3fd53",
+      "artifacts": {
+        "build/sitl/bin/arducopter": {
+          "sha256": "7dfeb027e06712380f499611e2ba1bc809ed71f74ae477807ac5b2d51d62bb44",
+          "size": 5825968,
+          "symlink": null
+        },
+        "configure.log": {
+          "sha256": "aeff58d3fda25afbcb5463ce51fc230f3941bace155b0dcd4844cb839529581f",
+          "size": 2978,
+          "symlink": null
+        },
+        "build.log": {
+          "sha256": "a12ea48b9e487461d04c082a8e2997a5a14fe684f75512cf14e392d5eaa69de6",
+          "size": 161404,
+          "symlink": null
+        }
+      },
+      "current_source_matches_prebuild_snapshot": true,
+      "fixed_baseline_unchanged": true,
+      "source_files": 24593,
+      "source_repositories": 22,
+      "source_manifest_sha256": "c65a91801f7488a2a239895a9d7c8f3ca2167d417180b4ff64ab2977ddf3970b",
+      "patch_sha256": "06e0610fb1346a309fb1f967c69c27e8c82900bd521c315565e082a14692b3cf",
+      "baseline_manifest_sha256": "f347ba252fbfc33bc92baffba08660f33c3a0e4462e90177ba84bdc11408660a",
+      "verifier_sha256": "2687ecab788f9a1ed5a69cfbe9ad4362f6a34597f6646f7dcdbaff5f815743d9",
+      "scope": "Current bytes and preserved build evidence only; no native behavior or flight acceptance"
+    },
+    "verifier_sha256": "5420e1443d58c66eca379b29d8bdb15ea044335dd343cca2d9da88d2364e368f",
+    "scope": "Current mixed build bytes only; no native behavior, experimental admission or flight proof"
+  },
+  "baseline_profile": {
+    "id": "joint_quad_dds_v1",
+    "dds_workspace": "/root/wksim-dds-VxM6Ni",
+    "ap_message_workspace": "/root/wksim-ap-dds-yaw-state-4Wr27s",
+    "message_workspace": "/root/wksim-ros2-MUlZd0",
+    "control_workspace": "/root/wksim-joint-control-FVMjak",
+    "model_library": "/root/wksim-private-tmp-cxrbwjyr/artifacts/wksim-model-ms14otyn/libwksim_model.so",
+    "manifests": {
+      "ap": {
+        "path": "/root/wksim-ap-clock-stop-OXQqdR/wksim-build.json",
+        "sha256": "f347ba252fbfc33bc92baffba08660f33c3a0e4462e90177ba84bdc11408660a"
+      },
+      "px4": {
+        "path": "/root/wksim-px4-state-ONa1Kw/wksim-build.json",
+        "sha256": "d7e905b35250d184e185ada70e3fe43f0223f1c605832d81c3c58eeb123d4cb6"
+      },
+      "control": {
+        "path": "/root/wksim-joint-control-FVMjak/build.json",
+        "sha256": "f02edf158bf9b4d75cfd2221412bdbe83a10b21bc1642c97259294e12ef487a7"
+      }
+    },
+    "evidence": [
+      {
+        "result": {
+          "path": "validation/joint-public-flight-x84vv0_y/result.json",
+          "sha256": "7081fbb7994d352dd0e1300cc26d1225cf05a6f9490bfe3e81d93b69acef90f5"
+        },
+        "audit": {
+          "path": "validation/joint-public-flight-x84vv0_y/audit.json",
+          "sha256": "fd07c9435d7d35c2ad394635b4aff7422d55c88607d3fcca3f4e2762a141250b"
+        }
+      }
+    ],
+    "setup_files": [
+      "/opt/ros/humble/setup.bash",
+      "/root/wksim-dds-VxM6Ni/ros-install/local_setup.bash",
+      "/root/wksim-ap-dds-yaw-state-4Wr27s/ros-install/local_setup.bash",
+      "/root/wksim-ros2-MUlZd0/install/local_setup.bash",
+      "/root/wksim-joint-control-FVMjak/install/local_setup.bash"
+    ],
+    "control_source": "sealed_legacy",
+    "capabilities": [
+      "public_position",
+      "public_velocity_yaw"
+    ]
+  },
+  "manifest_path": "/root/wksim-ap-mixed-fhuf05l9/mixed-build.json",
+  "manifest_sha256": "1e6250eff8873d6b2e52017b613c223ac29f8260fdf92aac2cf0c7cdcc6ce94c",
+  "control_manifest_path": "/root/wksim-joint-control-c2IXOr/build.json",
+  "control_manifest_sha256": "6fe8c0b30775a9ba83407302f602d0785876d307e5f1cb746afa3bf316cf5e7e",
+  "message_manifest_path": "/root/wksim-ros2-Rzj3Pf/message-build.json",
+  "message_manifest_sha256": "29969da0702451e3fc6f1de40bc301a67284c4e7d5fae8f88c64773d27a96219",
+  "capability": {
+    "profile": "full_xyz_pv_yaw_v1",
+    "position_axes": "xyz",
+    "velocity_axes": "xyz",
+    "yaw": true,
+    "acceleration": false,
+    "yaw_rate": false,
+    "mixed_axes": false,
+    "arducopter_type_mask": 2496
+  },
+  "scope": "Bounded full XYZ P+V/yaw task on final mixed firmware with both control profiles enabled; production remains separate"
+}

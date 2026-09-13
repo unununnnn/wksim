@@ -3,7 +3,54 @@ import json
 import math
 
 
-def verify_tasks(directory,epoch,total_ticks,reports):
+def task_group_completed(workers,reports,*,defer_report_reads=False):
+    """A trusted task entry exits zero only after its full result is written.
+
+    Camera/trajectory reports can be large. During the paced loop use process outcomes;
+    the final retirement path must still load and validate those reports.
+    """
+    if len(workers)!=2 or any(worker.poll()!=0 for worker in workers):return False
+    return defer_report_reads or all(path.is_file() and json.loads(path.read_text())['status']=='pass'
+                                    for path in reports)
+
+
+def load_retired_task_report(path,run_id,epoch,stack,returncode):
+    report=json.loads(path.read_text())
+    if (report.get('run_id')!=run_id or report.get('scene_epoch')!=epoch or report.get('stack')!=stack
+            or (returncode==0)!=(report.get('status')=='pass')):
+        raise ValueError('Retired task report identity/status differs')
+    return report
+
+
+def final_run_status(epochs):
+    """Completed windows cannot clear an active fault; recovered history can."""
+    final=epochs[-1]['result']
+    if final['status']=='stopped' and any(row['result'].get('flight_completed') for row in epochs):
+        return 'failed' if final.get('authority',{}).get('fault') else 'pass'
+    return final['status']
+
+
+def verify_tasks(directory,epoch,total_ticks,reports,task_type='public_position',*,formal_result=None):
+    from .joint_config import FIXED_TASKS
+    from .joint_aruco_profile import TASK as ARUCO_TASK
+    if task_type == ARUCO_TASK:
+        # Candidate capture is evaluated with the retained Windows RGB/readback
+        # evidence by its independent auditor. Worker completion alone is not
+        # a physical or camera-flight proof and cannot set flight_completed.
+        return None
+    if task_type in FIXED_TASKS:
+        if formal_result is not None and formal_result['status']=='cold_reset':
+            return None  # Cold reset retires this fixed task; it is not flight completion.
+        completed=[report for report in reports.values() if report['status']=='pass']
+        if {report['stack'] for report in completed} != {'arducopter','px4'}:
+            return None
+        if (formal_result is None or formal_result['tasks'] != reports or formal_result['epoch'] != epoch
+                or formal_result['authority']['tick'] != total_ticks or formal_result['task_profile'] != task_type):
+            raise ValueError('Trajectory proof requires its actual formal epoch result')
+        from tools.audit_joint_trajectory import verify_epoch
+        return verify_epoch(directory,formal_result)
+    if task_type not in ('public_position','public_velocity_yaw'):
+        raise ValueError('Unknown public task audit type')
     completed=[report for report in reports.values() if report['status']=='pass']
     if not completed:
         return None
@@ -26,6 +73,10 @@ def verify_tasks(directory,epoch,total_ticks,reports):
         for report in values:
             if report['scene_epoch']!=epoch:
                 raise ValueError('Task evidence crossed scene epoch')
+            if task_type=='public_velocity_yaw':
+                from .velocity_evidence import verify_velocity_windows
+                windows.extend(verify_velocity_windows(trace,report))
+                continue
             phases={row['phase']:row for row in report['phases']}
             if report['task_mode']=='initial':
                 specs=[('takeoff_reached','hold_completed',5,'altitude'),

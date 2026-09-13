@@ -1,0 +1,219 @@
+{
+  "schema": "wksim.gridmap-cloud-probe.v1",
+  "result": "pass",
+  "node_name": "/uav1_ego_planner_node",
+  "expected_node_name": "/uav1_ego_planner_node",
+  "wall_deadline_s": 30,
+  "wall_rate_hz": 100,
+  "elapsed_wall_s": 7.504567859,
+  "timing_config_valid": true,
+  "timed_out": false,
+  "ros_shutdown_before_success": false,
+  "ros_inputs": {
+    "cloud_topic": "/map_generator/global_cloud",
+    "odom_topic": "/uav1/prometheus/odom",
+    "cloud": {
+      "messages": 1,
+      "exact_point_count_messages": 1,
+      "seq": 2,
+      "stamp": {
+        "sec": 1789173608,
+        "nsec": 751069068
+      },
+      "frame_id": "world",
+      "expected_frame_id": "world",
+      "width": 11000,
+      "height": 1,
+      "point_count": 11000,
+      "expected_point_count": 11000,
+      "unique_voxel_count": 11000,
+      "expected_unique_voxel_count": 11000,
+      "expected_voxel_index_bounds": {
+        "x": [
+          95,
+          104
+        ],
+        "y": [
+          50,
+          69
+        ],
+        "z": [
+          0,
+          54
+        ]
+      },
+      "duplicate_voxel_count": 0,
+      "invalid_point_count": 0,
+      "nonfinite_point_count": 0,
+      "missing_voxel_count": 0,
+      "point_step": 12,
+      "row_step": 132000,
+      "data_bytes": 132000,
+      "fields": [
+        "x",
+        "y",
+        "z"
+      ],
+      "count_match": true,
+      "frame_match": true,
+      "layout_valid": true,
+      "fields_valid": true,
+      "little_endian": true,
+      "length_exact": true,
+      "voxel_set_valid": true,
+      "contract_seen": true,
+      "seen_after_map_init": true
+    },
+    "odom": {
+      "messages": 9,
+      "seq": 9,
+      "stamp": {
+        "sec": 1789173608,
+        "nsec": 825872659
+      },
+      "frame_id": "world",
+      "child_frame_id": "base_link",
+      "position": [
+        -4,
+        0,
+        3
+      ],
+      "expected_position": [
+        -4,
+        0,
+        3
+      ],
+      "pose_match": true,
+      "finite": true
+    }
+  },
+  "map": {
+    "initialized": true,
+    "product_odom_valid": true,
+    "frame_id": "world",
+    "expected_frame_id": "world",
+    "resolution": 0.1,
+    "expected_resolution": 0.1,
+    "origin": [
+      -10,
+      -6,
+      0
+    ],
+    "expected_origin": [
+      -10,
+      -6,
+      0
+    ],
+    "size": [
+      20,
+      12,
+      6
+    ],
+    "expected_size": [
+      20,
+      12,
+      6
+    ],
+    "geometry_match": true,
+    "frame_match": true
+  },
+  "queries": [
+    {
+      "coordinate": [
+        -4,
+        0,
+        3
+      ],
+      "expected": 0,
+      "actual": 0,
+      "pass": true
+    },
+    {
+      "coordinate": [
+        4,
+        0,
+        3
+      ],
+      "expected": 0,
+      "actual": 0,
+      "pass": true
+    },
+    {
+      "coordinate": [
+        0,
+        0,
+        3
+      ],
+      "expected": 1,
+      "actual": 1,
+      "pass": true
+    },
+    {
+      "coordinate": [
+        -0.45,
+        -0.95,
+        0.05
+      ],
+      "expected": 1,
+      "actual": 1,
+      "pass": true
+    },
+    {
+      "coordinate": [
+        0.55,
+        1.05,
+        3
+      ],
+      "expected": 1,
+      "actual": 1,
+      "pass": true
+    },
+    {
+      "coordinate": [
+        2,
+        3,
+        3
+      ],
+      "expected": 0,
+      "actual": 0,
+      "pass": true
+    },
+    {
+      "coordinate": [
+        -10,
+        -6,
+        0
+      ],
+      "expected": -1,
+      "actual": -1,
+      "pass": true
+    },
+    {
+      "coordinate": [
+        10,
+        6,
+        6
+      ],
+      "expected": -1,
+      "actual": -1,
+      "pass": true
+    }
+  ],
+  "query_set_pass": true,
+  "gates": {
+    "cloud_received_11000": true,
+    "cloud_frame_world": true,
+    "cloud_layout_valid": true,
+    "cloud_xyz32_voxel_set": true,
+    "odom_received": true,
+    "odom_at_contract_start": true,
+    "input_gate": true,
+    "map_only": true
+  },
+  "limitations": [
+    "map-only probe; it does not start a ROS master or planner",
+    "does not publish control state, flight-control commands, or odometry",
+    "does not establish flight behavior, planner output, or clearance evidence",
+    "cloud identity is checked here by ROS metadata/count/layout and map queries; the publisher owns profile/hash provenance"
+  ]
+}

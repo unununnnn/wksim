@@ -1,0 +1,19 @@
+Working directory: C:/Users/PC/Documents/odid编译/wksim
+
+Read-only inputs:
+  Get-Content docs/plan/full-scope-expansion.md
+  Get-Content docs/plan/full-remaining-ledger.json
+  Get-Content docs/plan/full-followup-tickets.json
+  Get-Content Simulator/wksim_runtime/joint_rate.py
+  Get-Content Simulator/wksim_runtime/scene_clock.py
+  Get-Content validation/rate-syscall-scheduler-plan-20260909/report.md
+  Get-Content validation/rate-syscall-scheduler-plan-20260909/COLLECTOR.md
+  Get-Content validation/rate-syscall-scheduler-plan-20260909/collect_tracefs.py
+  gh issue view 164 --repo unununnnn/wksim --json number,title,body,state,labels,comments
+  gh issue view 1 --repo unununnnn/wksim --json number,title,state
+
+Validation:
+  python -B validation/full-ops-13-20260910-01/validate.py
+  git diff --check -- docs/plan/full-contracts/ops-13.md docs/plan/full-contracts/ops-13.json validation/full-ops-13-20260910-01
+
+No benchmark was run and no rate, barrier or collector semantics were changed; no UE, FC, model, ROS, MATLAB or hardware process was started.

@@ -1,0 +1,1896 @@
+{
+  "schema_version": 1,
+  "kind": "e0_current_rhs_references",
+  "status": "bound",
+  "provenance_only": true,
+  "non_claims": [
+    "provenance only; no numeric, rate, latency, safety or flight acceptance claim",
+    "unresolved slots are not decomposed; their reasons name the parse boundary",
+    "no dominance or reaching-definition analysis across control flow",
+    "call targets are external semantics; only the call site is recorded",
+    "a constant RHS carries references=[] and resolves terminal",
+    "local_bound binds only the single prior top-level assignment; its definition_references resolve that one definition one level and are not recursively decomposed (an interior local/call/compound sets unresolved_dependency with a reason)"
+  ],
+  "v1_artifact": {
+    "path": "validation/e0-current-source-mapping-20260912.json",
+    "sha256": "28684e66cd6e49c90907dacdabf219608a3e3ba808e07e3bd9068233268489f8"
+  },
+  "generated_source": {
+    "name": "Exp1_MinModelTemp.cpp",
+    "model_version": "11.8",
+    "generation_run": "short-cycle-codegen-01",
+    "artifact_relative_path": "work/codegen-e0/short-cycle-codegen-01/codegen/Exp1_MinModelTemp_ert_rtw/Exp1_MinModelTemp.cpp",
+    "sha256": "2c25b3fa08c996c8f2ed1a7feae5558062cd722ae5d350cc8a25caf2be10b274",
+    "size_bytes": 327598,
+    "evidence": {
+      "path": "validation/codegen-e0/short-cycle-codegen-01/generated-sources-manifest.json",
+      "sha256": "85c40213cec0f349d36664c5621bb53c46ad96f9756cdd4eaa2bb97a7b2acc67"
+    }
+  },
+  "derivation": {
+    "rule": "e0-current-rhs-references-v1",
+    "enclosing_function": "MulticopterModelClass::step",
+    "step_line_range": [
+      3832,
+      8327
+    ],
+    "resolution_statuses": [
+      "terminal",
+      "local_bound",
+      "unresolved"
+    ],
+    "unresolved_reasons": [
+      "reused_temporary",
+      "control_flow_scoped",
+      "array_local",
+      "call_expression",
+      "compound_expression"
+    ],
+    "dependency_reasons": [
+      "local_dependency",
+      "call_expression",
+      "compound_expression"
+    ]
+  },
+  "slot_count": 56,
+  "slots": [
+    {
+      "slot": "Vehicle60[2]",
+      "array": "Vehicle60",
+      "index": 2,
+      "observable": "vehicle_time",
+      "outport": "VehileInfo60d",
+      "line_ranges": [
+        [
+          7864,
+          7864
+        ]
+      ],
+      "rhs": {
+        "text": "rtb_time_usec_tmp",
+        "lines": 1
+      },
+      "references": [
+        {
+          "kind": "local",
+          "name": "rtb_time_usec_tmp",
+          "indexed": false
+        }
+      ],
+      "resolution": {
+        "status": "unresolved",
+        "reason": "reused_temporary"
+      }
+    },
+    {
+      "slot": "Vehicle60[3]",
+      "array": "Vehicle60",
+      "index": 3,
+      "observable": "velocity_ned",
+      "outport": "VehileInfo60d",
+      "line_ranges": [
+        [
+          7865,
+          7865
+        ]
+      ],
+      "rhs": {
+        "text": "Exp1_MinModelTemp_B.Product[0]",
+        "lines": 1
+      },
+      "references": [
+        {
+          "kind": "block_output",
+          "path": "Exp1_MinModelTemp_B.Product[0]"
+        }
+      ],
+      "resolution": {
+        "status": "terminal",
+        "reason": null
+      }
+    },
+    {
+      "slot": "Vehicle60[4]",
+      "array": "Vehicle60",
+      "index": 4,
+      "observable": "velocity_ned",
+      "outport": "VehileInfo60d",
+      "line_ranges": [
+        [
+          7867,
+          7867
+        ]
+      ],
+      "rhs": {
+        "text": "Exp1_MinModelTemp_B.Product[1]",
+        "lines": 1
+      },
+      "references": [
+        {
+          "kind": "block_output",
+          "path": "Exp1_MinModelTemp_B.Product[1]"
+        }
+      ],
+      "resolution": {
+        "status": "terminal",
+        "reason": null
+      }
+    },
+    {
+      "slot": "Vehicle60[5]",
+      "array": "Vehicle60",
+      "index": 5,
+      "observable": "velocity_ned",
+      "outport": "VehileInfo60d",
+      "line_ranges": [
+        [
+          7869,
+          7869
+        ]
+      ],
+      "rhs": {
+        "text": "Exp1_MinModelTemp_B.Product[2]",
+        "lines": 1
+      },
+      "references": [
+        {
+          "kind": "block_output",
+          "path": "Exp1_MinModelTemp_B.Product[2]"
+        }
+      ],
+      "resolution": {
+        "status": "terminal",
+        "reason": null
+      }
+    },
+    {
+      "slot": "Vehicle60[6]",
+      "array": "Vehicle60",
+      "index": 6,
+      "observable": "position_ned",
+      "outport": "VehileInfo60d",
+      "line_ranges": [
+        [
+          7866,
+          7866
+        ]
+      ],
+      "rhs": {
+        "text": "Exp1_MinModelTemp_X.xeyeze_CSTATE[0]",
+        "lines": 1
+      },
+      "references": [
+        {
+          "kind": "state",
+          "path": "Exp1_MinModelTemp_X.xeyeze_CSTATE[0]"
+        }
+      ],
+      "resolution": {
+        "status": "terminal",
+        "reason": null
+      }
+    },
+    {
+      "slot": "Vehicle60[7]",
+      "array": "Vehicle60",
+      "index": 7,
+      "observable": "position_ned",
+      "outport": "VehileInfo60d",
+      "line_ranges": [
+        [
+          7868,
+          7868
+        ]
+      ],
+      "rhs": {
+        "text": "Exp1_MinModelTemp_X.xeyeze_CSTATE[1]",
+        "lines": 1
+      },
+      "references": [
+        {
+          "kind": "state",
+          "path": "Exp1_MinModelTemp_X.xeyeze_CSTATE[1]"
+        }
+      ],
+      "resolution": {
+        "status": "terminal",
+        "reason": null
+      }
+    },
+    {
+      "slot": "Vehicle60[8]",
+      "array": "Vehicle60",
+      "index": 8,
+      "observable": "position_ned",
+      "outport": "VehileInfo60d",
+      "line_ranges": [
+        [
+          7870,
+          7870
+        ]
+      ],
+      "rhs": {
+        "text": "Exp1_MinModelTemp_X.xeyeze_CSTATE[2]",
+        "lines": 1
+      },
+      "references": [
+        {
+          "kind": "state",
+          "path": "Exp1_MinModelTemp_X.xeyeze_CSTATE[2]"
+        }
+      ],
+      "resolution": {
+        "status": "terminal",
+        "reason": null
+      }
+    },
+    {
+      "slot": "Vehicle60[9]",
+      "array": "Vehicle60",
+      "index": 9,
+      "observable": "euler_components",
+      "outport": "VehileInfo60d",
+      "line_ranges": [
+        [
+          4306,
+          4309
+        ]
+      ],
+      "rhs": {
+        "text": "rt_atan2d_snf((rtb_Gain_c *\n    rtb_UniformRandomNumber4_idx_0 + rtb_sincos_o1_j_idx_2 * rtb_TT0gLR) * 2.0,\n    ((rtb_UniformRandomNumber4_idx_1 - rtb_sincos_o1_j_idx_1) - rtb_Add) +\n    rtb_sincos_o2_idx_0)",
+        "lines": 4
+      },
+      "references": [
+        {
+          "kind": "local",
+          "name": "rtb_Gain_c",
+          "indexed": false
+        },
+        {
+          "kind": "local",
+          "name": "rtb_UniformRandomNumber4_idx_0",
+          "indexed": false
+        },
+        {
+          "kind": "local",
+          "name": "rtb_sincos_o1_j_idx_2",
+          "indexed": false
+        },
+        {
+          "kind": "local",
+          "name": "rtb_TT0gLR",
+          "indexed": false
+        },
+        {
+          "kind": "local",
+          "name": "rtb_UniformRandomNumber4_idx_1",
+          "indexed": false
+        },
+        {
+          "kind": "local",
+          "name": "rtb_sincos_o1_j_idx_1",
+          "indexed": false
+        },
+        {
+          "kind": "local",
+          "name": "rtb_Add",
+          "indexed": false
+        },
+        {
+          "kind": "local",
+          "name": "rtb_sincos_o2_idx_0",
+          "indexed": false
+        },
+        {
+          "kind": "call",
+          "name": "rt_atan2d_snf"
+        }
+      ],
+      "resolution": {
+        "status": "unresolved",
+        "reason": "call_expression"
+      }
+    },
+    {
+      "slot": "Vehicle60[10]",
+      "array": "Vehicle60",
+      "index": 10,
+      "observable": "euler_components",
+      "outport": "VehileInfo60d",
+      "line_ranges": [
+        [
+          7887,
+          7887
+        ]
+      ],
+      "rhs": {
+        "text": "std::asin(rtb_Switch)",
+        "lines": 1
+      },
+      "references": [
+        {
+          "kind": "local",
+          "name": "rtb_Switch",
+          "indexed": false
+        },
+        {
+          "kind": "call",
+          "name": "std::asin"
+        }
+      ],
+      "resolution": {
+        "status": "unresolved",
+        "reason": "call_expression"
+      }
+    },
+    {
+      "slot": "Vehicle60[11]",
+      "array": "Vehicle60",
+      "index": 11,
+      "observable": "euler_components",
+      "outport": "VehileInfo60d",
+      "line_ranges": [
+        [
+          7888,
+          7888
+        ]
+      ],
+      "rhs": {
+        "text": "rtb_sincos_o1_j_idx_0",
+        "lines": 1
+      },
+      "references": [
+        {
+          "kind": "local",
+          "name": "rtb_sincos_o1_j_idx_0",
+          "indexed": false
+        }
+      ],
+      "resolution": {
+        "status": "unresolved",
+        "reason": "reused_temporary"
+      }
+    },
+    {
+      "slot": "Vehicle60[12]",
+      "array": "Vehicle60",
+      "index": 12,
+      "observable": "quaternion_components",
+      "outport": "VehileInfo60d",
+      "line_ranges": [
+        [
+          7889,
+          7889
+        ]
+      ],
+      "rhs": {
+        "text": "Exp1_MinModelTemp_B.q_out[0]",
+        "lines": 1
+      },
+      "references": [
+        {
+          "kind": "block_output",
+          "path": "Exp1_MinModelTemp_B.q_out[0]"
+        }
+      ],
+      "resolution": {
+        "status": "terminal",
+        "reason": null
+      }
+    },
+    {
+      "slot": "Vehicle60[13]",
+      "array": "Vehicle60",
+      "index": 13,
+      "observable": "quaternion_components",
+      "outport": "VehileInfo60d",
+      "line_ranges": [
+        [
+          7890,
+          7890
+        ]
+      ],
+      "rhs": {
+        "text": "Exp1_MinModelTemp_B.q_out[1]",
+        "lines": 1
+      },
+      "references": [
+        {
+          "kind": "block_output",
+          "path": "Exp1_MinModelTemp_B.q_out[1]"
+        }
+      ],
+      "resolution": {
+        "status": "terminal",
+        "reason": null
+      }
+    },
+    {
+      "slot": "Vehicle60[14]",
+      "array": "Vehicle60",
+      "index": 14,
+      "observable": "quaternion_components",
+      "outport": "VehileInfo60d",
+      "line_ranges": [
+        [
+          7891,
+          7891
+        ]
+      ],
+      "rhs": {
+        "text": "Exp1_MinModelTemp_B.q_out[2]",
+        "lines": 1
+      },
+      "references": [
+        {
+          "kind": "block_output",
+          "path": "Exp1_MinModelTemp_B.q_out[2]"
+        }
+      ],
+      "resolution": {
+        "status": "terminal",
+        "reason": null
+      }
+    },
+    {
+      "slot": "Vehicle60[15]",
+      "array": "Vehicle60",
+      "index": 15,
+      "observable": "quaternion_components",
+      "outport": "VehileInfo60d",
+      "line_ranges": [
+        [
+          7892,
+          7892
+        ]
+      ],
+      "rhs": {
+        "text": "Exp1_MinModelTemp_B.q_out[3]",
+        "lines": 1
+      },
+      "references": [
+        {
+          "kind": "block_output",
+          "path": "Exp1_MinModelTemp_B.q_out[3]"
+        }
+      ],
+      "resolution": {
+        "status": "terminal",
+        "reason": null
+      }
+    },
+    {
+      "slot": "Vehicle60[16]",
+      "array": "Vehicle60",
+      "index": 16,
+      "observable": "active_motor_speed",
+      "outport": "VehileInfo60d",
+      "line_ranges": [
+        [
+          7893,
+          7894
+        ]
+      ],
+      "rhs": {
+        "text": "Exp1_MinModelTemp_P.Gain1_Gain_i *\n    Exp1_MinModelTemp_B.MotorNonlinearDynamic1.Motor_Dynamics.x",
+        "lines": 2
+      },
+      "references": [
+        {
+          "kind": "parameter",
+          "path": "Exp1_MinModelTemp_P.Gain1_Gain_i"
+        },
+        {
+          "kind": "block_output",
+          "path": "Exp1_MinModelTemp_B.MotorNonlinearDynamic1.Motor_Dynamics.x"
+        }
+      ],
+      "resolution": {
+        "status": "terminal",
+        "reason": null
+      }
+    },
+    {
+      "slot": "Vehicle60[17]",
+      "array": "Vehicle60",
+      "index": 17,
+      "observable": "active_motor_speed",
+      "outport": "VehileInfo60d",
+      "line_ranges": [
+        [
+          7895,
+          7896
+        ]
+      ],
+      "rhs": {
+        "text": "Exp1_MinModelTemp_P.Gain1_Gain_i *\n    Exp1_MinModelTemp_B.MotorNonlinearDynamic2.Motor_Dynamics.x",
+        "lines": 2
+      },
+      "references": [
+        {
+          "kind": "parameter",
+          "path": "Exp1_MinModelTemp_P.Gain1_Gain_i"
+        },
+        {
+          "kind": "block_output",
+          "path": "Exp1_MinModelTemp_B.MotorNonlinearDynamic2.Motor_Dynamics.x"
+        }
+      ],
+      "resolution": {
+        "status": "terminal",
+        "reason": null
+      }
+    },
+    {
+      "slot": "Vehicle60[18]",
+      "array": "Vehicle60",
+      "index": 18,
+      "observable": "active_motor_speed",
+      "outport": "VehileInfo60d",
+      "line_ranges": [
+        [
+          7897,
+          7898
+        ]
+      ],
+      "rhs": {
+        "text": "Exp1_MinModelTemp_P.Gain1_Gain_i *\n    Exp1_MinModelTemp_B.MotorNonlinearDynamic3.Motor_Dynamics.x",
+        "lines": 2
+      },
+      "references": [
+        {
+          "kind": "parameter",
+          "path": "Exp1_MinModelTemp_P.Gain1_Gain_i"
+        },
+        {
+          "kind": "block_output",
+          "path": "Exp1_MinModelTemp_B.MotorNonlinearDynamic3.Motor_Dynamics.x"
+        }
+      ],
+      "resolution": {
+        "status": "terminal",
+        "reason": null
+      }
+    },
+    {
+      "slot": "Vehicle60[19]",
+      "array": "Vehicle60",
+      "index": 19,
+      "observable": "active_motor_speed",
+      "outport": "VehileInfo60d",
+      "line_ranges": [
+        [
+          7899,
+          7900
+        ]
+      ],
+      "rhs": {
+        "text": "Exp1_MinModelTemp_P.Gain1_Gain_i *\n    Exp1_MinModelTemp_B.MotorNonlinearDynamic4.Motor_Dynamics.x",
+        "lines": 2
+      },
+      "references": [
+        {
+          "kind": "parameter",
+          "path": "Exp1_MinModelTemp_P.Gain1_Gain_i"
+        },
+        {
+          "kind": "block_output",
+          "path": "Exp1_MinModelTemp_B.MotorNonlinearDynamic4.Motor_Dynamics.x"
+        }
+      ],
+      "resolution": {
+        "status": "terminal",
+        "reason": null
+      }
+    },
+    {
+      "slot": "Vehicle60[20]",
+      "array": "Vehicle60",
+      "index": 20,
+      "observable": "extra_motor_speed",
+      "outport": "VehileInfo60d",
+      "line_ranges": [
+        [
+          7901,
+          7902
+        ]
+      ],
+      "rhs": {
+        "text": "Exp1_MinModelTemp_P.Gain1_Gain_i *\n    Exp1_MinModelTemp_B.MotorNonlinearDynamic5.Motor_Dynamics.x",
+        "lines": 2
+      },
+      "references": [
+        {
+          "kind": "parameter",
+          "path": "Exp1_MinModelTemp_P.Gain1_Gain_i"
+        },
+        {
+          "kind": "block_output",
+          "path": "Exp1_MinModelTemp_B.MotorNonlinearDynamic5.Motor_Dynamics.x"
+        }
+      ],
+      "resolution": {
+        "status": "terminal",
+        "reason": null
+      }
+    },
+    {
+      "slot": "Vehicle60[21]",
+      "array": "Vehicle60",
+      "index": 21,
+      "observable": "extra_motor_speed",
+      "outport": "VehileInfo60d",
+      "line_ranges": [
+        [
+          7903,
+          7904
+        ]
+      ],
+      "rhs": {
+        "text": "Exp1_MinModelTemp_P.Gain1_Gain_i *\n    Exp1_MinModelTemp_B.MotorNonlinearDynamic6.Motor_Dynamics.x",
+        "lines": 2
+      },
+      "references": [
+        {
+          "kind": "parameter",
+          "path": "Exp1_MinModelTemp_P.Gain1_Gain_i"
+        },
+        {
+          "kind": "block_output",
+          "path": "Exp1_MinModelTemp_B.MotorNonlinearDynamic6.Motor_Dynamics.x"
+        }
+      ],
+      "resolution": {
+        "status": "terminal",
+        "reason": null
+      }
+    },
+    {
+      "slot": "Vehicle60[22]",
+      "array": "Vehicle60",
+      "index": 22,
+      "observable": "extra_motor_speed",
+      "outport": "VehileInfo60d",
+      "line_ranges": [
+        [
+          7905,
+          7906
+        ]
+      ],
+      "rhs": {
+        "text": "Exp1_MinModelTemp_P.Gain1_Gain_i *\n    Exp1_MinModelTemp_B.MotorNonlinearDynamic7.Motor_Dynamics.x",
+        "lines": 2
+      },
+      "references": [
+        {
+          "kind": "parameter",
+          "path": "Exp1_MinModelTemp_P.Gain1_Gain_i"
+        },
+        {
+          "kind": "block_output",
+          "path": "Exp1_MinModelTemp_B.MotorNonlinearDynamic7.Motor_Dynamics.x"
+        }
+      ],
+      "resolution": {
+        "status": "terminal",
+        "reason": null
+      }
+    },
+    {
+      "slot": "Vehicle60[23]",
+      "array": "Vehicle60",
+      "index": 23,
+      "observable": "extra_motor_speed",
+      "outport": "VehileInfo60d",
+      "line_ranges": [
+        [
+          7907,
+          7908
+        ]
+      ],
+      "rhs": {
+        "text": "Exp1_MinModelTemp_P.Gain1_Gain_i *\n    Exp1_MinModelTemp_B.MotorNonlinearDynamic8.Motor_Dynamics.x",
+        "lines": 2
+      },
+      "references": [
+        {
+          "kind": "parameter",
+          "path": "Exp1_MinModelTemp_P.Gain1_Gain_i"
+        },
+        {
+          "kind": "block_output",
+          "path": "Exp1_MinModelTemp_B.MotorNonlinearDynamic8.Motor_Dynamics.x"
+        }
+      ],
+      "resolution": {
+        "status": "terminal",
+        "reason": null
+      }
+    },
+    {
+      "slot": "Vehicle60[24]",
+      "array": "Vehicle60",
+      "index": 24,
+      "observable": "body_motion_acceleration",
+      "outport": "VehileInfo60d",
+      "line_ranges": [
+        [
+          7909,
+          7909
+        ]
+      ],
+      "rhs": {
+        "text": "Exp1_MinModelTemp_B.Sum_p[0]",
+        "lines": 1
+      },
+      "references": [
+        {
+          "kind": "block_output",
+          "path": "Exp1_MinModelTemp_B.Sum_p[0]"
+        }
+      ],
+      "resolution": {
+        "status": "terminal",
+        "reason": null
+      }
+    },
+    {
+      "slot": "Vehicle60[25]",
+      "array": "Vehicle60",
+      "index": 25,
+      "observable": "body_motion_acceleration",
+      "outport": "VehileInfo60d",
+      "line_ranges": [
+        [
+          7911,
+          7911
+        ]
+      ],
+      "rhs": {
+        "text": "Exp1_MinModelTemp_B.Sum_p[1]",
+        "lines": 1
+      },
+      "references": [
+        {
+          "kind": "block_output",
+          "path": "Exp1_MinModelTemp_B.Sum_p[1]"
+        }
+      ],
+      "resolution": {
+        "status": "terminal",
+        "reason": null
+      }
+    },
+    {
+      "slot": "Vehicle60[26]",
+      "array": "Vehicle60",
+      "index": 26,
+      "observable": "body_motion_acceleration",
+      "outport": "VehileInfo60d",
+      "line_ranges": [
+        [
+          7913,
+          7913
+        ]
+      ],
+      "rhs": {
+        "text": "Exp1_MinModelTemp_B.Sum_p[2]",
+        "lines": 1
+      },
+      "references": [
+        {
+          "kind": "block_output",
+          "path": "Exp1_MinModelTemp_B.Sum_p[2]"
+        }
+      ],
+      "resolution": {
+        "status": "terminal",
+        "reason": null
+      }
+    },
+    {
+      "slot": "Vehicle60[27]",
+      "array": "Vehicle60",
+      "index": 27,
+      "observable": "body_angular_rate",
+      "outport": "VehileInfo60d",
+      "line_ranges": [
+        [
+          7910,
+          7910
+        ]
+      ],
+      "rhs": {
+        "text": "Exp1_MinModelTemp_X.pqr_CSTATE[0]",
+        "lines": 1
+      },
+      "references": [
+        {
+          "kind": "state",
+          "path": "Exp1_MinModelTemp_X.pqr_CSTATE[0]"
+        }
+      ],
+      "resolution": {
+        "status": "terminal",
+        "reason": null
+      }
+    },
+    {
+      "slot": "Vehicle60[28]",
+      "array": "Vehicle60",
+      "index": 28,
+      "observable": "body_angular_rate",
+      "outport": "VehileInfo60d",
+      "line_ranges": [
+        [
+          7912,
+          7912
+        ]
+      ],
+      "rhs": {
+        "text": "Exp1_MinModelTemp_X.pqr_CSTATE[1]",
+        "lines": 1
+      },
+      "references": [
+        {
+          "kind": "state",
+          "path": "Exp1_MinModelTemp_X.pqr_CSTATE[1]"
+        }
+      ],
+      "resolution": {
+        "status": "terminal",
+        "reason": null
+      }
+    },
+    {
+      "slot": "Vehicle60[29]",
+      "array": "Vehicle60",
+      "index": 29,
+      "observable": "body_angular_rate",
+      "outport": "VehileInfo60d",
+      "line_ranges": [
+        [
+          7914,
+          7914
+        ]
+      ],
+      "rhs": {
+        "text": "Exp1_MinModelTemp_X.pqr_CSTATE[2]",
+        "lines": 1
+      },
+      "references": [
+        {
+          "kind": "state",
+          "path": "Exp1_MinModelTemp_X.pqr_CSTATE[2]"
+        }
+      ],
+      "resolution": {
+        "status": "terminal",
+        "reason": null
+      }
+    },
+    {
+      "slot": "Vehicle60[30]",
+      "array": "Vehicle60",
+      "index": 30,
+      "observable": "truth_latitude_longitude",
+      "outport": "VehileInfo60d",
+      "line_ranges": [
+        [
+          7915,
+          7915
+        ]
+      ],
+      "rhs": {
+        "text": "rtb_Sum_e2_idx_0",
+        "lines": 1
+      },
+      "references": [
+        {
+          "kind": "local",
+          "name": "rtb_Sum_e2_idx_0",
+          "indexed": false
+        }
+      ],
+      "resolution": {
+        "status": "unresolved",
+        "reason": "reused_temporary"
+      }
+    },
+    {
+      "slot": "Vehicle60[31]",
+      "array": "Vehicle60",
+      "index": 31,
+      "observable": "truth_latitude_longitude",
+      "outport": "VehileInfo60d",
+      "line_ranges": [
+        [
+          7916,
+          7916
+        ]
+      ],
+      "rhs": {
+        "text": "rtb_sincos_o1_j_idx_1",
+        "lines": 1
+      },
+      "references": [
+        {
+          "kind": "local",
+          "name": "rtb_sincos_o1_j_idx_1",
+          "indexed": false
+        }
+      ],
+      "resolution": {
+        "status": "unresolved",
+        "reason": "reused_temporary"
+      }
+    },
+    {
+      "slot": "Vehicle60[32]",
+      "array": "Vehicle60",
+      "index": 32,
+      "observable": "truth_altitude",
+      "outport": "VehileInfo60d",
+      "line_ranges": [
+        [
+          7917,
+          7917
+        ]
+      ],
+      "rhs": {
+        "text": "rtb_Add",
+        "lines": 1
+      },
+      "references": [
+        {
+          "kind": "local",
+          "name": "rtb_Add",
+          "indexed": false
+        }
+      ],
+      "resolution": {
+        "status": "unresolved",
+        "reason": "reused_temporary"
+      }
+    },
+    {
+      "slot": "Sensor30[0]",
+      "array": "Sensor30",
+      "index": 0,
+      "observable": "sensor_time",
+      "outport": "HILSensor30d",
+      "line_ranges": [
+        [
+          7442,
+          7442
+        ]
+      ],
+      "rhs": {
+        "text": "rtb_time_usec",
+        "lines": 1
+      },
+      "references": [
+        {
+          "kind": "local",
+          "name": "rtb_time_usec",
+          "indexed": false
+        }
+      ],
+      "resolution": {
+        "status": "local_bound",
+        "reason": null,
+        "hop": {
+          "local": "rtb_time_usec",
+          "definition_line_range": [
+            3927,
+            3927
+          ],
+          "definition_text": "rtb_time_usec = Exp1_MinModelTemp_P.Gain_clock_Gain * rtb_time_usec_tmp;",
+          "definition_rhs": "Exp1_MinModelTemp_P.Gain_clock_Gain * rtb_time_usec_tmp",
+          "definition_references": [
+            {
+              "kind": "parameter",
+              "path": "Exp1_MinModelTemp_P.Gain_clock_Gain"
+            },
+            {
+              "kind": "local",
+              "name": "rtb_time_usec_tmp",
+              "indexed": false
+            }
+          ],
+          "unresolved_dependency": true,
+          "dependency_reason": "local_dependency"
+        }
+      }
+    },
+    {
+      "slot": "Sensor30[1]",
+      "array": "Sensor30",
+      "index": 1,
+      "observable": "accelerometer",
+      "outport": "HILSensor30d",
+      "line_ranges": [
+        [
+          7466,
+          7467
+        ]
+      ],
+      "rhs": {
+        "text": "rtb_Switch +\n    Exp1_MinModelTemp_B.Product4[0]",
+        "lines": 2
+      },
+      "references": [
+        {
+          "kind": "block_output",
+          "path": "Exp1_MinModelTemp_B.Product4[0]"
+        },
+        {
+          "kind": "local",
+          "name": "rtb_Switch",
+          "indexed": false
+        }
+      ],
+      "resolution": {
+        "status": "unresolved",
+        "reason": "compound_expression"
+      }
+    },
+    {
+      "slot": "Sensor30[2]",
+      "array": "Sensor30",
+      "index": 2,
+      "observable": "accelerometer",
+      "outport": "HILSensor30d",
+      "line_ranges": [
+        [
+          7491,
+          7492
+        ]
+      ],
+      "rhs": {
+        "text": "rtb_Switch +\n    Exp1_MinModelTemp_B.Product4[1]",
+        "lines": 2
+      },
+      "references": [
+        {
+          "kind": "block_output",
+          "path": "Exp1_MinModelTemp_B.Product4[1]"
+        },
+        {
+          "kind": "local",
+          "name": "rtb_Switch",
+          "indexed": false
+        }
+      ],
+      "resolution": {
+        "status": "unresolved",
+        "reason": "compound_expression"
+      }
+    },
+    {
+      "slot": "Sensor30[3]",
+      "array": "Sensor30",
+      "index": 3,
+      "observable": "accelerometer",
+      "outport": "HILSensor30d",
+      "line_ranges": [
+        [
+          7516,
+          7517
+        ]
+      ],
+      "rhs": {
+        "text": "rtb_Switch +\n    Exp1_MinModelTemp_B.Product4[2]",
+        "lines": 2
+      },
+      "references": [
+        {
+          "kind": "block_output",
+          "path": "Exp1_MinModelTemp_B.Product4[2]"
+        },
+        {
+          "kind": "local",
+          "name": "rtb_Switch",
+          "indexed": false
+        }
+      ],
+      "resolution": {
+        "status": "unresolved",
+        "reason": "compound_expression"
+      }
+    },
+    {
+      "slot": "Sensor30[4]",
+      "array": "Sensor30",
+      "index": 4,
+      "observable": "gyroscope",
+      "outport": "HILSensor30d",
+      "line_ranges": [
+        [
+          7541,
+          7542
+        ]
+      ],
+      "rhs": {
+        "text": "rtb_Switch +\n    Exp1_MinModelTemp_B.Product4_n[0]",
+        "lines": 2
+      },
+      "references": [
+        {
+          "kind": "block_output",
+          "path": "Exp1_MinModelTemp_B.Product4_n[0]"
+        },
+        {
+          "kind": "local",
+          "name": "rtb_Switch",
+          "indexed": false
+        }
+      ],
+      "resolution": {
+        "status": "unresolved",
+        "reason": "compound_expression"
+      }
+    },
+    {
+      "slot": "Sensor30[5]",
+      "array": "Sensor30",
+      "index": 5,
+      "observable": "gyroscope",
+      "outport": "HILSensor30d",
+      "line_ranges": [
+        [
+          7566,
+          7567
+        ]
+      ],
+      "rhs": {
+        "text": "rtb_Switch +\n    Exp1_MinModelTemp_B.Product4_n[1]",
+        "lines": 2
+      },
+      "references": [
+        {
+          "kind": "block_output",
+          "path": "Exp1_MinModelTemp_B.Product4_n[1]"
+        },
+        {
+          "kind": "local",
+          "name": "rtb_Switch",
+          "indexed": false
+        }
+      ],
+      "resolution": {
+        "status": "unresolved",
+        "reason": "compound_expression"
+      }
+    },
+    {
+      "slot": "Sensor30[6]",
+      "array": "Sensor30",
+      "index": 6,
+      "observable": "gyroscope",
+      "outport": "HILSensor30d",
+      "line_ranges": [
+        [
+          7611,
+          7612
+        ]
+      ],
+      "rhs": {
+        "text": "rtb_Switch +\n    Exp1_MinModelTemp_B.Product4_n[2]",
+        "lines": 2
+      },
+      "references": [
+        {
+          "kind": "block_output",
+          "path": "Exp1_MinModelTemp_B.Product4_n[2]"
+        },
+        {
+          "kind": "local",
+          "name": "rtb_Switch",
+          "indexed": false
+        }
+      ],
+      "resolution": {
+        "status": "unresolved",
+        "reason": "compound_expression"
+      }
+    },
+    {
+      "slot": "Sensor30[7]",
+      "array": "Sensor30",
+      "index": 7,
+      "observable": "magnetic_field",
+      "outport": "HILSensor30d",
+      "line_ranges": [
+        [
+          7613,
+          7615
+        ]
+      ],
+      "rhs": {
+        "text": "Exp1_MinModelTemp_P.Gain_Mag_Gain *\n    rtb_Sum1_a[0] * Exp1_MinModelTemp_P.nT2Gauss_Gain +\n    Exp1_MinModelTemp_B.Product4_g[0]",
+        "lines": 3
+      },
+      "references": [
+        {
+          "kind": "parameter",
+          "path": "Exp1_MinModelTemp_P.Gain_Mag_Gain"
+        },
+        {
+          "kind": "parameter",
+          "path": "Exp1_MinModelTemp_P.nT2Gauss_Gain"
+        },
+        {
+          "kind": "block_output",
+          "path": "Exp1_MinModelTemp_B.Product4_g[0]"
+        },
+        {
+          "kind": "local",
+          "name": "rtb_Sum1_a",
+          "indexed": true
+        }
+      ],
+      "resolution": {
+        "status": "unresolved",
+        "reason": "compound_expression"
+      }
+    },
+    {
+      "slot": "Sensor30[8]",
+      "array": "Sensor30",
+      "index": 8,
+      "observable": "magnetic_field",
+      "outport": "HILSensor30d",
+      "line_ranges": [
+        [
+          7616,
+          7618
+        ]
+      ],
+      "rhs": {
+        "text": "Exp1_MinModelTemp_P.Gain_Mag_Gain *\n    rtb_Sum1_a[1] * Exp1_MinModelTemp_P.nT2Gauss_Gain +\n    Exp1_MinModelTemp_B.Product4_g[1]",
+        "lines": 3
+      },
+      "references": [
+        {
+          "kind": "parameter",
+          "path": "Exp1_MinModelTemp_P.Gain_Mag_Gain"
+        },
+        {
+          "kind": "parameter",
+          "path": "Exp1_MinModelTemp_P.nT2Gauss_Gain"
+        },
+        {
+          "kind": "block_output",
+          "path": "Exp1_MinModelTemp_B.Product4_g[1]"
+        },
+        {
+          "kind": "local",
+          "name": "rtb_Sum1_a",
+          "indexed": true
+        }
+      ],
+      "resolution": {
+        "status": "unresolved",
+        "reason": "compound_expression"
+      }
+    },
+    {
+      "slot": "Sensor30[9]",
+      "array": "Sensor30",
+      "index": 9,
+      "observable": "magnetic_field",
+      "outport": "HILSensor30d",
+      "line_ranges": [
+        [
+          7619,
+          7621
+        ]
+      ],
+      "rhs": {
+        "text": "Exp1_MinModelTemp_P.Gain_Mag_Gain *\n    rtb_Sum1_a[2] * Exp1_MinModelTemp_P.nT2Gauss_Gain +\n    Exp1_MinModelTemp_B.Product4_g[2]",
+        "lines": 3
+      },
+      "references": [
+        {
+          "kind": "parameter",
+          "path": "Exp1_MinModelTemp_P.Gain_Mag_Gain"
+        },
+        {
+          "kind": "parameter",
+          "path": "Exp1_MinModelTemp_P.nT2Gauss_Gain"
+        },
+        {
+          "kind": "block_output",
+          "path": "Exp1_MinModelTemp_B.Product4_g[2]"
+        },
+        {
+          "kind": "local",
+          "name": "rtb_Sum1_a",
+          "indexed": true
+        }
+      ],
+      "resolution": {
+        "status": "unresolved",
+        "reason": "compound_expression"
+      }
+    },
+    {
+      "slot": "Sensor30[10]",
+      "array": "Sensor30",
+      "index": 10,
+      "observable": "absolute_pressure",
+      "outport": "HILSensor30d",
+      "line_ranges": [
+        [
+          7622,
+          7623
+        ]
+      ],
+      "rhs": {
+        "text": "Exp1_MinModelTemp_P.P0_Gain *\n    rtb_TT0gLR * rtb_sincos_o2_idx_0 * Exp1_MinModelTemp_P.Gain_Gain_ik",
+        "lines": 2
+      },
+      "references": [
+        {
+          "kind": "parameter",
+          "path": "Exp1_MinModelTemp_P.P0_Gain"
+        },
+        {
+          "kind": "parameter",
+          "path": "Exp1_MinModelTemp_P.Gain_Gain_ik"
+        },
+        {
+          "kind": "local",
+          "name": "rtb_TT0gLR",
+          "indexed": false
+        },
+        {
+          "kind": "local",
+          "name": "rtb_sincos_o2_idx_0",
+          "indexed": false
+        }
+      ],
+      "resolution": {
+        "status": "unresolved",
+        "reason": "compound_expression"
+      }
+    },
+    {
+      "slot": "Sensor30[11]",
+      "array": "Sensor30",
+      "index": 11,
+      "observable": "differential_pressure",
+      "outport": "HILSensor30d",
+      "line_ranges": [
+        [
+          7624,
+          7628
+        ]
+      ],
+      "rhs": {
+        "text": "((rtb_mg[0] * rtb_mg[0] + rtb_mg[1] *\n    rtb_mg[1]) + rtb_mg[2] * rtb_mg[2]) * (rtb_TT0gLR / rtb_sincos_o1_j_idx_2 *\n    Exp1_MinModelTemp_P.rho0_Gain * rtb_sincos_o2_idx_0) *\n    Exp1_MinModelTemp_P.u2rhoV2_Gain * Exp1_MinModelTemp_P.Gain1_Gain_l +\n    Exp1_MinModelTemp_B.Product4_d",
+        "lines": 5
+      },
+      "references": [
+        {
+          "kind": "parameter",
+          "path": "Exp1_MinModelTemp_P.rho0_Gain"
+        },
+        {
+          "kind": "parameter",
+          "path": "Exp1_MinModelTemp_P.u2rhoV2_Gain"
+        },
+        {
+          "kind": "parameter",
+          "path": "Exp1_MinModelTemp_P.Gain1_Gain_l"
+        },
+        {
+          "kind": "block_output",
+          "path": "Exp1_MinModelTemp_B.Product4_d"
+        },
+        {
+          "kind": "local",
+          "name": "rtb_mg",
+          "indexed": true
+        },
+        {
+          "kind": "local",
+          "name": "rtb_mg",
+          "indexed": true
+        },
+        {
+          "kind": "local",
+          "name": "rtb_mg",
+          "indexed": true
+        },
+        {
+          "kind": "local",
+          "name": "rtb_mg",
+          "indexed": true
+        },
+        {
+          "kind": "local",
+          "name": "rtb_mg",
+          "indexed": true
+        },
+        {
+          "kind": "local",
+          "name": "rtb_mg",
+          "indexed": true
+        },
+        {
+          "kind": "local",
+          "name": "rtb_TT0gLR",
+          "indexed": false
+        },
+        {
+          "kind": "local",
+          "name": "rtb_sincos_o1_j_idx_2",
+          "indexed": false
+        },
+        {
+          "kind": "local",
+          "name": "rtb_sincos_o2_idx_0",
+          "indexed": false
+        }
+      ],
+      "resolution": {
+        "status": "unresolved",
+        "reason": "compound_expression"
+      }
+    },
+    {
+      "slot": "Sensor30[12]",
+      "array": "Sensor30",
+      "index": 12,
+      "observable": "pressure_altitude",
+      "outport": "HILSensor30d",
+      "line_ranges": [
+        [
+          7629,
+          7629
+        ]
+      ],
+      "rhs": {
+        "text": "rtb_Switch_o",
+        "lines": 1
+      },
+      "references": [
+        {
+          "kind": "local",
+          "name": "rtb_Switch_o",
+          "indexed": false
+        }
+      ],
+      "resolution": {
+        "status": "unresolved",
+        "reason": "reused_temporary"
+      }
+    },
+    {
+      "slot": "Sensor30[13]",
+      "array": "Sensor30",
+      "index": 13,
+      "observable": "temperature",
+      "outport": "HILSensor30d",
+      "line_ranges": [
+        [
+          7630,
+          7631
+        ]
+      ],
+      "rhs": {
+        "text": "rtb_UniformRandomNumber4_idx_0 -\n    273.15000000000003",
+        "lines": 2
+      },
+      "references": [
+        {
+          "kind": "local",
+          "name": "rtb_UniformRandomNumber4_idx_0",
+          "indexed": false
+        }
+      ],
+      "resolution": {
+        "status": "unresolved",
+        "reason": "compound_expression"
+      }
+    },
+    {
+      "slot": "GPS30[0]",
+      "array": "GPS30",
+      "index": 0,
+      "observable": "gps_time",
+      "outport": "HILGPS30d",
+      "line_ranges": [
+        [
+          7732,
+          7732
+        ]
+      ],
+      "rhs": {
+        "text": "rtb_time_usec",
+        "lines": 1
+      },
+      "references": [
+        {
+          "kind": "local",
+          "name": "rtb_time_usec",
+          "indexed": false
+        }
+      ],
+      "resolution": {
+        "status": "local_bound",
+        "reason": null,
+        "hop": {
+          "local": "rtb_time_usec",
+          "definition_line_range": [
+            3927,
+            3927
+          ],
+          "definition_text": "rtb_time_usec = Exp1_MinModelTemp_P.Gain_clock_Gain * rtb_time_usec_tmp;",
+          "definition_rhs": "Exp1_MinModelTemp_P.Gain_clock_Gain * rtb_time_usec_tmp",
+          "definition_references": [
+            {
+              "kind": "parameter",
+              "path": "Exp1_MinModelTemp_P.Gain_clock_Gain"
+            },
+            {
+              "kind": "local",
+              "name": "rtb_time_usec_tmp",
+              "indexed": false
+            }
+          ],
+          "unresolved_dependency": true,
+          "dependency_reason": "local_dependency"
+        }
+      }
+    },
+    {
+      "slot": "GPS30[1]",
+      "array": "GPS30",
+      "index": 1,
+      "observable": "gps_latitude_longitude",
+      "outport": "HILGPS30d",
+      "line_ranges": [
+        [
+          7733,
+          7734
+        ]
+      ],
+      "rhs": {
+        "text": "(rtb_Sum_e2_idx_0 +\n    Exp1_MinModelTemp_B.Product4_de[0]) * Exp1_MinModelTemp_P.latScale_Gain",
+        "lines": 2
+      },
+      "references": [
+        {
+          "kind": "block_output",
+          "path": "Exp1_MinModelTemp_B.Product4_de[0]"
+        },
+        {
+          "kind": "parameter",
+          "path": "Exp1_MinModelTemp_P.latScale_Gain"
+        },
+        {
+          "kind": "local",
+          "name": "rtb_Sum_e2_idx_0",
+          "indexed": false
+        }
+      ],
+      "resolution": {
+        "status": "unresolved",
+        "reason": "compound_expression"
+      }
+    },
+    {
+      "slot": "GPS30[2]",
+      "array": "GPS30",
+      "index": 2,
+      "observable": "gps_latitude_longitude",
+      "outport": "HILGPS30d",
+      "line_ranges": [
+        [
+          7735,
+          7736
+        ]
+      ],
+      "rhs": {
+        "text": "(rtb_sincos_o1_j_idx_1 +\n    Exp1_MinModelTemp_B.Product4_de[1]) * Exp1_MinModelTemp_P.lonScale_Gain",
+        "lines": 2
+      },
+      "references": [
+        {
+          "kind": "block_output",
+          "path": "Exp1_MinModelTemp_B.Product4_de[1]"
+        },
+        {
+          "kind": "parameter",
+          "path": "Exp1_MinModelTemp_P.lonScale_Gain"
+        },
+        {
+          "kind": "local",
+          "name": "rtb_sincos_o1_j_idx_1",
+          "indexed": false
+        }
+      ],
+      "resolution": {
+        "status": "unresolved",
+        "reason": "compound_expression"
+      }
+    },
+    {
+      "slot": "GPS30[3]",
+      "array": "GPS30",
+      "index": 3,
+      "observable": "gps_altitude",
+      "outport": "HILGPS30d",
+      "line_ranges": [
+        [
+          7737,
+          7738
+        ]
+      ],
+      "rhs": {
+        "text": "(rtb_Add + Exp1_MinModelTemp_B.Product4_de\n    [2]) * Exp1_MinModelTemp_P.altScale_Gain",
+        "lines": 2
+      },
+      "references": [
+        {
+          "kind": "block_output",
+          "path": "Exp1_MinModelTemp_B.Product4_de"
+        },
+        {
+          "kind": "parameter",
+          "path": "Exp1_MinModelTemp_P.altScale_Gain"
+        },
+        {
+          "kind": "local",
+          "name": "rtb_Add",
+          "indexed": false
+        }
+      ],
+      "resolution": {
+        "status": "unresolved",
+        "reason": "compound_expression"
+      }
+    },
+    {
+      "slot": "GPS30[4]",
+      "array": "GPS30",
+      "index": 4,
+      "observable": "gps_accuracy_indicators",
+      "outport": "HILGPS30d",
+      "line_ranges": [
+        [
+          7739,
+          7739
+        ]
+      ],
+      "rhs": {
+        "text": "Exp1_MinModelTemp_B.eph",
+        "lines": 1
+      },
+      "references": [
+        {
+          "kind": "block_output",
+          "path": "Exp1_MinModelTemp_B.eph"
+        }
+      ],
+      "resolution": {
+        "status": "terminal",
+        "reason": null
+      }
+    },
+    {
+      "slot": "GPS30[5]",
+      "array": "GPS30",
+      "index": 5,
+      "observable": "gps_accuracy_indicators",
+      "outport": "HILGPS30d",
+      "line_ranges": [
+        [
+          7740,
+          7740
+        ]
+      ],
+      "rhs": {
+        "text": "Exp1_MinModelTemp_B.epv",
+        "lines": 1
+      },
+      "references": [
+        {
+          "kind": "block_output",
+          "path": "Exp1_MinModelTemp_B.epv"
+        }
+      ],
+      "resolution": {
+        "status": "terminal",
+        "reason": null
+      }
+    },
+    {
+      "slot": "GPS30[6]",
+      "array": "GPS30",
+      "index": 6,
+      "observable": "gps_horizontal_speed",
+      "outport": "HILGPS30d",
+      "line_ranges": [
+        [
+          7693,
+          7694
+        ]
+      ],
+      "rhs": {
+        "text": "Exp1_MinModelTemp_P.VelScale_Gain *\n    rtb_Switch_o",
+        "lines": 2
+      },
+      "references": [
+        {
+          "kind": "parameter",
+          "path": "Exp1_MinModelTemp_P.VelScale_Gain"
+        },
+        {
+          "kind": "local",
+          "name": "rtb_Switch_o",
+          "indexed": false
+        }
+      ],
+      "resolution": {
+        "status": "unresolved",
+        "reason": "compound_expression"
+      }
+    },
+    {
+      "slot": "GPS30[7]",
+      "array": "GPS30",
+      "index": 7,
+      "observable": "gps_velocity_ned",
+      "outport": "HILGPS30d",
+      "line_ranges": [
+        [
+          7741,
+          7741
+        ]
+      ],
+      "rhs": {
+        "text": "Exp1_MinModelTemp_P.VeScale_Gain * rtb_mg[0]",
+        "lines": 1
+      },
+      "references": [
+        {
+          "kind": "parameter",
+          "path": "Exp1_MinModelTemp_P.VeScale_Gain"
+        },
+        {
+          "kind": "local",
+          "name": "rtb_mg",
+          "indexed": true
+        }
+      ],
+      "resolution": {
+        "status": "unresolved",
+        "reason": "compound_expression"
+      }
+    },
+    {
+      "slot": "GPS30[8]",
+      "array": "GPS30",
+      "index": 8,
+      "observable": "gps_velocity_ned",
+      "outport": "HILGPS30d",
+      "line_ranges": [
+        [
+          7742,
+          7742
+        ]
+      ],
+      "rhs": {
+        "text": "Exp1_MinModelTemp_P.VeScale_Gain * rtb_mg[1]",
+        "lines": 1
+      },
+      "references": [
+        {
+          "kind": "parameter",
+          "path": "Exp1_MinModelTemp_P.VeScale_Gain"
+        },
+        {
+          "kind": "local",
+          "name": "rtb_mg",
+          "indexed": true
+        }
+      ],
+      "resolution": {
+        "status": "unresolved",
+        "reason": "compound_expression"
+      }
+    },
+    {
+      "slot": "GPS30[9]",
+      "array": "GPS30",
+      "index": 9,
+      "observable": "gps_velocity_ned",
+      "outport": "HILGPS30d",
+      "line_ranges": [
+        [
+          7743,
+          7744
+        ]
+      ],
+      "rhs": {
+        "text": "(Exp1_MinModelTemp_B.Product[2] +\n    rtb_UniformRandomNumber4_idx_0) * Exp1_MinModelTemp_P.VeScale_Gain",
+        "lines": 2
+      },
+      "references": [
+        {
+          "kind": "block_output",
+          "path": "Exp1_MinModelTemp_B.Product[2]"
+        },
+        {
+          "kind": "parameter",
+          "path": "Exp1_MinModelTemp_P.VeScale_Gain"
+        },
+        {
+          "kind": "local",
+          "name": "rtb_UniformRandomNumber4_idx_0",
+          "indexed": false
+        }
+      ],
+      "resolution": {
+        "status": "unresolved",
+        "reason": "compound_expression"
+      }
+    },
+    {
+      "slot": "GPS30[10]",
+      "array": "GPS30",
+      "index": 10,
+      "observable": "gps_course_encoded",
+      "outport": "HILGPS30d",
+      "line_ranges": [
+        [
+          7730,
+          7731
+        ]
+      ],
+      "rhs": {
+        "text": "Exp1_MinModelTemp_P.AngleScale_Gain *\n    rtb_Switch_o",
+        "lines": 2
+      },
+      "references": [
+        {
+          "kind": "parameter",
+          "path": "Exp1_MinModelTemp_P.AngleScale_Gain"
+        },
+        {
+          "kind": "local",
+          "name": "rtb_Switch_o",
+          "indexed": false
+        }
+      ],
+      "resolution": {
+        "status": "unresolved",
+        "reason": "compound_expression"
+      }
+    }
+  ]
+}

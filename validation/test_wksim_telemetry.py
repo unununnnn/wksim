@@ -127,9 +127,9 @@ class SocketTests(unittest.TestCase):
         with self.assertRaises(BlockingIOError):
             sender.recvfrom(65535)
 
-    def gcs_observer(self, stack='px4', target='127.0.0.1:14560'):
+    def gcs_observer(self, stack='px4', target='127.0.0.1:14560', hash_log=None):
         result = Observer(dict(stack=stack, telemetry_socket=str(self.path),
-                               run_id='telemetry-unit', vehicle_id=1, gcs_udp_forward=target))
+                               run_id='telemetry-unit', vehicle_id=1, gcs_udp_forward=target), gcs_hash_log=hash_log)
         self.addCleanup(result.close)
         return result
 
@@ -142,48 +142,94 @@ class SocketTests(unittest.TestCase):
     def test_reverse_bridge_forwards_qgc_bytes_to_pinned_fc_only(self):
         observer = self.gcs_observer()
         fc = self.sender()
-        qgc = self.sender(port=24570)
-        qgc.sendto(self.qgc_packet(heartbeat=False), ('127.0.0.1', 14570))
+        relay = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
+        self.addCleanup(relay.close)
+        reverse_path = self.directory/'gcs-reverse.sock'
+        relay.sendto(self.qgc_packet(heartbeat=False), str(reverse_path))
         observer.poll(0.1)
         self.assertEqual(observer.counters['reverse_received'], 1)
         self.assertEqual(observer.counters['reverse_dropped'], 1)
         self.assertEqual(observer.counters['reverse_forwarded'], 0)
-        qgc.sendto(self.qgc_packet(), ('127.0.0.1', 14570))
+        relay.sendto(self.qgc_packet(), str(reverse_path))
         observer.poll(0.1)
-        self.assertEqual(observer.qgc_peer[1], 24570)
+        self.assertTrue(observer.qgc_pinned)
         self.assertEqual(observer.counters['reverse_forwarded'], 0)
         self.deliver(observer, fc, packet())
         self.assertIsNotNone(observer.peer)
         command = self.qgc_packet(heartbeat=False)
-        qgc.sendto(command, ('127.0.0.1', 14570))
+        relay.sendto(command, str(reverse_path))
         observer.poll(0.1)
         self.assertEqual(observer.counters['reverse_forwarded'], 1)
         received, peer = fc.recvfrom(65535)
         self.assertEqual(received, command)
-        self.assertEqual(peer, ('127.0.0.1', 14570))
-        foreign = self.sender(port=24571)
-        foreign.sendto(self.qgc_packet(), ('127.0.0.1', 14570))
-        observer.poll(0.1)
-        self.assertEqual(observer.counters['reverse_wrong_peer'], 1)
+        self.assertEqual(peer[0], '127.0.0.1')
 
 
     def test_gcs_forward_byte_identical_only_after_native_peer_pinned(self):
-        gcs = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.addCleanup(gcs.close)
-        gcs.bind(('127.0.0.1', 14560))
-        gcs.settimeout(0.2)
+        forward = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
+        self.addCleanup(forward.close)
+        forward_path = self.directory/'gcs-forward.sock'
+        forward.bind(str(forward_path))
+        forward_path.chmod(0o600)
+        forward.settimeout(0.2)
         observer = self.gcs_observer()
         sender = self.sender()
         self.deliver(observer, sender, packet(heartbeat=False))
         self.assertEqual(observer.counters['gcs_forwarded'], 0)
         with self.assertRaises(socket.timeout):
-            gcs.recvfrom(65535)
+            forward.recv(65535)
         wire = packet()
         self.deliver(observer, sender, wire)
         self.assertEqual(observer.counters['gcs_forwarded'], 1)
-        forwarded, peer = gcs.recvfrom(65535)
-        self.assertEqual(forwarded, wire)
-        self.assertEqual(peer[0], '127.0.0.1')
+        self.assertEqual(forward.recv(65535), wire)
+        self.assertEqual(observer.report()['gcs_forwarded_packet_sha256'], [hashlib.sha256(wire).hexdigest()])
+
+    def test_streamed_hash_evidence_remains_complete_after_memory_bound(self):
+        from tools.validate_contained_gcs import verify_forward_packets
+        forward=socket.socket(socket.AF_UNIX,socket.SOCK_DGRAM)
+        self.addCleanup(forward.close)
+        forward.bind(str(self.directory/'gcs-forward.sock'))
+        forward.settimeout(.2)
+        path=self.directory/'gcs-forward-hashes.jsonl'
+        with path.open('x',encoding='ascii',buffering=1) as log:
+            observer=self.gcs_observer(hash_log=log)
+            observer.gcs_packet_hashes={f'{i:064x}' for i in range(8192)}
+            sender=self.sender()
+            wire=packet()
+            self.deliver(observer,sender,wire)
+            self.assertEqual(forward.recv(65535),wire)
+            self.deliver(observer,sender,wire)
+            self.assertEqual(forward.recv(65535),wire)
+            report=observer.report()
+            self.assertTrue(report['gcs_hashes_truncated'])
+            self.assertEqual(report['gcs_forward_hash_log']['records'],2)
+            encoded=base64.b64encode(wire).decode()
+            self.assertEqual(verify_forward_packets(report,self.directory,[encoded,encoded])['packets'],2)
+            with self.assertRaises(AssertionError):
+                verify_forward_packets(report,self.directory,[encoded]*3)
+            original=path.read_bytes()
+            path.write_bytes(original+b'{}\n')
+            with self.assertRaises(AssertionError):
+                verify_forward_packets(report,self.directory,[encoded])
+
+    def test_rejected_mixed_gcs_identity_does_not_pin_or_forward(self):
+        observer = self.gcs_observer()
+        valid = self.qgc_packet()
+        observer.reverse_forward(valid + packet(system=77, heartbeat=False))
+        self.assertFalse(observer.qgc_pinned)
+        self.assertIsNone(observer.qgc_identity)
+        observer.reverse_forward(valid)
+        self.assertTrue(observer.qgc_pinned)
+        self.assertEqual(observer.counters['reverse_forwarded'], 0)
+        observer.reverse_forward(valid + b'junk')
+        self.assertEqual(observer.counters['reverse_invalid'], 1)
+
+    def test_failed_gcs_init_and_close_preserve_foreign_reverse_socket(self):
+        foreign = self.receiver(self.directory/'gcs-reverse.sock')
+        inode = (self.directory/'gcs-reverse.sock').stat().st_ino
+        with self.assertRaises(OSError): self.gcs_observer()
+        self.assertEqual((self.directory/'gcs-reverse.sock').stat().st_ino, inode)
+        self.assertGreaterEqual(foreign.fileno(), 0)
 
     def test_gcs_forward_validation_rejects_non_loopback_and_pinned_ports(self):
         from Simulator.wksim_runtime.config import ConfigError, validate_config

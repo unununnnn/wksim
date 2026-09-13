@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "issue": 135,
+  "stable_key": "full-model-01",
+  "title": "Quadrotor parameter intake formal entry",
+  "source": {
+    "file": "docs/plan/full-scope-expansion.md",
+    "line": 46,
+    "ledger_id": "MODEL-01",
+    "ledger_file": "docs/plan/full-followup-tickets.json",
+    "parent_issues": [1, 23, 24]
+  },
+  "status": "defined",
+  "evidence_status": "partial-evidence",
+  "full_complete": false,
+  "current_gap": "#24 finished mass editing, export/import and static response; the formal product parameter-run entry is unaccepted. Only the wiring contract from a selected mass configuration through save/import to the formal task, UE, cold rebuild and result identity is defined here; the numerical precision route stays with #59 and R1 is unchanged.",
+  "atoms": [
+    {"id": "MODEL-01-A", "name": "parameter_edit_import", "status": "partial", "required": "Mass edit, export/import and static response; #24 closed this bounded slice", "owner": "model maintainer"},
+    {"id": "MODEL-01-B", "name": "formal_task_wiring", "status": "blocked", "required": "Saved/imported configuration admitted into the formal task entry with identity", "owner": "runtime maintainer"},
+    {"id": "MODEL-01-C", "name": "ue_wiring", "status": "blocked", "required": "Selected configuration bound to the UE side with matching identity", "owner": "UE maintainer"},
+    {"id": "MODEL-01-D", "name": "cold_rebuild_identity", "status": "blocked", "required": "Cold rebuild from the saved configuration reproducing the same identity", "owner": "build maintainer"},
+    {"id": "MODEL-01-E", "name": "result_identity", "status": "partial", "required": "Canonical config hashing and result identity; model_parameters.py proves the pattern", "owner": "validation maintainer"},
+    {"id": "MODEL-01-F", "name": "numerical_route_separation", "status": "partial", "required": "Numerical precision stays with #59; this contract duplicates nothing and changes no R1 state", "owner": "validation maintainer"}
+  ],
+  "config_required": ["config_id", "config_sha256", "model_identity", "mass_kg", "motor_count", "source_basis", "task_entry", "ue_binding", "epoch", "result_identity"],
+  "scope_rule": "a saved/imported configuration is not admitted to a formal task until the wiring contract is evidenced; numerical precision is #59's route, not this ticket's",
+  "errors": ["accepted", "config_not_found", "hash_mismatch", "task_admission_failed", "ue_binding_mismatch", "rebuild_identity_mismatch", "foreign_epoch"],
+  "followups": [
+    {"key": "model-01-task-wiring", "files": ["Simulator/wksim_runtime/<param-task-entry>.py", "validation/<param-entry-audit>"], "status": "proposed", "blocked_by": "Formal task entry definition"},
+    {"key": "model-01-ue-binding", "files": ["Simulator/ue55/<param-binding>.json", "validation/<param-ue-audit>"], "status": "proposed", "blocked_by": "Task wiring"},
+    {"key": "model-01-cold-rebuild", "files": ["validation/<param-cold-rebuild-audit>"], "status": "proposed", "blocked_by": "Task wiring and UE binding"}
+  ],
+  "preserved": {"issue_23": "closed numerical conformance slice", "issue_24": "closed parameter edit/import slice", "issue_59": "numerical precision route, unchanged", "r1": "numerical_failed unchanged", "full_complete": false}
+}

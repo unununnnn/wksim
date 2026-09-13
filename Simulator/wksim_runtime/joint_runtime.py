@@ -18,10 +18,13 @@ import uuid
 from .evidence import write_json,json_identity,group_members,host_boot_id
 from .isolation import check_isolation,isolate_temporary_files,Reservation
 from .joint_actions import Mailbox
-from .joint_config import validate_joint_config
+from .joint_config import validate_joint_config,FIXED_TASKS
+from .joint_aruco_profile import TASK as ARUCO_TASK
+from .joint_trajectory import supported_actions,validate_initialized,coordinate_legs
 from .joint_rate import JointRate,RateUnmet
-from .joint_evidence import verify_tasks
+from .joint_evidence import verify_tasks,final_run_status,task_group_completed,load_retired_task_report
 from .scene_clock import SceneClock,ClockPublisher
+from .terrain_feedback import TerrainFeedback
 from ..wksim_core.joint import JointPhysics,InputTimeout
 from ..wksim_core.joint_state_stream import JointStateWriter,hex_identity
 
@@ -30,6 +33,43 @@ REPO=Path(__file__).resolve().parents[2]
 
 class OperatorRetirement(Exception):
     pass
+
+
+def validate_evidence_requests(task, async_evidence, async_model_evidence):
+    """Keep general streams ArUco-only while allowing model traces for fixed tasks."""
+    aruco_task = task == ARUCO_TASK
+    fixed_task = task in FIXED_TASKS
+    if async_evidence and not aruco_task:
+        raise ValueError('Background evidence writes require the explicit ArUco experiment')
+    if async_model_evidence and not (aruco_task or fixed_task):
+        raise ValueError('Background model evidence writes require a fixed PV/MIXED or ArUco task')
+
+
+def _sha256_file(path):
+    value=hashlib.sha256()
+    with Path(path).open('rb') as source:
+        for chunk in iter(lambda:source.read(1024*1024),b''):value.update(chunk)
+    return value.hexdigest()
+
+
+def validate_model_writer_summary(summary,trace,library,epoch):
+    """Bind a retired model writer to this epoch, trace, model and scheduler."""
+    trace=Path(trace).resolve(strict=True);library=Path(library).resolve(strict=True)
+    scheduler=dict(available=True,policy='SCHED_OTHER',priority=0,
+                   actual_policy=getattr(os,'SCHED_OTHER',0),actual_priority=0)
+    submitted=summary.get('submitted_bytes') if isinstance(summary,dict) else None
+    written=summary.get('written_bytes') if isinstance(summary,dict) else None
+    if (not isinstance(summary,dict) or summary.get('complete') is not True
+            or summary.get('alive') is not False or summary.get('error') is not None
+            or summary.get('closed') is not True or summary.get('writer_scheduler')!=scheduler
+            or type(submitted) is not int or submitted<0 or type(written) is not int
+            or submitted!=written or written!=trace.stat().st_size
+            or summary.get('epoch')!=epoch
+            or summary.get('truth_trace_sha256')!=_sha256_file(trace)
+            or summary.get('model_library')!=str(library)
+            or summary.get('model_library_sha256')!=_sha256_file(library)):
+        raise ValueError('Model trace writer evidence identity or completeness differs')
+    return summary
 
 
 def resume_confirmed(lifecycle,clock,request):
@@ -51,6 +91,132 @@ def image_identity(child,original,*,allow_exited=False):
     return dict(state='running',identity=current)
 
 
+def _scheduler_policy_name(policy):
+    names = {value: name for name, value in (
+        ('SCHED_OTHER', getattr(os, 'SCHED_OTHER', None)),
+        ('SCHED_FIFO', getattr(os, 'SCHED_FIFO', None)),
+        ('SCHED_RR', getattr(os, 'SCHED_RR', None)),
+    ) if value is not None}
+    return names.get(policy, str(policy))
+
+
+def _scheduler_snapshot(pid):
+    """Read the policy, priority and nice that a child actually received."""
+    policy = os.sched_getscheduler(pid)
+    priority = os.sched_getparam(pid).sched_priority
+    nice = os.getpriority(os.PRIO_PROCESS, pid)
+    return dict(policy=_scheduler_policy_name(policy), policy_value=policy,
+                priority=priority, nice=nice,
+                actual_policy=policy, actual_priority=priority)
+
+
+def _preflight_scheduler_ready(snapshot):
+    return (isinstance(snapshot, dict)
+            and snapshot.get('policy') == 'SCHED_OTHER'
+            and snapshot.get('policy_value') == getattr(os, 'SCHED_OTHER', 0)
+            and snapshot.get('priority') == 0
+            and snapshot.get('nice') == 0)
+
+
+def _child_nice_target(role):
+    return 0 if role=='preflight' else -10 if role in ('model','fc') else -5
+
+
+def _set_manager_scheduler():
+    policy=os.SCHED_FIFO | os.SCHED_RESET_ON_FORK
+    os.sched_setscheduler(0,policy,os.sched_param(50))
+    return dict(policy='SCHED_FIFO',priority=50,reset_on_fork=True,
+                actual_policy=os.sched_getscheduler(0),
+                actual_priority=os.sched_getparam(0).sched_priority)
+
+
+def _require_preflight_scheduler(pid, snapshot=None):
+    """Fail closed unless an admitted preflight child is ordinary scheduled."""
+    snapshot = _scheduler_snapshot(pid) if snapshot is None else snapshot
+    if not _preflight_scheduler_ready(snapshot):
+        raise RuntimeError('Preflight scheduler demotion failed: '+repr(snapshot))
+    return snapshot
+
+
+def _terminate_and_reap(child,log=None):
+    """Retire one child after an admission check fails."""
+    errors=[]
+
+    def running():
+        try:
+            return child.poll() is None
+        except Exception as error:
+            errors.append(repr(error))
+            # A failed poll cannot prove that the child is gone.  Continue
+            # with terminate/wait so an admission failure never abandons it.
+            return True
+
+    def wait_once():
+        try:
+            child.wait(timeout=5)
+            return True
+        except Exception as error:
+            errors.append(repr(error))
+            return False
+
+    try:
+        if running():
+            try: child.terminate()
+            except Exception as error: errors.append(repr(error))
+            if running() and not wait_once() and running():
+                killed=False
+                try:
+                    child.kill()
+                    killed=True
+                except Exception as error: errors.append(repr(error))
+                if killed:
+                    wait_once()
+                elif running():
+                    wait_once()
+    finally:
+        if log is not None and getattr(log,'closed',False) is not True:
+            try: log.close()
+            except Exception as error: errors.append(repr(error))
+    return errors
+
+
+def _require_child_identity(child):
+    identity=json_identity(child.pid)
+    if (not isinstance(identity,dict)
+            or any(type(identity.get(key)) is not int or identity[key] <= 0
+                   for key in ('pid','pgid','start_ticks'))
+            or identity.get('pid') != child.pid):
+        raise RuntimeError('Runtime child identity unavailable after launch')
+    return identity
+
+
+def _launch_child(argv,cwd,log,role,configure,cleanup_errors=None):
+    """Spawn a child, then apply its parent-side scheduler admission."""
+    child=subprocess.Popen(argv,cwd=cwd,stdout=log,stderr=log,stdin=subprocess.DEVNULL)
+    try:
+        observation=configure(child)
+    except BaseException:
+        if role=='preflight':
+            errors=_terminate_and_reap(child,log)
+            if cleanup_errors is not None:
+                cleanup_errors.extend(errors)
+        raise
+    return child,observation
+
+
+def _finish_preflight_timing(timing,outcome=None,error=None):
+    if not isinstance(timing,dict) or 'started_monotonic_ns' not in timing:
+        return None
+    if 'finished_monotonic_ns' not in timing:
+        finished=time.monotonic_ns()
+        timing['finished_monotonic_ns']=finished
+        timing['elapsed_ns']=finished-timing['started_monotonic_ns']
+        timing['elapsed_seconds']=timing['elapsed_ns']/1e9
+    if outcome is not None: timing['outcome']=outcome
+    if error is not None: timing['error']=repr(error)
+    return timing
+
+
 def stop_processes(children):
     errors=[]
     for name,child,log in reversed(children):
@@ -62,7 +228,7 @@ def stop_processes(children):
                     child.kill();child.wait(timeout=5)
         except (OSError,subprocess.TimeoutExpired) as error:
             errors.append(dict(name=name,error=repr(error)))
-        log.close()
+        if getattr(log,'closed',False) is not True: log.close()
     return errors
 
 
@@ -74,6 +240,12 @@ def epoch_run(directory,epoch,generation=1):
     import rclpy
     check_isolation()
     config=validate_joint_config(json.loads((directory/'config.json').read_text()))
+    fixed_task=config['task'] in FIXED_TASKS
+    aruco_task=config['task'] == ARUCO_TASK
+    defer_task_reports=aruco_task or fixed_task
+    async_evidence=os.environ.get('WKSIM_JOINT_ASYNC_EVIDENCE')=='1'
+    async_model_evidence=os.environ.get('WKSIM_JOINT_ASYNC_MODEL_EVIDENCE')=='1'
+    validate_evidence_requests(config['task'],async_evidence,async_model_evidence)
     session=json.loads((directory/'session.json').read_text())
     if (set(session)!={'version','run_id','instance_id'} or session['version']!=1
             or session['run_id']!=config['run_id'] or not hex_identity(session['instance_id'])
@@ -83,21 +255,38 @@ def epoch_run(directory,epoch,generation=1):
     output.mkdir(parents=True)
     result=dict(version=1,run_id=config['run_id'],epoch=epoch,status='failed',children={},tasks={},
                 action_results=[],host_boot_id=host_boot_id(),flight_completed=False,
-                instance_id=session['instance_id'],generation=generation)
+                instance_id=session['instance_id'],generation=generation,task_profile=config['task'],
+                async_evidence_requested=async_evidence,
+                async_model_evidence_requested=async_model_evidence)
     view=JointStateWriter(None,config['run_id'],session['instance_id'],epoch,generation)
-    physics=None
+    physics=None;library=None
     clock=SceneClock(epoch)
-    rate_log=(output/'rate.jsonl').open('x',buffering=65536)
+    evidence_streams=[]
+    def open_evidence(path,buffering):
+        if async_evidence:
+            from .evidence_stream import AsyncEvidenceStream
+            stream=AsyncEvidenceStream(path)
+            evidence_streams.append((Path(path).name,stream))
+            return stream
+        return Path(path).open('x',buffering=buffering)
+    rate_log=open_evidence(output/'rate.jsonl',65536)
+    write_probe=write_log=None
+    if os.environ.get('WKSIM_JOINT_WRITE_TIMING')=='1':
+        from .write_timing import WriteTiming
+        write_log=(output/'write-timing.jsonl').open('x',buffering=1)
+        write_probe=WriteTiming(write_log,epoch,lambda:clock.tick)
     def record_rate(kind,**fields):
-        rate_log.write(json.dumps(dict(kind=kind,epoch=epoch,tick=clock.tick,
-            issued_monotonic_ns=time.monotonic_ns(),**fields),allow_nan=False,separators=(',',':'))+'\n')
+        text=json.dumps(dict(kind=kind,epoch=epoch,tick=clock.tick,
+            issued_monotonic_ns=time.monotonic_ns(),**fields),allow_nan=False,separators=(',',':'))+'\n'
+        if write_probe: write_probe.write(rate_log,'rate',text)
+        else: rate_log.write(text)
     rate=JointRate(epoch,config['requested_rate'],record_rate)
     record_rate('rate_bootstrap',classification='untimed_until_first_synchronized_barrier')
     result['requested_rate']=config['requested_rate']
     result['task_dwell_seconds']=config['task_dwell_seconds']
     mailbox=Mailbox(directory,config['run_id'],epoch)
     children=[]; specs={}; expected=set(); model_workers={}; agents={}
-    monitor=lifecycle=None
+    monitor=lifecycle=probe=None
     task_group=None; task_state='idle'; ever_started=False; needs_recovery_task=False
     offer=uuid.uuid4().hex; previous_offer=None; next_status=0.; pending=None; busy_phase=None
     pending_task_reanchor=False
@@ -114,17 +303,24 @@ def epoch_run(directory,epoch,generation=1):
     # Real-time scheduling bounds preemption by ordinary processes; RT
     # throttling and host jitter still apply and are not claimed away.
     try:
-        os.sched_setscheduler(0,os.SCHED_FIFO,os.sched_param(50))
-        result['manager_scheduler']=dict(policy='SCHED_FIFO',priority=50,
-                                         actual_policy=os.sched_getscheduler(0))
+        # Ordinary children start under the kernel's reset-on-fork boundary.
+        # Native model/FC leaders are explicitly configured by child_priority
+        # after launch.
+        result['manager_scheduler']=_set_manager_scheduler()
     except OSError as error:
-        result['manager_scheduler']=dict(policy='SCHED_FIFO',priority=50,error=repr(error))
+        # A host may deny the manager RT request. Keep the downgrade visible;
+        # the actual preflight SCHED_OTHER/priority0/nice0 observation below
+        # remains the admission barrier, so an inherited FIFO child is rejected
+        # before any native component is launched.
+        result['manager_scheduler']=dict(policy='SCHED_FIFO',priority=50,
+                                         reset_on_fork=True,error=repr(error))
     def interrupted(signum,frame):
         raise InterruptedError('Owned joint epoch interrupted')
     signal.signal(signal.SIGTERM,interrupted)
     signal.signal(signal.SIGINT,interrupted)
     def status(allowed,phase=None):
         nonlocal offer,previous_offer,next_status
+        allowed=supported_actions(config['task'],allowed)
         identity=(clock.last_request,mailbox.last_command,phase or clock.phase,task_state,tuple(allowed))
         if identity!=previous_offer:
             offer=uuid.uuid4().hex;previous_offer=identity
@@ -151,33 +347,97 @@ def epoch_run(directory,epoch,generation=1):
     status(['stop'],'starting')
     def child_priority(child,role):
         # Only this manager's own children are ever reniced, right after spawn.
-        target=-10 if role in ('model','fc') else -5
+        target=_child_nice_target(role)
         record=dict(target=target)
         try:
             os.setpriority(os.PRIO_PROCESS,child.pid,target)
             record['applied']=os.getpriority(os.PRIO_PROCESS,child.pid)
         except OSError as error:
             record['error']=repr(error)
+        if role=='preflight':
+            try:
+                record['scheduler']=_scheduler_snapshot(child.pid)
+                if 'error' in record:
+                    record['scheduler_error']='Preflight child did not enter SCHED_OTHER/priority0/nice0'
+                else:
+                    _require_preflight_scheduler(child.pid,record['scheduler'])
+            except (OSError,RuntimeError) as error:
+                record['scheduler_error']=repr(error)
+            return record
         # Real-time scheduling only for the lockstep-critical model/FC pair;
         # the applied policy is recorded, never silently assumed.
         if role in ('model','fc'):
             try:
-                os.sched_setscheduler(child.pid,os.SCHED_FIFO,os.sched_param(40))
+                reset_model_threads=role=='model' and async_model_evidence
+                policy=os.SCHED_FIFO | (os.SCHED_RESET_ON_FORK if reset_model_threads else 0)
+                os.sched_setscheduler(child.pid,policy,os.sched_param(40))
                 record['scheduler']=dict(policy='SCHED_FIFO',priority=40,
-                                         actual_policy=os.sched_getscheduler(child.pid))
+                                          reset_on_fork=reset_model_threads,
+                                          actual_policy=os.sched_getscheduler(child.pid),
+                                          actual_priority=os.sched_getparam(child.pid).sched_priority)
             except OSError as error:
                 record['scheduler']=dict(policy='SCHED_FIFO',priority=40,error=repr(error))
+        if aruco_task:
+            try:
+                record['observed_scheduler']=dict(policy=os.sched_getscheduler(child.pid),
+                    priority=os.sched_getparam(child.pid).sched_priority)
+            except OSError as error:
+                record['observed_scheduler']=dict(error=repr(error))
         return record
     def launch(name,argv,cwd,role):
         log=(output/(name+'.log')).open('x')
-        child=subprocess.Popen(argv,cwd=cwd,stdout=log,stderr=log,stdin=subprocess.DEVNULL)
+        spawned={}
+        cleanup_errors=[]
+        def configure(child):
+            spawned['child']=child
+            priority=child_priority(child,role)
+            if role=='preflight' and priority.get('scheduler_error'):
+                spawned['priority']=priority
+                raise RuntimeError('Preflight child scheduler admission failed')
+            return priority
+        try:
+            child,priority=_launch_child(argv,cwd,log,role,configure,
+                                         cleanup_errors=cleanup_errors)
+        except BaseException as error:
+            child=spawned.get('child')
+            if child is None:
+                log.close()
+                raise
+            priority=spawned.get('priority',dict(target=0 if role=='preflight' else None))
+            if cleanup_errors:
+                priority['cleanup_errors']=list(cleanup_errors)
+            children.append((name,child,log));specs[child.pid]=dict(name=name,argv=argv,cwd=Path(cwd),role=role)
+            result['children'][name]=dict(argv=argv,cwd=str(cwd),priority=priority)
+            result['children'][name]['priority'].setdefault('error',repr(error))
+            write_json(output/'children.json',result['children'])
+            raise
         children.append((name,child,log));specs[child.pid]=dict(name=name,argv=argv,cwd=Path(cwd),role=role)
-        result['children'][name]=dict(identity=json_identity(child.pid),argv=argv,cwd=str(cwd),
-                                      priority=child_priority(child,role))
-        write_json(output/'children.json',result['children'])
+        result['children'][name]=dict(argv=argv,cwd=str(cwd),priority=priority)
+        try:
+            result['children'][name]['identity']=_require_child_identity(child)
+            write_json(output/'children.json',result['children'])
+        except BaseException as error:
+            # Keep the failed scheduler observation in the auditable child
+            # metadata before making admission fail closed.
+            result['children'][name]['priority'].setdefault('error',repr(error))
+            if role=='preflight':
+                cleanup_errors=_terminate_and_reap(child,log)
+                if cleanup_errors:
+                    result['children'][name]['priority']['cleanup_errors']=cleanup_errors
+            write_json(output/'children.json',result['children'])
+            raise
         return child
+    def finish_preflight_phase(outcome=None,error=None):
+        timing=_finish_preflight_timing(result.get('preflight_execution'),outcome,error)
+        if timing is None: return
+        child=result['children'].get('preflight')
+        if child is not None:
+            child['preflight_execution']=dict(timing)
+            write_json(output/'children.json',result['children'])
     def physics_health():
         nonlocal last_child_poll
+        for _,stream in evidence_streams:
+            stream.check()
         if lifecycle is not None:
             lifecycle.periodic()
         now=time.monotonic()
@@ -195,6 +455,7 @@ def epoch_run(directory,epoch,generation=1):
         # permission and operator-request checks above still run every call.
         if now>=last_child_poll+.001:
             last_child_poll=now
+            if probe is not None: probe.pump()
             for name,child,_ in children:
                 if child.poll() is not None and child.pid not in expected and specs[child.pid]['role'] in ('model','fc','control'):
                     expected.add(child.pid)
@@ -230,6 +491,8 @@ def epoch_run(directory,epoch,generation=1):
         return clock.request(dict(version=1,epoch=epoch,request_id=clock.last_request+1,action=action))
     def start_tasks(mode,prepare_only=False):
         nonlocal task_group,task_state,ever_started
+        if (fixed_task or aruco_task) and mode!='initial':
+            raise ValueError('Fixed trajectory recovery is unsupported; use cold-reset')
         if mode=='initial' and task_group is not None and not ever_started and not prepare_only:
             task_state='preparing';ever_started=True
             return
@@ -241,6 +504,13 @@ def epoch_run(directory,epoch,generation=1):
             settings=dict(run_id=config['run_id'],epoch=epoch,stack=stack,uav_id=uid,mode=mode,
                           token=uuid.uuid4().hex,parent=json_identity(os.getpid()),control_package=admission['control_package'],
                           task_dwell_seconds=config['task_dwell_seconds'],task_type=config['task'])
+            if aruco_task:
+                profile=json.loads((Path(__file__).with_name('aruco-tracking-v1.json')).read_text())
+                scene=output/'aruco';scene.mkdir(exist_ok=True)
+                settings['aruco_settings']=dict(profile=profile,scene_directory=str(scene),
+                    binding_path=str(scene/'binding.json'),observation_path=str(scene/'observation.json'),
+                    selected_stack=config['aruco_experiment']['selected_stack'],
+                    instance_id=session['instance_id'],generation=generation)
             write_json(folder/'task-config.json',settings)
             launch(stack+'-task-'+task_id,[sys.executable,'-B','-m','Simulator.wksim_runtime.joint_task',
                                          str(folder/'task-config.json')],folder,'task')
@@ -249,23 +519,35 @@ def epoch_run(directory,epoch,generation=1):
     try:
         # The expensive, read-only identity walk must not block operator stop.
         # It runs in an owned child of this same private epoch process group.
-        preflight=launch('preflight',[sys.executable,'-B','-m','Simulator.wksim_runtime.runtime',
-                         str(directory/'config.json'),'--prepared','--preflight'],output,'preflight')
+        preflight_started=time.monotonic_ns()
+        result['preflight_execution']=dict(started_monotonic_ns=preflight_started,
+            required_scheduler='SCHED_OTHER',required_priority=0,required_nice=0,
+            launch_scheduler_check='post_spawn_parent_observation')
+        try:
+            preflight=launch('preflight',[sys.executable,'-B','-m','Simulator.wksim_runtime.runtime',
+                             str(directory/'config.json'),'--prepared','--preflight'],output,'preflight')
+        except BaseException as error:
+            finish_preflight_phase('scheduler_setup_failed',error)
+            raise
         while preflight.poll() is None:
             if time.monotonic()>=next_status:
                 status(['stop'],'starting')
                 stop=mailbox.poll(offer,['stop'])
                 if stop is not None:
+                    finish_preflight_phase('operator_stopped')
                     clock_action('stop');result['stop_request']=stop
                     result['status']='stopped'
                     return result
             time.sleep(.02)
         expected.add(preflight.pid)
+        finish_preflight_phase('completed' if preflight.returncode==0 else 'rejected')
         admission=json.loads((output/'preflight.log').read_text())
         result['preflight']=admission
         write_json(output/'preflight.json',admission)
         if not admission['ok']:
             raise RuntimeError('Joint profile rejected: '+str(admission['reasons']))
+        if config['task'] not in admission['capabilities']:
+            raise ValueError('Selected joint task is not an admitted capability')
         stop=mailbox.poll(offer,['stop'])
         if stop is not None:
             clock_action('stop');result['stop_request']=stop
@@ -279,6 +561,53 @@ def epoch_run(directory,epoch,generation=1):
         result['source_sha256']={str(path.relative_to(REPO)):digest(path) for folder in
             (REPO/'Simulator/wksim_runtime',REPO/'Simulator/wksim_core') for path in folder.glob('*.py')}
         result['source_sha256']['Simulator/wksim_core/model.cpp']=digest(REPO/'Simulator/wksim_core/model.cpp')
+        if aruco_task:
+            for name in ('Simulator/wksim_runtime/aruco-tracking-v1.json',
+                         'Simulator/wksim_perception/aruco.py','Simulator/wksim_perception/target_intent.py',
+                         'tools/joint_control_candidate.py','tools/px4_land_candidate.py'):
+                result['source_sha256'][name]=digest(REPO/name)
+            result['experimental']=True
+            result['production_admitted']=False
+            if admission.get('native_component_timing'):
+                candidate=admission['identities']['px4_candidate']
+                result['native_component_timing']=dict(environment=candidate['environment'],
+                                                       parent_manifest=candidate['parent_manifest'])
+                for name in ('tools/px4_component_candidate.py','tools/build-px4-component-timing.sh',
+                             'patches/px4/0005-component-wait-tracing.patch'):
+                    result['source_sha256'][name]=digest(REPO/name)
+                result['native_px4_source_sha256']=candidate['expected_sources']
+                for name,checksum in candidate['expected_sources'].items():
+                    path=output/'source/native_px4'/name;path.parent.mkdir(parents=True,exist_ok=True)
+                    path.write_bytes((Path(candidate['root'])/'src'/name).read_bytes())
+                    if digest(path)!=checksum:raise ValueError('Native diagnostic source changed during retention')
+        observe_px4_setup=os.environ.get('WKSIM_OBSERVE_PX4_SETUP')=='1'
+        if observe_px4_setup:
+            result['source_sha256']['tools/observe_px4_setup.py']=digest(REPO/'tools/observe_px4_setup.py')
+            result['diagnostics']=dict(px4_setup_observer=True,scope='receiver/setup observations only; no decision replacement')
+        if fixed_task:
+            for name in ('pv_trajectory_task.py','mixed_control_task.py','audit_joint_trajectory.py',
+                         'audit_pv_trajectory.py','audit_mixed_control.py','audit_joint_flight.py',
+                         'audit_joint_rate.py','audit_joint_product.py','audit_joint_product_lifecycle.py',
+                         'ap_mixed_candidate.py','ap_pv_candidate.py','prepare_ap_mixed_candidate.py',
+                         'verify_ap_pv_candidate.py','prepare_ap_pv_candidate.py','joint_control_candidate.py'):
+                result['source_sha256']['tools/'+name]=digest(REPO/'tools'/name)
+            for name in ('tools/run-wksim.sh','Simulator/wksim_core/arducopter-quad-x.parm',
+                         'Simulator/wksim_runtime/joint-profiles.json'):
+                result['source_sha256'][name]=digest(REPO/name)
+            native=Path(admission['configs']['arducopter']['ap_candidate'])/'src/ArduCopter/Log.cpp'
+            target=output/'native-source/ArduCopter/Log.cpp';target.parent.mkdir(parents=True)
+            target.write_bytes(native.read_bytes())
+            result['native_source_sha256']={'ArduCopter/Log.cpp':digest(target)}
+            source_manifest=native.parents[2]/'mixed-source.json'
+            (output/'mixed-source.json').write_bytes(source_manifest.read_bytes())
+            for key,pin in admission['profile']['manifests'].items():
+                target=output/(key+'-build.json');target.write_bytes(Path(pin['path']).read_bytes())
+                if digest(target)!=pin['sha256']: raise ValueError('Admitted build changed during retention: '+key)
+            control=json.loads((output/'control-build.json').read_text())
+            for name,sha in control['python_sha256'].items():
+                target=output/'control-source'/name;target.parent.mkdir(parents=True,exist_ok=True)
+                target.write_bytes((Path(admission['control_package'])/name).read_bytes())
+                if digest(target)!=sha: raise ValueError('Admitted control source changed during retention: '+name)
         for name,expected_sha in result['source_sha256'].items():
             snapshot=output/'source'/name;snapshot.parent.mkdir(parents=True,exist_ok=True)
             snapshot.write_bytes((REPO/name).read_bytes())
@@ -289,40 +618,67 @@ def epoch_run(directory,epoch,generation=1):
             node=rclpy.create_node('wksim_joint_supervisor')
             resources.callback(node.destroy_node)
             publisher=ClockPublisher(node);resources.callback(publisher.close)
-            monitor=JointMonitor(node,output,clock);resources.callback(monitor.close)
-            wire=resources.enter_context((output/'wire.jsonl').open('x',buffering=65536))
-            clocks=resources.enter_context((output/'clock.jsonl').open('x',buffering=65536))
+            monitor=JointMonitor(node,output,clock,write_probe=write_probe,
+                                 log_factory=open_evidence if async_evidence else None);resources.callback(monitor.close)
+            if fixed_task:
+                from tools.pv_trajectory_task import PVProbe
+                probe=PVProbe(node,clock,output,started);resources.callback(probe.close)
+            wire=resources.enter_context(open_evidence(output/'wire.jsonl',65536))
+            clocks=resources.enter_context(open_evidence(output/'clock.jsonl',65536))
             def record(kind,**fields):
-                wire.write(json.dumps(dict(kind=kind,epoch=epoch,tick=clock.tick,
-                    issued_monotonic_s=time.monotonic(),**fields),separators=(',',':'))+'\n')
-            physics=JointPhysics(resources,clock,model_workers,physics_health,record)
-            publisher.publish(clock);clocks.write(json.dumps(clock.snapshot())+'\n')
-            lifecycle=JointLifecycle(node,clock,publisher,output,config['run_id'],started,monitor)
+                text=json.dumps(dict(kind=kind,epoch=epoch,tick=clock.tick,
+                    issued_monotonic_s=time.monotonic(),**fields),separators=(',',':'))+'\n'
+                if write_probe: write_probe.write(wire,'wire',text)
+                else: wire.write(text)
+            def record_clock(text):
+                if write_probe: write_probe.write(clocks,'clock',text)
+                else: clocks.write(text)
+            terrain_feedback=TerrainFeedback(epoch)
+            physics=JointPhysics(resources,clock,model_workers,physics_health,record,
+                                 terrain_feedback=terrain_feedback)
+            from .loop_timing import LoopTiming
+            loop_timing=LoopTiming(physics.cpu_timing,record)
+            publisher.publish(clock);record_clock(json.dumps(clock.snapshot())+'\n')
+            lifecycle=JointLifecycle(node,clock,publisher,output,config['run_id'],started,monitor,
+                                     write_probe=write_probe,log_factory=open_evidence if async_evidence else None)
             resources.callback(lifecycle.close)
             for stack,uid in (('arducopter',1),('px4',2)):
                 folder=output/stack;folder.mkdir()
                 (folder/'dds.parm').write_text('DDS_ENABLE 1\nDDS_UDP_PORT 12019\nDDS_DOMAIN_ID 77\n')
                 argv=[sys.executable,'-B','-m','Simulator.wksim_core.worker','--library',str(library),
                       '--trace',str(output/(stack+'-truth.jsonl')),'--epoch',epoch]
+                if async_model_evidence: argv.append('--async-evidence')
                 log=(output/(stack+'-model.log')).open('x')
                 child=subprocess.Popen(argv,cwd=folder,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=log,text=True)
                 name=stack+'-model';children.append((name,child,log));model_workers[stack]=child
                 specs[child.pid]=dict(name=name,role='model',cwd=folder,argv=argv)
-                result['children'][name]=dict(identity=json_identity(child.pid),argv=argv,cwd=str(folder),
-                                              priority=child_priority(child,'model'))
-                plan=launch_spec(admission['configs'][stack],folder,library)
+                result['children'][name]=dict(argv=argv,cwd=str(folder))
+                result['children'][name]['identity']=_require_child_identity(child)
+                result['children'][name]['priority']=child_priority(child,'model')
+                plan=launch_spec(admission['configs'][stack],folder,library,
+                                 admitted_capabilities=admission['capabilities'])
+                if stack=='px4' and admission.get('native_component_timing'):
+                    plan['fc_environment'].update(admission['identities']['px4_candidate']['environment'])
                 agents[stack]=launch(stack+'-agent',plan['agent'],folder,'agent')
                 log=(output/(stack+'-fc.log')).open('x')
                 child=subprocess.Popen(plan['fc'],cwd=folder,env=dict(os.environ,**plan['fc_environment']),
                     stdout=log,stderr=log,stdin=subprocess.DEVNULL)
                 name=stack+'-fc';children.append((name,child,log))
                 specs[child.pid]=dict(name=name,role='fc',cwd=folder,argv=plan['fc'])
-                result['children'][name]=dict(identity=json_identity(child.pid),argv=plan['fc'],cwd=str(folder),
-                                              priority=child_priority(child,'fc'))
+                result['children'][name]=dict(argv=plan['fc'],cwd=str(folder))
+                result['children'][name]['identity']=_require_child_identity(child)
+                result['children'][name]['priority']=child_priority(child,'fc')
+                if stack=='px4' and admission.get('native_component_timing'):
+                    result['children'][name]['explicit_environment']=dict(plan['fc_environment'])
                 argv=plan['control']
                 argv=[f'uav_id:={uid}' if value.startswith('uav_id:=') else value for value in argv]
                 argv+=['-p','use_sim_time:=true','-p','scene_epoch:='+epoch,
                        '-r','__node:=wksim_joint_'+stack+'_control']
+                if observe_px4_setup and stack=='px4':
+                    if argv[1:3]!=['-m','prometheus_control.node']:
+                        raise ValueError('Unexpected Control launch shape for setup observer')
+                    argv=[sys.executable,'-B','-m','tools.observe_px4_setup',str(output/'px4-setup-observer.jsonl'),
+                        admission['control_package'],*argv[3:]]
                 launch(stack+'-control',argv,folder,'control')
             # Process startup, DDS discovery and binary hashing belong before
             # paced physics. The staged Task workers cannot execute without
@@ -338,15 +694,32 @@ def epoch_run(directory,epoch,generation=1):
             for stack in ('arducopter','px4'):
                 initialized=json.loads((task_group/stack/'initialized.json').read_text())
                 settings=json.loads((task_group/stack/'task-config.json').read_text())
-                if initialized!=dict(version=1,run_id=config['run_id'],epoch=epoch,stack=stack,
-                                      token=settings['token'],control_subscriptions=[1,1]):
-                    raise ValueError('Staged task transport identity differs')
+                validate_initialized(initialized,settings)
             initial_models=lifecycle.snapshot(physics)
             if clock.tick!=0 or any(value['tick']!=0 for value in initial_models['models'].values()):
                 raise RuntimeError('Startup observation advanced the physical clock')
+            initial_states=lifecycle.initial_states(physics)
+            if clock.tick!=0 or any(value['tick']!=0 or value.get('initial') is not True
+                                    for value in initial_states.values()):
+                raise RuntimeError('Explicit initial-state observation advanced the physical clock')
+            physics.initialize_states(initial_states)
             record_images('ready')
-            result['initialization']=dict(physical_tick=0,models=initial_models,
-                                          task_execution_requires_explicit_go=True)
+            if aruco_task:
+                scheduler_snapshot={}
+                processes=[('supervisor',os.getpid())]+[(name,child.pid) for name,child,_ in children if child.poll() is None]
+                for name,pid in processes:
+                    threads=[]
+                    for entry in (Path('/proc')/str(pid)/'task').iterdir():
+                        try:
+                            tid=int(entry.name)
+                            threads.append(dict(tid=tid,name=(entry/'comm').read_text().strip(),
+                                policy=os.sched_getscheduler(tid),priority=os.sched_getparam(tid).sched_priority))
+                        except (OSError,ValueError) as error:
+                            threads.append(dict(tid=entry.name,error=repr(error)))
+                    scheduler_snapshot[name]=dict(pid=pid,threads=threads)
+                result['scheduler_snapshot']=scheduler_snapshot
+            result['initialization']=dict(physical_tick=0,models=initial_models,initial_states=initial_states,
+                terrain_feedback=terrain_feedback.manifest(),task_execution_requires_explicit_go=True)
             record_rate('transport_initialized',physical_tick=0,task_execution_requires_explicit_go=True)
             busy_phase=None
             physics.connect()
@@ -356,7 +729,7 @@ def epoch_run(directory,epoch,generation=1):
                 # failed. Publish that real tick once; never publish a partial RPC.
                 if (clock.pending is None and clock.phase in ('running','stepping')
                         and publisher.last_tick is not None and clock.tick==publisher.last_tick+1):
-                    publisher.publish(clock);clocks.write(json.dumps(clock.snapshot())+'\n')
+                    publisher.publish(clock);record_clock(json.dumps(clock.snapshot())+'\n')
                 if isinstance(error,RateUnmet):
                     # The rate supervisor is called only outside model groups.
                     # No rollback and no partially completed barrier is hidden.
@@ -384,35 +757,50 @@ def epoch_run(directory,epoch,generation=1):
                 if pending is not None:
                     mailbox.respond(pending,'failed',reason=str(error),authority=clock.snapshot());pending=None
                 status(['stop','cold-reset'],'faulted')
-            def advance():
+            def advance(loop_origin=None):
                 nonlocal physics_wait_started,pending_task_reanchor
-                if clock.tick%4==0:
-                    if clock.phase=='running' and clock.synchronized:
-                        if rate.anchor is None:
-                            rate.reanchor(clock.tick,'synchronized_boundary',
-                                          transition=lifecycle.phase in ('recovering','resuming'))
-                        elif pending_task_reanchor:
-                            # Deferred from a mid-group start-recovery-task request:
-                            # fire at this complete boundary before pacing resumes.
-                            pending_task_reanchor=False
-                            if not rate.latched:
-                                rate.reanchor(clock.tick,'start-recovery-task',transition=True)
-                        rate.begin_group(clock.tick,physics_health)
-                    else:
-                        record_rate('untimed_group_start',classification='single_step' if clock.phase=='stepping' else 'bootstrap',
-                                    start_tick=clock.tick,end_tick=clock.tick+4,actual_start_ns=time.monotonic_ns())
-                physics_wait_started=time.monotonic()
+                loop_timing.start(loop_origin)
+                loop_timing.mark('administration')
+                stage='pacing';step_complete=False
                 try:
-                    states=physics.advance();publisher.publish(clock)
-                    clocks.write(json.dumps(clock.snapshot(),separators=(',',':'))+'\n')
+                    if clock.tick%4==0:
+                        if clock.phase=='running' and clock.synchronized:
+                            if rate.anchor is None:
+                                rate.reanchor(clock.tick,'synchronized_boundary',
+                                              transition=lifecycle.phase in ('recovering','resuming'))
+                            elif pending_task_reanchor:
+                                # Preserve the explicitly authorized recovery boundary.
+                                pending_task_reanchor=False
+                                if not rate.latched:
+                                    rate.reanchor(clock.tick,'start-recovery-task',transition=True)
+                            rate.begin_group(clock.tick,physics_health)
+                        else:
+                            record_rate('untimed_group_start',classification='single_step' if clock.phase=='stepping' else 'bootstrap',
+                                        start_tick=clock.tick,end_tick=clock.tick+4,actual_start_ns=time.monotonic_ns())
+                    loop_timing.mark(stage);stage='physics'
+                    physics_wait_started=time.monotonic()
+                    states=physics.advance()
+                    loop_timing.mark(stage);stage='clock_publish'
+                    publisher.publish(clock)
+                    loop_timing.mark(stage);stage='clock_evidence'
+                    record_clock(json.dumps(clock.snapshot(),separators=(',',':'))+'\n')
+                    loop_timing.mark(stage);stage='group_end_and_view'
                     if clock.tick%4==0:
                         if rate.group is not None: rate.end_group(clock.tick)
                         else: record_rate('untimed_group_end',classification='transition' if lifecycle.phase in ('resuming','recovering')
                                           else 'single_step' if lifecycle.phase=='stepping' else 'bootstrap',actual_end_ns=time.monotonic_ns())
                         view.emit(states,clock.tick,'running' if clock.phase=='stepping' else clock.phase)
+                    step_complete=True
                     return states
                 finally:
                     physics_wait_started=None
+                    try:
+                        loop_timing.mark(stage)
+                        loop_timing.finish(clock.tick,complete=step_complete)
+                    except Exception as diagnostic_error:
+                        result.setdefault('evidence_errors',[]).append(dict(
+                            stream='runtime-timing',phase=stage,error=repr(diagnostic_error)))
+                        if step_complete:raise
             def recover(request):
                 nonlocal task_state,needs_recovery_task,busy_phase,ever_started
                 recovery_started=time.monotonic()
@@ -468,6 +856,7 @@ def epoch_run(directory,epoch,generation=1):
                 complete(request,effect='physics_recovered_new_task_required',observation=observation)
                 busy_phase=None
             while clock.phase!='stopped':
+                loop_origin=(time.monotonic_ns(),time.thread_time_ns()) if loop_timing.enabled else None
                 try: physics_health()
                 except OperatorRetirement: raise
                 except (OSError,RuntimeError,ValueError) as error: latch_failure(error)
@@ -487,8 +876,13 @@ def epoch_run(directory,epoch,generation=1):
                             lifecycle.communication_fault(name+'_exited',[1 if name.startswith('arducopter') else 2])
                         task_state='failed';needs_recovery_task=True
                     elif role=='task':
-                        report=json.loads((specs[child.pid]['cwd']/'result.json').read_text())
-                        result['tasks'][name]=report
+                        if defer_task_reports:
+                            # Do not parse camera or fixed-trajectory reports
+                            # on the rate deadline. Final retirement loads them.
+                            report=dict(error=name+' exited with code '+str(code))
+                        else:
+                            report=json.loads((specs[child.pid]['cwd']/'result.json').read_text())
+                            result['tasks'][name]=report
                         if code!=0:
                             rate.close_segment('task_fault',clock.tick)
                             task_state='failed';needs_recovery_task=True
@@ -508,11 +902,12 @@ def epoch_run(directory,epoch,generation=1):
                         write_json(task_group/'go.json',dict(run_id=config['run_id'],epoch=epoch,tasks=records))
                         task_state='running'
                 if task_group is not None and task_state=='running':
+                    if config['task']==FIXED_TASKS[0]:
+                        coordinate_legs(task_group,config['run_id'],epoch,clock.tick)
                     reports=[task_group/stack/'result.json' for stack in ('arducopter','px4')]
                     task_processes=[child for _,child,_ in children if specs[child.pid]['role']=='task'
                                     and specs[child.pid]['cwd'].parent==task_group]
-                    if (len(task_processes)==2 and all(child.poll()==0 for child in task_processes)
-                            and all(path.is_file() and json.loads(path.read_text())['status']=='pass' for path in reports)):
+                    if task_group_completed(task_processes,reports,defer_report_reads=defer_task_reports):
                         task_state='completed'
                 if pending is not None:
                     action=pending['action']
@@ -543,6 +938,7 @@ def epoch_run(directory,epoch,generation=1):
                         elif task_state=='running' and monitor.can_pause(config['run_id']): allowed+=['pause']
                     elif clock.phase=='paused' and lifecycle.acknowledged():
                         allowed+=['step','resume','set-rate']
+                allowed=supported_actions(config['task'],allowed)
                 if time.monotonic()>=next_status and (clock.phase in ('paused','faulted') or clock.tick%4==0):
                     status(allowed)
                     request=mailbox.poll(offer,allowed)
@@ -550,11 +946,16 @@ def epoch_run(directory,epoch,generation=1):
                         action=request['action']
                         if action!='start-recovery-task': pending_task_reanchor=False
                         if action in ('stop','cold-reset'):
+                            if (fixed_task or aruco_task) and clock.phase=='running' and rate.anchor is not None and rate.group is None:
+                                try: rate.check_boundary(clock.tick)
+                                except (OSError,RuntimeError,ValueError) as error: latch_failure(error)
                             rate.close_segment(action,clock.tick)
                             if pending is not None:
                                 mailbox.respond(pending,'failed',reason='Superseded by '+action,authority=clock.snapshot())
                                 pending=None
                             clock_action('stop');lifecycle.set_phase('stopped')
+                            result['terminal_transition']=dict(action=action,phase=clock.phase,tick=clock.tick,
+                                                               issued_monotonic_ns=time.monotonic_ns())
                             result['stop_request']=request
                             result['status']='cold_reset' if action=='cold-reset' else 'stopped'
                             record_images('stopping')
@@ -598,7 +999,7 @@ def epoch_run(directory,epoch,generation=1):
                                 status(['stop','cold-reset'])
                             except (OSError,RuntimeError,ValueError) as error: latch_failure(error)
                 if clock.phase in ('running','stepping'):
-                    try: advance()
+                    try: advance(loop_origin)
                     except OperatorRetirement: raise
                     except (OSError,RuntimeError,ValueError) as error: latch_failure(error)
                 else:
@@ -624,22 +1025,71 @@ def epoch_run(directory,epoch,generation=1):
         result['display_stream']=dict(sent=view.sent,dropped=view.dropped,sequence=view.sequence,
                                       setup_error=view.setup_error,last_error=view.last_error)
         view.close()
-        rate.close_segment('epoch_retired',clock.tick)
+        evidence_errors=list(result.get('evidence_errors',[]))
+        try:
+            rate.close_segment('epoch_retired',clock.tick)
+        except Exception as error:
+            evidence_errors.append(dict(stream='rate',phase='final_record',error=repr(error)))
         result['rate']=rate.snapshot(clock.tick)
         result['rate']['last_segment']=rate.last_summary
-        rate_log.close()
+        for name,stream in (evidence_streams if async_evidence else [('rate',rate_log)]):
+            try: stream.close()
+            except Exception as error:
+                evidence_errors.append(dict(stream=name,phase='close',error=repr(error)))
+        if write_probe:
+            result['write_timing']=write_probe.summary()
+            try: write_log.close()
+            except Exception as error:
+                evidence_errors.append(dict(stream='write-timing',phase='close',error=repr(error)))
+        if async_evidence:
+            result['async_evidence']={name:stream.summary() for name,stream in evidence_streams}
+            for name,summary in result['async_evidence'].items():
+                if summary.get('complete') is not True:
+                    evidence_errors.append(dict(stream=name,phase='completion',error='Evidence writer did not fully retire'))
+        if evidence_errors:
+            result['evidence_errors']=evidence_errors
+            result['status']='failed'
+            result.setdefault('error','Evidence logging failed')
         for sig in (signal.SIGINT,signal.SIGTERM): signal.signal(sig,signal.SIG_IGN)
         result['cleanup_errors']=stop_processes(children)
         for name,child,_ in children:
             result['children'][name]['returncode']=child.poll()
+            if defer_task_reports and specs[child.pid]['role']=='task':
+                path=specs[child.pid]['cwd']/'result.json'
+                try:
+                    if path.is_file():
+                        result['tasks'][name]=load_retired_task_report(path,config['run_id'],epoch,
+                            name.split('-task-',1)[0],child.poll())
+                    elif child.poll()==0:
+                        raise ValueError('Successful task exited without its result')
+                except (OSError,ValueError,TypeError) as error:
+                    result.setdefault('task_report_errors',[]).append(dict(task=name,error=str(error)))
+                    result['status']='failed'
+                    result.setdefault('error','Deferred task report validation failed')
+        if async_model_evidence:
+            result['async_model_evidence']={}
+            for stack in ('arducopter','px4'):
+                try:
+                    trace=output/(stack+'-truth.jsonl')
+                    path=Path(str(trace)+'.writer.json')
+                    summary=validate_model_writer_summary(
+                        json.loads(path.read_text()),trace,library,epoch)
+                    result['async_model_evidence'][stack]=summary
+                except (OSError,ValueError,TypeError) as error:
+                    result.setdefault('model_evidence_errors',[]).append(dict(stack=stack,error=str(error)))
+                    result['status']='failed'
+                    result.setdefault('error','Model trace evidence incomplete')
         if result['host_boot_id']!=host_boot_id():
             result['status']='failed';result['error']='Host boot identity changed'
         result['wall_seconds']=time.monotonic()-started
+        result['changed_sources']=[name for name,sha in result.get('source_sha256',{}).items()
+            if not (REPO/name).is_file() or digest(REPO/name)!=sha]
         try:
             if result['status'] in ('stopped','cold_reset'):
-                result['physical_task_proof']=verify_tasks(output,epoch,clock.tick,result['tasks'])
+                result['physical_task_proof']=verify_tasks(output,epoch,clock.tick,result['tasks'],config.get('task','public_position'),
+                                                          **({'formal_result':result} if fixed_task else {}))
                 result['flight_completed']=result['physical_task_proof'] is not None
-        except (OSError,ValueError,KeyError) as error:
+        except (OSError,ValueError,KeyError,TypeError,ImportError,AssertionError) as error:
             result['status']='failed';result['error']='Independent truth verification: '+str(error)
         result['changed_sources']=[name for name,sha in result.get('source_sha256',{}).items()
             if not (REPO/name).is_file() or digest(REPO/name)!=sha]
@@ -830,10 +1280,11 @@ def _run_joint(config,output_root,*,use_prepared_run=None):
                     dict(reset_request,state='failed',reason='New epoch failed',new_epoch=epoch))
             if result['status']!='cold_reset':
                 break
-        value=dict(status='pass' if any(row['result'].get('flight_completed') for row in epochs)
-                   and result['status']=='stopped' else result['status'],
+        value=dict(status=final_run_status(epochs),
                    kind='joint_scene',run_id=config['run_id'],instance_id=session['instance_id'],config=config,epochs=epochs,run_dir=str(directory),
                    host_boot_id=resource['host_boot_id'])
+        if value['status']=='failed' and result.get('authority',{}).get('fault'):
+            value['error']=result['authority']['fault']
         write_json(directory/'result.json',value)
         print(json.dumps(dict(status=value['status'],result=str(directory/'result.json'))),flush=True)
         return value

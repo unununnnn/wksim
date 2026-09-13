@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "issue": 147,
+  "stable_key": "full-model-13",
+  "title": "MulticopterNOpx4 model",
+  "source": {
+    "file": "docs/plan/full-scope-expansion.md",
+    "line": 58,
+    "ledger_id": "MODEL-13",
+    "ledger_file": "docs/plan/full-followup-tickets.json",
+    "parent_issues": [1]
+  },
+  "status": "defined",
+  "evidence_status": "no-evidence",
+  "full_complete": false,
+  "current_gap": "The no-PX4 multicopter model interface and applicable control method are undefined; the implementation must not be guessed from the name.",
+  "atoms": [
+    {"id": "MODEL-13-A", "name": "interface_definition", "status": "blocked", "required": "Model interface pinned from the reference: inputs, outputs, units and rate", "owner": "protocol maintainer"},
+    {"id": "MODEL-13-B", "name": "applicable_control_method", "status": "blocked", "required": "Which control method this mode accepts, from reference evidence — not name inference", "owner": "control maintainer"},
+    {"id": "MODEL-13-C", "name": "px4_independence", "status": "partial", "required": "Rule enforced: PX4 SITL evidence never covers this mode", "owner": "validation maintainer"},
+    {"id": "MODEL-13-D", "name": "reference_observation", "status": "blocked", "required": "Observed reference behavior of the mode before implementation", "owner": "validation maintainer"}
+  ],
+  "model_required": ["model_identity", "interface_schema", "control_method", "rate_hz", "units", "reference_evidence", "source", "source_sha256"],
+  "scope_rule": "the mode is defined by observed reference behavior and a pinned interface, never by name inference",
+  "errors": ["accepted", "interface_unpinned", "control_method_unknown", "reference_unobserved", "px4_substitution_rejected", "name_inference_rejected"],
+  "followups": [
+    {"key": "model-13-reference-observation", "files": ["validation/<nopx4-reference-observation>"], "status": "proposed", "blocked_by": "Access to the reference mode"},
+    {"key": "model-13-interface-freeze", "files": ["docs/plan/<nopx4-interface>.json", "validation/<nopx4-interface-tests>.py"], "status": "proposed", "blocked_by": "Reference observation"}
+  ],
+  "preserved": {"px4_modes": "PX4 SITL evidence keeps its separate mode identity", "full_complete": false}
+}

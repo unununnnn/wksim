@@ -1,0 +1,226 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/unununnnn/wksim/schemas/59-e0-current-rhs-references.schema.json",
+  "title": "e0 current-source RHS references artifact",
+  "type": "object",
+  "required": ["schema_version", "kind", "status", "provenance_only", "non_claims",
+               "v1_artifact", "generated_source", "derivation", "slot_count", "slots"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {"const": 1},
+    "kind": {"const": "e0_current_rhs_references"},
+    "status": {"const": "bound"},
+    "provenance_only": {"const": true},
+    "non_claims": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+    "v1_artifact": {
+      "type": "object",
+      "required": ["path", "sha256"],
+      "additionalProperties": false,
+      "properties": {
+        "path": {"const": "validation/e0-current-source-mapping-20260912.json"},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
+    "generated_source": {
+      "type": "object",
+      "required": ["name", "model_version", "generation_run", "artifact_relative_path",
+                   "sha256", "size_bytes", "evidence"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {"const": "Exp1_MinModelTemp.cpp"},
+        "model_version": {"const": "11.8"},
+        "generation_run": {"const": "short-cycle-codegen-01"},
+        "artifact_relative_path": {
+          "const": "work/codegen-e0/short-cycle-codegen-01/codegen/Exp1_MinModelTemp_ert_rtw/Exp1_MinModelTemp.cpp"
+        },
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "size_bytes": {"type": "integer", "minimum": 1},
+        "evidence": {
+          "type": "object",
+          "required": ["path", "sha256"],
+          "additionalProperties": false,
+          "properties": {
+            "path": {"const": "validation/codegen-e0/short-cycle-codegen-01/generated-sources-manifest.json"},
+            "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+          }
+        }
+      }
+    },
+    "derivation": {
+      "type": "object",
+      "required": ["rule", "enclosing_function", "step_line_range",
+                   "resolution_statuses", "unresolved_reasons", "dependency_reasons"],
+      "additionalProperties": false,
+      "properties": {
+        "rule": {"const": "e0-current-rhs-references-v1"},
+        "enclosing_function": {"const": "MulticopterModelClass::step"},
+        "step_line_range": {
+          "type": "array", "minItems": 2, "maxItems": 2,
+          "items": {"type": "integer", "minimum": 1}
+        },
+        "resolution_statuses": {"type": "array", "items": {"enum": ["terminal", "local_bound", "unresolved"]}},
+        "unresolved_reasons": {"type": "array", "items": {"enum": ["reused_temporary", "control_flow_scoped", "array_local", "call_expression", "compound_expression"]}},
+        "dependency_reasons": {"type": "array", "items": {"enum": ["local_dependency", "call_expression", "compound_expression"]}}
+      }
+    },
+    "slot_count": {"const": 56},
+    "slots": {
+      "type": "array",
+      "minItems": 56,
+      "maxItems": 56,
+      "items": {"$ref": "#/$defs/slot"}
+    }
+  },
+  "$defs": {
+    "slot": {
+      "type": "object",
+      "required": ["slot", "array", "index", "observable", "outport",
+                   "line_ranges", "rhs", "references", "resolution"],
+      "additionalProperties": false,
+      "properties": {
+        "slot": {"type": "string", "pattern": "^\\w+\\[\\d+\\]$"},
+        "array": {"enum": ["Vehicle60", "Sensor30", "GPS30"]},
+        "index": {"type": "integer", "minimum": 0},
+        "observable": {"enum": [
+          "absolute_pressure", "accelerometer", "active_motor_speed",
+          "body_angular_rate", "body_motion_acceleration",
+          "differential_pressure", "euler_components", "extra_motor_speed",
+          "gps_accuracy_indicators", "gps_altitude", "gps_course_encoded",
+          "gps_horizontal_speed", "gps_latitude_longitude", "gps_time",
+          "gps_velocity_ned", "gyroscope", "magnetic_field", "position_ned",
+          "pressure_altitude", "quaternion_components", "sensor_time",
+          "temperature", "truth_altitude", "truth_latitude_longitude",
+          "vehicle_time", "velocity_ned"
+        ]},
+        "outport": {"enum": ["VehileInfo60d", "HILSensor30d", "HILGPS30d"]},
+        "line_ranges": {
+          "type": "array", "minItems": 1, "maxItems": 1,
+          "items": {"type": "array", "minItems": 2, "maxItems": 2,
+                    "items": {"type": "integer", "minimum": 1}}
+        },
+        "rhs": {
+          "type": "object",
+          "required": ["text", "lines"],
+          "additionalProperties": false,
+          "properties": {
+            "text": {"type": "string", "minLength": 1},
+            "lines": {"type": "integer", "minimum": 1, "maximum": 10}
+          }
+        },
+        "references": {
+          "type": "array",
+          "minItems": 0,
+          "items": {"$ref": "#/$defs/reference"}
+        },
+        "resolution": {"$ref": "#/$defs/resolution"}
+      },
+      "oneOf": [
+        {"properties": {"slot": {"pattern": "^Vehicle60\\[\\d+\\]$"},
+                        "array": {"const": "Vehicle60"},
+                        "outport": {"const": "VehileInfo60d"},
+                        "index": {"type": "integer", "minimum": 0, "maximum": 59}}},
+        {"properties": {"slot": {"pattern": "^Sensor30\\[\\d+\\]$"},
+                        "array": {"const": "Sensor30"},
+                        "outport": {"const": "HILSensor30d"},
+                        "index": {"type": "integer", "minimum": 0, "maximum": 29}}},
+        {"properties": {"slot": {"pattern": "^GPS30\\[\\d+\\]$"},
+                        "array": {"const": "GPS30"},
+                        "outport": {"const": "HILGPS30d"},
+                        "index": {"type": "integer", "minimum": 0, "maximum": 29}}}
+      ]
+    },
+    "reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {"enum": ["block_output", "state", "parameter", "timing",
+                          "local", "call"]},
+        "path": {"type": "string"},
+        "name": {"type": "string"},
+        "indexed": {"type": "boolean"}
+      },
+      "oneOf": [
+        {"required": ["kind", "path"],
+         "not": {"anyOf": [{"required": ["name"]}, {"required": ["indexed"]}]},
+         "properties": {"kind": {"const": "block_output"},
+                        "path": {"type": "string",
+                                 "pattern": "^Exp1_MinModelTemp_B(?:\\.[A-Za-z_][A-Za-z0-9_]*)+(?:\\[[0-9]+\\])?$"}}},
+        {"required": ["kind", "path"],
+         "not": {"anyOf": [{"required": ["name"]}, {"required": ["indexed"]}]},
+         "properties": {"kind": {"const": "state"},
+                        "path": {"type": "string",
+                                 "pattern": "^Exp1_MinModelTemp_X(?:\\.[A-Za-z_][A-Za-z0-9_]*)+(?:\\[[0-9]+\\])?$"}}},
+        {"required": ["kind", "path"],
+         "not": {"anyOf": [{"required": ["name"]}, {"required": ["indexed"]}]},
+         "properties": {"kind": {"const": "parameter"},
+                        "path": {"type": "string",
+                                 "pattern": "^Exp1_MinModelTemp_P(?:\\.[A-Za-z_][A-Za-z0-9_]*)+(?:\\[[0-9]+\\])?$"}}},
+        {"required": ["kind", "path"],
+         "not": {"anyOf": [{"required": ["name"]}, {"required": ["indexed"]}]},
+         "properties": {"kind": {"const": "timing"},
+                        "path": {"type": "string",
+                                 "pattern": "^Exp1_MinModelTemp_M->Timing\\.t\\[[0-9]+\\]$"}}},
+        {"required": ["kind", "name", "indexed"],
+         "not": {"required": ["path"]},
+         "properties": {"kind": {"const": "local"},
+                        "name": {"type": "string", "pattern": "^rtb_\\w+$"}}},
+        {"required": ["kind", "name"],
+         "not": {"anyOf": [{"required": ["path"]}, {"required": ["indexed"]}]},
+         "properties": {"kind": {"const": "call"},
+                        "name": {"type": "string", "minLength": 1}}}
+      ]
+    },
+    "resolution": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "status": {"enum": ["terminal", "local_bound", "unresolved"]},
+        "reason": {"enum": ["reused_temporary", "control_flow_scoped",
+                            "array_local", "call_expression",
+                            "compound_expression", null]},
+        "hop": {"$ref": "#/$defs/hop"}
+      },
+      "oneOf": [
+        {"required": ["status", "reason"], "not": {"required": ["hop"]},
+         "properties": {"status": {"const": "terminal"}, "reason": {"const": null}}},
+        {"required": ["status", "reason", "hop"],
+         "properties": {"status": {"const": "local_bound"}, "reason": {"const": null}}},
+        {"required": ["status", "reason"], "not": {"required": ["hop"]},
+         "properties": {"status": {"const": "unresolved"},
+                        "reason": {"enum": ["reused_temporary", "control_flow_scoped",
+                                            "array_local", "call_expression",
+                                            "compound_expression"]}}}
+      ]
+    },
+    "hop": {
+      "type": "object",
+      "required": ["local", "definition_line_range", "definition_text",
+                   "definition_rhs", "definition_references",
+                   "unresolved_dependency", "dependency_reason"],
+      "additionalProperties": false,
+      "properties": {
+        "local": {"type": "string", "pattern": "^rtb_\\w+$"},
+        "definition_line_range": {
+          "type": "array", "minItems": 2, "maxItems": 2,
+          "items": {"type": "integer", "minimum": 1}
+        },
+        "definition_text": {"type": "string", "minLength": 1},
+        "definition_rhs": {"type": "string", "minLength": 1},
+        "definition_references": {
+          "type": "array", "minItems": 0,
+          "items": {"$ref": "#/$defs/reference"}
+        },
+        "unresolved_dependency": {"type": "boolean"},
+        "dependency_reason": {"enum": ["local_dependency", "call_expression",
+                                       "compound_expression", null]}
+      },
+      "oneOf": [
+        {"properties": {"unresolved_dependency": {"const": false},
+                        "dependency_reason": {"const": null}}},
+        {"properties": {"unresolved_dependency": {"const": true},
+                        "dependency_reason": {"enum": ["local_dependency", "call_expression",
+                                                       "compound_expression"]}}}
+      ]
+    }
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "schema": "wksim.aruco-tracking-profile.v1",
+  "camera": {
+    "version": 1,
+    "sensor_id": "front_rgb",
+    "width": 1920,
+    "height": 1440,
+    "horizontal_fov_degrees": 90,
+    "position_cm": [30, 20, 10],
+    "quaternion_xyzw": [0, 0, 0, 1],
+    "interval_steps": 100,
+    "notify_port": 19072
+  },
+  "target": {
+    "dictionary": "DICT_6X6_250",
+    "marker_id": 23,
+    "side_length_m": 0.5,
+    "max_age_steps": 300,
+    "max_distance_m": 8,
+    "max_speed_mps": 2,
+    "max_jump_m": 0.5,
+    "max_reprojection_px": 1
+  },
+  "controller": {
+    "desired_body_flu_m": [2.3, -0.32, 0.06],
+    "gain_per_s": 0.6,
+    "max_speed_mps": 0.5
+  },
+  "scene": {
+    "fixture_case": 5,
+    "initial_steps": 2000,
+    "moving_steps": 4000,
+    "occluded_steps": 2000,
+    "recovery_steps": 4000,
+    "world_velocity_mps": [0, 0.25, 0]
+  },
+  "mission": {
+    "initial_hold_s": 5,
+    "binding_timeout_s": 30,
+    "command_acceptance_timeout_s": 0.5,
+    "maximum_position_radius_m": 5,
+    "altitude_min_m": 2.4,
+    "altitude_max_m": 3.6,
+    "maximum_tilt_rad": 0.35,
+    "tracking_error_m": 0.65,
+    "recovery_error_m": 0.3,
+    "recovery_hold_steps": 1000
+  }
+}

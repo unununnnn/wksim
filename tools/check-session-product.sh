@@ -16,6 +16,7 @@ source /root/wksim-ap-dds-yaw-state-4Wr27s/ros-install/local_setup.bash
 source /root/wksim-ros2-MUlZd0/install/local_setup.bash
 export ROS_DOMAIN_ID=79 ROS_LOCALHOST_ONLY=1 RMW_IMPLEMENTATION=rmw_fastrtps_cpp
 export WKSIM_CONTROL_PROFILE_LIVE_RESOURCES=1
+export WKSIM_TEST_PRIVATE_ROS=1
 tests=()
 for path in validation/test_*.py; do
   [[ $path == validation/test_wksim_preflight.py ]] && continue

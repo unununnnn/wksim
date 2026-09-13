@@ -1,0 +1,126 @@
+[
+  {
+    "path": "validation\\lunar-20-epoch-1\\epoch-raw\\rate.jsonl",
+    "rate_log_sha256": "662211692b26894f31e2f10a8dadaa98207a3ea6dc909b8bbf018b58fcdecbe0",
+    "source_sha256": "59e329db948802e545fa5167b2430ae18bf3bdb6e1c534a374a82dafcc70da6c",
+    "late_limit_ns": 100000000,
+    "replay": "RED",
+    "rejection": {
+      "kind": "rate_unmet",
+      "tick": 7588,
+      "lateness_ns": 100312171
+    },
+    "captured_failure_matches": true,
+    "segments": [
+      {
+        "segment_id": 1,
+        "rate": 1.0,
+        "groups": 1887,
+        "first_tick": 40,
+        "last_tick": 7588,
+        "wall_duration_ns": 7646208069,
+        "group_duration_median_ns": 2711311,
+        "group_duration_max_ns": 13221268,
+        "group_duration_p99_ns": 5054794,
+        "group_over_period_count": 70,
+        "phase_first_ns": 15673,
+        "phase_last_ns": 99636364,
+        "summed_positive_phase_increment_ns": 99620691,
+        "preceding_group_excess_sum_ns": 73636728,
+        "top_phase_spikes": [
+          {
+            "tick": 1928,
+            "phase_increment_ns": 9271491,
+            "preceding_group_excess_ns": 9221268,
+            "residual_release_delay_ns": 50223,
+            "preceding_group_duration_ns": 13221268,
+            "gap_from_previous_end_ns": 50223,
+            "actual_start_ns": 176155711085
+          },
+          {
+            "tick": 6540,
+            "phase_increment_ns": 7652411,
+            "preceding_group_excess_ns": 7614223,
+            "residual_release_delay_ns": 38188,
+            "preceding_group_duration_ns": 11614223,
+            "gap_from_previous_end_ns": 38188,
+            "actual_start_ns": 180824434076
+          },
+          {
+            "tick": 2000,
+            "phase_increment_ns": 5176986,
+            "preceding_group_excess_ns": 4418610,
+            "residual_release_delay_ns": 758376,
+            "preceding_group_duration_ns": 8418610,
+            "gap_from_previous_end_ns": 758376,
+            "actual_start_ns": 176239132312
+          },
+          {
+            "tick": 3928,
+            "phase_increment_ns": 4773044,
+            "preceding_group_excess_ns": 0,
+            "residual_release_delay_ns": 4773044,
+            "preceding_group_duration_ns": 2664459,
+            "gap_from_previous_end_ns": 6108585,
+            "actual_start_ns": 178192169656
+          },
+          {
+            "tick": 2492,
+            "phase_increment_ns": 4030001,
+            "preceding_group_excess_ns": 3976137,
+            "residual_release_delay_ns": 53864,
+            "preceding_group_duration_ns": 7976137,
+            "gap_from_previous_end_ns": 53864,
+            "actual_start_ns": 176740647237
+          },
+          {
+            "tick": 5504,
+            "phase_increment_ns": 3749530,
+            "preceding_group_excess_ns": 3707043,
+            "residual_release_delay_ns": 42487,
+            "preceding_group_duration_ns": 7707043,
+            "gap_from_previous_end_ns": 42487,
+            "actual_start_ns": 179777537924
+          },
+          {
+            "tick": 1936,
+            "phase_increment_ns": 3736662,
+            "preceding_group_excess_ns": 3693150,
+            "residual_release_delay_ns": 43512,
+            "preceding_group_duration_ns": 7693150,
+            "gap_from_previous_end_ns": 43512,
+            "actual_start_ns": 176169951225
+          },
+          {
+            "tick": 624,
+            "phase_increment_ns": 3202495,
+            "preceding_group_excess_ns": 3159966,
+            "residual_release_delay_ns": 42529,
+            "preceding_group_duration_ns": 7159966,
+            "gap_from_previous_end_ns": 42529,
+            "actual_start_ns": 174829433010
+          },
+          {
+            "tick": 1932,
+            "phase_increment_ns": 2503478,
+            "preceding_group_excess_ns": 2469493,
+            "residual_release_delay_ns": 33985,
+            "preceding_group_duration_ns": 6469493,
+            "gap_from_previous_end_ns": 33985,
+            "actual_start_ns": 176162214563
+          },
+          {
+            "tick": 3724,
+            "phase_increment_ns": 2380747,
+            "preceding_group_excess_ns": 2333273,
+            "residual_release_delay_ns": 47474,
+            "preceding_group_duration_ns": 6333273,
+            "gap_from_previous_end_ns": 47474,
+            "actual_start_ns": 177980786138
+          }
+        ]
+      }
+    ],
+    "limitation": "Replays captured boundary timestamps through real JointRate, not underlying workload or OS scheduling. Release delay includes caller work, pacing and scheduling; it does not identify their cause."
+  }
+]

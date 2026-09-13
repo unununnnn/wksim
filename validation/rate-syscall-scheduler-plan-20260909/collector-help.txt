@@ -1,0 +1,23 @@
+usage: collect_tracefs.py [-h] [--preflight] [--ap-worker PID:START_TICKS]
+                          [--px4-worker PID:START_TICKS]
+                          [--supervisor PID:START_TICKS] [--boot-id BOOT_ID]
+                          [--run-id RUN_ID] [--epoch EPOCH] [--output OUTPUT]
+                          [--duration DURATION]
+
+Private tracefs diagnostic collector. --preflight never creates/enables
+tracing. Capture needs root, three exact PID:start_ticks identities and their
+boot_id. It sends no signal to a target. All tracefs mutations stay in one new
+instance.
+
+options:
+  -h, --help            show this help message and exit
+  --preflight           Read-only availability; also identity checks if all
+                        owners supplied
+  --ap-worker PID:START_TICKS
+  --px4-worker PID:START_TICKS
+  --supervisor PID:START_TICKS
+  --boot-id BOOT_ID
+  --run-id RUN_ID
+  --epoch EPOCH
+  --output OUTPUT
+  --duration DURATION

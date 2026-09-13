@@ -1,0 +1,1690 @@
+{
+  "schema": "wksim.scheduler-write-analysis.v1",
+  "acceptance_eligible": false,
+  "run_id": "scheduler-445190199c96",
+  "analyzer_sha256": "8c42edd137c015c5830c87913bbad2ec4dde3cda29cb6ba1427cba20652ccc6c",
+  "epoch": "60f3d9cd76be469a9153f64d0aef0578",
+  "pid_mapping": {
+    "names": {
+      "ap_worker": "wk60f3d9cd76ba",
+      "px4_worker": "wk60f3d9cd76bp",
+      "supervisor": "wk60f3d9cd76bs"
+    },
+    "kernel_pids": {
+      "ap_worker": 2324,
+      "px4_worker": 2328,
+      "supervisor": 1735
+    },
+    "mapping_sha256": "6ee2e2fd05cc0a76be859c596fc3870e8904b81b6a98f5668bba3f0d037128d6",
+    "method": "exact owned comm names observed in private sched_switch events"
+  },
+  "trace_sha256": "6ac638a5534416cc492cbe457185d10252bcf8bdc29972a67b818448693d6ea1",
+  "event_counts": {
+    "switch": 88118,
+    "wakeup": 40005,
+    "write_enter": 39736,
+    "write_exit": 39736
+  },
+  "boundary_counts": {
+    "switch_in_without_out": 2,
+    "open_writes_at_end": 0,
+    "open_off_cpu_at_end": 2
+  },
+  "writes": [
+    {
+      "role": "ap_worker",
+      "kind": "trace_file",
+      "complete_writes": 9934,
+      "short_or_failed_writes": 0,
+      "median_ns": 6000.0,
+      "p99_ns": 59000,
+      "maximum_ns": 428000,
+      "over_1ms": 0,
+      "top": [
+        {
+          "kind": "write_enter",
+          "pid": 2324,
+          "ns": 62019204000,
+          "fd": 3,
+          "count": 1314,
+          "end_ns": 62019632000,
+          "duration_ns": 428000,
+          "ret": 1314,
+          "scheduler": {
+            "off_cpu_ns": 63000,
+            "runnable_ns": 63000,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 62019566000,
+                "state": "R+",
+                "wake_ns": null,
+                "end_ns": 62019629000
+              }
+            ]
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "60f3d9cd76be469a9153f64d0aef0578",
+            "tick": 2124,
+            "issued_monotonic_ns": 62021894238,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 62021890096,
+            "lateness_ns": 32558441,
+            "start_tick": 2120,
+            "end_tick": 2124,
+            "ideal_start_ns": 61985331655,
+            "ideal_end_ns": 61989331655,
+            "earliest_start_ns": 62018055234,
+            "actual_start_ns": 62018055540
+          }
+        },
+        {
+          "kind": "write_enter",
+          "pid": 2324,
+          "ns": 62833373000,
+          "fd": 3,
+          "count": 1312,
+          "end_ns": 62833557000,
+          "duration_ns": 184000,
+          "ret": 1312,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "60f3d9cd76be469a9153f64d0aef0578",
+            "tick": 2936,
+            "issued_monotonic_ns": 62834668264,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 62834664719,
+            "lateness_ns": 33333064,
+            "start_tick": 2932,
+            "end_tick": 2936,
+            "ideal_start_ns": 62797331655,
+            "ideal_end_ns": 62801331655,
+            "earliest_start_ns": 62831713673,
+            "actual_start_ns": 62831714140
+          }
+        },
+        {
+          "kind": "write_enter",
+          "pid": 2324,
+          "ns": 69102547000,
+          "fd": 3,
+          "count": 1316,
+          "end_ns": 69102701000,
+          "duration_ns": 154000,
+          "ret": 1316,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "60f3d9cd76be469a9153f64d0aef0578",
+            "tick": 9176,
+            "issued_monotonic_ns": 69106005937,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 69106001936,
+            "lateness_ns": 64670281,
+            "start_tick": 9172,
+            "end_tick": 9176,
+            "ideal_start_ns": 69037331655,
+            "ideal_end_ns": 69041331655,
+            "earliest_start_ns": 69102249566,
+            "actual_start_ns": 69102249840
+          }
+        },
+        {
+          "kind": "write_enter",
+          "pid": 2324,
+          "ns": 66896420000,
+          "fd": 3,
+          "count": 1315,
+          "end_ns": 66896552000,
+          "duration_ns": 132000,
+          "ret": 1315,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "60f3d9cd76be469a9153f64d0aef0578",
+            "tick": 6984,
+            "issued_monotonic_ns": 66897512047,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 66897508797,
+            "lateness_ns": 48177142,
+            "start_tick": 6980,
+            "end_tick": 6984,
+            "ideal_start_ns": 66845331655,
+            "ideal_end_ns": 66849331655,
+            "earliest_start_ns": 66894000903,
+            "actual_start_ns": 66894001133
+          }
+        },
+        {
+          "kind": "write_enter",
+          "pid": 2324,
+          "ns": 63882828000,
+          "fd": 3,
+          "count": 1311,
+          "end_ns": 63882937000,
+          "duration_ns": 109000,
+          "ret": 1311,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "60f3d9cd76be469a9153f64d0aef0578",
+            "tick": 3984,
+            "issued_monotonic_ns": 63885353560,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 63885349244,
+            "lateness_ns": 36017589,
+            "start_tick": 3980,
+            "end_tick": 3984,
+            "ideal_start_ns": 63845331655,
+            "ideal_end_ns": 63849331655,
+            "earliest_start_ns": 63881827796,
+            "actual_start_ns": 63881828174
+          }
+        },
+        {
+          "kind": "write_enter",
+          "pid": 2324,
+          "ns": 66972414000,
+          "fd": 3,
+          "count": 1316,
+          "end_ns": 66972515000,
+          "duration_ns": 101000,
+          "ret": 1316,
+          "scheduler": {
+            "off_cpu_ns": 19000,
+            "runnable_ns": 19000,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 66972428000,
+                "state": "R+",
+                "wake_ns": null,
+                "end_ns": 66972447000
+              }
+            ]
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "60f3d9cd76be469a9153f64d0aef0578",
+            "tick": 7060,
+            "issued_monotonic_ns": 66973847639,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 66973844444,
+            "lateness_ns": 48512789,
+            "start_tick": 7056,
+            "end_tick": 7060,
+            "ideal_start_ns": 66921331655,
+            "ideal_end_ns": 66925331655,
+            "earliest_start_ns": 66970006509,
+            "actual_start_ns": 66970006767
+          }
+        },
+        {
+          "kind": "write_enter",
+          "pid": 2324,
+          "ns": 68428685000,
+          "fd": 3,
+          "count": 1345,
+          "end_ns": 68428780000,
+          "duration_ns": 95000,
+          "ret": 1345,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "60f3d9cd76be469a9153f64d0aef0578",
+            "tick": 8512,
+            "issued_monotonic_ns": 68430332784,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 68430328871,
+            "lateness_ns": 52997216,
+            "start_tick": 8508,
+            "end_tick": 8512,
+            "ideal_start_ns": 68373331655,
+            "ideal_end_ns": 68377331655,
+            "earliest_start_ns": 68427048765,
+            "actual_start_ns": 68427049073
+          }
+        },
+        {
+          "kind": "write_enter",
+          "pid": 2324,
+          "ns": 63348705000,
+          "fd": 3,
+          "count": 1343,
+          "end_ns": 63348799000,
+          "duration_ns": 94000,
+          "ret": 1343,
+          "scheduler": {
+            "off_cpu_ns": 20000,
+            "runnable_ns": 20000,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 63348775000,
+                "state": "R+",
+                "wake_ns": null,
+                "end_ns": 63348795000
+              }
+            ]
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "60f3d9cd76be469a9153f64d0aef0578",
+            "tick": 3452,
+            "issued_monotonic_ns": 63350611521,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 63350608301,
+            "lateness_ns": 33276646,
+            "start_tick": 3448,
+            "end_tick": 3452,
+            "ideal_start_ns": 63313331655,
+            "ideal_end_ns": 63317331655,
+            "earliest_start_ns": 63348535792,
+            "actual_start_ns": 63348535940
+          }
+        },
+        {
+          "kind": "write_enter",
+          "pid": 2324,
+          "ns": 68344709000,
+          "fd": 3,
+          "count": 1311,
+          "end_ns": 68344798000,
+          "duration_ns": 89000,
+          "ret": 1311,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "60f3d9cd76be469a9153f64d0aef0578",
+            "tick": 8428,
+            "issued_monotonic_ns": 68346680414,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 68346676372,
+            "lateness_ns": 53344717,
+            "start_tick": 8424,
+            "end_tick": 8428,
+            "ideal_start_ns": 68289331655,
+            "ideal_end_ns": 68293331655,
+            "earliest_start_ns": 68342973142,
+            "actual_start_ns": 68342973362
+          }
+        },
+        {
+          "kind": "write_enter",
+          "pid": 2324,
+          "ns": 65081645000,
+          "fd": 3,
+          "count": 1311,
+          "end_ns": 65081732000,
+          "duration_ns": 87000,
+          "ret": 1311,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "60f3d9cd76be469a9153f64d0aef0578",
+            "tick": 5180,
+            "issued_monotonic_ns": 65082401740,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 65082397405,
+            "lateness_ns": 37065750,
+            "start_tick": 5176,
+            "end_tick": 5180,
+            "ideal_start_ns": 65041331655,
+            "ideal_end_ns": 65045331655,
+            "earliest_start_ns": 65079772595,
+            "actual_start_ns": 65079772896
+          }
+        }
+      ]
+    },
+    {
+      "role": "ap_worker",
+      "kind": "rpc_stdout",
+      "complete_writes": 9934,
+      "short_or_failed_writes": 0,
+      "median_ns": 3000.0,
+      "p99_ns": 15000,
+      "maximum_ns": 341000,
+      "over_1ms": 0,
+      "top": [
+        {
+          "kind": "write_enter",
+          "pid": 2324,
+          "ns": 69525942000,
+          "fd": 1,
+          "count": 913,
+          "end_ns": 69526283000,
+          "duration_ns": 341000,
+          "ret": 913,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "60f3d9cd76be469a9153f64d0aef0578",
+            "tick": 9596,
+            "issued_monotonic_ns": 69527636897,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 69527633459,
+            "lateness_ns": 66301804,
+            "start_tick": 9592,
+            "end_tick": 9596,
+            "ideal_start_ns": 69457331655,
+            "ideal_end_ns": 69461331655,
+            "earliest_start_ns": 69524612048,
+            "actual_start_ns": 69524612087
+          }
+        },
+        {
+          "kind": "write_enter",
+          "pid": 2324,
+          "ns": 63000050000,
+          "fd": 1,
+          "count": 914,
+          "end_ns": 63000234000,
+          "duration_ns": 184000,
+          "ret": 914,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "60f3d9cd76be469a9153f64d0aef0578",
+            "tick": 3104,
+            "issued_monotonic_ns": 63002496759,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 63002493431,
+            "lateness_ns": 33161776,
+            "start_tick": 3100,
+            "end_tick": 3104,
+            "ideal_start_ns": 62965331655,
+            "ideal_end_ns": 62969331655,
+            "earliest_start_ns": 62999730445,
+            "actual_start_ns": 62999730798
+          }
+        },
+        {
+          "kind": "write_enter",
+          "pid": 2324,
+          "ns": 68568444000,
+          "fd": 1,
+          "count": 925,
+          "end_ns": 68568512000,
+          "duration_ns": 68000,
+          "ret": 925,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "60f3d9cd76be469a9153f64d0aef0578",
+            "tick": 8652,
+            "issued_monotonic_ns": 68571085823,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 68571082717,
+            "lateness_ns": 53751062,
+            "start_tick": 8648,
+            "end_tick": 8652,
+            "ideal_start_ns": 68513331655,
+            "ideal_end_ns": 68517331655,
+            "earliest_start_ns": 68568138809,
+            "actual_start_ns": 68568139189
+          }
+        },
+        {
+          "kind": "write_enter",
+          "pid": 2324,
+          "ns": 66756279000,
+          "fd": 1,
+          "count": 913,
+          "end_ns": 66756334000,
+          "duration_ns": 55000,
+          "ret": 913,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "60f3d9cd76be469a9153f64d0aef0578",
+            "tick": 6844,
+            "issued_monotonic_ns": 66756854300,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 66756851222,
+            "lateness_ns": 47519567,
+            "start_tick": 6840,
+            "end_tick": 6844,
+            "ideal_start_ns": 66705331655,
+            "ideal_end_ns": 66709331655,
+            "earliest_start_ns": 66753740536,
+            "actual_start_ns": 66753740836
+          }
+        },
+        {
+          "kind": "write_enter",
+          "pid": 2324,
+          "ns": 67929906000,
+          "fd": 1,
+          "count": 927,
+          "end_ns": 67929957000,
+          "duration_ns": 51000,
+          "ret": 927,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "60f3d9cd76be469a9153f64d0aef0578",
+            "tick": 8016,
+            "issued_monotonic_ns": 67931758591,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 67931755603,
+            "lateness_ns": 50423948,
+            "start_tick": 8012,
+            "end_tick": 8016,
+            "ideal_start_ns": 67877331655,
+            "ideal_end_ns": 67881331655,
+            "earliest_start_ns": 67928675270,
+            "actual_start_ns": 67928964286
+          }
+        },
+        {
+          "kind": "write_enter",
+          "pid": 2324,
+          "ns": 68276277000,
+          "fd": 1,
+          "count": 928,
+          "end_ns": 68276319000,
+          "duration_ns": 42000,
+          "ret": 928,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "60f3d9cd76be469a9153f64d0aef0578",
+            "tick": 8360,
+            "issued_monotonic_ns": 68278805303,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 68278801315,
+            "lateness_ns": 53469660,
+            "start_tick": 8356,
+            "end_tick": 8360,
+            "ideal_start_ns": 68221331655,
+            "ideal_end_ns": 68225331655,
+            "earliest_start_ns": 68274844964,
+            "actual_start_ns": 68274845397
+          }
+        },
+        {
+          "kind": "write_enter",
+          "pid": 2324,
+          "ns": 65484334000,
+          "fd": 1,
+          "count": 918,
+          "end_ns": 65484374000,
+          "duration_ns": 40000,
+          "ret": 918,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "60f3d9cd76be469a9153f64d0aef0578",
+            "tick": 5576,
+            "issued_monotonic_ns": 65485665109,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 65485661556,
+            "lateness_ns": 44329901,
+            "start_tick": 5572,
+            "end_tick": 5576,
+            "ideal_start_ns": 65437331655,
+            "ideal_end_ns": 65441331655,
+            "earliest_start_ns": 65482764224,
+            "actual_start_ns": 65482764609
+          }
+        },
+        {
+          "kind": "write_enter",
+          "pid": 2324,
+          "ns": 60896087000,
+          "fd": 1,
+          "count": 930,
+          "end_ns": 60896122000,
+          "duration_ns": 35000,
+          "ret": 930,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "60f3d9cd76be469a9153f64d0aef0578",
+            "tick": 1028,
+            "issued_monotonic_ns": 60897408588,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 60897404657,
+            "lateness_ns": 4073002,
+            "start_tick": 1024,
+            "end_tick": 1028,
+            "ideal_start_ns": 60889331655,
+            "ideal_end_ns": 60893331655,
+            "earliest_start_ns": 60894022339,
+            "actual_start_ns": 60894022756
+          }
+        },
+        {
+          "kind": "write_enter",
+          "pid": 2324,
+          "ns": 65984723000,
+          "fd": 1,
+          "count": 918,
+          "end_ns": 65984755000,
+          "duration_ns": 32000,
+          "ret": 918,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "60f3d9cd76be469a9153f64d0aef0578",
+            "tick": 6076,
+            "issued_monotonic_ns": 65987863585,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 65987860001,
+            "lateness_ns": 46528346,
+            "start_tick": 6072,
+            "end_tick": 6076,
+            "ideal_start_ns": 65937331655,
+            "ideal_end_ns": 65941331655,
+            "earliest_start_ns": 65984487369,
+            "actual_start_ns": 65984487888
+          }
+        },
+        {
+          "kind": "write_enter",
+          "pid": 2324,
+          "ns": 67117061000,
+          "fd": 1,
+          "count": 910,
+          "end_ns": 67117090000,
+          "duration_ns": 29000,
+          "ret": 910,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "60f3d9cd76be469a9153f64d0aef0578",
+            "tick": 7204,
+            "issued_monotonic_ns": 67117845439,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 67117841674,
+            "lateness_ns": 48510019,
+            "start_tick": 7200,
+            "end_tick": 7204,
+            "ideal_start_ns": 67065331655,
+            "ideal_end_ns": 67069331655,
+            "earliest_start_ns": 67114697894,
+            "actual_start_ns": 67114698212
+          }
+        }
+      ]
+    },
+    {
+      "role": "px4_worker",
+      "kind": "trace_file",
+      "complete_writes": 9934,
+      "short_or_failed_writes": 0,
+      "median_ns": 6000.0,
+      "p99_ns": 59000,
+      "maximum_ns": 170000,
+      "over_1ms": 0,
+      "top": [
+        {
+          "kind": "write_enter",
+          "pid": 2328,
+          "ns": 70156628000,
+          "fd": 3,
+          "count": 1317,
+          "end_ns": 70156798000,
+          "duration_ns": 170000,
+          "ret": 1317,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "60f3d9cd76be469a9153f64d0aef0578",
+            "tick": 10224,
+            "issued_monotonic_ns": 70157473335,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 70157470069,
+            "lateness_ns": 68138414,
+            "start_tick": 10220,
+            "end_tick": 10224,
+            "ideal_start_ns": 70085331655,
+            "ideal_end_ns": 70089331655,
+            "earliest_start_ns": 70154375514,
+            "actual_start_ns": 70154375866
+          }
+        },
+        {
+          "kind": "write_enter",
+          "pid": 2328,
+          "ns": 66026326000,
+          "fd": 3,
+          "count": 1310,
+          "end_ns": 66026484000,
+          "duration_ns": 158000,
+          "ret": 1310,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "60f3d9cd76be469a9153f64d0aef0578",
+            "tick": 6116,
+            "issued_monotonic_ns": 66027873315,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 66027869710,
+            "lateness_ns": 46538055,
+            "start_tick": 6112,
+            "end_tick": 6116,
+            "ideal_start_ns": 65977331655,
+            "ideal_end_ns": 65981331655,
+            "earliest_start_ns": 66024490183,
+            "actual_start_ns": 66024490549
+          }
+        },
+        {
+          "kind": "write_enter",
+          "pid": 2328,
+          "ns": 63734459000,
+          "fd": 3,
+          "count": 1314,
+          "end_ns": 63734586000,
+          "duration_ns": 127000,
+          "ret": 1314,
+          "scheduler": {
+            "off_cpu_ns": 42000,
+            "runnable_ns": 42000,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 63734542000,
+                "state": "R+",
+                "wake_ns": null,
+                "end_ns": 63734584000
+              }
+            ]
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "60f3d9cd76be469a9153f64d0aef0578",
+            "tick": 3836,
+            "issued_monotonic_ns": 63736899018,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 63736894363,
+            "lateness_ns": 35562708,
+            "start_tick": 3832,
+            "end_tick": 3836,
+            "ideal_start_ns": 63697331655,
+            "ideal_end_ns": 63701331655,
+            "earliest_start_ns": 63733295954,
+            "actual_start_ns": 63733296143
+          }
+        },
+        {
+          "kind": "write_enter",
+          "pid": 2328,
+          "ns": 63488730000,
+          "fd": 3,
+          "count": 1311,
+          "end_ns": 63488852000,
+          "duration_ns": 122000,
+          "ret": 1311,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "60f3d9cd76be469a9153f64d0aef0578",
+            "tick": 3592,
+            "issued_monotonic_ns": 63491631778,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 63491627666,
+            "lateness_ns": 34296011,
+            "start_tick": 3588,
+            "end_tick": 3592,
+            "ideal_start_ns": 63453331655,
+            "ideal_end_ns": 63457331655,
+            "earliest_start_ns": 63488547519,
+            "actual_start_ns": 63488547778
+          }
+        },
+        {
+          "kind": "write_enter",
+          "pid": 2328,
+          "ns": 61928724000,
+          "fd": 3,
+          "count": 1323,
+          "end_ns": 61928842000,
+          "duration_ns": 118000,
+          "ret": 1323,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "60f3d9cd76be469a9153f64d0aef0578",
+            "tick": 2036,
+            "issued_monotonic_ns": 61933326154,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 61933321946,
+            "lateness_ns": 31990291,
+            "start_tick": 2032,
+            "end_tick": 2036,
+            "ideal_start_ns": 61897331655,
+            "ideal_end_ns": 61901331655,
+            "earliest_start_ns": 61927867213,
+            "actual_start_ns": 61927867612
+          }
+        },
+        {
+          "kind": "write_enter",
+          "pid": 2328,
+          "ns": 66178257000,
+          "fd": 3,
+          "count": 1315,
+          "end_ns": 66178365000,
+          "duration_ns": 108000,
+          "ret": 1315,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "60f3d9cd76be469a9153f64d0aef0578",
+            "tick": 6268,
+            "issued_monotonic_ns": 66179681202,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 66179676482,
+            "lateness_ns": 46344827,
+            "start_tick": 6264,
+            "end_tick": 6268,
+            "ideal_start_ns": 66129331655,
+            "ideal_end_ns": 66133331655,
+            "earliest_start_ns": 66176667316,
+            "actual_start_ns": 66176667349
+          }
+        },
+        {
+          "kind": "write_enter",
+          "pid": 2328,
+          "ns": 62644516000,
+          "fd": 3,
+          "count": 1313,
+          "end_ns": 62644621000,
+          "duration_ns": 105000,
+          "ret": 1313,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "60f3d9cd76be469a9153f64d0aef0578",
+            "tick": 2748,
+            "issued_monotonic_ns": 62647083185,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 62647079394,
+            "lateness_ns": 33747739,
+            "start_tick": 2744,
+            "end_tick": 2748,
+            "ideal_start_ns": 62609331655,
+            "ideal_end_ns": 62613331655,
+            "earliest_start_ns": 62643544660,
+            "actual_start_ns": 62643544908
+          }
+        },
+        {
+          "kind": "write_enter",
+          "pid": 2328,
+          "ns": 70656023000,
+          "fd": 3,
+          "count": 1326,
+          "end_ns": 70656127000,
+          "duration_ns": 104000,
+          "ret": 1326,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "60f3d9cd76be469a9153f64d0aef0578",
+            "tick": 10724,
+            "issued_monotonic_ns": 70657834706,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 70657831648,
+            "lateness_ns": 68499993,
+            "start_tick": 10720,
+            "end_tick": 10724,
+            "ideal_start_ns": 70585331655,
+            "ideal_end_ns": 70589331655,
+            "earliest_start_ns": 70654874290,
+            "actual_start_ns": 70654874298
+          }
+        },
+        {
+          "kind": "write_enter",
+          "pid": 2328,
+          "ns": 63992023000,
+          "fd": 3,
+          "count": 1344,
+          "end_ns": 63992121000,
+          "duration_ns": 98000,
+          "ret": 1344,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "60f3d9cd76be469a9153f64d0aef0578",
+            "tick": 4092,
+            "issued_monotonic_ns": 63992804189,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 63992800327,
+            "lateness_ns": 35468672,
+            "start_tick": 4088,
+            "end_tick": 4092,
+            "ideal_start_ns": 63953331655,
+            "ideal_end_ns": 63957331655,
+            "earliest_start_ns": 63989917655,
+            "actual_start_ns": 63989918042
+          }
+        },
+        {
+          "kind": "write_enter",
+          "pid": 2328,
+          "ns": 64222327000,
+          "fd": 3,
+          "count": 1312,
+          "end_ns": 64222425000,
+          "duration_ns": 98000,
+          "ret": 1312,
+          "scheduler": {
+            "off_cpu_ns": 35000,
+            "runnable_ns": 35000,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": [
+              {
+                "start_ns": 64222388000,
+                "state": "R+",
+                "wake_ns": null,
+                "end_ns": 64222423000
+              }
+            ]
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "60f3d9cd76be469a9153f64d0aef0578",
+            "tick": 4324,
+            "issued_monotonic_ns": 64225017668,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 64225014991,
+            "lateness_ns": 35683336,
+            "start_tick": 4320,
+            "end_tick": 4324,
+            "ideal_start_ns": 64185331655,
+            "ideal_end_ns": 64189331655,
+            "earliest_start_ns": 64222029589,
+            "actual_start_ns": 64222030006
+          }
+        }
+      ]
+    },
+    {
+      "role": "px4_worker",
+      "kind": "rpc_stdout",
+      "complete_writes": 9934,
+      "short_or_failed_writes": 0,
+      "median_ns": 2000.0,
+      "p99_ns": 14000,
+      "maximum_ns": 393000,
+      "over_1ms": 0,
+      "top": [
+        {
+          "kind": "write_enter",
+          "pid": 2328,
+          "ns": 69407881000,
+          "fd": 1,
+          "count": 909,
+          "end_ns": 69408274000,
+          "duration_ns": 393000,
+          "ret": 909,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "60f3d9cd76be469a9153f64d0aef0578",
+            "tick": 9480,
+            "issued_monotonic_ns": 69411599070,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 69411595101,
+            "lateness_ns": 66263446,
+            "start_tick": 9476,
+            "end_tick": 9480,
+            "ideal_start_ns": 69341331655,
+            "ideal_end_ns": 69345331655,
+            "earliest_start_ns": 69407618495,
+            "actual_start_ns": 69407618924
+          }
+        },
+        {
+          "kind": "write_enter",
+          "pid": 2328,
+          "ns": 64046761000,
+          "fd": 1,
+          "count": 916,
+          "end_ns": 64046828000,
+          "duration_ns": 67000,
+          "ret": 916,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "60f3d9cd76be469a9153f64d0aef0578",
+            "tick": 4148,
+            "issued_monotonic_ns": 64048854012,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 64048850417,
+            "lateness_ns": 35518762,
+            "start_tick": 4144,
+            "end_tick": 4148,
+            "ideal_start_ns": 64009331655,
+            "ideal_end_ns": 64013331655,
+            "earliest_start_ns": 64045921869,
+            "actual_start_ns": 64045922061
+          }
+        },
+        {
+          "kind": "write_enter",
+          "pid": 2328,
+          "ns": 67929915000,
+          "fd": 1,
+          "count": 927,
+          "end_ns": 67929956000,
+          "duration_ns": 41000,
+          "ret": 927,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "60f3d9cd76be469a9153f64d0aef0578",
+            "tick": 8016,
+            "issued_monotonic_ns": 67931758591,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 67931755603,
+            "lateness_ns": 50423948,
+            "start_tick": 8012,
+            "end_tick": 8016,
+            "ideal_start_ns": 67877331655,
+            "ideal_end_ns": 67881331655,
+            "earliest_start_ns": 67928675270,
+            "actual_start_ns": 67928964286
+          }
+        },
+        {
+          "kind": "write_enter",
+          "pid": 2328,
+          "ns": 61520586000,
+          "fd": 1,
+          "count": 911,
+          "end_ns": 61520625000,
+          "duration_ns": 39000,
+          "ret": 911,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "60f3d9cd76be469a9153f64d0aef0578",
+            "tick": 1652,
+            "issued_monotonic_ns": 61523142203,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 61523139186,
+            "lateness_ns": 5807531,
+            "start_tick": 1648,
+            "end_tick": 1652,
+            "ideal_start_ns": 61513331655,
+            "ideal_end_ns": 61517331655,
+            "earliest_start_ns": 61520217514,
+            "actual_start_ns": 61520217737
+          }
+        },
+        {
+          "kind": "write_enter",
+          "pid": 2328,
+          "ns": 66756298000,
+          "fd": 1,
+          "count": 913,
+          "end_ns": 66756334000,
+          "duration_ns": 36000,
+          "ret": 913,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "60f3d9cd76be469a9153f64d0aef0578",
+            "tick": 6844,
+            "issued_monotonic_ns": 66756854300,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 66756851222,
+            "lateness_ns": 47519567,
+            "start_tick": 6840,
+            "end_tick": 6844,
+            "ideal_start_ns": 66705331655,
+            "ideal_end_ns": 66709331655,
+            "earliest_start_ns": 66753740536,
+            "actual_start_ns": 66753740836
+          }
+        },
+        {
+          "kind": "write_enter",
+          "pid": 2328,
+          "ns": 66908245000,
+          "fd": 1,
+          "count": 914,
+          "end_ns": 66908278000,
+          "duration_ns": 33000,
+          "ret": 914,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "60f3d9cd76be469a9153f64d0aef0578",
+            "tick": 6996,
+            "issued_monotonic_ns": 66909250350,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 66909246707,
+            "lateness_ns": 47915052,
+            "start_tick": 6992,
+            "end_tick": 6996,
+            "ideal_start_ns": 66857331655,
+            "ideal_end_ns": 66861331655,
+            "earliest_start_ns": 66906001930,
+            "actual_start_ns": 66906002219
+          }
+        },
+        {
+          "kind": "write_enter",
+          "pid": 2328,
+          "ns": 64491877000,
+          "fd": 1,
+          "count": 913,
+          "end_ns": 64491909000,
+          "duration_ns": 32000,
+          "ret": 913,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "60f3d9cd76be469a9153f64d0aef0578",
+            "tick": 4592,
+            "issued_monotonic_ns": 64494168394,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 64494164402,
+            "lateness_ns": 36832747,
+            "start_tick": 4588,
+            "end_tick": 4592,
+            "ideal_start_ns": 64453331655,
+            "ideal_end_ns": 64457331655,
+            "earliest_start_ns": 64490628672,
+            "actual_start_ns": 64490628992
+          }
+        },
+        {
+          "kind": "write_enter",
+          "pid": 2328,
+          "ns": 61332001000,
+          "fd": 1,
+          "count": 905,
+          "end_ns": 61332031000,
+          "duration_ns": 30000,
+          "ret": 905,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "60f3d9cd76be469a9153f64d0aef0578",
+            "tick": 1464,
+            "issued_monotonic_ns": 61334712933,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 61334708939,
+            "lateness_ns": 5377284,
+            "start_tick": 1460,
+            "end_tick": 1464,
+            "ideal_start_ns": 61325331655,
+            "ideal_end_ns": 61329331655,
+            "earliest_start_ns": 61331633273,
+            "actual_start_ns": 61331633625
+          }
+        },
+        {
+          "kind": "write_enter",
+          "pid": 2328,
+          "ns": 64066881000,
+          "fd": 1,
+          "count": 934,
+          "end_ns": 64066911000,
+          "duration_ns": 30000,
+          "ret": 934,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "60f3d9cd76be469a9153f64d0aef0578",
+            "tick": 4168,
+            "issued_monotonic_ns": 64069968393,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 64069964887,
+            "lateness_ns": 36633232,
+            "start_tick": 4164,
+            "end_tick": 4168,
+            "ideal_start_ns": 64029331655,
+            "ideal_end_ns": 64033331655,
+            "earliest_start_ns": 64065922865,
+            "actual_start_ns": 64065923182
+          }
+        },
+        {
+          "kind": "write_enter",
+          "pid": 2328,
+          "ns": 64804431000,
+          "fd": 1,
+          "count": 914,
+          "end_ns": 64804461000,
+          "duration_ns": 30000,
+          "ret": 914,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0,
+            "intervals": []
+          },
+          "rate_group": {
+            "kind": "rate_group_end",
+            "epoch": "60f3d9cd76be469a9153f64d0aef0578",
+            "tick": 4904,
+            "issued_monotonic_ns": 64806475830,
+            "segment_id": 1,
+            "request_id": "config",
+            "requested_rate": 1.0,
+            "transition": false,
+            "actual_end_ns": 64806472241,
+            "lateness_ns": 37140586,
+            "start_tick": 4900,
+            "end_tick": 4904,
+            "ideal_start_ns": 64765331655,
+            "ideal_end_ns": 64769331655,
+            "earliest_start_ns": 64803211758,
+            "actual_start_ns": 64803212069
+          }
+        }
+      ]
+    }
+  ],
+  "largest_group": {
+    "group": {
+      "kind": "rate_group_end",
+      "epoch": "60f3d9cd76be469a9153f64d0aef0578",
+      "tick": 1928,
+      "issued_monotonic_ns": 61809076003,
+      "segment_id": 1,
+      "request_id": "config",
+      "requested_rate": 1.0,
+      "transition": false,
+      "actual_end_ns": 61809071617,
+      "lateness_ns": 15739962,
+      "start_tick": 1924,
+      "end_tick": 1928,
+      "ideal_start_ns": 61789331655,
+      "ideal_end_ns": 61793331655,
+      "earliest_start_ns": 61797061427,
+      "actual_start_ns": 61797061997
+    },
+    "timings": [
+      {
+        "kind": "diagnostic_step_cpu_timing",
+        "epoch": "60f3d9cd76be469a9153f64d0aef0578",
+        "tick": 1926,
+        "issued_monotonic_s": 61.806877566,
+        "wall_start_ns": 61798417716,
+        "wall_end_ns": 61806870648,
+        "stages": {
+          "health_and_models": {
+            "wall_ns": 322997,
+            "thread_cpu_ns": 177708
+          },
+          "encode_send": {
+            "wall_ns": 31909,
+            "thread_cpu_ns": 31725
+          },
+          "native_inputs": {
+            "wall_ns": 8098026,
+            "thread_cpu_ns": 653392
+          }
+        },
+        "limitation": "Thread CPU separates execution from off-CPU time; off-CPU includes I/O wait and descheduling"
+      }
+    ],
+    "inside_capture": true
+  },
+  "rate": {
+    "path": "/root/wksim-scheduler-probe-35728b1-03/runs/scheduler-445190199c96/epochs/60f3d9cd76be469a9153f64d0aef0578/rate.jsonl",
+    "rate_log_sha256": "702119765c2214c2ba7bf923c1aa0161b61d7f482817a77ca0be26c1199692ba",
+    "source_sha256": "59e329db948802e545fa5167b2430ae18bf3bdb6e1c534a374a82dafcc70da6c",
+    "late_limit_ns": 100000000,
+    "replay": "GREEN",
+    "rejection": null,
+    "captured_failure_matches": true,
+    "segments": [
+      {
+        "segment_id": 1,
+        "rate": 1.0,
+        "groups": 2738,
+        "first_tick": 40,
+        "last_tick": 10992,
+        "wall_duration_ns": 11020598834,
+        "group_duration_median_ns": 2939089.5,
+        "group_duration_max_ns": 12009620,
+        "group_duration_p99_ns": 4165470,
+        "group_over_period_count": 52,
+        "phase_first_ns": 16141,
+        "phase_last_ns": 69926242,
+        "summed_positive_phase_increment_ns": 69910101,
+        "preceding_group_excess_sum_ns": 41434231,
+        "top_phase_spikes": [
+          {
+            "tick": 1928,
+            "phase_increment_ns": 8053318,
+            "preceding_group_excess_ns": 8009620,
+            "residual_release_delay_ns": 43698,
+            "preceding_group_duration_ns": 12009620,
+            "gap_from_previous_end_ns": 43698,
+            "actual_start_ns": 61809115315
+          },
+          {
+            "tick": 1936,
+            "phase_increment_ns": 6345911,
+            "preceding_group_excess_ns": 6308672,
+            "residual_release_delay_ns": 37239,
+            "preceding_group_duration_ns": 10308672,
+            "gap_from_previous_end_ns": 37239,
+            "actual_start_ns": 61826768878
+          },
+          {
+            "tick": 2000,
+            "phase_increment_ns": 4554839,
+            "preceding_group_excess_ns": 4507669,
+            "residual_release_delay_ns": 47170,
+            "preceding_group_duration_ns": 8507669,
+            "gap_from_previous_end_ns": 47170,
+            "actual_start_ns": 61895578510
+          },
+          {
+            "tick": 5504,
+            "phase_increment_ns": 4553386,
+            "preceding_group_excess_ns": 4505083,
+            "residual_release_delay_ns": 48303,
+            "preceding_group_duration_ns": 8505083,
+            "gap_from_previous_end_ns": 48303,
+            "actual_start_ns": 65414690990
+          },
+          {
+            "tick": 1932,
+            "phase_increment_ns": 3307652,
+            "preceding_group_excess_ns": 3273051,
+            "residual_release_delay_ns": 34601,
+            "preceding_group_duration_ns": 7273051,
+            "gap_from_previous_end_ns": 34601,
+            "actual_start_ns": 61816422967
+          },
+          {
+            "tick": 2036,
+            "phase_increment_ns": 1486891,
+            "preceding_group_excess_ns": 1454334,
+            "residual_release_delay_ns": 32557,
+            "preceding_group_duration_ns": 5454334,
+            "gap_from_previous_end_ns": 32557,
+            "actual_start_ns": 61933354503
+          },
+          {
+            "tick": 8788,
+            "phase_increment_ns": 1310127,
+            "preceding_group_excess_ns": 1252831,
+            "residual_release_delay_ns": 57296,
+            "preceding_group_duration_ns": 5252831,
+            "gap_from_previous_end_ns": 57296,
+            "actual_start_ns": 68715717163
+          },
+          {
+            "tick": 8664,
+            "phase_increment_ns": 1263685,
+            "preceding_group_excess_ns": 1217450,
+            "residual_release_delay_ns": 46235,
+            "preceding_group_duration_ns": 5217450,
+            "gap_from_previous_end_ns": 46235,
+            "actual_start_ns": 68585403933
+          },
+          {
+            "tick": 6028,
+            "phase_increment_ns": 1124030,
+            "preceding_group_excess_ns": 274092,
+            "residual_release_delay_ns": 849938,
+            "preceding_group_duration_ns": 4274092,
+            "gap_from_previous_end_ns": 849938,
+            "actual_start_ns": 65940313889
+          },
+          {
+            "tick": 68,
+            "phase_increment_ns": 1060233,
+            "preceding_group_excess_ns": 1027601,
+            "residual_release_delay_ns": 32632,
+            "preceding_group_duration_ns": 5027601,
+            "gap_from_previous_end_ns": 32632,
+            "actual_start_ns": 59934409225
+          }
+        ]
+      }
+    ],
+    "limitation": "Replays captured boundary timestamps through real JointRate, not underlying workload or OS scheduling. Release delay includes caller work, pacing and scheduling; it does not identify their cause."
+  },
+  "limits": [
+    "10-second ground diagnostic, not flight/rate acceptance.",
+    "Printed trace timestamps have microsecond precision.",
+    "Boundary half-events are excluded; missing wakeups remain unknown.",
+    "Guest scheduler states do not identify a Windows or physical storage cause."
+  ]
+}

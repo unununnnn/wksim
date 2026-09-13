@@ -1,0 +1,25 @@
+[ERROR] [1789204448.145138540] [wksim_planner_transport]: planner transport fault: control_epoch_changed_requires_new_transport_session
+..[ERROR] [1789204448.155825725] [wksim_planner_transport]: planner transport fault: transport_receive_failed:[invalid_socket] recv failed: [Errno 11] Resource temporarily unavailable
+F.[ERROR] [1789204448.168615104] [wksim_planner_transport]: planner transport fault: ros_clock_off_grid
+.[ERROR] [1789204448.173882017] [wksim_planner_transport]: planner transport fault: transport_receive_failed:[connection_closed] peer closed the connection
+.[ERROR] [1789204448.179399725] [wksim_planner_transport]: planner transport fault: state_not_fresh_or_owned_at_activation
+.[ERROR] [1789204448.185133422] [wksim_planner_transport]: planner transport fault: ack_not_received_before_next_sample
+.[ERROR] [1789204448.190352554] [wksim_planner_transport]: planner transport fault: transport_receive_failed:[receiver_poisoned] pump is poisoned; call recover() with a NEW transport_session_id
+.[ERROR] [1789204448.200641696] [wksim_planner_transport]: planner transport fault: activation_with_gate_closed
+.[ERROR] [1789204448.207017734] [wksim_planner_transport]: planner transport fault: ack_not_received_before_next_sample
+.....[ERROR] [1789204448.238595036] [wksim_planner_transport]: planner transport fault: operation_clock_source_changed
+....[ERROR] [1789204448.267671753] [wksim_planner_transport]: planner transport fault: release_confirmation_deadline_exceeded
+..[ERROR] [1789204448.280714916] [wksim_planner_transport]: planner transport fault: external_request_writer
+......
+======================================================================
+FAIL: test_idle_accepted_peer_does_not_block_ros_callbacks (validation.test_planner_transport_node_ros.PlannerTransportNodeRosTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/root/wksim-release-acceptance-fe3/validation/test_planner_transport_node_ros.py", line 117, in test_idle_accepted_peer_does_not_block_ros_callbacks
+    self.assertIsNone(self.node.fault_reason)
+AssertionError: 'transport_receive_failed:[invalid_socket] recv failed: [Errno 11] Resource temporarily unavailable' is not None
+
+----------------------------------------------------------------------
+Ran 27 tests in 0.239s
+
+FAILED (failures=1)

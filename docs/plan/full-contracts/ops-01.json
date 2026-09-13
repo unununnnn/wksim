@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "issue": 152,
+  "stable_key": "full-ops-01",
+  "title": "Model database and component library",
+  "source": {
+    "file": "docs/plan/full-scope-expansion.md",
+    "line": 69,
+    "ledger_id": "OPS-01",
+    "ledger_file": "docs/plan/full-followup-tickets.json",
+    "parent_issue": 24,
+    "parent_state": "CLOSED"
+  },
+  "status": "defined",
+  "evidence_status": "partial-evidence",
+  "full_complete": false,
+  "current_gap": "The Quad X parameter form is not a complete database; deletion must be limited to an explicitly selected user workspace and must never mutate the vendor/source catalog.",
+  "atoms": [
+    {
+      "id": "OPS-01-A",
+      "name": "brand_component_parameters",
+      "status": "partial",
+      "current_evidence": "Fixed Quad X component metadata in Simulator/wksim_core/model_parameters.py",
+      "required": "Versioned typed component records with source/hash, units and compatibility constraints",
+      "owner": "model-parameter maintainer"
+    },
+    {
+      "id": "OPS-01-B",
+      "name": "custom_parameters",
+      "status": "partial",
+      "current_evidence": "Only mass is editable; other parameters and the four-motor mapping are fixed",
+      "required": "Explicit editability, units, ranges and identity updates for every custom field",
+      "owner": "model-parameter maintainer"
+    },
+    {
+      "id": "OPS-01-C",
+      "name": "confirm_and_calculate",
+      "status": "partial",
+      "current_evidence": "Canonical validation and model identity exist; no performance/derived calculation contract",
+      "required": "Formula/source-bound derived outputs and invalid-input semantics",
+      "owner": "model-parameter maintainer; OPS-02 for performance calculations"
+    },
+    {
+      "id": "OPS-01-D",
+      "name": "add_remove_model",
+      "status": "blocked",
+      "current_evidence": "No catalog lifecycle API",
+      "required": "Explicit user-workspace copy/add/remove with source immutability and path confinement",
+      "owner": "catalog maintainer"
+    },
+    {
+      "id": "OPS-01-E",
+      "name": "database_import_export",
+      "status": "partial",
+      "current_evidence": "Validated one-record JSON save/import/export aliases",
+      "required": "Versioned catalog manifest, dependency closure, collision policy and multi-record round trip",
+      "owner": "catalog maintainer"
+    },
+    {
+      "id": "OPS-01-F",
+      "name": "backup_restore",
+      "status": "blocked",
+      "current_evidence": "No backup/restore entry point",
+      "required": "Integrity-checked snapshot/restore into a fresh workspace with rollback and no-clobber behavior",
+      "owner": "catalog maintainer"
+    }
+  ],
+  "record_contract": {
+    "required_groups": ["schema", "model_id", "display_name", "components", "parameters", "derived", "provenance"],
+    "workspace_boundary": "user-selected workspace only; vendor/source catalog read-only",
+    "identity_rule": "canonical JSON plus source/component/calculation hashes",
+    "accepted_means": "validated and saved record only; not build, load or flight success"
+  },
+  "errors": ["accepted", "rejected", "not_found", "collision", "source_mismatch", "integrity_failed", "calculation_failed", "storage_failed"],
+  "followups": [
+    {
+      "key": "ops-01-catalog-storage",
+      "files": ["Simulator/wksim_core/model_catalog.py", "tools/<catalog-cli>.py", "validation/<catalog-tests>.py"],
+      "status": "proposed",
+      "blocked_by": "No current catalog source or executable command exists"
+    },
+    {
+      "key": "ops-01-component-calculation",
+      "files": ["Simulator/wksim_core/model_parameters.py", "validation/<component-calculation-tests>.py"],
+      "status": "proposed",
+      "blocked_by": "Derived formulas and source identities must be frozen; performance calculations belong to OPS-02"
+    },
+    {
+      "key": "ops-01-import-backup",
+      "files": ["Simulator/wksim_core/model_catalog.py", "tools/<catalog-cli>.py", "validation/<catalog-roundtrip-tests>.py"],
+      "status": "proposed",
+      "blocked_by": "Catalog storage slice"
+    },
+    {
+      "key": "ops-01-console-consumer",
+      "files": ["existing workspace/operator-console source reserved by OPS-04"],
+      "status": "proposed",
+      "blocked_by": "Catalog API and OPS-04 contract"
+    }
+  ],
+  "preserved": {
+    "issue_24_scope": "finite Quad X mass workflow only",
+    "numerical_status": "R1=numerical_failed remains unchanged",
+    "hardware_and_vendor": "no hardware action, vendor mutation or redistribution"
+  }
+}

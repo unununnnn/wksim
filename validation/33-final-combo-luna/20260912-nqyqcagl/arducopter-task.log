@@ -1,0 +1,30 @@
+{"phase": "joint_public_ready", "uav_id": 1, "ros_time_ns": 40924000000}
+{"phase": "public_control_ready", "uav_id": 1, "ros_time_ns": 40927000000}
+{"phase": "autonomous_hold_ready", "uav_id": 1, "ros_time_ns": 40998000000}
+{"phase": "arming_completed", "uav_id": 1, "ros_time_ns": 41098000000}
+{"phase": "armed", "uav_id": 1, "ros_time_ns": 41099000000}
+{"phase": "task_control_ready", "uav_id": 1, "ros_time_ns": 47594000000}
+{"phase": "takeoff_reached", "uav_id": 1, "ros_time_ns": 47595000000}
+{"phase": "hold_completed", "uav_id": 1, "ros_time_ns": 52595000000}
+{"phase": "waypoint_accepted", "uav_id": 1, "ros_time_ns": 52596000000}
+Traceback (most recent call last):
+  File "/mnt/c/Users/PC/Documents/odid编译/wksim/tools/run_joint_flight.py", line 304, in task_main
+    task.execute()
+  File "/mnt/c/Users/PC/Documents/odid编译/wksim/tools/pv_trajectory_task.py", line 85, in execute
+    self.wait('waypoint_reached', at_waypoint)
+  File "/mnt/c/Users/PC/Documents/odid编译/wksim/Simulator/wksim_runtime/task.py", line 313, in wait
+    self.pump()
+  File "/mnt/c/Users/PC/Documents/odid编译/wksim/Simulator/wksim_runtime/task.py", line 276, in pump
+    self.ros.spin_once(self.node, timeout_sec=0.02)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/__init__.py", line 208, in spin_once
+    executor.spin_once(timeout_sec=timeout_sec)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 808, in spin_once
+    self._spin_once_impl(timeout_sec)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 797, in _spin_once_impl
+    handler, entity, node = self.wait_for_ready_callbacks(timeout_sec=timeout_sec)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 780, in wait_for_ready_callbacks
+    return next(self._cb_iter)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 681, in _wait_for_ready_callbacks
+    raise ExternalShutdownException()
+rclpy.executors.ExternalShutdownException
+

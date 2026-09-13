@@ -1,0 +1,62 @@
+# #75 支撑门禁：自主核心无厂商 DLL 面的静态审计
+
+2026-09-12。`tools/audit_core_no_vendor_dll.py` 检查当前默认自主核心的受支持静态语法和配置，拒绝已知厂商 DLL 面与一等 ctypes 模块逃逸；它不是完备 Python 数据流证明，也不替代真实运行。#75 的真实前置是已关闭的 #72（稳定键 `26-import-reset-run`，#26 证据链交付的冻结运行器）；原先绑定到 #74 是队列依赖错误，修正不改变父票 AC/父依赖与未知 ABI 限制。后继真实证据已随 `69d65bf` 推送，#75 已关闭，详见下文。
+
+## 审计的不变量（任一违反即 exit 2）
+
+1. **唯一加载点与动态执行面封闭（AST 级，P1）**：
+   - 核心三包全部 `.py` 经 AST 扫描，动态库加载调用恰好一处——`model.py` 的 `Model.__init__` 中形态精确为 `ctypes.CDLL(str(Path(library).resolve()))`（调用方给径）；
+   - 拦截反射加载面：`from ctypes import CDLL/PyDLL`、`loader = ctypes.CDLL/WinDLL/...` 赋值别名及其调用、`ctypes.cdll/windll[...]` 下标访问与属性取库、`__import__('ctypes')`/`importlib` 动态导入再 `getattr` 间接调用、`getattr` 别名与 `__getattribute__`、`PyDLL`/`WinDLL`/`OleDLL`/`LoadLibrary`/`dlopen`、任何硬编码库字面量全部检出并保守拒绝；`m = ctypes` 模块赋值别名会被跟踪，其后续 `__dict__`/`vars`/下标面同样封闭；
+   - 拦截字典反射面：`ctypes.__dict__` 属性访问、`ctypes.__dict__[loader]` 下标查找、`vars(ctypes)` 动态调用与 `vars(ctypes)[loader]` 下标访问、`.get("CDLL")` 等字典检索全部阻断；
+   - 拦截 `operator.attrgetter` 反射面：直接导入、一级/多级 alias、`"".join` 静态拼接及未知/动态参数均保守拒绝；普通 `attrgetter("real")` 等不受影响。普通 dict 下标（`d["CDLL"]`）与普通 `vars()` 调用不误报——加载令牌切片/参数仅当其基对象链涉及 ctypes 时才拒绝；
+   - 拦截非 ctypes 原生/无源加载面：`importlib.machinery` 的 `ExtensionFileLoader`（原生 .pyd/.dll/.so）与 `SourcelessFileLoader`（无源 .pyc）的导入、属性访问与调用一律拒绝；
+   - `ctypes.pythonapi` 立场：**禁止**。它是当前解释器的预绑定 PyDLL 句柄——不加载新供应商库，但属本审计证明范围之外的活跃原生调用面，核心无合法用途；`from ctypes import *`、`from importlib import *`、`from importlib.machinery import *` 和 `from operator import *` 同样拒绝，避免 wildcard 隐藏 loader/import/attrgetter 名称；
+   - 属主链原则：加载令牌仅当其属主链涉及 ctypes（含赋值别名）时拒绝；用户类属性 `Foo.CDLL`、`getattr(user_obj, "CDLL")`、普通 dict 与静态已知非 loader 的 `attrgetter` 保持 clean；未知 `attrgetter` 参数 fail closed；`eval`/`exec`/`compile` 名在任何属主上均拒绝（防内建遮蔽）。
+   - 载体传播截断（规则 6c/6d）：ctypes 属主的 loader 类属性引用在**引用点**即拒绝，经容器/元组解包/AnnAssign/return/lambda/for 目标/字典/下标的传播无从洗白；`vars`/`getattr` alias、ctypes 模块 tuple alias、`operator.attrgetter` 导入/多级 alias、`operator.__dict__`/`vars(operator)` 访问跟踪后同规则拒绝；`"".join(("C","DLL"))` 等静态拼接由 `_eval_str` 解析。`from importlib import import_module` 及其返回的 `importlib.machinery` 模块经 `getattr`/下标/`vars`/`.get()` 的 `ExtensionFileLoader`/`SourcelessFileLoader` 访问同样拒绝；动态未知模块名在到达 loader 访问前 fail closed。普通 `from ctypes import c_double` 等非 loader 符号保持 clean；
+   - 拦截动态执行面：`eval`/`exec`/内建 `compile` 形成的动态执行面全面拦截；核心包内 symlink、缺目录、不可解析或编码异常源码均拒绝；嵌套包路径采用 `relative_to(root).as_posix()` 规整。
+2. **动态代码执行白名单制（行+内容哈希双钉，长度硬锁 1 项，P1）**：
+   - 仓库内仅 `Simulator/wksim_runtime/telemetry_dialect.py` 第 20 行存在合法的预哈希方言加载：`exec(compile(raw, str(source), 'exec'), module.__dict__)`；
+   - 白名单长度硬编码精确固定为 1 项且禁止扩容；每条钉（相对路径、行号 20、该行 sha256 `f16205be...`、token、理由）；任何未白名单的 `eval`/`exec`/`compile` 调用、行漂移、内容编辑或 AST 观测不一致均立即失败。
+3. **核心包游离可加载工件静态扫描拦截（P2）**：
+   - 严格限定核心包合法边界：核心包为纯 Python 源码与静态资产包；
+   - 严禁任何游离原生动态链接库或二进制扩展工件（`.dll`、`.pyd`、`.so`、`.dylib`、`.exe`）驻留于核心包内；
+   - 严禁 `__pycache__` 外部存在游离 Python 字节码（`.pyc`、`.pyo`）；
+   - `__pycache__` 内部仅允许合法字节码缓存，且每一个缓存文件必须在其上层目录存在同名对应 `.py` 源码；无源孤儿字节码（orphaned bytecode）或缓存目录内非字节码文件一律拒绝。
+4. **厂商引用白名单制（行+内容哈希双钉，长度硬锁 2 项不可扩容）**：
+   - `.dll`/`CopterSim.exe`/`DllSimCtrlAPI`/`RflySim` 令牌只允许两处现存引用（`model.py:15` 与已提交 `bdd39ee` 的 `joint_runtime.py:478` guard 行）；当前 guard 行精确内容的 sha256 为 `50d84d7a7fea63689a2af3763da245811b96dfac46b7f2054843f8dff530193a`，与工具 allowlist 一致；
+   - 白名单长度硬编码精确固定为 2 项且禁止扩容；每条钉（相对路径、行号、该行 sha256、token、理由）；新增引用、行漂移、内容编辑、白名单增删/重复即失败。
+5. **配置面无插件字段与非法值**：两份示例配置经严格 JSON（拒重复键/NaN/Inf）+ `validate_config` 归一化后递归键集合不含 dll/plugin/vendor，值字符串亦递归扫描严禁包含 vendor/loader 令牌；schema 校验异常稳定转化为 audit violations 而非异常崩溃；config/joint_config 源码在位且非软链；导入在校验后被精确还原（无模块缓存/sys.path 残留，有恢复测试）。**受信有副作用边界**：本检查会在同一解释器中 import 并执行仓库 `config.py` 的全部顶层代码；当前版本只定义常量/函数，但审计不沙箱、不回滚该顶层代码对环境变量、文件、网络、线程、第三方模块缓存或其他全局状态的副作用。当前代码若引入此类副作用，必须在复核中显式记录并扩大恢复测试；不能把 `sys.path` 与 `Simulator.*` 模块缓存恢复误解为任意副作用隔离。
+6. **模型身份为项目自建且各文件独立精确封闭**：`capability-index.json` 与 `joint-profiles.json` 分别独立精确等于冻结期望集 `{libwksim_model.so}`，严禁跨文件 union 集合遮蔽——任何单文件中删除条目均独立判负。
+7. **审计根**：必须真实绝对目录、非软链。
+8. **输出固定**：`schema=wksim.core-no-vendor-dll.v1`，status pass/failed，non_claims 三条固定文本，字节确定性（sort_keys、无 NaN）。
+
+- #75 完成条件要求一次真实运行 + 原始审计 PASS，前置为已关闭的 #72（`26-import-reset-run`；#26 证据链的冻结运行器与输入已在库）。本切片只提供持续机器门禁：任何把厂商 DLL 面引入核心的提交会被立刻拒绝。#73/#74 旧 ABI 分支保持 needs-triage，与本票不再串行。
+- #26 closure 门禁（`tools/audit_26_closure_readiness.py`）与本审计互补：前者钉证据链，后者钉运行面。
+
+## Non-claims
+
+- 静态审计，不加载任何库、不执行模型、不证明物理/倍率/飞行验收。
+- 不批准、不否定任何厂商 ABI；不改变 #9/#27/#73–#75 状态。
+- 白名单两处引用只是现状承认，不构成对厂商材料权利的判断。
+
+## 信任根与当前状态
+
+- 本工具不自带完整性证明：其自身源码哈希由外部提交/证据链（评审记录与仓库钉扎）保证；白名单自修改会被行哈希钉捕获，但"攻击者同时改工具与白名单"超出本门禁范围。
+- 2026-09-12：`bdd39ee` 的 `joint_runtime.py:478` guard 行仍保持精确 hash `50d84d7a7fea63689a2af3763da245811b96dfac46b7f2054843f8dff530193a`，无需 repin；Windows、Ubuntu-22.04、RflySim-20.04 的 real-repo CLI 均通过。配置校验会在当前解释器中执行仓库 `config.py` 顶层 import；工具只恢复 `sys.path` 与 `Simulator.*` 模块缓存，不沙箱、不回滚环境变量、文件、网络、线程或其他全局副作用，这些副作用仍属于工具信任边界。
+
+## 后继静态准入门（不替代 #72/#75 实跑）
+
+`Simulator/wksim_runtime/preflight.py` 的 `validate_model_build_manifest()` 现在由普通模型准入和显式 `model_promotion_flight` 共用。它拒绝重复 JSON 键和非有限数，要求 v2 manifest 字段集精确匹配，逐项核验 archive、wrapper、loader、library 与生成源的 canonical 非软链路径和 SHA256、compiler/profile、argv、ABI/platform，并以 `readelf -d` 的直接 `DT_NEEDED` 集合和 `nm -D --defined-only` 的 required exports 做静态门禁。已知 vendor、SITL、MATLAB、Gazebo/CopterSim 直接依赖 fail closed；Gazebo 匹配大小写不敏感，覆盖 `gazebo_plugin.so` 等无 `lib` 前缀名称，同时保留名称边界避免误杀无关字符串。结果中的 `model_static_abi` 保存实际核验的直接依赖和导出符号。此门只读取 ELF 元数据，不实例化 `Model`，也不新增 manifest 字段。
+
+普通准入、promotion 和所有模型预检早退都经过统一结果收尾，保留 `candidate_status`、`ok` 和 promotion provenance 字段；manifest、路径、archive、ELF 或证据错误统一以 `model_manifest_mismatch` 拒绝。
+
+当前测试使用临时 fixture，并 mock `readelf`/`nm`；Windows 和 WSL Ubuntu-22.04 的纯 Python 命令为：
+
+```text
+py -3 -B -m unittest validation.test_promotion_flight -v
+python3 -B -m unittest validation.test_promotion_flight -v
+```
+
+其证明边界是直接 ELF 导入表和静态构建收据，不是递归共享库解析、运行期 `dlopen`、ABI 实际调用或物理/倍率/飞行验收。#75 已由主会话使用 #72 的冻结运行器完成：`wsl -d Ubuntu-22.04 -u root --cd /mnt/c/Users/PC/Documents/odid编译/wksim -- python3 -B tools/validate_generated_e0_lifecycle.py --manifest validation/codegen-e0-build-short-cycle-01/build-manifest.json --output validation/lunar-27-core-without-dll/run-ec40ec2-01`。该目录已有不可覆盖证据，不得复用。
+
+真实结果见 [independent-audit.json](../../validation/lunar-27-core-without-dll/run-ec40ec2-01/independent-audit.json)：原库与新冷构建库在两个独立进程中各执行两轮，每轮1000步、120输出、1ms；480000值精确重复，既定1e-8时钟门槛通过。加载映射中无厂商DLL，两个子进程退出0且无模型进程组残留。原始记录、构建日志、身份与独立重读审计已随 `69d65bf` 推送，仅关闭 #75；#27、未知ABI、G6及Full不因此通过。

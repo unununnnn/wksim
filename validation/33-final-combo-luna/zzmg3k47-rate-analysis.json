@@ -1,0 +1,67 @@
+{
+  "schema": "wksim.final-combo-rate-failure.v1",
+  "run_id": "joint-public-flight-zzmg3k47",
+  "scene_epoch": "1a4e2ccf023f4bb8bbd2ea96926",
+  "result_sha256": "41f5c113b5a9dc22badb000e1b25ec2b508a060e7d8d504a83bc2b228c946d5d",
+  "rate_sha256": "62596ed95ce9fc631e42a4fb09bbce44cd6571ab2c808f3a3b65732b4ec4ca57",
+  "joint_wire_sha256": "15d59dd7f5cf8b170bcc5b597afcb75137086f9c3c707d08b163b1b4ffc34af1",
+  "manifests": {
+    "ap": "1e6250eff8873d6b2e52017b613c223ac29f8260fdf92aac2cf0c7cdcc6ce94c",
+    "control": "25edbf816e1b417028be73f409b211b48a1579cce4d63b0d9c6c9b5277e6d610"
+  },
+  "failure": {
+    "tick": 98700,
+    "lateness_ns": 100092095,
+    "requested_rate": 0.5,
+    "measured_rate": 0.49975687561984183,
+    "completed_groups": 24665,
+    "release_excess_ns": 99881013,
+    "work_over_period_ns": 14535828,
+    "outside_work_excess_ns": 85345185
+  },
+  "complete_sliding_windows": {
+    "10_seconds": {
+      "count": 23165,
+      "worst_absolute_relative_error": 0.0013936195656363282,
+      "budget": 0.02,
+      "within_budget": true
+    },
+    "60_seconds": {
+      "count": 16918,
+      "worst_absolute_relative_error": 0.0006475886615983084,
+      "budget": 0.01,
+      "within_budget": true
+    }
+  },
+  "task_boundary": {
+    "arducopter_leg_1_reference_samples": 120,
+    "px4_leg_1_reference_samples": 120,
+    "arducopter_leg_2_reference_samples": 120,
+    "px4_leg_2_reference_samples": 120,
+    "leg_1_endpoint_and_stop_holds_completed": true,
+    "leg_2_endpoint_prepared": false,
+    "land_completed": false
+  },
+  "cleanup": {
+    "control_shutdown_clean": true,
+    "owned_groups": 10,
+    "remaining_group_members": 0,
+    "task_returncodes": {
+      "arducopter": 1,
+      "px4": 1
+    }
+  },
+  "audit": {
+    "path": "validation/33-final-combo-luna/zzmg3k47-audit.json",
+    "status": "failed",
+    "error": "Candidate run/cleanup did not pass"
+  },
+  "archive": {
+    "members": 288,
+    "bytes": 115850022,
+    "parts": 4,
+    "sha256": "4636a5fa55c6c6bbffd199b5f51bb8a7d437749dab97b65f1039c90bafedef1d",
+    "recombined_match": true
+  },
+  "limitations": "Sliding windows and timing categories are post-failure diagnostics; the formal PV audit failed at the run/cleanup gate and no downstream check is accepted."
+}

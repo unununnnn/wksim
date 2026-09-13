@@ -1,0 +1,35 @@
+{
+  "schema": "wksim.final-combo-control-refresh.v1",
+  "failed_attempt": {
+    "run_id": "joint-public-flight-l8xlqwdq",
+    "result": "validation/joint-public-flight-l8xlqwdq/result.json",
+    "admission": "validation/joint-public-flight-l8xlqwdq/experimental-admission.json",
+    "wall_seconds": 46.495731359,
+    "children_created": 0,
+    "physical_ticks": 0,
+    "reason": "ap_mixed_candidate_rejected: Sealed control build input differs"
+  },
+  "control_candidate": {
+    "manifest": "/root/wksim-joint-control-0DQQz9/build.json",
+    "manifest_sha256": "25edbf816e1b417028be73f409b211b48a1579cce4d63b0d9c6c9b5277e6d610",
+    "build_log_sha256": "52c6544789bf991d2d7fadc4cba0f9b8cf99770fdd25fcf44abe13decb5d0a2b",
+    "rc_transport_sha256": "f00ccb7da8da348e33e8dbb1200dd3244a73c3cf4f658024372009de06f9107c"
+  },
+  "verification": {
+    "focused_tests": 30,
+    "focused_status": "pass",
+    "control_candidate_tests": 81,
+    "control_candidate_status": "pass",
+    "control_candidate_log": "validation/joint-control-checks-vpOGh81C/tests.log",
+    "admission_ok": true,
+    "admission_children_created": 0,
+    "admission_control_root": "/root/wksim-joint-control-0DQQz9",
+    "admission_baseline_control_root": "/root/wksim-joint-control-FVMjak"
+  },
+  "unchanged_gates": [
+    "fixed 1ms physical step",
+    "native input and clock barriers",
+    "single rate anchor with no catch-up",
+    "100ms cumulative lateness rejection"
+  ]
+}

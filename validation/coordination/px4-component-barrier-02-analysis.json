@@ -1,0 +1,31 @@
+{
+  "status": "observed",
+  "scope": "Decode sampled native wait intervals; association with the sealed epoch remains required.",
+  "counts": {
+    "send": 0,
+    "component": 1,
+    "register": 0,
+    "work": 0,
+    "queue": 0
+  },
+  "maximum_stage_ns": {
+    "poll_ns": null,
+    "prepare_ns": null,
+    "component_ns": null,
+    "send_ns": null
+  },
+  "largest_sender_intervals": [],
+  "registrations": [],
+  "largest_work": [],
+  "largest_queues": [],
+  "limitations": [
+    "Only slow intervals are emitted; absence is not proof of zero delay.",
+    "Poll includes normal waiting for the supervisor to send sensors.",
+    "Component stage includes the barrier diagnostic output cost; inner wait_ns excludes it.",
+    "Queue wake can precede the current enqueue when an older wake token remains; worker_mono_ns is after acquiring the queue lock.",
+    "Work labels are copied before Run because a work item can delete itself; labels have a 95-character bound.",
+    "Release component/time are separate atomic observations, not a coherent pair or a causal verdict."
+  ],
+  "log_sha256": "ff7b4e1aec878ead8ad385179991ca537296af5abcce14574d64370728e55e6c",
+  "analyzer_sha256": "01047b04c6f312d3629dce84ef3623b3f36ef0fc3cb409ffe3856d75f611cbeb"
+}

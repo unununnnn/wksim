@@ -1,9 +1,10 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.8)
 project(ego_planner)
 
 set(CMAKE_BUILD_TYPE "Release")
-ADD_COMPILE_OPTIONS(-std=c++11 )
-ADD_COMPILE_OPTIONS(-std=c++14 )
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -Wall -g")
 
 find_package(Eigen3 REQUIRED)
@@ -67,3 +68,18 @@ target_link_libraries(pub_preset_goal ${catkin_LIBRARIES})
 
 add_executable(motion_goal_swarm src_for_prometheus/motion_goal_swarm.cpp)
 target_link_libraries(motion_goal_swarm ${catkin_LIBRARIES})
+
+foreach(planner_target ego_planner_node traj_server traj_server_for_prometheus
+                       pub_goal pub_preset_goal motion_goal_swarm)
+  add_dependencies(${planner_target} ${catkin_EXPORTED_TARGETS})
+endforeach()
+
+catkin_install_python(
+  PROGRAMS scripts/bspline_ros1_relay.py
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
+install(
+  FILES launch_for_prometheus/bspline_ros1_relay.launch
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch_for_prometheus
+)

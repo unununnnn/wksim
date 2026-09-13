@@ -1,0 +1,123 @@
+{
+  "schema": "wksim.scheduler-early-capture-failure.v1",
+  "status": "diagnostic_partial",
+  "acceptance_eligible": false,
+  "source_commit": "0e38b576931b8513786cee6e82ff27c9d8f2b118",
+  "source_directory": "/root/wksim-scheduler-probe-20260912-early-01",
+  "run_id": "scheduler-b2fdbe6bbb69",
+  "epoch": "4ae610f093ae4ea786e39f44ab083aa4",
+  "failure": {
+    "error": "RuntimeError: Capture became active at or after timed tick 40",
+    "capture_start_state_tick": 1836,
+    "capture_start_state_issued_monotonic_s": 303.676887422,
+    "rate_anchor_tick": 40,
+    "rate_anchor_wall_ns": 301851906204,
+    "capture_active_started_monotonic_ns": 304192474378,
+    "capture_active_published_monotonic_ns": 304192624808,
+    "nearest_wire_event_before": {
+      "kind": "step",
+      "tick": 2319,
+      "issued_monotonic_s": 304.191884903
+    },
+    "nearest_wire_event_after": {
+      "kind": "sensor",
+      "stack": "arducopter",
+      "tick": 2320,
+      "issued_monotonic_s": 304.192648803
+    },
+    "conclusion": "The exact owner and FC-thread mapping path did not activate tracefs until the timed segment was already past tick 2319. The resulting short trace cannot classify the earlier slow intervals."
+  },
+  "capture": {
+    "status": "diagnostic_partial",
+    "complete": false,
+    "acceptance_eligible": false,
+    "elapsed_s": 0.008860488,
+    "signals": [
+      15
+    ],
+    "errors": [],
+    "loss_free": true,
+    "trace_bytes": 33334,
+    "trace_sha256": "67db634dfbd2b8ea224c62ec139e9c1955634c0dc4c3b10726d4c086c8f5f0b4",
+    "private_instance": "/sys/kernel/tracing/instances/wksim-rate-c29d335ee924464ab38a297d6503f46d",
+    "private_instance_inode": [
+      12,
+      26849
+    ],
+    "private_instance_removed": true,
+    "global_controls_unchanged": true,
+    "mapping_trace_bytes": 4382,
+    "mapping_trace_sha256": "73daead8feb9359a2c66e802f0a9acbccd9bfbb22243475602b684ac0db5c9c2"
+  },
+  "artifacts": {
+    "report.json": {
+      "bytes": 80522,
+      "sha256": "16967f220715d87cbd83d5cee05d1bc32bd1d87a16ff0b10714ca7e9b947d091"
+    },
+    "capture/capture-active.json": {
+      "bytes": 407,
+      "sha256": "a6de6960000db44fb7cb3f804fa58383f455cfd5c5fd92e24bae2b42bc566070"
+    },
+    "capture/metadata.json": {
+      "bytes": 106960,
+      "sha256": "35578c115b8cbc0bd19d5819b61a89715f73268a8eb807a9bd129531d82ffcbf"
+    },
+    "capture/pid-mapping-status.json": {
+      "bytes": 9109,
+      "sha256": "f56ec7d94d0fefe8e80a23d19d4140fbc82d479062800b8180219064625ee4d6"
+    },
+    "capture-launch.json": {
+      "bytes": 14190,
+      "sha256": "3c408dd1baf5b4c44ea1781c85d83823f73a9469583b36b6949651ce393cf33f"
+    },
+    "runs/scheduler-b2fdbe6bbb69/epochs/4ae610f093ae4ea786e39f44ab083aa4/wire.jsonl": {
+      "bytes": 3884722,
+      "sha256": "b0ad721204e7b535c800fc40a4c89365012cfa5901696515730f0dc6ad872e3b"
+    },
+    "runs/scheduler-b2fdbe6bbb69/epochs/4ae610f093ae4ea786e39f44ab083aa4/rate.jsonl": {
+      "bytes": 464562,
+      "sha256": "09c789aecea5a94061e6d4a4cfcbad5ce65c2d874e6b421db5a02985afa0ffde"
+    },
+    "runs/scheduler-b2fdbe6bbb69/epochs/4ae610f093ae4ea786e39f44ab083aa4/result.json": {
+      "bytes": 51883,
+      "sha256": "0a0e32bc9b8fbdfbb958df4a92bc1f494560b78d8adab825eaca75b2e60ecd0a"
+    }
+  },
+  "rate": {
+    "requested_rate": 1.0,
+    "physical_step_ns": 1000000,
+    "late_limit_ns": 100000000,
+    "no_catch_up": true,
+    "last_complete_segment": {
+      "completed_groups": 595,
+      "measured_rate": 0.9737153650145289,
+      "worst_lateness_ns": 65521748,
+      "latched": false
+    },
+    "final_tick": 2420,
+    "final_phase": "stopped",
+    "flight_completed": false
+  },
+  "cleanup": {
+    "manager_returncode": 0,
+    "collector_returncode": 1,
+    "remaining_manager_group": [],
+    "epoch_groups_retired": true,
+    "sources_unchanged": true
+  },
+  "source_sha256": {
+    "Simulator/wksim_core/joint.py": "f5433c2ec7e81794ffcfab26dce0feff18d4e1affdfb44f895a72e4ce0241d50",
+    "Simulator/wksim_core/worker.py": "0becd1f3214b53c6169fb61ae010a969fb57a4ccbe26fb3ed3c3652c26ef7fab",
+    "Simulator/wksim_runtime/joint_rate.py": "0b53a16acd65138b4623a9a8573ec8d643a2b78f4e27e8122c65efb9a6da25c4",
+    "Simulator/wksim_runtime/joint_runtime.py": "d2f9dac25ef5b1b8e7830f294d252549bc6c64134fa1410f3eb2f1a40e1d9e5b",
+    "tools/profile_joint_scheduler.py": "c65bd354574118c4bf52b15ffd5e144dc599ae20ce092d88abdc9819396f7369",
+    "validation/rate-remediation-ff63c72/sitecustomize.py": "f1f510b271cc203e5bdeaa46d7e2484288e3a95f057999d1785f02e64e15fd4d",
+    "validation/rate-syscall-scheduler-plan-20260909/collect_tracefs.py": "246088ce868bb943dd1d44b009bf784295a034458fdd4f96eb1c6f62d6e238bd"
+  },
+  "non_claims": [
+    "This interrupted ground diagnostic is not a rate or flight pass.",
+    "The short trace does not identify a scheduler, native-input, storage, release-path, or model cause.",
+    "No timing threshold, physical step, barrier, or catch-up policy was changed."
+  ],
+  "next_action": "Hold the diagnostic supervisor before its first physical step, activate and bind the private trace and exact FC-thread mapping, then release only after a validated capture-active token is recorded."
+}

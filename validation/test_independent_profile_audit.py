@@ -12,9 +12,11 @@ ARCHIVE = REPO/'validation/independent-admission-20260907/flown-source'
 
 class IndependentEvidenceTests(unittest.TestCase):
     def test_retained_real_flights_and_build_binding(self):
-        for label in ('px4', 'ap'):
-            directory = REPO/f'validation/independent-mission-{label}-20260907-run1'
-            result = audit(directory, ARCHIVE)
+        catalog = json.loads((REPO/'Simulator/wksim_runtime/independent-profile-evidence.json').read_text())
+        archive = (REPO/catalog['archive_manifest']['path']).parent
+        for label, row in catalog['runs'].items():
+            directory = (REPO/row['result']['path']).parent.parent
+            result = audit(directory, archive)
             self.assertFalse(result['source_audit']['current_checkout_accepted'])
             self.assertEqual(len(result['physical']['completed_waypoints']), 3)
             run = json.loads((directory/'run/result.json').read_text())
@@ -22,7 +24,7 @@ class IndependentEvidenceTests(unittest.TestCase):
             p = select_profile('joint_quad_dds_v1')
             proof = check_flight_evidence(run['stack'], p, identities)
             self.assertFalse(proof['current_admission_code_flown'])
-            key = 'ap' if label == 'ap' else 'px4'
+            key = 'ap' if label == 'arducopter' else 'px4'
             identities[key]['sha256'] = 'changed'
             with self.assertRaisesRegex(ValueError, 'does not match'):
                 check_flight_evidence(run['stack'], p, identities)

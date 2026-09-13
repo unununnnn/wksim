@@ -78,6 +78,8 @@ BODY 命令在受理后的**第一次 `step`** 依据当时的状态锚定，后
 
 当前 session_v1 输入在 `/uav{id}/prometheus/v2/setup`、`v2/command`，使用带 run_id/control_epoch/request_id 的包络；旧无身份输入显式拒绝。输出在同前缀的 `state`、`control_state`、`text_info`、`stop_control_state` 和 `v2/state`。命令header使用当前ROS时钟、frame留空或为map/world；默认有效期2秒，MOVE ID严格递增。位置/速度单位米/秒，ENU/FLU；状态header保留飞控boot时间，尚非联合场景统一时钟。模式请求沿用 `SET_PX4_MODE` 字符串字段：AUTO.LOITER 在 PX4 是自主保持，在 ArduCopter 映射到会读取驾驶输入的 LOITER，并非相同的无驾驶输入悬停保证。POSCTL在无遥控输入的PX4上会被原生解锁检查拒绝。
 
+规划轨迹入口安装为 `ros2 run prometheus_control trajectory_bridge_node`，launch 入口为 `ros2 launch prometheus_control trajectory_bridge.launch.py`。launch 要求显式传入 `run_id`、`mission_id`、`fallback_yaw` 和 `authority_anchor_ns`；启动前必须已有匹配 run 的 ControlNode/session，以及同一时间域、精确 1 ms 网格的外部 `/clock`，anchor 是该时钟的纳秒 epoch 基准。`bspline_topic` 默认是 `/uav1/planning/bspline`。若使用 ROS1 relay，需启动 `ego_planner` 的 `launch_for_prometheus/bspline_ros1_relay.launch`，并将 `bspline_topic` 设置为 `/uav1/planning/bspline_ros1_prometheus`。该私有 topic 仍需外部 `ros1_bridge` 以同名 ROS1/ROS2 `prometheus_msgs/Bspline` 类型桥接；仓库尚未提供或验证该桥接。relay 原样保留 EGO 的 `start_time`，不会修正时间域、过去时间或精确 1 ms 当前 tick，因此这个 launch 不代表真实 EGO 已接通。
+
 普通解锁后显式请求COMMAND_CONTROL，节点先完成必要的原生起飞/航向对齐，然后才启用目标流；重复请求不会重新起飞。`text_info.message`的JSON事件区分setup_received、native_ack、setup_completed、command_accepted/rejected和control_revoked。离开外部模式、状态超时或活动任务坐标/时钟重置不会自动重获控制。当前共同实测范围为位置、航点和LAND，其他边界与精确复现证据见报告。
 
 空中显式接管现在捕获当时的 ENU 位置和四元数航向；同一个参考贯穿预热和接管后的保持，不回到起飞点、不重放旧 MOVE。地面接管仍保持原起飞语义。新公开命令才能覆盖此保持参考；拒绝的旧包络不能恢复输出。

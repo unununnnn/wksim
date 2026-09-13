@@ -1,0 +1,7 @@
+# ros1_bridge boolean-vector build fix
+
+The official ros2/ros1_bridge baseline is `611755fd917285316051cbea80507e8b2f6b7ec1`. `vector-bool.patch` changes only `resource/interface_factories.cpp.em`: bool vectors use one uint8 byte per element, matching ROS1 serialization, and empty ordinary vectors avoid `front()`. Existing callers still own the vector-length prefix. No interface was removed.
+
+`stream_primitive_vector.inc` was extracted directly from the patched template. The native verification driver is `validation/ros1_bridge_vector_bool_serialization_check.cpp`; its hash and the template/header hashes are in `native-check.json`. On RflySim-20.04, g++ C++17 with UBSan, nonrecovering sanitizer errors and libstdc++ assertions compiled and ran it successfully. Empty bool/uint8, mixed/all-false bools, truncated input, ordinary byte copying and noncanonical nonzero bool bytes were checked against the actual ROS1 serializer. `check.log` is the original output. No binary is published.
+
+Full bridge build was subsequently started in `/root/wksim-ros1-bridge-humble-8oGKuV/bridge_ws`, using full EGO ROS1 and the freshly built ROS2 message overlay. At this checkpoint it is still running; do not infer full build or runtime success from the narrow native check. The live log is `../bridge-build-bool-22b.log`; prior failed logs are preserved. Runtime message delivery, shared clock, planner causality, physical control and Full acceptance remain separate.

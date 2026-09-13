@@ -1,0 +1,42 @@
+{
+  "status": "failed",
+  "role": "visitor",
+  "distro": "RflySim-20.04",
+  "boot_id": "99f2b276-5fb9-41d4-b779-da5320037d99",
+  "initial_namespaces": {
+    "net": "net:[4026531840]",
+    "ipc": "ipc:[4026532317]",
+    "mnt": "mnt:[4026532316]"
+  },
+  "source_sha256": {
+    "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/validation/ros1_bridge_cross_distro_probe.py": "47acb137e547d008e2466cea665c826986aa11e75bb876939e3512a46f80f3a2",
+    "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/Simulator/wksim_runtime/netns_handoff.py": "3cfea24602fb6c703898be4bac6e81f71a38a0175260b08d2bad58ba9b973575",
+    "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/validation/ros1_bridge_reverse_probe.py": "9224e8f6949c94db35e79bbdb2b58eca54af9b6025b5013cf410fb5315f4af15"
+  },
+  "physical_acceptance": false,
+  "udp_profile": {
+    "path": "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/Simulator/wksim_runtime/cross_namespace_dds.xml",
+    "sha256": "1d2f330c6eb88bcf55e7f41d572253d1cceda1500a0954c1e39ed61564888e95"
+  },
+  "handoff": {
+    "run_id": "cross-distro-ros-fixture",
+    "before": {
+      "net": "net:[4026531840]",
+      "mnt": "mnt:[4026532316]",
+      "ipc": "ipc:[4026532317]"
+    },
+    "after": {
+      "net": "net:[4026532232]",
+      "mnt": "mnt:[4026532316]",
+      "ipc": "ipc:[4026532317]"
+    }
+  },
+  "error": "RuntimeError('cross-distribution bridge fixture failed')",
+  "traceback": "Traceback (most recent call last):\n  File \"/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/validation/ros1_bridge_cross_distro_probe.py\", line 59, in run\n    raise RuntimeError(\"cross-distribution bridge fixture failed\")\nRuntimeError: cross-distribution bridge fixture failed\n",
+  "final_namespaces": {
+    "net": "net:[4026532232]",
+    "ipc": "ipc:[4026532317]",
+    "mnt": "mnt:[4026532316]"
+  },
+  "source_unchanged": true
+}

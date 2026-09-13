@@ -1,0 +1,1037 @@
+{
+  "schema": "wksim.private-tracefs.v1",
+  "run_id": "scheduler-72e2be6fc16f",
+  "epoch": "7c16f0a5c08e4770a07b7c7b06442adb",
+  "acceptance_eligible": false,
+  "requested_duration_s": 10.0,
+  "preflight": {
+    "read_only": true,
+    "boot_id": "015a1cb1-999d-4fb2-9260-714d1992c0f1",
+    "instance_creation_not_tested": true,
+    "tracefs": "/sys/kernel/tracing",
+    "instances_available": true,
+    "clock_choices": "[local] global counter uptime perf mono mono_raw boot tai x86-tsc",
+    "global_controls": {
+      "tracing_on": "1",
+      "current_tracer": "nop",
+      "trace_clock": "[local] global counter uptime perf mono mono_raw boot tai x86-tsc"
+    },
+    "event_formats": {
+      "syscalls/sys_enter_write": "name: sys_enter_write\nID: 739\nformat:\n\tfield:unsigned short common_type;\toffset:0;\tsize:2;\tsigned:0;\n\tfield:unsigned char common_flags;\toffset:2;\tsize:1;\tsigned:0;\n\tfield:unsigned char common_preempt_count;\toffset:3;\tsize:1;\tsigned:0;\n\tfield:int common_pid;\toffset:4;\tsize:4;\tsigned:1;\n\n\tfield:int __syscall_nr;\toffset:8;\tsize:4;\tsigned:1;\n\tfield:unsigned int fd;\toffset:16;\tsize:8;\tsigned:0;\n\tfield:const char * buf;\toffset:24;\tsize:8;\tsigned:0;\n\tfield:size_t count;\toffset:32;\tsize:8;\tsigned:0;\n\nprint fmt: \"fd: 0x%08lx, buf: 0x%08lx, count: 0x%08lx\", ((unsigned long)(REC->fd)), ((unsigned long)(REC->buf)), ((unsigned long)(REC->count))\n",
+      "syscalls/sys_exit_write": "name: sys_exit_write\nID: 738\nformat:\n\tfield:unsigned short common_type;\toffset:0;\tsize:2;\tsigned:0;\n\tfield:unsigned char common_flags;\toffset:2;\tsize:1;\tsigned:0;\n\tfield:unsigned char common_preempt_count;\toffset:3;\tsize:1;\tsigned:0;\n\tfield:int common_pid;\toffset:4;\tsize:4;\tsigned:1;\n\n\tfield:int __syscall_nr;\toffset:8;\tsize:4;\tsigned:1;\n\tfield:long ret;\toffset:16;\tsize:8;\tsigned:1;\n\nprint fmt: \"0x%lx\", REC->ret\n",
+      "syscalls/sys_enter_fsync": "name: sys_enter_fsync\nID: 899\nformat:\n\tfield:unsigned short common_type;\toffset:0;\tsize:2;\tsigned:0;\n\tfield:unsigned char common_flags;\toffset:2;\tsize:1;\tsigned:0;\n\tfield:unsigned char common_preempt_count;\toffset:3;\tsize:1;\tsigned:0;\n\tfield:int common_pid;\toffset:4;\tsize:4;\tsigned:1;\n\n\tfield:int __syscall_nr;\toffset:8;\tsize:4;\tsigned:1;\n\tfield:unsigned int fd;\toffset:16;\tsize:8;\tsigned:0;\n\nprint fmt: \"fd: 0x%08lx\", ((unsigned long)(REC->fd))\n",
+      "syscalls/sys_exit_fsync": "name: sys_exit_fsync\nID: 898\nformat:\n\tfield:unsigned short common_type;\toffset:0;\tsize:2;\tsigned:0;\n\tfield:unsigned char common_flags;\toffset:2;\tsize:1;\tsigned:0;\n\tfield:unsigned char common_preempt_count;\toffset:3;\tsize:1;\tsigned:0;\n\tfield:int common_pid;\toffset:4;\tsize:4;\tsigned:1;\n\n\tfield:int __syscall_nr;\toffset:8;\tsize:4;\tsigned:1;\n\tfield:long ret;\toffset:16;\tsize:8;\tsigned:1;\n\nprint fmt: \"0x%lx\", REC->ret\n",
+      "syscalls/sys_enter_fdatasync": "name: sys_enter_fdatasync\nID: 897\nformat:\n\tfield:unsigned short common_type;\toffset:0;\tsize:2;\tsigned:0;\n\tfield:unsigned char common_flags;\toffset:2;\tsize:1;\tsigned:0;\n\tfield:unsigned char common_preempt_count;\toffset:3;\tsize:1;\tsigned:0;\n\tfield:int common_pid;\toffset:4;\tsize:4;\tsigned:1;\n\n\tfield:int __syscall_nr;\toffset:8;\tsize:4;\tsigned:1;\n\tfield:unsigned int fd;\toffset:16;\tsize:8;\tsigned:0;\n\nprint fmt: \"fd: 0x%08lx\", ((unsigned long)(REC->fd))\n",
+      "syscalls/sys_exit_fdatasync": "name: sys_exit_fdatasync\nID: 896\nformat:\n\tfield:unsigned short common_type;\toffset:0;\tsize:2;\tsigned:0;\n\tfield:unsigned char common_flags;\toffset:2;\tsize:1;\tsigned:0;\n\tfield:unsigned char common_preempt_count;\toffset:3;\tsize:1;\tsigned:0;\n\tfield:int common_pid;\toffset:4;\tsize:4;\tsigned:1;\n\n\tfield:int __syscall_nr;\toffset:8;\tsize:4;\tsigned:1;\n\tfield:long ret;\toffset:16;\tsize:8;\tsigned:1;\n\nprint fmt: \"0x%lx\", REC->ret\n",
+      "sched/sched_switch": "name: sched_switch\nID: 324\nformat:\n\tfield:unsigned short common_type;\toffset:0;\tsize:2;\tsigned:0;\n\tfield:unsigned char common_flags;\toffset:2;\tsize:1;\tsigned:0;\n\tfield:unsigned char common_preempt_count;\toffset:3;\tsize:1;\tsigned:0;\n\tfield:int common_pid;\toffset:4;\tsize:4;\tsigned:1;\n\n\tfield:char prev_comm[16];\toffset:8;\tsize:16;\tsigned:0;\n\tfield:pid_t prev_pid;\toffset:24;\tsize:4;\tsigned:1;\n\tfield:int prev_prio;\toffset:28;\tsize:4;\tsigned:1;\n\tfield:long prev_state;\toffset:32;\tsize:8;\tsigned:1;\n\tfield:char next_comm[16];\toffset:40;\tsize:16;\tsigned:0;\n\tfield:pid_t next_pid;\toffset:56;\tsize:4;\tsigned:1;\n\tfield:int next_prio;\toffset:60;\tsize:4;\tsigned:1;\n\nprint fmt: \"prev_comm=%s prev_pid=%d prev_prio=%d prev_state=%s%s ==> next_comm=%s next_pid=%d next_prio=%d\", REC->prev_comm, REC->prev_pid, REC->prev_prio, (REC->prev_state & ((((0x00000000 | 0x00000001 | 0x00000002 | 0x00000004 | 0x00000008 | 0x00000010 | 0x00000020 | 0x00000040) + 1) << 1) - 1)) ? __print_flags(REC->prev_state & ((((0x00000000 | 0x00000001 | 0x00000002 | 0x00000004 | 0x00000008 | 0x00000010 | 0x00000020 | 0x00000040) + 1) << 1) - 1), \"|\", { 0x00000001, \"S\" }, { 0x00000002, \"D\" }, { 0x00000004, \"T\" }, { 0x00000008, \"t\" }, { 0x00000010, \"X\" }, { 0x00000020, \"Z\" }, { 0x00000040, \"P\" }, { 0x00000080, \"I\" }) : \"R\", REC->prev_state & (((0x00000000 | 0x00000001 | 0x00000002 | 0x00000004 | 0x00000008 | 0x00000010 | 0x00000020 | 0x00000040) + 1) << 1) ? \"+\" : \"\", REC->next_comm, REC->next_pid, REC->next_prio\n",
+      "sched/sched_wakeup": "name: sched_wakeup\nID: 326\nformat:\n\tfield:unsigned short common_type;\toffset:0;\tsize:2;\tsigned:0;\n\tfield:unsigned char common_flags;\toffset:2;\tsize:1;\tsigned:0;\n\tfield:unsigned char common_preempt_count;\toffset:3;\tsize:1;\tsigned:0;\n\tfield:int common_pid;\toffset:4;\tsize:4;\tsigned:1;\n\n\tfield:char comm[16];\toffset:8;\tsize:16;\tsigned:0;\n\tfield:pid_t pid;\toffset:24;\tsize:4;\tsigned:1;\n\tfield:int prio;\toffset:28;\tsize:4;\tsigned:1;\n\tfield:int target_cpu;\toffset:32;\tsize:4;\tsigned:1;\n\nprint fmt: \"comm=%s pid=%d prio=%d target_cpu=%03d\", REC->comm, REC->pid, REC->prio, REC->target_cpu\n"
+    },
+    "verified_owners": {
+      "ap_worker": {
+        "pid": 1894,
+        "pgid": 1303,
+        "start_ticks": 16496,
+        "argv": [
+          "/usr/bin/python3",
+          "-B",
+          "-m",
+          "Simulator.wksim_core.worker",
+          "--library",
+          "/root/wksim-private-tmp-cxrbwjyr/artifacts/wksim-model-ms14otyn/libwksim_model.so",
+          "--trace",
+          "/root/wksim-scheduler-probe-20260912-kernel-bpf-02/runs/scheduler-72e2be6fc16f/epochs/7c16f0a5c08e4770a07b7c7b06442adb/arducopter-truth.jsonl",
+          "--epoch",
+          "7c16f0a5c08e4770a07b7c7b06442adb"
+        ]
+      },
+      "px4_worker": {
+        "pid": 1898,
+        "pgid": 1303,
+        "start_ticks": 16496,
+        "argv": [
+          "/usr/bin/python3",
+          "-B",
+          "-m",
+          "Simulator.wksim_core.worker",
+          "--library",
+          "/root/wksim-private-tmp-cxrbwjyr/artifacts/wksim-model-ms14otyn/libwksim_model.so",
+          "--trace",
+          "/root/wksim-scheduler-probe-20260912-kernel-bpf-02/runs/scheduler-72e2be6fc16f/epochs/7c16f0a5c08e4770a07b7c7b06442adb/px4-truth.jsonl",
+          "--epoch",
+          "7c16f0a5c08e4770a07b7c7b06442adb"
+        ]
+      },
+      "supervisor": {
+        "pid": 1303,
+        "pgid": 1303,
+        "start_ticks": 14442,
+        "argv": [
+          "python3",
+          "-B",
+          "-m",
+          "Simulator.wksim_runtime.joint_runtime",
+          "/root/wksim-scheduler-probe-20260912-kernel-bpf-02/runs/scheduler-72e2be6fc16f",
+          "7c16f0a5c08e4770a07b7c7b06442adb",
+          "1"
+        ]
+      },
+      "ap_fc": {
+        "pid": 1896,
+        "pgid": 1303,
+        "start_ticks": 16496,
+        "argv": [
+          "/root/wksim-ap-clock-stop-OXQqdR/build/sitl/bin/arducopter",
+          "--model",
+          "JSON:127.0.0.1",
+          "--rate",
+          "1000",
+          "--speedup",
+          "3",
+          "--base-port",
+          "16600",
+          "--instance",
+          "11",
+          "--sysid",
+          "241",
+          "--sim-address",
+          "127.0.0.1",
+          "--sim-port-out",
+          "19002",
+          "--sim-port-in",
+          "19003",
+          "--rc-in-port",
+          "19004",
+          "--serial0",
+          "udpclient:127.0.0.1:14660",
+          "--serial1",
+          "none",
+          "--serial2",
+          "none",
+          "--defaults",
+          "/root/wksim-ap-clock-stop-OXQqdR/src/Tools/autotest/default_params/copter.parm,/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/Simulator/wksim_core/arducopter-quad-x.parm,/root/wksim-scheduler-probe-20260912-kernel-bpf-02/runs/scheduler-72e2be6fc16f/epochs/7c16f0a5c08e4770a07b7c7b06442adb/arducopter/dds.parm",
+          "--home",
+          "40.1540302,116.2593683,50,0"
+        ]
+      },
+      "px4_fc": {
+        "pid": 1900,
+        "pgid": 1303,
+        "start_ticks": 16497,
+        "argv": [
+          "/root/wksim-px4-state-ONa1Kw/src/build/px4_sitl_default/bin/px4",
+          "-d",
+          "/root/wksim-px4-state-ONa1Kw/src/build/px4_sitl_default/etc",
+          "-t",
+          "/root/wksim-px4-state-ONa1Kw/src/test_data",
+          "-i",
+          "21",
+          "-w",
+          "/root/wksim-scheduler-probe-20260912-kernel-bpf-02/runs/scheduler-72e2be6fc16f/epochs/7c16f0a5c08e4770a07b7c7b06442adb/px4"
+        ]
+      }
+    },
+    "filters_pending_kernel_mapping": true
+  },
+  "owners": {
+    "ap_worker": {
+      "pid": 1894,
+      "start_ticks": 16496
+    },
+    "px4_worker": {
+      "pid": 1898,
+      "start_ticks": 16496
+    },
+    "supervisor": {
+      "pid": 1303,
+      "start_ticks": 14442
+    },
+    "ap_fc": {
+      "pid": 1896,
+      "start_ticks": 16496
+    },
+    "px4_fc": {
+      "pid": 1900,
+      "start_ticks": 16497
+    }
+  },
+  "command": [
+    "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/validation/rate-syscall-scheduler-plan-20260909/collect_tracefs.py",
+    "--boot-id",
+    "015a1cb1-999d-4fb2-9260-714d1992c0f1",
+    "--run-id",
+    "scheduler-72e2be6fc16f",
+    "--epoch",
+    "7c16f0a5c08e4770a07b7c7b06442adb",
+    "--duration",
+    "10",
+    "--map-comm",
+    "--capture-bootstrap-token",
+    "/root/wksim-scheduler-probe-20260912-kernel-bpf-02/capture/capture-bootstrap-active.json",
+    "--capture-active-token",
+    "/root/wksim-scheduler-probe-20260912-kernel-bpf-02/capture/capture-active.json",
+    "--capture-gate-release",
+    "/root/wksim-scheduler-probe-20260912-kernel-bpf-02/hook/gate-release.json",
+    "--output",
+    "/root/wksim-scheduler-probe-20260912-kernel-bpf-02/capture",
+    "--ap-worker",
+    "1894:16496",
+    "--px4-worker",
+    "1898:16496",
+    "--supervisor",
+    "1303:14442",
+    "--ap-fc",
+    "1896:16496",
+    "--px4-fc",
+    "1900:16497",
+    "--exchange-dir",
+    "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/validation/scheduler-kernel-bpf-20260912-02/exchange",
+    "--kernel-pid-probe-manifest",
+    "/root/wksim-scheduler-probe-20260912-kernel-bpf-02/pid-probe/manifest.json",
+    "--kernel-pid-map-fd",
+    "3",
+    "--kernel-pid-link-fd",
+    "5"
+  ],
+  "instance": "/sys/kernel/tracing/instances/wksim-rate-89ba306b2bb748b9935029d703575b27",
+  "errors": [
+    "ValueError: Kernel BPF/trace mapping did not prove all owned targets before deadline"
+  ],
+  "status": "diagnostic_partial",
+  "collector_pid": 1936,
+  "collector_start_ticks": 16498,
+  "boundary_syscalls_may_be_unpaired": true,
+  "bootstrap_token": "/root/wksim-scheduler-probe-20260912-kernel-bpf-02/capture/capture-bootstrap-active.json",
+  "filtered_token": "/root/wksim-scheduler-probe-20260912-kernel-bpf-02/capture/capture-active.json",
+  "capture_boundaries": {
+    "bootstrap_raw_retained": false,
+    "bootstrap_token_sha256": "df971505a59dbbe08866a6a0ff41d12b7878cddf012243a4e7dc56fb01669813",
+    "bootstrap_published_monotonic_ns": 165355226205,
+    "gate_release_monotonic_ns": 165476670779
+  },
+  "pid_binding": "kernel_bpf",
+  "kernel_probe_manifest": {
+    "boot_id": "015a1cb1-999d-4fb2-9260-714d1992c0f1",
+    "compiler": "/usr/bin/gcc",
+    "compiler_argv": [
+      "/usr/bin/gcc",
+      "-shared",
+      "-fPIC",
+      "-std=c11",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-o",
+      "/root/wksim-scheduler-probe-20260912-kernel-bpf-02/pid-probe/libkernel_pid_probe.so",
+      "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/tools/kernel_pid_probe_native.c"
+    ],
+    "creator": {
+      "argv": [
+        "python3",
+        "tools/profile_joint_scheduler.py",
+        "--output",
+        "/root/wksim-scheduler-probe-20260912-kernel-bpf-02",
+        "--exchange-dir",
+        "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/validation/scheduler-kernel-bpf-20260912-02/exchange",
+        "--watch-host-stdin",
+        "--kernel-pid-probe"
+      ],
+      "pgid": 674,
+      "pid": 674,
+      "start_ticks": 10130
+    },
+    "library_path": "/root/wksim-scheduler-probe-20260912-kernel-bpf-02/pid-probe/libkernel_pid_probe.so",
+    "library_sha256": "ed0273099ed0eb91cd0a5655d0efcb191b0d76cd2331c4e181046808b70affb6",
+    "link_tp_name": "sched_switch",
+    "link_type": "raw_tracepoint",
+    "map_info": {
+      "key_size": 4,
+      "map_id": 1,
+      "map_type": 1,
+      "max_entries": 4096,
+      "value_size": 40
+    },
+    "namespace": {
+      "dev": 4,
+      "ino": 4026532222,
+      "path": "/proc/self/ns/pid"
+    },
+    "prog_id": 58,
+    "prog_tag": "addb9b77e4596c29",
+    "run_id": "scheduler-72e2be6fc16f",
+    "schema": "wksim.kernel-pid-probe.v1",
+    "source_path": "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/tools/kernel_pid_probe_native.c",
+    "source_sha256": "acffdd42e1b9f970e0aa608abd4c3b87128d4df962fd7341389e46eaf810f6bf",
+    "verifier": "processed 45 insns (limit 1000000) max_states_per_insn 0 total_states 4 peak_states 4 mark_read 1\n"
+  },
+  "kernel_probe_manifest_sha256": "500edf76ceb893ed7c14f168bd4c98032c2a502dfd1cb00b9284e5f151ea4c09",
+  "instance_inode": [
+    12,
+    23628
+  ],
+  "bootstrap_started_monotonic_ns": 165352504685,
+  "bootstrap_semantics": "sched_switch-only retained window before precise filters",
+  "bootstrap_stats_before": {
+    "raw": {
+      "cpu0": "entries: 0\noverrun: 0\ncommit overrun: 0\nbytes: 0\noldest event ts:     0.000000\nnow ts:   165.352864\ndropped events: 0\nread events: 0\n",
+      "cpu1": "entries: 0\noverrun: 0\ncommit overrun: 0\nbytes: 0\noldest event ts:     0.000000\nnow ts:   165.352907\ndropped events: 0\nread events: 0\n",
+      "cpu10": "entries: 0\noverrun: 0\ncommit overrun: 0\nbytes: 0\noldest event ts:     0.000000\nnow ts:   165.352918\ndropped events: 0\nread events: 0\n",
+      "cpu11": "entries: 0\noverrun: 0\ncommit overrun: 0\nbytes: 0\noldest event ts:     0.000000\nnow ts:   165.352925\ndropped events: 0\nread events: 0\n",
+      "cpu12": "entries: 0\noverrun: 0\ncommit overrun: 0\nbytes: 0\noldest event ts:     0.000000\nnow ts:   165.352946\ndropped events: 0\nread events: 0\n",
+      "cpu13": "entries: 0\noverrun: 0\ncommit overrun: 0\nbytes: 0\noldest event ts:     0.000000\nnow ts:   165.352955\ndropped events: 0\nread events: 0\n",
+      "cpu14": "entries: 0\noverrun: 0\ncommit overrun: 0\nbytes: 0\noldest event ts:     0.000000\nnow ts:   165.352962\ndropped events: 0\nread events: 0\n",
+      "cpu15": "entries: 0\noverrun: 0\ncommit overrun: 0\nbytes: 0\noldest event ts:     0.000000\nnow ts:   165.352968\ndropped events: 0\nread events: 0\n",
+      "cpu16": "entries: 0\noverrun: 0\ncommit overrun: 0\nbytes: 0\noldest event ts:     0.000000\nnow ts:   165.352975\ndropped events: 0\nread events: 0\n",
+      "cpu17": "entries: 0\noverrun: 0\ncommit overrun: 0\nbytes: 0\noldest event ts:     0.000000\nnow ts:   165.352981\ndropped events: 0\nread events: 0\n",
+      "cpu18": "entries: 0\noverrun: 0\ncommit overrun: 0\nbytes: 0\noldest event ts:     0.000000\nnow ts:   165.352987\ndropped events: 0\nread events: 0\n",
+      "cpu19": "entries: 0\noverrun: 0\ncommit overrun: 0\nbytes: 0\noldest event ts:     0.000000\nnow ts:   165.352997\ndropped events: 0\nread events: 0\n",
+      "cpu2": "entries: 0\noverrun: 0\ncommit overrun: 0\nbytes: 0\noldest event ts:     0.000000\nnow ts:   165.353014\ndropped events: 0\nread events: 0\n",
+      "cpu3": "entries: 0\noverrun: 0\ncommit overrun: 0\nbytes: 0\noldest event ts:     0.000000\nnow ts:   165.353025\ndropped events: 0\nread events: 0\n",
+      "cpu4": "entries: 0\noverrun: 0\ncommit overrun: 0\nbytes: 0\noldest event ts:     0.000000\nnow ts:   165.353032\ndropped events: 0\nread events: 0\n",
+      "cpu5": "entries: 0\noverrun: 0\ncommit overrun: 0\nbytes: 0\noldest event ts:     0.000000\nnow ts:   165.353038\ndropped events: 0\nread events: 0\n",
+      "cpu6": "entries: 0\noverrun: 0\ncommit overrun: 0\nbytes: 0\noldest event ts:     0.000000\nnow ts:   165.353044\ndropped events: 0\nread events: 0\n",
+      "cpu7": "entries: 0\noverrun: 0\ncommit overrun: 0\nbytes: 0\noldest event ts:     0.000000\nnow ts:   165.353050\ndropped events: 0\nread events: 0\n",
+      "cpu8": "entries: 0\noverrun: 0\ncommit overrun: 0\nbytes: 0\noldest event ts:     0.000000\nnow ts:   165.353056\ndropped events: 0\nread events: 0\n",
+      "cpu9": "entries: 0\noverrun: 0\ncommit overrun: 0\nbytes: 0\noldest event ts:     0.000000\nnow ts:   165.353062\ndropped events: 0\nread events: 0\n"
+    },
+    "loss_counts": {
+      "cpu0": {
+        "overrun": 0,
+        "commit overrun": 0,
+        "dropped events": 0
+      },
+      "cpu1": {
+        "overrun": 0,
+        "commit overrun": 0,
+        "dropped events": 0
+      },
+      "cpu10": {
+        "overrun": 0,
+        "commit overrun": 0,
+        "dropped events": 0
+      },
+      "cpu11": {
+        "overrun": 0,
+        "commit overrun": 0,
+        "dropped events": 0
+      },
+      "cpu12": {
+        "overrun": 0,
+        "commit overrun": 0,
+        "dropped events": 0
+      },
+      "cpu13": {
+        "overrun": 0,
+        "commit overrun": 0,
+        "dropped events": 0
+      },
+      "cpu14": {
+        "overrun": 0,
+        "commit overrun": 0,
+        "dropped events": 0
+      },
+      "cpu15": {
+        "overrun": 0,
+        "commit overrun": 0,
+        "dropped events": 0
+      },
+      "cpu16": {
+        "overrun": 0,
+        "commit overrun": 0,
+        "dropped events": 0
+      },
+      "cpu17": {
+        "overrun": 0,
+        "commit overrun": 0,
+        "dropped events": 0
+      },
+      "cpu18": {
+        "overrun": 0,
+        "commit overrun": 0,
+        "dropped events": 0
+      },
+      "cpu19": {
+        "overrun": 0,
+        "commit overrun": 0,
+        "dropped events": 0
+      },
+      "cpu2": {
+        "overrun": 0,
+        "commit overrun": 0,
+        "dropped events": 0
+      },
+      "cpu3": {
+        "overrun": 0,
+        "commit overrun": 0,
+        "dropped events": 0
+      },
+      "cpu4": {
+        "overrun": 0,
+        "commit overrun": 0,
+        "dropped events": 0
+      },
+      "cpu5": {
+        "overrun": 0,
+        "commit overrun": 0,
+        "dropped events": 0
+      },
+      "cpu6": {
+        "overrun": 0,
+        "commit overrun": 0,
+        "dropped events": 0
+      },
+      "cpu7": {
+        "overrun": 0,
+        "commit overrun": 0,
+        "dropped events": 0
+      },
+      "cpu8": {
+        "overrun": 0,
+        "commit overrun": 0,
+        "dropped events": 0
+      },
+      "cpu9": {
+        "overrun": 0,
+        "commit overrun": 0,
+        "dropped events": 0
+      }
+    }
+  },
+  "bootstrap_filter_names": [
+    "wk7c16f0a5c08a",
+    "wk7c16f0a5c08p",
+    "wk7c16f0a5c08s",
+    "arducopter",
+    "log_io",
+    "DDS",
+    "sim_send",
+    "logger",
+    "wq:lp_default"
+  ],
+  "capture_active_token": "/root/wksim-scheduler-probe-20260912-kernel-bpf-02/capture/capture-bootstrap-active.json",
+  "capture_active": {
+    "schema": "wksim.private-tracefs.capture-bootstrap-active.v1",
+    "state": "bootstrap_active",
+    "phase": "bootstrap_sched_switch",
+    "collector_pid": 1936,
+    "collector_start_ticks": 16498,
+    "supervisor_pid": 1303,
+    "supervisor_start_ticks": 14442,
+    "instance_owner_sha256": "f4630763fa72aa458bf9195ff543c0bf89fee33d17d5b9c8dc218426a3190479",
+    "instance": "/sys/kernel/tracing/instances/wksim-rate-89ba306b2bb748b9935029d703575b27",
+    "instance_inode": [
+      12,
+      23628
+    ],
+    "run_id": "scheduler-72e2be6fc16f",
+    "epoch": "7c16f0a5c08e4770a07b7c7b06442adb",
+    "started_monotonic_ns": 165352504685,
+    "published_monotonic_ns": 165355226205
+  },
+  "capture_bootstrap_token": "/root/wksim-scheduler-probe-20260912-kernel-bpf-02/capture/capture-bootstrap-active.json",
+  "capture_bootstrap": {
+    "schema": "wksim.private-tracefs.capture-bootstrap-active.v1",
+    "state": "bootstrap_active",
+    "phase": "bootstrap_sched_switch",
+    "collector_pid": 1936,
+    "collector_start_ticks": 16498,
+    "supervisor_pid": 1303,
+    "supervisor_start_ticks": 14442,
+    "instance_owner_sha256": "f4630763fa72aa458bf9195ff543c0bf89fee33d17d5b9c8dc218426a3190479",
+    "instance": "/sys/kernel/tracing/instances/wksim-rate-89ba306b2bb748b9935029d703575b27",
+    "instance_inode": [
+      12,
+      23628
+    ],
+    "run_id": "scheduler-72e2be6fc16f",
+    "epoch": "7c16f0a5c08e4770a07b7c7b06442adb",
+    "started_monotonic_ns": 165352504685,
+    "published_monotonic_ns": 165355226205
+  },
+  "gate_release": {
+    "schema": "wksim.private-tracefs.capture-release.v1",
+    "state": "released",
+    "run_id": "scheduler-72e2be6fc16f",
+    "epoch": "7c16f0a5c08e4770a07b7c7b06442adb",
+    "supervisor_pid": 1303,
+    "supervisor_start_ticks": 14442,
+    "collector_pid": 1936,
+    "collector_start_ticks": 16498,
+    "capture_token_sha256": "df971505a59dbbe08866a6a0ff41d12b7878cddf012243a4e7dc56fb01669813",
+    "capture_token_schema": "wksim.private-tracefs.capture-bootstrap-active.v1",
+    "instance_owner_sha256": "f4630763fa72aa458bf9195ff543c0bf89fee33d17d5b9c8dc218426a3190479",
+    "instance": "/sys/kernel/tracing/instances/wksim-rate-89ba306b2bb748b9935029d703575b27",
+    "instance_inode": [
+      12,
+      23628
+    ],
+    "gate_ready_sha256": "74818e07dc263f7b8eda03de7cad21ff2daec26e89162cb90320043512625c9f",
+    "tick": 0,
+    "capture_token_published_monotonic_ns": 165355226205,
+    "released_monotonic_ns": 165476670779
+  },
+  "kernel_probe_closed": true,
+  "stats_after": {
+    "raw": {
+      "cpu0": "entries: 1794\noverrun: 0\ncommit overrun: 0\nbytes: 121992\noldest event ts:   167.602448\nnow ts:   168.515219\ndropped events: 0\nread events: 8472\n",
+      "cpu1": "entries: 2298\noverrun: 0\ncommit overrun: 0\nbytes: 156264\noldest event ts:   167.564452\nnow ts:   168.515234\ndropped events: 0\nread events: 3280\n",
+      "cpu10": "entries: 0\noverrun: 0\ncommit overrun: 0\nbytes: 0\noldest event ts:     0.000000\nnow ts:   168.515242\ndropped events: 0\nread events: 0\n",
+      "cpu11": "entries: 0\noverrun: 0\ncommit overrun: 0\nbytes: 0\noldest event ts:     0.000000\nnow ts:   168.515249\ndropped events: 0\nread events: 0\n",
+      "cpu12": "entries: 0\noverrun: 0\ncommit overrun: 0\nbytes: 0\noldest event ts:     0.000000\nnow ts:   168.515256\ndropped events: 0\nread events: 0\n",
+      "cpu13": "entries: 0\noverrun: 0\ncommit overrun: 0\nbytes: 0\noldest event ts:     0.000000\nnow ts:   168.515263\ndropped events: 0\nread events: 0\n",
+      "cpu14": "entries: 0\noverrun: 0\ncommit overrun: 0\nbytes: 0\noldest event ts:     0.000000\nnow ts:   168.515270\ndropped events: 0\nread events: 0\n",
+      "cpu15": "entries: 0\noverrun: 0\ncommit overrun: 0\nbytes: 0\noldest event ts:     0.000000\nnow ts:   168.515277\ndropped events: 0\nread events: 0\n",
+      "cpu16": "entries: 0\noverrun: 0\ncommit overrun: 0\nbytes: 0\noldest event ts:     0.000000\nnow ts:   168.515284\ndropped events: 0\nread events: 0\n",
+      "cpu17": "entries: 0\noverrun: 0\ncommit overrun: 0\nbytes: 0\noldest event ts:     0.000000\nnow ts:   168.515290\ndropped events: 0\nread events: 0\n",
+      "cpu18": "entries: 0\noverrun: 0\ncommit overrun: 0\nbytes: 0\noldest event ts:     0.000000\nnow ts:   168.515296\ndropped events: 0\nread events: 0\n",
+      "cpu19": "entries: 0\noverrun: 0\ncommit overrun: 0\nbytes: 0\noldest event ts:     0.000000\nnow ts:   168.515306\ndropped events: 0\nread events: 0\n",
+      "cpu2": "entries: 2660\noverrun: 0\ncommit overrun: 0\nbytes: 180880\noldest event ts:   167.496542\nnow ts:   168.515312\ndropped events: 0\nread events: 2868\n",
+      "cpu3": "entries: 1510\noverrun: 0\ncommit overrun: 0\nbytes: 102680\noldest event ts:   167.499298\nnow ts:   168.515319\ndropped events: 0\nread events: 3048\n",
+      "cpu4": "entries: 1591\noverrun: 0\ncommit overrun: 0\nbytes: 108188\noldest event ts:   167.478775\nnow ts:   168.515325\ndropped events: 0\nread events: 2756\n",
+      "cpu5": "entries: 2008\noverrun: 0\ncommit overrun: 0\nbytes: 136544\noldest event ts:   167.479661\nnow ts:   168.515331\ndropped events: 0\nread events: 2277\n",
+      "cpu6": "entries: 2513\noverrun: 0\ncommit overrun: 0\nbytes: 170884\noldest event ts:   167.488532\nnow ts:   168.515337\ndropped events: 0\nread events: 3449\n",
+      "cpu7": "entries: 2101\noverrun: 0\ncommit overrun: 0\nbytes: 142868\noldest event ts:   167.489007\nnow ts:   168.515343\ndropped events: 0\nread events: 2796\n",
+      "cpu8": "entries: 0\noverrun: 0\ncommit overrun: 0\nbytes: 0\noldest event ts:     0.000000\nnow ts:   168.515349\ndropped events: 0\nread events: 0\n",
+      "cpu9": "entries: 0\noverrun: 0\ncommit overrun: 0\nbytes: 0\noldest event ts:     0.000000\nnow ts:   168.515355\ndropped events: 0\nread events: 0\n"
+    },
+    "loss_counts": {
+      "cpu0": {
+        "overrun": 0,
+        "commit overrun": 0,
+        "dropped events": 0
+      },
+      "cpu1": {
+        "overrun": 0,
+        "commit overrun": 0,
+        "dropped events": 0
+      },
+      "cpu10": {
+        "overrun": 0,
+        "commit overrun": 0,
+        "dropped events": 0
+      },
+      "cpu11": {
+        "overrun": 0,
+        "commit overrun": 0,
+        "dropped events": 0
+      },
+      "cpu12": {
+        "overrun": 0,
+        "commit overrun": 0,
+        "dropped events": 0
+      },
+      "cpu13": {
+        "overrun": 0,
+        "commit overrun": 0,
+        "dropped events": 0
+      },
+      "cpu14": {
+        "overrun": 0,
+        "commit overrun": 0,
+        "dropped events": 0
+      },
+      "cpu15": {
+        "overrun": 0,
+        "commit overrun": 0,
+        "dropped events": 0
+      },
+      "cpu16": {
+        "overrun": 0,
+        "commit overrun": 0,
+        "dropped events": 0
+      },
+      "cpu17": {
+        "overrun": 0,
+        "commit overrun": 0,
+        "dropped events": 0
+      },
+      "cpu18": {
+        "overrun": 0,
+        "commit overrun": 0,
+        "dropped events": 0
+      },
+      "cpu19": {
+        "overrun": 0,
+        "commit overrun": 0,
+        "dropped events": 0
+      },
+      "cpu2": {
+        "overrun": 0,
+        "commit overrun": 0,
+        "dropped events": 0
+      },
+      "cpu3": {
+        "overrun": 0,
+        "commit overrun": 0,
+        "dropped events": 0
+      },
+      "cpu4": {
+        "overrun": 0,
+        "commit overrun": 0,
+        "dropped events": 0
+      },
+      "cpu5": {
+        "overrun": 0,
+        "commit overrun": 0,
+        "dropped events": 0
+      },
+      "cpu6": {
+        "overrun": 0,
+        "commit overrun": 0,
+        "dropped events": 0
+      },
+      "cpu7": {
+        "overrun": 0,
+        "commit overrun": 0,
+        "dropped events": 0
+      },
+      "cpu8": {
+        "overrun": 0,
+        "commit overrun": 0,
+        "dropped events": 0
+      },
+      "cpu9": {
+        "overrun": 0,
+        "commit overrun": 0,
+        "dropped events": 0
+      }
+    }
+  },
+  "owners_after": {
+    "ap_worker": {
+      "pid": 1894,
+      "pgid": 1303,
+      "start_ticks": 16496,
+      "argv": [
+        "/usr/bin/python3",
+        "-B",
+        "-m",
+        "Simulator.wksim_core.worker",
+        "--library",
+        "/root/wksim-private-tmp-cxrbwjyr/artifacts/wksim-model-ms14otyn/libwksim_model.so",
+        "--trace",
+        "/root/wksim-scheduler-probe-20260912-kernel-bpf-02/runs/scheduler-72e2be6fc16f/epochs/7c16f0a5c08e4770a07b7c7b06442adb/arducopter-truth.jsonl",
+        "--epoch",
+        "7c16f0a5c08e4770a07b7c7b06442adb"
+      ]
+    },
+    "px4_worker": {
+      "pid": 1898,
+      "pgid": 1303,
+      "start_ticks": 16496,
+      "argv": [
+        "/usr/bin/python3",
+        "-B",
+        "-m",
+        "Simulator.wksim_core.worker",
+        "--library",
+        "/root/wksim-private-tmp-cxrbwjyr/artifacts/wksim-model-ms14otyn/libwksim_model.so",
+        "--trace",
+        "/root/wksim-scheduler-probe-20260912-kernel-bpf-02/runs/scheduler-72e2be6fc16f/epochs/7c16f0a5c08e4770a07b7c7b06442adb/px4-truth.jsonl",
+        "--epoch",
+        "7c16f0a5c08e4770a07b7c7b06442adb"
+      ]
+    },
+    "supervisor": {
+      "pid": 1303,
+      "pgid": 1303,
+      "start_ticks": 14442,
+      "argv": [
+        "python3",
+        "-B",
+        "-m",
+        "Simulator.wksim_runtime.joint_runtime",
+        "/root/wksim-scheduler-probe-20260912-kernel-bpf-02/runs/scheduler-72e2be6fc16f",
+        "7c16f0a5c08e4770a07b7c7b06442adb",
+        "1"
+      ]
+    },
+    "ap_fc": {
+      "pid": 1896,
+      "pgid": 1303,
+      "start_ticks": 16496,
+      "argv": [
+        "/root/wksim-ap-clock-stop-OXQqdR/build/sitl/bin/arducopter",
+        "--model",
+        "JSON:127.0.0.1",
+        "--rate",
+        "1000",
+        "--speedup",
+        "3",
+        "--base-port",
+        "16600",
+        "--instance",
+        "11",
+        "--sysid",
+        "241",
+        "--sim-address",
+        "127.0.0.1",
+        "--sim-port-out",
+        "19002",
+        "--sim-port-in",
+        "19003",
+        "--rc-in-port",
+        "19004",
+        "--serial0",
+        "udpclient:127.0.0.1:14660",
+        "--serial1",
+        "none",
+        "--serial2",
+        "none",
+        "--defaults",
+        "/root/wksim-ap-clock-stop-OXQqdR/src/Tools/autotest/default_params/copter.parm,/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/Simulator/wksim_core/arducopter-quad-x.parm,/root/wksim-scheduler-probe-20260912-kernel-bpf-02/runs/scheduler-72e2be6fc16f/epochs/7c16f0a5c08e4770a07b7c7b06442adb/arducopter/dds.parm",
+        "--home",
+        "40.1540302,116.2593683,50,0"
+      ]
+    },
+    "px4_fc": {
+      "pid": 1900,
+      "pgid": 1303,
+      "start_ticks": 16497,
+      "argv": [
+        "/root/wksim-px4-state-ONa1Kw/src/build/px4_sitl_default/bin/px4",
+        "-d",
+        "/root/wksim-px4-state-ONa1Kw/src/build/px4_sitl_default/etc",
+        "-t",
+        "/root/wksim-px4-state-ONa1Kw/src/test_data",
+        "-i",
+        "21",
+        "-w",
+        "/root/wksim-scheduler-probe-20260912-kernel-bpf-02/runs/scheduler-72e2be6fc16f/epochs/7c16f0a5c08e4770a07b7c7b06442adb/px4"
+      ]
+    }
+  },
+  "fd_after": {
+    "ap_worker": {
+      "fds": {
+        "0": {
+          "target": "pipe:[32060]",
+          "fdinfo": "pos:\t0\nflags:\t00\nmnt_id:\t15\nino:\t32060\n"
+        },
+        "1": {
+          "target": "pipe:[32061]",
+          "fdinfo": "pos:\t0\nflags:\t01\nmnt_id:\t15\nino:\t32061\n"
+        },
+        "2": {
+          "target": "/root/wksim-scheduler-probe-20260912-kernel-bpf-02/runs/scheduler-72e2be6fc16f/epochs/7c16f0a5c08e4770a07b7c7b06442adb/arducopter-model.log",
+          "fdinfo": "pos:\t0\nflags:\t0100001\nmnt_id:\t578\nino:\t1866997\n"
+        },
+        "3": {
+          "target": "/root/wksim-scheduler-probe-20260912-kernel-bpf-02/runs/scheduler-72e2be6fc16f/epochs/7c16f0a5c08e4770a07b7c7b06442adb/arducopter-truth.jsonl",
+          "fdinfo": "pos:\t4298995\nflags:\t02100001\nmnt_id:\t578\nino:\t1867025\n"
+        }
+      },
+      "mountinfo": "578 565 8:48 / / rw,relatime - ext4 /dev/sdd rw,discard,errors=remount-ro,data=ordered\n579 578 0:2 /init /init ro - rootfs rootfs rw,size=8083112k,nr_inodes=2020778\n580 578 0:5 / /dev rw,nosuid,relatime - devtmpfs none rw,size=8083112k,nr_inodes=2020778,mode=755\n581 580 0:60 / /dev/pts rw,nosuid,noexec,noatime - devpts devpts rw,gid=5,mode=620,ptmxmode=000\n582 580 0:63 / /dev/shm rw,nosuid,nodev,noatime - tmpfs none rw\n583 582 0:82 / /dev/shm rw,nosuid,nodev,relatime - tmpfs tmpfs rw\n584 580 0:72 / /dev/hugepages rw,relatime - hugetlbfs hugetlbfs rw,pagesize=2M\n585 580 0:37 / /dev/mqueue rw,nosuid,nodev,noexec,relatime - mqueue mqueue rw\n586 578 0:22 / /sys rw,nosuid,nodev,noexec,noatime - sysfs sysfs rw\n587 586 0:23 / /sys/fs/cgroup rw,nosuid,nodev,noexec,relatime - cgroup2 cgroup2 rw,nsdelegate\n588 586 0:7 / /sys/kernel/debug rw,nosuid,nodev,noexec,relatime - debugfs debugfs rw\n589 586 0:12 / /sys/kernel/tracing rw,nosuid,nodev,noexec,relatime - tracefs tracefs rw\n590 586 0:73 / /sys/fs/fuse/connections rw,nosuid,nodev,noexec,relatime - fusectl fusectl rw\n591 578 0:59 / /proc rw,nosuid,nodev,noexec,noatime - proc proc rw\n592 591 0:33 / /proc/sys/fs/binfmt_misc rw,relatime - binfmt_misc binfmt_misc rw\n593 578 0:61 / /run rw,nosuid,nodev - tmpfs none rw,mode=755\n594 593 0:62 / /run/lock rw,nosuid,nodev,noexec,noatime - tmpfs none rw\n595 593 0:63 / /run/shm rw,nosuid,nodev,noatime - tmpfs none rw\n596 593 0:64 / /run/user rw,nosuid,nodev,noexec,noatime - tmpfs none rw,mode=755\n597 596 0:38 /run/user /run/user rw,relatime - tmpfs none rw\n598 597 0:81 / /run/user/0 rw,nosuid,nodev,relatime - tmpfs tmpfs rw,size=1617628k,nr_inodes=404407,mode=700\n599 593 0:74 / /run/credentials/systemd-sysusers.service ro,nosuid,nodev,noexec,relatime - ramfs ramfs rw,mode=700\n600 578 0:34 / /usr/lib/wsl/drivers ro,nosuid,nodev,noatime - 9p drivers ro,aname=drivers;fmask=222;dmask=222,cache=5,access=client,msize=65536,trans=fd,rfd=8,wfd=8\n601 578 0:55 / /usr/lib/wsl/lib rw,nosuid,nodev,noatime - overlay none rw,lowerdir=/gpu_lib_packaged:/gpu_lib_inbox,upperdir=/gpu_lib/rw/upper,workdir=/gpu_lib/rw/work,uuid=on\n602 578 0:32 / /mnt/wsl rw,relatime - tmpfs none rw\n603 578 0:38 / /mnt/wslg rw,relatime - tmpfs none rw\n604 603 8:48 / /mnt/wslg/distro ro,relatime - ext4 /dev/sdd rw,discard,errors=remount-ro,data=ordered\n605 603 0:40 /etc/versions.txt /mnt/wslg/versions.txt rw,relatime - overlay none rw,lowerdir=/systemvhd,upperdir=/system/rw/upper,workdir=/system/rw/work,uuid=on\n606 603 0:40 /usr/share/doc /mnt/wslg/doc rw,relatime - overlay none rw,lowerdir=/systemvhd,upperdir=/system/rw/upper,workdir=/system/rw/work,uuid=on\n607 603 0:81 / /mnt/wslg/run/user/0 rw,nosuid,nodev,relatime - tmpfs tmpfs rw,size=1617628k,nr_inodes=404407,mode=700\n608 578 0:38 /.X11-unix /tmp/.X11-unix ro,relatime - tmpfs none rw\n613 578 0:29 / /usr/lib/modules/6.6.87.2-microsoft-standard-WSL2 rw,nosuid,nodev,noatime - overlay none rw,lowerdir=/modules,upperdir=/lib/modules/6.6.87.2-microsoft-standard-WSL2/rw/upper,workdir=/lib/modules/6.6.87.2-microsoft-standard-WSL2/rw/work,uuid=on\n619 578 0:69 / /mnt/c rw,noatime - 9p C:\\134 rw,aname=drvfs;path=C:\\;uid=0;gid=0;symlinkroot=/mnt/,cache=5,access=client,msize=65536,trans=fd,rfd=6,wfd=6\n620 578 0:70 / /mnt/d rw,noatime - 9p D:\\134 rw,aname=drvfs;path=D:\\;uid=0;gid=0;symlinkroot=/mnt/,cache=5,access=client,msize=65536,trans=fd,rfd=6,wfd=6\n629 578 0:71 / /mnt/e rw,noatime - 9p E:\\134 rw,aname=drvfs;path=E:\\;uid=0;gid=0;symlinkroot=/mnt/,cache=5,access=client,msize=65536,trans=fd,rfd=6,wfd=6\n630 578 8:48 /var/lib/docker /var/lib/docker rw,relatime - ext4 /dev/sdd rw,discard,errors=remount-ro,data=ordered\n632 583 0:84 / /dev/shm rw,nosuid,nodev,relatime - tmpfs tmpfs rw\n635 578 0:85 / /tmp rw,relatime - overlay overlay rw,lowerdir=/tmp,upperdir=/root/wksim-private-tmp-cuqzierg/upper,workdir=/root/wksim-private-tmp-cuqzierg/work,uuid=on\n"
+    },
+    "px4_worker": {
+      "fds": {
+        "0": {
+          "target": "pipe:[32074]",
+          "fdinfo": "pos:\t0\nflags:\t00\nmnt_id:\t15\nino:\t32074\n"
+        },
+        "1": {
+          "target": "pipe:[32075]",
+          "fdinfo": "pos:\t0\nflags:\t01\nmnt_id:\t15\nino:\t32075\n"
+        },
+        "2": {
+          "target": "/root/wksim-scheduler-probe-20260912-kernel-bpf-02/runs/scheduler-72e2be6fc16f/epochs/7c16f0a5c08e4770a07b7c7b06442adb/px4-model.log",
+          "fdinfo": "pos:\t0\nflags:\t0100001\nmnt_id:\t578\nino:\t1867004\n"
+        },
+        "3": {
+          "target": "/root/wksim-scheduler-probe-20260912-kernel-bpf-02/runs/scheduler-72e2be6fc16f/epochs/7c16f0a5c08e4770a07b7c7b06442adb/px4-truth.jsonl",
+          "fdinfo": "pos:\t4300526\nflags:\t02100001\nmnt_id:\t578\nino:\t1867026\n"
+        }
+      },
+      "mountinfo": "578 565 8:48 / / rw,relatime - ext4 /dev/sdd rw,discard,errors=remount-ro,data=ordered\n579 578 0:2 /init /init ro - rootfs rootfs rw,size=8083112k,nr_inodes=2020778\n580 578 0:5 / /dev rw,nosuid,relatime - devtmpfs none rw,size=8083112k,nr_inodes=2020778,mode=755\n581 580 0:60 / /dev/pts rw,nosuid,noexec,noatime - devpts devpts rw,gid=5,mode=620,ptmxmode=000\n582 580 0:63 / /dev/shm rw,nosuid,nodev,noatime - tmpfs none rw\n583 582 0:82 / /dev/shm rw,nosuid,nodev,relatime - tmpfs tmpfs rw\n584 580 0:72 / /dev/hugepages rw,relatime - hugetlbfs hugetlbfs rw,pagesize=2M\n585 580 0:37 / /dev/mqueue rw,nosuid,nodev,noexec,relatime - mqueue mqueue rw\n586 578 0:22 / /sys rw,nosuid,nodev,noexec,noatime - sysfs sysfs rw\n587 586 0:23 / /sys/fs/cgroup rw,nosuid,nodev,noexec,relatime - cgroup2 cgroup2 rw,nsdelegate\n588 586 0:7 / /sys/kernel/debug rw,nosuid,nodev,noexec,relatime - debugfs debugfs rw\n589 586 0:12 / /sys/kernel/tracing rw,nosuid,nodev,noexec,relatime - tracefs tracefs rw\n590 586 0:73 / /sys/fs/fuse/connections rw,nosuid,nodev,noexec,relatime - fusectl fusectl rw\n591 578 0:59 / /proc rw,nosuid,nodev,noexec,noatime - proc proc rw\n592 591 0:33 / /proc/sys/fs/binfmt_misc rw,relatime - binfmt_misc binfmt_misc rw\n593 578 0:61 / /run rw,nosuid,nodev - tmpfs none rw,mode=755\n594 593 0:62 / /run/lock rw,nosuid,nodev,noexec,noatime - tmpfs none rw\n595 593 0:63 / /run/shm rw,nosuid,nodev,noatime - tmpfs none rw\n596 593 0:64 / /run/user rw,nosuid,nodev,noexec,noatime - tmpfs none rw,mode=755\n597 596 0:38 /run/user /run/user rw,relatime - tmpfs none rw\n598 597 0:81 / /run/user/0 rw,nosuid,nodev,relatime - tmpfs tmpfs rw,size=1617628k,nr_inodes=404407,mode=700\n599 593 0:74 / /run/credentials/systemd-sysusers.service ro,nosuid,nodev,noexec,relatime - ramfs ramfs rw,mode=700\n600 578 0:34 / /usr/lib/wsl/drivers ro,nosuid,nodev,noatime - 9p drivers ro,aname=drivers;fmask=222;dmask=222,cache=5,access=client,msize=65536,trans=fd,rfd=8,wfd=8\n601 578 0:55 / /usr/lib/wsl/lib rw,nosuid,nodev,noatime - overlay none rw,lowerdir=/gpu_lib_packaged:/gpu_lib_inbox,upperdir=/gpu_lib/rw/upper,workdir=/gpu_lib/rw/work,uuid=on\n602 578 0:32 / /mnt/wsl rw,relatime - tmpfs none rw\n603 578 0:38 / /mnt/wslg rw,relatime - tmpfs none rw\n604 603 8:48 / /mnt/wslg/distro ro,relatime - ext4 /dev/sdd rw,discard,errors=remount-ro,data=ordered\n605 603 0:40 /etc/versions.txt /mnt/wslg/versions.txt rw,relatime - overlay none rw,lowerdir=/systemvhd,upperdir=/system/rw/upper,workdir=/system/rw/work,uuid=on\n606 603 0:40 /usr/share/doc /mnt/wslg/doc rw,relatime - overlay none rw,lowerdir=/systemvhd,upperdir=/system/rw/upper,workdir=/system/rw/work,uuid=on\n607 603 0:81 / /mnt/wslg/run/user/0 rw,nosuid,nodev,relatime - tmpfs tmpfs rw,size=1617628k,nr_inodes=404407,mode=700\n608 578 0:38 /.X11-unix /tmp/.X11-unix ro,relatime - tmpfs none rw\n613 578 0:29 / /usr/lib/modules/6.6.87.2-microsoft-standard-WSL2 rw,nosuid,nodev,noatime - overlay none rw,lowerdir=/modules,upperdir=/lib/modules/6.6.87.2-microsoft-standard-WSL2/rw/upper,workdir=/lib/modules/6.6.87.2-microsoft-standard-WSL2/rw/work,uuid=on\n619 578 0:69 / /mnt/c rw,noatime - 9p C:\\134 rw,aname=drvfs;path=C:\\;uid=0;gid=0;symlinkroot=/mnt/,cache=5,access=client,msize=65536,trans=fd,rfd=6,wfd=6\n620 578 0:70 / /mnt/d rw,noatime - 9p D:\\134 rw,aname=drvfs;path=D:\\;uid=0;gid=0;symlinkroot=/mnt/,cache=5,access=client,msize=65536,trans=fd,rfd=6,wfd=6\n629 578 0:71 / /mnt/e rw,noatime - 9p E:\\134 rw,aname=drvfs;path=E:\\;uid=0;gid=0;symlinkroot=/mnt/,cache=5,access=client,msize=65536,trans=fd,rfd=6,wfd=6\n630 578 8:48 /var/lib/docker /var/lib/docker rw,relatime - ext4 /dev/sdd rw,discard,errors=remount-ro,data=ordered\n632 583 0:84 / /dev/shm rw,nosuid,nodev,relatime - tmpfs tmpfs rw\n635 578 0:85 / /tmp rw,relatime - overlay overlay rw,lowerdir=/tmp,upperdir=/root/wksim-private-tmp-cuqzierg/upper,workdir=/root/wksim-private-tmp-cuqzierg/work,uuid=on\n"
+    },
+    "supervisor": {
+      "fds": {
+        "0": {
+          "target": "pipe:[15969]",
+          "fdinfo": "pos:\t0\nflags:\t00\nmnt_id:\t15\nino:\t15969\n"
+        },
+        "1": {
+          "target": "/root/wksim-scheduler-probe-20260912-kernel-bpf-02/runs/scheduler-72e2be6fc16f/7c16f0a5c08e4770a07b7c7b06442adb.log",
+          "fdinfo": "pos:\t0\nflags:\t0100001\nmnt_id:\t526\nino:\t1866900\n"
+        },
+        "10": {
+          "target": "socket:[32050]",
+          "fdinfo": "pos:\t0\nflags:\t02\nmnt_id:\t9\nino:\t32050\n"
+        },
+        "11": {
+          "target": "socket:[32051]",
+          "fdinfo": "pos:\t0\nflags:\t02\nmnt_id:\t9\nino:\t32051\n"
+        },
+        "12": {
+          "target": "socket:[32052]",
+          "fdinfo": "pos:\t0\nflags:\t02\nmnt_id:\t9\nino:\t32052\n"
+        },
+        "13": {
+          "target": "socket:[32053]",
+          "fdinfo": "pos:\t0\nflags:\t02\nmnt_id:\t9\nino:\t32053\n"
+        },
+        "14": {
+          "target": "/dev/shm/fastrtps_port26661_el",
+          "fdinfo": "pos:\t0\nflags:\t0100000\nmnt_id:\t632\nino:\t9\nlock:\t1: FLOCK  ADVISORY  WRITE 1303 00:54:9 0 EOF\n"
+        },
+        "15": {
+          "target": "socket:[32056]",
+          "fdinfo": "pos:\t0\nflags:\t02\nmnt_id:\t9\nino:\t32056\n"
+        },
+        "16": {
+          "target": "socket:[32057]",
+          "fdinfo": "pos:\t0\nflags:\t02000002\nmnt_id:\t9\nino:\t32057\nscm_fds: 0\n"
+        },
+        "17": {
+          "target": "/root/wksim-scheduler-probe-20260912-kernel-bpf-02/runs/scheduler-72e2be6fc16f/epochs/7c16f0a5c08e4770a07b7c7b06442adb/public-dds.jsonl",
+          "fdinfo": "pos:\t452164\nflags:\t02100001\nmnt_id:\t578\nino:\t1866991\n"
+        },
+        "18": {
+          "target": "/root/wksim-scheduler-probe-20260912-kernel-bpf-02/runs/scheduler-72e2be6fc16f/epochs/7c16f0a5c08e4770a07b7c7b06442adb/wire.jsonl",
+          "fdinfo": "pos:\t4478514\nflags:\t02100001\nmnt_id:\t578\nino:\t1866992\n"
+        },
+        "19": {
+          "target": "/root/wksim-scheduler-probe-20260912-kernel-bpf-02/runs/scheduler-72e2be6fc16f/epochs/7c16f0a5c08e4770a07b7c7b06442adb/clock.jsonl",
+          "fdinfo": "pos:\t780515\nflags:\t02100001\nmnt_id:\t578\nino:\t1866993\n"
+        },
+        "2": {
+          "target": "/root/wksim-scheduler-probe-20260912-kernel-bpf-02/runs/scheduler-72e2be6fc16f/7c16f0a5c08e4770a07b7c7b06442adb.log",
+          "fdinfo": "pos:\t0\nflags:\t0100001\nmnt_id:\t526\nino:\t1866900\n"
+        },
+        "20": {
+          "target": "socket:[32058]",
+          "fdinfo": "pos:\t0\nflags:\t02004002\nmnt_id:\t9\nino:\t32058\n"
+        },
+        "21": {
+          "target": "socket:[32059]",
+          "fdinfo": "pos:\t0\nflags:\t02004002\nmnt_id:\t9\nino:\t32059\n"
+        },
+        "22": {
+          "target": "/root/wksim-scheduler-probe-20260912-kernel-bpf-02/runs/scheduler-72e2be6fc16f/epochs/7c16f0a5c08e4770a07b7c7b06442adb/scene-lifecycle.jsonl",
+          "fdinfo": "pos:\t32659\nflags:\t02100001\nmnt_id:\t578\nino:\t1866994\n"
+        },
+        "23": {
+          "target": "/root/wksim-scheduler-probe-20260912-kernel-bpf-02/runs/scheduler-72e2be6fc16f/epochs/7c16f0a5c08e4770a07b7c7b06442adb/arducopter-model.log",
+          "fdinfo": "pos:\t0\nflags:\t02100001\nmnt_id:\t578\nino:\t1866997\n"
+        },
+        "24": {
+          "target": "/root/wksim-scheduler-probe-20260912-kernel-bpf-02/runs/scheduler-72e2be6fc16f/epochs/7c16f0a5c08e4770a07b7c7b06442adb/arducopter-agent.log",
+          "fdinfo": "pos:\t13929\nflags:\t02100001\nmnt_id:\t578\nino:\t1866998\n"
+        },
+        "25": {
+          "target": "pipe:[32060]",
+          "fdinfo": "pos:\t0\nflags:\t02004001\nmnt_id:\t15\nino:\t32060\n"
+        },
+        "26": {
+          "target": "pipe:[32061]",
+          "fdinfo": "pos:\t0\nflags:\t02004000\nmnt_id:\t15\nino:\t32061\n"
+        },
+        "27": {
+          "target": "/root/wksim-scheduler-probe-20260912-kernel-bpf-02/runs/scheduler-72e2be6fc16f/epochs/7c16f0a5c08e4770a07b7c7b06442adb/arducopter-fc.log",
+          "fdinfo": "pos:\t8750\nflags:\t02100001\nmnt_id:\t578\nino:\t1866904\n"
+        },
+        "28": {
+          "target": "/root/wksim-scheduler-probe-20260912-kernel-bpf-02/runs/scheduler-72e2be6fc16f/epochs/7c16f0a5c08e4770a07b7c7b06442adb/arducopter-control.log",
+          "fdinfo": "pos:\t351\nflags:\t02100001\nmnt_id:\t578\nino:\t1867000\n"
+        },
+        "29": {
+          "target": "/root/wksim-scheduler-probe-20260912-kernel-bpf-02/runs/scheduler-72e2be6fc16f/epochs/7c16f0a5c08e4770a07b7c7b06442adb/px4-model.log",
+          "fdinfo": "pos:\t0\nflags:\t02100001\nmnt_id:\t578\nino:\t1867004\n"
+        },
+        "3": {
+          "target": "/root/wksim-scheduler-probe-20260912-kernel-bpf-02/runs/scheduler-72e2be6fc16f/epochs/7c16f0a5c08e4770a07b7c7b06442adb/rate.jsonl",
+          "fdinfo": "pos:\t518028\nflags:\t02100001\nmnt_id:\t578\nino:\t1866902\n"
+        },
+        "30": {
+          "target": "/root/wksim-scheduler-probe-20260912-kernel-bpf-02/runs/scheduler-72e2be6fc16f/epochs/7c16f0a5c08e4770a07b7c7b06442adb/px4-agent.log",
+          "fdinfo": "pos:\t41564\nflags:\t02100001\nmnt_id:\t578\nino:\t1867005\n"
+        },
+        "31": {
+          "target": "pipe:[32074]",
+          "fdinfo": "pos:\t0\nflags:\t02004001\nmnt_id:\t15\nino:\t32074\n"
+        },
+        "32": {
+          "target": "pipe:[32075]",
+          "fdinfo": "pos:\t0\nflags:\t02004000\nmnt_id:\t15\nino:\t32075\n"
+        },
+        "33": {
+          "target": "/root/wksim-scheduler-probe-20260912-kernel-bpf-02/runs/scheduler-72e2be6fc16f/epochs/7c16f0a5c08e4770a07b7c7b06442adb/px4-fc.log",
+          "fdinfo": "pos:\t6086\nflags:\t02100001\nmnt_id:\t578\nino:\t1867002\n"
+        },
+        "34": {
+          "target": "/root/wksim-scheduler-probe-20260912-kernel-bpf-02/runs/scheduler-72e2be6fc16f/epochs/7c16f0a5c08e4770a07b7c7b06442adb/px4-control.log",
+          "fdinfo": "pos:\t2044\nflags:\t02100001\nmnt_id:\t578\nino:\t1867007\n"
+        },
+        "35": {
+          "target": "/root/wksim-scheduler-probe-20260912-kernel-bpf-02/runs/scheduler-72e2be6fc16f/epochs/7c16f0a5c08e4770a07b7c7b06442adb/arducopter-task-9012d51763144afa8ed965c8243687c5.log",
+          "fdinfo": "pos:\t0\nflags:\t02100001\nmnt_id:\t578\nino:\t1867018\n"
+        },
+        "36": {
+          "target": "/root/wksim-scheduler-probe-20260912-kernel-bpf-02/runs/scheduler-72e2be6fc16f/epochs/7c16f0a5c08e4770a07b7c7b06442adb/px4-task-9012d51763144afa8ed965c8243687c5.log",
+          "fdinfo": "pos:\t0\nflags:\t02100001\nmnt_id:\t578\nino:\t1867021\n"
+        },
+        "37": {
+          "target": "socket:[32129]",
+          "fdinfo": "pos:\t0\nflags:\t02004002\nmnt_id:\t9\nino:\t32129\n"
+        },
+        "4": {
+          "target": "/root/wksim-scheduler-probe-20260912-kernel-bpf-02/runs/scheduler-72e2be6fc16f/epochs/7c16f0a5c08e4770a07b7c7b06442adb/preflight.log",
+          "fdinfo": "pos:\t10947\nflags:\t02100001\nmnt_id:\t578\nino:\t1866905\n"
+        },
+        "5": {
+          "target": "/root/.ros/log/python3_1303_1789178434951.log",
+          "fdinfo": "pos:\t0\nflags:\t0102001\nmnt_id:\t578\nino:\t1866990\n"
+        },
+        "6": {
+          "target": "anon_inode:[eventfd]",
+          "fdinfo": "pos:\t0\nflags:\t02004002\nmnt_id:\t16\nino:\t1042\neventfd-count:                1\neventfd-id: 114\neventfd-semaphore: 0\n"
+        },
+        "7": {
+          "target": "anon_inode:[eventpoll]",
+          "fdinfo": "pos:\t0\nflags:\t02000002\nmnt_id:\t16\nino:\t1042\ntfd:       12 events: 8000001b data:     61037ee29d30  pos:0 ino:7d34 sdev:8\ntfd:       15 events: 8000001b data:     61037efc5c60  pos:0 ino:7d38 sdev:8\ntfd:       11 events: 8000001b data:     61037ee27dd0  pos:0 ino:7d33 sdev:8\ntfd:       13 events: 8000001b data:     61037ee67900  pos:0 ino:7d35 sdev:8\ntfd:       10 events: 8000001b data:     61037eddc240  pos:0 ino:7d32 sdev:8\ntfd:        8 events:       19 data:     61037e7b8cb4  pos:0 ino:412 sdev:f\ntfd:        6 events: 80000019 data:     61037e7b8ca8  pos:0 ino:412 sdev:f\n"
+        },
+        "8": {
+          "target": "anon_inode:[timerfd]",
+          "fdinfo": "pos:\t0\nflags:\t02000002\nmnt_id:\t16\nino:\t1042\nclockid: 1\nticks: 0\nsettime flags: 00\nit_value: (0, 0)\nit_interval: (0, 0)\n"
+        },
+        "9": {
+          "target": "/dev/shm/fastrtps_d76e139b8767d5aa_el",
+          "fdinfo": "pos:\t0\nflags:\t0100000\nmnt_id:\t632\nino:\t3\nlock:\t1: FLOCK  ADVISORY  WRITE 1303 00:54:3 0 EOF\n"
+        }
+      },
+      "mountinfo": "578 565 8:48 / / rw,relatime - ext4 /dev/sdd rw,discard,errors=remount-ro,data=ordered\n579 578 0:2 /init /init ro - rootfs rootfs rw,size=8083112k,nr_inodes=2020778\n580 578 0:5 / /dev rw,nosuid,relatime - devtmpfs none rw,size=8083112k,nr_inodes=2020778,mode=755\n581 580 0:60 / /dev/pts rw,nosuid,noexec,noatime - devpts devpts rw,gid=5,mode=620,ptmxmode=000\n582 580 0:63 / /dev/shm rw,nosuid,nodev,noatime - tmpfs none rw\n583 582 0:82 / /dev/shm rw,nosuid,nodev,relatime - tmpfs tmpfs rw\n584 580 0:72 / /dev/hugepages rw,relatime - hugetlbfs hugetlbfs rw,pagesize=2M\n585 580 0:37 / /dev/mqueue rw,nosuid,nodev,noexec,relatime - mqueue mqueue rw\n586 578 0:22 / /sys rw,nosuid,nodev,noexec,noatime - sysfs sysfs rw\n587 586 0:23 / /sys/fs/cgroup rw,nosuid,nodev,noexec,relatime - cgroup2 cgroup2 rw,nsdelegate\n588 586 0:7 / /sys/kernel/debug rw,nosuid,nodev,noexec,relatime - debugfs debugfs rw\n589 586 0:12 / /sys/kernel/tracing rw,nosuid,nodev,noexec,relatime - tracefs tracefs rw\n590 586 0:73 / /sys/fs/fuse/connections rw,nosuid,nodev,noexec,relatime - fusectl fusectl rw\n591 578 0:59 / /proc rw,nosuid,nodev,noexec,noatime - proc proc rw\n592 591 0:33 / /proc/sys/fs/binfmt_misc rw,relatime - binfmt_misc binfmt_misc rw\n593 578 0:61 / /run rw,nosuid,nodev - tmpfs none rw,mode=755\n594 593 0:62 / /run/lock rw,nosuid,nodev,noexec,noatime - tmpfs none rw\n595 593 0:63 / /run/shm rw,nosuid,nodev,noatime - tmpfs none rw\n596 593 0:64 / /run/user rw,nosuid,nodev,noexec,noatime - tmpfs none rw,mode=755\n597 596 0:38 /run/user /run/user rw,relatime - tmpfs none rw\n598 597 0:81 / /run/user/0 rw,nosuid,nodev,relatime - tmpfs tmpfs rw,size=1617628k,nr_inodes=404407,mode=700\n599 593 0:74 / /run/credentials/systemd-sysusers.service ro,nosuid,nodev,noexec,relatime - ramfs ramfs rw,mode=700\n600 578 0:34 / /usr/lib/wsl/drivers ro,nosuid,nodev,noatime - 9p drivers ro,aname=drivers;fmask=222;dmask=222,cache=5,access=client,msize=65536,trans=fd,rfd=8,wfd=8\n601 578 0:55 / /usr/lib/wsl/lib rw,nosuid,nodev,noatime - overlay none rw,lowerdir=/gpu_lib_packaged:/gpu_lib_inbox,upperdir=/gpu_lib/rw/upper,workdir=/gpu_lib/rw/work,uuid=on\n602 578 0:32 / /mnt/wsl rw,relatime - tmpfs none rw\n603 578 0:38 / /mnt/wslg rw,relatime - tmpfs none rw\n604 603 8:48 / /mnt/wslg/distro ro,relatime - ext4 /dev/sdd rw,discard,errors=remount-ro,data=ordered\n605 603 0:40 /etc/versions.txt /mnt/wslg/versions.txt rw,relatime - overlay none rw,lowerdir=/systemvhd,upperdir=/system/rw/upper,workdir=/system/rw/work,uuid=on\n606 603 0:40 /usr/share/doc /mnt/wslg/doc rw,relatime - overlay none rw,lowerdir=/systemvhd,upperdir=/system/rw/upper,workdir=/system/rw/work,uuid=on\n607 603 0:81 / /mnt/wslg/run/user/0 rw,nosuid,nodev,relatime - tmpfs tmpfs rw,size=1617628k,nr_inodes=404407,mode=700\n608 578 0:38 /.X11-unix /tmp/.X11-unix ro,relatime - tmpfs none rw\n613 578 0:29 / /usr/lib/modules/6.6.87.2-microsoft-standard-WSL2 rw,nosuid,nodev,noatime - overlay none rw,lowerdir=/modules,upperdir=/lib/modules/6.6.87.2-microsoft-standard-WSL2/rw/upper,workdir=/lib/modules/6.6.87.2-microsoft-standard-WSL2/rw/work,uuid=on\n619 578 0:69 / /mnt/c rw,noatime - 9p C:\\134 rw,aname=drvfs;path=C:\\;uid=0;gid=0;symlinkroot=/mnt/,cache=5,access=client,msize=65536,trans=fd,rfd=6,wfd=6\n620 578 0:70 / /mnt/d rw,noatime - 9p D:\\134 rw,aname=drvfs;path=D:\\;uid=0;gid=0;symlinkroot=/mnt/,cache=5,access=client,msize=65536,trans=fd,rfd=6,wfd=6\n629 578 0:71 / /mnt/e rw,noatime - 9p E:\\134 rw,aname=drvfs;path=E:\\;uid=0;gid=0;symlinkroot=/mnt/,cache=5,access=client,msize=65536,trans=fd,rfd=6,wfd=6\n630 578 8:48 /var/lib/docker /var/lib/docker rw,relatime - ext4 /dev/sdd rw,discard,errors=remount-ro,data=ordered\n632 583 0:84 / /dev/shm rw,nosuid,nodev,relatime - tmpfs tmpfs rw\n635 578 0:85 / /tmp rw,relatime - overlay overlay rw,lowerdir=/tmp,upperdir=/root/wksim-private-tmp-cuqzierg/upper,workdir=/root/wksim-private-tmp-cuqzierg/work,uuid=on\n"
+    },
+    "ap_fc": {
+      "fds": {
+        "0": {
+          "target": "/dev/null",
+          "fdinfo": "pos:\t0\nflags:\t0100002\nmnt_id:\t580\nino:\t4\n"
+        },
+        "1": {
+          "target": "/root/wksim-scheduler-probe-20260912-kernel-bpf-02/runs/scheduler-72e2be6fc16f/epochs/7c16f0a5c08e4770a07b7c7b06442adb/arducopter-fc.log",
+          "fdinfo": "pos:\t8750\nflags:\t0100001\nmnt_id:\t578\nino:\t1866904\n"
+        },
+        "10": {
+          "target": "/root/wksim-scheduler-probe-20260912-kernel-bpf-02/runs/scheduler-72e2be6fc16f/epochs/7c16f0a5c08e4770a07b7c7b06442adb/arducopter/eeprom.bin",
+          "fdinfo": "pos:\t4056\nflags:\t02100002\nmnt_id:\t578\nino:\t1867001\n"
+        },
+        "11": {
+          "target": "socket:[34876]",
+          "fdinfo": "pos:\t0\nflags:\t02004002\nmnt_id:\t9\nino:\t34876\n"
+        },
+        "12": {
+          "target": "socket:[34877]",
+          "fdinfo": "pos:\t0\nflags:\t02004002\nmnt_id:\t9\nino:\t34877\n"
+        },
+        "13": {
+          "target": "socket:[30413]",
+          "fdinfo": "pos:\t0\nflags:\t02000002\nmnt_id:\t9\nino:\t30413\n"
+        },
+        "14": {
+          "target": "/root/wksim-scheduler-probe-20260912-kernel-bpf-02/runs/scheduler-72e2be6fc16f/epochs/7c16f0a5c08e4770a07b7c7b06442adb/arducopter/logs/00000001.BIN",
+          "fdinfo": "pos:\t110592\nflags:\t02100001\nmnt_id:\t578\nino:\t1867060\n"
+        },
+        "15": {
+          "target": "/root/wksim-scheduler-probe-20260912-kernel-bpf-02/runs/scheduler-72e2be6fc16f/epochs/7c16f0a5c08e4770a07b7c7b06442adb/arducopter/terrain/N40E116.DAT",
+          "fdinfo": "pos:\t473088\nflags:\t02100002\nmnt_id:\t578\nino:\t1867065\n"
+        },
+        "2": {
+          "target": "/root/wksim-scheduler-probe-20260912-kernel-bpf-02/runs/scheduler-72e2be6fc16f/epochs/7c16f0a5c08e4770a07b7c7b06442adb/arducopter-fc.log",
+          "fdinfo": "pos:\t8750\nflags:\t0100001\nmnt_id:\t578\nino:\t1866904\n"
+        },
+        "3": {
+          "target": "socket:[34869]",
+          "fdinfo": "pos:\t0\nflags:\t02000002\nmnt_id:\t9\nino:\t34869\n"
+        },
+        "4": {
+          "target": "socket:[34870]",
+          "fdinfo": "pos:\t0\nflags:\t02000002\nmnt_id:\t9\nino:\t34870\n"
+        },
+        "5": {
+          "target": "socket:[34871]",
+          "fdinfo": "pos:\t0\nflags:\t02000002\nmnt_id:\t9\nino:\t34871\n"
+        },
+        "6": {
+          "target": "socket:[34872]",
+          "fdinfo": "pos:\t0\nflags:\t02000002\nmnt_id:\t9\nino:\t34872\n"
+        },
+        "7": {
+          "target": "socket:[34873]",
+          "fdinfo": "pos:\t0\nflags:\t02000002\nmnt_id:\t9\nino:\t34873\n"
+        },
+        "8": {
+          "target": "socket:[34874]",
+          "fdinfo": "pos:\t0\nflags:\t02000002\nmnt_id:\t9\nino:\t34874\n"
+        },
+        "9": {
+          "target": "socket:[34875]",
+          "fdinfo": "pos:\t0\nflags:\t02004002\nmnt_id:\t9\nino:\t34875\n"
+        }
+      },
+      "mountinfo": "578 565 8:48 / / rw,relatime - ext4 /dev/sdd rw,discard,errors=remount-ro,data=ordered\n579 578 0:2 /init /init ro - rootfs rootfs rw,size=8083112k,nr_inodes=2020778\n580 578 0:5 / /dev rw,nosuid,relatime - devtmpfs none rw,size=8083112k,nr_inodes=2020778,mode=755\n581 580 0:60 / /dev/pts rw,nosuid,noexec,noatime - devpts devpts rw,gid=5,mode=620,ptmxmode=000\n582 580 0:63 / /dev/shm rw,nosuid,nodev,noatime - tmpfs none rw\n583 582 0:82 / /dev/shm rw,nosuid,nodev,relatime - tmpfs tmpfs rw\n584 580 0:72 / /dev/hugepages rw,relatime - hugetlbfs hugetlbfs rw,pagesize=2M\n585 580 0:37 / /dev/mqueue rw,nosuid,nodev,noexec,relatime - mqueue mqueue rw\n586 578 0:22 / /sys rw,nosuid,nodev,noexec,noatime - sysfs sysfs rw\n587 586 0:23 / /sys/fs/cgroup rw,nosuid,nodev,noexec,relatime - cgroup2 cgroup2 rw,nsdelegate\n588 586 0:7 / /sys/kernel/debug rw,nosuid,nodev,noexec,relatime - debugfs debugfs rw\n589 586 0:12 / /sys/kernel/tracing rw,nosuid,nodev,noexec,relatime - tracefs tracefs rw\n590 586 0:73 / /sys/fs/fuse/connections rw,nosuid,nodev,noexec,relatime - fusectl fusectl rw\n591 578 0:59 / /proc rw,nosuid,nodev,noexec,noatime - proc proc rw\n592 591 0:33 / /proc/sys/fs/binfmt_misc rw,relatime - binfmt_misc binfmt_misc rw\n593 578 0:61 / /run rw,nosuid,nodev - tmpfs none rw,mode=755\n594 593 0:62 / /run/lock rw,nosuid,nodev,noexec,noatime - tmpfs none rw\n595 593 0:63 / /run/shm rw,nosuid,nodev,noatime - tmpfs none rw\n596 593 0:64 / /run/user rw,nosuid,nodev,noexec,noatime - tmpfs none rw,mode=755\n597 596 0:38 /run/user /run/user rw,relatime - tmpfs none rw\n598 597 0:81 / /run/user/0 rw,nosuid,nodev,relatime - tmpfs tmpfs rw,size=1617628k,nr_inodes=404407,mode=700\n599 593 0:74 / /run/credentials/systemd-sysusers.service ro,nosuid,nodev,noexec,relatime - ramfs ramfs rw,mode=700\n600 578 0:34 / /usr/lib/wsl/drivers ro,nosuid,nodev,noatime - 9p drivers ro,aname=drivers;fmask=222;dmask=222,cache=5,access=client,msize=65536,trans=fd,rfd=8,wfd=8\n601 578 0:55 / /usr/lib/wsl/lib rw,nosuid,nodev,noatime - overlay none rw,lowerdir=/gpu_lib_packaged:/gpu_lib_inbox,upperdir=/gpu_lib/rw/upper,workdir=/gpu_lib/rw/work,uuid=on\n602 578 0:32 / /mnt/wsl rw,relatime - tmpfs none rw\n603 578 0:38 / /mnt/wslg rw,relatime - tmpfs none rw\n604 603 8:48 / /mnt/wslg/distro ro,relatime - ext4 /dev/sdd rw,discard,errors=remount-ro,data=ordered\n605 603 0:40 /etc/versions.txt /mnt/wslg/versions.txt rw,relatime - overlay none rw,lowerdir=/systemvhd,upperdir=/system/rw/upper,workdir=/system/rw/work,uuid=on\n606 603 0:40 /usr/share/doc /mnt/wslg/doc rw,relatime - overlay none rw,lowerdir=/systemvhd,upperdir=/system/rw/upper,workdir=/system/rw/work,uuid=on\n607 603 0:81 / /mnt/wslg/run/user/0 rw,nosuid,nodev,relatime - tmpfs tmpfs rw,size=1617628k,nr_inodes=404407,mode=700\n608 578 0:38 /.X11-unix /tmp/.X11-unix ro,relatime - tmpfs none rw\n613 578 0:29 / /usr/lib/modules/6.6.87.2-microsoft-standard-WSL2 rw,nosuid,nodev,noatime - overlay none rw,lowerdir=/modules,upperdir=/lib/modules/6.6.87.2-microsoft-standard-WSL2/rw/upper,workdir=/lib/modules/6.6.87.2-microsoft-standard-WSL2/rw/work,uuid=on\n619 578 0:69 / /mnt/c rw,noatime - 9p C:\\134 rw,aname=drvfs;path=C:\\;uid=0;gid=0;symlinkroot=/mnt/,cache=5,access=client,msize=65536,trans=fd,rfd=6,wfd=6\n620 578 0:70 / /mnt/d rw,noatime - 9p D:\\134 rw,aname=drvfs;path=D:\\;uid=0;gid=0;symlinkroot=/mnt/,cache=5,access=client,msize=65536,trans=fd,rfd=6,wfd=6\n629 578 0:71 / /mnt/e rw,noatime - 9p E:\\134 rw,aname=drvfs;path=E:\\;uid=0;gid=0;symlinkroot=/mnt/,cache=5,access=client,msize=65536,trans=fd,rfd=6,wfd=6\n630 578 8:48 /var/lib/docker /var/lib/docker rw,relatime - ext4 /dev/sdd rw,discard,errors=remount-ro,data=ordered\n632 583 0:84 / /dev/shm rw,nosuid,nodev,relatime - tmpfs tmpfs rw\n635 578 0:85 / /tmp rw,relatime - overlay overlay rw,lowerdir=/tmp,upperdir=/root/wksim-private-tmp-cuqzierg/upper,workdir=/root/wksim-private-tmp-cuqzierg/work,uuid=on\n"
+    },
+    "px4_fc": {
+      "fds": {
+        "0": {
+          "target": "/dev/null",
+          "fdinfo": "pos:\t0\nflags:\t0100002\nmnt_id:\t580\nino:\t4\n"
+        },
+        "1": {
+          "target": "/root/wksim-scheduler-probe-20260912-kernel-bpf-02/runs/scheduler-72e2be6fc16f/epochs/7c16f0a5c08e4770a07b7c7b06442adb/px4-fc.log",
+          "fdinfo": "pos:\t6086\nflags:\t0100001\nmnt_id:\t578\nino:\t1867002\n"
+        },
+        "10": {
+          "target": "socket:[22471]",
+          "fdinfo": "pos:\t0\nflags:\t02\nmnt_id:\t9\nino:\t22471\n"
+        },
+        "2": {
+          "target": "/root/wksim-scheduler-probe-20260912-kernel-bpf-02/runs/scheduler-72e2be6fc16f/epochs/7c16f0a5c08e4770a07b7c7b06442adb/px4-fc.log",
+          "fdinfo": "pos:\t6086\nflags:\t0100001\nmnt_id:\t578\nino:\t1867002\n"
+        },
+        "3": {
+          "target": "socket:[29641]",
+          "fdinfo": "pos:\t0\nflags:\t02\nmnt_id:\t9\nino:\t29641\nscm_fds: 0\n"
+        },
+        "4": {
+          "target": "/tmp/px4_lock-21",
+          "fdinfo": "pos:\t0\nflags:\t0100002\nmnt_id:\t635\nino:\t1867008\nlock:\t1: POSIX  ADVISORY  WRITE 1900 00:55:1867008 0 EOF\n"
+        },
+        "5": {
+          "target": "socket:[34964]",
+          "fdinfo": "pos:\t0\nflags:\t02\nmnt_id:\t9\nino:\t34964\n"
+        },
+        "6": {
+          "target": "/root/wksim-scheduler-probe-20260912-kernel-bpf-02/runs/scheduler-72e2be6fc16f/epochs/7c16f0a5c08e4770a07b7c7b06442adb/px4/dataman",
+          "fdinfo": "pos:\t3852\nflags:\t0100002\nmnt_id:\t578\nino:\t1867019\n"
+        },
+        "7": {
+          "target": "socket:[28632]",
+          "fdinfo": "pos:\t0\nflags:\t02\nmnt_id:\t9\nino:\t28632\n"
+        },
+        "8": {
+          "target": "/proc/meminfo",
+          "fdinfo": "pos:\t0\nflags:\t0100000\nmnt_id:\t591\nino:\t4026532024\n"
+        },
+        "9": {
+          "target": "/root/wksim-scheduler-probe-20260912-kernel-bpf-02/runs/scheduler-72e2be6fc16f/epochs/7c16f0a5c08e4770a07b7c7b06442adb/px4/log/2026-09-12/02_00_36.ulg",
+          "fdinfo": "pos:\t884784\nflags:\t0100001\nmnt_id:\t578\nino:\t1867058\n"
+        }
+      },
+      "mountinfo": "578 565 8:48 / / rw,relatime - ext4 /dev/sdd rw,discard,errors=remount-ro,data=ordered\n579 578 0:2 /init /init ro - rootfs rootfs rw,size=8083112k,nr_inodes=2020778\n580 578 0:5 / /dev rw,nosuid,relatime - devtmpfs none rw,size=8083112k,nr_inodes=2020778,mode=755\n581 580 0:60 / /dev/pts rw,nosuid,noexec,noatime - devpts devpts rw,gid=5,mode=620,ptmxmode=000\n582 580 0:63 / /dev/shm rw,nosuid,nodev,noatime - tmpfs none rw\n583 582 0:82 / /dev/shm rw,nosuid,nodev,relatime - tmpfs tmpfs rw\n584 580 0:72 / /dev/hugepages rw,relatime - hugetlbfs hugetlbfs rw,pagesize=2M\n585 580 0:37 / /dev/mqueue rw,nosuid,nodev,noexec,relatime - mqueue mqueue rw\n586 578 0:22 / /sys rw,nosuid,nodev,noexec,noatime - sysfs sysfs rw\n587 586 0:23 / /sys/fs/cgroup rw,nosuid,nodev,noexec,relatime - cgroup2 cgroup2 rw,nsdelegate\n588 586 0:7 / /sys/kernel/debug rw,nosuid,nodev,noexec,relatime - debugfs debugfs rw\n589 586 0:12 / /sys/kernel/tracing rw,nosuid,nodev,noexec,relatime - tracefs tracefs rw\n590 586 0:73 / /sys/fs/fuse/connections rw,nosuid,nodev,noexec,relatime - fusectl fusectl rw\n591 578 0:59 / /proc rw,nosuid,nodev,noexec,noatime - proc proc rw\n592 591 0:33 / /proc/sys/fs/binfmt_misc rw,relatime - binfmt_misc binfmt_misc rw\n593 578 0:61 / /run rw,nosuid,nodev - tmpfs none rw,mode=755\n594 593 0:62 / /run/lock rw,nosuid,nodev,noexec,noatime - tmpfs none rw\n595 593 0:63 / /run/shm rw,nosuid,nodev,noatime - tmpfs none rw\n596 593 0:64 / /run/user rw,nosuid,nodev,noexec,noatime - tmpfs none rw,mode=755\n597 596 0:38 /run/user /run/user rw,relatime - tmpfs none rw\n598 597 0:81 / /run/user/0 rw,nosuid,nodev,relatime - tmpfs tmpfs rw,size=1617628k,nr_inodes=404407,mode=700\n599 593 0:74 / /run/credentials/systemd-sysusers.service ro,nosuid,nodev,noexec,relatime - ramfs ramfs rw,mode=700\n600 578 0:34 / /usr/lib/wsl/drivers ro,nosuid,nodev,noatime - 9p drivers ro,aname=drivers;fmask=222;dmask=222,cache=5,access=client,msize=65536,trans=fd,rfd=8,wfd=8\n601 578 0:55 / /usr/lib/wsl/lib rw,nosuid,nodev,noatime - overlay none rw,lowerdir=/gpu_lib_packaged:/gpu_lib_inbox,upperdir=/gpu_lib/rw/upper,workdir=/gpu_lib/rw/work,uuid=on\n602 578 0:32 / /mnt/wsl rw,relatime - tmpfs none rw\n603 578 0:38 / /mnt/wslg rw,relatime - tmpfs none rw\n604 603 8:48 / /mnt/wslg/distro ro,relatime - ext4 /dev/sdd rw,discard,errors=remount-ro,data=ordered\n605 603 0:40 /etc/versions.txt /mnt/wslg/versions.txt rw,relatime - overlay none rw,lowerdir=/systemvhd,upperdir=/system/rw/upper,workdir=/system/rw/work,uuid=on\n606 603 0:40 /usr/share/doc /mnt/wslg/doc rw,relatime - overlay none rw,lowerdir=/systemvhd,upperdir=/system/rw/upper,workdir=/system/rw/work,uuid=on\n607 603 0:81 / /mnt/wslg/run/user/0 rw,nosuid,nodev,relatime - tmpfs tmpfs rw,size=1617628k,nr_inodes=404407,mode=700\n608 578 0:38 /.X11-unix /tmp/.X11-unix ro,relatime - tmpfs none rw\n613 578 0:29 / /usr/lib/modules/6.6.87.2-microsoft-standard-WSL2 rw,nosuid,nodev,noatime - overlay none rw,lowerdir=/modules,upperdir=/lib/modules/6.6.87.2-microsoft-standard-WSL2/rw/upper,workdir=/lib/modules/6.6.87.2-microsoft-standard-WSL2/rw/work,uuid=on\n619 578 0:69 / /mnt/c rw,noatime - 9p C:\\134 rw,aname=drvfs;path=C:\\;uid=0;gid=0;symlinkroot=/mnt/,cache=5,access=client,msize=65536,trans=fd,rfd=6,wfd=6\n620 578 0:70 / /mnt/d rw,noatime - 9p D:\\134 rw,aname=drvfs;path=D:\\;uid=0;gid=0;symlinkroot=/mnt/,cache=5,access=client,msize=65536,trans=fd,rfd=6,wfd=6\n629 578 0:71 / /mnt/e rw,noatime - 9p E:\\134 rw,aname=drvfs;path=E:\\;uid=0;gid=0;symlinkroot=/mnt/,cache=5,access=client,msize=65536,trans=fd,rfd=6,wfd=6\n630 578 8:48 /var/lib/docker /var/lib/docker rw,relatime - ext4 /dev/sdd rw,discard,errors=remount-ro,data=ordered\n632 583 0:84 / /dev/shm rw,nosuid,nodev,relatime - tmpfs tmpfs rw\n635 578 0:85 / /tmp rw,relatime - overlay overlay rw,lowerdir=/tmp,upperdir=/root/wksim-private-tmp-cuqzierg/upper,workdir=/root/wksim-private-tmp-cuqzierg/work,uuid=on\n"
+    }
+  },
+  "instance_removed": true,
+  "stopped_monotonic_ns": 168515067763,
+  "elapsed_s": null,
+  "signals": [],
+  "global_controls_after": {
+    "tracing_on": "1",
+    "current_tracer": "nop",
+    "trace_clock": "[local] global counter uptime perf mono mono_raw boot tai x86-tsc"
+  },
+  "global_controls_unchanged": true,
+  "loss_free": true,
+  "duration_cap_met": false,
+  "events_observed": false,
+  "complete": false
+}

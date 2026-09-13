@@ -1,0 +1,194 @@
+{
+  "status": "pass",
+  "reasons": [],
+  "scope": "10 wall-second early manager work window, diagnostic only",
+  "identity": {
+    "run_id": "joint-public-flight-xtj8wk8i",
+    "scene_epoch": "792e1feb4b274040965ca38e31491768",
+    "segment": 1
+  },
+  "anchor_epoch": "792e1feb4b274040965ca38e31491768",
+  "anchor_segment": 1,
+  "window": {
+    "anchor_wall_ns": 116928968402,
+    "cutoff_wall_ns": 126928968402,
+    "warmup_after_ns": 118928968402
+  },
+  "per_phase": {
+    "manager_health": {
+      "wall": {
+        "count": 4997,
+        "min_ns": 23181,
+        "median_ns": 116271,
+        "max_ns": 869102
+      },
+      "thread_cpu": {
+        "count": 4997,
+        "min_ns": 22516,
+        "median_ns": 115554,
+        "max_ns": 872058
+      },
+      "wall_peak_sample": {
+        "start_tick": 1586,
+        "start_ns": 120029899996,
+        "end_ns": 120030769098,
+        "wall_ns": 869102,
+        "thread_cpu_ns": 872058
+      },
+      "cpu_peak_sample": {
+        "start_tick": 1586,
+        "start_ns": 120029899996,
+        "end_ns": 120030769098,
+        "wall_ns": 869102,
+        "thread_cpu_ns": 872058
+      },
+      "last_sample_tick": 5033,
+      "error_outcome": 0,
+      "crossing": 0
+    },
+    "rate_begin_group": {
+      "wall": {
+        "count": 1250,
+        "min_ns": 92060,
+        "median_ns": 3793590.5,
+        "max_ns": 4633879
+      },
+      "thread_cpu": {
+        "count": 1250,
+        "min_ns": 89481,
+        "median_ns": 1404041.0,
+        "max_ns": 1865671
+      },
+      "wall_peak_sample": {
+        "start_tick": 3412,
+        "start_ns": 123682394573,
+        "end_ns": 123687028452,
+        "wall_ns": 4633879,
+        "thread_cpu_ns": 1681997
+      },
+      "cpu_peak_sample": {
+        "start_tick": 4584,
+        "start_ns": 126027221997,
+        "end_ns": 126031371303,
+        "wall_ns": 4149306,
+        "thread_cpu_ns": 1865671
+      },
+      "last_sample_tick": 5032,
+      "error_outcome": 0,
+      "crossing": 0
+    },
+    "physics_advance": {
+      "wall": {
+        "count": 4998,
+        "min_ns": 408316,
+        "median_ns": 783737.5,
+        "max_ns": 6622100
+      },
+      "thread_cpu": {
+        "count": 4998,
+        "min_ns": 271508,
+        "median_ns": 598220.0,
+        "max_ns": 1984444
+      },
+      "wall_peak_sample": {
+        "start_tick": 1999,
+        "start_ns": 120854558997,
+        "end_ns": 120861181097,
+        "wall_ns": 6622100,
+        "thread_cpu_ns": 1292890
+      },
+      "cpu_peak_sample": {
+        "start_tick": 854,
+        "start_ns": 118565018221,
+        "end_ns": 118567307953,
+        "wall_ns": 2289732,
+        "thread_cpu_ns": 1984444
+      },
+      "last_sample_tick": 5033,
+      "error_outcome": 0,
+      "crossing": 1
+    },
+    "clock_publication_log": {
+      "wall": {
+        "count": 4997,
+        "min_ns": 53335,
+        "median_ns": 79246,
+        "max_ns": 433381
+      },
+      "thread_cpu": {
+        "count": 4997,
+        "min_ns": 53358,
+        "median_ns": 78771,
+        "max_ns": 433444
+      },
+      "wall_peak_sample": {
+        "start_tick": 1393,
+        "start_ns": 119644268170,
+        "end_ns": 119644701551,
+        "wall_ns": 433381,
+        "thread_cpu_ns": 433444
+      },
+      "cpu_peak_sample": {
+        "start_tick": 1393,
+        "start_ns": 119644268170,
+        "end_ns": 119644701551,
+        "wall_ns": 433381,
+        "thread_cpu_ns": 433444
+      },
+      "last_sample_tick": 5033,
+      "error_outcome": 0,
+      "crossing": 0
+    },
+    "post_advance_readiness_summary": {
+      "wall": {
+        "count": 4997,
+        "min_ns": 13596,
+        "median_ns": 26340,
+        "max_ns": 349803
+      },
+      "thread_cpu": {
+        "count": 4997,
+        "min_ns": 13612,
+        "median_ns": 26118,
+        "max_ns": 351734
+      },
+      "wall_peak_sample": {
+        "start_tick": 2848,
+        "start_ns": 122554730993,
+        "end_ns": 122555080796,
+        "wall_ns": 349803,
+        "thread_cpu_ns": 351734
+      },
+      "cpu_peak_sample": {
+        "start_tick": 2848,
+        "start_ns": 122554730993,
+        "end_ns": 122555080796,
+        "wall_ns": 349803,
+        "thread_cpu_ns": 351734
+      },
+      "last_sample_tick": 5033,
+      "error_outcome": 0,
+      "crossing": 0
+    }
+  },
+  "states": {
+    "truncated": false,
+    "dropped": 0,
+    "diagnostic_error_total": 0,
+    "diagnostic_error_dropped": 0,
+    "diagnostic_errors": [],
+    "valid_samples": 21239,
+    "invalid_samples": 0,
+    "crossing_total": 1,
+    "error_outcome_total": 0
+  },
+  "non_claims": [
+    "phases are sequential segments and are never summed into a closure; outer overlap cannot be added either",
+    "thread CPU is the manager thread only and excludes model worker CPU",
+    "wall minus thread CPU is not a pure scheduling/descheduling attribution",
+    "rate_begin_group includes the active release sleep inside begin_group",
+    "the 10 s window is not extrapolated to the full flight",
+    "diagnostic evidence, never a performance pass"
+  ],
+  "input_sha256": "61dd544b3bb5c0bcec9beeffd870b24c033d4a9451298dc969e2091f8d13cd22"
+}

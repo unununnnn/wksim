@@ -1,0 +1,13 @@
+# 原生发布者图与样本身份
+
+第10/13场只保存了公共请求订阅端图和收到的原生样本；相同DDS参与者前缀不能替代具体writer绑定，单一观察GID也不能证明图中没有沉默的第二writer。旧场次对此仍未验证。
+
+显式ArUco任务现于就绪时绑定目标topic及公共SessionState的具体Control writer。每个频道必须恰有一个发布者，节点名、根namespace、消息类型和完整24字节非零GID匹配。每次公共发送前、运行期间每1s及报告前重新查询，变化或重复立即失败。快照连同权威刻度、单调时间和查询顺序保存在两栈Task报告的 `aruco.publisher_snapshots`。这是所记录时刻的发现图证据，不承诺未采样任意瞬时的全图排他。
+
+绑定后每个原始目标/SessionState样本在原件写入后校验具体writer GID。未知writer抛错使任务失败；出错样本仍保留，不能变成无痕丢弃。普通运行配置不接入此守卫。
+
+主会话修正了代理初稿的GID检查：固定24字节且每字节为十六进制，拒绝非hex、奇数/截断/额外字节、全零。固定栈名为px4/arducopter。11项守卫测试、5项独立边界测试通过；相关ArUco任务/最终HOLD/记录器53项WSL检查通过，另补原始错误样本保留验证（记录器17项通过）。
+
+实际发现测试在独立 `ROS_DOMAIN_ID=213` 中创建两个真实ROS节点和一个真正的沉默第二writer，不发送任何消息、不运行SITL：完整GID与实际TopicEndpointInfo匹配，第二writer仍被拒绝。`WKSIM_RUN_ROS_DISCOVERY_TEST=1 python3 -B -m unittest validation.test_aruco_publisher_discovery validation.test_aruco_publisher_guard` 共12项通过，所有自建节点已关闭。
+
+新模式仍待下一场真实飞行验证；离线审计器对新快照的完整性与样本关联另行复核。

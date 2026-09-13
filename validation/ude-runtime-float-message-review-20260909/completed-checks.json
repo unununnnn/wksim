@@ -1,0 +1,25 @@
+{
+  "archival_method": "Transcribed from completed tool outputs; no additional tests run during archival",
+  "reviewed_author_frozen_sources": {
+    "Simulator/wksim_runtime/pid_task.py": "e0fc7a117c4d56582152b657cbf48be48f7242aa0b6bcb75dc0a1180eb802381",
+    "validation/test_ude_runtime.py": "8618d891a8ba019556e774ef29f7bacb7ffa4ffa9f53c16023e8ed08c3d63bb9"
+  },
+  "actual_ros_regression": {
+    "argv": ["wsl.exe", "-d", "Ubuntu-22.04", "-u", "root", "--", "bash", "validation/lunar-65-astra-20260909-01/run-audit.sh", "-m", "unittest", "validation.test_ude_runtime.UDERuntimeTests.test_actual_ros_message_accepts_frozen_numeric_preparation", "-v"],
+    "exit_code": 0,
+    "tests": 1,
+    "skipped": 0,
+    "test_elapsed_s": 0.282,
+    "test_output": "test_actual_ros_message_accepts_frozen_numeric_preparation (validation.test_ude_runtime.UDERuntimeTests) ... ok\n\nRan 1 test in 0.282s\n\nOK"
+  },
+  "independent_boundary_probe": {
+    "argv_prefix": ["wsl.exe", "-d", "Ubuntu-22.04", "-u", "root", "--", "bash", "validation/lunar-65-astra-20260909-01/run-audit.sh", "-c"],
+    "final_inline_argument_source": "boundary-probe.py",
+    "exit_code": 0,
+    "stdout": {
+      "invalid_scalar_cases_rejected_before_parent_send": 21,
+      "measurement_guard_first": true,
+      "default_pid_position_and_attitude_wire_bytes_unchanged": true
+    }
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "issue": 132,
+  "stable_key": "full-comm-05",
+  "title": "Mavlink_NoSend passive mode",
+  "source": {
+    "file": "docs/plan/full-scope-expansion.md",
+    "line": 36,
+    "ledger_id": "COMM-05",
+    "ledger_file": "docs/plan/full-followup-tickets.json",
+    "parent_issues": [1]
+  },
+  "status": "defined",
+  "evidence_status": "no-evidence",
+  "full_complete": false,
+  "current_gap": "The side effects of passive reception, whether any response is permitted, and the reference evidence for both are undefined; a packet capture proving the send constraint does not exist.",
+  "atoms": [
+    {"id": "COMM-05-A", "name": "passive_receive_semantics", "status": "blocked", "required": "Pinned side-effect semantics of passive reception (state visibility, no commands)", "owner": "protocol maintainer"},
+    {"id": "COMM-05-B", "name": "response_policy", "status": "blocked", "required": "Explicit policy whether heartbeats/ACKs are permitted, with reference evidence", "owner": "protocol maintainer"},
+    {"id": "COMM-05_C", "name": "send_constraint_proof", "status": "blocked", "required": "Packet capture proving zero outbound datagrams for the mode duration", "owner": "validation maintainer"},
+    {"id": "COMM-05-D", "name": "owned_receive_path", "status": "partial", "required": "Owned receive-side seams remain bounded; the observer/relay paths are receive evidence, not NoSend proof", "owner": "runtime maintainer"}
+  ],
+  "mode_required": ["mode_id", "receive_filter", "permitted_responses", "outbound_budget", "capture_proof", "system_id", "epoch", "source_identity"],
+  "scope_rule": "receive-only is proven by capture, not by configuration intent; an unproven NoSend mode is indistinguishable from Full",
+  "errors": ["accepted", "outbound_violation", "response_not_permitted", "capture_missing", "identity_mismatch", "stale_message"],
+  "followups": [
+    {"key": "comm-05-policy-freeze", "files": ["docs/plan/<nosend-policy>.json"], "status": "proposed", "blocked_by": "Reference evidence on passive side effects and responses"},
+    {"key": "comm-05-capture-proof", "files": ["validation/<nosend-capture>"], "status": "proposed", "blocked_by": "Capture tooling on the bounded path"},
+    {"key": "comm-05-nosend-implementation", "files": ["Simulator/wksim_runtime/<mavlink-nosend>.py", "validation/<nosend-tests>.py"], "status": "proposed", "blocked_by": "Frozen policy"}
+  ],
+  "preserved": {"observer": "owned receive seams exist; not NoSend proof", "full_complete": false}
+}

@@ -1,0 +1,542 @@
+{
+  "schema": "wksim.hex.flight.audit.v1",
+  "root": "/root/wksim-hex-flight-px4-live-reset-20260909-02/hex-px4-live-reset-20260909-02",
+  "passed": true,
+  "status": "passed",
+  "checks": {
+    "result": {
+      "recorded_status": "observed",
+      "run_id": "hex-px4-live-reset-20260909-02"
+    },
+    "identity": {
+      "source_files": 20,
+      "configuration_identity": "sha256:d2b359fe9777f749ca4fbad9daeccffc3200a0e42929a2976b4179136310c47f",
+      "model_identity": "sha256:d703da7f888e7110e402aa32ff911cabcb24e0b01afb8bbf4c9ec1ccb897276a",
+      "library_sha256": "b10ef333129b44ce41d2d8d944a1e3d1161db9201bb1aea9eca88e726a5a7c9c",
+      "protocol_sha256": "33748c4374d5f297ae928d1682bc9ef00dde95030249fe5c7ff0dce21363ddcc",
+      "exact_px4_source_compatibility": {}
+    },
+    "physics": {
+      "counts": {
+        "lines": 38350,
+        "start": 1,
+        "initialized": 1,
+        "actuator": 7655,
+        "step": 30692,
+        "end": 1,
+        "groups": 7673,
+        "distinct_actuator_packets": 7655,
+        "repeated_actuator_packets": 0,
+        "held_packet_none_steps": 76
+      },
+      "raw_sha256": "7cf1876a353c8067092061c6347f994babfe75f025e463195fbd1681d397576a",
+      "initial_tick": 0,
+      "six_active_motors": true
+    },
+    "native_decode": {
+      "dds_records": 3903,
+      "mavlink_messages": 11439,
+      "codecs": {
+        "px4_msgs": {
+          "path": "/root/wksim-dds-VxM6Ni/ros-install/px4_msgs/local/lib/python3.10/dist-packages/px4_msgs/__init__.py",
+          "sha256": "4e925a5917bce0442f487b93c39763ee49a6c07662ef3b23560207a15f37ee3e"
+        },
+        "ardupilot_msgs": {
+          "path": "/root/wksim-ap-dds-yaw-state-4Wr27s/ros-install/ardupilot_msgs/local/lib/python3.10/dist-packages/ardupilot_msgs/__init__.py",
+          "sha256": "5ff82c59c182e5b904ce227ede45d6e9e046c6882d0f82a7453df231a9dac0aa"
+        },
+        "prometheus_msgs": {
+          "path": "/root/wksim-ros2-MUlZd0/install/prometheus_msgs/local/lib/python3.10/dist-packages/prometheus_msgs/__init__.py",
+          "sha256": "fc5f25cd3bd19b3dae4c1c58ea303cd85c484dbf6e9c065ec082058ff987b806"
+        },
+        "wksim_msgs": {
+          "path": "/root/wksim-ros2-MUlZd0/install/wksim_msgs/local/lib/python3.10/dist-packages/wksim_msgs/__init__.py",
+          "sha256": "fa5fadcb39d83bd1d2412b3b1d58955423a698236f19d9cf208956c120fdabe3"
+        }
+      },
+      "dialect": {
+        "source": "/root/wksim-telemetry-dialects-20260906-3/px4.py",
+        "sha256": "71d04ba008488ece917fbed9e98fae690213d8d4e235161f934b19fe3b4270dd",
+        "version": "git:fcaa2c7d25e3169dc66155929c338487941555e9",
+        "dialect": "development",
+        "fc_commit": "d6f12ad1c4f70ad3230afd7d86e971421e02fef4",
+        "mavlink_commit": "33af200d25ec6f0925b49b1ba82bbf1294ea5f72",
+        "manifest_sha256": "d412f62f8ce48164b924d596f67f37f0e10bf81a064958cb7667516a42db9a11"
+      },
+      "per_message_publisher_gid_available": false
+    },
+    "public_chain": {
+      "public_requests": 6,
+      "phase_count": 96
+    },
+    "physical_windows": {
+      "hold": {
+        "start_tick": 13160,
+        "end_tick": 18160,
+        "samples": 5001,
+        "violation_ticks": [],
+        "violation_count": 0,
+        "passed": true
+      },
+      "waypoint": {
+        "start_tick": 20680,
+        "end_tick": 22700,
+        "samples": 2021,
+        "violation_ticks": [],
+        "violation_count": 0,
+        "passed": true
+      },
+      "landing_to_terminal": {
+        "start_tick": 30460,
+        "end_tick": 30692,
+        "samples": 233,
+        "violation_count": 0,
+        "violation_ticks": [],
+        "passed": true
+      },
+      "parameter_ground": {
+        "samples": 781,
+        "violation_count": 0,
+        "violation_ticks": [],
+        "passed": true
+      }
+    },
+    "native_parameters": {
+      "count": 77,
+      "values": {
+        "MAV_TYPE": 13,
+        "CA_AIRFRAME": 0,
+        "CA_ROTOR_COUNT": 6,
+        "CA_R_REV": 0,
+        "CA_ROTOR0_PX": 0.0,
+        "CA_ROTOR0_PY": 0.22499999403953552,
+        "CA_ROTOR0_PZ": 0.0,
+        "CA_ROTOR0_AX": 0.0,
+        "CA_ROTOR0_AY": 0.0,
+        "CA_ROTOR0_AZ": -1.0,
+        "CA_ROTOR0_CT": 6.5,
+        "CA_ROTOR0_KM": -0.016555622220039368,
+        "CA_ROTOR0_TILT": 0,
+        "CA_ROTOR1_PX": 0.0,
+        "CA_ROTOR1_PY": -0.22499999403953552,
+        "CA_ROTOR1_PZ": 0.0,
+        "CA_ROTOR1_AX": 0.0,
+        "CA_ROTOR1_AY": 0.0,
+        "CA_ROTOR1_AZ": -1.0,
+        "CA_ROTOR1_CT": 6.5,
+        "CA_ROTOR1_KM": 0.016555622220039368,
+        "CA_ROTOR1_TILT": 0,
+        "CA_ROTOR2_PX": 0.1948557198047638,
+        "CA_ROTOR2_PY": -0.11249999701976776,
+        "CA_ROTOR2_PZ": 0.0,
+        "CA_ROTOR2_AX": 0.0,
+        "CA_ROTOR2_AY": 0.0,
+        "CA_ROTOR2_AZ": -1.0,
+        "CA_ROTOR2_CT": 6.5,
+        "CA_ROTOR2_KM": -0.016555622220039368,
+        "CA_ROTOR2_TILT": 0,
+        "CA_ROTOR3_PX": -0.1948557198047638,
+        "CA_ROTOR3_PY": 0.11249999701976776,
+        "CA_ROTOR3_PZ": 0.0,
+        "CA_ROTOR3_AX": 0.0,
+        "CA_ROTOR3_AY": 0.0,
+        "CA_ROTOR3_AZ": -1.0,
+        "CA_ROTOR3_CT": 6.5,
+        "CA_ROTOR3_KM": 0.016555622220039368,
+        "CA_ROTOR3_TILT": 0,
+        "CA_ROTOR4_PX": 0.1948557198047638,
+        "CA_ROTOR4_PY": 0.11249999701976776,
+        "CA_ROTOR4_PZ": 0.0,
+        "CA_ROTOR4_AX": 0.0,
+        "CA_ROTOR4_AY": 0.0,
+        "CA_ROTOR4_AZ": -1.0,
+        "CA_ROTOR4_CT": 6.5,
+        "CA_ROTOR4_KM": 0.016555622220039368,
+        "CA_ROTOR4_TILT": 0,
+        "CA_ROTOR5_PX": -0.1948557198047638,
+        "CA_ROTOR5_PY": -0.11249999701976776,
+        "CA_ROTOR5_PZ": 0.0,
+        "CA_ROTOR5_AX": 0.0,
+        "CA_ROTOR5_AY": 0.0,
+        "CA_ROTOR5_AZ": -1.0,
+        "CA_ROTOR5_CT": 6.5,
+        "CA_ROTOR5_KM": -0.016555622220039368,
+        "CA_ROTOR5_TILT": 0,
+        "PWM_MAIN_FUNC1": 101,
+        "PWM_MAIN_FUNC2": 102,
+        "PWM_MAIN_FUNC3": 103,
+        "PWM_MAIN_FUNC4": 104,
+        "PWM_MAIN_FUNC5": 105,
+        "PWM_MAIN_FUNC6": 106,
+        "PWM_MAIN_FUNC7": 0,
+        "PWM_MAIN_FUNC8": 0,
+        "PWM_MAIN_FUNC9": 0,
+        "PWM_MAIN_FUNC10": 0,
+        "PWM_MAIN_FUNC11": 0,
+        "PWM_MAIN_FUNC12": 0,
+        "PWM_MAIN_FUNC13": 0,
+        "PWM_MAIN_FUNC14": 0,
+        "PWM_MAIN_FUNC15": 0,
+        "PWM_MAIN_FUNC16": 0,
+        "SIM_BAT_ENABLE": 1,
+        "UXRCE_DDS_SYNCT": 0,
+        "SYS_AUTOSTART": 10016
+      },
+      "ap_service_capture": "client serialized request/response, not packet attribution"
+    },
+    "native_delivery": {
+      "dds_targets": 152,
+      "same_timestamp_ulog_targets": 23,
+      "six_native_motors": true,
+      "same_timestamp_actuator_groups": 305,
+      "decoder_sha256": "130187f7676dd53582f984085a8659f6a2c0545fb627c7a683e7609807a6f2ef",
+      "native_logs": {
+        "log/2026-09-09/12_41_57.ulg": {
+          "sha256": "e704620afa31188d622d1449eb1b16b7edd25c79f0ab223233c2168670b8c81f",
+          "size": 9824197
+        }
+      },
+      "boundary": "Sampled ULog + MAVLink receipt; no per-packet publisher attribution or exact first acceptance tick"
+    },
+    "retirement": {
+      "processes_checked": 5,
+      "method": "Current /proc boot_id + pid + starttime; never signal"
+    },
+    "cold_reset": {
+      "parent_run_id": "hex-px4-03",
+      "parent_result_sha256": "ab9aeff2e222bb7105a8dfe9a6e25420eb1768ec062eaaf3deba40b8eba3b3ff",
+      "new_run_id": "hex-px4-live-reset-20260909-02",
+      "tick0": true,
+      "parent_audit": {
+        "schema": "wksim.hex.flight.audit.v1",
+        "root": "/root/wksim-hex-flight-px4-03/hex-px4-03",
+        "passed": true,
+        "status": "passed",
+        "checks": {
+          "result": {
+            "recorded_status": "observed",
+            "run_id": "hex-px4-03"
+          },
+          "identity": {
+            "source_files": 20,
+            "configuration_identity": "sha256:d2b359fe9777f749ca4fbad9daeccffc3200a0e42929a2976b4179136310c47f",
+            "model_identity": "sha256:d703da7f888e7110e402aa32ff911cabcb24e0b01afb8bbf4c9ec1ccb897276a",
+            "library_sha256": "b10ef333129b44ce41d2d8d944a1e3d1161db9201bb1aea9eca88e726a5a7c9c",
+            "protocol_sha256": "33748c4374d5f297ae928d1682bc9ef00dde95030249fe5c7ff0dce21363ddcc",
+            "exact_px4_source_compatibility": {
+              "tools/hex_launch_plan.py": {
+                "archived_sha256": "5576dc5326261d9edd5d68352189ac2923d1ff9c2a868f9e28bc6b4be612dd0f",
+                "reviewed_current_sha256": "79f245859060c3ed9ac344938cf2ffa581598a53ba463e403536baa550071a6d"
+              },
+              "tools/hex_candidate.py": {
+                "archived_sha256": "337ed9fb3ff0423c7ec2da9c5e02530e413575c357349615408036830af31bbe",
+                "reviewed_current_sha256": "6bf746ed0b0620d0bb02cae951581cd745f482cb9fe8e75c119e86a7cbfd7103"
+              },
+              "Simulator/wksim_core/px4_mavlink.py": {
+                "archived_sha256": "08b3d5fbf6754822572240ceb6beb289341bd0c6653455a35b60b3fb3d85ab3d",
+                "reviewed_current_sha256": "e8c903f2b4c84a261adf6f512c8437c51364143dc048d1ac2cb873e7cfb53260"
+              }
+            }
+          },
+          "physics": {
+            "counts": {
+              "lines": 38644,
+              "start": 1,
+              "initialized": 1,
+              "actuator": 7717,
+              "step": 30924,
+              "end": 1,
+              "groups": 7731,
+              "distinct_actuator_packets": 7717,
+              "repeated_actuator_packets": 0,
+              "held_packet_none_steps": 56
+            },
+            "raw_sha256": "2d93088f3d11945fc582d90f49310e867894f5f52216328ccd3f347afe85d5de",
+            "initial_tick": 0,
+            "six_active_motors": true
+          },
+          "native_decode": {
+            "dds_records": 3753,
+            "mavlink_messages": 11519,
+            "codecs": {
+              "px4_msgs": {
+                "path": "/root/wksim-dds-VxM6Ni/ros-install/px4_msgs/local/lib/python3.10/dist-packages/px4_msgs/__init__.py",
+                "sha256": "4e925a5917bce0442f487b93c39763ee49a6c07662ef3b23560207a15f37ee3e"
+              },
+              "ardupilot_msgs": {
+                "path": "/root/wksim-ap-dds-yaw-state-4Wr27s/ros-install/ardupilot_msgs/local/lib/python3.10/dist-packages/ardupilot_msgs/__init__.py",
+                "sha256": "5ff82c59c182e5b904ce227ede45d6e9e046c6882d0f82a7453df231a9dac0aa"
+              },
+              "prometheus_msgs": {
+                "path": "/root/wksim-ros2-MUlZd0/install/prometheus_msgs/local/lib/python3.10/dist-packages/prometheus_msgs/__init__.py",
+                "sha256": "fc5f25cd3bd19b3dae4c1c58ea303cd85c484dbf6e9c065ec082058ff987b806"
+              },
+              "wksim_msgs": {
+                "path": "/root/wksim-ros2-MUlZd0/install/wksim_msgs/local/lib/python3.10/dist-packages/wksim_msgs/__init__.py",
+                "sha256": "fa5fadcb39d83bd1d2412b3b1d58955423a698236f19d9cf208956c120fdabe3"
+              }
+            },
+            "dialect": {
+              "source": "/root/wksim-telemetry-dialects-20260906-3/px4.py",
+              "sha256": "71d04ba008488ece917fbed9e98fae690213d8d4e235161f934b19fe3b4270dd",
+              "version": "git:fcaa2c7d25e3169dc66155929c338487941555e9",
+              "dialect": "development",
+              "fc_commit": "d6f12ad1c4f70ad3230afd7d86e971421e02fef4",
+              "mavlink_commit": "33af200d25ec6f0925b49b1ba82bbf1294ea5f72",
+              "manifest_sha256": "d412f62f8ce48164b924d596f67f37f0e10bf81a064958cb7667516a42db9a11"
+            },
+            "per_message_publisher_gid_available": false
+          },
+          "public_chain": {
+            "public_requests": 6,
+            "phase_count": 96
+          },
+          "physical_windows": {
+            "hold": {
+              "start_tick": 13200,
+              "end_tick": 18220,
+              "samples": 5021,
+              "violation_ticks": [],
+              "violation_count": 0,
+              "passed": true
+            },
+            "waypoint": {
+              "start_tick": 20740,
+              "end_tick": 22760,
+              "samples": 2021,
+              "violation_ticks": [],
+              "violation_count": 0,
+              "passed": true
+            },
+            "landing_to_terminal": {
+              "start_tick": 30500,
+              "end_tick": 30924,
+              "samples": 425,
+              "violation_count": 0,
+              "violation_ticks": [],
+              "passed": true
+            },
+            "parameter_ground": {
+              "samples": 781,
+              "violation_count": 0,
+              "violation_ticks": [],
+              "passed": true
+            }
+          },
+          "native_parameters": {
+            "count": 77,
+            "values": {
+              "MAV_TYPE": 13,
+              "CA_AIRFRAME": 0,
+              "CA_ROTOR_COUNT": 6,
+              "CA_R_REV": 0,
+              "CA_ROTOR0_PX": 0.0,
+              "CA_ROTOR0_PY": 0.22499999403953552,
+              "CA_ROTOR0_PZ": 0.0,
+              "CA_ROTOR0_AX": 0.0,
+              "CA_ROTOR0_AY": 0.0,
+              "CA_ROTOR0_AZ": -1.0,
+              "CA_ROTOR0_CT": 6.5,
+              "CA_ROTOR0_KM": -0.016555622220039368,
+              "CA_ROTOR0_TILT": 0,
+              "CA_ROTOR1_PX": 0.0,
+              "CA_ROTOR1_PY": -0.22499999403953552,
+              "CA_ROTOR1_PZ": 0.0,
+              "CA_ROTOR1_AX": 0.0,
+              "CA_ROTOR1_AY": 0.0,
+              "CA_ROTOR1_AZ": -1.0,
+              "CA_ROTOR1_CT": 6.5,
+              "CA_ROTOR1_KM": 0.016555622220039368,
+              "CA_ROTOR1_TILT": 0,
+              "CA_ROTOR2_PX": 0.1948557198047638,
+              "CA_ROTOR2_PY": -0.11249999701976776,
+              "CA_ROTOR2_PZ": 0.0,
+              "CA_ROTOR2_AX": 0.0,
+              "CA_ROTOR2_AY": 0.0,
+              "CA_ROTOR2_AZ": -1.0,
+              "CA_ROTOR2_CT": 6.5,
+              "CA_ROTOR2_KM": -0.016555622220039368,
+              "CA_ROTOR2_TILT": 0,
+              "CA_ROTOR3_PX": -0.1948557198047638,
+              "CA_ROTOR3_PY": 0.11249999701976776,
+              "CA_ROTOR3_PZ": 0.0,
+              "CA_ROTOR3_AX": 0.0,
+              "CA_ROTOR3_AY": 0.0,
+              "CA_ROTOR3_AZ": -1.0,
+              "CA_ROTOR3_CT": 6.5,
+              "CA_ROTOR3_KM": 0.016555622220039368,
+              "CA_ROTOR3_TILT": 0,
+              "CA_ROTOR4_PX": 0.1948557198047638,
+              "CA_ROTOR4_PY": 0.11249999701976776,
+              "CA_ROTOR4_PZ": 0.0,
+              "CA_ROTOR4_AX": 0.0,
+              "CA_ROTOR4_AY": 0.0,
+              "CA_ROTOR4_AZ": -1.0,
+              "CA_ROTOR4_CT": 6.5,
+              "CA_ROTOR4_KM": 0.016555622220039368,
+              "CA_ROTOR4_TILT": 0,
+              "CA_ROTOR5_PX": -0.1948557198047638,
+              "CA_ROTOR5_PY": -0.11249999701976776,
+              "CA_ROTOR5_PZ": 0.0,
+              "CA_ROTOR5_AX": 0.0,
+              "CA_ROTOR5_AY": 0.0,
+              "CA_ROTOR5_AZ": -1.0,
+              "CA_ROTOR5_CT": 6.5,
+              "CA_ROTOR5_KM": -0.016555622220039368,
+              "CA_ROTOR5_TILT": 0,
+              "PWM_MAIN_FUNC1": 101,
+              "PWM_MAIN_FUNC2": 102,
+              "PWM_MAIN_FUNC3": 103,
+              "PWM_MAIN_FUNC4": 104,
+              "PWM_MAIN_FUNC5": 105,
+              "PWM_MAIN_FUNC6": 106,
+              "PWM_MAIN_FUNC7": 0,
+              "PWM_MAIN_FUNC8": 0,
+              "PWM_MAIN_FUNC9": 0,
+              "PWM_MAIN_FUNC10": 0,
+              "PWM_MAIN_FUNC11": 0,
+              "PWM_MAIN_FUNC12": 0,
+              "PWM_MAIN_FUNC13": 0,
+              "PWM_MAIN_FUNC14": 0,
+              "PWM_MAIN_FUNC15": 0,
+              "PWM_MAIN_FUNC16": 0,
+              "SIM_BAT_ENABLE": 1,
+              "UXRCE_DDS_SYNCT": 0,
+              "SYS_AUTOSTART": 10016
+            },
+            "ap_service_capture": "client serialized request/response, not packet attribution"
+          },
+          "native_delivery": {
+            "dds_targets": 140,
+            "same_timestamp_ulog_targets": 23,
+            "six_native_motors": true,
+            "same_timestamp_actuator_groups": 309,
+            "decoder_sha256": "130187f7676dd53582f984085a8659f6a2c0545fb627c7a683e7609807a6f2ef",
+            "native_logs": {
+              "log/2026-09-09/05_10_37.ulg": {
+                "sha256": "1a2d94c38633502e01eb6a86eb34393401b7aa815f9fdc8b3ff87b387c6f2c4f",
+                "size": 9948356
+              }
+            },
+            "boundary": "Sampled ULog + MAVLink receipt; no per-packet publisher attribution or exact first acceptance tick"
+          },
+          "retirement": {
+            "processes_checked": 5,
+            "method": "Current /proc boot_id + pid + starttime; never signal"
+          },
+          "cold_reset": {
+            "status": "not_present",
+            "passed": false,
+            "boundary": "No cold-reset flight evidence supplied"
+          },
+          "immutability": {
+            "passed": true,
+            "files": 43
+          }
+        },
+        "errors": [],
+        "scope": "Recorded Hex native chain and 1ms physical mission; no UE, aircraft calibration, G6 or Full claim",
+        "cold_reset_required": false,
+        "inputs_sha256": {
+          "result.json": "ab9aeff2e222bb7105a8dfe9a6e25420eb1768ec062eaaf3deba40b8eba3b3ff",
+          "fc.log": "b13bab023674917e799f720e77866c9e3f79491e3373a3564d3402f3653775a0",
+          "prometheus.jsonl": "7f940c4f3545b59a3811ce98d53b13d6ff0cc27fb9c3b358d2d42968d3b459e7",
+          "isolation.json": "4c2b53e69bf8ccdd91eba94580ff72ca1215b6273b44ef51f1ea55b4af5bbcf3",
+          "config.json": "86a4d68d807afc81571f728a9790bbd799e500b8841e7827dc0cf9545d409b73",
+          "control.maps": "7276c969aeadcccf2ff6c74c66c8938154921dc606cce17da52d1a4d15906fd4",
+          "physics.maps": "5babbe526bf538354ca0d105868c987501436b4b4798b8c0c1c1d0abdd09823c",
+          "dataman": "55cf902b00539fd43b45029e449392ebfab82acdda744f056fcbe3aa0b0c10c4",
+          "parameters_backup.bson": "76dc8182ecc023255715e163ab4c6b241599a145a43e8ed3021a4f539a67580e",
+          "control.log": "2ba8f6df64ecc53ad4d6144ea021b7c910055891d469420d2a43515dd7462da3",
+          "physics.log": "871c48d59d7fe092a0a831bd538a697d6fba2ab4f1bd67a09532bfecbc5bf207",
+          "parameters.bson": "76dc8182ecc023255715e163ab4c6b241599a145a43e8ed3021a4f539a67580e",
+          "physics-1ms.jsonl": "2d93088f3d11945fc582d90f49310e867894f5f52216328ccd3f347afe85d5de",
+          "agent.log": "f967848189264ca470ae6a8c9c3c0bd1b76e1126347d29d24131019a604cf698",
+          "protocol.json": "33748c4374d5f297ae928d1682bc9ef00dde95030249fe5c7ff0dce21363ddcc",
+          "truth.jsonl": "af2916c6da2dd9c2483b23000cce518f546e8ea5246238f11bd8c062fb13fd0d",
+          "agent.maps": "151c22a76a939b45d9186a65b79d012d8639d4c112832fab0b60d1f7da9f5626",
+          "hex-progress.json": "38cb63cbb1cc59c06b55c7ee60f7bea9806c928bc929c79a2ba7c47e5108e4f5",
+          "hex-native.jsonl": "eda5232731fc6adb15f06afe06ecf697c3ff49806952a089385ef03e2a500cb3",
+          "admission.json": "18624af35f8b6aad650b691c7be58bbbd1b6b5ecc2a858bcde29ecfbad32e132",
+          "fc.maps": "be00e32505d0a868bf85c6a127b6e01cecd8fa37246a8229dfde5a87bce56adc",
+          "postflight-admission.json": "18624af35f8b6aad650b691c7be58bbbd1b6b5ecc2a858bcde29ecfbad32e132",
+          "log/2026-09-09/05_10_37.ulg": "1a2d94c38633502e01eb6a86eb34393401b7aa815f9fdc8b3ff87b387c6f2c4f",
+          "run-source/Simulator/wksim_runtime/evidence.py": "4f7f2e601ce3c2edfe54c1c48ed35d41133304c2b1fa56a969148c6ccbbfcb7a",
+          "run-source/Simulator/wksim_runtime/telemetry_dialect.py": "fa9cec926c3ab0b7e5ce64849a652f76ebd2cf6361d45222d6c563dff728287a",
+          "run-source/Simulator/wksim_runtime/telemetry-dialects.json": "d412f62f8ce48164b924d596f67f37f0e10bf81a064958cb7667516a42db9a11",
+          "run-source/Simulator/wksim_runtime/hex_task.py": "e413cfeeadae7be2742a44abcf1b7467a19b188ca0b6277047aa409b1b7399f9",
+          "run-source/Simulator/wksim_runtime/hex-flight-v1.json": "33748c4374d5f297ae928d1682bc9ef00dde95030249fe5c7ff0dce21363ddcc",
+          "run-source/Simulator/wksim_runtime/runtime.py": "7853410a294cd0d41356ff49a5976c001a78c3cc89e0722f7bd7e47147ca4d3c",
+          "run-source/Simulator/wksim_runtime/isolation.py": "92466d6e736f671031b5d53f01d8ebcfd2ab1aa6c28c9946e2f891087bb61c99",
+          "run-source/Simulator/wksim_runtime/task.py": "9791913df7ad61d229a151d4d1d0e5c2b3f32d127a7545096b43a32638f0dbbc",
+          "run-source/Simulator/wksim_core/px4_mavlink.py": "08b3d5fbf6754822572240ceb6beb289341bd0c6653455a35b60b3fb3d85ab3d",
+          "run-source/Simulator/wksim_core/model.cpp": "3f325678b1d85c9aa3fd07bd644d82935aa26d82885926defeced139f02ddf2c",
+          "run-source/Simulator/wksim_core/ap_json.py": "db3498d5df50aa3ab46601a8e899c6739e613d431a7d221ac57d2a86e1846469",
+          "run-source/Simulator/wksim_core/px4-rc.mavlink": "2c3cea474c5669b6c9ae241072a1c5f813f06ff771233e0f81721397c903d214",
+          "run-source/Simulator/wksim_core/state_stream.py": "d0bf4534885170bc281394657558afbfa143d76360ac1157e1c0e60d9719a76e",
+          "run-source/Simulator/wksim_core/model.py": "af767e9299e4282da8da168998605c02039ea64d9cc27bb33e9dce24d1a6b77a",
+          "run-source/tools/build_hex_model_candidate.py": "865cd979f5921019c13950a220d82756557190be57520e1e42f92b378a7595e6",
+          "run-source/tools/run_hex_flight.py": "ecd23eb4300ec86ee863ec50b6ea4d8ef8b014ab3f3abd8e6bb03be205de8523",
+          "run-source/tools/hex_launch_plan.py": "5576dc5326261d9edd5d68352189ac2923d1ff9c2a868f9e28bc6b4be612dd0f",
+          "run-source/tools/run-hex-flight.sh": "98ff3801c57e1bb8827ac3b5c9bae62941ededa3b1155d69f8d23b12fdc798d1",
+          "run-source/tools/hex_candidate.py": "337ed9fb3ff0423c7ec2da9c5e02530e413575c357349615408036830af31bbe",
+          "run-source/tools/hex_physics.py": "0465ebb40c2f8487a0af98fe2bf78cd056e237da30c3991c6063d8514e2e9a16"
+        },
+        "auditor_sha256": "bf05c8c1c6e2cdbefd04f99542e37af61d48283ad36b9cba364961ab5108beed"
+      }
+    },
+    "immutability": {
+      "passed": true,
+      "files": 43
+    }
+  },
+  "errors": [],
+  "scope": "Recorded Hex native chain and 1ms physical mission; no UE, aircraft calibration, G6 or Full claim",
+  "cold_reset_required": true,
+  "inputs_sha256": {
+    "result.json": "9f29cd9207f594be988415b0b23f5ed9910ca2ac45b6929a05a40a9ed690e2e3",
+    "fc.log": "586c0e5fd2f3a338298d3a5377c968c1a25c3c7f8017dfdb8dc3b8af2244ad3d",
+    "prometheus.jsonl": "d1358dd20ddf1776b3d054284bf4a6a83986a06e96aa0aafc073b82d37a4efbe",
+    "isolation.json": "64d2be51be4389d96953df54e970ef4d32d1dcc7ac1530f712257bd473ee7b14",
+    "config.json": "abc86aee45d0a581c9f534e806b89586a89eb5bd51c7a44f300d1a7b88ae3c52",
+    "control.maps": "a702e44a1f10ed4910820c32df50fa5a808cc336b1c15c23c3d387988078d772",
+    "physics.maps": "7fecf97038a5fcc0958345115b2c26a2da674906e56ddd236d5f363040b396c0",
+    "dataman": "55cf902b00539fd43b45029e449392ebfab82acdda744f056fcbe3aa0b0c10c4",
+    "parameters_backup.bson": "0d3724afa242382fcb4e0519e8dd2e04cee4d9113cb60f49138d7cdff7fe7c14",
+    "control.log": "429389532ced054067a99fc260249b1036cefaa302ccfd49cc50c66e00a0c8a8",
+    "physics.log": "871c48d59d7fe092a0a831bd538a697d6fba2ab4f1bd67a09532bfecbc5bf207",
+    "parameters.bson": "0d3724afa242382fcb4e0519e8dd2e04cee4d9113cb60f49138d7cdff7fe7c14",
+    "physics-1ms.jsonl": "7cf1876a353c8067092061c6347f994babfe75f025e463195fbd1681d397576a",
+    "agent.log": "18c56b81f07e959cf54212ef2f14dbec4d2296919db43f597d085cfdc9b4ad7d",
+    "protocol.json": "33748c4374d5f297ae928d1682bc9ef00dde95030249fe5c7ff0dce21363ddcc",
+    "truth.jsonl": "a89505b81f95074497ebd11a696666b834230de3712babee8779bd529dbf4f69",
+    "agent.maps": "41905079c43857c3db361520fb25a8d31ed5f0ce004f3f898aa8182e2b327d93",
+    "hex-progress.json": "e157f80bd71ecc4dcf9905be155174d78dcbdbfe5b274cfbe4a16a53df228851",
+    "hex-native.jsonl": "011247ef4be8ae1e10c2d79f4cc811f48c9901e73ab689efeed1b0a5d5167621",
+    "admission.json": "16f7ffaa2cb888677638a695e3b8cd3fb08ed460bd71167bfee0e3e80e757e3a",
+    "fc.maps": "9325712c7f6757735ba6f3530361a592af9d0fb077650819956016b4f3d1fb25",
+    "postflight-admission.json": "16f7ffaa2cb888677638a695e3b8cd3fb08ed460bd71167bfee0e3e80e757e3a",
+    "log/2026-09-09/12_41_57.ulg": "e704620afa31188d622d1449eb1b16b7edd25c79f0ab223233c2168670b8c81f",
+    "run-source/Simulator/wksim_runtime/evidence.py": "4f7f2e601ce3c2edfe54c1c48ed35d41133304c2b1fa56a969148c6ccbbfcb7a",
+    "run-source/Simulator/wksim_runtime/telemetry_dialect.py": "fa9cec926c3ab0b7e5ce64849a652f76ebd2cf6361d45222d6c563dff728287a",
+    "run-source/Simulator/wksim_runtime/telemetry-dialects.json": "d412f62f8ce48164b924d596f67f37f0e10bf81a064958cb7667516a42db9a11",
+    "run-source/Simulator/wksim_runtime/hex_task.py": "db34d6c750cf9d9a073496e2117c63722a6e8ce96e8ab67f1db620dd05ddca0c",
+    "run-source/Simulator/wksim_runtime/hex-flight-v1.json": "33748c4374d5f297ae928d1682bc9ef00dde95030249fe5c7ff0dce21363ddcc",
+    "run-source/Simulator/wksim_runtime/runtime.py": "7853410a294cd0d41356ff49a5976c001a78c3cc89e0722f7bd7e47147ca4d3c",
+    "run-source/Simulator/wksim_runtime/isolation.py": "92466d6e736f671031b5d53f01d8ebcfd2ab1aa6c28c9946e2f891087bb61c99",
+    "run-source/Simulator/wksim_runtime/task.py": "9791913df7ad61d229a151d4d1d0e5c2b3f32d127a7545096b43a32638f0dbbc",
+    "run-source/Simulator/wksim_core/px4_mavlink.py": "e8c903f2b4c84a261adf6f512c8437c51364143dc048d1ac2cb873e7cfb53260",
+    "run-source/Simulator/wksim_core/model.cpp": "3f325678b1d85c9aa3fd07bd644d82935aa26d82885926defeced139f02ddf2c",
+    "run-source/Simulator/wksim_core/ap_json.py": "db3498d5df50aa3ab46601a8e899c6739e613d431a7d221ac57d2a86e1846469",
+    "run-source/Simulator/wksim_core/px4-rc.mavlink": "2c3cea474c5669b6c9ae241072a1c5f813f06ff771233e0f81721397c903d214",
+    "run-source/Simulator/wksim_core/state_stream.py": "d0bf4534885170bc281394657558afbfa143d76360ac1157e1c0e60d9719a76e",
+    "run-source/Simulator/wksim_core/model.py": "af767e9299e4282da8da168998605c02039ea64d9cc27bb33e9dce24d1a6b77a",
+    "run-source/tools/build_hex_model_candidate.py": "865cd979f5921019c13950a220d82756557190be57520e1e42f92b378a7595e6",
+    "run-source/tools/run_hex_flight.py": "7b57b1d892208ae8b47d50d9c2651f50a6abe2dba7e9bf5db78bc846e3b35a33",
+    "run-source/tools/hex_launch_plan.py": "79f245859060c3ed9ac344938cf2ffa581598a53ba463e403536baa550071a6d",
+    "run-source/tools/run-hex-flight.sh": "98ff3801c57e1bb8827ac3b5c9bae62941ededa3b1155d69f8d23b12fdc798d1",
+    "run-source/tools/hex_candidate.py": "6bf746ed0b0620d0bb02cae951581cd745f482cb9fe8e75c119e86a7cbfd7103",
+    "run-source/tools/hex_physics.py": "0465ebb40c2f8487a0af98fe2bf78cd056e237da30c3991c6063d8514e2e9a16"
+  },
+  "auditor_sha256": "bf05c8c1c6e2cdbefd04f99542e37af61d48283ad36b9cba364961ab5108beed"
+}

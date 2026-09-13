@@ -1,0 +1,126 @@
+{
+  "scope": "Single-process microbenchmark of final wait only; not a flight or production rate proof",
+  "primary_metric": "Python re-entry time minus deadline; C crossing time alone excludes adapter/GIL return costs",
+  "host": {
+    "python": "3.10.12",
+    "kernel": "6.6.87.2-microsoft-standard-WSL2",
+    "affinity": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19
+    ],
+    "gc_enabled": true
+  },
+  "runtime_ns": 3118566571,
+  "library_sha256": "b695fcc7c86ea0e3ad5c6b56bc4ba5055725fc24c6b83da784c2664da2da4145",
+  "adapter_sha256": "17328f020f6086f313c70a3b4f278e41a4b5772d0f8857ba327d52496096ec08",
+  "benchmark_sha256": "c39f577d72fa6646bae17ad82e2c346fc0e042fa09232a4f6868af4380cbd3b4",
+  "production_pacer_changed": false,
+  "modes": {
+    "python_poll": {
+      "observed_lateness_ns": {
+        "count": 1000,
+        "median_ns": 26.0,
+        "p95_ns": 57,
+        "p99_ns": 110980,
+        "maximum_ns": 189730,
+        "total_ns": 2359818,
+        "over_10us": 27
+      },
+      "return_lateness_ns": {
+        "count": 1000,
+        "median_ns": 148.5,
+        "p95_ns": 517,
+        "p99_ns": 112058,
+        "maximum_ns": 189825,
+        "total_ns": 2532098,
+        "over_10us": 28
+      },
+      "return_gap_ns": {
+        "count": 1000,
+        "median_ns": 116.5,
+        "p95_ns": 378,
+        "p99_ns": 644,
+        "maximum_ns": 1477,
+        "total_ns": 172280,
+        "over_10us": 0
+      }
+    },
+    "cdll": {
+      "observed_lateness_ns": {
+        "count": 1000,
+        "median_ns": 7.0,
+        "p95_ns": 1796,
+        "p99_ns": 53162,
+        "maximum_ns": 280278,
+        "total_ns": 2122124,
+        "over_10us": 39
+      },
+      "return_lateness_ns": {
+        "count": 1000,
+        "median_ns": 2979.0,
+        "p95_ns": 16308,
+        "p99_ns": 56062,
+        "maximum_ns": 286165,
+        "total_ns": 6517725,
+        "over_10us": 138
+      },
+      "return_gap_ns": {
+        "count": 1000,
+        "median_ns": 2880.5,
+        "p95_ns": 12228,
+        "p99_ns": 18635,
+        "maximum_ns": 54152,
+        "total_ns": 4395601,
+        "over_10us": 104
+      }
+    },
+    "pydll": {
+      "observed_lateness_ns": {
+        "count": 1000,
+        "median_ns": 7.0,
+        "p95_ns": 16,
+        "p99_ns": 39944,
+        "maximum_ns": 210942,
+        "total_ns": 1763659,
+        "over_10us": 29
+      },
+      "return_lateness_ns": {
+        "count": 1000,
+        "median_ns": 2424.0,
+        "p95_ns": 13601,
+        "p99_ns": 59260,
+        "maximum_ns": 219433,
+        "total_ns": 5822768,
+        "over_10us": 112
+      },
+      "return_gap_ns": {
+        "count": 1000,
+        "median_ns": 2313.5,
+        "p95_ns": 11562,
+        "p99_ns": 23166,
+        "maximum_ns": 59248,
+        "total_ns": 4059109,
+        "over_10us": 85
+      }
+    }
+  },
+  "rows_sha256": "e0742388ce82efd2a68200b8ed024526d4323c6d6950b226c27345c6129df7c8"
+}

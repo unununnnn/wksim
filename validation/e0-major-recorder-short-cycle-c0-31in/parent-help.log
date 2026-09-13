@@ -1,0 +1,73 @@
+usage: build_generated_e0_major.py [-h] [--generation-dir GENERATION_DIR]
+                                   [--codegen-source-dir CODEGEN_SOURCE_DIR]
+                                   [--matlab-include-dir MATLAB_INCLUDE_DIR]
+                                   [--recorder-source RECORDER_SOURCE]
+                                   [--post-reference-source POST_REFERENCE_SOURCE]
+                                   [--build-id BUILD_ID]
+                                   [--evidence-dir EVIDENCE_DIR]
+                                   [--evidence-root EVIDENCE_ROOT]
+                                   [--wsl-distro WSL_DISTRO]
+                                   [--wsl-user WSL_USER]
+                                   [--wsl-build-dir WSL_BUILD_DIR]
+                                   [--record-input RECORD_INPUT]
+                                   [--reference-lib REFERENCE_LIB]
+                                   [--reference-manifest REFERENCE_MANIFEST]
+                                   [--no-verify-parity] [--timeout TIMEOUT]
+
+Standalone Linux build and major recorder execution driver for generated e0
+Simulink model. Builds major_model_recorder in WSL Ubuntu 22.04 from verified
+Embedded Coder C++ artifacts and tools/major_model_recorder.cpp, with zero
+runtime MATLAB dependency. Instruments a private copy of Exp1_MinModelTemp.cpp
+with wk_capture_major read-only callback at the exact point where root major
+outputs are assembled before ODE4 continuous state update. Validates parity
+against the unmodified 11.8 model library (libwksim_e0.so).
+
+options:
+  -h, --help            show this help message and exit
+  --generation-dir GENERATION_DIR
+                        Path to generation evidence dir (default: C:\Users\PC\
+                        Documents\odid编译\wksim\validation\codegen-e0\short-
+                        cycle-codegen-01)
+  --codegen-source-dir CODEGEN_SOURCE_DIR
+                        Optional override for codegen source folder containing
+                        Exp1_MinModelTemp.cpp
+  --matlab-include-dir MATLAB_INCLUDE_DIR
+                        Path to MathWorks simulink include dir (default:
+                        D:\matlab\install date\simulink\include)
+  --recorder-source RECORDER_SOURCE
+                        Path to major_model_recorder.cpp (default: C:\Users\PC
+                        \Documents\odid编译\wksim\tools\major_model_recorder.cpp
+                        )
+  --post-reference-source POST_REFERENCE_SOURCE
+                        Path to generated_e0_post_reference.cpp (default: C:\U
+                        sers\PC\Documents\odid编译\wksim\tools\generated_e0_post
+                        _reference.cpp)
+  --build-id BUILD_ID   Identifier for this build run (^[a-zA-Z0-9_-]+$)
+  --evidence-dir EVIDENCE_DIR
+                        Explicit destination directory for evidence artifacts
+                        in validation/
+  --evidence-root EVIDENCE_ROOT
+                        Root directory for build evidence (default:
+                        C:\Users\PC\Documents\odid编译\wksim\validation)
+  --wsl-distro WSL_DISTRO
+                        WSL distribution name (default: Ubuntu-22.04)
+  --wsl-user WSL_USER   WSL username (default: root)
+  --wsl-build-dir WSL_BUILD_DIR
+                        Explicit WSL build directory (default:
+                        /root/wksim-e0-major-<build_id>)
+  --record-input RECORD_INPUT
+                        Path to 501-row input CSV (e.g. validation/numerical-
+                        contract-20260909/inputs/C0.csv)
+  --reference-lib REFERENCE_LIB
+                        Path in WSL to reference (.so shared library or
+                        .jsonl). If omitted, uses built-in 31-input reference
+                        executable
+  --reference-manifest REFERENCE_MANIFEST
+                        Path to reference build-manifest.json for source and
+                        SHA verification (default: C:\Users\PC\Documents\odid编
+                        译\wksim\validation\codegen-e0-build-short-
+                        cycle-01\build-manifest.json)
+  --no-verify-parity    Skip post-step parity verification against reference
+                        library
+  --timeout TIMEOUT     Compilation and execution timeout in seconds (default:
+                        120.0)

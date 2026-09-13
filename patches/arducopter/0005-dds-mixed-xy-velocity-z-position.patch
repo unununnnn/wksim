@@ -1,0 +1,382 @@
+diff --git a/libraries/AP_DDS/AP_DDS_ExternalControl.cpp b/libraries/AP_DDS/AP_DDS_ExternalControl.cpp
+--- a/libraries/AP_DDS/AP_DDS_ExternalControl.cpp
++++ b/libraries/AP_DDS/AP_DDS_ExternalControl.cpp
+@@ -18,6 +18,29 @@
+     }
+ 
+     if (strcmp(cmd_pos.header.frame_id, MAP_FRAME) == 0) {
++        constexpr uint16_t mixed_mask = GlobalPosition::IGNORE_LATITUDE | GlobalPosition::IGNORE_LONGITUDE |
++            GlobalPosition::IGNORE_VZ | GlobalPosition::IGNORE_AFX | GlobalPosition::IGNORE_AFY |
++            GlobalPosition::IGNORE_AFZ | GlobalPosition::IGNORE_YAW_RATE; // 0x9E3
++        if (cmd_pos.type_mask == mixed_mask) {
++            // Only relative-home altitude, map XY velocity and absolute yaw.
++            // Do not read ignored latitude/longitude, Vz, acceleration or angular payload.
++            const auto &v = cmd_pos.velocity.linear;
++            const double altitude_cm = double(cmd_pos.altitude) * 100.0;
++            const double max_xy_speed = std::sqrt(double(std::numeric_limits<float>::max()) / 4.0) / 100.0;
++            if (cmd_pos.coordinate_frame != 6 ||
++                !std::isfinite(cmd_pos.altitude) || !std::isfinite(cmd_pos.yaw) ||
++                !std::isfinite(v.x) || !std::isfinite(v.y) ||
++                altitude_cm < std::numeric_limits<int32_t>::min() ||
++                altitude_cm > std::numeric_limits<int32_t>::max() ||
++                fabs(v.x) > max_xy_speed || fabs(v.y) > max_xy_speed) {
++                return false;
++            }
++            // Leave headroom for avoidance's centimetre conversion and squared XY norm.
++            const Vector2f velocity_ne_ms {float(v.y), float(v.x)};
++            return external_control->set_altitude_velocity_xy_and_yaw(
++                static_cast<int32_t>(altitude_cm), velocity_ne_ms,
++                wrap_PI(radians(90.0f) - cmd_pos.yaw));
++        }
+         constexpr uint16_t velocity_fields = GlobalPosition::IGNORE_VX |
+             GlobalPosition::IGNORE_VY | GlobalPosition::IGNORE_VZ;
+         constexpr uint16_t required_ignored = GlobalPosition::IGNORE_AFX | GlobalPosition::IGNORE_AFY |
+diff --git a/libraries/AP_ExternalControl/AP_ExternalControl.h b/libraries/AP_ExternalControl/AP_ExternalControl.h
+--- a/libraries/AP_ExternalControl/AP_ExternalControl.h
++++ b/libraries/AP_ExternalControl/AP_ExternalControl.h
+@@ -53,6 +53,12 @@
+         return false;
+     }
+ 
++    // Relative-home altitude + NE velocity + absolute NED yaw; no XY position target.
++    virtual bool set_altitude_velocity_xy_and_yaw(int32_t altitude_above_home_cm,
++                                                const Vector2f& velocity_ne_ms, float yaw_rad) WARN_IF_UNUSED {
++        return false;
++    }
++
+     /*
+         Arm the vehicle
+     */
+diff --git a/ArduCopter/AP_ExternalControl_Copter.h b/ArduCopter/AP_ExternalControl_Copter.h
+--- a/ArduCopter/AP_ExternalControl_Copter.h
++++ b/ArduCopter/AP_ExternalControl_Copter.h
+@@ -24,6 +24,8 @@
+     bool set_global_position_and_yaw(const Location& loc, float yaw_rad) override WARN_IF_UNUSED;
+     bool set_global_position_velocity_and_yaw(const Location& loc, const Vector3f& velocity_ned_ms,
+                                              bool use_yaw, float yaw_rad) override WARN_IF_UNUSED;
++    bool set_altitude_velocity_xy_and_yaw(int32_t altitude_above_home_cm,
++                                        const Vector2f& velocity_ne_ms, float yaw_rad) override WARN_IF_UNUSED;
+ private:
+     /*
+       Return true if Copter is ready to handle external control data.
+diff --git a/ArduCopter/AP_ExternalControl_Copter.cpp b/ArduCopter/AP_ExternalControl_Copter.cpp
+--- a/ArduCopter/AP_ExternalControl_Copter.cpp
++++ b/ArduCopter/AP_ExternalControl_Copter.cpp
+@@ -8,6 +8,7 @@
+ 
+ #include "Copter.h"
+ #include <cmath>
++#include <limits>
+ 
+ /*
+   set linear velocity and yaw rate. Pass NaN for yaw_rate_rads to not control yaw
+@@ -64,6 +65,37 @@
+                                                use_yaw, use_yaw ? yaw_rad : 0.0f, false, 0.0f, false);
+ }
+ 
++bool AP_ExternalControl_Copter::set_altitude_velocity_xy_and_yaw(int32_t altitude_above_home_cm,
++    const Vector2f& velocity_ne_ms, float yaw_rad)
++{
++    if (!ready_for_external_control() || !std::isfinite(velocity_ne_ms.x) ||
++        !std::isfinite(velocity_ne_ms.y) || !std::isfinite(yaw_rad)) {
++        return false;
++    }
++
++    auto &ahrs = AP::ahrs();
++    Location check_loc, origin;
++    if (!ahrs.get_location(check_loc) || !check_loc.initialised() ||
++        !ahrs.home_is_set() || !ahrs.get_origin(origin)) {
++        return false;
++    }
++    // Guard Location's int32 centimetre intermediates before the real conversion.
++    const int64_t absolute_cm = int64_t(altitude_above_home_cm) + ahrs.get_home().alt;
++    const int64_t origin_cm = absolute_cm - origin.alt;
++    if (absolute_cm < std::numeric_limits<int32_t>::min() || absolute_cm > std::numeric_limits<int32_t>::max() ||
++        origin_cm < std::numeric_limits<int32_t>::min() || origin_cm > std::numeric_limits<int32_t>::max()) {
++        return false;
++    }
++    check_loc.set_alt_cm(altitude_above_home_cm, Location::AltFrame::ABOVE_HOME);
++    float altitude_above_origin_m;
++    if (!check_loc.initialised() ||
++        !check_loc.get_alt_m(Location::AltFrame::ABOVE_ORIGIN, altitude_above_origin_m) ||
++        !std::isfinite(altitude_above_origin_m)) {
++        return false;
++    }
++    return copter.mode_guided.set_vel_NE_pos_D_m(velocity_ne_ms, -altitude_above_origin_m, yaw_rad);
++}
++
+ bool AP_ExternalControl_Copter::ready_for_external_control()
+ {
+     return copter.flightmode->in_guided_mode() && copter.motors->armed();
+diff --git a/ArduCopter/mode.h b/ArduCopter/mode.h
+--- a/ArduCopter/mode.h
++++ b/ArduCopter/mode.h
+@@ -1129,6 +1129,7 @@
+     void set_vel_accel_NED_m(const Vector3f& vel_ned_ms, const Vector3f& accel_ned_mss, bool use_yaw = false, float yaw_rad = 0.0, bool use_yaw_rate = false, float yaw_rate_rads = 0.0, bool yaw_relative = false, bool log_request = true);
+     bool set_pos_vel_NED_m(const Vector3p& pos_ned_m, const Vector3f& vel_ned_ms, bool use_yaw = false, float yaw_rad = 0.0, bool use_yaw_rate = false, float yaw_rate_rads = 0.0, bool yaw_relative = false);
+     bool set_pos_vel_accel_NED_m(const Vector3p& pos_ned_m, const Vector3f& vel_ned_ms, const Vector3f& accel_ned_mss, bool use_yaw = false, float yaw_rad = 0.0, bool use_yaw_rate = false, float yaw_rate_rads = 0.0, bool yaw_relative = false);
++    bool set_vel_NE_pos_D_m(const Vector2f& velocity_ne_ms, float position_d_m, float yaw_rad);
+ 
+     // get position, velocity and acceleration targets
+     const Vector3p& get_target_pos_NED_m() const;
+@@ -1164,6 +1165,7 @@
+         VelAccel,
+         Accel,
+         Angle,
++        VelNEPosD, // append: retain existing GUID log type values (new type = 7)
+     };
+ 
+     SubMode submode() const { return guided_mode; }
+@@ -1220,12 +1222,14 @@
+     void accel_control_start();
+     void velaccel_control_start();
+     void posvelaccel_control_start();
++    void vel_NE_pos_D_control_start();
+     void takeoff_run();
+     void pos_control_run();
+     void accel_control_run();
+     void velaccel_control_run();
+     void pause_control_run();
+     void posvelaccel_control_run();
++    void vel_NE_pos_D_control_run();
+     void set_yaw_state_rad(bool use_yaw, float yaw_rad, bool use_yaw_rate, float yaw_rate_rads, bool relative_angle);
+ 
+     // controls which controller is run (pos or vel):
+diff --git a/ArduCopter/mode_guided.cpp b/ArduCopter/mode_guided.cpp
+--- a/ArduCopter/mode_guided.cpp
++++ b/ArduCopter/mode_guided.cpp
+@@ -1,4 +1,6 @@
+ #include "Copter.h"
++#include <cmath>
++#include <limits>
+ 
+ #if MODE_GUIDED_ENABLED
+ 
+@@ -106,6 +108,10 @@
+     case SubMode::Angle:
+         angle_control_run();
+         break;
++
++    case SubMode::VelNEPosD:
++        vel_NE_pos_D_control_run();
++        break;
+     }
+  }
+ 
+@@ -142,7 +148,9 @@
+     case SubMode::Accel:
+     case SubMode::VelAccel:
+     case SubMode::Angle:
+-        // these submodes have no absolute position target so we reset the position target
++    case SubMode::VelNEPosD:
++        // These submodes have no absolute XY target, so NE moves its target.
++        // VelNEPosD overrides D explicitly in its run; NE/pause use MoveTarget.
+         return false;
+     case SubMode::WP:
+     case SubMode::Pos:
+@@ -307,6 +315,13 @@
+     guided_mode = SubMode::PosVelAccel;
+ 
+     // initialise position controller
++    pva_control_start();
++}
++
++// Initialise only when entering the mixed submode, not for each received target.
++void ModeGuided::vel_NE_pos_D_control_start()
++{
++    guided_mode = SubMode::VelNEPosD;
+     pva_control_start();
+ }
+ 
+@@ -454,6 +469,7 @@
+     case SubMode::Accel:
+     case SubMode::VelAccel:
+     case SubMode::PosVelAccel:
++    case SubMode::VelNEPosD:
+         break;
+     }
+ 
+@@ -643,6 +659,69 @@
+ 
+ #if HAL_LOGGING_ENABLED
+     // log target
++    copter.Log_Write_Guided_Position_Target(guided_mode, guided_pos_target_ned_m, guided_is_terrain_alt, guided_vel_target_ned_ms, guided_accel_target_ned_mss);
++#endif
++    return true;
++}
++
++// Accept NE velocity and D position atomically; there is no commanded XY position.
++bool ModeGuided::set_vel_NE_pos_D_m(const Vector2f& velocity_ne_ms, float position_d_m, float yaw_rad)
++{
++    const double altitude_cm = -double(position_d_m) * 100.0;
++    const double max_xy_speed = std::sqrt(double(std::numeric_limits<float>::max()) / 4.0) / 100.0;
++    if (_paused || !std::isfinite(velocity_ne_ms.x) || !std::isfinite(velocity_ne_ms.y) ||
++        !std::isfinite(position_d_m) || !std::isfinite(yaw_rad) ||
++        fabsf(velocity_ne_ms.x) > max_xy_speed || fabsf(velocity_ne_ms.y) > max_xy_speed ||
++        altitude_cm < std::numeric_limits<int32_t>::min() || altitude_cm > std::numeric_limits<int32_t>::max()) {
++        return false;
++    }
++
++    auto &location_ahrs = AP::ahrs();
++    Location check_loc, origin;
++    if (!location_ahrs.get_location(check_loc) || !check_loc.initialised() ||
++        !location_ahrs.home_is_set() || !location_ahrs.get_origin(origin)) {
++        return false;
++    }
++    const int32_t target_alt_cm = static_cast<int32_t>(altitude_cm);
++    const int64_t absolute_cm = int64_t(target_alt_cm) + origin.alt;
++    const int64_t home_cm = absolute_cm - location_ahrs.get_home().alt;
++    if (absolute_cm < std::numeric_limits<int32_t>::min() || absolute_cm > std::numeric_limits<int32_t>::max() ||
++        home_cm < std::numeric_limits<int32_t>::min() || home_cm > std::numeric_limits<int32_t>::max()) {
++        return false;
++    }
++    // The current geographic XY is used only for validation/fence checks.
++    check_loc.set_alt_cm(target_alt_cm, Location::AltFrame::ABOVE_ORIGIN);
++    float checked_alt_m;
++    if (!check_loc.initialised() ||
++        !check_loc.get_alt_m(Location::AltFrame::ABOVE_HOME, checked_alt_m) || !std::isfinite(checked_alt_m)) {
++        return false;
++    }
++#if AP_FENCE_ENABLED
++    // Fence itself skips failed altitude conversions: fail closed here first.
++    const uint8_t enabled_fences = copter.fence.get_enabled_fences();
++    if (((enabled_fences & AC_FENCE_TYPE_ALT_MAX) &&
++         (!check_loc.get_alt_m(copter.fence.get_alt_max_frame(), checked_alt_m) || !std::isfinite(checked_alt_m))) ||
++        ((enabled_fences & AC_FENCE_TYPE_ALT_MIN) &&
++         (!check_loc.get_alt_m(copter.fence.get_alt_min_frame(), checked_alt_m) || !std::isfinite(checked_alt_m))) ||
++        !copter.fence.check_destination_within_fence(check_loc)) {
++        LOGGER_WRITE_ERROR(LogErrorSubsystem::NAVIGATION, LogErrorCode::DEST_OUTSIDE_FENCE);
++        return false;
++    }
++#endif
++
++    // No mode, controller, yaw, target or timestamp changes before all guards pass.
++    if (guided_mode != SubMode::VelNEPosD) {
++        vel_NE_pos_D_control_start();
++    }
++    set_yaw_state_rad(true, yaw_rad, false, 0.0f, false);
++    guided_pos_target_ned_m = Vector3p(0.0, 0.0, position_d_m);
++    guided_is_terrain_alt = false;
++    guided_vel_target_ned_ms = Vector3f(velocity_ne_ms.x, velocity_ne_ms.y, 0.0f);
++    guided_accel_target_ned_mss.zero();
++    update_time_ms = millis();
++    send_notification = false;
++#if HAL_LOGGING_ENABLED
++    // Type 7 identifies inactive Pxy/Vz/A zero placeholders.
+     copter.Log_Write_Guided_Position_Target(guided_mode, guided_pos_target_ned_m, guided_is_terrain_alt, guided_vel_target_ned_ms, guided_accel_target_ned_mss);
+ #endif
+     return true;
+@@ -966,6 +1045,58 @@
+     attitude_control->input_thrust_vector_heading(pos_control->get_thrust_vector(), auto_yaw.get_heading());
+ }
+ 
++// NE uses native velocity control/avoidance; D uses native position control.
++void ModeGuided::vel_NE_pos_D_control_run()
++{
++    if (is_disarmed_or_landed()) {
++        make_safe_ground_handling(copter.is_tradheli() && motors->get_interlock());
++        return;
++    }
++    motors->set_desired_spool_state(AP_Motors::DesiredSpoolState::THROTTLE_UNLIMITED);
++
++    // Timeout stops XY motion but retains the accepted altitude target.
++    if (millis() - update_time_ms > get_timeout_ms()) {
++        guided_vel_target_ned_ms.zero();
++        guided_accel_target_ned_mss.zero();
++        if ((auto_yaw.mode() == AutoYaw::Mode::RATE) || (auto_yaw.mode() == AutoYaw::Mode::ANGLE_RATE)) {
++            auto_yaw.set_mode(AutoYaw::Mode::HOLD);
++        }
++    }
++
++    Vector3f velocity_ned_ms(guided_vel_target_ned_ms.x, guided_vel_target_ned_ms.y, 0.0f);
++    bool do_avoid = false;
++#if AP_AVOIDANCE_ENABLED
++    copter.avoid.adjust_velocity_NED_m(velocity_ned_ms, pos_control->NE_get_pos_p().kP(), pos_control->NE_get_max_accel_mss(), pos_control->D_get_pos_p().kP(), pos_control->D_get_max_accel_mss(), G_Dt);
++    do_avoid = copter.avoid.limits_active();
++#endif
++    // Only horizontal avoidance applies. Its Z output is never D feedforward.
++    if (!stabilizing_vel_NE() && !do_avoid) {
++        velocity_ned_ms.xy() = pos_control->get_vel_desired_NED_ms().xy();
++    }
++    pos_control->input_vel_accel_NE_m(velocity_ned_ms.xy(), Vector2f(), false);
++    if (!stabilizing_vel_NE() && !do_avoid) {
++        pos_control->NE_stop_vel_stabilisation();
++    } else if (!stabilizing_pos_NE() && !do_avoid) {
++        pos_control->NE_stop_pos_stabilisation();
++    }
++
++    if (guided_is_terrain_alt) {
++        INTERNAL_ERROR(AP_InternalError::error_t::flow_of_control);
++    }
++    float pz = guided_pos_target_ned_m.z;
++    float vz = 0.0f;
++    pos_control->input_pos_vel_accel_D_m(pz, vz, 0.0f, false);
++    guided_pos_target_ned_m.z = pz;
++
++    // Each axis consumes its own reset policy in its native update.
++    pos_control->set_reset_handling_method(AC_PosControl::EKFResetMethod::MoveTarget);
++    pos_control->NE_update_controller();
++    pos_control->set_reset_handling_method(AC_PosControl::EKFResetMethod::MoveVehicle);
++    pos_control->D_update_controller();
++    pos_control->set_reset_handling_method(AC_PosControl::EKFResetMethod::MoveTarget);
++    attitude_control->input_thrust_vector_heading(pos_control->get_thrust_vector(), auto_yaw.get_heading());
++}
++
+ // angle_control_run - runs the guided angle controller
+ // called from guided_run
+ void ModeGuided::angle_control_run()
+@@ -1147,6 +1278,8 @@
+         return get_horizontal_distance(pos_control->get_pos_estimate_NED_m().xy().tofloat(), guided_pos_target_ned_m.xy().tofloat());
+     case SubMode::PosVelAccel:
+         return pos_control->get_pos_error_NE_m();
++    case SubMode::VelNEPosD:
++        return 0.0f; // no commanded XY waypoint
+     default:
+         return 0.0f;
+     }
+@@ -1165,6 +1298,7 @@
+     case SubMode::Accel:
+     case SubMode::VelAccel:
+     case SubMode::Angle:
++    case SubMode::VelNEPosD:
+         // these do not have bearings
+         return 0;
+     }
+@@ -1182,6 +1316,7 @@
+     case SubMode::Accel:
+     case SubMode::VelAccel:
+     case SubMode::PosVelAccel:
++    case SubMode::VelNEPosD:
+         return pos_control->crosstrack_error_m();
+     case SubMode::Angle:
+         // no track to have a crosstrack to
+@@ -1200,6 +1335,10 @@
+ // pause guide mode
+ bool ModeGuided::pause()
+ {
++    if (guided_mode == SubMode::VelNEPosD) {
++        // Resume must not replay a mixed target. A fresh command can re-enter it.
++        hold_position();
++    }
+     _paused = true;
+     return true;
+ }
+diff --git a/ArduCopter/GCS_MAVLink_Copter.cpp b/ArduCopter/GCS_MAVLink_Copter.cpp
+--- a/ArduCopter/GCS_MAVLink_Copter.cpp
++++ b/ArduCopter/GCS_MAVLink_Copter.cpp
+@@ -170,6 +170,15 @@
+         target_vel_ned_ms = copter.mode_guided.get_target_vel_NED_ms();
+         target_accel_ned_mss = copter.mode_guided.get_target_accel_NED_mss();
+         break;
++    case ModeGuided::SubMode::VelNEPosD:
++        // Observation omits yaw: 0xDE3, distinct from the DDS input mask 0x9E3.
++        type_mask = POSITION_TARGET_TYPEMASK_X_IGNORE | POSITION_TARGET_TYPEMASK_Y_IGNORE |
++                    POSITION_TARGET_TYPEMASK_VZ_IGNORE | POSITION_TARGET_TYPEMASK_AX_IGNORE |
++                    POSITION_TARGET_TYPEMASK_AY_IGNORE | POSITION_TARGET_TYPEMASK_AZ_IGNORE |
++                    POSITION_TARGET_TYPEMASK_YAW_IGNORE | POSITION_TARGET_TYPEMASK_YAW_RATE_IGNORE;
++        target_pos_ned_m.z = copter.mode_guided.get_target_pos_NED_m().z;
++        target_vel_ned_ms.xy() = copter.mode_guided.get_target_vel_NED_ms().xy();
++        break;
+     case ModeGuided::SubMode::VelAccel:
+         type_mask = POSITION_TARGET_TYPEMASK_X_IGNORE | POSITION_TARGET_TYPEMASK_Y_IGNORE | POSITION_TARGET_TYPEMASK_Z_IGNORE |
+                     POSITION_TARGET_TYPEMASK_YAW_IGNORE| POSITION_TARGET_TYPEMASK_YAW_RATE_IGNORE; // ignore everything except velocity & acceleration

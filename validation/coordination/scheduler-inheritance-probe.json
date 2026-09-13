@@ -1,0 +1,31 @@
+{
+  "scope": "Own short-lived process only; no ROS/FC/physics",
+  "rows": [
+    {
+      "reset_on_fork": false,
+      "parent_policy": 1,
+      "parent_priority": 50,
+      "child": {
+        "policy": 1,
+        "priority": 50
+      },
+      "thread": {
+        "policy": 1,
+        "priority": 50
+      }
+    },
+    {
+      "reset_on_fork": true,
+      "parent_policy": 1073741825,
+      "parent_priority": 50,
+      "child": {
+        "policy": 0,
+        "priority": 0
+      },
+      "thread": {
+        "policy": 0,
+        "priority": 0
+      }
+    }
+  ]
+}

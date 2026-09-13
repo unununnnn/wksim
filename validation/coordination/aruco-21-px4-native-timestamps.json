@@ -1,0 +1,40 @@
+{
+  "schema": "wksim.aruco-native-timestamps.v1",
+  "status": "pass",
+  "stack": "px4",
+  "epoch": "59e79980b4f849c082559e73108e63de",
+  "windows": {
+    "move": {
+      "samples": 616,
+      "verified": 616
+    },
+    "hold": {
+      "samples": 176,
+      "verified": 176
+    }
+  },
+  "verified": 792,
+  "skipped": {
+    "not_move_hold": 491
+  },
+  "failures": [],
+  "unresolved": [],
+  "native_gids": [
+    "010f7f01b02113810000000000001c030000000000000000"
+  ],
+  "provenance": {
+    "builder_sha256": "d18c4c026fa825be7fb2a21c3245fbc15261f6a20b925c1ba2406cbdbdb344e3",
+    "rc_take_source_sha256": "e618c33ba687520160c8d2cfb79b0da30e5047f3036549c47ca357f1c26dc38f",
+    "rc_take_lib_sha256": "f00ccb7da8da348e33e8dbb1200dd3244a73c3cf4f658024372009de06f9107c"
+  },
+  "raw_sha256": "6ffc300a534c1d675d25ed318f42f4f4de978a04a991275da56dc1043bfddb9f",
+  "auditor_sha256": "e4832cf29e1bd94fd032eae9dea771aa46d007747e4b76ec97c7694aed58e93a",
+  "scope": "Native setpoint payload/header timestamps versus real feedback; MOVE/HOLD windows only",
+  "uncovered": [
+    "LAND/setup/initial-takeover intervals are counted under skipped, not judged",
+    "Field-exact MOVE velocity / HOLD position content: audit_aruco_native_moves.py / audit_aruco_native_holds.py",
+    "PX4 payload and state-header clocks are resolved against one reference sample, never equated",
+    "Graph-wide native publisher identity/exclusivity requires separate proof",
+    "Public request acceptance, loss causality and wrap-up rate remain the raw auditor scope"
+  ]
+}

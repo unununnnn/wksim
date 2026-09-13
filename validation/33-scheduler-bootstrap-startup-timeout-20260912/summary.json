@@ -1,0 +1,79 @@
+{
+  "schema": "wksim.scheduler-bootstrap-startup-timeout.v1",
+  "acceptance_eligible": false,
+  "source_commit": "04aced1990f11c3d97ebdebb983c9b6fa3c1bdee",
+  "run_id": "scheduler-08d4a482939e",
+  "epoch": "273040932b044f07a1f105bcd41600c9",
+  "command": [
+    "wsl",
+    "-d",
+    "Ubuntu-22.04",
+    "--cd",
+    "/mnt/c/Users/PC/Documents/odid编译/wksim",
+    "--",
+    "python3",
+    "-B",
+    "tools/profile_joint_scheduler.py",
+    "--output",
+    "/root/wksim-scheduler-probe-20260912-bootstrap-01"
+  ],
+  "evidence_tree": {
+    "path": "/root/wksim-scheduler-probe-20260912-bootstrap-01",
+    "regular_file_count": 19,
+    "total_bytes": 49463,
+    "aggregate_sha256": "da9cbf0df190f0cbe12f64a0c2900ccfe898bd6bf7df891434d0a9e7230cdfa9",
+    "aggregate_recipe": "sort regular files by POSIX relative path; for each append UTF-8 relative path, NUL, decimal byte length, NUL, then raw file bytes"
+  },
+  "result": {
+    "status": "diagnostic_partial",
+    "error": "TimeoutError: Native target startup",
+    "outer_preflight_returncode": 0,
+    "manager_returncode": 0,
+    "manager_wall_seconds": 175.472938591,
+    "physical_tick": 0,
+    "native_targets_started": false,
+    "trace_capture_started": false
+  },
+  "manager_scheduler": {
+    "policy": "SCHED_FIFO",
+    "actual_policy": 1,
+    "priority": 50,
+    "actual_priority": 50,
+    "reset_on_fork": false
+  },
+  "inner_preflight": {
+    "pid": 1310,
+    "start_ticks": 39222,
+    "nice_target": -5,
+    "nice_applied": -5,
+    "actual_scheduler_recorded": false,
+    "log_bytes": 0,
+    "returncode_after_stop": -15
+  },
+  "cleanup": {
+    "sources_unchanged": true,
+    "epoch_groups_retired": true,
+    "remaining_manager_group": [],
+    "cleanup_errors": []
+  },
+  "decision": {
+    "candidate": "no_go",
+    "identical_rerun_allowed": false,
+    "extend_startup_deadline": false,
+    "next_change": "run the inner preflight as SCHED_OTHER, record actual scheduler and phase duration, and fail closed if isolation is not established"
+  },
+  "retained_contracts": {
+    "physical_step_ms": 1,
+    "native_input_barrier": true,
+    "native_clock_barrier": true,
+    "catch_up_allowed": false,
+    "strict_cumulative_lateness_failure_ms": 100
+  },
+  "non_claims": [
+    "no first physical step was executed",
+    "no scheduler trace capture was started",
+    "the scheduler bootstrap after native startup was not exercised",
+    "manager return code zero records controlled shutdown, not success",
+    "this is not rate, flight, or G0-G6 acceptance"
+  ]
+}

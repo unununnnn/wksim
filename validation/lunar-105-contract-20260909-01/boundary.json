@@ -1,0 +1,41 @@
+{
+  "scope": "read-only source boundary; no native execution or flight",
+  "archive_sha256": "d528b5d247e13d943f1eaa7a37fd3cb4d15c7e9bb7a6b0e5988a1423e59d05ed",
+  "generated_cpp_sha256": "a35d7c8f39c94f2db8c27b19affee5b66c1b001c63ded334ba83c99f8be54019",
+  "source_sha256": {
+    "Simulator/wksim_core/model.cpp": "3f325678b1d85c9aa3fd07bd644d82935aa26d82885926defeced139f02ddf2c",
+    "Simulator/wksim_core/model.py": "af767e9299e4282da8da168998605c02039ea64d9cc27bb33e9dce24d1a6b77a",
+    "Simulator/wksim_core/model_parameters.py": "b339ae24a7b359a0eb656dccf703a0c004e0b216f1d9f870363e69a1f12e7b05",
+    "tools/pid_physics.py": "2e540fed821c07df63e83252d8288d03599da613e2386cadd0e5dd04abcb0775",
+    "Simulator/wksim_runtime/task.py": "9791913df7ad61d229a151d4d1d0e5c2b3f32d127a7545096b43a32638f0dbbc",
+    "Simulator/wksim_runtime/pid_task.py": "f00c20d3a40588e39cf9e08f373134c04d80e3ed7e64b7f4f667ab796b1f5a81",
+    "Simulator/wksim_runtime/pid-flight-v1.json": "25d50ddbbd44e658a72123e6d524a5c5021b355367a99e46a898ec9b9cecadc0"
+  },
+  "actual_wrapper_exports": [
+    "void* wk_model_create() noexcept {",
+    "void wk_model_destroy(void* handle) noexcept {",
+    "int wk_model_step(void* handle, const double* commands, int count, int steps,"
+  ],
+  "efficiency_config_rejection": "configuration fields, fixed mapping, units, source or identity differ",
+  "pid_disturbance": {
+    "kind": "effective_actuator_command_multiplier",
+    "channels": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "multiplier": 0.97,
+    "settle_s": 6.0,
+    "lead_ticks": 2000,
+    "minimum_load_lead_ticks": 1000,
+    "duration_ticks": 1000,
+    "max_error_m": 0.5,
+    "return_error_m": 0.3,
+    "return_speed_mps": 0.3,
+    "return_yaw_error_rad": 0.15,
+    "return_deadline_s": 8.0,
+    "return_dwell_s": 1.5
+  },
+  "conclusion": "native efficiency seam and runnable/auditable experiment absent; needs-triage"
+}

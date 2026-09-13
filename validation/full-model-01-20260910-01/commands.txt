@@ -1,0 +1,20 @@
+Working directory: C:/Users/PC/Documents/odid编译/wksim
+
+Read-only inputs:
+  Get-Content docs/plan/full-scope-expansion.md
+  Get-Content docs/plan/full-remaining-ledger.json
+  Get-Content docs/plan/full-followup-tickets.json
+  Get-Content Simulator/wksim_core/model_parameters.py
+  Get-Content Simulator/wksim_core/arducopter-quad-x.parm
+  Get-Content Simulator/wksim_runtime/parameter_protocol.py
+  Get-Content Simulator/wksim_runtime/parameter_storage.py
+  gh issue view 135 --repo unununnnn/wksim --json number,title,body,state,labels,comments
+  gh issue view 1 --repo unununnnn/wksim --json number,title,body,state,labels,comments
+  gh issue view 23 --repo unununnnn/wksim --json number,title,body,state,labels,comments
+  gh issue view 24 --repo unununnnn/wksim --json number,title,body,state,labels,comments
+
+Validation:
+  python -B validation/full-model-01-20260910-01/validate.py
+  git diff --check -- docs/plan/full-contracts/model-01.md docs/plan/full-contracts/model-01.json validation/full-model-01-20260910-01
+
+No parameter, task-entry or UE code was modified; no UE, FC, model, ROS, MATLAB or hardware process was started.

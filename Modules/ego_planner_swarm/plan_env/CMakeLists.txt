@@ -1,9 +1,11 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.8)
 project(plan_env)
 
 set(CMAKE_BUILD_TYPE "Release")
-ADD_COMPILE_OPTIONS(-std=c++11 )
-ADD_COMPILE_OPTIONS(-std=c++14 )
+# The installed Noetic/log4cxx headers use std::shared_mutex (C++17).
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -Wall -g")
 
 find_package(OpenCV REQUIRED)
@@ -49,6 +51,7 @@ add_library( plan_env
     src/raycast.cpp
     src/obj_predictor.cpp 
     )
+add_dependencies(plan_env ${catkin_EXPORTED_TARGETS})
 target_link_libraries( plan_env
     ${catkin_LIBRARIES} 
     ${PCL_LIBRARIES}
@@ -89,5 +92,10 @@ target_link_libraries(su17_rvl_decoder
   ${catkin_LIBRARIES}
   ${OpenCV_LIBS}
   ${PCL_LIBRARIES}
-)    
+)
+
+foreach(message_consumer obj_generator laser_to_pointcloud su17_depth_to_cloud
+                         su17_rvl_encoder su17_rvl_decoder)
+  add_dependencies(${message_consumer} ${catkin_EXPORTED_TARGETS})
+endforeach()
     

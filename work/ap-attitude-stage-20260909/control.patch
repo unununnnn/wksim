@@ -1,0 +1,154 @@
+--- a/ros2/src/prometheus_control/prometheus_control/frames.py
++++ b/ros2/src/prometheus_control/prometheus_control/frames.py
+@@ -25,6 +25,15 @@
+     if norm < 1e-9 or not math.isfinite(norm):
+         raise ValueError('Invalid orientation quaternion')
+     return tuple(v / norm for v in values)
++
++
++def command_quaternion(values):
++    """Hamilton WXYZ command; AP native abs(norm_squared - 1) < 1e-3."""
++    values = vector(values, 4)
++    norm_sq = sum(v*v for v in values)
++    if not math.isfinite(norm_sq) or abs(norm_sq - 1.0) >= 1e-3:
++        raise ValueError('Non-unit command quaternion')
++    return unit_quaternion(values)
+ 
+ 
+ def ned_frd_quaternion(values):
+--- a/ros2/src/prometheus_control/prometheus_control/native_arducopter.py
++++ b/ros2/src/prometheus_control/prometheus_control/native_arducopter.py
+@@ -17,7 +17,7 @@
+ from prometheus_msgs.msg import UAVCommand as Cmd, UAVState
+ from rclpy.qos import QoSProfile, ReliabilityPolicy, DurabilityPolicy
+ 
+-from .frames import set_orientation, stamp_us, wrap_pi
++from .frames import command_quaternion, set_orientation, stamp_us, wrap_pi
+ from .shaping import float32, scalar, vector
+ 
+ 
+@@ -44,7 +44,7 @@
+     external_mode = 'GUIDED'
+ 
+     def __init__(self, node, prefix='/ap', *, position_yaw=False, pv_profile='', mixed_profile='',
+-                 stale_seconds=2.0, clock=time.monotonic):
++                 stale_seconds=2.0, clock=time.monotonic, attitude_profile=''):
+         self.node, self.prefix = node, prefix.rstrip('/')
+         self.position_yaw = bool(position_yaw)
+         if pv_profile not in ('', 'full_xyz_pv_yaw_v1') or pv_profile and not self.position_yaw:
+@@ -53,6 +53,16 @@
+         if mixed_profile not in ('', 'xy_velocity_z_position_yaw_v1') or mixed_profile and not self.position_yaw:
+             raise ValueError('ArduCopter mixed profile must be empty or xy_velocity_z_position_yaw_v1 with position_yaw enabled')
+         self.mixed_profile = mixed_profile
++        if attitude_profile not in ('', 'attitude_thrust_v1'):
++            raise ValueError('Unsupported ArduCopter attitude profile')
++        self.attitude_profile = attitude_profile
++        self.attitude_pub = None
++        if attitude_profile:
++            # Separate candidate overlay required only for explicit opt-in.
++            from ardupilot_msgs.msg import WksimAttitudeTarget
++            self.attitude_type = WksimAttitudeTarget
++            self.attitude_pub = node.create_publisher(WksimAttitudeTarget,
++                self.prefix+'/wksim/attitude_target_v1', 1)
+         self.clock, self.stale_seconds = clock, scalar(stale_seconds)
+         if self.stale_seconds <= 0:
+             raise ValueError('State timeout must be positive')
+@@ -207,6 +217,8 @@
+     def supports(self, command):
+         if command.agent_cmd != Cmd.MOVE:
+             return None
++        if command.move_mode == Cmd.XYZ_ATT:
++            return None if self.attitude_profile else 'arducopter_attitude_profile_not_enabled'
+         if not self.position_yaw:
+             return 'arducopter_position_yaw_not_enabled'
+         if command.move_mode == Cmd.TRAJECTORY and self.pv_profile:
+@@ -236,6 +248,22 @@
+             raise ValueError('Unsupported ArduCopter mode') from error
+ 
+     def send(self, target):
++        if target.kind == 'attitude':
++            if (not self.attitude_profile or self.attitude_pub is None or
++                    not self.attitude_pub.get_subscription_count() or
++                    not self.fresh('local', 'status') or not self.state(1).odom_valid):
++                raise ValueError('ArduCopter attitude profile/state/subscriber is not ready')
++            x, y, z, w = vector(target.quaternion_xyzw, 4)
++            w, x, y, z = command_quaternion((w, x, y, z))
++            thrust = scalar(target.thrust)
++            if not 0 <= thrust <= 1:
++                raise ValueError('Invalid normalized thrust')
++            msg = self.attitude_type(normalized_thrust=thrust)
++            msg.header.frame_id = 'map'
++            stamp_us(msg.header, self.latest['local'].time_boot_us)
++            msg.orientation.w, msg.orientation.x, msg.orientation.y, msg.orientation.z = w, x, y, z
++            self.attitude_pub.publish(msg)
++            return
+         if not self.position_yaw or not self.fresh('local', 'status') or not self.available():
+             raise ValueError('ArduCopter position+yaw link is not ready')
+         local = self.latest['local']
+--- a/ros2/src/prometheus_control/prometheus_control/native_px4.py
++++ b/ros2/src/prometheus_control/prometheus_control/native_px4.py
+@@ -15,7 +15,7 @@
+                          VehicleCommand, VehicleCommandAck, TrajectorySetpoint,
+                          OffboardControlMode, VehicleAttitudeSetpoint, EstimatorStatusFlags)
+ 
+-from .frames import ned_axes, ned_frd_quaternion, set_orientation, stamp_us, topic, wrap_pi
++from .frames import command_quaternion, ned_axes, ned_frd_quaternion, set_orientation, stamp_us, topic, wrap_pi
+ from .shaping import scalar, vector
+ 
+ 
+@@ -24,11 +24,14 @@
+     position_yaw = True
+ 
+     def __init__(self, node, prefix, system_id, *, source_system=245, source_component=191,
+-                 stale_seconds=2.0, clock=time.monotonic, request_identity=None):
++                 stale_seconds=2.0, clock=time.monotonic, request_identity=None, attitude_profile=''):
+         if not all(isinstance(v, int) and 1 <= v <= 255 for v in (system_id, source_system, source_component)):
+             raise ValueError('Native system/component IDs must be in 1..255')
+         self.node, self.prefix, self.system_id = node, prefix.rstrip('/'), system_id
+         self.source_system, self.source_component = source_system, source_component
++        if attitude_profile not in ('', 'attitude_thrust_v1'):
++            raise ValueError('Unsupported PX4 attitude profile')
++        self.attitude_profile = attitude_profile
+         self.request_identity = request_identity
+         self.used_identities = set()
+         self.rejections = deque(maxlen=128)
+@@ -219,6 +222,8 @@
+     def supports(self, command):
+         if command.agent_cmd != Cmd.MOVE:
+             return None
++        if command.move_mode == Cmd.XYZ_ATT and not self.attitude_profile:
++            return 'px4_attitude_profile_not_enabled'
+         if command.move_mode == Cmd.LAT_LON_ALT:
+             return 'px4_global_command_adapter_not_implemented'
+         return None if command.move_mode in range(Cmd.XYZ_POS, Cmd.XYZ_ATT + 1) else 'unsupported_move_mode'
+@@ -243,7 +248,10 @@
+                 yaw=math.nan if target.yaw is None else wrap_pi(math.pi/2-target.yaw),
+                 yawspeed=math.nan if target.yaw_rate is None else -scalar(target.yaw_rate)))
+         elif target.kind == 'attitude':
++            if not self.attitude_profile or not self.publishers['attitude'].get_subscription_count():
++                raise ValueError('PX4 attitude profile/subscriber is not ready')
+             x, y, z, w = vector(target.quaternion_xyzw, 4)
++            w, x, y, z = command_quaternion((w, x, y, z))
+             thrust = scalar(target.thrust)
+             if not 0 <= thrust <= 1:
+                 raise ValueError('Invalid normalized thrust')
+--- a/ros2/src/prometheus_control/prometheus_control/node.py
++++ b/ros2/src/prometheus_control/prometheus_control/node.py
+@@ -52,13 +52,15 @@
+         if stack == 'px4':
+             from .native_px4 import PX4Link
+             self.native = PX4Link(self, prefix, parameter('native_system_id', 1), stale_seconds=stale,
+-                                  request_identity=lambda: self.session.native_identity())
++                                  request_identity=lambda: self.session.native_identity(),
++                                  attitude_profile=parameter('native_attitude_profile', ''))
+         else:
+             from .native_arducopter import ArduCopterLink
+             self.native = ArduCopterLink(self, prefix, position_yaw=parameter('arducopter_position_yaw', False),
+                                         pv_profile=parameter('arducopter_pv_profile', ''),
+                                         mixed_profile=parameter('arducopter_mixed_profile', ''),
+-                                        stale_seconds=stale)
++                                        stale_seconds=stale,
++                                        attitude_profile=parameter('native_attitude_profile', ''))
+         self.processor = CommandProcessor(takeoff_height=self.takeoff_height,
+             enable_external_control=parameter('enable_external_attitude', False))
+         self.shaper = SetpointShaper()

@@ -1,0 +1,73 @@
+[
+  {
+    "status": "failed",
+    "stack": "px4",
+    "scenario": "movement",
+    "run_id": "rc-px4-movement-01",
+    "error": "AttributeError: 'RCTask' object has no attribute 'request_graph_ready'",
+    "safe_landing": false,
+    "children_reaped": true,
+    "wall_seconds": 3.8823596919999943,
+    "source_unchanged": true,
+    "candidate_unchanged": true,
+    "raw_directory": "/root/wksim-rc-flight-px4-movement-01/rc-px4-movement-01"
+  },
+  {
+    "status": "observed",
+    "stack": "px4",
+    "scenario": "movement",
+    "run_id": "rc-px4-movement-02",
+    "error": null,
+    "safe_landing": true,
+    "children_reaped": true,
+    "wall_seconds": 30.696917238000026,
+    "source_unchanged": true,
+    "candidate_unchanged": true,
+    "raw_directory": "/root/wksim-rc-flight-px4-movement-02/rc-px4-movement-02",
+    "audit": {
+      "status": "pass",
+      "scope": "RC candidate raw audit; no joint-rate or Full claim",
+      "stack": "px4",
+      "scenario": "movement",
+      "metrics": {
+        "movement_x_m": 1.1709638694126092
+      },
+      "raw_cdr_records": 5966,
+      "native_target_records": 303,
+      "matched_native_targets": 198,
+      "integrated_steps": 604,
+      "result_sha256": "94786e6f0f60b2987c28bfbb8dae0c217e96e4cc7ce9ba1510b521dd4f7e07e6",
+      "audit_sha256": "27fac01c5e260c0186059f3625d54dfc1c4a6dabc36bc74d294c959da6559c75"
+    }
+  },
+  {
+    "status": "observed",
+    "stack": "px4",
+    "scenario": "recenter",
+    "run_id": "rc-px4-recenter-01",
+    "error": null,
+    "safe_landing": true,
+    "children_reaped": true,
+    "wall_seconds": 35.28845821300001,
+    "source_unchanged": true,
+    "candidate_unchanged": true,
+    "raw_directory": "/root/wksim-rc-flight-px4-recenter-01/rc-px4-recenter-01",
+    "audit": {
+      "status": "pass",
+      "scope": "RC candidate raw audit; no joint-rate or Full claim",
+      "stack": "px4",
+      "scenario": "recenter",
+      "metrics": {
+        "movement_x_m": 0.7752215956967811,
+        "hold_speed_mps": 0.056721878087094314,
+        "hold_drift_m": 0.05519131464678393
+      },
+      "raw_cdr_records": 7511,
+      "native_target_records": 439,
+      "matched_native_targets": 334,
+      "integrated_steps": 1012,
+      "result_sha256": "c10b73685c07a69b58a20cbde26fa8e8aef89727a56437e49abb1db9577049a7",
+      "audit_sha256": "27fac01c5e260c0186059f3625d54dfc1c4a6dabc36bc74d294c959da6559c75"
+    }
+  }
+]

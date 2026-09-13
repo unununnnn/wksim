@@ -1,0 +1,145 @@
+{
+  "build_id": "short-cycle-c0-31in",
+  "generation_run_id": "short-cycle-codegen-01",
+  "source_identity": {
+    "builder": "tools/build_generated_e0_major.py",
+    "builder_sha256": "1078c2c06f7df8406dfa93d15e4d0c93cf7f3bac6aeb8bf3ed6f797eba4149a5",
+    "generation_run_id": "short-cycle-codegen-01",
+    "original_cpp_sha256": "2c25b3fa08c996c8f2ed1a7feae5558062cd722ae5d350cc8a25caf2be10b274",
+    "patched_cpp_sha256": "993f33ea3cfcd282418599c94ce6ef4d6265add76f7d9763039965f6c6c1dc9d",
+    "header_sha256": "7601dbd721f0502e4bd67758d86cc21abf8e5c9568a31fb3160283df1df8c4bc",
+    "rtwtypes_sha256": "1b08664b70d40d08ee2952ca47254bd16a9e045be8b5edc9781fe620fb7c199f",
+    "rtw_continuous_sha256": "8f2c78fdc5a097552078484c738aefcc944463c8834d2ca6319b76cedf526b18",
+    "rtw_solver_sha256": "359ff69aa94a137e8b246721ead52e056dd4fdf11c35a7f92ebb9f14e0cda674",
+    "driver_sha256": "d0a194b0cb4f60854f8a9f4f16de0199770dc05ec79d1c09c28184127c744051",
+    "phase": "major root outputs complete; before subsequent explicit Update/ODE",
+    "output_order": [
+      "Vehicle60",
+      "Sensor30",
+      "GPS30"
+    ],
+    "root_inputs": [
+      "inPWMs[16]",
+      "TerrainIn15d[15]"
+    ],
+    "insertion_line": 7919
+  },
+  "patch_recipe": {
+    "target_file": "Exp1_MinModelTemp.cpp",
+    "original_sha256": "2c25b3fa08c996c8f2ed1a7feae5558062cd722ae5d350cc8a25caf2be10b274",
+    "patched_sha256": "993f33ea3cfcd282418599c94ce6ef4d6265add76f7d9763039965f6c6c1dc9d",
+    "insertion_line": 7919,
+    "declaration": "extern void wk_capture_major(const ExtY_Exp1_MinModelTemp_T&) noexcept;\r\n",
+    "hook": "  if (rtmIsMajorTimeStep((&Exp1_MinModelTemp_M))) {\r\n    wk_capture_major(Exp1_MinModelTemp_Y);\r\n  }\r\n",
+    "reversion_verified": true,
+    "equations_modified": false
+  },
+  "executable": {
+    "filename": "major_model_recorder",
+    "sha256": "649ca709b09944f114af8e64b9cf85cdba6af05c6b064090afe34b0df9fc13bb",
+    "size_bytes": 126920
+  },
+  "ldd_audit": {
+    "clean": true,
+    "dependencies": [
+      "linux-vdso.so.1",
+      "libstdc++.so.6",
+      "libm.so.6",
+      "libgcc_s.so.1",
+      "libc.so.6",
+      "/lib64/ld-linux-x86-64.so.2"
+    ],
+    "violations": []
+  },
+  "reference_executable": {
+    "filename": "generated_e0_post_reference",
+    "sha256": "91ee385483d2c23718b40901cfeeb6af436a8940c7b4be10d7322a028cd39203",
+    "size_bytes": 122312
+  },
+  "reference_ldd_audit": {
+    "clean": true,
+    "dependencies": [
+      "linux-vdso.so.1",
+      "libstdc++.so.6",
+      "libm.so.6",
+      "libgcc_s.so.1",
+      "libc.so.6",
+      "/lib64/ld-linux-x86-64.so.2"
+    ],
+    "violations": []
+  },
+  "record_summary": {
+    "input_csv": "C:\\Users\\PC\\Documents\\odid编译\\wksim\\validation\\numerical-contract-20260909\\inputs\\C0.csv",
+    "input_csv_sha256": "b53d2746f066fde97b9c756ec6fc407b57328a1bf38a837913d7c8c735579397",
+    "samples_recorded": 501,
+    "major_grid_start_s": 0.0,
+    "major_grid_end_s": 0.5,
+    "engine_end_s": 0.501
+  },
+  "reference_identity": {
+    "mode": "post_reference_31_input",
+    "executable_name": "generated_e0_post_reference",
+    "executable_sha256": "91ee385483d2c23718b40901cfeeb6af436a8940c7b4be10d7322a028cd39203",
+    "executable_size_bytes": 122312,
+    "source_cpp": "Exp1_MinModelTemp.original.cpp",
+    "source_cpp_sha256": "2c25b3fa08c996c8f2ed1a7feae5558062cd722ae5d350cc8a25caf2be10b274",
+    "reference_driver_source": "generated_e0_post_reference.cpp",
+    "reference_driver_sha256": "8e91c70827e92d68317aa425aad8c405c9b27c0820c21ff9a77b68b73e8db766",
+    "bound_inputs": [
+      "inPWMs[16]",
+      "TerrainIn15d[15]"
+    ],
+    "unsupported_inputs": [],
+    "clean_runtime_deps": true,
+    "ldd_dependencies": [
+      "linux-vdso.so.1",
+      "libstdc++.so.6",
+      "libm.so.6",
+      "libgcc_s.so.1",
+      "libc.so.6",
+      "/lib64/ld-linux-x86-64.so.2"
+    ]
+  },
+  "parity_verification": {
+    "success": true,
+    "steps_checked": 501,
+    "dimensions_checked": 120,
+    "total_values_checked": 60120,
+    "max_discrepancy": 0.0,
+    "discrepancies_count": 0,
+    "sample_discrepancies": [],
+    "input_binding": {
+      "bound_inputs": [
+        "inPWMs[16]",
+        "TerrainIn15d[15]"
+      ],
+      "unsupported_inputs": [],
+      "terrain_all_zeros_verified": true
+    },
+    "error": null,
+    "reference_identity": {
+      "mode": "post_reference_31_input",
+      "executable_name": "generated_e0_post_reference",
+      "executable_sha256": "91ee385483d2c23718b40901cfeeb6af436a8940c7b4be10d7322a028cd39203",
+      "executable_size_bytes": 122312,
+      "source_cpp": "Exp1_MinModelTemp.original.cpp",
+      "source_cpp_sha256": "2c25b3fa08c996c8f2ed1a7feae5558062cd722ae5d350cc8a25caf2be10b274",
+      "reference_driver_source": "generated_e0_post_reference.cpp",
+      "reference_driver_sha256": "8e91c70827e92d68317aa425aad8c405c9b27c0820c21ff9a77b68b73e8db766",
+      "bound_inputs": [
+        "inPWMs[16]",
+        "TerrainIn15d[15]"
+      ],
+      "unsupported_inputs": [],
+      "clean_runtime_deps": true,
+      "ldd_dependencies": [
+        "linux-vdso.so.1",
+        "libstdc++.so.6",
+        "libm.so.6",
+        "libgcc_s.so.1",
+        "libc.so.6",
+        "/lib64/ld-linux-x86-64.so.2"
+      ]
+    }
+  }
+}

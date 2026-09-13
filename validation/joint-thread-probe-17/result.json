@@ -1,0 +1,90 @@
+{
+ "schema": "wksim.joint-thread-sampler.v2",
+ "run_id": "aruco-track-83ab77c0eb",
+ "epoch": "ddcbd0ee3cf54c2cb77de4fecd5a0d6c",
+ "rate_hz": 50,
+ "duration_s": 40.0,
+ "sampler_sha256": "c370de592c5b09ab776b9f5711c1ff6e6e3e5eb5de12114118fc354af4cbc2ce",
+ "status": "sampled",
+ "scope": "schedstat runqueue time is runnable-wait only, not all off-CPU",
+ "samples": 1991,
+ "thread_rows": 123442,
+ "maximum_batch_ns": 4874511,
+ "host_boot_id": "87e04105-21a5-41fd-a4ea-11f182fe8eb7",
+ "clock_ticks_per_second": 100,
+ "targets": {
+  "supervisor": {
+   "pid": 933,
+   "pgid": 933,
+   "start_ticks": 31250,
+   "argv": [
+    "python3",
+    "-B",
+    "-m",
+    "Simulator.wksim_runtime.joint_runtime",
+    "/root/wksim-aruco-track-sRS1gSkV/aruco-track-83ab77c0eb",
+    "ddcbd0ee3cf54c2cb77de4fecd5a0d6c",
+    "1"
+   ]
+  },
+  "arducopter-fc": {
+   "pid": 9240,
+   "pgid": 933,
+   "start_ticks": 38769,
+   "argv": [
+    "/root/wksim-ap-clock-stop-OXQqdR/build/sitl/bin/arducopter",
+    "--model",
+    "JSON:127.0.0.1",
+    "--rate",
+    "1000",
+    "--speedup",
+    "3",
+    "--base-port",
+    "16600",
+    "--instance",
+    "11",
+    "--sysid",
+    "241",
+    "--sim-address",
+    "127.0.0.1",
+    "--sim-port-out",
+    "19002",
+    "--sim-port-in",
+    "19003",
+    "--rc-in-port",
+    "19004",
+    "--serial0",
+    "udpclient:127.0.0.1:14660",
+    "--serial1",
+    "none",
+    "--serial2",
+    "none",
+    "--defaults",
+    "/root/wksim-ap-clock-stop-OXQqdR/src/Tools/autotest/default_params/copter.parm,/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/Simulator/wksim_core/arducopter-quad-x.parm,/root/wksim-aruco-track-sRS1gSkV/aruco-track-83ab77c0eb/epochs/ddcbd0ee3cf54c2cb77de4fecd5a0d6c/arducopter/dds.parm",
+    "--home",
+    "40.1540302,116.2593683,50,0"
+   ]
+  },
+  "px4-fc": {
+   "pid": 9244,
+   "pgid": 933,
+   "start_ticks": 38769,
+   "argv": [
+    "/root/wksim-px4-land-7RjMjQ/src/build/px4_sitl_default/bin/px4",
+    "-d",
+    "/root/wksim-px4-land-7RjMjQ/src/build/px4_sitl_default/etc",
+    "-t",
+    "/root/wksim-px4-land-7RjMjQ/src/test_data",
+    "-i",
+    "21",
+    "-w",
+    "/root/wksim-aruco-track-sRS1gSkV/aruco-track-83ab77c0eb/epochs/ddcbd0ee3cf54c2cb77de4fecd5a0d6c/px4"
+   ]
+  }
+ },
+ "sched_schedstats_original": "0",
+ "runqueue_counters_valid": false,
+ "stop_reason": "duration reached",
+ "sampler_thread_cpu_ns": 4747447459,
+ "samples_sha256": "66fe251272c79228a9121435ec3e6fa753e131d414e3de11bfc9e1241174f80f"
+}

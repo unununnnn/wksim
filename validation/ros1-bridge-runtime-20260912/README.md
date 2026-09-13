@@ -1,0 +1,11 @@
+# Built ROS1 bridge and reverse transport fixture
+
+The official ros2/ros1_bridge baseline `611755fd917285316051cbea80507e8b2f6b7ec1`, with the separately retained bool-vector patch, built successfully in RflySim-20.04. The preceding bool-fix build reached linking but failed on missing BoundingBox/DetectionInfoSub conversions; its full log and return code remain here. The successful mapping build completed in 3min 13s.
+
+The missing conversions were caused by the pinned migration's `Class → class_name` and `trackIds → track_ids` renames. The separate `wksim_ros1_bridge_mappings` package registers the official `ros1_bridge_foreign_mapping` resource and explicitly exports both field maps. No message interface was deleted or changed. All 56 original message source pins were compared against the repository and staged workspace; installed source assets were also checked where present. The mapping package's source/staged/installed files were compared. See `manifest.json` for hashes, paths and unpublished library/executable identities.
+
+`print-pairs.txt` is output from the built executable. It includes Bspline, UAVControlState, Odometry, Clock, BoundingBox and DetectionInfoSub conversion pairs.
+
+The copied `probe.py` (repository source: `validation/ros1_bridge_reverse_probe.py`) then ran real ROS2 publishers, the built dynamic bridge, and a ROS1 subscriber under a private ROS master, network/IPC/mount namespaces and fresh `/dev/shm`. ROS1 and ROS2 Python processes used separate overlays. Three timestamps (1.000s, 1.020s, 1.040s) were received with the expected odometry/control fields, including a toggled bool. Nested BoundingBoxes and MultiDetectionInfoSub arrays preserved the two renamed fields. ROS1 `use_sim_time` followed the bridged Clock and remained frozen during a 120ms wall-time pause at each sample. All four children exited zero and no other process remained in the private network namespace.
+
+`result.json`, both endpoint JSON reports and all four child logs are original output from `/root/wksim-bridge-reverse-L0Dfdj`. This is a synthetic transport fixture: no real FC, EGO planner, command output or physical acceptance. Attaching the bridge to a real joint scene's namespace and state/clock sources remains work; this proof does not close #39/#102 or Full.

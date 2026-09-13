@@ -58,12 +58,12 @@
       "workspace": "/root/wksim-ros2-MUlZd0",
       "evidence": {
         "px4": {
-          "result": "validation/px4-dds-hxgna8aa/result.json",
-          "result_sha256": "e106cb9b266baf290f23b517cb63404269f07a6bda1968eba1a35dd43ac7189a"
+          "result": "validation/px4-dds-hfn4vx09/result.json",
+          "result_sha256": "f722e95619a71a9c3b019bbc1618f84fdb0db84e037fd8bb704621be346d670d"
         },
         "arducopter": {
-          "result": "validation/arducopter-dds-xuvva567/result.json",
-          "result_sha256": "c3e0098eba16ff2e77cb50f55e3bfac81255c03d6a48d92662d72ed36e267899"
+          "result": "validation/arducopter-dds-fnyy23wr/result.json",
+          "result_sha256": "c00fdc00dfdd1ae7f0343f8f71276d3f948c310220fae33bb450c217b39d038d"
         }
       },
       "snapshot_date": "2026-09-06",
@@ -972,12 +972,12 @@
     {
       "id": "ticket.28.rc-handoff",
       "name": "RC位置控制与任务显式交接",
-      "implemented": false,
-      "built": null,
-      "flown": null,
+      "implemented": true,
+      "built": true,
+      "flown": true,
       "admitted": false,
-      "reason": "Not accepted by this slice; sibling implementation must supply its own evidence",
-      "reference": "docs/plan/tickets/28-rc-handoff.md"
+      "reason": "Installed RC candidate: six scenarios on each native stack passed independent raw audit; explicit experimental entry, no default production promotion or other manual-mode claim",
+      "reference": "docs/2026-09-10-rc-flight-report.md"
     },
     {
       "id": "ticket.29.planner-flight",
@@ -1032,22 +1032,22 @@
     {
       "id": "ticket.34.motor-fault",
       "name": "单电机效率故障的可复现实验",
-      "implemented": false,
-      "built": null,
-      "flown": null,
+      "implemented": true,
+      "built": true,
+      "flown": true,
       "admitted": false,
-      "reason": "Not accepted by this slice; sibling implementation must supply its own evidence",
-      "reference": "docs/plan/tickets/34-motor-fault.md"
+      "reason": "Explicit native-position candidate: dual-stack baseline/fault/fresh-process repeat passed raw per-ms audit; rotor0 aerodynamic eta=.97 for 1000 intervals, native RNG/reset proven; no default model promotion or G6 claim",
+      "reference": "docs/2026-09-10-motor-efficiency-flight-report.md"
     },
     {
       "id": "ticket.35.gnss-fault",
       "name": "GNSS中断与状态有效性恢复",
-      "implemented": false,
-      "built": null,
-      "flown": null,
+      "implemented": true,
+      "built": true,
+      "flown": true,
       "admitted": false,
-      "reason": "Not accepted by this slice; sibling implementation must supply its own evidence",
-      "reference": "docs/plan/tickets/35-gnss-fault.md"
+      "reason": "Explicit v3 dual-stack GNSS sensor outage, native invalidity/withdrawal/LAND, fresh explicit recovery and physical arrival passed raw audit; defaults not promoted, no G6/joint-rate claim",
+      "reference": "docs/2026-09-10-gnss-flight-report.md"
     },
     {
       "id": "ticket.36.deterministic-reexecution",
@@ -1062,12 +1062,12 @@
     {
       "id": "ticket.37.global-waypoints",
       "name": "双栈全球航点与home基准",
-      "implemented": false,
-      "built": null,
-      "flown": null,
+      "implemented": true,
+      "built": true,
+      "flown": true,
       "admitted": false,
-      "reason": "Not accepted by this slice; sibling implementation must supply its own evidence",
-      "reference": "docs/plan/tickets/37-global-waypoints.md"
+      "reason": "Explicit v2 dual-stack global flight, configured model datum, native home mutation, withdrawal, old-home rejection and fresh-request recovery passed raw CDR/physical audit; 100m envelope, no default promotion or G6/joint-rate claim",
+      "reference": "docs/2026-09-10-global-flight-report.md"
     },
     {
       "id": "ticket.38.sitl-product-acceptance",

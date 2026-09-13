@@ -1,0 +1,37 @@
+{
+  "schema": "wksim.gnss-flight.v3",
+  "point_enu_m": [
+    2.0,
+    3.0,
+    3.0
+  ],
+  "recovery_point_enu_m": [
+    3.0,
+    2.0,
+    3.0
+  ],
+  "yaw_enu_rad": 0.0,
+  "stable_seconds": 6.0,
+  "position_error_m": 0.3,
+  "speed_mps": 0.3,
+  "yaw_error_rad": 0.15,
+  "lead_ticks": 2000,
+  "outage_ticks": 15000,
+  "maximum_tick": 180000,
+  "max_gps_age_ticks": 500,
+  "recovery_timeout_s": 45.0,
+  "maximum_height_m": 4.5,
+  "minimum_height_m": -0.3,
+  "maximum_axis_tilt_deg": 15.0,
+  "maximum_distance_m": 4.0,
+  "ap_root": "/root/wksim-ap-gnss-flight-20260910-01",
+  "ap_seal_sha256": "c567520ea2204afdc1e9f4eae5fa3fe3782ede825d476517c8a459aab2ed0517",
+  "policy": "withdraw task outputs on native navigation loss; PX4 native offboard-loss action LAND; AP explicit LAND request immediately after observed withdrawal; fresh native eligibility and a new explicit request required for recovery",
+  "scope": "independent GNSS sensor-chain outage; no Agent-link, hardware, G6 or joint-rate claim",
+  "native_parameters": {
+    "px4": {
+      "COM_OBL_RC_ACT": 4
+    },
+    "arducopter": {}
+  }
+}

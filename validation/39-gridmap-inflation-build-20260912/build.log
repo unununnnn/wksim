@@ -1,0 +1,42 @@
+[ 25%] Building CXX object CMakeFiles/plan_env.dir/src/grid_map.cpp.o
+[ 50%] Building CXX object CMakeFiles/plan_env.dir/src/raycast.cpp.o
+[ 75%] Building CXX object CMakeFiles/plan_env.dir/src/obj_predictor.cpp.o
+In file included from /usr/include/boost/smart_ptr/detail/sp_thread_sleep.hpp:22,
+                 from /usr/include/boost/smart_ptr/detail/yield_k.hpp:23,
+                 from /usr/include/boost/smart_ptr/detail/spinlock_gcc_atomic.hpp:14,
+                 from /usr/include/boost/smart_ptr/detail/spinlock.hpp:42,
+                 from /usr/include/boost/smart_ptr/detail/spinlock_pool.hpp:25,
+                 from /usr/include/boost/smart_ptr/shared_ptr.hpp:29,
+                 from /usr/include/boost/smart_ptr/shared_array.hpp:24,
+                 from /usr/include/boost/shared_array.hpp:17,
+                 from /opt/ros/noetic/include/ros/serialized_message.h:33,
+                 from /opt/ros/noetic/include/ros/serialization.h:36,
+                 from /opt/ros/noetic/include/geometry_msgs/PoseStamped.h:14,
+                 from /mnt/c/Users/PC/Documents/odid编译/wksim/Modules/ego_planner_swarm/plan_env/include/plan_env/obj_predictor.h:31,
+                 from /mnt/c/Users/PC/Documents/odid编译/wksim/Modules/ego_planner_swarm/plan_env/src/obj_predictor.cpp:26:
+/usr/include/boost/bind.hpp:36:1: note: ‘#pragma message: The practice of declaring the Bind placeholders (_1, _2, ...) in the global namespace is deprecated. Please use <boost/bind/bind.hpp> + using namespace boost::placeholders, or define BOOST_BIND_GLOBAL_PLACEHOLDERS to retain the current behavior.’
+   36 | BOOST_PRAGMA_MESSAGE(
+      | ^~~~~~~~~~~~~~~~~~~~
+/mnt/c/Users/PC/Documents/odid编译/wksim/Modules/ego_planner_swarm/plan_env/src/obj_predictor.cpp: In member function ‘void fast_planner::ObjHistory::poseCallback(const PoseStampedConstPtr&)’:
+/mnt/c/Users/PC/Documents/odid编译/wksim/Modules/ego_planner_swarm/plan_env/src/obj_predictor.cpp:56:23: warning: comparison of integer expressions of different signedness: ‘std::__cxx11::list<Eigen::Matrix<double, 4, 1> >::size_type’ {aka ‘long unsigned int’} and ‘int’ [-Wsign-compare]
+   56 |   if (history_.size() > queue_size_) history_.pop_front();
+      |       ~~~~~~~~~~~~~~~~^~~~~~~~~~~~~
+In file included from /usr/include/boost/smart_ptr/detail/sp_thread_sleep.hpp:22,
+                 from /usr/include/boost/smart_ptr/detail/yield_k.hpp:23,
+                 from /usr/include/boost/smart_ptr/detail/spinlock_gcc_atomic.hpp:14,
+                 from /usr/include/boost/smart_ptr/detail/spinlock.hpp:42,
+                 from /usr/include/boost/smart_ptr/detail/spinlock_pool.hpp:25,
+                 from /usr/include/boost/smart_ptr/shared_ptr.hpp:29,
+                 from /usr/include/boost/smart_ptr/shared_array.hpp:24,
+                 from /usr/include/boost/shared_array.hpp:17,
+                 from /opt/ros/noetic/include/ros/serialized_message.h:33,
+                 from /opt/ros/noetic/include/ros/serialization.h:36,
+                 from /opt/ros/noetic/include/sensor_msgs/Image.h:14,
+                 from /opt/ros/noetic/include/cv_bridge/cv_bridge.h:39,
+                 from /mnt/c/Users/PC/Documents/odid编译/wksim/Modules/ego_planner_swarm/plan_env/include/plan_env/grid_map.h:6,
+                 from /mnt/c/Users/PC/Documents/odid编译/wksim/Modules/ego_planner_swarm/plan_env/src/grid_map.cpp:9:
+/usr/include/boost/bind.hpp:36:1: note: ‘#pragma message: The practice of declaring the Bind placeholders (_1, _2, ...) in the global namespace is deprecated. Please use <boost/bind/bind.hpp> + using namespace boost::placeholders, or define BOOST_BIND_GLOBAL_PLACEHOLDERS to retain the current behavior.’
+   36 | BOOST_PRAGMA_MESSAGE(
+      | ^~~~~~~~~~~~~~~~~~~~
+[100%] Linking CXX shared library /root/wksim-gridmap-inflation-6zuJJw/devel/lib/libplan_env.so
+[100%] Built target plan_env

@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "issue": 159,
+  "stable_key": "full-ops-08",
+  "title": "Sensors",
+  "source": {
+    "file": "docs/plan/full-scope-expansion.md",
+    "line": 76,
+    "ledger_id": "OPS-08",
+    "ledger_file": "docs/plan/full-followup-tickets.json",
+    "parent_issues": [30, 31]
+  },
+  "status": "defined",
+  "evidence_status": "partial-evidence",
+  "full_complete": false,
+  "current_gap": "RGB and depth-generated point cloud have accepted bounded slices, but base-sensor calibration/noise/latency, scanning LiDAR, segmentation and a live sensor-to-consumer loop are not accepted.",
+  "atoms": [
+    {"id": "OPS-08-A", "name": "base_sensor_truth_feed", "status": "partial", "required": "Owned truth-level IMU/baro/mag/GNSS feed with sensor identity, units, frame and authoritative time to each supported stack", "owner": "model maintainer"},
+    {"id": "OPS-08-B", "name": "calibration_noise_latency", "status": "blocked", "required": "Per-sensor calibration identity plus explicit noise/bias/latency model, source and budget; a truth feed is not a calibrated sensor", "owner": "model maintainer"},
+    {"id": "OPS-08-C", "name": "rgb_camera", "status": "partial", "required": "Timed calibrated RGB capture with epoch/step identity, mount extrinsics and current-generation delivery; accepted bounded slice under #30", "owner": "UE/validation maintainer"},
+    {"id": "OPS-08-D", "name": "depth_pointcloud", "status": "partial", "required": "Depth capture with max-depth semantics and indexed ENU point-cloud export; accepted bounded slice under #31", "owner": "UE/validation maintainer"},
+    {"id": "OPS-08-E", "name": "prometheus_perception_input", "status": "partial", "required": "Prometheus-format perception output from a live sensor loop; the offline ArUco seam is interface evidence only", "owner": "perception maintainer"},
+    {"id": "OPS-08-F", "name": "extended_sensor_capabilities", "status": "blocked", "required": "Scanning LiDAR, segmentation and remaining image/point-cloud capabilities with owned source and per-capability contracts", "owner": "UE/perception maintainer"}
+  ],
+  "envelope_required": ["sensor_id", "sensor_type", "vehicle_id", "mount_extrinsics", "coordinate_frame", "units", "calibration_identity", "epoch", "generation", "step", "sim_time_ns", "acquisition_wall_time_ns", "valid_from_step", "valid_until_step", "rate_budget", "payload_schema", "source_identity"],
+  "scope_rule": "a display or render artifact is not simulated sensor data; a truth-level feed is not a calibrated sensor",
+  "errors": ["accepted", "sensor_not_found", "calibration_missing", "mount_mismatch", "unit_mismatch", "frame_mismatch", "stale_sample", "future_sample", "out_of_order", "unsupported_sensor", "rate_unmet", "busy_dropped", "display_only"],
+  "followups": [
+    {"key": "ops-08-base-sensor-model", "files": ["Simulator/wksim_core/<sensor-model>.py", "validation/<sensor-model-tests>.py"], "status": "proposed", "blocked_by": "Frozen per-sensor calibration/noise/latency budget and source"},
+    {"key": "ops-08-sensor-manifest", "files": ["Simulator/wksim_runtime/<sensor-manifest>.py", "validation/<sensor-manifest-tests>.py"], "status": "proposed", "blocked_by": "Sensor envelope schema acceptance"},
+    {"key": "ops-08-perception-live-loop", "files": ["Simulator/wksim_perception/aruco.py", "validation/<aruco-live-audit>"], "status": "proposed", "blocked_by": "Real marked scene and live sensor feed loop"},
+    {"key": "ops-08-lidar-slice", "files": ["UE/perception source reserved after capability decision", "validation/<lidar-audit>"], "status": "proposed", "blocked_by": "Owned scanning-LiDAR source and capability decision"}
+  ],
+  "preserved": {"rgb_30": "closed bounded RGB slice; not full sensor acceptance", "depth_31": "closed bounded depth/point-cloud slice", "aruco": "offline interface seam, not a live sensor loop", "full_complete": false}
+}

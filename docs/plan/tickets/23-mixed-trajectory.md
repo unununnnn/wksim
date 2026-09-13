@@ -2,6 +2,8 @@
 
 状态：2026-09-05用户“确认开始”批准；ready-for-agent。阻塞未清除前不进入执行前沿。
 
+2026-09-09：#32已关闭。完整XYZ P+V+yaw的AP候选及新控制包已完成显式实验准入、双栈两段轨迹/停止保持/新锚点/落地和重复原始审计；[报告](../../2026-09-09-pv-flight-report.md)含所有失败、版本和边界。它不是XY速度/Z位置，不能独立关闭本票；真正混合轴新原生子模式及控制接缝正在实施，正式profile/最终生产提升及原生边界仍未完成。
+
 ## Parent
 
 [规格：Prometheus 到 wksim 完整仿真工具链移植](https://github.com/unununnnn/wksim/issues/10)；来源：[Wayfinder：Prometheus 双飞控 SITL 移植（UE5.5 / ROS2 / DDS）](https://github.com/unununnnn/wksim/issues/1)。不改写或关闭父图。

@@ -1,0 +1,280 @@
+{
+  "status": "observed",
+  "scope": "Decode sampled native wait intervals; association with the sealed epoch remains required.",
+  "counts": {
+    "send": 4,
+    "component": 3,
+    "register": 0,
+    "work": 2,
+    "queue": 4
+  },
+  "maximum_stage_ns": {
+    "poll_ns": 310621853,
+    "prepare_ns": 4785,
+    "component_ns": 6965902,
+    "send_ns": 33711
+  },
+  "largest_sender_intervals": [
+    {
+      "kind": "send",
+      "line": 62,
+      "start_mono_ns": 123874571133,
+      "end_mono_ns": 124185224860,
+      "poll_ns": 310621853,
+      "prepare_ns": 4785,
+      "component_ns": 361,
+      "send_ns": 26728,
+      "pret": 1,
+      "revents": 1,
+      "hrt_us": 40000,
+      "contained_component_observations": [],
+      "overlapping_work": [],
+      "overlapping_queues": []
+    },
+    {
+      "kind": "send",
+      "line": 102,
+      "start_mono_ns": 128101106422,
+      "end_mono_ns": 128116115544,
+      "poll_ns": 8008726,
+      "prepare_ns": 1931,
+      "component_ns": 6965902,
+      "send_ns": 32563,
+      "pret": 1,
+      "revents": 1,
+      "hrt_us": 2000000,
+      "contained_component_observations": [
+        {
+          "kind": "component",
+          "line": 101,
+          "start_mono_ns": 128109117255,
+          "end_mono_ns": 128116072984,
+          "wait_ns": 6955729,
+          "used": 71,
+          "progress": 3,
+          "missing": 68,
+          "observed_release_component": 64,
+          "observed_release_mono_ns": 128116039647,
+          "observed_release_kind": 2
+        }
+      ],
+      "overlapping_work": [
+        {
+          "kind": "work",
+          "line": 99,
+          "start_mono_ns": 128108935848,
+          "end_mono_ns": 128115999319,
+          "duration_ns": 7063471,
+          "queue": "wq:lp_default",
+          "item": "parameters",
+          "component": 64,
+          "tid": 11177
+        }
+      ],
+      "overlapping_queues": [
+        {
+          "kind": "queue",
+          "line": 100,
+          "ready_mono_ns": 128108906316,
+          "woke_mono_ns": 128108934402,
+          "worker_mono_ns": 128108934686,
+          "end_mono_ns": 128116043241,
+          "duration_ns": 7136925,
+          "queue": "wq:lp_default",
+          "component": 64,
+          "tid": 11177,
+          "items": 2
+        }
+      ]
+    },
+    {
+      "kind": "send",
+      "line": 107,
+      "start_mono_ns": 135114125652,
+      "end_mono_ns": 135128243942,
+      "poll_ns": 7839076,
+      "prepare_ns": 1295,
+      "component_ns": 6244208,
+      "send_ns": 33711,
+      "pret": 1,
+      "revents": 1,
+      "hrt_us": 5504000,
+      "contained_component_observations": [
+        {
+          "kind": "component",
+          "line": 106,
+          "start_mono_ns": 135121966283,
+          "end_mono_ns": 135128207161,
+          "wait_ns": 6240878,
+          "used": 111,
+          "progress": 3,
+          "missing": 108,
+          "observed_release_component": 32,
+          "observed_release_mono_ns": 135128185741,
+          "observed_release_kind": 2
+        }
+      ],
+      "overlapping_work": [
+        {
+          "kind": "work",
+          "line": 104,
+          "start_mono_ns": 135121869210,
+          "end_mono_ns": 135128176500,
+          "duration_ns": 6307290,
+          "queue": "wq:lp_default",
+          "item": "parameters",
+          "component": 32,
+          "tid": 11177
+        }
+      ],
+      "overlapping_queues": [
+        {
+          "kind": "queue",
+          "line": 105,
+          "ready_mono_ns": 135121808465,
+          "woke_mono_ns": 135121835288,
+          "worker_mono_ns": 135121835589,
+          "end_mono_ns": 135128189800,
+          "duration_ns": 6381335,
+          "queue": "wq:lp_default",
+          "component": 32,
+          "tid": 11177,
+          "items": 2
+        }
+      ]
+    },
+    {
+      "kind": "send",
+      "line": 113,
+      "start_mono_ns": 221232280693,
+      "end_mono_ns": 221242536540,
+      "poll_ns": 7112024,
+      "prepare_ns": 1027,
+      "component_ns": 3119649,
+      "send_ns": 23147,
+      "pret": 1,
+      "revents": 1,
+      "hrt_us": 48528000,
+      "contained_component_observations": [
+        {
+          "kind": "component",
+          "line": 111,
+          "start_mono_ns": 221239393895,
+          "end_mono_ns": 221242491199,
+          "wait_ns": 3097304,
+          "used": 7,
+          "progress": 1,
+          "missing": 6,
+          "observed_release_component": 4,
+          "observed_release_mono_ns": 221242468717,
+          "observed_release_kind": 2
+        }
+      ],
+      "overlapping_work": [],
+      "overlapping_queues": [
+        {
+          "kind": "queue",
+          "line": 112,
+          "ready_mono_ns": 221239310707,
+          "woke_mono_ns": 221242423738,
+          "worker_mono_ns": 221242424168,
+          "end_mono_ns": 221242470784,
+          "duration_ns": 3160077,
+          "queue": "wq:nav_and_controllers",
+          "component": 4,
+          "tid": 11581,
+          "items": 10
+        }
+      ]
+    }
+  ],
+  "registrations": [],
+  "largest_work": [
+    {
+      "kind": "work",
+      "line": 99,
+      "start_mono_ns": 128108935848,
+      "end_mono_ns": 128115999319,
+      "duration_ns": 7063471,
+      "queue": "wq:lp_default",
+      "item": "parameters",
+      "component": 64,
+      "tid": 11177
+    },
+    {
+      "kind": "work",
+      "line": 104,
+      "start_mono_ns": 135121869210,
+      "end_mono_ns": 135128176500,
+      "duration_ns": 6307290,
+      "queue": "wq:lp_default",
+      "item": "parameters",
+      "component": 32,
+      "tid": 11177
+    }
+  ],
+  "largest_queues": [
+    {
+      "kind": "queue",
+      "line": 100,
+      "ready_mono_ns": 128108906316,
+      "woke_mono_ns": 128108934402,
+      "worker_mono_ns": 128108934686,
+      "end_mono_ns": 128116043241,
+      "duration_ns": 7136925,
+      "queue": "wq:lp_default",
+      "component": 64,
+      "tid": 11177,
+      "items": 2
+    },
+    {
+      "kind": "queue",
+      "line": 105,
+      "ready_mono_ns": 135121808465,
+      "woke_mono_ns": 135121835288,
+      "worker_mono_ns": 135121835589,
+      "end_mono_ns": 135128189800,
+      "duration_ns": 6381335,
+      "queue": "wq:lp_default",
+      "component": 32,
+      "tid": 11177,
+      "items": 2
+    },
+    {
+      "kind": "queue",
+      "line": 112,
+      "ready_mono_ns": 221239310707,
+      "woke_mono_ns": 221242423738,
+      "worker_mono_ns": 221242424168,
+      "end_mono_ns": 221242470784,
+      "duration_ns": 3160077,
+      "queue": "wq:nav_and_controllers",
+      "component": 4,
+      "tid": 11581,
+      "items": 10
+    },
+    {
+      "kind": "queue",
+      "line": 114,
+      "ready_mono_ns": 228739319982,
+      "woke_mono_ns": 228741562303,
+      "worker_mono_ns": 228741562604,
+      "end_mono_ns": 228741580592,
+      "duration_ns": 2260610,
+      "queue": "wq:rate_ctrl",
+      "component": 8,
+      "tid": 11582,
+      "items": 4
+    }
+  ],
+  "limitations": [
+    "Only slow intervals are emitted; absence is not proof of zero delay.",
+    "Poll includes normal waiting for the supervisor to send sensors.",
+    "Component stage includes the barrier diagnostic output cost; inner wait_ns excludes it.",
+    "Queue wake can precede the current enqueue when an older wake token remains; worker_mono_ns is after acquiring the queue lock.",
+    "Work labels are copied before Run because a work item can delete itself; labels have a 95-character bound.",
+    "Release component/time are separate atomic observations, not a coherent pair or a causal verdict."
+  ],
+  "log_sha256": "a8db1e418b70592b75feec23ed5fc000678edf2aac4cc8a4a5e4c489cc7f011d",
+  "analyzer_sha256": "01047b04c6f312d3629dce84ef3623b3f36ef0fc3cb409ffe3856d75f611cbeb"
+}

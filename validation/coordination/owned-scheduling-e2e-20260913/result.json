@@ -1,0 +1,71 @@
+{
+  "checks": {
+    "bound": true,
+    "cpu_work_observed": true,
+    "nonneg_cpu_run_delta": true,
+    "same_boot_id": true,
+    "same_children_sha256": true,
+    "same_identity_both_roles": true,
+    "spinner_compared": true,
+    "spinner_start_ticks_matches": true,
+    "verifier_compared": true,
+    "wait_counters_disabled_are_null": true,
+    "wait_null_reason_recorded": true
+  },
+  "children_sha256": "a0b4764d7efbdd329a8b0c4261d0b7e91bbc530b0953e9d65d14191e2f0ada58",
+  "cleanup": {
+    "child_pid": 826,
+    "normal_exit": true,
+    "reaped": true,
+    "returncode": 0
+  },
+  "durations_s": {
+    "total": 0.873
+  },
+  "host": {
+    "boot_id": "5791bb33-c3b3-46b0-a393-8c5a01cfec42",
+    "kernel": "6.6.87.2-microsoft-standard-WSL2",
+    "sched_schedstats": "0",
+    "wsl_distro": "Ubuntu-22.04"
+  },
+  "ownership": {
+    "note": "only this verifier and its own child were sampled",
+    "spinner_pid": 826,
+    "targets": [
+      "verifier",
+      "spinner"
+    ],
+    "verifier_pid": 825
+  },
+  "python": "3.10.12",
+  "schema": "wksim.owned-scheduling-e2e.v1",
+  "source_sha256": {
+    "capture": "a3f3baddbe6e77bed5727e840ef6a4c7066291ce5f50c706f848e7b1716f8e9e",
+    "compare": "033d8af81c8c785c5d28a6476aa909309f1bcae20f196d3d0c17b71b06103c7d",
+    "run_e2e": "b2e691cd8da081e7e93087d8158098dff6905f101922bd873fb344b3f49b9ef2"
+  },
+  "spinner_delta": {
+    "nonvoluntary_ctxt_switches": 1,
+    "run_ns": 810107421,
+    "runqueue_ns": null,
+    "stime_ticks": 1,
+    "timeslices": null,
+    "utime_ticks": 80,
+    "voluntary_ctxt_switches": 11
+  },
+  "spinner_delta_unavailable": {
+    "runqueue_ns": "host_sched_schedstats_not_enabled(before=0;after=0);runqueue_counters_invalid(before=sched_schedstats_disabled;after=sched_schedstats_disabled)",
+    "timeslices": "host_sched_schedstats_not_enabled(before=0;after=0);runqueue_counters_invalid(before=sched_schedstats_disabled;after=sched_schedstats_disabled)"
+  },
+  "unavailable_reason_if_any": null,
+  "verdict": "pass",
+  "verifier_delta": {
+    "nonvoluntary_ctxt_switches": 0,
+    "run_ns": 806160525,
+    "runqueue_ns": null,
+    "stime_ticks": 1,
+    "timeslices": null,
+    "utime_ticks": 80,
+    "voluntary_ctxt_switches": 72
+  }
+}

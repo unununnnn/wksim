@@ -1,0 +1,45 @@
+{
+  "output_dir": "/root/wksim-native-release-wait-20260913-01",
+  "source_identities": {
+    "native_release_wait.c": "18bf382d4ed526e8bce565659bc77a210b569aaab66065c11b34756992bebef8",
+    "native_release_wait.py": "d022878f1b2f30fee68d3b56b72fc63146c7db37bca4949e24e752b477c8ec50",
+    "clock_cases.c": "c8c0b5710a16ab3a632bc4bc41ed9505a7433aa738691fb5aa8aff237a219730",
+    "benchmark.py": "9095db5af4375bc165c42428495a5d2647657cf36d1d125227b5777bd495ea50"
+  },
+  "compile_library": [
+    "cc",
+    "-O2",
+    "-fPIC",
+    "-shared",
+    "-std=c11",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-o",
+    "/root/wksim-native-release-wait-20260913-01/native_release_wait.so",
+    "/root/wksim-native-release-wait-20260913-01/native_release_wait.c"
+  ],
+  "compile_clock_cases": [
+    "cc",
+    "-O1",
+    "-std=c11",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-fsanitize=undefined",
+    "-fno-sanitize-recover=all",
+    "-I",
+    "/root/wksim-native-release-wait-20260913-01",
+    "/root/wksim-native-release-wait-20260913-01/clock_cases.c",
+    "-o",
+    "/root/wksim-native-release-wait-20260913-01/clock_cases"
+  ],
+  "run_clock_cases": [
+    "/root/wksim-native-release-wait-20260913-01/clock_cases"
+  ],
+  "run_benchmark": [
+    "python3",
+    "/root/wksim-native-release-wait-20260913-01/benchmark.py"
+  ],
+  "production_pacer_changed": false
+}

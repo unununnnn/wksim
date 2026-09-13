@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "issue": 155,
+  "stable_key": "full-ops-04",
+  "title": "CLI / NoUI / GUI parity",
+  "source": {
+    "file": "docs/plan/full-scope-expansion.md",
+    "line": 72,
+    "ledger_id": "OPS-04",
+    "ledger_file": "docs/plan/full-followup-tickets.json",
+    "parent_issue": 18,
+    "parent_state": "CLOSED"
+  },
+  "status": "defined",
+  "evidence_status": "partial-evidence",
+  "full_complete": false,
+  "current_gap": "Normal UI, CLI and NoUI paths exist, but the exact frozen 16-parameter handbook/source and the complete cross-surface value/error matrix are not available or proven.",
+  "atoms": [
+    {"id": "OPS-04-A", "name": "canonical_config_validation", "status": "partial", "required": "Same normalized config, identity and error class across surfaces", "owner": "runtime maintainer"},
+    {"id": "OPS-04-B", "name": "multi_value_initial_state", "status": "blocked", "required": "Source-backed IDs, types, units, defaults, ranges and negatives", "owner": "compatibility maintainer"},
+    {"id": "OPS-04-C", "name": "gps_origin", "status": "partial", "required": "Explicit datum/frame/altitude and surface parity", "owner": "runtime maintainer"},
+    {"id": "OPS-04-D", "name": "serial_baud", "status": "blocked", "required": "Source-backed device/baud/framing contract", "owner": "compatibility maintainer"},
+    {"id": "OPS-04-E", "name": "communication_address_ports", "status": "partial", "required": "Namespace, collision and surface-parity rules", "owner": "runtime maintainer"},
+    {"id": "OPS-04-F", "name": "automatic_start", "status": "partial", "required": "Preflight/readiness ordering and no-start-on-rejection", "owner": "runtime maintainer"},
+    {"id": "OPS-04-G", "name": "realtime_logging", "status": "partial", "required": "Option, record-level, capacity and failure semantics", "owner": "runtime maintainer"},
+    {"id": "OPS-04-H", "name": "cross_surface_parity", "status": "partial", "required": "Complete 16-argument accepted/rejected matrix", "owner": "validation maintainer"}
+  ],
+  "surfaces": {
+    "cli": ["tools/run-wksim.sh", "Simulator/wksim_runtime/runtime.py"],
+    "no_ui": ["Simulator/wksim_console/preflight_entry.py"],
+    "gui": ["Simulator/wksim_console/server.py", "Simulator/wksim_console/workspace.py", "Simulator/wksim_console/web"]
+  },
+  "required_binding": ["source_parameter_id", "schema_version", "type", "unit", "default", "range", "normalized_identity", "error_reason"],
+  "accepted_means": "configuration admitted to the next formal stage only; not preflight, connection, task or flight success",
+  "errors": ["unknown_argument", "missing_argument", "invalid_type", "invalid_unit", "out_of_range", "unsupported_mode", "path_escape", "address_collision", "device_unavailable", "preflight_failed", "revision_conflict", "runtime_failed", "result_missing"],
+  "followups": [
+    {"key": "ops-04-source-parameter-map", "files": ["docs/plan/full-contracts/ops-04-source-map.json", "validation/<source-map-audit>"], "status": "proposed", "blocked_by": "Exact handbook/source path and SHA missing"},
+    {"key": "ops-04-shared-adapter", "files": ["Simulator/wksim_runtime/config.py", "Simulator/wksim_console/preflight_entry.py", "tools/run-wksim.sh"], "status": "proposed", "blocked_by": "Frozen parameter map"},
+    {"key": "ops-04-no-ui-matrix", "files": ["validation/<no-ui-parity-audit>"], "status": "proposed", "blocked_by": "Frozen parameter map and shared adapter"},
+    {"key": "ops-04-gui-matrix", "files": ["validation/<gui-parity-audit>"], "status": "proposed", "blocked_by": "Frozen parameter map and browser resource"}
+  ],
+  "preserved": {"issue_18_scope": "normal real-browser/operator workflow only", "security": "local-only and isolated entry unchanged", "full_complete": false}
+}

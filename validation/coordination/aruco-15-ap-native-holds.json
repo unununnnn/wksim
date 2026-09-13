@@ -1,0 +1,173 @@
+{
+  "status": "pass",
+  "unresolved": [],
+  "scope": "Offline post-MOVE HOLD targets; requires the separate public/provenance audit.\n\nControl tick resolves CURRENT_POS_HOVER from that tick's state, caches it,\npublishes native output if due, then SessionState. Native samples therefore\nbelong to the immediately following continuous SessionState, not the preceding\none. The first state carrying a HOLD supplies its frozen position and heading.\nOnly HOLDs following an executed MOVE are covered; initial takeover is separate.\nNo ROS nodes, physical tolerance, or flight-completion verdict is introduced.\n",
+  "epoch": "d342bbd7a8c449e19aa63c9dc268c50e",
+  "stack": "arducopter",
+  "holds": {
+    "13": {
+      "position": [
+        0.05955776572227478,
+        0.04452753812074661,
+        2.9700000286102295
+      ],
+      "yaw": -0.0010674217173213556,
+      "sequence": 11877,
+      "samples": 13
+    },
+    "17": {
+      "position": [
+        0.06806601583957672,
+        0.04452753812074661,
+        2.9700000286102295
+      ],
+      "yaw": -0.0017767638199139525,
+      "sequence": 11995,
+      "samples": 5
+    },
+    "21": {
+      "position": [
+        0.05955776572227478,
+        0.04452753812074661,
+        2.9600000381469727
+      ],
+      "yaw": -0.0024902045975840705,
+      "sequence": 12090,
+      "samples": 2
+    },
+    "25": {
+      "position": [
+        0.06806601583957672,
+        0.055659420788288116,
+        2.9600000381469727
+      ],
+      "yaw": -0.002885807530279289,
+      "sequence": 12180,
+      "samples": 2
+    },
+    "28": {
+      "position": [
+        0.09359076619148254,
+        0.06679131090641022,
+        2.9600000381469727
+      ],
+      "yaw": -0.003250477092907887,
+      "sequence": 12252,
+      "samples": 2
+    },
+    "32": {
+      "position": [
+        0.1276237666606903,
+        0.06679131090641022,
+        2.9700000286102295
+      ],
+      "yaw": -0.0035483242892189325,
+      "sequence": 12341,
+      "samples": 1
+    },
+    "40": {
+      "position": [
+        0.24673931300640106,
+        0.055659420788288116,
+        2.9800000190734863
+      ],
+      "yaw": -0.0034839280653920987,
+      "sequence": 12526,
+      "samples": 3
+    },
+    "44": {
+      "position": [
+        0.3318217992782593,
+        0.06679131090641022,
+        2.9800000190734863
+      ],
+      "yaw": -0.0037329607040316004,
+      "sequence": 12616,
+      "samples": 2
+    },
+    "53": {
+      "position": [
+        0.5275115966796875,
+        0.06679131090641022,
+        2.9700000286102295
+      ],
+      "yaw": -0.004117622932205576,
+      "sequence": 12829,
+      "samples": 2
+    },
+    "56": {
+      "position": [
+        0.595577597618103,
+        0.06679131090641022,
+        2.9800000190734863
+      ],
+      "yaw": -0.0039492468716293815,
+      "sequence": 12887,
+      "samples": 128
+    },
+    "58": {
+      "position": [
+        0.6381188035011292,
+        0.10018695890903473,
+        2.9700000286102295
+      ],
+      "yaw": -0.004082119332409368,
+      "sequence": 13310,
+      "samples": 3
+    },
+    "69": {
+      "position": [
+        0.9784489274024963,
+        0.10018695890903473,
+        3.0399999618530273
+      ],
+      "yaw": -0.004448228183006541,
+      "sequence": 13557,
+      "samples": 1
+    },
+    "77": {
+      "position": [
+        1.055023193359375,
+        0.07792319357395172,
+        2.9600000381469727
+      ],
+      "yaw": -0.004978480611333371,
+      "sequence": 13736,
+      "samples": 3
+    },
+    "87": {
+      "position": [
+        1.0635313987731934,
+        0.06679131090641022,
+        2.990000009536743
+      ],
+      "yaw": -0.005299796758186049,
+      "sequence": 13978,
+      "samples": 5
+    },
+    "91": {
+      "position": [
+        1.089056134223938,
+        0.06679131090641022,
+        2.990000009536743
+      ],
+      "yaw": -0.005521497927841214,
+      "sequence": 14051,
+      "samples": 1
+    }
+  },
+  "failures": [],
+  "observed_gid": "010f7f0185252cd600000000000014030000000000000000",
+  "provenance": {
+    "builder_sha256": "d18c4c026fa825be7fb2a21c3245fbc15261f6a20b925c1ba2406cbdbdb344e3",
+    "rc_take_source_sha256": "e618c33ba687520160c8d2cfb79b0da30e5047f3036549c47ca357f1c26dc38f",
+    "rc_take_lib_sha256": "f00ccb7da8da348e33e8dbb1200dd3244a73c3cf4f658024372009de06f9107c"
+  },
+  "raw_sha256": "590d4c16890f5cbf0cee0aec3b5603076e1109f9833e7fb9b6997c91f52fecbe",
+  "auditor_sha256": "8599d18460c2e95b36a9defd3351b634ea4def3896fcb12cc2ac370d10632385",
+  "uncovered": [
+    "Initial takeover HOLD",
+    "Public request acceptance and loss causality require raw audit",
+    "Graph-wide native publisher identity/exclusivity requires separate proof"
+  ]
+}

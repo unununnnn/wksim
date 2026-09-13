@@ -10,6 +10,11 @@ from Simulator.wksim_runtime.joint_evidence import verify_tasks
 from Simulator.wksim_runtime.joint_actions import validate_request
 
 
+RESET_IDLE_PUBLIC_EVENTS = frozenset(('started', 'scene_native_sources_bound'))
+STARTED_EVENT_FIELDS = frozenset(('stack', 'native_prefix', 'position_yaw',
+                                  'operation_clock', 'communication_clock'))
+
+
 def recorded_host(result,item,*,current_host=False):
     """Historical cleanup is not a query against potentially reused live PIDs."""
     if 'unowned_ap_before' in result:
@@ -72,7 +77,12 @@ def raw_public(directory,epoch,run_id):
         require(uid is not None,'Public topic crossed vehicle identity')
         if row['topic'].endswith('/text_info'):
             value=json.loads(deserialize_message(bytes.fromhex(row['cdr_hex']),TextInfo).message)
-            require(value['run_id']==run_id,'Raw event crossed run identity')
+            require(isinstance(value,dict) and value.get('version')==1
+                    and value.get('run_id')==run_id and value.get('control_epoch')==epoch
+                    and type(value.get('event_id')) is int and value['event_id']>0
+                    and type(value.get('emitted_monotonic_ns')) is int and value['emitted_monotonic_ns']>0
+                    and type(value.get('emitted_unix_ns')) is int and value['emitted_unix_ns']>0,
+                    'Raw event crossed run/control identity or schema')
             events[uid].append(value)
         else:
             require(row['topic'].endswith('/v2/state'),'Unknown public DDS topic')
@@ -84,6 +94,153 @@ def raw_public(directory,epoch,run_id):
         require(value.state.connected and value.state.odom_valid and not value.state.armed
                 and abs(value.state.position[2])<.3,'Final native state was not valid and landed')
     return events,last,counts
+
+
+def verify_reset_action_isolation(root, flow, old_epoch, new_epoch):
+    """Prove retained receipts stay in their epoch across a cold reset.
+
+    The manager's summary is not sufficient: every submitted action must still
+    match its original request/result file, and every post-reset file must be
+    either the new-epoch completion or an explicitly rejected retired request.
+    Missing or extra files fail closed because the evidence has no before/after
+    digest with which to infer that an old result was not overwritten.
+    """
+    rows = flow.get('actions')
+    require(isinstance(rows, list) and rows, 'Missing retained action sequence')
+    old_responses = {}
+    new_responses = {}
+    old_requests = []
+    tokens = {old_epoch: set(), new_epoch: set()}
+    run_id = None
+    for row in rows:
+        request = row.get('submitted', {}).get('request')
+        response = row.get('response')
+        require(isinstance(request, dict) and isinstance(response, dict),
+                'Malformed retained action row')
+        require(request.get('epoch') in (old_epoch, new_epoch),
+                'Action crossed cold-reset epochs')
+        require(response.get('state') == 'completed'
+                and response.get('run_id') == request.get('run_id')
+                and response.get('epoch') == request.get('epoch')
+                and response.get('command_id') == request.get('command_id')
+                and response.get('action') == request.get('action')
+                and response.get('token') == request.get('token'),
+                'Completed action receipt identity differs')
+        run_id = request['run_id'] if run_id is None else run_id
+        require(request['run_id'] == run_id, 'Action crossed run identity')
+        require(request['token'] not in tokens[request['epoch']],
+                'Duplicate action token within cold-reset epoch')
+        tokens[request['epoch']].add(request['token'])
+        if request['epoch'] == old_epoch:
+            old_requests.append(request)
+        action_name = f"{request['command_id']:020d}-{request['token']}.json"
+        action_path = root / 'actions' / action_name
+        result_path = root / 'action-results' / request['epoch'] / (request['token'] + '.json')
+        require(action_path.is_file() and json.loads(action_path.read_text()) == request,
+                'Retained action request differs from its action file')
+        require(result_path.is_file() and json.loads(result_path.read_text()) == response,
+                'Retained action result differs from its completion receipt')
+        (old_responses if request['epoch'] == old_epoch else new_responses)[request['token']] = response
+
+    require(tokens[old_epoch].isdisjoint(tokens[new_epoch]),
+            'Action token was reused across cold-reset epochs')
+
+    old_dir = root / 'action-results' / old_epoch
+    new_dir = root / 'action-results' / new_epoch
+    old_files = {path.name for path in old_dir.glob('*.json')} if old_dir.is_dir() else set()
+    require(old_files == {token + '.json' for token in old_responses},
+            'Old epoch action results were added, removed or rewritten')
+    require(old_responses, 'Missing old-epoch action receipts')
+    new_files = {path.name for path in new_dir.glob('*.json')} if new_dir.is_dir() else set()
+    require(new_files >= {token + '.json' for token in new_responses},
+            'Missing new-epoch completion receipt')
+    stale = []
+    for path in new_dir.glob('*.json'):
+        if path.name in {token + '.json' for token in new_responses}:
+            require(json.loads(path.read_text()) == new_responses[path.stem],
+                    'New-epoch completion receipt changed')
+            continue
+        value = json.loads(path.read_text())
+        request = value.get('request')
+        require(path.name.startswith('rejected-') and value.get('state') == 'rejected'
+                and value.get('epoch') == new_epoch and isinstance(request, dict)
+                and request.get('run_id') == run_id and request.get('epoch') == old_epoch
+                and path.name == f"rejected-{request['command_id']:020d}-{request['token']}.json",
+                'Post-reset result is neither a new completion nor a retired rejection')
+        stale.append(value)
+    require(stale, 'Missing explicit retired-action rejection after cold reset')
+    sample = flow.get('reset', {}).get('retired_request_rejection')
+    require(isinstance(sample, dict) and sample in stale,
+            'Retained retired-action rejection is missing from the new epoch')
+    for retired in stale:
+        retired_request = retired.get('request')
+        require(isinstance(retired_request, dict) and retired_request.get('epoch') == old_epoch
+                and retired_request.get('run_id') == run_id,
+                'Retired request identity is malformed')
+        retired_name = f"{retired_request['command_id']:020d}-{retired_request['token']}.json"
+        retired_path = root / 'actions' / retired_name
+        require(retired_path.is_file() and json.loads(retired_path.read_text()) == retired_request,
+                'Retired request action file is missing or differs')
+        require(retired_request['token'] not in tokens[new_epoch],
+                'Retired request token was reused in the new epoch')
+        require(any(all(retired_request.get(key) == request.get(key)
+                        for key in ('run_id', 'epoch', 'command_id', 'action', 'offer_token'))
+                    for request in old_requests),
+                'Retired request is not derived from an existing old request')
+    return dict(old_action_results=len(old_responses), new_completions=len(new_responses),
+                retired_rejections=len(stale))
+
+
+def verify_no_task_replay(directory, ground, events):
+    """Require a reset generation to remain task-free in raw evidence."""
+    require(isinstance(ground, dict) and not ground.get('tasks'), 'New epoch retained task results')
+    run_id, epoch = ground.get('run_id'), ground.get('epoch')
+    require(isinstance(run_id, str) and run_id and isinstance(epoch, str) and epoch,
+            'New epoch lacks a control identity')
+    tasks = directory / 'tasks'
+    require(not tasks.exists() or not any(path.is_file() for path in tasks.rglob('*')),
+            'New epoch contains task files after cold reset')
+    require(isinstance(events, dict) and set(events) == {1, 2},
+            'New epoch lacks the dual raw public event streams')
+    for values in events.values():
+        require(isinstance(values, list), 'Malformed raw public event stream')
+        seen_ids = set()
+        event_names = []
+        previous_id = previous_monotonic = 0
+        for value in values:
+            require(isinstance(value, dict) and value.get('event') in RESET_IDLE_PUBLIC_EVENTS
+                    and value.get('version') == 1 and value.get('run_id') == run_id
+                    and value.get('control_epoch') == epoch
+                    and type(value.get('event_id')) is int and value['event_id'] > 0
+                    and value['event_id'] not in seen_ids
+                    and type(value.get('emitted_monotonic_ns')) is int
+                    and value['emitted_monotonic_ns'] > 0
+                    and type(value.get('emitted_unix_ns')) is int
+                    and value['emitted_unix_ns'] > 0,
+                    'Unknown, task, replay or foreign raw public event after reset')
+            require(value['event_id'] > previous_id
+                    and value['emitted_monotonic_ns'] > previous_monotonic,
+                    'Reset raw event order or timestamp moved backwards')
+            seen_ids.add(value['event_id'])
+            previous_id = value['event_id']
+            previous_monotonic = value['emitted_monotonic_ns']
+            if value['event'] == 'started':
+                require(STARTED_EVENT_FIELDS <= set(value)
+                        and value.get('stack') in ('arducopter', 'px4')
+                        and isinstance(value.get('native_prefix'), str)
+                        and type(value.get('position_yaw')) is bool
+                        and value.get('operation_clock') in ('ros', 'monotonic')
+                        and value.get('communication_clock') == 'monotonic',
+                        'Started event lacks production startup identity')
+            if value['event'] == 'scene_native_sources_bound':
+                endpoints = value.get('native_endpoints')
+                require(value.get('scene_epoch') == epoch and isinstance(endpoints, dict) and endpoints
+                        and all(isinstance(topic, str) and isinstance(gid, str) and gid
+                                for topic, gid in endpoints.items()),
+                        'Native source binding crossed the new epoch identity')
+            event_names.append(value['event'])
+        require(event_names == ['started', 'scene_native_sources_bound'],
+                'New epoch startup/native-source event order differs')
 
 
 def audit(evidence,*,current_host=False):
@@ -116,6 +273,7 @@ def audit(evidence,*,current_host=False):
     require(all(a['command_id']<b['command_id'] for a,b in zip(requests.values(),list(requests.values())[1:])),
             'Formal action identity moved backwards')
     require(responses['cold-reset']['new_epoch']==new_epoch,'Reset response did not name the new epoch')
+    reset_actions = verify_reset_action_isolation(root, flow, epoch, new_epoch)
     rejection=flow['reset']['retired_request_rejection']
     rejected=rejection['request'];name=f"rejected-{rejected['command_id']:020d}-{rejected['token']}.json"
     require(rejected['epoch']==epoch and rejection['epoch']==new_epoch and rejection['state']=='rejected'
@@ -219,15 +377,15 @@ def audit(evidence,*,current_host=False):
     reset_timeline,reset_strict,reset_life=audit_product_timeline(second,ground,require_flight=False)
     ground_events,ground_last,ground_counts=raw_public(second,new_epoch,run_id)
     require(all(value['max_height_m']<.3 for value in reset_timeline['physical'].values()),'New epoch moved before a task')
+    verify_no_task_replay(second, ground, ground_events)
     for peer in (1,2):
         require(last[peer].control_epoch!=ground_last[peer].control_epoch,'Cold reset retained old Control epoch')
-        require(not any(event['event'] in ('native_ack','setup_completed','command_accepted') for event in ground_events[peer]),
-                'Old native task was replayed after reset')
     return dict(status='pass',scope='Formal Agent loss, explicit new recovery tasks, cold reset and retired action isolation',
         affected=affected,freeze_tick=tick,recovery_wall_seconds=recovery['wall_seconds'],tasks=summaries,
         physical_task_proof=physical,flight_timeline=flight,reset_timeline=reset_timeline,
         strict_barriers=[strict,reset_strict],lifecycles=[life,reset_life],raw_state_counts=[counts,ground_counts],
         epochs=[epoch,new_epoch],groups_without_residue=2,
+        reset_action_isolation=reset_actions,
         current_host_verification=current_host,
         limitations=['Fault freeze is audited from the first raw fault permission until explicit recovering permission; wire/model authority is never inferred from wall-clock pacing.',
                      'Default verification uses recorded process/image/cleanup evidence. Live PIDs and current executable files are checked only with --current-host and a matching recorded boot identity.'],

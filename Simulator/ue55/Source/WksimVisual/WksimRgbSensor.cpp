@@ -28,6 +28,7 @@ struct FWksimRgbWork
     uint64 Frame = 0;
     FString CaptureUtc, CompletionUtc, MetadataPath, Error;
     TSharedPtr<IImageWrapper> Png;
+    TSharedPtr<FJsonObject> RenderingFlags;
 };
 
 namespace
@@ -125,6 +126,7 @@ void SaveFrame(const TSharedPtr<FWksimRgbWork, ESPMode::ThreadSafe>& W, TArray<F
         Json->SetStringField(TEXT("distortion_model"), TEXT("pinhole_zero_distortion_assumption"));
         Json->SetStringField(TEXT("pose_coordinates"), TEXT("UE world centimeters; X forward Y right Z up; optical x=Y y=-Z z=X"));
         Json->SetObjectField(TEXT("camera_world_pose"), PoseJson(W->Request.CameraWorldPose));
+        Json->SetObjectField(TEXT("render_show_flags"), W->RenderingFlags);
         Json->SetObjectField(TEXT("camera_in_vehicle"), PoseJson(C.CameraInVehicle));
         FString Text;
         const auto Writer = TJsonWriterFactory<>::Create(&Text);
@@ -204,6 +206,17 @@ bool UWksimRgbSensor::Configure(const FWksimRgbConfig& C, FString& Error)
     return true;
 }
 
+bool UWksimRgbSensor::UseCalibrationRendering()
+{
+    if (!Capture || Work) return false;
+    Capture->ShowFlags.SetPostProcessing(false);
+    Capture->ShowFlags.SetAntiAliasing(false);
+    Capture->ShowFlags.SetBloom(false);
+    Capture->ShowFlags.SetDepthOfField(false);
+    Capture->ShowFlags.SetEyeAdaptation(false);
+    return true;
+}
+
 bool UWksimRgbSensor::RequestCapture(const FWksimRgbRequest& R, FString& Error)
 {
     check(IsInGameThread());
@@ -221,6 +234,14 @@ bool UWksimRgbSensor::RequestCapture(const FWksimRgbRequest& R, FString& Error)
     Work->Config = Config;
     Work->Request = R;
     Work->Request.CameraWorldPose = Capture->GetComponentTransform();
+    Work->RenderingFlags = MakeShared<FJsonObject>();
+    Work->RenderingFlags->SetBoolField(TEXT("post_processing"),Capture->ShowFlags.PostProcessing);
+    Work->RenderingFlags->SetBoolField(TEXT("anti_aliasing"),Capture->ShowFlags.AntiAliasing);
+    Work->RenderingFlags->SetBoolField(TEXT("bloom"),Capture->ShowFlags.Bloom);
+    Work->RenderingFlags->SetBoolField(TEXT("depth_of_field"),Capture->ShowFlags.DepthOfField);
+    Work->RenderingFlags->SetBoolField(TEXT("eye_adaptation"),Capture->ShowFlags.EyeAdaptation);
+    Work->RenderingFlags->SetBoolField(TEXT("motion_blur"),Capture->ShowFlags.MotionBlur);
+    Work->RenderingFlags->SetBoolField(TEXT("temporal_aa"),Capture->ShowFlags.TemporalAA);
     Work->Frame = ++Frame;
     Work->CaptureUtc = FDateTime::UtcNow().ToIso8601();
     Work->Png = FModuleManager::GetModuleChecked<IImageWrapperModule>(TEXT("ImageWrapper")).CreateImageWrapper(EImageFormat::PNG);

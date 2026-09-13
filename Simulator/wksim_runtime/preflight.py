@@ -4,15 +4,33 @@ import hashlib
 import importlib.util
 import json
 import os
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 import platform
+import re
 import stat
+import subprocess
 import sys
+import zipfile
 
 from .config import ConfigError, load_config, validate_config
 
 REPO = Path(__file__).resolve().parents[2]
 INDEX = Path(__file__).with_name('capability-index.json')
+MODEL_BUILD_FIELDS = frozenset(('schema_version', 'archive', 'archive_sha256', 'archive_members',
+                                'source_files', 'wrapper', 'wrapper_sha256', 'loader',
+                                'loader_sha256', 'library', 'library_sha256', 'argv', 'compiler',
+                                'profile', 'platform', 'abi', 'dynamic_dependencies'))
+FORBIDDEN_MODEL_DEPENDENCY_PARTS = tuple(part.casefold() for part in (
+    '.' + 'dll', '.' + 'pyd', '.' + 'dylib', '.' + 'exe', 'vendor', 'sitl', 'matlab',
+    'coptersim', 'dllsim' + 'ctrlapi', 'rfly' + 'sim', 'libgz-',
+    'libignition'))
+_GAZEBO_DEPENDENCY = re.compile(r'(?<![a-z0-9])(?:lib)?gazebo(?=$|[^a-z0-9])')
+
+
+def _forbidden_model_dependency(dependency):
+    lowered = dependency.casefold()
+    return (_GAZEBO_DEPENDENCY.search(lowered) is not None
+            or any(part in lowered for part in FORBIDDEN_MODEL_DEPENDENCY_PARTS))
 
 
 def digest(path):
@@ -37,6 +55,159 @@ def package_digest(root, complete=False):
         raise ValueError(f'Empty message package: {root}')
     content = ''.join(f'{p.relative_to(root).as_posix()}\0{digest(p)}\n' for p in files)
     return hashlib.sha256(content.encode()).hexdigest()
+
+
+def _strict_json_constant(value):
+    raise ValueError(f'Non-finite JSON constant is forbidden: {value}')
+
+
+def _strict_json_object(pairs):
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError(f'Duplicate JSON key is forbidden: {key}')
+        result[key] = value
+    return result
+
+
+def _canonical_file(path, label):
+    path = Path(path)
+    if path.is_symlink() or not path.is_file() or path.resolve(strict=True) != path:
+        raise ValueError(f'{label} must be an existing canonical non-symlink file: {path}')
+    return path
+
+
+def _strict_equal(actual, expected):
+    """Compare JSON-shaped values without Python's bool/int equality aliasing."""
+    if type(actual) is not type(expected):
+        return False
+    if isinstance(expected, dict):
+        return (set(actual) == set(expected)
+                and all(_strict_equal(actual[key], value)
+                        for key, value in expected.items()))
+    if isinstance(expected, list):
+        return (len(actual) == len(expected)
+                and all(_strict_equal(left, right)
+                        for left, right in zip(actual, expected)))
+    return actual == expected
+
+
+def validate_model_build_manifest(config, evidence, *, promotion_candidate=False):
+    """Validate a model build receipt and ELF metadata without loading the library."""
+    from Simulator.wksim_core.model import (ABI_CONTRACT, MEMBERS, dynamic_dependencies,
+                                             exported_model_symbols, model_platform)
+    baseline = evidence['model_build']
+    library = Path(config['model_library'])
+    _canonical_file(library, 'Model library')
+    manifest = library.with_name('build.json')
+    _canonical_file(manifest, 'Model build manifest')
+    build = json.loads(manifest.read_text(encoding='utf-8'),
+                       object_pairs_hook=_strict_json_object,
+                       parse_constant=_strict_json_constant)
+    if not isinstance(build, dict) or set(build) != MODEL_BUILD_FIELDS:
+        raise ValueError('Model build manifest fields differ')
+    if type(build['schema_version']) is not int or build['schema_version'] != 2:
+        raise ValueError('Model build manifest schema differs')
+    for key in ('archive', 'archive_sha256', 'compiler', 'profile'):
+        if not _strict_equal(build.get(key), baseline[key]):
+            raise ValueError('Model build differs from the reviewed baseline at ' + key)
+    archive = _canonical_file(Path(build['archive']), 'Model archive')
+    wrapper = REPO / 'Simulator/wksim_core/model.cpp'
+    loader = REPO / 'Simulator/wksim_core/model.py'
+    _canonical_file(wrapper, 'Model wrapper')
+    _canonical_file(loader, 'Model loader')
+    if build['wrapper'] != str(wrapper) or build['loader'] != str(loader.resolve()):
+        raise ValueError('Model wrapper or loader path differs')
+    expected_argv = ['g++', '-std=c++17', '-O2', '-fno-fast-math', '-fPIC', '-shared',
+                     '-Wl,--no-undefined', '-I', str(library.parent),
+                     str(library.parent / 'Exp1_MinModelTemp.cpp'), str(wrapper), '-o', str(library)]
+    if not _strict_equal(build['argv'], expected_argv):
+        raise ValueError('Model compiler invocation differs')
+    identities = {
+        'model_library': (library, build['library_sha256']),
+        'model_archive': (archive, build['archive_sha256']),
+        'model_wrapper': (wrapper, build['wrapper_sha256']),
+    }
+    checked = {}
+    for label, (path, expected) in identities.items():
+        actual = digest(path)
+        if actual != expected:
+            raise ValueError(f'{label}: SHA256 differs: {path}')
+        checked[label] = dict(path=str(path.resolve()), sha256=actual,
+                              expected_sha256=expected, match=True,
+                              promotion_candidate=promotion_candidate)
+    manifest_library = _canonical_file(Path(build['library']), 'Manifest model library')
+    if manifest_library != library or build['library'] != str(library):
+        raise ValueError('Model build manifest library path differs')
+    loader_sha = digest(loader)
+    if loader_sha != build['loader_sha256']:
+        raise ValueError('model_loader: SHA256 differs: ' + str(loader))
+    checked['model_loader'] = dict(path=str(loader.resolve()), sha256=loader_sha,
+                                   expected_sha256=build['loader_sha256'], match=True,
+                                   promotion_candidate=promotion_candidate)
+    with zipfile.ZipFile(archive) as source_archive:
+        archive_members = [{"path": member, "size": source_archive.getinfo(member).file_size,
+                            "sha256": hashlib.sha256(source_archive.read(member)).hexdigest()}
+                           for member in MEMBERS]
+    source_files = []
+    for member in MEMBERS:
+        source = _canonical_file(library.parent / Path(member).name,
+                                 'Generated model source')
+        source_files.append({"path": Path(member).name, "size": source.stat().st_size,
+                             "sha256": digest(source)})
+    if (not _strict_equal(build['archive_members'], archive_members)
+            or not _strict_equal(build['source_files'], source_files)):
+        raise ValueError('Model generated source evidence differs')
+    if (not _strict_equal(build['abi'], ABI_CONTRACT)
+            or not _strict_equal(build['platform'], model_platform())):
+        raise ValueError('Model ABI or platform contract differs')
+    dependencies = dynamic_dependencies(library)
+    if (not isinstance(dependencies, list)
+            or any(not isinstance(dependency, str) for dependency in dependencies)):
+        raise ValueError('Model dynamic dependency metadata is malformed')
+    forbidden = [dependency for dependency in dependencies
+                 if _forbidden_model_dependency(dependency)]
+    if forbidden:
+        raise ValueError('Forbidden model dynamic dependency: ' + ', '.join(forbidden))
+    symbols = exported_model_symbols(library)
+    if not _strict_equal(build['dynamic_dependencies'], dependencies):
+        raise ValueError('Model dynamic dependency set differs')
+    if symbols != sorted(ABI_CONTRACT['required_symbols']):
+        raise ValueError('Model exported symbol set differs')
+    return dict(build=build, identities=checked,
+                abi=dict(contract=ABI_CONTRACT, exported_symbols=symbols,
+                         dynamic_dependencies=dependencies,
+                         scope='static candidate ELF/source contract; not ABI execution or flight proof'))
+
+
+def promotion_model_build(config, evidence):
+    """Statically validate one explicit unflown model build without changing old proof."""
+    if config.get('model_promotion_flight') is not True:
+        raise ValueError('Model promotion requires an explicit model_promotion_flight flag')
+    return validate_model_build_manifest(config, evidence, promotion_candidate=True)
+
+
+_CANDIDATE_STATUS_SCOPE = 'six public inputs, independent SITL; ground DDS reconnect only'
+
+
+def _finish_preflight_result(result, config):
+    """Close every read-only preflight path with the same result schema."""
+    result.setdefault('candidate_status', dict(implemented=True, built=False, flown=False,
+                                               scope=_CANDIDATE_STATUS_SCOPE))
+    result['candidate_status']['built'] = not any(
+        row['code'] in ('identity_mismatch', 'resource_missing', 'candidate_not_pinned',
+                        'model_manifest_mismatch')
+        for row in result['reasons'])
+    result['ok'] = not result['reasons']
+    promotion = (isinstance(config, dict)
+                 and (config.get('promotion_flight', False)
+                      or config.get('model_promotion_flight', False)))
+    result['candidate_status']['flown'] = result['ok'] and not promotion
+    if isinstance(config, dict) and config.get('model_promotion_flight', False):
+        result['flight_provenance'] = 'model_promotion_flight'
+    elif isinstance(config, dict) and config.get('promotion_flight', False):
+        result['flight_provenance'] = 'promotion_flight'
+    return result
 
 
 def control_profile(index, protocol, stack, check_file):
@@ -70,7 +241,14 @@ def control_profile(index, protocol, stack, check_file):
                 evidence['dds_workspace'] != historical_pin['roots']['dds_workspace'] or
                 evidence['dds']['commands'] != []):
             raise ValueError(f'{peer}: invalid control protocol, workspace, stack or observer evidence')
-        for key in ('fc_binary', 'fc_binary_sha256', 'fc_commit', 'agent_sha256'):
+        allowed_binaries = {historical['fc_binary']}
+        if peer == 'px4' and index.get('resource_locations', {}).get('px4_root'):
+            # The already-approved project relocation applies to new evidence
+            # as well as resource preflight. Historical bytes/hashes stay fixed.
+            allowed_binaries.add(str(PurePosixPath(index['resource_locations']['px4_root']) / 'build/px4_sitl_default/bin/px4'))
+        if evidence['fc_binary'] not in allowed_binaries:
+            raise ValueError(f'{peer}: fixed firmware path differs from historical or reviewed relocation')
+        for key in ('fc_binary_sha256', 'fc_commit', 'agent_sha256'):
             if evidence[key] != historical[key]:
                 raise ValueError(f'{peer}: fixed firmware/agent differs at {key}')
         if peer == 'arducopter':
@@ -126,6 +304,22 @@ def consumer_rejections(config):
     return errors
 
 
+def control_sources(config, index, evidence):
+    """Promotion replaces only historical source binding with the pinned build."""
+    if not config.get('promotion_flight', False):
+        return evidence['prometheus']['implementation_sha256']
+    from . import joint_profile
+    p = joint_profile.select_profile('joint_quad_dds_v1')
+    record = joint_profile._pinned_json(p['manifests']['control'])
+    joint_profile._control(record, sealed=True)
+    pin = index['control_profiles']['session_v1']['installed_packages']['prometheus_control']
+    prefix = Path(config['prometheus_workspace']) / 'install/prometheus_control'
+    if (prefix != Path(pin['prefix']) or not pin.get('complete_snapshot')
+            or package_digest(prefix, complete=True) != pin['sha256']):
+        raise ValueError('Promotion control complete installed snapshot differs')
+    return record['python_sha256']
+
+
 def preflight(config):
     """Return JSON-safe evidence; ok is candidate admission, never flight readiness."""
     if isinstance(config,dict) and config.get('kind')=='joint_scene':
@@ -136,7 +330,10 @@ def preflight(config):
             if platform.system()=='Linux':
                 errors=consumer_rejections(normalized)
                 if errors:return dict(ok=False,reasons=errors,children_created=0,config=normalized)
-            return dict(check_profile(normalized['runtime_profile'],normalized['run_id']),config=normalized)
+            from .joint_aruco_profile import PROFILE as ARUCO_PROFILE, check as check_aruco
+            admission = (check_aruco(normalized) if normalized['runtime_profile'] == ARUCO_PROFILE
+                         else check_profile(normalized['runtime_profile'],normalized['run_id']))
+            return dict(admission,config=normalized)
         except (OSError,ValueError,TypeError) as error:
             return dict(ok=False,reasons=[dict(code='invalid_config',message=str(error))],children_created=0)
     result = dict(ok=False, reasons=[], identities={}, capabilities=[], children_created=0)
@@ -165,10 +362,10 @@ def preflight(config):
             if requested not in rows or not rows[requested].get('admitted', False):
                 reject('unsupported_capability', f'{requested}: unknown or not admitted for this product slice')
         if result['reasons']:
-            return result
+            return _finish_preflight_result(result, config)
         if platform.system() != 'Linux':
             reject('unsupported_platform', 'Run inside Ubuntu-22.04 with the selected ROS2 overlays sourced')
-            return result
+            return _finish_preflight_result(result, config)
         result['reasons'].extend(consumer_rejections(config))
         if 'telemetry_socket' in config:
             from .telemetry_dialect import load_dialect
@@ -178,7 +375,7 @@ def preflight(config):
             reject('unsupported_platform', 'Only Ubuntu 22.04 has a pinned environment')
         if config.get('runtime_profile'):
             if result['reasons']:
-                return result
+                return _finish_preflight_result(result, config)
             from .independent_profile import check_profile
             consumer_identities=result['identities']
             result=check_profile(config)
@@ -195,14 +392,12 @@ def preflight(config):
         evidence_path = REPO / baseline['result']
         check_file('flight_evidence', evidence_path, baseline['result_sha256'])
         if result['reasons']:
-            return result
+            return _finish_preflight_result(result, config)
         evidence = json.loads(evidence_path.read_text())
         if (evidence['status'] != 'pass' or evidence['stack'] != stack or
                 evidence['prometheus'].get('protocol', 'legacy_v1') != protocol):
             reject('invalid_evidence', 'Pinned flight result does not report this stack passing')
-            return result
-        result['candidate_status'] = dict(implemented=True, built=False, flown=False,
-                                         scope='six public inputs, independent SITL; ground DDS reconnect only')
+            return _finish_preflight_result(result, config)
         roots = {key: Path(config[key]).resolve(strict=True) for key in
                  ('dds_workspace', 'prometheus_workspace', 'px4_root')}
         if stack == 'arducopter':
@@ -259,29 +454,50 @@ def preflight(config):
             reject('resource_not_executable', f'Agent is not executable: {agent}')
         model = evidence['model_build']
         library = Path(config.get('model_library', index.get('resource_locations', {}).get('model_library', model['library'])))
-        config['model_library'] = str(library.resolve())
-        check_file('model_library', library, model['library_sha256'])
-        check_file('model_archive', model['archive'], model['archive_sha256'])
-        check_file('model_wrapper', REPO / 'Simulator/wksim_core/model.cpp', model['wrapper_sha256'])
-        check_file('model_loader', REPO / 'Simulator/wksim_core/model.py',
-                   evidence['implementation_sha256']['Simulator/wksim_core/model.py'])
-        build = json.loads(library.with_name('build.json').read_text())
-        for key in ('archive_sha256', 'wrapper_sha256', 'library_sha256', 'profile', 'compiler'):
-            if build.get(key) != model[key]:
-                reject('model_manifest_mismatch', f'model build.json differs at {key}')
-        if Path(build['library']).resolve() != library.resolve():
-            reject('model_manifest_mismatch', 'build.json library path differs from selected library')
+        try:
+            _canonical_file(library, 'Model library')
+        except (OSError, ValueError, TypeError) as error:
+            reject('model_manifest_mismatch', error)
+            return _finish_preflight_result(result, config)
+        config['model_library'] = str(library)
+        if config.get('model_promotion_flight', False):
+            try:
+                promoted = promotion_model_build(config, evidence)
+            except (OSError, ValueError, KeyError, TypeError, ImportError,
+                    zipfile.BadZipFile, subprocess.SubprocessError) as error:
+                reject('model_manifest_mismatch', error)
+                return _finish_preflight_result(result, config)
+            build = promoted['build']
+            result['identities'].update(promoted['identities'])
+            result['model_static_abi'] = promoted['abi']
+            result['model_promotion'] = promoted['abi']
+        else:
+            check_file('model_library', library, model['library_sha256'])
+            check_file('model_archive', model['archive'], model['archive_sha256'])
+            check_file('model_wrapper', REPO / 'Simulator/wksim_core/model.cpp', model['wrapper_sha256'])
+            check_file('model_loader', REPO / 'Simulator/wksim_core/model.py',
+                       evidence['implementation_sha256']['Simulator/wksim_core/model.py'])
+            try:
+                validated = validate_model_build_manifest(config, evidence)
+            except (OSError, ValueError, KeyError, TypeError, ImportError,
+                    zipfile.BadZipFile, subprocess.SubprocessError) as error:
+                reject('model_manifest_mismatch', error)
+                return _finish_preflight_result(result, config)
+            build = validated['build']
+            result['identities'].update(validated['identities'])
+            result['model_static_abi'] = validated['abi']
         result['identities']['model_build'] = build
         package_root = roots['prometheus_workspace'] / 'install/prometheus_control/local/lib/python3.10/dist-packages/prometheus_control'
-        for file, expected in evidence['prometheus']['implementation_sha256'].items():
+        expected_control = control_sources(config, index, evidence)
+        for file, expected in expected_control.items():
             check_file('prometheus/' + file, package_root / file, expected)
         if protocol == 'session_v1':
-            expected_files = set(evidence['prometheus']['implementation_sha256'])
+            expected_files = set(expected_control)
             actual_files = {p.relative_to(package_root).as_posix() for p in package_root.rglob('*.py')}
             if actual_files != expected_files:
                 reject('identity_mismatch', 'Installed control Python file set differs from both flown results')
             source_root = roots['prometheus_workspace'] / 'src/prometheus_control/prometheus_control'
-            for file, expected in evidence['prometheus']['implementation_sha256'].items():
+            for file, expected in expected_control.items():
                 check_file('control_source/' + file, source_root / file, expected)
         if stack == 'arducopter':
             for file, expected in evidence['candidate_source_sha256'].items():
@@ -319,14 +535,12 @@ def preflight(config):
             reject('mixed_overlay', 'prometheus_control must resolve to the selected installed package')
         if os.environ.get('ROS_DISTRO') != 'humble':
             reject('ros_environment', 'ROS_DISTRO must be humble; source the selected overlays')
-        result['candidate_status']['built'] = not any(r['code'] in ('identity_mismatch', 'resource_missing', 'candidate_not_pinned', 'model_manifest_mismatch') for r in result['reasons'])
-        result['ok'] = not result['reasons']
-        result['candidate_status']['flown'] = result['ok']
     except ConfigError as error:
         reject('invalid_config', error)
-    except (OSError, ValueError, KeyError, TypeError, ImportError) as error:
+    except (OSError, ValueError, KeyError, TypeError, ImportError,
+            zipfile.BadZipFile, subprocess.SubprocessError) as error:
         reject('preflight_unavailable', error)
-    return result
+    return _finish_preflight_result(result, config)
 
 
 def main(argv=None):
@@ -336,8 +550,9 @@ def main(argv=None):
     try:
         result = preflight(load_config(args.config))
     except ConfigError as error:
-        result = dict(ok=False, reasons=[dict(code='invalid_config', message=str(error))],
-                      identities={}, capabilities=[], children_created=0)
+        result = _finish_preflight_result(
+            dict(ok=False, reasons=[dict(code='invalid_config', message=str(error))],
+                 identities={}, capabilities=[], children_created=0), {})
     print(json.dumps(result, ensure_ascii=False, indent=2, allow_nan=False))
     print('Preflight admitted (not flight readiness).' if result['ok'] else 'Preflight rejected.', file=sys.stderr)
     for reason in result['reasons']:

@@ -1,0 +1,213 @@
+"""Prepare the target-side first-step (k=0->1) ODE4 trace build: instrument + command.
+
+Read-only source transformation and command generation ONLY. This tool never runs
+a compiler, model, MATLAB, or ROS; the main session executes the emitted build and
+run commands separately. It reads the pinned model archive, inserts read-only
+capture hooks around the real ODE4 solver's four derivatives() evaluations and the
+final state update, and verifies that removing the inserted marker bytes restores
+the original source verbatim. It writes to a NEW output directory, binds input
+source SHA-256, refuses to overwrite, and never modifies the original sources.
+
+The instrumentation only ADDS capture calls; it never reorders or alters the
+original multiply-add expressions. The trace is a diagnostic, not a G6/numerical
+acceptance result.
+"""
+import argparse
+import hashlib
+import io
+import json
+from pathlib import Path
+import sys
+import zipfile
+
+ARCHIVE = Path('/mnt/e/rflysimtools/RflySimAPIs/4.RflySimModel/1.BasicExps/e0_MinModelTemp/MulticopterModel.zip')
+ARCHIVE_SHA256 = 'd528b5d247e13d943f1eaa7a37fd3cb4d15c7e9bb7a6b0e5988a1423e59d05ed'
+ORIGINAL_CPP_SHA256 = 'a35d7c8f39c94f2db8c27b19affee5b66c1b001c63ded334ba83c99f8be54019'
+INPUT_SHA256 = '721c88bf3f621923b98bb43251c50bae7817106a984be64345c0528d34d3adcf'
+PREFIX = 'e0_MinModelTemp/Exp1_MinModelTemp_ert_rtw/'
+MEMBERS = tuple(PREFIX + n for n in ('Exp1_MinModelTemp.cpp', 'Exp1_MinModelTemp.h', 'rtwtypes.h')) + (
+    'R2022b/simulink/include/rtw_continuous.h', 'R2022b/simulink/include/rtw_solver.h')
+
+# The trace captures the full flat continuous-state vector (nXc=36) and the four
+# ODE4 stage derivatives f0..f3, plus pre/post update state and stage times. The
+# flat-index -> state-name layout is taken from the generated header
+# X_Exp1_MinModelTemp_T (authoritative), not guessed:
+#   [0..5] IntegratorSecondOrderLimited_CS, [6..9] q0q1q2q3, [10..12] pqr,
+#   [13..15] xeyeze, [16..18] ubvbwb, [19..24] IntegratorSecondOrderLimited__n,
+#   [25..27] TransferFcn4/1/2, [28..35] MotorNonlinearDynamic8..1 (.x each).
+STATE_LAYOUT = [
+    {'name': 'IntegratorSecondOrderLimited_CS', 'indices': [0, 1, 2, 3, 4, 5]},
+    {'name': 'q0q1q2q3_CSTATE', 'indices': [6, 7, 8, 9]},
+    {'name': 'pqr_CSTATE', 'indices': [10, 11, 12]},
+    {'name': 'xeyeze_CSTATE', 'indices': [13, 14, 15]},
+    {'name': 'ubvbwb_CSTATE', 'indices': [16, 17, 18]},
+    {'name': 'IntegratorSecondOrderLimited__n', 'indices': [19, 20, 21, 22, 23, 24]},
+    {'name': 'TransferFcn4/1/2_CSTATE', 'indices': [25, 26, 27]},
+    {'name': 'MotorNonlinearDynamic8..1 .x', 'indices': [28, 29, 30, 31, 32, 33, 34, 35]},
+]
+
+INCLUDE = b'#include "Exp1_MinModelTemp.h"\r\n'
+DECL = (b'extern void wk_trace_ode4_stage(int wk_stage, double wk_t, const real_T* wk_state, const real_T* wk_deriv, int wk_n);\r\n'
+        b'extern void wk_trace_ode4_update(double wk_t, const real_T* wk_pre, const real_T* wk_post, int wk_n);\r\n'
+        b'extern bool wk_trace_major(const ExtY_Exp1_MinModelTemp_T&);\r\n'
+        b'extern void wk_trace_mrdivide(double wk_t, int wk_is_major, const real_T* wk_numer, const real_T* wk_mat, const real_T* wk_result);\r\n')
+OUTPUT_END = (b'  std::memcpy(&Exp1_MinModelTemp_Y.VehileInfo60d[33],\r\n'
+              b'              &Exp1_MinModelTemp_P.Constant_Value_ea[0], 27U * sizeof(real_T));\r\n')
+NEXT_CONTEXT = (b'  if (rtmIsMajorTimeStep((&Exp1_MinModelTemp_M))) {\r\n'
+                b"    // If: '<S12>/If1' incorporates:\r\n")
+MAJOR_HOOK = (b'  if (rtmIsMajorTimeStep((&Exp1_MinModelTemp_M)) &&\r\n'
+              b'      wk_trace_major(Exp1_MinModelTemp_Y)) return;\r\n')
+
+# Each anchor is the unique byte context ending at a derivatives() evaluation or the
+# final update; the hook is appended right after it. Read-only: originals untouched.
+STAGE0_CTX = b'  rtsiSetdX(si, f0);\r\n  Exp1_MinModelTemp_derivatives();\r\n'
+STAGE1_CTX = b'  rtsiSetdX(si, f1);\r\n  this->step();\r\n  Exp1_MinModelTemp_derivatives();\r\n'
+STAGE2_CTX = b'  rtsiSetdX(si, f2);\r\n  this->step();\r\n  Exp1_MinModelTemp_derivatives();\r\n'
+STAGE3_CTX = b'  rtsiSetdX(si, f3);\r\n  this->step();\r\n  Exp1_MinModelTemp_derivatives();\r\n'
+UPDATE_CTX = b'    x[i] = y[i] + temp*(f0[i] + 2.0*f1[i] + 2.0*f2[i] + f3[i]);\r\n  }\r\n'
+
+STAGE0_HOOK = b'  wk_trace_ode4_stage(0, t, y, f0, nXc);\r\n'
+STAGE1_HOOK = b'  wk_trace_ode4_stage(1, rtsiGetT(si), x, f1, nXc);\r\n'
+STAGE2_HOOK = b'  wk_trace_ode4_stage(2, rtsiGetT(si), x, f2, nXc);\r\n'
+STAGE3_HOOK = b'  wk_trace_ode4_stage(3, rtsiGetT(si), x, f3, nXc);\r\n'
+UPDATE_HOOK = b'  wk_trace_ode4_update(rtsiGetT(si), y, x, nXc);\r\n'
+
+# The mrdivide inertia solve (<S52>/Product2) sits in step() (ModelOutputs) at the
+# q-derivative. The hook is appended right after the call so numerator (residual) and
+# matrix (Selector2) are unchanged and result (Product2) is the solve output. Time uses
+# the solver-info time (Timing.t[0] only advances at major steps, cpp:3901-3911), and
+# major/minor uses rtmIsMajorTimeStep. Read-only: original expression untouched.
+MRDIVIDE_CTX = (b'  rt_mrdivide_U1d1x3_U2d_9vOrDY9Z(rtb_IntegratorSecondOrderLimi_d,\r\n'
+                b'    Exp1_MinModelTemp_B.Selector2, Exp1_MinModelTemp_B.Product2);\r\n')
+MRDIVIDE_HOOK = (b'  wk_trace_mrdivide(rtsiGetT(&(&Exp1_MinModelTemp_M)->solverInfo),\r\n'
+                 b'      (rtmIsMajorTimeStep((&Exp1_MinModelTemp_M)) ? 1 : 0),\r\n'
+                 b'      rtb_IntegratorSecondOrderLimi_d, Exp1_MinModelTemp_B.Selector2,\r\n'
+                 b'      Exp1_MinModelTemp_B.Product2);\r\n')
+
+INSERTIONS = (DECL, STAGE0_HOOK, STAGE1_HOOK, STAGE2_HOOK, STAGE3_HOOK, UPDATE_HOOK, MAJOR_HOOK,
+              MRDIVIDE_HOOK)
+
+
+def _sha256(raw):
+    return hashlib.sha256(raw).hexdigest()
+
+
+def instrument(raw):
+    """Insert read-only ODE4 capture hooks; verify byte-restoration of the original."""
+    if _sha256(raw) != ORIGINAL_CPP_SHA256:
+        raise ValueError('Unreviewed generated CPP SHA256')
+    if b'wk_trace_ode4' in raw or b'wk_trace_mrdivide' in raw:
+        raise ValueError('Trace markers already present')
+    contexts = (STAGE0_CTX, STAGE1_CTX, STAGE2_CTX, STAGE3_CTX, UPDATE_CTX, MRDIVIDE_CTX)
+    if raw.count(INCLUDE) != 1 or any(raw.count(c) != 1 for c in contexts):
+        raise ValueError('Trace insertion context is not unique')
+    if raw.count(OUTPUT_END + NEXT_CONTEXT) != 1:
+        raise ValueError('Major output boundary is not unique')
+    patched = raw.replace(INCLUDE, INCLUDE + DECL, 1)
+    for ctx, hook in ((STAGE0_CTX, STAGE0_HOOK), (STAGE1_CTX, STAGE1_HOOK),
+                      (STAGE2_CTX, STAGE2_HOOK), (STAGE3_CTX, STAGE3_HOOK),
+                      (UPDATE_CTX, UPDATE_HOOK)):
+        patched = patched.replace(ctx, ctx + hook, 1)
+    patched = patched.replace(OUTPUT_END + NEXT_CONTEXT, OUTPUT_END + MAJOR_HOOK + NEXT_CONTEXT, 1)
+    patched = patched.replace(MRDIVIDE_CTX, MRDIVIDE_CTX + MRDIVIDE_HOOK, 1)
+    restored = patched
+    for snippet in INSERTIONS:
+        restored = restored.replace(snippet, b'', 1)
+    if restored != raw:
+        raise ValueError('Instrumentation changed original source bytes')
+    return patched
+
+
+def read_sources(archive_path):
+    raw = archive_path if isinstance(archive_path, bytes) else Path(archive_path).read_bytes()
+    if _sha256(raw) != ARCHIVE_SHA256:
+        raise ValueError('Unreviewed model archive SHA256')
+    with zipfile.ZipFile(io.BytesIO(raw)) as archive:
+        sources = {}
+        for member in MEMBERS:
+            if sum(item.filename == member for item in archive.infolist()) != 1:
+                raise ValueError('Missing or duplicate allowlisted ZIP member')
+            sources[Path(member).name] = archive.read(member)
+    return sources
+
+
+def _exclusive_write(path, data):
+    """Create a file exclusively; never overwrite an existing one."""
+    if Path(path).exists() or Path(path).is_symlink():
+        raise FileExistsError('Refusing to overwrite existing file: ' + str(path))
+    with open(path, 'xb') as handle:
+        handle.write(data)
+
+
+def build(archive_path, recorder_cpp, out_dir, input_csv):
+    """Write the instrumented source, recorder, and build/run commands to a NEW dir.
+
+    Never compiles or runs anything. Refuses to overwrite; original sources unchanged.
+    """
+    archive_path = Path(archive_path)
+    recorder_cpp = Path(recorder_cpp)
+    out_dir = Path(out_dir)
+    input_csv = Path(input_csv)
+
+    archive_bytes = archive_path.read_bytes()
+    sources = read_sources(archive_bytes)
+    recorder_bytes = recorder_cpp.read_bytes()
+    input_bytes = input_csv.read_bytes()
+    if _sha256(input_bytes) != INPUT_SHA256:
+        raise ValueError('Frozen C3G input SHA256 differs')
+    patched = instrument(sources['Exp1_MinModelTemp.cpp'])
+
+    out_dir.mkdir(parents=True)  # must be new; FileExistsError if it already exists
+    _exclusive_write(out_dir / 'Exp1_MinModelTemp.cpp', patched)
+    _exclusive_write(out_dir / 'Exp1_MinModelTemp.original.cpp', sources['Exp1_MinModelTemp.cpp'])
+    for name in ('Exp1_MinModelTemp.h', 'rtwtypes.h', 'rtw_continuous.h', 'rtw_solver.h'):
+        _exclusive_write(out_dir / name, sources[name])
+    _exclusive_write(out_dir / 'first_step_trace_recorder.cpp', recorder_bytes)
+    _exclusive_write(out_dir / 'input.csv', input_bytes)
+
+    build_argv = ['g++', '-std=c++17', '-O2', '-fno-fast-math', '-Wl,--no-undefined',
+                  '-I', str(out_dir), str(out_dir / 'Exp1_MinModelTemp.cpp'),
+                  str(out_dir / 'first_step_trace_recorder.cpp'), '-o', str(out_dir / 'first_step_trace_recorder')]
+    run_argv = [str(out_dir / 'first_step_trace_recorder'), '--record', str(out_dir / 'input.csv'),
+                '--output', str(out_dir / 'first-step-trace.jsonl')]
+    command = {
+        'schema_version': 1, 'kind': 'first_step_trace_build',
+        'note': 'Diagnostic first-step ODE4 trace; not a numerical acceptance. Compile/run separately (Linux/WSL).',
+        'build_argv': build_argv, 'run_argv': run_argv,
+        'compiler_reference': 'g++ (Ubuntu 11.4.0) -std=c++17 -O2 -fno-fast-math (same as R1 target build)',
+        'identity': {
+            'archive_sha256': _sha256(archive_bytes),
+            'original_cpp_sha256': _sha256(sources['Exp1_MinModelTemp.cpp']),
+            'instrumented_cpp_sha256': _sha256(patched),
+            'recorder_cpp_sha256': _sha256(recorder_bytes),
+            'input_csv_sha256': _sha256(input_bytes),
+            'builder_sha256': _sha256(Path(__file__).read_bytes()),
+        },
+        'state_layout_from_header': STATE_LAYOUT,
+        'nXc': 36,
+    }
+    _exclusive_write(out_dir / 'build-command.json',
+                     (json.dumps(command, indent=2) + '\n').encode())
+    return command
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--archive', type=Path, default=ARCHIVE)
+    parser.add_argument('--recorder', type=Path, default=Path(__file__).with_name('first_step_trace_recorder.cpp'))
+    parser.add_argument('--input', type=Path, required=True, help='the frozen C3G input.csv')
+    parser.add_argument('--out-dir', type=Path, required=True,
+                        help='NEW output directory (must not already exist); e.g. a WSL /root staging dir')
+    args = parser.parse_args(argv)
+    command = build(args.archive, args.recorder, args.out_dir, args.input)
+    print('first-step trace build prepared (no compile/run performed)')
+    print('  out_dir           : {}'.format(args.out_dir))
+    print('  instrumented sha  : {}'.format(command['identity']['instrumented_cpp_sha256']))
+    print('  input csv sha256  : {}'.format(command['identity']['input_csv_sha256']))
+    print('  build             : {}'.format(' '.join(command['build_argv'])))
+    print('  run               : {}'.format(' '.join(command['run_argv'])))
+    return 0
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())

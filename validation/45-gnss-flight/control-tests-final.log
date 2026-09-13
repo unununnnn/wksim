@@ -1,0 +1,68 @@
+test_disarm_clears_rc_target_and_control (validation.test_rc_control.RCCommandSeamTests) ... ok
+test_rc_desired_replaces_hover_and_clear_restores_hover (validation.test_rc_control.RCCommandSeamTests) ... ok
+test_rc_seam_rejects_wrong_kind_or_command_state (validation.test_rc_control.RCCommandSeamTests) ... ok
+test_actual_message_info_wall_clock_and_airborne_activation (validation.test_rc_control.RCNodeTests) ... ok
+test_command_navigation_loss_withdraws_before_cached_position_output (validation.test_rc_control.RCNodeTests) ... ok
+test_explicit_handoff_and_retired_stream_never_replay (validation.test_rc_control.RCNodeTests) ... ok
+test_malformed_owner_revokes_but_foreign_gid_does_not (validation.test_rc_control.RCNodeTests) ... ok
+test_rc_cannot_takeoff_change_mode_or_choose_multiple_sources (validation.test_rc_control.RCNodeTests) ... ok
+test_rc_disarm_or_invalid_navigation_stops_before_publish (validation.test_rc_control.RCNodeTests) ... ok
+test_withdrawn_independent_task_can_observe_explicit_native_hold (validation.test_rc_control.RCNodeTests) ... ok
+test_binding_requires_neutral_candidate_and_explicit_activation (validation.test_rc_input.RCInputTests) ... ok
+test_command_intent_holds_until_explicit_handoff (validation.test_rc_input.RCInputTests) ... ok
+test_expiry_dt_pause_and_switch_revoke_without_output (validation.test_rc_input.RCInputTests) ... ok
+test_reset_retires_stream_and_requires_new_stream (validation.test_rc_input.RCInputTests) ... ok
+test_retired_receive_size_and_produced_age_activation (validation.test_rc_input.RCInputTests) ... ok
+test_sequence_stream_owner_and_stale_frames_do_not_refresh (validation.test_rc_input.RCInputTests) ... ok
+test_sim_clock_integrates_but_wall_clock_expires (validation.test_rc_input.RCInputTests) ... ok
+test_strict_envelope_and_deadzone_endpoints (validation.test_rc_input.RCInputTests) ... ok
+test_switches_reboot_and_nonfinite_are_rejected (validation.test_rc_input.RCInputTests) ... ok
+test_world_frame_integral_zero_dt_and_height_floor (validation.test_rc_input.RCInputTests) ... ok
+test_two_real_writer_gids_and_exact_cdr (validation.test_rc_transport.RCTransportTests) ... ok
+test_clock_source_cannot_change_under_an_operation (validation.test_control_operation_clock.OperationClockTests) ... ok
+test_default_wall_is_preserved (validation.test_control_operation_clock.OperationClockTests) ... ok
+test_invalid_clock_rejects_setup_before_native_side_effect (validation.test_control_operation_clock.OperationClockTests) ... ok
+test_invalid_clock_stops_already_active_cached_output (validation.test_control_operation_clock.OperationClockTests) ... ok
+test_simulation_duration_does_not_follow_wall (validation.test_control_operation_clock.OperationClockTests) ... ok
+test_fault_recovery_never_reactivates_control_without_fresh_ready_state (validation.test_scene_lease.RealSceneNodeTests) ... [INFO] [1789021899.245191433] [prometheus_native_control]: {"event": "started", "event_id": 1, "version": 1, "run_id": "scene-recover-test", "emitted_monotonic_ns": 1311539686377, "emitted_unix_ns": 1789021899131687524, "control_epoch": "24eaa0ebcb96429aada2e93fd170e6f1", "stack": "px4", "native_prefix": "", "position_yaw": true, "operation_clock": "ros", "communication_clock": "monotonic", "request_id": 0}
+[INFO] [1789021899.258512123] [prometheus_native_control]: {"event": "control_revoked", "event_id": 2, "version": 1, "run_id": "scene-recover-test", "emitted_monotonic_ns": 1311653402112, "emitted_unix_ns": 1789021899245403265, "control_epoch": "24eaa0ebcb96429aada2e93fd170e6f1", "reason": "scene_faulted_control_released", "request_id": 0}
+[INFO] [1789021899.271449956] [prometheus_native_control]: {"event": "scene_permission_rejected", "event_id": 3, "version": 1, "run_id": "scene-recover-test", "emitted_monotonic_ns": 1311666583892, "emitted_unix_ns": 1789021899258585180, "control_epoch": "24eaa0ebcb96429aada2e93fd170e6f1", "reason": "scene_faulted_control_released", "request_id": 0}
+[INFO] [1789021899.284565649] [prometheus_native_control]: {"event": "scene_permission_rejected", "event_id": 4, "version": 1, "run_id": "scene-recover-test", "emitted_monotonic_ns": 1311679587976, "emitted_unix_ns": 1789021899271589176, "control_epoch": "24eaa0ebcb96429aada2e93fd170e6f1", "reason": "scene_faulted_control_released", "request_id": 0}
+[INFO] [1789021899.297920687] [prometheus_native_control]: {"event": "scene_recovery_requested", "event_id": 5, "version": 1, "run_id": "scene-recover-test", "emitted_monotonic_ns": 1311692729962, "emitted_unix_ns": 1789021899284731219, "control_epoch": "24eaa0ebcb96429aada2e93fd170e6f1", "scene_epoch": "cccccccccccccccccccccccccccccccc", "scene_request_id": 1, "frozen_ns": 10000000000, "task_control_released": true, "request_id": 0}
+[INFO] [1789021899.309090744] [prometheus_native_control]: {"event": "scene_recovery_readiness", "event_id": 6, "version": 1, "run_id": "scene-recover-test", "emitted_monotonic_ns": 1311706141720, "emitted_unix_ns": 1789021899298143006, "control_epoch": "24eaa0ebcb96429aada2e93fd170e6f1", "reason": "generation_clock_or_native_endpoints_not_ready", "ready": false, "connected": false, "odom_valid": false, "armed": false, "native_generation": 0, "request_id": 0}
+[INFO] [1789021899.321526702] [prometheus_native_control]: {"event": "scene_permission_rejected", "event_id": 7, "version": 1, "run_id": "scene-recover-test", "emitted_monotonic_ns": 1311717570867, "emitted_unix_ns": 1789021899309571786, "control_epoch": "24eaa0ebcb96429aada2e93fd170e6f1", "reason": "scene_running_before_fresh_recovery_evidence", "request_id": 0}
+ok
+test_native_hold_observation_does_not_enable_position_output_during_failsafe (validation.test_scene_lease.RealSceneNodeTests) ... ok
+test_recovery_requires_home_and_fresh_airborne_evidence (validation.test_scene_lease.RealSceneNodeTests) ... ok
+test_retired_discovery_entry_does_not_admit_unknown_active_writers (validation.test_scene_lease.RealSceneNodeTests) ... ok
+test_scene_control_topics_construct_and_invalid_pause_never_grants_freshness (validation.test_scene_lease.RealSceneNodeTests) ... [INFO] [1789021899.349184324] [prometheus_native_control]: {"event": "started", "event_id": 1, "version": 1, "run_id": "scene-node-test", "emitted_monotonic_ns": 1311743693683, "emitted_unix_ns": 1789021899335695177, "control_epoch": "a5d137e0c21f4520bbd0a16e9a8356ae", "stack": "px4", "native_prefix": "", "position_yaw": true, "operation_clock": "ros", "communication_clock": "monotonic", "request_id": 0}
+[INFO] [1789021899.362852693] [prometheus_native_control]: {"event": "control_revoked", "event_id": 2, "version": 1, "run_id": "scene-node-test", "emitted_monotonic_ns": 1311757634335, "emitted_unix_ns": 1789021899349635400, "control_epoch": "a5d137e0c21f4520bbd0a16e9a8356ae", "reason": "scene_pause_requires_current_settled_position_control", "request_id": 0}
+[INFO] [1789021899.375848838] [prometheus_native_control]: {"event": "scene_permission_rejected", "event_id": 3, "version": 1, "run_id": "scene-node-test", "emitted_monotonic_ns": 1311770929525, "emitted_unix_ns": 1789021899362930991, "control_epoch": "a5d137e0c21f4520bbd0a16e9a8356ae", "reason": "scene_pause_requires_current_settled_position_control", "request_id": 0}
+ok
+test_explicit_four_step_resume_and_invalid_frames (validation.test_scene_lease.SceneLeaseTests) ... ok
+test_missing_foreign_or_replayed_lease_cannot_grant_or_refresh (validation.test_scene_lease.SceneLeaseTests) ... ok
+test_new_recovery_request_is_not_automatic_heartbeat_revival (validation.test_scene_lease.SceneLeaseTests) ... ok
+test_paused_heartbeat_cannot_manufacture_time_or_skip_request (validation.test_scene_lease.SceneLeaseTests) ... ok
+test_v2_retirement_scope_is_explicit_bounded_and_fault_bound (validation.test_scene_lease.SceneLeaseTests) ... ok
+test_ap_home_and_reset_epoch (validation.test_prometheus_native.NativeTests) ... ok
+test_ap_position_wire_and_explicit_capability (validation.test_prometheus_native.NativeTests) ... ok
+test_ap_service_ack_and_timeout (validation.test_prometheus_native.NativeTests) ... ok
+test_ap_state_flags_and_wire_roundtrip (validation.test_prometheus_native.NativeTests) ... ok
+test_ap_velocity_wire_and_capability (validation.test_prometheus_native.NativeTests) ... ok
+test_frames_and_quaternion_roundtrip (validation.test_prometheus_native.NativeTests) ... ok
+test_native_takeoff_alignment_before_command_stream (validation.test_prometheus_native.NativeTests) ... [INFO] [1789021899.412449403] [prometheus_native_control]: {"event": "started", "event_id": 1, "version": 1, "run_id": "native-takeoff-regression", "emitted_monotonic_ns": 1311807102714, "emitted_unix_ns": 1789021899399103778, "control_epoch": "d7113bed86f4451ca26bb294f4aece05", "stack": "px4", "native_prefix": "", "position_yaw": true, "operation_clock": "monotonic", "communication_clock": "monotonic", "request_id": 0}
+ok
+test_node_rejection_does_not_falsify_connection_or_resume (validation.test_prometheus_native.NativeTests) ... [INFO] [1789021899.440269010] [prometheus_native_control]: {"event": "started", "event_id": 1, "version": 1, "run_id": "native-node-regression", "emitted_monotonic_ns": 1311834601794, "emitted_unix_ns": 1789021899426602856, "control_epoch": "db884dda64224ae9b2aa668ca8d5e26d", "stack": "px4", "native_prefix": "", "position_yaw": true, "operation_clock": "monotonic", "communication_clock": "monotonic", "request_id": 0}
+ok
+test_px_ground_alignment_and_native_takeoff (validation.test_prometheus_native.NativeTests) ... ok
+test_px_native_axes_and_ack_correlation (validation.test_prometheus_native.NativeTests) ... ok
+test_px_state_identity_and_epoch (validation.test_prometheus_native.NativeTests) ... ok
+test_px_velocity_wire_and_capability (validation.test_prometheus_native.NativeTests) ... ok
+test_ap_height_crossing_cannot_finish_rising_takeoff (validation.test_control_takeoff_settle.TakeoffSettleTests) ... ok
+test_px4_retains_its_existing_warmup_path (validation.test_control_takeoff_settle.TakeoffSettleTests) ... ok
+test_reset_settling_deadline_still_blocks_activation (validation.test_control_takeoff_settle.TakeoffSettleTests) ... ok
+
+----------------------------------------------------------------------
+Ran 51 tests in 0.495s
+
+OK

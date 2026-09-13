@@ -1,0 +1,356 @@
+{
+  "kind": "ds-c1-actual-analysis",
+  "schema": "wksim.ds-c1-actual-analysis.v3",
+  "revision": 3,
+  "revision_note": "Corrects revision 2's wall-second-to-tick conversion error (steady window hardcoded at anchor+2000 ticks, giving a 500-group warm-up instead of the measured 247-250), replaces the non-partitioning split with the analyzer's exact phase_partition (zero residuals), adds the probe-free C1 field vwen35gc, withdraws the un-reproducible steady-phase claim, and digests the OMP measurement report.",
+  "author": "DS-A",
+  "analysed_at_utc": "2026-09-12T13:54:59Z",
+  "scope": "Read-only analysis of one real C1 (--manager-gc-freeze) field and its baseline. No new native run, no runtime/scheduler/threshold change, no modification of any analysed artifact.",
+  "analyzer": {
+    "version_used": "c3ba9de8f4ac61d6b39750bdabed737915d85d3bee53d56fed8157237bca98b8",
+    "version_used_path": "tools/analyze_joint_rate_intervals.py (committed Windows tool)",
+    "revision1_error": "revision 1 cited 14ed9d64bb0daf0fb2ef9f4e21028a4ec164bb1255f98701542b59a68d2538a8, which is the older private copy at /root/wksim-release-acceptance-fe3/tools/; that is not the committed tool",
+    "authoritative_field_accounting": {
+      "path": "validation/33-rate-profile/diagnostic-c1-ztdsk269/main-rate-analysis.json",
+      "analyzer_sha256_recorded_there": "c3ba9de8f4ac61d6b39750bdabed737915d85d3bee53d56fed8157237bca98b8",
+      "first_group_start_lateness_ns": 289518,
+      "creep_total_ns": 99687759,
+      "terminal_unreconciled_ns": 152211,
+      "recorded_latch_lateness_ns": 100129488,
+      "identity": "289518 + 99687759 + 152211 = 100129488",
+      "status": "reconciled",
+      "closes": true
+    }
+  },
+  "fields": {
+    "candidate": {
+      "run_id": "joint-public-flight-ztdsk269",
+      "path": "/root/wksim-release-acceptance-fe3/validation/joint-public-flight-ztdsk269",
+      "epoch": "7d9b3af3441242b687a19e388a9df0d6",
+      "task_profile": "full_xyz_pv_yaw_v1",
+      "status": "failed",
+      "error": "RateUnmet('rate_unmet/resource_insufficient')",
+      "wall_seconds": 245.117340622,
+      "source_unchanged": true, "cleanup_errors": [], "flight_completed": false,
+      "null_result_fields": ["rate", "final_authority"],
+      "null_result_fields_reason": "the cumulative rate bound latched inside the rate loop, so the stop path was never reached and result.rate / result.final_authority were never written; faulted_authority carries the terminal clock state"
+    },
+    "baseline": {
+      "run_id": "joint-public-flight-7bdfxkb_",
+      "path": "/root/wksim-release-acceptance-fe3/validation/joint-public-flight-7bdfxkb_",
+      "epoch": "85df8c49b8f64de8ba794cff149696d1",
+      "task_profile": "full_xyz_pv_yaw_v1",
+      "status": "failed",
+      "error": "RateUnmet('rate_unmet/resource_insufficient')",
+      "wall_seconds": 269.503900622,
+      "flight_completed": false
+    }
+  },
+  "provenance_sha256": {
+    "candidate/result.json": "2c90b0ddcf5672604d19abd1760089358d60213437b00e85770a38e25f935bcb",
+    "candidate/manager-gc-candidate.json": "6c155c6616130a29ac6270ba8bfea50119e4cf76620ef2ea375fe97b3677607e",
+    "baseline/result.json": "cdfe7f4996c34fb00af9efce4fddac3dc726e88a8327e453fc939fb9fd98f478",
+    "analyzer_committed": "c3ba9de8f4ac61d6b39750bdabed737915d85d3bee53d56fed8157237bca98b8",
+    "candidate_rate_trace": "9c79867222989eac6f627dafa115a6c5f214a418412be2aec89f3f28a0f9cb92",
+    "baseline_rate_trace": "484016e746bfad78ef5d46f0d85d19e1761ebea30fea2d22e63649ea57e07d0b"
+  },
+  "identity_check": {
+    "verdict": "same-field identity holds except the single intended variable",
+    "identical": {
+      "task_profile": "full_xyz_pv_yaw_v1",
+      "manifest_ap_sha256": "1e6250eff8873d6b2e52017b613c223ac29f8260fdf92aac2cf0c7cdcc6ce94c",
+      "manifest_control_sha256": "6fe8c0b30775a9ba83407302f602d0785876d307e5f1cb746afa3bf316cf5e7e",
+      "manifest_message_sha256": "29969da0702451e3fc6f1de40bc301a67284c4e7d5fae8f88c64773d27a96219",
+      "simulator_joint_py_sha256": "f5433c2ec7e81794ffcfab26dce0feff18d4e1affdfb44f895a72e4ce0241d50",
+      "manager_scheduling": {"target_nice": -10, "actual_nice": -10, "target_fifo_priority": 50, "actual_policy": 1073741825, "actual_priority": 50},
+      "bounds": {"wall_seconds": 900, "simulation_ticks": 180000, "task_position_error_m": 0.5, "task_speed_m_s": 0.5, "takeoff_min_height_m": 2.5, "ground_abs_height_m": 0.3},
+      "isolation_namespaces": {"net": "net:[4026532232]", "ipc": "ipc:[4026532231]", "mnt": "mnt:[4026532230]"},
+      "async_model_evidence_requested": true,
+      "diagnostic_instrumentation_present": ["diagnostic_gc_timing", "diagnostic_step_cpu_timing", "diagnostic_native_input_timing", "rate_timing_probe"]
+    },
+    "differences": [
+      {"key": "tools/run_joint_flight.py", "candidate": "fd0b7ee6dfb99be7a2d6f580555c6f9bfcddf721e25f68e97761d7f5670df246", "baseline": "92e3c7dc9d4dde2b7ca38e16705c47a115e8f2a07cbecdd3eb84d7d1cacd073b", "expected": true},
+      {"key": "tools/manager_gc_candidate.py in source_sha256", "candidate": true, "baseline": false, "expected": true},
+      {"key": "run_id / scene_epoch", "expected": true}
+    ],
+    "retracted_claim": "revision 1 inferred different host boot/uptime from the two different absolute monotonic values. That inference is not supported: absolute monotonic values alone do not establish clock origin or uptime, and they do not demonstrate different hosts. Deleted.",
+    "independent_corroboration": {
+      "source": "docs/coordination/omp-gc-entry-20260912.md (OMP C1 entry behaviour package, 2026-09-12)",
+      "confirms": "the 7bdfxkb retest argv is PV + AP mixed pair + c2IXOr pair + Rzj3Pf pair + --async-model-evidence, with no --planner-release-proof, no AP-PV pair and no PX4 override; the two timing gates are environment variables",
+      "scope_note": "that package mocks run() internals, so it explicitly does not verify ManagerGCFreeze.arm/restore; it reports no GC entry defect in this scope",
+      "requested_report_absent": "docs/coordination/omp-c1-measurement-check-20260912.md did not exist when this revision was written"
+    }
+  },
+  "warmup_correction": {
+    "revision1_error": "revision 1 wrote anchor_warmup_s = 20 and claimed the warm-up was excluded by design. Both were wrong.",
+    "source_truth": "rate_anchor.steady_after_ns - rate_anchor.anchor.wall_ns = 2_000_000_000 ns = 2 s = 2000 ticks (candidate 1220406571925 - 1218406571925)",
+    "warmup_s": 2,
+    "steady_start_rule": "the boundary is the wall timestamp steady_after_ns compared against actual_start_ns, never a tick offset added to the anchor tick",
+    "revision2_error": "revision 2 converted the 2 s wall marker into 2000 physical ticks and started the steady window at tick anchor+2000. That is wrong twice over: at the retained 0.5x rate one four-tick group spans 8 ms of wall, so 2 s is about 250 groups, and the anchor tick is not fixed (40 in ztdsk269 and 7bdfxkb, 44 in vwen35gc). Measured groups at or before the boundary: 247 / 250 / 249.",
+    "measured_groups_at_or_before_boundary": {"ztdsk269": 247, "baseline_7bdfxkb": 250, "vwen35gc": 249},
+    "exclusion_status_per_item": [
+      {"item": "committed analyzer creep_total_ns / first_group_start_lateness_ns / buckets / last_group_* ", "excluded": false, "evidence": "the committed tool contains no reference to steady_after at all (grep over tools/analyze_joint_rate_intervals.py yields no steady/warm/2_000_000_000 match); _reconcile uses groups[0] and groups[-1] directly, and groups[0] is the anchor group at start tick 40"},
+      {"item": "revision-1 matched window (start ticks 40..96620)", "excluded": false, "evidence": "the window begins at the anchor group, so it contains the whole warm-up"},
+      {"item": "this revision's primary matched window", "excluded": false, "evidence": "same start-tick convention, warm-up retained; a separate steady-only window is now reported alongside"},
+      {"item": "this revision's steady-only window (start ticks 2040..96620)", "excluded": true, "evidence": "starts at steady_after_ns as an explicitly labelled supplementary view, not as the analyzer's default"}
+    ],
+    "warmup_groups": 500,
+    "warmup_share_of_matched_window_pct": 1.02,
+    "warmup_share_note": "247 of 24146 matched groups for ztdsk269; revision 2's 2.07% came from the doubled window"
+  },
+  "window_definitions": {
+    "record_endpoints": {
+      "rate_anchor": {"tick": "anchor tick = 40 = first group start tick", "wall_ns": "absolute monotonic ns", "steady_after_ns": "anchor + 2e9"},
+      "rate_group_start": {"tick": "equals start_tick (the analyzer validates start['tick'] == start['start_tick'])"},
+      "rate_group_end": {"tick": "equals end_tick = start_tick + 4 (the analyzer validates end['tick'] == end['end_tick'])"},
+      "rate_timing_probe": {"tick": "equals start_tick of the group it instruments"},
+      "interval": {"definition": "between two consecutive group starts", "count_for_24146_groups": 24145}
+    },
+    "matched_window": {
+      "keyed_on": "group start tick, inclusive [40, 96620]",
+      "groups": {"candidate": 24146, "baseline": 24146},
+      "intervals": {"candidate": 24145, "baseline": 24145},
+      "candidate_boundary_end_tick": 96624
+    },
+    "revision1_errors": [
+      "revision 1 filtered rate_group_end by its raw tick field, which is the END tick, so it silently dropped the final group and reported 24145 groups in a section that elsewhere said 24146.",
+      "revision 1's window-end lateness 96241734 was therefore the second-to-last group's END lateness, not any boundary of the matched window.",
+      "rate_timing_probe records carry the START tick while rate_group_end carries the END tick, so a single numeric tick bound selects different groups in the two streams; the two streams are now both keyed on start tick."
+    ]
+  },
+  "units_and_anchors": {
+    "monotonic_fields": ["wall_start_ns", "wall_end_ns", "issued_monotonic_ns", "anchor.wall_ns", "steady_after_ns", "activation.moment_monotonic_ns"],
+    "wall_field": "runner-relative seconds",
+    "cross_field_absolute_comparison_valid": false,
+    "cross_field_absolute_reason": "the two fields use different absolute monotonic values; only durations are compared here. No claim is made about clock origin, boot time, or host identity.",
+    "late_limit_ns": 100000000,
+    "timed_window": {
+      "candidate": {"anchor_ns": 1218406571925, "terminal_ns": 1411674715121, "duration_s": 193.268143196},
+      "baseline": {"anchor_ns": 117986269506, "terminal_ns": 337558332355, "duration_s": 219.572062849}
+    },
+    "terminal_tick": {"candidate": 96624, "baseline": 109776},
+    "completed_groups": {"candidate": 24146, "baseline": 27434}
+  },
+  "terminal_latch_closure": {
+    "authoritative_source": "validation/33-rate-profile/diagnostic-c1-ztdsk269/main-rate-analysis.json (analyzer c3ba9de8)",
+    "candidate": {
+      "first_group_start_lateness_ns": 289518,
+      "creep_total_ns": 99687759,
+      "terminal_unreconciled_ns": 152211,
+      "recorded_latch_lateness_ns": 100129488,
+      "identity_sums_to_recorded": true,
+      "last_group_start_lateness_ns": 99977277,
+      "last_group_end_lateness_ns": 96372932,
+      "last_group_boundary_tick": 96624,
+      "rate_unmet_tick": 96624,
+      "latch_site": "begin_group_release_wait",
+      "status": "reconciled",
+      "closes": true,
+      "last_group_work_over_unattributed_ns": 0
+    },
+    "baseline": {"latched": true, "reason": "resource_insufficient", "lateness_ns": 100050657, "completed_groups": 27434, "measured_rate": 0.49978092120215906},
+    "candidate_measured_rate": 0.49975067072492996,
+    "closure_holds": true
+  },
+  "gc_phase_split": {
+    "candidate": {"pre_anchor_count": 2, "pre_anchor_max_pause_ns": 16492919, "in_flight_count": 81, "in_flight_sum_pause_ns": 5310019, "in_flight_max_pause_ns": 379065, "in_flight_gen2_count": 0, "teardown_count": 0, "gen0_count": 76, "gen1_count": 6, "gen2_count": 1},
+    "baseline": {"pre_anchor_count": 2, "pre_anchor_max_pause_ns": 91068, "in_flight_count": 92, "in_flight_sum_pause_ns": 31039871, "in_flight_max_pause_ns": 24326966, "in_flight_gen2_count": 1, "in_flight_gen2_tick": 107572, "teardown_count": 0, "gen0_count": 85, "gen1_count": 8, "gen2_count": 1}
+  },
+  "prepare_cost_explicit": {
+    "what": "the single gc.collect() the candidate moved to just before gc.freeze()",
+    "identified_by": "generation==2, tick==0, collected==36 equals candidate original.collected_before_freeze; its wall_start_ns is 22874 ns after activation.moment_monotonic_ns",
+    "wall_ns": 16492919,
+    "wall_ms": 16.492919,
+    "thread_cpu_ns": 16501333,
+    "thread_cpu_ms": 16.501333,
+    "collected": 36,
+    "tick": 0,
+    "finished_before_anchor_by_ns": 96343937,
+    "finished_before_anchor_ms": 96.344,
+    "inside_timed_segment": false,
+    "note": "one-shot, completes 96.344 ms before the anchor, so its own duration is outside the timed segment; it is still a real stall and is reported rather than hidden"
+  },
+  "freeze_effectiveness": {
+    "enabled": true, "armed": true, "prepared": true, "restored": true,
+    "freeze_count_before": 0, "freeze_count_after": 65783,
+    "freeze_count_before_unfreeze": 65631, "freeze_count_after_unfreeze": 0,
+    "permanent_generation_delta": -152, "permanent_generation_delta_pct": -0.231,
+    "thresholds_preserved": [700, 10, 10], "gc_enabled_preserved": true,
+    "restored_to_original": true,
+    "strict_equality_usable": false,
+    "strict_equality_reason": "the permanent generation shrank by 152 objects between freeze and unfreeze, so freeze_after == restore_before is not an invariant; post-unfreeze == 0 is the only sound equality"
+  },
+  "matched_window_result": {
+    "groups": {"candidate": 24146, "baseline": 24146},
+    "last_group_start_lateness_ns": {"candidate": 99977277, "baseline": 73029687, "delta_pct": 36.9},
+    "creep_total_ns": {"candidate": 99687759, "baseline": 72866448, "delta_pct": 36.8},
+    "creep_per_interval_ns": {"candidate": 4128.7, "baseline": 3017.9},
+    "gc_in_matched_window": {"count": {"candidate": 81, "baseline": 81}, "sum_pause_ns": {"candidate": 5310019, "baseline": 5996522, "delta_pct": -11.4}, "max_pause_ns": {"candidate": 379065, "baseline": 662721, "delta_pct": -42.8}, "gen2_count": {"candidate": 0, "baseline": 0}}
+  },
+  "phase_partition_v3": {
+    "replaces": "warmup_vs_steady_split of revision 2, whose windows were derived from tick arithmetic and therefore neither matched the real wall boundary nor partitioned the intervals (they left a 15 ns gap and used a 500-group warm-up instead of about 250)",
+    "source": "phase_partition field of tools/analyze_joint_rate_intervals.py outputs in validation/33-rate-profile/diagnostic-triple-20260912/",
+    "boundary_rule": "early = interval ends at or before steady_after_ns; crossing = interval straddles it (at most one, listed separately); steady = interval starts at or after it. Every interval belongs to exactly one class, so the class sums equal the totals exactly.",
+    "closure": "all three fields report creep/work_over/release_excess residuals of exactly 0 and classes_are_disjoint true, so there is no 15 ns gap",
+    "fields": {
+      "ztdsk269": {
+        "anchor_tick": 40, "steady_after_minus_anchor_ns": 2000000000,
+        "groups_at_or_before_boundary": 247,
+        "early": {"intervals": 246, "creep_ns": 23900631, "work_over_ns": 12665444, "release_excess_ns": 11235187},
+        "crossing": {"intervals": 1, "creep_ns": 4},
+        "steady": {"intervals": 23898, "creep_ns": 75787124, "work_over_ns": 20706845, "release_excess_ns": 55080279},
+        "steady_creep_per_interval_ns": 3171.3
+      },
+      "vwen35gc": {
+        "anchor_tick": 44, "steady_after_minus_anchor_ns": 2000000000,
+        "groups_at_or_before_boundary": 249,
+        "early": {"intervals": 248, "creep_ns": 10749183, "work_over_ns": 7159759, "release_excess_ns": 3589424},
+        "crossing": {"intervals": 1, "creep_ns": 3},
+        "steady": {"intervals": 21513, "creep_ns": 88887482, "work_over_ns": 27708745, "release_excess_ns": 61178737},
+        "steady_creep_per_interval_ns": 4131.8
+      },
+      "baseline_7bdfxkb": {
+        "anchor_tick": 40, "steady_after_minus_anchor_ns": 2000000000,
+        "groups_at_or_before_boundary": 250,
+        "early": {"intervals": 249, "creep_ns": 272029, "work_over_ns": 0, "release_excess_ns": 272029},
+        "crossing": {"intervals": 1, "creep_ns": 36},
+        "steady": {"intervals": 27183, "creep_ns": 99445512, "work_over_ns": 25703958, "release_excess_ns": 73741554},
+        "steady_creep_per_interval_ns": 3658.4
+      }
+    },
+    "early_window_finding": {
+      "baseline_early_creep_ns": 272029,
+      "baseline_early_work_over_ns": 0,
+      "ztdsk269_early_excess_over_baseline_ns": 23628602,
+      "ztdsk269_early_ratio": 87.9,
+      "vwen35gc_early_excess_over_baseline_ns": 10477154,
+      "vwen35gc_early_ratio": 39.5,
+      "statement": "both C1 fields lose far more than the baseline inside the first 2 s after the anchor, and the baseline's first 2 s contains no group work overrun at all (work_over exactly 0). This 2-of-2 against 1-of-1 pattern is suggestive, not conclusive."
+    },
+    "steady_window_finding": {
+      "ztdsk269_vs_baseline_pct": -13.3,
+      "vwen35gc_vs_baseline_pct": 12.9,
+      "statement": "the two C1 fields straddle the single baseline in steady phase, in opposite directions and with a probe-state difference between them, so revision 2's 'steady state 8.8% better' does not survive as a C1 effect and is withdrawn"
+    },
+    "withdrawn": "revision 2's claim that the candidate's steady-state creep rate is 8.8% lower and that its whole deficit is a ~33 ms warm-up penalty; both came from the doubled window and are replaced by the numbers above"
+  },
+  "analyzer_enhancement_v3": {
+    "file": "tools/analyze_joint_rate_intervals.py",
+    "new_field": "phase_partition",
+    "boundary_source": "rate_anchor.steady_after_ns, falling back to rate_unmet.steady_after_ns, matched on the loaded rate identity; absent marker yields available=false with null classes instead of a guessed boundary",
+    "unchanged": "creep/work_over/release_excess totals, buckets, top_* interval shapes, trace_sha256, analyzer_sha256, and all latch fields including the unavailable/null latch semantics",
+    "fail_closed": "a non-zero residual or more than one crossing interval raises instead of being smoothed"
+  },
+  "omp_measurement_digest": {
+    "report": "docs/coordination/omp-c1-measurement-check-20260912.md",
+    "reviewed_revision": "revision 1 of this analysis (its items name revision-1 field names)",
+    "items": [
+      {"id": 1, "omp": "anchor_warmup_s=20 wrong; must be 2.0 s", "status": "addressed in revision 2 and confirmed here by recomputation from steady_after_ns - anchor.wall_ns = 2e9 ns"},
+      {"id": 2, "omp": "common_window group count off by one and self-contradictory", "status": "addressed in revision 2 by declaring the start-tick endpoint convention; matched groups are 24146 with 24145 intervals"},
+      {"id": 3, "omp": "lateness_at_window_end derivation unstated", "status": "addressed in revision 2 by using the authoritative last_group_start_lateness_ns 99977277 and last_group_end_lateness_ns 96372932 from main-rate-analysis.json"},
+      {"id": 4, "omp": "execution-source fork (14ed9d64 vs c3ba9de8)", "status": "addressed in revision 2 by citing the committed c3ba9de8 tool and its recorded analyzer_sha256"},
+      {"id": 5, "omp": "conditional step sampling biases the candidate arm", "status": "addressed in revision 2 by replacing stage means with retention-trigger counts and disclosing the slow enrichment"},
+      {"id": "new", "omp": "not raised by OMP but found afterwards", "status": "the wall-second to tick conversion (steady start at tick anchor+2000) was still wrong in revision 2 and is corrected in this revision"}
+    ]
+  },
+  "three_field_outputs": {
+    "directory": "validation/33-rate-profile/diagnostic-triple-20260912/",
+    "files": ["vwen35gc.json", "ztdsk269.json", "7bdfxkb.json"],
+    "note": "produced with the committed analyzer writing in exclusive-create mode, so no earlier analysis file was overwritten"
+  },
+  "diagnostic_sampling_disclosure": {
+    "revision1_error": "revision 1 compared step/native stage means and used them to argue that every step became slower. Those streams are not a census.",
+    "step_trigger_source": "Simulator/wksim_core/joint.py records diagnostic_step_cpu_timing only when (wall_end-wall_start > 2_000_000) or (tick % 250 == 0); the record itself carries the limitation 'Thread CPU separates execution from off-CPU time; off-CPU includes I/O wait and descheduling'",
+    "native_trigger_source": "diagnostic_native_input_timing is recorded under the same or-trigger and carries the limitation 'Retained slow(>2ms native wait)/periodic(tick%250) samples, not a full census.'",
+    "consequence": "sample means are conditional on a slow-enriched sample and cannot represent all steps; they are reported only as descriptions of the retained samples and are not used as evidence that every step slowed",
+    "sound_metric_used_instead": "a step whose measured span exceeds 2 ms is always retained, so the count of retained records with span > 2 ms is an exact count of >2 ms steps",
+    "matched_window_trigger_counts": {
+      "window_ticks": [40, 96624],
+      "step": {"retained": {"candidate": 451, "baseline": 425}, "periodic_tick250": {"candidate": 386, "baseline": 386}, "slow_gt_2ms": {"candidate": 67, "baseline": 41, "delta": 26}, "slow_only": {"candidate": 65, "baseline": 39}, "max_span_ns": {"candidate": 10001742, "baseline": 7641782}},
+      "native": {"retained": {"candidate": 390, "baseline": 388}, "periodic_tick250": {"candidate": 386, "baseline": 386}, "slow_gt_2ms": {"candidate": 5, "baseline": 3, "delta": 2}, "max_wait_ns": {"candidate": 9512328, "baseline": 7092346}}
+    },
+    "retraction": "revision 1 asserted that the added cost was visible in stages that do not perform collection and therefore was not GC. That is retracted: collection time lands inside whichever stage is running, and the baseline's own gen2 pause was bracketed inside _native_wait('px4', ...), i.e. inside native_inputs wall. Stage boundaries do not separate GC from non-GC."
+  },
+  "gc_in_shared_window_fact": {
+    "measured_gc_pause_lower_in_candidate": true,
+    "candidate_sum_pause_ns": 5310019,
+    "baseline_sum_pause_ns": 5996522,
+    "candidate_max_pause_ns": 379065,
+    "baseline_max_pause_ns": 662721,
+    "gen2_in_window": {"candidate": 0, "baseline": 0},
+    "care": "this is a comparison of measured collection pauses only; it does not localize the added latency, because collection time is embedded in the stage timings and the decisive baseline gen2 lies outside this field's lifetime"
+  },
+  "attribution": {
+    "exclusive_os_attribution": false,
+    "exclusive_flight_controller_attribution": false,
+    "freeze_performance_improvement_claimed": false,
+    "freeze_harm_claimed": false,
+    "statement": "Two flag-on fields against one historical flag-off field cannot attribute the early-phase loss to gc.freeze, to the OS, or to the flight controller, and they cannot claim a performance change: the terminal outcome is identical in all three. What they do show is where the lateness is acquired (the first 2 s after the anchor, in both flag-on fields) and that no steady-phase effect reproduces across them."
+  },
+  "normalisation_limits": [
+    "Full-run totals are not comparable: wall 245.117 s vs 269.504 s, terminal tick 96624 vs 109776, groups 24146 vs 27434.",
+    "All rate/GC comparisons use the matched window on group start ticks [40, 96620] where both fields contribute exactly 24146 groups / 24145 intervals.",
+    "The baseline's only gen2 pause (24326966 ns at tick 107572) lies outside the candidate's lifetime, so the candidate's 'no in-flight gen2' cannot be credited to gc.freeze by this pair.",
+    "A metric of the form 'gen2 max pause in [anchor, stop] < 24.33 ms' is satisfied by the candidate without covering the tick where the baseline event occurs; on the matched window both arms have zero gen2.",
+    "The 2 s steady_after boundary is NOT excluded by the matched window; the measured 247 of 24146 matched groups (1.02%) fall at or before it. Revision 2's 500 groups / 2.07% came from converting 2 s into 2000 ticks. The phase_partition field now reports the split explicitly instead of leaving the reader to reconstruct it.",
+    "n = 1 per arm, no repetition and no interleaving. The main session performs process/load pre-checks and reserves native resources for the field, but a single historical pair cannot control all host load.",
+    "diagnostic_step_cpu_timing and diagnostic_native_input_timing are slow-enriched or-triggered samples, not a census; only their trigger counts are treated as exact here.",
+    "The rate_timing_probe is diagnostic-only and adds its own overhead (extra monotonic reads, health/sleep wrapper dispatch, sample aggregation, record writing); it is present in both arms but is not subtracted, so release_excess is an instrumented quantity.",
+    "No unfreeze cost is measured: gc.unfreeze() is not a collection and emits no diagnostic_gc_timing event."
+  ],
+  "measurement_gap": {
+    "kind": "localisation and control gap, not a threshold gap",
+    "precise": [
+      "The added loss is localised to the first 2 s after the anchor in both flag-on fields; the analyzer now reports that split, so this is no longer a reporting gap, only an attribution gap.",
+      "The probe-free C1 field vwen35gc carries no diagnostic_* stream at all (zero gc_timing, zero step/native CPU timing, zero rate_timing_probe), so it lacks diagnostic stage records for CPU/GC attribution. Ordinary wire events can still be correlated in time; such correlation alone cannot identify the cause of the early loss.",
+      "For the probe-on C1 field ztdsk269 the early window (ticks 40..1040) contains exactly one gen0 pause of 29612 ns against 23900631 ns of early creep, so measured GC pause does not explain that window either; the split inside it is work_over 12665444 ns vs release_excess 11235187 ns.",
+      "Whether the early loss comes from the freeze's effect, from the 16.492919 ms prepare collect (outside the timed segment), or from conditions in that interval is not separable from these fields.",
+      "No steady-phase effect reproduces: the two flag-on fields straddle the baseline in opposite directions (-13.3% and +12.9%).",
+      "No matched-window evidence exists at or beyond tick 107572 for any flag-on field, where the baseline's decisive gen2 occurred."
+    ],
+    "threshold_change_recommended": false,
+    "threshold_note": "Nothing here justifies relaxing LATE_LIMIT_NS, the 0.5 requested rate, the 8 ms group period, the 4-tick barrier, or any health bound."
+  },
+  "next_candidate_or_supplementary_measurement": {
+    "code_side": [
+      {
+        "id": "phase-partition-consumers",
+        "status": "delivered this round",
+        "action": "tools/analyze_joint_rate_intervals.py now emits phase_partition with an exact early/crossing/steady partition; downstream comparisons should read it instead of rebuilding windows from ticks"
+      },
+      {
+        "id": "early-window-interval-export",
+        "cost": "a small extension of the same analyzer, no native run",
+        "action": "add an early/crossing/steady-ranked top-interval list inside phase_partition (the analyzer currently ranks over all intervals only), so the dominant early intervals are directly addressable per class",
+        "why": "the two dominant early intervals for vwen35gc are group work 11.889 ms and 10.339 ms against an 8 ms period, and they currently have to be extracted by hand"
+      }
+    ],
+    "measurement_side": [
+      {
+        "id": "probe-on-flag-on-repeat",
+        "cost": "one field, same identity and instrumentation",
+        "action": "repeat the flag-on field WITH the two timing probes, since the only probe-on flag-on field is ztdsk269 and the only probe-free flag-on field is vwen35gc; that separates the early-phase loss from probe overhead",
+        "why": "ztdsk269's early creep is 23.90 ms and vwen35gc's is 10.75 ms against the same 0.27 ms baseline; the 2.2x spread is currently confounded with probe presence"
+      },
+      {
+        "id": "collect-without-freeze-arm",
+        "cost": "one field",
+        "action": "perform the same single gc.collect() at prepare but skip gc.freeze(), and compare the early window against both the flag-on and flag-off arms",
+        "why": "it is the only arm that separates the collect from the freeze now that the loss is known to sit in the first 2 s"
+      },
+      {
+        "id": "early-window-native-trace",
+        "cost": "one flag-on field with the CPU timing diagnostic enabled and a work-trace inside the first 2 s",
+        "action": "instrument the manager group work itself in the early window rather than adding more repetitions",
+        "why": "the early loss is dominated by group work overruns, which the current diagnostics cannot attribute to any internal phase"
+      }
+    ],
+    "explicitly_not_proposed": "no further blind repetitions of the same configuration; each item above isolates one variable that this round's evidence showed to be confounded"
+  },
+  "not_done": [
+    "no new native/ROS/SITL run, no build, no model load",
+    "no runtime, scheduler, threshold or tolerance change",
+    "no modification of any analysed artifact or of the DS-B comparator",
+    "no git commit, no nested agent"
+  ]
+}

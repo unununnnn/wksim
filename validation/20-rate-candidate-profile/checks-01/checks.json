@@ -1,0 +1,166 @@
+{
+  "status": "checks_passed_not_performance",
+  "performance_pass": false,
+  "argv": [
+    "validation/20-rate-candidate-profile/check-delivery.py",
+    "checks-01"
+  ],
+  "checks": [
+    {
+      "argv": [
+        "uname",
+        "-a"
+      ],
+      "expected_returncode": 0,
+      "returncode": 0,
+      "stdout": "kernel.stdout",
+      "stderr": "kernel.stderr"
+    },
+    {
+      "argv": [
+        "lscpu",
+        "-J"
+      ],
+      "expected_returncode": 0,
+      "returncode": 0,
+      "stdout": "cpu.stdout",
+      "stderr": "cpu.stderr"
+    },
+    {
+      "argv": [
+        "ps",
+        "-eo",
+        "pid,ppid,psr,cls,rtprio,ni,comm"
+      ],
+      "expected_returncode": 0,
+      "returncode": 0,
+      "stdout": "processes.stdout",
+      "stderr": "processes.stderr"
+    },
+    {
+      "argv": [
+        "taskset",
+        "-c",
+        "0-7",
+        "/usr/bin/python3",
+        "-B",
+        "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/validation/20-rate-candidate-profile/run-one.py",
+        "1",
+        "--check"
+      ],
+      "expected_returncode": 0,
+      "returncode": 0,
+      "stdout": "candidate-check.stdout",
+      "stderr": "candidate-check.stderr"
+    },
+    {
+      "argv": [
+        "taskset",
+        "-c",
+        "0-19",
+        "/usr/bin/python3",
+        "-B",
+        "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/validation/20-rate-candidate-profile/run-one.py",
+        "1",
+        "--check"
+      ],
+      "expected_returncode": 1,
+      "returncode": 1,
+      "stdout": "wrong-affinity.stdout",
+      "stderr": "wrong-affinity.stderr"
+    },
+    {
+      "argv": [
+        "taskset",
+        "-c",
+        "0-7",
+        "env",
+        "WKSIM_JOINT_CPU_TIMING=1",
+        "/usr/bin/python3",
+        "-B",
+        "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/validation/20-rate-candidate-profile/run-one.py",
+        "1",
+        "--check"
+      ],
+      "expected_returncode": 1,
+      "returncode": 1,
+      "stdout": "instrumentation-refused.stdout",
+      "stderr": "instrumentation-refused.stderr"
+    },
+    {
+      "argv": [
+        "taskset",
+        "-c",
+        "0-7",
+        "bash",
+        "tools/run-wksim.sh",
+        "validation/20-rate-candidate-profile/experiment-1.json",
+        "--output-root",
+        "/root/wksim-rate61-preflight-e2561e27",
+        "--preflight"
+      ],
+      "expected_returncode": 0,
+      "returncode": 0,
+      "stdout": "preflight.stdout",
+      "stderr": "preflight.stderr"
+    },
+    {
+      "argv": [
+        "/usr/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "validation.test_joint_rate",
+        "-v"
+      ],
+      "expected_returncode": 0,
+      "returncode": 0,
+      "stdout": "timer-boundaries.stdout",
+      "stderr": "timer-boundaries.stderr"
+    },
+    {
+      "argv": [
+        "/usr/bin/python3",
+        "-B",
+        "tools/replay_joint_rate_timing.py",
+        "validation/joint-rate-flow-p9koy63e/run/epochs/a3e59a3220f5421aa95bddd44b5fd6c1/rate.jsonl",
+        "--output",
+        "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/validation/20-rate-candidate-profile/checks-01/red-replay.json"
+      ],
+      "expected_returncode": 1,
+      "returncode": 1,
+      "stdout": "red-replay.stdout",
+      "stderr": "red-replay.stderr"
+    },
+    {
+      "check": "changed_source_rejected",
+      "error": "Frozen source/config changed: Simulator/wksim_core/ap_json.py",
+      "passed": true
+    }
+  ],
+  "boot_id": "a6d18240-d22b-4c5e-8cca-73130d0c6364",
+  "scheduler_rt_runtime_us": "950000",
+  "scheduler_rt_period_us": "1000000",
+  "self_affinity": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19
+  ]
+}

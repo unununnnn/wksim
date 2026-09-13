@@ -1,0 +1,169 @@
+{
+  "schema": "omp-ticket-acceptance-v1",
+  "date": "2026-09-10",
+  "baseline_commit": "514743fcb5b4941d2b83e60dcf8c7f6007ef07fd",
+  "nature": "read-only review plus offline recomputation; no SITL/UE/FC/ROS started; no production code, evidence, budget or issue state modified; no commit/push; no nested delegation",
+  "independent_checks": [
+    {
+      "command": "wsl -d Ubuntu-22.04 -u root -- bash validation/45-gnss-flight/audit-command.sh /root/wksim-gnss-flight-px4-05/d1d4028e65da402f918eef2ec768d8bb --output /tmp/omp-audit-gnss-px4.json",
+      "result": "pass",
+      "key_values": {"physical_ticks": 69244, "maximum_distance_m": 3.3142418097363637, "suppressed_candidates": 150, "withdrawal_reason": "native_navigation_invalid_control_released"},
+      "matches": "validation/45-gnss-flight/final-matrix.json runs[0] field-for-field"
+    },
+    {
+      "command": "wsl -d Ubuntu-22.04 -u root -- bash validation/45-gnss-flight/audit-command.sh /root/wksim-gnss-flight-ap-05/005a06b9bf0b44098ba03698a167f2fe --output /tmp/omp-audit-gnss-ap.json",
+      "result": "pass",
+      "key_values": {"physical_ticks": 104871, "maximum_distance_m": 3.64074036008803, "suppressed_bytes": 27690, "recovered_write_bytes": 61344, "withdrawal_reason": "native_navigation_invalid_control_released"},
+      "matches": "validation/45-gnss-flight/final-matrix.json runs[1] field-for-field"
+    },
+    {
+      "command": "wsl -d Ubuntu-22.04 -u root -- bash validation/47-global-flight/audit-command.sh /root/wksim-global-flight-px4-20260910-08/d8bc659871d44a18a1846cc5a4412245 /tmp/omp-audit-global-px4.json",
+      "result": "ok=true",
+      "key_values": {"physical_ticks": 45832, "maximum_axis_tilt_rad": 0.03591029377755194, "home_quiet_seconds": 1.01015832},
+      "matches": "byte-identical to validation/47-global-flight/px4-08/audit.json (sha256 d3d94fe44a2ae10b07789311c39c32ff443d4f41f705a43f592e0bf644fc4d06, cmp IDENTICAL)"
+    },
+    {
+      "command": "wsl -d Ubuntu-22.04 -u root -- bash validation/47-global-flight/audit-command.sh /root/wksim-global-flight-ap-20260910-05/834e4b7a51b44793a2eafc885640a91e /tmp/omp-audit-global-ap.json",
+      "result": "ok=true",
+      "key_values": {"physical_ticks": 78418, "maximum_axis_tilt_rad": 0.045325337608438286, "home_quiet_seconds": 1.00755818},
+      "matches": "field-for-field with validation/47-global-flight/ap-05/audit.json (byte cmp not done; /tmp output not retained)"
+    },
+    {
+      "command": "python3 compare final-matrix runs[].audit vs /root/wksim-gnss-flight-{px4,ap}-05-audit-final-v3.json",
+      "result": "embedded==external true for both; external sha256 24270224580264329dc4ee4a7f8dfa3e50333a78040920c7d9d76854c8acd8ef (px4), dfe7735e81b7a0740243c403274188737f97552247f161262ec97fe821cdf34c (ap)"
+    },
+    {
+      "command": "sha256sum archived tar.gz/result.json/audit.json vs matrices",
+      "result": "all match: 47 px4-08 raw e09f0acb…/result 0a340c9a…/audit d3d94fe4…; 47 ap-05 raw 9d5e311f…/result 906699da…/audit 2ff7caf3…; 45 px4-05 tar 9ff54870… == archive.json archive_sha256; 45 ap-05 tar 1016a534… == archive.json archive_sha256; auditors audit_gnss_flight.py 8889886aa…, audit_global_flight.py e31e165e…, audit_global_home_flight.py 9ee2901c…"
+    },
+    {
+      "command": "wsl bash tools/run-gnss-flight.sh --help; tools/run-global-flight.sh --help; tools/audit_gnss_flight.py --help",
+      "result": "all exit 0 with real usage; preflight-px4-final.json/preflight-ap-final.json ok:true"
+    },
+    {
+      "command": "python -B -m unittest validation.test_gnss_audit validation.test_gnss_flight validation.test_gnss_observers validation.test_global_audit validation.test_global_home_audit -v (Windows)",
+      "result": "18 ran, OK; 13 skipped by design (require explicit retained-flight dirs / isolated ROS env)"
+    },
+    {
+      "command": "existing WSL logs re-read",
+      "result": "45-gnss-flight/audit-tests.log 4/4 OK; 47 home-audit-tests-px408.log 4/4 OK; home-audit-tests-ap05.log 3 ok 1 documented skip; oracle-tests-final.log 16/16 OK, 60 numeric cases max err 0/0.01m; control-tests-final-complete.log 68 OK (1 skip); 45 control-tests-final.log 51 OK"
+    },
+    {
+      "command": "gh issue view for 118/119/120/47/121/111/112/45 and dependencies 12/14/23/22/116/117/109/110",
+      "result": "8 target tickets OPEN; dependencies #12/#14/#23/#22/#116/#117/#109/#110 all CLOSED"
+    },
+    {
+      "command": "git status --short",
+      "result": "only user-modified docs/Prometheus.gitmodules.reference dirty; evidence committed under e075d0d/ff63c72; 514743f adds coordination artifacts only"
+    }
+  ],
+  "tickets": [
+    {
+      "issue": 118,
+      "state": "OPEN",
+      "verdict": "closable",
+      "ac": [
+        {"item": "Both native stacks plus full physical target/datum evidence pass; no unsupported mode silently transformed", "status": "met (experimental-candidate scope)", "evidence": ["validation/47-global-flight/final-matrix.json:3-5,7-50", "validation/47-global-flight/px4-08/audit.json", "validation/47-global-flight/ap-05/audit.json", "validation/47-global-flight/px4-07-datum-reaudit.json", "independent re-audit byte/field reproduction (this check)"]},
+        {"item": "Deliver source/config identity, exact commands, raw results, failure boundaries; close only this child", "status": "met", "evidence": ["docs/2026-09-10-global-flight-report.md:18-20,46-60", "validation/47-global-flight/ (12-run archive incl. failures)", "validation/47-global-flight/px4-seal-v2-comparison.json"]}
+      ],
+      "gaps": ["G1: implementation exceeded original child write scope (contract doc cites user authorization; no issue comment records it)"],
+      "next": "main agent confirms G1 authorization, then gh issue close 118"
+    },
+    {
+      "issue": 119,
+      "state": "OPEN",
+      "verdict": "closable (scope-path deviation needs main-agent confirmation)",
+      "ac": [
+        {"item": "Raw audit PASS for this scope; evidence/exit identity complete", "status": "met", "evidence": ["validation/47-global-flight/px4-08/audit.json ok:true", "final-matrix.json:8-27", "independent re-audit byte-identical"]},
+        {"item": "Deliver source/config identity, exact commands, raw results, failure boundaries", "status": "met", "evidence": ["docs/2026-09-10-global-flight-report.md:16-20,46-58", "px4-01/03/04/05/06 failure archives retained"]}
+      ],
+      "gaps": ["G4: ticket-scoped dir validation/lunar-47-px4-run/ absent; evidence lives in validation/47-global-flight/"],
+      "next": "main agent confirms evidence-dir deviation (or adds index), then close"
+    },
+    {
+      "issue": 120,
+      "state": "OPEN",
+      "verdict": "closable (same G4 deviation)",
+      "ac": [
+        {"item": "Raw audit PASS for this scope; evidence/exit identity complete", "status": "met", "evidence": ["validation/47-global-flight/ap-05/audit.json ok:true", "final-matrix.json:30-50", "independent re-audit field-identical"]},
+        {"item": "Deliver source/config identity, exact commands, raw results, failure boundaries", "status": "met", "evidence": ["docs/2026-09-10-global-flight-report.md:60", "validation/47-global-flight/ap-04/audit-initial-rejected.json"]}
+      ],
+      "gaps": ["G4: validation/lunar-47-ap-run/ absent; evidence in validation/47-global-flight/"],
+      "next": "same as #119"
+    },
+    {
+      "issue": 47,
+      "state": "OPEN",
+      "verdict": "closable candidate (parent AC met at candidate scope; main-agent review clause pending)",
+      "ac": [
+        {"item": "PX4 global position adaptation completed and verified; AP home/local boundary kept", "status": "met (candidate)", "evidence": ["px4-08/ap-05 audits", "docs/2026-09-10-global-flight-report.md:42"]},
+        {"item": "Explicit datums and numeric checks for lat/lon, AMSL/relative, ENU/NED", "status": "met", "evidence": ["oracle-tests-final.log 16/16 + 60 cases max err 0/0.01m", "final-matrix.json:27,49 datum_proof_sha256"]},
+        {"item": "Real global flight, out-of-bound rejection, home-change old-target invalidation pass on both stacks", "status": "met (candidate)", "evidence": ["final-matrix final entries", "audit home_change blocks (quiet 1.010/1.008s, native_acks=1)", "report:32"]},
+        {"item": "No EKF-origin-as-home; no silent global-to-local transform", "status": "met", "evidence": ["px4-07-datum-reaudit.json withdrawal", "contract docs/plan/47-global-run-contract.md:44"]},
+        {"item": "Deliver commands/identities/expectations/failure boundaries; main-agent review before close", "status": "delivery met; review pending main agent", "evidence": ["this document", "docs/2026-09-10-global-flight-report.md"]}
+      ],
+      "dependencies": {"blocked_by": {"12": "CLOSED", "14": "CLOSED", "23": "CLOSED"}},
+      "gaps": ["G5: experimental candidate, production not promoted (matrix production_admitted:false); AC does not require production promotion", "main-agent review clause not yet executed"],
+      "next": "close children #118/#119/#120 first, then main-agent review sign-off and close #47"
+    },
+    {
+      "issue": 121,
+      "state": "OPEN",
+      "verdict": "needs minor supplementation (runbook body stale), substance met",
+      "ac": [
+        {"item": "Dual-stack runners, frozen contract, independent raw auditor with positive/negative cases pass", "status": "met", "evidence": ["all 8 named deliverables exist (gnss_task.py, gnss-flight-v1.json, run_gnss_flight.py, run-gnss-flight.sh, audit_gnss_flight.py, test_gnss_flight.py, test_gnss_audit.py, 45-gnss-runbook.md)", "validation/45-gnss-flight/audit-tests.log 4/4", "both final flight audits independently reproduced pass"]},
+        {"item": "Runbook with copyable commands, resource/input hashes, output schema, failure handling; dependency scripts exist and --help/read-only preflight actually pass", "status": "substantially met; runbook body contradictory", "evidence": ["--help exit 0 for three entries (this check)", "preflight-px4-final.json/preflight-ap-final.json ok:true", "docs/2026-09-10-gnss-flight-report.md:18-36"], "gap_detail": "runbook lines 71-74 still claim entries not delivered, contradicting its new header lines 3-5"}
+      ],
+      "gaps": ["G2: raw audit output files (*-audit-final-v3.json) not archived into repo (content == matrix embedded; recomputable)", "G3: run-source sealed auditor f4c10e35… differs from final audit version 8889886aa…; matrix audit_sha256 names auditor source, not audit output", "G6: runbook stale body"],
+      "next": "main agent cleans runbook stale lines or accepts flight report as authoritative, then close #121"
+    },
+    {
+      "issue": 111,
+      "state": "OPEN",
+      "verdict": "blocked by prerequisite (#121 OPEN); evidence already met",
+      "ac": [
+        {"item": "Raw audit PASS for this scope; evidence/exit identity complete", "status": "met", "evidence": ["validation/45-gnss-flight/final-matrix.json:5-29", "independent re-audit pass field-identical"]},
+        {"item": "Deliver identities/commands/raw results/failure boundaries", "status": "met", "evidence": ["docs/2026-09-10-gnss-flight-report.md:38-47", "px4-01/02/03 failure archives retained"]}
+      ],
+      "gaps": ["G4: validation/lunar-45-px4-run/ absent; evidence in validation/45-gnss-flight/", "G7: ticket prerequisite includes #121 which is still OPEN"],
+      "next": "close #121 first, then main-agent confirmation and close #111"
+    },
+    {
+      "issue": 112,
+      "state": "OPEN",
+      "verdict": "blocked by prerequisite (#111 OPEN, transitively #121); evidence already met",
+      "ac": [
+        {"item": "Raw audit PASS for this scope; evidence/exit identity complete", "status": "met", "evidence": ["validation/45-gnss-flight/final-matrix.json:32-64", "independent re-audit pass field-identical (suppressed 27690B, recovered 61344B)"]},
+        {"item": "Deliver identities/commands/raw results/failure boundaries", "status": "met", "evidence": ["docs/2026-09-10-gnss-flight-report.md:42-43", "ap-01..ap-04 archives incl. incomplete-result.json"]}
+      ],
+      "gaps": ["G4: validation/lunar-45-ap-run/ absent", "G7: prerequisite #111 OPEN"],
+      "next": "after #121 and #111 close, close #112"
+    },
+    {
+      "issue": 45,
+      "state": "OPEN",
+      "verdict": "blocked by open children (#121/#111/#112); original AC substance met; policy-approval provenance needs main-agent confirmation",
+      "ac": [
+        {"item": "Injection on real sensor chain; raw GPS quality and source time preserved", "status": "met (candidate)", "evidence": ["matrix sensors fields (150 suppressed candidates; 27690 suppressed UBX bytes)", "docs/2026-09-10-gnss-flight-report.md:9,16"]},
+        {"item": "Localization loss / link loss / stale data separately observable; old coordinates not revalidated by new timestamps", "status": "met", "evidence": ["report:10 (nav invalid on live link)", "audit-tests.log 4/4 negative cases", "docs/2026-09-09-gnss-event-report.md:13-24"]},
+        {"item": "Approved-policy validation of task withdrawal, FC action, explicit post-recovery takeover", "status": "evidence met; approval provenance unconfirmed (G8)", "evidence": ["withdrawal native_navigation_invalid_control_released", "PX4 COM_OBL_RC_ACT=4 LAND in ULog", "AP explicit LAND with native ack", "new-request recovery"], "gap_detail": "#121 2026-09-09 comment notes #22 approval covers Agent link only; no issue records approval of the GNSS-specific failsafe actions/envelope adopted in v2/v3"},
+        {"item": "Fault plan, real sensors/state/truth and fixed budgets recorded; other sensor faults not auto-passed", "status": "met", "evidence": ["gnss-plan.json / gnss-flight-v3.json hashes in archive.json", "report:16 envelope 4m/15deg/4.5m and 0.3m gates", "audit scope field excludes G6/rate"]},
+        {"item": "Deliver commands/identities/expectations/failure boundaries; main-agent review before close", "status": "delivery met; review pending main agent", "evidence": ["this document", "docs/2026-09-10-gnss-flight-report.md"]}
+      ],
+      "dependencies": {"blocked_by": {"22": "CLOSED", "23": "CLOSED"}, "children": {"109": "CLOSED", "110": "CLOSED", "121": "OPEN", "111": "OPEN", "112": "OPEN"}},
+      "gaps": ["G8: GNSS-specific failsafe/budget approval provenance", "children #121/#111/#112 still OPEN"],
+      "next": "close #121 → #111 → #112 with confirmations above, main-agent review of G8, then close #45"
+    }
+  ],
+  "gaps_summary": {
+    "G1": "#118 implementation exceeded original child write scope; authorization only self-recorded in contract doc",
+    "G2": "GNSS raw audit output files not archived in repo (WSL /root only + matrix-embedded; reproducible)",
+    "G3": "GNSS sealed run-source auditor f4c10e35… vs final auditor 8889886aa…; matrix audit_sha256 names auditor source",
+    "G4": "tickets #119/#120/#111/#112 name validation/lunar-*-run/ dirs that do not exist; evidence in 47-global-flight/ and 45-gnss-flight/",
+    "G5": "candidate-only status (experimental:true, production_admitted:false) consistent with AC but must not be read as production promotion",
+    "G6": "45-gnss-runbook.md lines 71-74 stale 'not delivered' text vs updated header lines 3-5",
+    "G7": "prerequisite chain #121→#111→#112 still OPEN",
+    "G8": "GNSS-specific failsafe/budget approval provenance not recorded in issues"
+  },
+  "not_done": "no SITL/UE/FC/ROS started; no production code, evidence, budget or issue state changed; no commit/push; no nested delegation; user-modified docs/Prometheus.gitmodules.reference untouched; re-audit outputs went to WSL /tmp and were not retained (recomputable; archives untouched)"
+}

@@ -1,4 +1,181 @@
+#include <algorithm>
+#include <cmath>
+#include <exception>
+#include <limits>
+#include <stdexcept>
+#include <string>
+#include <unordered_set>
+
 #include "plan_env/grid_map.h"
+
+namespace {
+
+const std::string kGridMapParamPrefix = "/uav1_ego_planner_node/grid_map/";
+// Keep 2 * inf_step + 1 <= 65, so the temporary inflation cube stays <= 65^3.
+constexpr int kGridMapMaxInflationSteps = 32;
+constexpr double kGridMapVirtualCeilingDisabled = -0.5;
+
+const std::unordered_set<std::string> kGridMapInitializationOnly = {
+    "uav_id", "resolution", "map_size_x", "map_size_y", "map_size_z", "map_origin_x", "map_origin_y",
+    "depth_filter_margin", "skip_pixel", "pose_type", "fx", "fy", "cx", "cy",
+    "k_depth_scaling_factor", "p_hit", "p_miss", "p_min", "p_max", "p_occ",
+    "ground_height", "virtual_ceil_height", "virtual_ceil_yp", "virtual_ceil_yn"};
+
+bool parseGridMapInt(const std::string& text, int& value) {
+  std::size_t consumed = 0;
+  try {
+    const long parsed = std::stol(text, &consumed, 10);
+    if (consumed != text.size() || parsed < std::numeric_limits<int>::min() ||
+        parsed > std::numeric_limits<int>::max()) {
+      return false;
+    }
+    value = static_cast<int>(parsed);
+    return true;
+  } catch (const std::exception&) {
+    return false;
+  }
+}
+
+bool parseGridMapDouble(const std::string& text, double& value) {
+  std::size_t consumed = 0;
+  try {
+    const double parsed = std::stod(text, &consumed);
+    if (consumed != text.size() || !std::isfinite(parsed)) {
+      return false;
+    }
+    value = parsed;
+    return true;
+  } catch (const std::exception&) {
+    return false;
+  }
+}
+
+bool parseGridMapBool(const std::string& text, bool& value) {
+  if (text == "0") {
+    value = false;
+    return true;
+  }
+  if (text == "1") {
+    value = true;
+    return true;
+  }
+  return false;
+}
+
+double gridMapDistanceLimit(const MappingParameters& params) {
+  double squared = 0.0;
+  for (int axis = 0; axis < 3; ++axis) {
+    const double size = params.map_size_(axis);
+    if (!std::isfinite(size) || size <= 0.0 || size > std::sqrt(std::numeric_limits<double>::max() / 3.0)) {
+      return 0.0;
+    }
+    squared += size * size;
+  }
+  if (!std::isfinite(squared) || squared <= 0.0) {
+    return 0.0;
+  }
+  return std::sqrt(squared);
+}
+
+int gridMapLocalMapMarginLimit(const MappingParameters& params) {
+  const long long int_max = std::numeric_limits<int>::max();
+  long long limit = int_max - 5;
+  for (int axis = 0; axis < 3; ++axis) {
+    const int voxel_num = params.map_voxel_num_(axis);
+    if (voxel_num <= 0) {
+      return -1;
+    }
+    limit = std::min(limit, static_cast<long long>(voxel_num));
+    limit = std::min(limit, int_max - static_cast<long long>(voxel_num) - 5);
+  }
+  return limit < 0 ? -1 : static_cast<int>(limit);
+}
+
+int gridMapInflationStepLimit(const MappingParameters& params) {
+  if (!std::isfinite(params.resolution_) || params.resolution_ <= 0.0) {
+    return -1;
+  }
+  int limit = kGridMapMaxInflationSteps;
+  double min_map_size = std::numeric_limits<double>::max();
+  for (int axis = 0; axis < 3; ++axis) {
+    const int voxel_num = params.map_voxel_num_(axis);
+    const double map_size = params.map_size_(axis);
+    if (voxel_num <= 0 || !std::isfinite(map_size) || map_size <= 0.0) {
+      return -1;
+    }
+    limit = std::min(limit, voxel_num);
+    min_map_size = std::min(min_map_size, map_size);
+  }
+  const double half_map_steps = 0.5 * min_map_size / params.resolution_;
+  if (!std::isfinite(half_map_steps) || half_map_steps < 0.0) {
+    return -1;
+  }
+  if (half_map_steps < static_cast<double>(limit)) {
+    limit = static_cast<int>(std::floor(half_map_steps));
+  }
+  return std::max(limit, 0);
+}
+
+// Shared inflation-step bound that validates obstacles_inflation_ (metres) and
+// returns the per-axis voxel step count actually used for inflation.  Init time
+// and the runtime parameter update share the SAME limit through
+// gridMapInflationStepLimit (<= kGridMapMaxInflationSteps steps/axis, so
+// 2*steps+1 <= 65 and the candidate cube stays <= 65^3).  Fail-closed: any
+// non-finite / non-positive input, or a distance that would exceed the safe
+// step limit, yields -1.
+int checkedInflationSteps(double inflation_m, const MappingParameters& params) {
+  if (!std::isfinite(inflation_m) || inflation_m < 0.0) {
+    return -1;
+  }
+  if (!std::isfinite(params.resolution_) || params.resolution_ <= 0.0) {
+    return -1;
+  }
+  const int step_limit = gridMapInflationStepLimit(params);
+  if (step_limit < 0) {
+    return -1;
+  }
+  const double steps = std::ceil(inflation_m / params.resolution_);
+  if (!std::isfinite(steps) || steps > static_cast<double>(step_limit)) {
+    return -1;
+  }
+  return static_cast<int>(steps);
+}
+
+// Return a safe z index for the virtual ceiling.  The historical sentinel
+// (height <= -0.5) disables the ceiling and leaves ceil_id at -1.  Every
+// enabled value must produce an in-map index before the double-to-int cast;
+// callers can therefore write toAddress only after checking ceil_id >= 0.
+bool checkedVirtualCeilingId(const MappingParameters& params, int& ceil_id) {
+  ceil_id = -1;
+  const double height = params.virtual_ceil_height_;
+  if (!std::isfinite(height)) {
+    return false;
+  }
+  if (height <= kGridMapVirtualCeilingDisabled) {
+    return true;
+  }
+  if (!std::isfinite(params.map_origin_(2)) ||
+      !std::isfinite(params.resolution_inv_) || params.resolution_inv_ <= 0.0 ||
+      params.map_voxel_num_(2) <= 0) {
+    return false;
+  }
+
+  const double scaled = (height - params.map_origin_(2)) * params.resolution_inv_;
+  if (!std::isfinite(scaled)) {
+    return false;
+  }
+  const double candidate = std::floor(scaled) - 1.0;
+  if (!std::isfinite(candidate) || candidate < 0.0 ||
+      candidate >= static_cast<double>(params.map_voxel_num_(2)) ||
+      candidate > static_cast<double>(std::numeric_limits<int>::max())) {
+    return false;
+  }
+
+  ceil_id = static_cast<int>(candidate);
+  return true;
+}
+
+}  // namespace
 
 void GridMap::initMap(ros::NodeHandle &nh)
 {
@@ -67,6 +244,33 @@ void GridMap::initMap(ros::NodeHandle &nh)
   // 无人机定位数据超时
   node_.param("grid_map/odom_depth_timeout", mp_.odom_depth_timeout_, 1.0);
 
+  // Fail-closed map geometry validation.  Every guard below runs BEFORE the
+  // first resolution division (resolution_inv_), double->int ceil (voxel count)
+  // or vector allocation, so a non-finite / non-positive resolution, map size or
+  // skip_pixel can never reach those operations.  An invalid map aborts
+  // initialization (no subscriptions or buffers are set up) instead of producing
+  // undefined conversions or overflowing allocations.
+  if (!std::isfinite(mp_.resolution_) || mp_.resolution_ <= 0.0) {
+    ROS_ERROR_STREAM("GridMap init aborted: grid_map/resolution must be finite and > 0, got "
+                     << mp_.resolution_);
+    throw std::invalid_argument("Invalid GridMap resolution");
+  }
+  if (!std::isfinite(x_size) || x_size <= 0.0 || !std::isfinite(y_size) || y_size <= 0.0 ||
+      !std::isfinite(z_size) || z_size <= 0.0) {
+    ROS_ERROR_STREAM("GridMap init aborted: grid_map/map_size_x/y/z must be finite and > 0, got ("
+                     << x_size << ", " << y_size << ", " << z_size << ")");
+    throw std::invalid_argument("Invalid GridMap size");
+  }
+  if (mp_.skip_pixel_ <= 0) {
+    ROS_ERROR_STREAM("GridMap init aborted: grid_map/skip_pixel must be a positive integer, got "
+                     << mp_.skip_pixel_);
+    throw std::invalid_argument("Invalid GridMap skip_pixel");
+  }
+  if (!std::isfinite(mp_.ground_height_) || !std::isfinite(mp_.virtual_ceil_height_)) {
+    ROS_ERROR_STREAM("GridMap init aborted: ground_height and virtual_ceil_height must be finite");
+    throw std::invalid_argument("Invalid GridMap height");
+  }
+
   // 虚拟天花板高度要小于等于ground_height+z_size，否则重置该高度
   if( mp_.virtual_ceil_height_ - mp_.ground_height_ > z_size)
   {
@@ -75,6 +279,9 @@ void GridMap::initMap(ros::NodeHandle &nh)
   }
 
   mp_.resolution_inv_ = 1 / mp_.resolution_;
+  if (!std::isfinite(mp_.resolution_inv_)) {
+    throw std::invalid_argument("GridMap inverse resolution is not finite");
+  }
   //todo: different map origin
   if(x_origin < -1.0+1e-2 && x_origin > -1.0-1e-2) mp_.map_origin_ = Eigen::Vector3d(-x_size / 2.0, -y_size / 2.0, mp_.ground_height_);
   else mp_.map_origin_ = Eigen::Vector3d(x_origin, y_origin, mp_.ground_height_);
@@ -88,15 +295,46 @@ void GridMap::initMap(ros::NodeHandle &nh)
   mp_.min_occupancy_log_ = logit(mp_.p_occ_);
   mp_.unknown_flag_ = 0.01;
 
-  for (int i = 0; i < 3; ++i)
-    mp_.map_voxel_num_(i) = ceil(mp_.map_size_(i) / mp_.resolution_);
+  for (int i = 0; i < 3; ++i) {
+    // Checked double->int conversion: resolution_ and map_size_ are already
+    // validated finite/positive above, so the quotient is finite and > 0; guard
+    // the ceil against the int range before assigning into the Vector3i.
+    const double voxels = std::ceil(mp_.map_size_(i) / mp_.resolution_);
+    if (!std::isfinite(voxels) || voxels < 1.0 ||
+        voxels > static_cast<double>(std::numeric_limits<int>::max())) {
+      ROS_ERROR_STREAM("GridMap init aborted: map_size_[" << i << "]/resolution gives an invalid "
+                       << "voxel count " << voxels);
+      throw std::invalid_argument("GridMap voxel count is outside the integer range");
+    }
+    mp_.map_voxel_num_(i) = static_cast<int>(voxels);
+  }
+
+  // obstacles_inflation_ (metres) must map to a bounded per-axis step count
+  // through the SAME limit the runtime update uses (gridMapInflationStepLimit,
+  // <= 32 steps/axis so the candidate cube stays <= 65^3) before any buffer is
+  // allocated from these voxel counts.
+  if (checkedInflationSteps(mp_.obstacles_inflation_, mp_) < 0) {
+    ROS_ERROR_STREAM("GridMap init aborted: grid_map/obstacles_inflation is outside the safe "
+                     << "resolution/map-size bound, got " << mp_.obstacles_inflation_);
+    throw std::invalid_argument("Invalid GridMap inflation");
+  }
 
   // z轴上，地面高度为最小值
   mp_.map_min_boundary_ = mp_.map_origin_;
   mp_.map_max_boundary_ = mp_.map_origin_ + mp_.map_size_;
 
   // initialize data buffers
-  int buffer_size = mp_.map_voxel_num_(0) * mp_.map_voxel_num_(1) * mp_.map_voxel_num_(2);
+  // Check each multiplication before evaluating it.  Even three valid int
+  // dimensions can overflow long long when multiplied without this guard.
+  int buffer_size = 1;
+  for (int axis = 0; axis < 3; ++axis) {
+    const int voxels = mp_.map_voxel_num_(axis);
+    if (voxels <= 0 || buffer_size > std::numeric_limits<int>::max() / voxels) {
+      ROS_ERROR_STREAM("GridMap init aborted: map voxel buffer size overflow");
+      throw std::invalid_argument("GridMap voxel buffer size overflow");
+    }
+    buffer_size *= voxels;
+  }
 
   md_.occupancy_buffer_ = vector<double>(buffer_size, mp_.clamp_min_log_ - mp_.unknown_flag_);
   md_.occupancy_buffer_inflate_ = vector<char>(buffer_size, 0);
@@ -181,44 +419,167 @@ void GridMap::initMap(ros::NodeHandle &nh)
   md_.flag_use_depth_fusion = false;
   // 订阅参数服务器内ego相关的参数
   gridparam_sub_ = nh.subscribe("/uav1/prometheus/param_settings", 1, &GridMap::gridparam_Callback, this);
-  grid_params_get_i = {&uav_id,&mp_.depth_filter_margin_,&mp_.skip_pixel_,&mp_.pose_type_,&mp_.local_map_margin_};
-  grid_params_get_d = {&mp_.resolution_,&x_size,&y_size,&z_size,&x_origin,&y_origin,&mp_.local_update_range_(0),&mp_.local_update_range_(1),
-                       &mp_.local_update_range_(2),&mp_.obstacles_inflation_,&mp_.fx_,&mp_.fy_,&mp_.cx_,&mp_.cy_,&mp_.depth_filter_tolerance_,
-                       &mp_.depth_filter_maxdist_,&mp_.depth_filter_mindist_,&mp_.k_depth_scaling_factor_,&mp_.p_hit_,&mp_.p_miss_,&mp_.p_min_,
-                       &mp_.p_max_,&mp_.p_occ_,&mp_.min_ray_length_,&mp_.max_ray_length_,&mp_.visualization_truncate_height_,&mp_.ground_height_,
-                       &mp_.virtual_ceil_height_,&mp_.virtual_ceil_yp_,&mp_.virtual_ceil_yn_,&mp_.odom_depth_timeout_ };
-  grid_params_get_b = {&mp_.use_depth_filter_,&mp_.show_occ_time_};
 }
 
 void GridMap::gridparam_Callback(const prometheus_msgs::ParamSettingsConstPtr &msg)
 {
-  pre_grid_params_compare(grid_params_compare, grid_params_compare_all);
-  // 遍历 param_name 和 param_value，更新参数
-  for (size_t i = 0; i < grid_params_compare_all.size(); ++i) 
-  {
-    auto it = std::find(( grid_params_compare_all.begin()),(grid_params_compare_all.end()), msg->param_name[0]);
-    if (it != grid_params_compare_all.end()) 
-    {
-      size_t index = std::distance(grid_params_compare_all.begin(), it);
-      if(index < 5)
-      {
-        *grid_params_get_i[index] = std::stoi(msg->param_value[0]);
-      }else if(index < 36)
-      {
-        *grid_params_get_d[index - 5] = std::stod(msg->param_value[0]);
-      }else if(index < 38)
-      { 
-        if(msg->param_value[0] == "0"){
-          *grid_params_get_b[index - 36] = false ; 
-        }else{
-          *grid_params_get_b[index - 36] = true ;          
-        }
-      }else
-      {
-        mp_.frame_id_ = msg->param_value[0];
-      }
-    }
+  if (!msg) {
+    ROS_WARN("GridMap parameter update ignored: null message");
+    return;
   }
+  if (msg->param_name.size() != 1 || msg->param_value.size() != 1) {
+    ROS_WARN_STREAM("GridMap parameter update ignored: expected exactly one name/value, got "
+                    << msg->param_name.size() << "/" << msg->param_value.size());
+    return;
+  }
+
+  const std::string& name = msg->param_name.front();
+  const std::string& value = msg->param_value.front();
+  if (name.compare(0, kGridMapParamPrefix.size(), kGridMapParamPrefix) != 0) {
+    ROS_WARN_STREAM("GridMap parameter update ignored: unexpected parameter name " << name);
+    return;
+  }
+
+  const std::string short_name = name.substr(kGridMapParamPrefix.size());
+  if (kGridMapInitializationOnly.count(short_name) != 0) {
+    ROS_WARN_STREAM("GridMap parameter " << name
+                    << " is initialization-only and was ignored after map setup");
+    return;
+  }
+
+  if (short_name == "local_update_range_x" || short_name == "local_update_range_y" ||
+      short_name == "local_update_range_z") {
+    double parsed = 0.0;
+    const int axis = short_name.back() == 'x' ? 0 : short_name.back() == 'y' ? 1 : 2;
+    if (!parseGridMapDouble(value, parsed) || parsed < 0.0 ||
+        !std::isfinite(mp_.map_size_(axis)) || mp_.map_size_(axis) <= 0.0 ||
+        parsed > mp_.map_size_(axis)) {
+      ROS_WARN_STREAM("GridMap parameter update ignored: range must be finite, non-negative, and no larger than "
+                      << "initialized map_size_[" << axis << "] for " << name);
+      return;
+    }
+    mp_.local_update_range_(axis) = parsed;
+    return;
+  }
+
+  if (short_name == "local_map_margin") {
+    int parsed = 0;
+    const int margin_limit = gridMapLocalMapMarginLimit(mp_);
+    if (!parseGridMapInt(value, parsed) || parsed < 0 || margin_limit < 0 || parsed > margin_limit) {
+      ROS_WARN_STREAM("GridMap parameter update ignored: margin must be within the safe initialized map_voxel_num_ "
+                      << "bound (" << margin_limit << ") for " << name);
+      return;
+    }
+    mp_.local_map_margin_ = parsed;
+    return;
+  }
+
+  if (short_name == "obstacles_inflation") {
+    double parsed = 0.0;
+    const int inflation_step_limit = gridMapInflationStepLimit(mp_);
+    if (!parseGridMapDouble(value, parsed) || parsed < 0.0 || inflation_step_limit < 0 ||
+        !std::isfinite(mp_.resolution_) || mp_.resolution_ <= 0.0) {
+      ROS_WARN_STREAM("GridMap parameter update ignored: invalid finite inflation for " << name);
+      return;
+    }
+    const double inflation_steps = parsed / mp_.resolution_;
+    if (!std::isfinite(inflation_steps) || inflation_steps > static_cast<double>(inflation_step_limit)) {
+      ROS_WARN_STREAM("GridMap parameter update ignored: inflation exceeds safe initialized resolution/map_size "
+                      << "bound (" << inflation_step_limit << " steps) for " << name);
+      return;
+    }
+    mp_.obstacles_inflation_ = parsed;
+    return;
+  }
+
+  if (short_name == "depth_filter_tolerance" || short_name == "depth_filter_maxdist" ||
+      short_name == "depth_filter_mindist" ||
+      short_name == "min_ray_length" || short_name == "max_ray_length" ||
+      short_name == "visualization_truncate_height" || short_name == "odom_depth_timeout") {
+    double parsed = 0.0;
+    if (!parseGridMapDouble(value, parsed)) {
+      ROS_WARN_STREAM("GridMap parameter update ignored: invalid finite double for " << name);
+      return;
+    }
+    if (short_name == "depth_filter_tolerance") {
+      if (parsed < 0.0) {
+        ROS_WARN_STREAM("GridMap parameter update ignored: tolerance must be non-negative for " << name);
+        return;
+      }
+      mp_.depth_filter_tolerance_ = parsed;
+    }
+    else if (short_name == "depth_filter_maxdist") {
+      const double distance_limit = gridMapDistanceLimit(mp_);
+      if (parsed < 0.0 || distance_limit <= 0.0 || parsed > distance_limit ||
+          !std::isfinite(mp_.depth_filter_mindist_) || parsed < mp_.depth_filter_mindist_) {
+        ROS_WARN_STREAM("GridMap parameter update ignored: max depth distance must stay within the map and >= min "
+                        << "for " << name);
+        return;
+      }
+      mp_.depth_filter_maxdist_ = parsed;
+    }
+    else if (short_name == "depth_filter_mindist") {
+      const double distance_limit = gridMapDistanceLimit(mp_);
+      if (parsed < 0.0 || distance_limit <= 0.0 || parsed > distance_limit ||
+          !std::isfinite(mp_.depth_filter_maxdist_) || parsed > mp_.depth_filter_maxdist_) {
+        ROS_WARN_STREAM("GridMap parameter update ignored: min depth distance must stay within the map and <= max "
+                        << "for " << name);
+        return;
+      }
+      mp_.depth_filter_mindist_ = parsed;
+    }
+    else if (short_name == "min_ray_length") {
+      const double distance_limit = gridMapDistanceLimit(mp_);
+      if (parsed < 0.0 || distance_limit <= 0.0 || parsed > distance_limit ||
+          !std::isfinite(mp_.max_ray_length_) || parsed > mp_.max_ray_length_) {
+        ROS_WARN_STREAM("GridMap parameter update ignored: min ray length must stay within the map and <= max for "
+                        << name);
+        return;
+      }
+      mp_.min_ray_length_ = parsed;
+    }
+    else if (short_name == "max_ray_length") {
+      const double distance_limit = gridMapDistanceLimit(mp_);
+      if (parsed < 0.0 || distance_limit <= 0.0 || parsed > distance_limit ||
+          !std::isfinite(mp_.min_ray_length_) || parsed < mp_.min_ray_length_) {
+        ROS_WARN_STREAM("GridMap parameter update ignored: max ray length must stay within the map and >= min for "
+                        << name);
+        return;
+      }
+      mp_.max_ray_length_ = parsed;
+    }
+    else if (short_name == "visualization_truncate_height") mp_.visualization_truncate_height_ = parsed;
+    else if (short_name == "odom_depth_timeout") {
+      if (parsed < 0.0) {
+        ROS_WARN_STREAM("GridMap parameter update ignored: timeout must be non-negative for " << name);
+        return;
+      }
+      mp_.odom_depth_timeout_ = parsed;
+    }
+    return;
+  }
+
+  if (short_name == "use_depth_filter" || short_name == "show_occ_time") {
+    bool parsed = false;
+    if (!parseGridMapBool(value, parsed)) {
+      ROS_WARN_STREAM("GridMap parameter update ignored: expected boolean 0 or 1 for " << name);
+      return;
+    }
+    if (short_name == "use_depth_filter") mp_.use_depth_filter_ = parsed;
+    else mp_.show_occ_time_ = parsed;
+    return;
+  }
+
+  if (short_name == "frame_id") {
+    if (value.empty()) {
+      ROS_WARN_STREAM("GridMap parameter update ignored: frame_id cannot be empty");
+      return;
+    }
+    mp_.frame_id_ = value;
+    return;
+  }
+
+  ROS_WARN_STREAM("GridMap parameter update ignored: unsupported parameter " << name);
 }
 
 // 膨胀地图全部重置
@@ -610,6 +971,11 @@ Eigen::Vector3d GridMap::closetPointInMap(const Eigen::Vector3d &pt, const Eigen
 // 紧接着，对局部地图的occupancy_buffer中所有点的值进行一一判断，判断是否超过为障碍物的最低概率mp_.min_occupancy_log_，如若判断，就对该点进行膨胀，并将所有膨胀点的occupancy_buffer_inflate值全部置为1；
 void GridMap::clearAndInflateLocalMap()
 {
+  const int inf_step = checkedInflationSteps(mp_.obstacles_inflation_, mp_);
+  if (inf_step < 0)
+    return;
+  int ceil_id = -1;
+  const bool has_valid_ceil = checkedVirtualCeilingId(mp_, ceil_id);
   /*clear outside local*/
   const int vec_margin = 5;
   // Eigen::Vector3i min_vec_margin = min_vec - Eigen::Vector3i(vec_margin,
@@ -689,10 +1055,11 @@ void GridMap::clearAndInflateLocalMap()
 
   // inflate occupied voxels to compensate robot size
 
-  int inf_step = ceil(mp_.obstacles_inflation_ / mp_.resolution_);
-  // int inf_step_z = 1;
+  // Three-axis inflation uses ONE shared, bounded step count
+  // (checkedInflationSteps, <= 32 steps/axis so the candidate cube stays <=
+  // 65^3), identical to cloudCallback.  Fail-closed: invalid inflation
+  // geometry leaves the local map untouched.
   vector<Eigen::Vector3i> inf_pts(pow(2 * inf_step + 1, 3));
-  // inf_pts.resize(4 * inf_step + 3);
   Eigen::Vector3i inf_pt;
 
   // clear outdated data
@@ -716,20 +1083,19 @@ void GridMap::clearAndInflateLocalMap()
           for (int k = 0; k < (int)inf_pts.size(); ++k)
           {
             inf_pt = inf_pts[k];
-            int idx_inf = toAddress(inf_pt);
-            if (idx_inf < 0 ||
-                idx_inf >= mp_.map_voxel_num_(0) * mp_.map_voxel_num_(1) * mp_.map_voxel_num_(2))
-            {
+            // Per-axis bounds BEFORE toAddress: a flat-address range check can
+            // alias an out-of-range axis onto a valid flat index (a z overflow
+            // shifts into the next y row), so validate each axis.
+            if (!isInMap(inf_pt))
               continue;
-            }
+            const int idx_inf = toAddress(inf_pt);
             md_.occupancy_buffer_inflate_[idx_inf] = 1;
           }
         }
       }
 
   // add virtual ceiling to limit flight height
-  if (mp_.virtual_ceil_height_ > -0.5) {
-    int ceil_id = floor((mp_.virtual_ceil_height_ - mp_.map_origin_(2)) * mp_.resolution_inv_) - 1;
+  if (has_valid_ceil && ceil_id >= 0 && ceil_id < mp_.map_voxel_num_(2)) {
     for (int x = md_.local_bound_min_(0); x <= md_.local_bound_max_(0); ++x)
       for (int y = md_.local_bound_min_(1); y <= md_.local_bound_max_(1); ++y) {
         md_.occupancy_buffer_inflate_[toAddress(x, y, ceil_id)] = 1;
@@ -852,148 +1218,12 @@ void GridMap::odomCallback(const nav_msgs::OdometryConstPtr &odom)
 
 void GridMap::scanCallback(const sensor_msgs::LaserScanConstPtr &laser_scan)
 {
-  // 弃用
+  // Deprecated input path: subscribed for topic compatibility but the scan
+  // pipeline is disabled.  The previous unreachable body hard-coded a divergent
+  // 20-voxel z inflation; it is removed so scan cannot carry a third inflation
+  // semantic.  This callback stays a no-op and does not enable scan mapping.
+  (void)laser_scan;
   return;
-  // 参考网页:http://wiki.ros.org/laser_geometry
-  // sensor_msgs::LaserScan 转为 sensor_msgs::PointCloud2 格式
-  laser_geometry::LaserProjection projector_;
-  sensor_msgs::PointCloud2 input_laser_scan;
-  projector_.projectLaser(*laser_scan, input_laser_scan);
-  // 再由sensor_msgs::PointCloud2 转为 pcl::PointCloud<pcl::PointXYZ>
-  pcl::PointCloud<pcl::PointXYZ> input_point_cloud,latest_cloud;
-  // 此时input_point_cloud是机体系，需要的是latest_cloud（惯性系）
-  pcl::fromROSMsg(input_laser_scan, input_point_cloud);
-
-  // 去掉自身附近的点
-  // pcl::PointXYZ point_body;
-  // Eigen::Vector3d point_body_vector;
-  // for (size_t i = 0; i < input_point_cloud.points.size(); ++i)
-  // {
-  //   point_body = input_point_cloud.points[i];
-  //   point_body_vector(0) = pt.x, point_body_vector(1) = pt.y, point_body_vector(2) = pt.z;
-  //   // 自身范围设定为50cm（暂定）
-  //   if(point_body_vector.norm() < 0.5)
-  //   {
-
-  //   }
-  // }
-
-  md_.has_cloud_ = true;
-
-  if (!md_.has_odom_)
-  {
-    std::cout << "no odom!" << std::endl;
-    return;
-  }
-
-    // 从odom中取得6DOF
-    double x, y, z, roll, pitch, yaw;
-    // 平移（xyz）
-    x = odom_uav.pose.pose.position.x;
-    y = odom_uav.pose.pose.position.y;
-    z = odom_uav.pose.pose.position.z;
-    // 旋转（从四元数到欧拉角）
-    tf::Quaternion orientation;
-    tf::quaternionMsgToTF(odom_uav.pose.pose.orientation, orientation);
-    tf::Matrix3x3(orientation).getRPY(roll, pitch, yaw);
-
-    pcl::transformPointCloud(input_point_cloud, latest_cloud, pcl::getTransformation(x, y, z, 0.0, 0.0, yaw));
-
-
-  if (latest_cloud.points.size() == 0)
-    return;
-
-  if (isnan(md_.camera_pos_(0)) || isnan(md_.camera_pos_(1)) || isnan(md_.camera_pos_(2)))
-    return;
-
-  this->resetBuffer(md_.camera_pos_ - mp_.local_update_range_,
-                    md_.camera_pos_ + mp_.local_update_range_);
-
-  pcl::PointXYZ pt;
-  Eigen::Vector3d p3d, p3d_inf;
-
-  int inf_step = ceil(mp_.obstacles_inflation_ / mp_.resolution_);
-  int inf_step_z = 20;
-
-  double max_x, max_y, max_z, min_x, min_y, min_z;
-
-  min_x = mp_.map_max_boundary_(0);
-  min_y = mp_.map_max_boundary_(1);
-  min_z = mp_.map_max_boundary_(2);
-
-  max_x = mp_.map_min_boundary_(0);
-  max_y = mp_.map_min_boundary_(1);
-  max_z = mp_.map_min_boundary_(2);
-
-
-  for (size_t i = 0; i < latest_cloud.points.size(); ++i)
-  {
-    pt = latest_cloud.points[i];
-    p3d(0) = pt.x, p3d(1) = pt.y, p3d(2) = pt.z;
-
-    /* point inside update range */
-    Eigen::Vector3d devi = p3d - md_.camera_pos_;
-    Eigen::Vector3i inf_pt;
-
-    if (fabs(devi(0)) < mp_.local_update_range_(0) && fabs(devi(1)) < mp_.local_update_range_(1) &&
-        fabs(devi(2)) < mp_.local_update_range_(2))
-    {
-      /* inflate the point */
-      for (int x = -inf_step; x <= inf_step; ++x)
-        for (int y = -inf_step; y <= inf_step; ++y)
-          for (int z = -inf_step_z; z <= inf_step_z; ++z)
-          {
-
-            p3d_inf(0) = pt.x + x * mp_.resolution_;
-            p3d_inf(1) = pt.y + y * mp_.resolution_;
-            p3d_inf(2) = pt.z + z * mp_.resolution_;
-
-            max_x = max(max_x, p3d_inf(0));
-            max_y = max(max_y, p3d_inf(1));
-            max_z = max(max_z, p3d_inf(2));
-
-            min_x = min(min_x, p3d_inf(0));
-            min_y = min(min_y, p3d_inf(1));
-            min_z = min(min_z, p3d_inf(2));
-
-            posToIndex(p3d_inf, inf_pt);
-
-            if (!isInMap(inf_pt))
-              continue;
-
-            int idx_inf = toAddress(inf_pt);
-
-            md_.occupancy_buffer_inflate_[idx_inf] = 1;
-          }
-    }
-  }
-
-
-  min_x = min(min_x, md_.camera_pos_(0));
-  min_y = min(min_y, md_.camera_pos_(1));
-  min_z = min(min_z, md_.camera_pos_(2));
-
-  max_x = max(max_x, md_.camera_pos_(0));
-  max_y = max(max_y, md_.camera_pos_(1));
-  max_z = max(max_z, md_.camera_pos_(2));
-
-  max_z = max(max_z, mp_.ground_height_);
-
-  posToIndex(Eigen::Vector3d(max_x, max_y, max_z), md_.local_bound_max_);
-  posToIndex(Eigen::Vector3d(min_x, min_y, min_z), md_.local_bound_min_);
-
-  boundIndex(md_.local_bound_min_);
-  boundIndex(md_.local_bound_max_);
-
-  // add virtual ceiling to limit flight height
-  if (mp_.virtual_ceil_height_ > -0.5) {
-    int ceil_id = floor((mp_.virtual_ceil_height_ - mp_.map_origin_(2)) * mp_.resolution_inv_) - 1;
-    for (int x = md_.local_bound_min_(0); x <= md_.local_bound_max_(0); ++x)
-      for (int y = md_.local_bound_min_(1); y <= md_.local_bound_max_(1); ++y) {
-        md_.occupancy_buffer_inflate_[toAddress(x, y, ceil_id)] = 1;
-      }
-  }
-
 }
 
 void GridMap::cloudCallback(const sensor_msgs::PointCloud2ConstPtr &img)
@@ -1018,20 +1248,29 @@ void GridMap::cloudCallback(const sensor_msgs::PointCloud2ConstPtr &img)
   }else{
     stop_publishMapInflate = false;
   }
-  if (isnan(md_.camera_pos_(0)) || isnan(md_.camera_pos_(1)) || isnan(md_.camera_pos_(2)))
+  if (!md_.camera_pos_.allFinite() || !mp_.map_min_boundary_.allFinite() ||
+      !mp_.map_max_boundary_.allFinite() || !mp_.local_update_range_.allFinite() ||
+      (mp_.local_update_range_.array() < 0.0).any() || !isInMap(md_.camera_pos_))
     return;
+
+  const int inf_step = checkedInflationSteps(mp_.obstacles_inflation_, mp_);
+  if (inf_step < 0)
+    return;
+  int ceil_id = -1;
+  const bool has_valid_ceil = checkedVirtualCeilingId(mp_, ceil_id);
 
   // 重置膨胀地图，重置范围：无人机当前位置、local_update_range_
   // 含义：使用当前时刻的点云数据来更新无人机特定范围内的地图信息
-  this->resetBuffer(md_.camera_pos_ - mp_.local_update_range_,
-                    md_.camera_pos_ + mp_.local_update_range_);
+  this->resetBuffer((md_.camera_pos_ - mp_.local_update_range_).cwiseMax(mp_.map_min_boundary_),
+                    (md_.camera_pos_ + mp_.local_update_range_).cwiseMin(mp_.map_max_boundary_));
 
   pcl::PointXYZ pt;
   Eigen::Vector3d p3d, p3d_inf;
 
-  int inf_step = ceil(mp_.obstacles_inflation_ / mp_.resolution_);
-  int inf_step_z = 2;
-
+  // Three-axis inflation uses ONE shared, bounded step count
+  // (checkedInflationSteps, <= 32 steps/axis so the candidate cube stays <=
+  // 65^3); z is no longer a hard-coded 2 voxels.  Fail-closed: invalid
+  // inflation geometry leaves the map untouched.
   double max_x, max_y, max_z, min_x, min_y, min_z;
 
   min_x = mp_.map_max_boundary_(0);
@@ -1045,6 +1284,9 @@ void GridMap::cloudCallback(const sensor_msgs::PointCloud2ConstPtr &img)
   for (size_t i = 0; i < latest_cloud.points.size(); ++i)
   {
     pt = latest_cloud.points[i];
+    // Skip non-finite cloud points before any index arithmetic.
+    if (!std::isfinite(pt.x) || !std::isfinite(pt.y) || !std::isfinite(pt.z))
+      continue;
     p3d(0) = pt.x, p3d(1) = pt.y, p3d(2) = pt.z;
 
     /* point inside update range */
@@ -1059,12 +1301,17 @@ void GridMap::cloudCallback(const sensor_msgs::PointCloud2ConstPtr &img)
       /* inflate the point */
       for (int x = -inf_step; x <= inf_step; ++x)
         for (int y = -inf_step; y <= inf_step; ++y)
-          for (int z = -inf_step_z; z <= inf_step_z; ++z)
+          for (int z = -inf_step; z <= inf_step; ++z)
           {
 
             p3d_inf(0) = pt.x + x * mp_.resolution_;
             p3d_inf(1) = pt.y + y * mp_.resolution_;
             p3d_inf(2) = pt.z + z * mp_.resolution_;
+
+            // An obstacle just outside the map can still inflate into it.
+            // Validate each candidate before conversion or local-bound growth.
+            if (!p3d_inf.allFinite() || !isInMap(p3d_inf))
+              continue;
 
             max_x = max(max_x, p3d_inf(0));
             max_y = max(max_y, p3d_inf(1));
@@ -1105,9 +1352,8 @@ void GridMap::cloudCallback(const sensor_msgs::PointCloud2ConstPtr &img)
   // 虚拟天花板，可以通过这个参数来限制无人机的飞行高度
   // 疑问：为啥天花板在地图上加了一层，地面却没有加这一层呢？
   // 并且，即使不加这一层，无人机规划也不会超过地图z轴边缘啊
-  if (mp_.virtual_ceil_height_ > -0.5) 
+  if (has_valid_ceil && ceil_id >= 0 && ceil_id < mp_.map_voxel_num_(2))
   {
-    int ceil_id = floor((mp_.virtual_ceil_height_ - mp_.map_origin_(2)) * mp_.resolution_inv_) - 1;
     for (int x = md_.local_bound_min_(0); x <= md_.local_bound_max_(0); ++x)
       for (int y = md_.local_bound_min_(1); y <= md_.local_bound_max_(1); ++y) {
         md_.occupancy_buffer_inflate_[toAddress(x, y, ceil_id)] = 1;
@@ -1217,8 +1463,10 @@ void GridMap::publishMapInflate(bool all_info)
   // 确保min_cut、max_cut在整体地图范围之内
   boundIndex(min_cut);
   boundIndex(max_cut);
-  // 计算天花板索引
-  int ceil_id = floor((mp_.virtual_ceil_height_ - mp_.map_origin_(2)) * mp_.resolution_inv_) - 1;
+  // Compute the ceiling index only after validating finite arithmetic and the
+  // double-to-int range.  Invalid or disabled ceilings simply add no voxel.
+  int ceil_id = -1;
+  const bool has_valid_ceil = checkedVirtualCeilingId(mp_, ceil_id);
   // 遍历，将符合条件的点放入cloud中，并最后发布
   for (int x = min_cut(0); x <= max_cut(0); ++x)
     for (int y = min_cut(1); y <= max_cut(1); ++y)
@@ -1227,7 +1475,7 @@ void GridMap::publishMapInflate(bool all_info)
         if (md_.occupancy_buffer_inflate_[toAddress(x, y, z)] == 0)
           continue;
         // 忽略虚拟天花板的体素
-        if (z == ceil_id)
+        if (has_valid_ceil && z == ceil_id)
           continue;
         Eigen::Vector3d pos;
         indexToPos(Eigen::Vector3i(x, y, z), pos);

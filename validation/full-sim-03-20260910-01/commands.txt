@@ -1,0 +1,16 @@
+Working directory: C:/Users/PC/Documents/odid编译/wksim
+
+Read-only inputs:
+  Get-Content docs/plan/full-scope-expansion.md
+  Get-Content docs/plan/full-remaining-ledger.json
+  Get-Content docs/plan/full-followup-tickets.json
+  Get-Content docs/project-isolation.md
+  Get-Content Simulator/wksim_core/px4_mavlink.py
+  gh issue view 123 --repo unununnnn/wksim --json number,title,body,state,labels,comments
+  gh issue view 1 --repo unununnnn/wksim --json number,title,body,state,labels,comments
+
+Validation:
+  python -B validation/full-sim-03-20260910-01/validate.py
+  git diff --check -- docs/plan/full-contracts/sim-03.md docs/plan/full-contracts/sim-03.json validation/full-sim-03-20260910-01
+
+No firmware was fetched, pinned or run; no UE, FC, model, ROS, MATLAB or hardware process was started.

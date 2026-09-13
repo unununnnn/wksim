@@ -5,7 +5,7 @@
 Source: Modules/uav_control/src/uav_controller.cpp at
 5dcd8cfa764d558f3e15dcb88aa7d49e32c54cce, especially lines 441-649,
 717-752, 866-892 and 1044-1105. ROS1 source remains untouched.
-This is NOT the transport/output shaping, PID/UDE/NE, RC, or task-node port.
+This is NOT the transport/output shaping, PID/UDE/NE, or task-node port.
 """
 from copy import deepcopy
 from dataclasses import dataclass
@@ -79,6 +79,7 @@ class CommandProcessor:
         self.previous_agent = None
         self.last_command_id = 0
         self.body_reference = None
+        self.rc_desired = None
 
     def local_position(self):
         return (self.position[0] - self.offset[0], self.position[1] - self.offset[1], self.position[2])
@@ -100,6 +101,7 @@ class CommandProcessor:
             self.control_state = Control.INIT
             self.command = Cmd(agent_cmd=Cmd.INIT_POS_HOVER)
             self.previous_agent, self.body_reference, self.hover = None, None, None
+            self.rc_desired = None
         self.state = deepcopy(state)
 
     def set_offset(self, x, y):
@@ -144,7 +146,26 @@ class CommandProcessor:
             self.previous_agent = Cmd.CURRENT_POS_HOVER
         if mode == Control.RC_POS_CONTROL:
             self.hover = Desired('position', position=self.local_position(), yaw=self.yaw)
+            self.rc_desired = None
         return Acceptance(True)
+
+    def set_rc_desired(self, desired):
+        """Accept one already validated RC target; node/stream ownership stays external."""
+        if self.control_state != Control.RC_POS_CONTROL:
+            return Acceptance(False, 'not_rc_pos_control')
+        if (not isinstance(desired, Desired) or desired.kind != 'position'
+                or desired.position is None or len(desired.position) != 3 or desired.yaw is None
+                or not finite((*desired.position, desired.yaw))
+                or desired.velocity is not None or desired.acceleration is not None
+                or desired.yaw_rate is not None or desired.attitude is not None
+                or desired.global_position is not None):
+            return Acceptance(False, 'invalid_rc_desired')
+        self.rc_desired = Desired('position', position=tuple(float(v) for v in desired.position),
+                                  yaw=float(desired.yaw))
+        return Acceptance(True)
+
+    def clear_rc_desired(self):
+        self.rc_desired = None
 
     def accept(self, command):
         if self.control_state != Control.COMMAND_CONTROL:
@@ -208,7 +229,7 @@ class CommandProcessor:
         if self.control_state == Control.LAND_CONTROL:
             return Desired('land')
         if self.control_state == Control.RC_POS_CONTROL:
-            return self.hover  # RC stick integration is a separate, not-yet-ported layer.
+            return self.rc_desired or self.hover
         cmd = self.command
         if cmd.agent_cmd == Cmd.INIT_POS_HOVER:
             if self.home is None:

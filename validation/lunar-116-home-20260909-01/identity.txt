@@ -1,0 +1,141 @@
+wsl: �hKm0R localhost �NtM�n�FO*g\��P0R WSL0NAT !j_N�v WSL N/ec localhost �Nt0
+6fcc4d8730bb216d4beea7b4b0e30ee5a7a5bba0fad003ccf46e7648bb8880c6  msg/versioned/HomePosition.msg
+ace04d2f4529266e3322227a75d0bdadc1537151aa6bc5faa2d60ec712fe6b48  msg/versioned/VehicleGlobalPosition.msg
+87d7540cb4207d044d69ff9af11c51f7cd2883f4160fc62650e17d80cbbec5db  msg/versioned/VehicleLocalPosition.msg
+3cd4be7fe67fbec618fc34f0fbf2fb1896007c7e35c1d5d6f330738ee97a05c5  src/lib/geo/geo.cpp
+4dad0feee24043c09e87d7a03a684a1d48d2a575304156bbe640c14e129738d3  src/lib/geo/geo.h
+7e9c730d45b22af92acfebbb81cb5de4e4a69ac0ca46b012b71ed8fa5c89cbc0  src/modules/uxrce_dds_client/dds_topics.yaml
+55:static constexpr double CONSTANTS_RADIUS_OF_EARTH = 6371000;					// meters (m)
+56:static constexpr float  CONSTANTS_RADIUS_OF_EARTH_F = CONSTANTS_RADIUS_OF_EARTH;		// meters (m)
+aa470f561074ea2d7b24e6e42ab49231524b6403f44a462e4427d9eda73ead94  libraries/AP_AHRS/AP_AHRS.cpp
+038a35efdf42622e1932fb53323dd9a1580d7749413ca778037fd0c27cdda872  libraries/AP_Common/Location.cpp
+276:    vec_ne.y = diff_longitude(lng,ekf_origin.lng) * LATLON_TO_CM * longitude_scale((lat+ekf_origin.lat)/2);
+277-    return true;
+278-}
+279-
+280-// define for float and position vectors
+281-template bool Location::get_vector_xy_from_origin_NE_cm<Vector2f>(Vector2f &vec_ne) const;
+282-#if HAL_WITH_POSTYPE_DOUBLE
+283-template bool Location::get_vector_xy_from_origin_NE_cm<Vector2p>(Vector2p &vec_ne) const;
+284-#endif
+285-
+286-// converts location to a vector from origin; if this method returns
+287-// false then vec_neu is unmodified
+288-template<typename T>
+289-bool Location::get_vector_from_origin_NEU_cm(T &vec_neu) const
+290-{
+291-    // convert altitude
+292-    int32_t alt_above_origin_cm = 0;
+293-    if (!get_alt_cm(AltFrame::ABOVE_ORIGIN, alt_above_origin_cm)) {
+294-        return false;
+295-    }
+296-
+297-    // convert lat, lon
+298-    if (!get_vector_xy_from_origin_NE_cm(vec_neu.xy())) {
+--
+372:    ftype dlng = ((ftype)diff_longitude(loc2.lng,lng)) * longitude_scale((lat+loc2.lat)/2);
+373-    return norm(dlat, dlng) * LOCATION_SCALING_FACTOR;
+374-}
+375-
+376-/**
+377- * return the altitude difference in meters taking into account alt
+378- * frame.  if loc2 is below this location then "distance" will be
+379- * positive.  ie. this method returns how far above loc2 this location
+380- * is.
+381- *
+382- * @param loc2 [in] location to compare against
+383- * @param distance [out] the distance in meters between this location and loc2
+384- *
+385- * @return true if the distance was calculated successfully,
+386- *         false if the altitude could not be resolved
+387- *
+388- */
+389-bool Location::get_height_above(const Location &loc2, ftype &distance) const
+390-{
+391-    if (get_alt_frame() == loc2.get_alt_frame()) {
+392-        switch (get_alt_frame()) {
+393-        case AltFrame::ABSOLUTE:
+394-        case AltFrame::ABOVE_HOME:
+--
+422:                    diff_longitude(loc2.lng,lng) * LOCATION_SCALING_FACTOR * longitude_scale((loc2.lat+lat)/2));
+423-}
+424-
+425-// return the distance in meters in North/East/Down plane as a N/E/D vector to loc2, NOT CONSIDERING ALT FRAME!
+426:Vector3f Location::get_distance_NED(const Location &loc2) const
+427-{
+428-    return Vector3f((loc2.lat - lat) * LOCATION_SCALING_FACTOR,
+429:                    diff_longitude(loc2.lng,lng) * LOCATION_SCALING_FACTOR * longitude_scale((lat+loc2.lat)/2),
+430-                    (alt - loc2.alt) * 0.01);
+431-}
+432-
+433:Vector3p Location::get_distance_NED_postype(const Location &loc2) const
+434-{
+435-    return Vector3p((loc2.lat - lat) * LOCATION_SCALING_FACTOR,
+436:                    diff_longitude(loc2.lng,lng) * LOCATION_SCALING_FACTOR * longitude_scale((lat+loc2.lat)/2),
+437-                    (alt - loc2.alt) * 0.01);
+438-}
+439-
+440-// return the distance in meters in North/East/Down plane as a N/E/D vector to loc2
+441:Vector3d Location::get_distance_NED_double(const Location &loc2) const
+442-{
+443-    return Vector3d((loc2.lat - lat) * double(LOCATION_SCALING_FACTOR),
+444:                    diff_longitude(loc2.lng,lng) * LOCATION_SCALING_FACTOR * longitude_scale((lat+loc2.lat)/2),
+445-                    (alt - loc2.alt) * 0.01);
+446-}
+447-
+448-// return the distance in meters in North/East/Down plane as a N/E/D vector to loc2 considering alt frame, if altitude cannot be resolved down distance is 0
+449:Vector3f Location::get_distance_NED_alt_frame(const Location &loc2) const
+450-{
+451-    int32_t alt1, alt2 = 0;
+452-    if (!get_alt_cm(AltFrame::ABSOLUTE, alt1) || !loc2.get_alt_cm(AltFrame::ABSOLUTE, alt2)) {
+453-        // one or both of the altitudes are invalid, don't do alt distance calc
+454-        alt1 = 0, alt2 = 0;
+455-    }
+456-    return Vector3f((loc2.lat - lat) * LOCATION_SCALING_FACTOR,
+457:                    diff_longitude(loc2.lng,lng) * LOCATION_SCALING_FACTOR * longitude_scale((loc2.lat+lat)/2),
+458-                    (alt1 - alt2) * 0.01);
+459-}
+460-
+461-Vector2d Location::get_distance_NE_double(const Location &loc2) const
+462-{
+463-    return Vector2d((loc2.lat - lat) * double(LOCATION_SCALING_FACTOR),
+464:                    diff_longitude(loc2.lng,lng) * double(LOCATION_SCALING_FACTOR) * longitude_scale((lat+loc2.lat)/2));
+465-}
+466-
+467-Vector2p Location::get_distance_NE_postype(const Location &loc2) const
+468-{
+e5b877cafd06e97ffe21a2911b85436e72fa106d
+codex/independent-rgb-integration
+https://github.com/unununnnn/wksim.git
+
+Algorithm : SHA256
+Hash      : DE40AE6175C7E1B23908A791B077B310DA81A8D5C264FF4AF2620A733A4B2FE6
+Path      : C:\Users\PC\Documents\odid编译\wksim\ros2\src\prometheus_control\prometheus_control\native_px4.py
+
+Algorithm : SHA256
+Hash      : 00B634DA7B3E29B87251020FE1D5D74F88D2039C1312081DEA67614EDA4DCB2A
+Path      : C:\Users\PC\Documents\odid编译\wksim\ros2\src\prometheus_control\prometheus_control\native_arducopter.py
+
+Algorithm : SHA256
+Hash      : 24086553882B31F0666159A1C9BF2929219420A0184DBB2B6683559D12E809B0
+Path      : C:\Users\PC\Documents\odid编译\wksim\ros2\src\prometheus_control\prometheus_control\frames.py
+
+Algorithm : SHA256
+Hash      : 5A37A7E1A00FE3764796EC3E5C1688D681A4AB30EDC8A95B6C603324577D0D2F
+Path      : C:\Users\PC\Documents\odid编译\wksim\ros2\src\prometheus_control\prometheus_control\command.py
+
+Algorithm : SHA256
+Hash      : 56782D96F9FC6F7DF3DDADF80CD8C09F474AF81C5C183D20D3D26C2F9E66BC69
+Path      : C:\Users\PC\Documents\odid编译\wksim\ros2\src\prometheus_control\prometheus_control\shaping.py
+
+Algorithm : SHA256
+Hash      : AB57BCD9723707857F212432E8BE093209DD578B9EB6C453340027E4871861EB
+Path      : C:\Users\PC\Documents\odid编译\wksim\Simulator\wksim_runtime\config.py
+
+Algorithm : SHA256
+Hash      : E588BDD6250D42D3ED8A45ADE0C6E14EB6443C035AAD1C9C46C5AF2D1D649621
+Path      : C:\Users\PC\Documents\odid编译\wksim\patches\arducopter\0001-dds-global-position-yaw.patch
+
+Algorithm : SHA256
+Hash      : 105A7B7FD687F764DB4B3C8FDD069954F235F5384A475A7CC46FEC57B1B6EA7D
+Path      : C:\Users\PC\Documents\odid编译\wksim\patches\arducopter\0002-dds-local-state.patch

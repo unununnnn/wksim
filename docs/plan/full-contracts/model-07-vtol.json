@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "issue": 141,
+  "stable_key": "full-model-07-vtol",
+  "title": "Compound-wing (VTOL) model",
+  "source": {
+    "file": "docs/plan/full-scope-expansion.md",
+    "line": 52,
+    "ledger_id": "MODEL-07",
+    "ledger_file": "docs/plan/full-followup-tickets.json",
+    "parent_issues": [1]
+  },
+  "status": "defined",
+  "evidence_status": "no-evidence",
+  "full_complete": false,
+  "current_gap": "Compound-wing model source, control stack/actuators and flight conditions (including transition) are missing; ArduCopter must not be forced into this role without a compound-wing configuration.",
+  "atoms": [
+    {"id": "MODEL-07-VW-A", "name": "model_source", "status": "blocked", "required": "Pinned compound-wing model source with aerodynamic and propulsion parameters", "owner": "model maintainer"},
+    {"id": "MODEL-07-VW-B", "name": "lift_rotor_actuation", "status": "blocked", "required": "Both actuator sets (lifting rotors and wing surfaces) mapped with units and limits", "owner": "model maintainer"},
+    {"id": "MODEL-07-VW-C", "name": "transition_conditions", "status": "blocked", "required": "Hover/transition/cruise conditions with expected responses and identity", "owner": "physics maintainer"},
+    {"id": "MODEL-07-VW-D", "name": "no_forced_arducopter", "status": "partial", "required": "Rule enforced: a plain multicopter stack is never wired as a compound-wing controller", "owner": "validation maintainer"}
+  ],
+  "model_required": ["model_identity", "vehicle_class=compound_wing", "aerodynamic_parameters", "rotor_set", "surface_set", "control_stack", "transition_conditions", "source", "source_sha256"],
+  "scope_rule": "compound-wing coverage requires both actuator sets and the transition regime; neither multicopter nor fixed-wing evidence alone covers it",
+  "errors": ["accepted", "model_not_found", "source_unpinned", "actuator_unmapped", "stack_incompatible", "transition_undefined", "substitution_rejected"],
+  "followups": [
+    {"key": "model-07-vw-source", "files": ["docs/plan/<compound-wing-source>.json"], "status": "proposed", "blocked_by": "Model source selection and license"},
+    {"key": "model-07-vw-transition", "files": ["docs/plan/<compound-wing-transition>.md", "validation/<compound-wing-audit>"], "status": "proposed", "blocked_by": "Model source and actuator mapping"}
+  ],
+  "preserved": {"multicopter_stacks": "multicopter evidence stays multicopter-only", "shared_row": "MODEL-07 row also covers the fixed-wing under #140", "full_complete": false}
+}

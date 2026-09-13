@@ -1,0 +1,33 @@
+{
+  "scope": "Static local library evidence only; loaded instance and actual runtime ports still require verification",
+  "libraries": [
+    {
+      "path": "D:\\matlab\\install date\\toolbox\\shared\\aeroblks\\shared6dof.slx",
+      "sha256": "7d12b7e6c7c6ff21767aec5afb4c5f0e9959df2e2c815f77075fd06b2336c36a"
+    },
+    {
+      "path": "D:\\matlab\\install date\\toolbox\\shared\\aeroblks\\shared6dofsys.slx",
+      "sha256": "22f98f2e9a8a827b4e5159bdfb026809c5026a3e3d88a5234dcb2c9d1ce1e15c"
+    }
+  ],
+  "declared_path": [
+    {
+      "library": "shared6dof",
+      "system": "system_61",
+      "integrator_sid": "61:17",
+      "source_sid": "61:90",
+      "source_block": "shared6dofsys/Calculate omega_dot",
+      "source_output_port": 1
+    },
+    {
+      "library": "shared6dofsys",
+      "system": "system_1",
+      "candidate_sid": "19",
+      "candidate_name": "Product2",
+      "block_type": "Product",
+      "Inputs": "*/",
+      "Multiplication": "Matrix(*)"
+    }
+  ],
+  "required_runtime_resolution": "Follow actual source port into the matching direct Outport of the resolved SubSystem; follow its input line, preserve hops, reject missing/ambiguous/cyclic routing. Do not select solely by candidate name."
+}

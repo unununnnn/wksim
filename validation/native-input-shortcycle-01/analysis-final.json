@@ -1,0 +1,310 @@
+{
+  "schema": "wksim.native-input-wait-analysis.v1",
+  "acceptance_eligible": false,
+  "run_id": "scheduler-692db7ad88f8",
+  "analyzer_sha256": "c4d5fd96b78bbf9d2e93f5ed0151f4285c79cd7e3f53670ab3c8188358422ee5",
+  "epoch": "914c9a2172774d44b290b18b12c99d2a",
+  "pid_mapping": {
+    "names": {
+      "ap_worker": "wk914c9a21727a",
+      "px4_worker": "wk914c9a21727p",
+      "supervisor": "wk914c9a21727s"
+    },
+    "kernel_pids": {
+      "ap_worker": 2311,
+      "px4_worker": 2315,
+      "supervisor": 1721
+    },
+    "mapping_sha256": "b614c790f76fe2cd1b52dd37cd8bccb55cbd55b55f445afbf6c006054ff5987d",
+    "method": "exact owned comm names observed in private sched_switch events"
+  },
+  "trace_sha256": "a8271bd84ed507be1f4e7541f6560def7c3e5ba7ecceb407e7fa65707df51309",
+  "capture_window_ns": {
+    "start_ns": 78878725467,
+    "end_ns": 88878998172
+  },
+  "scheduler_boundary_counts": {
+    "switch_in_without_out": 2,
+    "open_writes_at_end": 0,
+    "open_off_cpu_at_end": 3
+  },
+  "records_seen": 41,
+  "total_segments": 63,
+  "inside_capture": 35,
+  "excluded_capture_boundary": 28,
+  "by_stack": [
+    {
+      "stack": "arducopter",
+      "recorded_samples": 24,
+      "maximum_recorded_ns": 7297658,
+      "recorded_wall_ns": 13006044,
+      "recorded_thread_cpu_ns": 3831120,
+      "cpu_exceeds_wall_samples": 7,
+      "scheduler_totals": {
+        "off_cpu_ns": 9206000,
+        "runnable_ns": 348000,
+        "blocked_before_wake_ns": 8858000,
+        "unknown_off_cpu_ns": 0
+      },
+      "longest_recorded_waits": [
+        {
+          "tick": 1926,
+          "wall_ns": 7297658,
+          "thread_cpu_ns": 1126231,
+          "scheduler": {
+            "off_cpu_ns": 6218000,
+            "runnable_ns": 30000,
+            "blocked_before_wake_ns": 6188000,
+            "unknown_off_cpu_ns": 0
+          },
+          "ap_frame": 1926
+        },
+        {
+          "tick": 1930,
+          "wall_ns": 2540901,
+          "thread_cpu_ns": 516114,
+          "scheduler": {
+            "off_cpu_ns": 2034000,
+            "runnable_ns": 36000,
+            "blocked_before_wake_ns": 1998000,
+            "unknown_off_cpu_ns": 0
+          },
+          "ap_frame": 1930
+        },
+        {
+          "tick": 3750,
+          "wall_ns": 409703,
+          "thread_cpu_ns": 410956,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0
+          },
+          "ap_frame": 3750
+        },
+        {
+          "tick": 4000,
+          "wall_ns": 395601,
+          "thread_cpu_ns": 396875,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0
+          },
+          "ap_frame": 4000
+        },
+        {
+          "tick": 3500,
+          "wall_ns": 232506,
+          "thread_cpu_ns": 137178,
+          "scheduler": {
+            "off_cpu_ns": 93000,
+            "runnable_ns": 93000,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0
+          },
+          "ap_frame": 3500
+        },
+        {
+          "tick": 4500,
+          "wall_ns": 199251,
+          "thread_cpu_ns": 104125,
+          "scheduler": {
+            "off_cpu_ns": 38000,
+            "runnable_ns": 38000,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0
+          },
+          "ap_frame": 4500
+        },
+        {
+          "tick": 6250,
+          "wall_ns": 168369,
+          "thread_cpu_ns": 73443,
+          "scheduler": {
+            "off_cpu_ns": 100000,
+            "runnable_ns": 4000,
+            "blocked_before_wake_ns": 96000,
+            "unknown_off_cpu_ns": 0
+          },
+          "ap_frame": 6250
+        },
+        {
+          "tick": 5750,
+          "wall_ns": 158491,
+          "thread_cpu_ns": 64973,
+          "scheduler": {
+            "off_cpu_ns": 99000,
+            "runnable_ns": 4000,
+            "blocked_before_wake_ns": 95000,
+            "unknown_off_cpu_ns": 0
+          },
+          "ap_frame": 5750
+        },
+        {
+          "tick": 2000,
+          "wall_ns": 156960,
+          "thread_cpu_ns": 103362,
+          "scheduler": {
+            "off_cpu_ns": 51000,
+            "runnable_ns": 51000,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0
+          },
+          "ap_frame": 2000
+        },
+        {
+          "tick": 2250,
+          "wall_ns": 150906,
+          "thread_cpu_ns": 71055,
+          "scheduler": {
+            "off_cpu_ns": 84000,
+            "runnable_ns": 2000,
+            "blocked_before_wake_ns": 82000,
+            "unknown_off_cpu_ns": 0
+          },
+          "ap_frame": 2250
+        }
+      ]
+    },
+    {
+      "stack": "px4",
+      "recorded_samples": 11,
+      "maximum_recorded_ns": 7673218,
+      "recorded_wall_ns": 15625123,
+      "recorded_thread_cpu_ns": 2514242,
+      "cpu_exceeds_wall_samples": 4,
+      "scheduler_totals": {
+        "off_cpu_ns": 13239000,
+        "runnable_ns": 93000,
+        "blocked_before_wake_ns": 13146000,
+        "unknown_off_cpu_ns": 0
+      },
+      "longest_recorded_waits": [
+        {
+          "tick": 2000,
+          "wall_ns": 7673218,
+          "thread_cpu_ns": 886324,
+          "scheduler": {
+            "off_cpu_ns": 6833000,
+            "runnable_ns": 31000,
+            "blocked_before_wake_ns": 6802000,
+            "unknown_off_cpu_ns": 0
+          },
+          "px4_time_us": 2000000
+        },
+        {
+          "tick": 5504,
+          "wall_ns": 6610963,
+          "thread_cpu_ns": 812244,
+          "scheduler": {
+            "off_cpu_ns": 5823000,
+            "runnable_ns": 27000,
+            "blocked_before_wake_ns": 5796000,
+            "unknown_off_cpu_ns": 0
+          },
+          "px4_time_us": 5504000
+        },
+        {
+          "tick": 3000,
+          "wall_ns": 255779,
+          "thread_cpu_ns": 175539,
+          "scheduler": {
+            "off_cpu_ns": 122000,
+            "runnable_ns": 25000,
+            "blocked_before_wake_ns": 97000,
+            "unknown_off_cpu_ns": 0
+          },
+          "px4_time_us": 3000000
+        },
+        {
+          "tick": 6000,
+          "wall_ns": 254583,
+          "thread_cpu_ns": 108160,
+          "scheduler": {
+            "off_cpu_ns": 151000,
+            "runnable_ns": 5000,
+            "blocked_before_wake_ns": 146000,
+            "unknown_off_cpu_ns": 0
+          },
+          "px4_time_us": 6000000
+        },
+        {
+          "tick": 5000,
+          "wall_ns": 248959,
+          "thread_cpu_ns": 114261,
+          "scheduler": {
+            "off_cpu_ns": 138000,
+            "runnable_ns": 1000,
+            "blocked_before_wake_ns": 137000,
+            "unknown_off_cpu_ns": 0
+          },
+          "px4_time_us": 5000000
+        },
+        {
+          "tick": 2500,
+          "wall_ns": 189050,
+          "thread_cpu_ns": 75131,
+          "scheduler": {
+            "off_cpu_ns": 118000,
+            "runnable_ns": 2000,
+            "blocked_before_wake_ns": 116000,
+            "unknown_off_cpu_ns": 0
+          },
+          "px4_time_us": 2500000
+        },
+        {
+          "tick": 1500,
+          "wall_ns": 116804,
+          "thread_cpu_ns": 65452,
+          "scheduler": {
+            "off_cpu_ns": 54000,
+            "runnable_ns": 2000,
+            "blocked_before_wake_ns": 52000,
+            "unknown_off_cpu_ns": 0
+          },
+          "px4_time_us": 1500000
+        },
+        {
+          "tick": 3500,
+          "wall_ns": 99543,
+          "thread_cpu_ns": 100193,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0
+          },
+          "px4_time_us": 3500000
+        },
+        {
+          "tick": 4500,
+          "wall_ns": 66165,
+          "thread_cpu_ns": 66337,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0
+          },
+          "px4_time_us": 4500000
+        },
+        {
+          "tick": 5500,
+          "wall_ns": 56805,
+          "thread_cpu_ns": 57072,
+          "scheduler": {
+            "off_cpu_ns": 0,
+            "runnable_ns": 0,
+            "blocked_before_wake_ns": 0,
+            "unknown_off_cpu_ns": 0
+          },
+          "px4_time_us": 5500000
+        }
+      ]
+    }
+  ],
+  "limitation": "Biased retained samples: the sum of native waits >2ms or a tick divisible by 250, never a full census. No population median or rate is claimed. Only segments fully inside the capture window are summarized; boundary-crossing segments are excluded, not interpolated. Supervisor off-CPU/runnable/blocked time during a wait includes I/O wait and descheduling and does not identify the native FC internal function, host or Windows cause. CPU and wall reads bracket slightly different windows; CPU is retained even when it exceeds wall. A PX4 wait with px4_time_us null completed during startup before any actuator timestamp was bound; a returned wait is not by itself proof a PX4 input arrived."
+}

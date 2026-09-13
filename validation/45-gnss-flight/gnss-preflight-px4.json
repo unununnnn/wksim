@@ -1,0 +1,184 @@
+{
+  "ok": true,
+  "config": {
+    "schema_version": 1,
+    "run_id": "11111111111111111111111111111111",
+    "vehicle_id": 1,
+    "stack": "px4",
+    "model_profile": "quad_x",
+    "communication": "native_dds",
+    "control_protocol": "session_v1",
+    "capabilities": [
+      "native_position_mission"
+    ],
+    "dds_workspace": "/root/wksim-dds-VxM6Ni",
+    "prometheus_workspace": "/root/wksim-joint-control-hy8WVw",
+    "px4_root": "/root/wksim-px4-state-ONa1Kw/src",
+    "model_library": "/root/wksim-private-tmp-bhi18a3s/artifacts/wksim-model-qhdy93lm/libwksim_model.so"
+  },
+  "library": "/root/wksim-private-tmp-bhi18a3s/artifacts/wksim-model-qhdy93lm/libwksim_model.so",
+  "baseline": {
+    "ok": true,
+    "reasons": [],
+    "children_created": 0,
+    "profile": {
+      "id": "joint_quad_dds_v1",
+      "dds_workspace": "/root/wksim-dds-VxM6Ni",
+      "ap_message_workspace": "/root/wksim-ap-dds-yaw-state-4Wr27s",
+      "message_workspace": "/root/wksim-ros2-MUlZd0",
+      "control_workspace": "/root/wksim-joint-control-FVMjak",
+      "model_library": "/root/wksim-private-tmp-bhi18a3s/artifacts/wksim-model-qhdy93lm/libwksim_model.so",
+      "manifests": {
+        "ap": {
+          "path": "/root/wksim-ap-clock-stop-OXQqdR/wksim-build.json",
+          "sha256": "f347ba252fbfc33bc92baffba08660f33c3a0e4462e90177ba84bdc11408660a"
+        },
+        "px4": {
+          "path": "/root/wksim-px4-state-ONa1Kw/wksim-build.json",
+          "sha256": "d7e905b35250d184e185ada70e3fe43f0223f1c605832d81c3c58eeb123d4cb6"
+        },
+        "control": {
+          "path": "/root/wksim-joint-control-FVMjak/build.json",
+          "sha256": "f02edf158bf9b4d75cfd2221412bdbe83a10b21bc1642c97259294e12ef487a7"
+        }
+      },
+      "evidence": [
+        {
+          "result": {
+            "path": "validation/joint-public-flight-_cs_wxw_/result.json",
+            "sha256": "11ba582724292470177f4514043293d8e68717e8e64b7edfbd168f6bb056447d"
+          },
+          "audit": {
+            "path": "validation/joint-public-flight-_cs_wxw_/audit.json",
+            "sha256": "c2db43e16120f05032a67543a9d57216d8a199008b076d0a3fec0ae2ce0446ec"
+          }
+        }
+      ],
+      "setup_files": [
+        "/opt/ros/humble/setup.bash",
+        "/root/wksim-dds-VxM6Ni/ros-install/local_setup.bash",
+        "/root/wksim-ap-dds-yaw-state-4Wr27s/ros-install/local_setup.bash",
+        "/root/wksim-ros2-MUlZd0/install/local_setup.bash",
+        "/root/wksim-joint-control-FVMjak/install/local_setup.bash"
+      ],
+      "control_source": "sealed_legacy",
+      "capabilities": [
+        "public_position",
+        "public_velocity_yaw"
+      ]
+    },
+    "model_library": "/root/wksim-private-tmp-bhi18a3s/artifacts/wksim-model-qhdy93lm/libwksim_model.so",
+    "control_package": "/root/wksim-joint-control-FVMjak/install/prometheus_control/local/lib/python3.10/dist-packages/prometheus_control",
+    "identities": {
+      "px4": {
+        "path": "/root/wksim-px4-state-ONa1Kw/src/build/px4_sitl_default/bin/px4",
+        "sha256": "93b4ebe0d83a5897131ec24ee58d732c8999972bb7730f429fc396bc8d10602a",
+        "commit": "d6f12ad1c4f70ad3230afd7d86e971421e02fef4",
+        "source_files": 42012
+      },
+      "manifests": {
+        "ap": {
+          "path": "/root/wksim-ap-clock-stop-OXQqdR/wksim-build.json",
+          "sha256": "f347ba252fbfc33bc92baffba08660f33c3a0e4462e90177ba84bdc11408660a"
+        },
+        "px4": {
+          "path": "/root/wksim-px4-state-ONa1Kw/wksim-build.json",
+          "sha256": "d7e905b35250d184e185ada70e3fe43f0223f1c605832d81c3c58eeb123d4cb6"
+        },
+        "control": {
+          "path": "/root/wksim-joint-control-FVMjak/build.json",
+          "sha256": "f02edf158bf9b4d75cfd2221412bdbe83a10b21bc1642c97259294e12ef487a7"
+        }
+      },
+      "model": {
+        "archive": "/mnt/e/rflysimtools/RflySimAPIs/4.RflySimModel/1.BasicExps/e0_MinModelTemp/MulticopterModel.zip",
+        "archive_sha256": "d528b5d247e13d943f1eaa7a37fd3cb4d15c7e9bb7a6b0e5988a1423e59d05ed",
+        "wrapper_sha256": "3f325678b1d85c9aa3fd07bd644d82935aa26d82885926defeced139f02ddf2c",
+        "library": "/root/wksim-private-tmp-bhi18a3s/artifacts/wksim-model-qhdy93lm/libwksim_model.so",
+        "library_sha256": "cc0bc2d10790043251f38bb6a53f4d774379dd37a02b09cceba43ac1fafb02b3",
+        "argv": [
+          "g++",
+          "-std=c++17",
+          "-O2",
+          "-fno-fast-math",
+          "-fPIC",
+          "-shared",
+          "-Wl,--no-undefined",
+          "-I",
+          "/root/wksim-private-tmp-bhi18a3s/artifacts/wksim-model-qhdy93lm",
+          "/root/wksim-private-tmp-bhi18a3s/artifacts/wksim-model-qhdy93lm/Exp1_MinModelTemp.cpp",
+          "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/Simulator/wksim_core/model.cpp",
+          "-o",
+          "/root/wksim-private-tmp-bhi18a3s/artifacts/wksim-model-qhdy93lm/libwksim_model.so"
+        ],
+        "compiler": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0",
+        "profile": "generated-quad-x-1ms; local use; vendor redistribution not granted"
+      },
+      "message_packages": {
+        "px4_msgs": {
+          "prefix": "/root/wksim-dds-VxM6Ni/ros-install/px4_msgs",
+          "sha256": "4e925a5917bce0442f487b93c39763ee49a6c07662ef3b23560207a15f37ee3e"
+        },
+        "ardupilot_msgs": {
+          "prefix": "/root/wksim-ap-dds-yaw-state-4Wr27s/ros-install/ardupilot_msgs",
+          "sha256": "5ff82c59c182e5b904ce227ede45d6e9e046c6882d0f82a7453df231a9dac0aa"
+        },
+        "prometheus_msgs": {
+          "prefix": "/root/wksim-ros2-MUlZd0/install/prometheus_msgs",
+          "sha256": "fc5f25cd3bd19b3dae4c1c58ea303cd85c484dbf6e9c065ec082058ff987b806",
+          "complete_snapshot": true
+        },
+        "wksim_msgs": {
+          "prefix": "/root/wksim-ros2-MUlZd0/install/wksim_msgs",
+          "sha256": "fa5fadcb39d83bd1d2412b3b1d58955423a698236f19d9cf208956c120fdabe3",
+          "complete_snapshot": true
+        }
+      },
+      "px4_agent": {
+        "path": "/root/wksim-dds-VxM6Ni/agent-install/bin/MicroXRCEAgent",
+        "sha256": "c61334626f2b625fdee68f7326ca1dabdf788b16d991a0e6879903cf24edb4b7"
+      }
+    },
+    "capabilities": [
+      "public_position",
+      "public_velocity_yaw"
+    ],
+    "scope": "Pinned AP/PX4 quad-X joint DDS public tasks and approved recovery; admission is not flight readiness or complete G2/Full acceptance"
+  },
+  "control": {
+    "version": 1,
+    "root": "/root/wksim-joint-control-hy8WVw",
+    "package": "/root/wksim-joint-control-hy8WVw/install/prometheus_control/local/lib/python3.10/dist-packages/prometheus_control",
+    "python_sha256": {
+      "__init__.py": "9a4edb373583bcf6f3d7eaa2522ad1544f63965b0e7f81167f858a0d09d44746",
+      "command.py": "5c23492d761444346a41707cd6027c2fe76acd47db7bd972686fc09ef5f8b25d",
+      "frames.py": "24086553882b31f0666159a1c9bf2929219420a0184dbb2b6683559d12e809b0",
+      "native_arducopter.py": "00b634da7b3e29b87251020fe1d5d74f88d2039c1312081dea67614eda4dcb2a",
+      "native_px4.py": "de40ae6175c7e1b23908a791b077b310da81a8d5c264ff4af2620a733a4b2fe6",
+      "node.py": "0425b501a4498d5675d99ee2bb36f3e38cb04d6735e1f4d2ead0d4ba03f4a059",
+      "rc_transport.py": "e618c33ba687520160c8d2cfb79b0da30e5047f3036549c47ca357f1c26dc38f",
+      "scene.py": "370770a02fdde5e94fc54bed6f7e0d63a4c98c6dcadd0c3616ac1c14529cd333",
+      "session.py": "da64efa299288738d4520c6a23834c3201c34334f861a8de542fcaa91930b126",
+      "shaping.py": "56782d96f9fc6f7df3ddadf80cd8c09f474af81c5c183d20d3d26c2f9e66bc69"
+    },
+    "build_inputs": {
+      "CMakeLists.txt": "8e8791201c0bb04806fe68f729288e57fe2f0552aee8c38e85e0acd8e2abd591",
+      "package.xml": "6c7b9f84953ec2a9726c87e888ee72a3bf045724c0585558ba413f400f0a38b4",
+      "scripts/prometheus_control_node": "b73f77d5e2b74ea999fdd3174280c31d311061de20e2c2c7e8c56d44e4e6dcfc",
+      "src/rc_take.cpp": "d6969f1d872a904c794b8c045652946fa1bf5285401ac3ee747a24beee9c6ee6"
+    },
+    "build_log_sha256": "a90501186945adf428897cfab0008a15431f5a896a8b7a1cc311c5db509c0174",
+    "rc_transport_sha256": "f00ccb7da8da348e33e8dbb1200dd3244a73c3cf4f658024372009de06f9107c",
+    "build_script_sha256": "cee40ea5324de3f38613fd3e8f05bbfde2a5814b1c76e038ec26917795e3365c",
+    "scope": "experimental continuous joint ROS-time operations; no production admission"
+  },
+  "control_manifest": "/root/wksim-joint-control-hy8WVw/build.json",
+  "control_sha256": "151389198b8719ff443db41cd24260d75f239c6d5fe016399589818231698f2a",
+  "setup_files": [
+    "/opt/ros/humble/setup.bash",
+    "/root/wksim-dds-VxM6Ni/ros-install/local_setup.bash",
+    "/root/wksim-ap-dds-yaw-state-4Wr27s/ros-install/local_setup.bash",
+    "/root/wksim-ros2-MUlZd0/install/local_setup.bash",
+    "/root/wksim-joint-control-hy8WVw/install/local_setup.bash"
+  ]
+}

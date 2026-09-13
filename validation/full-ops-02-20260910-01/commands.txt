@@ -1,0 +1,14 @@
+Working directory: C:/Users/PC/Documents/odid编译/wksim
+
+Read-only inputs:
+  Get-Content docs/plan/full-scope-expansion.md
+  Get-Content docs/plan/full-remaining-ledger.json
+  Get-Content docs/plan/full-followup-tickets.json
+  gh issue view 153 --repo unununnnn/wksim --json number,title,body,state,labels,comments
+  gh issue view 23 --repo unununnnn/wksim --json number,title,body,state,labels,comments
+
+Validation:
+  python -B validation/full-ops-02-20260910-01/validate.py
+  git diff --check -- docs/plan/full-contracts/ops-02.md docs/plan/full-contracts/ops-02.json validation/full-ops-02-20260910-01
+
+No FC, model, ROS, UE, MATLAB, external FlyEval or hardware process/service was started by this contract slice.

@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "issue": 126,
+  "stable_key": "full-sim-08",
+  "title": "APM_SITL_NET mode",
+  "source": {
+    "file": "docs/plan/full-scope-expansion.md",
+    "line": 20,
+    "ledger_id": "SIM-08",
+    "ledger_file": "docs/plan/full-followup-tickets.json",
+    "parent_issues": [1, 12, 48]
+  },
+  "status": "defined",
+  "evidence_status": "partial-evidence",
+  "full_complete": false,
+  "current_gap": "The fixed ArduCopter owned-physics product mission is verified; the APM_SITL_NET reference network operation and stop/reconnect mapping are not itemized, and other ArduPilot vehicles cannot substitute.",
+  "atoms": [
+    {"id": "SIM-08-A", "name": "owned_ap_physics", "status": "partial", "required": "Owned physics driving the fixed ArduCopter build with recorded thresholds and hashes", "owner": "physics maintainer"},
+    {"id": "SIM-08-B", "name": "native_mission", "status": "partial", "required": "Verified fixed-ArduCopter product mission kept bounded", "owner": "runtime maintainer"},
+    {"id": "SIM-08-C", "name": "net_operation_mapping", "status": "blocked", "required": "Reference NET operation items verified individually", "owner": "protocol maintainer"},
+    {"id": "SIM-08-D", "name": "stop_reconnect_mapping", "status": "blocked", "required": "Reference-aligned stop/reconnect semantics on this mode", "owner": "runtime maintainer"},
+    {"id": "SIM-08-E", "name": "vehicle_scope_rule", "status": "partial", "required": "Only the verified ArduCopter configuration evidences this mode; other AP vehicles need their own tickets", "owner": "validation maintainer"}
+  ],
+  "mode_required": ["mode_id", "transport", "firmware_identity", "vehicle_identity", "interface_map", "stop_semantics", "reconnect_semantics", "epoch", "source_identity"],
+  "scope_rule": "ArduCopter evidence covers only the verified vehicle/configuration; other ArduPilot vehicles and original-program modes are not implied",
+  "errors": ["accepted", "mode_unsupported", "firmware_mismatch", "vehicle_unverified", "interface_unmapped", "stop_failed", "reconnect_failed", "foreign_epoch"],
+  "followups": [
+    {"key": "sim-08-mode-itemization", "files": ["docs/plan/<apm-sitl-net-map>.json", "validation/<apm-net-mode-audit>"], "status": "proposed", "blocked_by": "Reference NET operation list"},
+    {"key": "sim-08-stop-reconnect", "files": ["Simulator/wksim_runtime/<ap-net-lifecycle>.py", "validation/<ap-net-lifecycle-audit>"], "status": "proposed", "blocked_by": "Mode itemization"}
+  ],
+  "preserved": {"issue_12": "closed dual-stack capability slice", "owned_validation": "validate_sitl_physics.py --stack arducopter on record", "full_complete": false}
+}

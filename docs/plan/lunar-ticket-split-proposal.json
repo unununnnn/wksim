@@ -1,0 +1,1993 @@
+{
+  "schema_version": 1,
+  "status": "superseded-proposal-history",
+  "created": "2026-09-09",
+  "scope": "17 open implementation acceptance containers plus #9 and #1/#10 Full followups",
+  "source_snapshot": "validation/hex-flight-preparation-20260909/open-issues-for-lunar.json",
+  "policy": {
+    "parents_remain_open": true,
+    "original_acceptance_criteria": "Preserve every original checkbox verbatim; children add evidence references, never replace or weaken the original AC.",
+    "dependencies": "Preserve original native parent dependencies. prerequisite_keys are additional child ordering; publishing must resolve keys to actual issue IDs. A blocked parent is not made ready by a child label.",
+    "thresholds": "Freeze before running; preserve all failed attempts. R1=numerical_failed; G6/Full not passed. #20 sustained 1x and #33 final-combination RateUnmet remain real failures.",
+    "luna_scope": "One reviewed 1–4-file edit or ONE existing bounded verification run. Existing tests are gates, not busywork tickets. No unknown native integration is Luna-ready.",
+    "astra_scope": "Explicit expert resolution/implementation boundary. If owned paths or command need further discovery, stop with needs_astra_resolution and publish a tighter implementation child before Luna dispatch.",
+    "runtime": "One exclusive runtime lease per FC/model/UE run, fresh output directory, exact hashes/argv/cwd/process ownership. A failed run ends the child attempt; no automatic retries, parameter changes or production promotion.",
+    "model_policy": "This proposal selects execution tier, not subagent settings. Existing AGENTS gpt-6-astra-only delegation policy still applies; GPT-5.6 Luna handoff must be a user-selected primary session unless policy is explicitly changed.",
+    "completion": "Child completion never auto-closes parent. Main independently checks raw evidence, all original AC and retained dependencies before parent closure."
+  },
+  "starting_facts": {
+    "20": "Pause/four-tick step/continue/cold reset already evidenced. Three 1x attempts failed (47.1/41.1/23.7s); no blind rerun.",
+    "25": "Hex native candidate built, static 18 checks and six-channel seam exist. PX4 attempts 1/2 rejected ground parameter format/zero coverage before arming. Attempt3 observed normal landing at /root/wksim-hex-flight-px4-03/hex-px4-03/result.json; independent raw audit pending. UE candidate built and static six-rotor/rejection/freeze fixtures passed, no actual flight stream. AP flight/cold reset/both-stack LIVE UE remain.",
+    "33": "Separate PV and mixed candidates passed. Final combined firmware/control PV three real rounds failed rate contract; formal wiring exists but not promoted.",
+    "35": "PID source oracle run2 1884x10 values PASS, fixed protocol. Candidate runtime and 14 pure tests exist, no FC/model/preflight. Full 1ms independent audit and product UI missing.",
+    "40": "ArUco consumer and 12 offline tests done; genuine UE marker scene and closed-loop flight absent.",
+    "45": "GNSS event controller/10 offline tests done; PX4 HIL_GPS seam known. AP JSON position is physical truth, not GNSS; native sensor injection needs expert work."
+  },
+  "parents": [
+    {
+      "number": 1,
+      "role": "full_acceptance_container",
+      "state": "OPEN",
+      "original_parent_dependencies": [],
+      "child_keys": [
+        "1-full-coverage",
+        "1-hardware-boundary"
+      ],
+      "acceptance_source": "Original #1 body in validation/hex-flight-preparation-20260909/open-issues-for-lunar.json",
+      "original_title": "Wayfinder：Prometheus 双飞控 SITL 移植（UE5.5 / ROS2 / DDS）",
+      "original_acceptance_criteria_verbatim": ""
+    },
+    {
+      "number": 9,
+      "role": "decision_container",
+      "state": "OPEN",
+      "original_parent_dependencies": [],
+      "child_keys": [
+        "9-evidence",
+        "9-contract"
+      ],
+      "acceptance_source": "Original #9 body in validation/hex-flight-preparation-20260909/open-issues-for-lunar.json",
+      "original_title": "可选模型插件与场景反馈接口决策",
+      "original_acceptance_criteria_verbatim": ""
+    },
+    {
+      "number": 10,
+      "role": "full_acceptance_container",
+      "state": "OPEN",
+      "original_parent_dependencies": [],
+      "child_keys": [
+        "10-g6-remediation",
+        "10-full-acceptance"
+      ],
+      "acceptance_source": "Original #10 body in validation/hex-flight-preparation-20260909/open-issues-for-lunar.json",
+      "original_title": "规格：Prometheus 到 wksim 完整仿真工具链移植",
+      "original_acceptance_criteria_verbatim": ""
+    },
+    {
+      "number": 20,
+      "role": "implementation_acceptance_container",
+      "state": "OPEN",
+      "original_parent_dependencies": [
+        19,
+        8
+      ],
+      "child_keys": [
+        "20-rate-engineering",
+        "20-rate-epochs"
+      ],
+      "acceptance_source": "Original #20 body in validation/hex-flight-preparation-20260909/open-issues-for-lunar.json",
+      "original_title": "联合场景暂停单步与冷重置",
+      "original_acceptance_criteria_verbatim": "- [ ] 暂停时物理状态不推进，单步只推进已批准的权威时间量；显示是否刷新不改变物理步数。\n- [ ] 暂停期间保活、墙钟看门狗和飞控处理遵循批准策略并有真实记录。\n- [ ] 冷重置产生新代次并重新就绪，不恢复旧任务；不把热复位或全部模式重置混入本票。\n- [ ] 倍速和恢复没有补发历史动作，时间偏差在预先批准的门槛内。\n- [ ] 交付实际命令、版本/身份、预期与结果、失败/未验证边界；主代理复核后才能关闭。"
+    },
+    {
+      "number": 25,
+      "role": "implementation_acceptance_container",
+      "state": "OPEN",
+      "original_parent_dependencies": [
+        17,
+        24
+      ],
+      "child_keys": [
+        "25-raw-auditor",
+        "25-ap-live",
+        "25-px4-reset-live",
+        "25-ap-reset"
+      ],
+      "acceptance_source": "Original #25 body in validation/hex-flight-preparation-20260909/open-issues-for-lunar.json",
+      "original_title": "六旋翼从参数配置到双栈运行",
+      "original_acceptance_criteria_verbatim": "- [ ] 冻结这一构型的模型、参数、质量惯量、电机编号和旋向以及适用飞控配置。\n- [ ] 独立模型及适用双栈配置完成起飞、保持、航点、降落和重置证据。\n- [ ] UE几何与旋翼表达符合构型，不能仍显示四旋翼占位模型。\n- [ ] 不适用的飞控组合列明依据，缺少实现的组合保持未完成；不推断三轴六旋翼等其他构型同样通过。\n- [ ] 交付实际命令、版本/身份、预期与结果、失败/未验证边界；主代理复核后才能关闭。"
+    },
+    {
+      "number": 26,
+      "role": "implementation_acceptance_container",
+      "state": "OPEN",
+      "original_parent_dependencies": [
+        24,
+        9
+      ],
+      "child_keys": [
+        "26-generation-source",
+        "26-generation-run"
+      ],
+      "acceptance_source": "Original #26 body in validation/hex-flight-preparation-20260909/open-issues-for-lunar.json",
+      "original_title": "生成模型构建导入与无MATLAB运行",
+      "original_acceptance_criteria_verbatim": "- [ ] 完整记录可编辑材料、生成产物、编译工具、导入模型和运行证据的来源链。\n- [ ] 复用本机MATLAB/Simulink构建工具时实际检查可用性，不把文件存在当作许可检出成功。\n- [ ] 生成后关闭MATLAB，核心仍独立加载、运行、重置和终止该模型。\n- [ ] 厂商材料留在受控本地来源，不提交授权不明生成源码；不把旧ZIP直接编译称为已验证完整生成流程。\n- [ ] 交付实际命令、版本/身份、预期与结果、失败/未验证边界；主代理复核后才能关闭。"
+    },
+    {
+      "number": 27,
+      "role": "implementation_acceptance_container",
+      "state": "OPEN",
+      "original_parent_dependencies": [
+        12,
+        23,
+        9
+      ],
+      "child_keys": [
+        "27-host",
+        "27-sample-run"
+      ],
+      "acceptance_source": "Original #27 body in validation/hex-flight-preparation-20260909/open-issues-for-lunar.json",
+      "original_title": "可选旧ABI模型DLL生命周期闭环",
+      "original_acceptance_criteria_verbatim": "- [ ] 按批准ABI核对导出、签名、数组布局和单位，以输入输出对照验证而非只查导出名。\n- [ ] 同一固定工况下完成初始化、步进、重置、终止和卸载，错误有确定反馈。\n- [ ] 宿主崩溃或不兼容DLL被隔离，不影响原厂安装或其他运行。\n- [ ] 禁用/移除DLL后自主模型流程仍运行；本票不自动宣称新ABI兼容。\n- [ ] 交付实际命令、版本/身份、预期与结果、失败/未验证边界；主代理复核后才能关闭。"
+    },
+    {
+      "number": 28,
+      "role": "implementation_acceptance_container",
+      "state": "OPEN",
+      "original_parent_dependencies": [
+        27,
+        9
+      ],
+      "child_keys": [
+        "28-modern-adapter",
+        "28-modern-run"
+      ],
+      "acceptance_source": "Original #28 body in validation/hex-flight-preparation-20260909/open-issues-for-lunar.json",
+      "original_title": "可选新ABI模型DLL与扩展输出",
+      "original_acceptance_criteria_verbatim": "- [ ] 明确区分旧/新命名和真实ABI，不依靠函数名相近猜测可互换。\n- [ ] 验证该样本全部已声明输入输出长度、单位、有效性及生命周期。\n- [ ] 按批准预算与固定输入完成新ABI对照，非法布局明确拒绝。\n- [ ] 旧ABI回归保持通过，新旧DLL均不成为核心必需依赖；未测扩展I/O单列后续。\n- [ ] 交付实际命令、版本/身份、预期与结果、失败/未验证边界；主代理复核后才能关闭。"
+    },
+    {
+      "number": 29,
+      "role": "implementation_acceptance_container",
+      "state": "OPEN",
+      "original_parent_dependencies": [
+        17,
+        23,
+        9
+      ],
+      "child_keys": [
+        "29-contact",
+        "29-scene-run"
+      ],
+      "acceptance_source": "Original #29 body in validation/hex-flight-preparation-20260909/open-issues-for-lunar.json",
+      "original_title": "坡面与障碍场景的物理反馈",
+      "original_acceptance_criteria_verbatim": "- [ ] 冻结一个可核验场景的物理表示、视觉表示、坐标和反馈有效时间。\n- [ ] 在坡面/接触工况中检查高度、接触位置与模型反应，重置后按批准预算可复核。\n- [ ] 显示断开及反馈过期按批准契约处理，不能永久复用旧反馈或依赖渲染帧推进物理。\n- [ ] 保留动态地形/对象变化等额外能力行，不把视觉地面偏移当作碰撞实现。\n- [ ] 交付实际命令、版本/身份、预期与结果、失败/未验证边界；主代理复核后才能关闭。"
+    },
+    {
+      "number": 33,
+      "role": "implementation_acceptance_container",
+      "state": "OPEN",
+      "original_parent_dependencies": [
+        32,
+        6
+      ],
+      "child_keys": [
+        "33-rate-candidate",
+        "33-final-combo-run",
+        "33-formal-promotion"
+      ],
+      "acceptance_source": "Original #33 body in validation/hex-flight-preparation-20260909/open-issues-for-lunar.json",
+      "original_title": "双栈混合轴与轨迹跟随",
+      "original_acceptance_criteria_verbatim": "- [ ] 分别验证速度XY/位置Z等批准组合及轨迹位置/速度/偏航语义。\n- [ ] 加速度前馈是否执行必须显式声明，不能因消息带字段就声称生效。\n- [ ] 固定轨迹的误差、驻留和恢复门槛预先确定，两栈保存真值证据。\n- [ ] 模式切换、静止轴保持和停止信号不复用旧锚点；原命令/输出差分回归保持通过。\n- [ ] 交付实际命令、版本/身份、预期与结果、失败/未验证边界；主代理复核后才能关闭。"
+    },
+    {
+      "number": 35,
+      "role": "implementation_acceptance_container",
+      "state": "OPEN",
+      "original_parent_dependencies": [
+        34
+      ],
+      "child_keys": [
+        "35-preflight",
+        "35-raw-auditor",
+        "35-px4-flight",
+        "35-arducopter-flight",
+        "35-product-selector"
+      ],
+      "acceptance_source": "Original #35 body in validation/hex-flight-preparation-20260909/open-issues-for-lunar.json",
+      "original_title": "Prometheus PID控制器选择与闭环",
+      "original_acceptance_criteria_verbatim": "- [ ] 保留固定上游来源，记录初始化、重置、质量和推力映射。\n- [ ] 界面/配置和结果显示实际使用PID，不能仅修改标签仍使用飞控位置环。\n- [ ] 双栈定点、轨迹和预先声明扰动工况按冻结指标通过。\n- [ ] 建立实际需要的控制器选择/复位契约，供后续UDE与NE复用，原ROS1代码保持不变。\n- [ ] 交付实际命令、版本/身份、预期与结果、失败/未验证边界；主代理复核后才能关闭。"
+    },
+    {
+      "number": 36,
+      "role": "implementation_acceptance_container",
+      "state": "OPEN",
+      "original_parent_dependencies": [
+        35
+      ],
+      "child_keys": [
+        "36-algorithm",
+        "36-runtime",
+        "36-flight"
+      ],
+      "acceptance_source": "Original #36 body in validation/hex-flight-preparation-20260909/open-issues-for-lunar.json",
+      "original_title": "Prometheus UDE控制器闭环",
+      "original_acceptance_criteria_verbatim": "- [ ] 迁移实际UDE方法和所需状态，记录与上游的必要差异。\n- [ ] 复用已落地的控制器选择与姿态出口，不另造任务控制入口。\n- [ ] 双栈完成定点、轨迹和约定扰动，按预定超调/稳态/恢复指标判断。\n- [ ] 切换与重置不保留旧观测器状态，失败时不回退成PID却报告UDE成功。\n- [ ] 交付实际命令、版本/身份、预期与结果、失败/未验证边界；主代理复核后才能关闭。"
+    },
+    {
+      "number": 37,
+      "role": "implementation_acceptance_container",
+      "state": "OPEN",
+      "original_parent_dependencies": [
+        35
+      ],
+      "child_keys": [
+        "37-algorithm",
+        "37-runtime",
+        "37-flight"
+      ],
+      "acceptance_source": "Original #37 body in validation/hex-flight-preparation-20260909/open-issues-for-lunar.json",
+      "original_title": "Prometheus NE控制器闭环",
+      "original_acceptance_criteria_verbatim": "- [ ] 迁移实际NE方法及必要状态，保留来源与初始化/复位差异。\n- [ ] 配置、事件和证据标识实际控制器，拒绝不满足标定/周期条件的运行。\n- [ ] 双栈完成预先定义的定点、轨迹和扰动工况。\n- [ ] 退出、失联和新代次不复用旧算法状态，其他控制器回归通过。\n- [ ] 交付实际命令、版本/身份、预期与结果、失败/未验证边界；主代理复核后才能关闭。"
+    },
+    {
+      "number": 38,
+      "role": "implementation_acceptance_container",
+      "state": "OPEN",
+      "original_parent_dependencies": [
+        12,
+        14,
+        6
+      ],
+      "child_keys": [
+        "38-input-contract",
+        "38-input-port",
+        "38-runtime-flight"
+      ],
+      "acceptance_source": "Original #38 body in validation/hex-flight-preparation-20260909/open-issues-for-lunar.json",
+      "original_title": "RC位置控制与任务显式交接",
+      "original_acceptance_criteria_verbatim": "- [ ] 先明确输入设备/模拟源、通道、死区、有效期和失联动作，不以伪RC规避原生解锁检查。\n- [ ] 真实双栈验证移动、回中保持、偏航和控制权交接。\n- [ ] 断流或外部模式切走后不自动抢回，反馈区分输入失效与飞控模式拒绝。\n- [ ] 本票仅位置RC闭环，其他RC/手动模式按来源矩阵继续跟踪。\n- [ ] 交付实际命令、版本/身份、预期与结果、失败/未验证边界；主代理复核后才能关闭。"
+    },
+    {
+      "number": 39,
+      "role": "implementation_acceptance_container",
+      "state": "OPEN",
+      "original_parent_dependencies": [
+        15,
+        29,
+        33,
+        6
+      ],
+      "child_keys": [
+        "39-planner-contract",
+        "39-planner-stop-id",
+        "39-planner-flight"
+      ],
+      "acceptance_source": "Original #39 body in validation/hex-flight-preparation-20260909/open-issues-for-lunar.json",
+      "original_title": "单机规划绕障到真实飞行",
+      "original_acceptance_criteria_verbatim": "- [ ] 先冻结一个上游规划器、输入地图和任务profile，不把全部规划算法合在一票。\n- [ ] 规划目标到真实飞行的完整路径经过公开控制入口，真值检查到达、碰撞和净空。\n- [ ] 无路、取消和重规划不继续旧轨迹；输出命令ID在会话内严格递增。\n- [ ] 迁移时修正已核对的上游停止参考被后续轨迹覆盖及每次新建命令导致ID重复的问题，并记录有意差异。\n- [ ] 交付实际命令、版本/身份、预期与结果、失败/未验证边界；主代理复核后才能关闭。"
+    },
+    {
+      "number": 40,
+      "role": "implementation_acceptance_container",
+      "state": "OPEN",
+      "original_parent_dependencies": [
+        30,
+        32,
+        6
+      ],
+      "child_keys": [
+        "40-real-scene",
+        "40-target-command",
+        "40-closed-loop"
+      ],
+      "acceptance_source": "Original #40 body in validation/hex-flight-preparation-20260909/open-issues-for-lunar.json",
+      "original_title": "真实相机驱动ArUco目标跟踪",
+      "original_acceptance_criteria_verbatim": "- [ ] 先冻结标记场景、标定、外参、有效期和遮挡策略；不把推荐ArUco默认扩大为所有感知demo。\n- [ ] 图像采集、检测、机体系目标与双栈飞行关联同一运行证据。\n- [ ] 目标出现、移动、遮挡和恢复分别验证距离/速度/突跳门槛。\n- [ ] 回放可做接口测试，但只有真实传感器到实际飞行闭环通过才关闭本票。\n- [ ] 交付实际命令、版本/身份、预期与结果、失败/未验证边界；主代理复核后才能关闭。"
+    },
+    {
+      "number": 44,
+      "role": "implementation_acceptance_container",
+      "state": "OPEN",
+      "original_parent_dependencies": [
+        22,
+        24
+      ],
+      "child_keys": [
+        "44-efficiency-seam",
+        "44-efficiency-runs"
+      ],
+      "acceptance_source": "Original #44 body in validation/hex-flight-preparation-20260909/open-issues-for-lunar.json",
+      "original_title": "单电机效率故障的可复现实验",
+      "original_acceptance_criteria_verbatim": "- [ ] 故障时刻、持续时间、目标电机和幅值进入运行配置及记录。\n- [ ] 事件映射到实际模型执行器路径，真值和飞控反馈反映该电机变化。\n- [ ] 使用预先批准的安全/失联与数值预算，重置后故障状态清除。\n- [ ] 无故障回归和相同种子重复实验通过；卡死/关闭及其他电气故障继续列为独立扩展。\n- [ ] 交付实际命令、版本/身份、预期与结果、失败/未验证边界；主代理复核后才能关闭。"
+    },
+    {
+      "number": 45,
+      "role": "implementation_acceptance_container",
+      "state": "OPEN",
+      "original_parent_dependencies": [
+        22,
+        23
+      ],
+      "child_keys": [
+        "45-px4-injection",
+        "45-ap-native",
+        "45-gnss-flight"
+      ],
+      "acceptance_source": "Original #45 body in validation/hex-flight-preparation-20260909/open-issues-for-lunar.json",
+      "original_title": "GNSS中断与状态有效性恢复",
+      "original_acceptance_criteria_verbatim": "- [ ] 注入位置在真实传感器链，不仅修改显示标志；保留原始GPS质量与源时间。\n- [ ] 定位失效、失联和过期数据不同事件分别可观察，旧坐标不能因新时间戳变成有效。\n- [ ] 按已批准策略验证任务撤销、飞控动作和恢复后显式接管。\n- [ ] 故障计划、真实传感器/状态/真值及固定预算一并记录，其他传感器故障不自动算通过。\n- [ ] 交付实际命令、版本/身份、预期与结果、失败/未验证边界；主代理复核后才能关闭。"
+    },
+    {
+      "number": 46,
+      "role": "implementation_acceptance_container",
+      "state": "OPEN",
+      "original_parent_dependencies": [
+        16,
+        20,
+        24
+      ],
+      "child_keys": [
+        "46-input-contract",
+        "46-reexecution",
+        "46-reexecution-run"
+      ],
+      "acceptance_source": "Original #46 body in validation/hex-flight-preparation-20260909/open-issues-for-lunar.json",
+      "original_title": "固定输入实验的确定性重新运行",
+      "original_acceptance_criteria_verbatim": "- [ ] 区别离线状态回放与重新计算物理，输入、种子、模型和时间条件完整可得。\n- [ ] 源运行记录不足时拒绝声称可重演，不对降采样缺口自行插值成真值。\n- [ ] 同一受控构建的重演满足预先预算，并记录平台差异而非要求跨平台位级一致。\n- [ ] 异常事件、暂停/单步与重置身份可追溯，重演不向真实飞控或原运行发送控制。\n- [ ] 交付实际命令、版本/身份、预期与结果、失败/未验证边界；主代理复核后才能关闭。"
+    },
+    {
+      "number": 47,
+      "role": "implementation_acceptance_container",
+      "state": "OPEN",
+      "original_parent_dependencies": [
+        12,
+        14,
+        23
+      ],
+      "child_keys": [
+        "47-home-contract",
+        "47-coordinate-module",
+        "47-native-flight"
+      ],
+      "acceptance_source": "Original #47 body in validation/hex-flight-preparation-20260909/open-issues-for-lunar.json",
+      "original_title": "双栈全球航点与home基准",
+      "original_acceptance_criteria_verbatim": "- [ ] 补齐并验证PX4全球位置适配，保持AP已明确的home与局部转换边界。\n- [ ] 经纬度、AMSL/相对高度、ENU/NED之间的转换有显式基准与数值检查。\n- [ ] 全球目标真实飞行、越界拒绝和home变化后的旧目标失效在两栈分别通过。\n- [ ] 不能把EKF origin当home，也不能将未校验的全球目标静默改成局部位置。\n- [ ] 交付实际命令、版本/身份、预期与结果、失败/未验证边界；主代理复核后才能关闭。"
+    }
+  ],
+  "children": [
+    {
+      "key": "20-rate-engineering",
+      "parent": 20,
+      "title": "Resolve one evidenced sustained-1x scheduling bottleneck",
+      "tier": "astra",
+      "prerequisite_keys": [],
+      "parent_dependencies": [
+        19,
+        8
+      ],
+      "owned_files": [
+        "docs/plan/20-rate-candidate-contract.md (new)",
+        "validation/20-rate-candidate-profile/ (new evidence)"
+      ],
+      "known_input_reports": [
+        "docs/2026-09-09-joint-step-acceptance-review.md",
+        "docs/2026-09-09-rate-release-check.md"
+      ],
+      "concrete_actions": [
+        "Read existing failed run timing and reverted no-benefit microbenchmark",
+        "Identify one measured bottleneck and exact candidate source scope before edits; do not repeat known-no-benefit timer change",
+        "Freeze candidate identity/load and unchanged 100ms plus 10s/60s budgets; attach a bounded implementation child if code changes are needed"
+      ],
+      "verifiable_completion": "Concrete source/host candidate with demonstrated timing rationale and exact 1x run/audit command; no performance PASS claim.",
+      "targeted_test_command": null,
+      "command_status": "needs_astra_resolution",
+      "failure_escalation_boundary": "Any scope expansion, unknown native behavior, missing frozen budget or failed identity check => stop and return to Astra; preserve evidence.",
+      "readiness": "needs_astra_resolution"
+    },
+    {
+      "key": "20-rate-epochs",
+      "parent": 20,
+      "title": "Validate three independent 1x epochs on the reviewed candidate",
+      "tier": "astra",
+      "prerequisite_keys": [
+        "20-rate-engineering"
+      ],
+      "parent_dependencies": [
+        19,
+        8
+      ],
+      "owned_files": [
+        "validation/20-rate-epochs/ (new evidence)"
+      ],
+      "known_input_reports": [
+        "docs/2026-09-09-joint-step-acceptance-review.md",
+        "docs/2026-09-09-rate-release-check.md"
+      ],
+      "concrete_actions": [
+        "Materialize three separate one-run Luna children using the resolved existing runner and auditor",
+        "Run epochs serially without retuning or discarding failed attempts",
+        "Recompute every complete 10s/60s window and history non-replay; regress only affected lifecycle/0.5x behavior"
+      ],
+      "verifiable_completion": "Three independent epochs satisfy the original continuous duration and all original windows; otherwise RateUnmet remains. This is an expert orchestration envelope, not a single Luna ticket.",
+      "targeted_test_command": null,
+      "command_status": "needs_astra_resolution",
+      "failure_escalation_boundary": "Do not dispatch this envelope to Luna as-is: each epoch is a one-run child with exact command and owned output. Any RateUnmet ends that attempt.",
+      "readiness": "needs_astra_resolution"
+    },
+    {
+      "key": "25-raw-auditor",
+      "parent": 25,
+      "title": "Implement independent Hex flight and reset raw auditor",
+      "tier": "astra",
+      "prerequisite_keys": [],
+      "parent_dependencies": [
+        17,
+        24
+      ],
+      "owned_files": [
+        "tools/audit_hex_flight.py (new)",
+        "validation/test_hex_flight_audit.py (new)"
+      ],
+      "known_input_reports": [
+        "docs/2026-09-09-hex-flight-plan.md",
+        "docs/2026-09-09-hex-visual-contract.md",
+        "docs/2026-09-09-hex-model-candidate.md"
+      ],
+      "concrete_actions": [
+        "Inspect frozen Hex protocol and PX4-03 actual raw schema without modifying evidence",
+        "Independently verify six actuator channels, parameters, source pins, CDR/native delivery and every 1ms physical dwell/landing window",
+        "Verify cold-reset links/new identities/tick0/old process retirement; add missing-step, wrong-channel and false-observed negatives",
+        "Audit PX4-03 into a new output and report exact rerunnable command"
+      ],
+      "verifiable_completion": "Auditor plus adversarial tests; PX4-03 accepted only if independent full evidence passes. Existing observed cannot be promoted by assertion.",
+      "targeted_test_command": null,
+      "command_status": "needs_astra_resolution",
+      "failure_escalation_boundary": "Any scope expansion, unknown native behavior, missing frozen budget or failed identity check => stop and return to Astra; preserve evidence.",
+      "readiness": "needs_astra_resolution"
+    },
+    {
+      "key": "25-ap-live",
+      "parent": 25,
+      "title": "One AP Hex flight with actual six-rotor LIVE capture",
+      "tier": "luna",
+      "prerequisite_keys": [
+        "25-raw-auditor"
+      ],
+      "parent_dependencies": [
+        17,
+        24
+      ],
+      "owned_files": [
+        "validation/25-ap-live/ (new evidence)"
+      ],
+      "known_input_reports": [
+        "docs/2026-09-09-hex-flight-plan.md",
+        "docs/2026-09-09-hex-visual-contract.md",
+        "docs/2026-09-09-hex-model-candidate.md"
+      ],
+      "concrete_actions": [
+        "Check fixed AP defaults and fresh parameter store using existing preflight",
+        "Run one AP Hex public task with reviewed live bridge/candidate UE, preserve raw sensors and Actor readback",
+        "Run independent audit and save exit/owned-process checks"
+      ],
+      "verifiable_completion": "One AP takeoff/hold/waypoint/landing plus real LIVE six-rotor display passes original physical and visual budgets.",
+      "targeted_test_command": "bash tools/run-hex-flight.sh --stack arducopter --run-id hex-ap-luna-01 --output-root /root/wksim-hex-flight-ap-luna-01",
+      "command_status": "known_existing_command_shape_recheck_source_before_execution",
+      "failure_escalation_boundary": "Live UE bridge exact command must first be supplied by Astra from candidate report; otherwise not ready. First failure stops; no copied PX4 success.",
+      "readiness": "blocked_by_prerequisite_keys"
+    },
+    {
+      "key": "25-px4-reset-live",
+      "parent": 25,
+      "title": "One PX4 cold reset with actual LIVE six-rotor capture",
+      "tier": "luna",
+      "prerequisite_keys": [
+        "25-raw-auditor"
+      ],
+      "parent_dependencies": [
+        17,
+        24
+      ],
+      "owned_files": [
+        "validation/25-px4-reset-live/ (new evidence)"
+      ],
+      "known_input_reports": [
+        "docs/2026-09-09-hex-flight-plan.md",
+        "docs/2026-09-09-hex-visual-contract.md",
+        "docs/2026-09-09-hex-model-candidate.md"
+      ],
+      "concrete_actions": [
+        "Require audited accepted PX4-03 parent and verify its exact result hash and retirement",
+        "Run a fresh PX4 epoch using --cold-reset-from and attach reviewed actual LIVE display bridge",
+        "Audit reset identity/new tick0, whole flight and rotor geometry/spins/freshness"
+      ],
+      "verifiable_completion": "Same configuration/new run and control epoch, no old task reuse, genuine PX4 LIVE evidence and entire flight pass.",
+      "targeted_test_command": "bash tools/run-hex-flight.sh --stack px4 --run-id hex-px4-luna-reset-01 --output-root /root/wksim-hex-flight-px4-luna-reset-01 --cold-reset-from /root/wksim-hex-flight-px4-03/hex-px4-03/result.json",
+      "command_status": "known_existing_command_shape_recheck_source_before_execution",
+      "failure_escalation_boundary": "If PX4-03 fails audit, reset is blocked and a new normal run must be separately planned; never relabel ended log LIVE. Resolve UE bridge invocation first.",
+      "readiness": "blocked_by_prerequisite_keys"
+    },
+    {
+      "key": "25-ap-reset",
+      "parent": 25,
+      "title": "One AP Hex cold-reset verification",
+      "tier": "luna",
+      "prerequisite_keys": [
+        "25-ap-live"
+      ],
+      "parent_dependencies": [
+        17,
+        24
+      ],
+      "owned_files": [
+        "validation/25-ap-reset/ (new evidence)"
+      ],
+      "known_input_reports": [
+        "docs/2026-09-09-hex-flight-plan.md",
+        "docs/2026-09-09-hex-visual-contract.md",
+        "docs/2026-09-09-hex-model-candidate.md"
+      ],
+      "concrete_actions": [
+        "Pin accepted AP live result and verify its children retired",
+        "Run exactly one new AP cold-reset epoch from that result",
+        "Independently compare configuration and fresh identities plus full physical completion"
+      ],
+      "verifiable_completion": "AP reset and original physical AC pass; six-rotor display may reuse previous AP live evidence only if no affected visual change.",
+      "targeted_test_command": "bash tools/run-hex-flight.sh --stack arducopter --run-id hex-ap-luna-reset-01 --output-root /root/wksim-hex-flight-ap-luna-reset-01 --cold-reset-from /root/wksim-hex-flight-ap-luna-01/hex-ap-luna-01/result.json",
+      "command_status": "known_existing_command_shape_recheck_source_before_execution",
+      "failure_escalation_boundary": "Any scope expansion, unknown native behavior, missing frozen budget or failed identity check => stop and return to Astra; preserve evidence.",
+      "readiness": "blocked_by_prerequisite_keys"
+    },
+    {
+      "key": "26-generation-source",
+      "parent": 26,
+      "title": "Resolve one real editable-template generation path and license",
+      "tier": "astra",
+      "prerequisite_keys": [
+        "9-contract"
+      ],
+      "parent_dependencies": [
+        24,
+        9
+      ],
+      "owned_files": [
+        "docs/plan/26-generation-contract.md (new)"
+      ],
+      "known_input_reports": [
+        "docs/2026-09-09-model-reference-readiness-report.md",
+        "docs/plan/model-reference-drift-11x.md"
+      ],
+      "concrete_actions": [
+        "Select a source-chain-complete editable template from existing provenance",
+        "Actually check relevant generation tool feature/license without modifying vendor installation",
+        "Resolve source version/noise/parameters and record exact generate/build/import command and owned local outputs"
+      ],
+      "verifiable_completion": "One executable supported generation plan, or precise license/source blocker; old ZIP compilation explicitly cannot satisfy generation.",
+      "targeted_test_command": null,
+      "command_status": "needs_astra_resolution",
+      "failure_escalation_boundary": "Any scope expansion, unknown native behavior, missing frozen budget or failed identity check => stop and return to Astra; preserve evidence.",
+      "readiness": "needs_astra_resolution"
+    },
+    {
+      "key": "26-generation-run",
+      "parent": 26,
+      "title": "Generate, import and run/reset once with MATLAB stopped",
+      "tier": "astra",
+      "prerequisite_keys": [
+        "26-generation-source"
+      ],
+      "parent_dependencies": [
+        24,
+        9
+      ],
+      "owned_files": [
+        "validation/26-generated-lifecycle/ (new evidence)"
+      ],
+      "known_input_reports": [
+        "docs/2026-09-09-model-reference-readiness-report.md",
+        "docs/plan/model-reference-drift-11x.md"
+      ],
+      "concrete_actions": [
+        "Generate the frozen template into a controlled private path and record tool/source/output hashes",
+        "Build/import the resulting model with the approved ABI then terminate only owned MATLAB process",
+        "Run initialization/steps/reset/termination without MATLAB and archive actual lifecycle outputs"
+      ],
+      "verifiable_completion": "Actual generated source chain and independent no-MATLAB runtime pass; no unauthorized generated vendor source publication.",
+      "targeted_test_command": null,
+      "command_status": "needs_astra_resolution",
+      "failure_escalation_boundary": "Any scope expansion, unknown native behavior, missing frozen budget or failed identity check => stop and return to Astra; preserve evidence.",
+      "readiness": "needs_astra_resolution"
+    },
+    {
+      "key": "27-host",
+      "parent": 27,
+      "title": "Implement one verified legacy ABI isolated host",
+      "tier": "astra",
+      "prerequisite_keys": [
+        "9-contract"
+      ],
+      "parent_dependencies": [
+        12,
+        23,
+        9
+      ],
+      "owned_files": [
+        "Simulator/wksim_plugins/legacy_host.py (new)",
+        "Simulator/wksim_plugins/legacy_manifest.py (new)",
+        "validation/test_legacy_host.py (new)"
+      ],
+      "known_input_reports": [
+        "docs/plan/remaining-gates-proposal.md"
+      ],
+      "concrete_actions": [
+        "Consume approved exact legacy signatures and sample manifest",
+        "Implement separate process load/init/step/reset/terminate/unload with explicit errors",
+        "Add illegal layout and host crash boundary tests without touching vendor installation"
+      ],
+      "verifiable_completion": "One sample adapter lifecycle and isolation tests pass, with exact real-sample run command; export-name similarity is not proof.",
+      "targeted_test_command": null,
+      "command_status": "needs_astra_resolution",
+      "failure_escalation_boundary": "Any scope expansion, unknown native behavior, missing frozen budget or failed identity check => stop and return to Astra; preserve evidence.",
+      "readiness": "needs_astra_resolution"
+    },
+    {
+      "key": "27-sample-run",
+      "parent": 27,
+      "title": "Verify real legacy sample lifecycle and DLL-disabled core",
+      "tier": "astra",
+      "prerequisite_keys": [
+        "27-host"
+      ],
+      "parent_dependencies": [
+        12,
+        23,
+        9
+      ],
+      "owned_files": [
+        "validation/27-legacy-sample/ (new evidence)"
+      ],
+      "known_input_reports": [
+        "docs/plan/remaining-gates-proposal.md"
+      ],
+      "concrete_actions": [
+        "Run frozen fixed input through legal legacy sample and verify numeric/unit layout",
+        "Exercise reset/termination and one owned-host crash with other run isolation",
+        "Run the existing autonomous core with optional DLL disabled"
+      ],
+      "verifiable_completion": "Actual sample lifecycle/input-output and isolation evidence plus DLL-disabled core success; separate one-run Luna children after commands resolve.",
+      "targeted_test_command": null,
+      "command_status": "needs_astra_resolution",
+      "failure_escalation_boundary": "Any scope expansion, unknown native behavior, missing frozen budget or failed identity check => stop and return to Astra; preserve evidence.",
+      "readiness": "needs_astra_resolution"
+    },
+    {
+      "key": "28-modern-adapter",
+      "parent": 28,
+      "title": "Implement one verified new ABI and declared extended outputs",
+      "tier": "astra",
+      "prerequisite_keys": [
+        "27-sample-run",
+        "9-contract"
+      ],
+      "parent_dependencies": [
+        27,
+        9
+      ],
+      "owned_files": [
+        "Simulator/wksim_plugins/modern_host.py (new)",
+        "Simulator/wksim_plugins/modern_manifest.py (new)",
+        "validation/test_modern_host.py (new)"
+      ],
+      "known_input_reports": [
+        "docs/plan/remaining-gates-proposal.md"
+      ],
+      "concrete_actions": [
+        "Use independent new-ABI sample signatures, lengths, units and validity contract",
+        "Implement only this sample's declared expanded I/O and lifecycle",
+        "Reject mismatched legacy/new manifests and invalid layouts before invocation"
+      ],
+      "verifiable_completion": "Actual new ABI mapping bounded to declared channels; unknown extended I/O remains listed, with exact sample verification command.",
+      "targeted_test_command": null,
+      "command_status": "needs_astra_resolution",
+      "failure_escalation_boundary": "Any scope expansion, unknown native behavior, missing frozen budget or failed identity check => stop and return to Astra; preserve evidence.",
+      "readiness": "needs_astra_resolution"
+    },
+    {
+      "key": "28-modern-run",
+      "parent": 28,
+      "title": "Verify new sample fixed-input comparison and old ABI regression",
+      "tier": "astra",
+      "prerequisite_keys": [
+        "28-modern-adapter"
+      ],
+      "parent_dependencies": [
+        27,
+        9
+      ],
+      "owned_files": [
+        "validation/28-modern-sample/ (new evidence)"
+      ],
+      "known_input_reports": [
+        "docs/plan/remaining-gates-proposal.md"
+      ],
+      "concrete_actions": [
+        "Execute one frozen new-sample lifecycle comparison under approved budget",
+        "Verify every declared output's length/unit/validity and error behavior",
+        "Run targeted legacy adapter and DLL-disabled regressions"
+      ],
+      "verifiable_completion": "New sample accepted independently, legacy regression green, no generic new-ABI compatibility claim.",
+      "targeted_test_command": null,
+      "command_status": "needs_astra_resolution",
+      "failure_escalation_boundary": "Any scope expansion, unknown native behavior, missing frozen budget or failed identity check => stop and return to Astra; preserve evidence.",
+      "readiness": "needs_astra_resolution"
+    },
+    {
+      "key": "29-contact",
+      "parent": 29,
+      "title": "Implement one approved slope/box contact model",
+      "tier": "astra",
+      "prerequisite_keys": [
+        "9-contract"
+      ],
+      "parent_dependencies": [
+        17,
+        23,
+        9
+      ],
+      "owned_files": [
+        "Simulator/wksim_core/static_contact.py (new)",
+        "Simulator/wksim_runtime/static-scene-v1.json (new)",
+        "validation/test_static_contact.py (new)"
+      ],
+      "known_input_reports": [
+        "docs/plan/remaining-gates-proposal.md"
+      ],
+      "concrete_actions": [
+        "Translate approved static geometry into authoritative WSL contact queries with explicit ENU/SI identity",
+        "Connect exact model terrain/contact boundary after source review and issue a tighter edit ticket if additional file is required",
+        "Verify contact position/height, epoch validity and stale-required-feedback behavior against frozen reference"
+      ],
+      "verifiable_completion": "Real model-facing contact adapter and bounded numeric cases, not visual ground offsets; shared loop changes require separately owned exact files.",
+      "targeted_test_command": null,
+      "command_status": "needs_astra_resolution",
+      "failure_escalation_boundary": "Any scope expansion, unknown native behavior, missing frozen budget or failed identity check => stop and return to Astra; preserve evidence.",
+      "readiness": "needs_astra_resolution"
+    },
+    {
+      "key": "29-scene-run",
+      "parent": 29,
+      "title": "Verify matching visible slope/obstacle and contact/reset",
+      "tier": "astra",
+      "prerequisite_keys": [
+        "29-contact"
+      ],
+      "parent_dependencies": [
+        17,
+        23,
+        9
+      ],
+      "owned_files": [
+        "validation/29-contact-scene/ (new evidence)"
+      ],
+      "known_input_reports": [
+        "docs/plan/remaining-gates-proposal.md"
+      ],
+      "concrete_actions": [
+        "Build/display geometry from identical scene hash using an expert-resolved UE integration",
+        "Run one frozen slope/contact/reset scenario and record model truth plus actual scene readback",
+        "Disconnect display and expire required feedback separately under approved policy"
+      ],
+      "verifiable_completion": "Contact truth/visual alignment/reset pass; display does not pace physics, expired required feedback not reused. Exact UE files and run commands must be resolved before Luna handoff.",
+      "targeted_test_command": null,
+      "command_status": "needs_astra_resolution",
+      "failure_escalation_boundary": "Any scope expansion, unknown native behavior, missing frozen budget or failed identity check => stop and return to Astra; preserve evidence.",
+      "readiness": "needs_astra_resolution"
+    },
+    {
+      "key": "33-rate-candidate",
+      "parent": 33,
+      "title": "Resolve final-combination RateUnmet with one measured candidate",
+      "tier": "astra",
+      "prerequisite_keys": [],
+      "parent_dependencies": [
+        32,
+        6
+      ],
+      "owned_files": [
+        "docs/plan/33-final-combo-rate-candidate.md (new)",
+        "validation/33-rate-profile/ (new evidence)"
+      ],
+      "known_input_reports": [
+        "docs/2026-09-09-final-combo-pv-plan.md",
+        "docs/2026-09-09-mixed-production-seam.md",
+        "docs/2026-09-09-rate-release-check.md"
+      ],
+      "concrete_actions": [
+        "Read the three actual final-combination failures and exact mixed/control identities",
+        "Attribute lateness to measured work; reuse relevant #20 candidate only if source/contract compatible",
+        "Freeze one change or host configuration and provide exact bounded source edits plus rerun command"
+      ],
+      "verifiable_completion": "Evidence-backed candidate; final-combination failures retained, separate old mixed/PV successes not substituted.",
+      "targeted_test_command": null,
+      "command_status": "needs_astra_resolution",
+      "failure_escalation_boundary": "Any scope expansion, unknown native behavior, missing frozen budget or failed identity check => stop and return to Astra; preserve evidence.",
+      "readiness": "needs_astra_resolution"
+    },
+    {
+      "key": "33-final-combo-run",
+      "parent": 33,
+      "title": "One final-combination PV compatibility run and original audit",
+      "tier": "luna",
+      "prerequisite_keys": [
+        "33-rate-candidate"
+      ],
+      "parent_dependencies": [
+        32,
+        6
+      ],
+      "owned_files": [
+        "validation/33-final-combo-luna/ (new evidence)"
+      ],
+      "known_input_reports": [
+        "docs/2026-09-09-final-combo-pv-plan.md",
+        "docs/2026-09-09-mixed-production-seam.md",
+        "docs/2026-09-09-rate-release-check.md"
+      ],
+      "concrete_actions": [
+        "Recheck current frozen mixed/Control manifest hashes against final-combo contract",
+        "Run one existing final-combination public PV flight with both native flags",
+        "Run existing raw PV audit including all 1ms and complete rate windows, then verify owned process cleanup"
+      ],
+      "verifiable_completion": "Final combination genuinely passes physical and unchanged 0.5x/100ms/10s/60s contract; failed attempt stays failed.",
+      "targeted_test_command": "Use exact bash tools/run-joint-flight.sh invocation in docs/2026-09-09-final-combo-pv-plan.md; then python3 -B tools/audit_pv_trajectory.py ACTUAL_NEW_RUN --output NEW_AUDIT.json",
+      "command_status": "known_existing_command_shape_recheck_source_before_execution",
+      "failure_escalation_boundary": "Resolve ACTUAL_NEW_RUN from runner output; do not write audit into immutable run. Failure stops; no more timeout experiments or budget relaxation.",
+      "readiness": "blocked_by_prerequisite_keys"
+    },
+    {
+      "key": "33-formal-promotion",
+      "parent": 33,
+      "title": "Promote exact proven combination and verify public profile",
+      "tier": "astra",
+      "prerequisite_keys": [
+        "33-final-combo-run"
+      ],
+      "parent_dependencies": [
+        32,
+        6
+      ],
+      "owned_files": [
+        "docs/2026-09-09-formal-mixed-profile-plan.md",
+        "validation/33-formal-promotion/ (new evidence)"
+      ],
+      "known_input_reports": [
+        "docs/2026-09-09-final-combo-pv-plan.md",
+        "docs/2026-09-09-mixed-production-seam.md",
+        "docs/2026-09-09-rate-release-check.md"
+      ],
+      "concrete_actions": [
+        "Reconcile existing formal wiring with accepted final identities",
+        "Apply only documented reviewed promotion mapping with precise source ownership resolved before editing",
+        "Run production preflight and one necessary public task then independent acceptance mapping"
+      ],
+      "verifiable_completion": "Formal candidate identity and actual public behavior agree; old fallback cannot silently supply success. Source-path resolution required before mutation.",
+      "targeted_test_command": null,
+      "command_status": "needs_astra_resolution",
+      "failure_escalation_boundary": "Any scope expansion, unknown native behavior, missing frozen budget or failed identity check => stop and return to Astra; preserve evidence.",
+      "readiness": "needs_astra_resolution"
+    },
+    {
+      "key": "35-preflight",
+      "parent": 35,
+      "title": "One existing PX4 PID read-only candidate preflight",
+      "tier": "luna",
+      "prerequisite_keys": [],
+      "parent_dependencies": [
+        34
+      ],
+      "owned_files": [
+        "validation/35-pid-preflight/ (new evidence)"
+      ],
+      "known_input_reports": [
+        "docs/2026-09-09-pid-controller-port.md",
+        "docs/2026-09-09-pid-flight-plan.md"
+      ],
+      "concrete_actions": [
+        "Read final PID handoff and verify frozen config SHA plus actual installed identities",
+        "Execute existing PX4 --preflight once with explicit config and a new run ID",
+        "Save original stdout/exit/hash and confirm no FC/model/ROS child launched"
+      ],
+      "verifiable_completion": "PX4 read-only preflight genuinely passes; any mismatch produces a small exact blocker, not a rebuild. AP requires its own one-run preflight child before its flight.",
+      "targeted_test_command": "bash tools/run-pid-flight.sh --stack px4 --run-id pid-px4-preflight --config Simulator/wksim_runtime/pid-flight-v1.json --output-root /root/wksim-pid-px4-preflight --preflight",
+      "command_status": "known_existing_command_shape_recheck_source_before_execution",
+      "failure_escalation_boundary": "One read-only invocation only, no flight. Missing resources/import mismatch => stop for Astra. AP preflight must be materialized as a separate bounded child before AP flight.",
+      "readiness": "ready_after_parent_dependency_and_resource_check"
+    },
+    {
+      "key": "35-raw-auditor",
+      "parent": 35,
+      "title": "Implement independent PID raw command/physics audit",
+      "tier": "astra",
+      "prerequisite_keys": [],
+      "parent_dependencies": [
+        34
+      ],
+      "owned_files": [
+        "tools/audit_pid_flight.py (new)",
+        "validation/test_pid_flight_audit.py (new)"
+      ],
+      "known_input_reports": [
+        "docs/2026-09-09-pid-controller-port.md",
+        "docs/2026-09-09-pid-flight-plan.md"
+      ],
+      "concrete_actions": [
+        "Recompute PID dt/reset/integral/force/projection and per-run native hover calibration from sealed trace",
+        "Match public CDR/request/command IDs to real native attitude/thrust and forbid position-loop override inside measured stages",
+        "Audit every 1ms fixed window and exact 1000-tick four-input perturbation; add single-tick/identity/missing-input/false-PID negative fixtures"
+      ],
+      "verifiable_completion": "Independent audit detects false online_ok and label-only PID; frozen numeric budgets and source identity preserved, exact command documented.",
+      "targeted_test_command": null,
+      "command_status": "needs_astra_resolution",
+      "failure_escalation_boundary": "Any scope expansion, unknown native behavior, missing frozen budget or failed identity check => stop and return to Astra; preserve evidence.",
+      "readiness": "needs_astra_resolution"
+    },
+    {
+      "key": "35-px4-flight",
+      "parent": 35,
+      "title": "One px4 external PID fixed/trajectory/disturbance flight",
+      "tier": "luna",
+      "prerequisite_keys": [
+        "35-preflight",
+        "35-raw-auditor"
+      ],
+      "parent_dependencies": [
+        34
+      ],
+      "owned_files": [
+        "validation/35-pid-px4/ (new evidence)"
+      ],
+      "known_input_reports": [
+        "docs/2026-09-09-pid-controller-port.md",
+        "docs/2026-09-09-pid-flight-plan.md"
+      ],
+      "concrete_actions": [
+        "Recheck frozen PID config and actual candidate identity",
+        "Run exactly one candidate with fresh same-run native hover calibration",
+        "Independently audit all 1ms measured stages, actual attitude control and cleanup"
+      ],
+      "verifiable_completion": "This stack passes frozen PID physical/native evidence; online_ok alone insufficient.",
+      "targeted_test_command": "bash tools/run-pid-flight.sh --stack px4 --run-id pid-px4-luna-01 --config Simulator/wksim_runtime/pid-flight-v1.json --output-root /root/wksim-pid-px4-luna-01",
+      "command_status": "known_existing_command_shape_recheck_source_before_execution",
+      "failure_escalation_boundary": "Sampling/ACK timing, instability or hover mismatch => failed original run; Astra must resolve design and freeze new protocol before any retry.",
+      "readiness": "blocked_by_prerequisite_keys"
+    },
+    {
+      "key": "35-arducopter-flight",
+      "parent": 35,
+      "title": "One arducopter external PID fixed/trajectory/disturbance flight",
+      "tier": "luna",
+      "prerequisite_keys": [
+        "35-px4-flight"
+      ],
+      "parent_dependencies": [
+        34
+      ],
+      "owned_files": [
+        "validation/35-pid-arducopter/ (new evidence)"
+      ],
+      "known_input_reports": [
+        "docs/2026-09-09-pid-controller-port.md",
+        "docs/2026-09-09-pid-flight-plan.md"
+      ],
+      "concrete_actions": [
+        "Recheck frozen PID config and actual candidate identity",
+        "Run exactly one candidate with fresh same-run native hover calibration",
+        "Independently audit all 1ms measured stages, actual attitude control and cleanup"
+      ],
+      "verifiable_completion": "This stack passes frozen PID physical/native evidence; online_ok alone insufficient.",
+      "targeted_test_command": "bash tools/run-pid-flight.sh --stack arducopter --run-id pid-arducopter-luna-01 --config Simulator/wksim_runtime/pid-flight-v1.json --output-root /root/wksim-pid-arducopter-luna-01",
+      "command_status": "known_existing_command_shape_recheck_source_before_execution",
+      "failure_escalation_boundary": "Sampling/ACK timing, instability or hover mismatch => failed original run; Astra must resolve design and freeze new protocol before any retry.",
+      "readiness": "blocked_by_prerequisite_keys"
+    },
+    {
+      "key": "35-product-selector",
+      "parent": 35,
+      "title": "Expose actual PID selection and provenance through existing product flow",
+      "tier": "astra",
+      "prerequisite_keys": [
+        "35-px4-flight",
+        "35-arducopter-flight"
+      ],
+      "parent_dependencies": [
+        34
+      ],
+      "owned_files": [
+        "docs/plan/35-product-selector-contract.md (new)"
+      ],
+      "known_input_reports": [
+        "docs/2026-09-09-pid-controller-port.md",
+        "docs/2026-09-09-pid-flight-plan.md"
+      ],
+      "concrete_actions": [
+        "Resolve existing config/UI/result persistence files via graph then source and reserve at most four exact implementation files",
+        "Add actual PID selection/gains/model/mass/calibration display while reusing accepted runtime",
+        "Verify saved/reloaded config uses external PID and lifecycle resets; preserve native controller regression"
+      ],
+      "verifiable_completion": "Reviewed bounded implementation child plus resulting real UI/config path; this unresolved expert envelope cannot be claimed Luna-ready or complete with contract alone.",
+      "targeted_test_command": null,
+      "command_status": "needs_astra_resolution",
+      "failure_escalation_boundary": "Any scope expansion, unknown native behavior, missing frozen budget or failed identity check => stop and return to Astra; preserve evidence.",
+      "readiness": "needs_astra_resolution"
+    },
+    {
+      "key": "36-algorithm",
+      "parent": 36,
+      "title": "UDE: port only the actual upstream algorithm and reset state",
+      "tier": "astra",
+      "prerequisite_keys": [],
+      "parent_dependencies": [
+        35
+      ],
+      "owned_files": [
+        "Simulator/wksim_control/position_ude.py (new)",
+        "validation/test_position_ude.py (new)",
+        "tools/check_position_ude_source.py (new)"
+      ],
+      "known_input_reports": [
+        "docs/2026-09-09-pid-controller-port.md"
+      ],
+      "concrete_actions": [
+        "Wait for #35 acceptance; locate and read actual UDE source with graph navigation",
+        "Implement the actual equations/state into established controller contract with explicit source pins",
+        "Create fixed original-function comparison with predeclared tolerances and reset/invalid-cycle negatives"
+      ],
+      "verifiable_completion": "UDE algorithm and original-source comparison are proven; no PID fallback or flight claim.",
+      "targeted_test_command": null,
+      "command_status": "needs_astra_resolution",
+      "failure_escalation_boundary": "Any scope expansion, unknown native behavior, missing frozen budget or failed identity check => stop and return to Astra; preserve evidence.",
+      "readiness": "needs_astra_resolution"
+    },
+    {
+      "key": "36-runtime",
+      "parent": 36,
+      "title": "UDE: wire selection and freeze one perturbation contract",
+      "tier": "astra",
+      "prerequisite_keys": [
+        "36-algorithm"
+      ],
+      "parent_dependencies": [
+        35
+      ],
+      "owned_files": [
+        "Simulator/wksim_runtime/ude-flight-v1.json (new)",
+        "docs/plan/36-ude-runtime-contract.md (new)"
+      ],
+      "known_input_reports": [
+        "docs/2026-09-09-pid-controller-port.md"
+      ],
+      "concrete_actions": [
+        "Reuse #35 installed selector/outlet and identify at most four exact runtime edits",
+        "Freeze model/calibration/period requirements plus fixed/trajectory/disturbance and reset acceptance",
+        "Provide separate stack-specific one-run commands and independent algorithm/native audit plan"
+      ],
+      "verifiable_completion": "UDE candidate actually computes UDE, rejects unmet prerequisites and has a bounded runnable/auditable contract, not configuration-only completion.",
+      "targeted_test_command": null,
+      "command_status": "needs_astra_resolution",
+      "failure_escalation_boundary": "Any scope expansion, unknown native behavior, missing frozen budget or failed identity check => stop and return to Astra; preserve evidence.",
+      "readiness": "needs_astra_resolution"
+    },
+    {
+      "key": "36-flight",
+      "parent": 36,
+      "title": "UDE: independently accept both stack runs",
+      "tier": "astra",
+      "prerequisite_keys": [
+        "36-runtime"
+      ],
+      "parent_dependencies": [
+        35
+      ],
+      "owned_files": [
+        "validation/36-ude-flights/ (new evidence)"
+      ],
+      "known_input_reports": [
+        "docs/2026-09-09-pid-controller-port.md"
+      ],
+      "concrete_actions": [
+        "Create two concrete one-existing-run Luna children after command/auditor resolution",
+        "Execute each stack separately with new evidence directories and reset/no-fallback checks",
+        "Audit fixed/trajectory/disturbance and targeted other-controller regression"
+      ],
+      "verifiable_completion": "Both real stacks meet original frozen metrics; this expert envelope requires one-run child expansion before Luna dispatch.",
+      "targeted_test_command": null,
+      "command_status": "needs_astra_resolution",
+      "failure_escalation_boundary": "Any scope expansion, unknown native behavior, missing frozen budget or failed identity check => stop and return to Astra; preserve evidence.",
+      "readiness": "needs_astra_resolution"
+    },
+    {
+      "key": "37-algorithm",
+      "parent": 37,
+      "title": "NE: port only the actual upstream algorithm and reset state",
+      "tier": "astra",
+      "prerequisite_keys": [],
+      "parent_dependencies": [
+        35
+      ],
+      "owned_files": [
+        "Simulator/wksim_control/position_ne.py (new)",
+        "validation/test_position_ne.py (new)",
+        "tools/check_position_ne_source.py (new)"
+      ],
+      "known_input_reports": [
+        "docs/2026-09-09-pid-controller-port.md"
+      ],
+      "concrete_actions": [
+        "Wait for #35 acceptance; locate and read actual NE source with graph navigation",
+        "Implement the actual equations/state into established controller contract with explicit source pins",
+        "Create fixed original-function comparison with predeclared tolerances and reset/invalid-cycle negatives"
+      ],
+      "verifiable_completion": "NE algorithm and original-source comparison are proven; no PID fallback or flight claim.",
+      "targeted_test_command": null,
+      "command_status": "needs_astra_resolution",
+      "failure_escalation_boundary": "Any scope expansion, unknown native behavior, missing frozen budget or failed identity check => stop and return to Astra; preserve evidence.",
+      "readiness": "needs_astra_resolution"
+    },
+    {
+      "key": "37-runtime",
+      "parent": 37,
+      "title": "NE: wire selection and freeze one perturbation contract",
+      "tier": "astra",
+      "prerequisite_keys": [
+        "37-algorithm"
+      ],
+      "parent_dependencies": [
+        35
+      ],
+      "owned_files": [
+        "Simulator/wksim_runtime/ne-flight-v1.json (new)",
+        "docs/plan/37-ne-runtime-contract.md (new)"
+      ],
+      "known_input_reports": [
+        "docs/2026-09-09-pid-controller-port.md"
+      ],
+      "concrete_actions": [
+        "Reuse #35 installed selector/outlet and identify at most four exact runtime edits",
+        "Freeze model/calibration/period requirements plus fixed/trajectory/disturbance and reset acceptance",
+        "Provide separate stack-specific one-run commands and independent algorithm/native audit plan"
+      ],
+      "verifiable_completion": "NE candidate actually computes NE, rejects unmet prerequisites and has a bounded runnable/auditable contract, not configuration-only completion.",
+      "targeted_test_command": null,
+      "command_status": "needs_astra_resolution",
+      "failure_escalation_boundary": "Any scope expansion, unknown native behavior, missing frozen budget or failed identity check => stop and return to Astra; preserve evidence.",
+      "readiness": "needs_astra_resolution"
+    },
+    {
+      "key": "37-flight",
+      "parent": 37,
+      "title": "NE: independently accept both stack runs",
+      "tier": "astra",
+      "prerequisite_keys": [
+        "37-runtime"
+      ],
+      "parent_dependencies": [
+        35
+      ],
+      "owned_files": [
+        "validation/37-ne-flights/ (new evidence)"
+      ],
+      "known_input_reports": [
+        "docs/2026-09-09-pid-controller-port.md"
+      ],
+      "concrete_actions": [
+        "Create two concrete one-existing-run Luna children after command/auditor resolution",
+        "Execute each stack separately with new evidence directories and reset/no-fallback checks",
+        "Audit fixed/trajectory/disturbance and targeted other-controller regression"
+      ],
+      "verifiable_completion": "Both real stacks meet original frozen metrics; this expert envelope requires one-run child expansion before Luna dispatch.",
+      "targeted_test_command": null,
+      "command_status": "needs_astra_resolution",
+      "failure_escalation_boundary": "Any scope expansion, unknown native behavior, missing frozen budget or failed identity check => stop and return to Astra; preserve evidence.",
+      "readiness": "needs_astra_resolution"
+    },
+    {
+      "key": "38-input-contract",
+      "parent": 38,
+      "title": "Resolve RC source/channels/deadzone/expiry and handoff contract",
+      "tier": "astra",
+      "prerequisite_keys": [],
+      "parent_dependencies": [
+        12,
+        14,
+        6
+      ],
+      "owned_files": [
+        "docs/plan/38-rc-contract.md (new)"
+      ],
+      "known_input_reports": [
+        "docs/2026-09-09-rc-input-seam.md",
+        "docs/2026-09-08-five-decisions-accepted.md"
+      ],
+      "concrete_actions": [
+        "Reuse actual upstream channel/integration mapping from source report and explicit C2-after-C1 sequencing",
+        "Select one software input source; freeze stream identity/refresh/dt/expiry/failsafe and supported channels",
+        "Pin exact RC envelope/command/node integration files for the next at-most-four-file edit"
+      ],
+      "verifiable_completion": "Concrete approved RC semantics and source ownership; no simulated RC used to bypass arming.",
+      "targeted_test_command": null,
+      "command_status": "needs_astra_resolution",
+      "failure_escalation_boundary": "Any scope expansion, unknown native behavior, missing frozen budget or failed identity check => stop and return to Astra; preserve evidence.",
+      "readiness": "needs_astra_resolution"
+    },
+    {
+      "key": "38-input-port",
+      "parent": 38,
+      "title": "Implement bounded RC input normalization and integral state",
+      "tier": "luna",
+      "prerequisite_keys": [
+        "38-input-contract"
+      ],
+      "parent_dependencies": [
+        12,
+        14,
+        6
+      ],
+      "owned_files": [
+        "Simulator/wksim_control/rc_input.py (new)",
+        "validation/test_rc_input.py (new)"
+      ],
+      "known_input_reports": [
+        "docs/2026-09-09-rc-input-seam.md",
+        "docs/2026-09-08-five-decisions-accepted.md"
+      ],
+      "concrete_actions": [
+        "Implement only frozen eight-channel validation/deadzone and public-world position/yaw integration",
+        "Bind stream/epoch/sequence and clear old state on reset/expiry without automatic reacquisition",
+        "Verify endpoint/deadzone/invalid-count/range/dt/recenter and stale-stream cases"
+      ],
+      "verifiable_completion": "Pure module reproduces documented genuine mapping and fails closed; no hidden native or physical success claim.",
+      "targeted_test_command": null,
+      "command_status": "needs_astra_resolution",
+      "failure_escalation_boundary": "Astra must supply exact test invocation and accepted RC contract before dispatch; no node.py integration in this child.",
+      "readiness": "blocked_by_prerequisite_keys"
+    },
+    {
+      "key": "38-runtime-flight",
+      "parent": 38,
+      "title": "Connect explicit RC control ownership and accept real stacks",
+      "tier": "astra",
+      "prerequisite_keys": [
+        "38-input-port",
+        "33-formal-promotion"
+      ],
+      "parent_dependencies": [
+        12,
+        14,
+        6
+      ],
+      "owned_files": [
+        "docs/plan/38-rc-integration.md (new)",
+        "validation/38-rc-flight/ (new evidence)"
+      ],
+      "known_input_reports": [
+        "docs/2026-09-09-rc-input-seam.md",
+        "docs/2026-09-08-five-decisions-accepted.md"
+      ],
+      "concrete_actions": [
+        "Resolve and reserve exact existing node/command/native integration files and implement RC_POS_CONTROL handoff",
+        "Provide runnable raw-recorded RC profile and independent audit of input/acceptance/native/physical behavior",
+        "Split and run separate one-run stack verifications for movement/recenter/yaw/stall/mode-out/new takeover"
+      ],
+      "verifiable_completion": "All original RC AC evidenced; exact implementation and run subchildren required before Luna; unresolved native integration is not ready.",
+      "targeted_test_command": null,
+      "command_status": "needs_astra_resolution",
+      "failure_escalation_boundary": "Any scope expansion, unknown native behavior, missing frozen budget or failed identity check => stop and return to Astra; preserve evidence.",
+      "readiness": "needs_astra_resolution"
+    },
+    {
+      "key": "39-planner-contract",
+      "parent": 39,
+      "title": "Select one genuine upstream planner and map bounded stop/ID repair",
+      "tier": "astra",
+      "prerequisite_keys": [],
+      "parent_dependencies": [
+        15,
+        29,
+        33,
+        6
+      ],
+      "owned_files": [
+        "docs/plan/39-planner-contract.md (new)"
+      ],
+      "known_input_reports": [
+        "docs/plan/full-migration-spec.md"
+      ],
+      "concrete_actions": [
+        "After #29/#33 prerequisites close, select one planner and fixed map/profile from actual source",
+        "Trace public trajectory output, stop-overwrite and command-ID reset bugs",
+        "Reserve exact source files and freeze goal/clearance/collision/no-route/cancel/replan metrics"
+      ],
+      "verifiable_completion": "One source-grounded implementation slice and frozen scene contract; no all-planner promise.",
+      "targeted_test_command": null,
+      "command_status": "needs_astra_resolution",
+      "failure_escalation_boundary": "Any scope expansion, unknown native behavior, missing frozen budget or failed identity check => stop and return to Astra; preserve evidence.",
+      "readiness": "needs_astra_resolution"
+    },
+    {
+      "key": "39-planner-stop-id",
+      "parent": 39,
+      "title": "Repair planner stop precedence and monotonically increasing IDs",
+      "tier": "luna",
+      "prerequisite_keys": [
+        "39-planner-contract"
+      ],
+      "parent_dependencies": [
+        15,
+        29,
+        33,
+        6
+      ],
+      "owned_files": [
+        "Simulator/wksim_planning/trajectory_session.py (new)",
+        "validation/test_trajectory_session.py (new)"
+      ],
+      "known_input_reports": [
+        "docs/plan/full-migration-spec.md"
+      ],
+      "concrete_actions": [
+        "Implement the frozen adapter session preserving stop precedence",
+        "Keep command IDs increasing across new trajectories in same session and invalidate cancelled generation",
+        "Verify no-route/cancel/replan never resends old targets and restart needs new identity"
+      ],
+      "verifiable_completion": "Bounded adapter state tests pass with original planner semantics; real source integration stays prerequisite-resolved.",
+      "targeted_test_command": null,
+      "command_status": "needs_astra_resolution",
+      "failure_escalation_boundary": "If selected planner cannot use this two-file seam, return to Astra for exact existing-file ownership before edits; do not create unused parallel framework.",
+      "readiness": "blocked_by_prerequisite_keys"
+    },
+    {
+      "key": "39-planner-flight",
+      "parent": 39,
+      "title": "Integrate selected planner and verify one obstacle scene",
+      "tier": "astra",
+      "prerequisite_keys": [
+        "39-planner-stop-id"
+      ],
+      "parent_dependencies": [
+        15,
+        29,
+        33,
+        6
+      ],
+      "owned_files": [
+        "validation/39-planner-flight/ (new evidence)",
+        "docs/plan/39-planner-run-contract.md (new)"
+      ],
+      "known_input_reports": [
+        "docs/plan/full-migration-spec.md"
+      ],
+      "concrete_actions": [
+        "Wire selected real planner to the accepted public trajectory path using explicitly reserved source edits",
+        "Resolve exact real-flight and audit commands then create one-run Luna child",
+        "Verify arrival, no contact, clearance, cancel/no-route/replan and actual monotonically increasing IDs"
+      ],
+      "verifiable_completion": "Complete actual map→planner→public control→flight evidence; existing scene renders or offline paths do not close parent.",
+      "targeted_test_command": null,
+      "command_status": "needs_astra_resolution",
+      "failure_escalation_boundary": "Any scope expansion, unknown native behavior, missing frozen budget or failed identity check => stop and return to Astra; preserve evidence.",
+      "readiness": "needs_astra_resolution"
+    },
+    {
+      "key": "40-real-scene",
+      "parent": 40,
+      "title": "Build one real UE ArUco marker scene with measured calibration",
+      "tier": "astra",
+      "prerequisite_keys": [],
+      "parent_dependencies": [
+        30,
+        32,
+        6
+      ],
+      "owned_files": [
+        "docs/plan/40-aruco-live-scene-contract.md (new)",
+        "validation/40-aruco-live-scene/ (new evidence)"
+      ],
+      "known_input_reports": [
+        "docs/2026-09-09-aruco-consumer-report.md"
+      ],
+      "concrete_actions": [
+        "Freeze marker dictionary/ID/physical size/scene motion/occlusion and run-level budgets",
+        "Resolve exact UE asset/source ownership and construct genuine marker material/geometry using permitted asset workflow",
+        "Capture real RGB frames and independently check known transforms and calibration against consumer"
+      ],
+      "verifiable_completion": "True UE acquisition and marker dimensions/appearance/motion/occlusion proved; existing synthetic PNG fixtures are only starting tests.",
+      "targeted_test_command": null,
+      "command_status": "needs_astra_resolution",
+      "failure_escalation_boundary": "Any scope expansion, unknown native behavior, missing frozen budget or failed identity check => stop and return to Astra; preserve evidence.",
+      "readiness": "needs_astra_resolution"
+    },
+    {
+      "key": "40-target-command",
+      "parent": 40,
+      "title": "Implement bounded fresh target to public velocity intent conversion",
+      "tier": "luna",
+      "prerequisite_keys": [
+        "40-real-scene"
+      ],
+      "parent_dependencies": [
+        30,
+        32,
+        6
+      ],
+      "owned_files": [
+        "Simulator/wksim_perception/tracking_reference.py (new)",
+        "validation/test_tracking_reference.py (new)"
+      ],
+      "known_input_reports": [
+        "docs/2026-09-09-aruco-consumer-report.md"
+      ],
+      "concrete_actions": [
+        "Consume accepted ArUco body target and matching run/epoch/step validity",
+        "Map target error through frozen gains/velocity/yaw limits to existing public velocity intent without publishing privately",
+        "Test loss/expiry/jump/rebind clears target and recovery starts from fresh observation"
+      ],
+      "verifiable_completion": "Two-file conversion module with explicit coordinate/time/error semantics; diagnostic world velocity never used blindly as command.",
+      "targeted_test_command": null,
+      "command_status": "needs_astra_resolution",
+      "failure_escalation_boundary": "Astra resolves flight gain/latency/occlusion budgets first; unknown timing policy is not a Luna decision.",
+      "readiness": "blocked_by_prerequisite_keys"
+    },
+    {
+      "key": "40-closed-loop",
+      "parent": 40,
+      "title": "Integrate camera target task and accept both real stack runs",
+      "tier": "astra",
+      "prerequisite_keys": [
+        "40-target-command"
+      ],
+      "parent_dependencies": [
+        30,
+        32,
+        6
+      ],
+      "owned_files": [
+        "docs/plan/40-aruco-run-contract.md (new)",
+        "validation/40-aruco-flight/ (new evidence)"
+      ],
+      "known_input_reports": [
+        "docs/2026-09-09-aruco-consumer-report.md"
+      ],
+      "concrete_actions": [
+        "Reserve concrete task/runner source and connect existing RGB reader plus target intent through public velocity entry",
+        "Resolve exact native runtime and independent same-run image/target/CDR/truth audit commands",
+        "Create separate one-run Luna children for each stack covering appearance/motion/occlusion/recovery"
+      ],
+      "verifiable_completion": "Actual sensor-to-flight same-run evidence satisfies frozen limits in both stacks; no replay pass substitution.",
+      "targeted_test_command": null,
+      "command_status": "needs_astra_resolution",
+      "failure_escalation_boundary": "Any scope expansion, unknown native behavior, missing frozen budget or failed identity check => stop and return to Astra; preserve evidence.",
+      "readiness": "needs_astra_resolution"
+    },
+    {
+      "key": "44-efficiency-seam",
+      "parent": 44,
+      "title": "Implement one actual motor-efficiency event at model actuator path",
+      "tier": "astra",
+      "prerequisite_keys": [],
+      "parent_dependencies": [
+        22,
+        24
+      ],
+      "owned_files": [
+        "Simulator/wksim_core/motor_efficiency_event.py (new)",
+        "validation/test_motor_efficiency_event.py (new)",
+        "docs/plan/44-motor-efficiency-contract.md (new)"
+      ],
+      "known_input_reports": [
+        "docs/2026-09-09-quad-parameters-report.md",
+        "docs/2026-09-09-pid-flight-plan.md"
+      ],
+      "concrete_actions": [
+        "Read #24 configured model parameter/write seam and distinguish efficiency from PID all-input .97 scaling",
+        "Freeze one motor, start/duration/amplitude/seed plus safety/numeric/recovery budget",
+        "Implement identity-bound actual efficiency mapping and new-epoch reset, with exact core integration ownership identified"
+      ],
+      "verifiable_completion": "Actual efficiency semantics and boundary tests; PID disturbance cannot be relabelled #44 and command PWM scaling needs explicit model equivalence evidence.",
+      "targeted_test_command": null,
+      "command_status": "needs_astra_resolution",
+      "failure_escalation_boundary": "Any scope expansion, unknown native behavior, missing frozen budget or failed identity check => stop and return to Astra; preserve evidence.",
+      "readiness": "needs_astra_resolution"
+    },
+    {
+      "key": "44-efficiency-runs",
+      "parent": 44,
+      "title": "Verify baseline, one efficiency fault, and same-seed repeat",
+      "tier": "astra",
+      "prerequisite_keys": [
+        "44-efficiency-seam"
+      ],
+      "parent_dependencies": [
+        22,
+        24
+      ],
+      "owned_files": [
+        "validation/44-motor-efficiency/ (new evidence)"
+      ],
+      "known_input_reports": [
+        "docs/2026-09-09-quad-parameters-report.md",
+        "docs/2026-09-09-pid-flight-plan.md"
+      ],
+      "concrete_actions": [
+        "Provide exact real input/model/FC recorder and independent event audit commands",
+        "Expand three one-run Luna children: no-fault baseline, fixed fault, unchanged-seed repeat/reset",
+        "Check actual changed motor truth/feedback and cleared new-epoch event against frozen budgets"
+      ],
+      "verifiable_completion": "Three separate actual runs prove no-fault regression, deterministic event and reset; other electric faults remain separate Full obligations.",
+      "targeted_test_command": null,
+      "command_status": "needs_astra_resolution",
+      "failure_escalation_boundary": "Any scope expansion, unknown native behavior, missing frozen budget or failed identity check => stop and return to Astra; preserve evidence.",
+      "readiness": "needs_astra_resolution"
+    },
+    {
+      "key": "45-px4-injection",
+      "parent": 45,
+      "title": "Connect existing GNSS event to real PX4 HIL_GPS send boundary",
+      "tier": "luna",
+      "prerequisite_keys": [],
+      "parent_dependencies": [
+        22,
+        23
+      ],
+      "owned_files": [
+        "Simulator/wksim_core/px4_mavlink.py",
+        "Simulator/wksim_core/gnss_event.py",
+        "validation/test_gnss_px4_injection.py (new)"
+      ],
+      "known_input_reports": [
+        "docs/2026-09-09-gnss-event-report.md"
+      ],
+      "concrete_actions": [
+        "Read actual gps_arguments/send_sensors and retain original 13-field GPS source tuple",
+        "Add explicit optional event hook before hil_gps_send; record attempted/success/error separately and leave IMU/resend semantics intact",
+        "Test exact event boundaries, original source time, duplicate GPS suppression, no-event regression and new epoch"
+      ],
+      "verifiable_completion": "One bounded real send-boundary seam, test proves GNSS-specific suppression without altering physical truth or IMU.",
+      "targeted_test_command": null,
+      "command_status": "needs_astra_resolution",
+      "failure_escalation_boundary": "Needs Astra to resolve exact hook/record sink and model-source timestamp qualification before dispatch. AP injection, runner policy and FC behavior explicitly excluded.",
+      "readiness": "needs_astra_resolution"
+    },
+    {
+      "key": "45-ap-native",
+      "parent": 45,
+      "title": "Implement authoritative-tick AP native GNSS injection candidate",
+      "tier": "astra",
+      "prerequisite_keys": [],
+      "parent_dependencies": [
+        22,
+        23
+      ],
+      "owned_files": [
+        "docs/plan/45-ap-gnss-native-contract.md (new)",
+        "validation/45-ap-gnss-candidate/ (new evidence)"
+      ],
+      "known_input_reports": [
+        "docs/2026-09-09-gnss-event-report.md"
+      ],
+      "concrete_actions": [
+        "Read sealed SIM_GPS update/write boundaries and delayed GPS_Data/UBX time semantics",
+        "Resolve native run/epoch/tick transport plus exact owned candidate source files; build isolated candidate",
+        "Verify actual serial GNSS writes stop at declared ticks while JSON position/IMU truth stays valid"
+      ],
+      "verifiable_completion": "Real candidate native sensor injection and raw trace, with exact launch command and no guess that SIM_GPS1_ENABLE equals no packets.",
+      "targeted_test_command": null,
+      "command_status": "needs_astra_resolution",
+      "failure_escalation_boundary": "Any scope expansion, unknown native behavior, missing frozen budget or failed identity check => stop and return to Astra; preserve evidence.",
+      "readiness": "needs_astra_resolution"
+    },
+    {
+      "key": "45-gnss-flight",
+      "parent": 45,
+      "title": "Verify both genuine GNSS interruption/recovery flights",
+      "tier": "astra",
+      "prerequisite_keys": [
+        "45-px4-injection",
+        "45-ap-native"
+      ],
+      "parent_dependencies": [
+        22,
+        23
+      ],
+      "owned_files": [
+        "docs/plan/45-gnss-run-contract.md (new)",
+        "validation/45-gnss-flight/ (new evidence)"
+      ],
+      "known_input_reports": [
+        "docs/2026-09-09-gnss-event-report.md"
+      ],
+      "concrete_actions": [
+        "Freeze per-stack loss/invalid-fix/stale-source and mission revoke/native action/explicit recovery policy",
+        "Resolve independent raw sensor/public validity/physical truth auditor",
+        "Create separate one-run Luna children for each stack and verify recovery requires fresh explicit takeover"
+      ],
+      "verifiable_completion": "Both real chains and original AC pass; no modified display flag or forged fresh timestamp counted.",
+      "targeted_test_command": null,
+      "command_status": "needs_astra_resolution",
+      "failure_escalation_boundary": "Any scope expansion, unknown native behavior, missing frozen budget or failed identity check => stop and return to Astra; preserve evidence.",
+      "readiness": "needs_astra_resolution"
+    },
+    {
+      "key": "46-input-contract",
+      "parent": 46,
+      "title": "Resolve one complete replayable physical-input evidence source",
+      "tier": "astra",
+      "prerequisite_keys": [],
+      "parent_dependencies": [
+        16,
+        20,
+        24
+      ],
+      "owned_files": [
+        "docs/plan/46-reexecution-contract.md (new)"
+      ],
+      "known_input_reports": [
+        "docs/2026-09-09-quad-parameters-closure-review.md",
+        "docs/2026-09-09-joint-step-acceptance-review.md"
+      ],
+      "concrete_actions": [
+        "Respect #20 parent dependency and locate one full actuator/seed/parameter/model/step source",
+        "Check complete inputs and all pause/reset/event identities without interpolation",
+        "Freeze same-build numeric tolerance and exact standalone reexecution/import commands"
+      ],
+      "verifiable_completion": "One sufficient sealed input source or explicit insufficient-recording rejection; offline state viewing is not reexecution.",
+      "targeted_test_command": null,
+      "command_status": "needs_astra_resolution",
+      "failure_escalation_boundary": "Any scope expansion, unknown native behavior, missing frozen budget or failed identity check => stop and return to Astra; preserve evidence.",
+      "readiness": "needs_astra_resolution"
+    },
+    {
+      "key": "46-reexecution",
+      "parent": 46,
+      "title": "Implement standalone physical reexecution and missing-input rejection",
+      "tier": "astra",
+      "prerequisite_keys": [
+        "46-input-contract"
+      ],
+      "parent_dependencies": [
+        16,
+        20,
+        24
+      ],
+      "owned_files": [
+        "tools/reexecute_model.py (new)",
+        "validation/test_model_reexecution.py (new)"
+      ],
+      "known_input_reports": [
+        "docs/2026-09-09-quad-parameters-closure-review.md",
+        "docs/2026-09-09-joint-step-acceptance-review.md"
+      ],
+      "concrete_actions": [
+        "Load only approved complete inputs and exact native model/config/seed without FC transport",
+        "Recompute physical steps/events and enforce pause/reset identities, reject missing/duplicate intervals",
+        "Compare full outputs under frozen same-build budget and test foreign/corrupt/undersampled source refusal"
+      ],
+      "verifiable_completion": "Bounded physical recalculation tool and source-sufficiency negatives, with exact repeat command; no interpolation-generated truth.",
+      "targeted_test_command": null,
+      "command_status": "needs_astra_resolution",
+      "failure_escalation_boundary": "Any scope expansion, unknown native behavior, missing frozen budget or failed identity check => stop and return to Astra; preserve evidence.",
+      "readiness": "needs_astra_resolution"
+    },
+    {
+      "key": "46-reexecution-run",
+      "parent": 46,
+      "title": "One sealed-source no-FC reexecution comparison",
+      "tier": "luna",
+      "prerequisite_keys": [
+        "46-reexecution"
+      ],
+      "parent_dependencies": [
+        16,
+        20,
+        24
+      ],
+      "owned_files": [
+        "validation/46-reexecution/ (new evidence)"
+      ],
+      "known_input_reports": [
+        "docs/2026-09-09-quad-parameters-closure-review.md",
+        "docs/2026-09-09-joint-step-acceptance-review.md"
+      ],
+      "concrete_actions": [
+        "Verify source/library/protocol hashes and absence of control destinations",
+        "Run one existing standalone recalculation against frozen input",
+        "Compare every declared channel/tick and archive failure/identity/output hashes"
+      ],
+      "verifiable_completion": "Same-build actual recomputation within prior budget with no FC or original-run writes.",
+      "targeted_test_command": null,
+      "command_status": "needs_astra_resolution",
+      "failure_escalation_boundary": "Astra must provide exact accepted command and source first; skipped/dropout intervals cannot be repaired.",
+      "readiness": "blocked_by_prerequisite_keys"
+    },
+    {
+      "key": "47-home-contract",
+      "parent": 47,
+      "title": "Resolve authoritative PX4 home and global coordinate contract",
+      "tier": "astra",
+      "prerequisite_keys": [],
+      "parent_dependencies": [
+        12,
+        14,
+        23
+      ],
+      "owned_files": [
+        "docs/plan/47-global-home-contract.md (new)"
+      ],
+      "known_input_reports": [
+        "docs/plan/full-migration-spec.md"
+      ],
+      "concrete_actions": [
+        "Read actual AP home/local behavior and PX4 global native message path",
+        "Specify WGS84/home/AMSL-relative altitude/ENU-NED validity, expiry and home-generation change",
+        "Reserve exact native/control files and freeze real global target/rejection thresholds"
+      ],
+      "verifiable_completion": "Evidence-backed home identity and adapters plan; EKF origin cannot substitute home.",
+      "targeted_test_command": null,
+      "command_status": "needs_astra_resolution",
+      "failure_escalation_boundary": "Any scope expansion, unknown native behavior, missing frozen budget or failed identity check => stop and return to Astra; preserve evidence.",
+      "readiness": "needs_astra_resolution"
+    },
+    {
+      "key": "47-coordinate-module",
+      "parent": 47,
+      "title": "Implement bounded global/home conversion and invalidation checks",
+      "tier": "luna",
+      "prerequisite_keys": [
+        "47-home-contract"
+      ],
+      "parent_dependencies": [
+        12,
+        14,
+        23
+      ],
+      "owned_files": [
+        "Simulator/wksim_control/global_reference.py (new)",
+        "validation/test_global_reference.py (new)"
+      ],
+      "known_input_reports": [
+        "docs/plan/full-migration-spec.md"
+      ],
+      "concrete_actions": [
+        "Implement only approved coordinate algorithm and explicit altitude reference",
+        "Bind every resolved target to home generation/run/epoch with range validation",
+        "Test fixed numeric conversions, datum confusion, out-of-range and old-home target rejection"
+      ],
+      "verifiable_completion": "Two-file conversion boundary under predeclared numeric tolerance; no silent local fallback.",
+      "targeted_test_command": null,
+      "command_status": "needs_astra_resolution",
+      "failure_escalation_boundary": "If existing module already owns conversion, Astra must replace planned new paths with exact existing files to avoid duplication; unknown geodesy/native semantics escalate.",
+      "readiness": "blocked_by_prerequisite_keys"
+    },
+    {
+      "key": "47-native-flight",
+      "parent": 47,
+      "title": "Wire real global native outlet and verify both stacks/home change",
+      "tier": "astra",
+      "prerequisite_keys": [
+        "47-coordinate-module"
+      ],
+      "parent_dependencies": [
+        12,
+        14,
+        23
+      ],
+      "owned_files": [
+        "docs/plan/47-global-run-contract.md (new)",
+        "validation/47-global-flight/ (new evidence)"
+      ],
+      "known_input_reports": [
+        "docs/plan/full-migration-spec.md"
+      ],
+      "concrete_actions": [
+        "Implement actual PX4 global mapping with explicitly reserved native/control files and AP regression",
+        "Resolve exact run/raw audit command and prepare separate one-run stack children",
+        "Verify true global waypoint flight, out-of-bound rejection and home-change invalidation"
+      ],
+      "verifiable_completion": "Both native stacks plus full physical target/datum evidence pass; no unsupported mode silently transformed.",
+      "targeted_test_command": null,
+      "command_status": "needs_astra_resolution",
+      "failure_escalation_boundary": "Any scope expansion, unknown native behavior, missing frozen budget or failed identity check => stop and return to Astra; preserve evidence.",
+      "readiness": "needs_astra_resolution"
+    },
+    {
+      "key": "9-evidence",
+      "parent": 9,
+      "title": "Resolve exact DLL ABI and contact-contract evidence gaps",
+      "tier": "astra",
+      "prerequisite_keys": [],
+      "parent_dependencies": [],
+      "owned_files": [
+        "docs/plan/9-abi-environment-evidence.md (new)"
+      ],
+      "known_input_reports": [
+        "docs/plan/remaining-gates-proposal.md"
+      ],
+      "concrete_actions": [
+        "Reconcile SDK double/float collision and InitPosAngStat/State name mismatch against actual headers/wrappers/legal samples",
+        "Record exact legacy/new signatures, lengths, ownership, lifecycle and declared units; mark unknowns",
+        "Prepare concrete static geometry/contact/expiry budget choices with engineering source, keeping dynamic feedback distinct"
+      ],
+      "verifiable_completion": "Reviewable evidence-backed choices; no unknown ABI approved solely by symbol names and no repeated already-approved #5/#8 decisions.",
+      "targeted_test_command": null,
+      "command_status": "needs_astra_resolution",
+      "failure_escalation_boundary": "Any scope expansion, unknown native behavior, missing frozen budget or failed identity check => stop and return to Astra; preserve evidence.",
+      "readiness": "needs_astra_resolution"
+    },
+    {
+      "key": "9-contract",
+      "parent": 9,
+      "title": "Record concrete remaining ABI/contact decisions",
+      "tier": "decision",
+      "prerequisite_keys": [
+        "9-evidence"
+      ],
+      "parent_dependencies": [],
+      "owned_files": [
+        "docs/plan/9-abi-environment-accepted.md (new)"
+      ],
+      "known_input_reports": [
+        "docs/plan/remaining-gates-proposal.md"
+      ],
+      "concrete_actions": [
+        "Check all existing decision comments and current-session authorizations for already-approved exact choices",
+        "Present only unresolved evidence-backed alternatives to user when an actual decision is needed",
+        "Record exact accepted signatures/lifecycle/isolation/contact/validity/numeric budgets and unresolved sample rows"
+      ],
+      "verifiable_completion": "Explicit binding contract for #26–#29; partial approval does not claim every ABI or dynamic environment complete.",
+      "targeted_test_command": null,
+      "command_status": "needs_astra_resolution",
+      "failure_escalation_boundary": "Any scope expansion, unknown native behavior, missing frozen budget or failed identity check => stop and return to Astra; preserve evidence.",
+      "readiness": "needs_astra_resolution"
+    },
+    {
+      "key": "10-g6-remediation",
+      "parent": 10,
+      "title": "Resolve R1 numerical failures under unchanged original budget",
+      "tier": "astra",
+      "prerequisite_keys": [],
+      "parent_dependencies": [],
+      "owned_files": [
+        "docs/plan/10-g6-remediation-contract.md (new)",
+        "validation/10-g6-remediation/ (new evidence)"
+      ],
+      "known_input_reports": [
+        "docs/plan/full-scope-expansion.md",
+        "docs/2026-09-09-numerical-conformance-report.md"
+      ],
+      "concrete_actions": [
+        "Read all 5684 strict unequal values and fixed R1 phase/noise/version provenance",
+        "Attribute one deterministic mismatch family using exact source and separate a bounded corrective implementation",
+        "Freeze corrected candidate/input/source identity then issue one-run independent comparison child without altering R1 historical result"
+      ],
+      "verifiable_completion": "Evidence-grounded correction and a new accepted comparison or retained failure; #23 closed delivery does not satisfy G6.",
+      "targeted_test_command": null,
+      "command_status": "needs_astra_resolution",
+      "failure_escalation_boundary": "Any scope expansion, unknown native behavior, missing frozen budget or failed identity check => stop and return to Astra; preserve evidence.",
+      "readiness": "needs_astra_resolution"
+    },
+    {
+      "key": "1-full-coverage",
+      "parent": 1,
+      "title": "Map every still-unimplemented frozen Full row to a real followup",
+      "tier": "astra",
+      "prerequisite_keys": [],
+      "parent_dependencies": [],
+      "owned_files": [
+        "docs/plan/full-scope-expansion.md",
+        "docs/plan/requirement-coverage.md",
+        "docs/plan/full-followup-tickets.json (new)"
+      ],
+      "known_input_reports": [
+        "docs/plan/full-scope-expansion.md",
+        "docs/plan/requirement-coverage.md"
+      ],
+      "concrete_actions": [
+        "Read every frozen Full row and current closed-ticket evidence without inheriting stale 'still unimplemented' text",
+        "For each uncovered simulation/communication mode, model/controller/sensor/fault/SDK/environment/reproducibility/resource row assign exact source, current gap and parent owner",
+        "Create bounded expert-definition followups for unknown engineering and one-run/1–4-file Luna children only where commands/source contracts exist"
+      ],
+      "verifiable_completion": "100% frozen Full rows retain explicit implemented/evidenced/blocked/not-implemented status and real followup IDs; 17 parents/this proposal cannot be mistaken for exhaustive Full implementation.",
+      "targeted_test_command": null,
+      "command_status": "needs_astra_resolution",
+      "failure_escalation_boundary": "Any scope expansion, unknown native behavior, missing frozen budget or failed identity check => stop and return to Astra; preserve evidence.",
+      "readiness": "needs_astra_resolution"
+    },
+    {
+      "key": "1-hardware-boundary",
+      "parent": 1,
+      "title": "Resolve specific Full HIL hardware/resource prerequisites",
+      "tier": "decision",
+      "prerequisite_keys": [
+        "1-full-coverage"
+      ],
+      "parent_dependencies": [],
+      "owned_files": [
+        "docs/plan/full-hardware-prerequisites.md (new)"
+      ],
+      "known_input_reports": [
+        "docs/plan/full-scope-expansion.md",
+        "docs/plan/requirement-coverage.md"
+      ],
+      "concrete_actions": [
+        "Separate applicable serial/network hardware modes from software SITL evidence",
+        "Inventory exact required hardware/firmware/interface and safe test conditions without sending hardware commands",
+        "Record availability and any specific required user authorization; preserve missing-device blockers"
+      ],
+      "verifiable_completion": "Concrete per-mode hardware prerequisites and owner, no fake HIL completion and no blanket authorization inferred.",
+      "targeted_test_command": null,
+      "command_status": "needs_astra_resolution",
+      "failure_escalation_boundary": "Any scope expansion, unknown native behavior, missing frozen budget or failed identity check => stop and return to Astra; preserve evidence.",
+      "readiness": "needs_astra_resolution"
+    },
+    {
+      "key": "10-full-acceptance",
+      "parent": 10,
+      "title": "Accept Full only against complete original coverage and gates",
+      "tier": "astra",
+      "prerequisite_keys": [
+        "1-full-coverage",
+        "1-hardware-boundary",
+        "10-g6-remediation"
+      ],
+      "parent_dependencies": [],
+      "owned_files": [
+        "docs/plan/full-acceptance-report.md (new)"
+      ],
+      "known_input_reports": [
+        "docs/plan/full-scope-expansion.md",
+        "docs/2026-09-09-numerical-conformance-report.md"
+      ],
+      "concrete_actions": [
+        "Require all applicable parent AC and every Full followup completed; resolve all original G0–G6 gates from raw evidence",
+        "Verify same public user workflows, autonomous core optional resources, provenance and failure rows across the actual supported matrix",
+        "Independently audit remaining physical/performance/compatibility gates and only then propose Goal completion"
+      ],
+      "verifiable_completion": "Every required Full row and gate accepted, or explicit unresolved list keeps #1/#10/Goal open. #48 first phase is retained without re-running by default.",
+      "targeted_test_command": null,
+      "command_status": "needs_astra_resolution",
+      "failure_escalation_boundary": "Any scope expansion, unknown native behavior, missing frozen budget or failed identity check => stop and return to Astra; preserve evidence.",
+      "readiness": "needs_astra_resolution"
+    }
+  ],
+  "dispatch_notes": [
+    "45-px4-injection has no ticket prerequisites but is NOT ready until its narrow hook/sink/source-time check is resolved; readiness corrected below.",
+    "Existing verification outputs are new immutable evidence directories; proposed code paths explicitly marked new are reservations, not claims files exist.",
+    "Astra integration envelopes deliberately retain unknown engineering. They must be replaced/expanded into exact bounded children before GPT-5.6 Luna dispatch; publishing them as ready-for-agent Luna work would be incorrect.",
+    "No scheduled runtime, GitHub write, source edit, process mutation, build or actual new test was performed to create this proposal."
+  ],
+  "ready_front": [
+    "35-preflight"
+  ],
+  "ready_after_review": [
+    "25-ap-live",
+    "25-px4-reset-live",
+    "25-ap-reset",
+    "33-final-combo-run",
+    "35-px4-flight",
+    "35-arducopter-flight",
+    "38-input-port",
+    "39-planner-stop-id",
+    "40-target-command",
+    "45-px4-injection",
+    "46-reexecution-run",
+    "47-coordinate-module"
+  ],
+  "proposal_limitations": [
+    "The 54 entries are not 54 immediately executable Luna jobs. Expert envelopes retain real unknown engineering and must be tightened before publication/dispatch.",
+    "Only known report/file paths and a few verified existing runner command shapes are supplied; unknown test/native commands are explicitly needs_astra_resolution.",
+    "This proposal is exhaustive for the 17 original implementation acceptance parents, not for every implementation detail of the Full expansion ledger. Full rows require source-grounded followups under 1-full-coverage.",
+    "The AP PID preflight must become its own one-run child before 35-arducopter-flight; do not bundle two existing checks into the first Luna task.",
+    "Runtime ownership/release is sequencing of existing user authorization, not a request to reapprove the overall project."
+  ],
+  "superseded_by": "docs/plan/lunar-backlog.json"
+}

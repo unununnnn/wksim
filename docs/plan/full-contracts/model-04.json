@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "issue": 137,
+  "stable_key": "full-model-04",
+  "title": "Tri-axis hexarotor (coaxial Y6) model",
+  "source": {
+    "file": "docs/plan/full-scope-expansion.md",
+    "line": 49,
+    "ledger_id": "MODEL-04",
+    "ledger_file": "docs/plan/full-followup-tickets.json",
+    "parent_issues": [1]
+  },
+  "status": "defined",
+  "evidence_status": "no-evidence",
+  "full_complete": false,
+  "current_gap": "The coaxial tri-axis hexarotor is not covered by the planar hexarotor; coaxial interaction, rotation directions, motor allocation and concrete parameters are missing.",
+  "atoms": [
+    {"id": "MODEL-04-A", "name": "coaxial_configuration", "status": "blocked", "required": "Coaxial rotor pairs geometry with positions and stack order", "owner": "model maintainer"},
+    {"id": "MODEL-04-B", "name": "rotation_directions", "status": "blocked", "required": "Per-rotor rotation signs including coaxial pairs", "owner": "model maintainer"},
+    {"id": "MODEL-04-C", "name": "motor_allocation", "status": "blocked", "required": "Motor allocation/mixing matrix for the coaxial layout", "owner": "model maintainer"},
+    {"id": "MODEL-04-D", "name": "concrete_parameters", "status": "blocked", "required": "Mass, inertia and propulsion parameters with source and hash", "owner": "model maintainer"},
+    {"id": "MODEL-04-E", "name": "non_coverage_rule", "status": "partial", "required": "Rule enforced: planar hexarotor evidence never covers the coaxial layout", "owner": "validation maintainer"}
+  ],
+  "model_required": ["model_identity", "coaxial_geometry", "rotation_signs", "allocation_matrix", "mass_kg", "inertia", "propulsion_parameters", "source", "source_sha256", "applicable_stacks"],
+  "scope_rule": "a planar hexarotor allocation never approximates coaxial rotor interaction",
+  "errors": ["accepted", "model_not_found", "geometry_invalid", "rotation_sign_mismatch", "allocation_invalid", "parameters_missing", "substitution_rejected"],
+  "followups": [
+    {"key": "model-04-configuration", "files": ["Simulator/wksim_core/<y6-model>.py", "validation/<y6-tests>.py"], "status": "proposed", "blocked_by": "Pinned coaxial source and parameters"},
+    {"key": "model-04-allocation-audit", "files": ["validation/<y6-allocation-audit>"], "status": "proposed", "blocked_by": "Configuration freeze"}
+  ],
+  "preserved": {"planar_hex": "Hex evidence stays a separate planar configuration", "full_complete": false}
+}

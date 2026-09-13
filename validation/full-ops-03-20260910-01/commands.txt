@@ -1,0 +1,15 @@
+Working directory: C:/Users/PC/Documents/odid编译/wksim
+
+Read-only inputs:
+  Get-Content docs/plan/full-scope-expansion.md
+  Get-Content docs/plan/full-remaining-ledger.json
+  Get-Content docs/plan/full-followup-tickets.json
+  Get-Content docs/plan/9-abi-environment-evidence.md
+  gh issue view 154 --repo unununnnn/wksim --json number,title,body,state,labels,comments
+  gh issue view 26 --repo unununnnn/wksim --json number,title,body,state,labels,comments
+
+Validation:
+  python -B validation/full-ops-03-20260910-01/validate.py
+  git diff --check -- docs/plan/full-contracts/ops-03.md docs/plan/full-contracts/ops-03.json validation/full-ops-03-20260910-01
+
+Vendor XML/DLL, FC, model, ROS, UE, MATLAB and hardware processes were not started or modified.

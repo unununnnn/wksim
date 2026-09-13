@@ -1,0 +1,211 @@
+{
+  "schema": "agy-frontier-analysis-v1",
+  "baseline_commit": "514743f",
+  "generated": "2026-09-10",
+  "checked_by": "antigravity",
+  "coordination_boundaries": {
+    "omp_scope": "全球航点 (#47, #118, #119, #120) 与 GNSS 中断恢复 (#45, #121, #111, #112) 由外部代理 OMP 独立负责推进，不重复",
+    "parent_session_scope": "联合倍率 (#20, #62, #63, #64, #33, #82, #83, #84, WSL 调度取证与 native_wait 根因分析) 由主会话负责",
+    "agy_scope": "梳理不受倍率与 G6 阻塞的实际实施前沿（重点 #99, #102, #103, #104, #105, #70, #73, #76）",
+    "invariants_preserved": [
+      "docs/Prometheus.gitmodules.reference 用户既有修改保留未动",
+      "不启动 SITL/UE 运行",
+      "不修改生产代码、原始证据或 Issue 状态",
+      "不执行 commit/push",
+      "不进行嵌套委派"
+    ]
+  },
+  "summary": {
+    "total_reviewed": 8,
+    "ready_for_closure": 2,
+    "in_progress": 1,
+    "ready_contract_codegen_blocked": 1,
+    "dependency_or_spec_blocked": 4
+  },
+  "frontier_items": [
+    {
+      "issue_number": 99,
+      "title": "[Astra] 接入RC控制权并交付可验证双栈入口",
+      "stable_key": "38-runtime-flight",
+      "parent_issue": 38,
+      "current_status": "OPEN",
+      "frontier_classification": "ready_for_closure",
+      "blocked_by_rate_or_g6": false,
+      "existing_entries": [
+        "tools/run-rc-flight.sh",
+        "tools/run_rc_flight.py",
+        "tools/audit_rc_flight.py",
+        "Simulator/wksim_control/rc_input.py",
+        "prometheus_control/rc_transport.py",
+        "docs/2026-09-10-rc-flight-report.md",
+        "validation/38-rc-flight/final-matrix.json"
+      ],
+      "write_scope": [
+        "docs/plan/38-rc-integration.md (new)",
+        "validation/38-rc-flight/ (new evidence)"
+      ],
+      "acceptance_criteria": "两栈（PX4 与 ArduCopter）覆盖 movement、recenter、yaw、stream-stall、mode-out、new-takeover 六场景通过统一独立审计；逐包 GID 匹配，权威时间新鲜度检验，显式空中接管与中立意图恢复，断流不伪称安全悬停。",
+      "missing_prerequisites": "候选级 12/12 审计全部通过；自身无阻断；仅待 Astra 或主会话正式复核关闭该子票（父票 #38 仍需按原规则保留 #12, #14, #6 生产准入前置）。",
+      "actionable_recommendation": "发起正式复核并关闭 #99。"
+    },
+    {
+      "issue_number": 105,
+      "title": "[Astra] 实现一次真实单电机效率事件及重置",
+      "stable_key": "44-efficiency-seam",
+      "parent_issue": 44,
+      "current_status": "OPEN",
+      "frontier_classification": "ready_for_closure",
+      "blocked_by_rate_or_g6": false,
+      "existing_entries": [
+        "Simulator/wksim_core/motor_efficiency_native.cpp",
+        "Simulator/wksim_core/motor_efficiency_native.h",
+        "Simulator/wksim_core/motor_efficiency_model.py",
+        "Simulator/wksim_core/motor_efficiency_event.py",
+        "tools/run_efficiency_flight.py",
+        "tools/run-efficiency-flight.sh",
+        "tools/audit_efficiency_flight.py",
+        "tools/efficiency_physics.py",
+        "docs/2026-09-10-motor-efficiency-native-report.md",
+        "docs/2026-09-10-motor-efficiency-flight-report.md",
+        "validation/44-efficiency-native/archive.json",
+        "validation/44-efficiency-flight/matrix.json"
+      ],
+      "write_scope": [
+        "Simulator/wksim_core/motor_efficiency_event.py (new)",
+        "validation/test_motor_efficiency_event.py (new)",
+        "docs/plan/44-motor-efficiency-contract.md (new)"
+      ],
+      "acceptance_criteria": "单旋翼气动有效性损失（0 号电机 eta=0.97，持续 1000 步）进入 ODE4 子阶段推力/力矩方程；绑定权威 tick 与种子，Native 读回确认物理衰减生效；8 秒内姿态/位置恢复；新运行冷重置验证四路 eta=1.0。",
+      "missing_prerequisites": "无。7 场原生 bench 与双栈 6 场真实仿真飞行全部通过独立审计 (6/6 PASS)，#105/#106/#107/#108/#44 均具备关闭证据，待正式复核收口。",
+      "actionable_recommendation": "发起正式复核并关闭 #105 及相关效率工况票。"
+    },
+    {
+      "issue_number": 103,
+      "title": "[Astra] 创建一个真实UE ArUco场景并核验标定",
+      "stable_key": "40-real-scene",
+      "parent_issue": 40,
+      "current_status": "OPEN (in-progress)",
+      "frontier_classification": "in_progress",
+      "blocked_by_rate_or_g6": false,
+      "existing_entries": [
+        "Simulator/ue55/Source/WksimVisual/WksimRgbFixture.cpp",
+        "Simulator/ue55/Source/WksimVisual/WksimRgbFixture.h",
+        "Simulator/ue55/Source/WksimVisual/WksimVisualGameMode.cpp",
+        "Simulator/wksim_console/visual.py",
+        "Simulator/wksim_perception/aruco.py",
+        "validation/test_aruco_consumer.py",
+        "docs/plan/40-aruco-live-scene-contract.md"
+      ],
+      "write_scope": [
+        "docs/plan/40-aruco-live-scene-contract.md (new)",
+        "validation/40-aruco-live-scene/ (new evidence)"
+      ],
+      "acceptance_criteria": "UE5.5 真实渲染生成标靶网格与材质，驱动权威步运动与遮挡；独立角点反投影残差 <= 2px，重投影 RMS <= 1px，各轴平移误差 <= 0.035m；外观、运动、遮挡、恢复各 >= 5 帧有效数据。",
+      "missing_prerequisites": "主会话已完成候选 UE C++ 组件实现并编译成功，完成 run-514743f-03 真实 39 帧渲染采集；audit-02.json 审计与 6 项真实数据负例全数通过，满足验收指标。",
+      "actionable_recommendation": "标定证据已达标，主会话可固化交付物并准备关闭 #103。"
+    },
+    {
+      "issue_number": 70,
+      "title": "[Astra] 确定一个实际可用的模型生成来源及合同",
+      "stable_key": "26-generation-source",
+      "parent_issue": 26,
+      "current_status": "OPEN (needs-triage)",
+      "frontier_classification": "ready_contract_native_blocked",
+      "blocked_by_rate_or_g6": false,
+      "existing_entries": [
+        "docs/plan/26-generation-contract.md",
+        "docs/g6-material-index.md",
+        "tools/quad_model_parameters.py"
+      ],
+      "write_scope": [
+        "docs/plan/26-generation-contract.md (new)"
+      ],
+      "acceptance_criteria": "提供一条具有明确许可来源、可编辑模板及生成规范的模型生成路径，给出构建与导入合同；若因许可阻断则完整记录证据。",
+      "missing_prerequisites": "缺少调用真实商业 MATLAB R2022b (ert.tlc) 的无头批处理构建入口脚本；构建期与日常无 MATLAB 运行期需明确划分，再分发权与本地生成隔离边界需固定。",
+      "actionable_recommendation": "持续推进授权内编写无头批处理生成脚本，调用真实商业 MATLAB 批量执行 slbuild，输出至隔离目录。"
+    },
+    {
+      "issue_number": 104,
+      "title": "[Astra] 接入相机跟踪并提供双栈真实验收入口",
+      "stable_key": "40-closed-loop",
+      "parent_issue": 40,
+      "current_status": "OPEN",
+      "frontier_classification": "dependency_or_spec_blocked",
+      "blocked_by_rate_or_g6": false,
+      "existing_entries": [
+        "Modules/tutorial_demo/advanced/aruco_tracking/src/aruco_tracking.cpp",
+        "Simulator/wksim_runtime/"
+      ],
+      "write_scope": [
+        "docs/plan/40-aruco-run-contract.md (new)",
+        "validation/40-aruco-flight/ (new evidence)"
+      ],
+      "acceptance_criteria": "同一次物理运行中由实时感知的相机位姿解算控制量，完成双栈目标追踪飞行，满足精度与收敛时间要求，非回放替代。",
+      "missing_prerequisites": "强依赖 #103 交付真实 UE 场景与图像采集流；缺少闭环跟踪运行器及独立审计工具。",
+      "actionable_recommendation": "次序等待 #103 解阻完成后推进。"
+    },
+    {
+      "issue_number": 102,
+      "title": "[Astra] 接入规划器并验证一个真实绕障场景",
+      "stable_key": "39-planner-flight",
+      "parent_issue": 39,
+      "current_status": "OPEN",
+      "frontier_classification": "dependency_or_spec_blocked",
+      "blocked_by_rate_or_g6": true,
+      "existing_entries": [
+        "Modules/ego_planner_swarm",
+        "Simulator/wksim_planning/trajectory_session.py",
+        "validation/test_trajectory_session.py",
+        "docs/plan/39-planner-contract.md"
+      ],
+      "write_scope": [
+        "docs/plan/39-planner-run-contract.md (new)",
+        "validation/39-planner-flight/ (new evidence)"
+      ],
+      "acceptance_criteria": "真实点云地图 -> EGO B-spline 规划 -> 公共轨迹输出修整 -> 双栈飞行执行；全程无接触且净空 >= 0.30m，指令 ID 递增，replan/cancel 稳定锁存。",
+      "missing_prerequisites": "强依赖 #29 物理反馈与 #33 轨迹控制（#33 直接连带联合倍率阻塞）；缺少 ROS2 编译打包与点云接入节点写权。",
+      "actionable_recommendation": "在底层物理碰撞与倍率收敛后再行激活。"
+    },
+    {
+      "issue_number": 73,
+      "title": "[Astra] 实现一个已确认旧ABI的隔离宿主",
+      "stable_key": "27-host",
+      "parent_issue": 27,
+      "current_status": "OPEN",
+      "frontier_classification": "dependency_or_spec_blocked",
+      "blocked_by_rate_or_g6": false,
+      "existing_entries": [
+        "docs/plan/9-abi-environment-accepted.md",
+        "validation/lunar-57-6d85dab1b5ff4b84a3a5e58b1fc467a1/abi-facts.json"
+      ],
+      "write_scope": [
+        "Simulator/wksim_plugins/legacy_host.py (new)",
+        "Simulator/wksim_plugins/legacy_manifest.py (new)",
+        "validation/test_legacy_host.py (new)"
+      ],
+      "acceptance_criteria": "实现独立进程的 DLL 加载、初始化、单步、重置与卸载；对崩溃与非法布局有完备隔离测试；不触碰厂商安装。",
+      "missing_prerequisites": "#58 决策票虽已 CLOSED，但其决议文本 (docs/plan/9-abi-environment-accepted.md) 明确判决旧 ABI 未予批准（DllSimCtrlAPI.py 存在类型冲突，5 项 manifest/许可前置缺失），无可审阅的有效旧 ABI 样本；Simulator/wksim_plugins/ 目录未建立。",
+      "actionable_recommendation": "需补齐旧 ABI 样本的独立 manifest 与符号定义方可解阻。"
+    },
+    {
+      "issue_number": 76,
+      "title": "[Astra] 实现一个已确认新ABI与扩展输出适配",
+      "stable_key": "28-modern-adapter",
+      "parent_issue": 28,
+      "current_status": "OPEN",
+      "frontier_classification": "dependency_or_spec_blocked",
+      "blocked_by_rate_or_g6": false,
+      "existing_entries": [
+        "docs/plan/9-abi-environment-accepted.md"
+      ],
+      "write_scope": [
+        "Simulator/wksim_plugins/modern_host.py (new)",
+        "Simulator/wksim_plugins/modern_manifest.py (new)",
+        "validation/test_modern_host.py (new)"
+      ],
+      "acceptance_criteria": "适配独立新 ABI 样本的扩展 I/O 通道与生命周期，严格拒绝不匹配清单。",
+      "missing_prerequisites": "受 #73 -> #74 -> #75 串行链路阻塞；#58 决策票决议文本明确新 ABI 同样未予批准，缺少已核准的独立新 ABI 样本规范。",
+      "actionable_recommendation": "次序等待旧 ABI 宿主链路与新 ABI 规范批准后实施。"
+    }
+  ]
+}

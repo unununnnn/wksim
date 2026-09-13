@@ -1,0 +1,11 @@
+{
+  "status": "fail",
+  "error": "Independent final ground truth failed",
+  "uncovered": [
+    "loss_hold_correlation: each adapter HOLD is matched to its raw CommandRequest and raw acceptance, but evidence does not retain enough to tie a consumed null observation / expired authority step to that specific HOLD; not claimed proven",
+    "native_setpoint_correlation: raw PX4 TrajectorySetpoint / AP cmd_gps_pose CDR content is not yet mapped field-by-field to the public MOVE/HOLD it carries",
+    "native_fc_ack_or_action_completion: only public TextInfo acceptance is proven; no native FC ACK or action completion is claimed",
+    "dds_publisher_exclusivity and full executed process identity beyond the reconciled recorder/control build pins are outside this audit"
+  ],
+  "audit_source_sha256": "cb5418ea66b280b6feb7b7ad94dd67d8e46ea123c6cd60247282e409ea7f9e64"
+}

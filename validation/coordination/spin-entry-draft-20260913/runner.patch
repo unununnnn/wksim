@@ -1,0 +1,93 @@
+diff --git a/tools/run_joint_flight.py b/tools/run_joint_flight.py
+index 417f822..cc26ebf 100644
+--- a/tools/run_joint_flight.py
++++ b/tools/run_joint_flight.py
+@@ -49,16 +49,35 @@ from tools.mixed_control_task import PROFILE as MIXED_PROFILE
+ WALL_LIMIT, MAX_TICKS = 900, 180000
+ 
+ 
+-def make_joint_rate(epoch, requested_rate, record, *, diagnostic):
+-    rate_type = JointRateTimingProbe if diagnostic else JointRate
++def validate_spin_cpu_request(profile, requested, diagnostic):
++    if not requested:
++        return
++    if profile not in (PV_PROFILE, MIXED_PROFILE):
++        raise ValueError('--rate-spin-cpu-timing is only allowed for PV/MIXED task profiles')
++    if not diagnostic:
++        raise ValueError('--rate-spin-cpu-timing requires WKSIM_JOINT_RATE_TIMING_PROBE=1')
++    from rate_spin_cpu_probe import JointRateSpinCpuProbe  # Validate before any native child.
++
++
++def make_joint_rate(epoch, requested_rate, record, *, diagnostic, spin_cpu=False):
++    if spin_cpu:
++        if not diagnostic:
++            raise ValueError('Spin CPU probe requires the explicit rate timing probe')
++        from rate_spin_cpu_probe import JointRateSpinCpuProbe
++        rate_type = JointRateSpinCpuProbe
++    else:
++        rate_type = JointRateTimingProbe if diagnostic else JointRate
+     return rate_type(epoch, requested_rate, record)
+ 
+ 
+-def candidate_rate_sources(_diagnostic):
+-    return [
++def candidate_rate_sources(_diagnostic, spin_cpu=False):
++    sources = [
+         "Simulator/wksim_runtime/joint_rate.py",
+         "Simulator/wksim_runtime/joint_rate_probe.py",
+     ]
++    if spin_cpu:
++        sources.append("tools/rate_spin_cpu_probe.py")
++    return sources
+ 
+ 
+ def candidate_environment(control, messages=None):
+@@ -363,6 +382,8 @@ def run(args):
+             raise ValueError('--early-work-timing requires WKSIM_JOINT_CPU_TIMING=1 and '
+                              'WKSIM_JOINT_RATE_TIMING_PROBE=1')
+     timing_probe = timing_probe_enabled()
++    spin_cpu = getattr(args, 'rate_spin_cpu_timing', False)
++    validate_spin_cpu_request(args.task_profile, spin_cpu, timing_probe)
+     if timing_probe and args.task_profile not in (PV_PROFILE, MIXED_PROFILE):
+         raise ValueError(f"{TIMING_PROBE_ENV}=1 is only allowed for candidate/PV task profiles")
+     async_model_evidence = getattr(args, 'async_model_evidence', False)
+@@ -438,7 +459,7 @@ def run(args):
+     if candidate:
+         sources += ['tools/ap_pv_candidate.py','tools/verify_ap_pv_candidate.py','tools/prepare_ap_pv_candidate.py',
+                     'tools/joint_message_candidate.py']
+-        sources += candidate_rate_sources(timing_probe)
++        sources += candidate_rate_sources(timing_probe, spin_cpu)
+         sources += ['Simulator/wksim_runtime/joint_profile.py',
+                     'Simulator/wksim_runtime/joint-profiles.json','Simulator/wksim_runtime/build_identity.py']
+     if async_model_evidence:
+@@ -819,7 +840,7 @@ def run(args):
+                         fields = add_timing_probe_identity(fields, diagnostic_identity)
+                     rate_log.write(json.dumps(dict(kind=kind, epoch=clock.epoch, tick=clock.tick,
+                         issued_monotonic_ns=time.monotonic_ns(), **fields), separators=(',', ':'))+'\n')
+-                rate = make_joint_rate(clock.epoch, .5, record_rate, diagnostic=timing_probe)
++                rate = make_joint_rate(clock.epoch, .5, record_rate, diagnostic=timing_probe, spin_cpu=spin_cpu)
+                 record_rate('rate_bootstrap', classification='untimed_until_first_synchronized_barrier')
+             elif args.pause_probe or args.scene_lifecycle:
+                 pause_probe = PauseProbe(node, clock, live, started, args.repeat_paused_clock)
+@@ -1212,6 +1233,9 @@ def main(argv=None):
+     runner.add_argument('--manager-gc-freeze', action='store_true',
+                         help='Opt-in candidate: after initialization and before physics starts, '
+                              'collect once then freeze the manager long-lived object graph (PV/MIXED only)')
++    runner.add_argument('--rate-spin-cpu-timing', action='store_true',
++                        help='Diagnostic adjacent pacing wall/thread-CPU samples near release; '
++                             'requires WKSIM_JOINT_RATE_TIMING_PROBE=1, PV/MIXED only')
+     runner.add_argument('--early-work-timing', action='store_true',
+                         help='Opt-in diagnostic: bounded early manager work segmentation for the first '
+                              '10 wall seconds from the first rate anchor (PV/MIXED only; requires '
+@@ -1242,6 +1266,11 @@ def main(argv=None):
+     if args.role == 'run':
+         pv = args.task_profile == PV_PROFILE
+         mixed = args.task_profile == MIXED_PROFILE
++        if args.rate_spin_cpu_timing:
++            try:
++                validate_spin_cpu_request(args.task_profile, True, timing_probe_enabled())
++            except ValueError as error:
++                parser.error(str(error))
+         if args.async_model_evidence and not (pv or mixed):
+             parser.error('--async-model-evidence is only allowed for PV/MIXED task profiles')
+         if args.manager_gc_freeze and not (pv or mixed):

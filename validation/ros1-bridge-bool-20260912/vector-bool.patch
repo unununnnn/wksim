@@ -1,0 +1,67 @@
+diff --git a/resource/interface_factories.cpp.em b/resource/interface_factories.cpp.em
+index 6481b75..5b6cead 100644
+--- a/resource/interface_factories.cpp.em
++++ b/resource/interface_factories.cpp.em
+@@ -370,6 +370,10 @@ template<typename VEC_PRIMITIVE_T>
+ static void streamPrimitiveVector(ros::serialization::OStream & stream, const VEC_PRIMITIVE_T& vec)
+ {
+   const uint32_t data_len = vec.size() * sizeof(typename VEC_PRIMITIVE_T::value_type);
++  if (data_len == 0) {
++    // &vec.front() is undefined for an empty vector; nothing to copy
++    return;
++  }
+   // copy data from std::vector/std::array into stream
+   memcpy(stream.advance(data_len), &vec.front(), data_len);
+ }
+@@ -387,10 +391,51 @@ template<typename VEC_PRIMITIVE_T>
+ static void streamPrimitiveVector(ros::serialization::IStream & stream, VEC_PRIMITIVE_T& vec)
+ {
+   const uint32_t data_len = vec.size() * sizeof(typename VEC_PRIMITIVE_T::value_type);
++  if (data_len == 0) {
++    // &vec.front() is undefined for an empty vector; nothing to copy
++    return;
++  }
+   // copy data from stream into std::vector/std::array
+   memcpy(&vec.front(), stream.advance(data_len), data_len);
+ }
+ 
++// std::vector<bool, Allocator> stores packed bits behind proxy references, so
++// &vec.front()/memcpy are ill-formed for it. These overloads follow
++// ros::serialization::Serializer<bool> exactly: each element is one uint8_t
++// wire byte (0x00/0x01), never a byte memcpy'd into a bool object. They are
++// more specialized than the generic VEC_PRIMITIVE_T templates above and are
++// selected only for vector<bool, Allocator>; every other primitive keeps the
++// memcpy fast path. The uint32 element-count prefix is written separately by
++// streamVectorSize at the call site, never here.
++// This version is for write
++template<typename Allocator>
++static void streamPrimitiveVector(ros::serialization::OStream & stream, const std::vector<bool, Allocator>& vec)
++{
++  for (typename std::vector<bool, Allocator>::const_iterator it = vec.begin(); it != vec.end(); ++it) {
++    const uint8_t value = static_cast<uint8_t>(*it);
++    memcpy(stream.advance(1), &value, 1);
++  }
++}
++
++// This version is for length
++template<typename Allocator>
++static void streamPrimitiveVector(ros::serialization::LStream & stream, const std::vector<bool, Allocator>& vec)
++{
++  const uint32_t data_len = static_cast<uint32_t>(vec.size()) * sizeof(uint8_t);
++  stream.advance(data_len);
++}
++
++// This version is for read
++template<typename Allocator>
++static void streamPrimitiveVector(ros::serialization::IStream & stream, std::vector<bool, Allocator>& vec)
++{
++  for (typename std::vector<bool, Allocator>::iterator it = vec.begin(); it != vec.end(); ++it) {
++    uint8_t value = 0;
++    memcpy(&value, stream.advance(1), 1);
++    *it = static_cast<bool>(value);
++  }
++}
++
+ @[for m in mapped_msgs]@
+ 
+ @[  if m.ros2_msg.package_name=="std_msgs" and m.ros2_msg.message_name=="Header"]

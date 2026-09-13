@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "issue": 164,
+  "stable_key": "full-ops-13",
+  "title": "Performance and scale",
+  "source": {
+    "file": "docs/plan/full-scope-expansion.md",
+    "line": 81,
+    "ledger_id": "OPS-13",
+    "ledger_file": "docs/plan/full-followup-tickets.json",
+    "parent_issues": [1]
+  },
+  "status": "defined",
+  "evidence_status": "partial-evidence",
+  "full_complete": false,
+  "current_gap": "Single-machine 3x speed or two-vehicle validation does not prove ten-vehicle, arbitrary-hardware or distributed real-time performance.",
+  "atoms": [
+    {"id": "OPS-13-A", "name": "target_vehicle_count", "status": "partial", "required": "Declared target vehicle count accepted on the joint scene; two-vehicle evidence is a subset", "owner": "runtime maintainer"},
+    {"id": "OPS-13-B", "name": "step_rate_frequency", "status": "partial", "required": "Step rate/speedup met with explicit RateUnmet on breach; 0.5/1.0 rate validation is a bounded profile", "owner": "runtime maintainer"},
+    {"id": "OPS-13-C", "name": "throughput_load", "status": "partial", "required": "CPU/GPU load and throughput budget per configuration; the tracefs collector is diagnostics, not a budget proof", "owner": "performance maintainer"},
+    {"id": "OPS-13-D", "name": "record_capacity", "status": "partial", "required": "Recording capacity at target scale under the OPS-11 record contract", "owner": "runtime maintainer"},
+    {"id": "OPS-13-E", "name": "time_deviation_recovery_window", "status": "partial", "required": "Quantified time-deviation bounds and recovery windows at scale; barrier/suspend semantics alone are unquantified", "owner": "runtime maintainer"},
+    {"id": "OPS-13-F", "name": "distributed_realtime", "status": "blocked", "required": "Multi-host distributed real-time validation with per-host identity; nothing current proves it", "owner": "performance maintainer"}
+  ],
+  "envelope_required": ["profile_id", "vehicle_count", "step_rate_hz", "speedup", "hardware_identity", "cpu_budget", "gpu_budget", "record_throughput", "record_capacity", "time_deviation_budget_ns", "recovery_window_s", "epoch", "source_identity"],
+  "scope_rule": "a bounded profile proves only its own configuration; hardware, vehicle count and speedup do not extrapolate",
+  "errors": ["accepted", "rate_unmet", "resource_insufficient", "capacity_exceeded", "deviation_exceeded", "recovery_window_missed", "scale_unsupported", "hardware_unverified"],
+  "followups": [
+    {"key": "ops-13-scale-profile", "files": ["Simulator/wksim_runtime/joint_rate.py", "validation/<scale-profile-audit>"], "status": "proposed", "blocked_by": "Declared target vehicle count and hardware identity"},
+    {"key": "ops-13-load-budget", "files": ["validation/rate-syscall-scheduler-plan-20260909/collect_tracefs.py", "validation/<load-budget-audit>"], "status": "proposed", "blocked_by": "CPU/GPU budget values per configuration"},
+    {"key": "ops-13-capacity-plan", "files": ["Simulator/wksim_runtime/<record-writer>.py reserved", "validation/<capacity-audit>"], "status": "proposed", "blocked_by": "OPS-11 record contract capacity policy"},
+    {"key": "ops-13-distributed-slice", "files": ["runtime source reserved after distribution decision", "validation/<distributed-audit>"], "status": "proposed", "blocked_by": "Multi-host authority and identity design"}
+  ],
+  "preserved": {"rate_unmet": "#20/#33 RateUnmet semantics unchanged", "collector": "read-only diagnostics; not a budget proof", "full_complete": false}
+}

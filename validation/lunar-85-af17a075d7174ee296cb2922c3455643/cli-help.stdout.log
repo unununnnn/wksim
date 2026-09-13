@@ -1,0 +1,17 @@
+usage: audit_pid_flight.py [-h] --run-dir RUN_DIR --output OUTPUT
+
+Independent #85 offline PID audit; never imports the online PID/evaluator.
+Usage (inside the admitted ROS overlay): python3 -B tools/audit_pid_flight.py
+--run-dir /root/wksim-pid-flight-ID/ID --output /absolute/new-audit.json
+Output schema wksim.pid.audit.v1 retains completed checks and the first
+failure. Exit 0 means recorded evidence passed; 1 means rejected/incomplete.
+No flight, model, ROS node, source execution, parameter change or in-place
+evidence edit. Wire matching uses 1e-6; independent double recomputation uses
+1e-10. Neither tolerance applies to physical budgets. Sampled native logs
+cannot establish the exact first acceptance tick or absence of activity
+between native observations.
+
+options:
+  -h, --help         show this help message and exit
+  --run-dir RUN_DIR
+  --output OUTPUT

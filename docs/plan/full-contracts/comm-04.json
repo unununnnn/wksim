@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "issue": 131,
+  "stable_key": "full-comm-04",
+  "title": "Mavlink_Simple interaction",
+  "source": {
+    "file": "docs/plan/full-scope-expansion.md",
+    "line": 35,
+    "ledger_id": "COMM-04",
+    "ledger_file": "docs/plan/full-followup-tickets.json",
+    "parent_issues": [1]
+  },
+  "status": "defined",
+  "evidence_status": "no-evidence",
+  "full_complete": false,
+  "current_gap": "The exact message reduction versus Full, the reduced frequencies and reference sampling are missing; the velocity/yaw slice #32 is not evidence for this mode.",
+  "atoms": [
+    {"id": "COMM-04-A", "name": "reduction_mapping", "status": "blocked", "required": "Exact message reduction versus Mavlink_Full with per-message rationale", "owner": "protocol maintainer"},
+    {"id": "COMM-04-B", "name": "frequency_and_sampling", "status": "blocked", "required": "Reduced frequencies and reference sampling pinned per message", "owner": "protocol maintainer"},
+    {"id": "COMM-04-C", "name": "distinct_implementation", "status": "partial", "required": "A distinct simple-mode implementation; relabelling the Full path is rejected by rule", "owner": "runtime maintainer"},
+    {"id": "COMM-04-D", "name": "reference_capture", "status": "blocked", "required": "Reference capture of the simple mode showing which messages actually appear", "owner": "validation maintainer"}
+  ],
+  "message_required": ["message_id", "message_name", "dialect", "dialect_sha256", "frequency_hz", "reduced_from_full", "reduction_rationale", "system_id", "epoch", "source_identity"],
+  "scope_rule": "Mavlink_Simple is defined by its pinned reduction and frequencies, not by reusing the Full implementation under a new label",
+  "errors": ["accepted", "unknown_message", "reduction_undefined", "frequency_unmet", "dialect_mismatch", "full_relabel_rejected", "stale_message"],
+  "followups": [
+    {"key": "comm-04-reduction-freeze", "files": ["docs/plan/<mavlink-simple-reduction>.json"], "status": "proposed", "blocked_by": "COMM-03 message set freeze"},
+    {"key": "comm-04-reference-capture", "files": ["validation/<mavlink-simple-capture>"], "status": "proposed", "blocked_by": "Reference observation of the simple mode"},
+    {"key": "comm-04-simple-implementation", "files": ["Simulator/wksim_runtime/<mavlink-simple>.py", "validation/<simple-tests>.py"], "status": "proposed", "blocked_by": "Frozen reduction and frequencies"}
+  ],
+  "preserved": {"issue_32": "closed velocity/yaw slice, not this mode's evidence", "depends_on_full": "reduction derives from the COMM-03 frozen set", "full_complete": false}
+}

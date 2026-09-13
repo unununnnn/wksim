@@ -1,0 +1,104 @@
+{
+  "source_commit": "0769c3a",
+  "run_id": "joint-public-flight-nqyqcagl",
+  "raw_directory": "C:\\Users\\PC\\Documents\\odid编译\\wksim\\validation\\joint-public-flight-nqyqcagl",
+  "private_live_directory": "/root/wksim-joint-flight-0tosni88",
+  "status": "failed",
+  "error": "RateUnmet('rate_unmet/resource_insufficient')",
+  "rate_unmet": [
+    {
+      "kind": "rate_unmet",
+      "epoch": "293c42f44d224b47b3077a99ce3f3936",
+      "tick": 53128,
+      "issued_monotonic_ns": 574303549177,
+      "reason": "resource_insufficient",
+      "lateness_ns": 104260439,
+      "requested_rate": 0.5,
+      "request_id": "config",
+      "segment_id": 1,
+      "latched": true,
+      "anchor": {
+        "tick": 48,
+        "wall_ns": 468039269154,
+        "transition": false
+      },
+      "measured_rate": 0.499509428482496,
+      "measurement": "timed_segment",
+      "completed_groups": 13270,
+      "worst_lateness_ns": 104260439,
+      "steady_after_ns": 470039269154
+    }
+  ],
+  "source_unchanged": true,
+  "control_shutdown_clean": true,
+  "cleanup_errors": [],
+  "reported_remaining_groups": {
+    "arducopter-model": [],
+    "arducopter-agent": [],
+    "arducopter-fc": [],
+    "arducopter-control": [],
+    "arducopter-task": [],
+    "px4-model": [],
+    "px4-agent": [],
+    "px4-fc": [],
+    "px4-control": [],
+    "px4-task": []
+  },
+  "dual_native_flags": [
+    "arducopter_pv_profile:=full_xyz_pv_yaw_v1",
+    "arducopter_mixed_profile:=xy_velocity_z_position_yaw_v1"
+  ],
+  "scope": "Failed original 0.5x final-combination trial; no physical/PV/Full acceptance",
+  "archive_manifest": {
+    "result.json": {
+      "source_bytes": 126277,
+      "source_sha256": "a29e7d8b63b191f84d9ed30ddd7416e5d0422641bf58dfe9dae8e19d75744ffb",
+      "retained": "result.json"
+    },
+    "rate.jsonl": {
+      "source_bytes": 10343325,
+      "source_sha256": "d385de34204ed6e50dfa502808aea229c29c1a4ae3d59e1bb1b0e45b96e9999e",
+      "retained": "rate.jsonl.gz"
+    },
+    "arducopter-task.log": {
+      "source_bytes": 2049,
+      "source_sha256": "94649d15d4d65fc6b4d408fd9c4a5887f182866916b391d184268672f4128841",
+      "retained": "arducopter-task.log"
+    },
+    "px4-task.log": {
+      "source_bytes": 2019,
+      "source_sha256": "b5d764b9d0b1817488b35dc560e320a36ef39ad53b976478ece3509e3cde0399",
+      "retained": "px4-task.log"
+    },
+    "arducopter-control.log": {
+      "source_bytes": 7033,
+      "source_sha256": "4fc90ed48ebff60959cea766c90e8ac646cf24e5c24a0243df655ef4c98ae0f8",
+      "retained": "arducopter-control.log"
+    },
+    "px4-control.log": {
+      "source_bytes": 7397,
+      "source_sha256": "b279f5c6a520aa69f8f730b7214b977687344bf0e9b9b4ed0885977dc3c10d3a",
+      "retained": "px4-control.log"
+    },
+    "control-build.json": {
+      "source_bytes": 12091,
+      "source_sha256": "3d04d53a5c41d374ee623d16a265e8816d481e5d4433f23a60140a8e8184ecc4",
+      "retained": "control-build.json"
+    },
+    "message-build.json": {
+      "source_bytes": 7149,
+      "source_sha256": "29969da0702451e3fc6f1de40bc301a67284c4e7d5fae8f88c64773d27a96219",
+      "retained": "message-build.json"
+    },
+    "children-start.json": {
+      "source_bytes": 15312,
+      "source_sha256": "93643da4b0468dab1f0eae1c6a19cb8b205503a26fb1310a4b8bc34ec696e01d",
+      "retained": "children-start.json"
+    },
+    "experimental-admission.json": {
+      "source_bytes": 63283,
+      "source_sha256": "b3b10684703f3741f1e2ba87f030177402eca8430dc8f7c305d3e9033b279565",
+      "retained": "experimental-admission.json"
+    }
+  }
+}

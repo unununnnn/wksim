@@ -1,0 +1,37 @@
+{
+  "issue": 79,
+  "stable_key": "29-contact",
+  "date": "2026-09-10",
+  "delivered": {
+    "module": "Simulator/wksim_core/static_contact.py",
+    "config": "Simulator/wksim_runtime/static-scene-v1.json",
+    "tests": "validation/test_static_contact.py"
+  },
+  "scene_sha256": "f2972aa228484be202f94327d7f8d932946e7d893283f7b1f4f6036c0357371e",
+  "geometry": "z=0 plane + box center [2,0,0.5] size [1,1,1] m, ENU, fixture values",
+  "envelope": "wksim.contact.v1, one authority step validity, sim_time_ns=step*1e6",
+  "errors": [
+    "accepted",
+    "scene_not_found",
+    "scene_hash_mismatch",
+    "invalid_geometry",
+    "foreign_epoch",
+    "stale_feedback",
+    "future_feedback",
+    "unsupported_query",
+    "contact_invalid"
+  ],
+  "test_result": "21 passed, 0 skipped (Windows Python)",
+  "not_done": [
+    "no model worker wiring (needs separately owned edit ticket)",
+    "no friction/restitution/force model (not approved)",
+    "no dynamic objects"
+  ],
+  "source_sha256": {
+    "Simulator/wksim_core/static_contact.py": "6affc8a60fe46be5b8c1e94dca2f06cd4208039b45e25954a1d7ba828d77b35e",
+    "Simulator/wksim_runtime/static-scene-v1.json": "f2972aa228484be202f94327d7f8d932946e7d893283f7b1f4f6036c0357371e",
+    "validation/test_static_contact.py": "0c424f5792ac4c8a47fded7124f726e6ea7e022ec1cf9cfd271a0a1928a8d7e0",
+    "docs/plan/9-abi-environment-accepted.md": "0053b43d5ed156d6b14d5d5a5f80acc0ea280c3609d11a96ed9a5913c83bac4c",
+    "docs/plan/remaining-gates-proposal.md": "abf10c663c235c151207bba142fa4e8798cb02617142465c3b5a46f3d04d7098"
+  }
+}

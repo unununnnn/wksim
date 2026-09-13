@@ -1,0 +1,21 @@
+{
+  "body": "<!-- lunar-slice:20-rate-engineering:v1 -->\n\n原验收父票：#20。执行层：**Astra 设计/审查**。稳定键：`20-rate-engineering`。\n\n先读 [lunar模型完整推进指南.md](https://github.com/unununnnn/wksim/blob/codex/independent-rgb-integration/lunar%E6%A8%A1%E5%9E%8B%E5%AE%8C%E6%95%B4%E6%8E%A8%E8%BF%9B%E6%8C%87%E5%8D%97.md)。本票只完成下面限定切片，原父票验收标准不变。\n\n## 写入范围\n\n- `docs/plan/20-rate-candidate-contract.md (new)`\n\n- `validation/20-rate-candidate-profile/ (new evidence)`\n\n\n\n## 先读输入\n\n- `docs/2026-09-09-joint-step-acceptance-review.md`\n\n- `docs/2026-09-09-rate-release-check.md`\n\n\n\n## 本票前置\n\n无本票额外开放依赖；运行前仍须完成脚本资源/身份检查。\n\n原父票依赖仍为 #19, #8。本子票仅按自身真实前置派发，父票关闭规则不变。\n\n\n\n## 操作步骤\n\n1. Read existing failed run timing and reverted no-benefit microbenchmark\n\n2. Identify one measured bottleneck and exact candidate source scope before edits; do not repeat known-no-benefit timer change\n\n3. Freeze candidate identity/load and unchanged 100ms plus 10s/60s budgets; attach a bounded implementation child if code changes are needed\n\n\n\n## 完成条件\n\n- [ ] Concrete source/host candidate with demonstrated timing rationale and exact 1x run/audit command; no performance PASS claim.\n\n- [ ] 交付源码/配置身份、准确命令、原始结果和失败边界；仅关闭本子票。\n\n\n\n## 命令入口\n\n这是实现/契约切片。新增入口、测试命令和输出schema属于交付物；当前不宣称尚未创建的脚本可以运行。\n\n\n\n## 失败处理\n\n保存本次新证据，保持票据 OPEN，移到 needs-triage 并写清实际错误。源码身份、物理预算或写入范围变化交 Astra 复核；已授权的普通读写/检查不反复请求用户许可。\n\n父票关闭另核对原AC、原依赖和全部必要证明。子票通过不等于物理/Full通过；R1、RateUnmet与旧失败记录保持原状。\n",
+  "comments": [],
+  "labels": [
+    {
+      "id": "LA_kwDOUO3g_M8AAAACz2yD0w",
+      "name": "wayfinder:task",
+      "description": "",
+      "color": "0E8A16"
+    },
+    {
+      "id": "LA_kwDOUO3g_M8AAAACz6BSGg",
+      "name": "ready-for-agent",
+      "description": "Specified implementation; work only when blocking issues are resolved",
+      "color": "0E8A16"
+    }
+  ],
+  "number": 61,
+  "state": "OPEN",
+  "title": "[Astra] 定位并修复一个有证据的1×调度瓶颈"
+}

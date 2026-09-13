@@ -253,6 +253,19 @@ class PX4Link:
         else:
             raise ValueError(f'Unsupported PX4 setpoint: {target.kind}')
 
+    def send_global(self, target, yaw):
+        """Explicit global projection result; never pass it through local shaping."""
+        from Simulator.wksim_control.global_reference import ResolvedTarget, require
+        require(type(target) is ResolvedTarget and target.native_kind == 'trajectory_setpoint_ned'
+                and target.original.identity.stack == 'px4', 'global_target_wrong_stack')
+        timestamp = self.timestamp()
+        position = list(vector(target.native_target))
+        native_yaw = wrap_pi(math.pi/2-scalar(yaw))
+        self.publishers['offboard'].publish(OffboardControlMode(timestamp=timestamp, position=True))
+        self.publishers['position'].publish(TrajectorySetpoint(timestamp=timestamp, position=position,
+            velocity=[math.nan]*3, acceleration=[math.nan]*3, jerk=[math.nan]*3,
+            yaw=native_yaw, yawspeed=math.nan))
+
     def request(self, action, value=None):
         if self.pending is not None:
             raise ValueError('Native command already pending')

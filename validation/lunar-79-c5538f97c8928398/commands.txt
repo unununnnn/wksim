@@ -1,0 +1,17 @@
+Working directory: C:/Users/PC/Documents/odid编译/wksim
+
+Read-only inputs:
+  Get-Content docs/plan/remaining-gates-proposal.md
+  Get-Content docs/plan/9-abi-environment-accepted.md
+  gh issue view 79 --repo unununnnn/wksim --json number,title,body,state,labels,comments
+
+New files (write scope):
+  Simulator/wksim_core/static_contact.py
+  Simulator/wksim_runtime/static-scene-v1.json
+  validation/test_static_contact.py
+
+Validation:
+  python -B -m unittest validation.test_static_contact  ->  Ran 21 tests, OK
+  git diff --cached --check
+
+No UE, FC, model, ROS, MATLAB or hardware process was started; no vendor DLL was touched.

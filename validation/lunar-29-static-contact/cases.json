@@ -1,0 +1,15 @@
+[
+  {"case": "plane_below", "point": [0.3, -0.2, -0.4], "step": 10, "expect": "contact:plane_z0"},
+  {"case": "plane_touching", "point": [1.0, 1.0, 0.0], "step": 11, "expect": "contact:plane_z0"},
+  {"case": "free_space", "point": [0.0, 0.0, 0.5], "step": 12, "expect": "no_contact"},
+  {"case": "box_top", "point": [2.0, 0.0, 0.9], "step": 13, "expect": "contact:box_0"},
+  {"case": "box_side", "point": [1.6, 0.0, 0.5], "step": 14, "expect": "contact:box_0"},
+  {"case": "box_center_tie", "point": [2.0, 0.0, 0.5], "step": 15, "expect": "contact:box_0"},
+  {"case": "box_surface", "point": [2.0, 0.0, 1.0], "step": 16, "expect": "contact:box_0"},
+  {"case": "far_outside", "point": [5.0, 5.0, 2.0], "step": 17, "expect": "no_contact"},
+  {"case": "fresh_same_step", "from_case": "box_top", "current_step": 13, "run_epoch": "a1b2c3d4e5f60718293a4b5c6d7e8f90", "expect": "fresh:true"},
+  {"case": "stale_one_step_later", "from_case": "box_top", "current_step": 14, "run_epoch": "a1b2c3d4e5f60718293a4b5c6d7e8f90", "expect": "error:stale_feedback"},
+  {"case": "future_one_step_earlier", "from_case": "box_top", "current_step": 12, "run_epoch": "a1b2c3d4e5f60718293a4b5c6d7e8f90", "expect": "error:future_feedback"},
+  {"case": "foreign_epoch", "from_case": "box_top", "current_step": 13, "run_epoch": "b2c3d4e5f60718293a4b5c6d7e8f90ab", "expect": "error:foreign_epoch"},
+  {"case": "tampered_scene_hash", "from_case": "box_top", "current_step": 13, "run_epoch": "a1b2c3d4e5f60718293a4b5c6d7e8f90", "tamper_hash": true, "expect": "error:scene_hash_mismatch"}
+]

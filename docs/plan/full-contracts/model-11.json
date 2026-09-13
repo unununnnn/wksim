@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "issue": 145,
+  "stable_key": "full-model-11",
+  "title": "Trailer model",
+  "source": {
+    "file": "docs/plan/full-scope-expansion.md",
+    "line": 56,
+    "ledger_id": "MODEL-11",
+    "ledger_file": "docs/plan/full-followup-tickets.json",
+    "parent_issues": [1]
+  },
+  "status": "defined",
+  "evidence_status": "no-evidence",
+  "full_complete": false,
+  "current_gap": "The trailer is uncovered; towing/joint articulation and scene-coupled conditions are missing.",
+  "atoms": [
+    {"id": "MODEL-11-A", "name": "towing_joint_model", "status": "blocked", "required": "Towing hitch/joint articulation model with angle limits and coupling forces", "owner": "model maintainer"},
+    {"id": "MODEL-11-B", "name": "scene_coupling_conditions", "status": "blocked", "required": "Scene-coupled conditions (slope, obstacle, turn) with expected responses", "owner": "physics maintainer"},
+    {"id": "MODEL-11-C", "name": "host_vehicle_dependency", "status": "blocked", "required": "Declared host vehicle identity; a trailer never runs standalone", "owner": "runtime maintainer"},
+    {"id": "MODEL-11-D", "name": "non_coverage_rule", "status": "partial", "required": "Rule enforced: single-vehicle evidence never covers articulated towing", "owner": "validation maintainer"}
+  ],
+  "model_required": ["model_identity", "vehicle_class=trailer", "host_vehicle", "hitch_joint", "articulation_limits", "mass_kg", "inertia", "scene_requirements", "source", "source_sha256"],
+  "scope_rule": "a trailer is defined by its joint to a host vehicle and scene coupling; standalone vehicle evidence never substitutes",
+  "errors": ["accepted", "model_not_found", "host_missing", "joint_invalid", "articulation_exceeded", "scene_unavailable", "substitution_rejected"],
+  "followups": [
+    {"key": "model-11-model-source", "files": ["docs/plan/<trailer-source>.json"], "status": "proposed", "blocked_by": "Model source, host vehicle model and OPS-07 scene coupling"},
+    {"key": "model-11-coupling-audit", "files": ["validation/<trailer-coupling-audit>"], "status": "proposed", "blocked_by": "Model source and joint definition"}
+  ],
+  "preserved": {"ops07_dependency": "scene coupling depends on the OPS-07 contract implementation", "full_complete": false}
+}

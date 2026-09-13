@@ -1,0 +1,50 @@
+"""Pure diagnostic entry checks; no native processes or real probe execution."""
+import os
+from pathlib import Path
+import sys
+from types import SimpleNamespace
+from unittest.mock import patch
+import pytest
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT/'tools'))
+sys.path.insert(0, str(ROOT))
+import run_joint_flight as runner
+
+@pytest.mark.parametrize("profile,env", [
+    (runner.PV_PROFILE, {}), (runner.MIXED_PROFILE, {}),
+    ("position", {runner.TIMING_PROBE_ENV: "1"}),
+])
+def test_invalid_programmatic_request_precedes_isolation(profile, env):
+    args=SimpleNamespace(task_profile=profile, rate_spin_cpu_timing=True)
+    with patch.dict(os.environ, env, clear=True), patch.object(
+            runner, "check_isolation", side_effect=AssertionError("isolation touched")):
+        with pytest.raises(ValueError):
+            runner.run(args)
+
+def test_factory_default_and_rejected_opt_in():
+    rate=runner.make_joint_rate("epoch", .5, lambda *a, **kw: None, diagnostic=False)
+    assert type(rate) is runner.JointRate
+    assert "tools/rate_spin_cpu_probe.py" not in runner.candidate_rate_sources(False)
+    with pytest.raises(ValueError):
+        runner.make_joint_rate("epoch", .5, lambda *a, **kw: None,
+                               diagnostic=False, spin_cpu=True)
+
+def test_explicit_factory_uses_probe_and_retains_its_source():
+    class Probe:
+        def __init__(self,*args): self.args=args
+    fake=SimpleNamespace(JointRateSpinCpuProbe=Probe)
+    with patch.dict(sys.modules, {"rate_spin_cpu_probe":fake}):
+        rate=runner.make_joint_rate("epoch", .5, None, diagnostic=True, spin_cpu=True)
+    assert isinstance(rate,Probe)
+    assert rate.args==("epoch",.5,None)
+    assert "tools/rate_spin_cpu_probe.py" in runner.candidate_rate_sources(True,True)
+
+def test_cli_rejects_unrequested_parent_probe_before_run():
+    args=["run","--task-profile",runner.PV_PROFILE,"--rate-spin-cpu-timing",
+          "--control-manifest","unused","--control-sha256","a"*64]
+    with patch.dict(os.environ,{},clear=True), patch.object(
+            runner,"run",side_effect=AssertionError("run reached")):
+        with pytest.raises(SystemExit) as error:
+            runner.main(args)
+    assert error.value.code==2

@@ -1,0 +1,82 @@
+{
+  "decision": "AP recorded evidence verified",
+  "run_id": "pid-ap-shaped-feedback-20260909-02",
+  "audit_path": "validation/35-pid-arducopter/ap-shaped-feedback-20260909/strict-audit-report.json",
+  "audit_sha256": "54500710ee49ba8513b48ab1a7d7e7374710eba5bd68fafd3c979735fc39d549",
+  "input_hashes_checked": 14,
+  "source_hashes_checked": 28,
+  "auditor_sha256": "f7a089c59d4bdf352ba0239ab6a32d645c177d371869f2035ef63fc8a00ee0b3",
+  "pid_task_sha256": "ffbddccff7a1135bb6342c6883d8a7c22b2922fc16b0d2652e4d80a8fc073d62",
+  "native_binary_sha256": "c1a38947d65aafa7a9051a850df46d9fd67c8f0723833bf3508245c81ab7b1c0",
+  "installed_control_hashes_checked": 9,
+  "protocol_sha256": "25d50ddbbd44e658a72123e6d524a5c5021b355367a99e46a898ec9b9cecadc0",
+  "stages": {
+    "point": 128,
+    "circle": 308,
+    "disturbance": 220
+  },
+  "request_associations": 656,
+  "verified_pending_observations": 656,
+  "physics": {
+    "ticks": 126163,
+    "applied_ticks": 1000,
+    "captured_packets": 126163
+  },
+  "metrics": {
+    "point": {
+      "start": 66.94,
+      "end": 70.94,
+      "ticks": 4001,
+      "max_error_m": 0.030136379079604644,
+      "max_speed_mps": 0.018735090357411138,
+      "max_yaw_error_rad": 0.00985298488867925
+    },
+    "circle": {
+      "start": 84.54,
+      "end": 96.54,
+      "ticks": 12001,
+      "max_error_m": 0.11235342103850735,
+      "max_speed_mps": 0.339233440707891,
+      "max_yaw_error_rad": 0.002238415066578403
+    },
+    "disturbance": {
+      "start": 104.9,
+      "end": 115.9,
+      "ticks": 11001,
+      "max_error_m": 0.1692239501567714,
+      "max_speed_mps": 0.22084070662589242,
+      "max_yaw_error_rad": 0.0041125031194475525
+    }
+  },
+  "native_motor_comparisons": 510,
+  "processes": {
+    "physics": {
+      "pid": 3689,
+      "proc_stat_exists": false,
+      "returncode": 0
+    },
+    "agent": {
+      "pid": 3690,
+      "proc_stat_exists": false,
+      "returncode": -15
+    },
+    "fc": {
+      "pid": 3697,
+      "proc_stat_exists": true,
+      "returncode": 0,
+      "reused_pid": true
+    },
+    "control": {
+      "pid": 3698,
+      "proc_stat_exists": true,
+      "returncode": 0,
+      "reused_pid": true
+    }
+  },
+  "limitations": [
+    "No exact first native acceptance tick or per-message publisher GID.",
+    "Native logs and mode messages are sampled; absence between samples is unverified.",
+    "Mass is source/hash bound, not a runtime parameter getter.",
+    "No Full, UI, joint rate, UDE/NE, or motor-efficiency acceptance."
+  ]
+}

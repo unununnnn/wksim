@@ -1,0 +1,92 @@
+{
+  "status": "passed",
+  "stacks": {
+    "arducopter": {
+      "run_id": "pid-ap-shaped-feedback-20260909-02",
+      "run_dir": "/root/wksim-pid-flight-pid-ap-shaped-feedback-20260909-02/pid-ap-shaped-feedback-20260909-02",
+      "strict_audit_sha256": "54500710ee49ba8513b48ab1a7d7e7374710eba5bd68fafd3c979735fc39d549",
+      "result_sha256": "5bdfec3476ece0e8b3b45f06b7474edb93ebf4d2a76da1a40f487d343d3c1b4a",
+      "physics_ticks": 126163,
+      "pid_updates": {
+        "point": 128,
+        "circle": 308,
+        "disturbance": 220
+      },
+      "native_associations": 656,
+      "metrics": {
+        "point": {
+          "start": 66.94,
+          "end": 70.94,
+          "ticks": 4001,
+          "max_error_m": 0.030136379079604644,
+          "max_speed_mps": 0.018735090357411138,
+          "max_yaw_error_rad": 0.00985298488867925
+        },
+        "circle": {
+          "start": 84.54,
+          "end": 96.54,
+          "ticks": 12001,
+          "max_error_m": 0.11235342103850735,
+          "max_speed_mps": 0.339233440707891,
+          "max_yaw_error_rad": 0.002238415066578403
+        },
+        "disturbance": {
+          "start": 104.9,
+          "end": 115.9,
+          "ticks": 11001,
+          "max_error_m": 0.1692239501567714,
+          "max_speed_mps": 0.22084070662589242,
+          "max_yaw_error_rad": 0.0041125031194475525
+        }
+      },
+      "cleanup": "landed_stop; all owned children reaped"
+    },
+    "px4": {
+      "run_id": "pid-px4-final-source-20260909-02",
+      "run_dir": "/root/wksim-pid-flight-pid-px4-final-source-20260909-02/pid-px4-final-source-20260909-02",
+      "strict_audit_sha256": "a8f36504d69dc213ab2845eb1880a8292120b03c10330de15f05e33028e435fc",
+      "result_sha256": "9eee7ee89330e1720bd991fb186dbb7e6250cfffdca9f8f6877dc53f2180bb01",
+      "physics_ticks": 92888,
+      "pid_updates": {
+        "point": 167,
+        "circle": 400,
+        "disturbance": 284
+      },
+      "native_associations": 851,
+      "metrics": {
+        "point": {
+          "start": 33.7,
+          "end": 37.7,
+          "ticks": 4001,
+          "max_error_m": 0.06721183025208823,
+          "max_speed_mps": 0.03077497428910899,
+          "max_yaw_error_rad": 0.005243548122872976
+        },
+        "circle": {
+          "start": 51.82,
+          "end": 63.82,
+          "ticks": 12001,
+          "max_error_m": 0.12581325335612742,
+          "max_speed_mps": 0.3205871644326068,
+          "max_yaw_error_rad": 0.010778735389977756
+        },
+        "disturbance": {
+          "start": 72.02,
+          "end": 83.02,
+          "ticks": 11001,
+          "max_error_m": 0.1423620490975207,
+          "max_speed_mps": 0.14971376822836513,
+          "max_yaw_error_rad": 0.009135086340049003
+        }
+      },
+      "cleanup": "landed_stop; all owned children reaped"
+    }
+  },
+  "shared_source_sha256": {
+    "Simulator/wksim_runtime/pid_task.py": "ffbddccff7a1135bb6342c6883d8a7c22b2922fc16b0d2652e4d80a8fc073d62",
+    "Simulator/wksim_control/position_pid.py": "96160fcfbabed9660c06599679cadaa4530a3ef7a60cc442432af549da2d7884",
+    "Simulator/wksim_runtime/pid-flight-v1.json": "25d50ddbbd44e658a72123e6d524a5c5021b355367a99e46a898ec9b9cecadc0",
+    "tools/run_pid_flight.py": "695e59e92700045e4d7ce297f9b11127939bf833855195edac27dc961d4c430f",
+    "tools/pid_physics.py": "2e540fed821c07df63e83252d8288d03599da613e2386cadd0e5dd04abcb0775"
+  }
+}

@@ -1,0 +1,1477 @@
+{
+  "schema_version": 1,
+  "scope": "captured timing diagnosis only",
+  "performance_pass": false,
+  "argv": [
+    "validation/20-rate-candidate-profile/profile.py",
+    "--output",
+    "validation/20-rate-candidate-profile/analysis-02",
+    "joint-rate-flow-p9koy63e",
+    "joint-rate-flow-bwd4iwsc",
+    "joint-rate-flow-wy1_f8pu",
+    "joint-rate-flow-h7b729ld"
+  ],
+  "python": "3.13.11 | packaged by Anaconda, Inc. | (main, Dec 10 2025, 21:21:58) [MSC v.1929 64 bit (AMD64)]",
+  "head": "117cd58f048d592851b4aa471ce3c15f83fd0b82",
+  "timer_restored_byte_identical": true,
+  "excluded_timer_experiment": [
+    {
+      "name": "before",
+      "groups_requested": 1000,
+      "scope": "Timer only; no FC/model/ROS and no physical acceptance claim",
+      "status": "pass",
+      "minimum_start_interval_ns": 8000000,
+      "wall_ns": 7993396279,
+      "cpu_ns": 1038121179,
+      "completed_groups": 1000,
+      "worst_lateness_ns": 1161983
+    },
+    {
+      "name": "after",
+      "groups_requested": 1000,
+      "scope": "Timer only; no FC/model/ROS and no physical acceptance claim",
+      "status": "pass",
+      "minimum_start_interval_ns": 8000000,
+      "wall_ns": 7994201581,
+      "cpu_ns": 1038547094,
+      "completed_groups": 1000,
+      "worst_lateness_ns": 1928489
+    }
+  ],
+  "cases": [
+    {
+      "case": "joint-rate-flow-p9koy63e",
+      "epoch": "a3e59a3220f5421aa95bddd44b5fd6c1",
+      "replay": "RED",
+      "rejection": {
+        "kind": "rate_unmet",
+        "tick": 80656,
+        "lateness_ns": 100011792
+      },
+      "segments": [
+        {
+          "segment_id": 2,
+          "rate": 1.0,
+          "groups": 7801,
+          "first_tick": 49452,
+          "last_tick": 80656,
+          "wall_duration_ns": 31302175882,
+          "group_duration_median_ns": 2933119,
+          "group_duration_max_ns": 8570450,
+          "group_duration_p99_ns": 3999414,
+          "group_over_period_count": 78,
+          "phase_first_ns": 698141,
+          "phase_last_ns": 99929616,
+          "summed_positive_phase_increment_ns": 99231475,
+          "preceding_group_excess_sum_ns": 25554960,
+          "top_phase_spikes": [
+            {
+              "tick": 76836,
+              "phase_increment_ns": 4652309,
+              "preceding_group_excess_ns": 4570450,
+              "residual_release_delay_ns": 81859,
+              "preceding_group_duration_ns": 8570450,
+              "gap_from_previous_end_ns": 81859,
+              "actual_start_ns": 206392691632
+            },
+            {
+              "tick": 50684,
+              "phase_increment_ns": 1646751,
+              "preceding_group_excess_ns": 797200,
+              "residual_release_delay_ns": 849551,
+              "preceding_group_duration_ns": 4797200,
+              "gap_from_previous_end_ns": 849551,
+              "actual_start_ns": 180170632264
+            },
+            {
+              "tick": 78232,
+              "phase_increment_ns": 1570208,
+              "preceding_group_excess_ns": 953099,
+              "residual_release_delay_ns": 617109,
+              "preceding_group_duration_ns": 4953099,
+              "gap_from_previous_end_ns": 617109,
+              "actual_start_ns": 207795437741
+            },
+            {
+              "tick": 49500,
+              "phase_increment_ns": 1504279,
+              "preceding_group_excess_ns": 142167,
+              "residual_release_delay_ns": 1362112,
+              "preceding_group_duration_ns": 4142167,
+              "gap_from_previous_end_ns": 1362112,
+              "actual_start_ns": 178979194795
+            },
+            {
+              "tick": 64352,
+              "phase_increment_ns": 1433685,
+              "preceding_group_excess_ns": 388140,
+              "residual_release_delay_ns": 1045545,
+              "preceding_group_duration_ns": 4388140,
+              "gap_from_previous_end_ns": 1045545,
+              "actual_start_ns": 193874424438
+            },
+            {
+              "tick": 56504,
+              "phase_increment_ns": 1308948,
+              "preceding_group_excess_ns": 1214126,
+              "residual_release_delay_ns": 94822,
+              "preceding_group_duration_ns": 5214126,
+              "gap_from_previous_end_ns": 94822,
+              "actual_start_ns": 186009066371
+            },
+            {
+              "tick": 72220,
+              "phase_increment_ns": 1273843,
+              "preceding_group_excess_ns": 0,
+              "residual_release_delay_ns": 1273843,
+              "preceding_group_duration_ns": 3754868,
+              "gap_from_previous_end_ns": 1518975,
+              "actual_start_ns": 201760763713
+            },
+            {
+              "tick": 50740,
+              "phase_increment_ns": 1224234,
+              "preceding_group_excess_ns": 1109777,
+              "residual_release_delay_ns": 114457,
+              "preceding_group_duration_ns": 5109777,
+              "gap_from_previous_end_ns": 114457,
+              "actual_start_ns": 180228698774
+            },
+            {
+              "tick": 56496,
+              "phase_increment_ns": 1134174,
+              "preceding_group_excess_ns": 441102,
+              "residual_release_delay_ns": 693072,
+              "preceding_group_duration_ns": 4441102,
+              "gap_from_previous_end_ns": 693072,
+              "actual_start_ns": 185999756956
+            },
+            {
+              "tick": 62936,
+              "phase_increment_ns": 1109822,
+              "preceding_group_excess_ns": 875620,
+              "residual_release_delay_ns": 234202,
+              "preceding_group_duration_ns": 4875620,
+              "gap_from_previous_end_ns": 234202,
+              "actual_start_ns": 192454161453
+            }
+          ]
+        }
+      ],
+      "diagnostic_sample_count": 127,
+      "gc_events": [
+        {
+          "kind": "diagnostic_gc_timing",
+          "epoch": "a3e59a3220f5421aa95bddd44b5fd6c1",
+          "tick": 50376,
+          "issued_monotonic_s": 179.857844501,
+          "generation": 0,
+          "collected": 660,
+          "wall_start_ns": 179857779082,
+          "wall_end_ns": 179857843497,
+          "thread_cpu_ns": 64176
+        },
+        {
+          "kind": "diagnostic_gc_timing",
+          "epoch": "a3e59a3220f5421aa95bddd44b5fd6c1",
+          "tick": 52536,
+          "issued_monotonic_s": 182.030389457,
+          "generation": 0,
+          "collected": 693,
+          "wall_start_ns": 182030327701,
+          "wall_end_ns": 182030388497,
+          "thread_cpu_ns": 60531
+        },
+        {
+          "kind": "diagnostic_gc_timing",
+          "epoch": "a3e59a3220f5421aa95bddd44b5fd6c1",
+          "tick": 54712,
+          "issued_monotonic_s": 184.210946788,
+          "generation": 0,
+          "collected": 693,
+          "wall_start_ns": 184210882415,
+          "wall_end_ns": 184210945677,
+          "thread_cpu_ns": 62947
+        },
+        {
+          "kind": "diagnostic_gc_timing",
+          "epoch": "a3e59a3220f5421aa95bddd44b5fd6c1",
+          "tick": 56892,
+          "issued_monotonic_s": 186.398720652,
+          "generation": 0,
+          "collected": 660,
+          "wall_start_ns": 186398659304,
+          "wall_end_ns": 186398719679,
+          "thread_cpu_ns": 60096
+        },
+        {
+          "kind": "diagnostic_gc_timing",
+          "epoch": "a3e59a3220f5421aa95bddd44b5fd6c1",
+          "tick": 59068,
+          "issued_monotonic_s": 188.578786391,
+          "generation": 0,
+          "collected": 660,
+          "wall_start_ns": 188578724528,
+          "wall_end_ns": 188578785362,
+          "thread_cpu_ns": 60547
+        },
+        {
+          "kind": "diagnostic_gc_timing",
+          "epoch": "a3e59a3220f5421aa95bddd44b5fd6c1",
+          "tick": 61244,
+          "issued_monotonic_s": 190.757769453,
+          "generation": 0,
+          "collected": 660,
+          "wall_start_ns": 190757703162,
+          "wall_end_ns": 190757768483,
+          "thread_cpu_ns": 64996
+        },
+        {
+          "kind": "diagnostic_gc_timing",
+          "epoch": "a3e59a3220f5421aa95bddd44b5fd6c1",
+          "tick": 63420,
+          "issued_monotonic_s": 192.939389607,
+          "generation": 0,
+          "collected": 660,
+          "wall_start_ns": 192939323510,
+          "wall_end_ns": 192939388514,
+          "thread_cpu_ns": 64695
+        },
+        {
+          "kind": "diagnostic_gc_timing",
+          "epoch": "a3e59a3220f5421aa95bddd44b5fd6c1",
+          "tick": 65592,
+          "issued_monotonic_s": 195.11932179,
+          "generation": 0,
+          "collected": 660,
+          "wall_start_ns": 195119254351,
+          "wall_end_ns": 195119320760,
+          "thread_cpu_ns": 66095
+        },
+        {
+          "kind": "diagnostic_gc_timing",
+          "epoch": "a3e59a3220f5421aa95bddd44b5fd6c1",
+          "tick": 67764,
+          "issued_monotonic_s": 197.297385446,
+          "generation": 0,
+          "collected": 660,
+          "wall_start_ns": 197297320461,
+          "wall_end_ns": 197297384368,
+          "thread_cpu_ns": 63602
+        },
+        {
+          "kind": "diagnostic_gc_timing",
+          "epoch": "a3e59a3220f5421aa95bddd44b5fd6c1",
+          "tick": 69940,
+          "issued_monotonic_s": 199.47651669,
+          "generation": 0,
+          "collected": 660,
+          "wall_start_ns": 199476451361,
+          "wall_end_ns": 199476515657,
+          "thread_cpu_ns": 64129
+        },
+        {
+          "kind": "diagnostic_gc_timing",
+          "epoch": "a3e59a3220f5421aa95bddd44b5fd6c1",
+          "tick": 72012,
+          "issued_monotonic_s": 201.550644857,
+          "generation": 0,
+          "collected": 627,
+          "wall_start_ns": 201550578768,
+          "wall_end_ns": 201550643778,
+          "thread_cpu_ns": 64768
+        },
+        {
+          "kind": "diagnostic_gc_timing",
+          "epoch": "a3e59a3220f5421aa95bddd44b5fd6c1",
+          "tick": 74176,
+          "issued_monotonic_s": 203.72214796,
+          "generation": 1,
+          "collected": 957,
+          "wall_start_ns": 203722055075,
+          "wall_end_ns": 203722146820,
+          "thread_cpu_ns": 91513
+        },
+        {
+          "kind": "diagnostic_gc_timing",
+          "epoch": "a3e59a3220f5421aa95bddd44b5fd6c1",
+          "tick": 76352,
+          "issued_monotonic_s": 205.901804261,
+          "generation": 0,
+          "collected": 660,
+          "wall_start_ns": 205901731450,
+          "wall_end_ns": 205901803195,
+          "thread_cpu_ns": 65850
+        },
+        {
+          "kind": "diagnostic_gc_timing",
+          "epoch": "a3e59a3220f5421aa95bddd44b5fd6c1",
+          "tick": 78516,
+          "issued_monotonic_s": 208.082239781,
+          "generation": 0,
+          "collected": 660,
+          "wall_start_ns": 208082169374,
+          "wall_end_ns": 208082238713,
+          "thread_cpu_ns": 63790
+        },
+        {
+          "kind": "diagnostic_gc_timing",
+          "epoch": "a3e59a3220f5421aa95bddd44b5fd6c1",
+          "tick": 80656,
+          "issued_monotonic_s": 210.232527355,
+          "generation": 0,
+          "collected": 693,
+          "wall_start_ns": 210232455484,
+          "wall_end_ns": 210232525956,
+          "thread_cpu_ns": 64660
+        }
+      ],
+      "top_groups": [
+        {
+          "start_tick": 76832,
+          "end_tick": 76836,
+          "duration_ns": 8570450,
+          "segment_id": 2,
+          "actual_start_ns": 206384039323,
+          "actual_end_ns": 206392609773,
+          "start_phase_ns": 76400568,
+          "excess_ns": 4570450,
+          "next_phase_increment_ns": 4652309,
+          "residual_release_ns": 81859,
+          "diagnostic_ticks": [
+            76833
+          ],
+          "sampled_stages": {
+            "health_and_models": {
+              "wall_ns": 5128973,
+              "thread_cpu_ns": 293791,
+              "non_thread_cpu_ns": 4835182
+            },
+            "encode_send": {
+              "wall_ns": 73979,
+              "thread_cpu_ns": 67048,
+              "non_thread_cpu_ns": 6931
+            },
+            "native_inputs": {
+              "wall_ns": 539216,
+              "thread_cpu_ns": 497894,
+              "non_thread_cpu_ns": 41322
+            }
+          }
+        },
+        {
+          "start_tick": 56500,
+          "end_tick": 56504,
+          "duration_ns": 5214126,
+          "segment_id": 2,
+          "actual_start_ns": 186003757423,
+          "actual_end_ns": 186008971549,
+          "start_phase_ns": 28118668,
+          "excess_ns": 1214126,
+          "next_phase_increment_ns": 1308948,
+          "residual_release_ns": 94822,
+          "diagnostic_ticks": [],
+          "sampled_stages": {
+            "health_and_models": null,
+            "encode_send": null,
+            "native_inputs": null
+          }
+        },
+        {
+          "start_tick": 50736,
+          "end_tick": 50740,
+          "duration_ns": 5109777,
+          "segment_id": 2,
+          "actual_start_ns": 180223474540,
+          "actual_end_ns": 180228584317,
+          "start_phase_ns": 11835785,
+          "excess_ns": 1109777,
+          "next_phase_increment_ns": 1224234,
+          "residual_release_ns": 114457,
+          "diagnostic_ticks": [
+            50738
+          ],
+          "sampled_stages": {
+            "health_and_models": {
+              "wall_ns": 1418215,
+              "thread_cpu_ns": 1183739,
+              "non_thread_cpu_ns": 234476
+            },
+            "encode_send": {
+              "wall_ns": 93348,
+              "thread_cpu_ns": 93030,
+              "non_thread_cpu_ns": 318
+            },
+            "native_inputs": {
+              "wall_ns": 541316,
+              "thread_cpu_ns": 541091,
+              "non_thread_cpu_ns": 225
+            }
+          }
+        },
+        {
+          "start_tick": 78228,
+          "end_tick": 78232,
+          "duration_ns": 4953099,
+          "segment_id": 2,
+          "actual_start_ns": 207789867533,
+          "actual_end_ns": 207794820632,
+          "start_phase_ns": 86228778,
+          "excess_ns": 953099,
+          "next_phase_increment_ns": 1570208,
+          "residual_release_ns": 617109,
+          "diagnostic_ticks": [],
+          "sampled_stages": {
+            "health_and_models": null,
+            "encode_send": null,
+            "native_inputs": null
+          }
+        },
+        {
+          "start_tick": 67456,
+          "end_tick": 67460,
+          "duration_ns": 4906962,
+          "segment_id": 2,
+          "actual_start_ns": 196988600805,
+          "actual_end_ns": 196993507767,
+          "start_phase_ns": 56962050,
+          "excess_ns": 906962,
+          "next_phase_increment_ns": 1022368,
+          "residual_release_ns": 115406,
+          "diagnostic_ticks": [],
+          "sampled_stages": {
+            "health_and_models": null,
+            "encode_send": null,
+            "native_inputs": null
+          }
+        },
+        {
+          "start_tick": 62932,
+          "end_tick": 62936,
+          "duration_ns": 4875620,
+          "segment_id": 2,
+          "actual_start_ns": 192449051631,
+          "actual_end_ns": 192453927251,
+          "start_phase_ns": 41412876,
+          "excess_ns": 875620,
+          "next_phase_increment_ns": 1109822,
+          "residual_release_ns": 234202,
+          "diagnostic_ticks": [],
+          "sampled_stages": {
+            "health_and_models": null,
+            "encode_send": null,
+            "native_inputs": null
+          }
+        },
+        {
+          "start_tick": 50680,
+          "end_tick": 50684,
+          "duration_ns": 4797200,
+          "segment_id": 2,
+          "actual_start_ns": 180164985513,
+          "actual_end_ns": 180169782713,
+          "start_phase_ns": 9346758,
+          "excess_ns": 797200,
+          "next_phase_increment_ns": 1646751,
+          "residual_release_ns": 849551,
+          "diagnostic_ticks": [],
+          "sampled_stages": {
+            "health_and_models": null,
+            "encode_send": null,
+            "native_inputs": null
+          }
+        },
+        {
+          "start_tick": 64484,
+          "end_tick": 64488,
+          "duration_ns": 4717504,
+          "segment_id": 2,
+          "actual_start_ns": 194007002049,
+          "actual_end_ns": 194011719553,
+          "start_phase_ns": 47363294,
+          "excess_ns": 717504,
+          "next_phase_increment_ns": 1011811,
+          "residual_release_ns": 294307,
+          "diagnostic_ticks": [],
+          "sampled_stages": {
+            "health_and_models": null,
+            "encode_send": null,
+            "native_inputs": null
+          }
+        },
+        {
+          "start_tick": 49480,
+          "end_tick": 49484,
+          "duration_ns": 4716166,
+          "segment_id": 2,
+          "actual_start_ns": 178956516152,
+          "actual_end_ns": 178961232318,
+          "start_phase_ns": 877397,
+          "excess_ns": 716166,
+          "next_phase_increment_ns": 876582,
+          "residual_release_ns": 160416,
+          "diagnostic_ticks": [],
+          "sampled_stages": {
+            "health_and_models": null,
+            "encode_send": null,
+            "native_inputs": null
+          }
+        },
+        {
+          "start_tick": 50768,
+          "end_tick": 50772,
+          "duration_ns": 4680058,
+          "segment_id": 2,
+          "actual_start_ns": 180256895035,
+          "actual_end_ns": 180261575093,
+          "start_phase_ns": 13256280,
+          "excess_ns": 680058,
+          "next_phase_increment_ns": 811185,
+          "residual_release_ns": 131127,
+          "diagnostic_ticks": [],
+          "sampled_stages": {
+            "health_and_models": null,
+            "encode_send": null,
+            "native_inputs": null
+          }
+        }
+      ],
+      "stage_totals": {
+        "health_and_models": {
+          "wall_ns": 50142928,
+          "thread_cpu_ns": 24818787,
+          "non_thread_cpu_ns": 25324141
+        },
+        "encode_send": {
+          "wall_ns": 10056704,
+          "thread_cpu_ns": 9879107,
+          "non_thread_cpu_ns": 177597
+        },
+        "native_inputs": {
+          "wall_ns": 29392896,
+          "thread_cpu_ns": 17662382,
+          "non_thread_cpu_ns": 11730514
+        }
+      },
+      "limitation": "Step diagnostics are sampled (>2ms or tick%250=0), not population medians. Non-thread-CPU includes IPC/socket waits and descheduling; no Windows kernel attribution."
+    },
+    {
+      "case": "joint-rate-flow-bwd4iwsc",
+      "epoch": "f160ee095d994dfbb8f6605807d130c0",
+      "replay": "RED",
+      "rejection": {
+        "kind": "rate_unmet",
+        "tick": 96452,
+        "lateness_ns": 100102022
+      },
+      "segments": [
+        {
+          "segment_id": 2,
+          "rate": 1.0,
+          "groups": 11741,
+          "first_tick": 49488,
+          "last_tick": 96452,
+          "wall_duration_ns": 47061388279,
+          "group_duration_median_ns": 2811233,
+          "group_duration_max_ns": 5243102,
+          "group_duration_p99_ns": 3806885,
+          "group_over_period_count": 59,
+          "phase_first_ns": 1191296,
+          "phase_last_ns": 99990210,
+          "summed_positive_phase_increment_ns": 98798914,
+          "preceding_group_excess_sum_ns": 18594263,
+          "top_phase_spikes": [
+            {
+              "tick": 67112,
+              "phase_increment_ns": 2013754,
+              "preceding_group_excess_ns": 1152841,
+              "residual_release_delay_ns": 860913,
+              "preceding_group_duration_ns": 5152841,
+              "gap_from_previous_end_ns": 860913,
+              "actual_start_ns": 539047367217
+            },
+            {
+              "tick": 91136,
+              "phase_increment_ns": 1959502,
+              "preceding_group_excess_ns": 973157,
+              "residual_release_delay_ns": 986345,
+              "preceding_group_duration_ns": 4973157,
+              "gap_from_previous_end_ns": 986345,
+              "actual_start_ns": 563128542893
+            },
+            {
+              "tick": 78684,
+              "phase_increment_ns": 1497381,
+              "preceding_group_excess_ns": 106690,
+              "residual_release_delay_ns": 1390691,
+              "preceding_group_duration_ns": 4106690,
+              "gap_from_previous_end_ns": 1390691,
+              "actual_start_ns": 550651831269
+            },
+            {
+              "tick": 90392,
+              "phase_increment_ns": 1453772,
+              "preceding_group_excess_ns": 1243102,
+              "residual_release_delay_ns": 210670,
+              "preceding_group_duration_ns": 5243102,
+              "gap_from_previous_end_ns": 210670,
+              "actual_start_ns": 562380122858
+            },
+            {
+              "tick": 81684,
+              "phase_increment_ns": 1299669,
+              "preceding_group_excess_ns": 1185367,
+              "residual_release_delay_ns": 114302,
+              "preceding_group_duration_ns": 5185367,
+              "gap_from_previous_end_ns": 114302,
+              "actual_start_ns": 553658035290
+            },
+            {
+              "tick": 76412,
+              "phase_increment_ns": 1262492,
+              "preceding_group_excess_ns": 0,
+              "residual_release_delay_ns": 1262492,
+              "preceding_group_duration_ns": 3966738,
+              "gap_from_previous_end_ns": 1295754,
+              "actual_start_ns": 548372283687
+            },
+            {
+              "tick": 90396,
+              "phase_increment_ns": 1182441,
+              "preceding_group_excess_ns": 1052089,
+              "residual_release_delay_ns": 130352,
+              "preceding_group_duration_ns": 5052089,
+              "gap_from_previous_end_ns": 130352,
+              "actual_start_ns": 562385305299
+            },
+            {
+              "tick": 67216,
+              "phase_increment_ns": 1139225,
+              "preceding_group_excess_ns": 0,
+              "residual_release_delay_ns": 1139225,
+              "preceding_group_duration_ns": 3875315,
+              "gap_from_previous_end_ns": 1263910,
+              "actual_start_ns": 539152513453
+            },
+            {
+              "tick": 75272,
+              "phase_increment_ns": 1086008,
+              "preceding_group_excess_ns": 0,
+              "residual_release_delay_ns": 1086008,
+              "preceding_group_duration_ns": 3914641,
+              "gap_from_previous_end_ns": 1171367,
+              "actual_start_ns": 547228437609
+            },
+            {
+              "tick": 90384,
+              "phase_increment_ns": 1048489,
+              "preceding_group_excess_ns": 941678,
+              "residual_release_delay_ns": 106811,
+              "preceding_group_duration_ns": 4941678,
+              "gap_from_previous_end_ns": 106811,
+              "actual_start_ns": 562370668715
+            }
+          ]
+        }
+      ],
+      "diagnostic_sample_count": 0,
+      "gc_events": [],
+      "top_groups": [
+        {
+          "start_tick": 90388,
+          "end_tick": 90392,
+          "duration_ns": 5243102,
+          "segment_id": 2,
+          "actual_start_ns": 562374669086,
+          "actual_end_ns": 562379912188,
+          "start_phase_ns": 86056744,
+          "excess_ns": 1243102,
+          "next_phase_increment_ns": 1453772,
+          "residual_release_ns": 210670,
+          "diagnostic_ticks": [],
+          "sampled_stages": {
+            "health_and_models": null,
+            "encode_send": null,
+            "native_inputs": null
+          }
+        },
+        {
+          "start_tick": 81680,
+          "end_tick": 81684,
+          "duration_ns": 5185367,
+          "segment_id": 2,
+          "actual_start_ns": 553652735621,
+          "actual_end_ns": 553657920988,
+          "start_phase_ns": 72123279,
+          "excess_ns": 1185367,
+          "next_phase_increment_ns": 1299669,
+          "residual_release_ns": 114302,
+          "diagnostic_ticks": [],
+          "sampled_stages": {
+            "health_and_models": null,
+            "encode_send": null,
+            "native_inputs": null
+          }
+        },
+        {
+          "start_tick": 67108,
+          "end_tick": 67112,
+          "duration_ns": 5152841,
+          "segment_id": 2,
+          "actual_start_ns": 539041353463,
+          "actual_end_ns": 539046506304,
+          "start_phase_ns": 32741121,
+          "excess_ns": 1152841,
+          "next_phase_increment_ns": 2013754,
+          "residual_release_ns": 860913,
+          "diagnostic_ticks": [],
+          "sampled_stages": {
+            "health_and_models": null,
+            "encode_send": null,
+            "native_inputs": null
+          }
+        },
+        {
+          "start_tick": 90392,
+          "end_tick": 90396,
+          "duration_ns": 5052089,
+          "segment_id": 2,
+          "actual_start_ns": 562380122858,
+          "actual_end_ns": 562385174947,
+          "start_phase_ns": 87510516,
+          "excess_ns": 1052089,
+          "next_phase_increment_ns": 1182441,
+          "residual_release_ns": 130352,
+          "diagnostic_ticks": [],
+          "sampled_stages": {
+            "health_and_models": null,
+            "encode_send": null,
+            "native_inputs": null
+          }
+        },
+        {
+          "start_tick": 91132,
+          "end_tick": 91136,
+          "duration_ns": 4973157,
+          "segment_id": 2,
+          "actual_start_ns": 563122583391,
+          "actual_end_ns": 563127556548,
+          "start_phase_ns": 89971049,
+          "excess_ns": 973157,
+          "next_phase_increment_ns": 1959502,
+          "residual_release_ns": 986345,
+          "diagnostic_ticks": [],
+          "sampled_stages": {
+            "health_and_models": null,
+            "encode_send": null,
+            "native_inputs": null
+          }
+        },
+        {
+          "start_tick": 90380,
+          "end_tick": 90384,
+          "duration_ns": 4941678,
+          "segment_id": 2,
+          "actual_start_ns": 562365620226,
+          "actual_end_ns": 562370561904,
+          "start_phase_ns": 85007884,
+          "excess_ns": 941678,
+          "next_phase_increment_ns": 1048489,
+          "residual_release_ns": 106811,
+          "diagnostic_ticks": [],
+          "sampled_stages": {
+            "health_and_models": null,
+            "encode_send": null,
+            "native_inputs": null
+          }
+        },
+        {
+          "start_tick": 88752,
+          "end_tick": 88756,
+          "duration_ns": 4899874,
+          "segment_id": 2,
+          "actual_start_ns": 560735328475,
+          "actual_end_ns": 560740228349,
+          "start_phase_ns": 82716133,
+          "excess_ns": 899874,
+          "next_phase_increment_ns": 984848,
+          "residual_release_ns": 84974,
+          "diagnostic_ticks": [],
+          "sampled_stages": {
+            "health_and_models": null,
+            "encode_send": null,
+            "native_inputs": null
+          }
+        },
+        {
+          "start_tick": 69948,
+          "end_tick": 69952,
+          "duration_ns": 4880606,
+          "segment_id": 2,
+          "actual_start_ns": 541889883006,
+          "actual_end_ns": 541894763612,
+          "start_phase_ns": 41270664,
+          "excess_ns": 880606,
+          "next_phase_increment_ns": 1016270,
+          "residual_release_ns": 135664,
+          "diagnostic_ticks": [],
+          "sampled_stages": {
+            "health_and_models": null,
+            "encode_send": null,
+            "native_inputs": null
+          }
+        },
+        {
+          "start_tick": 67036,
+          "end_tick": 67040,
+          "duration_ns": 4703723,
+          "segment_id": 2,
+          "actual_start_ns": 538967726450,
+          "actual_end_ns": 538972430173,
+          "start_phase_ns": 31114108,
+          "excess_ns": 703723,
+          "next_phase_increment_ns": 800543,
+          "residual_release_ns": 96820,
+          "diagnostic_ticks": [],
+          "sampled_stages": {
+            "health_and_models": null,
+            "encode_send": null,
+            "native_inputs": null
+          }
+        },
+        {
+          "start_tick": 58360,
+          "end_tick": 58364,
+          "duration_ns": 4687456,
+          "segment_id": 2,
+          "actual_start_ns": 530277095722,
+          "actual_end_ns": 530281783178,
+          "start_phase_ns": 16483380,
+          "excess_ns": 687456,
+          "next_phase_increment_ns": 858232,
+          "residual_release_ns": 170776,
+          "diagnostic_ticks": [],
+          "sampled_stages": {
+            "health_and_models": null,
+            "encode_send": null,
+            "native_inputs": null
+          }
+        }
+      ],
+      "stage_totals": null,
+      "limitation": "Step diagnostics are sampled (>2ms or tick%250=0), not population medians. Non-thread-CPU includes IPC/socket waits and descheduling; no Windows kernel attribution."
+    },
+    {
+      "case": "joint-rate-flow-wy1_f8pu",
+      "epoch": "a32b4746b2304e61a519a6d778ebc48b",
+      "replay": "RED",
+      "rejection": {
+        "kind": "rate_group_end",
+        "tick": 90468,
+        "lateness_ns": 100080057
+      },
+      "segments": [
+        {
+          "segment_id": 2,
+          "rate": 1.0,
+          "groups": 10252,
+          "first_tick": 49460,
+          "last_tick": 90468,
+          "wall_duration_ns": 41106674889,
+          "group_duration_median_ns": 2835936.5,
+          "group_duration_max_ns": 11467490,
+          "group_duration_p99_ns": 3781754,
+          "group_over_period_count": 44,
+          "phase_first_ns": 1405168,
+          "phase_last_ns": 97467946,
+          "summed_positive_phase_increment_ns": 96062778,
+          "preceding_group_excess_sum_ns": 31818183,
+          "top_phase_spikes": [
+            {
+              "tick": 90452,
+              "phase_increment_ns": 7567570,
+              "preceding_group_excess_ns": 7467490,
+              "residual_release_delay_ns": 100080,
+              "preceding_group_duration_ns": 11467490,
+              "gap_from_previous_end_ns": 100080,
+              "actual_start_ns": 773184332174
+            },
+            {
+              "tick": 82696,
+              "phase_increment_ns": 6041426,
+              "preceding_group_excess_ns": 5801690,
+              "residual_release_delay_ns": 239736,
+              "preceding_group_duration_ns": 9801690,
+              "gap_from_previous_end_ns": 239736,
+              "actual_start_ns": 765404275671
+            },
+            {
+              "tick": 85448,
+              "phase_increment_ns": 4790509,
+              "preceding_group_excess_ns": 4713040,
+              "residual_release_delay_ns": 77469,
+              "preceding_group_duration_ns": 8713040,
+              "gap_from_previous_end_ns": 77469,
+              "actual_start_ns": 768166257693
+            },
+            {
+              "tick": 73576,
+              "phase_increment_ns": 1723757,
+              "preceding_group_excess_ns": 1643212,
+              "residual_release_delay_ns": 80545,
+              "preceding_group_duration_ns": 5643212,
+              "gap_from_previous_end_ns": 80545,
+              "actual_start_ns": 756266080450
+            },
+            {
+              "tick": 56408,
+              "phase_increment_ns": 1643332,
+              "preceding_group_excess_ns": 0,
+              "residual_release_delay_ns": 1643332,
+              "preceding_group_duration_ns": 2951949,
+              "gap_from_previous_end_ns": 2691383,
+              "actual_start_ns": 739058132863
+            },
+            {
+              "tick": 53752,
+              "phase_increment_ns": 1641516,
+              "preceding_group_excess_ns": 1564377,
+              "residual_release_delay_ns": 77139,
+              "preceding_group_duration_ns": 5564377,
+              "gap_from_previous_end_ns": 77139,
+              "actual_start_ns": 736396169646
+            },
+            {
+              "tick": 66036,
+              "phase_increment_ns": 1495878,
+              "preceding_group_excess_ns": 0,
+              "residual_release_delay_ns": 1495878,
+              "preceding_group_duration_ns": 3732968,
+              "gap_from_previous_end_ns": 1762910,
+              "actual_start_ns": 748709474406
+            },
+            {
+              "tick": 60132,
+              "phase_increment_ns": 1377336,
+              "preceding_group_excess_ns": 526047,
+              "residual_release_delay_ns": 851289,
+              "preceding_group_duration_ns": 4526047,
+              "gap_from_previous_end_ns": 851289,
+              "actual_start_ns": 742790463072
+            },
+            {
+              "tick": 82984,
+              "phase_increment_ns": 1294945,
+              "preceding_group_excess_ns": 1199748,
+              "residual_release_delay_ns": 95197,
+              "preceding_group_duration_ns": 5199748,
+              "gap_from_previous_end_ns": 95197,
+              "actual_start_ns": 765694165157
+            },
+            {
+              "tick": 51536,
+              "phase_increment_ns": 1253396,
+              "preceding_group_excess_ns": 0,
+              "residual_release_delay_ns": 1253396,
+              "preceding_group_duration_ns": 3973739,
+              "gap_from_previous_end_ns": 1279657,
+              "actual_start_ns": 734176417919
+            }
+          ]
+        }
+      ],
+      "diagnostic_sample_count": 0,
+      "gc_events": [],
+      "top_groups": [
+        {
+          "start_tick": 90448,
+          "end_tick": 90452,
+          "duration_ns": 11467490,
+          "segment_id": 2,
+          "actual_start_ns": 773172764604,
+          "actual_end_ns": 773184232094,
+          "start_phase_ns": 89899888,
+          "excess_ns": 7467490,
+          "next_phase_increment_ns": 7567570,
+          "residual_release_ns": 100080,
+          "diagnostic_ticks": [],
+          "sampled_stages": {
+            "health_and_models": null,
+            "encode_send": null,
+            "native_inputs": null
+          }
+        },
+        {
+          "start_tick": 82692,
+          "end_tick": 82696,
+          "duration_ns": 9801690,
+          "segment_id": 2,
+          "actual_start_ns": 765394234245,
+          "actual_end_ns": 765404035935,
+          "start_phase_ns": 67369529,
+          "excess_ns": 5801690,
+          "next_phase_increment_ns": 6041426,
+          "residual_release_ns": 239736,
+          "diagnostic_ticks": [],
+          "sampled_stages": {
+            "health_and_models": null,
+            "encode_send": null,
+            "native_inputs": null
+          }
+        },
+        {
+          "start_tick": 85444,
+          "end_tick": 85448,
+          "duration_ns": 8713040,
+          "segment_id": 2,
+          "actual_start_ns": 768157467184,
+          "actual_end_ns": 768166180224,
+          "start_phase_ns": 78602468,
+          "excess_ns": 4713040,
+          "next_phase_increment_ns": 4790509,
+          "residual_release_ns": 77469,
+          "diagnostic_ticks": [],
+          "sampled_stages": {
+            "health_and_models": null,
+            "encode_send": null,
+            "native_inputs": null
+          }
+        },
+        {
+          "start_tick": 90464,
+          "end_tick": 90468,
+          "duration_ns": 6612111,
+          "segment_id": 2,
+          "actual_start_ns": 773196332662,
+          "actual_end_ns": 773202944773,
+          "start_phase_ns": 97467946,
+          "excess_ns": 2612111,
+          "next_phase_increment_ns": null,
+          "residual_release_ns": null,
+          "diagnostic_ticks": [],
+          "sampled_stages": {
+            "health_and_models": null,
+            "encode_send": null,
+            "native_inputs": null
+          }
+        },
+        {
+          "start_tick": 73572,
+          "end_tick": 73576,
+          "duration_ns": 5643212,
+          "segment_id": 2,
+          "actual_start_ns": 756260356693,
+          "actual_end_ns": 756265999905,
+          "start_phase_ns": 53491977,
+          "excess_ns": 1643212,
+          "next_phase_increment_ns": 1723757,
+          "residual_release_ns": 80545,
+          "diagnostic_ticks": [],
+          "sampled_stages": {
+            "health_and_models": null,
+            "encode_send": null,
+            "native_inputs": null
+          }
+        },
+        {
+          "start_tick": 53748,
+          "end_tick": 53752,
+          "duration_ns": 5564377,
+          "segment_id": 2,
+          "actual_start_ns": 736390528130,
+          "actual_end_ns": 736396092507,
+          "start_phase_ns": 7663414,
+          "excess_ns": 1564377,
+          "next_phase_increment_ns": 1641516,
+          "residual_release_ns": 77139,
+          "diagnostic_ticks": [],
+          "sampled_stages": {
+            "health_and_models": null,
+            "encode_send": null,
+            "native_inputs": null
+          }
+        },
+        {
+          "start_tick": 82980,
+          "end_tick": 82984,
+          "duration_ns": 5199748,
+          "segment_id": 2,
+          "actual_start_ns": 765688870212,
+          "actual_end_ns": 765694069960,
+          "start_phase_ns": 74005496,
+          "excess_ns": 1199748,
+          "next_phase_increment_ns": 1294945,
+          "residual_release_ns": 95197,
+          "diagnostic_ticks": [],
+          "sampled_stages": {
+            "health_and_models": null,
+            "encode_send": null,
+            "native_inputs": null
+          }
+        },
+        {
+          "start_tick": 78504,
+          "end_tick": 78508,
+          "duration_ns": 4741086,
+          "segment_id": 2,
+          "actual_start_ns": 761200634343,
+          "actual_end_ns": 761205375429,
+          "start_phase_ns": 61769627,
+          "excess_ns": 741086,
+          "next_phase_increment_ns": 822940,
+          "residual_release_ns": 81854,
+          "diagnostic_ticks": [],
+          "sampled_stages": {
+            "health_and_models": null,
+            "encode_send": null,
+            "native_inputs": null
+          }
+        },
+        {
+          "start_tick": 77896,
+          "end_tick": 77900,
+          "duration_ns": 4710268,
+          "segment_id": 2,
+          "actual_start_ns": 760591230347,
+          "actual_end_ns": 760595940615,
+          "start_phase_ns": 60365631,
+          "excess_ns": 710268,
+          "next_phase_increment_ns": 805918,
+          "residual_release_ns": 95650,
+          "diagnostic_ticks": [],
+          "sampled_stages": {
+            "health_and_models": null,
+            "encode_send": null,
+            "native_inputs": null
+          }
+        },
+        {
+          "start_tick": 63732,
+          "end_tick": 63736,
+          "duration_ns": 4700097,
+          "segment_id": 2,
+          "actual_start_ns": 746398529785,
+          "actual_end_ns": 746403229882,
+          "start_phase_ns": 31665069,
+          "excess_ns": 700097,
+          "next_phase_increment_ns": 769101,
+          "residual_release_ns": 69004,
+          "diagnostic_ticks": [],
+          "sampled_stages": {
+            "health_and_models": null,
+            "encode_send": null,
+            "native_inputs": null
+          }
+        }
+      ],
+      "stage_totals": null,
+      "limitation": "Step diagnostics are sampled (>2ms or tick%250=0), not population medians. Non-thread-CPU includes IPC/socket waits and descheduling; no Windows kernel attribution."
+    },
+    {
+      "case": "joint-rate-flow-h7b729ld",
+      "epoch": "5ec8709a3c96412ea88997f46617f896",
+      "replay": "RED",
+      "rejection": {
+        "kind": "rate_group_end",
+        "tick": 72884,
+        "lateness_ns": 252965151
+      },
+      "segments": [
+        {
+          "segment_id": 2,
+          "rate": 1.0,
+          "groups": 5863,
+          "first_tick": 49432,
+          "last_tick": 72884,
+          "wall_duration_ns": 23704128793,
+          "group_duration_median_ns": 2796240,
+          "group_duration_max_ns": 198510124,
+          "group_duration_p99_ns": 3843237,
+          "group_over_period_count": 37,
+          "phase_first_ns": 836358,
+          "phase_last_ns": 58455027,
+          "summed_positive_phase_increment_ns": 57618669,
+          "preceding_group_excess_sum_ns": 22148339,
+          "top_phase_spikes": [
+            {
+              "tick": 55168,
+              "phase_increment_ns": 4599642,
+              "preceding_group_excess_ns": 4420314,
+              "residual_release_delay_ns": 179328,
+              "preceding_group_duration_ns": 8420314,
+              "gap_from_previous_end_ns": 179328,
+              "actual_start_ns": 932678872097
+            },
+            {
+              "tick": 55228,
+              "phase_increment_ns": 3561818,
+              "preceding_group_excess_ns": 1777491,
+              "residual_release_delay_ns": 1784327,
+              "preceding_group_duration_ns": 5777491,
+              "gap_from_previous_end_ns": 1784327,
+              "actual_start_ns": 932748473826
+            },
+            {
+              "tick": 67760,
+              "phase_increment_ns": 3025930,
+              "preceding_group_excess_ns": 2952707,
+              "residual_release_delay_ns": 73223,
+              "preceding_group_duration_ns": 6952707,
+              "gap_from_previous_end_ns": 73223,
+              "actual_start_ns": 945303393580
+            },
+            {
+              "tick": 55184,
+              "phase_increment_ns": 2218802,
+              "preceding_group_excess_ns": 2120644,
+              "residual_release_delay_ns": 98158,
+              "preceding_group_duration_ns": 6120644,
+              "gap_from_previous_end_ns": 98158,
+              "actual_start_ns": 932698326348
+            },
+            {
+              "tick": 54520,
+              "phase_increment_ns": 1740634,
+              "preceding_group_excess_ns": 487034,
+              "residual_release_delay_ns": 1253600,
+              "preceding_group_duration_ns": 4487034,
+              "gap_from_previous_end_ns": 1253600,
+              "actual_start_ns": 932021217975
+            },
+            {
+              "tick": 55216,
+              "phase_increment_ns": 1291174,
+              "preceding_group_excess_ns": 1040295,
+              "residual_release_delay_ns": 250879,
+              "preceding_group_duration_ns": 5040295,
+              "gap_from_previous_end_ns": 250879,
+              "actual_start_ns": 932732892440
+            },
+            {
+              "tick": 55212,
+              "phase_increment_ns": 1162820,
+              "preceding_group_excess_ns": 1010119,
+              "residual_release_delay_ns": 152701,
+              "preceding_group_duration_ns": 5010119,
+              "gap_from_previous_end_ns": 152701,
+              "actual_start_ns": 932727601266
+            },
+            {
+              "tick": 70976,
+              "phase_increment_ns": 1137325,
+              "preceding_group_excess_ns": 1061024,
+              "residual_release_delay_ns": 76301,
+              "preceding_group_duration_ns": 5061024,
+              "gap_from_previous_end_ns": 76301,
+              "actual_start_ns": 948524153592
+            },
+            {
+              "tick": 55328,
+              "phase_increment_ns": 956254,
+              "preceding_group_excess_ns": 0,
+              "residual_release_delay_ns": 956254,
+              "preceding_group_duration_ns": 3881196,
+              "gap_from_previous_end_ns": 1075058,
+              "actual_start_ns": 932852617037
+            },
+            {
+              "tick": 55140,
+              "phase_increment_ns": 895505,
+              "preceding_group_excess_ns": 0,
+              "residual_release_delay_ns": 895505,
+              "preceding_group_duration_ns": 3965094,
+              "gap_from_previous_end_ns": 930411,
+              "actual_start_ns": 932645049728
+            }
+          ]
+        }
+      ],
+      "diagnostic_sample_count": 0,
+      "gc_events": [],
+      "top_groups": [
+        {
+          "start_tick": 72880,
+          "end_tick": 72884,
+          "duration_ns": 198510124,
+          "segment_id": 2,
+          "actual_start_ns": 950432220192,
+          "actual_end_ns": 950630730316,
+          "start_phase_ns": 58455027,
+          "excess_ns": 194510124,
+          "next_phase_increment_ns": null,
+          "residual_release_ns": null,
+          "diagnostic_ticks": [],
+          "sampled_stages": {
+            "health_and_models": null,
+            "encode_send": null,
+            "native_inputs": null
+          }
+        },
+        {
+          "start_tick": 55164,
+          "end_tick": 55168,
+          "duration_ns": 8420314,
+          "segment_id": 2,
+          "actual_start_ns": 932670272455,
+          "actual_end_ns": 932678692769,
+          "start_phase_ns": 12507290,
+          "excess_ns": 4420314,
+          "next_phase_increment_ns": 4599642,
+          "residual_release_ns": 179328,
+          "diagnostic_ticks": [],
+          "sampled_stages": {
+            "health_and_models": null,
+            "encode_send": null,
+            "native_inputs": null
+          }
+        },
+        {
+          "start_tick": 67756,
+          "end_tick": 67760,
+          "duration_ns": 6952707,
+          "segment_id": 2,
+          "actual_start_ns": 945296367650,
+          "actual_end_ns": 945303320357,
+          "start_phase_ns": 46602485,
+          "excess_ns": 2952707,
+          "next_phase_increment_ns": 3025930,
+          "residual_release_ns": 73223,
+          "diagnostic_ticks": [],
+          "sampled_stages": {
+            "health_and_models": null,
+            "encode_send": null,
+            "native_inputs": null
+          }
+        },
+        {
+          "start_tick": 55180,
+          "end_tick": 55184,
+          "duration_ns": 6120644,
+          "segment_id": 2,
+          "actual_start_ns": 932692107546,
+          "actual_end_ns": 932698228190,
+          "start_phase_ns": 18342381,
+          "excess_ns": 2120644,
+          "next_phase_increment_ns": 2218802,
+          "residual_release_ns": 98158,
+          "diagnostic_ticks": [],
+          "sampled_stages": {
+            "health_and_models": null,
+            "encode_send": null,
+            "native_inputs": null
+          }
+        },
+        {
+          "start_tick": 55224,
+          "end_tick": 55228,
+          "duration_ns": 5777491,
+          "segment_id": 2,
+          "actual_start_ns": 932740912008,
+          "actual_end_ns": 932746689499,
+          "start_phase_ns": 23146843,
+          "excess_ns": 1777491,
+          "next_phase_increment_ns": 3561818,
+          "residual_release_ns": 1784327,
+          "diagnostic_ticks": [],
+          "sampled_stages": {
+            "health_and_models": null,
+            "encode_send": null,
+            "native_inputs": null
+          }
+        },
+        {
+          "start_tick": 70972,
+          "end_tick": 70976,
+          "duration_ns": 5061024,
+          "segment_id": 2,
+          "actual_start_ns": 948519016267,
+          "actual_end_ns": 948524077291,
+          "start_phase_ns": 53251102,
+          "excess_ns": 1061024,
+          "next_phase_increment_ns": 1137325,
+          "residual_release_ns": 76301,
+          "diagnostic_ticks": [],
+          "sampled_stages": {
+            "health_and_models": null,
+            "encode_send": null,
+            "native_inputs": null
+          }
+        },
+        {
+          "start_tick": 55212,
+          "end_tick": 55216,
+          "duration_ns": 5040295,
+          "segment_id": 2,
+          "actual_start_ns": 932727601266,
+          "actual_end_ns": 932732641561,
+          "start_phase_ns": 21836101,
+          "excess_ns": 1040295,
+          "next_phase_increment_ns": 1291174,
+          "residual_release_ns": 250879,
+          "diagnostic_ticks": [],
+          "sampled_stages": {
+            "health_and_models": null,
+            "encode_send": null,
+            "native_inputs": null
+          }
+        },
+        {
+          "start_tick": 55208,
+          "end_tick": 55212,
+          "duration_ns": 5010119,
+          "segment_id": 2,
+          "actual_start_ns": 932722438446,
+          "actual_end_ns": 932727448565,
+          "start_phase_ns": 20673281,
+          "excess_ns": 1010119,
+          "next_phase_increment_ns": 1162820,
+          "residual_release_ns": 152701,
+          "diagnostic_ticks": [],
+          "sampled_stages": {
+            "health_and_models": null,
+            "encode_send": null,
+            "native_inputs": null
+          }
+        },
+        {
+          "start_tick": 54396,
+          "end_tick": 54400,
+          "duration_ns": 4745565,
+          "segment_id": 2,
+          "actual_start_ns": 931894355819,
+          "actual_end_ns": 931899101384,
+          "start_phase_ns": 4590654,
+          "excess_ns": 745565,
+          "next_phase_increment_ns": 828847,
+          "residual_release_ns": 83282,
+          "diagnostic_ticks": [],
+          "sampled_stages": {
+            "health_and_models": null,
+            "encode_send": null,
+            "native_inputs": null
+          }
+        },
+        {
+          "start_tick": 55300,
+          "end_tick": 55304,
+          "duration_ns": 4684608,
+          "segment_id": 2,
+          "actual_start_ns": 932822780540,
+          "actual_end_ns": 932827465148,
+          "start_phase_ns": 29015375,
+          "excess_ns": 684608,
+          "next_phase_increment_ns": 878900,
+          "residual_release_ns": 194292,
+          "diagnostic_ticks": [],
+          "sampled_stages": {
+            "health_and_models": null,
+            "encode_send": null,
+            "native_inputs": null
+          }
+        }
+      ],
+      "stage_totals": null,
+      "limitation": "Step diagnostics are sampled (>2ms or tick%250=0), not population medians. Non-thread-CPU includes IPC/socket waits and descheduling; no Windows kernel attribution."
+    }
+  ]
+}

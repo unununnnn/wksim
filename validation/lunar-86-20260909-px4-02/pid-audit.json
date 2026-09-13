@@ -1,0 +1,59 @@
+{
+  "schema": "wksim.pid.audit.v1",
+  "status": "rejected",
+  "run_dir": "/root/wksim-pid-flight-pid-px4-20260909-02-7e3ce147/pid-px4-20260909-02-7e3ce147",
+  "checks": {
+    "identity": {
+      "tools/run_pid_flight.py": "695e59e92700045e4d7ce297f9b11127939bf833855195edac27dc961d4c430f",
+      "tools/run-pid-flight.sh": "c772423deea8dde33914f05edef5777cf116c06cbae4c008f9accaea09ae8302",
+      "tools/pid_physics.py": "2e540fed821c07df63e83252d8288d03599da613e2386cadd0e5dd04abcb0775",
+      "Simulator/wksim_runtime/pid_task.py": "f00c20d3a40588e39cf9e08f373134c04d80e3ed7e64b7f4f667ab796b1f5a81",
+      "Simulator/wksim_runtime/pid-flight-v1.json": "25d50ddbbd44e658a72123e6d524a5c5021b355367a99e46a898ec9b9cecadc0",
+      "Simulator/wksim_control/position_pid.py": "e73848341c9ab226b7166c9f8572371b09979b1ca9211b3dbdd5e6a72490dc7e",
+      "Simulator/wksim_control/__init__.py": "4cd94eda5523375c26708a7892cfbd4890f38eff6a85969cf9a31447d1734372",
+      "tools/run_attitude_flight.py": "08f23c40bf86111c7d01f5af8cee2143ab1d09d00c03e69f45e4e8e42d5429ea",
+      "tools/run-attitude-flight.sh": "4d11c18d22b6eae6b6e46ac25b2653dced0192d6e8c5577267a4cb14eff35051",
+      "tools/attitude_physics.py": "f1f73d01ac6989ab6e89982086b6d0906e226ac7708cca64f88477480e7e3468",
+      "tools/attitude_candidate.py": "1afcfda2645127354b7461d40b2c52a0d58fce187cd7c7d03f79d888e942ae39",
+      "Simulator/wksim_runtime/attitude_task.py": "2240bd86fd93d3a16931eeb391f4ebf48de1bc284abd75fd81ee31fbaa004850",
+      "Simulator/wksim_runtime/attitude-entry-v1.json": "debd99a2b8c245608dd04bdaee61a9b9bc0e2c7240771c973eedec7c673c03c3",
+      "Simulator/wksim_runtime/runtime.py": "7853410a294cd0d41356ff49a5976c001a78c3cc89e0722f7bd7e47147ca4d3c",
+      "Simulator/wksim_runtime/isolation.py": "92466d6e736f671031b5d53f01d8ebcfd2ab1aa6c28c9946e2f891087bb61c99",
+      "Simulator/wksim_runtime/task.py": "9791913df7ad61d229a151d4d1d0e5c2b3f32d127a7545096b43a32638f0dbbc",
+      "Simulator/wksim_runtime/config.py": "ab57bcd9723707857f212432e8be093209dd578b9eb6c453340027e4871861eb",
+      "Simulator/wksim_runtime/evidence.py": "4f7f2e601ce3c2edfe54c1c48ed35d41133304c2b1fa56a969148c6ccbbfcb7a",
+      "Simulator/wksim_runtime/telemetry_dialect.py": "fa9cec926c3ab0b7e5ce64849a652f76ebd2cf6361d45222d6c563dff728287a",
+      "Simulator/wksim_runtime/telemetry-dialects.json": "d412f62f8ce48164b924d596f67f37f0e10bf81a064958cb7667516a42db9a11",
+      "Simulator/wksim_runtime/build_identity.py": "9581d7085f3fb37629969e19635d1299fd40ca0a0f65ea7f4af6b85a5d6e8286",
+      "Simulator/wksim_core/model.py": "af767e9299e4282da8da168998605c02039ea64d9cc27bb33e9dce24d1a6b77a",
+      "Simulator/wksim_core/model.cpp": "3f325678b1d85c9aa3fd07bd644d82935aa26d82885926defeced139f02ddf2c",
+      "Simulator/wksim_core/ap_json.py": "db3498d5df50aa3ab46601a8e899c6739e613d431a7d221ac57d2a86e1846469",
+      "Simulator/wksim_core/px4_mavlink.py": "e8c903f2b4c84a261adf6f512c8437c51364143dc048d1ac2cb873e7cfb53260",
+      "Simulator/wksim_core/state_stream.py": "d0bf4534885170bc281394657558afbfa143d76360ac1157e1c0e60d9719a76e",
+      "Simulator/wksim_core/arducopter-quad-x.parm": "823e8e3ca9d5648aa36de40c34aa3d6af0e52c8155909620ab1958b1302703e1",
+      "Simulator/wksim_core/px4-rc.mavlink": "2c3cea474c5669b6c9ae241072a1c5f813f06ff771233e0f81721397c903d214"
+    }
+  },
+  "protocol_sha256": "25d50ddbbd44e658a72123e6d524a5c5021b355367a99e46a898ec9b9cecadc0",
+  "auditor_sha256": "1fb12c0d3e6b9d8fafe459e7ff111159bddac48ae4cee3ebb269036e4939ef3d",
+  "limitations": [
+    "No exact first native acceptance tick or per-message publisher GID.",
+    "Native logs and mode messages are sampled; absence between samples is unverified.",
+    "Mass is source/hash bound, not a runtime parameter getter.",
+    "No Full, UI, joint rate, UDE/NE, or motor-efficiency acceptance."
+  ],
+  "run_id": "pid-px4-20260909-02-7e3ce147",
+  "stack": "px4",
+  "failure": {
+    "type": "FileNotFoundError",
+    "message": "[Errno 2] No such file or directory: '/root/wksim-pid-flight-pid-px4-20260909-02-7e3ce147/pid-px4-20260909-02-7e3ce147/disturbance-event.json'"
+  },
+  "command": [
+    "/usr/bin/python3",
+    "tools/audit_pid_flight.py",
+    "--run-dir",
+    "/root/wksim-pid-flight-pid-px4-20260909-02-7e3ce147/pid-px4-20260909-02-7e3ce147",
+    "--output",
+    "/mnt/c/Users/PC/Documents/odid\u7f16\u8bd1/wksim/validation/lunar-86-20260909-px4-02/pid-audit.json"
+  ]
+}

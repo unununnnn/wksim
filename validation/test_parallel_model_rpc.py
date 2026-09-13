@@ -60,6 +60,62 @@ class BatchTransportTests(OwnedChildren):
             self.assertTrue(child._wksim_rpc['failed'])
             self.assertTrue(peer._wksim_rpc['failed'])
 
+    def test_batch_initial_state_requests_keep_ticks_at_zero(self):
+        first, _ = worker_tests.TransportTests.fake_model(self, True)
+        second, _ = worker_tests.TransportTests.fake_model(self, True)
+        request = dict(version=1, epoch=EPOCH, initial=True)
+        responses = receive_workers(dict(first=(first, request), second=(second, request)), EPOCH)
+        for response in responses.values():
+            self.assertEqual((response['tick'], response['initial']), (0, True))
+            self.assertEqual(len(response['state']), 120)
+        for child in (first, second):
+            self.assertEqual(child._wksim_rpc['tick'], 0)
+        receive_workers(dict(first=(first, step()), second=(second, step())), EPOCH)
+        # A stale initial member fails validation before any byte is sent, so
+        # neither channel is poisoned and both keep their confirmation ticks.
+        with self.assertRaisesRegex(ValueError, 'tick zero'):
+            receive_workers(dict(first=(first, request), second=(second, step(2))), EPOCH)
+        for child in (first, second):
+            self.assertFalse(child._wksim_rpc['failed'])
+            self.assertEqual(child._wksim_rpc['tick'], 1)
+
+    def test_batch_initial_post_transmission_failure_poisons_all_members(self):
+        good, _ = self.launch([sys.executable, '-c',
+            "import sys,json,time; r=json.loads(sys.stdin.readline()); print(json.dumps(dict(version=1,epoch=r['epoch'],tick=0,state=[0.]*120,initial=True)),flush=True); time.sleep(10)"], 'transport-only success')
+        stalled, _ = self.launch([sys.executable, '-c',
+            "import sys,time; sys.stdin.readline(); time.sleep(10)"], 'transport-only timeout')
+        request = dict(version=1, epoch=EPOCH, initial=True)
+        with self.assertRaises(TimeoutError):
+            receive_workers(dict(good=(good, request), stalled=(stalled, request)), EPOCH, timeout=.3)
+        self.assertEqual(good._wksim_rpc['tick'], 0)
+        self.assertEqual(stalled._wksim_rpc['tick'], 0)
+        for child in (good, stalled):
+            self.assertGreater(child._wksim_rpc['sent_bytes'], 0)
+            self.assertTrue(child._wksim_rpc['failed'])
+            with self.assertRaisesRegex(RuntimeError, 'retired'):
+                receive_worker(child, snapshot(), EPOCH)
+
+    def test_batch_pre_transmission_failure_releases_all_locks_and_leaves_unpoisoned(self):
+        first, _ = worker_tests.TransportTests.fake_model(self, True)
+        second, _ = worker_tests.TransportTests.fake_model(self, True)
+        valid_request = dict(version=1, epoch=EPOCH, initial=True)
+        # Pass an invalid request for second (e.g. initial=False) which fails validation
+        # on channel 2 after channel 1 was validated and locked.
+        invalid_request = dict(version=1, epoch=EPOCH, initial=False)
+        with self.assertRaises(ValueError):
+            receive_workers(dict(first=(first, valid_request), second=(second, invalid_request)), EPOCH)
+        # Pre-transmission failure must release acquired locks and leave both unpoisoned.
+        for child in (first, second):
+            self.assertFalse(child._wksim_rpc['failed'])
+            self.assertFalse(child._wksim_rpc['lock'].locked())
+            self.assertEqual(child._wksim_rpc['tick'], 0)
+        # Both channels remain fully functional and accept a valid batch initial request.
+        responses = receive_workers(dict(first=(first, valid_request), second=(second, valid_request)), EPOCH)
+        self.assertEqual(len(responses), 2)
+        for child in (first, second):
+            self.assertTrue(child._wksim_rpc.get('initial_observed'))
+            self.assertFalse(child._wksim_rpc['failed'])
+
 
 @unittest.skipUnless(os.environ.get('WK_MODEL_LIBRARY'), 'real library not supplied')
 class BatchRealModelTests(OwnedChildren):
@@ -93,7 +149,7 @@ class BatchRealModelTests(OwnedChildren):
     def test_same_inputs_exact_states_and_throughput(self):
         library = Path(os.environ['WK_MODEL_LIBRARY'])
         self.assertEqual(hashlib.sha256(library.read_bytes()).hexdigest(),
-                         'cc0bc2d10790043251f38bb6a53f4d774379dd37a02b09cceba43ac1fafb02b3')
+                         'e59ab914e3ff8225ff303e05a885f8fa1eaedb05a95443f097920ca60a7f1c0b')
         runs = {}
         for mode in ('sequential', 'batch'):
             pair = {name: self.model() for name in ('ap', 'px4')}
