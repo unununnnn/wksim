@@ -1,0 +1,349 @@
+{
+  "kind": "wksim.parent-last-callbacks-prep.v2",
+  "classification": "diagnostic_only",
+  "full_acceptance": false,
+  "assigned_scope": "validation/coordination/ds-parent-last-callbacks-20260913-01",
+  "version": "v2 (last-completed atomic triple)",
+  "target": {
+    "file": "Simulator/wksim_runtime/joint_rate_probe.py",
+    "pinned_sha256": "a8bac9ac84ba9960296bb6b43d6d39c6bbc17fa9fdc47adf7e05ce76d7066653",
+    "candidate_sha256": "7855409d1f28e955dc9fcafc2d90f94e13ef5ab35eb1a0d239b61a4c919a4be1",
+    "candidate_path": "/root/wksim-release-acceptance-fe3/validation/last-callbacks-run-20260913-01/python310-check/joint_rate_probe-candidate-v2.py.txt",
+    "core_joint_rate_sha256": "0b53a16acd65138b4623a9a8573ec8d643a2b78f4e27e8122c65efb9a6da25c4",
+    "new_fields": [
+      "last_sleep_before_ns",
+      "last_sleep_after_ns",
+      "last_sleep_requested_ns",
+      "last_health_before_ns",
+      "last_health_after_ns"
+    ]
+  },
+  "v2_correction": "all three last_sleep_* values are assigned only after the existing after = self._probe_now() succeeds; the retained triple therefore always belongs to one completed sleep and a later failed sleep cannot mix its own before/request with a stale after",
+  "all_ok": true,
+  "cases": {
+    "sleep_before_release": {
+      "comparison": {
+        "clock_reads_identical": true,
+        "clock_read_count": [
+          110205,
+          110205
+        ],
+        "sleep_requests_identical": true,
+        "exception_identical": true,
+        "outcomes": [
+          "ok",
+          "ok"
+        ],
+        "ok": true,
+        "original_keys_and_values_identical": true,
+        "new_keys": {
+          "last_sleep_before_ns": 12,
+          "last_sleep_after_ns": 12,
+          "last_sleep_requested_ns": 12,
+          "last_health_before_ns": 12,
+          "last_health_after_ns": 12
+        },
+        "unexpected_new_keys": [],
+        "record_count": 38,
+        "detail": []
+      },
+      "old_last": {
+        "last_sleep_before_ns": "<missing>",
+        "last_sleep_after_ns": "<missing>",
+        "last_sleep_requested_ns": "<missing>",
+        "last_health_before_ns": "<missing>",
+        "last_health_after_ns": "<missing>"
+      },
+      "new_last": {
+        "last_sleep_before_ns": 1085002400,
+        "last_sleep_after_ns": 1087000700,
+        "last_sleep_requested_ns": 1998200,
+        "last_health_before_ns": 1085002100,
+        "last_health_after_ns": 1085002200
+      },
+      "new_samples": 12,
+      "new_outcome": "ok",
+      "new_error_identity": null
+    },
+    "sleep_crossing_release": {
+      "comparison": {
+        "clock_reads_identical": true,
+        "clock_read_count": [
+          15,
+          15
+        ],
+        "sleep_requests_identical": true,
+        "exception_identical": true,
+        "outcomes": [
+          "RateUnmet: rate_unmet/resource_insufficient",
+          "RateUnmet: rate_unmet/resource_insufficient"
+        ],
+        "ok": true,
+        "original_keys_and_values_identical": true,
+        "new_keys": {
+          "last_sleep_before_ns": 2,
+          "last_sleep_after_ns": 2,
+          "last_sleep_requested_ns": 2,
+          "last_health_before_ns": 2,
+          "last_health_after_ns": 2
+        },
+        "unexpected_new_keys": [],
+        "record_count": 7,
+        "detail": []
+      },
+      "old_last": {
+        "last_sleep_before_ns": "<missing>",
+        "last_sleep_after_ns": "<missing>",
+        "last_sleep_requested_ns": "<missing>",
+        "last_health_before_ns": "<missing>",
+        "last_health_after_ns": "<missing>"
+      },
+      "new_last": {
+        "last_sleep_before_ns": 1001001200,
+        "last_sleep_after_ns": 1140000300,
+        "last_sleep_requested_ns": 2000000,
+        "last_health_before_ns": null,
+        "last_health_after_ns": null
+      },
+      "new_samples": 2,
+      "new_outcome": "RateUnmet: rate_unmet/resource_insufficient",
+      "new_error_identity": "0x7d0104377340"
+    },
+    "no_sleep_absent": {
+      "comparison": {
+        "clock_reads_identical": true,
+        "clock_read_count": [
+          49,
+          49
+        ],
+        "sleep_requests_identical": true,
+        "exception_identical": true,
+        "outcomes": [
+          "ok",
+          "ok"
+        ],
+        "ok": true,
+        "original_keys_and_values_identical": true,
+        "new_keys": {
+          "last_sleep_before_ns": 8,
+          "last_sleep_after_ns": 8,
+          "last_sleep_requested_ns": 8,
+          "last_health_before_ns": 8,
+          "last_health_after_ns": 8
+        },
+        "unexpected_new_keys": [],
+        "record_count": 26,
+        "detail": []
+      },
+      "old_last": {
+        "last_sleep_before_ns": "<missing>",
+        "last_sleep_after_ns": "<missing>",
+        "last_sleep_requested_ns": "<missing>",
+        "last_health_before_ns": "<missing>",
+        "last_health_after_ns": "<missing>"
+      },
+      "new_last": {
+        "last_sleep_before_ns": null,
+        "last_sleep_after_ns": null,
+        "last_sleep_requested_ns": null,
+        "last_health_before_ns": null,
+        "last_health_after_ns": null
+      },
+      "new_samples": 8,
+      "new_outcome": "ok",
+      "new_error_identity": null
+    },
+    "first_sleep_ok_then_failed_sleep": {
+      "comparison": {
+        "clock_reads_identical": true,
+        "clock_read_count": [
+          19,
+          19
+        ],
+        "sleep_requests_identical": true,
+        "exception_identical": true,
+        "outcomes": [
+          "RuntimeError: scripted sleep failure",
+          "RuntimeError: scripted sleep failure"
+        ],
+        "ok": true,
+        "original_keys_and_values_identical": true,
+        "new_keys": {
+          "last_sleep_before_ns": 2,
+          "last_sleep_after_ns": 2,
+          "last_sleep_requested_ns": 2,
+          "last_health_before_ns": 2,
+          "last_health_after_ns": 2
+        },
+        "unexpected_new_keys": [],
+        "record_count": 6,
+        "detail": []
+      },
+      "old_last": {
+        "last_sleep_before_ns": "<missing>",
+        "last_sleep_after_ns": "<missing>",
+        "last_sleep_requested_ns": "<missing>",
+        "last_health_before_ns": "<missing>",
+        "last_health_after_ns": "<missing>"
+      },
+      "new_last": {
+        "last_sleep_before_ns": 1001001200,
+        "last_sleep_after_ns": 1003001300,
+        "last_sleep_requested_ns": 2000000,
+        "last_health_before_ns": 1003001500,
+        "last_health_after_ns": 1003001600
+      },
+      "new_samples": 2,
+      "new_outcome": "RuntimeError: scripted sleep failure",
+      "new_error_identity": "0x7d01043b2bb0"
+    },
+    "failed_health_call": {
+      "comparison": {
+        "clock_reads_identical": true,
+        "clock_read_count": [
+          23,
+          23
+        ],
+        "sleep_requests_identical": true,
+        "exception_identical": true,
+        "outcomes": [
+          "RuntimeError: scripted health failure",
+          "RuntimeError: scripted health failure"
+        ],
+        "ok": true,
+        "original_keys_and_values_identical": true,
+        "new_keys": {
+          "last_sleep_before_ns": 2,
+          "last_sleep_after_ns": 2,
+          "last_sleep_requested_ns": 2,
+          "last_health_before_ns": 2,
+          "last_health_after_ns": 2
+        },
+        "unexpected_new_keys": [],
+        "record_count": 6,
+        "detail": []
+      },
+      "old_last": {
+        "last_sleep_before_ns": "<missing>",
+        "last_sleep_after_ns": "<missing>",
+        "last_sleep_requested_ns": "<missing>",
+        "last_health_before_ns": "<missing>",
+        "last_health_after_ns": "<missing>"
+      },
+      "new_last": {
+        "last_sleep_before_ns": 1003001800,
+        "last_sleep_after_ns": 1005001900,
+        "last_sleep_requested_ns": 2000000,
+        "last_health_before_ns": 1005002100,
+        "last_health_after_ns": 1005002200
+      },
+      "new_samples": 2,
+      "new_outcome": "RuntimeError: scripted health failure",
+      "new_error_identity": "0x7d01043b23e0"
+    }
+  },
+  "atomic_sleep_triple": {
+    "after_first_completed_sleep": {
+      "last_sleep_before_ns": 1000000200,
+      "last_sleep_after_ns": 1001000300,
+      "last_sleep_requested_ns": 1000000
+    },
+    "after_second_failed_sleep": {
+      "last_sleep_before_ns": 1000000200,
+      "last_sleep_after_ns": 1001000300,
+      "last_sleep_requested_ns": 1000000
+    },
+    "triple_unchanged_by_failed_sleep": true,
+    "triple_is_atomic_completed_sleep": true,
+    "failed_call_exception_identity": "0x7d01043b1d00",
+    "failed_call_exception_text": "RuntimeError: scripted sleep failure",
+    "failed_call_attempted": 2
+  },
+  "crossing_loop_health": {
+    "straddles": true,
+    "crossed_case": "slow_health_callback",
+    "detail": {
+      "release_edge_ns": 1029029000,
+      "actual_start_ns": null,
+      "sleep": {
+        "before_ns": 1025036000,
+        "after_ns": 1027037000,
+        "before_edge": true,
+        "spans_edge": false,
+        "overlaps_release_span": false,
+        "contains_full_span": false
+      },
+      "health": {
+        "before_ns": 1027039000,
+        "after_ns": 1030040000,
+        "before_edge": false,
+        "spans_edge": true,
+        "overlaps_release_span": true,
+        "contains_full_span": false
+      }
+    }
+  },
+  "crossing_sleep": {
+    "spans_edge": true,
+    "case": "long_sleep",
+    "detail": {
+      "release_edge_ns": 1008000500,
+      "actual_start_ns": null,
+      "sleep": {
+        "before_ns": 1001001200,
+        "after_ns": 1140000300,
+        "before_edge": false,
+        "spans_edge": true,
+        "overlaps_release_span": true,
+        "contains_full_span": false
+      },
+      "health": "absent"
+    }
+  },
+  "last_callback_classification": {
+    "release_edge_ns": 1008000500,
+    "actual_start_ns": null,
+    "sleep": {
+      "before_ns": 1001001200,
+      "after_ns": 1140000300,
+      "before_edge": false,
+      "spans_edge": true,
+      "overlaps_release_span": true,
+      "contains_full_span": false
+    },
+    "health": "absent"
+  },
+  "absent_semantics": {
+    "all_new_fields_none": true,
+    "last": {
+      "last_sleep_before_ns": null,
+      "last_sleep_after_ns": null,
+      "last_sleep_requested_ns": null,
+      "last_health_before_ns": null,
+      "last_health_after_ns": null
+    }
+  },
+  "health_failure_semantics": {
+    "after_retained_from_finally": true,
+    "last": {
+      "last_sleep_before_ns": 1003001800,
+      "last_sleep_after_ns": 1005001900,
+      "last_sleep_requested_ns": 2000000,
+      "last_health_before_ns": 1005002100,
+      "last_health_after_ns": 1005002200
+    }
+  },
+  "aggregate_closure_ok": true,
+  "old_module_has_no_new_keys": true,
+  "business_exceptions": {
+    "begin_without_anchor": "ValueError: Rate group lacks a current complete anchor",
+    "anchor_not_multiple_of_four": "ValueError: Rate anchor requires a complete four-tick boundary",
+    "invalid_rate": "ValueError: requested_rate must be 0.5 or 1"
+  },
+  "limits": [
+    "pure fake-clock tests against the real parent module; no wall clock, no native/model/ROS/build and no rate acceptance claim",
+    "the candidate is prepared as *.py.txt and is never applied to any checkout",
+    "joint_rate.py, the private runner and the parent module are not edited",
+    "no diagnostic launch is implied; the main session decides after new raw analysis"
+  ]
+}

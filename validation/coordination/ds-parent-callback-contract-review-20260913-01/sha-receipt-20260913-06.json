@@ -1,0 +1,64 @@
+{
+  "crossing_fixture": {
+    "callback_after_ns": 1008401600,
+    "callback_before_ns": 1005401600,
+    "callback_kind": "loop",
+    "clock_advance_from_callback_ns": 3000000,
+    "crosses_release": true,
+    "loop_index": 1,
+    "overrun_past_release_ns": 401100,
+    "release_ns": 1008000500,
+    "remaining_when_called_ns": 2598900,
+    "second_group_loop_health_calls": 1,
+    "second_group_sleep_calls": 1
+  },
+  "date": "2026-09-13",
+  "expected": {
+    "old_parent": "a8bac9ac84ba9960296bb6b43d6d39c6bbc17fa9fdc47adf7e05ce76d7066653",
+    "v1_rejected": "e1dd28558e36f40ea9ec87cddcbe517339f6196198dec0a28b164fecafe75a70",
+    "v2_fix": "7855409d1f28e955dc9fcafc2d90f94e13ef5ab35eb1a0d239b61a4c919a4be1"
+  },
+  "kind": "ds_parent_callback_contract_review_sha_receipt",
+  "owner": "validation/coordination/ds-parent-callback-contract-review-20260913-01",
+  "real_artifact_observation": {
+    "groups_with_loop_health_call": 21289,
+    "groups_without": 1235,
+    "note": "reachability only; per-callback instants are not in the record",
+    "path": "validation/coordination/claude-parent-probe-partition-20260913-01/uy9ov56b/reordered-archive/rate.jsonl",
+    "timing_samples": 22524
+  },
+  "review_module_files": {
+    "validation/coordination/ds-parent-callback-contract-review-20260913-01/evidence/callback-retention-followup.json": "1311cbf135fb8165574b3488defe9c89b53b37feddb91ed318aa8271e761d8cd",
+    "validation/coordination/ds-parent-callback-contract-review-20260913-01/review-callback-retention-followup.md": "93a05a461a8daed1b95e5eab4f6570c53ff185f4ca109a0b9431113fb5714137",
+    "validation/coordination/ds-parent-callback-contract-review-20260913-01/test_callback_retention_followup.py": "124c0e9178c7a98ab8f9ead7118f69565bb0133740bb5297ff8e28c0e7f92da9"
+  },
+  "schema_version": 3,
+  "sleep_failure_fixture": {
+    "exception_object_identity_preserved": true,
+    "v1_reversed": true,
+    "v1_reversed_pair_ns": {
+      "last_health_after_ns": 1003001600,
+      "last_health_before_ns": 1003001500,
+      "last_sleep_after_ns": 1003001300,
+      "last_sleep_before_ns": 1003001800,
+      "last_sleep_requested_ns": 2000000
+    },
+    "v2_consistent": true
+  },
+  "source_pins_before_and_after": {
+    "Simulator/wksim_runtime/joint_rate.py": "0b53a16acd65138b4623a9a8573ec8d643a2b78f4e27e8122c65efb9a6da25c4",
+    "Simulator/wksim_runtime/joint_rate_probe.py": "a8bac9ac84ba9960296bb6b43d6d39c6bbc17fa9fdc47adf7e05ce76d7066653",
+    "candidates/v1_rejected": "e1dd28558e36f40ea9ec87cddcbe517339f6196198dec0a28b164fecafe75a70",
+    "candidates/v2_fix": "7855409d1f28e955dc9fcafc2d90f94e13ef5ab35eb1a0d239b61a4c919a4be1"
+  },
+  "supersedes": "sha-receipt-20260913-04.json (no-blocker withdrawn) and sha-receipt-20260913-05.json (crossing conclusion corrected)",
+  "verdict": {
+    "f2_crossing_premise": "confirmed_in_fixture",
+    "f2_reachability": "corrected_true",
+    "no_blocker": "withdrawn",
+    "uy9_aggregate_window_reconstruction": "cannot_decide_crossing",
+    "v1_defect": "reproduced",
+    "v2_fix": "verified",
+    "v2_review_conclusion": "accepted_no_blocking_finding"
+  }
+}

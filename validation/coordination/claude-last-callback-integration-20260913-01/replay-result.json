@@ -1,0 +1,130 @@
+{
+  "schema": "wksim.last-callback-replay.v1",
+  "classification": "diagnostic_only",
+  "full_acceptance": false,
+  "producer_sha256": {
+    "b_candidate_v2": "7855409d1f28e955dc9fcafc2d90f94e13ef5ab35eb1a0d239b61a4c919a4be1",
+    "old_parent": "a8bac9ac84ba9960296bb6b43d6d39c6bbc17fa9fdc47adf7e05ce76d7066653",
+    "driver": "302b2d3d7fab0d9084ac587e38bf71bef22c83d23b85de436c572d03f779632d"
+  },
+  "consumer_sha256": {
+    "omp_callback_partition_v2": "e6e7399b9218059f128e6ac5fce26382b49b5b8539ad6ec32555eadfcdafd967",
+    "omp_v2_own_suite": "11/11 OK before integration"
+  },
+  "fixture_sha256": "078158ffd5c19bac824a8e04aa57556c6241f3dd1289c6d848a1f94968894c75",
+  "rows_replayed": 10,
+  "old_rows_replayed": 3,
+  "clock_reads_during_replay": "forbidden by guard; none occurred",
+  "checks": [
+    {
+      "name": "closure_exact:sleep_crosses_edge:0",
+      "ok": true
+    },
+    {
+      "name": "started_is_release:sleep_crosses_edge:0",
+      "ok": true
+    },
+    {
+      "name": "closure_exact:sleep_crosses_edge:1",
+      "ok": true
+    },
+    {
+      "name": "started_is_release:sleep_crosses_edge:1",
+      "ok": true
+    },
+    {
+      "name": "closure_exact:sleep_crosses_edge:2",
+      "ok": true
+    },
+    {
+      "name": "started_is_release:sleep_crosses_edge:2",
+      "ok": true
+    },
+    {
+      "name": "closure_exact:loop_health_crosses_edge:0",
+      "ok": true
+    },
+    {
+      "name": "started_is_release:loop_health_crosses_edge:0",
+      "ok": true
+    },
+    {
+      "name": "closure_exact:loop_health_crosses_edge:1",
+      "ok": true
+    },
+    {
+      "name": "started_is_release:loop_health_crosses_edge:1",
+      "ok": true
+    },
+    {
+      "name": "closure_exact:loop_health_crosses_edge:2",
+      "ok": true
+    },
+    {
+      "name": "started_is_release:loop_health_crosses_edge:2",
+      "ok": true
+    },
+    {
+      "name": "closure_exact:no_callback:0",
+      "ok": true
+    },
+    {
+      "name": "started_is_release:no_callback:0",
+      "ok": true
+    },
+    {
+      "name": "closure_exact:no_callback:1",
+      "ok": true
+    },
+    {
+      "name": "started_is_release:no_callback:1",
+      "ok": true
+    },
+    {
+      "name": "closure_exact:sleep_done_then_failure_before_edge:0",
+      "ok": true
+    },
+    {
+      "name": "started_is_release:sleep_done_then_failure_before_edge:0",
+      "ok": true
+    },
+    {
+      "name": "closure_exact:sleep_done_then_failure_before_edge:1",
+      "ok": true
+    },
+    {
+      "name": "failed_never_fabricated_release:sleep_done_then_failure_before_edge:1",
+      "ok": true
+    },
+    {
+      "name": "sleep_crossing_visible_in_window",
+      "ok": true
+    },
+    {
+      "name": "health_crossing_visible_in_window",
+      "ok": true
+    },
+    {
+      "name": "no_callback_zero_union",
+      "ok": true
+    },
+    {
+      "name": "no_callback_zero_union",
+      "ok": true
+    },
+    {
+      "name": "empty_lateness_window_legal",
+      "ok": true
+    },
+    {
+      "name": "failed_attempt_not_a_release",
+      "ok": true
+    },
+    {
+      "name": "old_records_unavailable",
+      "ok": true
+    }
+  ],
+  "all_passed": true,
+  "scope": "producer->consumer actual replay only; no acceptance claim"
+}
