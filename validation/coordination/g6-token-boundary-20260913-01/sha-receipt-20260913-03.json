@@ -1,0 +1,77 @@
+{
+  "schema_version": 2,
+  "kind": "g6_token_boundary_sha_receipt",
+  "owner": "validation/coordination/g6-token-boundary-20260913-01",
+  "date": "2026-09-13",
+  "supersedes": "sha-receipt-20260913-03.json.v1-rejected (kept as the pre-pin versioning record)",
+  "baseline_pin": {
+    "ref": "5165781dc3607d08179c26f11b9af13f152fbf17",
+    "ref_kind": "commit id (never HEAD)",
+    "blob": "df15d795856583eae101e3d1f549ecfc29f4e2e7",
+    "sha256": "0f3a79a4b5bf7d96a71f3337ee6f2e3b3c0ac767e59d8a2cd7aab7d742e3e3bd",
+    "access": "git cat-file blob <ref>:tools/build_first_step_solve_candidate.py",
+    "load_method": "exec into an isolated module namespace with __file__ set to the real tool path; no scratch file written in tools/"
+  },
+  "edited_tool": {
+    "tools/build_first_step_solve_candidate.py": "e380f53318b38c7f39e0cbf39b9f01fcd09ef3027c427c2738b3080e1f5046c0"
+  },
+  "module_files": {
+    "validation/coordination/g6-token-boundary-20260913-01/test_token_boundary.py": "cd23bec2c4544f485fc3172c67e79fb717e7ee0961346f4bccaf7fe2cc0874c0",
+    "validation/coordination/g6-token-boundary-20260913-01/old_vs_new_evidence.py": "93cd4182209016eec036bda0609820fdd1acb56264888201abd3924b109c8b6b",
+    "validation/coordination/g6-token-boundary-20260913-01/repro_token_boundary.py": "1a169e30cd581824d60bd7692ba8e2b6b037bdc174ed6a8cf54efc12d49438fe",
+    "validation/coordination/g6-token-boundary-20260913-01/verify_preparation_identity.py": "82e4c7a2b9879e5bff560babb628c5d32d58b838f3805417850ea844c4187b52",
+    "validation/coordination/g6-token-boundary-20260913-01/findings-token-boundary-20260913.md": "be7c034a6e83e7065876c89e6aa2138ce808c4ea9eba43a91b66849e2e969d69",
+    "validation/coordination/g6-token-boundary-20260913-01/findings-token-boundary-20260913.md.v1-rejected.md": "14c0c980c6892ccf9f779ab64f6388eee3235ac74affd5a498949f2050a2db1c",
+    "validation/coordination/g6-token-boundary-20260913-01/sha-receipt-20260913-03.json.v1-rejected": "a6f41ad850c9b2ec1f9286f7b9ac3eb4433e46312bc901ae08946a9ad8ac5387"
+  },
+  "frozen_and_untouched": {
+    "tools/compare_first_step_trace.py": "7f7be184e2e31c6dbb9a4a198b4c313f7cef5b72f8f18abd958606c144eefc9f",
+    "validation/test_compare_first_step_trace.py": "20b4442778ec5263d383e81b324ae8c39c383b4d5662d8c47d35282825b33c91",
+    "tools/build_first_step_trace.py": "8a07c8ca7157f699e9f3d385afd7df6c1747ef8d67b3da36f02395b80babe493",
+    "tools/first_step_trace_recorder.cpp": "b422c6f9c4762b1604f3602c121d98b7490aca8149973184db7b72a90f815875",
+    "validation/test_first_step_solve_candidate.py": "05ae8c1fe58020a7032e6bc5c7dc43056e99faa8189f8888a01a8eb4c454d601"
+  },
+  "retained_material": {
+    "work/quad-parameters-source-review-20260909/Exp1_MinModelTemp.cpp": "a35d7c8f39c94f2db8c27b19affee5b66c1b001c63ded334ba83c99f8be54019",
+    "validation/coordination/g6-diagonal-solve-candidate-20260913/build-command.json": "40d4b6c216de1173a830727967ddea5da213742ef7912ee3ae95794bf4aa736a",
+    "validation/coordination/g6-diagonal-solve-candidate-20260913/candidate-command.json": "4e1e82753b076ff4acb9451ca0e8480e085a155a3f8dd0f2951fc231514cb218",
+    "validation/numerical-conformance-gxxh6xhr/C3G/input.csv": "721c88bf3f621923b98bb43251c50bae7817106a984be64345c0528d34d3adcf"
+  },
+  "identities": {
+    "pinned_source_sha256": "a35d7c8f39c94f2db8c27b19affee5b66c1b001c63ded334ba83c99f8be54019",
+    "instrumented_source_sha256": "3e271d64f46191a1e5dd41c92ae215ea5321ec42ece31dd1ada389be3ece9182",
+    "candidate_source_sha256": "0107001b1a4aeef4591b2516ffad338866e4645a59c519c3c3e367073acac001",
+    "insertion_unchanged": true
+  },
+  "evidence": {
+    "positive_fixture": "accepted identically by the pinned baseline and the new tool, insertion at 422",
+    "replaced_definition_fixture": "pinned baseline ACCEPTS (classifies the prefixed wrapper as the definition, insertion at 428); new tool REJECTS (part of a longer identifier)",
+    "replaced_call_fixture": "pinned baseline ACCEPTS (classifies the prefixed call as the call, insertion at 422); new tool REJECTS",
+    "four_occurrence_fixture": "rejected by BOTH on the occurrence-count rule; kept only as a regression guard"
+  },
+  "tests": {
+    "token_boundary": {
+      "command": "python -B -m pytest validation/coordination/g6-token-boundary-20260913-01/test_token_boundary.py -q",
+      "passed": 13
+    },
+    "existing_builder": {
+      "command": "python -B -m pytest validation/test_first_step_solve_candidate.py -q",
+      "passed": 18
+    },
+    "preparation_identity": {
+      "command": "python -B validation/coordination/g6-token-boundary-20260913-01/verify_preparation_identity.py",
+      "checks_passed": 17,
+      "checks_total": 17
+    },
+    "not_rerun": [
+      "validation/test_compare_first_step_trace.py (frozen, untouched)",
+      "validation/coordination/g6-guard-review-20260913-01/tests (unrelated)"
+    ]
+  },
+  "non_claims": [
+    "no model, MATLAB, ROS, UE, native build or run",
+    "no vendor publication, no vendor body printed",
+    "no numeric branch, trace builder, budget, gate or production change",
+    "no edit to retained evidence or to the frozen comparator and its test"
+  ]
+}

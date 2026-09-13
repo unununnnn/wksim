@@ -1,0 +1,41 @@
+{
+  "baseline": {
+    "ref": "5165781dc3607d08179c26f11b9af13f152fbf17",
+    "ref_kind": "commit id (never HEAD)",
+    "blob": "df15d795856583eae101e3d1f549ecfc29f4e2e7",
+    "sha256": "0f3a79a4b5bf7d96a71f3337ee6f2e3b3c0ac767e59d8a2cd7aab7d742e3e3bd",
+    "access": "git cat-file blob <ref>:tools/build_first_step_solve_candidate.py",
+    "load_method": "exec into an isolated module namespace with __file__ set to the real tool path; no scratch file written in tools/"
+  },
+  "edited_tool": {
+    "tools/build_first_step_solve_candidate.py": "e380f53318b38c7f39e0cbf39b9f01fcd09ef3027c427c2738b3080e1f5046c0"
+  },
+  "identity": {
+    "pinned_source_sha256": "a35d7c8f39c94f2db8c27b19affee5b66c1b001c63ded334ba83c99f8be54019",
+    "instrumented_source_sha256": "3e271d64f46191a1e5dd41c92ae215ea5321ec42ece31dd1ada389be3ece9182",
+    "candidate_source_sha256": "0107001b1a4aeef4591b2516ffad338866e4645a59c519c3c3e367073acac001",
+    "insertion_unchanged": true
+  },
+  "author_tests": {
+    "token_boundary": {
+      "command": "python -B -m pytest validation/coordination/g6-token-boundary-20260913-01/test_token_boundary.py -q",
+      "passed": 13
+    },
+    "existing_builder": {
+      "command": "python -B -m pytest validation/test_first_step_solve_candidate.py -q",
+      "passed": 18
+    },
+    "preparation_identity": {
+      "command": "python -B validation/coordination/g6-token-boundary-20260913-01/verify_preparation_identity.py",
+      "checks_passed": 17,
+      "checks_total": 17
+    },
+    "not_rerun": [
+      "validation/test_compare_first_step_trace.py (frozen, untouched)",
+      "validation/coordination/g6-guard-review-20260913-01/tests (unrelated)"
+    ]
+  },
+  "source_sha_verified": true,
+  "actual_old_new_exit": 0,
+  "full_acceptance": false
+}

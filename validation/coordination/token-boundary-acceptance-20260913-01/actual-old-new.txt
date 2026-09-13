@@ -1,0 +1,39 @@
+old side ref        : 5165781dc3607d08179c26f11b9af13f152fbf17 (pinned commit, not HEAD)
+old side blob sha256: 0f3a79a4b5bf7d96a71f3337ee6f2e3b3c0ac767e59d8a2cd7aab7d742e3e3bd
+expected blob sha256: 0f3a79a4b5bf7d96a71f3337ee6f2e3b3c0ac767e59d8a2cd7aab7d742e3e3bd
+old helper present  : False
+new helper present  : True
+
+==============================================================================
+POSITIVE (DECL + DEF + CALL)
+  byte-length 600   NAME occurrences 3
+    offset   234  before=b' '    after=b'(const real_T u0[3], con'
+    offset   330  before=b' '    after=b'(const real_T u0[3], con'
+    offset   467  before=b' '    after=b'(rtb_IntegratorSecondOrd'
+  OLD classify  : [('declaration', None), ('definition', 422), ('call', None)]
+  OLD add_branch: ACCEPTED, insertions=1, insertion_at=422 -> real definition
+  NEW classify  : [('declaration', None), ('definition', 422), ('call', None)]
+  NEW add_branch: ACCEPTED, insertions=1, insertion_at=422 -> real definition
+
+==============================================================================
+REPLACED-DEF (prefixed wrapper replaces the real definition)
+  byte-length 588   NAME occurrences 3
+    offset   234  before=b' '    after=b'(const real_T u0[3], con'
+    offset   336  before=b'_'    after=b'(const real_T u0[3], con'
+    offset   455  before=b' '    after=b'(rtb_IntegratorSecondOrd'
+  OLD classify  : [('declaration', None), ('definition', 428), ('call', None)]
+  OLD add_branch: ACCEPTED, insertions=1, insertion_at=428 -> prefixed wrapper (fixture has no real definition)
+  NEW classify  : [('declaration', None), 'REJECT: rt_mrdivide occurrence is part of a longer identifier, not this function', ('call', None)]
+  NEW add_branch: REJECTED: rt_mrdivide occurrence is part of a longer identifier, not this function
+
+==============================================================================
+REPLACED-CALL (prefixed call replaces the real call)
+  byte-length 606   NAME occurrences 3
+    offset   234  before=b' '    after=b'(const real_T u0[3], con'
+    offset   330  before=b' '    after=b'(const real_T u0[3], con'
+    offset   473  before=b'_'    after=b'(rtb_IntegratorSecondOrd'
+  OLD classify  : [('declaration', None), ('definition', 422), ('call', None)]
+  OLD add_branch: ACCEPTED, insertions=1, insertion_at=422 -> real definition
+  NEW classify  : [('declaration', None), ('definition', 422), 'REJECT: rt_mrdivide occurrence is part of a longer identifier, not this function']
+  NEW add_branch: REJECTED: rt_mrdivide occurrence is part of a longer identifier, not this function
+

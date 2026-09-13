@@ -21,12 +21,17 @@ gating. It probes the observed same-operand 1ULP first-step difference (offline,
 multiply-by-reciprocal reproduced the reference q; direct division reproduced the
 target q). It is NOT a formal model change and NOT a G6/R1 acceptance result.
 
-Anchor discipline: the pinned instrumented source contains exactly three
-FUNC_NAME occurrences - one extern declaration, one definition, one call site.
-Each occurrence must classify as exactly one of these (canonical u0/u1/y
-signature required for declaration and definition; anything else is rejected -
-a same-name token in a comment or with a different shape never counts). The
-insertion goes right after the definition's opening brace line. Removing the
+Anchor discipline (defense in depth, not a parser): the primary guarantee is the
+pinned source SHA - `builder.instrument` refuses any generated cpp whose bytes do not
+hash to the recorded pin, so this tool only ever patches the reviewed artifact. On top
+of that, three structural checks are applied to the instrumented source: every
+FUNC_NAME occurrence must sit on an identifier boundary (a substring inside a longer
+name such as `outer_rt_mrdivide_...` is rejected outright), the parameter list must
+match the canonical u0/u1/y signature, and there must be exactly one occurrence
+classifying as declaration, one as definition and one as call. The insertion goes
+right after the definition's opening brace line. There is NO C++ lexer here: text
+inside comments or string literals is not interpreted, and such text is only refused
+when it changes the occurrence counts or the recognized signature shape. Removing the
 inserted bytes restores the instrumented source exactly (verified at patch time).
 
 The original and instrumented sources, the frozen archive, and all earlier
@@ -89,11 +94,29 @@ def _exclusive_write(path, data):
         handle.write(data)
 
 
+_IDENT_CHARS = frozenset('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_')
+
+
+def _at_identifier_boundary(src, pos):
+    """True when the FUNC_NAME match at `pos` is a whole identifier token: the
+    bytes immediately before and after it are not identifier characters. A bare
+    substring match inside a longer name (for example `outer_rt_mrdivide_...`) is
+    a different function and must never be classified as this one."""
+    before = src[pos - 1] if pos else None
+    after_index = pos + len(FUNC_NAME)
+    after = src[after_index] if after_index < len(src) else None
+    return (before is None or chr(before) not in _IDENT_CHARS) and \
+           (after is None or chr(after) not in _IDENT_CHARS)
+
+
 def _classify_occurrence(src, pos):
     """Classify one FUNC_NAME occurrence as ('definition', insert_at),
     ('declaration', None), or ('call', None); reject any other shape. Only the
     canonical u0/u1/y signature counts as declaration/definition; the insertion
     point is right after the definition's opening-brace line."""
+    if not _at_identifier_boundary(src, pos):
+        raise ValueError(
+            'rt_mrdivide occurrence is part of a longer identifier, not this function')
     j = pos + len(FUNC_NAME)
     while j < len(src) and src[j:j + 1].isspace():
         j += 1

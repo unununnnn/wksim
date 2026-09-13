@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "kind": "g6_token_boundary_sha_receipt",
+  "owner": "validation/coordination/g6-token-boundary-20260913-01",
+  "date": "2026-09-13",
+  "edited_tool": {
+    "tools/build_first_step_solve_candidate.py": "e380f53318b38c7f39e0cbf39b9f01fcd09ef3027c427c2738b3080e1f5046c0"
+  },
+  "module_files": {
+    "validation/coordination/g6-token-boundary-20260913-01/test_token_boundary.py": "292fbba3f1ab40ceb5fbc6cef443d6d663b27abad338b654431d3b253ad732a2",
+    "validation/coordination/g6-token-boundary-20260913-01/old_vs_new_evidence.py": "4aac72e5ac352a931a9824bb41caef75130e150bb48f5035e057c9a014070300",
+    "validation/coordination/g6-token-boundary-20260913-01/repro_token_boundary.py": "1a169e30cd581824d60bd7692ba8e2b6b037bdc174ed6a8cf54efc12d49438fe",
+    "validation/coordination/g6-token-boundary-20260913-01/verify_preparation_identity.py": "82e4c7a2b9879e5bff560babb628c5d32d58b838f3805417850ea844c4187b52",
+    "validation/coordination/g6-token-boundary-20260913-01/findings-token-boundary-20260913.md": "5cda7bce76d787104adec253327b68dc76010900d714df676ec34a0acb08311c",
+    "validation/coordination/g6-token-boundary-20260913-01/findings-token-boundary-20260913.md.v1-rejected.md": "6651c2e68c001559f8c4742106370802d09c2a61504bcb336fa7b318dd90da20"
+  },
+  "frozen_and_untouched": {
+    "tools/compare_first_step_trace.py": "7f7be184e2e31c6dbb9a4a198b4c313f7cef5b72f8f18abd958606c144eefc9f",
+    "validation/test_compare_first_step_trace.py": "20b4442778ec5263d383e81b324ae8c39c383b4d5662d8c47d35282825b33c91",
+    "tools/build_first_step_trace.py": "8a07c8ca7157f699e9f3d385afd7df6c1747ef8d67b3da36f02395b80babe493",
+    "tools/first_step_trace_recorder.cpp": "b422c6f9c4762b1604f3602c121d98b7490aca8149973184db7b72a90f815875",
+    "validation/test_first_step_solve_candidate.py": "05ae8c1fe58020a7032e6bc5c7dc43056e99faa8189f8888a01a8eb4c454d601"
+  },
+  "retained_material": {
+    "work/quad-parameters-source-review-20260909/Exp1_MinModelTemp.cpp": "a35d7c8f39c94f2db8c27b19affee5b66c1b001c63ded334ba83c99f8be54019",
+    "validation/coordination/g6-diagonal-solve-candidate-20260913/build-command.json": "40d4b6c216de1173a830727967ddea5da213742ef7912ee3ae95794bf4aa736a",
+    "validation/coordination/g6-diagonal-solve-candidate-20260913/candidate-command.json": "4e1e82753b076ff4acb9451ca0e8480e085a155a3f8dd0f2951fc231514cb218",
+    "validation/numerical-conformance-gxxh6xhr/C3G/input.csv": "721c88bf3f621923b98bb43251c50bae7817106a984be64345c0528d34d3adcf"
+  },
+  "identities": {
+    "pinned_source_sha256": "a35d7c8f39c94f2db8c27b19affee5b66c1b001c63ded334ba83c99f8be54019",
+    "instrumented_source_sha256": "3e271d64f46191a1e5dd41c92ae215ea5321ec42ece31dd1ada389be3ece9182",
+    "candidate_source_sha256": "0107001b1a4aeef4591b2516ffad338866e4645a59c519c3c3e367073acac001",
+    "candidate_matches_retained_candidate_command": true,
+    "trace_markers_before_and_after_preparation": true,
+    "insertion_unchanged": true
+  },
+  "tests": {
+    "token_boundary": {
+      "command": "python -B -m pytest validation/coordination/g6-token-boundary-20260913-01/test_token_boundary.py -q",
+      "passed": 12,
+      "subtests": 5
+    },
+    "existing_builder": {
+      "command": "python -B -m pytest validation/test_first_step_solve_candidate.py -q",
+      "passed": 18
+    },
+    "preparation_identity": {
+      "command": "python -B validation/coordination/g6-token-boundary-20260913-01/verify_preparation_identity.py",
+      "checks_passed": 17,
+      "checks_total": 17
+    },
+    "not_rerun": [
+      "validation/test_compare_first_step_trace.py (frozen, untouched)",
+      "validation/coordination/g6-guard-review-20260913-01/tests (unrelated)"
+    ]
+  },
+  "preparation_identity_check": {
+    "command": "python -B validation/coordination/g6-token-boundary-20260913-01/verify_preparation_identity.py",
+    "checks_passed": 17,
+    "checks_total": 17,
+    "result": "all identities reproduce from local retained material",
+    "writes_only_outside_repo": "temp directory"
+  },
+  "non_claims": [
+    "no model, MATLAB, ROS, UE, native build or run",
+    "no vendor publication",
+    "no numeric branch, trace builder, budget, gate or production change",
+    "no edit to retained evidence or to the frozen comparator and its test"
+  ],
+  "old_side": {
+    "source": "git show HEAD:tools/build_first_step_solve_candidate.py",
+    "head_commit": "5165781dc3607d08179c26f11b9af13f152fbf17",
+    "method": "verbatim extract loaded via importlib against a scratch copy deleted in a finally block",
+    "claim": "OLD accepts the three-occurrence replaced-definition and replaced-call fixtures; NEW rejects both; POSITIVE accepted identically by both"
+  }
+}
