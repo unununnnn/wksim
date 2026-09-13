@@ -1,0 +1,69 @@
+{
+  "checked_at": 1789267367.5741084,
+  "boot_id": "9f076946-7482-45bb-9188-a75badaa1958",
+  "owned_pgids": [
+    2024,
+    2025,
+    2026,
+    2027,
+    2028,
+    2029,
+    2030,
+    2031,
+    2032,
+    2038
+  ],
+  "found": [],
+  "status": "failed",
+  "scene_epoch": "9b18d3d1322749db8e7dfccd7891b885",
+  "faulted_authority": {
+    "version": 1,
+    "epoch": "9b18d3d1322749db8e7dfccd7891b885",
+    "tick": 98684,
+    "time_ns": 98684000000,
+    "phase": "faulted",
+    "last_barrier_tick": 98684,
+    "synchronized": true,
+    "pending_tick": null,
+    "single_remaining": 0,
+    "last_request_id": 0,
+    "fault": "rate_unmet/resource_insufficient",
+    "last_input_tick": 98684,
+    "recoverable": false,
+    "input_pending": false
+  },
+  "cleanup_errors": [],
+  "source_unchanged": true,
+  "group_work_timing": {
+    "schema": "wksim.group-work-timing.v2",
+    "classification": "diagnostic_only",
+    "full_acceptance": false,
+    "field": "group_work_timing",
+    "reports_enabled": true,
+    "report_limit": 16,
+    "census": true,
+    "epoch": "9b18d3d1322749db8e7dfccd7891b885",
+    "valid": true,
+    "invalid_reason": null,
+    "reasons": [],
+    "unfinished_group": null,
+    "counts": {
+      "groups_complete": 24661,
+      "groups_incomplete": 0,
+      "over_budget_groups": 18,
+      "reports_emitted": 16,
+      "reports_dropped": 2,
+      "diagnostic_errors": 0
+    },
+    "limitations": [
+      "sampled mode retains diagnostic rows only for >2ms or tick%250==0 steps; coverage is marked, never a census; census mode requires all four cpu rows for the exact work decomposition",
+      "thread CPU is the recorded value; no OS cause is attributed from wall-CPU and CPU is never required to be <= wall",
+      "data errors make valid=false with reasons recorded; recorder faults invalidate this diagnostic only and never mask caller exceptions",
+      "the formal validator rejects the group_work_timing field; enabling it keeps the evidence diagnostic-only"
+    ]
+  },
+  "flight_completed": false,
+  "launch_precheck_boot_id": "d4ffc567-64ca-46d5-b8e9-a0cdee6e9478",
+  "same_boot_as_launch": false,
+  "limitation": "WSL boot changed after terminal; empty PGIDs establish current absence only, not same-boot post-run cleanup. No signals sent."
+}

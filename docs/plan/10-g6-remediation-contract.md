@@ -1,6 +1,6 @@
 # #59 G6 来源一致数值验收路线
 
-2026-09-11 实施进展：固定 e0 SLX 11.8 已由真实 MATLAB/Embedded Coder 生成并在 Linux 独立构建，核心 Model 冷重置与冷重建通过（`50897b8`、`docs/2026-09-10-generated-e0-lifecycle.md`）。下文“同源候选尚未生成”的缺口已解除。新 11.8 major 采集入口正在实施；逐量物理精度预算、normal/native 同源数值比较和 G6/Full 仍未通过，不把生命周期字节重复性当作物理精度。
+2026-09-13 状态核对：固定 e0 SLX 11.8 已生成、独立构建并具有 major 采集与同源比较入口。`tools/run_e0_same_source_conformance.py` 已实现合同检查、执行身份核验、normal/native 编排及严格逐量比较；当前缺少有依据且 approved 的完整逐量预算，入口在启动模型前返回 blocked。来源、入口和预算是不同的完成条件，不重新派发已完成的生成/入口工作。
 
 主任务材料补充：[G6材料索引](../g6-material-index.md)已定位本机厂家开发/生成说明和传感器标定教材、MWLOG/MAT示例数据。它们是继续实现和误差分析的输入，尚未建立与当前e0模型全部验收量的计量/工况绑定，不能直接改填本合同缺失的精度预算；R1旧结果保持不变。
 
@@ -16,7 +16,7 @@
 
 ## 来源决策
 
-选择 **固定 e0 SLX 11.8 + 原 init + 实际有效库依赖，normal 执行作参考；由同一冻结副本新生成并独立编译的 native 模型作候选**。这是前瞻性来源一致路线，候选当前尚未生成、准入或替换生产模型。
+选择 **固定 e0 SLX 11.8 + 原 init + 实际有效库依赖，normal 执行作参考；由同一冻结副本新生成并独立编译的 native 模型作候选**。该来源一致路线已有生成候选与采集实现；尚未完成新合同下的数值验收，也未据此替换正式模型。
 
 | 材料 | 身份/证据 | 决策 |
 | --- | --- | --- |
@@ -61,7 +61,7 @@ Get-FileHash -Algorithm SHA256 Simulator/wksim_core/numerical-conformance-v1.jso
 
 第一条只检查比较器正负例，不执行载具。现有 `python tools/run_numerical_conformance.py --run --cases C0 C2G C3G` 是**旧R1跨版本重跑入口**，本票未运行；它固定旧合同、构建及目标hash，不能作为新同源G6命令。
 
-下一次同源比较所需生成/准入/运行CLI目前不存在，因此没有可批准的精确新运行命令。需分配 tools/、核心新配方及测试的写入范围，完成：来源manifest准入→受控新生成/编译→major记录器适配→新合同解析和预算审计→独立参考/候选执行→离线逐量比较。#59只允许本文与新证据，不能修改旧入口pin绕过此缺口。
+同源入口现在为 `python tools/run_e0_same_source_conformance.py <新合同路径> --output <新结果路径> --evidence-dir <新证据目录>`；这是参数格式，当前没有完整获批预算合同可用来启动比较。实际字段、校验顺序和命令见[同源命令接缝](59-e0-same-source-command.md)。入口在预算和执行身份通过后才可到达模型启动，不修改旧入口 pin，不填造预算，不把参数示例当成可运行的已批准合同。
 
 入口交付时须给出实际可运行的argv、cwd、工具版本/hash、输入与新合同hash、独立输出目录、超时和进程收尾；不能发布占位CLI供Luna执行。结果schema须含case/epoch、source/config/contract身份、两侧原始binary64输出与全部major/post输入、实际退出/终态、逐量峰值/RMS/首失败及全部失败。状态分为blocked、invalid_run、numerical_failed、declared_cases_pass；physical_accuracy与G6状态独立。
 
@@ -69,6 +69,6 @@ Get-FileHash -Algorithm SHA256 Simulator/wksim_core/numerical-conformance-v1.jso
 
 ## #59 当前交接
 
-已完成来源选择、历史证据复核、采样/随机数约束与实现切缝；尚缺有依据的预算和实际新比较入口，未满足本票完整完成条件，保持开放。下一步由主任务分配新生成准入与比较器源码范围，并取得预算所需模型分析/校准材料；无需重跑旧R1。
+已完成来源选择、历史证据复核、采样/随机数约束、生成采集及同源比较入口；有依据的逐量预算仍缺失，保持 #59/G6 开放。复用既有 11.8 C0 major 与 normal 原件的离线检查覆盖 60,120 值，Sensor30[10] 在 k153/k181 仍有两处差异；另一个对角求解候选只验证了 C3G 首步 240 major 与 13 映射态等有限范围，不能代替本合同的完整比较。细节见[对角求解实验](../2026-09-13-diagonal-solve-experiment.md)。下一步聚焦预算所需的模型误差分析/校准依据与尚未证明的工况，不重建已完成入口，不重跑旧 R1。
 
 实际会话 `01a085ae-8e74-7431-aa16-113eac9436f4` 最新turn_context已核验 `model=gpt-6-astra, effort=low`；没有子代理。证据只发布项目文档、哈希与既有结果摘要。

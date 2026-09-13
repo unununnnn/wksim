@@ -9,18 +9,28 @@
 - Windows tools/run_joint_flight.py属于其它工作；实验runner只在上述Linux检出修改，并保留实际源SHA快照。最新主仓库joint_profile.py修复尚未同步到该Linux检出。
 - 队列JSON是交接记录，不是后台自动调度程序。先读精确thread终态再续派；THREAD_BUSY不算送达，cancel ack不算终态。
 
-## 当前两个可用外部任务
+## 当前新增六席与实际执行状态
 
-| 席位 | thread / 当前turn | 独占交付 |
-| --- | --- | --- |
-| OMP | 51609e8d-e4ce-4a8e-8a0d-f7c896c24842 / 813429cb-ecef-42a8-9e1e-f4da3f3904d8 | group-work-timing-integration-20260913/纯补丁准备脚本/测试：固定joint.py快照，仅新增兼容timing_census=False参数，True才交出全量现有诊断事件；不改生产文件、不native。 |
-| Claude Code | e64514a6-77c2-4b27-91a7-896c92a361fd / aa762e1a-eab2-4090-8548-7259d5ab7f44 | tools/group_work_timing.py及纯测试：当前4步+至多前组，实际work>period时emit，最多16报告；正常组不落盘；诊断不改业务、不掩盖异常。 |
+2026-09-13 用户明确要求新增 3 DeepSeek + 3 codebuddy。已逐个实际派发并读取结果：DeepSeek 三席均有源码/实现进展；codebuddy 三席均以429结束，没有工作交付。额度提示为2026-09-13 20:54:20 JST。不会把API创建成功当作任务执行成功，也不循环重试。
 
-两代理的C扩展/基准审查、原件工作超额分析、正式pin/诊断标记负例已交回。最新句柄见rolling-two-20260913-07.json。新有界记录器及私有源补丁仍未验收/接线；在其稳定后才由协调者审查、双WSL前检并执行下一次诊断。不要盲目重跑旧场或对准旧7个tick窗口。
+| 席位 | Harness | Task | 读取状态 | 独占范围 |
+| --- | --- | --- | --- | --- |
+| DS-1 | deepseek-harness | [45decda4-b315-42b3-b7da-2b724dabfd4f](codex://threads/45decda4-b315-42b3-b7da-2b724dabfd4f) | running | validation/coordination/ds-group-audit-20260913-01 |
+| DS-2 | deepseek-harness | [e2a62dda-d7fa-43f0-bfdb-c62eb13ac86c](codex://threads/e2a62dda-d7fa-43f0-bfdb-c62eb13ac86c) | running | validation/coordination/ds-hotpath-review-20260913-01 |
+| DS-3 | deepseek-harness | [7849b551-87ef-4dd7-8322-cd7e72ea241d](codex://threads/7849b551-87ef-4dd7-8322-cd7e72ea241d) | running | validation/coordination/ds-g6-guard-review-20260913-01 |
+| CB-1 | codebuddy | [ca59872f-0e41-4a7a-9b19-0936c664960c](codex://threads/ca59872f-0e41-4a7a-9b19-0936c664960c) | 429，未执行 | validation/coordination/cb-recorder-review-20260913-01 |
+| CB-2 | codebuddy | [e54c030f-8764-4bb6-912a-2983bf92c011](codex://threads/e54c030f-8764-4bb6-912a-2983bf92c011) | 429，未执行 | validation/coordination/cb-admission-review-20260913-01 |
+| CB-3 | codebuddy | [a369d683-177b-4d56-b32c-8fd0136eaaf8](codex://threads/a369d683-177b-4d56-b32c-8fd0136eaaf8) | 429，未执行 | validation/coordination/cb-evidence-pack-20260913-01 |
 
-同根三分钟wksim heartbeat已通过应用工具PAUSED，Goal仍active；原配置保留，不恢复重复执行器。21ad94b2具体续行来源仍unknown，不能据heartbeat/Goal并存作因果认定；两个外部thread无独立goal，数据库未写。子代理交付即停，不自称协调者进入native阶段。
+codebuddy 三份任务已转移写权：CB-1→Claude e64514a6-77c2-4b27-91a7-896c92a361fd / turn 2a36e6d3-6924-4df4-8279-c1becfad8f0e，CB-2→OMP 51609e8d-e4ce-4a8e-8a0d-f7c896c24842 / turn da7033a6-bcac-49e0-a0a6-8fc3ca494de5；两者read确认running。CB-3由主会话接手，选取证据包、完整性检查与5项负例/正例已完成。实际为5个外部运行任务+主会话，不是6个外部代理都已工作。
 
-三个codebuddy因429不可用（2026-09-13 20:54:20 JST前不重投），DeepSeek后台仍待重启确认，Luna Fast未核验不替换用户选择。不虚报不可用席位。
+每个任务含主交付及独立接续项，本轮可自行完成两项后交付即停；协调者逐个读取终态、验收后续派，不等整批。明确文件范围，禁止子代理native/模型/ROS/MATLAB/UE/构建及修改正式门。完整delegationId/threadId/turnId/deepLink/model配置及任务说明在 validation/coordination/rolling-six-20260913-01.json。
+
+本轮接续已派发并读回：DS-1 turn39398e5d做交付目录/CPU窗口措辞修正并分析实际tick间隙；DS-2 turn1e22e586修正每tick收益与累计迟到的错误比较；OMP的准入测试5项与证据封存5项已批量通过，OMP已转turnf82cd18c核验编码器候选的WSL Python3.10等价性。Claude继续记录器对抗测试，DS-3继续G6验证。稳定交付收据及接续句柄在rolling-six-20260913-02/。修正G6合同中的过期“入口不存在”描述，现有同源入口已实现，缺口仍是有依据且approved的预算。未启动新native，原门不变。
+
+根Goal仍是唯一持续协调器，原三分钟heartbeat保持PAUSED。DeepSeek新派发已恢复实际执行，但不能由此断言旧卡死task恢复；不执行未获批准的应用重启、不写Goal数据库。
+
+当前诊断 rfw9nmbb 已终态failed：epoch9b18d3d1322749db8e7dfccd7891b885，tick98684，RateUnmet，wall250.403797634s，source_unchanged=true、cleanup_errors=[]、flight_completed=false。有界记录器valid=true，24661完整组、18超额组、16报告、2超额报告按上限丢弃、0诊断错误。原件保留，不能正式提升。详情在 group-work-diagnostic-20260913-01/terminal-cleanup.json；后检WSL boot已变化，当前同号PGID全空只证明当前无残留，不作同boot清理证据，不向同号PID发信号。新的详细阶段证据由DS-1/DS-2并行分析。
 
 ## 已完成：#83
 

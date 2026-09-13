@@ -1,0 +1,58 @@
+{
+  "checked_at": 1789267921.2792475,
+  "previous_goal_turn": "progress: six dispatches attempted, five external tasks confirmed working after three quota failures; completed diagnostic evidence preserved",
+  "classification": "diagnostic_only",
+  "full_acceptance": false,
+  "checks": {
+    "admission": {
+      "command": [
+        "python",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "validation/coordination/cb-admission-review-20260913-01",
+        "-p",
+        "test*.py",
+        "-v"
+      ],
+      "exit_code": 0,
+      "output": "test_admission_pin_binding_names_tampered_pacer (test_admission_safeguards.AdmissionSafeguardReviewTests.test_admission_pin_binding_names_tampered_pacer) ... ok\ntest_both_markers_rejected_on_key_presence_for_any_value (test_admission_safeguards.AdmissionSafeguardReviewTests.test_both_markers_rejected_on_key_presence_for_any_value) ... ok\ntest_each_pacer_missing_tampered_or_retained_tampered (test_admission_safeguards.AdmissionSafeguardReviewTests.test_each_pacer_missing_tampered_or_retained_tampered) ... ok\ntest_positive_fixture_passes_real_validator (test_admission_safeguards.AdmissionSafeguardReviewTests.test_positive_fixture_passes_real_validator) ... ok\ntest_unbound_message_candidate_rejected_with_explicit_message (test_admission_safeguards.AdmissionSafeguardReviewTests.test_unbound_message_candidate_rejected_with_explicit_message) ... ok\n\n----------------------------------------------------------------------\nRan 5 tests in 0.348s\n\nOK\n"
+    },
+    "pack": {
+      "command": [
+        "python",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "validation/coordination/cb-evidence-pack-20260913-01",
+        "-p",
+        "test*.py",
+        "-v"
+      ],
+      "exit_code": 0,
+      "output": "test_duplicate_report (test_validate_pack.PackChecks.test_duplicate_report) ... ok\ntest_hash_mismatch (test_validate_pack.PackChecks.test_hash_mismatch) ... ok\ntest_retained_pack (test_validate_pack.PackChecks.test_retained_pack) ... ok\ntest_truncated_report_with_updated_hash (test_validate_pack.PackChecks.test_truncated_report_with_updated_hash) ... ok\ntest_unknown_status (test_validate_pack.PackChecks.test_unknown_status) ... ok\n\n----------------------------------------------------------------------\nRan 5 tests in 0.092s\n\nOK\n"
+    }
+  },
+  "sha256": {
+    "docs/plan/10-g6-remediation-contract.md": "75718a366c263012695bcef16ca6272f2b98bc9110afe591cca76f069206aba2",
+    "validation/coordination/cb-admission-review-20260913-01/test_admission_safeguards.py": "fa147073523f6c72e231b9723fb8a0b794617fb731fa89af874cabf40cbdbc1c",
+    "validation/coordination/cb-admission-review-20260913-01/admission-review.md": "eb3253ea666204cf0c82e397de8834c82f4c2689ba8533acb8b542914278f276",
+    "validation/coordination/cb-evidence-pack-20260913-01/validate_pack.py": "eef98c24238b1e66591d6ea3b0c077d656396178c9dc2bd4864d9770964e49a4",
+    "validation/coordination/cb-evidence-pack-20260913-01/test_validate_pack.py": "d95d7dfd1c424ba91d21a520f560f43a30fdb90737974319aa599ddbd73b5f6a"
+  },
+  "accepted": [
+    "formal admission independent regression coverage",
+    "selected diagnostic evidence integrity, not flight acceptance",
+    "G6 contract synchronized to existing implemented entry"
+  ],
+  "pending": [
+    "group recorder independent adversarial review",
+    "DeepSeek audit path/wording corrections",
+    "worker encoder candidate target-runtime equivalence",
+    "G6 guard audit"
+  ]
+}
