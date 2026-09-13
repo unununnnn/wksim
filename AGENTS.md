@@ -9,7 +9,15 @@ This checkout derives from amov-lab/Prometheus. The upstream commit is recorded 
 - If MCP tools are unavailable or fail to start, immediately use the native CLI with the explicit cache/runtime environment in `docs/codebase-memory.md`, starting with `index_status`. Report a graph failure only after that fallback fails; use direct source/text discovery for uncovered files.
 - Read actual source before editing or citing graph results. Run `detect_changes` or refresh the index after edits only before a structural query that depends on those edits. Index only this repository, not the parent mixed workspace.
 
-## Migration decisions
+## Architecture continuity
+
+Before new implementation, delegation, or acceptance work, read [the implemented architecture](docs/architecture-implementation-20260912.md) and [the continuation contract](docs/coordination/architecture-continuation-20260913.md). The earlier architecture review contains historical proposals; the implementation report is the current baseline.
+
+New development and new-architecture acceptance checkouts must contain commit `f333316e6efa6b299b4288a9d91fb2bccedfb9d6`. Check this with `git merge-base --is-ancestor f333316e6efa6b299b4288a9d91fb2bccedfb9d6 HEAD` and inspect its exit status before work. A frozen historical comparison checkout is exempt only when explicitly classified as historical; its results do not validate the new architecture.
+
+Every dispatch must state its actual checkout/HEAD, module and interface being changed, owned files, dependencies, validation, and whether it is new development or a historical comparison. Keep model/actuator semantics, firmware adapters, pure controller algorithms, experiment/deployment configuration, and UE visual assets in their existing modules. Preserve legacy adapters where required by frozen experiments; do not generalize their quad-only ABI or thrust mapping to new vehicle families. Apply the continuation contract at integration as well as dispatch.
+
+## Migration scope
 
 For task scope and decisions, read the [Wayfinder map](https://github.com/unununnnn/wksim/issues/1) and the relevant linked ticket. Issues belong to `unununnnn/wksim`; use an explicit `--repo` argument with `gh`.
 

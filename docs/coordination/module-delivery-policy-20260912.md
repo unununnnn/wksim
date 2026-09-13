@@ -7,6 +7,8 @@
 
 ## 1. 交付节奏
 
+所有后续派发与集成必须遵循 [同一架构接续合同](architecture-continuation-20260913.md) 和 [已实施架构](../architecture-implementation-20260912.md)。新开发/新架构验收先验证 `f333316` 祖先关系；旧冻结基线只能用于明确标注的历史对照。派发必须带实际 checkout/HEAD、module/interface、独占文件和受影响验证，收件方在开工时重新核验。
+
 1. 完成一项即验收、返修或接续独立任务，不等整批结束。每项任务自带内部修复、纯测试、真实原件复核和稳定 SHA，减少主会话重复接手内部工作。
 2. 每席**只有一个**正在执行的任务，并预先标明下一项及依赖。没有合法 ready 项时如实记录等待原因，不制造重复报告填满席位。
 3. 交付稳定 SHA 后交付方停止写入，等审查者复核；主会话只提交已验证的精确版本。
@@ -15,8 +17,8 @@
 ## 2. 写入权与所有权
 
 5. **一个文件只有一个写入者**；交付并确认终态后才转移写入权。审查者只审稳定版本，主会话提交精确已验证版本，保护其它工作区修改。
-6. 主会话独占 native、正式 profile/catalog 与 `joint_profile.py` 接线。Linux 执行检出 `Ubuntu-22.04 /root/wksim-release-acceptance-fe3`（分支 `codex/planner-release-validation`），第二发行版 `RflySim-20.04`。
-7. Windows `tools/run_joint_flight.py` 属其它工作，本策略不改。实验 runner 只在上述 Linux 检出修改，并保留实际源 SHA 快照；私有 runner 现为 `1c600d7f…`（manager50，已回退），`9b97c124…`（manager99）已弃用。
+6. 主推进会话独占 native、正式 profile/catalog 与 `joint_profile.py` 接线。新架构候选使用 `Ubuntu-22.04 /root/wksim-architecture-acceptance-20260913`（分支 `codex/architecture-acceptance-20260913`）；创建和源码核验不代表运行资源已准入。第二发行版仍为 `RflySim-20.04`。
+7. 旧 `Ubuntu-22.04 /root/wksim-release-acceptance-fe3`（分支 `codex/planner-release-validation`）保留为历史对照，不再作为新架构功能开发的默认检出。其私有 runner `1c600d7f…`（manager50，已回退）与弃用的 `9b97c124…`（manager99）是历史身份，不自动成为新候选身份。迁移必要的私有接线时由主推进会话逐文件比较、保存原件、记录 SHA 并重新验证受影响准入；不整目录覆盖新架构。Windows `tools/run_joint_flight.py` 的写入权按当前实际交接确认，不因本策略自动转移。
 8. 只精确 `git add`；禁止全库 `git add`、禁止覆盖他方 controller/runtime/UE/rover 修改，不发布厂商源码或 `.so`。
 
 ## 3. 状态依据
