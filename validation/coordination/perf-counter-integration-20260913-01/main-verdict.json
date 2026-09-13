@@ -1,0 +1,81 @@
+{
+  "checked_unix": 1789297508.3050706,
+  "source_head": "1b3dfdcc106be18bcff8ff0e69269f6c7eab755d",
+  "classification": "diagnostic_only",
+  "architecture_acceptance": false,
+  "full_acceptance": false,
+  "recorder_sha256": "aa807f3baaafcd64ed6174a49f8010b49798a74d139ead2d4eb69eafa503c1d2",
+  "header_sha256": "ef1eabf247107098dc59a314d99b8fc82d4c54dbddd58d645bcec35141a12823",
+  "consumer_sha256": "dee9a3b5c3cafb42e69836758ccaebd4dbd78e8fa569d203c7ca1d36a03179bc",
+  "native_regression": {
+    "compilations": 6,
+    "fault_programs": 5,
+    "all_exit_zero_and_pgid_empty": true
+  },
+  "normal": {
+    "raw_sha256": "553b29e3d91bafeb9b0332956ffbf0567195a89a3746f3b8f9f92b065401f129",
+    "records": 8,
+    "pairs": 4,
+    "kernel_lost_count": 0,
+    "independent_consumer_completeness": true
+  },
+  "pending_loss": {
+    "bytes": 524256,
+    "records": 16383,
+    "lost_records": [],
+    "sha256": "263e7ed257a84cc27749b0aa03fb2f4eac233fdfbfcf0d13791ee061658c9d43",
+    "kernel_lost_count": 26471,
+    "consumer_exit": 3,
+    "reason": "kernel_loss_counter_nonzero",
+    "note": "Counter detects unpublished loss independently of pairing; the odd prefix does not prove an earlier full validator false PASS."
+  },
+  "read_faults": [
+    {
+      "mode": 1,
+      "passed": true,
+      "read_bytes": 16,
+      "read_errno": 0,
+      "counter": 0,
+      "consumer_exit_code": 0,
+      "consumer_stderr": ""
+    },
+    {
+      "mode": 2,
+      "passed": true,
+      "read_bytes": -1,
+      "read_errno": 4,
+      "counter": null,
+      "consumer_exit_code": 3,
+      "consumer_stderr": "{\"ok\": false, \"reason\": \"kernel_loss_counter_unavailable\", \"detail\": \"\", \"tool\": \"wksim-perf-stream-consumer\", \"tool_version\": \"1\"}\n"
+    },
+    {
+      "mode": 3,
+      "passed": true,
+      "read_bytes": 8,
+      "read_errno": 0,
+      "counter": null,
+      "consumer_exit_code": 3,
+      "consumer_stderr": "{\"ok\": false, \"reason\": \"kernel_loss_counter_unavailable\", \"detail\": \"\", \"tool\": \"wksim-perf-stream-consumer\", \"tool_version\": \"1\"}\n"
+    }
+  ],
+  "synthetic_counter_cases": 17,
+  "all_owned_processes_exited": true,
+  "review": {
+    "threadId": "2b441114-d6e4-4546-a87e-a2ca018d88eb",
+    "turnId": "57ffa34c-9cf8-40ca-abb7-fe9c587eb462",
+    "status": "completed",
+    "path": "docs/coordination/omp-perf-counter-integration-review-20260913.md",
+    "sha256": "9e4a857bb52fc740e25085cb955879f96942f29663a360c802b45e07dab50b2c"
+  },
+  "conditions": [
+    "Kernel 6.6.87.2-microsoft-standard-WSL2; revalidate after kernel change",
+    "Fresh event fd; mmap before ENABLE; inherit=0; no SET_OUTPUT",
+    "Require --require-kernel-counter for completeness-dependent use",
+    "All collector, identity, geometry, raw, pairing and lifecycle checks also pass"
+  ],
+  "remaining": [
+    "Whole-duration overhead measurement",
+    "Actual rate-window binding and new-architecture candidate admission"
+  ],
+  "historical_wording": "Header G9 and consumer intro describe older behavior; current contract supersedes these comments without changing executed bytes."
+}

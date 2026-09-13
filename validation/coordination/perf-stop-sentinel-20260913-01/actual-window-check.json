@@ -1,0 +1,82 @@
+{
+  "positive_exit_code": 0,
+  "negative_exit_code": 3,
+  "negative_stderr": "{\"ok\": false, \"reason\": \"window_after_stop_check\", \"detail\": \"\", \"tool\": \"wksim-perf-stream-consumer\", \"tool_version\": \"1\"}\n",
+  "window_completeness": {
+    "observed_pair_sequences": [
+      9
+    ],
+    "scope": "only windows ending before the stop check; final tail is not certified",
+    "sentinel_after_ns": 54635479301,
+    "sentinel_before_ns": 54634401931,
+    "verified_from_ns": 54028587678,
+    "verified_until_ns": 54634401931
+  },
+  "windows": [
+    {
+      "end_ns": 54634401931,
+      "id": "observed_prefix",
+      "intersecting_pairs": 9,
+      "intersection_total_ns": 605712207,
+      "intersections": [
+        {
+          "duration_ns": 150079653,
+          "end_ns": 54178685245,
+          "sequence": 0,
+          "start_ns": 54028605592
+        },
+        {
+          "duration_ns": 150093777,
+          "end_ns": 54328791058,
+          "sequence": 1,
+          "start_ns": 54178697281
+        },
+        {
+          "duration_ns": 150089618,
+          "end_ns": 54478891826,
+          "sequence": 2,
+          "start_ns": 54328802208
+        },
+        {
+          "duration_ns": 150077475,
+          "end_ns": 54628977936,
+          "sequence": 3,
+          "start_ns": 54478900461
+        },
+        {
+          "duration_ns": 1059791,
+          "end_ns": 54630060332,
+          "sequence": 4,
+          "start_ns": 54629000541
+        },
+        {
+          "duration_ns": 1093873,
+          "end_ns": 54631158192,
+          "sequence": 5,
+          "start_ns": 54630064319
+        },
+        {
+          "duration_ns": 1066601,
+          "end_ns": 54632236998,
+          "sequence": 6,
+          "start_ns": 54631170397
+        },
+        {
+          "duration_ns": 1078336,
+          "end_ns": 54633318352,
+          "sequence": 7,
+          "start_ns": 54632240016
+        },
+        {
+          "duration_ns": 1073083,
+          "end_ns": 54634398136,
+          "sequence": 8,
+          "start_ns": 54633325053
+        }
+      ],
+      "start_ns": 54028587678,
+      "window_duration_ns": 605814253
+    }
+  ],
+  "whole_stream_proven": false
+}

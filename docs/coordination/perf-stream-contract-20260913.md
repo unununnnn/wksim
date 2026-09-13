@@ -10,7 +10,9 @@ runner change is authorized by this contract.
 - C API `int wksim_perf_start(void **handle)` opens software DUMMY for the
   calling thread only: pid=0, cpu=-1, group_fd=-1, CLOEXEC, inherit=0,
   context_switch=1, sample_id_all=1, TID|TIME|CPU, CLOCK_MONOTONIC,
-  exclude_kernel=1. Capture owner PID/TID and current boot before enable.
+  exclude_kernel=1, read_format=16 (PERF_FORMAT_LOST). Create a fresh event fd
+  for each capture; RESET does not reset its loss counter. Do not use SET_OUTPUT.
+  Capture owner PID/TID and current boot before enable.
 - One owned native reader thread uses explicit SCHED_OTHER and verifies its
   actual policy. It must not inherit the manager's FIFO priority. Do not change
   the main thread, other threads, affinities, sysctls or resource limits.
@@ -36,7 +38,8 @@ runner change is authorized by this contract.
   metadata cannot certify its own final output-file close.
 - Stop writes raw bytes and metadata only after capture ended, using exclusive
   file creation and checked writes. Never overwrite existing evidence. A start
-  failure must leave no active reader/event/mapping and return an error.
+  failure returns an error. If cleanup cannot join, retain the non-NULL handle
+  and its resources as described above; never free storage still in use.
 
 ## Evidence format
 
@@ -54,7 +57,11 @@ normalization or filtering. Target is little-endian x86_64. Metadata is JSON:
   exceed storage capacity. Metadata/windows JSON reject duplicate keys.
 - `config`: `pid_argument=0`, `cpu_argument=-1`, `inherit=0`,
   `exclude_kernel=1`, `context_switch=1`, `sample_id_all=1`,
-  `sample_type=[TID,TIME,CPU]`.
+  `sample_type=[TID,TIME,CPU]`, `read_format=16`.
+- `kernel_lost_read_ok`, `kernel_lost_read_bytes`, `kernel_lost_read_errno`,
+  `kernel_lost_count`: read the same event fd after successful DISABLE and before
+  close. Require exactly 16 bytes (value, lost), with at most eight EINTR attempts.
+  Failure/short read leaves count null; nonzero loss invalidates the capture.
 - `collector_complete`: boolean; `collector_errors`: list of explicit failures
   including saved errno where applicable; `lifecycle` booleans `disable_ok`,
   `reader_joined`, `munmap_ok`, `close_ok`.
@@ -84,17 +91,28 @@ The main coordinator alone compiles and runs native verification after fresh
 checks of both WSL distributions. No flight wiring until code, independent
 tests, lifecycle failure paths and measured overhead have been reviewed.
 
-## Completeness blocker
+## Configured-event completeness
 
 A final kernel ring loss can remain pending without a LOST record until another
 successful output. Disable does not itself flush that count. The pressure guard
 and a well-paired decoded prefix therefore do not prove a loss-free capture.
-Current decoder output must state `stream_completeness_proven=false`.
+The selected implementation instead reads PERF_FORMAT_LOST after DISABLE.
+Its output-failure counter includes pending loss before a LOST record is
+published. This was checked against actual kernel 6.6.87.2-microsoft-standard-WSL2
+and source tag linux-msft-wsl-6.6.87.2. New fd, mmap before ENABLE, inherit=0,
+and no output redirection are required. A kernel change requires revalidation.
 
-A proposed stop check, still requiring review and native falsification tests,
-drains first, obtains free ring space, then brackets an owner-thread nanosleep
-while the event remains enabled. The decoder would require an actual out/in
-pair in those clock bounds, not assume that sched_yield or sleep guarantees it.
-Only observation windows ending before this final check could be certified.
-Any missing check, LOST record or inconsistent drain/lifecycle would reject
-the evidence. Until this is implemented and verified, flight wiring is blocked.
+The independent consumer requires all counter fields to have exact valid types,
+read_format=16, successful read16/errno0 and uint64 count zero, in addition to
+all collector, lifecycle, geometry, owner, raw and pairing checks above.
+Only then is stream_completeness_proven=true, covering windows within
+[enable_after_ns, disable_before_ns]. This is the configured event's capture,
+not causal scheduling attribution or physical acceptance.
+
+Every completeness-dependent invocation must use --require-kernel-counter.
+Counterless historical input remains inspection-only with completeness false.
+The earlier stop sentinel is superseded; no sleep/checkpoint is needed by the
+selected implementation. See [kernel-counter verification](../2026-09-13-perf-kernel-loss-counter.md)
+for native zero-loss, pending-loss, short-read and EINTR evidence plus review.
+Whole-run overhead and actual rate-window integration remain required before
+flight wiring is accepted.

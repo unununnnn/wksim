@@ -1,0 +1,89 @@
+{
+  "capture": {
+    "boot_id": "7a072da5-4591-4a1f-be3c-af1c4cccded2",
+    "captured_bytes": 64,
+    "clock_id": "CLOCK_MONOTONIC",
+    "disable_after_ns": 7010393168,
+    "disable_before_ns": 7010390633,
+    "enable_after_ns": 7000292309,
+    "enable_before_ns": 7000290404,
+    "owner_pid": 773,
+    "owner_tid": 773,
+    "reader_policy": 0,
+    "ring_bytes": 524288,
+    "ring_pressure_guard_bytes": 4096,
+    "storage_capacity_bytes": 134217728
+  },
+  "classification": "diagnostic_only",
+  "decoded": {
+    "cpus": [
+      14
+    ],
+    "first_time_ns": 7000296600,
+    "last_time_ns": 7010381307,
+    "observed_span_ns": 10084707,
+    "pair_duration_max_ns": 10084707,
+    "pair_duration_total_ns": 10084707,
+    "pairs": 1,
+    "preempt_outs": 0,
+    "raw_time_bounds_used": {
+      "first_ns": 7000290404,
+      "kind": "outer_enable_before_to_disable_after",
+      "last_ns": 7010393168
+    },
+    "records": 2,
+    "switch_in": 1,
+    "switch_out": 1,
+    "window_time_bounds_used": {
+      "first_ns": 7000292309,
+      "kind": "inner_enable_after_to_disable_before",
+      "last_ns": 7010390633
+    }
+  },
+  "flight_conclusion": null,
+  "full_acceptance": false,
+  "inputs": {
+    "metadata_path": "/root/wksim-stream-native-v5i1l4td/counter-read-faults/read-1.meta.json",
+    "metadata_sha256": "b6b9b7650bbd079d32a33d54097a7d422d65b21cb25e894eb586c0595fd4e512",
+    "raw_bytes": 64,
+    "raw_path": "/root/wksim-stream-native-v5i1l4td/counter-read-faults/read-1.raw",
+    "raw_sha256": "d854ce3352f094ceaf3ed84a633cd729b4de04c8057d0e2fc650046ea0aca03b",
+    "windows_path": null,
+    "windows_sha256": null
+  },
+  "notes": [
+    "metadata and raw bytes are bound by SHA-256; the raw file length must equal captured_bytes exactly and must not exceed storage_capacity_bytes",
+    "LOST, LOST_SAMPLES, CPU_WIDE, unknown, truncated and unpaired records are errors, never skipped; non-switch records are classified by their own header size, not forced into a 32-byte slot",
+    "raw record timestamps are checked against the outer span [enable_before_ns, disable_after_ns]; windows use the inner enabled span [enable_after_ns, disable_before_ns]",
+    "window intersections are boundary observations in integer nanoseconds",
+    "stream completeness requires a valid zero post-disable kernel loss counter; legacy or sentinel-only captures do not prove their final tail"
+  ],
+  "pairs": [
+    {
+      "cpu_changed": false,
+      "duration_ns": 10084707,
+      "in_cpu": 14,
+      "in_index": 1,
+      "in_time_ns": 7010381307,
+      "out_cpu": 14,
+      "out_index": 0,
+      "out_preempt": false,
+      "out_time_ns": 7000296600,
+      "sequence": 0
+    }
+  ],
+  "schema": "wksim.perf_switch_consumer.v1",
+  "scope": "decoded switch-pair boundaries and optional window intersections; not proof of which task ran, why scheduling occurred or exact CPU execution time",
+  "stream_completeness_proven": true,
+  "stream_completeness_reason": "post-disable PERF_FORMAT_LOST is zero and the complete collector/raw stream passed validation",
+  "tool": "wksim-perf-stream-consumer",
+  "tool_version": "1",
+  "window_completeness": {
+    "kernel_lost_count": 0,
+    "method": "post_disable_kernel_event_loss_counter",
+    "scope": "configured event capture; not other tasks or physical accuracy",
+    "verified_from_ns": 7000292309,
+    "verified_until_ns": 7010390633
+  },
+  "windows": null
+}

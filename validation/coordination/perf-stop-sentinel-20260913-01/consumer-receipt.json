@@ -1,0 +1,119 @@
+{
+  "synthetic": true,
+  "cases": 14,
+  "failures": 0,
+  "results": [
+    {
+      "case": "valid",
+      "passed": true,
+      "expected_reason": null,
+      "exit_code": 0,
+      "stdout": "{\"metadata_sha256\": \"257cd72f42d140777f601603ecb5316f66f9a8fdecd49708c56bae9b9220ea96\", \"ok\": true, \"output\": \"C:\\\\Users\\\\PC\\\\Documents\\\\odid\\u7f16\\u8bd1\\\\wksim\\\\validation\\\\coordination\\\\perf-stop-sentinel-20260913-01\\\\consumer-cases\\\\valid\\\\output.json\", \"pairs\": 3, \"raw_sha256\": \"79154818f3600577313d4975d70f3b36c413f6f5dd6bb01311486039b377d445\", \"records\": 6, \"windows\": 3}\n",
+      "stderr": ""
+    },
+    {
+      "case": "incomplete",
+      "passed": true,
+      "expected_reason": "sentinel_not_completed",
+      "exit_code": 3,
+      "stdout": "",
+      "stderr": "{\"ok\": false, \"reason\": \"sentinel_not_completed\", \"detail\": \"\", \"tool\": \"wksim-perf-stream-consumer\", \"tool_version\": \"1\"}\n"
+    },
+    {
+      "case": "bool_clock",
+      "passed": true,
+      "expected_reason": "sentinel_field_not_integer",
+      "exit_code": 3,
+      "stdout": "",
+      "stderr": "{\"ok\": false, \"reason\": \"sentinel_field_not_integer\", \"detail\": \"sentinel_before_ns\", \"tool\": \"wksim-perf-stream-consumer\", \"tool_version\": \"1\"}\n"
+    },
+    {
+      "case": "float_clock",
+      "passed": true,
+      "expected_reason": "sentinel_field_not_integer",
+      "exit_code": 3,
+      "stdout": "",
+      "stderr": "{\"ok\": false, \"reason\": \"sentinel_field_not_integer\", \"detail\": \"sentinel_after_ns\", \"tool\": \"wksim-perf-stream-consumer\", \"tool_version\": \"1\"}\n"
+    },
+    {
+      "case": "cutoff",
+      "passed": true,
+      "expected_reason": "sentinel_cutoff_mismatch",
+      "exit_code": 3,
+      "stdout": "",
+      "stderr": "{\"ok\": false, \"reason\": \"sentinel_cutoff_mismatch\", \"detail\": \"\", \"tool\": \"wksim-perf-stream-consumer\", \"tool_version\": \"1\"}\n"
+    },
+    {
+      "case": "small_headroom",
+      "passed": true,
+      "expected_reason": "sentinel_drain_headroom_invalid",
+      "exit_code": 3,
+      "stdout": "",
+      "stderr": "{\"ok\": false, \"reason\": \"sentinel_drain_headroom_invalid\", \"detail\": \"\", \"tool\": \"wksim-perf-stream-consumer\", \"tool_version\": \"1\"}\n"
+    },
+    {
+      "case": "impossible_headroom",
+      "passed": true,
+      "expected_reason": "sentinel_drain_headroom_invalid",
+      "exit_code": 3,
+      "stdout": "",
+      "stderr": "{\"ok\": false, \"reason\": \"sentinel_drain_headroom_invalid\", \"detail\": \"\", \"tool\": \"wksim-perf-stream-consumer\", \"tool_version\": \"1\"}\n"
+    },
+    {
+      "case": "late_check",
+      "passed": true,
+      "expected_reason": "sentinel_bounds_invalid",
+      "exit_code": 3,
+      "stdout": "",
+      "stderr": "{\"ok\": false, \"reason\": \"sentinel_bounds_invalid\", \"detail\": \"\", \"tool\": \"wksim-perf-stream-consumer\", \"tool_version\": \"1\"}\n"
+    },
+    {
+      "case": "partial_pair",
+      "passed": true,
+      "expected_reason": "sentinel_cutoff_mismatch",
+      "exit_code": 3,
+      "stdout": "",
+      "stderr": "{\"ok\": false, \"reason\": \"sentinel_cutoff_mismatch\", \"detail\": \"\", \"tool\": \"wksim-perf-stream-consumer\", \"tool_version\": \"1\"}\n"
+    },
+    {
+      "case": "overlap_is_not_a_full_pair",
+      "passed": true,
+      "expected_reason": "sentinel_pair_missing",
+      "exit_code": 3,
+      "stdout": "",
+      "stderr": "{\"ok\": false, \"reason\": \"sentinel_pair_missing\", \"detail\": \"\", \"tool\": \"wksim-perf-stream-consumer\", \"tool_version\": \"1\"}\n"
+    },
+    {
+      "case": "missing_field",
+      "passed": true,
+      "expected_reason": "sentinel_fields_missing",
+      "exit_code": 3,
+      "stdout": "",
+      "stderr": "{\"ok\": false, \"reason\": \"sentinel_fields_missing\", \"detail\": \"\", \"tool\": \"wksim-perf-stream-consumer\", \"tool_version\": \"1\"}\n"
+    },
+    {
+      "case": "no_actual_pair",
+      "passed": true,
+      "expected_reason": "sentinel_pair_missing",
+      "exit_code": 3,
+      "stdout": "",
+      "stderr": "{\"ok\": false, \"reason\": \"sentinel_pair_missing\", \"detail\": \"\", \"tool\": \"wksim-perf-stream-consumer\", \"tool_version\": \"1\"}\n"
+    },
+    {
+      "case": "late_window",
+      "passed": true,
+      "expected_reason": "window_after_stop_check",
+      "exit_code": 3,
+      "stdout": "",
+      "stderr": "{\"ok\": false, \"reason\": \"window_after_stop_check\", \"detail\": \"\", \"tool\": \"wksim-perf-stream-consumer\", \"tool_version\": \"1\"}\n"
+    },
+    {
+      "case": "lost_before_sentinel",
+      "passed": true,
+      "expected_reason": "record_lost_present",
+      "exit_code": 3,
+      "stdout": "",
+      "stderr": "{\"ok\": false, \"reason\": \"record_lost_present\", \"detail\": \"offset=128 size=48\", \"tool\": \"wksim-perf-stream-consumer\", \"tool_version\": \"1\"}\n"
+    }
+  ]
+}

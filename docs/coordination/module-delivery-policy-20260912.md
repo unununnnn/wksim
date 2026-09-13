@@ -3,7 +3,7 @@
 - `checked_at`: `2026-09-13T16:43:22+09:00`（unix 1789285402）
 - 本文是**静态策略/交接文档：不执行、不启动、不恢复任何后台调度**；队列与派发 JSON 同样只是记录。
 - 来源：`validation/coordination/perf-open-admission-20260913-01/`（`dispatches.json`/`receipt.json`/`prechecks.json`，派发于 unix 1789285339）、`validation/coordination/manager99-unprobed-20260913-01/`、HEAD `820f532`。
-- Goal 字符串中的阵容为历史值；**实时席位不在本文维护**，唯一指针为 [perf-open-admission dispatches](../../validation/coordination/profile-sync-20260913-01/dispatches.json)。
+- Goal 字符串中的阵容为历史值；**实时席位不在本文维护**，当前派发指针为 [perf-next-dispatches](../../validation/coordination/perf-next-dispatches-20260913-01.json)。
 
 ## 1. 交付节奏
 
@@ -36,10 +36,10 @@
 
 ## 5. 当前席位与交付
 
-**不在本文维护负责人表**（重复表会立刻过期）。席位、thread/turn、deepLink 与不可用席位只指向
-[profile-sync-20260913-01/dispatches.json](../../validation/coordination/profile-sync-20260913-01/dispatches.json)：
-5 席派发时 `status_at_dispatch=running`（3 DeepSeek + Claude + OMP），CodeBuddy 三席 `quota_blocked`/429
-（`reset_jst=2026-09-13T20:54:20+09:00`，`retry_submitted=false`）；旧表已删除，不保留副本。
+**不在本文维护负责人表**。当前接续派发见
+[perf-next-dispatches](../../validation/coordination/perf-next-dispatches-20260913-01.json)，
+历史五席与 CodeBuddy 429 见 [profile-sync dispatches](../../validation/coordination/profile-sync-20260913-01/dispatches.json)。
+状态字段均有时间范围；实时状态只以 thread read/wait 为准。任务完成后停止写入，再转移文件所有权。
 
 ## 6. 当前运行状态（唯一来源指针）
 

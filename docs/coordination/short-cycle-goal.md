@@ -1,6 +1,6 @@
 # 当前 Goal 执行检查点
 
-- `checked_at`: 2026-09-13T18:10:11+09:00
+- `checked_at`: 2026-09-13T20:05:45+09:00
 - 本文件是**静态交接文档，不执行也不启动后台调度**；调度事实只以精确 thread read/wait 与 JSON 收据为准。
 - 来源：`validation/coordination/perf-open-admission-20260913-01/`（`dispatches.json` 派发于 unix 1789285339）、`validation/coordination/manager99-unprobed-20260913-01/`（`decision.json`/`rollback.json`/`terminal-cleanup.json`/`inflight.json`）、HEAD `820f532`、私有 Linux 检出实测 SHA。
 - 根 Goal 字符串中的"阵容"是创建时的历史值，**不是**实时状态；本文件不改写 Goal DB。
@@ -50,10 +50,13 @@
 
 ## 当前任务与负责人
 
-**不在本文件维护负责人表**（重复表会立刻过期）。实时席位、thread/turn、deepLink 与不可用席位只指向
-[profile-sync-20260913-01/dispatches.json](../../validation/coordination/profile-sync-20260913-01/dispatches.json)：
-该文件记录 5 席在派发时的 `status_at_dispatch=running`（3 DeepSeek + Claude + OMP），以及 CodeBuddy 三席
-`quota_blocked`/429（`reset_jst=2026-09-13T20:54:20+09:00`，`retry_submitted=false`）。旧表已删除，不保留副本。
+当前接续派发见 [perf-next-dispatches](../../validation/coordination/perf-next-dispatches-20260913-01.json)：
+两个 DeepSeek 分别负责长时合成开销测试源码和新架构 MIXED 接线逐文件迁移核对。
+其 `status_at_dispatch` 是派发快照，实时状态须 thread read/wait；主会话独占 native。
+前一批三个独立修复已提交并推送 `1b3dfdc`，Linux 集成64项通过，见
+[验收记录](../../validation/coordination/three-deepseek-main-acceptance-20260913-01/main-verdict.json)。
+CodeBuddy 原429与重置时刻保存在历史 [profile-sync dispatches](../../validation/coordination/profile-sync-20260913-01/dispatches.json)，
+不能用旧快照推断已自动恢复。本页和 JSON 均不执行调度。
 
 ## 历史明细（不删除原件）
 
@@ -74,10 +77,12 @@
 - 根heartbeat `wksim` 保持PAUSED，由根Goal协调。卡死任务34386db2的Codex重启尚未获准；不运行重启脚本，不修改Goal数据库或补写turn/end。
 - 私有Linux正式准入已同步并提交 `db1200d`：joint_profile.py `575adb530944…`、原测试 `4a7ce076f24f…`；18项Linux测试通过，冻结Control c2IXOr current/sealed两路实际校验通过。只同步两文件且有备份，config/preflight等他方修改未复制。见 [同步收据](../../validation/coordination/profile-sync-20260913-01/receipt.json)。正式MIXED仍缺通过证明。
 
-- 下一步并行模块：自线程有界raw记录器、严格离线消费者、独立17组合成夹具；合同见 [perf-stream contract](perf-stream-contract-20260913.md)。末尾pending LOST的完整性与C启动/停止线程安全仍阻断飞行接线，不能凭collector_complete或无LOST记录宣称无损。
+- 自线程 raw 记录器与严格消费者已完成内核丢失计数器集成，合同见 [perf-stream contract](perf-stream-contract-20260913.md)。新 fd、mmap先ENABLE、DISABLE后read16与严格离线校验共同覆盖挂起丢失；不能仅凭collector_complete或无LOST记录宣称无损。整场开销和实际窗口接线仍未验收。
 
 - 离线decoder已主会话集成验收：84项作者检查、17组独立CLI夹具全过；原夹具自检曾把错误HHI头/PID布局/切换标志误报通过，已保留失败原件并按Linux ABI修正。见 [offline acceptance](../../validation/coordination/perf-stream-offline-acceptance-20260913-03/main-verdict.json)。这不证明stream无损。三个DeepSeek端本批再次终态失败；C记录器写入权已转给OMP（turn `931d6ae4-2b70-417c-89c9-b818b4be0411`），main只收稳定源码后做native验收，不再重复续派同一失败批次。
 
 
 - 主推进会话已实际阅读AGENTS、实施报告、接续合同及更新后的交付策略并接纳交接；以后每次新派发和续派记录cwd/HEAD、祖先检查、工作类别、module/interface、独占文件与受影响验收，集成复核实际diff。见 [交接确认](../../validation/coordination/perf-stream-native-acceptance-20260913-05/architecture-handoff-accepted.json)。旧私有接线只按需要逐文件适配到新候选，不整目录覆盖。
-- 独立perf记录器已完成真实编译、线程/错误策略/join/环形缓冲区/清理失败反例，正常约0.6秒保留256 raw字节并由独立consumer解出8记录/4对，全部自有进程退出；最终源码 `c0fa0530cd4d…`。stop采用 `void **handle` 明确返回所有权。见 [native baseline](../2026-09-13-perf-stream-recorder-admission.md)。仍未完成停止哨兵/整场开销/飞行接线，不作为新架构或MIXED/Full通过。OMP任务已主动取消并确认interrupted，由main完成收口；当前无外部实现或native进程在运行。
+- 独立perf记录器已完成真实编译、线程/错误策略/join/环形缓冲区/清理失败反例，正常约0.6秒保留256 raw字节并由独立consumer解出8记录/4对，全部自有进程退出；最终源码 `c0fa0530cd4d…`。stop采用 `void **handle` 明确返回所有权。见 [native baseline](../2026-09-13-perf-stream-recorder-admission.md)。该历史基线尚未包含后续内核计数器；整场开销/飞行接线仍未完成，不作为新架构或MIXED/Full通过。OMP任务已主动取消并确认interrupted，由main完成收口；此处为当时终态；后续派发见上方当前任务指针。
+
+- 当前选用 recorder `aa807f3b…`、consumer `dee9a3b5…`：6次编译、5类原生故障程序通过；正常8记录/4对由独立消费者确认完整；强制暂停reader得到26471丢失但0条LOST记录，正确拒绝；3类read故障路径通过。原件、内核适用条件和OMP终态审查见 [counter verdict](../../validation/coordination/perf-counter-integration-20260913-01/main-verdict.json)。旧哨兵源码与结果仅作为历史保留。并未获得MIXED/Full通过。
