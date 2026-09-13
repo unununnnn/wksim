@@ -1,0 +1,366 @@
+{
+  "schema": "wksim.26-pin-drift-audit.v1",
+  "kind": "read_only_pin_drift_adjudication",
+  "issue": 26,
+  "work_class": "new-development",
+  "dispatch": "read-only G4 #26 pin-drift adjudication",
+  "date": "2026-09-13",
+  "repository": {
+    "path": "C:/Users/PC/Documents/odid编译/wksim",
+    "remote": "https://github.com/unununnnn/wksim.git"
+  },
+  "checkouts": {
+    "head_at_start": "100ef1aafcc19c006d93eeb16b0c41e2352cdee6",
+    "head_at_finish": "1a8d5083b70461e6e6984566f7298c993f0c5392",
+    "head_advances_during_adjudication": [
+      "34d607698f90ea5a83901b511baaf4aee7bdd595 Pin accepted native load sites in core audit",
+      "a9d9ccc Record current G0-G5 closure frontier",
+      "1a8d5083b70461e6e6984566f7298c993f0c5392 Record expanded DLL ABI evidence"
+    ],
+    "head_at_start_is_ancestor_of_current": true,
+    "ancestry_pin": "f333316e6efa6b299b4288a9d91fb2bccedfb9d6",
+    "ancestry_pin_is_ancestor": true,
+    "adjudicated_artifacts_identical_across_all_heads": {
+      "Simulator/wksim_core/model.cpp": "4975598d95f8de7cd8caee2d68a1d51511d32f45",
+      "docs/plan/26-closure-readiness-manifest.json": "af7fdfa6c9b2",
+      "tools/audit_26_closure_readiness.py": "11eec11f9889"
+    },
+    "worktree_equals_head_for_adjudicated_artifacts": true,
+    "violations_reproduced_at_every_head": true,
+    "adjudication_stable_across_all_heads": true
+  },
+  "write_boundary": {
+    "owned_directory": "validation/coordination/ds-26-pin-drift-20260913-01/",
+    "files_written": [
+      "audit.md",
+      "audit.json",
+      ".gitattributes",
+      "SHA256SUMS",
+      "manifest.json",
+      "historical-wrapper-identities.json",
+      "recheck_26_pin_drift.py",
+      "summarize_recheck.py",
+      "recheck-output.json",
+      "recheck-summary.txt",
+      "recheck-stderr.txt",
+      "audit-26-run.json"
+    ],
+    "sealed_paths_not_modified": [
+      "docs/plan/26-closure-readiness-manifest.json",
+      "docs/plan/tickets/26-ude-controller.md",
+      "tools/audit_26_closure_readiness.py",
+      "validation/test_audit_26_closure_readiness.py",
+      "validation/codegen-e0-build-short-cycle-01/",
+      "validation/codegen-e0-lifecycle-01/",
+      "validation/codegen-e0/",
+      "Simulator/wksim_core/model.cpp"
+    ],
+    "issues_or_shared_ledgers_modified": false,
+    "executed": {
+      "native": false,
+      "build": false,
+      "ros": false,
+      "flight_control": false,
+      "model": false,
+      "ue": false,
+      "matlab": false
+    }
+  },
+  "verdict_summary": {
+    "auditor_status_observed": "not_ready",
+    "auditor_exit_code_observed": 2,
+    "violations_observed": 5,
+    "violations_that_are_real_pin_drift": 0,
+    "violations_that_are_real_vendor_material": 0,
+    "violations_that_are_auditor_misclassification": 4,
+    "violations_that_are_host_environment_classification": 3,
+    "correction_target": "tools/audit_26_closure_readiness.py",
+    "historical_pins_must_be_rewritten": false,
+    "headline": "The five reported violations contain no real pin drift and no real vendor material; the two substantive items are an auditor classification error on historical evidence and a filename-based vendor false positive. The separately meaningful item is an unverified implementation (terrain / initialized-state interfaces), which the auditor does not check at all.",
+    "status_after_correction": "ready_blocked_by_formal_dependency",
+    "formal_blocker_remaining": {
+      "issue": 9,
+      "state": "OPEN",
+      "evidence": "docs/plan/26-closure-readiness-manifest.json closure_blocker + docs/plan/26-current-source-ac-evidence-20260912.md section 1"
+    }
+  },
+  "stable_hashes": {
+    "current_wrapper_sha256": "150ddf3bab66e9e59701791392f6d792a14346e0b75ecdfe94872095e72d0290",
+    "current_wrapper_size_bytes": 4070,
+    "current_wrapper_git_blob": "4975598d95f8de7cd8caee2d68a1d51511d32f45",
+    "historical_pinned_wrapper_sha256": "3f325678b1d85c9aa3fd07bd644d82935aa26d82885926defeced139f02ddf2c",
+    "historical_pinned_wrapper_size_bytes": 1864,
+    "historical_pinned_digest_is_git_object": false,
+    "historical_pinned_bytes_preserved_repo_path": "validation/lunar-20-epoch-1/case/run/epochs/2a8d5df1dd4244c3868dc7f38e85a369/source/Simulator/wksim_core/model.cpp",
+    "historical_pinned_bytes_preserved_tracked": true,
+    "historical_and_input_receipt": {
+      "path": "validation/coordination/native-inputs-20260912/current-lifecycle-01.json",
+      "sha256": "1e28021eaf0f573b3ad3db22d89c58bc89e31da8599b6bd194e49d3e54d80a55"
+    },
+    "commissioned_current_wrapper_evidence": {
+      "build_manifest": {
+        "path": "validation/codegen-e0-build-current-wrapper-01/build-manifest.json",
+        "sha256": "434d1745924f9b0a4910a034e1b4847476e02ccde1c7b06f020087880c1f9226"
+      },
+      "lifecycle_audit": {
+        "path": "validation/codegen-e0-lifecycle-current-wrapper-01/audit.json",
+        "sha256": "0b5d96c97fcba5120213a2143ca641375878140435bc681b58ea3fcef8c5ff29",
+        "status": "pass",
+        "library_sha256": "528db3241baa43ef79166fbba74f6a4176aa2d82bf7c238bfe8f8db68267b328",
+        "cycles": 4,
+        "ticks_per_cycle": 1000,
+        "limitation": "Independent Linux reconstruction and reset only; no flight or MATLAB numeric oracle"
+      },
+      "terrain_manifest_binding": {
+        "path": "docs/plan/29-terrain-evidence-manifest.json",
+        "wrapper_sha256": "150ddf3bab66e9e59701791392f6d792a14346e0b75ecdfe94872095e72d0290",
+        "status": "partial_open"
+      }
+    },
+    "manifest_evidence_pins_all_intact": true
+  },
+  "manifest_evidence_pin_recheck": [
+    {
+      "ac": "source_chain",
+      "path": "docs/2026-09-10-generated-e0-lifecycle.md",
+      "recomputed_sha256": "60a223620e7fc96b519bfa383fd1712c40386b99ed5812f6d2262c3b644a3d7a",
+      "intact": true
+    },
+    {
+      "ac": "source_chain",
+      "path": "validation/codegen-e0/short-cycle-codegen-01/generated-sources-manifest.json",
+      "recomputed_sha256": "85c40213cec0f349d36664c5621bb53c46ad96f9756cdd4eaa2bb97a7b2acc67",
+      "intact": true
+    },
+    {
+      "ac": "matlab_license_actual_checkout",
+      "path": "validation/codegen-e0/short-cycle-codegen-01/codegen-report.json",
+      "recomputed_sha256": "e5f32bd2890137591b61eba72fe0b21893fef578fd0a57094baf8fe92398f822",
+      "intact": true
+    },
+    {
+      "ac": "matlab_free_lifecycle",
+      "path": "validation/codegen-e0-lifecycle-01/audit.json",
+      "recomputed_sha256": "3d5c7896de10d10521ff4a1881eaffc8c96e73b196be72f9a044f2fc1aed346d",
+      "intact": true
+    },
+    {
+      "ac": "vendor_materials_controlled",
+      "path": "validation/codegen-e0/short-cycle-codegen-01/summary.json",
+      "recomputed_sha256": "42bc11a2a55fc26542cb52d34fc22d7ae8b3c6fc66deec19708aa232eb910f7c",
+      "intact": true
+    },
+    {
+      "ac": "delivery_identity",
+      "path": "validation/codegen-e0-build-short-cycle-01/build-manifest.json",
+      "recomputed_sha256": "0669730aeff54012e70c55e8fc1d103cfeb00cc33ec5b3147144df847fc7aa1c",
+      "intact": true
+    }
+  ],
+  "reported_violation_adjudication": [
+    {
+      "reported": "build manifest.staged_sources.model.cpp size drifted: expected 1864, observed 4070",
+      "verdict": "auditor_misclassification",
+      "classification": "accepted_architecture_evolution_with_deliberate_historical_retention",
+      "is_real_pin_drift": false,
+      "is_wrong_pin": false,
+      "is_unaccepted_implementation": false,
+      "severity": "P1",
+      "mechanism": "tools/audit_26_closure_readiness.py:327-346 maps the historical evidence source_path back to the repository wrapper and then re-hashes today's file against the historical pin (sha256 and size), so a later deliberate source change can only ever be reported as drift.",
+      "why_the_pin_is_correct": [
+        "The historical evidence chain is internally consistent: validation/codegen-e0-lifecycle-01/audit.json source_sha256.model.cpp == manifest requirements, and that audit.json hashes to the manifest's own matlab_free_lifecycle pin.",
+        "The pinned 1864 B bytes are preserved byte-identically in a tracked snapshot, so the pin still authenticates real archived material.",
+        "The superseding commits f9a34f8 and 9bb11ce are re-bound by separately commissioned current-source evidence.",
+        "docs/plan/26-current-wrapper-recheck-plan.md:103 explicitly forbids writing new evidence into the historical directories or the closure manifest."
+      ]
+    },
+    {
+      "reported": "lifecycle cold_library cannot be mapped on this host: /root/wksim-codegen-e0-cold-c96e30e01ec6/libwksim_e0.so",
+      "verdict": "host_environment_classification",
+      "is_real_pin_drift": false,
+      "severity": "P2",
+      "mechanism": "tools/audit_26_closure_readiness.py:660-676 returns None for POSIX-absolute paths on Windows, and :293-295 records that as a violation."
+    },
+    {
+      "reported": "lifecycle cold probe cannot be mapped on this host: /root/wksim-codegen-e0-cold-c96e30e01ec6/libwksim_e0.so",
+      "verdict": "host_environment_classification",
+      "is_real_pin_drift": false,
+      "severity": "P2",
+      "mechanism": "Same as the cold_library item; the duplicated message reflects two call sites over one artifact."
+    },
+    {
+      "reported": "build output library cannot be mapped on this host: /root/wksim-codegen-e0-build-short-cycle-01/libwksim_e0.so",
+      "verdict": "host_environment_classification",
+      "is_real_pin_drift": false,
+      "severity": "P2",
+      "mechanism": "Same as the cold_library item; these artifacts are Linux/WSL-resident build outputs."
+    },
+    {
+      "reported": "vendor artifacts tracked in repository: [5 sampled paths]",
+      "verdict": "auditor_misclassification",
+      "is_real_vendor_material": false,
+      "severity": "P1",
+      "mechanism": "tools/audit_26_closure_readiness.py:932 applies re.search(r'(?:\\.dll$|\\.zip$|rflysim)', name, re.IGNORECASE) to tracked path text, so the rflysim branch matches the distro name embedded in every WSL host-probe receipt filename.",
+      "recomputed": {
+        "regex_hit_count": 33,
+        "content_classes": [
+          "wsl-precheck-receipt-empty",
+          "text-precheck-note"
+        ],
+        "receipts_with_non_empty_found": 0,
+        "tracked_dll_or_zip_count": 0,
+        "real_vendor_material_count": 0
+      },
+      "note": "The same function's two substantive AC4 checks (pinned generated root at :935-942, private/generated source tracked at :950-957) reported no violation, so AC4's substantive requirement currently holds."
+    }
+  ],
+  "findings": [
+    {
+      "id": "F1-WRAPPER-PIN-IS-HISTORICAL-NOT-DRIFT",
+      "severity": "P1",
+      "kind": "auditor_misclassification",
+      "statement": "The model.cpp size/hash drift reported by the audit is a classification error: the historical evidence chain legitimately pins a superseded 1864 B wrapper whose bytes are preserved in-repo. The auditor must bind a declared historical identity to its archived copy instead of to today's canonical file.",
+      "evidence": {
+        "pinned_sha256": "3f325678b1d85c9aa3fd07bd644d82935aa26d82885926defeced139f02ddf2c",
+        "pinned_size_bytes": 1864,
+        "current_sha256": "150ddf3bab66e9e59701791392f6d792a14346e0b75ecdfe94872095e72d0290",
+        "current_size_bytes": 4070,
+        "archived_copy": "validation/lunar-20-epoch-1/case/run/epochs/2a8d5df1dd4244c3868dc7f38e85a369/source/Simulator/wksim_core/model.cpp"
+      }
+    },
+    {
+      "id": "F2-VENDOR-RULE-FALSE-POSITIVE",
+      "severity": "P1",
+      "kind": "auditor_misclassification",
+      "statement": "The vendor-artifact check fires on 33 tracked WSL host-probe receipts purely because their filenames embed the probed distro name. None contains vendor bytes and all report an empty found list; the rule must classify by extension and content, not by path text.",
+      "evidence": {
+        "regex_hit_count": 33,
+        "real_vendor_material_count": 0,
+        "audit_source_line": "tools/audit_26_closure_readiness.py:932"
+      }
+    },
+    {
+      "id": "F3-CURRENT-WRAPPER-INTERFACES-UNVERIFIED",
+      "severity": "P0",
+      "kind": "unaccepted_implementation",
+      "statement": "The two interfaces added to the current wrapper after the historical build (same-source terrain input, initialized-state semantics) are implemented and tracked but were never driven by any probe and have no assertions. They are an unverified implementation surface, and the audit does not check this at all.",
+      "evidence": {
+        "terrain_interface": "Simulator/wksim_core/model.cpp:88-93 (wk_model_step_with_terrain, 15 terrain elevations)",
+        "initialized_state_interface": "Simulator/wksim_core/model.cpp:73-75 (wk_model_initial_state)",
+        "declared_uncovered": [
+          "docs/plan/26-current-source-ac-evidence-20260912.md:172-176",
+          "docs/plan/26-current-wrapper-recheck-plan.md:92-93"
+        ],
+        "not_checked_by_auditor": true
+      }
+    },
+    {
+      "id": "F4-HOST-BOUNDED-ARTIFACT-REPORTED-AS-VIOLATION",
+      "severity": "P2",
+      "kind": "environment_classification",
+      "statement": "Three violations are Windows-vs-WSL path-boundary artefacts. The Linux-resident /root build and cold-rebuild libraries cannot be resolved on this host; the evidence never claimed they could be.",
+      "evidence": {
+        "affected_paths": [
+          "/root/wksim-codegen-e0-build-short-cycle-01/libwksim_e0.so",
+          "/root/wksim-codegen-e0-cold-c96e30e01ec6/libwksim_e0.so"
+        ],
+        "audit_source_lines": "tools/audit_26_closure_readiness.py:293-295, 660-676"
+      }
+    },
+    {
+      "id": "F5-HISTORICAL-WRAPPER-BYTES-NOT-IN-GIT-OBJECTS",
+      "severity": "P1",
+      "kind": "forensic_retention_risk",
+      "statement": "The pinned historical digest is not a git object on the wrapper path and never was committed there, because the build consumed an uncommitted 1864 B working-tree variant. Re-verifiability now depends on a single tracked frozen snapshot; the correction must fail closed if that archive is absent.",
+      "evidence": {
+        "git_cat_file_result": "fatal: Not a valid object name (exit 128)",
+        "committed_1864_blob": "e0e96466a407d49572a8f3ec911515b4e855147f (same size, different bytes)",
+        "tracked_archived_copy_count": 1,
+        "untracked_archived_copies_exist": true
+      }
+    },
+    {
+      "id": "F6-STALE-WRAPPER-HASH-CONSUMERS",
+      "severity": "P2",
+      "kind": "residual_consumer_inconsistency",
+      "statement": "Two simulator modules hard-code the historical wrapper hash and compare it against the canonical wrapper path, which no longer holds those bytes. These were not executed by this module, so no functional claim is made; the inconsistency is recorded as an independent import-path concern.",
+      "evidence": {
+        "sites": [
+          "Simulator/wksim_core/model_parameters.py:25 (constant), :156 (comparison)",
+          "Simulator/wksim_core/motor_efficiency_model.py:68",
+          "Simulator/wksim_core/motor_efficiency_model.py:114"
+        ]
+      }
+    }
+  ],
+  "patch_boundaries": {
+    "target_file": "tools/audit_26_closure_readiness.py",
+    "must_not_touch": [
+      "docs/plan/26-closure-readiness-manifest.json",
+      "validation/codegen-e0-build-short-cycle-01/",
+      "validation/codegen-e0-lifecycle-01/",
+      "validation/codegen-e0/",
+      "Simulator/wksim_core/model.cpp"
+    ],
+    "hunks": [
+      {
+        "priority": "P1",
+        "id": "P1-A",
+        "title": "Bind declared historical wrapper identities to their archived bytes",
+        "new_artifact": {
+          "path": "validation/coordination/ds-26-pin-drift-20260913-01/historical-wrapper-identities.json",
+          "role": "declaration consumed by the auditor; enumerates the one accepted historical wrapper digest and its preserved repo path"
+        },
+        "line_anchors": [
+          "tools/audit_26_closure_readiness.py:59-61 (ALLOWED_REPO_WRAPPERS): keep, add a default historical-identities path constant",
+          "tools/audit_26_closure_readiness.py:235-258 (_secure_file): reuse to resolve the archived path safely",
+          "tools/audit_26_closure_readiness.py:327-346 (_check_source_actual): for the wrapper basename, look up item sha256 in the identity table; on hit re-hash the archived_repo_path against the pinned sha/size; on miss keep today's fail-closed behaviour",
+          "tools/audit_26_closure_readiness.py:700-753 (_check_build_manifest): require the archived path to be tracked and present when a historical identity is used",
+          "tools/audit_26_closure_readiness.py:884-889 (_check_lifecycle_evidence): reuse the same identity dispatch when resolving the wrapper source; do NOT change the numeric cross-binding"
+        ],
+        "fail_closed_property": "The identity table is an enumeration of one digest, so any new undeclared wrapper change still violates at :327-346.",
+        "critical_constraint": "The wrapper binding VALUE must stay 3f325678 in historical evidence; only the bytes used to re-verify it may change. tools/audit_26_closure_readiness.py:884-889 cross-binds build staged hashes to lifecycle source hashes, so re-pointing the wrapper to today's source is self-contradictory and must not be attempted."
+      },
+      {
+        "priority": "P1",
+        "id": "P1-B",
+        "title": "Classify vendor material by extension and content, not by path text",
+        "line_anchors": [
+          "tools/audit_26_closure_readiness.py:932 (vendor_offenders): keep .dll/.zip; drop the unanchored rflysim path-text branch; treat binary/vendor-signature content as offending",
+          "tools/audit_26_closure_readiness.py:935-942 and :950-957: leave unchanged; these are the substantive AC4 checks and currently report no violation"
+        ],
+        "explicitly_permitted": "WSL host-probe receipts under validation/** with schema {checked_unix, distro, boot_id, uptime, found} and found == []"
+      },
+      {
+        "priority": "P2",
+        "id": "P2-A",
+        "title": "Separate host-unresolvable artifacts from evidence drift",
+        "line_anchors": [
+          "tools/audit_26_closure_readiness.py:265-282 (_actual_file) and :285-324 (_provenance_path) call sites",
+          "tools/audit_26_closure_readiness.py:802-918 (_check_lifecycle_evidence)",
+          "tools/audit_26_closure_readiness.py:962-986 (audit): add a top-level host_bounded[] alongside violations[]"
+        ]
+      }
+    ],
+    "test_file_impact": {
+      "target": "validation/test_audit_26_closure_readiness.py",
+      "reason": "Two RealRepositoryTests assertions encode the current defective behaviour and must change with any P1 patch.",
+      "line_anchors": [
+        "validation/test_audit_26_closure_readiness.py:291-300 (test_private_generated_source_and_vendor_artifact_cannot_be_tracked): keep the real vendor.dll case; add a receipt-shaped negative case",
+        "validation/test_audit_26_closure_readiness.py:471-476 (test_real_historical_evidence_is_conservatively_not_ready): assertions on non-empty violations and status not_ready must be updated",
+        "validation/test_audit_26_closure_readiness.py:478-484 (test_cli_exit_codes): expected exit code must be updated; main() at :999 returns 0 when violations are empty"
+      ],
+      "note": "The fixture builder at validation/test_audit_26_closure_readiness.py:41-99 re-pins the wrapper to the current bytes, so fixture tests are self-consistent and unaffected."
+    }
+  },
+  "claim_boundaries": {
+    "does_not_claim": [
+      "That issue #26 can be closed: #9 remains OPEN and AC5's main-agent review record is still absent.",
+      "That the terrain interface or initialized-state semantics are accepted.",
+      "That physical correctness, G6 equivalence or R1 have changed.",
+      "That the historical pins should be rewritten to the current source.",
+      "That any redistributable licence exists for the vendor model material."
+    ],
+    "ac5_note": "The auditor's delivery_identity check only verifies a pinned file hash; it does not verify that a main-agent review record exists (docs/plan/26-current-source-ac-evidence-20260912.md:113 records it as missing)."
+  }
+}

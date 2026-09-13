@@ -1,0 +1,30 @@
+head=34d607698f90ea5a83901b511baaf4aee7bdd595
+ancestry_pin_is_ancestor=True
+evidence_pins_intact=True
+status=drift_detected
+current_wrapper_tracked_at_head=True
+
+wrapper pins:
+  current-wrapper-01   pin=150ddf3bab66   4070 B  matches_current=True  preserved_copies=0 -
+  short-cycle-01       pin=3f325678b1d8   1864 B  matches_current=False preserved_copies=1 validation/lunar-20-epoch-1/case/run/epochs/2a8d5df1dd4244c3868dc7f38e85a369/source/Simulator/wksim_core/model.cpp
+  short-cycle-02       pin=3f325678b1d8   1864 B  matches_current=False preserved_copies=1 validation/lunar-20-epoch-1/case/run/epochs/2a8d5df1dd4244c3868dc7f38e85a369/source/Simulator/wksim_core/model.cpp
+
+findings:
+  [P2  ] WRAPPER-PIN-STALE-PRESERVED
+        validation/codegen-e0-build-short-cycle-01/build-manifest.json pins wrapper 3f325678b1d8… (1864 B) which is not the current tracked source (150ddf3bab66… / 4070 B); the pinned bytes are preserved byte-identically in 1 tracked snapshot(s), so the pin authenticates real archived material and does not need to be rewritten
+  [P2  ] WRAPPER-PIN-STALE-PRESERVED
+        validation/codegen-e0-build-short-cycle-02/build-manifest.json pins wrapper 3f325678b1d8… (1864 B) which is not the current tracked source (150ddf3bab66… / 4070 B); the pinned bytes are preserved byte-identically in 1 tracked snapshot(s), so the pin authenticates real archived material and does not need to be rewritten
+  [info] WRAPPER-CURRENT-DECLARED
+        a later, separately commissioned evidence directory already binds the current wrapper
+  [P1  ] VENDOR-FALSE-POSITIVE
+        the vendor rule matched 33 tracked paths on filename/path text alone; all 33 classify as ['text-precheck-note', 'wsl-precheck-receipt-empty'] and none carries vendor bytes, so the audit violation is a filename-based misclassification
+
+vendor_regex_hit_count=33 classes=['text-precheck-note', 'wsl-precheck-receipt-empty'] real_vendor_material=0
+
+evidence pins:
+  intact=True  docs/2026-09-10-generated-e0-lifecycle.md
+  intact=True  validation/codegen-e0/short-cycle-codegen-01/generated-sources-manifest.json
+  intact=True  validation/codegen-e0/short-cycle-codegen-01/codegen-report.json
+  intact=True  validation/codegen-e0-lifecycle-01/audit.json
+  intact=True  validation/codegen-e0/short-cycle-codegen-01/summary.json
+  intact=True  validation/codegen-e0-build-short-cycle-01/build-manifest.json

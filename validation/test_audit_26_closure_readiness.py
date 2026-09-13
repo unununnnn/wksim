@@ -24,6 +24,11 @@ EVIDENCE_FILES = [
     "validation/codegen-e0-build-short-cycle-01/build-manifest.json",
     "validation/codegen-e0-lifecycle-01/audit.json",
 ]
+ARCHIVED_WRAPPER_RELATIVE = (
+    "validation/lunar-20-epoch-1/case/run/epochs/"
+    "2a8d5df1dd4244c3868dc7f38e85a369/source/Simulator/wksim_core/model.cpp"
+)
+IDENTITIES_RELATIVE = audit_mod.HISTORICAL_IDENTITIES_RELATIVE
 
 
 def _sha(path):
@@ -36,6 +41,21 @@ def _write(path, value):
         path.write_text(value, encoding="utf-8")
     else:
         path.write_text(json.dumps(value, indent=2) + "\n", encoding="utf-8")
+
+def _git(root, *args):
+    return subprocess.run(
+        ["git", *args], cwd=root, check=True, capture_output=True, timeout=30
+    )
+
+
+def _commit(root, message="fixture"):
+    # --allow-empty keeps re-fixture runs (identical bytes) working.
+    _git(
+        root,
+        "-c", "user.name=fixture", "-c", "user.email=fixture@example.com",
+        "commit", "-q", "--allow-empty", "-m", message,
+    )
+
 
 
 def _fixture(root):
@@ -118,10 +138,15 @@ def _fixture(root):
         raw_paths.append(destination.relative_to(root).as_posix())
     manifest_path = root / "manifest.json"
     _write(manifest_path, manifest)
-    subprocess.run(["git", "init", "-q"], cwd=root, check=True, capture_output=True, timeout=30)
+    _git(root, "init", "-q")
     tracked = [*EVIDENCE_FILES, "Simulator/wksim_core/model.cpp", "manifest.json", *raw_paths,
                "artifacts/libwksim_e0.so", "artifacts/cold/libwksim_e0.so"]
-    subprocess.run(["git", "add", "--", *tracked], cwd=root, check=True, capture_output=True, timeout=30)
+    # Pin conversion off so HEAD blob bytes equal the worktree bytes exactly,
+    # then establish a real HEAD commit: HEAD-blob checks must not be
+    # satisfiable by index registration alone.
+    _git(root, "config", "core.autocrlf", "false")
+    _git(root, "add", "--", *tracked)
+    _commit(root)
     return manifest_path
 
 
@@ -132,6 +157,77 @@ def _refresh_pin(manifest_path, relative, root):
             if pin["path"] == relative:
                 pin["sha256"] = _sha(root / relative)
     _write(manifest_path, data)
+
+
+def _declare_historical_wrapper(manifest_path, root, *, staging="commit",
+                                archived_bytes=b"// archived historical wrapper\n"):
+    """Repin the fixture's model.cpp evidence to a declared historical digest.
+
+    The frozen snapshot is the only copy the wrapper digest is allowed to be
+    re-hashed from.  ``staging`` distinguishes the three durability classes
+    the audit must separate: ``"commit"`` (real HEAD commit), ``"staged"``
+    (index-only ``git add``, never committed) and ``"untracked"``.
+    Returns ``(archived_path, digest, size_bytes)``.
+    """
+    archived = root / ARCHIVED_WRAPPER_RELATIVE
+    archived.parent.mkdir(parents=True, exist_ok=True)
+    archived.write_bytes(archived_bytes)
+    digest = _sha(archived)
+    size = archived.stat().st_size
+
+    build_path = root / EVIDENCE_FILES[4]
+    build = json.loads(build_path.read_text(encoding="utf-8"))
+    build["staged_sources"]["model.cpp"]["sha256"] = digest
+    build["staged_sources"]["model.cpp"]["size_bytes"] = size
+    _write(build_path, build)
+
+    lifecycle_path = root / EVIDENCE_FILES[5]
+    lifecycle = json.loads(lifecycle_path.read_text(encoding="utf-8"))
+    lifecycle["source_sha256"]["model.cpp"] = digest
+    _write(lifecycle_path, lifecycle)
+
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    requirements = manifest["acceptance_evidence"]["matlab_free_lifecycle"]["requirements"]
+    requirements["source_sha256"]["model.cpp"] = digest
+    for binding in requirements["run_bindings"]:
+        binding["source_sha256"]["model.cpp"] = digest
+    _write(manifest_path, manifest)
+
+    wrapper = root / "Simulator/wksim_core/model.cpp"
+    declaration = {
+        "schema": audit_mod.HISTORICAL_IDENTITIES_SCHEMA,
+        "kind": "declared_historical_wrapper_identities",
+        "issue": 26,
+        "date": "2026-09-13",
+        "purpose": "fixture declaration for the fail-closed wrapper binding",
+        "rule": "re-hash the archived copy; missing, untracked or drifted is rejected",
+        "canonical_wrapper_path": "Simulator/wksim_core/model.cpp",
+        "current_canonical_wrapper": {
+            "sha256": _sha(wrapper),
+            "size_bytes": wrapper.stat().st_size,
+        },
+        "identities": [
+            {
+                "sha256": digest,
+                "size_bytes": size,
+                "archived_repo_path": ARCHIVED_WRAPPER_RELATIVE,
+                "archived_repo_path_verified_sha256": digest,
+                "archived_repo_path_verified_size_bytes": size,
+            }
+        ],
+        "acceptance_effect": {
+            "rewrites_historical_pin": False,
+            "new_digest_still_fails_closed": True,
+        },
+    }
+    _write(root / IDENTITIES_RELATIVE, declaration)
+    _refresh_pin(manifest_path, EVIDENCE_FILES[4], root)
+    _refresh_pin(manifest_path, EVIDENCE_FILES[5], root)
+    if staging in ("commit", "staged"):
+        _git(root, "add", "-f", "--", ARCHIVED_WRAPPER_RELATIVE, IDENTITIES_RELATIVE)
+    if staging == "commit":
+        _commit(root, "declare historical wrapper identity")
+    return archived, digest, size
 
 
 class ClosureReadinessTests(unittest.TestCase):
@@ -320,6 +416,317 @@ class ClosureReadinessTests(unittest.TestCase):
         report = self.report()
         self.assertTrue(any("same-basename wrapper" in item for item in report["violations"]))
 
+    # -- declared historical wrapper identity -------------------------------
+
+    def test_declared_historical_wrapper_is_verified_from_the_archived_snapshot(self):
+        archived, digest, _ = _declare_historical_wrapper(self.manifest, self.root)
+        wrapper = self.root / "Simulator/wksim_core/model.cpp"
+        self.assertNotEqual(_sha(wrapper), digest)  # the canonical path moved on
+        report = self.report()
+        self.assertEqual(report["violations"], [], report["violations"])
+        self.assertEqual(report["status"], "ready_blocked_by_formal_dependency")
+        self.assertEqual(_sha(archived), digest)
+
+    def test_current_wrapper_drift_stales_the_committed_declaration(self):
+        # P1-1: the declared current-canonical digest is cross-hashed against
+        # the live wrapper, so drifting the canonical checkpoint after the
+        # declaration commit fails closed instead of moving underneath it.
+        archived, digest, size = _declare_historical_wrapper(self.manifest, self.root)
+        manifest_bytes = self.manifest.read_bytes()
+        archived_bytes = archived.read_bytes()
+        wrapper = self.root / "Simulator/wksim_core/model.cpp"
+        wrapper.write_bytes(wrapper.read_bytes() + b"\n// later drift\n")
+        report = self.report()
+        self.assertEqual(report["status"], "not_ready")
+        self.assertTrue(
+            any("current canonical wrapper disagrees" in item for item in report["violations"]),
+            report["violations"],
+        )
+        # The historical pin itself is never rewritten.
+        self.assertEqual(self.manifest.read_bytes(), manifest_bytes)
+        self.assertEqual(archived.read_bytes(), archived_bytes)
+        self.assertEqual(_sha(archived), digest)
+        self.assertEqual(archived.stat().st_size, size)
+
+    def test_missing_archived_snapshot_fails_closed(self):
+        archived, _, _ = _declare_historical_wrapper(self.manifest, self.root)
+        archived.unlink()
+        report = self.report()
+        self.assertEqual(report["status"], "not_ready")
+        self.assertTrue(
+            any("archived historical wrapper" in item for item in report["violations"]),
+            report["violations"],
+        )
+
+    def test_drifted_archived_snapshot_fails_closed(self):
+        archived, _, _ = _declare_historical_wrapper(self.manifest, self.root)
+        original = archived.read_bytes()
+        replacement = b"X" + original[1:]  # same length, different bytes
+        self.assertEqual(len(replacement), len(original))
+        archived.write_bytes(replacement)
+        report = self.report()
+        self.assertEqual(report["status"], "not_ready")
+        self.assertTrue(any("hash drifted" in item for item in report["violations"]), report["violations"])
+
+    def test_untracked_archived_snapshot_fails_closed(self):
+        _declare_historical_wrapper(self.manifest, self.root, staging="untracked")
+        report = self.report()
+        self.assertEqual(report["status"], "not_ready")
+        self.assertTrue(any("not committed at HEAD" in item for item in report["violations"]), report["violations"])
+
+    def test_undeclared_wrapper_digest_still_fails_closed(self):
+        _declare_historical_wrapper(self.manifest, self.root)
+        path = self.root / EVIDENCE_FILES[4]
+        build = json.loads(path.read_text(encoding="utf-8"))
+        build["staged_sources"]["model.cpp"]["sha256"] = "a" * 64
+        _write(path, build)
+        _refresh_pin(self.manifest, EVIDENCE_FILES[4], self.root)
+        report = self.report()
+        self.assertEqual(report["status"], "not_ready")
+        self.assertTrue(any("model.cpp" in item for item in report["violations"]), report["violations"])
+
+    # -- P1 regressions: the declaration cannot authorize itself ------------
+
+    def test_staged_only_declaration_and_snapshot_fail_closed(self):
+        # A1/A2: ``git add`` without a commit must not satisfy the binding.
+        _declare_historical_wrapper(self.manifest, self.root, staging="staged")
+        report = self.report()
+        self.assertEqual(report["status"], "not_ready")
+        self.assertTrue(
+            any("not committed at HEAD" in item for item in report["violations"]),
+            report["violations"],
+        )
+
+    def test_untracked_declaration_fails_closed(self):
+        # A2: a dropped declaration file is not honored even when the
+        # archived snapshot itself is properly committed.
+        _declare_historical_wrapper(self.manifest, self.root, staging="untracked")
+        _git(self.root, "add", "-f", "--", ARCHIVED_WRAPPER_RELATIVE)
+        _commit(self.root, "commit archived snapshot only")
+        report = self.report()
+        self.assertEqual(report["status"], "not_ready")
+        self.assertTrue(
+            any(
+                "historical wrapper identities declaration" in item and "not committed at HEAD" in item
+                for item in report["violations"]
+            ),
+            report["violations"],
+        )
+
+    def test_declaration_worktree_drift_after_commit_fails_closed(self):
+        # A3: mutating the declaration after its commit is byte drift.
+        _declare_historical_wrapper(self.manifest, self.root)
+        declaration = self.root / IDENTITIES_RELATIVE
+        declaration.write_bytes(declaration.read_bytes() + b" \n")
+        report = self.report()
+        self.assertEqual(report["status"], "not_ready")
+        self.assertTrue(
+            any(
+                "historical wrapper identities declaration" in item and "drifted from its HEAD blob" in item
+                for item in report["violations"]
+            ),
+            report["violations"],
+        )
+
+    def test_recommitted_declaration_with_wrong_canonical_digest_fails_closed(self):
+        # A3: even a fully committed declaration is cross-hashed against the
+        # live canonical wrapper.
+        _declare_historical_wrapper(self.manifest, self.root)
+        declaration = self.root / IDENTITIES_RELATIVE
+        data = json.loads(declaration.read_text(encoding="utf-8"))
+        data["current_canonical_wrapper"]["sha256"] = "0" * 64
+        data["purpose"] = "rewritten by an attacker"
+        _write(declaration, data)
+        _git(self.root, "add", "-f", "--", IDENTITIES_RELATIVE)
+        _commit(self.root, "tampered declaration")
+        report = self.report()
+        self.assertEqual(report["status"], "not_ready")
+        self.assertTrue(
+            any("current canonical wrapper disagrees" in item for item in report["violations"]),
+            report["violations"],
+        )
+
+    def test_unborn_head_fails_closed(self):
+        # A1 variant: with no HEAD at all, nothing can be committed at HEAD.
+        _declare_historical_wrapper(self.manifest, self.root)
+        _git(self.root, "update-ref", "-d", "HEAD")
+        report = self.report()
+        self.assertEqual(report["status"], "not_ready")
+        self.assertTrue(
+            any("not committed at HEAD" in item for item in report["violations"]),
+            report["violations"],
+        )
+
+
+    # -- host boundary classification ---------------------------------------
+
+    @unittest.skipUnless(os.name == "nt", "POSIX-host boundary classification")
+    def test_unaddressable_posix_artifact_is_host_bounded_not_a_violation(self):
+        report = {"violations": [], "host_bounded": []}
+        result = audit_mod._provenance_path(
+            "/root/wksim-codegen-e0-cold-fixture/libwksim_e0.so",
+            self.root,
+            "lifecycle cold_library",
+            report,
+        )
+        self.assertIsNone(result)
+        self.assertEqual(report["violations"], [])
+        self.assertEqual(len(report["host_bounded"]), 1)
+        self.assertEqual(
+            report["host_bounded"][0]["path"],
+            "/root/wksim-codegen-e0-cold-fixture/libwksim_e0.so",
+        )
+
+    def test_missing_host_addressable_artifact_fails_closed(self):
+        missing = (
+            r"Z:\wksim-missing\libwksim_e0.so"
+            if os.name == "nt"
+            else "/root/wksim-missing/libwksim_e0.so"
+        )
+        report = {"violations": [], "host_bounded": []}
+        candidate = audit_mod._provenance_path(missing, self.root, "build output library", report)
+        self.assertIsNotNone(candidate)
+        self.assertFalse(
+            audit_mod._actual_file(candidate, "build output library", report, sha256="0" * 64)
+        )
+        self.assertTrue(any("build output library" in item for item in report["violations"]))
+        self.assertEqual(report["host_bounded"], [])
+
+    # -- vendor classification ----------------------------------------------
+
+    @staticmethod
+    def _receipt(found):
+        return {
+            "checked_unix": 1789000000.0,
+            "distro": "RflySim-20.04",
+            "boot_id": "00000000-0000-0000-0000-000000000000",
+            "uptime": "10.0 20.0",
+            "found": found,
+        }
+
+    def _track(self, relative, payload):
+        path = self.root / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        if isinstance(payload, (bytes, bytearray)):
+            path.write_bytes(payload)
+        else:
+            path.write_text(payload, encoding="utf-8")
+        subprocess.run(
+            ["git", "add", "-f", "--", relative],
+            cwd=self.root, check=True, capture_output=True, timeout=30,
+        )
+        return path
+
+    def test_empty_wsl_precheck_receipts_are_not_vendor_material(self):
+        self._track(
+            "validation/coordination/probe/precheck-RflySim-20.04.json",
+            json.dumps(self._receipt([]), indent=2) + "\n",
+        )
+        self._track(
+            "validation/coordination/probe/RflySim-20.04-precheck.txt",
+            json.dumps(self._receipt([])) + "\n\n",
+        )
+        report = self.report()
+        self.assertEqual(report["violations"], [], report["violations"])
+
+    def test_real_wsl_warning_receipt_form_is_accepted(self):
+        # The exact trailing warning of the real tracked receipt
+        # validation/coordination/perf-open-admission-20260913-01/RflySim-20.04-precheck.txt
+        # must keep classifying as a clean receipt.
+        self._track(
+            "validation/coordination/probe/RflySim-20.04-precheck.txt",
+            json.dumps(self._receipt([]))
+            + "\nwsl: Failed to start the systemd user session for 'root'. "
+              "See journalctl for more details.\n",
+        )
+        report = self.report()
+        self.assertEqual(report["violations"], [], report["violations"])
+
+    def test_wsl_receipt_trailing_payload_is_vendor_material(self):
+        # A4: anything after the JSON document that is not whitespace or the
+        # one exact documented WSL systemd warning makes the file an offender.
+        receipt = json.dumps(self._receipt([]))
+        real_warning = (
+            "wsl: Failed to start the systemd user session for 'root'. "
+            "See journalctl for more details."
+        )
+        cases = {
+            "second JSON document": receipt + "\n{\"found\": []}\n",
+            "base64 payload": receipt + "\nTVqQAAMAAAAEAAAA//8AALgAAAAAAAAAQAAAAAAAAAAA\n",
+            "warning then payload": receipt + "\nwsl: warning\nTVqQAAMAAAAEAAAA\n",
+            "non-wsl line": receipt + "\nLoading vendor runtime...\n",
+            "payload before warning": receipt + "\nnot-a-warning\nwsl: warning\n",
+            "bare wsl prefix": receipt + "\nwsl:warning without space\n",
+            "generic wsl warning": receipt + "\nwsl: warning\n",
+            "wsl-prefixed vendor payload": receipt + "\nwsl: TVqQAAMAAAAEAAAA\n",
+            "warning with extra suffix": receipt + "\n" + real_warning + " TVqQ\n",
+            "two warning lines": receipt + "\n" + real_warning + "\n" + real_warning + "\n",
+            "unsafe username": receipt + (
+                "\nwsl: Failed to start the systemd user session for 'root payload'. "
+                "See journalctl for more details.\n"
+            ),
+        }
+        for name, payload in cases.items():
+            with self.subTest(case=name):
+                self._track("validation/coordination/probe/RflySim-20.04-precheck.txt", payload)
+                report = self.report()
+                self.assertTrue(
+                    any("vendor artifacts" in item for item in report["violations"]),
+                    f"{name}: {report['violations']}",
+                )
+
+    def test_wsl_receipt_strict_schema(self):
+        # P1-3: duplicate keys, non-finite numbers, missing/extra keys,
+        # wrong field types and a non-list ``found`` are all rejected.
+        receipt = self._receipt([])
+        compact = json.dumps(receipt)
+        cases = {
+            "duplicate key": compact[:-1] + ', "distro": "RflySim-20.04"}',
+            "NaN constant": compact.replace("1789000000.0", "NaN"),
+            "Infinity overflow literal": compact.replace("1789000000.0", "1e999"),
+            "missing key": json.dumps({k: v for k, v in receipt.items() if k != "boot_id"}),
+            "extra key": json.dumps({**receipt, "note": "extra"}),
+            "found not a list": json.dumps({**receipt, "found": ""}),
+            "found non-string element": json.dumps({**receipt, "found": [None]}),
+            "checked_unix wrong type": json.dumps({**receipt, "checked_unix": "1789000000"}),
+            "distro wrong type": json.dumps({**receipt, "distro": 20.04}),
+        }
+        for name, payload in cases.items():
+            with self.subTest(case=name):
+                self._track("validation/coordination/probe/RflySim-20.04-precheck.txt", payload)
+                report = self.report()
+                self.assertTrue(
+                    any("vendor artifacts" in item for item in report["violations"]),
+                    f"{name}: {report['violations']}",
+                )
+
+
+    def test_nonempty_found_receipt_is_vendor_material(self):
+        self._track(
+            "validation/coordination/probe/precheck-RflySim-20.04.json",
+            json.dumps(self._receipt(["/usr/bin/rflysim-core"])),
+        )
+        report = self.report()
+        self.assertTrue(any("vendor artifacts" in item for item in report["violations"]), report["violations"])
+
+    def test_binary_rflysim_named_file_is_vendor_material(self):
+        self._track("validation/coordination/probe/RflySim-20.04-blob.bin", b"\x00\x01\x02rflysim")
+        report = self.report()
+        self.assertTrue(any("vendor artifacts" in item for item in report["violations"]), report["violations"])
+
+    def test_real_dll_is_vendor_material(self):
+        self._track("validation/coordination/probe/RflySim-20.04-native.dll", b"MZ vendor")
+        report = self.report()
+        self.assertTrue(any("vendor artifacts" in item for item in report["violations"]), report["violations"])
+
+    def test_rflysim_named_non_receipt_text_is_vendor_material(self):
+        self._track(
+            "validation/coordination/probe/rflysim-notes.txt",
+            "rflysim dependency is loaded\n",
+        )
+        report = self.report()
+        self.assertTrue(any("vendor artifacts" in item for item in report["violations"]), report["violations"])
+
     def test_raw_cycle_tamper_is_rejected(self):
         raw = self.root / "validation/codegen-e0-lifecycle-01/original/cycle-0.jsonl"
         raw.write_bytes(raw.read_bytes() + b"tamper\n")
@@ -470,16 +877,79 @@ class ClosureReadinessTests(unittest.TestCase):
 
 @unittest.skipUnless(MANIFEST.is_file(), "closure manifest not present")
 class RealRepositoryTests(unittest.TestCase):
-    def test_real_historical_evidence_is_conservatively_not_ready(self):
-        report = audit_mod.audit(MANIFEST, root=ROOT)
-        self.assertTrue(report["violations"])
-        self.assertEqual(report["status"], "not_ready")
+    def report(self):
+        return audit_mod.audit(MANIFEST, root=ROOT)
+
+    def _declaration_committed(self):
+        return subprocess.run(
+            ["git", "cat-file", "-e", f"HEAD:{IDENTITIES_RELATIVE}"],
+            cwd=ROOT, capture_output=True, timeout=30,
+        ).returncode == 0
+
+    def test_real_pin_and_vendor_rules_are_no_longer_misclassified(self):
+        report = self.report()
+        joined = " | ".join(report["violations"])
+        if not self._declaration_committed():
+            # The uncommitted declaration is rejected and its historical
+            # identity is not honored, so the build-manifest wrapper pin
+            # cascades onto the current 4070-byte source.  Both violations
+            # are the intended fail-closed state until main commits it.
+            self.assertEqual(report["status"], "not_ready")
+            self.assertIn("historical wrapper identities declaration", joined)
+            self.assertIn("expected 1864", joined)
+            return
+        self.assertNotIn("expected 1864", joined)
+        self.assertNotIn("vendor artifacts", joined)
+        self.assertNotIn("cannot be mapped on this host", joined)
+        self.assertEqual(report["blocking_issue"], 9)
+
+    def test_real_status_tracks_the_declaration_commit_state(self):
+        declaration = ROOT / IDENTITIES_RELATIVE
+        if not declaration.is_file():
+            self.skipTest("historical wrapper identity declaration not present")
+        committed = self._declaration_committed()
+        report = self.report()
+        if not committed:
+            # The declaration cannot self-authorize: until it is committed on
+            # main the audit must report not_ready on every host.
+            self.assertEqual(report["status"], "not_ready")
+            self.assertTrue(
+                any(
+                    "historical wrapper identities declaration" in item
+                    for item in report["violations"]
+                ),
+                report["violations"],
+            )
+            return
+        if report["violations"]:
+            # Only a POSIX host that genuinely lacks the Linux-only /root
+            # products may still fail; on Windows the declared snapshot and
+            # the empty receipts must make the audit clean.
+            if os.name == "nt":
+                self.fail(f"unexpected violations on Windows: {report['violations']}")
+            self.assertEqual(report["status"], "not_ready")
+        else:
+            self.assertEqual(report["status"], "ready_blocked_by_formal_dependency")
+
+    def test_real_host_bounded_items_are_reported_separately(self):
+        report = self.report()
+        for item in report["host_bounded"]:
+            self.assertIn("field", item)
+            self.assertIn("path", item)
+            self.assertIn("reason", item)
+        if os.name == "nt":
+            self.assertTrue(report["host_bounded"])
+        else:
+            self.assertEqual(report["host_bounded"], [])
 
     def test_cli_exit_codes(self):
         ok = subprocess.run([sys.executable, "-B", str(ROOT / "tools/audit_26_closure_readiness.py")], capture_output=True, timeout=60)
-        self.assertEqual(ok.returncode, 2, ok.stderr.decode())
         report = json.loads(ok.stdout.decode())
-        self.assertEqual(report["status"], "not_ready")
+        self.assertEqual(report["blocking_issue"], 9)
+        if os.name == "nt" and not report["violations"]:
+            self.assertEqual(ok.returncode, 0, ok.stderr.decode())
+        else:
+            self.assertEqual(ok.returncode, 2, ok.stderr.decode())
         bad = subprocess.run([sys.executable, "-B", str(ROOT / "tools/audit_26_closure_readiness.py"), "--manifest", "absent.json"], capture_output=True, timeout=60)
         self.assertEqual(bad.returncode, 2)
 

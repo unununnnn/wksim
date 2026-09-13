@@ -59,6 +59,25 @@ EXPECTED_PIN_PATHS = {
 ALLOWED_REPO_WRAPPERS = {
     "Simulator/wksim_core/model.cpp": "generated-model-wrapper",
 }
+# Historical wrapper identity declaration, read relative to the audited root.
+# When it is absent no digest is accepted as historical, so every wrapper pin
+# is compared against the current repository source; that keeps the audit
+# fail-closed without letting the canonical checkpoint move underneath it.
+HISTORICAL_IDENTITIES_RELATIVE = (
+    "validation/coordination/ds-26-pin-drift-20260913-01/"
+    "historical-wrapper-identities.json"
+)
+HISTORICAL_IDENTITIES_SCHEMA = "wksim.26-historical-wrapper-identities.v1"
+WSL_RECEIPT_KEYS = frozenset({"checked_unix", "distro", "boot_id", "uptime", "found"})
+# Only lines of this exact form may follow a receipt's JSON document; the
+# Some real WSL receipts carry exactly this systemd-session diagnostic.  Keep
+# the username grammar narrow and the rest of the line literal: an arbitrary
+# payload prefixed with ``wsl: `` must remain vendor material.
+WSL_WARNING_RE = re.compile(
+    r"wsl: Failed to start the systemd user session for "
+    r"'[A-Za-z0-9_.-]{1,32}'\. See journalctl for more details\."
+)
+_MISSING = object()
 PINNED_GENERATED_ROOT = "work/codegen-e0/short-cycle-codegen-01/codegen/"
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 WINDOWS_ABSOLUTE_RE = re.compile(r"^[A-Za-z]:[\\/]")
@@ -282,6 +301,48 @@ def _actual_file(path, label, report, *, sha256=None, size_bytes=None):
     return True
 
 
+def _head_blob_bytes(root, relative):
+    """Return HEAD's committed blob bytes for *relative*, or ``None``.
+
+    ``git cat-file`` is invoked with an argument list.  A failed query, an
+    unborn HEAD, or a missing object all yield ``None`` so callers fail
+    closed.  A staged-but-never-committed index entry has no HEAD blob, so
+    ``git add`` alone can never satisfy this check.
+    """
+    ref = f"HEAD:{relative}"
+    try:
+        exists = subprocess.run(
+            ["git", "cat-file", "-e", ref], cwd=root, capture_output=True, timeout=60
+        )
+        if exists.returncode != 0:
+            return None
+        blob = subprocess.run(
+            ["git", "cat-file", "blob", ref], cwd=root, capture_output=True, timeout=60
+        )
+    except (OSError, subprocess.SubprocessError):
+        return None
+    if blob.returncode != 0:
+        return None
+    return blob.stdout
+
+
+def _check_committed_identity(root, relative, path, report, label):
+    """Require the worktree bytes of *path* to equal its HEAD blob exactly."""
+    blob = _head_blob_bytes(root, relative)
+    if blob is None:
+        _fail(report, f"{label} is not committed at HEAD: {relative}")
+        return False
+    try:
+        worktree = Path(path).read_bytes()
+    except OSError as exc:
+        _fail(report, f"{label} cannot be read: {exc}")
+        return False
+    if worktree != blob:
+        _fail(report, f"{label} worktree bytes drifted from its HEAD blob: {relative}")
+        return False
+    return True
+
+
 def _provenance_path(value, root, label, report):
     """Resolve an absolute provenance path without treating it as repository data."""
     try:
@@ -291,7 +352,18 @@ def _provenance_path(value, root, label, report):
         return None
     candidate = _as_host_path(value, root)
     if candidate is None:
-        _fail(report, f"{label} cannot be mapped on this host: {value}")
+        # A POSIX-absolute provenance path is not addressable from a Windows
+        # host (for example the Linux-only ``/root`` build and cold-rebuild
+        # products).  Record it as host-bounded instead of reporting evidence
+        # corruption; on a POSIX host the same path resolves and is checked
+        # fail-closed by the callers.
+        report.setdefault("host_bounded", []).append(
+            {
+                "field": label,
+                "path": value,
+                "reason": "provenance path is not addressable on this host",
+            }
+        )
         return None
     candidate = Path(candidate)
     try:
@@ -324,19 +396,57 @@ def _provenance_path(value, root, label, report):
     return candidate
 
 
-def _check_source_actual(item, basename, root, report, label):
-    """Rehash every readable source and bind model.cpp to the fixed repo wrapper."""
-    source = _provenance_path(item["source_path"], root, f"{label}.source_path", report)
-    if source is None:
-        return False
-    repo_rel = _repo_relative_from_source(item["source_path"], root)
+def _check_source_actual(item, basename, root, report, label, identities):
+    """Rehash every readable source and bind model.cpp to declared bytes.
+
+    A wrapper digest declared in the historical identity table is re-verified
+    from its archived frozen snapshot, which must be committed at HEAD with
+    worktree bytes identical to its HEAD blob.  Any digest that is not
+    declared stays bound to the present repository source, so an undeclared
+    wrapper change still fails.
+    """
     if basename == "model.cpp":
+        repo_rel = _repo_relative_from_source(item["source_path"], root)
         if repo_rel != "Simulator/wksim_core/model.cpp":
             _fail(report, f"{label} external same-basename wrapper is not allowed: {item['source_path']}")
             return False
-        if source.is_symlink() or _is_reparse(source):
-            _fail(report, f"{label} repository wrapper is a symlink or reparse point")
-            return False
+        identity = identities.get(item.get("sha256"))
+        if identity is not None:
+            if identity["size_bytes"] != item.get("size_bytes"):
+                _fail(
+                    report,
+                    f"{label} historical wrapper size disagrees with the pinned size: {identity['archived_repo_path']}",
+                )
+                return False
+            archived = _secure_file(
+                root,
+                identity["archived_repo_path"],
+                report,
+                f"{label} archived historical wrapper",
+            )
+            if archived is None:
+                return False
+            committed = _check_committed_identity(
+                root,
+                identity["archived_repo_path"],
+                archived,
+                report,
+                f"{label} archived historical wrapper",
+            )
+            intact = _actual_file(
+                archived,
+                label,
+                report,
+                sha256=identity["sha256"],
+                size_bytes=identity["size_bytes"],
+            )
+            return committed and intact
+    source = _provenance_path(item["source_path"], root, f"{label}.source_path", report)
+    if source is None:
+        return False
+    if basename == "model.cpp" and (source.is_symlink() or _is_reparse(source)):
+        _fail(report, f"{label} repository wrapper is a symlink or reparse point")
+        return False
     return _actual_file(
         source,
         label,
@@ -352,6 +462,127 @@ def _load_for_check(path, label, report):
     except AuditDataError as exc:
         _fail(report, str(exc))
         return None
+
+
+def _load_historical_identities(root, report):
+    """Load declared historical wrapper identities, keyed by digest.
+
+    A missing declaration yields an empty map, so every wrapper pin is then
+    checked against the current repository source.  A present declaration is
+    an authorization channel and must not authorize itself: it is read
+    through ``_secure_file``, it must be committed at HEAD with worktree
+    bytes identical to its HEAD blob, and its declared current-canonical
+    digest is cross-hashed against the live repository wrapper before any
+    identity is honored.  A malformed declaration is a violation, because a
+    corrupt input must not be mistaken for "nothing is declared".
+    """
+    path = Path(root) / HISTORICAL_IDENTITIES_RELATIVE
+    if not path.exists():
+        return {}
+    declaration = _secure_file(
+        root,
+        HISTORICAL_IDENTITIES_RELATIVE,
+        report,
+        "historical wrapper identities declaration",
+    )
+    if declaration is None:
+        return {}
+    if not _check_committed_identity(
+        root,
+        HISTORICAL_IDENTITIES_RELATIVE,
+        declaration,
+        report,
+        "historical wrapper identities declaration",
+    ):
+        return {}
+    data = _load_for_check(declaration, "historical wrapper identities", report)
+    if data is None:
+        return {}
+    try:
+        _exact_keys(
+            data,
+            {
+                "schema", "kind", "issue", "date", "purpose", "rule",
+                "canonical_wrapper_path", "current_canonical_wrapper",
+                "identities", "acceptance_effect",
+            },
+            "historical wrapper identities",
+        )
+        if (
+            data["schema"] != HISTORICAL_IDENTITIES_SCHEMA
+            or data["kind"] != "declared_historical_wrapper_identities"
+            or data["issue"] != 26
+        ):
+            raise AuditDataError("historical wrapper identities identity differs")
+        for field in ("date", "purpose", "rule"):
+            _string(data[field], f"historical wrapper identities.{field}")
+        canonical = _repo_relative(
+            data["canonical_wrapper_path"],
+            "historical wrapper identities.canonical_wrapper_path",
+        )
+        if canonical != "Simulator/wksim_core/model.cpp":
+            raise AuditDataError("historical wrapper identities canonical path differs")
+        current = _object(
+            data["current_canonical_wrapper"],
+            "historical wrapper identities.current_canonical_wrapper",
+        )
+        _sha(
+            current["sha256"],
+            "historical wrapper identities.current_canonical_wrapper.sha256",
+        )
+        _strict_int(
+            current["size_bytes"],
+            "historical wrapper identities.current_canonical_wrapper.size_bytes",
+            positive=True,
+        )
+        # The declaration pins the current canonical wrapper; cross-hash the
+        # live repository source so a stale or tampered declaration cannot
+        # survive a canonical checkpoint move.
+        wrapper = _secure_file(
+            root,
+            canonical,
+            report,
+            "historical wrapper identities canonical wrapper",
+        )
+        if wrapper is None:
+            raise AuditDataError(
+                "historical wrapper identities canonical wrapper cannot be verified"
+            )
+        observed_sha = digest(wrapper)
+        observed_size = wrapper.stat().st_size
+        if observed_sha != current["sha256"] or observed_size != current["size_bytes"]:
+            raise AuditDataError(
+                "historical wrapper identities current canonical wrapper disagrees "
+                f"with {canonical}: declared {current['sha256']}/{current['size_bytes']}, "
+                f"observed {observed_sha}/{observed_size}"
+            )
+        identities = data["identities"]
+        if not isinstance(identities, list) or not identities:
+            raise AuditDataError("historical wrapper identities must be a non-empty list")
+        result = {}
+        for index, entry in enumerate(identities):
+            label = f"historical wrapper identities.identities[{index}]"
+            entry = _object(entry, label)
+            sha = _sha(entry["sha256"], f"{label}.sha256")
+            size = _strict_int(entry["size_bytes"], f"{label}.size_bytes", positive=True)
+            archived = _repo_relative(
+                entry["archived_repo_path"], f"{label}.archived_repo_path"
+            )
+            if sha in result:
+                raise AuditDataError(f"{label} duplicates digest {sha}")
+            if "archived_repo_path_verified_sha256" in entry and entry["archived_repo_path_verified_sha256"] != sha:
+                raise AuditDataError(f"{label} verified digest disagrees with its declared digest")
+            if "archived_repo_path_verified_size_bytes" in entry and entry["archived_repo_path_verified_size_bytes"] != size:
+                raise AuditDataError(f"{label} verified size disagrees with its declared size")
+            result[sha] = {
+                "sha256": sha,
+                "size_bytes": size,
+                "archived_repo_path": archived,
+            }
+        return result
+    except (AuditDataError, TypeError, KeyError, OSError) as exc:
+        _fail(report, str(exc))
+        return {}
 
 
 def _check_manifest_shape(manifest, report):
@@ -697,7 +928,7 @@ def _repo_relative_from_source(value, root):
         return None
 
 
-def _check_build_manifest(root, generated, report):
+def _check_build_manifest(root, generated, report, identities):
     path = root / "validation/codegen-e0-build-short-cycle-01/build-manifest.json"
     data = _load_for_check(path, "build manifest", report)
     if data is None or generated is None:
@@ -731,7 +962,7 @@ def _check_build_manifest(root, generated, report):
                 raise AuditDataError(f"{label} basename does not match its key")
             _sha(item["sha256"], f"{label}.sha256")
             _strict_int(item["size_bytes"], f"{label}.size_bytes", positive=True)
-            _check_source_actual(item, basename, root, report, label)
+            _check_source_actual(item, basename, root, report, label, identities)
         for basename, item in generated.items():
             if basename == "ert_main.cpp":
                 if basename not in excluded or basename in staged:
@@ -918,6 +1149,94 @@ def _check_lifecycle_evidence(root, manifest, build, report):
         return None
 
 
+def _wsl_precheck_found(text):
+    """Return the validated ``found`` list of a WSL process-scan receipt.
+
+    Returns ``_MISSING`` unless *text* is exactly one strict JSON receipt
+    document followed only by whitespace or at most one exact documented WSL
+    systemd-session warning line.  Strict means: no duplicate keys, no
+    NaN/Infinity (including
+    overflow literals such as ``1e999``), exactly the fixed host-snapshot
+    keys, ``checked_unix`` a finite number, ``distro``/``boot_id``/``uptime``
+    non-empty strings, and ``found`` a list of strings.  Any other trailing
+    payload — a second JSON document, base64 text, scripts — makes the file
+    not a receipt, so it is classified as vendor material by the caller.
+    ``found == []`` is the explicit "no matching process was running" answer.
+    """
+    decoder = json.JSONDecoder(
+        object_pairs_hook=_strict_object_pairs,
+        parse_constant=_reject_constant,
+    )
+    stripped = text.lstrip()
+    try:
+        payload, end = decoder.raw_decode(stripped)
+    except (json.JSONDecodeError, AuditDataError, ValueError, TypeError):
+        return _MISSING
+    tail_lines = [line for line in stripped[end:].splitlines() if line.strip()]
+    if len(tail_lines) > 1:
+        return _MISSING
+    if tail_lines and not WSL_WARNING_RE.fullmatch(tail_lines[0]):
+        return _MISSING
+    if not isinstance(payload, dict) or set(payload) != WSL_RECEIPT_KEYS:
+        return _MISSING
+    checked = payload["checked_unix"]
+    if (
+        isinstance(checked, bool)
+        or not isinstance(checked, (int, float))
+        or not math.isfinite(checked)
+    ):
+        return _MISSING
+    for key in ("distro", "boot_id", "uptime"):
+        value = payload[key]
+        if not isinstance(value, str) or not value.strip() or CONTROL_RE.search(value):
+            return _MISSING
+    found = payload["found"]
+    if not isinstance(found, list) or not all(isinstance(item, str) for item in found):
+        return _MISSING
+    return found
+
+
+def _vendor_content_offender(path):
+    """Classify a tracked path whose *name* mentions the vendor runtime.
+
+    Returns a reason string when the bytes are real vendor material (binary,
+    not a process-scan receipt, or a scan that actually found vendor
+    processes), and ``None`` for an accepted "nothing found" receipt.
+    """
+    try:
+        raw = Path(path).read_bytes()
+    except OSError as exc:
+        return f"unreadable vendor-named path: {exc}"
+    if b"\x00" in raw:
+        return "binary vendor-named content"
+    try:
+        text = raw.decode("utf-8")
+    except UnicodeDecodeError:
+        return "non-UTF-8 vendor-named content"
+    found = _wsl_precheck_found(text)
+    if found is _MISSING:
+        return "vendor-named content is not an accepted WSL process-scan receipt"
+    if found:
+        return f"WSL process scan reported running vendor processes: {found!r}"
+    return None
+
+
+def _vendor_offenders(root, tracked):
+    """Return tracked paths that carry real vendor material or dependencies."""
+    offenders = []
+    for name in tracked:
+        lowered = name.lower()
+        if lowered.endswith(".dll") or lowered.endswith(".zip"):
+            offenders.append(name)
+            continue
+        if "rflysim" not in lowered:
+            continue
+        reason = _vendor_content_offender(root / name)
+        if reason is not None:
+            offenders.append(f"{name} ({reason})")
+    return offenders
+
+
 def _check_generated_not_tracked(root, build, report):
     try:
         completed = subprocess.run(["git", "ls-files", "-z"], cwd=root, capture_output=True, timeout=60)
@@ -929,7 +1248,7 @@ def _check_generated_not_tracked(root, build, report):
         else:
             tracked = [item for item in str(raw).split("\0") if item]
         tracked = {item.replace("\\", "/") for item in tracked}
-        vendor_offenders = [name for name in tracked if re.search(r"(?:\.dll$|\.zip$|rflysim)", name, re.IGNORECASE)]
+        vendor_offenders = _vendor_offenders(root, tracked)
         if vendor_offenders:
             raise AuditDataError(f"vendor artifacts tracked in repository: {vendor_offenders[:5]}")
         generated_root_offenders = [
@@ -965,6 +1284,7 @@ def audit(manifest_path=DEFAULT_MANIFEST, root=ROOT):
         "blocking_issue": 9,
         "claim": "Local audit verifies a pinned OPEN #9 snapshot; it cannot close #26 or query GitHub in real time.",
         "violations": [],
+        "host_bounded": [],
     }
     try:
         manifest_path = Path(manifest_path)
@@ -977,8 +1297,9 @@ def audit(manifest_path=DEFAULT_MANIFEST, root=ROOT):
         return report
     _check_pins(manifest, root, report)
     _check_codegen_report(root, report)
+    identities = _load_historical_identities(root, report)
     generated = _check_generated_manifest(root, report)
-    build = _check_build_manifest(root, generated, report)
+    build = _check_build_manifest(root, generated, report, identities)
     _check_lifecycle_evidence(root, manifest, build, report)
     _check_generated_not_tracked(root, build, report)
     if not report["violations"]:

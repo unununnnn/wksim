@@ -1,0 +1,239 @@
+{
+  "schema": "wksim.26-pin-drift-manifest.v1",
+  "kind": "read_only_adjudication_manifest",
+  "issue": 26,
+  "date": "2026-09-13",
+  "generator": {
+    "work_class": "new-development",
+    "dispatch": "read-only G4 #26 pin-drift adjudication",
+    "checkout": "C:/Users/PC/Documents/odid编译/wksim",
+    "head_at_start": "100ef1aafcc19c006d93eeb16b0c41e2352cdee6",
+    "head_at_finish": "34d607698f90ea5a83901b511baaf4aee7bdd595",
+    "ancestry_pin_verified": "f333316e6efa6b299b4288a9d91fb2bccedfb9d6"
+  },
+  "owned_directory": "validation/coordination/ds-26-pin-drift-20260913-01/",
+  "side_effects": {
+    "modified_sealed_paths": [],
+    "modified_shared_ledgers": [],
+    "modified_issues": [],
+    "executed_native_build_ros_flight_model_ue_matlab": false,
+    "only_wrote_inside_owned_directory": true
+  },
+  "delivery_note": {
+    "gitignore_constraint": ".gitignore:53 contains '/validation/*/', so every path under validation/ is ignored. These artifacts will not appear in 'git status' and cannot be committed without an explicit force-add.",
+    "force_add_required": "git add -f validation/coordination/ds-26-pin-drift-20260913-01",
+    "convention_matches_siblings": "Sibling evidence directories (for example ds-core-native-load-audit-fix-20260913-01) are force-added the same way, and each carries the same '* -text' .gitattributes.",
+    "verify_attributes_apply": "git check-attr text -- validation/coordination/ds-26-pin-drift-20260913-01/audit.md  (expect 'text: unset')"
+  },
+  "integrity": {
+    "authoritative_record": "SHA256SUMS",
+    "authoritative_record_covers": "every file in this directory including this manifest",
+    "verify_with": "python validation/coordination/ds-26-pin-drift-20260913-01/verify_sums.py",
+    "note": "This manifest deliberately omits its own digest to avoid self-reference. SHA256SUMS is the complete and authoritative list.",
+    "hash_algorithm": "sha256",
+    "file_mode_note": ".gitattributes pins '* -text' so no checkout may normalise line endings in this directory."
+  },
+  "artifacts": [
+    {
+      "name": "audit.md",
+      "role": "primary human-readable adjudication report",
+      "size_bytes": 24063,
+      "sha256": "e6d9a8acd35457c843d0def6c24946eea8b437a60a7d395daa2b2054cfec6ceb"
+    },
+    {
+      "name": "audit.json",
+      "role": "primary machine-readable adjudication record",
+      "size_bytes": 20211,
+      "sha256": "2afbbe96d0d3f5ce89ad078397d9dec84fa72ec084cf0dde1b56e05a874eb4c5"
+    },
+    {
+      "name": "verify_sums.py",
+      "role": "read-only integrity checker for SHA256SUMS; re-hashes every listed file and reports mismatches, unlisted files and stale entries",
+      "size_bytes": 1817,
+      "sha256": "26f11dcdabebf66f41d6a1464094a29d737747aa3d3b9909f2b7a5394c5944e2"
+    },
+    {
+      "name": "historical-wrapper-identities.json",
+      "role": "fail-closed declaration of the accepted historical wrapper identity; input for patch P1-A",
+      "size_bytes": 4001,
+      "sha256": "5bcf5fc97975921ed70931073c7a04cdcf92b7f33f4128c681fa5c4a6b42b6a7"
+    },
+    {
+      "name": "recheck_26_pin_drift.py",
+      "role": "read-only independent recomputation of every pin, ancestry check, wrapper identity and vendor classification",
+      "size_bytes": 14824,
+      "sha256": "7e20470613384a5767d6352f31381ded58fd662c9d2115b72352f155103657c2"
+    },
+    {
+      "name": "recheck-output.json",
+      "role": "captured output of recheck_26_pin_drift.py",
+      "size_bytes": 14239,
+      "sha256": "922dec374c903a5abcf6b9120ef6b8cddb26b99aa2abe94637720e24700d052f"
+    },
+    {
+      "name": "summarize_recheck.py",
+      "role": "read-only renderer for a short human summary of recheck-output.json",
+      "size_bytes": 2024,
+      "sha256": "a4e8a8af1db6ac4aeddcfcaae49279dab21ba10a285b8781843fdc664641ac2a"
+    },
+    {
+      "name": "recheck-summary.txt",
+      "role": "captured human-readable summary",
+      "size_bytes": 2431,
+      "sha256": "83c21f07d33648ff2f89de6965636c36a5374e68348c32ea608d5a402fd15e44"
+    },
+    {
+      "name": "audit-26-run.json",
+      "role": "captured output of the unmodified tools/audit_26_closure_readiness.py, recording the five violations being adjudicated",
+      "size_bytes": 1216,
+      "sha256": "5bfea64f12718b7c92030c0ecf8d02fb4ece555d77e274e7148a229a8db4fabc"
+    },
+    {
+      "name": "recheck-stderr.txt",
+      "role": "captured stderr of the recheck run (empty)",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": ".gitattributes",
+      "role": "pins '* -text' so the adjudication evidence is byte-stable on every checkout",
+      "size_bytes": 8,
+      "sha256": "705fd4d6451a31d36b3df7de96f83f30ac976c9b4a6d1e51671d8e2f33e2d0da"
+    }
+  ],
+  "verification": {
+    "pure_python_recheck": [
+      "python validation/coordination/ds-26-pin-drift-20260913-01/recheck_26_pin_drift.py",
+      "python validation/coordination/ds-26-pin-drift-20260913-01/summarize_recheck.py"
+    ],
+    "ancestry": [
+      "git rev-parse HEAD",
+      "git merge-base --is-ancestor f333316e6efa6b299b4288a9d91fb2bccedfb9d6 HEAD"
+    ],
+    "unmodified_auditor_for_the_record": [
+      "python tools/audit_26_closure_readiness.py"
+    ],
+    "integrity": [
+      "python -c \"import hashlib,pathlib;[print(hashlib.sha256(p.read_bytes()).hexdigest(), p.name) for p in sorted(pathlib.Path('validation/coordination/ds-26-pin-drift-20260913-01').iterdir()) if p.is_file()]\""
+    ]
+  },
+  "computed_facts": {
+    "current_wrapper_sha256": "150ddf3bab66e9e59701791392f6d792a14346e0b75ecdfe94872095e72d0290",
+    "current_wrapper_size_bytes": 4070,
+    "historical_pinned_wrapper_sha256": "3f325678b1d85c9aa3fd07bd644d82935aa26d82885926defeced139f02ddf2c",
+    "historical_pinned_wrapper_size_bytes": 1864,
+    "historical_pinned_wrapper_is_git_object": false,
+    "historical_pinned_wrapper_preserved_tracked_count": 1,
+    "historical_pinned_wrapper_preserved_path": "validation/lunar-20-epoch-1/case/run/epochs/2a8d5df1dd4244c3868dc7f38e85a369/source/Simulator/wksim_core/model.cpp",
+    "manifest_evidence_pins_intact": true,
+    "manifest_evidence_pin_count": 6,
+    "auditor_violation_count": 5,
+    "auditor_violations_real_pin_drift": 0,
+    "auditor_violations_real_vendor_material": 0,
+    "vendor_regex_hit_count": 33,
+    "vendor_regex_real_material_count": 0,
+    "vendor_receipts_with_non_empty_found": 0,
+    "lifecycle_cross_binding_holds": true,
+    "lifecycle_raw_sha256": "0979200da666f80d679203f07c47effd5d7385d3a0ddb1fe2b30e1bbc70b7553"
+  },
+  "findings": [
+    {
+      "id": "F3-CURRENT-WRAPPER-INTERFACES-UNVERIFIED",
+      "severity": "P0",
+      "kind": "unaccepted_implementation",
+      "one_line": "Terrain input and initialized-state wrapper interfaces are implemented and tracked but never driven by a probe and have no assertions; the audit does not check this."
+    },
+    {
+      "id": "F1-WRAPPER-PIN-IS-HISTORICAL-NOT-DRIFT",
+      "severity": "P1",
+      "kind": "auditor_misclassification",
+      "one_line": "The model.cpp size/hash drift is a classification error; the historical pin is correct and its 1864 B bytes are preserved in a tracked snapshot."
+    },
+    {
+      "id": "F2-VENDOR-RULE-FALSE-POSITIVE",
+      "severity": "P1",
+      "kind": "auditor_misclassification",
+      "one_line": "The vendor rule matches 33 WSL precheck receipts by filename text; none contains vendor bytes and all report found == []."
+    },
+    {
+      "id": "F5-HISTORICAL-WRAPPER-BYTES-NOT-IN-GIT-OBJECTS",
+      "severity": "P1",
+      "kind": "forensic_retention_risk",
+      "one_line": "The pinned digest was never committed at the canonical path and is not a git object; re-verifiability rests on a single tracked snapshot, so the patch must fail closed when it is absent."
+    },
+    {
+      "id": "F4-HOST-BOUNDED-ARTIFACT-REPORTED-AS-VIOLATION",
+      "severity": "P2",
+      "kind": "environment_classification",
+      "one_line": "Three violations are Windows/WSL path-boundary artefacts for Linux-resident /root build and cold-rebuild libraries."
+    },
+    {
+      "id": "F6-STALE-WRAPPER-HASH-CONSUMERS",
+      "severity": "P2",
+      "kind": "residual_consumer_inconsistency",
+      "one_line": "model_parameters.py and motor_efficiency_model.py hard-code the historical wrapper hash against the canonical path; not executed here, recorded only."
+    }
+  ],
+  "patch_plan": {
+    "target": "tools/audit_26_closure_readiness.py",
+    "companion_new_input": "validation/coordination/ds-26-pin-drift-20260913-01/historical-wrapper-identities.json",
+    "test_target": "validation/test_audit_26_closure_readiness.py",
+    "hunks": [
+      {
+        "id": "P1-A",
+        "priority": "P1",
+        "anchors": [
+          "tools/audit_26_closure_readiness.py:59-61",
+          "tools/audit_26_closure_readiness.py:235-258",
+          "tools/audit_26_closure_readiness.py:327-346",
+          "tools/audit_26_closure_readiness.py:700-753",
+          "tools/audit_26_closure_readiness.py:884-889"
+        ]
+      },
+      {
+        "id": "P1-B",
+        "priority": "P1",
+        "anchors": [
+          "tools/audit_26_closure_readiness.py:932"
+        ]
+      },
+      {
+        "id": "P2-A",
+        "priority": "P2",
+        "anchors": [
+          "tools/audit_26_closure_readiness.py:265-282",
+          "tools/audit_26_closure_readiness.py:285-324",
+          "tools/audit_26_closure_readiness.py:802-918",
+          "tools/audit_26_closure_readiness.py:962-986"
+        ]
+      }
+    ],
+    "tests_to_update": [
+      "validation/test_audit_26_closure_readiness.py:291-300",
+      "validation/test_audit_26_closure_readiness.py:471-476",
+      "validation/test_audit_26_closure_readiness.py:478-484"
+    ],
+    "must_not_be_rewritten": [
+      "docs/plan/26-closure-readiness-manifest.json",
+      "validation/codegen-e0-build-short-cycle-01/",
+      "validation/codegen-e0-lifecycle-01/",
+      "validation/codegen-e0/",
+      "Simulator/wksim_core/model.cpp"
+    ],
+    "critical_constraint": "The historical wrapper binding VALUE must remain 3f325678; only the bytes used to re-verify it may change. tools/audit_26_closure_readiness.py:884-889 cross-binds build staged hashes to lifecycle source hashes, so re-pointing the wrapper to today's source is self-contradictory.",
+    "expected_status_after_patch": "ready_blocked_by_formal_dependency"
+  },
+  "closure_position": {
+    "issue_26_closeable": false,
+    "remaining_blockers": [
+      "Formal Blocked-by issue #9 remains OPEN (pinned snapshot in the closure manifest).",
+      "AC5 main-agent review record is still absent; the auditor's delivery_identity check does not test for it."
+    ],
+    "not_claiming": [
+      "terrain interface acceptance",
+      "initialized-state semantics acceptance",
+      "physical correctness, G6 equivalence or R1 change",
+      "any redistribution licence for vendor model material"
+    ]
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "schema": "wksim.26-historical-wrapper-identities.v1",
+  "kind": "declared_historical_wrapper_identities",
+  "issue": 26,
+  "date": "2026-09-13",
+  "purpose": "Fail-closed declaration consumed by the proposed P1-A patch to tools/audit_26_closure_readiness.py. It enumerates the wrapper identities that historical #26 evidence is allowed to pin while the canonical repository path has moved on. Any wrapper digest not listed here must still be treated by the auditor as drift.",
+  "rule": "A listed identity is accepted ONLY when its bytes are re-hashed from the declared archived_repo_path and match both sha256 and size_bytes. If the archived copy is missing, untracked, a symlink or a reparse point, the identity is rejected and the audit must fail.",
+  "canonical_wrapper_path": "Simulator/wksim_core/model.cpp",
+  "current_canonical_wrapper": {
+    "sha256": "150ddf3bab66e9e59701791392f6d792a14346e0b75ecdfe94872095e72d0290",
+    "size_bytes": 4070,
+    "tracked_at_head": true,
+    "bound_by_commissioned_evidence": true
+  },
+  "identities": [
+    {
+      "sha256": "3f325678b1d85c9aa3fd07bd644d82935aa26d82885926defeced139f02ddf2c",
+      "size_bytes": 1864,
+      "status": "historical_superseded_not_drift",
+      "pinned_by_build_ids": [
+        "short-cycle-01",
+        "short-cycle-02"
+      ],
+      "pinned_by": [
+        "validation/codegen-e0-build-short-cycle-01/build-manifest.json",
+        "validation/codegen-e0-lifecycle-01/audit.json",
+        "docs/plan/26-closure-readiness-manifest.json"
+      ],
+      "archived_repo_path": "validation/lunar-20-epoch-1/case/run/epochs/2a8d5df1dd4244c3868dc7f38e85a369/source/Simulator/wksim_core/model.cpp",
+      "archived_repo_path_tracked": true,
+      "archived_repo_path_verified_sha256": "3f325678b1d85c9aa3fd07bd644d82935aa26d82885926defeced139f02ddf2c",
+      "archived_repo_path_verified_size_bytes": 1864,
+      "archived_copy_uniqueness": "This is the only tracked model.cpp in the repository whose bytes hash to this digest at the time of adjudication. Further untracked copies exist under validation/** run trees but are not durable.",
+      "is_git_object_on_canonical_path": false,
+      "why_not_a_git_object": "The 1864 B bytes were an uncommitted working-tree variant at build time. Commit 55773c5 committed a different 1864 B blob (e0e96466a407d49572a8f3ec911515b4e855147f), so this digest was never committed at the canonical path and can never be produced by git from history.",
+      "superseding_commits": [
+        "f9a34f8 Expose same-source terrain input",
+        "9bb11ce Expose initialized model state"
+      ],
+      "superseded_by_sha256": "150ddf3bab66e9e59701791392f6d792a14346e0b75ecdfe94872095e72d0290",
+      "superseded_by_size_bytes": 4070,
+      "commissioned_current_evidence": [
+        "validation/codegen-e0-build-current-wrapper-01/build-manifest.json",
+        "validation/codegen-e0-lifecycle-current-wrapper-01/audit.json"
+      ],
+      "historical_chain_internal_consistency": {
+        "lifecycle_audit_source_sha256_equals_manifest_requirements": true,
+        "lifecycle_audit_file_sha256_equals_manifest_pin": true
+      },
+      "retention_authority": "docs/plan/26-current-wrapper-recheck-plan.md:103 forbids writing new evidence into the historical directories or the closure manifest; :145-152 marks those paths read-only and byte-unchanged.",
+      "unverified_surface_remaining": [
+        "same-source terrain input (wk_model_step_with_terrain) is implemented but not driven by any probe",
+        "initialized-state semantics (wk_model_initial_state) have no assertion"
+      ]
+    }
+  ],
+  "acceptance_effect": {
+    "rewrites_historical_pin": false,
+    "deletes_or_overwrites_history": false,
+    "touches_sealed_manifest": false,
+    "new_digest_still_fails_closed": true,
+    "note": "This declaration resolves only the provenance-binding classification. It does not close #26, does not accept the unverified interfaces, and does not change any closure blocker."
+  }
+}
