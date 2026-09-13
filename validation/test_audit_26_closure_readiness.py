@@ -68,22 +68,38 @@ def _fixture(root):
     wrapper.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(ROOT / "Simulator/wksim_core/model.cpp", wrapper)
 
+    generated_manifest_path = root / EVIDENCE_FILES[2]
+    generated_manifest = json.loads(generated_manifest_path.read_text(encoding="utf-8"))
+    codegen_report_path = root / EVIDENCE_FILES[1]
+    codegen_report = json.loads(codegen_report_path.read_text(encoding="utf-8"))
     build_path = root / EVIDENCE_FILES[4]
     build = json.loads(build_path.read_text(encoding="utf-8"))
     generated_dir = root / "work/codegen-e0/short-cycle-codegen-01/codegen/Exp1_MinModelTemp_ert_rtw"
     generated_dir.mkdir(parents=True, exist_ok=True)
-    for basename in ("Exp1_MinModelTemp.cpp", "Exp1_MinModelTemp.h", "rtwtypes.h", "ert_main.cpp"):
-        shutil.copy2(
-            ROOT / "work/codegen-e0/short-cycle-codegen-01/codegen/Exp1_MinModelTemp_ert_rtw" / basename,
-            generated_dir / basename,
-        )
+    fixture_sources = {
+        "Exp1_MinModelTemp.cpp": b"// synthetic generated implementation fixture\n",
+        "Exp1_MinModelTemp.h": b"// synthetic generated interface fixture\n",
+        "rtwtypes.h": b"// synthetic generated type fixture\n",
+        "ert_main.cpp": b"// synthetic excluded main fixture\n",
+    }
+    for basename, payload in fixture_sources.items():
+        (generated_dir / basename).write_bytes(payload)
+    generated_by_name = {
+        Path(item["relative_path"].replace("\\", "/")).name: item
+        for item in generated_manifest["sources"]
+    }
+    report_by_name = {item["name"]: item for item in codegen_report["artifacts"]}
+    for basename in fixture_sources:
+        source = generated_dir / basename
+        generated_by_name[basename]["sha256"] = _sha(source)
+        generated_by_name[basename]["size_bytes"] = source.stat().st_size
+        report_by_name[basename]["bytes"] = source.stat().st_size
+    _write(generated_manifest_path, generated_manifest)
+    _write(codegen_report_path, codegen_report)
     external_dir = root.parent / f"{root.name}-external-inputs"
     external_dir.mkdir(parents=True, exist_ok=True)
-    header_root = Path(r"D:\matlab\install date\simulink\include")
-    if not header_root.is_dir():
-        header_root = Path("/mnt/d/matlab/install date/simulink/include")
-    shutil.copy2(header_root / "rtw_continuous.h", external_dir / "rtw_continuous.h")
-    shutil.copy2(header_root / "rtw_solver.h", external_dir / "rtw_solver.h")
+    (external_dir / "rtw_continuous.h").write_bytes(b"// synthetic external continuous header fixture\n")
+    (external_dir / "rtw_solver.h").write_bytes(b"// synthetic external solver header fixture\n")
     for basename, item in build["staged_sources"].items():
         if basename in {"Exp1_MinModelTemp.cpp", "Exp1_MinModelTemp.h", "rtwtypes.h"}:
             item["source_path"] = str(generated_dir / basename)
@@ -110,7 +126,9 @@ def _fixture(root):
     wrapper_hash = _sha(wrapper)
     lifecycle["library_sha256"] = _sha(artifact)
     lifecycle["cold_library"] = str(cold_artifact)
-    lifecycle["source_sha256"]["model.cpp"] = wrapper_hash
+    lifecycle["source_sha256"] = {
+        basename: item["sha256"] for basename, item in build["staged_sources"].items()
+    }
     for run in lifecycle["runs"]:
         old_probe = run["command"][run["command"].index("--probe") + 1]
         probe = artifact if run["name"] == "original" else cold_artifact
@@ -120,10 +138,10 @@ def _fixture(root):
 
     manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
     manifest["acceptance_evidence"]["matlab_free_lifecycle"]["requirements"]["library_sha256"] = lifecycle["library_sha256"]
-    manifest["acceptance_evidence"]["matlab_free_lifecycle"]["requirements"]["source_sha256"]["model.cpp"] = wrapper_hash
+    manifest["acceptance_evidence"]["matlab_free_lifecycle"]["requirements"]["source_sha256"] = dict(lifecycle["source_sha256"])
     for binding in manifest["acceptance_evidence"]["matlab_free_lifecycle"]["requirements"]["run_bindings"]:
         binding["library_sha256"] = lifecycle["library_sha256"]
-        binding["source_sha256"]["model.cpp"] = wrapper_hash
+        binding["source_sha256"] = dict(lifecycle["source_sha256"])
         matching_run = next(run for run in lifecycle["runs"] if run["name"] == binding["name"])
         binding["argv"] = list(matching_run["identity"]["argv"])
     for entry in manifest["acceptance_evidence"].values():
