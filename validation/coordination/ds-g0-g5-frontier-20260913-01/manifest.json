@@ -1,0 +1,114 @@
+{
+ "schema": "wksim.ds-g0-g5-frontier-manifest.v1",
+ "audit_id": "ds-g0-g5-frontier-20260913-01",
+ "scope": "Exclusive-write read-only G0-G5 closure-frontier audit. SHA256SUMS records this directory only; audit.json records the retained originals this audit cites.",
+ "checkout": {
+  "cwd": "C:\\Users\\PC\\Documents\\odid\u7f16\u8bd1\\wksim",
+  "branch": "main",
+  "head_at_audit_start": "7e1e137879a779f2b051b384c044e6e936878d53",
+  "head_when_manifest_written": "33c2b06e8794ad865a25b307852d08d4c0845a26",
+  "architecture_ancestor": "f333316e6efa6b299b4288a9d91fb2bccedfb9d6",
+  "architecture_ancestor_exit_code": 0
+ },
+ "deliverable_files": [
+  {
+   "path": ".gitattributes",
+   "exists": true,
+   "size_bytes": 8,
+   "sha256": "705fd4d6451a31d36b3df7de96f83f30ac976c9b4a6d1e51671d8e2f33e2d0da"
+  },
+  {
+   "path": "audit.json",
+   "exists": true,
+   "size_bytes": 64330,
+   "sha256": "7206d768cddb16192f837603ac252c5cd2525fe29aa63777bdd59b226f79d94f"
+  },
+  {
+   "path": "audit.md",
+   "exists": true,
+   "size_bytes": 42741,
+   "sha256": "1b38a2b31ae32c5b6ebab86ce86c29a2d68f7e50b07aeb05215a410e950698ce"
+  },
+  {
+   "path": "checks/audit-26-closure-readiness.json",
+   "exists": true,
+   "size_bytes": 1234,
+   "sha256": "607f77445ef2dff5a2288f00337e6ca8449ce3998babcf98a80ccc963f51ccf1"
+  },
+  {
+   "path": "checks/audit-26-closure-readiness.stdout.txt",
+   "exists": true,
+   "size_bytes": 1246,
+   "sha256": "d0d126d900295bbe71305057751c4d459f2fb9c4fbed446a4baa165a64eead00"
+  },
+  {
+   "path": "checks/checks.json",
+   "exists": true,
+   "size_bytes": 20142,
+   "sha256": "387be85319b99dd1296829aa2c1b695779712c6a2cebb93eed3fc62c42d1506e"
+  },
+  {
+   "path": "checks/pv-settle-rate-intervals.json",
+   "exists": true,
+   "size_bytes": 15491,
+   "sha256": "6b00adb6c4713d60f19145007e437f2b896666cc9488d16cebc2188509c3857a"
+  },
+  {
+   "path": "issues-snapshot.json",
+   "exists": true,
+   "size_bytes": 69651,
+   "sha256": "4d97702c3a64a176fd983703fff207b90a51de102e48eabf4e3bf3a936568a1b"
+  },
+  {
+   "path": "verify_frontier.py",
+   "exists": true,
+   "size_bytes": 13803,
+   "sha256": "371fcc52a56b89408596df84aebc1ebedfaf5476a24179425984a7770b6356bc"
+  },
+  {
+   "path": "write_manifest.py",
+   "exists": true,
+   "size_bytes": 4538,
+   "sha256": "7c381450b5e1019bc2aa6c0ee78e661a08515c537aee18b5608c573560695cfd"
+  }
+ ],
+ "sha256sums": {
+  "path": "SHA256SUMS",
+  "sha256": "7971871fdb9447c057458e084e116528cfc1f6bccf16f74522e65718883f6f13"
+ },
+ "gates_in_scope": [
+  "G0",
+  "G1",
+  "G2",
+  "G3",
+  "G4",
+  "G5"
+ ],
+ "gates_excluded": {
+  "G6": "excluded by instruction",
+  "issues": {
+   "83": "already CLOSED",
+   "84": "real MIXED perf-hook task under another agent's read-only audit",
+   "9": "optional model-plugin / scene-feedback decision (DLL ABI branch)"
+  }
+ },
+ "gate_verdicts": {
+  "G0": "not-closed",
+  "G1": "not-closed",
+  "G2": "not-closed",
+  "G3": "not-closed",
+  "G4": "not-closed",
+  "G5": "not-closed"
+ },
+ "non_claims": [
+  "No G0-G5 gate is claimed as passed.",
+  "No historical PASS is transferred to the f333316 architecture candidate.",
+  "No in-checkout byte verification is claimed for the external oayggl_s originals or the /root model libraries.",
+  "No issue, Goal, shared ledger, module-owner source or existing file was modified."
+ ],
+ "regeneration_order": [
+  "verify_frontier.py",
+  "write_manifest.py"
+ ],
+ "write_scope": "this directory only; the auditor stops writing after this deliverable"
+}

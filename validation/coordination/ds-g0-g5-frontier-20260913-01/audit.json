@@ -1,0 +1,686 @@
+{
+  "schema": "wksim.ds-g0-g5-frontier.v1",
+  "audit_id": "ds-g0-g5-frontier-20260913-01",
+  "generated_at": "2026-09-13T22:24:03+09:00",
+  "generated_unix": 1789305843,
+  "work_class": "new-development / read-only closure audit",
+  "objective": "Establish the current G0-G5 closure frontier: the latest proven authoritative original for every gate with its SHA256, the exact gate that still fails or is missing, whether that gate is executable in a pure-Python/read-only environment, the next minimal command, the part that needs main-exclusive native execution, the dependencies and the shortest closure order.",
+  "work_scope": {
+    "in_scope": ["G0", "G1", "G2", "G3", "G4", "G5"],
+    "excluded": {
+      "83": "already CLOSED (2026-09-12T18:23:27Z); its bounded PV slice is cited only as a retained-original cross-check, never as a G2 pass",
+      "84": "the real MIXED perf-hook wiring task; under read-only audit by other agents (validation/coordination/ds-perf-mixed-hook-audit-20260913-01/); not analysed here",
+      "9": "the optional model-plugin / scene-feedback decision (DLL ABI). The whole ABI branch #27/#28/#73/#74/#76/#77/#78 is therefore out of the dispatchable frontier; only its blocking effect on G4 is recorded",
+      "G6": "excluded by instruction; #59/#60 G6-budget material is listed only where it blocks another gate"
+    },
+    "write_scope": "this directory only. No shared ledger, issue, existing file, module owner source, test or frozen contract was modified.",
+    "prohibited_and_not_done": [
+      "no native execution",
+      "no build",
+      "no ROS",
+      "no flight controller or SITL",
+      "no model execution",
+      "no UE",
+      "no MATLAB",
+      "no issue or Goal state change",
+      "no git commit, push, checkout or staging"
+    ]
+  },
+  "checkout": {
+    "cwd": "C:/Users/PC/Documents/odid编译/wksim",
+    "branch": "main",
+    "head_at_audit_start": "7e1e137879a779f2b051b384c044e6e936878d53",
+    "head_at_audit_start_confirmed": true,
+    "head_observed_during_audit": "33c2b06e8794ad865a25b307852d08d4c0845a26",
+    "head_observations": [
+      "7e1e137879a779f2b051b384c044e6e936878d53",
+      "0239f0e459bd8f5d7cdc6c25c0c6aa6687ead54f",
+      "09105faad24d62ad8098202eb6a9664ef6497032",
+      "33c2b06e8794ad865a25b307852d08d4c0845a26"
+    ],
+    "head_note": "main is under concurrent commits by other agents, so HEAD advances during the audit. The audit's stable identity is its own SHA256SUMS, not a HEAD value; the evidence pins were re-verified unchanged at every observed HEAD.",
+    "head_moves_during_audit": [
+      {
+        "from": "7e1e137879a779f2b051b384c044e6e936878d53",
+        "to": "0239f0e459bd8f5d7cdc6c25c0c6aa6687ead54f",
+        "committed_at": "2026-09-13T22:19:59+09:00",
+        "subject": "Record continued DeepSeek closure audit",
+        "files": ["validation/coordination/three-deepseek-expansion-20260913-01/continuations.json"]
+      },
+      {
+        "from": "0239f0e459bd8f5d7cdc6c25c0c6aa6687ead54f",
+        "to": "09105faad24d62ad8098202eb6a9664ef6497032",
+        "committed_at": "2026-09-13T22:24:29+09:00",
+        "subject": "Record MIXED hook and DLL ABI audits",
+        "files": [
+          "validation/coordination/ds-dll-abi-evidence-20260913-01/{.gitattributes,audit.json,audit.md}",
+          "validation/coordination/ds-perf-mixed-hook-audit-20260913-01/{.gitattributes,audit.json,audit.md}",
+          "validation/coordination/three-deepseek-main-review-20260913-02/{.gitattributes,review.json}"
+        ]
+      },
+      {
+        "from": "09105faad24d62ad8098202eb6a9664ef6497032",
+        "to": "33c2b06e8794ad865a25b307852d08d4c0845a26",
+        "committed_at": "2026-09-13T22:26:20+09:00",
+        "subject": "Reject perf diagnostics from formal MIXED evidence",
+        "files": [
+          "Simulator/wksim_runtime/joint_profile.py",
+          "validation/test_joint_profile.py",
+          "validation/test_mixed_profile_admission.py"
+        ],
+        "relation": "the excluded #84 MIXED perf-diagnostic branch; joint_profile.py is main-exclusive and is touched by that work, not by this audit"
+      }
+    ],
+    "head_move_effect": "Every move was made by concurrent agents on excluded branches (perf/MIXED or ABI) or was a docs-only record. Every SHA this audit cites was re-hashed after each move: 44 recorded paths, 0 mismatches at every check. In particular validation/coordination/ds-perf-mixed-hook-audit-20260913-01/audit.json is unchanged at 5fcb917f3ff9f3769f78d72f723724a4e3bced5a5a974e68ee9b9e6ba36e4ef0.",
+    "architecture_ancestor": "f333316e6efa6b299b4288a9d91fb2bccedfb9d6",
+    "architecture_ancestor_commit_date": "2026-09-13T17:51:18+09:00",
+    "ancestor_exit_at_audit_start_head": 0,
+    "ancestor_exit_at_observed_head": 0,
+    "worktree": {
+      "dirty_entries": 36,
+      "tracked_modified": 2,
+      "untracked": 34,
+      "policy": "other agents' concurrent work, preserved untouched by this audit"
+    }
+  },
+  "method": {
+    "read_only_sources": [
+      "AGENTS.md",
+      "docs/coordination/short-cycle-goal.md",
+      "docs/coordination/module-delivery-policy-20260912.md",
+      "docs/coordination/architecture-continuation-20260913.md",
+      "docs/architecture-implementation-20260912.md",
+      "docs/plan/goal-objective.md",
+      "docs/plan/full-migration-spec.md",
+      "docs/plan/full-scope-expansion.md",
+      "docs/plan/full-remaining-ledger.json",
+      "the ADR/decision records referenced by each gate"
+    ],
+    "live_issue_check": {
+      "command": "gh issue list --repo unununnnn/wksim --state all --limit 300 --json number,title,state,stateReason,labels,createdAt,updatedAt,closedAt",
+      "read_only": true,
+      "captured_to": "issues-snapshot.json",
+      "captured_sha256": "see manifest.json",
+      "observed": {"total": 163, "open": 23, "closed": 140}
+    },
+    "scripts": {
+      "verify_frontier.py": "hashes every cited original, reconciles the 96-row ledger, summarises the capability index and the live issue snapshot, and re-runs tools/analyze_joint_rate_intervals.py on the retained #83 trace by direct module import"
+    },
+    "note_on_checksum_recording": "Every SHA256 in this file was recomputed from the bytes present in this checkout at audit time; no SHA was copied from another document without re-hashing."
+  },
+  "cross_cutting_findings": [
+    {
+      "id": "XF-1",
+      "severity": "high",
+      "finding": "There is no native acceptance evidence on the f333316 architecture baseline anywhere in this frontier.",
+      "evidence": [
+        "f333316 committed 2026-09-13T17:51:18+09:00.",
+        "validation/coordination/architecture-candidate-sync-20260913-02/receipt.json (sha256 6c276d7229404ebc999e848114b46dce32e8c4dfd8cf6df15a446a0ed938996f) records new_head=386f713a7752515502fd2224e9186f2219674732, private_wiring_migrated=false, native_executed=false, architecture_acceptance=false.",
+        "The closed #83 PV run executed at commit 95da8809b7af3c47e42457c6dea0cdb96c563407: `git merge-base --is-ancestor 95da8809 HEAD` exit 1 and `git merge-base --is-ancestor 95da8809 f333316` exit 1, so its commit is on the historical branch codex/planner-release-validation, not in the current architecture line.",
+        "The historical comparison head db1200d115902eb9d47fca19cccb71a7b9c15147 also returns exit 1 against HEAD.",
+        "The G5 real-MATLAB flights recorded git_head 6d2e371d918f202acd64e822dee4300e86942bcd (2026-09-07), an ancestor of HEAD that predates f333316."
+      ],
+      "consequence": "Per docs/coordination/architecture-continuation-20260913.md, an old PASS is not transferred to the new candidate. G1-G5 therefore all stand at 'real evidence exists on a pre-f333316 revision, not revalidated on the current architecture'. This is a statement about which revision the evidence belongs to, not a claim that the evidence is false.",
+      "not_a_claim": "This does not say F1-G5 fail functionally; it says their acceptance is revision-bound."
+    },
+    {
+      "id": "XF-2",
+      "severity": "medium",
+      "finding": "The shared frontier artifact docs/coordination/acceptance-frontier.json is stale and must not be used as current state.",
+      "evidence": [
+        "docs/coordination/acceptance-frontier.json (sha256 885ea287c58ee412a1577cff18428a8b9425ff4b70e0c0ed9433bf18d46a16c2), version 1.1, generated 2026-09-12T08:58:00+09:00.",
+        "It still records issue #83 with state OPEN, while the live read-only query shows #83 CLOSED at 2026-09-12T18:23:27Z.",
+        "It records generated_at before the #83 closure and before f333316."
+      ],
+      "consequence": "Any dispatch that reads acceptance-frontier.json as the frontier will use a superseded snapshot. A refreshed frontier must be produced by the owner of that shared file; this audit only records the drift.",
+      "read_only_note": "This audit did not modify the shared file."
+    },
+    {
+      "id": "XF-3",
+      "severity": "medium",
+      "finding": "G4's machine-checkable current-checkout readiness check currently fails, and the failure is in the checkout, not only in an external artifact.",
+      "evidence": [
+        "`python -B tools/audit_26_closure_readiness.py --manifest docs/plan/26-closure-readiness-manifest.json --output <this dir>/checks/audit-26-closure-readiness.json` exits 2 with status not_ready and 5 violations (recorded verbatim in checks/audit-26-closure-readiness.json).",
+        "Violation 1: the pinned build manifest records staged source Simulator/wksim_core/model.cpp sha256 3f325678b1d85c9aa3fd07bd644d82935aa26d82885926defeced139f02ddf2c size 1864, while the current tracked file is sha256 150ddf3bab66e9e59701791392f6d792a14346e0b75ecdfe94872095e72d0290 size 4070 (recomputed here).",
+        "Violations 2-4: three pinned /root artifacts (build output library, cold library, cold probe) cannot be mapped on this host, so #26 AC3 cannot be re-verified from this checkout.",
+        "Violation 5: five tracked files match the checker's vendor-artifact rule by filename (validation/coordination/*/precheck-RflySim-20.04.json)."
+      ],
+      "own_read_of_violation_5": "Direct content read shows these five are WSL process-scan precheck receipts for the second distribution (fields distro=RflySim-20.04, boot_id, uptime, found=[]), i.e. records about a distro, not vendor source or binaries. The match is name-based. Whether to refine the checker or reclassify the files is the module owner's decision; this audit does not decide it and does not edit either file.",
+      "consequence": "#26 AC1 has a concrete, reproducible provenance drift that blocks a current-checkout readiness claim independently of the excluded #9 dependency."
+    },
+    {
+      "id": "XF-4",
+      "severity": "info",
+      "finding": "Some authoritative originals are not present in this checkout and can only be referenced by recorded SHA.",
+      "evidence": [
+        "The latest G2 failure original joint-public-flight-oayggl_s is absent from this checkout (zero matching files anywhere in the tree); its recorded SHAs live in docs/coordination/ds-architecture-mixed-migration-20260913.md section 2.2.",
+        "validation/joint-public-flight-oayggl_s/result.json does not exist here.",
+        "The #26 lifecycle library and cold-build probe live under /root on the Linux side only."
+      ],
+      "consequence": "A re-audit of those originals requires the Linux private checkouts; this audit marks them external rather than claiming in-checkout byte verification."
+    }
+  ],
+  "gates": [
+    {
+      "id": "G0",
+      "name": "可执行范围",
+      "exit_condition": "已批准规格、验收接缝、逐票阻塞关系和运行能力清单；每项需求有票据或明确待决策归属。",
+      "source": "docs/plan/goal-objective.md:23",
+      "ledger_status": "preserved-not-complete",
+      "issues": {
+        "open": [1, 10, 60],
+        "closed_for_this_gate": [],
+        "role": {"1": "Wayfinder map; by design never closed", "10": "approved Full spec parent; not closed", "60": "final Full review; the only G0 ticket that can still be delivered"}
+      },
+      "authoritative_originals": [
+        {"path": "docs/plan/goal-objective.md", "sha256": "e035a9a467708fd0240a39866f56d69ca64fa58a4a1e555c0c0aac1894d020a5", "size_bytes": 10411, "role": "declared G0-G6 exit conditions (the normative source for every gate in this file)", "in_this_checkout": true},
+        {"path": "docs/plan/full-migration-spec.md", "sha256": "384335c180e7f7fca6d87332318e5defe94caf3969ec93ffeda277d004350542", "size_bytes": 16568, "role": "approved spec: 48 user stories, 10 confirmed acceptance seams", "in_this_checkout": true},
+        {"path": "docs/plan/full-scope-expansion.md", "sha256": "85c15ad817afe35fcd325435f02ccb894ad33015e223537daa3cc3706a564fee", "size_bytes": 26725, "role": "48-row Full expansion scope", "in_this_checkout": true},
+        {"path": "docs/plan/full-remaining-ledger.json", "sha256": "61a58c9065d5f6b0f243aa49cbd476f38a17ce29c7bf12175c194ba582c51b54", "size_bytes": 127048, "role": "machine-readable 96-row coverage ledger plus the preserved G0-G6 and HARDWARE-HITL boundary rows", "in_this_checkout": true},
+        {"path": "docs/plan/full-remaining-ledger.md", "sha256": "95d4439f4bec9f274b369f52f5760235a6ff2e6c82e8228a81317c752f3a47b5", "size_bytes": 38392, "role": "human-readable ledger with the preserved-not-complete gate table", "in_this_checkout": true},
+        {"path": "docs/plan/lunar-issued.json", "sha256": "07b110cd0a05811b12adabe44ce8ef34d2eeb409900615413efb37f09ad79923", "size_bytes": 21210, "role": "issued ticket and blocking-relation record", "in_this_checkout": true},
+        {"path": "docs/plan/published-issues.json", "sha256": "a63005c7fd959b0c19c9d9801f2657e073a85b5580c049114fdac8c01e706c90", "size_bytes": 13270, "role": "published ticket manifest the native blocking edges were checked against", "in_this_checkout": true},
+        {"path": "Simulator/wksim_runtime/capability-index.json", "sha256": "9089b99197147a27859b04b49701fad7a11c4fbebac1435938996f76f9207b02", "size_bytes": 42235, "role": "runtime capability list (87 entries) required by the G0 exit condition", "in_this_checkout": true},
+        {"path": "docs/2026-09-07_accelerated-integration-report.md", "sha256": "85cfe6b9d33e7388a86e2ff94b667c44659a7d6f01f620421cad3bfbf374f0b0", "size_bytes": 12881, "role": "the only recorded G0 read-only review: 48 stories attributed and 38 tickets' 87 native blocking edges consistent with the published manifest", "evidence_revision": "pre-f333316 (2026-09-07)"},
+        {"path": "docs/coordination/acceptance-frontier.json", "sha256": "885ea287c58ee412a1577cff18428a8b9425ff4b70e0c0ed9433bf18d46a16c2", "size_bytes": 9906, "role": "shared executable frontier snapshot", "superseded": true, "reason": "see XF-2"},
+        {"path": "docs/plan/full-acceptance-report.md", "sha256": null, "exists": false, "role": "the deliverable #60 declares; absent, so #60 has not produced its output"}
+      ],
+      "proven": [
+        "The coverage ledger is self-consistent: 96 rows, 96 unique ids, source-id set equals ledger-id set, no duplicates (recomputed in checks/checks.json).",
+        "Category counts match the declared structure exactly: user_story 48, simulation_mode 12, communication_mode 7, model_material 16, operation_environment_experiment 13.",
+        "All seven gate rows plus the HARDWARE-HITL boundary row are present, all at preserved-not-complete; all 96 entries remain gaps by the ledger's own scope flag.",
+        "A runtime capability list exists and parses (Simulator/wksim_runtime/capability-index.json, 87 entries).",
+        "The 2026-09-07 review recorded story attribution and the 87 blocking edges as consistent."
+      ],
+      "failing_or_missing_gate": [
+        "The shared frontier artifact is stale (XF-2): it still shows #83 OPEN, so the 'current' frontier is not current.",
+        "The one recorded G0 review is on a pre-f333316 revision and has not been re-run for the current architecture (XF-1).",
+        "docs/plan/full-acceptance-report.md does not exist, so #60's completion condition CC1 (every required Full row and gate accepted, or an explicit unresolved list) is unmet.",
+        "Per the ledger's own rule, publishing a spec or an interface placeholder is not acceptance; the gate stays preserved-not-complete."
+      ],
+      "pure_python_readonly_executable": true,
+      "pure_python_checks": [
+        "ledger reconciliation and gate-row extraction (done; see checks/checks.json)",
+        "capability-index parse and entry count (done; 87)",
+        "gh issue list read-back and staleness comparison against the shared frontier (done; issues-snapshot.json)"
+      ],
+      "next_minimal_command": "python -B validation/coordination/ds-g0-g5-frontier-20260913-01/verify_frontier.py",
+      "requires_main_exclusive_native": [],
+      "dependencies": {
+        "upstream": [],
+        "downstream": ["every other gate depends on G0's scope and blocking-relation record"],
+        "owner_decision_required": false,
+        "note": "#60 can only emit an unresolved list while #9/#20/#59 remain unresolved; it cannot emit a pass and it cannot close #1/#10 or the Goal."
+      },
+      "verdict": "not-closed",
+      "verdict_reason": "Scope, seams, ledger and blocking relations are recorded and mechanically reconcile, but the frontier artifact is stale, the gate review is revision-bound, and #60's deliverable is absent."
+    },
+    {
+      "id": "G1",
+      "name": "首期双栈产品闭环",
+      "exit_condition": "同一配置/任务入口分别选择PX4和ArduCopter，启动、飞行、UE查看、停止、回看；真实双栈任务和独立真值通过；产品节点发送控制，观察器静默；UE不是诊断日志尾读依赖；无MATLAB/Gazebo/原版程序亦可运行；子进程隔离收尾。",
+      "source": "docs/plan/goal-objective.md:24",
+      "ledger_status": "preserved-not-complete",
+      "issues": {
+        "open": [],
+        "closed_for_this_gate": [11, 12, 13, 14, 15, 16, 17, 18, 48],
+        "role": {"48": "首期SITL产品流程集成验收, CLOSED 2026-09-08T17:35:14Z"}
+      },
+      "authoritative_originals": [
+        {"path": "docs/2026-09-07_joint-product-entry-report.md", "sha256": "bacee32ca37ca0464c6fff36afa994f767a5a24fd71dcab105e16d63d94df51a", "size_bytes": 11309, "role": "real joint product entry: public entry, dual-stack, no CopterSim/Gazebo/MATLAB libraries, process identity read before/after, clean exit", "evidence_revision": "pre-f333316"},
+        {"path": "docs/2026-09-06_joint-public-flight-report.md", "sha256": "3960e7611450520473463b959333fc007e477ed745f39f5d0576efa59ce2caa6", "size_bytes": 10457, "role": "first real continuous joint-flight evidence under the public entry", "evidence_revision": "pre-f333316"},
+        {"path": "docs/2026-09-07_accelerated-integration-report.md", "sha256": "85cfe6b9d33e7388a86e2ff94b667c44659a7d6f01f620421cad3bfbf374f0b0", "size_bytes": 12881, "role": "accelerated integration round including MATLAB and display seams", "evidence_revision": "pre-f333316"},
+        {"path": "docs/2026-09-13-final-combo-pv-pass.md", "sha256": "d3c70b49da4f090748ee19fc6101d0d86f5021b5daafef1ede5ef15dd146e512", "size_bytes": 4133, "role": "latest bounded dual-stack public task (the closed #83 PV slice) on the frozen historical branch", "evidence_revision": "95da8809 (historical branch, not in the f333316 line)"}
+      ],
+      "proven": [
+        "Real dual-stack public-entry runs with independent truth exist and are recorded with command/identity/boundary sections (docs/2026-09-07_joint-product-entry-report.md).",
+        "Those runs recorded process identity and mapping checks and reported no CopterSim/Gazebo/MATLAB runtime libraries loaded, satisfying the 'runs without the original program / Gazebo / MATLAB' part at that revision.",
+        "The #48 first-phase SITL product-flow integration ticket is CLOSED.",
+        "The bounded 2026-09-13 PV run kept the original gates (single anchor 0.5x, 1 ms tick, 4-tick barrier, no catch-up) and closed with worst cumulative lateness 89,299,145 ns < 100 ms."
+      ],
+      "failing_or_missing_gate": [
+        "Every G1 original is bound to a pre-f333316 revision; there is no G1 run on the current architecture (XF-1).",
+        "The product-node-sends-control / observer-silent property and the UE-not-a-diagnostic-tail property were asserted on those historical revisions and have not been re-demonstrated on the current architecture.",
+        "No G1-specific open ticket remains, so the remaining work is revalidation, not implementation; that makes it easy to mistake G1 for finished."
+      ],
+      "pure_python_readonly_executable": false,
+      "pure_python_checks": [
+        "identity/SHA re-verification of the retained G1 originals (pure Python, read-only)",
+        "nothing else: the gate itself is a real dual-stack product run"
+      ],
+      "next_minimal_command": "read-only: python -B validation/coordination/ds-g0-g5-frontier-20260913-01/verify_frontier.py (re-hashes the G1 originals). Gate-closing: a real dual-stack product-entry run on the f333316 candidate under the frozen combination - main-exclusive native, not a pure-Python step.",
+      "requires_main_exclusive_native": [
+        "dual-stack product-entry flight (PX4 and ArduCopter on the same entry)",
+        "UE display observation and stop/replay",
+        "WSL two-distro precheck and entry boot/freshness validation"
+      ],
+      "dependencies": {
+        "upstream": ["G0"],
+        "downstream": ["G2 shares the same joint entry"],
+        "owner_decision_required": true,
+        "owner_decision": "either re-run the accepted G1 slices on the f333316 candidate, or explicitly classify them as historical with a separate migration acceptance obligation. The continuation contract's default is a re-run."
+      },
+      "verdict": "not-closed",
+      "verdict_reason": "Real G1 evidence exists but only on pre-f333316 revisions and on the historical branch; it has not been revalidated on the current architecture baseline."
+    },
+    {
+      "id": "G2",
+      "name": "联合场景",
+      "exit_condition": "一个 PX4 与一个 ArduCopter 共享物理场景和唯一权威仿真时间，含暂停/单步/继续/倍速、掉队和重置证据。",
+      "source": "docs/plan/goal-objective.md:25",
+      "ledger_status": "preserved-not-complete",
+      "issues": {
+        "open": [20, 62, 63, 64, 33],
+        "closed_for_this_gate": [19, 21, 22, 83],
+        "excluded": [84],
+        "role": {
+          "20": "parent container: pause/step/cold-reset; still OPEN",
+          "62": "1x epoch 1; OPEN, currently needs-triage",
+          "63": "1x epoch 2; OPEN, blocked by #62",
+          "64": "1x epoch 3; OPEN, blocked by #63",
+          "33": "dual-stack mixed-axis and trajectory following; OPEN; children #82 CLOSED, #83 CLOSED, #84 excluded",
+          "83": "CLOSED 2026-09-12T18:23:27Z; bounded final-combination PV slice passed",
+          "84": "the real MIXED promotion/perf-hook task; under another agent's audit - not analysed here"
+        }
+      },
+      "authoritative_originals": [
+        {"path": "docs/2026-09-07_joint-rate-contract-accepted.md", "sha256": "6a68840d3cb5612cba921468a370014b38e1416c81d6dc2c9c41ebc816ff71ab", "size_bytes": 3200, "role": "the approved rate contract: >=3 independent epochs per gear, each >=60 continuous wall seconds, non-overlapping 10 s windows +/-2 percent, complete 60 s segments +/-1 percent, cumulative phase lateness <=100 ms"},
+        {"path": "docs/2026-09-09-final-combo-pv-plan.md", "sha256": "b24703244351709ddda84f9c70120ece58bf86fcc41b0b82c68ba03527139440", "size_bytes": 6755, "role": "frozen final-combination PV invocation and pre-declared gates"},
+        {"path": "docs/2026-09-09-mixed-flight-plan.md", "sha256": "9dc3809c16909b30a06510ffea34c91c62f1225d4b6956e45712638a0d6a322f", "size_bytes": 5909, "role": "mixed-flight plan carrying the same window gates"},
+        {"path": "docs/coordination/short-cycle-goal.md", "sha256": "d6339f23b61e3b1fee4e5d729b283bf1378da2622d9538a8ce29affaa606c71c", "size_bytes": 13284, "role": "current checkpoint: latest no-probe failure identity, no native/keeper, stop repeating the 99 configuration"},
+        {"path": "validation/coordination/manager99-unprobed-20260913-01/decision.json", "sha256": "6fd265b76d50130171cb68d6179638d139576219c0e01e32692d132ed314df34", "size_bytes": 375, "role": "decision record for the no-probe manager99 configuration"},
+        {"path": "validation/coordination/manager99-unprobed-20260913-01/rollback.json", "sha256": "5b6413ef7cc46f5a52ed41c2aa3e8df2a69a4103710c1e648b631ebc9525b91b", "size_bytes": 439, "role": "runner rollback receipt 9b97c124 -> 1c600d7f, manager target restored to 50"},
+        {"path": "validation/coordination/manager99-unprobed-20260913-01/terminal-cleanup.json", "sha256": "0222ee2445c119fddfb2c79219b03e105d25cde2922e5719455dfadb07acbcc5", "size_bytes": 1704, "role": "terminal cleanup: no live native process, no keeper"},
+        {"path": "docs/coordination/ds-architecture-mixed-migration-20260913.md", "sha256": "f3cbe35a996167217a03fdf6a883b697c9fd20de6f36e6d85b7aa150878c1741", "size_bytes": 35160, "role": "the only place the absent oayggl_s originals are identified by SHA, with recomputed segment arithmetic", "external_origin_shas": {"result.json": "e9ac61dc4d52c10db7b396001273e5367d1a328148d85227189047add0636d0a", "rate.jsonl": "d65849e69f3b36ad655473d7d7a5d46319f9e441787549d2673c7e8391988ff3", "manager-gc-candidate.json": "614ccd051d6c37244536da54d656289eab57292bb426891953243aa330fb7bbb"}},
+        {"path": "validation/33-final-combo-luna/pv-settle-1w6dru32/bundle-manifest.json", "sha256": "4663185be8b74b41801b17669f55a0b3ff15f551e3650eef5a28701fce3c3d8b", "size_bytes": 5129, "role": "retained Windows pack of the closed #83 PV run (frozen auditor sources plus the rate trace)"},
+        {"path": "validation/33-final-combo-luna/pv-settle-1w6dru32/rate.jsonl.gz", "sha256": "f7d1a5318c83cd6cec9fe42d5437549e46f6b054519e616d2924432b957fabe1", "role": "the retained #83 rate trace, independently re-analysed by this audit", "external_origin": false}
+      ],
+      "own_readonly_checks_on_g2": [
+        {
+          "check": "independent re-run of tools/analyze_joint_rate_intervals.py (sha256 1c43ac9c4b80f2dcc8eb52ffd9c3fe061f5cd2ef9206d839fe20e7af2f783fc7) on the retained #83 trace",
+          "trace_plain_sha256": "92a415dfb85e136f154ba56eef1028b24ac0a3c107e265b7e3d066b705aa4283",
+          "trace_plain_bytes": 22640267,
+          "result": {"status": "analyzed", "groups": 28992, "intervals": 28991, "creep_total_ns": 87617368, "work_over_total_ns": 12423738, "release_excess_total_ns": 75193630, "first_group_start_lateness_ns": 111393, "latch_status": "unavailable", "recorded_latch_lateness_ns": null},
+          "meaning": "The retained #83 bytes contain no rate_unmet latch and the interval arithmetic closes, which is consistent with the recorded #83 PV pass. This re-derives interval arithmetic only; it transfers no PASS to the f333316 architecture and it is not a sustained-1x acceptance."
+        }
+      ],
+      "proven": [
+        "The approved rate contract's gate values are frozen and recorded (>=3 epochs, 10 s +/-2 percent, 60 s +/-1 percent, cumulative lateness <=100 ms).",
+        "The bounded #83 final-combination PV slice passed on the frozen historical branch: worst cumulative lateness 89,299,145 ns < 100,000,000 ns; 27,493 complete 10 s windows with maximum relative error 0.001305497 < 0.02; 21,245 complete 60 s windows with maximum 0.000513893 < 0.01.",
+        "This audit independently re-derived the #83 retained rate trace: 28,992 groups / 28,991 intervals, no rate_unmet latch.",
+        "#19 (single authoritative joint time), #21 (joint dual-vehicle UE display and switching) and #22 (airborne DDS loss and explicit recovery) are CLOSED.",
+        "The runner rollback is recorded and the configuration was restored; no native process or keeper is left running."
+      ],
+      "failing_or_missing_gate": [
+        "Sustained 1x is unmet. The latest no-probe manager99 run 'oayggl_s' failed at tick 108004 with a latched RateUnmet: lateness_ns=100644532 >= LATE_LIMIT_NS=100000000, wall_seconds=268.721856341, error=RateUnmet('rate_unmet/resource_insufficient'). A single boot, single sample; no causal attribution is made and the configuration was not re-run.",
+        "The rate contract requires three independent 60 s epochs per gear. #62, #63 and #64 are all still OPEN and serially dependent (#62 -> #63 -> #64); #62 sits in needs-triage.",
+        "The oayggl_s originals are absent from this checkout, so the failure can only be cited by the SHA recorded in docs/coordination/ds-architecture-mixed-migration-20260913.md (XF-4).",
+        "No MIXED/perf-hook wiring exists on the current architecture; that is exactly #84's scope and is excluded here because another agent is auditing it.",
+        "The whole G2 result set is revision-bound: the #83 pass ran on the historical branch (XF-1)."
+      ],
+      "pure_python_readonly_executable": "partial",
+      "pure_python_checks": [
+        "re-analysis of any retained rate trace against the frozen window/latch arithmetic (done here for #83; still to be done for the oayggl_s trace once it is available in-checkout)",
+        "contract comparison and window-count math"
+      ],
+      "next_minimal_command": "read-only: python -B validation/coordination/ds-g0-g5-frontier-20260913-01/verify_frontier.py reproduces the #83 interval re-analysis. Gate-closing: one frozen-combination no-probe MIXED run under the original gates (1 ms tick, 4-tick group, no catch-up, <=100 ms lateness, complete windows, source_unchanged) - main-exclusive native, after two WSL prechecks (found=[], same boot, <=60 s freshness).",
+      "requires_main_exclusive_native": [
+        "#62/#63/#64 sustained-1x airborne epochs",
+        "1 ms / 4-tick / no-catch-up native barrier scheduling",
+        "two-distro WSL prechecks and entry boot/freshness validation",
+        "frozen AP mixed / Control / Message identity admission"
+      ],
+      "dependencies": {
+        "upstream": ["G0", "#8 decision (CLOSED)", "#19 (CLOSED)"],
+        "serial_chain": "#62 -> #63 -> #64 (a failing epoch keeps the ticket OPEN and blocks the next)",
+        "downstream": ["#33 feeds G3's planner and #46's AC4", "#46 (G4) is formally blocked by open #20"],
+        "owner_decision_required": false,
+        "excluded_dependency": "#84 is being audited elsewhere; this frontier does not consume or depend on its result"
+      },
+      "verdict": "not-closed",
+      "verdict_reason": "The bounded #83 PV slice passed and is independently reproducible, but the sustained-1x gate fails (latched RateUnmet) and the three required epochs are unfinished; the whole set is also revision-bound."
+    },
+    {
+      "id": "G3",
+      "name": "Prometheus 实验",
+      "exit_condition": "按迁移矩阵执行控制模式、单机/多机任务、规划/感知 demo，支持/拒绝能力和动作完成均有真实证据。",
+      "source": "docs/plan/goal-objective.md:26",
+      "ledger_status": "preserved-not-complete",
+      "issues": {
+        "open": [39, 102, 33],
+        "closed_for_this_gate": [12, 15, 25, 30, 31, 32, 34, 35, 36, 37, 38, 40, 44, 45, 47, 48, 104],
+        "role": {"39": "parent: single-vehicle planning to real flight", "102": "child: wire the planner and verify one real avoidance scenario", "33": "shared with G2: dual-stack mixed axis and trajectory following"}
+      },
+      "authoritative_originals": [
+        {"path": "docs/plan/29-terrain-closure-report.md", "sha256": "edff1cd2d9a77ea218937616b512a964deb40e42d47a91b6c7a24392ff1cfcd6", "size_bytes": 11546, "role": "terrain/contact AC mapping: AC1/AC4/AC5 PASS at their declared layers, AC2/AC3 PARTIAL; #29 remains OPEN"},
+        {"path": "docs/plan/102-trajectory-scene-admission-contract.md", "sha256": "cf0042f4db2aa32de82bc7725362403eb24b240bb2d2651ca2ff74fff9ab5b24", "size_bytes": 14136, "role": "frozen admission contract for the planner trajectory path"},
+        {"path": "docs/coordination/next-acceptance-goal.md", "sha256": "566a6b9d3217e3f24e0044865da9b20efdb536321dd99c5491e3d14212944c4a", "size_bytes": 5678, "role": "M2 statement: real 11,000-point cloud and GridMap occupancy verified, real ROS1 reverse state / shared clock and real planning avoidance still missing", "evidence_revision": "pre-f333316"}
+      ],
+      "proven": [
+        "The control-mode and experiment batch is largely CLOSED: #32 velocity/yaw, #34 attitude/thrust, #35 PID, #36 UDE, #37 NE, #38 RC, #40 ArUco tracking, #44 motor efficiency, #45 GNSS outage, #30 RGB, #31 depth-to-cloud, #47 global waypoints, #104 camera tracking entry.",
+        "Scene/terrain representation and stale-feedback contracts are recorded with their declared PASS layers (AC1/AC4/AC5), plus a static contact audit reporting 85 assertions / 13 cases / status pass.",
+        "The map-input half of the planner path is recorded: the full EGO build and the real 11,000-voxel cloud into GridMap occupancy were verified (per docs/coordination/next-acceptance-goal.md), with a static odom fixture explicitly flagged as a fixture."
+      ],
+      "failing_or_missing_gate": [
+        "Real planner avoidance is not done: #102 still needs map -> planner -> public control -> real flight, with arrival, no-contact, clearance, cancel/no-route/replan and strictly increasing command IDs verified in an actual flight.",
+        "#29 AC2 (closed-loop contact force, slope/side-contact dynamics) and AC3 (real UE disconnect/reconnect and live visual/physical binding) remain PARTIAL; both need real runs.",
+        "#29 is additionally blocked by the excluded #9 decision and by open #33, so the G3 planner branch inherits both the G2 rate/scheduler chain and the ABI decision.",
+        "The planner material is on a pre-f333316 revision and has not been revalidated on the current architecture (XF-1)."
+      ],
+      "pure_python_readonly_executable": "partial",
+      "pure_python_checks": [
+        "re-verification of the frozen cloud/GridMap occupancy evidence and the terrain static audit (pure Python, read-only)"
+      ],
+      "next_minimal_command": "read-only: re-run the frozen static terrain/contact audit (python -B validation/lunar-29-static-contact/audit.py) and re-hash the planner originals. Gate-closing: build the full EGO planner and stream the frozen 11,000-point cloud through the admission pump into TrajectorySession, then verify real clearance in flight - ROS + main-exclusive native.",
+      "requires_main_exclusive_native": [
+        "ROS1 EGO planner node with the real point-cloud topic",
+        "real trajectory execution and clearance/contact observation",
+        "dual-stack flight for the shared #33 mixed-axis slice",
+        "real UE disconnect/reconnect for #29 AC3"
+      ],
+      "dependencies": {
+        "upstream": ["G0", "G2 (#33)", "G4 (#29 scene linkage)", "#9 (excluded) for #29's formal Blocked-by"],
+        "downstream": ["#102 feeds the #39 parent"],
+        "owner_decision_required": false
+      },
+      "verdict": "not-closed",
+      "verdict_reason": "Most named control modes are closed, but real planner avoidance and the live clearance/UE/contact items are unfinished, and the branch also inherits the G2 and excluded-#9 dependencies."
+    },
+    {
+      "id": "G4",
+      "name": "Full 工具与互操作",
+      "exit_condition": "配置、模型/场景导入、CLI/NoUI/UI、协议、日志、故障和公开模式逐项可操作；缺口不能隐藏。",
+      "source": "docs/plan/goal-objective.md:27",
+      "ledger_status": "preserved-not-complete",
+      "issues": {
+        "open": [26, 29, 46, 60],
+        "closed_for_this_gate": [16, 24, 25, 47, 55, 56],
+        "excluded": [9, 27, 28, 73, 74, 76, 77, 78],
+        "role": {"26": "generated-model build/import and MATLAB-free run", "29": "terrain and obstacle physical feedback", "46": "deterministic re-execution of fixed-input experiments", "60": "final Full review"}
+      },
+      "authoritative_originals": [
+        {"path": "docs/plan/full-remaining-ledger.json", "sha256": "61a58c9065d5f6b0f243aa49cbd476f38a17ce29c7bf12175c194ba582c51b54", "size_bytes": 127048, "role": "96 rows all still declared gaps"},
+        {"path": "docs/plan/26-closure-readiness-manifest.json", "sha256": "229eb94c8bc4cec71693719b32ad86f716b8a92ac4a2e19b541fc701bc72a1d7", "size_bytes": 7530, "role": "declares current-checkout readiness unclaimed and closure blocked by the formal Blocked-by on OPEN #9"},
+        {"path": "docs/plan/26-generation-contract.md", "sha256": "6a8e7eace06581bcd74d7e68a017bcffcc60c74c862172c058f6e149e2855d20", "size_bytes": 10827, "role": "records the blocked_source_authorization_and_generation_entry conclusion"},
+        {"path": "docs/plan/26-current-wrapper-recheck-plan.md", "sha256": "5f3b7f4178bff503fc79a58e85ae2c40465997c3d635eeb804be4196e05b0728", "size_bytes": 18349, "role": "the planned current-checkout wrapper recheck"},
+        {"path": "validation/codegen-e0-lifecycle-01/audit.json", "sha256": "3d5c7896de10d10521ff4a1881eaffc8c96e73b196be72f9a044f2fc1aed346d", "size_bytes": 3288, "role": "MATLAB-free lifecycle audit: status pass, 4 cycles, 480000 compared values, two distinct process identities; the library itself is external (/root)"},
+        {"path": "docs/2026-09-09-numerical-conformance-report.md", "sha256": "82539300993f12fc6509e35ad8147caa57a2777d84e9a1aafac2a6a22c2d4561", "size_bytes": 51266, "role": "R1 remains numerical_failed: 5684 of 180360 values unequal across 49 case/axes; retained, not reinterpreted"},
+        {"path": "docs/coordination/ds-full-frontier-20260912.json", "sha256": "3fcf2003bc589b8692b95f350bf0b697dc52ac1567c9b8b98d2c32cd27c209c4", "size_bytes": 36161, "role": "prior slot audit of the same Full/model branch"},
+        {"path": "validation/coordination/three-deepseek-main-acceptance-20260913-01/main-verdict.json", "sha256": "a1d2fd695ff6508f877909d653c9c4a5d099ca15ed3a6ea44fc14c5720f79251", "size_bytes": 1674, "role": "main verdict on the three component deliveries"},
+        {"path": "validation/coordination/three-deepseek-main-acceptance-20260913-01/linux-receipt.json", "sha256": "98f6dd0bfc7fa28a3070dfe77b349badf958b3fbb05a8c40d5a375a527ecca6b", "role": "64 successful Linux checks with unchanged tested sources and process cleanup"},
+        {"path": "docs/2026-09-13-three-deepseek-delivery.md", "sha256": "88684f69ef215813428e211b95a499c2c58bcabc57e81a68a1a7ee5038e83271", "size_bytes": 2474, "role": "states explicitly that these component checks do not complete G4/#46 and do not transfer old flight PASS results"}
+      ],
+      "own_readonly_checks_on_g4": [
+        {
+          "check": "python -B tools/audit_26_closure_readiness.py --manifest docs/plan/26-closure-readiness-manifest.json --output <this dir>/checks/audit-26-closure-readiness.json",
+          "exit_code": 2,
+          "status": "not_ready",
+          "violations": [
+            "build manifest staged source model.cpp size drifted: expected 1864, observed 4070 (Simulator/wksim_core/model.cpp)",
+            "lifecycle cold library cannot be mapped on this host: /root/wksim-codegen-e0-cold-c96e30e01ec6/libwksim_e0.so",
+            "lifecycle cold probe cannot be mapped on this host: /root/wksim-codegen-e0-cold-c96e30e01ec6/libwksim_e0.so",
+            "build output library cannot be mapped on this host: /root/wksim-codegen-e0-build-short-cycle-01/libwksim_e0.so",
+            "vendor artifacts tracked in repository: 5 x validation/coordination/*/precheck-RflySim-20.04.json"
+          ],
+          "independent_confirmation": "Pinned sha256 3f325678b1d85c9aa3fd07bd644d82935aa26d82885926defeced139f02ddf2c / 1864 bytes versus the current tracked Simulator/wksim_core/model.cpp at sha256 150ddf3bab66e9e59701791392f6d792a14346e0b75ecdfe94872095e72d0290 / 4070 bytes, both recomputed in this audit.",
+          "meaning": "#26's current-checkout provenance is not ready for a closure claim, independently of the excluded #9 dependency."
+        }
+      ],
+      "proven": [
+        "The generated-model chain (generation, compile, MATLAB-free lifecycle) has a frozen local evidence set with pins and SHAs, and the lifecycle audit reports pass with 4 cycles and 480000 compared values under two distinct process identities.",
+        "Vendor material was not committed for the generated model sources (the generation products live outside the repository).",
+        "Three independent component deliveries (experiment/deployment input identity, Ackermann response bound, bounded offline replay) passed 64 Linux checks; Windows ran the same 64 with one privilege-dependent symlink case skipped and covered on Linux.",
+        "The Windows-boundary checks for the three diagnostic switches and the delivery entry contract are recorded green elsewhere (docs/coordination/omp-delivery-gates-20260912.md)."
+      ],
+      "failing_or_missing_gate": [
+        "#26 current-checkout readiness check fails with 5 violations (XF-3), including a real source-pin drift on Simulator/wksim_core/model.cpp.",
+        "#26 AC5 still has no recorded main-agent review/approval, and #26 stays formally blocked by the excluded open #9.",
+        "#26 AC3 cannot be re-verified from this checkout at all: the pinned library/probe are /root-only artifacts.",
+        "#46 AC3 has no pre-declared engineering error budget (the zero-tolerance equality came from the frozen static profile, not from a declared envelope) and AC4's pause/step identity half belongs to open #20; #46 is formally blocked by #20.",
+        "#29 AC2/AC3 remain PARTIAL (see G3).",
+        "#60's declared deliverable docs/plan/full-acceptance-report.md is absent, and #60 can only emit an unresolved list while #9/#20/#59 are unresolved.",
+        "R1 remains numerical_failed with 5684 retained failures; this is unchanged and must not be read as progress toward G6."
+      ],
+      "pure_python_readonly_executable": "partial",
+      "pure_python_checks": [
+        "tools/audit_26_closure_readiness.py current-checkout revalidation (done here; not_ready)",
+        "ledger and manifest pin re-hashing (done here)",
+        "the five precheck-RflySim-20.04.json files' content classification (done here: they are WSL precheck receipts, not vendor bytes)"
+      ],
+      "next_minimal_command": "python -B tools/audit_26_closure_readiness.py --manifest docs/plan/26-closure-readiness-manifest.json --output <new path>",
+      "requires_main_exclusive_native": [
+        "generated-model build/import on the current architecture",
+        "any real-firmware interop or DLL-host lifecycle (excluded branch)",
+        "closed-loop contact/slope dynamics and real UE disconnect/reconnect for #29"
+      ],
+      "dependencies": {
+        "upstream": ["G0", "#9 for #26/#27/#28/#29 (EXCLUDED: human decision)", "#20 for #46", "#16/#24 (CLOSED)"],
+        "downstream": ["#60 aggregates everything"],
+        "owner_decision_required": true,
+        "owner_decision": "the #9 ABI/plugin-scene-feedback decision, without which #26 and #29 cannot close; out of this frontier's dispatch scope"
+      },
+      "verdict": "not-closed",
+      "verdict_reason": "A concrete, reproducible current-checkout provenance failure plus missing AC evidence; the branch is also blocked by the excluded #9 decision."
+    },
+    {
+      "id": "G5",
+      "name": "MATLAB 可选接入",
+      "exit_condition": "在已确认范围使用真实 MATLAB 客户端和可选 TCP/JSON 桥，覆盖断开、粘包/碎片、非法输入、身份、超时和不重放；本机版本/许可实际验证；缺许可时明确阻塞，不能用其他客户端冒充MATLAB通过。",
+      "source": "docs/plan/goal-objective.md:28",
+      "ledger_status": "preserved-not-complete",
+      "issues": {
+        "open": [],
+        "closed_for_this_gate": [5, 41, 42, 43],
+        "role": {"5": "MATLAB minimal-interface boundary decision, CLOSED", "41": "optional MATLAB TCP/JSON bridge loop, CLOSED 2026-09-06T22:27:50Z", "42": "ground-station view and explicit control handover, CLOSED", "43": "simulation parameter operations and FC reboot recovery, CLOSED"}
+      },
+      "authoritative_originals": [
+        {"path": "docs/matlab-bridge.md", "sha256": "8814656101378ed61096f39b933ccb54c508e759559b4cd0125731520c62a6e7", "size_bytes": 10855, "role": "protocol v1 contract, whitelist, error semantics and the slice's own not-verified list"},
+        {"path": "docs/plan/tickets/31-matlab-bridge.md", "sha256": "54f73ecb5217ea2380192be80fe16f1207ec57bc460e5c2b13ad0b3226f1fb40", "size_bytes": 2760, "role": "bridge ticket definition"},
+        {"path": "docs/2026-09-07_accelerated-integration-report.md", "sha256": "85cfe6b9d33e7388a86e2ff94b667c44659a7d6f01f620421cad3bfbf374f0b0", "size_bytes": 12881, "role": "dual-stack real-MATLAB flights with independent raw audit and two tamper negatives", "evidence_revision": "pre-f333316"},
+        {"path": "validation/matlab-bridge-20260907-run1/report.json", "sha256": "e5278e22853930c4cd8f9a0e5f29a0b4f35ac2c86f6564cab593084c38abf607", "size_bytes": 2740, "role": "bridge protocol run; ok=true; no jobs started", "detail": "real MATLAB 9.13.0.2049777 (R2022b), PCWIN64, license('test','MATLAB')=1, exit 0"},
+        {"path": "validation/matlab-bridge-20260907-isolated/report.json", "sha256": "e44f116ecb45914d6ae4942f79587e98c85d9cc08ae1eb1bb58be551ac7c4c7d", "size_bytes": 3292, "role": "isolated re-run with a private startup.m and -sd; ok=true"},
+        {"path": "validation/matlab-flight-px4-20260907-run3/report.json", "sha256": "06547df09b261c89561c9286299ef08cad1bec05033cdb2306dc7b91c0798f47", "role": "real MATLAB -> public Console HTTP -> real WSL PX4 FC/physics; ok=true", "git_head": "6d2e371d918f202acd64e822dee4300e86942bcd"},
+        {"path": "validation/matlab-flight-ap-20260907-run2/report.json", "sha256": "823c9602c1a83f145e0909bf3a26050d3ddc17b2f2de8c6d0475cbd9260cbf9c", "role": "same chain for ArduCopter; ok=true", "git_head": "6d2e371d918f202acd64e822dee4300e86942bcd"},
+        {"path": "validation/matlab-cancel-px4-20260907-run1/report.json", "sha256": "01d83dc3bcfbc9235f5cb015a6a75025e7fbc4836ee375c0a2b84c089c192440", "role": "real MATLAB client cancel with normal autonomous LAND; ok=true; MATLAB pid gone"},
+        {"path": "validation/migration-resume-20260907/matlab-flight-audit-verified.json", "sha256": "bec351cee25eb01fd120a1cc30f46710357717a8020bec0fcfe140fba1481c36", "size_bytes": 7627, "role": "independent audit that recomputed the physical windows and checked public requests, native confirmations, mission-action files and UE actor error"}
+      ],
+      "proven": [
+        "A real local MATLAB client was executed and verified: version 9.13.0.2049777 (R2022b), PCWIN64, license('test','MATLAB')=1, -wait -batch exit 0 (recorded in docs/matlab-bridge.md).",
+        "The protocol boundary set is exercised and green: fragmentation/coalescing, stale session/duplicate request id, unknown method, illegal JSON/NaN/Infinity/overflow/duplicate keys/illegal UTF-8/oversize frame rejection, timeout/disconnect, and reconnect with zero replay.",
+        "Real dual-stack flights through the bridge completed with ok=true while MATLAB exited and the main SITL continued (PX4 run3 and ArduCopter run2 both at git_head 6d2e371), and an independent audit recomputed the physical windows.",
+        "A real cancel/LAND case from the MATLAB client is recorded with the MATLAB process confirmed gone.",
+        "All four G5 issues (#5, #41, #42, #43) are CLOSED in the live read-only query."
+      ],
+      "failing_or_missing_gate": [
+        "All G5 evidence is bound to main commit 6d2e371 (2026-09-07), which precedes the f333316 architecture baseline (2026-09-13T17:51). G5 has not been revalidated on the current architecture (XF-1).",
+        "docs/matlab-bridge.md's own boundary section states that the bridge slice did not verify MATLAB-triggered preflight/takeoff/waypoint/pause/resume/cancel/log-replay, in-flight disconnect continuation, or G5 as a whole; later runs cover part of that list, so the per-item mapping on the current architecture is unproven.",
+        "The first real MATLAB launch triggered an external RflySim configuration update through the user's Documents/MATLAB/startup.m; the pre-launch file set is unknown and was not rolled back. Later runs used a private startup.m with -sd plus a which() assertion. This is a recorded environment side effect, not a repaired one.",
+        "MATLAB execution is forbidden in this audit environment, so nothing here can close G5."
+      ],
+      "pure_python_readonly_executable": "partial",
+      "pure_python_checks": [
+        "re-hashing and re-reading the retained MATLAB audit JSON, including git_head extraction and ancestry (done here)",
+        "protocol contract and error-semantics cross-check against docs/matlab-bridge.md (pure Python/document read)"
+      ],
+      "next_minimal_command": "read-only: python -B validation/coordination/ds-g0-g5-frontier-20260913-01/verify_frontier.py re-hashes the retained G5 originals. Gate-closing: a real MATLAB client run against the current architecture with the private startup.m isolation - main-exclusive MATLAB + native, forbidden in this audit environment.",
+      "requires_main_exclusive_native": [
+        "real MATLAB client execution and license checkout",
+        "real FC/SITL behind the public Console HTTP entry",
+        "UE observation for the display-coupled cases"
+      ],
+      "dependencies": {
+        "upstream": ["G0", "#5 decision (CLOSED)"],
+        "downstream": ["none; MATLAB is explicitly optional and must not gate the SITL core"],
+        "owner_decision_required": true,
+        "owner_decision": "whether the CLOSED #41/#42/#43 acceptance is retained as historical or must be re-demonstrated on the f333316 candidate"
+      },
+      "verdict": "not-closed",
+      "verdict_reason": "The real MATLAB protocol, dual-stack flight and cancel evidence is strong and the tickets are closed, but it is entirely revision-bound to a pre-f333316 commit and cannot be re-verified in this read-only environment."
+    }
+  ],
+  "artifacts_appeared_during_audit": [
+    {
+      "path": "validation/coordination/ds-dll-abi-evidence-20260913-01/",
+      "appeared_in": "09105faad24d62ad8098202eb6a9664ef6497032",
+      "relation": "the excluded #9 / DLL ABI branch",
+      "this_audit": "not consumed and not judged; recorded only so a later reader knows the ABI branch advanced concurrently"
+    },
+    {
+      "path": "validation/coordination/three-deepseek-main-review-20260913-02/review.json",
+      "appeared_in": "09105faad24d62ad8098202eb6a9664ef6497032",
+      "relation": "main-session review of another agent's delivery",
+      "this_audit": "not consumed; outside G0-G5 scope"
+    }
+  ],
+  "excluded_items": [
+    {
+      "id": "83",
+      "state_now": "CLOSED",
+      "closed_at": "2026-09-12T18:23:27Z",
+      "reason_excluded": "already closed before this audit; its bounded PV slice is cited only as a retained-original cross-check for interval arithmetic",
+      "residual_caution": "do not let the #83 PASS be read as a G2 or #33 pass; its own report says it does not complete #84, #33, Full, G0-G6, acceleration execution, yaw-rate, other native bounds, or the G6 zero-budget failure"
+    },
+    {
+      "id": "84",
+      "state_now": "OPEN",
+      "labels": ["wayfinder:task", "ready-for-agent"],
+      "reason_excluded": "the real MIXED promotion / perf-hook wiring task, currently under another agent's read-only audit",
+      "pointer": "validation/coordination/ds-perf-mixed-hook-audit-20260913-01/ (audit.json sha256 5fcb917f3ff9f3769f78d72f723724a4e3bced5a5a974e68ee9b9e6ba36e4ef0; unchanged after the concurrent commits observed during this audit)",
+      "residual_caution": "G2's closure needs the MIXED capability proof that #84 owns; this frontier records the dependency without judging #84's result"
+    },
+    {
+      "id": "9",
+      "state_now": "OPEN",
+      "labels": ["wayfinder:grilling"],
+      "reason_excluded": "the optional model-plugin / scene-feedback decision (unknown vendor RflySim DLL ABI); a human decision, not an agent-executable task",
+      "blocked_by_it": [26, 27, 28, 29, 73, 74, 76, 77, 78],
+      "abi_branch_live_states": {"27": "OPEN", "28": "OPEN", "73": "OPEN", "74": "OPEN", "76": "OPEN", "77": "OPEN", "78": "OPEN"},
+      "concurrent_artifact": "validation/coordination/ds-dll-abi-evidence-20260913-01/ was committed during this audit on the excluded ABI branch; this audit did not read or judge it",
+      "residual_caution": "the ABI branch tickets carry ready-for-agent labels but are unusable while #9 is undecided; do not dispatch them",
+      "g6_link": "the #28 AC3 'approved budget' also depends on the unresolved G6 per-quantity budget chain, which this audit excludes"
+    },
+    {
+      "id": "G6",
+      "state_now": "preserved-not-complete",
+      "reason_excluded": "excluded by instruction",
+      "retained_pointers": [
+        "docs/plan/10-g6-remediation-contract.md (sha256 48da61ade51d46111db0be9a9288d93d4eec380251043c2e39bff66b74cae5c0)",
+        "docs/plan/59-e0-dynamic-budget-source-map.md (sha256 35a56084105409329131add7d4b9e35be6d1a145c6e18268c96324805313cd42)"
+      ],
+      "residual_caution": "R1 numerical_failed and the 5684 retained failed values must not be reinterpreted; structural alignment ('aligned') is not a G6 pass"
+    }
+  ],
+  "shortest_closure_order": [
+    {"step": 1, "gate": "G0", "action": "read-only frontier refresh and #60-style unresolved list", "why_first": "no upstream dependency; it is the only gate that can progress without native execution, and every other dispatch reads its frontier", "blocking_now": "the shared frontier artifact is stale (XF-2) and #60's deliverable is absent", "owner": "any agent with read-only access; the shared file itself must be handed to main", "native_required": false},
+    {"step": 2, "gate": "G2", "action": "decide and then execute the sustained-rate path: one frozen-combination no-probe epoch at a time (#62, then #63, then #64)", "why_second": "it is the critical path: #20 gates #46 (G4), #33 (G2/G3) and, through #33, #102 (G3)", "blocking_now": "latest no-probe epoch latched RateUnmet at 100,644,532 ns; three epochs still required", "owner": "main session only (native)", "native_required": true},
+    {"step": 3, "gate": "G1+G5+G2+G3+G4 evidence", "action": "architecture revalidation decision: re-run the accepted slices on the f333316 candidate, or explicitly classify them historical and open a separate migration-acceptance obligation", "why_third": "XF-1: every existing G1-G5 PASS belongs to a pre-f333316 revision, so no gate can be closed on the current architecture without this decision", "blocking_now": "candidate receipt records native_executed=false, architecture_acceptance=false", "owner": "main session + owner decision", "native_required": true},
+    {"step": 4, "gate": "G4", "action": "resolve #26 current-checkout provenance drift and AC4 adjudication; then revalidate #26 AC1-AC5 on the current checkout", "why_fourth": "it is executable now in pure Python and is independent of the rate chain; only its formal closure waits on #9", "blocking_now": "model.cpp pin drift; 5 AC4 filename matches to adjudicate; AC5 review record missing", "owner": "any agent with read-only access to the checker, but the checker and #26 sources have one writer", "native_required": false},
+    {"step": 5, "gate": "G4/G3", "action": "#29 AC2/AC3 (closed-loop contact/slope dynamics, real UE disconnect/reconnect) and #46 AC3/AC4 after #20", "why_fifth": "#46 depends on #20 (step 2); #29 depends on the excluded #9 decision and on #33 (step 2)", "blocking_now": "PARTIAL ACs; #9 undecided", "owner": "main session (native/UE)", "native_required": true},
+    {"step": 6, "gate": "G3", "action": "#102 real cloud -> GridMap -> planner -> admission pump -> TrajectorySession, then verify real clearance in flight; then close the #39 parent", "why_sixth": "#102's own prerequisites include #29 and #33", "blocking_now": "map input verified, but no real reverse-state/shared-clock link and no real planning avoidance flight", "owner": "main session (ROS + native)", "native_required": true},
+    {"step": 7, "gate": "G0/G4", "action": "#60 final Full review: every required row and gate accepted, or an explicit unresolved list that keeps #1/#10/Goal open", "why_last": "#60's prerequisite list includes #9, #20, #26, #27, #28, #29, #33, #46, #59", "blocking_now": "all of the above", "owner": "main session", "native_required": false}
+  ],
+  "work_packages": [
+    {
+      "id": "WP-1",
+      "gate": "G0",
+      "title": "Refresh the executable frontier and produce the #60-style unresolved list",
+      "class": "read-only analysis + new exclusive directory",
+      "mutual_exclusion": "owns only a new validation/coordination/ directory; does not touch docs/coordination/acceptance-frontier.json, docs/plan/full-acceptance-report.md or any issue",
+      "owned_files": ["validation/coordination/<new-dir>/**"],
+      "deliverable": "a refreshed frontier snapshot that re-derives issue state with gh read-only and marks the 2026-09-12 artifact superseded, plus an explicit unresolved list",
+      "dependencies": [],
+      "validation": "pure Python reconciliation plus gh issue list read-back",
+      "pure_python_readonly": true,
+      "native_required": false,
+      "handoff_note": "the shared acceptance-frontier.json can only be updated by its current writer (main); this package hands over a replacement, it does not overwrite"
+    },
+    {
+      "id": "WP-2",
+      "gate": "G4",
+      "title": "Adjudicate the #26 current-checkout provenance drift and the AC4 filename matches",
+      "class": "read-only analysis; the fix belongs to the module owner",
+      "mutual_exclusion": "reads tools/audit_26_closure_readiness.py and the pinned manifests; writes only its own evidence directory",
+      "owned_files": ["validation/coordination/<new-dir>/**"],
+      "deliverable": "a pinned adjudication of (a) model.cpp 1864 B/3f325678 versus 4070 B/150ddf3b, and (b) whether the five precheck-RflySim-20.04.json files satisfy or violate AC4",
+      "dependencies": [],
+      "validation": "python -B tools/audit_26_closure_readiness.py --manifest docs/plan/26-closure-readiness-manifest.json --output <new path>",
+      "pure_python_readonly": true,
+      "native_required": false
+    },
+    {
+      "id": "WP-3",
+      "gate": "G2",
+      "title": "Execute the sustained-rate epochs one at a time (#62, then #63, then #64)",
+      "class": "main-exclusive native",
+      "mutual_exclusion": "main session only; no agent may run native; each epoch uses a fresh run/epoch/output directory and a failing epoch keeps its ticket OPEN and blocks the next",
+      "owned_files": ["validation/lunar-20-epoch-1/**", "validation/lunar-20-epoch-2/**", "validation/lunar-20-epoch-3/** (per-ticket write scopes)"],
+      "deliverable": "one raw-audited 1x epoch per ticket under the unchanged rate contract",
+      "dependencies": ["#61 (CLOSED)", "frozen AP mixed 1e6250ef, Control 6fe8c0b3, Message 29969da0 combination", "two WSL prechecks (found=[], same boot, <=60 s freshness)"],
+      "validation": "original 100 ms lateness plus complete 10 s +/-2 percent and 60 s +/-1 percent windows, with independent raw audit and cleanup",
+      "pure_python_readonly": false,
+      "native_required": true
+    },
+    {
+      "id": "WP-4",
+      "gate": "G3",
+      "title": "Wire the real planner and verify one real avoidance flight (#102)",
+      "class": "ROS + main-exclusive native",
+      "mutual_exclusion": "owns the #102 write scope (validation/39-planner-flight/**, docs/plan/39-planner-run-contract.md); does not touch #29's or #33's files",
+      "owned_files": ["validation/39-planner-flight/**", "docs/plan/39-planner-run-contract.md"],
+      "deliverable": "map -> planner -> public control -> real flight evidence with arrival, no contact, clearance, cancel/no-route/replan and strictly increasing command ids",
+      "dependencies": ["#101 (CLOSED)", "#29", "#33"],
+      "validation": "real clearance observation against the frozen obstacle AABB; offline paths and existing scene renders do not close the parent",
+      "pure_python_readonly": false,
+      "native_required": true
+    },
+    {
+      "id": "WP-5",
+      "gate": "G2/G3",
+      "title": "#84 real MIXED promotion and perf-hook wiring",
+      "class": "excluded",
+      "mutual_exclusion": "already owned and under read-only audit by other agents; this frontier neither dispatches it nor duplicates it",
+      "owned_files": ["as already assigned by its current owner"],
+      "deliverable": "not defined here",
+      "dependencies": [],
+      "validation": "not defined here",
+      "pure_python_readonly": null,
+      "native_required": true
+    },
+    {
+      "id": "WP-6",
+      "gate": "G1/G5 (+ G2/G3/G4 native claims)",
+      "title": "Architecture revalidation run on the f333316 acceptance candidate",
+      "class": "main-exclusive native",
+      "mutual_exclusion": "main session only; the candidate tree /root/wksim-architecture-acceptance-20260913 (branch codex/architecture-acceptance-20260913) is a separate checkout, so no shared-file collision with this Windows tree",
+      "owned_files": ["the candidate checkout's own evidence directories"],
+      "deliverable": "re-run the accepted G1 dual-stack product slice and the G5 MATLAB slice on the current architecture, or an explicit recorded decision to classify them historical",
+      "dependencies": ["the private wiring migration decision (manager-GC flag, owned-snapshot switch)", "candidate HEAD sync"],
+      "validation": "the original gates plus the architecture-continuation dispatch checklist",
+      "pure_python_readonly": false,
+      "native_required": true
+    }
+  ],
+  "forbidden_claims": [
+    "Do not present any G0-G5 gate as passed; the ledger keeps all of them at preserved-not-complete.",
+    "Do not transfer the closed #83 PV PASS, the 2026-09-07 dual-stack flights or the 2026-09-07 MATLAB flights to the f333316 architecture candidate; they belong to pre-f333316 revisions, and the #83 run is on a branch that is not an ancestor of HEAD.",
+    "Do not read the 87-entry capability index, the published spec, the 96-row ledger or an interface placeholder as acceptance.",
+    "Do not read the closed child tickets (#70/#71/#72 for #26, #113/#114/#115 for #46, #82/#83 for #33) as parent closure.",
+    "Do not reinterpret R1's numerical_failed status or its 5684 retained failed values, and do not treat zero-tolerance equality on a static profile as a declared error budget.",
+    "Do not treat 'aligned' structural alignment as a G6 pass (G6 is excluded here, but the caution still binds any citation of it).",
+    "Do not dispatch the ABI branch (#27/#28/#73/#74/#76/#77/#78) while #9 is undecided, despite their ready-for-agent labels.",
+    "Do not treat docs/coordination/acceptance-frontier.json as current: it still records #83 as OPEN.",
+    "Do not claim in-checkout byte verification for the oayggl_s originals or the /root model libraries; they are external and are cited only by recorded SHA.",
+    "Do not use this audit's own checks as acceptance of anything; they are read-only identity, reconciliation and interval-arithmetic checks."
+  ],
+  "self_verification": {
+    "checks": "checks/checks.json",
+    "check_scripts": ["verify_frontier.py"],
+    "reproduction": [
+      "python -B validation/coordination/ds-g0-g5-frontier-20260913-01/verify_frontier.py",
+      "python -B tools/audit_26_closure_readiness.py --manifest docs/plan/26-closure-readiness-manifest.json --output <new path>",
+      "python -B validation/coordination/ds-g0-g5-frontier-20260913-01/write_manifest.py"
+    ],
+    "byte_pinning": ".gitattributes in this directory declares '* -text' so git performs no end-of-line translation on any file here",
+    "delivered_after_this_audit": "the auditor stops writing after this deliverable"
+  }
+}
