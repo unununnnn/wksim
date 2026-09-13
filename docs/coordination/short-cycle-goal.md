@@ -21,6 +21,10 @@
 | Claude | e64514a6-77c2-4b27-91a7-896c92a361fd / 73f6801a-7122-4fba-b71e-37ef3dbe627f | 复用已有调度捕获工具，准备诊断runner接线与生命周期验证 |
 | OMP | 51609e8d-e4ce-4a8e-8a0d-f7c896c24842 / 63da7482-132b-4937-a2f6-45a47f069ba6 | 独立核对PX4编译/启动覆盖和自有线程快照方案 |
 
+最新接线检查点：validation/coordination/last-callbacks-run-20260913-01/checkpoint.json。快照runner v1/v2因boot/取消/元数据及成功路径手工模型拆除问题被拒；v3(1c600d7f…)通过主会话WSL Python3.10的16项测试及DS真实控制流复核。私有parent已暂存7855409d…，runner已暂存1c600d7f…，helper为a3f3badd…；主仓库parent仍a8bac9ac…，Windows runner他方修改保留。旧private08e20642/a8仅为历史基线，不再是当前私有字节。OMP最新审查turn91a6f251仍running，定点wait超时不算完成或卡死。当前无飞行、无keeper；待最终审查及两WSL新前检后才启动。
+
+现有helper已对主会话自身/短命子进程实测，并对仅自有短命FIFO1子进程验证非零RT字段（stat.policy=1、rt_priority=1与系统调用一致），全部已退出，不改全局/他方设置。G6三时间量主审直接读取已钉f64：三参考首列product501/501、division429/501，输出分别vehicle72处、sensor/GPS61处与division形式不同；已以1de316d推送，预算与物理结论未改。作者此前参考版本/索引/首列描述错误已纠正，不能凭旧绿色报告跳过来源解码。
+
 实时接续句柄与交付范围以validation/coordination/next-native-observation-20260913-01/dispatches.json为准。模块负责人负责内部测试/修复；交付稳定SHA后独立复核、批量集成。审计器5项缺口已修复，主会话独立反例7/7符合预期、20份交付哈希一致，5165781已推送；旧错误报告明确被v2替代。G6严格hex/目标序号修复经过52项作者检查及10项独立复核、15个输入/源码/回放哈希复验，13cf154已推送。aligned仍仅表示结构对齐，不能忽略numerator_equal/matrix_equal或据此宣称G6通过。
 
 已推送ffb48b5、c1bfd42：准入独立测试与证据包10项检查、计时记录器/producer/独立对抗53项合并检查全部通过。G6合同已纠正旧“入口不存在”说法，当前缺口仍为有依据且approved的逐量预算。
