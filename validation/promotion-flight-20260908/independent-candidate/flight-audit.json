@@ -1,0 +1,152 @@
+{
+  "status": "pass",
+  "audit_sha256": "c075d00a324fc2758f424d52a9e061416e8f15e2d300f2bc9f4f55b58d33ba86",
+  "runs": [
+    {
+      "status": "pass",
+      "run_id": "gcs-px4-3b6b7dd16e20",
+      "stack": "px4",
+      "control_epoch": "f7c37b34091544b3935b43129f8718af",
+      "result_sha256": "6e32400f429832b9741391910a25d393ab5cfd2967d63d108dd96cb6debf0920",
+      "wrapper_sha256": "df4c358c0c2bda7a2c42f0aa99287619f6d853133ae36715ed13d0d7bc880e5c",
+      "firmware_sha256": "93b4ebe0d83a5897131ec24ee58d732c8999972bb7730f429fc396bc8d10602a",
+      "model_sha256": "cc0bc2d10790043251f38bb6a53f4d774379dd37a02b09cceba43ac1fafb02b3",
+      "product_sha256": {
+        "frames.py": "24086553882b31f0666159a1c9bf2929219420a0184dbb2b6683559d12e809b0",
+        "node.py": "5dac263055de8ffcfaec16ffb69b91e652a406ae4193c0eabc9fd53eaedec4ab",
+        "session.py": "da64efa299288738d4520c6a23834c3201c34334f861a8de542fcaa91930b126",
+        "native_px4.py": "de40ae6175c7e1b23908a791b077b310da81a8d5c264ff4af2620a733a4b2fe6",
+        "command.py": "5a37a7e1a00fe3764796ec3e5c1688d681a4ab30edc8a95b6c603324577d0d2f",
+        "scene.py": "370770a02fdde5e94fc54bed6f7e0d63a4c98c6dcadd0c3616ac1c14529cd333",
+        "shaping.py": "56782d96f9fc6f7df3ddadf80cd8c09f474af81c5c183d20d3d26c2f9e66bc69",
+        "native_arducopter.py": "63255819c43e2683c3125c0e7e07e5622f676c78bc83ce744cd60e9d9caa42dc",
+        "__init__.py": "9a4edb373583bcf6f3d7eaa2522ad1544f63965b0e7f81167f858a0d09d44746"
+      },
+      "physical": {
+        "ok": true,
+        "completed_waypoints": [
+          {
+            "index": 1,
+            "start_record_exclusive": 1202,
+            "end_record_inclusive": 1303,
+            "physical_duration_s": 2.0199999999999996,
+            "max_position_error_m": 0.42257472403368873,
+            "max_speed_m_s": 0.41603955395854286,
+            "max_yaw_error_rad": 0.005744172526849445
+          },
+          {
+            "index": 2,
+            "start_record_exclusive": 1373,
+            "end_record_inclusive": 1474,
+            "physical_duration_s": 2.0199999999999996,
+            "max_position_error_m": 0.14292524176155805,
+            "max_speed_m_s": 0.33319260979519555,
+            "max_yaw_error_rad": 0.1279430600666127
+          },
+          {
+            "index": 3,
+            "start_record_exclusive": 1574,
+            "end_record_inclusive": 1674,
+            "physical_duration_s": 2.0,
+            "max_position_error_m": 0.11766616266908879,
+            "max_speed_m_s": 0.40415666341666606,
+            "max_yaw_error_rad": 0.011287243733288266
+          }
+        ],
+        "complete_physical_records": 2103,
+        "thresholds": {
+          "position_m": 0.5,
+          "speed_m_s": 0.5,
+          "yaw_rad": 0.15
+        },
+        "clocks": "public boot dwell and independent physical intervals are separate"
+      },
+      "public_requests": 8,
+      "native_acks": 6,
+      "source_audit": {
+        "mode": "retained-source-audit",
+        "current_checkout_accepted": false,
+        "manifest_sha256": "156ed0de4de9a8d0087ee75d96a235c32ca497e1e97005d83cc385e4683e1719",
+        "sources_checked": 26
+      },
+      "scope": "Three-waypoint independent public mission under the identified source; process mappings are contemporaneous snapshots",
+      "limitations": [
+        "No G6 dynamics equivalence, hardware, takeover, loss recovery, MATLAB or UE acceptance in this case.",
+        "Position streams report public acceptance and physical completion, not a per-setpoint native ACK."
+      ]
+    },
+    {
+      "status": "pass",
+      "run_id": "gcs-arducopter-d1e5ae0f14d2",
+      "stack": "arducopter",
+      "control_epoch": "7778e6425d944a9c9e42eb3976777d78",
+      "result_sha256": "bd25f69733dd8d59e17142c2645ff1b0ffabf5550cfeebb26f5b0567c22eff8c",
+      "wrapper_sha256": "9caa72c32a260e92b771141ffcf8e8d3a1f38a6de878883ec6989c570712218f",
+      "firmware_sha256": "083971caff8883188488b02ec18a8ef17141fe948b520b3c597a6109e8c2d7de",
+      "model_sha256": "cc0bc2d10790043251f38bb6a53f4d774379dd37a02b09cceba43ac1fafb02b3",
+      "product_sha256": {
+        "frames.py": "24086553882b31f0666159a1c9bf2929219420a0184dbb2b6683559d12e809b0",
+        "node.py": "5dac263055de8ffcfaec16ffb69b91e652a406ae4193c0eabc9fd53eaedec4ab",
+        "session.py": "da64efa299288738d4520c6a23834c3201c34334f861a8de542fcaa91930b126",
+        "native_px4.py": "de40ae6175c7e1b23908a791b077b310da81a8d5c264ff4af2620a733a4b2fe6",
+        "command.py": "5a37a7e1a00fe3764796ec3e5c1688d681a4ab30edc8a95b6c603324577d0d2f",
+        "scene.py": "370770a02fdde5e94fc54bed6f7e0d63a4c98c6dcadd0c3616ac1c14529cd333",
+        "shaping.py": "56782d96f9fc6f7df3ddadf80cd8c09f474af81c5c183d20d3d26c2f9e66bc69",
+        "native_arducopter.py": "63255819c43e2683c3125c0e7e07e5622f676c78bc83ce744cd60e9d9caa42dc",
+        "__init__.py": "9a4edb373583bcf6f3d7eaa2522ad1544f63965b0e7f81167f858a0d09d44746"
+      },
+      "physical": {
+        "ok": true,
+        "completed_waypoints": [
+          {
+            "index": 1,
+            "start_record_exclusive": 2793,
+            "end_record_inclusive": 2893,
+            "physical_duration_s": 2.0,
+            "max_position_error_m": 0.1931821710134729,
+            "max_speed_m_s": 0.27202369379814595,
+            "max_yaw_error_rad": 0.018760170835121714
+          },
+          {
+            "index": 2,
+            "start_record_exclusive": 3009,
+            "end_record_inclusive": 3108,
+            "physical_duration_s": 1.9799999999999969,
+            "max_position_error_m": 0.0904699462920657,
+            "max_speed_m_s": 0.033171929509792995,
+            "max_yaw_error_rad": 0.09990576238871185
+          },
+          {
+            "index": 3,
+            "start_record_exclusive": 3190,
+            "end_record_inclusive": 3289,
+            "physical_duration_s": 1.980000000000004,
+            "max_position_error_m": 0.048188751269502984,
+            "max_speed_m_s": 0.29545667074200593,
+            "max_yaw_error_rad": 0.011704873564721163
+          }
+        ],
+        "complete_physical_records": 3753,
+        "thresholds": {
+          "position_m": 0.5,
+          "speed_m_s": 0.5,
+          "yaw_rad": 0.15
+        },
+        "clocks": "public boot dwell and independent physical intervals are separate"
+      },
+      "public_requests": 8,
+      "native_acks": 6,
+      "source_audit": {
+        "mode": "retained-source-audit",
+        "current_checkout_accepted": false,
+        "manifest_sha256": "156ed0de4de9a8d0087ee75d96a235c32ca497e1e97005d83cc385e4683e1719",
+        "sources_checked": 26
+      },
+      "scope": "Three-waypoint independent public mission under the identified source; process mappings are contemporaneous snapshots",
+      "limitations": [
+        "No G6 dynamics equivalence, hardware, takeover, loss recovery, MATLAB or UE acceptance in this case.",
+        "Position streams report public acceptance and physical completion, not a per-setpoint native ACK."
+      ]
+    }
+  ]
+}

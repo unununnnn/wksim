@@ -1,0 +1,62 @@
+{
+  "schema": "wksim.g1g5-final-private-stage-finalize.candidate-hashes.v1",
+  "slice_id": "cursor-g1-g5-final-private-stage-finalize-20260914-01",
+  "audits": "cursor-g1-g5-final-private-stage-audit-20260914-01",
+  "date": "2026-09-14",
+  "independent_recompute": true,
+  "tests_rerun": false,
+  "expected_candidate_hash": "83234a89fa62be49931dc1adee7d36e8a7780d9f8f781b854f69214d388a12c5",
+  "candidate": {
+    "path": "validation/test_g1_g5_offline_drift.py",
+    "role": "ordinary-add-candidate",
+    "sha256": "83234a89fa62be49931dc1adee7d36e8a7780d9f8f781b854f69214d388a12c5",
+    "blob_sha1_hash_object": "5a82cf39e58cf7d1f0a48145a850a9b6ce547756",
+    "bytes": 42074,
+    "cr_count": 917,
+    "lf_count": 917,
+    "match_expected": true,
+    "not_old_bytes": true,
+    "old_sha256": "0281f8317902d74add3b9f1648cbaeb578562616682e3a30437fd05c04538c92"
+  },
+  "force_add_dependencies": {
+    "validation/promotion-flight-20260908/independent-candidate/flight-audit.json": {
+      "sha256": "b1df8a365ff9864d02fb8d7508cf2e002b4c87307ee61d0646923ba34eb68b9a",
+      "blob_sha1_hash_object": "2610c76f6dfc59a5300fa22e6a594ef155cd7b66",
+      "bytes": 7005,
+      "match": true,
+      "add": "force"
+    },
+    "validation/promotion-flight-20260908/independent-candidate/flown-source/manifest.json": {
+      "sha256": "156ed0de4de9a8d0087ee75d96a235c32ca497e1e97005d83cc385e4683e1719",
+      "blob_sha1_hash_object": "3c5ad3ed12f32382b8aad851960cfce07ba730f3",
+      "bytes": 12309,
+      "match": true,
+      "add": "force"
+    },
+    "validation/coordination/cursor-g1-g5-uncovered-offline-repair-20260914-01/stdlib_identity_plugin.py": {
+      "sha256": "e7044fb5d01f42200cb06c27aa11d5413b590930415b4200110f9504e620101f",
+      "blob_sha1_hash_object": "b7700c629d0c843255a6d06af1f2a207f2a765df",
+      "bytes": 3373,
+      "match": true,
+      "add": "force"
+    },
+    "validation/coordination/cursor-g1-g5-uncovered-offline-repair-20260914-01/isolation_after_g1g5.py": {
+      "sha256": "e540760a8c546331cc5c2dd6ade981e008f7630b848b55e3162feb820333fa94",
+      "blob_sha1_hash_object": "adb3339cea659def2ecc99e14706bf1669116c2b",
+      "bytes": 2067,
+      "match": true,
+      "add": "force"
+    }
+  },
+  "force_add_unchanged": true,
+  "all_candidates_match": true,
+  "all_dependencies_match": true,
+  "exact_path_count": 22,
+  "temps_excluded_from_stage_list": [
+    "_fix_sums.py",
+    "_finalize.py",
+    "_rehearse.py",
+    "_rehearsal.json",
+    "scratch/"
+  ]
+}

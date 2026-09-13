@@ -1,0 +1,180 @@
+{
+  "schema": "wksim.g1g5-postcommit-head-finalize2.candidate-hashes.v1",
+  "slice_id": "cursor-g1-g5-postcommit-head-finalize2-20260914-01",
+  "independent_recompute": true,
+  "tests_rerun": false,
+  "candidate": {
+    "path": "validation/test_g1_g5_offline_drift.py",
+    "sha256": "83234a89fa62be49931dc1adee7d36e8a7780d9f8f781b854f69214d388a12c5",
+    "bytes": 42074,
+    "cr_count": 917,
+    "match_expected": true,
+    "not_old_bytes": true,
+    "old_sha256": "0281f8317902d74add3b9f1648cbaeb578562616682e3a30437fd05c04538c92"
+  },
+  "force_add": {
+    "validation/promotion-flight-20260908/independent-candidate/flight-audit.json": {
+      "sha256": "b1df8a365ff9864d02fb8d7508cf2e002b4c87307ee61d0646923ba34eb68b9a",
+      "bytes": 7005,
+      "match": true,
+      "add": "force"
+    },
+    "validation/promotion-flight-20260908/independent-candidate/flown-source/manifest.json": {
+      "sha256": "156ed0de4de9a8d0087ee75d96a235c32ca497e1e97005d83cc385e4683e1719",
+      "bytes": 12309,
+      "match": true,
+      "add": "force"
+    },
+    "validation/coordination/cursor-g1-g5-uncovered-offline-repair-20260914-01/stdlib_identity_plugin.py": {
+      "sha256": "e7044fb5d01f42200cb06c27aa11d5413b590930415b4200110f9504e620101f",
+      "bytes": 3373,
+      "match": true,
+      "add": "force"
+    },
+    "validation/coordination/cursor-g1-g5-uncovered-offline-repair-20260914-01/isolation_after_g1g5.py": {
+      "sha256": "e540760a8c546331cc5c2dd6ade981e008f7630b848b55e3162feb820333fa94",
+      "bytes": 2067,
+      "match": true,
+      "add": "force"
+    }
+  },
+  "force_add_unchanged": true,
+  "overlays": {
+    "Simulator/wksim_planning/ego_exact_clearance.py": {
+      "sha256": "8b1d2dd8c097447d32d5d4f22b5827f8712ac84c9de0e963983d24e73efd46ea",
+      "bytes": 38854,
+      "match": true
+    },
+    "validation/test_ego_exact_clearance.py": {
+      "sha256": "d3541280c8d03127b047a2c7d67ce5581b6ff0c4dd0378b96209550ff762ae17",
+      "bytes": 56737,
+      "match": true
+    },
+    "docs/plan/102-exact-clearance-candidate.md": {
+      "sha256": "b1203d51676cb7ac8676e0f33c7769da2a599f93b2e57560b073f930fc41b0fe",
+      "bytes": 17982,
+      "match": true
+    },
+    "docs/plan/59-e0-frame-datum-binding-20260914.md": {
+      "sha256": "3fbb0e7fbdbc069a702dd0e8417c9b6a8dd3961575d5a188817990b280b553f8",
+      "bytes": 15449,
+      "match": true
+    },
+    "validation/e0-frame-datum-binding-20260914.json": {
+      "sha256": "5d589075c128e2a22d24d88d7dea0ce753a68f4d46937386c581d3fae945b69f",
+      "bytes": 105018,
+      "match": true
+    },
+    "validation/test_e0_frame_datum_binding.py": {
+      "sha256": "e412f2d1981fd02b34531426f31c6f010c96d15331bf41f30fc136cc59f10da6",
+      "bytes": 77146,
+      "match": true
+    }
+  },
+  "overlays_match": true,
+  "static_rejudgment": {
+    "has_source_head": true,
+    "has_pinned_head": false,
+    "source_head_literal": true,
+    "has_merge_base_is_ancestor": true,
+    "git_call_count_literal": true,
+    "assert_not_in_pinned_head": true,
+    "no_head_equality_to_source": true,
+    "assertEqual_identities_head_SOURCE_HEAD": false,
+    "assertEqual_identities_head_PINNED_HEAD": false,
+    "identities_head_eq_SOURCE_HEAD": false,
+    "identities_head_eq_PINNED_HEAD": false,
+    "assertNotEqual_identities_head_SOURCE_HEAD": {
+      "present": true,
+      "lineno": 540,
+      "test": "HeadIdentityMutationTests.test_reader_accepts_descendant_head_with_frozen_blobs",
+      "means_exact_head_equality": false,
+      "means_descendant_head_allowed": true,
+      "misjudged": false
+    },
+    "naive_substring_identities_head_SOURCE_HEAD_count": 1,
+    "naive_substring_false_positive": "a scan matching identities[\"head\"], SOURCE_HEAD also hits assertNotEqual; that is inequality, not current-HEAD equality"
+  },
+  "seven_rows": [
+    {
+      "path": "Simulator/wksim_runtime/examples/arducopter-mission.json",
+      "ls_tree": "d4140c0e46f038019fd8c7de45c3ca9cd8ba612a",
+      "ls_tree_match": true,
+      "worktree_blob_sha1": "d4140c0e46f038019fd8c7de45c3ca9cd8ba612a",
+      "worktree_blob_match": true,
+      "worktree_sha256": "cce5d7c77e550cb6326fbc10f83f0a657838d2c4f14ffcb730c7da56d1cbb00e",
+      "worktree_sha256_match": true
+    },
+    {
+      "path": "Simulator/wksim_runtime/examples/px4-mission.json",
+      "ls_tree": "2e7e4205c86bf15b22bd9ea748387ea3f925341b",
+      "ls_tree_match": true,
+      "worktree_blob_sha1": "2e7e4205c86bf15b22bd9ea748387ea3f925341b",
+      "worktree_blob_match": true,
+      "worktree_sha256": "62cda2312cecd71291630b9cf64207cafbcfd0006f734ef48bb38480c0597bb6",
+      "worktree_sha256_match": true
+    },
+    {
+      "path": "Simulator/wksim_runtime/independent_profile.py",
+      "ls_tree": "9635de42839e5c535d76baa5637e270afd69dd23",
+      "ls_tree_match": true,
+      "worktree_blob_sha1": "9635de42839e5c535d76baa5637e270afd69dd23",
+      "worktree_blob_match": true,
+      "worktree_sha256": "28816b6e330785f2d576b5fae93efc4835d2155e94e4008ca0889dfde469278c",
+      "worktree_sha256_match": true
+    },
+    {
+      "path": "Simulator/wksim_runtime/independent-profile-evidence.json",
+      "ls_tree": "33b63faa14c17488fc5468a835a8c118ffe4e13f",
+      "ls_tree_match": true,
+      "worktree_blob_sha1": "33b63faa14c17488fc5468a835a8c118ffe4e13f",
+      "worktree_blob_match": true,
+      "worktree_sha256": "a0f1d60b4ad5b01fb38e775f42907b2b2f1cdc3741da152b3ea81343b7015535",
+      "worktree_sha256_match": true
+    },
+    {
+      "path": "Simulator/wksim_runtime/task.py",
+      "ls_tree": "8091c15dc5ba811b4128ef715233a3fa749ef30e",
+      "ls_tree_match": true,
+      "worktree_blob_sha1": "8091c15dc5ba811b4128ef715233a3fa749ef30e",
+      "worktree_blob_match": true,
+      "worktree_sha256": "9791913df7ad61d229a151d4d1d0e5c2b3f32d127a7545096b43a32638f0dbbc",
+      "worktree_sha256_match": true
+    },
+    {
+      "path": "Simulator/wksim_runtime/telemetry.py",
+      "ls_tree": "33098129c6cee5d0d2b0baef9393bc7a06a35db5",
+      "ls_tree_match": true,
+      "worktree_blob_sha1": "33098129c6cee5d0d2b0baef9393bc7a06a35db5",
+      "worktree_blob_match": true,
+      "worktree_sha256": "e62be21faeec23fd1d70932b7b25fe1d668e167af76e0b6df2624a1d42849eb0",
+      "worktree_sha256_match": true
+    },
+    {
+      "path": "Simulator/wksim_core/ap_json.py",
+      "ls_tree": "789d4a37454ceabf7702089935328696f6e28148",
+      "ls_tree_match": true,
+      "worktree_blob_sha1": "789d4a37454ceabf7702089935328696f6e28148",
+      "worktree_blob_match": true,
+      "worktree_sha256": "db3498d5df50aa3ab46601a8e899c6739e613d431a7d221ac57d2a86e1846469",
+      "worktree_sha256_match": true
+    }
+  ],
+  "seven_three_way": true,
+  "seven_diff_empty": {
+    "vs_head": [],
+    "staged": [],
+    "unstaged": []
+  },
+  "repair_sha256sums": {
+    "n": 77,
+    "bad": [],
+    "ok": true
+  },
+  "stable_bindings": {
+    "review.md": "2e4a1f627192810a6a59fd39cb892f12f1039324d7700682043bb872a8a00819",
+    "review.json": "5e8b437f4f2d88b651936bbd4869ece4a180fe40f0c5d6b1254cae228ce4ef97",
+    "captures/windows-abc-after-A-g1g5.txt": "0044909831b183a1cc5e6fddbb3fe4b2a7305e6e10c9004b4db3aad231687789",
+    "ok": true
+  }
+}

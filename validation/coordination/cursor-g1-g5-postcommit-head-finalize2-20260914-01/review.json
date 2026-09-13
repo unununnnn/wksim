@@ -1,0 +1,128 @@
+{
+  "schema": "wksim.g1g5-postcommit-head-finalize2.review.v1",
+  "slice_id": "cursor-g1-g5-postcommit-head-finalize2-20260914-01",
+  "date": "2026-09-14",
+  "work_class": "independent-correctness-final-review-finalize2",
+  "cwd": "C:/Users/PC/Documents/odid编译/wksim",
+  "branch": "main",
+  "head": "6eafdf9c0b734db07a9fe790c86b409d3468c10b",
+  "ancestor_f333316e": 0,
+  "owned_files": [
+    "validation/coordination/cursor-g1-g5-postcommit-head-finalize2-20260914-01/**"
+  ],
+  "readonly_inputs": [
+    "validation/test_g1_g5_offline_drift.py",
+    "validation/coordination/cursor-g1-g5-postcommit-head-repair-20260914-01/**",
+    "validation/coordination/cursor-g1-g5-postcommit-head-final-review-20260914-01/**"
+  ],
+  "forbidden_edits": [
+    "candidate",
+    "historical receipts",
+    "git index",
+    "refs",
+    "G3",
+    "frame"
+  ],
+  "tests_rerun": false,
+  "project_add_commit_stage_reset_clean": false,
+  "overall": "PASS",
+  "p1": 0,
+  "p2": 0,
+  "p3": 3,
+  "gates_closed": {
+    "issue_39": false,
+    "G1": false,
+    "G5": false,
+    "Full": false
+  },
+  "candidate": {
+    "path": "validation/test_g1_g5_offline_drift.py",
+    "sha256": "83234a89fa62be49931dc1adee7d36e8a7780d9f8f781b854f69214d388a12c5",
+    "bytes": 42074,
+    "cr_count": 917,
+    "match_expected": true,
+    "not_old_bytes": true,
+    "old_sha256": "0281f8317902d74add3b9f1648cbaeb578562616682e3a30437fd05c04538c92",
+    "head_semantics": "ancestor-pin",
+    "source_head": "6eafdf9c0b734db07a9fe790c86b409d3468c10b"
+  },
+  "assertNotEqual_rejudgment": {
+    "present": true,
+    "lineno": 540,
+    "test": "HeadIdentityMutationTests.test_reader_accepts_descendant_head_with_frozen_blobs",
+    "attr": "assertNotEqual",
+    "left": "identities['head']",
+    "right": "SOURCE_HEAD",
+    "means_exact_head_equality": false,
+    "means_descendant_head_allowed": true,
+    "assertEqual_identities_head_SOURCE_HEAD": false,
+    "assertEqual_identities_head_PINNED_HEAD": false,
+    "identities_head_eq_SOURCE_HEAD": false,
+    "identities_head_eq_PINNED_HEAD": false,
+    "PINNED_HEAD_name": false,
+    "naive_substring_identities_head_SOURCE_HEAD_count": 1,
+    "naive_substring_false_positive": "a scan matching identities[\"head\"], SOURCE_HEAD also hits assertNotEqual; that is inequality, not current-HEAD equality",
+    "misjudged": false
+  },
+  "repair_sha256sums": {
+    "n": 77,
+    "bad": [],
+    "ok": true
+  },
+  "sequences": {
+    "cross_host_commit_shas_identical": true,
+    "trees_order_independent": true,
+    "final_tree": "8ab33ef851c73a5bf32d5dbd848cc00c52a021d5",
+    "abc": {
+      "after_A": "c844a0614b5dea319e9221557540cd92259dc8b8",
+      "after_B": "f7a0908db435516b74203dee93d6e86cfa4d727c",
+      "after_C": "2b4714f83dade1bf45df9e5a775a075be27a7f08",
+      "empty": "9f4f4765e5f89b3b22a4d5bd9727996106e8f701",
+      "final_tree": "8ab33ef851c73a5bf32d5dbd848cc00c52a021d5"
+    },
+    "cba": {
+      "after_C": "6eba0da53d20d8f1fff874c59cbd35be4131b4a7",
+      "after_B": "0a556bd41fde6d390eb65182aae1520515b79e13",
+      "after_A": "4dcfa55daf3288657829674640362ccb21d7731d",
+      "empty": "e7da80472d07bbfe3565df2b2f07556795b88c19",
+      "final_tree": "8ab33ef851c73a5bf32d5dbd848cc00c52a021d5"
+    },
+    "empty_tree_unchanged": true
+  },
+  "hostile": {
+    "official_33_rerun": false,
+    "matrices": {
+      "win_top": {"n": 46, "passed": 46, "failed": []},
+      "win_cap": {"n": 46, "passed": 46, "failed": []},
+      "lin_cap": {"n": 46, "passed": 46, "failed": []}
+    },
+    "case_ids_equal": true,
+    "repair_fail_closed": {
+      "historical_fork": {
+        "merge_base_is_ancestor_exit": 1,
+        "ubuntu_pytest": "10 failed, 23 passed"
+      },
+      "blob_drift": {
+        "path": "Simulator/wksim_runtime/task.py",
+        "ubuntu_pytest": "11 failed, 22 passed"
+      }
+    }
+  },
+  "findings": [
+    {
+      "level": "P3",
+      "id": "F-p3-assertNotEqual-naive-substring",
+      "candidate_defect": false
+    },
+    {
+      "level": "P3",
+      "id": "F-p3-prior-final-review-incomplete-self-patch",
+      "candidate_defect": false
+    },
+    {
+      "level": "P3",
+      "id": "F-p3-prior-finalize-incomplete",
+      "candidate_defect": false
+    }
+  ]
+}

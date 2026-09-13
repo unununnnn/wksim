@@ -1,0 +1,109 @@
+{
+  "schema": "wksim.g1g5-postcommit-head-repair.review.v1",
+  "slice_id": "cursor-g1-g5-postcommit-head-repair-20260914-01",
+  "date": "2026-09-14",
+  "work_class": "new-development-test-identity-semantics",
+  "cwd": "C:/Users/PC/Documents/odid编译/wksim",
+  "branch": "main",
+  "head": "6eafdf9c0b734db07a9fe790c86b409d3468c10b",
+  "ancestor_f333316e": 0,
+  "owned_files": [
+    "validation/test_g1_g5_offline_drift.py",
+    "validation/coordination/cursor-g1-g5-postcommit-head-repair-20260914-01/**"
+  ],
+  "forbidden_edits": [
+    "G3",
+    "frame",
+    "historical receipts",
+    "promotion-flight JSON bytes",
+    "stdlib_identity_plugin.py",
+    "isolation_after_g1g5.py"
+  ],
+  "overall": "candidate-semantics-pass",
+  "gates_closed": {
+    "issue_39": false,
+    "G1": false,
+    "G5": false,
+    "Full": false
+  },
+  "old_candidate": {
+    "path": "validation/test_g1_g5_offline_drift.py",
+    "sha256": "0281f8317902d74add3b9f1648cbaeb578562616682e3a30437fd05c04538c92",
+    "bytes": 32738,
+    "git_calls": 5,
+    "collected_tests": 20,
+    "failed_assertion": "self.assertEqual(identities[\"head\"], PINNED_HEAD)",
+    "line": 344,
+    "pinned_head": "6eafdf9c0b734db07a9fe790c86b409d3468c10b"
+  },
+  "new_candidate": {
+    "path": "validation/test_g1_g5_offline_drift.py",
+    "sha256": "83234a89fa62be49931dc1adee7d36e8a7780d9f8f781b854f69214d388a12c5",
+    "bytes": 42074,
+    "cr_count": 917,
+    "git_calls": 6,
+    "source_head": "6eafdf9c0b734db07a9fe790c86b409d3468c10b",
+    "head_semantics": "ancestor-pin",
+    "collected_tests": 33,
+    "expected_git_calls": [
+      ["rev-parse", "HEAD"],
+      ["merge-base", "--is-ancestor", "6eafdf9c0b734db07a9fe790c86b409d3468c10b", "HEAD"],
+      "ls-tree HEAD -- <7 rows>",
+      "diff HEAD --name-only -- <7 rows>",
+      "diff --cached --name-only -- <7 rows>",
+      "diff --name-only -- <7 rows>"
+    ]
+  },
+  "counts": {
+    "windows_pytest": "31 passed, 2 skipped, 8 subtests",
+    "windows_unittest": "33 ran, OK (skipped=2)",
+    "ubuntu_pytest": "33 passed, 8 subtests",
+    "ubuntu_unittest": "33 ran, OK",
+    "windows_skips": [
+      "TelemetryOfflineTests.test_posix_absent_receiver_in_owned_0700_directory",
+      "TelemetryOfflineTests.test_decode_datagram_on_available_pinned_dialect"
+    ],
+    "ubuntu_skips": [],
+    "interleaved": "9 passed"
+  },
+  "force_add_unchanged": {
+    "validation/promotion-flight-20260908/independent-candidate/flight-audit.json": "b1df8a365ff9864d02fb8d7508cf2e002b4c87307ee61d0646923ba34eb68b9a",
+    "validation/promotion-flight-20260908/independent-candidate/flown-source/manifest.json": "156ed0de4de9a8d0087ee75d96a235c32ca497e1e97005d83cc385e4683e1719",
+    "validation/coordination/cursor-g1-g5-uncovered-offline-repair-20260914-01/stdlib_identity_plugin.py": "e7044fb5d01f42200cb06c27aa11d5413b590930415b4200110f9504e620101f",
+    "validation/coordination/cursor-g1-g5-uncovered-offline-repair-20260914-01/isolation_after_g1g5.py": "e540760a8c546331cc5c2dd6ade981e008f7630b848b55e3162feb820333fa94"
+  },
+  "sequences": {
+    "abc": {
+      "after_A": "c844a0614b5dea319e9221557540cd92259dc8b8",
+      "after_B": "f7a0908db435516b74203dee93d6e86cfa4d727c",
+      "after_C": "2b4714f83dade1bf45df9e5a775a075be27a7f08",
+      "empty": "9f4f4765e5f89b3b22a4d5bd9727996106e8f701",
+      "final_tree": "8ab33ef851c73a5bf32d5dbd848cc00c52a021d5"
+    },
+    "cba": {
+      "after_C": "6eba0da53d20d8f1fff874c59cbd35be4131b4a7",
+      "after_B": "0a556bd41fde6d390eb65182aae1520515b79e13",
+      "after_A": "4dcfa55daf3288657829674640362ccb21d7731d",
+      "empty": "e7da80472d07bbfe3565df2b2f07556795b88c19",
+      "final_tree": "8ab33ef851c73a5bf32d5dbd848cc00c52a021d5"
+    },
+    "trees_order_independent": true
+  },
+  "fail_closed": {
+    "historical_fork": {
+      "merge_base_is_ancestor_exit": 1,
+      "ubuntu_pytest": "10 failed, 23 passed"
+    },
+    "blob_drift": {
+      "path": "Simulator/wksim_runtime/task.py",
+      "ubuntu_pytest": "11 failed, 22 passed"
+    }
+  },
+  "method": {
+    "temp_repo": "objects/info/alternates + hash-object --no-filters + commit-tree",
+    "whole_repo_archive_in_memory": false,
+    "project_add_commit_stage_reset_clean": false,
+    "reran_83": false,
+    "reran_native_build_flight": false
+  }
+}

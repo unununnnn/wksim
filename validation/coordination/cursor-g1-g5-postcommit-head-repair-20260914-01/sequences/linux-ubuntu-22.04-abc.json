@@ -1,0 +1,1034 @@
+{
+  "schema": "wksim.g1g5-postcommit-head-repair.sequence.v1",
+  "sequence": "abc",
+  "order": [
+    "A",
+    "B",
+    "C"
+  ],
+  "git_dir": "/tmp/wksim-g1g5-head-repair-2rpcly54/abc/repo.git",
+  "source_head": "6eafdf9c0b734db07a9fe790c86b409d3468c10b",
+  "steps": [
+    {
+      "slice": "A",
+      "order_index": 0,
+      "commit": {
+        "commit": "c844a0614b5dea319e9221557540cd92259dc8b8",
+        "tree": "ed8281dc38362ef862ca42b4753983c52b966160",
+        "blobs": {
+          "validation/test_g1_g5_offline_drift.py": "5a82cf39e58cf7d1f0a48145a850a9b6ce547756",
+          "validation/promotion-flight-20260908/independent-candidate/flight-audit.json": "2610c76f6dfc59a5300fa22e6a594ef155cd7b66",
+          "validation/promotion-flight-20260908/independent-candidate/flown-source/manifest.json": "3c5ad3ed12f32382b8aad851960cfce07ba730f3",
+          "validation/coordination/cursor-g1-g5-uncovered-offline-repair-20260914-01/stdlib_identity_plugin.py": "b7700c629d0c843255a6d06af1f2a207f2a765df",
+          "validation/coordination/cursor-g1-g5-uncovered-offline-repair-20260914-01/isolation_after_g1g5.py": "adb3339cea659def2ecc99e14706bf1669116c2b"
+        },
+        "parent": "6eafdf9c0b734db07a9fe790c86b409d3468c10b",
+        "message": "g1g5-head-repair-slice-A exact candidates (disposable)"
+      },
+      "proof": {
+        "head": "c844a0614b5dea319e9221557540cd92259dc8b8",
+        "tree": "ed8281dc38362ef862ca42b4753983c52b966160",
+        "source_is_ancestor": true,
+        "f333316_is_ancestor": true,
+        "ancestor_exits": {
+          "source_head": 0,
+          "f333316": 0
+        },
+        "git_show_HEAD": {
+          "validation/test_g1_g5_offline_drift.py": {
+            "at_head": true,
+            "expected_present": true,
+            "sha256": "83234a89fa62be49931dc1adee7d36e8a7780d9f8f781b854f69214d388a12c5",
+            "bytes": 42074,
+            "match_pin": true,
+            "ok": true
+          },
+          "validation/promotion-flight-20260908/independent-candidate/flight-audit.json": {
+            "at_head": true,
+            "expected_present": true,
+            "sha256": "b1df8a365ff9864d02fb8d7508cf2e002b4c87307ee61d0646923ba34eb68b9a",
+            "bytes": 7005,
+            "match_pin": true,
+            "ok": true
+          },
+          "validation/promotion-flight-20260908/independent-candidate/flown-source/manifest.json": {
+            "at_head": true,
+            "expected_present": true,
+            "sha256": "156ed0de4de9a8d0087ee75d96a235c32ca497e1e97005d83cc385e4683e1719",
+            "bytes": 12309,
+            "match_pin": true,
+            "ok": true
+          },
+          "validation/coordination/cursor-g1-g5-uncovered-offline-repair-20260914-01/stdlib_identity_plugin.py": {
+            "at_head": true,
+            "expected_present": true,
+            "sha256": "e7044fb5d01f42200cb06c27aa11d5413b590930415b4200110f9504e620101f",
+            "bytes": 3373,
+            "match_pin": true,
+            "ok": true
+          },
+          "validation/coordination/cursor-g1-g5-uncovered-offline-repair-20260914-01/isolation_after_g1g5.py": {
+            "at_head": true,
+            "expected_present": true,
+            "sha256": "e540760a8c546331cc5c2dd6ade981e008f7630b848b55e3162feb820333fa94",
+            "bytes": 2067,
+            "match_pin": true,
+            "ok": true
+          },
+          "Simulator/wksim_planning/ego_exact_clearance.py": {
+            "at_head": false,
+            "expected_present": false,
+            "ok": true
+          },
+          "validation/test_ego_exact_clearance.py": {
+            "at_head": false,
+            "expected_present": false,
+            "ok": true
+          },
+          "docs/plan/102-exact-clearance-candidate.md": {
+            "at_head": false,
+            "expected_present": false,
+            "ok": true
+          },
+          "docs/plan/59-e0-frame-datum-binding-20260914.md": {
+            "at_head": false,
+            "expected_present": false,
+            "ok": true
+          },
+          "validation/e0-frame-datum-binding-20260914.json": {
+            "at_head": false,
+            "expected_present": false,
+            "ok": true
+          },
+          "validation/test_e0_frame_datum_binding.py": {
+            "at_head": false,
+            "expected_present": false,
+            "ok": true
+          }
+        },
+        "seven_rows": {
+          "rows": [
+            {
+              "path": "Simulator/wksim_runtime/examples/arducopter-mission.json",
+              "head_blob": "d4140c0e46f038019fd8c7de45c3ca9cd8ba612a",
+              "match_blob": true,
+              "sha256": "cce5d7c77e550cb6326fbc10f83f0a657838d2c4f14ffcb730c7da56d1cbb00e",
+              "match_sha256": true
+            },
+            {
+              "path": "Simulator/wksim_runtime/examples/px4-mission.json",
+              "head_blob": "2e7e4205c86bf15b22bd9ea748387ea3f925341b",
+              "match_blob": true,
+              "sha256": "62cda2312cecd71291630b9cf64207cafbcfd0006f734ef48bb38480c0597bb6",
+              "match_sha256": true
+            },
+            {
+              "path": "Simulator/wksim_runtime/independent_profile.py",
+              "head_blob": "9635de42839e5c535d76baa5637e270afd69dd23",
+              "match_blob": true,
+              "sha256": "28816b6e330785f2d576b5fae93efc4835d2155e94e4008ca0889dfde469278c",
+              "match_sha256": true
+            },
+            {
+              "path": "Simulator/wksim_runtime/independent-profile-evidence.json",
+              "head_blob": "33b63faa14c17488fc5468a835a8c118ffe4e13f",
+              "match_blob": true,
+              "sha256": "a0f1d60b4ad5b01fb38e775f42907b2b2f1cdc3741da152b3ea81343b7015535",
+              "match_sha256": true
+            },
+            {
+              "path": "Simulator/wksim_runtime/task.py",
+              "head_blob": "8091c15dc5ba811b4128ef715233a3fa749ef30e",
+              "match_blob": true,
+              "sha256": "9791913df7ad61d229a151d4d1d0e5c2b3f32d127a7545096b43a32638f0dbbc",
+              "match_sha256": true
+            },
+            {
+              "path": "Simulator/wksim_runtime/telemetry.py",
+              "head_blob": "33098129c6cee5d0d2b0baef9393bc7a06a35db5",
+              "match_blob": true,
+              "sha256": "e62be21faeec23fd1d70932b7b25fe1d668e167af76e0b6df2624a1d42849eb0",
+              "match_sha256": true
+            },
+            {
+              "path": "Simulator/wksim_core/ap_json.py",
+              "head_blob": "789d4a37454ceabf7702089935328696f6e28148",
+              "match_blob": true,
+              "sha256": "db3498d5df50aa3ab46601a8e899c6739e613d431a7d221ac57d2a86e1846469",
+              "match_sha256": true
+            }
+          ],
+          "all_frozen": true
+        },
+        "all_show_ok": true,
+        "seven_frozen": true
+      },
+      "materialize": {
+        "dest": "/tmp/wksim-g1g5-head-repair-2rpcly54/abc/wt-A",
+        "head_file_count": 10375,
+        "checked_out": 161,
+        "checkout_index_exit": 0,
+        "loaded_whole_archive": false
+      },
+      "tests": {
+        "g1g5_full": {
+          "pytest": {
+            "label": "abc-after-A-g1g5-pytest",
+            "host": "linux-ubuntu-22.04",
+            "kind": "pytest",
+            "nodes": [
+              "validation/test_g1_g5_offline_drift.py"
+            ],
+            "returncode": 0,
+            "summary_line": "33 passed, 8 subtests passed in 1.02s",
+            "failed_nodes": [],
+            "skipped_lines": [],
+            "text_capture": "captures/linux-ubuntu-22.04-abc-after-A-g1g5-pytest.txt",
+            "ok": true
+          },
+          "unittest": {
+            "label": "abc-after-A-g1g5-unittest",
+            "host": "linux-ubuntu-22.04",
+            "kind": "unittest",
+            "nodes": [
+              "validation.test_g1_g5_offline_drift"
+            ],
+            "returncode": 0,
+            "ran": 33,
+            "ok": true,
+            "failed_banner": false,
+            "skipped": null,
+            "assertion_lines": [],
+            "text_capture": "captures/linux-ubuntu-22.04-abc-after-A-g1g5-unittest.txt"
+          },
+          "ok": true
+        }
+      },
+      "proof_ok": true,
+      "g1g5_ok": true,
+      "interleaved_ok": null
+    },
+    {
+      "slice": "B",
+      "order_index": 1,
+      "commit": {
+        "commit": "f7a0908db435516b74203dee93d6e86cfa4d727c",
+        "tree": "0b500bca489d25813aefface4242607e7aef245a",
+        "blobs": {
+          "Simulator/wksim_planning/ego_exact_clearance.py": "804cdd2779b26f715675188327ab340f3ea9c966",
+          "validation/test_ego_exact_clearance.py": "ea8208a7386fddb0f57d931ad141ce54f242346a",
+          "docs/plan/102-exact-clearance-candidate.md": "03afd1aea7a4c04047fbdb48ae7cd90da04ed5aa"
+        },
+        "parent": "c844a0614b5dea319e9221557540cd92259dc8b8",
+        "message": "g1g5-head-repair-slice-B exact candidates (disposable)"
+      },
+      "proof": {
+        "head": "f7a0908db435516b74203dee93d6e86cfa4d727c",
+        "tree": "0b500bca489d25813aefface4242607e7aef245a",
+        "source_is_ancestor": true,
+        "f333316_is_ancestor": true,
+        "ancestor_exits": {
+          "source_head": 0,
+          "f333316": 0
+        },
+        "git_show_HEAD": {
+          "validation/test_g1_g5_offline_drift.py": {
+            "at_head": true,
+            "expected_present": true,
+            "sha256": "83234a89fa62be49931dc1adee7d36e8a7780d9f8f781b854f69214d388a12c5",
+            "bytes": 42074,
+            "match_pin": true,
+            "ok": true
+          },
+          "validation/promotion-flight-20260908/independent-candidate/flight-audit.json": {
+            "at_head": true,
+            "expected_present": true,
+            "sha256": "b1df8a365ff9864d02fb8d7508cf2e002b4c87307ee61d0646923ba34eb68b9a",
+            "bytes": 7005,
+            "match_pin": true,
+            "ok": true
+          },
+          "validation/promotion-flight-20260908/independent-candidate/flown-source/manifest.json": {
+            "at_head": true,
+            "expected_present": true,
+            "sha256": "156ed0de4de9a8d0087ee75d96a235c32ca497e1e97005d83cc385e4683e1719",
+            "bytes": 12309,
+            "match_pin": true,
+            "ok": true
+          },
+          "validation/coordination/cursor-g1-g5-uncovered-offline-repair-20260914-01/stdlib_identity_plugin.py": {
+            "at_head": true,
+            "expected_present": true,
+            "sha256": "e7044fb5d01f42200cb06c27aa11d5413b590930415b4200110f9504e620101f",
+            "bytes": 3373,
+            "match_pin": true,
+            "ok": true
+          },
+          "validation/coordination/cursor-g1-g5-uncovered-offline-repair-20260914-01/isolation_after_g1g5.py": {
+            "at_head": true,
+            "expected_present": true,
+            "sha256": "e540760a8c546331cc5c2dd6ade981e008f7630b848b55e3162feb820333fa94",
+            "bytes": 2067,
+            "match_pin": true,
+            "ok": true
+          },
+          "Simulator/wksim_planning/ego_exact_clearance.py": {
+            "at_head": true,
+            "expected_present": true,
+            "sha256": "8b1d2dd8c097447d32d5d4f22b5827f8712ac84c9de0e963983d24e73efd46ea",
+            "bytes": 38854,
+            "match_pin": true,
+            "ok": true
+          },
+          "validation/test_ego_exact_clearance.py": {
+            "at_head": true,
+            "expected_present": true,
+            "sha256": "d3541280c8d03127b047a2c7d67ce5581b6ff0c4dd0378b96209550ff762ae17",
+            "bytes": 56737,
+            "match_pin": true,
+            "ok": true
+          },
+          "docs/plan/102-exact-clearance-candidate.md": {
+            "at_head": true,
+            "expected_present": true,
+            "sha256": "b1203d51676cb7ac8676e0f33c7769da2a599f93b2e57560b073f930fc41b0fe",
+            "bytes": 17982,
+            "match_pin": true,
+            "ok": true
+          },
+          "docs/plan/59-e0-frame-datum-binding-20260914.md": {
+            "at_head": false,
+            "expected_present": false,
+            "ok": true
+          },
+          "validation/e0-frame-datum-binding-20260914.json": {
+            "at_head": false,
+            "expected_present": false,
+            "ok": true
+          },
+          "validation/test_e0_frame_datum_binding.py": {
+            "at_head": false,
+            "expected_present": false,
+            "ok": true
+          }
+        },
+        "seven_rows": {
+          "rows": [
+            {
+              "path": "Simulator/wksim_runtime/examples/arducopter-mission.json",
+              "head_blob": "d4140c0e46f038019fd8c7de45c3ca9cd8ba612a",
+              "match_blob": true,
+              "sha256": "cce5d7c77e550cb6326fbc10f83f0a657838d2c4f14ffcb730c7da56d1cbb00e",
+              "match_sha256": true
+            },
+            {
+              "path": "Simulator/wksim_runtime/examples/px4-mission.json",
+              "head_blob": "2e7e4205c86bf15b22bd9ea748387ea3f925341b",
+              "match_blob": true,
+              "sha256": "62cda2312cecd71291630b9cf64207cafbcfd0006f734ef48bb38480c0597bb6",
+              "match_sha256": true
+            },
+            {
+              "path": "Simulator/wksim_runtime/independent_profile.py",
+              "head_blob": "9635de42839e5c535d76baa5637e270afd69dd23",
+              "match_blob": true,
+              "sha256": "28816b6e330785f2d576b5fae93efc4835d2155e94e4008ca0889dfde469278c",
+              "match_sha256": true
+            },
+            {
+              "path": "Simulator/wksim_runtime/independent-profile-evidence.json",
+              "head_blob": "33b63faa14c17488fc5468a835a8c118ffe4e13f",
+              "match_blob": true,
+              "sha256": "a0f1d60b4ad5b01fb38e775f42907b2b2f1cdc3741da152b3ea81343b7015535",
+              "match_sha256": true
+            },
+            {
+              "path": "Simulator/wksim_runtime/task.py",
+              "head_blob": "8091c15dc5ba811b4128ef715233a3fa749ef30e",
+              "match_blob": true,
+              "sha256": "9791913df7ad61d229a151d4d1d0e5c2b3f32d127a7545096b43a32638f0dbbc",
+              "match_sha256": true
+            },
+            {
+              "path": "Simulator/wksim_runtime/telemetry.py",
+              "head_blob": "33098129c6cee5d0d2b0baef9393bc7a06a35db5",
+              "match_blob": true,
+              "sha256": "e62be21faeec23fd1d70932b7b25fe1d668e167af76e0b6df2624a1d42849eb0",
+              "match_sha256": true
+            },
+            {
+              "path": "Simulator/wksim_core/ap_json.py",
+              "head_blob": "789d4a37454ceabf7702089935328696f6e28148",
+              "match_blob": true,
+              "sha256": "db3498d5df50aa3ab46601a8e899c6739e613d431a7d221ac57d2a86e1846469",
+              "match_sha256": true
+            }
+          ],
+          "all_frozen": true
+        },
+        "all_show_ok": true,
+        "seven_frozen": true
+      },
+      "materialize": {
+        "dest": "/tmp/wksim-g1g5-head-repair-2rpcly54/abc/wt-B",
+        "head_file_count": 10378,
+        "checked_out": 164,
+        "checkout_index_exit": 0,
+        "loaded_whole_archive": false
+      },
+      "tests": {
+        "g1g5_full": {
+          "pytest": {
+            "label": "abc-after-B-g1g5-pytest",
+            "host": "linux-ubuntu-22.04",
+            "kind": "pytest",
+            "nodes": [
+              "validation/test_g1_g5_offline_drift.py"
+            ],
+            "returncode": 0,
+            "summary_line": "33 passed, 8 subtests passed in 0.92s",
+            "failed_nodes": [],
+            "skipped_lines": [],
+            "text_capture": "captures/linux-ubuntu-22.04-abc-after-B-g1g5-pytest.txt",
+            "ok": true
+          },
+          "unittest": {
+            "label": "abc-after-B-g1g5-unittest",
+            "host": "linux-ubuntu-22.04",
+            "kind": "unittest",
+            "nodes": [
+              "validation.test_g1_g5_offline_drift"
+            ],
+            "returncode": 0,
+            "ran": 33,
+            "ok": true,
+            "failed_banner": false,
+            "skipped": null,
+            "assertion_lines": [],
+            "text_capture": "captures/linux-ubuntu-22.04-abc-after-B-g1g5-unittest.txt"
+          },
+          "ok": true
+        },
+        "interleaved": {
+          "label": "abc-after-B-interleaved",
+          "host": "linux-ubuntu-22.04",
+          "kind": "pytest",
+          "nodes": [
+            "validation/test_g1_g5_offline_drift.py::GuardScopeTests::test_stdlib_identities_restored_after_guarded_context",
+            "validation/test_ego_exact_clearance.py::ThresholdBandTests::test_tolerance_default_and_bounds",
+            "validation/test_g1_g5_offline_drift.py::IndependentEvidenceTests::test_evidence_descriptor_schema_and_local_pin_bytes",
+            "validation/test_ego_exact_clearance.py::EvidenceSurfaceTests::test_module_is_not_wired_into_the_committed_gate_or_pump",
+            "validation/test_g1_g5_offline_drift.py::HeadIdentityTests::test_head_and_row_blobs_fail_closed_on_drift",
+            "validation/test_ego_exact_clearance.py::StructuralFailClosedTests::test_repeated_knot_fails_closed",
+            "validation/test_g1_g5_offline_drift.py::TelemetryOfflineTests::test_constructor_cannot_create_sockets_and_restores_guards",
+            "validation/test_ego_exact_clearance.py::CallerErrorTests::test_error_reason_vocabulary_is_stable",
+            "validation/coordination/cursor-g1-g5-uncovered-offline-repair-20260914-01/isolation_after_g1g5.py::IsolationAfterG1G5Tests::test_plugin_captured_identities_are_unpatched"
+          ],
+          "returncode": 0,
+          "summary_line": "9 passed in 0.21s",
+          "failed_nodes": [],
+          "skipped_lines": [],
+          "text_capture": "captures/linux-ubuntu-22.04-abc-after-B-interleaved.txt",
+          "ok": true
+        }
+      },
+      "proof_ok": true,
+      "g1g5_ok": true,
+      "interleaved_ok": true
+    },
+    {
+      "slice": "C",
+      "order_index": 2,
+      "commit": {
+        "commit": "2b4714f83dade1bf45df9e5a775a075be27a7f08",
+        "tree": "8ab33ef851c73a5bf32d5dbd848cc00c52a021d5",
+        "blobs": {
+          "docs/plan/59-e0-frame-datum-binding-20260914.md": "3ca1213488a70b9982a5c7705f51a6a66fd1ae79",
+          "validation/e0-frame-datum-binding-20260914.json": "64acd9c8e51e9418e05866f15631e1b8e1e2be80",
+          "validation/test_e0_frame_datum_binding.py": "985d7c6fd8348b6aba5d0c126b22b3dc87271b6a"
+        },
+        "parent": "f7a0908db435516b74203dee93d6e86cfa4d727c",
+        "message": "g1g5-head-repair-slice-C exact candidates (disposable)"
+      },
+      "proof": {
+        "head": "2b4714f83dade1bf45df9e5a775a075be27a7f08",
+        "tree": "8ab33ef851c73a5bf32d5dbd848cc00c52a021d5",
+        "source_is_ancestor": true,
+        "f333316_is_ancestor": true,
+        "ancestor_exits": {
+          "source_head": 0,
+          "f333316": 0
+        },
+        "git_show_HEAD": {
+          "validation/test_g1_g5_offline_drift.py": {
+            "at_head": true,
+            "expected_present": true,
+            "sha256": "83234a89fa62be49931dc1adee7d36e8a7780d9f8f781b854f69214d388a12c5",
+            "bytes": 42074,
+            "match_pin": true,
+            "ok": true
+          },
+          "validation/promotion-flight-20260908/independent-candidate/flight-audit.json": {
+            "at_head": true,
+            "expected_present": true,
+            "sha256": "b1df8a365ff9864d02fb8d7508cf2e002b4c87307ee61d0646923ba34eb68b9a",
+            "bytes": 7005,
+            "match_pin": true,
+            "ok": true
+          },
+          "validation/promotion-flight-20260908/independent-candidate/flown-source/manifest.json": {
+            "at_head": true,
+            "expected_present": true,
+            "sha256": "156ed0de4de9a8d0087ee75d96a235c32ca497e1e97005d83cc385e4683e1719",
+            "bytes": 12309,
+            "match_pin": true,
+            "ok": true
+          },
+          "validation/coordination/cursor-g1-g5-uncovered-offline-repair-20260914-01/stdlib_identity_plugin.py": {
+            "at_head": true,
+            "expected_present": true,
+            "sha256": "e7044fb5d01f42200cb06c27aa11d5413b590930415b4200110f9504e620101f",
+            "bytes": 3373,
+            "match_pin": true,
+            "ok": true
+          },
+          "validation/coordination/cursor-g1-g5-uncovered-offline-repair-20260914-01/isolation_after_g1g5.py": {
+            "at_head": true,
+            "expected_present": true,
+            "sha256": "e540760a8c546331cc5c2dd6ade981e008f7630b848b55e3162feb820333fa94",
+            "bytes": 2067,
+            "match_pin": true,
+            "ok": true
+          },
+          "Simulator/wksim_planning/ego_exact_clearance.py": {
+            "at_head": true,
+            "expected_present": true,
+            "sha256": "8b1d2dd8c097447d32d5d4f22b5827f8712ac84c9de0e963983d24e73efd46ea",
+            "bytes": 38854,
+            "match_pin": true,
+            "ok": true
+          },
+          "validation/test_ego_exact_clearance.py": {
+            "at_head": true,
+            "expected_present": true,
+            "sha256": "d3541280c8d03127b047a2c7d67ce5581b6ff0c4dd0378b96209550ff762ae17",
+            "bytes": 56737,
+            "match_pin": true,
+            "ok": true
+          },
+          "docs/plan/102-exact-clearance-candidate.md": {
+            "at_head": true,
+            "expected_present": true,
+            "sha256": "b1203d51676cb7ac8676e0f33c7769da2a599f93b2e57560b073f930fc41b0fe",
+            "bytes": 17982,
+            "match_pin": true,
+            "ok": true
+          },
+          "docs/plan/59-e0-frame-datum-binding-20260914.md": {
+            "at_head": true,
+            "expected_present": true,
+            "sha256": "3fbb0e7fbdbc069a702dd0e8417c9b6a8dd3961575d5a188817990b280b553f8",
+            "bytes": 15449,
+            "match_pin": true,
+            "ok": true
+          },
+          "validation/e0-frame-datum-binding-20260914.json": {
+            "at_head": true,
+            "expected_present": true,
+            "sha256": "5d589075c128e2a22d24d88d7dea0ce753a68f4d46937386c581d3fae945b69f",
+            "bytes": 105018,
+            "match_pin": true,
+            "ok": true
+          },
+          "validation/test_e0_frame_datum_binding.py": {
+            "at_head": true,
+            "expected_present": true,
+            "sha256": "e412f2d1981fd02b34531426f31c6f010c96d15331bf41f30fc136cc59f10da6",
+            "bytes": 77146,
+            "match_pin": true,
+            "ok": true
+          }
+        },
+        "seven_rows": {
+          "rows": [
+            {
+              "path": "Simulator/wksim_runtime/examples/arducopter-mission.json",
+              "head_blob": "d4140c0e46f038019fd8c7de45c3ca9cd8ba612a",
+              "match_blob": true,
+              "sha256": "cce5d7c77e550cb6326fbc10f83f0a657838d2c4f14ffcb730c7da56d1cbb00e",
+              "match_sha256": true
+            },
+            {
+              "path": "Simulator/wksim_runtime/examples/px4-mission.json",
+              "head_blob": "2e7e4205c86bf15b22bd9ea748387ea3f925341b",
+              "match_blob": true,
+              "sha256": "62cda2312cecd71291630b9cf64207cafbcfd0006f734ef48bb38480c0597bb6",
+              "match_sha256": true
+            },
+            {
+              "path": "Simulator/wksim_runtime/independent_profile.py",
+              "head_blob": "9635de42839e5c535d76baa5637e270afd69dd23",
+              "match_blob": true,
+              "sha256": "28816b6e330785f2d576b5fae93efc4835d2155e94e4008ca0889dfde469278c",
+              "match_sha256": true
+            },
+            {
+              "path": "Simulator/wksim_runtime/independent-profile-evidence.json",
+              "head_blob": "33b63faa14c17488fc5468a835a8c118ffe4e13f",
+              "match_blob": true,
+              "sha256": "a0f1d60b4ad5b01fb38e775f42907b2b2f1cdc3741da152b3ea81343b7015535",
+              "match_sha256": true
+            },
+            {
+              "path": "Simulator/wksim_runtime/task.py",
+              "head_blob": "8091c15dc5ba811b4128ef715233a3fa749ef30e",
+              "match_blob": true,
+              "sha256": "9791913df7ad61d229a151d4d1d0e5c2b3f32d127a7545096b43a32638f0dbbc",
+              "match_sha256": true
+            },
+            {
+              "path": "Simulator/wksim_runtime/telemetry.py",
+              "head_blob": "33098129c6cee5d0d2b0baef9393bc7a06a35db5",
+              "match_blob": true,
+              "sha256": "e62be21faeec23fd1d70932b7b25fe1d668e167af76e0b6df2624a1d42849eb0",
+              "match_sha256": true
+            },
+            {
+              "path": "Simulator/wksim_core/ap_json.py",
+              "head_blob": "789d4a37454ceabf7702089935328696f6e28148",
+              "match_blob": true,
+              "sha256": "db3498d5df50aa3ab46601a8e899c6739e613d431a7d221ac57d2a86e1846469",
+              "match_sha256": true
+            }
+          ],
+          "all_frozen": true
+        },
+        "all_show_ok": true,
+        "seven_frozen": true
+      },
+      "materialize": {
+        "dest": "/tmp/wksim-g1g5-head-repair-2rpcly54/abc/wt-C",
+        "head_file_count": 10381,
+        "checked_out": 167,
+        "checkout_index_exit": 0,
+        "loaded_whole_archive": false
+      },
+      "tests": {
+        "g1g5_full": {
+          "pytest": {
+            "label": "abc-after-C-g1g5-pytest",
+            "host": "linux-ubuntu-22.04",
+            "kind": "pytest",
+            "nodes": [
+              "validation/test_g1_g5_offline_drift.py"
+            ],
+            "returncode": 0,
+            "summary_line": "33 passed, 8 subtests passed in 0.85s",
+            "failed_nodes": [],
+            "skipped_lines": [],
+            "text_capture": "captures/linux-ubuntu-22.04-abc-after-C-g1g5-pytest.txt",
+            "ok": true
+          },
+          "unittest": {
+            "label": "abc-after-C-g1g5-unittest",
+            "host": "linux-ubuntu-22.04",
+            "kind": "unittest",
+            "nodes": [
+              "validation.test_g1_g5_offline_drift"
+            ],
+            "returncode": 0,
+            "ran": 33,
+            "ok": true,
+            "failed_banner": false,
+            "skipped": null,
+            "assertion_lines": [],
+            "text_capture": "captures/linux-ubuntu-22.04-abc-after-C-g1g5-unittest.txt"
+          },
+          "ok": true
+        },
+        "interleaved": {
+          "label": "abc-after-C-interleaved",
+          "host": "linux-ubuntu-22.04",
+          "kind": "pytest",
+          "nodes": [
+            "validation/test_g1_g5_offline_drift.py::GuardScopeTests::test_stdlib_identities_restored_after_guarded_context",
+            "validation/test_ego_exact_clearance.py::ThresholdBandTests::test_tolerance_default_and_bounds",
+            "validation/test_g1_g5_offline_drift.py::IndependentEvidenceTests::test_evidence_descriptor_schema_and_local_pin_bytes",
+            "validation/test_ego_exact_clearance.py::EvidenceSurfaceTests::test_module_is_not_wired_into_the_committed_gate_or_pump",
+            "validation/test_g1_g5_offline_drift.py::HeadIdentityTests::test_head_and_row_blobs_fail_closed_on_drift",
+            "validation/test_ego_exact_clearance.py::StructuralFailClosedTests::test_repeated_knot_fails_closed",
+            "validation/test_g1_g5_offline_drift.py::TelemetryOfflineTests::test_constructor_cannot_create_sockets_and_restores_guards",
+            "validation/test_ego_exact_clearance.py::CallerErrorTests::test_error_reason_vocabulary_is_stable",
+            "validation/coordination/cursor-g1-g5-uncovered-offline-repair-20260914-01/isolation_after_g1g5.py::IsolationAfterG1G5Tests::test_plugin_captured_identities_are_unpatched"
+          ],
+          "returncode": 0,
+          "summary_line": "9 passed in 0.20s",
+          "failed_nodes": [],
+          "skipped_lines": [],
+          "text_capture": "captures/linux-ubuntu-22.04-abc-after-C-interleaved.txt",
+          "ok": true
+        }
+      },
+      "proof_ok": true,
+      "g1g5_ok": true,
+      "interleaved_ok": true
+    }
+  ],
+  "after_a": {
+    "head": "c844a0614b5dea319e9221557540cd92259dc8b8",
+    "tree": "ed8281dc38362ef862ca42b4753983c52b966160",
+    "g1g5_ok": true
+  },
+  "empty": {
+    "kind": "empty",
+    "commit": {
+      "commit": "9f4f4765e5f89b3b22a4d5bd9727996106e8f701",
+      "tree": "8ab33ef851c73a5bf32d5dbd848cc00c52a021d5",
+      "parent": "2b4714f83dade1bf45df9e5a775a075be27a7f08"
+    },
+    "proof": {
+      "head": "9f4f4765e5f89b3b22a4d5bd9727996106e8f701",
+      "tree": "8ab33ef851c73a5bf32d5dbd848cc00c52a021d5",
+      "source_is_ancestor": true,
+      "f333316_is_ancestor": true,
+      "ancestor_exits": {
+        "source_head": 0,
+        "f333316": 0
+      },
+      "git_show_HEAD": {
+        "validation/test_g1_g5_offline_drift.py": {
+          "at_head": true,
+          "expected_present": true,
+          "sha256": "83234a89fa62be49931dc1adee7d36e8a7780d9f8f781b854f69214d388a12c5",
+          "bytes": 42074,
+          "match_pin": true,
+          "ok": true
+        },
+        "validation/promotion-flight-20260908/independent-candidate/flight-audit.json": {
+          "at_head": true,
+          "expected_present": true,
+          "sha256": "b1df8a365ff9864d02fb8d7508cf2e002b4c87307ee61d0646923ba34eb68b9a",
+          "bytes": 7005,
+          "match_pin": true,
+          "ok": true
+        },
+        "validation/promotion-flight-20260908/independent-candidate/flown-source/manifest.json": {
+          "at_head": true,
+          "expected_present": true,
+          "sha256": "156ed0de4de9a8d0087ee75d96a235c32ca497e1e97005d83cc385e4683e1719",
+          "bytes": 12309,
+          "match_pin": true,
+          "ok": true
+        },
+        "validation/coordination/cursor-g1-g5-uncovered-offline-repair-20260914-01/stdlib_identity_plugin.py": {
+          "at_head": true,
+          "expected_present": true,
+          "sha256": "e7044fb5d01f42200cb06c27aa11d5413b590930415b4200110f9504e620101f",
+          "bytes": 3373,
+          "match_pin": true,
+          "ok": true
+        },
+        "validation/coordination/cursor-g1-g5-uncovered-offline-repair-20260914-01/isolation_after_g1g5.py": {
+          "at_head": true,
+          "expected_present": true,
+          "sha256": "e540760a8c546331cc5c2dd6ade981e008f7630b848b55e3162feb820333fa94",
+          "bytes": 2067,
+          "match_pin": true,
+          "ok": true
+        },
+        "Simulator/wksim_planning/ego_exact_clearance.py": {
+          "at_head": true,
+          "expected_present": true,
+          "sha256": "8b1d2dd8c097447d32d5d4f22b5827f8712ac84c9de0e963983d24e73efd46ea",
+          "bytes": 38854,
+          "match_pin": true,
+          "ok": true
+        },
+        "validation/test_ego_exact_clearance.py": {
+          "at_head": true,
+          "expected_present": true,
+          "sha256": "d3541280c8d03127b047a2c7d67ce5581b6ff0c4dd0378b96209550ff762ae17",
+          "bytes": 56737,
+          "match_pin": true,
+          "ok": true
+        },
+        "docs/plan/102-exact-clearance-candidate.md": {
+          "at_head": true,
+          "expected_present": true,
+          "sha256": "b1203d51676cb7ac8676e0f33c7769da2a599f93b2e57560b073f930fc41b0fe",
+          "bytes": 17982,
+          "match_pin": true,
+          "ok": true
+        },
+        "docs/plan/59-e0-frame-datum-binding-20260914.md": {
+          "at_head": true,
+          "expected_present": true,
+          "sha256": "3fbb0e7fbdbc069a702dd0e8417c9b6a8dd3961575d5a188817990b280b553f8",
+          "bytes": 15449,
+          "match_pin": true,
+          "ok": true
+        },
+        "validation/e0-frame-datum-binding-20260914.json": {
+          "at_head": true,
+          "expected_present": true,
+          "sha256": "5d589075c128e2a22d24d88d7dea0ce753a68f4d46937386c581d3fae945b69f",
+          "bytes": 105018,
+          "match_pin": true,
+          "ok": true
+        },
+        "validation/test_e0_frame_datum_binding.py": {
+          "at_head": true,
+          "expected_present": true,
+          "sha256": "e412f2d1981fd02b34531426f31c6f010c96d15331bf41f30fc136cc59f10da6",
+          "bytes": 77146,
+          "match_pin": true,
+          "ok": true
+        }
+      },
+      "seven_rows": {
+        "rows": [
+          {
+            "path": "Simulator/wksim_runtime/examples/arducopter-mission.json",
+            "head_blob": "d4140c0e46f038019fd8c7de45c3ca9cd8ba612a",
+            "match_blob": true,
+            "sha256": "cce5d7c77e550cb6326fbc10f83f0a657838d2c4f14ffcb730c7da56d1cbb00e",
+            "match_sha256": true
+          },
+          {
+            "path": "Simulator/wksim_runtime/examples/px4-mission.json",
+            "head_blob": "2e7e4205c86bf15b22bd9ea748387ea3f925341b",
+            "match_blob": true,
+            "sha256": "62cda2312cecd71291630b9cf64207cafbcfd0006f734ef48bb38480c0597bb6",
+            "match_sha256": true
+          },
+          {
+            "path": "Simulator/wksim_runtime/independent_profile.py",
+            "head_blob": "9635de42839e5c535d76baa5637e270afd69dd23",
+            "match_blob": true,
+            "sha256": "28816b6e330785f2d576b5fae93efc4835d2155e94e4008ca0889dfde469278c",
+            "match_sha256": true
+          },
+          {
+            "path": "Simulator/wksim_runtime/independent-profile-evidence.json",
+            "head_blob": "33b63faa14c17488fc5468a835a8c118ffe4e13f",
+            "match_blob": true,
+            "sha256": "a0f1d60b4ad5b01fb38e775f42907b2b2f1cdc3741da152b3ea81343b7015535",
+            "match_sha256": true
+          },
+          {
+            "path": "Simulator/wksim_runtime/task.py",
+            "head_blob": "8091c15dc5ba811b4128ef715233a3fa749ef30e",
+            "match_blob": true,
+            "sha256": "9791913df7ad61d229a151d4d1d0e5c2b3f32d127a7545096b43a32638f0dbbc",
+            "match_sha256": true
+          },
+          {
+            "path": "Simulator/wksim_runtime/telemetry.py",
+            "head_blob": "33098129c6cee5d0d2b0baef9393bc7a06a35db5",
+            "match_blob": true,
+            "sha256": "e62be21faeec23fd1d70932b7b25fe1d668e167af76e0b6df2624a1d42849eb0",
+            "match_sha256": true
+          },
+          {
+            "path": "Simulator/wksim_core/ap_json.py",
+            "head_blob": "789d4a37454ceabf7702089935328696f6e28148",
+            "match_blob": true,
+            "sha256": "db3498d5df50aa3ab46601a8e899c6739e613d431a7d221ac57d2a86e1846469",
+            "match_sha256": true
+          }
+        ],
+        "all_frozen": true
+      },
+      "all_show_ok": true,
+      "seven_frozen": true
+    },
+    "materialize": {
+      "dest": "/tmp/wksim-g1g5-head-repair-2rpcly54/abc/wt-empty",
+      "head_file_count": 10381,
+      "checked_out": 167,
+      "checkout_index_exit": 0,
+      "loaded_whole_archive": false
+    },
+    "tests": {
+      "g1g5_full": {
+        "pytest": {
+          "label": "abc-after-empty-g1g5-pytest",
+          "host": "linux-ubuntu-22.04",
+          "kind": "pytest",
+          "nodes": [
+            "validation/test_g1_g5_offline_drift.py"
+          ],
+          "returncode": 0,
+          "summary_line": "33 passed, 8 subtests passed in 0.87s",
+          "failed_nodes": [],
+          "skipped_lines": [],
+          "text_capture": "captures/linux-ubuntu-22.04-abc-after-empty-g1g5-pytest.txt",
+          "ok": true
+        },
+        "unittest": {
+          "label": "abc-after-empty-g1g5-unittest",
+          "host": "linux-ubuntu-22.04",
+          "kind": "unittest",
+          "nodes": [
+            "validation.test_g1_g5_offline_drift"
+          ],
+          "returncode": 0,
+          "ran": 33,
+          "ok": true,
+          "failed_banner": false,
+          "skipped": null,
+          "assertion_lines": [],
+          "text_capture": "captures/linux-ubuntu-22.04-abc-after-empty-g1g5-unittest.txt"
+        },
+        "ok": true
+      },
+      "interleaved": {
+        "label": "abc-after-empty-interleaved",
+        "host": "linux-ubuntu-22.04",
+        "kind": "pytest",
+        "nodes": [
+          "validation/test_g1_g5_offline_drift.py::GuardScopeTests::test_stdlib_identities_restored_after_guarded_context",
+          "validation/test_ego_exact_clearance.py::ThresholdBandTests::test_tolerance_default_and_bounds",
+          "validation/test_g1_g5_offline_drift.py::IndependentEvidenceTests::test_evidence_descriptor_schema_and_local_pin_bytes",
+          "validation/test_ego_exact_clearance.py::EvidenceSurfaceTests::test_module_is_not_wired_into_the_committed_gate_or_pump",
+          "validation/test_g1_g5_offline_drift.py::HeadIdentityTests::test_head_and_row_blobs_fail_closed_on_drift",
+          "validation/test_ego_exact_clearance.py::StructuralFailClosedTests::test_repeated_knot_fails_closed",
+          "validation/test_g1_g5_offline_drift.py::TelemetryOfflineTests::test_constructor_cannot_create_sockets_and_restores_guards",
+          "validation/test_ego_exact_clearance.py::CallerErrorTests::test_error_reason_vocabulary_is_stable",
+          "validation/coordination/cursor-g1-g5-uncovered-offline-repair-20260914-01/isolation_after_g1g5.py::IsolationAfterG1G5Tests::test_plugin_captured_identities_are_unpatched"
+        ],
+        "returncode": 0,
+        "summary_line": "9 passed in 0.21s",
+        "failed_nodes": [],
+        "skipped_lines": [],
+        "text_capture": "captures/linux-ubuntu-22.04-abc-after-empty-interleaved.txt",
+        "ok": true
+      }
+    },
+    "proof_ok": true,
+    "g1g5_ok": true,
+    "interleaved_ok": true
+  },
+  "fail_closed": {
+    "fork": {
+      "commit": {
+        "commit": "3c510ce2d96de84546ab5b7240361ff2d7855e6d",
+        "tree": "ed8281dc38362ef862ca42b4753983c52b966160",
+        "parent": null
+      },
+      "source_is_ancestor_exit": 1,
+      "identity_failed": true,
+      "pytest": {
+        "label": "abc-fork-g1g5-pytest",
+        "host": "linux-ubuntu-22.04",
+        "kind": "pytest",
+        "nodes": [
+          "validation/test_g1_g5_offline_drift.py"
+        ],
+        "returncode": 1,
+        "summary_line": "10 failed, 23 passed, 8 subtests passed in 2.86s",
+        "failed_nodes": [],
+        "skipped_lines": [],
+        "text_capture": "captures/linux-ubuntu-22.04-abc-fork-g1g5-pytest.txt",
+        "ok": false
+      },
+      "unittest": {
+        "label": "abc-fork-g1g5-unittest",
+        "host": "linux-ubuntu-22.04",
+        "kind": "unittest",
+        "nodes": [
+          "validation.test_g1_g5_offline_drift"
+        ],
+        "returncode": 1,
+        "ran": 33,
+        "ok": false,
+        "failed_banner": true,
+        "skipped": null,
+        "assertion_lines": [
+          "raise AssertionError(",
+          "AssertionError: SOURCE_HEAD is not an ancestor of HEAD (merge-base --is-ancestor exit 1)",
+          "raise AssertionError(",
+          "AssertionError: SOURCE_HEAD is not an ancestor of HEAD (merge-base --is-ancestor exit 1)",
+          "raise AssertionError(",
+          "AssertionError: SOURCE_HEAD is not an ancestor of HEAD (merge-base --is-ancestor exit 1)",
+          "raise AssertionError(",
+          "AssertionError: SOURCE_HEAD is not an ancestor of HEAD (merge-base --is-ancestor exit 1)",
+          "raise AssertionError(",
+          "AssertionError: SOURCE_HEAD is not an ancestor of HEAD (merge-base --is-ancestor exit 1)",
+          "raise AssertionError(",
+          "AssertionError: SOURCE_HEAD is not an ancestor of HEAD (merge-base --is-ancestor exit 1)",
+          "self.assertEqual(identities[\"ancestor_code\"], 0)",
+          "AssertionError: 1 != 0",
+          "self.assertEqual(identities[\"ancestor_code\"], 0)",
+          "AssertionError: 1 != 0"
+        ],
+        "text_capture": "captures/linux-ubuntu-22.04-abc-fork-g1g5-unittest.txt"
+      },
+      "ok_fail_closed": true
+    },
+    "blob_drift": {
+      "commit": {
+        "commit": "0062e6507b6d4e395f4c174ff2fb83409dec146a",
+        "tree": "4da6383ed4da0f888edc67d94cd1b642bb983bd1",
+        "parent": "9f4f4765e5f89b3b22a4d5bd9727996106e8f701",
+        "path": "Simulator/wksim_runtime/task.py",
+        "blob": "82b4f69d4b935d0ce1b141ec527057bccc33c7b8"
+      },
+      "seven_frozen": false,
+      "identity_failed": true,
+      "pytest": {
+        "label": "abc-blob-drift-g1g5-pytest",
+        "host": "linux-ubuntu-22.04",
+        "kind": "pytest",
+        "nodes": [
+          "validation/test_g1_g5_offline_drift.py"
+        ],
+        "returncode": 1,
+        "summary_line": "11 failed, 22 passed, 8 subtests passed in 1.04s",
+        "failed_nodes": [],
+        "skipped_lines": [],
+        "text_capture": "captures/linux-ubuntu-22.04-abc-blob-drift-g1g5-pytest.txt",
+        "ok": false
+      },
+      "unittest": {
+        "label": "abc-blob-drift-g1g5-unittest",
+        "host": "linux-ubuntu-22.04",
+        "kind": "unittest",
+        "nodes": [
+          "validation.test_g1_g5_offline_drift"
+        ],
+        "returncode": 1,
+        "ran": 33,
+        "ok": false,
+        "failed_banner": true,
+        "skipped": null,
+        "assertion_lines": [
+          "raise AssertionError(\"worktree blob SHA-1 drifted: %s\" % path)",
+          "AssertionError: worktree blob SHA-1 drifted: Simulator/wksim_runtime/task.py",
+          "raise AssertionError(\"HEAD blob SHA-1 drifted: %s\" % path)",
+          "AssertionError: HEAD blob SHA-1 drifted: Simulator/wksim_runtime/task.py",
+          "raise AssertionError(\"HEAD blob SHA-1 drifted: %s\" % path)",
+          "AssertionError: HEAD blob SHA-1 drifted: Simulator/wksim_runtime/task.py",
+          "raise AssertionError(\"HEAD blob SHA-1 drifted: %s\" % path)",
+          "AssertionError: HEAD blob SHA-1 drifted: Simulator/wksim_runtime/task.py",
+          "raise AssertionError(\"HEAD blob SHA-1 drifted: %s\" % path)",
+          "AssertionError: HEAD blob SHA-1 drifted: Simulator/wksim_runtime/task.py",
+          "raise AssertionError(\"HEAD blob SHA-1 drifted: %s\" % path)",
+          "AssertionError: HEAD blob SHA-1 drifted: Simulator/wksim_runtime/task.py",
+          "raise AssertionError(\"HEAD blob SHA-1 drifted: %s\" % path)",
+          "AssertionError: HEAD blob SHA-1 drifted: Simulator/wksim_runtime/task.py",
+          "raise AssertionError(\"HEAD blob SHA-1 drifted: %s\" % path)",
+          "AssertionError: HEAD blob SHA-1 drifted: Simulator/wksim_runtime/task.py"
+        ],
+        "text_capture": "captures/linux-ubuntu-22.04-abc-blob-drift-g1g5-unittest.txt"
+      },
+      "ok_fail_closed": true
+    }
+  },
+  "final_head": "2b4714f83dade1bf45df9e5a775a075be27a7f08",
+  "final_tree": "8ab33ef851c73a5bf32d5dbd848cc00c52a021d5",
+  "empty_head": "9f4f4765e5f89b3b22a4d5bd9727996106e8f701",
+  "method": "objects/info/alternates + read-tree + hash-object --no-filters + update-index --cacheinfo + write-tree + commit-tree",
+  "whole_repo_archive_in_memory": false,
+  "project_repo_mutated": false
+}

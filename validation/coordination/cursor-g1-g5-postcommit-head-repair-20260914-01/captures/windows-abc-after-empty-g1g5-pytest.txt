@@ -1,0 +1,7 @@
+$ D:\date\miniconda\python.exe -B -m pytest -p no:cacheprovider -p no:logging -p stdlib_identity_plugin -q --tb=short -rs validation/test_g1_g5_offline_drift.py
+..........................s.s....                                [100%]
+- stdlib identities match pre-collection capture after collection and session (socket.socket, subprocess.run, ctypes.CDLL, os.system, sys.dont_write_bytecode=True) -
+=========================== short test summary info ===========================
+SKIPPED [1] validation\test_g1_g5_offline_drift.py:845: pinned telemetry dialects are not present on this host; decode_datagram stays uncovered here
+SKIPPED [1] validation\test_g1_g5_offline_drift.py:781: Unix 0700 destination contract is not available on Windows
+31 passed, 2 skipped, 8 subtests passed in 1.76s

@@ -1,0 +1,21 @@
+{
+  "schema": "wksim.g1g5-postcommit-head-repair.before-failure.v1",
+  "old_candidate": {
+    "path": "validation/test_g1_g5_offline_drift.py",
+    "sha256": "0281f8317902d74add3b9f1648cbaeb578562616682e3a30437fd05c04538c92",
+    "bytes": 32738,
+    "pin_name": "PINNED_HEAD",
+    "line": 344,
+    "assertion": "self.assertEqual(identities[\"head\"], PINNED_HEAD)",
+    "pinned_head": "6eafdf9c0b734db07a9fe790c86b409d3468c10b"
+  },
+  "binding": {
+    "source": "validation/coordination/cursor-stable-slices-postcommit-sequence-20260914-01",
+    "review_sha256": "2e4a1f627192810a6a59fd39cb892f12f1039324d7700682043bb872a8a00819",
+    "review_json_sha256": "5e8b437f4f2d88b651936bbd4869ece4a180fe40f0c5d6b1254cae228ce4ef97",
+    "windows_abc_after_A_g1g5_txt_sha256": "0044909831b183a1cc5e6fddbb3fe4b2a7305e6e10c9004b4db3aad231687789",
+    "abc_after_A_head": "5f0e6125c984b89edd2e53eebe6cc3ee77a49449",
+    "failure": "HeadIdentityTests.test_head_and_row_blobs_fail_closed_on_drift required identities['head'] == 6eafdf9c0b734db07a9fe790c86b409d3468c10b"
+  },
+  "note": "Before-failure is bound to the just-completed stable-slices FAIL. This repair overwrote the uncommitted candidate; old bytes are not reconstructed."
+}

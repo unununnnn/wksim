@@ -1,0 +1,172 @@
+{
+  "schema": "wksim.g1g5-postcommit-head-finalize2.evidence-matrix.v1",
+  "slice_id": "cursor-g1-g5-postcommit-head-finalize2-20260914-01",
+  "overall": "PASS",
+  "p1": 0,
+  "p2": 0,
+  "p3": 3,
+  "tests_rerun": false,
+  "gates": [
+    {
+      "id": "G-head-ancestor",
+      "verdict": "PASS",
+      "level": null,
+      "check": "HEAD 6eafdf9c… and f333316e ancestor exit 0",
+      "method": "read-only git rev-parse / merge-base --is-ancestor",
+      "evidence": ["current checkout HEAD", "architecture-continuation-20260913.md"]
+    },
+    {
+      "id": "G-candidate-hash",
+      "verdict": "PASS",
+      "level": null,
+      "check": "validation/test_g1_g5_offline_drift.py SHA-256 equals 83234a89fa62be49931dc1adee7d36e8a7780d9f8f781b854f69214d388a12c5",
+      "method": "independent hashlib.sha256 of current bytes",
+      "observed": {
+        "sha256": "83234a89fa62be49931dc1adee7d36e8a7780d9f8f781b854f69214d388a12c5",
+        "bytes": 42074,
+        "cr_count": 917,
+        "not_old": true
+      }
+    },
+    {
+      "id": "G-assertNotEqual-not-misjudged",
+      "verdict": "PASS",
+      "level": "P3",
+      "check": "assertNotEqual(identities[\"head\"], SOURCE_HEAD) is descendant inequality, not current-HEAD equality",
+      "method": "ast.walk Call nodes; literal substring scan",
+      "observed": {
+        "only_head_identity_assert": {
+          "attr": "assertNotEqual",
+          "lineno": 540,
+          "test": "HeadIdentityMutationTests.test_reader_accepts_descendant_head_with_frozen_blobs"
+        },
+        "assertEqual_head_SOURCE_HEAD": false,
+        "PINNED_HEAD": false,
+        "naive_substring_count": 1,
+        "misjudged": false
+      }
+    },
+    {
+      "id": "G-repair-sha256sums",
+      "verdict": "PASS",
+      "level": null,
+      "check": "every SHA256SUMS row in repair receipt matches on-disk bytes",
+      "method": "read SHA256SUMS, rehash each listed file",
+      "observed": {"n": 77, "bad": [], "ok": true}
+    },
+    {
+      "id": "G-seven-three-way",
+      "verdict": "PASS",
+      "level": null,
+      "check": "HEAD ls-tree blob, worktree blob SHA-1, worktree SHA-256 match PINNED_ROWS; three diffs empty",
+      "method": "git ls-tree HEAD; hashlib; git diff HEAD/--cached/name-only",
+      "observed": {
+        "seven_three_way": true,
+        "vs_head": [],
+        "staged": [],
+        "unstaged": []
+      }
+    },
+    {
+      "id": "G-cross-host-sequences",
+      "verdict": "PASS",
+      "level": null,
+      "check": "Windows and Ubuntu-22.04 ABC/CBA commit and tree SHAs match step-for-step",
+      "method": "read-only repair sequences/*.json and run-summary.json; SHA256SUMS already binds those files",
+      "observed": {
+        "cross_host_commit_shas_identical": true,
+        "commit_sequence_abc_txt_shared_sha256": "88d3354e9ec0f159c79fba7abb523d908b44c5681885250119f1e935a0f17f54",
+        "commit_sequence_cba_txt_shared_sha256": "9cd87c2040ba328e3330fed5ecf6f4944fcc06ef8159e56fdcf8642e3d26640e"
+      }
+    },
+    {
+      "id": "G-commit-order-independent-tree",
+      "verdict": "PASS",
+      "level": null,
+      "check": "ABC and CBA final trees are identical",
+      "method": "read repair review.json / run-summaries",
+      "observed": {
+        "abc_final_head": "2b4714f83dade1bf45df9e5a775a075be27a7f08",
+        "cba_final_head": "4dcfa55daf3288657829674640362ccb21d7731d",
+        "final_tree": "8ab33ef851c73a5bf32d5dbd848cc00c52a021d5"
+      }
+    },
+    {
+      "id": "G-empty-commit-tree-unchanged",
+      "verdict": "PASS",
+      "level": null,
+      "check": "empty commits keep the same tree as the sequence final state",
+      "method": "read repair sequences and final-review run-summaries",
+      "observed": {
+        "abc_empty": "9f4f4765e5f89b3b22a4d5bd9727996106e8f701",
+        "cba_empty": "e7da80472d07bbfe3565df2b2f07556795b88c19",
+        "final_review_empty": "be6efd862a201afcf974bb94c18b21613d77fb0e",
+        "tree": "8ab33ef851c73a5bf32d5dbd848cc00c52a021d5"
+      }
+    },
+    {
+      "id": "G-hostile-evidence",
+      "verdict": "PASS",
+      "level": "P3",
+      "check": "hostile matrices 46/46; repair fork/blob-drift fail-closed",
+      "method": "read-only matrices and fail-closed JSON; no rerun",
+      "observed": {
+        "matrices_46_46": true,
+        "case_ids_equal": true,
+        "linux_matrix_not_in_patch_static_rewrite_list": true,
+        "repair_fork_ok_fail_closed": true,
+        "repair_blob_drift_ok_fail_closed": true
+      }
+    },
+    {
+      "id": "G-force-add-unchanged",
+      "verdict": "PASS",
+      "level": null,
+      "check": "four force-add dependencies still match repair pins",
+      "method": "independent hashlib.sha256",
+      "observed": {
+        "n": 4,
+        "match": true
+      }
+    },
+    {
+      "id": "G-not-closed",
+      "verdict": "PASS",
+      "level": null,
+      "check": "this receipt does not close #39 / G1 / G5 / Full",
+      "observed": {
+        "issue_39": false,
+        "G1": false,
+        "G5": false,
+        "Full": false
+      }
+    }
+  ],
+  "findings": [
+    {
+      "level": "P3",
+      "id": "F-p3-assertNotEqual-naive-substring",
+      "gate": "G-assertNotEqual-not-misjudged",
+      "candidate_defect": false
+    },
+    {
+      "level": "P3",
+      "id": "F-p3-prior-final-review-incomplete-self-patch",
+      "gate": "G-hostile-evidence",
+      "candidate_defect": false,
+      "rewritten_by_patch_static": [
+        "candidate-hashes.json",
+        "hostile-matrix.json",
+        "captures/windows-hostile-matrix.json",
+        "captures/windows-run-summary.json"
+      ]
+    },
+    {
+      "level": "P3",
+      "id": "F-p3-prior-finalize-incomplete",
+      "gate": null,
+      "candidate_defect": false,
+      "path": "validation/coordination/cursor-g1-g5-postcommit-head-finalize-20260914-01"
+    }
+  ]
+}

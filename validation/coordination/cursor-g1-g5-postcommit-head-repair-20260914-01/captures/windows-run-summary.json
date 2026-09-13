@@ -1,0 +1,242 @@
+{
+  "schema": "wksim.g1g5-postcommit-head-repair.run-summary.v1",
+  "host": "windows",
+  "platform": "Windows-11-10.0.28000-SP0",
+  "python": "3.13.11 | packaged by Anaconda, Inc. | (main, Dec 10 2025, 21:21:58) [MSC v.1929 64 bit (AMD64)]",
+  "temp_root": "C:\\Users\\PC\\AppData\\Local\\Temp\\wksim-g1g5-head-repair-wh9ygdve",
+  "start": {
+    "head": "6eafdf9c0b734db07a9fe790c86b409d3468c10b",
+    "head_equals_source": true,
+    "ancestor_f333316_exit": 0,
+    "source_is_ancestor_exit": 0,
+    "tracked_dirty": [
+      " M docs/Prometheus.gitmodules.reference",
+      " M validation/coordination/short-cycle-dispatches.json"
+    ],
+    "cwd": "C:\\Users\\PC\\Documents\\odid编译\\wksim",
+    "repo": "C:\\Users\\PC\\Documents\\odid编译\\wksim",
+    "branch": "main"
+  },
+  "end": {
+    "head": "6eafdf9c0b734db07a9fe790c86b409d3468c10b",
+    "head_equals_source": true,
+    "ancestor_f333316_exit": 0,
+    "source_is_ancestor_exit": 0,
+    "tracked_dirty": [
+      " M docs/Prometheus.gitmodules.reference",
+      " M validation/coordination/short-cycle-dispatches.json"
+    ],
+    "cwd": "C:\\Users\\PC\\Documents\\odid编译\\wksim",
+    "repo": "C:\\Users\\PC\\Documents\\odid编译\\wksim",
+    "branch": "main"
+  },
+  "before_failure": {
+    "schema": "wksim.g1g5-postcommit-head-repair.before-failure.v1",
+    "old_candidate": {
+      "path": "validation/test_g1_g5_offline_drift.py",
+      "sha256": "0281f8317902d74add3b9f1648cbaeb578562616682e3a30437fd05c04538c92",
+      "bytes": 32738,
+      "pin_name": "PINNED_HEAD",
+      "line": 344,
+      "assertion": "self.assertEqual(identities[\"head\"], PINNED_HEAD)",
+      "pinned_head": "6eafdf9c0b734db07a9fe790c86b409d3468c10b"
+    },
+    "binding": {
+      "source": "validation/coordination/cursor-stable-slices-postcommit-sequence-20260914-01",
+      "review_sha256": "2e4a1f627192810a6a59fd39cb892f12f1039324d7700682043bb872a8a00819",
+      "review_json_sha256": "5e8b437f4f2d88b651936bbd4869ece4a180fe40f0c5d6b1254cae228ce4ef97",
+      "windows_abc_after_A_g1g5_txt_sha256": "0044909831b183a1cc5e6fddbb3fe4b2a7305e6e10c9004b4db3aad231687789",
+      "abc_after_A_head": "5f0e6125c984b89edd2e53eebe6cc3ee77a49449",
+      "failure": "HeadIdentityTests.test_head_and_row_blobs_fail_closed_on_drift required identities['head'] == 6eafdf9c0b734db07a9fe790c86b409d3468c10b"
+    },
+    "note": "Before-failure is bound to the just-completed stable-slices FAIL. This repair overwrote the uncommitted candidate; old bytes are not reconstructed."
+  },
+  "new_candidate_sha256": "83234a89fa62be49931dc1adee7d36e8a7780d9f8f781b854f69214d388a12c5",
+  "old_candidate_sha256": "0281f8317902d74add3b9f1648cbaeb578562616682e3a30437fd05c04538c92",
+  "helpers": {
+    "validation/test_g1_g5_offline_drift.py": {
+      "sha256": "83234a89fa62be49931dc1adee7d36e8a7780d9f8f781b854f69214d388a12c5",
+      "bytes": 42074,
+      "match": true,
+      "add": "ordinary",
+      "slice": "A"
+    },
+    "validation/promotion-flight-20260908/independent-candidate/flight-audit.json": {
+      "sha256": "b1df8a365ff9864d02fb8d7508cf2e002b4c87307ee61d0646923ba34eb68b9a",
+      "bytes": 7005,
+      "match": true,
+      "add": "force",
+      "slice": "A"
+    },
+    "validation/promotion-flight-20260908/independent-candidate/flown-source/manifest.json": {
+      "sha256": "156ed0de4de9a8d0087ee75d96a235c32ca497e1e97005d83cc385e4683e1719",
+      "bytes": 12309,
+      "match": true,
+      "add": "force",
+      "slice": "A"
+    },
+    "validation/coordination/cursor-g1-g5-uncovered-offline-repair-20260914-01/stdlib_identity_plugin.py": {
+      "sha256": "e7044fb5d01f42200cb06c27aa11d5413b590930415b4200110f9504e620101f",
+      "bytes": 3373,
+      "match": true,
+      "add": "force",
+      "slice": "A"
+    },
+    "validation/coordination/cursor-g1-g5-uncovered-offline-repair-20260914-01/isolation_after_g1g5.py": {
+      "sha256": "e540760a8c546331cc5c2dd6ade981e008f7630b848b55e3162feb820333fa94",
+      "bytes": 2067,
+      "match": true,
+      "add": "force",
+      "slice": "A"
+    },
+    "Simulator/wksim_planning/ego_exact_clearance.py": {
+      "sha256": "8b1d2dd8c097447d32d5d4f22b5827f8712ac84c9de0e963983d24e73efd46ea",
+      "bytes": 38854,
+      "match": true,
+      "add": "ordinary",
+      "slice": "B"
+    },
+    "validation/test_ego_exact_clearance.py": {
+      "sha256": "d3541280c8d03127b047a2c7d67ce5581b6ff0c4dd0378b96209550ff762ae17",
+      "bytes": 56737,
+      "match": true,
+      "add": "ordinary",
+      "slice": "B"
+    },
+    "docs/plan/102-exact-clearance-candidate.md": {
+      "sha256": "b1203d51676cb7ac8676e0f33c7769da2a599f93b2e57560b073f930fc41b0fe",
+      "bytes": 17982,
+      "match": true,
+      "add": "ordinary",
+      "slice": "B"
+    },
+    "docs/plan/59-e0-frame-datum-binding-20260914.md": {
+      "sha256": "3fbb0e7fbdbc069a702dd0e8417c9b6a8dd3961575d5a188817990b280b553f8",
+      "bytes": 15449,
+      "match": true,
+      "add": "ordinary",
+      "slice": "C"
+    },
+    "validation/e0-frame-datum-binding-20260914.json": {
+      "sha256": "5d589075c128e2a22d24d88d7dea0ce753a68f4d46937386c581d3fae945b69f",
+      "bytes": 105018,
+      "match": true,
+      "add": "ordinary",
+      "slice": "C"
+    },
+    "validation/test_e0_frame_datum_binding.py": {
+      "sha256": "e412f2d1981fd02b34531426f31c6f010c96d15331bf41f30fc136cc59f10da6",
+      "bytes": 77146,
+      "match": true,
+      "add": "ordinary",
+      "slice": "C"
+    }
+  },
+  "project_head_unchanged": true,
+  "project_add_commit_stage_reset_clean": false,
+  "whole_repo_archive_in_memory": false,
+  "reran_83": false,
+  "reran_native_build_flight": false,
+  "sequences": {
+    "abc": {
+      "order": [
+        "A",
+        "B",
+        "C"
+      ],
+      "final_head": "2b4714f83dade1bf45df9e5a775a075be27a7f08",
+      "final_tree": "8ab33ef851c73a5bf32d5dbd848cc00c52a021d5",
+      "empty_head": "9f4f4765e5f89b3b22a4d5bd9727996106e8f701",
+      "after_a": {
+        "head": "c844a0614b5dea319e9221557540cd92259dc8b8",
+        "tree": "ed8281dc38362ef862ca42b4753983c52b966160",
+        "g1g5_ok": true
+      },
+      "empty_g1g5_ok": true,
+      "empty_interleaved_ok": true,
+      "steps": [
+        {
+          "slice": "A",
+          "head": "c844a0614b5dea319e9221557540cd92259dc8b8",
+          "tree": "ed8281dc38362ef862ca42b4753983c52b966160",
+          "proof_ok": true,
+          "g1g5_ok": true,
+          "interleaved_ok": null
+        },
+        {
+          "slice": "B",
+          "head": "f7a0908db435516b74203dee93d6e86cfa4d727c",
+          "tree": "0b500bca489d25813aefface4242607e7aef245a",
+          "proof_ok": true,
+          "g1g5_ok": true,
+          "interleaved_ok": true
+        },
+        {
+          "slice": "C",
+          "head": "2b4714f83dade1bf45df9e5a775a075be27a7f08",
+          "tree": "8ab33ef851c73a5bf32d5dbd848cc00c52a021d5",
+          "proof_ok": true,
+          "g1g5_ok": true,
+          "interleaved_ok": true
+        }
+      ],
+      "fail_closed": {
+        "fork": {
+          "ok_fail_closed": true,
+          "source_is_ancestor_exit": 1,
+          "seven_frozen": null
+        },
+        "blob_drift": {
+          "ok_fail_closed": true,
+          "source_is_ancestor_exit": null,
+          "seven_frozen": false
+        }
+      }
+    },
+    "cba": {
+      "order": [
+        "C",
+        "B",
+        "A"
+      ],
+      "final_head": "4dcfa55daf3288657829674640362ccb21d7731d",
+      "final_tree": "8ab33ef851c73a5bf32d5dbd848cc00c52a021d5",
+      "empty_head": "e7da80472d07bbfe3565df2b2f07556795b88c19",
+      "after_a": {
+        "head": "4dcfa55daf3288657829674640362ccb21d7731d",
+        "tree": "8ab33ef851c73a5bf32d5dbd848cc00c52a021d5",
+        "g1g5_ok": true
+      },
+      "empty_g1g5_ok": true,
+      "empty_interleaved_ok": true,
+      "steps": [
+        {
+          "slice": "C",
+          "head": "6eba0da53d20d8f1fff874c59cbd35be4131b4a7",
+          "tree": "6ca1639c1c3678bfe868fddbd8b04f7d8d825cb1",
+          "proof_ok": true,
+          "g1g5_ok": null,
+          "interleaved_ok": null
+        },
+        {
+          "slice": "B",
+          "head": "0a556bd41fde6d390eb65182aae1520515b79e13",
+          "tree": "70f66fa08d0de9c687e5bc7fa00dfed8255ac4a0",
+          "proof_ok": true,
+          "g1g5_ok": null,
+          "interleaved_ok": null
+        },
+        {
+          "slice": "A",
+          "head": "4dcfa55daf3288657829674640362ccb21d7731d",
+          "tree": "8ab33ef851c73a5bf32d5dbd848cc00c52a021d5",
+          "proof_ok": true,
+          "g1g5_ok": true,
+          "interleaved_ok": true
+        }
+      ],
+      "fail_closed": {}
+    }
+  },
+  "trees_order_independent": true
+}

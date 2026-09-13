@@ -1,0 +1,43 @@
+# Minimal commit set after the G1/G5 post-commit HEAD repair
+# SOURCE_HEAD 6eafdf9c0b734db07a9fe790c86b409d3468c10b
+# This file is an inventory, not a git add/commit.
+
+## A. Normal add (edited candidate; not ignored)
+validation/test_g1_g5_offline_drift.py
+  sha256 83234a89fa62be49931dc1adee7d36e8a7780d9f8f781b854f69214d388a12c5
+  bytes 42074
+  reason SOURCE_HEAD ancestor pin; six read-only git metadata calls; hostile/mutation tests
+  old    0281f8317902d74add3b9f1648cbaeb578562616682e3a30437fd05c04538c92
+
+## B. Force-add required for the focused candidate (unchanged bytes)
+validation/promotion-flight-20260908/independent-candidate/flight-audit.json
+  sha256 b1df8a365ff9864d02fb8d7508cf2e002b4c87307ee61d0646923ba34eb68b9a
+  ignore .gitignore:53 /validation/*/
+
+validation/promotion-flight-20260908/independent-candidate/flown-source/manifest.json
+  sha256 156ed0de4de9a8d0087ee75d96a235c32ca497e1e97005d83cc385e4683e1719
+  ignore .gitignore:53 /validation/*/
+
+## C. Force-add required for documented isolation / interleaved isolation node (unchanged bytes)
+validation/coordination/cursor-g1-g5-uncovered-offline-repair-20260914-01/stdlib_identity_plugin.py
+  sha256 e7044fb5d01f42200cb06c27aa11d5413b590930415b4200110f9504e620101f
+
+validation/coordination/cursor-g1-g5-uncovered-offline-repair-20260914-01/isolation_after_g1g5.py
+  sha256 e540760a8c546331cc5c2dd6ade981e008f7630b848b55e3162feb820333fa94
+
+## D. Already in HEAD — do not add
+seven G1/G5 product rows
+tools/audit_independent_profile.py
+
+## E. This repair directory
+validation/coordination/cursor-g1-g5-postcommit-head-repair-20260914-01/**
+  reason review/captures only; not required to run the focused suite
+  ignore .gitignore:53 /validation/*/
+  if committed with the review: git add -f this directory
+
+## Commands (inventory only; this repair did not run them)
+git add validation/test_g1_g5_offline_drift.py
+git add -f validation/promotion-flight-20260908/independent-candidate/flight-audit.json
+git add -f validation/promotion-flight-20260908/independent-candidate/flown-source/manifest.json
+git add -f validation/coordination/cursor-g1-g5-uncovered-offline-repair-20260914-01/stdlib_identity_plugin.py
+git add -f validation/coordination/cursor-g1-g5-uncovered-offline-repair-20260914-01/isolation_after_g1g5.py

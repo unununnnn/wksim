@@ -1,0 +1,74 @@
+# Durable evidence minimum ingest inventory
+# HEAD 6eafdf9c0b734db07a9fe790c86b409d3468c10b
+# This file is an inventory, not a git add/commit.
+# Independent correctness finalize2 of the G1/G5 postcommit HEAD repair.
+# Tests were not rerun. Candidate and historical receipts were not modified.
+
+## A. Ordinary add — current repaired candidate (not ignored, not in HEAD)
+validation/test_g1_g5_offline_drift.py
+  sha256 83234a89fa62be49931dc1adee7d36e8a7780d9f8f781b854f69214d388a12c5
+  bytes 42074
+  add ordinary
+  reason SOURCE_HEAD ancestor pin; six read-only git metadata calls
+  old    0281f8317902d74add3b9f1648cbaeb578562616682e3a30437fd05c04538c92
+
+## B. Force-add — focused-suite pins (unchanged bytes; .gitignore:53 /validation/*/)
+validation/promotion-flight-20260908/independent-candidate/flight-audit.json
+  sha256 b1df8a365ff9864d02fb8d7508cf2e002b4c87307ee61d0646923ba34eb68b9a
+  bytes 7005
+  add force-add
+
+validation/promotion-flight-20260908/independent-candidate/flown-source/manifest.json
+  sha256 156ed0de4de9a8d0087ee75d96a235c32ca497e1e97005d83cc385e4683e1719
+  bytes 12309
+  add force-add
+
+validation/coordination/cursor-g1-g5-uncovered-offline-repair-20260914-01/stdlib_identity_plugin.py
+  sha256 e7044fb5d01f42200cb06c27aa11d5413b590930415b4200110f9504e620101f
+  bytes 3373
+  add force-add
+
+validation/coordination/cursor-g1-g5-uncovered-offline-repair-20260914-01/isolation_after_g1g5.py
+  sha256 e540760a8c546331cc5c2dd6ade981e008f7630b848b55e3162feb820333fa94
+  bytes 2067
+  add force-add
+
+## C. Already in HEAD — do not add
+seven G1/G5 product rows (blob SHA-1 / SHA-256 frozen; three diffs empty)
+tools/audit_independent_profile.py
+
+## D. Read-only durable receipts used by this finalize2 (do not rewrite)
+validation/coordination/cursor-g1-g5-postcommit-head-repair-20260914-01/SHA256SUMS
+  verified 77/77 this slice; 0 bad
+validation/coordination/cursor-g1-g5-postcommit-head-repair-20260914-01/review.md
+  sha256 c63320c11f8be1bdd7055644c75eeebb85eb6da5975d59a4568ea3962966e1a4
+validation/coordination/cursor-g1-g5-postcommit-head-repair-20260914-01/review.json
+  sha256 3c41b46d5f8fbe7a4b2f8b87282925cdf309749c341643a3ca6b04303e93c8cf
+validation/coordination/cursor-stable-slices-postcommit-sequence-20260914-01/review.md
+  sha256 2e4a1f627192810a6a59fd39cb892f12f1039324d7700682043bb872a8a00819
+validation/coordination/cursor-stable-slices-postcommit-sequence-20260914-01/review.json
+  sha256 5e8b437f4f2d88b651936bbd4869ece4a180fe40f0c5d6b1254cae228ce4ef97
+validation/coordination/cursor-stable-slices-postcommit-sequence-20260914-01/captures/windows-abc-after-A-g1g5.txt
+  sha256 0044909831b183a1cc5e6fddbb3fe4b2a7305e6e10c9004b4db3aad231687789
+
+# final-review directory is incomplete (no review.md/review.json) and some
+# Windows JSON were later rewritten by leftover _patch_static.py.
+# Linux hostile-matrix was not in that rewrite list. Treat as supporting
+# capture only; this finalize2 independently rejudged assertNotEqual.
+
+## E. This finalize2 directory
+validation/coordination/cursor-g1-g5-postcommit-head-finalize2-20260914-01/**
+  reason independent correctness receipt; not required to run the focused suite
+  ignore .gitignore:53 /validation/*/
+  if committed with the review: git add -f this directory
+  files: review.md review.json evidence-matrix.json candidate-hashes.json
+         durable-evidence-manifest.txt SHA256SUMS
+  leftover_scripts: none
+
+## Commands (inventory only; this finalize2 did not run them)
+git add validation/test_g1_g5_offline_drift.py
+git add -f validation/promotion-flight-20260908/independent-candidate/flight-audit.json
+git add -f validation/promotion-flight-20260908/independent-candidate/flown-source/manifest.json
+git add -f validation/coordination/cursor-g1-g5-uncovered-offline-repair-20260914-01/stdlib_identity_plugin.py
+git add -f validation/coordination/cursor-g1-g5-uncovered-offline-repair-20260914-01/isolation_after_g1g5.py
+git add -f validation/coordination/cursor-g1-g5-postcommit-head-finalize2-20260914-01
