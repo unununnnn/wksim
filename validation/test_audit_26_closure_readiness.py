@@ -440,6 +440,83 @@ class ClosureReadinessTests(unittest.TestCase):
         report = self.report()
         self.assertTrue(any("same-basename wrapper" in item for item in report["violations"]))
 
+    def test_historical_absolute_wrapper_rebinds_to_committed_checkout_path(self):
+        path = self.root / EVIDENCE_FILES[4]
+        build = json.loads(path.read_text(encoding="utf-8"))
+        build["staged_sources"]["model.cpp"]["source_path"] = (
+            r"C:\historical\wksim\Simulator\wksim_core\model.cpp"
+        )
+        _write(path, build)
+        _refresh_pin(self.manifest, EVIDENCE_FILES[4], self.root)
+        report = self.report()
+        self.assertEqual(report["violations"], [], report["violations"])
+        self.assertEqual(report["status"], "ready_blocked_by_formal_dependency")
+
+    def test_historical_absolute_wrapper_still_requires_head_blob_identity(self):
+        path = self.root / EVIDENCE_FILES[4]
+        build = json.loads(path.read_text(encoding="utf-8"))
+        build["staged_sources"]["model.cpp"]["source_path"] = (
+            r"C:\historical\wksim\Simulator\wksim_core\model.cpp"
+        )
+        wrapper = self.root / "Simulator/wksim_core/model.cpp"
+        wrapper.write_bytes(wrapper.read_bytes() + b"\n// uncommitted candidate drift\n")
+        digest = _sha(wrapper)
+        size = wrapper.stat().st_size
+        build["staged_sources"]["model.cpp"]["sha256"] = digest
+        build["staged_sources"]["model.cpp"]["size_bytes"] = size
+        _write(path, build)
+        lifecycle_path = self.root / EVIDENCE_FILES[5]
+        lifecycle = json.loads(lifecycle_path.read_text(encoding="utf-8"))
+        lifecycle["source_sha256"]["model.cpp"] = digest
+        _write(lifecycle_path, lifecycle)
+        manifest = json.loads(self.manifest.read_text(encoding="utf-8"))
+        requirements = manifest["acceptance_evidence"]["matlab_free_lifecycle"]["requirements"]
+        requirements["source_sha256"]["model.cpp"] = digest
+        for binding in requirements["run_bindings"]:
+            binding["source_sha256"]["model.cpp"] = digest
+        _write(self.manifest, manifest)
+        _refresh_pin(self.manifest, EVIDENCE_FILES[4], self.root)
+        _refresh_pin(self.manifest, EVIDENCE_FILES[5], self.root)
+        report = self.report()
+        self.assertTrue(
+            any("model.cpp" in item and "worktree bytes drifted" in item for item in report["violations"]),
+            report["violations"],
+        )
+
+    def test_missing_exact_private_generated_source_is_host_bounded(self):
+        path = self.root / EVIDENCE_FILES[4]
+        build = json.loads(path.read_text(encoding="utf-8"))
+        build["staged_sources"]["Exp1_MinModelTemp.cpp"]["source_path"] = (
+            "Z:\\historical\\wksim\\work\\codegen-e0\\short-cycle-codegen-01\\codegen\\"
+            r"Exp1_MinModelTemp_ert_rtw\Exp1_MinModelTemp.cpp"
+        )
+        _write(path, build)
+        _refresh_pin(self.manifest, EVIDENCE_FILES[4], self.root)
+        report = self.report()
+        self.assertEqual(report["violations"], [], report["violations"])
+        self.assertTrue(
+            any(
+                item["field"] == "build manifest.staged_sources.Exp1_MinModelTemp.cpp.source_path"
+                and "private generated source is absent" in item["reason"]
+                for item in report["host_bounded"]
+            ),
+            report["host_bounded"],
+        )
+
+    def test_generated_source_outside_exact_private_boundary_is_rejected(self):
+        path = self.root / EVIDENCE_FILES[4]
+        build = json.loads(path.read_text(encoding="utf-8"))
+        build["staged_sources"]["Exp1_MinModelTemp.cpp"]["source_path"] = (
+            r"Z:\historical\elsewhere\Exp1_MinModelTemp.cpp"
+        )
+        _write(path, build)
+        _refresh_pin(self.manifest, EVIDENCE_FILES[4], self.root)
+        report = self.report()
+        self.assertTrue(
+            any("generated source provenance escaped private source boundary" in item for item in report["violations"]),
+            report["violations"],
+        )
+
     # -- declared historical wrapper identity -------------------------------
 
     def test_declared_historical_wrapper_is_verified_from_the_archived_snapshot(self):
@@ -964,7 +1041,15 @@ class RealRepositoryTests(unittest.TestCase):
         if os.name == "nt":
             self.assertTrue(report["host_bounded"])
         else:
-            self.assertEqual(report["host_bounded"], [])
+            for item in report["host_bounded"]:
+                self.assertIn(
+                    item["field"],
+                    {
+                        "build manifest.staged_sources.Exp1_MinModelTemp.cpp.source_path",
+                        "build manifest.staged_sources.Exp1_MinModelTemp.h.source_path",
+                        "build manifest.staged_sources.rtwtypes.h.source_path",
+                    },
+                )
 
     def test_cli_exit_codes(self):
         ok = subprocess.run([sys.executable, "-B", str(ROOT / "tools/audit_26_closure_readiness.py")], capture_output=True, timeout=60)
