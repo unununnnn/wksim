@@ -1,0 +1,98 @@
+{
+  "crashes": 0,
+  "probe_count": 5,
+  "probes": [
+    {
+      "crashed": false,
+      "exit_code": 0,
+      "probe_file": "probe_1_cover_index.py",
+      "stderr_tail": [],
+      "stdout": [
+        "PROBE-1: 870/870 checks passed (0 failed) -> probe_1_cover_index.json"
+      ],
+      "summary": {
+        "checks_failed": 0,
+        "checks_passed": 870,
+        "checks_total": 870,
+        "failed_checks": [],
+        "json": "probe_1_cover_index.json",
+        "probe": "PROBE-1"
+      }
+    },
+    {
+      "crashed": false,
+      "exit_code": 0,
+      "probe_file": "probe_2_clearance_accounting.py",
+      "stderr_tail": [],
+      "stdout": [
+        "PROBE-2: 30/30 checks passed (0 failed) -> probe_2_clearance_accounting.json"
+      ],
+      "summary": {
+        "checks_failed": 0,
+        "checks_passed": 30,
+        "checks_total": 30,
+        "failed_checks": [],
+        "json": "probe_2_clearance_accounting.json",
+        "probe": "PROBE-2"
+      }
+    },
+    {
+      "crashed": false,
+      "exit_code": 2,
+      "probe_file": "probe_3_threshold_and_labels.py",
+      "stderr_tail": [],
+      "stdout": [
+        "PROBE-3: 18/20 checks passed (2 failed) -> probe_3_threshold_and_labels.json",
+        "  FAIL no NOT-admitted strict report carries continuous_proof=True (doc: 'True only on a strict PASS') :: {'rows': [{'offset_ulp': 2, 'y': 1.6500000000000001, 'exact_slack_m': 1.6653345369377348e-16, 'admitted': False, 'violation': 'obstacle_clearance', 'continuous_proof': True, 'evidence_kind': 'convex_hull_span_certified', 'certificate_proven': True}, {'offset_ulp': 0, 'z': 0.6499999999999999, 'exact_slack_m': -5.551115123125783e-17, 'admitted': False, 'violation': 'map_envelope', 'continuous_proof': True, 'evidence_kind': 'convex_hull_span_certified', 'certificate_proven': True}, {'offset_ulp': 1, 'z': 0.65, 'exact_slack_m': 5.551115123125783e-17, 'admitted': False, 'violation': 'map_envelope', 'continuous_proof': True, 'evidence_kind': 'convex_hull_span_certified', 'certificate_proven': True}]}",
+        "  FAIL no NOT-admitted strict report is labelled convex_hull_span_certified :: {'rows': [{'offset_ulp': 2, 'y': 1.6500000000000001, 'exact_slack_m': 1.6653345369377348e-16, 'admitted': False, 'violation': 'obstacle_clearance', 'continuous_proof': True, 'evidence_kind': 'convex_hull_span_certified', 'certificate_proven': True}, {'offset_ulp': 0, 'z': 0.6499999999999999, 'exact_slack_m': -5.551115123125783e-17, 'admitted': False, 'violation': 'map_envelope', 'continuous_proof': True, 'evidence_kind': 'convex_hull_span_certified', 'certificate_proven': True}, {'offset_ulp': 1, 'z': 0.65, 'exact_slack_m': 5.551115123125783e-17, 'admitted': False, 'violation': 'map_envelope', 'continuous_proof': True, 'evidence_kind': 'convex_hull_span_certified', 'certificate_proven': True}]}"
+      ],
+      "summary": {
+        "checks_failed": 2,
+        "checks_passed": 18,
+        "checks_total": 20,
+        "failed_checks": [
+          "no NOT-admitted strict report carries continuous_proof=True (doc: 'True only on a strict PASS')",
+          "no NOT-admitted strict report is labelled convex_hull_span_certified"
+        ],
+        "json": "probe_3_threshold_and_labels.json",
+        "probe": "PROBE-3"
+      }
+    },
+    {
+      "crashed": false,
+      "exit_code": 0,
+      "probe_file": "probe_4_knot_boundaries.py",
+      "stderr_tail": [],
+      "stdout": [
+        "PROBE-4: 15/15 checks passed (0 failed) -> probe_4_knot_boundaries.json"
+      ],
+      "summary": {
+        "checks_failed": 0,
+        "checks_passed": 15,
+        "checks_total": 15,
+        "failed_checks": [],
+        "json": "probe_4_knot_boundaries.json",
+        "probe": "PROBE-4"
+      }
+    },
+    {
+      "crashed": false,
+      "exit_code": 0,
+      "probe_file": "probe_5_atomicity_pump_outcomes.py",
+      "stderr_tail": [],
+      "stdout": [
+        "PROBE-5: 45/45 checks passed (0 failed) -> probe_5_atomicity_pump_outcomes.json"
+      ],
+      "summary": {
+        "checks_failed": 0,
+        "checks_passed": 45,
+        "checks_total": 45,
+        "failed_checks": [],
+        "json": "probe_5_atomicity_pump_outcomes.json",
+        "probe": "PROBE-5"
+      }
+    }
+  ],
+  "python": "3.13.11",
+  "runner": "run_probes.py"
+}

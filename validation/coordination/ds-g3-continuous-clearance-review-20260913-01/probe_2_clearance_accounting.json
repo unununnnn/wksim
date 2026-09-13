@@ -1,0 +1,266 @@
+{
+  "checks": [
+    {
+      "check": "aabb_gap matches the exact box-box distance (<= 4 ulp)",
+      "detail": {
+        "samples": 3000,
+        "worst_ulp_error": 1.3483018972989647
+      },
+      "ok": true
+    },
+    {
+      "check": "aabb_gap is exactly 0.0 for overlapping boxes",
+      "detail": null,
+      "ok": true
+    },
+    {
+      "check": "clear straight: reported obstacle_hull_gap == min over claimed boxes",
+      "detail": {
+        "recomputed": 2.0,
+        "reported": 2.0
+      },
+      "ok": true
+    },
+    {
+      "check": "clear straight: net clearance == gap - radius (one subtraction, bitwise)",
+      "detail": {
+        "gap_minus_radius": 1.65,
+        "net": 1.65
+      },
+      "ok": true
+    },
+    {
+      "check": "clear straight: certificate reads radius/required from the committed profile",
+      "detail": {
+        "radius": 0.35,
+        "required": 0.3
+      },
+      "ok": true
+    },
+    {
+      "check": "boundary straight: reported obstacle_hull_gap == min over claimed boxes",
+      "detail": {
+        "recomputed": 0.6500000000000001,
+        "reported": 0.6500000000000001
+      },
+      "ok": true
+    },
+    {
+      "check": "boundary straight: net clearance == gap - radius (one subtraction, bitwise)",
+      "detail": {
+        "gap_minus_radius": 0.30000000000000016,
+        "net": 0.30000000000000016
+      },
+      "ok": true
+    },
+    {
+      "check": "boundary straight: certificate reads radius/required from the committed profile",
+      "detail": {
+        "radius": 0.35,
+        "required": 0.3
+      },
+      "ok": true
+    },
+    {
+      "check": "collision straight: reported obstacle_hull_gap == min over claimed boxes",
+      "detail": {
+        "recomputed": 0.0,
+        "reported": 0.0
+      },
+      "ok": true
+    },
+    {
+      "check": "collision straight: net clearance == gap - radius (one subtraction, bitwise)",
+      "detail": {
+        "gap_minus_radius": -0.35,
+        "net": -0.35
+      },
+      "ok": true
+    },
+    {
+      "check": "collision straight: certificate reads radius/required from the committed profile",
+      "detail": {
+        "radius": 0.35,
+        "required": 0.3
+      },
+      "ok": true
+    },
+    {
+      "check": "constant point: reported obstacle_hull_gap == min over claimed boxes",
+      "detail": {
+        "recomputed": 0.8999999999999999,
+        "reported": 0.8999999999999999
+      },
+      "ok": true
+    },
+    {
+      "check": "constant point: net clearance == gap - radius (one subtraction, bitwise)",
+      "detail": {
+        "gap_minus_radius": 0.5499999999999999,
+        "net": 0.5499999999999999
+      },
+      "ok": true
+    },
+    {
+      "check": "constant point: certificate reads radius/required from the committed profile",
+      "detail": {
+        "radius": 0.35,
+        "required": 0.3
+      },
+      "ok": true
+    },
+    {
+      "check": "wide random: reported obstacle_hull_gap == min over claimed boxes",
+      "detail": {
+        "recomputed": 0.0,
+        "reported": 0.0
+      },
+      "ok": true
+    },
+    {
+      "check": "wide random: net clearance == gap - radius (one subtraction, bitwise)",
+      "detail": {
+        "gap_minus_radius": -0.35,
+        "net": -0.35
+      },
+      "ok": true
+    },
+    {
+      "check": "wide random: certificate reads radius/required from the committed profile",
+      "detail": {
+        "radius": 0.35,
+        "required": 0.3
+      },
+      "ok": true
+    },
+    {
+      "check": "constant curve: certificate gap == segment_surface_distance(p, p) bitwise",
+      "detail": {
+        "certificate_gap": 0.8999999999999999,
+        "sampled_surface": 0.8999999999999999
+      },
+      "ok": true
+    },
+    {
+      "check": "obstacle threshold == radius + required_clearance (within 4 ulp)",
+      "detail": {
+        "exact": 0.6499999999999999,
+        "threshold": 0.6500000000000001,
+        "ulp": 1.1102230246251565e-16
+      },
+      "ok": true
+    },
+    {
+      "check": "obstacle threshold is NOT 2*radius + required (no double subtraction)",
+      "detail": {
+        "double_radius_value": 1.0,
+        "threshold": 0.6500000000000001
+      },
+      "ok": true
+    },
+    {
+      "check": "obstacle threshold is NOT required_clearance alone (radius not dropped)",
+      "detail": {
+        "required_only": 0.3,
+        "threshold": 0.6500000000000001
+      },
+      "ok": true
+    },
+    {
+      "check": "inset threshold == radius + required_clearance (within 4 ulp)",
+      "detail": {
+        "exact": 0.6499999999999999,
+        "threshold": 0.6499999999999999,
+        "ulp": 1.1102230246251565e-16
+      },
+      "ok": true
+    },
+    {
+      "check": "inset threshold is NOT 2*radius + required (no double subtraction)",
+      "detail": {
+        "double_radius_value": 1.0,
+        "threshold": 0.6499999999999999
+      },
+      "ok": true
+    },
+    {
+      "check": "inset threshold is NOT required_clearance alone (radius not dropped)",
+      "detail": {
+        "required_only": 0.3,
+        "threshold": 0.6499999999999999
+      },
+      "ok": true
+    },
+    {
+      "check": "inset faces use the float sum radius+required (0.6499999999999999)",
+      "detail": {
+        "exact": 0.6499999999999999,
+        "inset_low_z": 0.6499999999999999
+      },
+      "ok": true
+    },
+    {
+      "check": "inset clearance is per axis: a z intrusion is negative while x/y are positive",
+      "detail": {
+        "axes": [
+          8.35,
+          4.35,
+          -0.6499999999999999
+        ]
+      },
+      "ok": true
+    },
+    {
+      "check": "inset clearance is signed per axis (deeper intrusion is strictly smaller)",
+      "detail": {
+        "generous_min": -0.4499999999999999,
+        "intrusive_min": -0.6499999999999999
+      },
+      "ok": true
+    },
+    {
+      "check": "cross-axis average of the same box is positive while the true decision is negative",
+      "detail": {
+        "mean": 4.016666666666667,
+        "min_axis": -0.6499999999999999
+      },
+      "ok": true
+    },
+    {
+      "check": "inset decision is a plain >= 0 on the lowest face value",
+      "detail": {
+        "at_face_proven": true,
+        "below_face_proven": false
+      },
+      "ok": true
+    },
+    {
+      "check": "exact inset rounding tolerance is at most 2 ulp of the margin",
+      "detail": {
+        "tolerance_m": 5.551115123125783e-17,
+        "ulp": 1.1102230246251565e-16
+      },
+      "ok": true
+    }
+  ],
+  "checks_failed": 0,
+  "checks_passed": 30,
+  "checks_total": 30,
+  "failures": [],
+  "notes": [
+    "EXACT_MARGIN is the exact rational sum of the committed DOUBLE constants (0.35 + 0.30), not the decimal ideal 13/20: the two differ by 5.55e-17 m (half an ulp), because fl(0.35 + 0.30) rounds to 0.6499999999999999 by ties-to-even. Both acceptance thresholds sit within 1 ulp of that exact double-sum, so no radius or required_clearance term is duplicated or lost.",
+    "Every threshold is located by deterministic float bisection; the obstacle and inset thresholds both sit at radius + required_clearance, which rules out a duplicated radius, a duplicated required_clearance, and a dropped radius on either gate.",
+    "The map inset is compared per axis, so a deep single-axis intrusion cannot be averaged away; the AND-of-axes decision is what _control_hull_span_certificate uses."
+  ],
+  "observations": {
+    "exact_inset_rounding_tolerance_m": 5.551115123125783e-17,
+    "exact_margin_fraction": "11709359031163289/18014398509481984",
+    "exact_margin_m": 0.6499999999999999,
+    "float_margin_m": 0.6499999999999999,
+    "inset_accept_threshold_m": 0.6499999999999999,
+    "obstacle_accept_threshold_m": 0.6500000000000001,
+    "seed": 20260913
+  },
+  "probe": "PROBE-2",
+  "title": "clearance accounting, radius/required, per-axis inset"
+}

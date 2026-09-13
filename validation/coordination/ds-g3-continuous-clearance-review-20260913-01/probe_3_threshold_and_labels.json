@@ -1,0 +1,628 @@
+{
+  "checks": [
+    {
+      "check": "no admitted report is MATERIALLY inside the required margin",
+      "detail": {
+        "rows": [],
+        "tol_m": 1e-09
+      },
+      "ok": true
+    },
+    {
+      "check": "worst admitted exact slack is at the FP noise floor",
+      "detail": {
+        "worst_m": 1.6653345369377348e-16
+      },
+      "ok": true
+    },
+    {
+      "check": "no NOT-admitted strict report carries continuous_proof=True (doc: 'True only on a strict PASS')",
+      "detail": {
+        "rows": [
+          {
+            "admitted": false,
+            "certificate_proven": true,
+            "continuous_proof": true,
+            "evidence_kind": "convex_hull_span_certified",
+            "exact_slack_m": 1.6653345369377348e-16,
+            "offset_ulp": 2,
+            "violation": "obstacle_clearance",
+            "y": 1.6500000000000001
+          },
+          {
+            "admitted": false,
+            "certificate_proven": true,
+            "continuous_proof": true,
+            "evidence_kind": "convex_hull_span_certified",
+            "exact_slack_m": -5.551115123125783e-17,
+            "offset_ulp": 0,
+            "violation": "map_envelope",
+            "z": 0.6499999999999999
+          },
+          {
+            "admitted": false,
+            "certificate_proven": true,
+            "continuous_proof": true,
+            "evidence_kind": "convex_hull_span_certified",
+            "exact_slack_m": 5.551115123125783e-17,
+            "offset_ulp": 1,
+            "violation": "map_envelope",
+            "z": 0.65
+          }
+        ]
+      },
+      "ok": false
+    },
+    {
+      "check": "no NOT-admitted strict report is labelled convex_hull_span_certified",
+      "detail": {
+        "rows": [
+          {
+            "admitted": false,
+            "certificate_proven": true,
+            "continuous_proof": true,
+            "evidence_kind": "convex_hull_span_certified",
+            "exact_slack_m": 1.6653345369377348e-16,
+            "offset_ulp": 2,
+            "violation": "obstacle_clearance",
+            "y": 1.6500000000000001
+          },
+          {
+            "admitted": false,
+            "certificate_proven": true,
+            "continuous_proof": true,
+            "evidence_kind": "convex_hull_span_certified",
+            "exact_slack_m": -5.551115123125783e-17,
+            "offset_ulp": 0,
+            "violation": "map_envelope",
+            "z": 0.6499999999999999
+          },
+          {
+            "admitted": false,
+            "certificate_proven": true,
+            "continuous_proof": true,
+            "evidence_kind": "convex_hull_span_certified",
+            "exact_slack_m": 5.551115123125783e-17,
+            "offset_ulp": 1,
+            "violation": "map_envelope",
+            "z": 0.65
+          }
+        ]
+      },
+      "ok": false
+    },
+    {
+      "check": "random constant-point search finds no admitted=False / continuous_proof=True report",
+      "detail": {
+        "found": 0
+      },
+      "ok": true
+    },
+    {
+      "check": "strict mode rejects the audit witness without claiming a proof",
+      "detail": {
+        "admitted": false,
+        "certificate_proven": false,
+        "continuous_proof": false,
+        "evidence_kind": "sampled_segment_checked",
+        "violation": "continuous_clearance_unproven"
+      },
+      "ok": true
+    },
+    {
+      "check": "strict witness rejection reason is continuous_clearance_unproven",
+      "detail": {
+        "clearance": -1.1102230246251565e-16,
+        "envelope_clearance": 1.35,
+        "interval_count": 200,
+        "kind": "continuous_clearance_unproven",
+        "obstacle_hull_gap": 0.34999999999999987,
+        "structural_reason": null,
+        "threshold": 0.3
+      },
+      "ok": true
+    },
+    {
+      "check": "legacy mode still admits the witness with sampled-only labels",
+      "detail": {
+        "admitted": true,
+        "certificate_proven": null,
+        "continuous_proof": false,
+        "evidence_kind": "sampled_segment_checked",
+        "violation": null
+      },
+      "ok": true
+    },
+    {
+      "check": "legacy clean pass keeps sampled_segment_checked / False / None",
+      "detail": {
+        "admitted": true,
+        "certificate_proven": null,
+        "continuous_proof": false,
+        "evidence_kind": "sampled_segment_checked",
+        "violation": null
+      },
+      "ok": true
+    },
+    {
+      "check": "strict clean pass carries the continuous certificate label",
+      "detail": {
+        "admitted": true,
+        "certificate_proven": true,
+        "continuous_proof": true,
+        "evidence_kind": "convex_hull_span_certified",
+        "violation": null
+      },
+      "ok": true
+    },
+    {
+      "check": "sampled evidence is identical in both modes (no sampled-path change)",
+      "detail": {
+        "legacy_envelope": 2.6499999999999995,
+        "legacy_obstacle": 2.8515621187164237,
+        "strict_envelope": 2.6499999999999995,
+        "strict_obstacle": 2.8515621187164237
+      },
+      "ok": true
+    },
+    {
+      "check": "non-bool strict_continuous rejected as invalid_grid",
+      "detail": {
+        "reason": "invalid_grid",
+        "value": "1"
+      },
+      "ok": true
+    },
+    {
+      "check": "non-bool strict_continuous rejected as invalid_grid",
+      "detail": {
+        "reason": "invalid_grid",
+        "value": "0"
+      },
+      "ok": true
+    },
+    {
+      "check": "non-bool strict_continuous rejected as invalid_grid",
+      "detail": {
+        "reason": "invalid_grid",
+        "value": "'yes'"
+      },
+      "ok": true
+    },
+    {
+      "check": "non-bool strict_continuous rejected as invalid_grid",
+      "detail": {
+        "reason": "invalid_grid",
+        "value": "None"
+      },
+      "ok": true
+    },
+    {
+      "check": "non-bool strict_continuous rejected as invalid_grid",
+      "detail": {
+        "reason": "invalid_grid",
+        "value": "2.0"
+      },
+      "ok": true
+    },
+    {
+      "check": "structurally broken spline fails closed in strict mode",
+      "detail": {
+        "admitted": false,
+        "certificate_proven": false,
+        "continuous_proof": false,
+        "evidence_kind": "sampled_segment_checked",
+        "violation": "continuous_clearance_unproven"
+      },
+      "ok": true
+    },
+    {
+      "check": "grid keeps exact endpoints and is strictly increasing",
+      "detail": {
+        "n": 101
+      },
+      "ok": true
+    },
+    {
+      "check": "grid bound boundary yields exactly MAX_ADMISSION_SAMPLES",
+      "detail": {
+        "boundary": 9999.99
+      },
+      "ok": true
+    },
+    {
+      "check": "duration above the grid bound fails closed with invalid_grid",
+      "detail": {
+        "reason": "invalid_grid"
+      },
+      "ok": true
+    }
+  ],
+  "checks_failed": 2,
+  "checks_passed": 18,
+  "checks_total": 20,
+  "failures": [
+    {
+      "check": "no NOT-admitted strict report carries continuous_proof=True (doc: 'True only on a strict PASS')",
+      "detail": {
+        "rows": [
+          {
+            "admitted": false,
+            "certificate_proven": true,
+            "continuous_proof": true,
+            "evidence_kind": "convex_hull_span_certified",
+            "exact_slack_m": 1.6653345369377348e-16,
+            "offset_ulp": 2,
+            "violation": "obstacle_clearance",
+            "y": 1.6500000000000001
+          },
+          {
+            "admitted": false,
+            "certificate_proven": true,
+            "continuous_proof": true,
+            "evidence_kind": "convex_hull_span_certified",
+            "exact_slack_m": -5.551115123125783e-17,
+            "offset_ulp": 0,
+            "violation": "map_envelope",
+            "z": 0.6499999999999999
+          },
+          {
+            "admitted": false,
+            "certificate_proven": true,
+            "continuous_proof": true,
+            "evidence_kind": "convex_hull_span_certified",
+            "exact_slack_m": 5.551115123125783e-17,
+            "offset_ulp": 1,
+            "violation": "map_envelope",
+            "z": 0.65
+          }
+        ]
+      },
+      "ok": false
+    },
+    {
+      "check": "no NOT-admitted strict report is labelled convex_hull_span_certified",
+      "detail": {
+        "rows": [
+          {
+            "admitted": false,
+            "certificate_proven": true,
+            "continuous_proof": true,
+            "evidence_kind": "convex_hull_span_certified",
+            "exact_slack_m": 1.6653345369377348e-16,
+            "offset_ulp": 2,
+            "violation": "obstacle_clearance",
+            "y": 1.6500000000000001
+          },
+          {
+            "admitted": false,
+            "certificate_proven": true,
+            "continuous_proof": true,
+            "evidence_kind": "convex_hull_span_certified",
+            "exact_slack_m": -5.551115123125783e-17,
+            "offset_ulp": 0,
+            "violation": "map_envelope",
+            "z": 0.6499999999999999
+          },
+          {
+            "admitted": false,
+            "certificate_proven": true,
+            "continuous_proof": true,
+            "evidence_kind": "convex_hull_span_certified",
+            "exact_slack_m": 5.551115123125783e-17,
+            "offset_ulp": 1,
+            "violation": "map_envelope",
+            "z": 0.65
+          }
+        ]
+      },
+      "ok": false
+    }
+  ],
+  "notes": [
+    "Q1/Q2 use an explicit ulp ladder around the exact double-sum margin (radius + required_clearance), which is where any threshold double-count would show up as a metre-scale, not ulp-scale, shift."
+  ],
+  "observations": {
+    "inset_ulp_ladder": [
+      {
+        "admitted": false,
+        "certificate_proven": false,
+        "continuous_proof": false,
+        "evidence_kind": "sampled_segment_checked",
+        "exact_slack_m": -7.216449660063518e-16,
+        "offset_ulp": -6,
+        "violation": "map_envelope",
+        "z": 0.6499999999999992
+      },
+      {
+        "admitted": false,
+        "certificate_proven": false,
+        "continuous_proof": false,
+        "evidence_kind": "sampled_segment_checked",
+        "exact_slack_m": -6.106226635438361e-16,
+        "offset_ulp": -5,
+        "violation": "map_envelope",
+        "z": 0.6499999999999994
+      },
+      {
+        "admitted": false,
+        "certificate_proven": false,
+        "continuous_proof": false,
+        "evidence_kind": "sampled_segment_checked",
+        "exact_slack_m": -4.996003610813204e-16,
+        "offset_ulp": -4,
+        "violation": "map_envelope",
+        "z": 0.6499999999999995
+      },
+      {
+        "admitted": false,
+        "certificate_proven": false,
+        "continuous_proof": false,
+        "evidence_kind": "sampled_segment_checked",
+        "exact_slack_m": -3.885780586188048e-16,
+        "offset_ulp": -3,
+        "violation": "map_envelope",
+        "z": 0.6499999999999996
+      },
+      {
+        "admitted": false,
+        "certificate_proven": false,
+        "continuous_proof": false,
+        "evidence_kind": "sampled_segment_checked",
+        "exact_slack_m": -2.7755575615628914e-16,
+        "offset_ulp": -2,
+        "violation": "map_envelope",
+        "z": 0.6499999999999997
+      },
+      {
+        "admitted": false,
+        "certificate_proven": false,
+        "continuous_proof": false,
+        "evidence_kind": "sampled_segment_checked",
+        "exact_slack_m": -1.6653345369377348e-16,
+        "offset_ulp": -1,
+        "violation": "map_envelope",
+        "z": 0.6499999999999998
+      },
+      {
+        "admitted": false,
+        "certificate_proven": true,
+        "continuous_proof": true,
+        "evidence_kind": "convex_hull_span_certified",
+        "exact_slack_m": -5.551115123125783e-17,
+        "offset_ulp": 0,
+        "violation": "map_envelope",
+        "z": 0.6499999999999999
+      },
+      {
+        "admitted": false,
+        "certificate_proven": true,
+        "continuous_proof": true,
+        "evidence_kind": "convex_hull_span_certified",
+        "exact_slack_m": 5.551115123125783e-17,
+        "offset_ulp": 1,
+        "violation": "map_envelope",
+        "z": 0.65
+      },
+      {
+        "admitted": true,
+        "certificate_proven": true,
+        "continuous_proof": true,
+        "evidence_kind": "convex_hull_span_certified",
+        "exact_slack_m": 1.6653345369377348e-16,
+        "offset_ulp": 2,
+        "violation": null,
+        "z": 0.6500000000000001
+      },
+      {
+        "admitted": true,
+        "certificate_proven": true,
+        "continuous_proof": true,
+        "evidence_kind": "convex_hull_span_certified",
+        "exact_slack_m": 2.7755575615628914e-16,
+        "offset_ulp": 3,
+        "violation": null,
+        "z": 0.6500000000000002
+      },
+      {
+        "admitted": true,
+        "certificate_proven": true,
+        "continuous_proof": true,
+        "evidence_kind": "convex_hull_span_certified",
+        "exact_slack_m": 3.885780586188048e-16,
+        "offset_ulp": 4,
+        "violation": null,
+        "z": 0.6500000000000004
+      },
+      {
+        "admitted": true,
+        "certificate_proven": true,
+        "continuous_proof": true,
+        "evidence_kind": "convex_hull_span_certified",
+        "exact_slack_m": 4.996003610813204e-16,
+        "offset_ulp": 5,
+        "violation": null,
+        "z": 0.6500000000000005
+      },
+      {
+        "admitted": true,
+        "certificate_proven": true,
+        "continuous_proof": true,
+        "evidence_kind": "convex_hull_span_certified",
+        "exact_slack_m": 6.106226635438361e-16,
+        "offset_ulp": 6,
+        "violation": null,
+        "z": 0.6500000000000006
+      }
+    ],
+    "mislabelled_count": 3,
+    "mislabelled_rows": [
+      {
+        "admitted": false,
+        "certificate_proven": true,
+        "continuous_proof": true,
+        "evidence_kind": "convex_hull_span_certified",
+        "exact_slack_m": 1.6653345369377348e-16,
+        "offset_ulp": 2,
+        "violation": "obstacle_clearance",
+        "y": 1.6500000000000001
+      },
+      {
+        "admitted": false,
+        "certificate_proven": true,
+        "continuous_proof": true,
+        "evidence_kind": "convex_hull_span_certified",
+        "exact_slack_m": -5.551115123125783e-17,
+        "offset_ulp": 0,
+        "violation": "map_envelope",
+        "z": 0.6499999999999999
+      },
+      {
+        "admitted": false,
+        "certificate_proven": true,
+        "continuous_proof": true,
+        "evidence_kind": "convex_hull_span_certified",
+        "exact_slack_m": 5.551115123125783e-17,
+        "offset_ulp": 1,
+        "violation": "map_envelope",
+        "z": 0.65
+      }
+    ],
+    "obstacle_ulp_ladder": [
+      {
+        "admitted": false,
+        "certificate_proven": false,
+        "continuous_proof": false,
+        "evidence_kind": "sampled_segment_checked",
+        "exact_slack_m": -7.216449660063518e-16,
+        "offset_ulp": -6,
+        "violation": "obstacle_clearance",
+        "y": 1.6499999999999992
+      },
+      {
+        "admitted": false,
+        "certificate_proven": false,
+        "continuous_proof": false,
+        "evidence_kind": "sampled_segment_checked",
+        "exact_slack_m": -4.996003610813204e-16,
+        "offset_ulp": -5,
+        "violation": "obstacle_clearance",
+        "y": 1.6499999999999995
+      },
+      {
+        "admitted": false,
+        "certificate_proven": false,
+        "continuous_proof": false,
+        "evidence_kind": "sampled_segment_checked",
+        "exact_slack_m": -4.996003610813204e-16,
+        "offset_ulp": -4,
+        "violation": "obstacle_clearance",
+        "y": 1.6499999999999995
+      },
+      {
+        "admitted": false,
+        "certificate_proven": false,
+        "continuous_proof": false,
+        "evidence_kind": "sampled_segment_checked",
+        "exact_slack_m": -4.996003610813204e-16,
+        "offset_ulp": -3,
+        "violation": "obstacle_clearance",
+        "y": 1.6499999999999995
+      },
+      {
+        "admitted": false,
+        "certificate_proven": false,
+        "continuous_proof": false,
+        "evidence_kind": "sampled_segment_checked",
+        "exact_slack_m": -2.7755575615628914e-16,
+        "offset_ulp": -2,
+        "violation": "obstacle_clearance",
+        "y": 1.6499999999999997
+      },
+      {
+        "admitted": false,
+        "certificate_proven": false,
+        "continuous_proof": false,
+        "evidence_kind": "sampled_segment_checked",
+        "exact_slack_m": -5.551115123125783e-17,
+        "offset_ulp": -1,
+        "violation": "obstacle_clearance",
+        "y": 1.65
+      },
+      {
+        "admitted": false,
+        "certificate_proven": false,
+        "continuous_proof": false,
+        "evidence_kind": "sampled_segment_checked",
+        "exact_slack_m": -5.551115123125783e-17,
+        "offset_ulp": 0,
+        "violation": "obstacle_clearance",
+        "y": 1.65
+      },
+      {
+        "admitted": false,
+        "certificate_proven": false,
+        "continuous_proof": false,
+        "evidence_kind": "sampled_segment_checked",
+        "exact_slack_m": -5.551115123125783e-17,
+        "offset_ulp": 1,
+        "violation": "obstacle_clearance",
+        "y": 1.65
+      },
+      {
+        "admitted": false,
+        "certificate_proven": true,
+        "continuous_proof": true,
+        "evidence_kind": "convex_hull_span_certified",
+        "exact_slack_m": 1.6653345369377348e-16,
+        "offset_ulp": 2,
+        "violation": "obstacle_clearance",
+        "y": 1.6500000000000001
+      },
+      {
+        "admitted": true,
+        "certificate_proven": true,
+        "continuous_proof": true,
+        "evidence_kind": "convex_hull_span_certified",
+        "exact_slack_m": 3.885780586188048e-16,
+        "offset_ulp": 3,
+        "violation": null,
+        "y": 1.6500000000000004
+      },
+      {
+        "admitted": true,
+        "certificate_proven": true,
+        "continuous_proof": true,
+        "evidence_kind": "convex_hull_span_certified",
+        "exact_slack_m": 3.885780586188048e-16,
+        "offset_ulp": 4,
+        "violation": null,
+        "y": 1.6500000000000004
+      },
+      {
+        "admitted": true,
+        "certificate_proven": true,
+        "continuous_proof": true,
+        "evidence_kind": "convex_hull_span_certified",
+        "exact_slack_m": 3.885780586188048e-16,
+        "offset_ulp": 5,
+        "violation": null,
+        "y": 1.6500000000000004
+      },
+      {
+        "admitted": true,
+        "certificate_proven": true,
+        "continuous_proof": true,
+        "evidence_kind": "convex_hull_span_certified",
+        "exact_slack_m": 6.106226635438361e-16,
+        "offset_ulp": 6,
+        "violation": null,
+        "y": 1.6500000000000006
+      }
+    ],
+    "random_search_mislabelled": [],
+    "worst_exact_slack_of_admitted_report_m": 1.6653345369377348e-16
+  },
+  "probe": "PROBE-3",
+  "title": "threshold semantics, strict/legacy labels"
+}

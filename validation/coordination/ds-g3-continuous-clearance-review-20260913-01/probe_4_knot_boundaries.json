@@ -1,0 +1,287 @@
+{
+  "checks": [
+    {
+      "check": "certificate source markers located for the coverage proof",
+      "detail": {
+        "active_slice": 412,
+        "grouping_loop": 410,
+        "grouping_step": 411,
+        "non_monotone_return": 388,
+        "skip_continue": 408,
+        "walk_enter": 404
+      },
+      "ok": true
+    },
+    {
+      "check": "clamped knot vector (end multiplicity p+1) is rejected at construction",
+      "detail": {
+        "error": "knots must be strictly increasing"
+      },
+      "ok": true
+    },
+    {
+      "check": "the only constructible layouts are strictly increasing (non-clamped)",
+      "detail": null,
+      "ok": true
+    },
+    {
+      "check": "tracer sanity: the interval walk and active-slice lines execute on a legal vector",
+      "detail": null,
+      "ok": true
+    },
+    {
+      "check": "legal vector certifies with N-order intervals",
+      "detail": {
+        "intervals": 7
+      },
+      "ok": true
+    },
+    {
+      "check": "legal (strictly increasing) vector never enters the repeat grouping branch",
+      "detail": null,
+      "ok": true
+    },
+    {
+      "check": "every repeating knot vector fails closed as non_monotone_knots",
+      "detail": {
+        "double_repeat": "non_monotone_knots",
+        "interior_repeat": "non_monotone_knots",
+        "last_span_repeat": "non_monotone_knots",
+        "near_domain_start": "non_monotone_knots",
+        "pre_domain_repeat": "non_monotone_knots",
+        "second_span_repeat": "non_monotone_knots"
+      },
+      "ok": true
+    },
+    {
+      "check": "every repeating knot vector proves nothing (interval_count 0, proven False)",
+      "detail": null,
+      "ok": true
+    },
+    {
+      "check": "DORMANT BRANCH: the repeated-knot grouping/skip lines never execute, even for tampered repeating vectors",
+      "detail": {
+        "double_repeat": {
+          "active_slice_executed": false,
+          "grouping_step_executed": false,
+          "interval_count": 0,
+          "non_monotone_return_executed": true,
+          "proven": false,
+          "reason": "non_monotone_knots",
+          "skip_continue_executed": false
+        },
+        "interior_repeat": {
+          "active_slice_executed": false,
+          "grouping_step_executed": false,
+          "interval_count": 0,
+          "non_monotone_return_executed": true,
+          "proven": false,
+          "reason": "non_monotone_knots",
+          "skip_continue_executed": false
+        },
+        "last_span_repeat": {
+          "active_slice_executed": false,
+          "grouping_step_executed": false,
+          "interval_count": 0,
+          "non_monotone_return_executed": true,
+          "proven": false,
+          "reason": "non_monotone_knots",
+          "skip_continue_executed": false
+        },
+        "near_domain_start": {
+          "active_slice_executed": false,
+          "grouping_step_executed": false,
+          "interval_count": 0,
+          "non_monotone_return_executed": true,
+          "proven": false,
+          "reason": "non_monotone_knots",
+          "skip_continue_executed": false
+        },
+        "pre_domain_repeat": {
+          "active_slice_executed": false,
+          "grouping_step_executed": false,
+          "interval_count": 0,
+          "non_monotone_return_executed": true,
+          "proven": false,
+          "reason": "non_monotone_knots",
+          "skip_continue_executed": false
+        },
+        "second_span_repeat": {
+          "active_slice_executed": false,
+          "grouping_step_executed": false,
+          "interval_count": 0,
+          "non_monotone_return_executed": true,
+          "proven": false,
+          "reason": "non_monotone_knots",
+          "skip_continue_executed": false
+        }
+      },
+      "ok": true
+    },
+    {
+      "check": "the strict-monotone gate is what rejects every repeat",
+      "detail": null,
+      "ok": true
+    },
+    {
+      "check": "the FP evaluator itself raises SplineError (division by zero) on some tampered repeated-knot vectors, so repeated-knot evaluation is out of contract",
+      "detail": {
+        "double_repeat": {
+          "evaluated": 41,
+          "spline_errors": 0
+        },
+        "interior_repeat": {
+          "evaluated": 41,
+          "spline_errors": 0
+        },
+        "last_span_repeat": {
+          "evaluated": 41,
+          "spline_errors": 0
+        },
+        "near_domain_start": {
+          "evaluated": 41,
+          "spline_errors": 0
+        },
+        "pre_domain_repeat": {
+          "evaluated": 41,
+          "spline_errors": 0
+        },
+        "second_span_repeat": {
+          "evaluated": 40,
+          "spline_errors": 1
+        }
+      },
+      "ok": true
+    },
+    {
+      "check": "shifted domain: cover == [u_p, u_(m-p)] and full interval count",
+      "detail": {
+        "end": -6.8,
+        "start": -7.5
+      },
+      "ok": true
+    },
+    {
+      "check": "shifted domain: endpoints still evaluated exactly by the sampled gate",
+      "detail": null,
+      "ok": true
+    },
+    {
+      "check": "lengthenTime-shaped non-uniform layout: cover and windows exact",
+      "detail": null,
+      "ok": true
+    },
+    {
+      "check": "the real upstream layout is NOT clamped (extra knots outside the domain)",
+      "detail": {
+        "u0": -0.30000000000000004,
+        "u_m": 0.9999999999999999,
+        "u_m_p": 0.7,
+        "u_p": 0.0
+      },
+      "ok": true
+    }
+  ],
+  "checks_failed": 0,
+  "checks_passed": 15,
+  "checks_total": 15,
+  "failures": [],
+  "notes": [
+    "Q2/Q3 is a dynamic dead-branch proof: source lines are located by text, then executed line numbers are collected with sys.settrace.  The repeated-knot grouping and zero-length-span skip can never run because the strict-monotone gate returns first for every repeat, so the docstring/contract claim that grouping 'keeps the bound sound' describes an inoperative path.  Behaviour is still fail-closed."
+  ],
+  "observations": {
+    "clamped_candidate_length": 14,
+    "repeat_patterns": {
+      "double_repeat": {
+        "active_slice_executed": false,
+        "grouping_step_executed": false,
+        "interval_count": 0,
+        "non_monotone_return_executed": true,
+        "proven": false,
+        "reason": "non_monotone_knots",
+        "skip_continue_executed": false
+      },
+      "interior_repeat": {
+        "active_slice_executed": false,
+        "grouping_step_executed": false,
+        "interval_count": 0,
+        "non_monotone_return_executed": true,
+        "proven": false,
+        "reason": "non_monotone_knots",
+        "skip_continue_executed": false
+      },
+      "last_span_repeat": {
+        "active_slice_executed": false,
+        "grouping_step_executed": false,
+        "interval_count": 0,
+        "non_monotone_return_executed": true,
+        "proven": false,
+        "reason": "non_monotone_knots",
+        "skip_continue_executed": false
+      },
+      "near_domain_start": {
+        "active_slice_executed": false,
+        "grouping_step_executed": false,
+        "interval_count": 0,
+        "non_monotone_return_executed": true,
+        "proven": false,
+        "reason": "non_monotone_knots",
+        "skip_continue_executed": false
+      },
+      "pre_domain_repeat": {
+        "active_slice_executed": false,
+        "grouping_step_executed": false,
+        "interval_count": 0,
+        "non_monotone_return_executed": true,
+        "proven": false,
+        "reason": "non_monotone_knots",
+        "skip_continue_executed": false
+      },
+      "second_span_repeat": {
+        "active_slice_executed": false,
+        "grouping_step_executed": false,
+        "interval_count": 0,
+        "non_monotone_return_executed": true,
+        "proven": false,
+        "reason": "non_monotone_knots",
+        "skip_continue_executed": false
+      }
+    },
+    "source_markers": {
+      "active_slice": 412,
+      "grouping_loop": 410,
+      "grouping_step": 411,
+      "non_monotone_return": 388,
+      "skip_continue": 408,
+      "walk_enter": 404
+    },
+    "tampered_evaluator_errors": {
+      "double_repeat": {
+        "evaluated": 41,
+        "spline_errors": 0
+      },
+      "interior_repeat": {
+        "evaluated": 41,
+        "spline_errors": 0
+      },
+      "last_span_repeat": {
+        "evaluated": 41,
+        "spline_errors": 0
+      },
+      "near_domain_start": {
+        "evaluated": 41,
+        "spline_errors": 0
+      },
+      "pre_domain_repeat": {
+        "evaluated": 41,
+        "spline_errors": 0
+      },
+      "second_span_repeat": {
+        "evaluated": 40,
+        "spline_errors": 1
+      }
+    }
+  },
+  "probe": "PROBE-4",
+  "title": "clamped / non-uniform / repeated knot boundaries"
+}

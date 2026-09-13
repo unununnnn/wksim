@@ -1,0 +1,361 @@
+{
+  "review_id": "ds-g3-continuous-clearance-review-20260913-01",
+  "kind": "independent_adversarial_review",
+  "authority": "read_only_review_no_file_outside_this_directory_modified_no_git_write",
+  "baseline": {
+    "cwd": "C:\\Users\\PC\\Documents\\odid编译\\wksim",
+    "requested_head": "72ef95d28eaa87490292e77a81b1de515d606c1e",
+    "head_at_review_start": "72ef95d28eaa87490292e77a81b1de515d606c1e",
+    "head_at_review_end": "b1897c0b360efa75cd829c556e9922c8aec88241",
+    "head_unchanged_during_review": false,
+    "concurrent_writes": {
+      "observed": true,
+      "commits": ["13096b5 Record adversarial issue 26 readiness review", "b1897c0 Document pinned core native load sites"],
+      "files_touched": [
+        "docs/plan/75-core-no-dll-audit.md",
+        "validation/coordination/omp-26-readiness-review-20260913-01/.gitattributes",
+        "validation/coordination/omp-26-readiness-review-20260913-01/SHA256SUMS",
+        "validation/coordination/omp-26-readiness-review-20260913-01/adversarial-output.json",
+        "validation/coordination/omp-26-readiness-review-20260913-01/adversarial_repro.py",
+        "validation/coordination/omp-26-readiness-review-20260913-01/review.json",
+        "validation/coordination/omp-26-readiness-review-20260913-01/review.md"
+      ],
+      "reviewed_bytes_affected": false,
+      "statement": "Two concurrent commits advanced HEAD from 72ef95d to b1897c0 during this review. Neither touches any of the five reviewed files (their working-tree SHA256 values are unchanged and all five are still uncommitted modifications), so every finding and verified claim in this review applies to the reviewed bytes. If those bytes change, this review must be re-evaluated."
+    },
+    "f333316_is_ancestor_of_head": true,
+    "f333316_ancestor_exit_status": 0,
+    "python": "3.13.11",
+    "git_porcelain_scope_files": [
+      "M Simulator/wksim_planning/ego_scene_admission.py",
+      "M Simulator/wksim_runtime/planner_transport_pump.py",
+      "M docs/plan/102-trajectory-scene-admission-contract.md",
+      "M validation/test_ego_scene_admission.py",
+      "M validation/test_planner_transport_pump.py"
+    ]
+  },
+  "scope": {
+    "declared_files": [
+      "Simulator/wksim_planning/ego_scene_admission.py",
+      "Simulator/wksim_runtime/planner_transport_pump.py",
+      "validation/test_ego_scene_admission.py",
+      "validation/test_planner_transport_pump.py",
+      "docs/plan/102-trajectory-scene-admission-contract.md"
+    ],
+    "direct_dependencies_read": [
+      "Simulator/wksim_planning/ego_evaluator.py",
+      "Simulator/wksim_planning/ego_bspline_bridge.py",
+      "Simulator/wksim_planning/scene_profile.py",
+      "Simulator/wksim_planning/ego_trajectory_adapter.py",
+      "Simulator/wksim_planning/trajectory_session.py",
+      "Simulator/wksim_runtime/planner_scene_binding.py",
+      "Simulator/wksim_runtime/bspline_tcp_envelope.py",
+      "Simulator/wksim_runtime/planner_transport_receiver.py",
+      "Modules/ego_planner_swarm/bspline_opt/src/uniform_bspline.cpp"
+    ],
+    "contract_dependencies_read": [
+      "docs/plan/102-planner-transport-pump-contract.md"
+    ]
+  },
+  "verdict": {
+    "runtime_p0": 0,
+    "runtime_p1": 0,
+    "p1": 1,
+    "p2": 4,
+    "p3_informational": 4,
+    "runtime_behaviour_approved": true,
+    "approval_condition": "No runtime P0/P1 found: the strict continuous gate is sound, conservative, fail-closed, and atomic; the legacy sampled path is unchanged; the pump outcome mapping is complete for every reason admit() can raise. Approval is CONDITIONAL on fixing the P1 contract-document inconsistency (docs/plan/102-planner-transport-pump-contract.md) before merge, which this read-only review cannot apply.",
+    "summary": "G3 连续清障修复的运行时行为经独立对抗审查未发现 P0 或运行时 P1：区间索引/定义域覆盖精确、控制盒净间隙公式无重复或漏减、逐轴 inset 正确、阈值语义在 1 ulp 内、失败路径零适配器调用零会话变更、pump outcome 映射对全部可达 reason 完整。发现 1 个 P1（pump 合同文档未随 pump 代码更新，含被本次改动推翻的诚实性声明与缺失的 rejected_continuous 行）与 4 个 P2（其中 1 个是可复现的证据标签不一致），均附最小补丁。"
+  },
+  "findings": [
+    {
+      "id": "P1-DOC-PUMP-CONTRACT-STALE",
+      "severity": "P1",
+      "class": "documentation_contract_inconsistency_no_runtime_effect",
+      "file": "docs/plan/102-planner-transport-pump-contract.md",
+      "lines": [99, 109, 167, 168, 192, 199],
+      "introduced_by_reviewed_change": true,
+      "summary": "The contract document of the reviewed pump was not updated together with planner_transport_pump.py. Three statements are now contradicted by the changed code: (1) the Outcome mapping table has no continuous_clearance_unproven -> rejected_continuous row, although the pump can emit that outcome on its DEFAULT (strict) path, so a consumer implementing the documented outcome set has an unhandled value; (2) the non-claims bullet still asserts the pre-fix honesty bound 'scene clearance inherits the admission gate's sampled_segment_checked / continuous_proof=False honesty bound', which the same change series declares obsolete in Simulator/wksim_runtime/planner_transport_pump.py NON_CLAIMS and in docs/plan/102-trajectory-scene-admission-contract.md; (3) the Verification boundary omits the new frame-level test validation/test_planner_transport_pump.py::PumpReceiveTests::test_continuous_unproven_reject_is_mapped_and_two_commit.",
+      "evidence": {
+        "pump_code_mapping": "Simulator/wksim_runtime/planner_transport_pump.py:92-101 (continuous_clearance_unproven -> rejected_continuous)",
+        "pump_code_default_is_strict": "PlannerTransportPump.__init__ builds TrajectorySceneAdmission without strict_continuous, so the default True applies (probe_5 check 'pump admission gate defaults to strict_continuous=True')",
+        "sibling_doc_updated": "docs/plan/102-trajectory-scene-admission-contract.md:277-279 states the pump maps continuous_clearance_unproven to rejected_continuous",
+        "git_status_of_doc": "not modified (M list of the reviewed change does not include it)"
+      },
+      "minimal_patch": [
+        "docs/plan/102-planner-transport-pump-contract.md: after the `| map_violation | rejected_map | True | False |` row add `| continuous_clearance_unproven | rejected_continuous | True | False |`",
+        "docs/plan/102-planner-transport-pump-contract.md:167-168 replace the non-claim bullet with the pump's own NON_CLAIMS wording: `- claim flight safety — scene clearance inherits the admission gate's honesty bound: the geometric continuous-curve control-hull certificate when strict mode is on, the sampled/segment check when it is off;`",
+        "docs/plan/102-planner-transport-pump-contract.md:192-199 add the new test to PumpReceiveTests' list: `a strict continuous-certificate rejection recorded as rejected_continuous with the same two-commit boundary and no event sequence spent;`"
+      ],
+      "why_not_p0_p1_runtime": "No code path changes; admission remains fail-closed. The defect is in the published interface/honesty documentation of an in-scope file."
+    },
+    {
+      "id": "P2-EVIDENCE-LABEL-ON-REJECTED-REPORT",
+      "severity": "P2",
+      "class": "code_evidence_label_inconsistency_fail_closed",
+      "file": "Simulator/wksim_planning/ego_scene_admission.py",
+      "lines": [571, 574],
+      "introduced_by_reviewed_change": true,
+      "summary": "continuous_proof and evidence_kind are derived from certificate.proven alone, not from admission. A strict-mode report that is NOT admitted (because the sampled gate rejected it) can therefore carry continuous_proof=True and evidence_kind='convex_hull_span_certified', contradicting the in-scope contract document ('continuous_proof (True only on a strict pass)') and the report dataclass docstring, and contradicting the 'strict path PASS' paragraph. Every such report is a rejection (fail-closed), and no in-repo consumer reads continuous_proof for authorization, so there is no safety effect.",
+      "evidence": {
+        "witness_1_obstacle": {
+          "spline": "EgoSpline(3, uniform knots h=0.1, [(3 control points)] constant at (0.0, 1.6500000000000001, 2.75))",
+          "admitted": false,
+          "violation": "obstacle_clearance",
+          "continuous_proof": true,
+          "evidence_kind": "convex_hull_span_certified",
+          "exact_slack_m": 1.6653345369377348e-16
+        },
+        "witness_2_inset": {
+          "spline": "constant at (3.0, 3.0, 0.6499999999999999)",
+          "admitted": false,
+          "violation": "map_envelope",
+          "continuous_proof": true,
+          "evidence_kind": "convex_hull_span_certified",
+          "exact_slack_m": -5.551115123125783e-17
+        },
+        "witness_3_inset": {
+          "spline": "constant at (3.0, 3.0, 0.65)",
+          "admitted": false,
+          "violation": "map_envelope",
+          "continuous_proof": true,
+          "evidence_kind": "convex_hull_span_certified",
+          "exact_slack_m": 5.551115123125783e-17
+        },
+        "probe": "probe_3_threshold_and_labels.py (2 failing checks, deterministic, ulp ladder around the exact double-sum margin)",
+        "math_note": "Proven certificate implies the mathematical sampled gate (the radius+required offset of a convex box is convex, so chords between two cleared points stay cleared; the inset box is convex), so the mismatch is reachable only through floating-point rounding at the boundary - which is exactly what these three witnesses are."
+      },
+      "minimal_patch": "Simulator/wksim_planning/ego_scene_admission.py:571 change `continuous_proof = bool(certificate is not None and certificate.proven)` to `continuous_proof = bool(admitted and certificate is not None and certificate.proven)` (one line; keeps the certificate attached for diagnosis, makes the label mean a certified PASS, and keeps every existing test green - the existing assertions attach the label only to admitted reports).",
+      "alternative": "Keep the code and reword docs/plan/102-trajectory-scene-admission-contract.md:285 and the SceneClearanceReport docstring to 'True whenever the strict certificate proved the curve, admitted or not' - but every non-admitted report would then still advertise a certified pass, which is the less honest of the two options."
+    },
+    {
+      "id": "P2-INTERVALS-FIELD-SEMANTICS",
+      "severity": "P2",
+      "class": "documentation_field_semantics_mismatch",
+      "file": "docs/plan/102-trajectory-scene-admission-contract.md",
+      "lines": [173, 174],
+      "introduced_by_reviewed_change": true,
+      "summary": "The contract documents each intervals tuple as (start_u, end_u, first_active_index, last_active_index), but the implementation appends (interval_start, interval_end, index, last) where index is the SPAN index j, not the first active control-point index. For order p the two differ by p (first_active = j - p), so a consumer following the document would read the wrong control points (P_3.. instead of P_0.. for the first interval of a cubic). The in-repo test reads the field with the true convention (`_points[first - 3:last + 1]`), so behaviour is correct; only the published field description is wrong.",
+      "evidence": {
+        "code": "Simulator/wksim_planning/ego_scene_admission.py:421 intervals.append((interval_start, interval_end, index, last))",
+        "probe": "probe_1_cover_index.py check 'third field is span j (not first_active); j-p == 0' over 96 layouts; observed first interval tuple (0.0, 0.1, 3, 3) for N=4 (first_active 0, span j 3)",
+        "test_convention": "validation/test_ego_scene_admission.py:499 and :608 use `spline.position._points[first - 3:last + 1]`"
+      },
+      "minimal_patch": "docs/plan/102-trajectory-scene-admission-contract.md:173-174 replace `intervals` (each `(start_u, end_u, first_active_index, last_active_index)`) with `intervals` (each `(start_u, end_u, span_index_j, last_knot_index)`; the active control window is `P_{j-order}..P_{last_knot_index}`, matching upstream evaluateDeBoor's span-j active set). Optionally add the same one-line clarification as a comment on ContinuousClearanceCertificate.intervals."
+    },
+    {
+      "id": "P2-REPEATED-KNOT-GROUPING-DORMANT",
+      "severity": "P2",
+      "class": "code_documentation_mismatch_dead_branch_fail_closed",
+      "file": "Simulator/wksim_planning/ego_scene_admission.py",
+      "lines": [320, 323, 386, 389, 406, 411],
+      "introduced_by_reviewed_change": true,
+      "summary": "The module docstring step 2 and docs/plan/102-trajectory-scene-admission-contract.md:150-154 claim that repeated left knots 'widen the active set, which keeps the bound sound' and that degenerate zero-length spans are 'skipped, never fused'. In fact the strict-monotonicity gate at lines 386-389 returns non_monotone_knots for ANY repeated knot before the walk, so the grouping branch (lines 406-411) and the zero-length-span skip are unreachable dead code; the stated soundness rationale is never exercised. Behaviour is still fail-closed (a repeating vector proves nothing and is rejected), and no repeated-knot vector can even be constructed through EgoSpline/bridge_bspline, so this is a claim/code mismatch, not a safety hole. The in-scope test narrative ('defence-in-depth path ... see test_non_monotone_knots_fail_closed for the tamper case') is likewise inaccurate: the tamper case fails at the monotone gate and never reaches the grouping.",
+      "evidence": {
+        "dynamic_dead_branch_proof": "probe_4_knot_boundaries.py locates the source lines by text and counts executed lines with sys.settrace: monotone return = line 388, walk enter = 404, skip continue = 408, grouping loop = 410, grouping step = 411, active slice = 412. For six cardinality-preserving repeating vectors (interior, second span, domain start, last span, pre-domain, doubled) the monotone return executes and 408/410/411/412 never do; interval_count is 0 and proven False in every case.",
+        "evaluator_out_of_contract": "the FP evaluator itself raises SplineError (degenerate knot interval / division by zero) on the tampered second-span repeat, so repeated-knot evaluation is not even well defined in this pipeline",
+        "upstream_evidence": "Modules/ego_planner_swarm/bspline_opt/src/uniform_bspline.cpp:44 setKnot performs no validation; the repo's bridge/EgoSpline boundary is what rejects repeats (ego_evaluator.py:88-90)"
+      },
+      "minimal_patch": "Prefer wording (option a): Simulator/wksim_planning/ego_scene_admission.py:320-323 replace the repeated-knot soundness sentence with 'Any non-strictly-increasing (repeated or non-monotone) knot vector is rejected fail-closed as non_monotone_knots BEFORE the walk, so every interval that reaches the walk is a plain strictly-increasing span whose active window is P_{j-p}..P_j (c == j); the grouping/degenerate-span handling below is defensive only.'; docs/plan/102-trajectory-scene-admission-contract.md:150-154 likewise; validation/test_ego_scene_admission.py:517-523 reword the docstring to state the branch is unreachable even under tampering (or delete the now-unused grouping code, which is the cleanest option since no input can reach it). Option b (relax the gate to non-decreasing to activate the grouping) is not recommended: the evaluator cannot evaluate repeats (de Boor denominator zero) and the pipeline's EgoSpline boundary rejects them anyway."
+    },
+    {
+      "id": "P2-UNMAPPED-REASON-SILENT-FALLBACK",
+      "severity": "P2",
+      "class": "robustness_silent_fallback",
+      "file": "Simulator/wksim_runtime/planner_transport_pump.py",
+      "lines": [92, 101, 552],
+      "introduced_by_reviewed_change": true,
+      "summary": "ADMISSION_REASONS has 12 members; _ADMISSION_REASON_TO_OUTCOME has 8. The four unmapped ones (invalid_adapter, invalid_binding, invalid_anchor, invalid_spline) are constructor-only or unreachable through admit(), which probe_5 confirms, so today the table is complete for every reachable reason. But the lookup uses `_ADMISSION_REASON_TO_OUTCOME.get(error.reason, 'rejected_adapter')`, so a future admission reason that is added to ADMISSION_REASONS without a mapping row is silently mislabelled as an adapter rejection instead of failing loudly; docs/plan/102-trajectory-scene-admission-contract.md:277 ('maps every reason to a pump outcome') is only vacuously true.",
+      "evidence": {
+        "probe": "probe_5_atomicity_pump_outcomes.py: all eight mapped reasons were triggered end to end through admit()/pump.feed and observed; reachable == {identity_mismatch, invalid_mapping, bridge_rejected, invalid_grid, clearance_violation, continuous_clearance_unproven, map_violation, adapter_rejected}; unmapped == {invalid_adapter, invalid_binding, invalid_anchor, invalid_spline}",
+        "no_completeness_test": "no test in validation/test_planner_transport_pump.py asserts set(ADMISSION_REASONS) coverage of the mapping table"
+      },
+      "minimal_patch": "Add to validation/test_planner_transport_pump.py: `from Simulator.wksim_planning.ego_scene_admission import ADMISSION_REASONS` and assert `set(ADMISSION_REASONS) - set(_ADMISSION_REASON_TO_OUTCOME) == {\"invalid_adapter\", \"invalid_binding\", \"invalid_anchor\", \"invalid_spline\"}` (constructor-only set), so any new reason without a mapping row breaks the suite. Optionally replace the silent `.get(..., \"rejected_adapter\")` default with an explicit mapping of the four constructor-only reasons to a distinct outcome or a raised PumpError."
+    },
+    {
+      "id": "P3-TEST-COUNT",
+      "severity": "P3",
+      "class": "documentation_numeric_nit",
+      "file": "docs/plan/102-trajectory-scene-admission-contract.md",
+      "lines": [312],
+      "summary": "The document says '(40 tests)' for validation/test_ego_scene_admission.py; the suite contains and runs 41 tests (15 + 15 + 11).",
+      "minimal_patch": "docs/plan/102-trajectory-scene-admission-contract.md:312 change '40 tests' to '41 tests'."
+    },
+    {
+      "id": "P3-AABB-GAP-ROUNDING-WORDING",
+      "severity": "P3",
+      "class": "docstring_precision_nit",
+      "file": "Simulator/wksim_planning/ego_scene_admission.py",
+      "lines": [276, 281],
+      "summary": "The _aabb_gap docstring says 'All terms are exact real quantities; only the final sqrt rounds once.' The per-axis subtractions a_low - b_high / b_lo - a_high are correctly rounded but not exact in general, the three squares and the two additions each round, and the sqrt rounds last. The measured deviation from the exact box-box distance is nevertheless small (worst 1.35 ulp over 3000 random box pairs), so this is a precision-wording nit, not a soundness issue.",
+      "evidence": "probe_2_clearance_accounting.py check 'aabb_gap matches the exact box-box distance (<= 4 ulp)' measured worst_ulp_error = 1.3483018972989647",
+      "minimal_patch": "Reword to 'Per axis the separation is computed with correctly rounded subtractions; the Euclidean norm is then assembled with three squares, two additions and one sqrt, so the result is within a few ulp of the exact real distance (measured worst case 1.35 ulp).'"
+    },
+    {
+      "id": "P3-CLAMPED-DOMAIN-WORDING",
+      "severity": "P3",
+      "class": "documentation_wording_nit",
+      "file": "Simulator/wksim_planning/ego_scene_admission.py",
+      "lines": [317, 318],
+      "summary": "The certificate is described as tiling the 'exact clamped domain [u_p, u_{m-p}]'. The domain is the upstream getTimeSpan domain; the real EGO layout is NOT clamped (uniform_bspline.cpp:29-41 leaves u_0..u_{p-1} below and u_{m-p+1}..u_m above the domain), and a genuinely clamped vector (end multiplicity p+1) would need repeated knots, which EgoSpline and the certificate's monotone gate both reject. The code is correct for every constructible layout - the word 'clamped' is the only inaccuracy.",
+      "evidence": "probe_4_knot_boundaries.py: clamped candidate rejected at EgoSpline construction; upstream knots show u0 < u_p and u_m > u_m-p; probe_1 verifies cover == [u_p, u_{m-p}] for uniform, non-uniform, shifted and extreme-aspect layouts",
+      "minimal_patch": "Replace 'exact clamped domain' with 'exact evaluation domain [u_p, u_{m-p}] (= upstream getTimeSpan)' in the module docstring and in docs/plan/102-trajectory-scene-admission-contract.md:150."
+    },
+    {
+      "id": "N-INF-IN-STRUCTURAL-VIOLATION",
+      "severity": "informational",
+      "class": "future_evidence_writer_hazard",
+      "file": "Simulator/wksim_planning/ego_scene_admission.py",
+      "lines": [362, 363, 564],
+      "summary": "On a structural certificate failure the violation mapping carries clearance = -inf and envelope_clearance = -inf (min_net_obstacle_clearance / min_hull_inset_clearance default to -math.inf). The report is in-memory only today and no in-repo consumer serializes it, but a future evidence writer using json.dumps(..., allow_nan=False) would raise on such a report. Reported for information only; no change required for this slice.",
+      "minimal_patch": "If and when such a writer appears, jsonable-ise the violation (or use None plus a structural_reason) before serialization."
+    }
+  ],
+  "verified_claims": [
+    {
+      "claim": "Interval indexing: each non-degenerate span j in [p, n] is certified with the active window P_{j-p}..P_j, matching upstream evaluateDeBoor; the emitted tuple is (start_u, end_u, span_j, last_knot).",
+      "result": "CONFIRMED",
+      "probe": "probe_1_cover_index.py",
+      "detail": "96 layouts x full tuple equality against the independently computed spec; worst curve excursion outside its claimed active-set AABB = 8.88e-16 m (FP evaluation noise)."
+    },
+    {
+      "claim": "Domain coverage: the interval cover is exactly [knots[p], knots[N]] == [u_p, u_{m-p}], gap-free, contiguous, and its span equals EgoSpline.duration.",
+      "result": "CONFIRMED",
+      "probe": "probe_1_cover_index.py, probe_4_knot_boundaries.py",
+      "detail": "Checked for uniform, lengthenTime-shaped non-uniform, log-uniform random gaps (1e-6..1e3), shifted domains (u_p != 0), and extreme h (1e-6, 50)."
+    },
+    {
+      "claim": "Soundness premise: the curve stays inside the AABB of the active points its own interval claims.",
+      "result": "CONFIRMED",
+      "probe": "probe_1_cover_index.py",
+      "detail": "65 samples per interval over all layouts; max excess 8.88e-16 m."
+    },
+    {
+      "claim": "proven == True never coexists with a MATERIAL curve intrusion.",
+      "result": "CONFIRMED (counterexample search)",
+      "probe": "probe_1_cover_index.py exact Fraction audit",
+      "detail": "No obstacle or inset violation beyond 1e-9 m. The only strict (exact-predicate) hits are at the razor boundary y = nextafter(1.65) with worst exact slack -2.78e-16 m, i.e. the FP evaluation/boundary noise floor ~2.5 ulp, 15 orders of magnitude below the 0.65 m margin. This is a counterexample search, not a proof."
+    },
+    {
+      "claim": "Net clearance formula: gap(box, obstacle) - vehicle_radius >= required_clearance, with each term applied exactly once (no duplicated radius, no dropped radius).",
+      "result": "CONFIRMED",
+      "probe": "probe_2_clearance_accounting.py",
+      "detail": "reported gap == independently recomputed min box gap; net == gap - radius bitwise; empirical obstacle accept threshold 0.6500000000000001 m and inset threshold 0.6499999999999999 m versus the exact double-sum margin 0.649999999999999967 (< 1 ulp), which rules out the 1.00 m (2r+req) and 0.30 m (required only) signatures."
+    },
+    {
+      "claim": "The certificate's obstacle measure equals the sampled path's centreline measure (no scale/unit mismatch).",
+      "result": "CONFIRMED",
+      "probe": "probe_2_clearance_accounting.py",
+      "detail": "For a constant curve the certificate gap is bitwise equal to scene_profile.segment_surface_distance(p, p)."
+    },
+    {
+      "claim": "Map inset is per axis and uses margin = vehicle_radius + required_clearance.",
+      "result": "CONFIRMED",
+      "probe": "probe_2_clearance_accounting.py",
+      "detail": "_inset_clearance returns three signed axes; a single-axis intrusion of -0.65 m is rejected even though the cross-axis mean is +4.02 m; the decision is a plain >= 0 on the minimum axis value."
+    },
+    {
+      "claim": "Float threshold semantics: the acceptance comparison is '>=', deterministic, and never materially permissive.",
+      "result": "CONFIRMED",
+      "probe": "probe_3_threshold_and_labels.py",
+      "detail": "13-step ulp ladder around the exact margin on both gates; worst exact slack of any ADMITTED report is at the FP noise floor; no admitted report is materially inside the margin."
+    },
+    {
+      "claim": "Strict/legacy compatibility: legacy mode keeps sampled_segment_checked / continuous_proof=False / continuous_certificate=None and still admits the audit witness.",
+      "result": "CONFIRMED",
+      "probe": "probe_3_threshold_and_labels.py",
+      "detail": "Sampled evidence numbers are identical in both modes on the same spline; only the strict path adds the certificate."
+    },
+    {
+      "claim": "Failure atomicity: every rejection path calls the adapter zero times and leaves the session snapshot unchanged.",
+      "result": "CONFIRMED",
+      "probe": "probe_5_atomicity_pump_outcomes.py",
+      "detail": "identity_mismatch, invalid_mapping, bridge_rejected, invalid_grid, clearance_violation, map_violation, continuous_clearance_unproven, adapter_rejected: 0 adapter calls and unchanged (state, generation, last_event_sequence, last_command_id, identity) for the admission gates; adapter_rejected is the only path that calls the adapter twice (once per attempt) and still rolls back."
+    },
+    {
+      "claim": "A strict rejection burns no event sequence and does not block the next valid trajectory.",
+      "result": "CONFIRMED",
+      "probe": "probe_5_atomicity_pump_outcomes.py",
+      "detail": "After a committed activation, the witness is rejected as continuous_clearance_unproven and the immediately following valid frame activates with the SAME event sequence; at the pump level the same sequence is reused by the next clear frame."
+    },
+    {
+      "claim": "Pump outcome mapping: continuous_clearance_unproven -> rejected_continuous, distinct from rejected_clearance and rejected_map; every reachable admission reason is mapped.",
+      "result": "CONFIRMED",
+      "probe": "probe_5_atomicity_pump_outcomes.py",
+      "detail": "All eight reachable reasons were produced through real encoder frames/pump feeds; the witness frame records transport_consumed=True, session_activated=False, event_sequence=None, trajectory_id=1, detail='continuous_clearance_unproven', report attached."
+    },
+    {
+      "claim": "The pump defaults to the strict gate and recover() preserves strict mode, grid, identity tuple and command high-water.",
+      "result": "CONFIRMED",
+      "probe": "probe_5_atomicity_pump_outcomes.py",
+      "detail": "pump._admission._strict_continuous is True and sample_period_s 0.01; after a real poison, PlannerTransportPump.recover rebuilds both identically."
+    },
+    {
+      "claim": "Documented committed hashes (scene_hash 40ee9281..., profile_hash 49da4ccc...) and the 0.35/0.30 geometry are correct.",
+      "result": "CONFIRMED",
+      "probe": "direct read of EGO_SINGLE_BOX_BINDING",
+      "detail": "All four documented identity values match the committed binding."
+    }
+  ],
+  "measurements": {
+    "probe_checks_total": 980,
+    "probe_checks_failed": 2,
+    "probe_failures_are": "the two P2-EVIDENCE-LABEL-ON-REJECTED-REPORT detections in probe_3",
+    "max_curve_outside_claimed_box_m": 8.881784197001252e-16,
+    "worst_proven_certificate_exact_obstacle_slack_m": -2.7755575615628914e-16,
+    "aabb_gap_worst_ulp_error_vs_exact": 1.3483018972989647,
+    "obstacle_accept_threshold_m": 0.6500000000000001,
+    "inset_accept_threshold_m": 0.6499999999999999,
+    "exact_double_sum_margin_m": 0.6499999999999999666933092612453,
+    "exact_inset_rounding_tolerance_m": 5.551115123125783e-17
+  },
+  "tests_run": [
+    {"suite": "validation.test_ego_scene_admission", "result": "OK", "tests": 41},
+    {"suite": "validation.test_planner_transport_pump", "result": "OK", "tests": 55},
+    {"suite": "validation.test_planner_transport_receiver", "result": "OK", "tests": 27},
+    {"suite": "validation.test_ego_bspline_bridge + test_ego_trajectory_adapter + test_trajectory_session + test_scene_profile + test_planner_scene_binding + test_bspline_tcp_envelope", "result": "OK (1 skipped)", "tests": 158}
+  ],
+  "reviewed_source_sha256": {
+    "Simulator/wksim_planning/ego_scene_admission.py": "32f6c5156096a91ccf709774f2afeaf7b3e58bcc9067e37ec227836d6da314dd",
+    "Simulator/wksim_runtime/planner_transport_pump.py": "c650d40a708c915e2db901567a90788caf9e464d569b306104d92539d507c3e3",
+    "validation/test_ego_scene_admission.py": "ce20cac6d00dd5ac6d4273c7aaab8f1b907fc7a65a83d8f0228112d02286d19c",
+    "validation/test_planner_transport_pump.py": "8dc3f045d6f12c7ecac6feb888240413e3918984788c3deaa0e34b5714e5212c",
+    "docs/plan/102-trajectory-scene-admission-contract.md": "6d7fd70d760fde305d8675b3e0bef0e98eaf21e149a6056a1dad4b7f99fc8bc6",
+    "docs/plan/102-planner-transport-pump-contract.md": "613d86f114c2a664ccb67b1ccd5dc0bec999464fb07dd1aba1dffd8361dd7c1b",
+    "Simulator/wksim_planning/ego_evaluator.py": "ad91915c5f61625c05497a9e64ece596c4aa336e03723e96efb2104b7ff9b1e2",
+    "Simulator/wksim_planning/ego_bspline_bridge.py": "c696f936208ed9faed2575a9df1b6aa5e13acfd6c96f21a5d48b8d71a11aaa51",
+    "Simulator/wksim_planning/scene_profile.py": "5a34e036194372241577b7187107eecc2c6be1777a7f51a4f189f87a6205f84c",
+    "Simulator/wksim_planning/ego_trajectory_adapter.py": "1ebd161181e8dfe8d0388e1eaa307385df34b7247935a6da321d17a2243c515d",
+    "Simulator/wksim_runtime/planner_scene_binding.py": "da45997ec4caceb45cd6652717b71973d8be041e94f690ba89b7011e6ea1a0cf",
+    "Simulator/wksim_runtime/bspline_tcp_envelope.py": "f0dffe7fe3e8717a2ca4e3af7ac2d740266c89fa534b9a1a8dde814af8ee59a3",
+    "Modules/ego_planner_swarm/bspline_opt/src/uniform_bspline.cpp": "c61109369e880d82312336d8b2617b71b60f1ee40a5635fab26811ebf178d339"
+  },
+  "artifacts": {
+    "probes": [
+      "probe_common.py",
+      "probe_1_cover_index.py",
+      "probe_2_clearance_accounting.py",
+      "probe_3_threshold_and_labels.py",
+      "probe_4_knot_boundaries.py",
+      "probe_5_atomicity_pump_outcomes.py",
+      "run_probes.py"
+    ],
+    "outputs": [
+      "probe_1_cover_index.json",
+      "probe_2_clearance_accounting.json",
+      "probe_3_threshold_and_labels.json",
+      "probe_4_knot_boundaries.json",
+      "probe_5_atomicity_pump_outcomes.json",
+      "run_summary.json"
+    ],
+    "digest_file": "SHA256SUMS",
+    "gitignore_note": "this directory is matched by .gitignore:53 '/validation/*/', so it does not appear in git status and was deliberately not git-added (no git add/commit/push was performed); the artifacts are workspace-local evidence that an integrator must force-add to record in history",
+    "digest_note": "SHA256SUMS covers every file in this directory, including this JSON and review.md; probe/run outputs are regenerated deterministically by run_probes.py (fixed seeds, no wall clock, no network)."
+  },
+  "non_claims": [
+    "not a proof of soundness: the numeric probes are counterexample searches over deterministic families and explicitly cannot establish universal soundness",
+    "no native build, compilation, ROS/DDS, SITL, flight-controller, model worker, UE, MATLAB, or process manipulation was performed",
+    "no issue state, no git add/commit/push, and no file outside this review directory was modified",
+    "this review does not close #102 or #39 and claims no flight, dynamics, tracking-error, force, impulse, sensor, or terrain behaviour"
+  ]
+}
