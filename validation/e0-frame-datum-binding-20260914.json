@@ -1,0 +1,2820 @@
+{
+  "schema": "wksim.59-e0-frame-datum-binding.v1",
+  "kind": "g6_b2_frame_datum_binding_supplement",
+  "issue": 59,
+  "layer": "supplement",
+  "authority": "evidence_binding_only",
+  "effective": false,
+  "date": "2026-09-14",
+  "title": "G6/B2 e0 dynamic-slot frame and datum binding supplement (56/64 slot set, offline, no budget)",
+  "work_class": "new-development",
+  "budget_approved": false,
+  "g6_acceptance": false,
+  "physical_accuracy": false,
+  "r1_status": "numerical_failed",
+  "issues_closed": false,
+  "claim_text": "Evidence binding only. Frame is bound for 25 of the 56 dynamic slots and datum for 10, strictly from committed text; every other field is null with a precise owner-decision reason. No abs_budget, rel_budget, rms_budget, unit, frame, datum or owner decision is invented, and no direction, scalar frame or origin is inferred from unrelated coordinate labels. budget_approved, g6_acceptance and physical_accuracy all remain false; #59, #60, G6 and Full remain open and R1 remains numerical_failed.",
+  "observed_at": {
+    "head": "521b5124949ea8bb057459142e09b270ae54dde3",
+    "head_note": "dispatch / observation HEAD. main may advance while this slice is open, so validation requires only that this commit stays an ancestor of HEAD, that every pinned path is tracked at HEAD, that the pinned digest equals the SHA-256 of the committed blob at HEAD, and that git diff HEAD reports no content drift for that path",
+    "branch": "main",
+    "baseline_ancestor": "f333316e6efa6b299b4288a9d91fb2bccedfb9d6",
+    "recorded_utc": "2026-09-14T00:00:00Z"
+  },
+  "evidence_policy": {
+    "digest_algorithm": "sha256",
+    "digest_encoding": "lowercase_hex",
+    "pin_identity": "path must equal the frozen id->path table and the digest must equal sha256(HEAD:<path>)",
+    "drift_check": "git diff HEAD -- <path> must report no change",
+    "worktree_bytes": "never hashed; checkout EOL conversion must not change the verdict",
+    "require_tracked_at_head": [
+      "core_gnss_event",
+      "core_model",
+      "core_model_parameters",
+      "core_px4_mavlink",
+      "core_readme",
+      "core_state_stream",
+      "current_rhs_references",
+      "current_source_mapping",
+      "dynamic_source_map",
+      "frozen_contract",
+      "g6_budget_audit",
+      "g6_frontier_review",
+      "g6_remediation_contract",
+      "r1_report",
+      "readiness_plan",
+      "same_source_command",
+      "sampling_contract",
+      "slot_manifest",
+      "slot_manifest_generator",
+      "slot_manifest_schema",
+      "slot_manifest_validator",
+      "stage2_boundary",
+      "ue55_readme"
+    ],
+    "fail_closed_on": [
+      "missing_pin",
+      "duplicate_pin",
+      "extra_pin",
+      "wrong_pin_path",
+      "pin_not_at_head",
+      "pin_digest_differs_from_head_blob",
+      "pin_worktree_drift",
+      "policy_pin_list_mismatch",
+      "missing_slot",
+      "duplicate_slot",
+      "extra_slot",
+      "unknown_slot",
+      "forged_frame_value",
+      "forged_datum_value",
+      "frozen_binding_mismatch",
+      "evidence_does_not_support_value",
+      "unknown_evidence_id",
+      "null_treated_as_approval",
+      "missing_null_reason",
+      "unknown_owner_decision",
+      "owner_decision_already_made",
+      "acceptance_flip",
+      "budget_or_approval_field",
+      "unit_mismatch",
+      "slot_set_mismatch"
+    ]
+  },
+  "pins": {
+    "frozen_contract": {
+      "id": "frozen_contract",
+      "path": "Simulator/wksim_core/numerical-conformance-v1.json",
+      "sha256": "23d72e26da5dfc7df0b41b96d090664d0ec022d777f6258e409bf7080f2c08f0",
+      "role": "frozen R1 numerical conformance contract; owns the 120-slot set, observable ids, native units and source labels"
+    },
+    "slot_manifest": {
+      "id": "slot_manifest",
+      "path": "validation/e0-source-to-slot-manifest-20260911.json",
+      "sha256": "e48982b4732e4fd84ea26390eb516b7e35aea93267aa741ef3c32538cefa6867",
+      "role": "committed provenance-only 56-slot source-to-slot manifest (schema v2)"
+    },
+    "current_source_mapping": {
+      "id": "current_source_mapping",
+      "path": "validation/e0-current-source-mapping-20260912.json",
+      "sha256": "28684e66cd6e49c90907dacdabf219608a3e3ba808e07e3bd9068233268489f8",
+      "role": "committed 11.8 generated-source outport write mapping"
+    },
+    "current_rhs_references": {
+      "id": "current_rhs_references",
+      "path": "validation/e0-current-rhs-references-20260912.json",
+      "sha256": "fa068cc78f8f93e695417d6e315002c799f1bd4d7ef03641a5b236be9cddc188",
+      "role": "committed 11.8 generated-source right-hand-side symbol references"
+    },
+    "core_readme": {
+      "id": "core_readme",
+      "path": "Simulator/wksim_core/README.md",
+      "sha256": "23dde1fcd1004037df4a1ca1a469cb047990ce6e9378e5ec435bc3d7d6a2920f",
+      "role": "wksim core interface conventions (NED/FRD/wxyz)"
+    },
+    "core_state_stream": {
+      "id": "core_state_stream",
+      "path": "Simulator/wksim_core/state_stream.py",
+      "sha256": "d0bf4534885170bc281394657558afbfa143d76360ac1157e1c0e60d9719a76e",
+      "role": "committed state-stream frame/quaternion/rotor metadata"
+    },
+    "core_model": {
+      "id": "core_model",
+      "path": "Simulator/wksim_core/model.py",
+      "sha256": "3b0ae6f40594a30997fa66beba11466ca88f0c1a3b88c2322d4fee10f1ce4d41",
+      "role": "committed model host coordinate statement"
+    },
+    "core_model_parameters": {
+      "id": "core_model_parameters",
+      "path": "Simulator/wksim_core/model_parameters.py",
+      "sha256": "9289c09f10037a426bd85d489c0f79c79927c72db148aeb8f0c26d776b892887",
+      "role": "committed parameter unit/frame annotations and rotor layout"
+    },
+    "core_px4_mavlink": {
+      "id": "core_px4_mavlink",
+      "path": "Simulator/wksim_core/px4_mavlink.py",
+      "sha256": "e8c903f2b4c84a261adf6f512c8437c51364143dc048d1ac2cb873e7cfb53260",
+      "role": "committed GPS30 slot semantics and COG derivation comment"
+    },
+    "core_gnss_event": {
+      "id": "core_gnss_event",
+      "path": "Simulator/wksim_core/gnss_event.py",
+      "sha256": "b26953276fe1fbca0f073ee4807796e294194a33acbbd0f5140fecb63d81f75b",
+      "role": "committed HIL_GPS field ordering comment"
+    },
+    "ue55_readme": {
+      "id": "ue55_readme",
+      "path": "Simulator/ue55/README.md",
+      "sha256": "ec44debdc0d85e5b83fdff9be58046ea61435bf2d541e0739f24baec02f79a2c",
+      "role": "committed quaternion statement for the display field; context only, not a binding (OD-15)"
+    },
+    "readiness_plan": {
+      "id": "readiness_plan",
+      "path": "docs/plan/2026-09-08-numerical-contract-readiness.md",
+      "sha256": "e7c270b6e790ac36268b3ed4397b1a9086c61fd0bb57112ba21c74fad49ec5d9",
+      "role": "committed per-root-output unit/frame table and origin/altitude note"
+    },
+    "dynamic_source_map": {
+      "id": "dynamic_source_map",
+      "path": "docs/plan/59-e0-dynamic-budget-source-map.md",
+      "sha256": "35a56084105409329131add7d4b9e35be6d1a145c6e18268c96324805313cd42",
+      "role": "committed per-group explicit missing-evidence list"
+    },
+    "g6_remediation_contract": {
+      "id": "g6_remediation_contract",
+      "path": "docs/plan/10-g6-remediation-contract.md",
+      "sha256": "48da61ade51d46111db0be9a9288d93d4eec380251043c2e39bff66b74cae5c0",
+      "role": "committed G6 implementation seam and required per-quantity fields"
+    },
+    "same_source_command": {
+      "id": "same_source_command",
+      "path": "docs/plan/59-e0-same-source-command.md",
+      "sha256": "345caff0fd354717a64ed1dfac2c3ad33f87c72713cf3362483c395fb66b197e",
+      "role": "committed same-source entry field requirements"
+    },
+    "stage2_boundary": {
+      "id": "stage2_boundary",
+      "path": "docs/plan/g6-c3g-stage2-boundary.md",
+      "sha256": "0f2b805746be4ac6a19b37783b84d4b3f873209cda604d366f25a7bd50bc5ea4",
+      "role": "committed B1-B5 blocker list; pins B2 as frame/datum"
+    },
+    "slot_manifest_schema": {
+      "id": "slot_manifest_schema",
+      "path": "docs/plan/59-e0-source-to-slot-manifest.schema.json",
+      "sha256": "f0bcab28cf2eca1d988f1b734be9b8ae9284e6486160b19d06c11156db810210",
+      "role": "committed slot manifest schema"
+    },
+    "sampling_contract": {
+      "id": "sampling_contract",
+      "path": "docs/2026-09-09-reference-sampling-contract.md",
+      "sha256": "135001c208c9223f8a63d09a35f1b11c336e6997c46fcebd649ba366cba841a8",
+      "role": "committed major-sample recording contract"
+    },
+    "r1_report": {
+      "id": "r1_report",
+      "path": "docs/2026-09-09-numerical-conformance-report.md",
+      "sha256": "82539300993f12fc6509e35ad8147caa57a2777d84e9a1aafac2a6a22c2d4561",
+      "role": "committed R1 result and unverified-convention list"
+    },
+    "slot_manifest_validator": {
+      "id": "slot_manifest_validator",
+      "path": "tools/validate_e0_source_to_slot_manifest.py",
+      "sha256": "676829e44e95c714fa921b1b94d05e4741a989b0b75f90c5e244641a14cca642",
+      "role": "committed slot manifest validator"
+    },
+    "slot_manifest_generator": {
+      "id": "slot_manifest_generator",
+      "path": "tools/generate_e0_source_to_slot_manifest.py",
+      "sha256": "01e147abc9e3dc5d2aa84f95e98935a4f8b01f1664a062a158e069088202477b",
+      "role": "committed slot manifest generator and 56-slot expansion"
+    },
+    "g6_budget_audit": {
+      "id": "g6_budget_audit",
+      "path": "validation/coordination/ds-g6-budget-evidence-20260913-01/audit.json",
+      "sha256": "04604840d3b79f6cfe26e2cc4e2547f6c15b3f7cc66aa1da0cb69527f0bf0d66",
+      "role": "committed historical B2 gap statement"
+    },
+    "g6_frontier_review": {
+      "id": "g6_frontier_review",
+      "path": "validation/coordination/luna-g6-frontier-20260914-01/review.md",
+      "sha256": "577dcd566bdb93a04c6ffd26df65bb4899935c639fafdb222f03f3b186ffb7da",
+      "role": "committed frontier review naming B2"
+    }
+  },
+  "slot_set": {
+    "total_slots": 120,
+    "dynamic_slots": 56,
+    "excluded_slots": 64,
+    "semantic_dynamic_slots": 53,
+    "time_field_slots": 3,
+    "excluded_semantic_status": [
+      "interface_metadata",
+      "reserved_not_physical_coverage"
+    ],
+    "excluded_slot_list": [
+      "GPS30[11]",
+      "GPS30[12]",
+      "GPS30[13]",
+      "GPS30[14]",
+      "GPS30[15]",
+      "GPS30[16]",
+      "GPS30[17]",
+      "GPS30[18]",
+      "GPS30[19]",
+      "GPS30[20]",
+      "GPS30[21]",
+      "GPS30[22]",
+      "GPS30[23]",
+      "GPS30[24]",
+      "GPS30[25]",
+      "GPS30[26]",
+      "GPS30[27]",
+      "GPS30[28]",
+      "GPS30[29]",
+      "Sensor30[14]",
+      "Sensor30[15]",
+      "Sensor30[16]",
+      "Sensor30[17]",
+      "Sensor30[18]",
+      "Sensor30[19]",
+      "Sensor30[20]",
+      "Sensor30[21]",
+      "Sensor30[22]",
+      "Sensor30[23]",
+      "Sensor30[24]",
+      "Sensor30[25]",
+      "Sensor30[26]",
+      "Sensor30[27]",
+      "Sensor30[28]",
+      "Sensor30[29]",
+      "Vehicle60[0]",
+      "Vehicle60[1]",
+      "Vehicle60[33]",
+      "Vehicle60[34]",
+      "Vehicle60[35]",
+      "Vehicle60[36]",
+      "Vehicle60[37]",
+      "Vehicle60[38]",
+      "Vehicle60[39]",
+      "Vehicle60[40]",
+      "Vehicle60[41]",
+      "Vehicle60[42]",
+      "Vehicle60[43]",
+      "Vehicle60[44]",
+      "Vehicle60[45]",
+      "Vehicle60[46]",
+      "Vehicle60[47]",
+      "Vehicle60[48]",
+      "Vehicle60[49]",
+      "Vehicle60[50]",
+      "Vehicle60[51]",
+      "Vehicle60[52]",
+      "Vehicle60[53]",
+      "Vehicle60[54]",
+      "Vehicle60[55]",
+      "Vehicle60[56]",
+      "Vehicle60[57]",
+      "Vehicle60[58]",
+      "Vehicle60[59]"
+    ],
+    "time_slot_list": [
+      "Vehicle60[2]",
+      "Sensor30[0]",
+      "GPS30[0]"
+    ],
+    "semantic_slot_list": [
+      "Vehicle60[3]",
+      "Vehicle60[4]",
+      "Vehicle60[5]",
+      "Vehicle60[6]",
+      "Vehicle60[7]",
+      "Vehicle60[8]",
+      "Vehicle60[9]",
+      "Vehicle60[10]",
+      "Vehicle60[11]",
+      "Vehicle60[12]",
+      "Vehicle60[13]",
+      "Vehicle60[14]",
+      "Vehicle60[15]",
+      "Vehicle60[16]",
+      "Vehicle60[17]",
+      "Vehicle60[18]",
+      "Vehicle60[19]",
+      "Vehicle60[20]",
+      "Vehicle60[21]",
+      "Vehicle60[22]",
+      "Vehicle60[23]",
+      "Vehicle60[24]",
+      "Vehicle60[25]",
+      "Vehicle60[26]",
+      "Vehicle60[27]",
+      "Vehicle60[28]",
+      "Vehicle60[29]",
+      "Vehicle60[30]",
+      "Vehicle60[31]",
+      "Vehicle60[32]",
+      "Sensor30[1]",
+      "Sensor30[2]",
+      "Sensor30[3]",
+      "Sensor30[4]",
+      "Sensor30[5]",
+      "Sensor30[6]",
+      "Sensor30[7]",
+      "Sensor30[8]",
+      "Sensor30[9]",
+      "Sensor30[10]",
+      "Sensor30[11]",
+      "Sensor30[12]",
+      "Sensor30[13]",
+      "GPS30[1]",
+      "GPS30[2]",
+      "GPS30[3]",
+      "GPS30[4]",
+      "GPS30[5]",
+      "GPS30[6]",
+      "GPS30[7]",
+      "GPS30[8]",
+      "GPS30[9]",
+      "GPS30[10]"
+    ]
+  },
+  "frame_vocabulary": {
+    "NED": {
+      "meaning": "model local North-East-Down earth frame; used for vector components explicitly labelled NED by committed text",
+      "committed_text": [
+        "Simulator/wksim_core/README.md:52 位置/速度为 NED",
+        "Simulator/wksim_core/state_stream.py:10 position_frame=\"NED\"",
+        "Simulator/wksim_core/model.py:110 coordinates NED / FRD",
+        "Simulator/wksim_core/model_parameters.py:33 \"m; NED\"",
+        "docs/plan/2026-09-08-numerical-contract-readiness.md:105 Ve，m/s，NED",
+        "docs/plan/2026-09-08-numerical-contract-readiness.md:106 Xe，m，NED"
+      ],
+      "does_not_claim": "no geodetic datum, ellipsoid, altitude zero or earth-rotation model; the token is only assigned where committed text labels the quantity itself as NED (OD-22)"
+    },
+    "FRD": {
+      "meaning": "body Forward-Right-Down frame; used for vector components explicitly labelled body/机体系 or 比力/角速度 by committed text",
+      "committed_text": [
+        "Simulator/wksim_core/README.md:52 角速度和比力为 FRD",
+        "Simulator/wksim_core/state_stream.py:11 body_frame=\"FRD\"",
+        "Simulator/wksim_core/model.py:110 coordinates NED / FRD",
+        "docs/plan/2026-09-08-numerical-contract-readiness.md:110 机体系运动加速度",
+        "docs/plan/2026-09-08-numerical-contract-readiness.md:111 wb，rad/s，机体系"
+      ],
+      "does_not_claim": "no sensor mounting extrinsic, lever arm, rotor shaft frame or scalar-axis convention; a scalar quantity never receives this token (OD-17, OD-19)"
+    },
+    "lat_lon_deg": {
+      "meaning": "latitude / longitude pair expressed in degrees",
+      "committed_text": [
+        "Simulator/wksim_core/model_parameters.py:37 \"degree; latitude,longitude\"",
+        "Simulator/wksim_core/numerical-conformance-v1.json:observables[] 1e-7 degree per native unit",
+        "Simulator/wksim_core/gnss_event.py:64 lat, lon"
+      ],
+      "does_not_claim": "no horizontal datum and no geodetic-versus-spherical distinction is claimed; the word 'geodetic' is deliberately not used because committed text does not support it (OD-03)"
+    }
+  },
+  "datum_vocabulary": {
+    "model_local_NED_frame_reference": {
+      "meaning": "origin of the model local NED frame for NED-expressed positions, and the rest state of that same frame for NED-expressed velocities",
+      "committed_text": [
+        "Simulator/wksim_core/model_parameters.py:33 \"m; NED\"",
+        "docs/plan/2026-09-08-numerical-contract-readiness.md:88 ModelInit_PosE=[0,0,-10] m"
+      ],
+      "does_not_claim": "no geodetic datum, ellipsoid or altitude zero; it is not a zero/reference for body-frame rates, which are left unbound (OD-24), and whether the frame is flat/inertial or earth-rotating is open (OD-22)"
+    },
+    "degC_zero_at_273.15000000000003_K": {
+      "meaning": "degree-Celsius scale whose zero is the constant 273.15000000000003 K subtracted by the generated source",
+      "committed_text": [
+        "Simulator/wksim_core/numerical-conformance-v1.json:observables[] cpp:7625-7626 subtract 273.15000000000003",
+        "validation/e0-current-rhs-references-20260912.json:slots[Sensor30[13]].rhs.text 273.15000000000003"
+      ],
+      "does_not_claim": "no sensor location, applicable domain or calibration is bound (OD-10)"
+    }
+  },
+  "evidence_refs": {
+    "EV-1": {
+      "path": "Simulator/wksim_core/README.md",
+      "locator": "line 52",
+      "quote": "位置/速度为 NED",
+      "supports": [
+        "NED"
+      ]
+    },
+    "EV-2": {
+      "path": "Simulator/wksim_core/README.md",
+      "locator": "line 52",
+      "quote": "角速度和比力为 FRD",
+      "supports": [
+        "FRD"
+      ]
+    },
+    "EV-3": {
+      "path": "Simulator/wksim_core/state_stream.py",
+      "locator": "line 10",
+      "quote": "position_frame=\"NED\"",
+      "supports": [
+        "NED"
+      ]
+    },
+    "EV-4": {
+      "path": "Simulator/wksim_core/state_stream.py",
+      "locator": "line 11",
+      "quote": "body_frame=\"FRD\"",
+      "supports": [
+        "FRD"
+      ]
+    },
+    "EV-5": {
+      "path": "Simulator/wksim_core/model.py",
+      "locator": "line 110",
+      "quote": "coordinates NED / FRD",
+      "supports": [
+        "NED",
+        "FRD"
+      ]
+    },
+    "EV-6": {
+      "path": "Simulator/wksim_core/model_parameters.py",
+      "locator": "line 33",
+      "quote": "\"m; NED\"",
+      "supports": [
+        "NED",
+        "model_local_NED_frame_reference"
+      ]
+    },
+    "EV-7": {
+      "path": "Simulator/wksim_core/model_parameters.py",
+      "locator": "line 37",
+      "quote": "\"degree; latitude,longitude\"",
+      "supports": [
+        "lat_lon_deg"
+      ]
+    },
+    "EV-8": {
+      "path": "docs/plan/2026-09-08-numerical-contract-readiness.md",
+      "locator": "line 105",
+      "quote": "Ve，m/s，NED",
+      "supports": [
+        "NED"
+      ]
+    },
+    "EV-9": {
+      "path": "docs/plan/2026-09-08-numerical-contract-readiness.md",
+      "locator": "line 106",
+      "quote": "Xe，m，NED",
+      "supports": [
+        "NED"
+      ]
+    },
+    "EV-10": {
+      "path": "docs/plan/2026-09-08-numerical-contract-readiness.md",
+      "locator": "line 110",
+      "quote": "机体系运动加速度",
+      "supports": [
+        "FRD"
+      ]
+    },
+    "EV-11": {
+      "path": "docs/plan/2026-09-08-numerical-contract-readiness.md",
+      "locator": "line 111",
+      "quote": "wb，rad/s，机体系",
+      "supports": [
+        "FRD"
+      ]
+    },
+    "EV-12": {
+      "path": "docs/plan/2026-09-08-numerical-contract-readiness.md",
+      "locator": "line 88",
+      "quote": "ModelInit_PosE=[0,0,-10] m",
+      "supports": [
+        "model_local_NED_frame_reference"
+      ]
+    },
+    "EV-13": {
+      "path": "Simulator/wksim_core/numerical-conformance-v1.json",
+      "locator": "observables[]",
+      "quote": "1e-7 degree per native unit",
+      "supports": [
+        "lat_lon_deg"
+      ]
+    },
+    "EV-14": {
+      "path": "Simulator/wksim_core/numerical-conformance-v1.json",
+      "locator": "observables[]",
+      "quote": "cpp:7625-7626 subtract 273.15000000000003",
+      "supports": [
+        "degC_zero_at_273.15000000000003_K"
+      ]
+    },
+    "EV-15": {
+      "path": "validation/e0-current-rhs-references-20260912.json",
+      "locator": "slots[Sensor30[13]].rhs.text",
+      "quote": "273.15000000000003",
+      "supports": [
+        "degC_zero_at_273.15000000000003_K"
+      ]
+    },
+    "EV-16": {
+      "path": "Simulator/wksim_core/px4_mavlink.py",
+      "locator": "line 31",
+      "quote": "derive COG from the already-scaled NED velocity",
+      "supports": [
+        "NED"
+      ]
+    },
+    "EV-17": {
+      "path": "Simulator/wksim_core/gnss_event.py",
+      "locator": "line 64",
+      "quote": "# time, fix, lat, lon, alt, eph, epv, vel, vn, ve, vd, cog, satellites",
+      "supports": [
+        "NED",
+        "lat_lon_deg"
+      ]
+    },
+    "EV-18": {
+      "path": "Simulator/ue55/README.md",
+      "locator": "line 37",
+      "quote": "FRD机体到NED姿态",
+      "supports": []
+    }
+  },
+  "slot_count": 56,
+  "slots": [
+    {
+      "slot": "Vehicle60[2]",
+      "array": "Vehicle60",
+      "index": 2,
+      "observable": "vehicle_time",
+      "contract_semantic_status": "schedule_metadata",
+      "native_unit": "s",
+      "source_label": "cpp:3917,7822",
+      "current_generated_rhs": "rtb_time_usec_tmp",
+      "sample_phase": "major_root_output",
+      "frame": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "no spatial frame applies to a schedule_metadata time scalar and no committed text binds one; the owner must first decide whether these fields are compared at all (OD-01)",
+        "owner_decision": "OD-01"
+      },
+      "datum": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "no committed text binds the absolute zero or epoch of this time field; sampling fixes only the k grid (k=0..500, fixed step 0.001 s) and the major-root output phase (OD-02)",
+        "owner_decision": "OD-02"
+      },
+      "open_owner_decisions": [
+        "OD-01",
+        "OD-02"
+      ],
+      "binding_status": "unresolved_owner_decision"
+    },
+    {
+      "slot": "Vehicle60[3]",
+      "array": "Vehicle60",
+      "index": 3,
+      "observable": "velocity_ned",
+      "contract_semantic_status": "mapped_physical_observable",
+      "native_unit": "m/s",
+      "source_label": "cpp:7823-7827; SLX:system_12218_1328 VelE",
+      "current_generated_rhs": "Exp1_MinModelTemp_B.Product[0]",
+      "sample_phase": "major_root_output",
+      "frame": {
+        "value": "NED",
+        "status": "bound",
+        "evidence": [
+          "EV-1",
+          "EV-3",
+          "EV-5",
+          "EV-6",
+          "EV-8",
+          "EV-9"
+        ],
+        "reason": null,
+        "owner_decision": null
+      },
+      "datum": {
+        "value": "model_local_NED_frame_reference",
+        "status": "bound",
+        "evidence": [
+          "EV-6",
+          "EV-12"
+        ],
+        "reason": null,
+        "owner_decision": null
+      },
+      "open_owner_decisions": [
+        "OD-22"
+      ],
+      "binding_status": "bound_but_owner_items_open"
+    },
+    {
+      "slot": "Vehicle60[4]",
+      "array": "Vehicle60",
+      "index": 4,
+      "observable": "velocity_ned",
+      "contract_semantic_status": "mapped_physical_observable",
+      "native_unit": "m/s",
+      "source_label": "cpp:7823-7827; SLX:system_12218_1328 VelE",
+      "current_generated_rhs": "Exp1_MinModelTemp_B.Product[1]",
+      "sample_phase": "major_root_output",
+      "frame": {
+        "value": "NED",
+        "status": "bound",
+        "evidence": [
+          "EV-1",
+          "EV-3",
+          "EV-5",
+          "EV-6",
+          "EV-8",
+          "EV-9"
+        ],
+        "reason": null,
+        "owner_decision": null
+      },
+      "datum": {
+        "value": "model_local_NED_frame_reference",
+        "status": "bound",
+        "evidence": [
+          "EV-6",
+          "EV-12"
+        ],
+        "reason": null,
+        "owner_decision": null
+      },
+      "open_owner_decisions": [
+        "OD-22"
+      ],
+      "binding_status": "bound_but_owner_items_open"
+    },
+    {
+      "slot": "Vehicle60[5]",
+      "array": "Vehicle60",
+      "index": 5,
+      "observable": "velocity_ned",
+      "contract_semantic_status": "mapped_physical_observable",
+      "native_unit": "m/s",
+      "source_label": "cpp:7823-7827; SLX:system_12218_1328 VelE",
+      "current_generated_rhs": "Exp1_MinModelTemp_B.Product[2]",
+      "sample_phase": "major_root_output",
+      "frame": {
+        "value": "NED",
+        "status": "bound",
+        "evidence": [
+          "EV-1",
+          "EV-3",
+          "EV-5",
+          "EV-6",
+          "EV-8",
+          "EV-9"
+        ],
+        "reason": null,
+        "owner_decision": null
+      },
+      "datum": {
+        "value": "model_local_NED_frame_reference",
+        "status": "bound",
+        "evidence": [
+          "EV-6",
+          "EV-12"
+        ],
+        "reason": null,
+        "owner_decision": null
+      },
+      "open_owner_decisions": [
+        "OD-22"
+      ],
+      "binding_status": "bound_but_owner_items_open"
+    },
+    {
+      "slot": "Vehicle60[6]",
+      "array": "Vehicle60",
+      "index": 6,
+      "observable": "position_ned",
+      "contract_semantic_status": "mapped_physical_observable",
+      "native_unit": "m",
+      "source_label": "cpp:7824-7828; 6DOF MKS",
+      "current_generated_rhs": "Exp1_MinModelTemp_X.xeyeze_CSTATE[0]",
+      "sample_phase": "major_root_output",
+      "frame": {
+        "value": "NED",
+        "status": "bound",
+        "evidence": [
+          "EV-1",
+          "EV-3",
+          "EV-5",
+          "EV-6",
+          "EV-8",
+          "EV-9"
+        ],
+        "reason": null,
+        "owner_decision": null
+      },
+      "datum": {
+        "value": "model_local_NED_frame_reference",
+        "status": "bound",
+        "evidence": [
+          "EV-6",
+          "EV-12"
+        ],
+        "reason": null,
+        "owner_decision": null
+      },
+      "open_owner_decisions": [
+        "OD-22"
+      ],
+      "binding_status": "bound_but_owner_items_open"
+    },
+    {
+      "slot": "Vehicle60[7]",
+      "array": "Vehicle60",
+      "index": 7,
+      "observable": "position_ned",
+      "contract_semantic_status": "mapped_physical_observable",
+      "native_unit": "m",
+      "source_label": "cpp:7824-7828; 6DOF MKS",
+      "current_generated_rhs": "Exp1_MinModelTemp_X.xeyeze_CSTATE[1]",
+      "sample_phase": "major_root_output",
+      "frame": {
+        "value": "NED",
+        "status": "bound",
+        "evidence": [
+          "EV-1",
+          "EV-3",
+          "EV-5",
+          "EV-6",
+          "EV-8",
+          "EV-9"
+        ],
+        "reason": null,
+        "owner_decision": null
+      },
+      "datum": {
+        "value": "model_local_NED_frame_reference",
+        "status": "bound",
+        "evidence": [
+          "EV-6",
+          "EV-12"
+        ],
+        "reason": null,
+        "owner_decision": null
+      },
+      "open_owner_decisions": [
+        "OD-22"
+      ],
+      "binding_status": "bound_but_owner_items_open"
+    },
+    {
+      "slot": "Vehicle60[8]",
+      "array": "Vehicle60",
+      "index": 8,
+      "observable": "position_ned",
+      "contract_semantic_status": "mapped_physical_observable",
+      "native_unit": "m",
+      "source_label": "cpp:7824-7828; 6DOF MKS",
+      "current_generated_rhs": "Exp1_MinModelTemp_X.xeyeze_CSTATE[2]",
+      "sample_phase": "major_root_output",
+      "frame": {
+        "value": "NED",
+        "status": "bound",
+        "evidence": [
+          "EV-1",
+          "EV-3",
+          "EV-5",
+          "EV-6",
+          "EV-8",
+          "EV-9"
+        ],
+        "reason": null,
+        "owner_decision": null
+      },
+      "datum": {
+        "value": "model_local_NED_frame_reference",
+        "status": "bound",
+        "evidence": [
+          "EV-6",
+          "EV-12"
+        ],
+        "reason": null,
+        "owner_decision": null
+      },
+      "open_owner_decisions": [
+        "OD-22"
+      ],
+      "binding_status": "bound_but_owner_items_open"
+    },
+    {
+      "slot": "Vehicle60[9]",
+      "array": "Vehicle60",
+      "index": 9,
+      "observable": "euler_components",
+      "contract_semantic_status": "encoded_orientation_components_only",
+      "native_unit": "rad",
+      "source_label": "cpp:4301,7845-7846",
+      "current_generated_rhs": "rt_atan2d_snf((rtb_Gain_c *\n    rtb_UniformRandomNumber4_idx_0 + rtb_sincos_o1_j_idx_2 * rtb_TT0gLR) * 2.0,\n    ((rtb_UniformRandomNumber4_idx_1 - rtb_sincos_o1_j_idx_1) - rtb_Add) +\n    rtb_sincos_o2_idx_0)",
+      "sample_phase": "major_root_output",
+      "frame": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "no committed text states the reference direction of the euler_components output; ModelInit_AngEuler is an initial-state parameter annotation and the readiness table lists only Eular(rad), so the frame, rotation sequence and index-to-axis mapping are all unbound (OD-16)",
+        "owner_decision": "OD-16"
+      },
+      "datum": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "no committed text states the reference direction of the euler_components output; ModelInit_AngEuler is an initial-state parameter annotation and the readiness table lists only Eular(rad), so the frame, rotation sequence and index-to-axis mapping are all unbound (OD-16)",
+        "owner_decision": "OD-16"
+      },
+      "open_owner_decisions": [
+        "OD-16"
+      ],
+      "binding_status": "unresolved_owner_decision"
+    },
+    {
+      "slot": "Vehicle60[10]",
+      "array": "Vehicle60",
+      "index": 10,
+      "observable": "euler_components",
+      "contract_semantic_status": "encoded_orientation_components_only",
+      "native_unit": "rad",
+      "source_label": "cpp:4301,7845-7846",
+      "current_generated_rhs": "std::asin(rtb_Switch)",
+      "sample_phase": "major_root_output",
+      "frame": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "no committed text states the reference direction of the euler_components output; ModelInit_AngEuler is an initial-state parameter annotation and the readiness table lists only Eular(rad), so the frame, rotation sequence and index-to-axis mapping are all unbound (OD-16)",
+        "owner_decision": "OD-16"
+      },
+      "datum": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "no committed text states the reference direction of the euler_components output; ModelInit_AngEuler is an initial-state parameter annotation and the readiness table lists only Eular(rad), so the frame, rotation sequence and index-to-axis mapping are all unbound (OD-16)",
+        "owner_decision": "OD-16"
+      },
+      "open_owner_decisions": [
+        "OD-16"
+      ],
+      "binding_status": "unresolved_owner_decision"
+    },
+    {
+      "slot": "Vehicle60[11]",
+      "array": "Vehicle60",
+      "index": 11,
+      "observable": "euler_components",
+      "contract_semantic_status": "encoded_orientation_components_only",
+      "native_unit": "rad",
+      "source_label": "cpp:4301,7845-7846",
+      "current_generated_rhs": "rtb_sincos_o1_j_idx_0",
+      "sample_phase": "major_root_output",
+      "frame": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "no committed text states the reference direction of the euler_components output; ModelInit_AngEuler is an initial-state parameter annotation and the readiness table lists only Eular(rad), so the frame, rotation sequence and index-to-axis mapping are all unbound (OD-16)",
+        "owner_decision": "OD-16"
+      },
+      "datum": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "no committed text states the reference direction of the euler_components output; ModelInit_AngEuler is an initial-state parameter annotation and the readiness table lists only Eular(rad), so the frame, rotation sequence and index-to-axis mapping are all unbound (OD-16)",
+        "owner_decision": "OD-16"
+      },
+      "open_owner_decisions": [
+        "OD-16"
+      ],
+      "binding_status": "unresolved_owner_decision"
+    },
+    {
+      "slot": "Vehicle60[12]",
+      "array": "Vehicle60",
+      "index": 12,
+      "observable": "quaternion_components",
+      "contract_semantic_status": "encoded_orientation_components_only",
+      "native_unit": "1",
+      "source_label": "cpp:7847-7850; SLX DCM->Quaternion->fix_quat_sign",
+      "current_generated_rhs": "Exp1_MinModelTemp_B.q_out[0]",
+      "sample_phase": "major_root_output",
+      "frame": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "the committed source map explicitly lists the quaternion direction as missing and the R1 contract lists the quaternion direction/component convention as unqualified; Simulator/ue55/README.md:37 describes the UE display field and is retained only as context (EV-18), so no direction, sign/norm class or metric is bound here (OD-15)",
+        "owner_decision": "OD-15"
+      },
+      "datum": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "the committed source map explicitly lists the quaternion direction as missing and the R1 contract lists the quaternion direction/component convention as unqualified; Simulator/ue55/README.md:37 describes the UE display field and is retained only as context (EV-18), so no direction, sign/norm class or metric is bound here (OD-15)",
+        "owner_decision": "OD-15"
+      },
+      "open_owner_decisions": [
+        "OD-15"
+      ],
+      "binding_status": "unresolved_owner_decision"
+    },
+    {
+      "slot": "Vehicle60[13]",
+      "array": "Vehicle60",
+      "index": 13,
+      "observable": "quaternion_components",
+      "contract_semantic_status": "encoded_orientation_components_only",
+      "native_unit": "1",
+      "source_label": "cpp:7847-7850; SLX DCM->Quaternion->fix_quat_sign",
+      "current_generated_rhs": "Exp1_MinModelTemp_B.q_out[1]",
+      "sample_phase": "major_root_output",
+      "frame": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "the committed source map explicitly lists the quaternion direction as missing and the R1 contract lists the quaternion direction/component convention as unqualified; Simulator/ue55/README.md:37 describes the UE display field and is retained only as context (EV-18), so no direction, sign/norm class or metric is bound here (OD-15)",
+        "owner_decision": "OD-15"
+      },
+      "datum": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "the committed source map explicitly lists the quaternion direction as missing and the R1 contract lists the quaternion direction/component convention as unqualified; Simulator/ue55/README.md:37 describes the UE display field and is retained only as context (EV-18), so no direction, sign/norm class or metric is bound here (OD-15)",
+        "owner_decision": "OD-15"
+      },
+      "open_owner_decisions": [
+        "OD-15"
+      ],
+      "binding_status": "unresolved_owner_decision"
+    },
+    {
+      "slot": "Vehicle60[14]",
+      "array": "Vehicle60",
+      "index": 14,
+      "observable": "quaternion_components",
+      "contract_semantic_status": "encoded_orientation_components_only",
+      "native_unit": "1",
+      "source_label": "cpp:7847-7850; SLX DCM->Quaternion->fix_quat_sign",
+      "current_generated_rhs": "Exp1_MinModelTemp_B.q_out[2]",
+      "sample_phase": "major_root_output",
+      "frame": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "the committed source map explicitly lists the quaternion direction as missing and the R1 contract lists the quaternion direction/component convention as unqualified; Simulator/ue55/README.md:37 describes the UE display field and is retained only as context (EV-18), so no direction, sign/norm class or metric is bound here (OD-15)",
+        "owner_decision": "OD-15"
+      },
+      "datum": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "the committed source map explicitly lists the quaternion direction as missing and the R1 contract lists the quaternion direction/component convention as unqualified; Simulator/ue55/README.md:37 describes the UE display field and is retained only as context (EV-18), so no direction, sign/norm class or metric is bound here (OD-15)",
+        "owner_decision": "OD-15"
+      },
+      "open_owner_decisions": [
+        "OD-15"
+      ],
+      "binding_status": "unresolved_owner_decision"
+    },
+    {
+      "slot": "Vehicle60[15]",
+      "array": "Vehicle60",
+      "index": 15,
+      "observable": "quaternion_components",
+      "contract_semantic_status": "encoded_orientation_components_only",
+      "native_unit": "1",
+      "source_label": "cpp:7847-7850; SLX DCM->Quaternion->fix_quat_sign",
+      "current_generated_rhs": "Exp1_MinModelTemp_B.q_out[3]",
+      "sample_phase": "major_root_output",
+      "frame": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "the committed source map explicitly lists the quaternion direction as missing and the R1 contract lists the quaternion direction/component convention as unqualified; Simulator/ue55/README.md:37 describes the UE display field and is retained only as context (EV-18), so no direction, sign/norm class or metric is bound here (OD-15)",
+        "owner_decision": "OD-15"
+      },
+      "datum": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "the committed source map explicitly lists the quaternion direction as missing and the R1 contract lists the quaternion direction/component convention as unqualified; Simulator/ue55/README.md:37 describes the UE display field and is retained only as context (EV-18), so no direction, sign/norm class or metric is bound here (OD-15)",
+        "owner_decision": "OD-15"
+      },
+      "open_owner_decisions": [
+        "OD-15"
+      ],
+      "binding_status": "unresolved_owner_decision"
+    },
+    {
+      "slot": "Vehicle60[16]",
+      "array": "Vehicle60",
+      "index": 16,
+      "observable": "active_motor_speed",
+      "contract_semantic_status": "mapped_physical_observable",
+      "native_unit": "rpm",
+      "source_label": "cpp:7851-7858; h:1398",
+      "current_generated_rhs": "Exp1_MinModelTemp_P.Gain1_Gain_i *\n    Exp1_MinModelTemp_B.MotorNonlinearDynamic1.Motor_Dynamics.x",
+      "sample_phase": "major_root_output",
+      "frame": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "the slot carries a scalar rotor speed; committed text binds rotor mounting positions in FRD and the rad/s to rpm gain but never states a frame or axis convention for the scalar output, and no rpm calibration reference is bound (OD-19)",
+        "owner_decision": "OD-19"
+      },
+      "datum": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "the slot carries a scalar rotor speed; committed text binds rotor mounting positions in FRD and the rad/s to rpm gain but never states a frame or axis convention for the scalar output, and no rpm calibration reference is bound (OD-19)",
+        "owner_decision": "OD-19"
+      },
+      "open_owner_decisions": [
+        "OD-19"
+      ],
+      "binding_status": "unresolved_owner_decision"
+    },
+    {
+      "slot": "Vehicle60[17]",
+      "array": "Vehicle60",
+      "index": 17,
+      "observable": "active_motor_speed",
+      "contract_semantic_status": "mapped_physical_observable",
+      "native_unit": "rpm",
+      "source_label": "cpp:7851-7858; h:1398",
+      "current_generated_rhs": "Exp1_MinModelTemp_P.Gain1_Gain_i *\n    Exp1_MinModelTemp_B.MotorNonlinearDynamic2.Motor_Dynamics.x",
+      "sample_phase": "major_root_output",
+      "frame": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "the slot carries a scalar rotor speed; committed text binds rotor mounting positions in FRD and the rad/s to rpm gain but never states a frame or axis convention for the scalar output, and no rpm calibration reference is bound (OD-19)",
+        "owner_decision": "OD-19"
+      },
+      "datum": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "the slot carries a scalar rotor speed; committed text binds rotor mounting positions in FRD and the rad/s to rpm gain but never states a frame or axis convention for the scalar output, and no rpm calibration reference is bound (OD-19)",
+        "owner_decision": "OD-19"
+      },
+      "open_owner_decisions": [
+        "OD-19"
+      ],
+      "binding_status": "unresolved_owner_decision"
+    },
+    {
+      "slot": "Vehicle60[18]",
+      "array": "Vehicle60",
+      "index": 18,
+      "observable": "active_motor_speed",
+      "contract_semantic_status": "mapped_physical_observable",
+      "native_unit": "rpm",
+      "source_label": "cpp:7851-7858; h:1398",
+      "current_generated_rhs": "Exp1_MinModelTemp_P.Gain1_Gain_i *\n    Exp1_MinModelTemp_B.MotorNonlinearDynamic3.Motor_Dynamics.x",
+      "sample_phase": "major_root_output",
+      "frame": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "the slot carries a scalar rotor speed; committed text binds rotor mounting positions in FRD and the rad/s to rpm gain but never states a frame or axis convention for the scalar output, and no rpm calibration reference is bound (OD-19)",
+        "owner_decision": "OD-19"
+      },
+      "datum": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "the slot carries a scalar rotor speed; committed text binds rotor mounting positions in FRD and the rad/s to rpm gain but never states a frame or axis convention for the scalar output, and no rpm calibration reference is bound (OD-19)",
+        "owner_decision": "OD-19"
+      },
+      "open_owner_decisions": [
+        "OD-19"
+      ],
+      "binding_status": "unresolved_owner_decision"
+    },
+    {
+      "slot": "Vehicle60[19]",
+      "array": "Vehicle60",
+      "index": 19,
+      "observable": "active_motor_speed",
+      "contract_semantic_status": "mapped_physical_observable",
+      "native_unit": "rpm",
+      "source_label": "cpp:7851-7858; h:1398",
+      "current_generated_rhs": "Exp1_MinModelTemp_P.Gain1_Gain_i *\n    Exp1_MinModelTemp_B.MotorNonlinearDynamic4.Motor_Dynamics.x",
+      "sample_phase": "major_root_output",
+      "frame": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "the slot carries a scalar rotor speed; committed text binds rotor mounting positions in FRD and the rad/s to rpm gain but never states a frame or axis convention for the scalar output, and no rpm calibration reference is bound (OD-19)",
+        "owner_decision": "OD-19"
+      },
+      "datum": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "the slot carries a scalar rotor speed; committed text binds rotor mounting positions in FRD and the rad/s to rpm gain but never states a frame or axis convention for the scalar output, and no rpm calibration reference is bound (OD-19)",
+        "owner_decision": "OD-19"
+      },
+      "open_owner_decisions": [
+        "OD-19"
+      ],
+      "binding_status": "unresolved_owner_decision"
+    },
+    {
+      "slot": "Vehicle60[20]",
+      "array": "Vehicle60",
+      "index": 20,
+      "observable": "extra_motor_speed",
+      "contract_semantic_status": "inactive_channels_not_aircraft_coverage",
+      "native_unit": "rpm",
+      "source_label": "cpp:7859-7866; h:1398",
+      "current_generated_rhs": "Exp1_MinModelTemp_P.Gain1_Gain_i *\n    Exp1_MinModelTemp_B.MotorNonlinearDynamic5.Motor_Dynamics.x",
+      "sample_phase": "major_root_output",
+      "frame": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "the slot carries a scalar rotor speed; committed text binds rotor mounting positions in FRD and the rad/s to rpm gain but never states a frame or axis convention for the scalar output, and no rpm calibration reference is bound (OD-19)",
+        "owner_decision": "OD-19"
+      },
+      "datum": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "the slot carries a scalar rotor speed; committed text binds rotor mounting positions in FRD and the rad/s to rpm gain but never states a frame or axis convention for the scalar output, and no rpm calibration reference is bound (OD-19)",
+        "owner_decision": "OD-19"
+      },
+      "open_owner_decisions": [
+        "OD-19",
+        "OD-20"
+      ],
+      "binding_status": "unresolved_owner_decision"
+    },
+    {
+      "slot": "Vehicle60[21]",
+      "array": "Vehicle60",
+      "index": 21,
+      "observable": "extra_motor_speed",
+      "contract_semantic_status": "inactive_channels_not_aircraft_coverage",
+      "native_unit": "rpm",
+      "source_label": "cpp:7859-7866; h:1398",
+      "current_generated_rhs": "Exp1_MinModelTemp_P.Gain1_Gain_i *\n    Exp1_MinModelTemp_B.MotorNonlinearDynamic6.Motor_Dynamics.x",
+      "sample_phase": "major_root_output",
+      "frame": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "the slot carries a scalar rotor speed; committed text binds rotor mounting positions in FRD and the rad/s to rpm gain but never states a frame or axis convention for the scalar output, and no rpm calibration reference is bound (OD-19)",
+        "owner_decision": "OD-19"
+      },
+      "datum": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "the slot carries a scalar rotor speed; committed text binds rotor mounting positions in FRD and the rad/s to rpm gain but never states a frame or axis convention for the scalar output, and no rpm calibration reference is bound (OD-19)",
+        "owner_decision": "OD-19"
+      },
+      "open_owner_decisions": [
+        "OD-19",
+        "OD-20"
+      ],
+      "binding_status": "unresolved_owner_decision"
+    },
+    {
+      "slot": "Vehicle60[22]",
+      "array": "Vehicle60",
+      "index": 22,
+      "observable": "extra_motor_speed",
+      "contract_semantic_status": "inactive_channels_not_aircraft_coverage",
+      "native_unit": "rpm",
+      "source_label": "cpp:7859-7866; h:1398",
+      "current_generated_rhs": "Exp1_MinModelTemp_P.Gain1_Gain_i *\n    Exp1_MinModelTemp_B.MotorNonlinearDynamic7.Motor_Dynamics.x",
+      "sample_phase": "major_root_output",
+      "frame": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "the slot carries a scalar rotor speed; committed text binds rotor mounting positions in FRD and the rad/s to rpm gain but never states a frame or axis convention for the scalar output, and no rpm calibration reference is bound (OD-19)",
+        "owner_decision": "OD-19"
+      },
+      "datum": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "the slot carries a scalar rotor speed; committed text binds rotor mounting positions in FRD and the rad/s to rpm gain but never states a frame or axis convention for the scalar output, and no rpm calibration reference is bound (OD-19)",
+        "owner_decision": "OD-19"
+      },
+      "open_owner_decisions": [
+        "OD-19",
+        "OD-20"
+      ],
+      "binding_status": "unresolved_owner_decision"
+    },
+    {
+      "slot": "Vehicle60[23]",
+      "array": "Vehicle60",
+      "index": 23,
+      "observable": "extra_motor_speed",
+      "contract_semantic_status": "inactive_channels_not_aircraft_coverage",
+      "native_unit": "rpm",
+      "source_label": "cpp:7859-7866; h:1398",
+      "current_generated_rhs": "Exp1_MinModelTemp_P.Gain1_Gain_i *\n    Exp1_MinModelTemp_B.MotorNonlinearDynamic8.Motor_Dynamics.x",
+      "sample_phase": "major_root_output",
+      "frame": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "the slot carries a scalar rotor speed; committed text binds rotor mounting positions in FRD and the rad/s to rpm gain but never states a frame or axis convention for the scalar output, and no rpm calibration reference is bound (OD-19)",
+        "owner_decision": "OD-19"
+      },
+      "datum": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "the slot carries a scalar rotor speed; committed text binds rotor mounting positions in FRD and the rad/s to rpm gain but never states a frame or axis convention for the scalar output, and no rpm calibration reference is bound (OD-19)",
+        "owner_decision": "OD-19"
+      },
+      "open_owner_decisions": [
+        "OD-19",
+        "OD-20"
+      ],
+      "binding_status": "unresolved_owner_decision"
+    },
+    {
+      "slot": "Vehicle60[24]",
+      "array": "Vehicle60",
+      "index": 24,
+      "observable": "body_motion_acceleration",
+      "contract_semantic_status": "mapped_physical_observable",
+      "native_unit": "m/s^2",
+      "source_label": "cpp:7867-7871; SLX Abb",
+      "current_generated_rhs": "Exp1_MinModelTemp_B.Sum_p[0]",
+      "sample_phase": "major_root_output",
+      "frame": {
+        "value": "FRD",
+        "status": "bound",
+        "evidence": [
+          "EV-10",
+          "EV-2",
+          "EV-4"
+        ],
+        "reason": null,
+        "owner_decision": null
+      },
+      "datum": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "no external acceleration reference is bound; the quantity is the FRD body-frame velocity derivative Abb, explicitly not accelerometer specific force (OD-21)",
+        "owner_decision": "OD-21"
+      },
+      "open_owner_decisions": [
+        "OD-21"
+      ],
+      "binding_status": "unresolved_owner_decision"
+    },
+    {
+      "slot": "Vehicle60[25]",
+      "array": "Vehicle60",
+      "index": 25,
+      "observable": "body_motion_acceleration",
+      "contract_semantic_status": "mapped_physical_observable",
+      "native_unit": "m/s^2",
+      "source_label": "cpp:7867-7871; SLX Abb",
+      "current_generated_rhs": "Exp1_MinModelTemp_B.Sum_p[1]",
+      "sample_phase": "major_root_output",
+      "frame": {
+        "value": "FRD",
+        "status": "bound",
+        "evidence": [
+          "EV-10",
+          "EV-2",
+          "EV-4"
+        ],
+        "reason": null,
+        "owner_decision": null
+      },
+      "datum": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "no external acceleration reference is bound; the quantity is the FRD body-frame velocity derivative Abb, explicitly not accelerometer specific force (OD-21)",
+        "owner_decision": "OD-21"
+      },
+      "open_owner_decisions": [
+        "OD-21"
+      ],
+      "binding_status": "unresolved_owner_decision"
+    },
+    {
+      "slot": "Vehicle60[26]",
+      "array": "Vehicle60",
+      "index": 26,
+      "observable": "body_motion_acceleration",
+      "contract_semantic_status": "mapped_physical_observable",
+      "native_unit": "m/s^2",
+      "source_label": "cpp:7867-7871; SLX Abb",
+      "current_generated_rhs": "Exp1_MinModelTemp_B.Sum_p[2]",
+      "sample_phase": "major_root_output",
+      "frame": {
+        "value": "FRD",
+        "status": "bound",
+        "evidence": [
+          "EV-10",
+          "EV-2",
+          "EV-4"
+        ],
+        "reason": null,
+        "owner_decision": null
+      },
+      "datum": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "no external acceleration reference is bound; the quantity is the FRD body-frame velocity derivative Abb, explicitly not accelerometer specific force (OD-21)",
+        "owner_decision": "OD-21"
+      },
+      "open_owner_decisions": [
+        "OD-21"
+      ],
+      "binding_status": "unresolved_owner_decision"
+    },
+    {
+      "slot": "Vehicle60[27]",
+      "array": "Vehicle60",
+      "index": 27,
+      "observable": "body_angular_rate",
+      "contract_semantic_status": "mapped_physical_observable",
+      "native_unit": "rad/s",
+      "source_label": "cpp:7868-7872",
+      "current_generated_rhs": "Exp1_MinModelTemp_X.pqr_CSTATE[0]",
+      "sample_phase": "major_root_output",
+      "frame": {
+        "value": "FRD",
+        "status": "bound",
+        "evidence": [
+          "EV-11",
+          "EV-2",
+          "EV-4"
+        ],
+        "reason": null,
+        "owner_decision": null
+      },
+      "datum": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "no committed text binds a zero or reference for the FRD body angular rate as an origin of the model local NED frame, so the datum is left unbound (OD-24)",
+        "owner_decision": "OD-24"
+      },
+      "open_owner_decisions": [
+        "OD-24"
+      ],
+      "binding_status": "unresolved_owner_decision"
+    },
+    {
+      "slot": "Vehicle60[28]",
+      "array": "Vehicle60",
+      "index": 28,
+      "observable": "body_angular_rate",
+      "contract_semantic_status": "mapped_physical_observable",
+      "native_unit": "rad/s",
+      "source_label": "cpp:7868-7872",
+      "current_generated_rhs": "Exp1_MinModelTemp_X.pqr_CSTATE[1]",
+      "sample_phase": "major_root_output",
+      "frame": {
+        "value": "FRD",
+        "status": "bound",
+        "evidence": [
+          "EV-11",
+          "EV-2",
+          "EV-4"
+        ],
+        "reason": null,
+        "owner_decision": null
+      },
+      "datum": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "no committed text binds a zero or reference for the FRD body angular rate as an origin of the model local NED frame, so the datum is left unbound (OD-24)",
+        "owner_decision": "OD-24"
+      },
+      "open_owner_decisions": [
+        "OD-24"
+      ],
+      "binding_status": "unresolved_owner_decision"
+    },
+    {
+      "slot": "Vehicle60[29]",
+      "array": "Vehicle60",
+      "index": 29,
+      "observable": "body_angular_rate",
+      "contract_semantic_status": "mapped_physical_observable",
+      "native_unit": "rad/s",
+      "source_label": "cpp:7868-7872",
+      "current_generated_rhs": "Exp1_MinModelTemp_X.pqr_CSTATE[2]",
+      "sample_phase": "major_root_output",
+      "frame": {
+        "value": "FRD",
+        "status": "bound",
+        "evidence": [
+          "EV-11",
+          "EV-2",
+          "EV-4"
+        ],
+        "reason": null,
+        "owner_decision": null
+      },
+      "datum": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "no committed text binds a zero or reference for the FRD body angular rate as an origin of the model local NED frame, so the datum is left unbound (OD-24)",
+        "owner_decision": "OD-24"
+      },
+      "open_owner_decisions": [
+        "OD-24"
+      ],
+      "binding_status": "unresolved_owner_decision"
+    },
+    {
+      "slot": "Vehicle60[30]",
+      "array": "Vehicle60",
+      "index": 30,
+      "observable": "truth_latitude_longitude",
+      "contract_semantic_status": "mapped_physical_observable",
+      "native_unit": "degree",
+      "source_label": "cpp:7873-7874; SLX PosGPS",
+      "current_generated_rhs": "rtb_Sum_e2_idx_0",
+      "sample_phase": "major_root_output",
+      "frame": {
+        "value": "lat_lon_deg",
+        "status": "bound",
+        "evidence": [
+          "EV-7",
+          "EV-13",
+          "EV-17"
+        ],
+        "reason": null,
+        "owner_decision": null
+      },
+      "datum": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "no committed text binds a horizontal datum for the degree-valued latitude/longitude output; only the latitude/longitude form and the degree unit are committed (OD-03)",
+        "owner_decision": "OD-03"
+      },
+      "open_owner_decisions": [
+        "OD-03"
+      ],
+      "binding_status": "unresolved_owner_decision"
+    },
+    {
+      "slot": "Vehicle60[31]",
+      "array": "Vehicle60",
+      "index": 31,
+      "observable": "truth_latitude_longitude",
+      "contract_semantic_status": "mapped_physical_observable",
+      "native_unit": "degree",
+      "source_label": "cpp:7873-7874; SLX PosGPS",
+      "current_generated_rhs": "rtb_sincos_o1_j_idx_1",
+      "sample_phase": "major_root_output",
+      "frame": {
+        "value": "lat_lon_deg",
+        "status": "bound",
+        "evidence": [
+          "EV-7",
+          "EV-13",
+          "EV-17"
+        ],
+        "reason": null,
+        "owner_decision": null
+      },
+      "datum": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "no committed text binds a horizontal datum for the degree-valued latitude/longitude output; only the latitude/longitude form and the degree unit are committed (OD-03)",
+        "owner_decision": "OD-03"
+      },
+      "open_owner_decisions": [
+        "OD-03"
+      ],
+      "binding_status": "unresolved_owner_decision"
+    },
+    {
+      "slot": "Vehicle60[32]",
+      "array": "Vehicle60",
+      "index": 32,
+      "observable": "truth_altitude",
+      "contract_semantic_status": "height_datum_semantics_not_fully_verified",
+      "native_unit": "m",
+      "source_label": "cpp:7875; same rtb_Add as GPS30[3]",
+      "current_generated_rhs": "rtb_Add",
+      "sample_phase": "major_root_output",
+      "frame": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "no committed text binds the vertical axis sign or orientation of this height output; the init down-positive note covers ModelParam_envAltitude, not this output (OD-04)",
+        "owner_decision": "OD-04"
+      },
+      "datum": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "no height datum (ellipsoid / AMSL / AGL / local) is bound for this output in committed text (OD-05)",
+        "owner_decision": "OD-05"
+      },
+      "open_owner_decisions": [
+        "OD-04",
+        "OD-05"
+      ],
+      "binding_status": "unresolved_owner_decision"
+    },
+    {
+      "slot": "Sensor30[0]",
+      "array": "Sensor30",
+      "index": 0,
+      "observable": "sensor_time",
+      "contract_semantic_status": "schedule_metadata",
+      "native_unit": "us",
+      "source_label": "cpp:3922,7437",
+      "current_generated_rhs": "rtb_time_usec",
+      "sample_phase": "major_root_output",
+      "frame": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "no spatial frame applies to a schedule_metadata time scalar and no committed text binds one; the owner must first decide whether these fields are compared at all (OD-01)",
+        "owner_decision": "OD-01"
+      },
+      "datum": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "no committed text binds the absolute zero or epoch of this time field; sampling fixes only the k grid (k=0..500, fixed step 0.001 s) and the major-root output phase (OD-02)",
+        "owner_decision": "OD-02"
+      },
+      "open_owner_decisions": [
+        "OD-01",
+        "OD-02"
+      ],
+      "binding_status": "unresolved_owner_decision"
+    },
+    {
+      "slot": "Sensor30[1]",
+      "array": "Sensor30",
+      "index": 1,
+      "observable": "accelerometer",
+      "contract_semantic_status": "mapped_physical_observable",
+      "native_unit": "m/s^2",
+      "source_label": "cpp:7457-7512; h S262 Three-axis Accelerometer",
+      "current_generated_rhs": "rtb_Switch +\n    Exp1_MinModelTemp_B.Product4[0]",
+      "sample_phase": "major_root_output",
+      "frame": {
+        "value": "FRD",
+        "status": "bound",
+        "evidence": [
+          "EV-2",
+          "EV-4"
+        ],
+        "reason": null,
+        "owner_decision": null
+      },
+      "datum": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "no committed text binds a calibration or zero reference for this sensor output; the accelerometer carries specific force, not the Vehicle body velocity derivative (OD-18)",
+        "owner_decision": "OD-18"
+      },
+      "open_owner_decisions": [
+        "OD-17",
+        "OD-18"
+      ],
+      "binding_status": "unresolved_owner_decision"
+    },
+    {
+      "slot": "Sensor30[2]",
+      "array": "Sensor30",
+      "index": 2,
+      "observable": "accelerometer",
+      "contract_semantic_status": "mapped_physical_observable",
+      "native_unit": "m/s^2",
+      "source_label": "cpp:7457-7512; h S262 Three-axis Accelerometer",
+      "current_generated_rhs": "rtb_Switch +\n    Exp1_MinModelTemp_B.Product4[1]",
+      "sample_phase": "major_root_output",
+      "frame": {
+        "value": "FRD",
+        "status": "bound",
+        "evidence": [
+          "EV-2",
+          "EV-4"
+        ],
+        "reason": null,
+        "owner_decision": null
+      },
+      "datum": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "no committed text binds a calibration or zero reference for this sensor output; the accelerometer carries specific force, not the Vehicle body velocity derivative (OD-18)",
+        "owner_decision": "OD-18"
+      },
+      "open_owner_decisions": [
+        "OD-17",
+        "OD-18"
+      ],
+      "binding_status": "unresolved_owner_decision"
+    },
+    {
+      "slot": "Sensor30[3]",
+      "array": "Sensor30",
+      "index": 3,
+      "observable": "accelerometer",
+      "contract_semantic_status": "mapped_physical_observable",
+      "native_unit": "m/s^2",
+      "source_label": "cpp:7457-7512; h S262 Three-axis Accelerometer",
+      "current_generated_rhs": "rtb_Switch +\n    Exp1_MinModelTemp_B.Product4[2]",
+      "sample_phase": "major_root_output",
+      "frame": {
+        "value": "FRD",
+        "status": "bound",
+        "evidence": [
+          "EV-2",
+          "EV-4"
+        ],
+        "reason": null,
+        "owner_decision": null
+      },
+      "datum": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "no committed text binds a calibration or zero reference for this sensor output; the accelerometer carries specific force, not the Vehicle body velocity derivative (OD-18)",
+        "owner_decision": "OD-18"
+      },
+      "open_owner_decisions": [
+        "OD-17",
+        "OD-18"
+      ],
+      "binding_status": "unresolved_owner_decision"
+    },
+    {
+      "slot": "Sensor30[4]",
+      "array": "Sensor30",
+      "index": 4,
+      "observable": "gyroscope",
+      "contract_semantic_status": "mapped_physical_observable",
+      "native_unit": "rad/s",
+      "source_label": "cpp:7532-7607; h S263 Three-axis Gyroscope",
+      "current_generated_rhs": "rtb_Switch +\n    Exp1_MinModelTemp_B.Product4_n[0]",
+      "sample_phase": "major_root_output",
+      "frame": {
+        "value": "FRD",
+        "status": "bound",
+        "evidence": [
+          "EV-2",
+          "EV-4"
+        ],
+        "reason": null,
+        "owner_decision": null
+      },
+      "datum": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "no committed text binds a calibration or zero reference for this sensor output; the accelerometer carries specific force, not the Vehicle body velocity derivative (OD-18)",
+        "owner_decision": "OD-18"
+      },
+      "open_owner_decisions": [
+        "OD-17",
+        "OD-18"
+      ],
+      "binding_status": "unresolved_owner_decision"
+    },
+    {
+      "slot": "Sensor30[5]",
+      "array": "Sensor30",
+      "index": 5,
+      "observable": "gyroscope",
+      "contract_semantic_status": "mapped_physical_observable",
+      "native_unit": "rad/s",
+      "source_label": "cpp:7532-7607; h S263 Three-axis Gyroscope",
+      "current_generated_rhs": "rtb_Switch +\n    Exp1_MinModelTemp_B.Product4_n[1]",
+      "sample_phase": "major_root_output",
+      "frame": {
+        "value": "FRD",
+        "status": "bound",
+        "evidence": [
+          "EV-2",
+          "EV-4"
+        ],
+        "reason": null,
+        "owner_decision": null
+      },
+      "datum": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "no committed text binds a calibration or zero reference for this sensor output; the accelerometer carries specific force, not the Vehicle body velocity derivative (OD-18)",
+        "owner_decision": "OD-18"
+      },
+      "open_owner_decisions": [
+        "OD-17",
+        "OD-18"
+      ],
+      "binding_status": "unresolved_owner_decision"
+    },
+    {
+      "slot": "Sensor30[6]",
+      "array": "Sensor30",
+      "index": 6,
+      "observable": "gyroscope",
+      "contract_semantic_status": "mapped_physical_observable",
+      "native_unit": "rad/s",
+      "source_label": "cpp:7532-7607; h S263 Three-axis Gyroscope",
+      "current_generated_rhs": "rtb_Switch +\n    Exp1_MinModelTemp_B.Product4_n[2]",
+      "sample_phase": "major_root_output",
+      "frame": {
+        "value": "FRD",
+        "status": "bound",
+        "evidence": [
+          "EV-2",
+          "EV-4"
+        ],
+        "reason": null,
+        "owner_decision": null
+      },
+      "datum": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "no committed text binds a calibration or zero reference for this sensor output; the accelerometer carries specific force, not the Vehicle body velocity derivative (OD-18)",
+        "owner_decision": "OD-18"
+      },
+      "open_owner_decisions": [
+        "OD-17",
+        "OD-18"
+      ],
+      "binding_status": "unresolved_owner_decision"
+    },
+    {
+      "slot": "Sensor30[7]",
+      "array": "Sensor30",
+      "index": 7,
+      "observable": "magnetic_field",
+      "contract_semantic_status": "wmm_physical_fidelity_unverified",
+      "native_unit": "gauss",
+      "source_label": "cpp:7608-7616; h:1194 nT2Gauss=1e-5",
+      "current_generated_rhs": "Exp1_MinModelTemp_P.Gain_Mag_Gain *\n    rtb_Sum1_a[0] * Exp1_MinModelTemp_P.nT2Gauss_Gain +\n    Exp1_MinModelTemp_B.Product4_g[0]",
+      "sample_phase": "major_root_output",
+      "frame": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "the magnetic-field output coordinate frame is explicitly listed as missing by the committed source map (OD-06)",
+        "owner_decision": "OD-06"
+      },
+      "datum": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "no WMM model identity, epoch/date, evaluation position or field reference is bound in committed text (OD-07)",
+        "owner_decision": "OD-07"
+      },
+      "open_owner_decisions": [
+        "OD-06",
+        "OD-07"
+      ],
+      "binding_status": "unresolved_owner_decision"
+    },
+    {
+      "slot": "Sensor30[8]",
+      "array": "Sensor30",
+      "index": 8,
+      "observable": "magnetic_field",
+      "contract_semantic_status": "wmm_physical_fidelity_unverified",
+      "native_unit": "gauss",
+      "source_label": "cpp:7608-7616; h:1194 nT2Gauss=1e-5",
+      "current_generated_rhs": "Exp1_MinModelTemp_P.Gain_Mag_Gain *\n    rtb_Sum1_a[1] * Exp1_MinModelTemp_P.nT2Gauss_Gain +\n    Exp1_MinModelTemp_B.Product4_g[1]",
+      "sample_phase": "major_root_output",
+      "frame": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "the magnetic-field output coordinate frame is explicitly listed as missing by the committed source map (OD-06)",
+        "owner_decision": "OD-06"
+      },
+      "datum": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "no WMM model identity, epoch/date, evaluation position or field reference is bound in committed text (OD-07)",
+        "owner_decision": "OD-07"
+      },
+      "open_owner_decisions": [
+        "OD-06",
+        "OD-07"
+      ],
+      "binding_status": "unresolved_owner_decision"
+    },
+    {
+      "slot": "Sensor30[9]",
+      "array": "Sensor30",
+      "index": 9,
+      "observable": "magnetic_field",
+      "contract_semantic_status": "wmm_physical_fidelity_unverified",
+      "native_unit": "gauss",
+      "source_label": "cpp:7608-7616; h:1194 nT2Gauss=1e-5",
+      "current_generated_rhs": "Exp1_MinModelTemp_P.Gain_Mag_Gain *\n    rtb_Sum1_a[2] * Exp1_MinModelTemp_P.nT2Gauss_Gain +\n    Exp1_MinModelTemp_B.Product4_g[2]",
+      "sample_phase": "major_root_output",
+      "frame": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "the magnetic-field output coordinate frame is explicitly listed as missing by the committed source map (OD-06)",
+        "owner_decision": "OD-06"
+      },
+      "datum": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "no WMM model identity, epoch/date, evaluation position or field reference is bound in committed text (OD-07)",
+        "owner_decision": "OD-07"
+      },
+      "open_owner_decisions": [
+        "OD-06",
+        "OD-07"
+      ],
+      "binding_status": "unresolved_owner_decision"
+    },
+    {
+      "slot": "Sensor30[10]",
+      "array": "Sensor30",
+      "index": 10,
+      "observable": "absolute_pressure",
+      "contract_semantic_status": "mapped_physical_observable",
+      "native_unit": "hPa",
+      "source_label": "cpp:7617-7618; h:1272 Pa*0.01",
+      "current_generated_rhs": "Exp1_MinModelTemp_P.P0_Gain *\n    rtb_TT0gLR * rtb_sincos_o2_idx_0 * Exp1_MinModelTemp_P.Gain_Gain_ik",
+      "sample_phase": "major_root_output",
+      "frame": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "no committed text binds an instrument frame or port location for this pressure output (OD-08)",
+        "owner_decision": "OD-08"
+      },
+      "datum": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "the pressure datum and the static/differential relation are explicitly listed as missing by the committed source map (OD-09)",
+        "owner_decision": "OD-09"
+      },
+      "open_owner_decisions": [
+        "OD-08",
+        "OD-09"
+      ],
+      "binding_status": "unresolved_owner_decision"
+    },
+    {
+      "slot": "Sensor30[11]",
+      "array": "Sensor30",
+      "index": 11,
+      "observable": "differential_pressure",
+      "contract_semantic_status": "mapped_physical_observable",
+      "native_unit": "hPa",
+      "source_label": "cpp:7619-7623; h:1299 Pa*0.01",
+      "current_generated_rhs": "((rtb_mg[0] * rtb_mg[0] + rtb_mg[1] *\n    rtb_mg[1]) + rtb_mg[2] * rtb_mg[2]) * (rtb_TT0gLR / rtb_sincos_o1_j_idx_2 *\n    Exp1_MinModelTemp_P.rho0_Gain * rtb_sincos_o2_idx_0) *\n    Exp1_MinModelTemp_P.u2rhoV2_Gain * Exp1_MinModelTemp_P.Gain1_Gain_l +\n    Exp1_MinModelTemp_B.Product4_d",
+      "sample_phase": "major_root_output",
+      "frame": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "no committed text binds an instrument frame or port location for this pressure output (OD-08)",
+        "owner_decision": "OD-08"
+      },
+      "datum": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "the pressure datum and the static/differential relation are explicitly listed as missing by the committed source map (OD-09)",
+        "owner_decision": "OD-09"
+      },
+      "open_owner_decisions": [
+        "OD-08",
+        "OD-09"
+      ],
+      "binding_status": "unresolved_owner_decision"
+    },
+    {
+      "slot": "Sensor30[12]",
+      "array": "Sensor30",
+      "index": 12,
+      "observable": "pressure_altitude",
+      "contract_semantic_status": "height_datum_semantics_not_fully_verified",
+      "native_unit": "m",
+      "source_label": "cpp:7624",
+      "current_generated_rhs": "rtb_Switch_o",
+      "sample_phase": "major_root_output",
+      "frame": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "no committed text binds the vertical axis sign or orientation of this height output; the init down-positive note covers ModelParam_envAltitude, not this output (OD-04)",
+        "owner_decision": "OD-04"
+      },
+      "datum": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "no height datum (ellipsoid / AMSL / AGL / local) is bound for this output in committed text (OD-05)",
+        "owner_decision": "OD-05"
+      },
+      "open_owner_decisions": [
+        "OD-04",
+        "OD-05"
+      ],
+      "binding_status": "unresolved_owner_decision"
+    },
+    {
+      "slot": "Sensor30[13]",
+      "array": "Sensor30",
+      "index": 13,
+      "observable": "temperature",
+      "contract_semantic_status": "mapped_physical_observable",
+      "native_unit": "degC",
+      "source_label": "cpp:7625-7626 subtract 273.15000000000003",
+      "current_generated_rhs": "rtb_UniformRandomNumber4_idx_0 -\n    273.15000000000003",
+      "sample_phase": "major_root_output",
+      "frame": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "no committed text binds a sensing location or frame for the temperature output; only the Celsius offset constant is committed (OD-10)",
+        "owner_decision": "OD-10"
+      },
+      "datum": {
+        "value": "degC_zero_at_273.15000000000003_K",
+        "status": "bound",
+        "evidence": [
+          "EV-14",
+          "EV-15"
+        ],
+        "reason": null,
+        "owner_decision": null
+      },
+      "open_owner_decisions": [
+        "OD-10"
+      ],
+      "binding_status": "unresolved_owner_decision"
+    },
+    {
+      "slot": "GPS30[0]",
+      "array": "GPS30",
+      "index": 0,
+      "observable": "gps_time",
+      "contract_semantic_status": "schedule_metadata",
+      "native_unit": "us",
+      "source_label": "cpp:3922,7727",
+      "current_generated_rhs": "rtb_time_usec",
+      "sample_phase": "major_root_output",
+      "frame": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "no spatial frame applies to a schedule_metadata time scalar and no committed text binds one; the owner must first decide whether these fields are compared at all (OD-01)",
+        "owner_decision": "OD-01"
+      },
+      "datum": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "no committed text binds the absolute zero or epoch of this time field; sampling fixes only the k grid (k=0..500, fixed step 0.001 s) and the major-root output phase (OD-02)",
+        "owner_decision": "OD-02"
+      },
+      "open_owner_decisions": [
+        "OD-01",
+        "OD-02"
+      ],
+      "binding_status": "unresolved_owner_decision"
+    },
+    {
+      "slot": "GPS30[1]",
+      "array": "GPS30",
+      "index": 1,
+      "observable": "gps_latitude_longitude",
+      "contract_semantic_status": "mapped_physical_observable_unquantized_double",
+      "native_unit": "1e-7 degree per native unit",
+      "source_label": "cpp:7728-7731; h:1323-1326",
+      "current_generated_rhs": "(rtb_Sum_e2_idx_0 +\n    Exp1_MinModelTemp_B.Product4_de[0]) * Exp1_MinModelTemp_P.latScale_Gain",
+      "sample_phase": "major_root_output",
+      "frame": {
+        "value": "lat_lon_deg",
+        "status": "bound",
+        "evidence": [
+          "EV-7",
+          "EV-13",
+          "EV-17"
+        ],
+        "reason": null,
+        "owner_decision": null
+      },
+      "datum": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "no committed text binds a horizontal datum for the degree-valued latitude/longitude output; only the latitude/longitude form and the degree unit are committed (OD-03)",
+        "owner_decision": "OD-03"
+      },
+      "open_owner_decisions": [
+        "OD-03"
+      ],
+      "binding_status": "unresolved_owner_decision"
+    },
+    {
+      "slot": "GPS30[2]",
+      "array": "GPS30",
+      "index": 2,
+      "observable": "gps_latitude_longitude",
+      "contract_semantic_status": "mapped_physical_observable_unquantized_double",
+      "native_unit": "1e-7 degree per native unit",
+      "source_label": "cpp:7728-7731; h:1323-1326",
+      "current_generated_rhs": "(rtb_sincos_o1_j_idx_1 +\n    Exp1_MinModelTemp_B.Product4_de[1]) * Exp1_MinModelTemp_P.lonScale_Gain",
+      "sample_phase": "major_root_output",
+      "frame": {
+        "value": "lat_lon_deg",
+        "status": "bound",
+        "evidence": [
+          "EV-7",
+          "EV-13",
+          "EV-17"
+        ],
+        "reason": null,
+        "owner_decision": null
+      },
+      "datum": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "no committed text binds a horizontal datum for the degree-valued latitude/longitude output; only the latitude/longitude form and the degree unit are committed (OD-03)",
+        "owner_decision": "OD-03"
+      },
+      "open_owner_decisions": [
+        "OD-03"
+      ],
+      "binding_status": "unresolved_owner_decision"
+    },
+    {
+      "slot": "GPS30[3]",
+      "array": "GPS30",
+      "index": 3,
+      "observable": "gps_altitude",
+      "contract_semantic_status": "height_datum_semantics_not_fully_verified",
+      "native_unit": "1e-3 m per native unit",
+      "source_label": "cpp:7732-7733; h:1329",
+      "current_generated_rhs": "(rtb_Add + Exp1_MinModelTemp_B.Product4_de\n    [2]) * Exp1_MinModelTemp_P.altScale_Gain",
+      "sample_phase": "major_root_output",
+      "frame": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "no committed text binds the vertical axis sign or orientation of this height output; the init down-positive note covers ModelParam_envAltitude, not this output (OD-04)",
+        "owner_decision": "OD-04"
+      },
+      "datum": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "no height datum (ellipsoid / AMSL / AGL / local) is bound for this output in committed text (OD-05)",
+        "owner_decision": "OD-05"
+      },
+      "open_owner_decisions": [
+        "OD-04",
+        "OD-05"
+      ],
+      "binding_status": "unresolved_owner_decision"
+    },
+    {
+      "slot": "GPS30[4]",
+      "array": "GPS30",
+      "index": 4,
+      "observable": "gps_accuracy_indicators",
+      "contract_semantic_status": "physical_accuracy_meaning_unverified",
+      "native_unit": "native scaled double",
+      "source_label": "cpp:7653-7660,7734-7735; h:1332-1341 values .3/.4 scale100",
+      "current_generated_rhs": "Exp1_MinModelTemp_B.eph",
+      "sample_phase": "major_root_output",
+      "frame": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "no committed text binds an axis meaning or frame for eph/epv (OD-11)",
+        "owner_decision": "OD-11"
+      },
+      "datum": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "the physical meaning and scaling of eph/epv are explicitly listed as missing by the committed source map (OD-12)",
+        "owner_decision": "OD-12"
+      },
+      "open_owner_decisions": [
+        "OD-11",
+        "OD-12"
+      ],
+      "binding_status": "unresolved_owner_decision"
+    },
+    {
+      "slot": "GPS30[5]",
+      "array": "GPS30",
+      "index": 5,
+      "observable": "gps_accuracy_indicators",
+      "contract_semantic_status": "physical_accuracy_meaning_unverified",
+      "native_unit": "native scaled double",
+      "source_label": "cpp:7653-7660,7734-7735; h:1332-1341 values .3/.4 scale100",
+      "current_generated_rhs": "Exp1_MinModelTemp_B.epv",
+      "sample_phase": "major_root_output",
+      "frame": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "no committed text binds an axis meaning or frame for eph/epv (OD-11)",
+        "owner_decision": "OD-11"
+      },
+      "datum": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "the physical meaning and scaling of eph/epv are explicitly listed as missing by the committed source map (OD-12)",
+        "owner_decision": "OD-12"
+      },
+      "open_owner_decisions": [
+        "OD-11",
+        "OD-12"
+      ],
+      "binding_status": "unresolved_owner_decision"
+    },
+    {
+      "slot": "GPS30[6]",
+      "array": "GPS30",
+      "index": 6,
+      "observable": "gps_horizontal_speed",
+      "contract_semantic_status": "mapped_physical_observable_unquantized_double",
+      "native_unit": "1e-2 m/s per native unit",
+      "source_label": "cpp:7683-7689; h:1362",
+      "current_generated_rhs": "Exp1_MinModelTemp_P.VelScale_Gain *\n    rtb_Switch_o",
+      "sample_phase": "major_root_output",
+      "frame": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "the slot is a scalar magnitude; committed text names the field vel / gps_horizontal_speed but never states a frame or reference for the scalar, and the observable is not explicitly framed (OD-23)",
+        "owner_decision": "OD-23"
+      },
+      "datum": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "the slot is a scalar magnitude; committed text names the field vel / gps_horizontal_speed but never states a frame or reference for the scalar, and the observable is not explicitly framed (OD-23)",
+        "owner_decision": "OD-23"
+      },
+      "open_owner_decisions": [
+        "OD-23"
+      ],
+      "binding_status": "unresolved_owner_decision"
+    },
+    {
+      "slot": "GPS30[7]",
+      "array": "GPS30",
+      "index": 7,
+      "observable": "gps_velocity_ned",
+      "contract_semantic_status": "mapped_physical_observable_unquantized_double",
+      "native_unit": "1e-2 m/s per native unit",
+      "source_label": "cpp:7736-7739; h:1365",
+      "current_generated_rhs": "Exp1_MinModelTemp_P.VeScale_Gain * rtb_mg[0]",
+      "sample_phase": "major_root_output",
+      "frame": {
+        "value": "NED",
+        "status": "bound",
+        "evidence": [
+          "EV-16",
+          "EV-17"
+        ],
+        "reason": null,
+        "owner_decision": null
+      },
+      "datum": {
+        "value": "model_local_NED_frame_reference",
+        "status": "bound",
+        "evidence": [
+          "EV-6",
+          "EV-12"
+        ],
+        "reason": null,
+        "owner_decision": null
+      },
+      "open_owner_decisions": [
+        "OD-22"
+      ],
+      "binding_status": "bound_but_owner_items_open"
+    },
+    {
+      "slot": "GPS30[8]",
+      "array": "GPS30",
+      "index": 8,
+      "observable": "gps_velocity_ned",
+      "contract_semantic_status": "mapped_physical_observable_unquantized_double",
+      "native_unit": "1e-2 m/s per native unit",
+      "source_label": "cpp:7736-7739; h:1365",
+      "current_generated_rhs": "Exp1_MinModelTemp_P.VeScale_Gain * rtb_mg[1]",
+      "sample_phase": "major_root_output",
+      "frame": {
+        "value": "NED",
+        "status": "bound",
+        "evidence": [
+          "EV-16",
+          "EV-17"
+        ],
+        "reason": null,
+        "owner_decision": null
+      },
+      "datum": {
+        "value": "model_local_NED_frame_reference",
+        "status": "bound",
+        "evidence": [
+          "EV-6",
+          "EV-12"
+        ],
+        "reason": null,
+        "owner_decision": null
+      },
+      "open_owner_decisions": [
+        "OD-22"
+      ],
+      "binding_status": "bound_but_owner_items_open"
+    },
+    {
+      "slot": "GPS30[9]",
+      "array": "GPS30",
+      "index": 9,
+      "observable": "gps_velocity_ned",
+      "contract_semantic_status": "mapped_physical_observable_unquantized_double",
+      "native_unit": "1e-2 m/s per native unit",
+      "source_label": "cpp:7736-7739; h:1365",
+      "current_generated_rhs": "(Exp1_MinModelTemp_B.Product[2] +\n    rtb_UniformRandomNumber4_idx_0) * Exp1_MinModelTemp_P.VeScale_Gain",
+      "sample_phase": "major_root_output",
+      "frame": {
+        "value": "NED",
+        "status": "bound",
+        "evidence": [
+          "EV-16",
+          "EV-17"
+        ],
+        "reason": null,
+        "owner_decision": null
+      },
+      "datum": {
+        "value": "model_local_NED_frame_reference",
+        "status": "bound",
+        "evidence": [
+          "EV-6",
+          "EV-12"
+        ],
+        "reason": null,
+        "owner_decision": null
+      },
+      "open_owner_decisions": [
+        "OD-22"
+      ],
+      "binding_status": "bound_but_owner_items_open"
+    },
+    {
+      "slot": "GPS30[10]",
+      "array": "GPS30",
+      "index": 10,
+      "observable": "gps_course_encoded",
+      "contract_semantic_status": "angular_units_and_convention_unverified",
+      "native_unit": "native angle code",
+      "source_label": "cpp:7695-7708,7725-7726; h:1374,1380",
+      "current_generated_rhs": "Exp1_MinModelTemp_P.AngleScale_Gain *\n    rtb_Switch_o",
+      "sample_phase": "major_root_output",
+      "frame": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "no committed text binds a reference axis or frame for the encoded course output (OD-13)",
+        "owner_decision": "OD-13"
+      },
+      "datum": {
+        "value": null,
+        "status": "unresolved_owner_decision",
+        "evidence": [],
+        "reason": "the course zero point, direction and wrap rule are explicitly listed as missing by the committed source map; the wksim adapter bypasses GPS30[10] and recomputes COG from NED velocity, which does not bind the model encoding (OD-14)",
+        "owner_decision": "OD-14"
+      },
+      "open_owner_decisions": [
+        "OD-13",
+        "OD-14"
+      ],
+      "binding_status": "unresolved_owner_decision"
+    }
+  ],
+  "owner_decisions": [
+    {
+      "id": "OD-01",
+      "topic": "time_field_scope",
+      "question": "Are the three schedule_metadata time fields excluded from physical-accuracy comparison (B3), or do they receive their own bound budgets?",
+      "slots": [
+        "Vehicle60[2]",
+        "Sensor30[0]",
+        "GPS30[0]"
+      ],
+      "evidence_gap": "docs/plan/g6-c3g-stage2-boundary.md:47; four time/phase records remain prospective_for_review in docs/coordination/short-cycle-goal.md",
+      "needed_artifact": "time-field manifest and scheduling-check note",
+      "state": "not_made",
+      "chosen_option": null,
+      "made_by": null,
+      "decided_utc": null
+    },
+    {
+      "id": "OD-02",
+      "topic": "time_field_epoch",
+      "question": "What is the absolute zero / epoch of vehicle_time, sensor_time and gps_time, and how is the microsecond-to-second relation anchored?",
+      "slots": [
+        "Vehicle60[2]",
+        "Sensor30[0]",
+        "GPS30[0]"
+      ],
+      "evidence_gap": "docs/plan/59-e0-dynamic-budget-source-map.md:32 权威时钟语义、时间戳生成误差",
+      "needed_artifact": "time-field manifest with explicit epoch",
+      "state": "not_made",
+      "chosen_option": null,
+      "made_by": null,
+      "decided_utc": null
+    },
+    {
+      "id": "OD-03",
+      "topic": "lat_lon_horizontal_datum",
+      "question": "Which horizontal datum do the truth and GPS latitude/longitude outputs belong to, and may they be called geodetic?",
+      "slots": [
+        "Vehicle60[30]",
+        "Vehicle60[31]",
+        "GPS30[1]",
+        "GPS30[2]"
+      ],
+      "evidence_gap": "docs/plan/59-e0-dynamic-budget-source-map.md:36 WGS84/其他 datum",
+      "needed_artifact": "geodetic reference manifest",
+      "state": "not_made",
+      "chosen_option": null,
+      "made_by": null,
+      "decided_utc": null
+    },
+    {
+      "id": "OD-04",
+      "topic": "altitude_axis_sign",
+      "question": "What is the vertical axis sign / orientation of truth_altitude, gps_altitude and pressure_altitude (up-positive or NED down-positive)?",
+      "slots": [
+        "Vehicle60[32]",
+        "Sensor30[12]",
+        "GPS30[3]"
+      ],
+      "evidence_gap": "docs/plan/59-e0-dynamic-budget-source-map.md:36,39; contract semantic_status height_datum_semantics_not_fully_verified",
+      "needed_artifact": "geodetic reference manifest + baro traceability manifest",
+      "state": "not_made",
+      "chosen_option": null,
+      "made_by": null,
+      "decided_utc": null
+    },
+    {
+      "id": "OD-05",
+      "topic": "altitude_height_datum",
+      "question": "Which height datum applies to truth_altitude, gps_altitude and pressure_altitude (ellipsoid / AMSL / AGL / local), and is pressure_altitude ever compared against geodetic truth altitude?",
+      "slots": [
+        "Vehicle60[32]",
+        "Sensor30[12]",
+        "GPS30[3]"
+      ],
+      "evidence_gap": "docs/plan/59-e0-dynamic-budget-source-map.md:36,39; docs/plan/10-g6-remediation-contract.md:47 海拔基准先核实",
+      "needed_artifact": "geodetic reference manifest + baro traceability manifest",
+      "state": "not_made",
+      "chosen_option": null,
+      "made_by": null,
+      "decided_utc": null
+    },
+    {
+      "id": "OD-06",
+      "topic": "magnetic_field_frame",
+      "question": "In which coordinate frame are the three magnetic-field components expressed?",
+      "slots": [
+        "Sensor30[7]",
+        "Sensor30[8]",
+        "Sensor30[9]"
+      ],
+      "evidence_gap": "docs/plan/59-e0-dynamic-budget-source-map.md:38 WMM ... 坐标系",
+      "needed_artifact": "WMM provenance + calibration record",
+      "state": "not_made",
+      "chosen_option": null,
+      "made_by": null,
+      "decided_utc": null
+    },
+    {
+      "id": "OD-07",
+      "topic": "magnetic_field_reference",
+      "question": "Which WMM model identity, epoch/date, evaluation position and field reference/datum apply, and what is the field error?",
+      "slots": [
+        "Sensor30[7]",
+        "Sensor30[8]",
+        "Sensor30[9]"
+      ],
+      "evidence_gap": "docs/plan/59-e0-dynamic-budget-source-map.md:38; contract unverified_boundaries WMM physical correctness/date suitability unverified",
+      "needed_artifact": "WMM provenance + calibration record",
+      "state": "not_made",
+      "chosen_option": null,
+      "made_by": null,
+      "decided_utc": null
+    },
+    {
+      "id": "OD-08",
+      "topic": "pressure_frame",
+      "question": "Which spatial / instrument frame and port location do absolute_pressure and differential_pressure refer to?",
+      "slots": [
+        "Sensor30[10]",
+        "Sensor30[11]"
+      ],
+      "evidence_gap": "docs/plan/59-e0-dynamic-budget-source-map.md:39 静压/差压关系",
+      "needed_artifact": "baro/temp traceability manifest",
+      "state": "not_made",
+      "chosen_option": null,
+      "made_by": null,
+      "decided_utc": null
+    },
+    {
+      "id": "OD-09",
+      "topic": "pressure_datum",
+      "question": "Which pressure datum applies (absolute/vacuum or sea-level/QNH referenced) and how are static and differential pressures related?",
+      "slots": [
+        "Sensor30[10]",
+        "Sensor30[11]"
+      ],
+      "evidence_gap": "docs/plan/59-e0-dynamic-budget-source-map.md:39 压力 datum",
+      "needed_artifact": "baro/temp traceability manifest",
+      "state": "not_made",
+      "chosen_option": null,
+      "made_by": null,
+      "decided_utc": null
+    },
+    {
+      "id": "OD-10",
+      "topic": "temperature_frame_and_domain",
+      "question": "Where is temperature sensed, in which frame, and over which applicable domain?",
+      "slots": [
+        "Sensor30[13]"
+      ],
+      "evidence_gap": "docs/plan/59-e0-dynamic-budget-source-map.md:39 温度适用域",
+      "needed_artifact": "baro/temp traceability manifest",
+      "state": "not_made",
+      "chosen_option": null,
+      "made_by": null,
+      "decided_utc": null
+    },
+    {
+      "id": "OD-11",
+      "topic": "accuracy_indicator_frame",
+      "question": "Do eph/epv carry a horizontal/vertical axis meaning, and in which frame?",
+      "slots": [
+        "GPS30[4]",
+        "GPS30[5]"
+      ],
+      "evidence_gap": "docs/plan/59-e0-dynamic-budget-source-map.md:40 eph/epv 语义和缩放",
+      "needed_artifact": "GNSS reference/noise/filter manifest",
+      "state": "not_made",
+      "chosen_option": null,
+      "made_by": null,
+      "decided_utc": null
+    },
+    {
+      "id": "OD-12",
+      "topic": "accuracy_indicator_semantics",
+      "question": "What is the physical meaning and scaling of eph/epv?",
+      "slots": [
+        "GPS30[4]",
+        "GPS30[5]"
+      ],
+      "evidence_gap": "docs/plan/59-e0-dynamic-budget-source-map.md:40; contract semantic_status physical_accuracy_meaning_unverified",
+      "needed_artifact": "GNSS reference/noise/filter manifest",
+      "state": "not_made",
+      "chosen_option": null,
+      "made_by": null,
+      "decided_utc": null
+    },
+    {
+      "id": "OD-13",
+      "topic": "course_reference_frame",
+      "question": "Which reference axis / frame does gps_course_encoded use?",
+      "slots": [
+        "GPS30[10]"
+      ],
+      "evidence_gap": "docs/plan/59-e0-dynamic-budget-source-map.md:40 course 零点/方向/环绕规则; contract semantic_status angular_units_and_convention_unverified",
+      "needed_artifact": "GNSS reference/noise/filter manifest",
+      "state": "not_made",
+      "chosen_option": null,
+      "made_by": null,
+      "decided_utc": null
+    },
+    {
+      "id": "OD-14",
+      "topic": "course_wrap_convention",
+      "question": "What are the course zero point, direction (clockwise from north?) and wrap rule?",
+      "slots": [
+        "GPS30[10]"
+      ],
+      "evidence_gap": "Simulator/wksim_core/px4_mavlink.py:30-31 states the template COG formula but the adapter bypasses GPS30[10] and recomputes COG from NED velocity, so the model encoding stays unbound",
+      "needed_artifact": "GNSS reference/noise/filter manifest",
+      "state": "not_made",
+      "chosen_option": null,
+      "made_by": null,
+      "decided_utc": null
+    },
+    {
+      "id": "OD-15",
+      "topic": "quaternion_direction_and_metric",
+      "question": "Which rotation direction (FRD to NED or NED to FRD) does the e0 quaternion output use, and which sign/norm equivalence class and comparison metric apply?",
+      "slots": [
+        "Vehicle60[12]",
+        "Vehicle60[13]",
+        "Vehicle60[14]",
+        "Vehicle60[15]"
+      ],
+      "evidence_gap": "contract unverified_boundaries lists the quaternion direction/component convention as unqualified; docs/plan/59-e0-dynamic-budget-source-map.md:34 lists 四元数方向 as missing; Simulator/ue55/README.md:37 (EV-18) describes the display field and is context only",
+      "needed_artifact": "quaternion semantics/metric record",
+      "state": "not_made",
+      "chosen_option": null,
+      "made_by": null,
+      "decided_utc": null
+    },
+    {
+      "id": "OD-16",
+      "topic": "euler_frame_sequence_and_order",
+      "question": "In which reference direction is the euler_components output expressed, what is the rotation sequence, and which index carries roll, pitch and yaw?",
+      "slots": [
+        "Vehicle60[9]",
+        "Vehicle60[10]",
+        "Vehicle60[11]"
+      ],
+      "evidence_gap": "contract semantic_status encoded_orientation_components_only; docs/plan/2026-09-08-numerical-contract-readiness.md:107 lists only Eular(rad); ModelInit_AngEuler is an init parameter annotation",
+      "needed_artifact": "solver-domain manifest",
+      "state": "not_made",
+      "chosen_option": null,
+      "made_by": null,
+      "decided_utc": null
+    },
+    {
+      "id": "OD-17",
+      "topic": "imu_mounting_extrinsics",
+      "question": "What are the accelerometer and gyroscope mounting extrinsics relative to the body FRD frame?",
+      "slots": [
+        "Sensor30[1]",
+        "Sensor30[2]",
+        "Sensor30[3]",
+        "Sensor30[4]",
+        "Sensor30[5]",
+        "Sensor30[6]"
+      ],
+      "evidence_gap": "docs/plan/59-e0-dynamic-budget-source-map.md:37 安装外参",
+      "needed_artifact": "per-sensor calibration/noise/latency manifest",
+      "state": "not_made",
+      "chosen_option": null,
+      "made_by": null,
+      "decided_utc": null
+    },
+    {
+      "id": "OD-18",
+      "topic": "imu_zero_reference",
+      "question": "What is the calibration / zero reference for accelerometer specific force and gyroscope angular rate, and is specific-force semantics fixed?",
+      "slots": [
+        "Sensor30[1]",
+        "Sensor30[2]",
+        "Sensor30[3]",
+        "Sensor30[4]",
+        "Sensor30[5]",
+        "Sensor30[6]"
+      ],
+      "evidence_gap": "docs/plan/59-e0-dynamic-budget-source-map.md:37; Simulator/wksim_core/README.md:52 Vehicle[24:27] 是机体系速度导数，不是加速度计比力",
+      "needed_artifact": "per-sensor calibration/noise/latency manifest",
+      "state": "not_made",
+      "chosen_option": null,
+      "made_by": null,
+      "decided_utc": null
+    },
+    {
+      "id": "OD-19",
+      "topic": "rotor_speed_frame_and_reference",
+      "question": "Does the scalar rotor speed output carry any frame or axis convention, and what is its rpm zero / calibration reference?",
+      "slots": [
+        "Vehicle60[16]",
+        "Vehicle60[17]",
+        "Vehicle60[18]",
+        "Vehicle60[19]",
+        "Vehicle60[20]",
+        "Vehicle60[21]",
+        "Vehicle60[22]",
+        "Vehicle60[23]"
+      ],
+      "evidence_gap": "docs/plan/59-e0-dynamic-budget-source-map.md:35 电机/转子校准、RPM 参考测量; Simulator/wksim_core/model_parameters.py:55-62 binds rotor mounting positions, not a scalar frame",
+      "needed_artifact": "actuator calibration/source manifest",
+      "state": "not_made",
+      "chosen_option": null,
+      "made_by": null,
+      "decided_utc": null
+    },
+    {
+      "id": "OD-20",
+      "topic": "inactive_channel_scope",
+      "question": "Do the extra_motor_speed inactive channels belong to the external comparison contract at all?",
+      "slots": [
+        "Vehicle60[20]",
+        "Vehicle60[21]",
+        "Vehicle60[22]",
+        "Vehicle60[23]"
+      ],
+      "evidence_gap": "contract semantic_status inactive_channels_not_aircraft_coverage; Simulator/wksim_core/model_parameters.py:57 16 normalized commands [0,1]; indices 4..15 must be zero",
+      "needed_artifact": "owner-approval record",
+      "state": "not_made",
+      "chosen_option": null,
+      "made_by": null,
+      "decided_utc": null
+    },
+    {
+      "id": "OD-21",
+      "topic": "body_acceleration_reference",
+      "question": "What is the zero / reference for body_motion_acceleration, given that it is a body-frame velocity derivative and not specific force?",
+      "slots": [
+        "Vehicle60[24]",
+        "Vehicle60[25]",
+        "Vehicle60[26]"
+      ],
+      "evidence_gap": "Simulator/wksim_core/README.md:52; docs/plan/2026-09-08-numerical-contract-readiness.md:110 不能与 HIL accelerometer 直接视为同量",
+      "needed_artifact": "solver-domain manifest",
+      "state": "not_made",
+      "chosen_option": null,
+      "made_by": null,
+      "decided_utc": null
+    },
+    {
+      "id": "OD-22",
+      "topic": "ned_earth_model",
+      "question": "Is the model local NED frame flat/inertial or earth-rotating, and over which domain?",
+      "slots": [
+        "Vehicle60[3]",
+        "Vehicle60[4]",
+        "Vehicle60[5]",
+        "Vehicle60[6]",
+        "Vehicle60[7]",
+        "Vehicle60[8]",
+        "GPS30[7]",
+        "GPS30[8]",
+        "GPS30[9]"
+      ],
+      "evidence_gap": "docs/plan/2026-09-08-numerical-contract-readiness.md:101 SLX system_12216.xml 的 6DOF mask 为 Metric (MKS)",
+      "needed_artifact": "solver-domain manifest",
+      "state": "not_made",
+      "chosen_option": null,
+      "made_by": null,
+      "decided_utc": null
+    },
+    {
+      "id": "OD-23",
+      "topic": "horizontal_speed_frame",
+      "question": "Is GPS30[6] the magnitude of NED horizontal velocity, and if so which frame defines the horizontal plane and the reference?",
+      "slots": [
+        "GPS30[6]"
+      ],
+      "evidence_gap": "Simulator/wksim_core/gnss_event.py:64 names the field vel; no committed text frames the scalar (docs/plan/59-e0-dynamic-budget-source-map.md:40)",
+      "needed_artifact": "GNSS reference/noise/filter manifest",
+      "state": "not_made",
+      "chosen_option": null,
+      "made_by": null,
+      "decided_utc": null
+    },
+    {
+      "id": "OD-24",
+      "topic": "angular_rate_zero_reference",
+      "question": "What is the zero / reference of the FRD body angular rate output, and may it be described as the model local NED origin?",
+      "slots": [
+        "Vehicle60[27]",
+        "Vehicle60[28]",
+        "Vehicle60[29]"
+      ],
+      "evidence_gap": "docs/plan/2026-09-08-numerical-contract-readiness.md:111 lists wb，rad/s，机体系 only; no committed text binds a rest origin for it",
+      "needed_artifact": "solver-domain manifest",
+      "state": "not_made",
+      "chosen_option": null,
+      "made_by": null,
+      "decided_utc": null
+    }
+  ],
+  "unresolved_owner_decisions": [
+    "OD-01",
+    "OD-02",
+    "OD-03",
+    "OD-04",
+    "OD-05",
+    "OD-06",
+    "OD-07",
+    "OD-08",
+    "OD-09",
+    "OD-10",
+    "OD-11",
+    "OD-12",
+    "OD-13",
+    "OD-14",
+    "OD-15",
+    "OD-16",
+    "OD-17",
+    "OD-18",
+    "OD-19",
+    "OD-20",
+    "OD-21",
+    "OD-22",
+    "OD-23",
+    "OD-24"
+  ],
+  "counts": {
+    "slots_total": 56,
+    "frame_bound": 25,
+    "frame_unresolved": 31,
+    "datum_bound": 10,
+    "datum_unresolved": 46,
+    "owner_decision_count": 24
+  },
+  "non_claims": [
+    "This is not a budget and does not approve abs_budget, rel_budget or rms_budget for any slot.",
+    "This is not G6 acceptance, not physical-accuracy acceptance and not a same-source contract freeze (B1/B4 remain open).",
+    "This does not close #59, #60, G6 or Full, and does not change the R1 numerical_failed result.",
+    "No unit, no version/hash binding, no sample_phase change and no metric is introduced here.",
+    "A bound frame or datum is a convention statement from committed text; it is not a measurement, calibration or accuracy result.",
+    "A null is never an approval: every null carries a precise owner-decision reason and stays unresolved until the owner decides.",
+    "No direction, scalar frame or origin is inferred by combining unrelated coordinate labels."
+  ],
+  "scope_limits": [
+    "Writable scope for this slice is docs/plan/59-e0-frame-datum-binding-20260914.md, validation/e0-frame-datum-binding-20260914.json, validation/test_e0_frame_datum_binding.py and validation/coordination/deepseek-g6-frame-datum-review-20260914-01/**.",
+    "The pre-review generators validation/coordination/codebuddy-g6-frame-datum-20260914-01/write_binding.py and validation/coordination/codebuddy-g6-frame-datum-review-20260914-01/rebuild_binding.py are stale and must not be re-run; the superseded review probes were deleted. This payload has no retained generator: it is recomputed and checked item by item by the validator against committed HEAD bytes, never rewritten by a script.",
+    "No existing file other than the three deliverables was modified; nothing was committed, pushed, staged or issued.",
+    "Nothing was run: no model, MATLAB, ROS, flight controller, UE, native binary or build. No git object, branch, index entry or issue was touched."
+  ],
+  "review": {
+    "directory": "validation/coordination/deepseek-g6-frame-datum-review-20260914-01",
+    "artifacts": [
+      "verify_citations.py",
+      "citation-check.json",
+      "verify_independent.py",
+      "independent-check.json",
+      "attack_replay.py",
+      "attack-replay.json",
+      "run_suite.py",
+      "test-run.json",
+      "review.md"
+    ],
+    "generator_retained": false,
+    "platforms": [
+      "Windows (local, python 3.13)",
+      "WSL Ubuntu-22.04 (python3 3.10.12, pytest 9.1.1)"
+    ],
+    "known_attacks_replayed": 4,
+    "known_attacks_rejected": 4
+  },
+  "validation": {
+    "test": "validation/test_e0_frame_datum_binding.py",
+    "command": "python -B -m pytest validation/test_e0_frame_datum_binding.py -q -p no:cacheprovider",
+    "unittest_command": "python -B -m unittest validation.test_e0_frame_datum_binding -v",
+    "related_manifest_contract_tests": "python -B -m pytest validation/test_e0_source_to_slot_manifest.py validation/test_derive_e0_current_source_mapping.py -q -p no:cacheprovider",
+    "manifest_cli": "python -B tools/validate_e0_source_to_slot_manifest.py"
+  }
+}

@@ -1,0 +1,773 @@
+{
+  "schema": "wksim.g6-frame-datum-p2-finalize.spotcheck.v1",
+  "slice": "cursor-g6-frame-datum-p2-finalize-20260914-01",
+  "recorded_utc": "2026-09-13T20:29:29Z",
+  "python": "3.13.11",
+  "platform": "Windows-11-10.0.28000-SP0",
+  "cwd": "C:\\Users\\PC\\Documents\\odid编译\\wksim",
+  "head": "6eafdf9c0b734db07a9fe790c86b409d3468c10b",
+  "branch": "main",
+  "ancestor_check_exit": 0,
+  "candidate": {
+    "plan": {
+      "path": "docs/plan/59-e0-frame-datum-binding-20260914.md",
+      "bytes": 15449,
+      "sha256": "3fbb0e7fbdbc069a702dd0e8417c9b6a8dd3961575d5a188817990b280b553f8",
+      "cr_count": 0,
+      "lf_count": 155
+    },
+    "payload": {
+      "path": "validation/e0-frame-datum-binding-20260914.json",
+      "bytes": 105018,
+      "sha256": "5d589075c128e2a22d24d88d7dea0ce753a68f4d46937386c581d3fae945b69f",
+      "cr_count": 0,
+      "lf_count": 2820
+    },
+    "test": {
+      "path": "validation/test_e0_frame_datum_binding.py",
+      "bytes": 77146,
+      "sha256": "e412f2d1981fd02b34531426f31c6f010c96d15331bf41f30fc136cc59f10da6",
+      "cr_count": 0,
+      "lf_count": 1577
+    }
+  },
+  "prior_captures": [
+    {
+      "label": "repair/mutation-results.json",
+      "path": "validation/coordination/cursor-g6-frame-datum-p2-repair-20260914-01/mutation-results.json",
+      "extracted": {
+        "plan": "3fbb0e7fbdbc069a702dd0e8417c9b6a8dd3961575d5a188817990b280b553f8",
+        "payload": "5d589075c128e2a22d24d88d7dea0ce753a68f4d46937386c581d3fae945b69f",
+        "test": "e412f2d1981fd02b34531426f31c6f010c96d15331bf41f30fc136cc59f10da6"
+      },
+      "hashes_match_current": true,
+      "missing_hash_keys": [],
+      "mismatched": [],
+      "recorded_verdict": "PASS"
+    },
+    {
+      "label": "repair/mutation-results-ubuntu-22.04.json",
+      "path": "validation/coordination/cursor-g6-frame-datum-p2-repair-20260914-01/mutation-results-ubuntu-22.04.json",
+      "extracted": {
+        "plan": "3fbb0e7fbdbc069a702dd0e8417c9b6a8dd3961575d5a188817990b280b553f8",
+        "payload": "5d589075c128e2a22d24d88d7dea0ce753a68f4d46937386c581d3fae945b69f",
+        "test": "e412f2d1981fd02b34531426f31c6f010c96d15331bf41f30fc136cc59f10da6"
+      },
+      "hashes_match_current": true,
+      "missing_hash_keys": [],
+      "mismatched": [],
+      "recorded_verdict": "PASS"
+    },
+    {
+      "label": "repair/suite-windows.json",
+      "path": "validation/coordination/cursor-g6-frame-datum-p2-repair-20260914-01/suite-windows.json",
+      "extracted": {},
+      "hashes_match_current": true,
+      "missing_hash_keys": [],
+      "mismatched": [],
+      "recorded_verdict": "PASS"
+    },
+    {
+      "label": "repair/suite-ubuntu-22.04.json",
+      "path": "validation/coordination/cursor-g6-frame-datum-p2-repair-20260914-01/suite-ubuntu-22.04.json",
+      "extracted": {},
+      "hashes_match_current": true,
+      "missing_hash_keys": [],
+      "mismatched": [],
+      "recorded_verdict": "FAIL"
+    },
+    {
+      "label": "takeover/mutation-results.json",
+      "path": "validation/coordination/cursor-g6-frame-datum-p2-repair-takeover-20260914-01/mutation-results.json",
+      "extracted": {
+        "plan": "3fbb0e7fbdbc069a702dd0e8417c9b6a8dd3961575d5a188817990b280b553f8",
+        "payload": "5d589075c128e2a22d24d88d7dea0ce753a68f4d46937386c581d3fae945b69f",
+        "test": "e412f2d1981fd02b34531426f31c6f010c96d15331bf41f30fc136cc59f10da6"
+      },
+      "hashes_match_current": true,
+      "missing_hash_keys": [],
+      "mismatched": [],
+      "recorded_verdict": "PASS"
+    },
+    {
+      "label": "takeover/reused-mutation-results.json",
+      "path": "validation/coordination/cursor-g6-frame-datum-p2-repair-takeover-20260914-01/reused-mutation-results.json",
+      "extracted": {
+        "plan": "3fbb0e7fbdbc069a702dd0e8417c9b6a8dd3961575d5a188817990b280b553f8",
+        "payload": "5d589075c128e2a22d24d88d7dea0ce753a68f4d46937386c581d3fae945b69f",
+        "test": "e412f2d1981fd02b34531426f31c6f010c96d15331bf41f30fc136cc59f10da6"
+      },
+      "hashes_match_current": true,
+      "missing_hash_keys": [],
+      "mismatched": [],
+      "recorded_verdict": "PASS"
+    },
+    {
+      "label": "takeover/reused-mutation-results-ubuntu-22.04.json",
+      "path": "validation/coordination/cursor-g6-frame-datum-p2-repair-takeover-20260914-01/reused-mutation-results-ubuntu-22.04.json",
+      "extracted": {
+        "plan": "3fbb0e7fbdbc069a702dd0e8417c9b6a8dd3961575d5a188817990b280b553f8",
+        "payload": "5d589075c128e2a22d24d88d7dea0ce753a68f4d46937386c581d3fae945b69f",
+        "test": "e412f2d1981fd02b34531426f31c6f010c96d15331bf41f30fc136cc59f10da6"
+      },
+      "hashes_match_current": true,
+      "missing_hash_keys": [],
+      "mismatched": [],
+      "recorded_verdict": "PASS"
+    },
+    {
+      "label": "takeover/reuse-windows.json",
+      "path": "validation/coordination/cursor-g6-frame-datum-p2-repair-takeover-20260914-01/reuse-windows.json",
+      "extracted": {
+        "plan": "3fbb0e7fbdbc069a702dd0e8417c9b6a8dd3961575d5a188817990b280b553f8",
+        "payload": "5d589075c128e2a22d24d88d7dea0ce753a68f4d46937386c581d3fae945b69f",
+        "test": "e412f2d1981fd02b34531426f31c6f010c96d15331bf41f30fc136cc59f10da6",
+        "expected_plan": "3fbb0e7fbdbc069a702dd0e8417c9b6a8dd3961575d5a188817990b280b553f8",
+        "expected_payload": "5d589075c128e2a22d24d88d7dea0ce753a68f4d46937386c581d3fae945b69f",
+        "expected_test": "e412f2d1981fd02b34531426f31c6f010c96d15331bf41f30fc136cc59f10da6"
+      },
+      "hashes_match_current": true,
+      "missing_hash_keys": [],
+      "mismatched": [],
+      "recorded_verdict": null
+    },
+    {
+      "label": "takeover/after-delete-confirm.json",
+      "path": "validation/coordination/cursor-g6-frame-datum-p2-repair-takeover-20260914-01/after-delete-confirm.json",
+      "extracted": {
+        "plan": "3fbb0e7fbdbc069a702dd0e8417c9b6a8dd3961575d5a188817990b280b553f8",
+        "payload": "5d589075c128e2a22d24d88d7dea0ce753a68f4d46937386c581d3fae945b69f",
+        "test": "e412f2d1981fd02b34531426f31c6f010c96d15331bf41f30fc136cc59f10da6"
+      },
+      "hashes_match_current": true,
+      "missing_hash_keys": [],
+      "mismatched": [],
+      "recorded_verdict": "PASS"
+    },
+    {
+      "label": "takeover/after-delete-confirm-ubuntu-22.04.json",
+      "path": "validation/coordination/cursor-g6-frame-datum-p2-repair-takeover-20260914-01/after-delete-confirm-ubuntu-22.04.json",
+      "extracted": {
+        "plan": "3fbb0e7fbdbc069a702dd0e8417c9b6a8dd3961575d5a188817990b280b553f8",
+        "payload": "5d589075c128e2a22d24d88d7dea0ce753a68f4d46937386c581d3fae945b69f",
+        "test": "e412f2d1981fd02b34531426f31c6f010c96d15331bf41f30fc136cc59f10da6"
+      },
+      "hashes_match_current": true,
+      "missing_hash_keys": [],
+      "mismatched": [],
+      "recorded_verdict": "PASS"
+    },
+    {
+      "label": "takeover/stale-writer-delete.json",
+      "path": "validation/coordination/cursor-g6-frame-datum-p2-repair-takeover-20260914-01/stale-writer-delete.json",
+      "extracted": {},
+      "hashes_match_current": true,
+      "missing_hash_keys": [],
+      "mismatched": [],
+      "recorded_verdict": null
+    }
+  ],
+  "prior_suite_notes": {
+    "repair_ubuntu_suite": "historical timeout at 420s; not a current PASS",
+    "takeover_ubuntu_pytest": "45 passed in 495.52s",
+    "takeover_windows_reuse": "candidate hashes match prior P2 Windows mutation/suite captures"
+  },
+  "stale_writer": {
+    "path": "validation/coordination/codebuddy-g6-frame-datum-20260914-01/write_binding.py",
+    "exists": false,
+    "delete_record_hash": "56df93cc6a74d432593b94e1ed6094a9cbe1b6ad586ef944aed99a6290e7681c",
+    "earlier_review_hash": "56df93cc6a74d432593b94e1ed6094a9cbe1b6ad586ef944aed99a6290e7681c",
+    "expected_hash": "56df93cc6a74d432593b94e1ed6094a9cbe1b6ad586ef944aed99a6290e7681c",
+    "hash_match": true,
+    "pycache_residuals": [
+      "validation/coordination/codebuddy-g6-frame-datum-20260914-01/__pycache__/write_binding.cpython-313.pyc"
+    ],
+    "codebuddy_sha256sums_still_lists_writer": true
+  },
+  "spot_paths": {
+    "rhs_exact": "Exp1_MinModelTemp_B.Product[2]",
+    "rhs_hostile": [
+      {
+        "symbol": "Product",
+        "helper_rejects": true,
+        "validate_rejects": true,
+        "sample": [
+          "slots[3]: current_generated_rhs 'Product' is not a complete pinned RHS symbol identity"
+        ]
+      },
+      {
+        "symbol": "Exp1_MinModelTemp_B.Product",
+        "helper_rejects": true,
+        "validate_rejects": true,
+        "sample": [
+          "slots[3]: current_generated_rhs 'Exp1_MinModelTemp_B.Product' is not a complete pinned RHS symbol identity"
+        ]
+      },
+      {
+        "symbol": "Exp1_MinModelTemp_B.Product[",
+        "helper_rejects": true,
+        "validate_rejects": true,
+        "sample": [
+          "slots[3]: current_generated_rhs 'Exp1_MinModelTemp_B.Product[' is not a complete pinned RHS symbol identity"
+        ]
+      },
+      {
+        "symbol": "Product[2]",
+        "helper_rejects": true,
+        "validate_rejects": true,
+        "sample": [
+          "slots[3]: current_generated_rhs 'Product[2]' is not a complete pinned RHS symbol identity"
+        ]
+      },
+      {
+        "symbol": "Exp1_MinModelTemp_B.Product[1]",
+        "helper_rejects": true,
+        "validate_rejects": true,
+        "sample": [
+          "slots[3]: current_generated_rhs 'Exp1_MinModelTemp_B.Product[1]' is not a complete pinned RHS symbol identity"
+        ]
+      },
+      {
+        "symbol": "Exp1_MinModelTemp_B.Product[0]",
+        "helper_rejects": true,
+        "validate_rejects": true,
+        "sample": [
+          "slots[3]: current_generated_rhs 'Exp1_MinModelTemp_B.Product[0]' is not a complete pinned RHS symbol identity"
+        ]
+      },
+      {
+        "symbol": "Exp1_MinModelTemp_B.Product[20]",
+        "helper_rejects": true,
+        "validate_rejects": true,
+        "sample": [
+          "slots[3]: current_generated_rhs 'Exp1_MinModelTemp_B.Product[20]' is not a complete pinned RHS symbol identity"
+        ]
+      },
+      {
+        "symbol": "Exp1_MinModelTemp_B.Product4[2]",
+        "helper_rejects": true,
+        "validate_rejects": true,
+        "sample": [
+          "slots[3]: current_generated_rhs 'Exp1_MinModelTemp_B.Product4[2]' is not a complete pinned RHS symbol identity"
+        ]
+      },
+      {
+        "symbol": "xExp1_MinModelTemp_B.Product[2]",
+        "helper_rejects": true,
+        "validate_rejects": true,
+        "sample": [
+          "slots[3]: current_generated_rhs 'xExp1_MinModelTemp_B.Product[2]' is not a complete pinned RHS symbol identity"
+        ]
+      },
+      {
+        "symbol": "Exp1_MinModelTemp_B.Product[2]x",
+        "helper_rejects": true,
+        "validate_rejects": true,
+        "sample": [
+          "slots[3]: current_generated_rhs 'Exp1_MinModelTemp_B.Product[2]x' is not a complete pinned RHS symbol identity"
+        ]
+      },
+      {
+        "symbol": "Exp1_MinModelTemp_B.Product[2]Exp1_MinModelTemp_B.Product[2]",
+        "helper_rejects": true,
+        "validate_rejects": true,
+        "sample": [
+          "slots[3]: current_generated_rhs 'Exp1_MinModelTemp_B.Product[2]Exp1_MinModelTemp_B.Product[2]' is not a complete pinned RHS symbol identity"
+        ]
+      },
+      {
+        "symbol": "Exp1_MinModelTemp_B.q_out[2]",
+        "helper_rejects": true,
+        "validate_rejects": true,
+        "sample": [
+          "slots[3]: current_generated_rhs 'Exp1_MinModelTemp_B.q_out[2]' is not a complete pinned RHS symbol identity"
+        ]
+      }
+    ],
+    "counts_declared": {
+      "slots_total": 56,
+      "frame_bound": 25,
+      "frame_unresolved": 31,
+      "datum_bound": 10,
+      "datum_unresolved": 46,
+      "owner_decision_count": 24
+    },
+    "counts_recomputed": {
+      "slots_total": 56,
+      "frame_bound": 25,
+      "frame_unresolved": 31,
+      "datum_bound": 10,
+      "datum_unresolved": 46,
+      "owner_decision_count": 24
+    },
+    "observables_exact": {
+      "native_unit_m_s": null,
+      "ev13": null,
+      "ev14": null
+    },
+    "observables_hostile": {
+      "prefix": "quote_not_exact_observables_field",
+      "suffix": "quote_not_exact_observables_field",
+      "source_substring": "quote_not_exact_observables_field",
+      "contract_id_blob": "quote_not_exact_observables_field",
+      "semantic_prefix": "quote_not_exact_observables_field"
+    }
+  },
+  "git_ignore": {
+    "docs/plan/59-e0-frame-datum-binding-20260914.md": {
+      "ignored": false,
+      "detail": "",
+      "in_head": false
+    },
+    "validation/e0-frame-datum-binding-20260914.json": {
+      "ignored": false,
+      "detail": "",
+      "in_head": false
+    },
+    "validation/test_e0_frame_datum_binding.py": {
+      "ignored": false,
+      "detail": "",
+      "in_head": false
+    }
+  },
+  "checks": [
+    {
+      "name": "head_is_pinned",
+      "ok": true,
+      "detail": "6eafdf9c0b734db07a9fe790c86b409d3468c10b"
+    },
+    {
+      "name": "baseline_ancestor",
+      "ok": true,
+      "detail": 0
+    },
+    {
+      "name": "candidate_crlf_absent",
+      "ok": true,
+      "detail": {
+        "plan": 0,
+        "payload": 0,
+        "test": 0
+      }
+    },
+    {
+      "name": "prior_hashes:repair/mutation-results.json",
+      "ok": true,
+      "detail": {
+        "missing": [],
+        "mismatched": [],
+        "verdict": "PASS"
+      }
+    },
+    {
+      "name": "prior_hashes:repair/mutation-results-ubuntu-22.04.json",
+      "ok": true,
+      "detail": {
+        "missing": [],
+        "mismatched": [],
+        "verdict": "PASS"
+      }
+    },
+    {
+      "name": "prior_hashes:repair/suite-windows.json",
+      "ok": true,
+      "detail": {
+        "missing": [],
+        "mismatched": [],
+        "verdict": "PASS"
+      }
+    },
+    {
+      "name": "prior_hashes:repair/suite-ubuntu-22.04.json",
+      "ok": true,
+      "detail": {
+        "missing": [],
+        "mismatched": [],
+        "verdict": "FAIL"
+      }
+    },
+    {
+      "name": "prior_hashes:takeover/mutation-results.json",
+      "ok": true,
+      "detail": {
+        "missing": [],
+        "mismatched": [],
+        "verdict": "PASS"
+      }
+    },
+    {
+      "name": "prior_hashes:takeover/reused-mutation-results.json",
+      "ok": true,
+      "detail": {
+        "missing": [],
+        "mismatched": [],
+        "verdict": "PASS"
+      }
+    },
+    {
+      "name": "prior_hashes:takeover/reused-mutation-results-ubuntu-22.04.json",
+      "ok": true,
+      "detail": {
+        "missing": [],
+        "mismatched": [],
+        "verdict": "PASS"
+      }
+    },
+    {
+      "name": "prior_hashes:takeover/reuse-windows.json",
+      "ok": true,
+      "detail": {
+        "missing": [],
+        "mismatched": [],
+        "verdict": null
+      }
+    },
+    {
+      "name": "prior_hashes:takeover/after-delete-confirm.json",
+      "ok": true,
+      "detail": {
+        "missing": [],
+        "mismatched": [],
+        "verdict": "PASS"
+      }
+    },
+    {
+      "name": "prior_hashes:takeover/after-delete-confirm-ubuntu-22.04.json",
+      "ok": true,
+      "detail": {
+        "missing": [],
+        "mismatched": [],
+        "verdict": "PASS"
+      }
+    },
+    {
+      "name": "prior_hashes:takeover/stale-writer-delete.json",
+      "ok": true,
+      "detail": {
+        "missing": [],
+        "mismatched": [],
+        "verdict": null
+      }
+    },
+    {
+      "name": "repair_windows_mutation_pass",
+      "ok": true,
+      "detail": {
+        "passed": 23,
+        "failed": 0,
+        "mutations": 13,
+        "mutations_rejected": 13,
+        "verdict": "PASS"
+      }
+    },
+    {
+      "name": "repair_ubuntu_mutation_pass",
+      "ok": true,
+      "detail": {
+        "passed": 23,
+        "failed": 0,
+        "mutations": 13,
+        "mutations_rejected": 13,
+        "verdict": "PASS"
+      }
+    },
+    {
+      "name": "repair_windows_suite_pass",
+      "ok": true,
+      "detail": {
+        "ok": true,
+        "verdict": "PASS"
+      }
+    },
+    {
+      "name": "repair_ubuntu_suite_timeout_is_historical_not_current_pass",
+      "ok": true,
+      "detail": {
+        "ok": false,
+        "verdict": "FAIL"
+      }
+    },
+    {
+      "name": "takeover_windows_mutation_pass",
+      "ok": true,
+      "detail": {
+        "passed": 60,
+        "failed": 0,
+        "mutations": 21,
+        "mutations_rejected": 21,
+        "verdict": "PASS"
+      }
+    },
+    {
+      "name": "takeover_reuse_windows_pass",
+      "ok": true,
+      "detail": "candidate hashes match prior P2 Windows mutation/suite captures"
+    },
+    {
+      "name": "takeover_after_delete_windows_pass",
+      "ok": true,
+      "detail": {
+        "passed": 8,
+        "failed": 0,
+        "verdict": "PASS"
+      }
+    },
+    {
+      "name": "takeover_after_delete_ubuntu_pass",
+      "ok": true,
+      "detail": {
+        "passed": 8,
+        "failed": 0,
+        "verdict": "PASS"
+      }
+    },
+    {
+      "name": "takeover_ubuntu_pytest_45_of_45",
+      "ok": true,
+      "detail": "45 passed in 495.52s"
+    },
+    {
+      "name": "takeover_windows_pytest_45_of_45",
+      "ok": true,
+      "detail": "45 passed in 246.90s"
+    },
+    {
+      "name": "takeover_windows_unittest_45_ok",
+      "ok": true,
+      "detail": "Ran 45 tests in 245.626s OK"
+    },
+    {
+      "name": "stale_writer_absent",
+      "ok": true,
+      "detail": "validation/coordination/codebuddy-g6-frame-datum-20260914-01/write_binding.py"
+    },
+    {
+      "name": "delete_record_hash_matches_earlier_review",
+      "ok": true,
+      "detail": {
+        "delete_record": "56df93cc6a74d432593b94e1ed6094a9cbe1b6ad586ef944aed99a6290e7681c",
+        "postreview_takeover": "56df93cc6a74d432593b94e1ed6094a9cbe1b6ad586ef944aed99a6290e7681c",
+        "codebuddy_sha256sums_line": true
+      }
+    },
+    {
+      "name": "delete_record_path_and_deleted_flag",
+      "ok": true,
+      "detail": "validation/coordination/codebuddy-g6-frame-datum-20260914-01/write_binding.py"
+    },
+    {
+      "name": "codebuddy_sha256sums_still_lists_deleted_writer",
+      "ok": true,
+      "detail": "info: leftover index, not a living writer"
+    },
+    {
+      "name": "write_binding_pycache_residual_not_source",
+      "ok": true,
+      "detail": [
+        "validation/coordination/codebuddy-g6-frame-datum-20260914-01/__pycache__/write_binding.cpython-313.pyc"
+      ]
+    },
+    {
+      "name": "pristine_validate_clean",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "name": "acceptance_flags_remain_false",
+      "ok": true,
+      "detail": {
+        "budget_approved": false,
+        "g6_acceptance": false,
+        "physical_accuracy": false,
+        "r1_status": "numerical_failed"
+      }
+    },
+    {
+      "name": "rhs_exact_identity",
+      "ok": true,
+      "detail": "Exp1_MinModelTemp_B.Product[2]"
+    },
+    {
+      "name": "payload_rhs_is_exact_identity",
+      "ok": true,
+      "detail": "Exp1_MinModelTemp_B.Product[2]"
+    },
+    {
+      "name": "rhs_hostile:Product",
+      "ok": true,
+      "detail": "Product"
+    },
+    {
+      "name": "rhs_hostile:Exp1_MinModelTemp_B.Product",
+      "ok": true,
+      "detail": "Exp1_MinModelTemp_B.Product"
+    },
+    {
+      "name": "rhs_hostile:Exp1_MinModelTemp_B.Product[",
+      "ok": true,
+      "detail": "Exp1_MinModelTemp_B.Product["
+    },
+    {
+      "name": "rhs_hostile:Product[2]",
+      "ok": true,
+      "detail": "Product[2]"
+    },
+    {
+      "name": "rhs_hostile:Exp1_MinModelTemp_B.Product[1]",
+      "ok": true,
+      "detail": "Exp1_MinModelTemp_B.Product[1]"
+    },
+    {
+      "name": "rhs_hostile:Exp1_MinModelTemp_B.Product[0]",
+      "ok": true,
+      "detail": "Exp1_MinModelTemp_B.Product[0]"
+    },
+    {
+      "name": "rhs_hostile:Exp1_MinModelTemp_B.Product[20]",
+      "ok": true,
+      "detail": "Exp1_MinModelTemp_B.Product[20]"
+    },
+    {
+      "name": "rhs_hostile:Exp1_MinModelTemp_B.Product4[2]",
+      "ok": true,
+      "detail": "Exp1_MinModelTemp_B.Product4[2]"
+    },
+    {
+      "name": "rhs_hostile:xExp1_MinModelTemp_B.Product[2]",
+      "ok": true,
+      "detail": "xExp1_MinModelTemp_B.Product[2]"
+    },
+    {
+      "name": "rhs_hostile:Exp1_MinModelTemp_B.Product[2]x",
+      "ok": true,
+      "detail": "Exp1_MinModelTemp_B.Product[2]x"
+    },
+    {
+      "name": "rhs_hostile:Exp1_MinModelTemp_B.Product[2]Exp1_MinModelTemp_B.Product[2]",
+      "ok": true,
+      "detail": "Exp1_MinModelTemp_B.Product[2]Exp1_MinModelTemp_B.Product[2]"
+    },
+    {
+      "name": "rhs_hostile:Exp1_MinModelTemp_B.q_out[2]",
+      "ok": true,
+      "detail": "Exp1_MinModelTemp_B.q_out[2]"
+    },
+    {
+      "name": "counts_independent_recompute_matches_payload",
+      "ok": true,
+      "detail": {
+        "declared": {
+          "slots_total": 56,
+          "frame_bound": 25,
+          "frame_unresolved": 31,
+          "datum_bound": 10,
+          "datum_unresolved": 46,
+          "owner_decision_count": 24
+        },
+        "recomputed": {
+          "slots_total": 56,
+          "frame_bound": 25,
+          "frame_unresolved": 31,
+          "datum_bound": 10,
+          "datum_unresolved": 46,
+          "owner_decision_count": 24
+        }
+      }
+    },
+    {
+      "name": "counts_lie_rejected",
+      "ok": true,
+      "detail": [
+        "counts.frame_bound is 56, recomputed 25",
+        "counts.frame_unresolved is 0, recomputed 31",
+        "counts.datum_bound is 56, recomputed 10",
+        "counts.datum_unresolved is 0, recomputed 46",
+        "counts.owner_decision_count is 0, recomputed 24"
+      ]
+    },
+    {
+      "name": "counts_unknown_key_rejected",
+      "ok": true,
+      "detail": [
+        "counts: unknown key invented_count"
+      ]
+    },
+    {
+      "name": "counts_missing_key_rejected",
+      "ok": true,
+      "detail": [
+        "counts: missing key datum_bound"
+      ]
+    },
+    {
+      "name": "observables_exact_fields_match",
+      "ok": true,
+      "detail": {
+        "native_unit_m_s": null,
+        "ev13": null,
+        "ev14": null
+      }
+    },
+    {
+      "name": "observables_nonexact_rejected",
+      "ok": true,
+      "detail": {
+        "prefix": "quote_not_exact_observables_field",
+        "suffix": "quote_not_exact_observables_field",
+        "source_substring": "quote_not_exact_observables_field",
+        "contract_id_blob": "quote_not_exact_observables_field",
+        "semantic_prefix": "quote_not_exact_observables_field"
+      }
+    },
+    {
+      "name": "helper_missing_after_inject",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "name": "manifest_missing_active_path_rejects",
+      "ok": true,
+      "detail": [
+        "slots[1]: Vehicle60[3] is missing from the committed slot manifest"
+      ]
+    },
+    {
+      "name": "head_manifest_still_clean_after_inject",
+      "ok": true,
+      "detail": "major_root_output"
+    },
+    {
+      "name": "candidates_not_gitignored",
+      "ok": true,
+      "detail": {
+        "docs/plan/59-e0-frame-datum-binding-20260914.md": {
+          "ignored": false,
+          "detail": "",
+          "in_head": false
+        },
+        "validation/e0-frame-datum-binding-20260914.json": {
+          "ignored": false,
+          "detail": "",
+          "in_head": false
+        },
+        "validation/test_e0_frame_datum_binding.py": {
+          "ignored": false,
+          "detail": "",
+          "in_head": false
+        }
+      }
+    }
+  ],
+  "summary": {
+    "passed": 56,
+    "failed": 0,
+    "fail_reasons": [],
+    "verdict": "PASS"
+  },
+  "did_not_run": [
+    "45-test pytest/unittest suite",
+    "#83",
+    "native/model/MATLAB/ROS/DDS/SITL/FC/UE/build/flight",
+    "git add/commit/stage/reset/clean"
+  ]
+}

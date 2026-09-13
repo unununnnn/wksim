@@ -1,0 +1,91 @@
+# Minimal commit set so a clean checkout can run the G6/B2 frame-datum candidate
+# HEAD 6eafdf9c0b734db07a9fe790c86b409d3468c10b
+# This file is an inventory, not a git add/commit.
+
+## A. Normal add (not ignored, untracked, required)
+docs/plan/59-e0-frame-datum-binding-20260914.md
+  sha256 3fbb0e7fbdbc069a702dd0e8417c9b6a8dd3961575d5a188817990b280b553f8
+  bytes 15449
+  reason plan; git check-ignore --no-index exit 1
+  in_head false
+  ignored false
+
+validation/e0-frame-datum-binding-20260914.json
+  sha256 5d589075c128e2a22d24d88d7dea0ce753a68f4d46937386c581d3fae945b69f
+  bytes 105018
+  reason payload; .gitignore /validation/*/ does not match files directly under validation/
+  in_head false
+  ignored false
+
+validation/test_e0_frame_datum_binding.py
+  sha256 e412f2d1981fd02b34531426f31c6f010c96d15331bf41f30fc136cc59f10da6
+  bytes 77146
+  reason fail-closed validator; same ignore rule as the payload
+  in_head false
+  ignored false
+
+## B. Force-add required for a clean checkout of this candidate
+(none)
+
+The validator reads pins only via git show HEAD:<path>. Every pin is already
+tracked at HEAD 6eafdf9. git archive HEAD therefore already ships them.
+
+Two pins match .gitignore:53 /validation/*/ but are already tracked:
+
+validation/coordination/ds-g6-budget-evidence-20260913-01/audit.json
+  already_in_head true
+  ignore .gitignore:53 /validation/*/
+  reason pin g6_budget_audit; present in archive; do not add again
+
+validation/coordination/luna-g6-frontier-20260914-01/review.md
+  already_in_head true
+  ignore .gitignore:53 /validation/*/
+  reason pin g6_frontier_review; present in archive; do not add again
+
+## C. Runtime dependency that is not a file to add
+git metadata at pinned HEAD (rev-parse / merge-base / show / ls-tree / diff).
+A raw archive tree without a disposable git attach fails 10/12 representative
+tests with "not tracked at committed HEAD". This is not a force-add.
+
+## D. Already in HEAD — do not add
+Simulator/wksim_core/numerical-conformance-v1.json
+validation/e0-source-to-slot-manifest-20260911.json
+validation/e0-current-source-mapping-20260912.json
+validation/e0-current-rhs-references-20260912.json
+Simulator/wksim_core/README.md
+Simulator/wksim_core/state_stream.py
+Simulator/wksim_core/model.py
+Simulator/wksim_core/model_parameters.py
+Simulator/wksim_core/px4_mavlink.py
+Simulator/wksim_core/gnss_event.py
+Simulator/ue55/README.md
+docs/plan/2026-09-08-numerical-contract-readiness.md
+docs/plan/59-e0-dynamic-budget-source-map.md
+docs/plan/10-g6-remediation-contract.md
+docs/plan/59-e0-same-source-command.md
+docs/plan/g6-c3g-stage2-boundary.md
+docs/plan/59-e0-source-to-slot-manifest.schema.json
+docs/2026-09-09-reference-sampling-contract.md
+docs/2026-09-09-numerical-conformance-report.md
+tools/validate_e0_source_to_slot_manifest.py
+tools/generate_e0_source_to_slot_manifest.py
+validation/coordination/ds-g6-budget-evidence-20260913-01/audit.json
+validation/coordination/luna-g6-frontier-20260914-01/review.md
+
+## E. Not required to run the candidate
+this audit directory (git-ignored by /validation/*/; receipt only)
+cursor-g6-frame-datum-p2-repair-20260914-01/**
+cursor-g6-frame-datum-p2-repair-takeover-20260914-01/**
+cursor-g6-frame-datum-p2-finalize-20260914-01/**
+cursor-g6-frame-datum-postreview-takeover-20260914-01/**
+codebuddy leftover SHA256SUMS / notes.md / probe.py / __pycache__
+deepseek-g6-frame-datum-review-20260914-01/**
+write_binding.py (absent; not a clean-checkout overlay)
+
+## Commands (inventory only; this audit did not run them)
+git add docs/plan/59-e0-frame-datum-binding-20260914.md
+git add validation/e0-frame-datum-binding-20260914.json
+git add validation/test_e0_frame_datum_binding.py
+
+# No git add -f is required for the focused candidate.
+# This audit did not stage or commit.

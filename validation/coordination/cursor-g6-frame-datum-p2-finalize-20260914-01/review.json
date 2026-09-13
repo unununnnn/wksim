@@ -1,0 +1,177 @@
+{
+  "schema": "wksim.g6-frame-datum-p2-finalize.review.v1",
+  "slice": "cursor-g6-frame-datum-p2-finalize-20260914-01",
+  "date": "2026-09-14",
+  "work_class": "new-development",
+  "cwd": "C:\\Users\\PC\\Documents\\odid编译\\wksim",
+  "branch": "main",
+  "head": "6eafdf9c0b734db07a9fe790c86b409d3468c10b",
+  "ancestor_check_exit": 0,
+  "owned_files": [
+    "validation/coordination/cursor-g6-frame-datum-p2-finalize-20260914-01/**"
+  ],
+  "candidates_read_only": {
+    "docs/plan/59-e0-frame-datum-binding-20260914.md": {
+      "sha256": "3fbb0e7fbdbc069a702dd0e8417c9b6a8dd3961575d5a188817990b280b553f8",
+      "bytes": 15449,
+      "lf": true,
+      "matches_prior_captures": true
+    },
+    "validation/e0-frame-datum-binding-20260914.json": {
+      "sha256": "5d589075c128e2a22d24d88d7dea0ce753a68f4d46937386c581d3fae945b69f",
+      "bytes": 105018,
+      "lf": true,
+      "matches_prior_captures": true
+    },
+    "validation/test_e0_frame_datum_binding.py": {
+      "sha256": "e412f2d1981fd02b34531426f31c6f010c96d15331bf41f30fc136cc59f10da6",
+      "bytes": 77146,
+      "lf": true,
+      "matches_prior_captures": true
+    }
+  },
+  "prior_artifacts": {
+    "repair": {
+      "dir": "validation/coordination/cursor-g6-frame-datum-p2-repair-20260914-01",
+      "windows_mutation": "PASS",
+      "ubuntu_mutation": "PASS",
+      "windows_suite": "PASS 45/45 pytest + 45 unittest",
+      "ubuntu_suite": "historical FAIL timeout 420s",
+      "hashes_match_current": true,
+      "rerun": false
+    },
+    "takeover": {
+      "dir": "validation/coordination/cursor-g6-frame-datum-p2-repair-takeover-20260914-01",
+      "windows_mutation": "PASS 60/0 21/21",
+      "windows_reuse": "PASS; hashes matched so suite not rerun",
+      "ubuntu_mutation_reused": "PASS on current hashes",
+      "after_delete_windows": "PASS",
+      "after_delete_ubuntu": "PASS",
+      "ubuntu_pytest": "45 passed in 495.52s",
+      "hashes_match_current": true,
+      "rerun": false
+    },
+    "prior_hash_rows_matching": "11/11"
+  },
+  "stale_writer": {
+    "path": "validation/coordination/codebuddy-g6-frame-datum-20260914-01/write_binding.py",
+    "exists": false,
+    "delete_record": "validation/coordination/cursor-g6-frame-datum-p2-repair-takeover-20260914-01/stale-writer-delete.json",
+    "sha256_before_delete": "56df93cc6a74d432593b94e1ed6094a9cbe1b6ad586ef944aed99a6290e7681c",
+    "earlier_review": "validation/coordination/cursor-g6-frame-datum-postreview-takeover-20260914-01/review.json",
+    "earlier_review_hash": "56df93cc6a74d432593b94e1ed6094a9cbe1b6ad586ef944aed99a6290e7681c",
+    "hash_match": true,
+    "pycache_residual": "validation/coordination/codebuddy-g6-frame-datum-20260914-01/__pycache__/write_binding.cpython-313.pyc",
+    "index_text_still_lists_writer": true
+  },
+  "independent_spotcheck": {
+    "command": "python -B validation/coordination/cursor-g6-frame-datum-p2-finalize-20260914-01/spotcheck.py",
+    "platform": "Windows-11-10.0.28000-SP0",
+    "python": "3.13.11",
+    "elapsed_sec_approx": 43.5,
+    "passed": 56,
+    "failed": 0,
+    "verdict": "PASS",
+    "pristine_validate_errors": 0,
+    "rhs_exact_identity": "Exp1_MinModelTemp_B.Product[2]",
+    "rhs_hostile_rejected": "12/12",
+    "counts_recomputed": {
+      "slots_total": 56,
+      "frame_bound": 25,
+      "frame_unresolved": 31,
+      "datum_bound": 10,
+      "datum_unresolved": 46,
+      "owner_decision_count": 24
+    },
+    "observables_exact_fields": true,
+    "observables_nonexact_rejected": true,
+    "manifest_missing_active_path": true,
+    "head_manifest_still_clean": true
+  },
+  "findings": [
+    {
+      "rank": 1,
+      "id": "F1-stale-writer",
+      "severity": "closed",
+      "status": "DELETED_HASH_MATCHES_EARLIER_REVIEW",
+      "title": "write_binding.py absent; pre-delete SHA-256 equals postreview-takeover F1 56df93cc...",
+      "fail_review": false
+    },
+    {
+      "rank": 2,
+      "id": "F2-rhs-identity",
+      "severity": "closed",
+      "status": "CLOSED",
+      "title": "current_generated_rhs is a complete pinned RHS symbol identity; Product-class substrings fail closed",
+      "fail_review": false
+    },
+    {
+      "rank": 3,
+      "id": "F3-observables-field",
+      "severity": "closed",
+      "status": "CLOSED",
+      "title": "observables[] citations require exact string fields of contract observables elements",
+      "fail_review": false
+    },
+    {
+      "rank": 4,
+      "id": "F4-manifest-inject",
+      "severity": "closed",
+      "status": "CLOSED",
+      "title": "injected manifest copy exercises the live missing-slot path without rewriting HEAD",
+      "fail_review": false
+    },
+    {
+      "rank": 5,
+      "id": "F5-counts-recompute",
+      "severity": "closed",
+      "status": "CLOSED",
+      "title": "every counts key is recomputed from slot/owner structure; lies and extra/missing keys fail closed",
+      "fail_review": false
+    },
+    {
+      "rank": 6,
+      "id": "I1-ubuntu-timeout-history",
+      "severity": "info",
+      "status": "RECOVERED_BY_TAKEOVER",
+      "title": "first Ubuntu suite timed out at 420s; takeover recorded 45 passed in 495.52s",
+      "fail_review": false
+    },
+    {
+      "rank": 7,
+      "id": "I2-stale-index-text",
+      "severity": "info",
+      "status": "LEFTOVER_TEXT",
+      "title": "codebuddy SHA256SUMS and notes.md still name the deleted writer; source file is gone",
+      "fail_review": false
+    },
+    {
+      "rank": 8,
+      "id": "I3-pycache-residual",
+      "severity": "info",
+      "status": "NOT_A_LIVING_WRITER",
+      "title": "write_binding.cpython-313.pyc remains because takeover deleted only the source",
+      "fail_review": false
+    }
+  ],
+  "verdict": "PASS",
+  "verdict_statement": "PASS. Current candidate hashes match all prior repair/takeover captures. Windows focused/full and mutation PASS, Ubuntu mutation/after-delete PASS, Ubuntu pytest 45/45 in 495.52s. Stale writer absent; deletion hash matches earlier review. Independent 56/56 spot-check closes exact RHS identity, counts recomputation, exact observables fields, and injected manifest-missing active path.",
+  "owner_approval": false,
+  "issues_closed": false,
+  "r1_status": "numerical_failed",
+  "budget_approved": false,
+  "g6_acceptance": false,
+  "physical_accuracy": false,
+  "not_claimed": [
+    "owner approval",
+    "#59 closed",
+    "#60 closed",
+    "G6 acceptance",
+    "Full acceptance",
+    "R1 numerical_failed reversed",
+    "45-test suite rerun",
+    "#83 rerun",
+    "native/model/MATLAB/ROS/DDS/SITL/FC/UE/build/flight",
+    "git add/commit/stage/reset/clean"
+  ]
+}

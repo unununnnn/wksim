@@ -1,0 +1,208 @@
+{
+  "schema": "wksim.g6-frame-datum-precommit-audit.review.v1",
+  "slice_id": "cursor-g6-frame-datum-precommit-audit-20260914-01",
+  "date": "2026-09-14",
+  "work_class": "read-only-precommit-clean-checkout-audit",
+  "cwd": "C:\\Users\\PC\\Documents\\odid编译\\wksim",
+  "branch": "main",
+  "head": "6eafdf9c0b734db07a9fe790c86b409d3468c10b",
+  "ancestor_f333316e": 0,
+  "owned_files": [
+    "validation/coordination/cursor-g6-frame-datum-precommit-audit-20260914-01/**"
+  ],
+  "candidates_read_only": {
+    "docs/plan/59-e0-frame-datum-binding-20260914.md": {
+      "sha256": "3fbb0e7fbdbc069a702dd0e8417c9b6a8dd3961575d5a188817990b280b553f8",
+      "bytes": 15449,
+      "lf": true,
+      "ignored": false,
+      "tracked_at_head": false
+    },
+    "validation/e0-frame-datum-binding-20260914.json": {
+      "sha256": "5d589075c128e2a22d24d88d7dea0ce753a68f4d46937386c581d3fae945b69f",
+      "bytes": 105018,
+      "lf": true,
+      "ignored": false,
+      "tracked_at_head": false
+    },
+    "validation/test_e0_frame_datum_binding.py": {
+      "sha256": "e412f2d1981fd02b34531426f31c6f010c96d15331bf41f30fc136cc59f10da6",
+      "bytes": 77146,
+      "lf": true,
+      "ignored": false,
+      "tracked_at_head": false
+    }
+  },
+  "overall": "PASS",
+  "overall_reason": "git archive HEAD plus the three unignored candidates plus disposable git at the pinned commit runs the representative suite on Windows and Ubuntu-22.04. No additional ignored artifact must be force-added. Prior 45/45 captures still bind to the current three hashes. Stale writer absence is not a clean-checkout overlay.",
+  "gates": [
+    {
+      "id": "G-hash-candidate",
+      "verdict": "PASS",
+      "detail": "3fbb0e7f… / 5d589075… / e412f2d1… at start and end; LF; match finalize and repair/takeover"
+    },
+    {
+      "id": "G-prior-45-hash-bind",
+      "verdict": "PASS",
+      "detail": "5/5 hash rows match current candidates. Windows repair pytest 45/45 and unittest 45 OK bytes match reuse-windows.json. Ubuntu takeover pytest 45/45 in 495.52s and unittest 45 OK bound via after-delete and takeover mutation hashes. Full suite not rerun."
+    },
+    {
+      "id": "G-clean-archive-candidates-only",
+      "verdict": "FAIL",
+      "detail": "expected: both hosts 10 failed / 2 passed without git metadata. validate_binding always calls git show HEAD:"
+    },
+    {
+      "id": "G-clean-archive-candidates-plus-git",
+      "verdict": "PASS",
+      "detail": "Windows 12/12 in 51.964s; Ubuntu-22.04 12/12 in 34.062s"
+    },
+    {
+      "id": "G-live-paths",
+      "verdict": "PASS",
+      "detail": "both hosts: pristine 0 errors; exact RHS Exp1_MinModelTemp_B.Product[2]; 12/12 hostile rejected; counts 56/25/31/10/46/24; observables exact fields; injected Vehicle60[3] missing path live; duplicate JSON key rejected; HEAD manifest still clean"
+    },
+    {
+      "id": "G-force-add-empty",
+      "verdict": "PASS",
+      "detail": "force_add_required=[] ; three candidates are normal add; 23/23 pins already at HEAD; archive contains the two ignored-but-tracked pins"
+    },
+    {
+      "id": "G-stale-writer-not-a-dependency",
+      "verdict": "PASS",
+      "detail": "write_binding.py absent from HEAD, archive, and overlaid tree; suite still PASS. Absence is a finalize fact, not an overlay."
+    },
+    {
+      "id": "G-project-repo-untouched",
+      "verdict": "PASS",
+      "detail": "project HEAD remained 6eafdf9; no add/commit/stage/reset/clean"
+    }
+  ],
+  "clean_trees": {
+    "method": "git archive --format=tar HEAD extracted outside the repository, then filesystem copy of the three candidates only",
+    "windows": "C:\\Users\\PC\\AppData\\Local\\Temp\\wksim-g6-fd-precommit-win-3ow_453i",
+    "ubuntu": "/tmp/wksim-g6-fd-precommit-lin-itb248hc",
+    "archive_member_count_ubuntu": 12085,
+    "archive_has_git_dir": false,
+    "archive_has_stale_writer": false,
+    "archive_has_three_candidates": false,
+    "ignored_tracked_pins_in_archive": true,
+    "disposable_git": "init inside the disposable tree; objects/info/alternates to the project objects; detached HEAD 6eafdf9; project repo not mutated"
+  },
+  "representative_suite": [
+    "test_committed_file_is_valid",
+    "test_head_and_baseline",
+    "test_counts_match_payload",
+    "test_counts_lie_fails_closed",
+    "test_counts_unknown_or_missing_key_fails_closed",
+    "test_generated_rhs_symbol_tamper_fails_closed",
+    "test_generated_rhs_substring_is_not_identity",
+    "test_generated_rhs_hostile_identity_mutations_fail_closed",
+    "test_observables_locator_requires_exact_field",
+    "test_pinned_rhs_and_manifest_helpers",
+    "test_manifest_missing_slot_fails_closed",
+    "test_duplicate_json_key_fails_closed"
+  ],
+  "normal_add": [
+    "docs/plan/59-e0-frame-datum-binding-20260914.md",
+    "validation/e0-frame-datum-binding-20260914.json",
+    "validation/test_e0_frame_datum_binding.py"
+  ],
+  "minimal_force_add": [],
+  "already_in_head_ignored": [
+    {
+      "path": "validation/coordination/ds-g6-budget-evidence-20260913-01/audit.json",
+      "pin_id": "g6_budget_audit",
+      "ignore_rule": ".gitignore:53:/validation/*/",
+      "tracked": true,
+      "in_archive": true
+    },
+    {
+      "path": "validation/coordination/luna-g6-frontier-20260914-01/review.md",
+      "pin_id": "g6_frontier_review",
+      "ignore_rule": ".gitignore:53:/validation/*/",
+      "tracked": true,
+      "in_archive": true
+    }
+  ],
+  "runtime_dependencies_not_in_head_as_files": [
+    {
+      "name": "git metadata at pinned HEAD",
+      "why": "validate_binding and quote locators call git show/ls-tree/diff/merge-base; they never hash worktree pin bytes",
+      "force_add": false
+    }
+  ],
+  "stale_writer": {
+    "path": "validation/coordination/codebuddy-g6-frame-datum-20260914-01/write_binding.py",
+    "exists": false,
+    "tracked_at_head": false,
+    "in_archive": false,
+    "required_overlay": false,
+    "sha256_before_delete": "56df93cc6a74d432593b94e1ed6094a9cbe1b6ad586ef944aed99a6290e7681c",
+    "pycache_residual": true
+  },
+  "prior_45": {
+    "rerun": false,
+    "verdict": "PASS",
+    "hash_rows_matching": "5/5",
+    "windows": "pytest 45/45 in 246.90s; unittest 45 OK in 245.626s; capture SHA-256 matches reuse-windows.json",
+    "ubuntu": "pytest 45/45 in 495.52s; unittest 45 OK in 475.493s; hashes from takeover after-delete and mutation match current"
+  },
+  "findings": [
+    {
+      "id": "F-git-runtime-not-a-blob",
+      "rank": 1,
+      "severity": "INFO",
+      "verdict": "INFO",
+      "fail_review": false,
+      "title": "Clean archive plus candidates cannot run until disposable git metadata exists",
+      "detail": "Both hosts: 10 failed / 2 passed without git. Failures are AssertionError / path_not_tracked_at_head from git show HEAD:. This is a runtime dependency of the validator, not a missing force-add file. Attaching disposable git at 6eafdf9 closes the suite."
+    },
+    {
+      "id": "F-ignored-pins-already-tracked",
+      "rank": 2,
+      "severity": "INFO",
+      "verdict": "INFO",
+      "fail_review": false,
+      "title": "Two ignored pins are already in HEAD and in git archive",
+      "detail": "g6_budget_audit and g6_frontier_review match /validation/*/ but cat-file HEAD succeeds and archive extracts them. They must stay tracked; they do not belong on a new force-add list."
+    },
+    {
+      "id": "F-stale-writer-not-a-dependency",
+      "rank": 3,
+      "severity": "INFO",
+      "verdict": "INFO",
+      "fail_review": false,
+      "title": "write_binding.py absence is not a clean-checkout overlay",
+      "detail": "The writer is not at HEAD, not in the archive, and not copied. Representative suite and live paths PASS without it. pycache / notes leftovers are not imported."
+    },
+    {
+      "id": "F-windows-alternates-encoding",
+      "rank": 4,
+      "severity": "INFO",
+      "verdict": "INFO",
+      "fail_review": false,
+      "title": "First Windows git attach failed on a text-decoded objects path",
+      "detail": "git_repo text mode produced an objects? alternates path. Resume used git rev-parse --absolute-git-dir bytes and the already-extracted temp tree. Candidate defect: no. Project repo was not mutated."
+    }
+  ],
+  "verdict": "PASS",
+  "owner_approval": false,
+  "issues_closed": false,
+  "r1_status": "numerical_failed",
+  "budget_approved": false,
+  "g6_acceptance": false,
+  "physical_accuracy": false,
+  "not_claimed": [
+    "owner approval",
+    "#59 closed",
+    "#60 closed",
+    "G6 acceptance",
+    "Full acceptance",
+    "R1 numerical_failed reversed",
+    "45-test suite rerun",
+    "#83 rerun",
+    "native/model/MATLAB/ROS/DDS/SITL/FC/UE/build/flight",
+    "git add/commit/stage/reset/clean"
+  ],
+  "subagent_policy": "dispatcher is not gpt-6-astra; gpt-5.6-luna is not selectable in this interface; work stayed in the main agent"
+}
