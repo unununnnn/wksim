@@ -1,0 +1,59 @@
+# Minimal commit set for the Full original-AC gap ledger candidate
+# Confirmed by cursor-full-ac-gap-ledger-finalize-20260914-01 against HEAD
+# 6eafdf9c0b734db07a9fe790c86b409d3468c10b
+# This file is an inventory, not a git add/commit.
+
+## A. Normal add (not ignored, not in HEAD)
+docs/plan/full-original-ac-gap-ledger-20260914.md
+  sha256 5a4d9a649abeb57b423d98b84fdf8c59c965afd74a92ba88061ee48a1c44ad3e
+  bytes 25570
+  reason plan doc; docs/plan is not ignored
+  in_head false
+  ignored false
+
+validation/full-original-ac-gap-ledger-20260914.json
+  sha256 4e1f9b9e80ce07265c4b25cca6fc084a200a18051536d2b3f3243c5b79fd1d16
+  bytes 225429
+  reason machine ledger; .gitignore /validation/*/ does not match files directly under validation/
+  in_head false
+  ignored false
+
+validation/test_full_original_ac_gap_ledger.py
+  sha256 d2a241c97c50549e2aae9226163a61f3445787f886b04eeae42fcf74af7367a1
+  bytes 75771
+  reason dedicated 81-test suite; same ignore rule as above
+  in_head false
+  ignored false
+
+validation/full-original-ac-gap-ledger-snapshot-20260914.json
+  sha256 c8af0dcef3dfc3a78141d381a9cb307fc5a0a223cc9c2898a5a34fd0ffae1ef4
+  bytes 91924
+  reason committed test-time snapshot; not the ignored DeepSeek coordination capture
+  in_head false
+  ignored false
+
+## B. Force-add
+none
+  reason the four candidate files are not git-ignored
+
+## C. Already in HEAD — do not add
+The other 83 rows of the 87-file clean-checkout inventory
+(docs/2026-09-06_* and later reports, docs/plan tickets/contracts,
+validation/test_*.py already tracked, and tracked ignored evidence
+directories such as validation/46-reexecution). They are already
+present on a clean checkout of 6eafdf9c0b734db07a9fe790c86b409d3468c10b.
+
+## D. Not required to run the candidate
+this finalize directory (git-ignored by /validation/*/)
+cursor-full-ac-gap-ledger-final-review-20260914-01/**
+cursor-full-ac-gap-ledger-repair-takeover-20260914-01/**
+cursor-full-ac-gap-ledger-postreview-20260914-01/**
+deepseek-full-ac-gap-ledger-20260914-01/** advisory capture
+
+## Commands (inventory only; this review did not run them)
+git add docs/plan/full-original-ac-gap-ledger-20260914.md
+git add validation/full-original-ac-gap-ledger-20260914.json
+git add validation/test_full_original_ac_gap_ledger.py
+git add validation/full-original-ac-gap-ledger-snapshot-20260914.json
+
+# This review did not stage or commit.

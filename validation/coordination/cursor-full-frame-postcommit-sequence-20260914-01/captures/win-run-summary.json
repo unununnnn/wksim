@@ -1,0 +1,285 @@
+{
+  "host": "win",
+  "python": "3.13.11",
+  "platform": "Windows-11-10.0.28000-SP0",
+  "tree": "C:\\Users\\PC\\AppData\\Local\\Temp\\wksim-full-frame-postcommit-win-jiwoxhro",
+  "archive": {
+    "method": "path-limited git archive HEAD streamed to a temp tar, extracted, then deleted",
+    "full_archive_loaded_into_memory": false,
+    "lean_member_count": 811,
+    "lean_tar_bytes": 546007040,
+    "note": "Windows first-sequence extract used this lean archive; member/byte counts reconstructed by a second streamed archive that was deleted"
+  },
+  "full_then_frame": {
+    "commits": [
+      {
+        "group": "full",
+        "paths": [
+          "docs/plan/full-original-ac-gap-ledger-20260914.md",
+          "validation/full-original-ac-gap-ledger-20260914.json",
+          "validation/test_full_original_ac_gap_ledger.py",
+          "validation/full-original-ac-gap-ledger-snapshot-20260914.json"
+        ],
+        "head": "83dd38259b9e1a47baa20e3bd903dab11c322389",
+        "tree": "6204cc1243f142239118fd2fd0aa84c8ade36a1b",
+        "parent": "6eafdf9c0b734db07a9fe790c86b409d3468c10b",
+        "force_add_used": [],
+        "all_presence_ok": true,
+        "all_present_match_pin": true,
+        "baseline_is_ancestor": true,
+        "architecture_ancestor_ok": true
+      },
+      {
+        "group": "frame",
+        "paths": [
+          "docs/plan/59-e0-frame-datum-binding-20260914.md",
+          "validation/e0-frame-datum-binding-20260914.json",
+          "validation/test_e0_frame_datum_binding.py"
+        ],
+        "head": "d5842e882c49fb6957d1382995e6d673ae1e4691",
+        "tree": "e608b71d37c9ccf3981399a4ab6793dc902f3bbe",
+        "parent": "83dd38259b9e1a47baa20e3bd903dab11c322389",
+        "force_add_used": [],
+        "all_presence_ok": true,
+        "all_present_match_pin": true,
+        "baseline_is_ancestor": true,
+        "architecture_ancestor_ok": true
+      }
+    ],
+    "steps": [
+      {
+        "label": "step0-baseline",
+        "head": "6eafdf9c0b734db07a9fe790c86b409d3468c10b",
+        "tree": "435471df1371a0bec80d4b6013c3bc9cbc8af938",
+        "parent": "0785f0e69c8756f34ea95425145fde0a3668e015",
+        "baseline_is_ancestor": true,
+        "architecture_ancestor_ok": true,
+        "all_presence_ok": true,
+        "all_present_match_pin": true
+      },
+      {
+        "label": "step1-full",
+        "head": "83dd38259b9e1a47baa20e3bd903dab11c322389",
+        "tree": "6204cc1243f142239118fd2fd0aa84c8ade36a1b",
+        "parent": "6eafdf9c0b734db07a9fe790c86b409d3468c10b",
+        "baseline_is_ancestor": true,
+        "architecture_ancestor_ok": true,
+        "all_presence_ok": true,
+        "all_present_match_pin": true
+      },
+      {
+        "label": "step2-frame",
+        "head": "d5842e882c49fb6957d1382995e6d673ae1e4691",
+        "tree": "e608b71d37c9ccf3981399a4ab6793dc902f3bbe",
+        "parent": "83dd38259b9e1a47baa20e3bd903dab11c322389",
+        "baseline_is_ancestor": true,
+        "architecture_ancestor_ok": true,
+        "all_presence_ok": true,
+        "all_present_match_pin": true
+      },
+      {
+        "label": "step3-empty",
+        "head": "949e1e28c4e4edf9394eb1ba1a91f9b19c1ed2a3",
+        "tree": "e608b71d37c9ccf3981399a4ab6793dc902f3bbe",
+        "parent": "d5842e882c49fb6957d1382995e6d673ae1e4691",
+        "baseline_is_ancestor": true,
+        "architecture_ancestor_ok": true,
+        "all_presence_ok": true,
+        "all_present_match_pin": true
+      }
+    ],
+    "independent_counts_ok": true,
+    "final_full_81": {
+      "label": "full-then-frame-final-full-81",
+      "host": "win",
+      "returncode": 0,
+      "ran": 81,
+      "ok": true,
+      "failed_banner": false,
+      "elapsed_s": 7.966,
+      "capture": "captures/win-full-then-frame-final-full-81.txt",
+      "tail": "{\n  \"suite\": \"test_full_original_ac_gap_ledger\",\n  \"snapshot\": \"validation\\\\full-original-ac-gap-ledger-snapshot-20260914.json\",\n  \"ledger\": \"validation\\\\full-original-ac-gap-ledger-20260914.json\",\n  \"tests_run\": 81,\n  \"failures\": 0,\n  \"errors\": 0,\n  \"skipped\": 0,\n  \"verdict\": \"PASS\",\n  \"python\": \"3.13.11\",\n  \"platform\": \"win32\",\n  \"network_used\": false\n}\n\n.................................................................................\n----------------------------------------------------------------------\nRan 81 tests in 7.895s\n\nOK"
+    },
+    "final_frame_12": {
+      "label": "full-then-frame-final-frame-12",
+      "host": "win",
+      "returncode": 0,
+      "ran": 12,
+      "ok": true,
+      "failed_banner": false,
+      "elapsed_s": 49.022,
+      "capture": "captures/win-full-then-frame-final-frame-12.txt",
+      "tail": "\n............\n----------------------------------------------------------------------\nRan 12 tests in 48.952s\n\nOK"
+    },
+    "empty_commit": {
+      "commit_exit": 0,
+      "before_head": "d5842e882c49fb6957d1382995e6d673ae1e4691",
+      "after_head": "949e1e28c4e4edf9394eb1ba1a91f9b19c1ed2a3",
+      "before_tree": "e608b71d37c9ccf3981399a4ab6793dc902f3bbe",
+      "after_tree": "e608b71d37c9ccf3981399a4ab6793dc902f3bbe",
+      "tree_unchanged": true,
+      "head_changed": true,
+      "exact_head_no_longer_pinned_head": true
+    },
+    "after_empty_full_head_dep": {
+      "label": "full-then-frame-empty-full-head-dep",
+      "host": "win",
+      "returncode": 0,
+      "ran": 5,
+      "ok": true,
+      "failed_banner": false,
+      "elapsed_s": 7.997,
+      "capture": "captures/win-full-then-frame-empty-full-head-dep.txt",
+      "tail": "\n.....\n----------------------------------------------------------------------\nRan 5 tests in 7.924s\n\nOK"
+    },
+    "after_empty_frame_head_dep": {
+      "label": "full-then-frame-empty-frame-head-dep",
+      "host": "win",
+      "returncode": 0,
+      "ran": 8,
+      "ok": true,
+      "failed_banner": false,
+      "elapsed_s": 45.429,
+      "capture": "captures/win-full-then-frame-empty-frame-head-dep.txt",
+      "tail": "\n........\n----------------------------------------------------------------------\nRan 8 tests in 45.361s\n\nOK"
+    },
+    "force_add_used_any": false
+  },
+  "frame_then_full": {
+    "commits": [
+      {
+        "group": "frame",
+        "paths": [
+          "docs/plan/59-e0-frame-datum-binding-20260914.md",
+          "validation/e0-frame-datum-binding-20260914.json",
+          "validation/test_e0_frame_datum_binding.py"
+        ],
+        "head": "0738ff41c2965126d7e584181d9704ccbf0c3f45",
+        "tree": "6ca1639c1c3678bfe868fddbd8b04f7d8d825cb1",
+        "parent": "6eafdf9c0b734db07a9fe790c86b409d3468c10b",
+        "force_add_used": [],
+        "all_presence_ok": true,
+        "all_present_match_pin": true,
+        "baseline_is_ancestor": true,
+        "architecture_ancestor_ok": true
+      },
+      {
+        "group": "full",
+        "paths": [
+          "docs/plan/full-original-ac-gap-ledger-20260914.md",
+          "validation/full-original-ac-gap-ledger-20260914.json",
+          "validation/test_full_original_ac_gap_ledger.py",
+          "validation/full-original-ac-gap-ledger-snapshot-20260914.json"
+        ],
+        "head": "3cc6fe78ffde2ffd5f5525bebb99be9012e46f2c",
+        "tree": "e608b71d37c9ccf3981399a4ab6793dc902f3bbe",
+        "parent": "0738ff41c2965126d7e584181d9704ccbf0c3f45",
+        "force_add_used": [],
+        "all_presence_ok": true,
+        "all_present_match_pin": true,
+        "baseline_is_ancestor": true,
+        "architecture_ancestor_ok": true
+      }
+    ],
+    "steps": [
+      {
+        "label": "step0-baseline",
+        "head": "6eafdf9c0b734db07a9fe790c86b409d3468c10b",
+        "tree": "435471df1371a0bec80d4b6013c3bc9cbc8af938",
+        "parent": "0785f0e69c8756f34ea95425145fde0a3668e015",
+        "baseline_is_ancestor": true,
+        "architecture_ancestor_ok": true,
+        "all_presence_ok": true,
+        "all_present_match_pin": true
+      },
+      {
+        "label": "step1-frame",
+        "head": "0738ff41c2965126d7e584181d9704ccbf0c3f45",
+        "tree": "6ca1639c1c3678bfe868fddbd8b04f7d8d825cb1",
+        "parent": "6eafdf9c0b734db07a9fe790c86b409d3468c10b",
+        "baseline_is_ancestor": true,
+        "architecture_ancestor_ok": true,
+        "all_presence_ok": true,
+        "all_present_match_pin": true
+      },
+      {
+        "label": "step2-full",
+        "head": "3cc6fe78ffde2ffd5f5525bebb99be9012e46f2c",
+        "tree": "e608b71d37c9ccf3981399a4ab6793dc902f3bbe",
+        "parent": "0738ff41c2965126d7e584181d9704ccbf0c3f45",
+        "baseline_is_ancestor": true,
+        "architecture_ancestor_ok": true,
+        "all_presence_ok": true,
+        "all_present_match_pin": true
+      },
+      {
+        "label": "step3-empty",
+        "head": "7e80fb0b39044f0a8942902c1fa7e0b17ff85483",
+        "tree": "e608b71d37c9ccf3981399a4ab6793dc902f3bbe",
+        "parent": "3cc6fe78ffde2ffd5f5525bebb99be9012e46f2c",
+        "baseline_is_ancestor": true,
+        "architecture_ancestor_ok": true,
+        "all_presence_ok": true,
+        "all_present_match_pin": true
+      }
+    ],
+    "independent_counts_ok": true,
+    "final_full_81": {
+      "label": "frame-then-full-final-full-81",
+      "host": "win",
+      "returncode": 0,
+      "ran": 81,
+      "ok": true,
+      "failed_banner": false,
+      "elapsed_s": 9.083,
+      "capture": "captures/win-frame-then-full-final-full-81.txt",
+      "tail": "{\n  \"suite\": \"test_full_original_ac_gap_ledger\",\n  \"snapshot\": \"validation\\\\full-original-ac-gap-ledger-snapshot-20260914.json\",\n  \"ledger\": \"validation\\\\full-original-ac-gap-ledger-20260914.json\",\n  \"tests_run\": 81,\n  \"failures\": 0,\n  \"errors\": 0,\n  \"skipped\": 0,\n  \"verdict\": \"PASS\",\n  \"python\": \"3.13.11\",\n  \"platform\": \"win32\",\n  \"network_used\": false\n}\n\n.................................................................................\n----------------------------------------------------------------------\nRan 81 tests in 9.011s\n\nOK"
+    },
+    "final_frame_12": {
+      "label": "frame-then-full-final-frame-12",
+      "host": "win",
+      "returncode": 0,
+      "ran": 12,
+      "ok": true,
+      "failed_banner": false,
+      "elapsed_s": 55.018,
+      "capture": "captures/win-frame-then-full-final-frame-12.txt",
+      "tail": "\n............\n----------------------------------------------------------------------\nRan 12 tests in 54.946s\n\nOK"
+    },
+    "empty_commit": {
+      "commit_exit": 0,
+      "before_head": "3cc6fe78ffde2ffd5f5525bebb99be9012e46f2c",
+      "after_head": "7e80fb0b39044f0a8942902c1fa7e0b17ff85483",
+      "before_tree": "e608b71d37c9ccf3981399a4ab6793dc902f3bbe",
+      "after_tree": "e608b71d37c9ccf3981399a4ab6793dc902f3bbe",
+      "tree_unchanged": true,
+      "head_changed": true,
+      "exact_head_no_longer_pinned_head": true
+    },
+    "after_empty_full_head_dep": {
+      "label": "frame-then-full-empty-full-head-dep",
+      "host": "win",
+      "returncode": 0,
+      "ran": 5,
+      "ok": true,
+      "failed_banner": false,
+      "elapsed_s": 9.047,
+      "capture": "captures/win-frame-then-full-empty-full-head-dep.txt",
+      "tail": "\n.....\n----------------------------------------------------------------------\nRan 5 tests in 8.974s\n\nOK"
+    },
+    "after_empty_frame_head_dep": {
+      "label": "frame-then-full-empty-frame-head-dep",
+      "host": "win",
+      "returncode": 0,
+      "ran": 8,
+      "ok": true,
+      "failed_banner": false,
+      "elapsed_s": 46.253,
+      "capture": "captures/win-frame-then-full-empty-frame-head-dep.txt",
+      "tail": "\n........\n----------------------------------------------------------------------\nRan 8 tests in 46.171s\n\nOK"
+    },
+    "force_add_used_any": false
+  },
+  "project_head_unchanged": true,
+  "project_candidates_still_untracked": true
+}
