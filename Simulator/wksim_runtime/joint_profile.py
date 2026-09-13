@@ -271,7 +271,7 @@ def _mixed_proofs(p, records, identities):
         if set(pin) != {'task_profile', 'result', 'audit', 'admission'}:
             raise ValueError('Mixed capability proof descriptor schema differs')
         flight, audit, admission = (_pinned_json(pin[key]) for key in ('result', 'audit', 'admission'))
-        for marker in ('rate_timing_probe', 'group_work_timing'):
+        for marker in ('rate_timing_probe', 'group_work_timing', 'perf_switch_capture'):
             if marker in flight:
                 raise ValueError('Formal mixed/PV evidence cannot include '+marker)
         task = pin['task_profile']

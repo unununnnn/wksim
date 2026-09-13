@@ -369,6 +369,14 @@ class MixedProofPacerBindingTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError,'cannot include group_work_timing'):
                     profile._mixed_proofs(p,records,identities)
 
+    def test_rejects_perf_switch_capture_marker_with_any_value(self):
+        for value in (True,False,None,{}):
+            with self.subTest(value=value), tempfile.TemporaryDirectory() as directory:
+                p,records,identities,_,_=_mixed_proof_fixture(
+                    directory,marker=('perf_switch_capture',value))
+                with self.assertRaisesRegex(ValueError,'cannot include perf_switch_capture'):
+                    profile._mixed_proofs(p,records,identities)
+
 
 
 if __name__=='__main__':

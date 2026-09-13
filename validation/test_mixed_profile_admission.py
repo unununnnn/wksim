@@ -87,7 +87,9 @@ class MixedProfileAdmissionTests(unittest.TestCase):
                         px4_agent={'path': 'px4-agent', 'sha256': '2'*64}, manifests=p['manifests'])
         sources = {name: '3'*64 for name in ('tools/run_joint_flight.py', 'tools/ap_mixed_candidate.py',
             'tools/prepare_ap_mixed_candidate.py', 'tools/verify_ap_pv_candidate.py',
-            'Simulator/wksim_runtime/joint_profile.py', 'Simulator/wksim_core/model.py')}
+            'Simulator/wksim_runtime/joint_profile.py', 'Simulator/wksim_core/model.py',
+            'Simulator/wksim_runtime/joint_rate.py',
+            'Simulator/wksim_runtime/joint_rate_probe.py')}
         packets = []
         for task in joint.MIXED_TASKS:
             run = root/task
@@ -215,6 +217,23 @@ class MixedProfileAdmissionTests(unittest.TestCase):
                     with self.assertRaisesRegex(ValueError, 'rate_timing_probe'):
                         joint._mixed_proofs(p, records, identities)
                 raw.assert_not_called()
+
+    def test_mixed_result_with_perf_switch_capture_is_rejected(self):
+        markers = (None, {}, False, 'enabled', {'diagnostic': 'anything'})
+        for marker in markers:
+            with self.subTest(marker=marker), tempfile.TemporaryDirectory() as directory:
+                p, records, identities, packets = self.proof_fixture(Path(directory).resolve())
+                packets[0][2]['perf_switch_capture'] = marker
+                self.seal(p, packets)
+                with patch.object(
+                    joint,
+                    '_raw_proof',
+                    side_effect=lambda pin, audit: Path(pin['result']['path']).parent,
+                ) as raw:
+                    with self.assertRaisesRegex(ValueError, 'perf_switch_capture'):
+                        joint._mixed_proofs(p, records, identities)
+                raw.assert_not_called()
+
     def test_mixed_result_without_rate_timing_probe_uses_existing_path(self):
         with tempfile.TemporaryDirectory() as directory:
             p, records, identities, packets = self.proof_fixture(Path(directory).resolve())
