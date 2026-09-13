@@ -129,6 +129,13 @@ def _fixture(root):
     lifecycle["source_sha256"] = {
         basename: item["sha256"] for basename, item in build["staged_sources"].items()
     }
+    raw_paths = []
+    for key in lifecycle["raw_sha256"]:
+        destination = root / "validation/codegen-e0-lifecycle-01" / Path(*key.split("/"))
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        destination.write_bytes(b'{"synthetic_fixture":true}\n')
+        lifecycle["raw_sha256"][key] = _sha(destination)
+        raw_paths.append(destination.relative_to(root).as_posix())
     for run in lifecycle["runs"]:
         old_probe = run["command"][run["command"].index("--probe") + 1]
         probe = artifact if run["name"] == "original" else cold_artifact
@@ -137,23 +144,22 @@ def _fixture(root):
     _write(audit_path, lifecycle)
 
     manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
-    manifest["acceptance_evidence"]["matlab_free_lifecycle"]["requirements"]["library_sha256"] = lifecycle["library_sha256"]
-    manifest["acceptance_evidence"]["matlab_free_lifecycle"]["requirements"]["source_sha256"] = dict(lifecycle["source_sha256"])
-    for binding in manifest["acceptance_evidence"]["matlab_free_lifecycle"]["requirements"]["run_bindings"]:
+    requirements = manifest["acceptance_evidence"]["matlab_free_lifecycle"]["requirements"]
+    requirements["library_sha256"] = lifecycle["library_sha256"]
+    requirements["source_sha256"] = dict(lifecycle["source_sha256"])
+    requirements["raw_sha256"] = dict(lifecycle["raw_sha256"])
+    for binding in requirements["run_bindings"]:
         binding["library_sha256"] = lifecycle["library_sha256"]
         binding["source_sha256"] = dict(lifecycle["source_sha256"])
+        binding["raw_sha256"] = {
+            key: value for key, value in lifecycle["raw_sha256"].items()
+            if key.startswith(binding["name"] + "/")
+        }
         matching_run = next(run for run in lifecycle["runs"] if run["name"] == binding["name"])
         binding["argv"] = list(matching_run["identity"]["argv"])
     for entry in manifest["acceptance_evidence"].values():
         for pin in entry["pins"]:
             pin["sha256"] = _sha(root / pin["path"])
-    raw_paths = []
-    for key in lifecycle["raw_sha256"]:
-        source = ROOT / "validation/codegen-e0-lifecycle-01" / Path(*key.split("/"))
-        destination = root / "validation/codegen-e0-lifecycle-01" / Path(*key.split("/"))
-        destination.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(source, destination)
-        raw_paths.append(destination.relative_to(root).as_posix())
     manifest_path = root / "manifest.json"
     _write(manifest_path, manifest)
     _git(root, "init", "-q")
