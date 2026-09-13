@@ -15,13 +15,19 @@
 
 | 负责人 | thread / turn | 当前交付 |
 | --- | --- | --- |
-| DS-1 | 45decda4-b315-42b3-b7da-2b724dabfd4f / 05d6825f-f7af-4058-a707-8ce06d96acaf | 核验同源11.8 major的sensor_time/gps_time单位与表达链 |
-| DS-2 | e2a62dda-d7fa-43f0-bfdb-c62eb13ac86c / 425d33b6-1464-4c64-8084-83d110068b0a | 退役错误的重复调度读取器，修正源码路径与实际运行的界限 |
-| DS-3 | 7849b551-87ef-4dd7-8322-cd7e72ea241d / 955fa6c5-c75f-4aaf-a729-c2ffecc3fd68 | 独立复核11.8 major vehicle_time绑定 |
-| Claude | e64514a6-77c2-4b27-91a7-896c92a361fd / 73f6801a-7122-4fba-b71e-37ef3dbe627f | 复用已有调度捕获工具，准备诊断runner接线与生命周期验证 |
-| OMP | 51609e8d-e4ce-4a8e-8a0d-f7c896c24842 / 63da7482-132b-4937-a2f6-45a47f069ba6 | 独立核对PX4编译/启动覆盖和自有线程快照方案 |
+| DS-1 | 45decda4-b315-42b3-b7da-2b724dabfd4f / d2c4bb01-7947-4edd-9f16-9f4589383c3b | manager99最小候选已交付，等待独立复核后控制实验 |
+| DS-2 | e2a62dda-d7fa-43f0-bfdb-c62eb13ac86c / d24587bf-c171-4bdc-a2b4-dfc5ee927d50 | 对齐真实前后线程快照并核算有效CPU增量 |
+| DS-3 | 7849b551-87ef-4dd7-8322-cd7e72ea241d / b2c28bf0-fe1e-4bc1-81ab-d6e2f25a8115 | 独立复核仅manager优先级变化及错误路径 |
+| Claude | e64514a6-77c2-4b27-91a7-896c92a361fd / 080102fb-39ef-4a71-bd96-dce680e197ba | 对真实last-callback字段做有序分区和尾段分析 |
+| OMP | 51609e8d-e4ce-4a8e-8a0d-f7c896c24842 / 0c7df87e-d2e0-4a78-80c2-eb804cd42842 | 独立核验真实线程优先级、掩码和身份边界 |
 
-最新接线检查点：validation/coordination/last-callbacks-run-20260913-01/checkpoint.json。快照runner v1/v2因boot/取消/元数据及成功路径手工模型拆除问题被拒；v3(1c600d7f…)通过主会话WSL Python3.10的16项测试及DS真实控制流复核。私有parent已暂存7855409d…，runner已暂存1c600d7f…，helper为a3f3badd…；主仓库parent仍a8bac9ac…，Windows runner他方修改保留。旧private08e20642/a8仅为历史基线，不再是当前私有字节。OMP最新审查turn91a6f251仍running，定点wait超时不算完成或卡死。当前无飞行、无keeper；待最终审查及两WSL新前检后才启动。
+最新状态：a45025b已推送5lfbcy43原件选取包与v3接线/复核。OMP v3最终7项通过并终态，主会话已独立执行同7项；不再等待旧审查。私有runner仍1c600d7f…、parent7855409d…、worker38f34a8f…，所有调度设置保持原值。manager99候选9b97c124…只在候选目录，尚未施加。
+
+5lfbcy43真实诊断已failed：epoch7e2aeb5b4ba04a76a5b422dde4d5d57e、tick89468、wall229.993620876s。source_unchanged=true，cleanup_errors=[]，同boot2e7caa0c-f041-426f-a550-50acd12125c5下PGID2076–2085全空；before/after均validated且11/11 captured。manager主线程FIFO50，PX4前后实有hpwork98、hrt/work queue/sim收发99，after还见commander90等；实际优先级差异已证，因果仍未证。Keeper600/start362核验后SIGTERM；flight15396与keeper95649均终态，禁止重poll/restart。当前无native/keeper。
+
+主会话用已验收消费者直接计算：22358个started probe的remaining窗口总57554662ns，sleep交集0、health交集86602ns、最后完成回调之后57419470ns、未归属48590ns；未started末次尝试另列113403ns，不伪造成释放。这是区间定位，不是CPU/OS归因。RT预算同boot前后950000/1000000，dmesg未见RT节流消息，不以消息缺失排除节流。
+
+下一步根据真实优先级差与尾段位置，审查仅将自有manager目标FIFO50→99的控制候选，模型/FC/nice/RESET_ON_FORK及所有原门保持；先同诊断配置对比，若有收益再考虑无探针正式场。不得修改全局/他方设置或直接宣称修复。当前接续句柄在validation/coordination/manager99-plan-20260913-01/dispatches.json。
 
 现有helper已对主会话自身/短命子进程实测，并对仅自有短命FIFO1子进程验证非零RT字段（stat.policy=1、rt_priority=1与系统调用一致），全部已退出，不改全局/他方设置。G6三时间量主审直接读取已钉f64：三参考首列product501/501、division429/501，输出分别vehicle72处、sensor/GPS61处与division形式不同；已以1de316d推送，预算与物理结论未改。作者此前参考版本/索引/首列描述错误已纠正，不能凭旧绿色报告跳过来源解码。
 
