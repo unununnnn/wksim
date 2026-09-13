@@ -62,13 +62,13 @@ REQUIRED_PINS = (
     "target_mrdivide",
     "diagonal_candidate",
 )
-TRACKED_PINS = REQUIRED_PINS + ("comparison_v2",)
 DERIVED_PINS = (
     "division_vs_reference",
     "diagonal_vs_reference",
     "stage2_operand_boundary",
 )
-CLOSED_PINS = TRACKED_PINS + DERIVED_PINS
+CLOSED_PINS = REQUIRED_PINS + ("comparison_v2",) + DERIVED_PINS
+TRACKED_PINS = CLOSED_PINS
 OPTION_KEYS = (
     "id",
     "label",
@@ -244,6 +244,18 @@ class Verifier:
 
         policy = document.get("evidence_policy")
         if isinstance(policy, dict):
+            tracked_ids = policy.get("require_tracked_at_head")
+            if not isinstance(tracked_ids, list):
+                self.flag("wrong_type", "evidence_policy.require_tracked_at_head must be a list")
+            else:
+                extra_tracked = set(tracked_ids) - set(TRACKED_PINS)
+                missing_tracked = set(TRACKED_PINS) - set(tracked_ids)
+                if len(tracked_ids) != len(set(tracked_ids)):
+                    self.flag("wrong_type", "require_tracked_at_head must not contain duplicates")
+                if extra_tracked:
+                    self.flag("unknown_key", f"require_tracked_at_head has unknown pins {sorted(extra_tracked)}")
+                if missing_tracked:
+                    self.flag("missing_pins", f"require_tracked_at_head missing {sorted(missing_tracked)}")
             codes = policy.get("fail_closed_on")
             if not isinstance(codes, list):
                 self.flag("wrong_type", "evidence_policy.fail_closed_on must be a list")
@@ -299,7 +311,9 @@ class Verifier:
             actual = _sha256(full)
             if actual != digest:
                 self.flag("tampering", f"pin {pin_id} worktree digest differs")
-            if pin.get("tracked_at_head") is True:
+            if pin.get("tracked_at_head") is not True:
+                self.flag("missing_pins", f"pin {pin_id} must be tracked at HEAD")
+            else:
                 try:
                     head_digest = _head_blob_sha256(path)
                 except subprocess.CalledProcessError:
@@ -574,6 +588,10 @@ class RealPacketTests(unittest.TestCase):
         self.assertEqual(document["identity"]["stage"], 2)
         self.assertEqual(document["observed_at"]["head"], HEAD)
         self.assertEqual(set(document["pins"]), set(CLOSED_PINS))
+        self.assertEqual(
+            set(document["evidence_policy"]["require_tracked_at_head"]),
+            set(TRACKED_PINS),
+        )
         self.assertEqual(set(document["evidence_policy"]["fail_closed_on"]), set(FAIL_CLOSED_ON))
         for key in ("B1", "B4"):
             self.assertEqual(set(document["b1_b4_effects"][key]["per_option"]), set(OWNER_IDS))
@@ -677,6 +695,20 @@ class MutationTests(unittest.TestCase):
     def test_missing_pins_rejected(self):
         def mutate(document):
             del document["pins"]["diagonal_candidate"]
+        result = self.reject(mutate)
+        self.assertEqual(result["status"], "rejected")
+        self.assertIn("missing_pins", result["codes"])
+
+    def test_untracked_pin_rejected(self):
+        result = self.reject(
+            lambda doc: doc["pins"]["division_vs_reference"].__setitem__("tracked_at_head", False)
+        )
+        self.assertEqual(result["status"], "rejected")
+        self.assertIn("missing_pins", result["codes"])
+
+    def test_tracked_policy_omission_rejected(self):
+        def mutate(document):
+            document["evidence_policy"]["require_tracked_at_head"].remove("stage2_operand_boundary")
         result = self.reject(mutate)
         self.assertEqual(result["status"], "rejected")
         self.assertIn("missing_pins", result["codes"])

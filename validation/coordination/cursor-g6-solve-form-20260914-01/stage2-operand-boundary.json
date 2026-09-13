@@ -1,0 +1,67 @@
+{
+  "status": "aligned",
+  "scope": "C3G k=0\u21921 stage-2 p,q,r derivative index 1 operand boundary; not whole-model, G6, or Full acceptance",
+  "identity": {
+    "case": "C3G",
+    "k": [
+      0,
+      1
+    ],
+    "stage": 2,
+    "time_s": 0.0005,
+    "mrdivide_seq": 2,
+    "block": "p,q,r",
+    "field": "derivatives",
+    "index": 1
+  },
+  "operands": {
+    "residual": {
+      "equal": true,
+      "differences": []
+    },
+    "selector2": {
+      "equal": true,
+      "differences": []
+    },
+    "product2": {
+      "equal": false,
+      "differences": [
+        {
+          "index": 1,
+          "reference_hex": "bc56d4db33a987b8",
+          "target_hex": "0xbc56d4db33a987b9",
+          "ulp": 1,
+          "sign_flip": false
+        }
+      ]
+    },
+    "subterms": {
+      "status": "unobserved",
+      "fields": {}
+    }
+  },
+  "observation": {
+    "kind": "identical_operands_different_result",
+    "matches_documented_divergence": true,
+    "documented_q_ulp": 1
+  },
+  "causal": {
+    "status": "unproven",
+    "reasons": [
+      "the decision tree labels an observation branch only",
+      "identical operands do not prove LAPACK versus handwritten mrdivide",
+      "a residual difference does not isolate a single upstream term as cause",
+      "unobserved motor/aero states and libm calls remain open"
+    ]
+  },
+  "non_claims": [
+    "aligned means the supplied C3G stage-2 operands could be compared",
+    "identical residual and Selector2 do not prove reference solver internals",
+    "1 ULP does not exclude libm, unmapped states, or another evaluation order",
+    "subterm equality is an observation, not a causal isolation of M1/Fd/gyro/damping",
+    "this slice does not approve G6 budgets, close #59, or accept G6 or Full"
+  ],
+  "reference_sha256": "72ff7d8eaeee7854bf026d19a7ee37f38c061764ce5369d0dd5845b1aa084c62",
+  "target_sha256": "9cee60eb5b3e5ccc96730f13423f5e0fa07de19654a481d32e9e885953f4bed3",
+  "documented_sha256": "2a6b8fe9338224d64f0cc91fd4c66139b3422ca23c3032049cd529d6387ea3c9"
+}
