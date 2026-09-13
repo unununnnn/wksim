@@ -1,0 +1,40 @@
+{
+  "kind": "wksim.ds-perf-stream-consumer-manifest.v1",
+  "directory": "validation/coordination/ds-perf-stream-consumer-20260913-01",
+  "contract": "docs/coordination/perf-stream-contract-20260913.md",
+  "scope": "strict offline consumer for wksim.perf_switch_stream.v1 raw+metadata, optional wksim.perf_windows.v1 intersections; stdlib only; no native, no compilation, no model/ROS, no existing rate artifact parsed",
+  "windows_format": {
+    "schema": "wksim.perf_windows.v1",
+    "clock_id": "CLOCK_MONOTONIC",
+    "fields": [
+      "boot_id",
+      "owner_pid",
+      "owner_tid",
+      "windows[].id",
+      "windows[].start_ns",
+      "windows[].end_ns"
+    ],
+    "bound_to": "capture metadata (boot, owner, clock)"
+  },
+  "refuses_overwrite": true,
+  "flight_conclusion": null,
+  "tests": "58 checks, 0 failed (python -B test_perf_stream_consumer.py)",
+  "artifacts": {
+    "README.md": {
+      "sha256": "19d236f155fa1cc3615a61e20a872a8e76bf6d6be100497cf6855493f445dd7a",
+      "bytes": 3415
+    },
+    "make_manifest.py": {
+      "sha256": "a3acf2712ccf06d103610ff2e7edde21239f2386fff6686a2b4c834b46077e34",
+      "bytes": 1876
+    },
+    "perf_stream_consumer.py": {
+      "sha256": "2b42a9f5c565eee1ac4c3e49322fc396e5e11b8e444ad68df23aee03853114f4",
+      "bytes": 22319
+    },
+    "test_perf_stream_consumer.py": {
+      "sha256": "b4cf37fc538f762aae658718396fa515ec8dc277b4382e718e72db2bb6d391ad",
+      "bytes": 17121
+    }
+  }
+}

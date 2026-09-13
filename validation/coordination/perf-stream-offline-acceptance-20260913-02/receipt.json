@@ -1,0 +1,145 @@
+{
+  "synthetic": true,
+  "consumer_sha256": "87226aa589314099979f357dfe4db75a5b43b6a3ea517acf63faef5784c21884",
+  "fixtures_index_sha256": "5f412ceff65fa5b3e8c39ff84bb737d234f4c33933feade9527ce76f95a62fac",
+  "cases": 17,
+  "failures": 2,
+  "results": [
+    {
+      "case": "normal_two_pairs",
+      "expected_rejected": false,
+      "exit_code": 3,
+      "passed": false,
+      "stdout": "",
+      "stderr": "{\"ok\": false, \"reason\": \"windows_id_invalid\", \"detail\": \"0\", \"tool\": \"wksim-perf-stream-consumer\", \"tool_version\": \"1\"}\n"
+    },
+    {
+      "case": "window_intersection_integers",
+      "expected_rejected": false,
+      "exit_code": 3,
+      "passed": false,
+      "stdout": "",
+      "stderr": "{\"ok\": false, \"reason\": \"windows_id_invalid\", \"detail\": \"0\", \"tool\": \"wksim-perf-stream-consumer\", \"tool_version\": \"1\"}\n"
+    },
+    {
+      "case": "foreign_tid",
+      "expected_rejected": true,
+      "exit_code": 3,
+      "passed": true,
+      "stdout": "",
+      "stderr": "{\"ok\": false, \"reason\": \"record_foreign_identity\", \"detail\": \"record=1 pid=7331 tid=9999\", \"tool\": \"wksim-perf-stream-consumer\", \"tool_version\": \"1\"}\n"
+    },
+    {
+      "case": "lost",
+      "expected_rejected": true,
+      "exit_code": 3,
+      "passed": true,
+      "stdout": "",
+      "stderr": "{\"ok\": false, \"reason\": \"record_lost_present\", \"detail\": \"offset=64 size=48\", \"tool\": \"wksim-perf-stream-consumer\", \"tool_version\": \"1\"}\n"
+    },
+    {
+      "case": "lost_samples",
+      "expected_rejected": true,
+      "exit_code": 3,
+      "passed": true,
+      "stdout": "",
+      "stderr": "{\"ok\": false, \"reason\": \"record_lost_samples_present\", \"detail\": \"offset=64 size=40\", \"tool\": \"wksim-perf-stream-consumer\", \"tool_version\": \"1\"}\n"
+    },
+    {
+      "case": "zero_and_backwards_time",
+      "expected_rejected": true,
+      "exit_code": 3,
+      "passed": true,
+      "stdout": "",
+      "stderr": "{\"ok\": false, \"reason\": \"record_time_not_increasing\", \"detail\": \"record=1 time=1000000 previous=1000000\", \"tool\": \"wksim-perf-stream-consumer\", \"tool_version\": \"1\"}\n"
+    },
+    {
+      "case": "double_out",
+      "expected_rejected": true,
+      "exit_code": 3,
+      "passed": true,
+      "stdout": "",
+      "stderr": "{\"ok\": false, \"reason\": \"sequence_double_out\", \"detail\": \"record=1\", \"tool\": \"wksim-perf-stream-consumer\", \"tool_version\": \"1\"}\n"
+    },
+    {
+      "case": "trailing_out",
+      "expected_rejected": true,
+      "exit_code": 3,
+      "passed": true,
+      "stdout": "",
+      "stderr": "{\"ok\": false, \"reason\": \"sequence_trailing_out\", \"detail\": \"\", \"tool\": \"wksim-perf-stream-consumer\", \"tool_version\": \"1\"}\n"
+    },
+    {
+      "case": "truncated",
+      "expected_rejected": true,
+      "exit_code": 3,
+      "passed": true,
+      "stdout": "",
+      "stderr": "{\"ok\": false, \"reason\": \"record_size_beyond_stream\", \"detail\": \"offset=0 size=32 remaining=24\", \"tool\": \"wksim-perf-stream-consumer\", \"tool_version\": \"1\"}\n"
+    },
+    {
+      "case": "unknown_record_type",
+      "expected_rejected": true,
+      "exit_code": 3,
+      "passed": true,
+      "stdout": "",
+      "stderr": "{\"ok\": false, \"reason\": \"record_cpu_wide_present\", \"detail\": \"offset=64 size=40\", \"tool\": \"wksim-perf-stream-consumer\", \"tool_version\": \"1\"}\n"
+    },
+    {
+      "case": "malformed_record_size",
+      "expected_rejected": true,
+      "exit_code": 3,
+      "passed": true,
+      "stdout": "",
+      "stderr": "{\"ok\": false, \"reason\": \"record_size_not_exact\", \"detail\": \"offset=0 size=24 expected=32\", \"tool\": \"wksim-perf-stream-consumer\", \"tool_version\": \"1\"}\n"
+    },
+    {
+      "case": "illegal_preempt_on_in",
+      "expected_rejected": true,
+      "exit_code": 3,
+      "passed": true,
+      "stdout": "",
+      "stderr": "{\"ok\": false, \"reason\": \"record_preempt_on_in\", \"detail\": \"record=1\", \"tool\": \"wksim-perf-stream-consumer\", \"tool_version\": \"1\"}\n"
+    },
+    {
+      "case": "raw_length_mismatch",
+      "expected_rejected": true,
+      "exit_code": 3,
+      "passed": true,
+      "stdout": "",
+      "stderr": "{\"ok\": false, \"reason\": \"captured_bytes_length_mismatch\", \"detail\": \"metadata=136 raw=128\", \"tool\": \"wksim-perf-stream-consumer\", \"tool_version\": \"1\"}\n"
+    },
+    {
+      "case": "false_complete_flag",
+      "expected_rejected": true,
+      "exit_code": 3,
+      "passed": true,
+      "stdout": "",
+      "stderr": "{\"ok\": false, \"reason\": \"collector_incomplete\", \"detail\": \"False\", \"tool\": \"wksim-perf-stream-consumer\", \"tool_version\": \"1\"}\n"
+    },
+    {
+      "case": "collector_errors",
+      "expected_rejected": true,
+      "exit_code": 3,
+      "passed": true,
+      "stdout": "",
+      "stderr": "{\"ok\": false, \"reason\": \"collector_incomplete\", \"detail\": \"False\", \"tool\": \"wksim-perf-stream-consumer\", \"tool_version\": \"1\"}\n"
+    },
+    {
+      "case": "other_boot_windows",
+      "expected_rejected": true,
+      "exit_code": 3,
+      "passed": true,
+      "stdout": "",
+      "stderr": "{\"ok\": false, \"reason\": \"windows_boot_mismatch\", \"detail\": \"'99999999-8888-4777-8666-555555555555' != '11111111-2222-4333-8444-555555555555'\", \"tool\": \"wksim-perf-stream-consumer\", \"tool_version\": \"1\"}\n"
+    },
+    {
+      "case": "bool_as_int",
+      "expected_rejected": true,
+      "exit_code": 3,
+      "passed": true,
+      "stdout": "",
+      "stderr": "{\"ok\": false, \"reason\": \"metadata_owner_tid_invalid\", \"detail\": \"True\", \"tool\": \"wksim-perf-stream-consumer\", \"tool_version\": \"1\"}\n"
+    }
+  ]
+}

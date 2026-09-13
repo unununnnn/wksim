@@ -1,5 +1,5 @@
 {
-  "checked_unix": 1789287548.3694508,
+  "checked_unix": 1789288041.828382,
   "parentThreadId": "01a08b94-d2fe-7361-9c43-2d54e9490f32",
   "goal_status": "active",
   "scheduling": "Main coordinator resumes only a terminal task; separate write ownership; no automatic dispatch implied by this file.",
@@ -12,7 +12,8 @@
       "deepLink": "codex://threads/45decda4-b315-42b3-b7da-2b724dabfd4f",
       "status_at_dispatch": "running",
       "task": "Synchronize synthetic fixture reader_policy to plain int0 and rerun independent check",
-      "last_observed_status": "running"
+      "last_observed_status": "failed",
+      "result_note": "Repeated terminal interruption/failure; retained files preserved. DS-1/DS-2 offline work integrated by main; recorder ownership transferred to OMP."
     },
     {
       "seat": "DS-2",
@@ -22,7 +23,8 @@
       "deepLink": "codex://threads/e2a62dda-d7fa-43f0-bfdb-c62eb13ac86c",
       "status_at_dispatch": "running",
       "task": "Consumer metadata/outer-bound/type and loss-classification repair",
-      "last_observed_status": "running"
+      "last_observed_status": "failed",
+      "result_note": "Repeated terminal interruption/failure; retained files preserved. DS-1/DS-2 offline work integrated by main; recorder ownership transferred to OMP."
     },
     {
       "seat": "DS-3",
@@ -32,7 +34,8 @@
       "deepLink": "codex://threads/7849b551-87ef-4dd7-8322-cd7e72ea241d",
       "status_at_dispatch": "running",
       "task": "Repair explicit reader scheduling, readiness/data races, raw chunk copy and lifecycle ownership",
-      "last_observed_status": "running"
+      "last_observed_status": "failed",
+      "result_note": "Repeated terminal interruption/failure; retained files preserved. DS-1/DS-2 offline work integrated by main; recorder ownership transferred to OMP."
     },
     {
       "seat": "Claude",
@@ -47,11 +50,11 @@
     {
       "seat": "OMP",
       "threadId": "51609e8d-e4ce-4a8e-8a0d-f7c896c24842",
-      "turnId": "6fbe3e3e-2aa2-4354-bdf8-2b66367ef832",
+      "turnId": "931d6ae4-2b70-417c-89c9-b818b4be0411",
       "delegationId": null,
       "deepLink": "codex://threads/51609e8d-e4ce-4a8e-8a0d-f7c896c24842",
       "status_at_dispatch": "running",
-      "task": "Actually deliver corrected stop-sentinel review; no completion proof yet",
+      "task": "Own ds-perf-stream-recorder-20260913-01; repair thread safety and lifecycle before native validation",
       "last_observed_status": "running"
     }
   ],
@@ -84,7 +87,7 @@
       "retry_submitted": false
     }
   ],
-  "main_result": "Private joint_profile.py and existing test synced with backup; 18 Linux tests pass; real frozen Control current/sealed validation pass; formal MIXED still lacks its complete passing flight proof.",
+  "main_result": "Private admission synced (db1200d,18 Linux tests and real Control checks pass). Offline decoder 84 checks and 17 independent CLI cases pass after correcting fixture ABI and window IDs; full stream completeness remains unproven.",
   "contract": "docs/coordination/perf-stream-contract-20260913.md",
   "private_commit": "db1200d",
   "checked_at": "2026-09-13T17:17:42+09:00",

@@ -1,0 +1,25 @@
+{
+  "checked_unix": 1789287987.62304,
+  "consumer_author_checks": 84,
+  "consumer_author_failures": 0,
+  "independent_cli_cases": 17,
+  "independent_cli_failures": 0,
+  "first_record_independent_abi_check": true,
+  "synthetic_only": true,
+  "stream_completeness_proven": false,
+  "full_acceptance": false,
+  "source_sha256": {
+    "ds-perf-stream-consumer-20260913-01/perf_stream_consumer.py": "87226aa589314099979f357dfe4db75a5b43b6a3ea517acf63faef5784c21884",
+    "ds-perf-stream-consumer-20260913-01/test_perf_stream_consumer.py": "02659f1e1fa99138efb12fbf8fd808c42faf2099a33b23bf528ff1fb015618fc",
+    "ds-perf-stream-fixtures-20260913-01/build_fixtures.py": "17c606c1537480264b1dfb27cd6ee81d7b71cee27bba93760c1e4976ec5bc42c",
+    "ds-perf-stream-fixtures-20260913-01/fixtures/index.json": "b65961ed8d1ae70616928a5180257a7acf8e03a427a355e68f0ae59d22868258"
+  },
+  "main_corrections": [
+    "Fixture header changed HHI to IHH; payload changed QQII to IIQII with distinct owner PID and TID",
+    "Correct SWITCH_OUT bit13 and actual preempt bit14; LOST/LOST_SAMPLES/CPU_WIDE fixtures use their own lengths",
+    "Window IDs changed from integers to contract strings",
+    "Consumer negative timestamp test now exceeds disable_after; added valid disable-ioctl-window positive",
+    "Synthetic generator no longer recursively deletes output directory"
+  ],
+  "ownership": "DS-1 and DS-2 were terminal failed before main integration; interrupted partial work preserved and integrated"
+}

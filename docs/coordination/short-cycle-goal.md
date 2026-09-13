@@ -75,3 +75,5 @@
 - 私有Linux正式准入已同步并提交 `db1200d`：joint_profile.py `575adb530944…`、原测试 `4a7ce076f24f…`；18项Linux测试通过，冻结Control c2IXOr current/sealed两路实际校验通过。只同步两文件且有备份，config/preflight等他方修改未复制。见 [同步收据](../../validation/coordination/profile-sync-20260913-01/receipt.json)。正式MIXED仍缺通过证明。
 
 - 下一步并行模块：自线程有界raw记录器、严格离线消费者、独立17组合成夹具；合同见 [perf-stream contract](perf-stream-contract-20260913.md)。末尾pending LOST的完整性与C启动/停止线程安全仍阻断飞行接线，不能凭collector_complete或无LOST记录宣称无损。
+
+- 离线decoder已主会话集成验收：84项作者检查、17组独立CLI夹具全过；原夹具自检曾把错误HHI头/PID布局/切换标志误报通过，已保留失败原件并按Linux ABI修正。见 [offline acceptance](../../validation/coordination/perf-stream-offline-acceptance-20260913-03/main-verdict.json)。这不证明stream无损。三个DeepSeek端本批再次终态失败；C记录器写入权已转给OMP（turn `931d6ae4-2b70-417c-89c9-b818b4be0411`），main只收稳定源码后做native验收，不再重复续派同一失败批次。
