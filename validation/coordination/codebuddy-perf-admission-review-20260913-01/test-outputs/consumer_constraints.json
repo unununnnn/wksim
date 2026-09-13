@@ -1,0 +1,70 @@
+{
+  "tool": "codebuddy-perf-admission-review consumer_constraints_probe",
+  "mode": "read-only pure Python; commit fixture read-only",
+  "consumer_sha256": "dee9a3b5c3cafb42e69836758ccaebd4dbd78e8fa569d203c7ca1d36a03179bc",
+  "fixture": "ds-perf-stream-fixtures-20260913-01/fixtures/normal_two_pairs",
+  "cases": 12,
+  "failures": 0,
+  "results": [
+    {
+      "name": "legacy_decodes_without_flag",
+      "ok": true,
+      "detail": "{'metadata_sha256': '071bab4e95f38885a78bbc75953d29fc785c26a5540f54710da72cab4d3ec5e6', 'ok': True, 'output': 'C:\\\\Users\\\\PC\\\\Documents\\\\odid\u7f16\u8bd1\\\\wksim\\\\validation\\\\coordination\\\\codebuddy-perf-admission-review-20260913-01\\\\test-outputs\\\\chain-consumer-gbj1ulc6\\\\legacy\\\\out.json', 'pairs': 2, 'raw_sha256': 'ae1e23538568669770c47dd19c61aa30ce10b41d7084f949db0ad4a22b8a637a', 'records': 4, 'windows': 0}"
+    },
+    {
+      "name": "legacy_completeness_unproven",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "legacy_no_self_full",
+      "ok": true,
+      "detail": "{'classification': 'diagnostic_only', 'full_acceptance': False, 'flight_conclusion': None}"
+    },
+    {
+      "name": "raw_bytes_bound_by_sha",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "windows_absent_is_null",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "legacy_rejected_when_required",
+      "ok": true,
+      "detail": "{'ok': False, 'reason': 'kernel_loss_counter_required', 'detail': '', 'tool': 'wksim-perf-stream-consumer', 'tool_version': '1'}"
+    },
+    {
+      "name": "rejected_legacy_wrote_no_output",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "zero_counter_proves_completeness",
+      "ok": true,
+      "detail": "{'stream_completeness_proven': True}"
+    },
+    {
+      "name": "nonzero_counter_rejected",
+      "ok": true,
+      "detail": "{'ok': False, 'reason': 'kernel_loss_counter_nonzero', 'detail': '385', 'tool': 'wksim-perf-stream-consumer', 'tool_version': '1'}"
+    },
+    {
+      "name": "refuses_to_overwrite_output",
+      "ok": true,
+      "detail": "{'ok': False, 'reason': 'output_exists_refusing_overwrite', 'detail': 'C:\\\\Users\\\\PC\\\\Documents\\\\odid\u7f16\u8bd1\\\\wksim\\\\validation\\\\coordination\\\\codebuddy-perf-admission-review-20260913-01\\\\test-outputs\\\\chain-consumer-gbj1ulc6\\\\overwrite\\\\out.json', 'tool': 'wksim-perf-stream-consumer', 'tool_version': '1'}"
+    },
+    {
+      "name": "windows_optional_and_intersected",
+      "ok": true,
+      "detail": "{'metadata_sha256': '0369dc664ecb7dcc34a29922048f0b22141f2ea45ea8ca0d07357db01428d3e4', 'ok': True, 'output': 'C:\\\\Users\\\\PC\\\\Documents\\\\odid\u7f16\u8bd1\\\\wksim\\\\validation\\\\coordination\\\\codebuddy-perf-admission-review-20260913-01\\\\test-outputs\\\\chain-consumer-gbj1ulc6\\\\windows_ok\\\\out.json', 'pairs': 2, 'raw_sha256': 'ae1e23538568669770c47dd19c61aa30ce10b41d7084f949db0ad4a22b8a637a', 'records': 4, 'windows': 1}"
+    },
+    {
+      "name": "windows_outside_inner_rejected",
+      "ok": true,
+      "detail": "{'ok': False, 'reason': 'windows_outside_capture_bounds', 'detail': 'w1 [900000,1000000] inner=[950000,9900000]', 'tool': 'wksim-perf-stream-consumer', 'tool_version': '1'}"
+    }
+  ]
+}

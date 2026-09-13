@@ -1,0 +1,91 @@
+{
+  "schema": "wksim.independent_review.v1",
+  "date": "2026-09-13",
+  "category": "new-development/independent-code-review",
+  "read_only": true,
+  "baseline": {
+    "repo": "wksim",
+    "head": "100ef1aafcc19c006d93eeb16b0c41e2352cdee6",
+    "required_ancestor": "f333316e6efa6b299b4288a9d91fb2bccedfb9d6",
+    "ancestor_check_exit": 0,
+    "reviewed_commit_scope": [
+      "tools/run_joint_flight.py (+120/-1)",
+      "validation/test_run_joint_perf_capture.py (+207, new)"
+    ],
+    "simulator_tree_touched": false
+  },
+  "verdict": {
+    "p0_blockers": 0,
+    "p1_findings": 0,
+    "p2_findings": 4,
+    "blocked": false
+  },
+  "checklist": {
+    "cli_pair_only_mixed": {"result": "pass", "evidence": "run_joint_flight.py:1246-1250 parser.error; perf_capture_request 73-82"},
+    "construct_after_rate_before_children": {"result": "pass", "evidence": "rate:861, construct:863-866, first child launch:899-935"},
+    "start_after_connect_before_loop": {"result": "pass", "evidence": "physics.connect:960, start_perf_capture:961-962, main loop:988"},
+    "stop_fail_closed_in_finally_before_cleanup_children": {"result": "pass", "evidence": "finally:1099, finalize:1100-1101, cleanup_children:1102"},
+    "same_owner_thread": {"result": "pass", "evidence": "perf_capture.py:78-80 _check_owner on every op; all calls on main thread"},
+    "window_from_complete_joint_rate_segment": {"result": "pass", "evidence": "anchor.wall_ns->last_end; close_segment('completed'):1081; fail-closed 106-114"},
+    "identity_sealed": {"result": "pass", "evidence": "outputs sha256 138-142; library re-digest 130-131; consumer source sha 471-477; boot_id 118-122"},
+    "no_exception_escapes_cleanup": {"result": "pass", "evidence": "except BaseException 147-152; cleanup_children still runs; caveat P2-1"},
+    "timing_invariants_unchanged": {"result": "pass", "evidence": "no timing code in diff; joint_rate.py: 1ms edge 122-124, 4-tick 132-134, no-catch-up 92-93, LATE_LIMIT_NS=100ms:6"},
+    "formal_gate_rejects_perf_switch_capture": {"result": "pass", "evidence": "joint_profile.py:274-276; marker formal_evidence=False strict_consumer_passed=False"}
+  },
+  "tests": {
+    "validation/test_run_joint_perf_capture.py": "9 passed, 6 subtests passed",
+    "validation/test_run_joint_scheduler_windows.py": "37 passed, 21 subtests passed",
+    "validation/test_joint_profile.py -k perf": "1 passed, 4 subtests passed",
+    "validation/test_mixed_profile_admission.py -k perf": "1 passed, 5 subtests passed",
+    "output_file": "test-output.txt"
+  },
+  "findings": [
+    {
+      "id": "P2-1",
+      "severity": "P2",
+      "title": "marker lookup outside fail-closed try",
+      "location": "tools/run_joint_flight.py:98",
+      "detail": "result['perf_switch_capture'] KeyError would escape the finally and skip cleanup_children if marker creation (line 471) were ever moved inside the outer try (526). Unreachable in current ordering.",
+      "reproduce": "Move/Delete the marker creation block at lines 471-477, request MIXED perf capture, force any run failure: KeyError escapes finalize_perf_capture from the finally path.",
+      "blocking": false
+    },
+    {
+      "id": "P2-2",
+      "severity": "P2",
+      "title": "anchor/last_end pairing flow-implied",
+      "location": "tools/run_joint_flight.py:108-111",
+      "detail": "Window pairs last_summary anchor with rate.last_end; single-segment runner flow keeps them consistent, but a future mid-run reanchor+close could mix segments while passing type/span checks.",
+      "reproduce": "Hypothetical: call rate.reanchor(..., recovery=True) mid-run then fail before close_segment; last_summary holds the old segment anchor while last_end belongs to the new segment.",
+      "blocking": false
+    },
+    {
+      "id": "P2-3",
+      "severity": "P2",
+      "title": "native handle leak on stop failure by design",
+      "location": "Simulator/wksim_runtime/perf_capture.py:4",
+      "detail": "Failed stop leaves the handle live until process exit; no destructor stop, documented deliberately; recorded via owns_handle_after.",
+      "blocking": false
+    },
+    {
+      "id": "P2-4",
+      "severity": "P2",
+      "title": "except BaseException traps KeyboardInterrupt inside finalize",
+      "location": "tools/run_joint_flight.py:147",
+      "detail": "Interrupt during capture.stop() becomes a failed marker; cleanup still completes; in-flight exceptions unaffected. Deliberate fail-closed trade-off.",
+      "blocking": false
+    }
+  ],
+  "residual_native_acceptance": [
+    "Real WSL2 kernel 6.6.87.2-microsoft-standard-WSL2 run with actual wksim_perf_stream .so: owner-thread start/stop, inner span covering the complete MIXED segment, captured_bytes == raw size",
+    "Strict consumer perf_stream_consumer.py decoding perf-decoded.json with require_kernel_counter=True; strict_consumer_passed stays False until then",
+    "C-side meta boot_id identical to host_boot_id() and owner pid/tid identical to constructing thread",
+    "Library digest mismatch path fails closed with the real .so"
+  ],
+  "stable_sha256_baseline": "100ef1aafcc19c006d93eeb16b0c41e2352cdee6",
+  "files_written": [
+    "validation/coordination/omp-mixed-perf-runner-review-20260913-01/.gitattributes",
+    "validation/coordination/omp-mixed-perf-runner-review-20260913-01/review.md",
+    "validation/coordination/omp-mixed-perf-runner-review-20260913-01/review.json",
+    "validation/coordination/omp-mixed-perf-runner-review-20260913-01/test-output.txt"
+  ]
+}

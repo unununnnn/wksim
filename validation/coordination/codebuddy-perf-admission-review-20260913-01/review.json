@@ -1,0 +1,203 @@
+{
+  "schema": "codebuddy.perf_admission_review.v1",
+  "review_type": "independent admission-pipeline review",
+  "work_class": "new-development",
+  "claim_under_review": "diagnostic evidence is never promoted to formal evidence",
+  "mode": "read-only pure Python and static inspection; no native, build, ROS, flight-controller, model, UE or MATLAB execution",
+  "baseline": {
+    "repo": "C:/Users/PC/Documents/odid编译/wksim",
+    "head": "100ef1aafcc19c006d93eeb16b0c41e2352cdee6",
+    "head_subject": "Wire perf capture into actual MIXED runner",
+    "required_ancestor": "f333316e6efa6b299b4288a9d91fb2bccedfb9d6",
+    "ancestor_is_ancestor_of_head": true,
+    "ancestor_command": "git merge-base --is-ancestor f333316e6efa6b299b4288a9d91fb2bccedfb9d6 HEAD",
+    "ancestor_exit_status": 0,
+    "formal_gate_commit": "33c2b06e8794ad865a25b307852d08d4c0845a26",
+    "runner_wiring_commit": "100ef1aafcc19c006d93eeb16b0c41e2352cdee6",
+    "reviewed_files_match_head_blobs": true,
+    "review_close_head": "1a8d5083b70461e6e6984566f7298c993f0c5392",
+    "head_moved_during_review": true,
+    "head_move_note": "Concurrent main-session commits (34d6076, a9d9ccc, 1a8d508) advanced HEAD after the review started. All reviewed artifacts are byte-identical to the values recorded in reviewed_artifacts_sha256, and both f333316e and 100ef1a remain ancestors of the close HEAD.",
+    "ancestor_still_holds_at_close": true,
+    "reviewed_blobs_stable_across_head_move": true
+  },
+  "reviewed_artifacts_sha256": {
+    "Simulator/wksim_runtime/joint_profile.py": "90cc868b8050b41e54ef0c38cf20104c58aefb97f07d1448dfd0be1f8633320a",
+    "tools/run_joint_flight.py": "167a3c0790dde0bbef3b7bd2fee24616bdc623852aa7478a4c9356f425a670bf",
+    "tools/audit_mixed_control.py": "f7f8816674f9526d48c808cfb10a31ca47fa7d08c6263ff531fb13edddb40234",
+    "Simulator/wksim_runtime/perf_capture.py": "c196616fe8324eed2d8b294ef52aaec1f982eb5330abbeb7ee17094399f32e0f",
+    "Simulator/wksim_runtime/evidence.py": "4f7f2e601ce3c2edfe54c1c48ed35d41133304c2b1fa56a969148c6ccbbfcb7a",
+    "validation/coordination/ds-perf-stream-consumer-20260913-01/perf_stream_consumer.py": "dee9a3b5c3cafb42e69836758ccaebd4dbd78e8fa569d203c7ca1d36a03179bc",
+    "validation/test_joint_profile.py": "8afd1ae42d510282631e7fdd3f871a09987c25ecb97d3950fcec2a2c2b64cd05",
+    "validation/test_mixed_profile_admission.py": "2b2a6d9348528e360f51fd72d583c4faf0188f0d248737467d392cfc099febfe",
+    "validation/test_run_joint_perf_capture.py": "05ddf8638e804a87a1f4b32912c62237332e5ca16e63b39d420b26fe379d7ce0"
+  },
+  "test_artifacts_sha256": {
+    "test-outputs/pytest-three-modules.txt": "26cf28c7699d3217c34e8f034c0ab2d0933cea12907071701df4be69f9f584f7",
+    "test-outputs/consumer-suite.txt": "0f835a1ff60863dfd7a415bcbd3138ee0b6f708cb1aa9e938f44cbc321a6f131",
+    "test-outputs/chain_probe.py": "db593e3cf7e5c1967fd2e1164e2d564d204c31699477b2117b7298ddcbdc6539",
+    "test-outputs/chain_probe.json": "376536da73965a8e6806987705469f13dac1d0b54d78c3ac911e9f442f3a375c",
+    "test-outputs/consumer_constraints_probe.py": "f2b9f4361e6e0fe0852b7fa0b74a45ad9aa692b23c31666ec0940cda811f613b",
+    "test-outputs/consumer_constraints.json": "16807fdb0705a030b5dc520d9ed19e27f579e5278369746ed9169cf9984807bf"
+  },
+  "checks": [
+    {
+      "id": "C1",
+      "claim": "Formal MIXED/PV gate rejects the perf marker by key presence, before any raw-evidence walk.",
+      "method": "Read Simulator/wksim_runtime/joint_profile.py:274-276 and independently call the real _mixed_proofs over the shipped fixture (chain_probe.py cases key_presence_* and rejected_before_raw_proof).",
+      "result": "pass",
+      "evidence": "for marker in ('rate_timing_probe','group_work_timing','perf_switch_capture'): if marker in flight: raise ValueError(...). `in` is key presence; _raw_proof is not reached."
+    },
+    {
+      "id": "C2",
+      "claim": "None/False/0/empty-object/empty-list/empty-string marker values are all rejected, not only populated payloads.",
+      "method": "chain_probe.py key_presence_rejects_* for None, False, True, {}, [], 0, '', 'enabled', {'diagnostic':'x'}; shipped tests cover True/False/None/{}.",
+      "result": "pass",
+      "evidence": "all values raise ValueError containing 'perf_switch_capture'."
+    },
+    {
+      "id": "C3",
+      "claim": "The runner never self-certifies the strict consumer; the seal is diagnostic-only.",
+      "method": "Read tools/run_joint_flight.py:96-152 and :468-477; chain_probe.py runner_start_leaves_consumer_unpassed, runner_seal_does_not_pass_consumer, strict_consumer_flag_never_set_true.",
+      "result": "pass",
+      "evidence": "marker status is 'sealed_for_external_consumer', capture_lifecycle_complete=true, strict_consumer_passed=false; the string 'strict_consumer_passed=True' does not occur in the runner."
+    },
+    {
+      "id": "C4",
+      "claim": "The strict consumer is not executed by the runner; a not-run or failed consumer cannot mark a flight as passing.",
+      "method": "Static scan for any subprocess invocation of perf_stream_consumer in tools/run_joint_flight.py (chain_probe.py strict_consumer_not_executed_by_runner).",
+      "result": "pass",
+      "evidence": "perf_stream_consumer appears only as a source identity (source_sha256, PERF_CAPTURE_SOURCES) and as recorded strict_consumer metadata; no Popen/subprocess call targets it."
+    },
+    {
+      "id": "C5",
+      "claim": "A failed perf capture forces the run to fail and cannot coexist with a passing flight result.",
+      "method": "Read finalize_perf_capture except branch (tools/run_joint_flight.py:147-152); shipped tests test_stop_error_is_retained_without_escaping_cleanup, test_missing_segment_or_changed_library_fails_closed, test_window_outside_inner_span_fails_closed.",
+      "result": "pass",
+      "evidence": "any exception sets result['status']='failed' and result['error']; formal gate then rejects on flight['status'] != 'pass'."
+    },
+    {
+      "id": "C6",
+      "claim": "Extra perf source files do not break source-set identity.",
+      "method": "chain_probe.py extra_perf_sources_bound_and_accepted: append the five PERF_CAPTURE_SOURCES to the fixture source set and run the real _mixed_proofs; plus read joint_profile.py:329-339 and audit_mixed_control.py:135-146.",
+      "result": "pass",
+      "evidence": "the gate uses `required <= sources.keys()` and seals every entry of sources; the flight audit derives its exact `source__*` file set from result['source_sha256'], which the runner populates with the perf sources. Adding sources stays self-consistent."
+    },
+    {
+      "id": "C7",
+      "claim": "The perf marker is only ever attached to a MIXED-profile run, i.e. exactly the profile the formal gate rejects.",
+      "method": "Read perf_capture_request (tools/run_joint_flight.py:73-82), main() parser gates :1246-1250, and _mixed_proofs scope.",
+      "result": "pass",
+      "evidence": "both perf_capture_request and the CLI parser require task_profile == MIXED_PROFILE; main() never creates the marker otherwise."
+    },
+    {
+      "id": "C8",
+      "claim": "Runner result/source retention and the final copytree carry the perf artifacts into the pinned archive.",
+      "method": "Read tools/run_joint_flight.py:471-477, :523-525, :1100-1101, :1151 and :1114.",
+      "result": "pass",
+      "evidence": "source__*.txt written for every source (including PERF_CAPTURE_SOURCES); finalize_perf_capture writes raw/meta/windows into live before shutil.copytree(live, archive); result.json is saved before the copy."
+    },
+    {
+      "id": "C9",
+      "claim": "audit_mixed_control evidence_sha256 seals every archive file (including a decoded perf report placed there before the audit) and the gate re-checks each sealed digest.",
+      "method": "Read tools/audit_mixed_control.py:822-833 and joint_profile.py:210-218 (_raw_proof).",
+      "result": "pass",
+      "evidence": "evidence_sha256 = digest of every file under root; _raw_proof requires audit['evidence_sha256'] non-empty and each root/name digest to match."
+    },
+    {
+      "id": "C10",
+      "claim": "The strict consumer refuses overwrite, enforces --require-kernel-counter, treats --windows as optional-but-validated, and never self-certifies Full.",
+      "method": "Read perf_stream_consumer.py:477-487, :492-498, :516-520, :560-565; independently run 12 synthetic cases (consumer_constraints_probe.py, consumer_constraints.json) and the 84-check shipped suite.",
+      "result": "pass",
+      "evidence": "legacy without flag exits 0 with stream_completeness_proven=false; legacy with flag exits 3 kernel_loss_counter_required; zero counter proves completeness; non-zero exits 3; existing output exits 3 output_exists_refusing_overwrite; report classification='diagnostic_only', full_acceptance=false, flight_conclusion=null."
+    },
+    {
+      "id": "C11",
+      "claim": "External decoded results bind to the capture by value but are not a formal verdict.",
+      "method": "Read run_joint_flight.py:471-477 (output name + consumer source SHA), finalize_perf_capture outputs (raw/meta/windows SHA), and the consumer report inputs (raw_sha256/metadata_sha256/windows_sha256).",
+      "result": "pass-with-note",
+      "evidence": "binding is by SHA value and by the recorded output file name; no code path turns the decoded report into MIXED/G6/Full acceptance. Note N1: the binding is not programmatically re-checked."
+    }
+  ],
+  "blocking_items": [],
+  "non_blocking_items": [
+    {
+      "id": "N1",
+      "title": "Decoded-result binding is by value and remains an operator precondition",
+      "detail": "The runner seals raw/metadata/windows SHAs in result['perf_switch_capture']['outputs'] and names the expected consumer output ('perf-decoded.json'), and the consumer echoes its input SHAs. No executed check compares the two. Because the formal gate rejects the marker outright, this cannot promote diagnostic evidence, but an operator who wants provenance should compare the values by hand or with a small post-run check.",
+      "suggested_minimal_fix": "Document the compare step in the delivery entry, or add a pure helper that fails closed when report.inputs.raw_sha256 != marker.outputs.raw.sha256 (no shared-ledger change)."
+    },
+    {
+      "id": "N2",
+      "title": "tools/audit_mixed_control.py deliberately does not flag perf_switch_capture",
+      "detail": "The flight audit contains no 'perf' reference and its 'Unexpected alternate workflow' loop omits perf_switch_capture, so an instrumented archive can still receive audit status='pass'. This is intentional (the raw audit must remain usable for instrumented flights) and formality is guaranteed only by joint_profile._mixed_proofs. A reader must not treat the raw audit pass as formal MIXED/PV admission.",
+      "suggested_minimal_fix": "No code change required. If desired, add a limitations line to the audit report naming the diagnostic marker; avoid touching shared tooling otherwise."
+    },
+    {
+      "id": "N3",
+      "title": "Consumer --windows is optional while the runner always seals perf-windows.json",
+      "detail": "The consumer accepts a capture without --windows and then reports windows=null. The intended procedure (run with --windows and require a non-empty intersection) is documented but not enforced by the tool.",
+      "suggested_minimal_fix": "Keep as-is; the operator procedure already requires --windows. Optionally add a test that a missing windows file is a caller error in the delivery script, not in the consumer."
+    },
+    {
+      "id": "N4",
+      "title": "stream_completeness_proven is derived from sealed metadata, not an independent native re-read",
+      "detail": "validate_kernel_loss_counter accepts read_ok=true, read_bytes=16, errno=0, count=0 and config.read_format=16 as proof. This is a configuration-level completeness assertion scoped by the consumer's own scope string; it is not an independent measurement of CPU execution or causal scheduling.",
+      "suggested_minimal_fix": "None required. Keep the scope/limitations text with the decoded artifact."
+    },
+    {
+      "id": "N5",
+      "title": "strict_consumer_passed is permanently False in this runner",
+      "detail": "By design: the runner only seals outputs for an external consumer. Readers must branch on presence of the perf_switch_capture key (as the formal gate does), never on the boolean, or on the raw audit status alone.",
+      "suggested_minimal_fix": "None required."
+    }
+  ],
+  "test_results": {
+    "pytest_three_modules": {
+      "command": "python -m pytest validation/test_joint_profile.py validation/test_mixed_profile_admission.py validation/test_run_joint_perf_capture.py -q",
+      "exit_code": 1,
+      "summary": "38 passed, 1 failed, 49 subtests passed",
+      "failure": {
+        "test": "validation/test_joint_profile.py::JointProfileTests::test_source_file_tamper_and_escape",
+        "cause": "OSError WinError 1314: the Windows host lacks the privilege to create a symlink; the failing line is outside the admission chain",
+        "classification": "environment-only, non-blocking; expected to pass on Linux/WSL where symlink creation is permitted"
+      }
+    },
+    "shipped_perf_admission_tests": {
+      "command": "pytest -k 'perf or marker or mixed_result or strict or reject or seal or lifecycle'",
+      "exit_code": 0,
+      "summary": "26 passed"
+    },
+    "consumer_suite": {
+      "command": "python -B validation/coordination/ds-perf-stream-consumer-20260913-01/test_perf_stream_consumer.py",
+      "exit_code": 0,
+      "summary": "84 checks, 0 failed"
+    },
+    "independent_chain_probe": {
+      "command": "python -B test-outputs/chain_probe.py",
+      "exit_code": 0,
+      "summary": "16 cases, 0 failures"
+    },
+    "independent_consumer_probe": {
+      "command": "python -B test-outputs/consumer_constraints_probe.py",
+      "exit_code": 0,
+      "summary": "12 cases, 0 failures"
+    }
+  },
+  "not_executed": [
+    "native perf capture",
+    "any build or compilation",
+    "ROS/DDS runtime",
+    "PX4/ArduCopter SITL",
+    "physics or model execution",
+    "UE visual runtime",
+    "MATLAB",
+    "any process launch or cleanup",
+    "writes outside validation/coordination/codebuddy-perf-admission-review-20260913-01/"
+  ],
+  "exclusive_write_boundary": "validation/coordination/codebuddy-perf-admission-review-20260913-01/ (this directory only)",
+  "shared_ledger_modified": false,
+  "existing_files_modified": false,
+  "verdict": "The 'diagnostic evidence is never promoted to formal evidence' chain holds at HEAD 100ef1a: the formal MIXED/PV gate rejects perf_switch_capture by key presence for every value shape, before the raw-evidence walk; the runner never self-certifies the strict consumer and never executes it; extra perf sources keep source-set identity; a failed or absent strict consumer cannot be recorded as a pass. No blocking items; five non-blocking notes recorded above.",
+  "stopped": true
+}

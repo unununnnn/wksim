@@ -1,0 +1,37 @@
+.......F..................... [ 74%]
+..........                                                         [100%]
+================================== FAILURES ===================================
+____________ JointProfileTests.test_source_file_tamper_and_escape _____________
+
+self = <test_joint_profile.JointProfileTests testMethod=test_source_file_tamper_and_escape>
+
+    def test_source_file_tamper_and_escape(self):
+        with tempfile.TemporaryDirectory() as directory, tempfile.TemporaryDirectory() as external:
+            root=Path(directory); path=root/'source.py'; path.write_text('one')
+            expected={'source.py':file_identity(path,root)}
+            profile._files(root,expected)
+            path.write_text('two')
+            with self.assertRaisesRegex(ValueError,'identity'):
+                profile._files(root,expected)
+>           path.unlink(); outside=Path(external)/'source.py'; outside.write_text('one'); path.symlink_to(outside)
+                                                                                          ^^^^^^^^^^^^^^^^^^^^^^^^
+
+validation\test_joint_profile.py:54: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('C:/Users/PC/AppData/Local/Temp/tmpkpyn4niu/source.py')
+target = WindowsPath('C:/Users/PC/AppData/Local/Temp/tmpqyll18n3/source.py')
+target_is_directory = False
+
+    def symlink_to(self, target, target_is_directory=False):
+        """
+        Make this path a symlink pointing to the target path.
+        Note the order of arguments (link, target) is the reverse of os.symlink.
+        """
+>       os.symlink(target, self, target_is_directory)
+E       OSError: [WinError 1314] 客户端没有所需的特权。: 'C:\\Users\\PC\\AppData\\Local\\Temp\\tmpqyll18n3\\source.py' -> 'C:\\Users\\PC\\AppData\\Local\\Temp\\tmpkpyn4niu\\source.py'
+
+D:\date\miniconda\Lib\pathlib\_local.py:789: OSError
+=========================== short test summary info ===========================
+FAILED validation/test_joint_profile.py::JointProfileTests::test_source_file_tamper_and_escape
+1 failed, 38 passed, 49 subtests passed in 1.50s
