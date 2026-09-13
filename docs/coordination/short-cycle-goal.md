@@ -77,3 +77,5 @@
 - 下一步并行模块：自线程有界raw记录器、严格离线消费者、独立17组合成夹具；合同见 [perf-stream contract](perf-stream-contract-20260913.md)。末尾pending LOST的完整性与C启动/停止线程安全仍阻断飞行接线，不能凭collector_complete或无LOST记录宣称无损。
 
 - 离线decoder已主会话集成验收：84项作者检查、17组独立CLI夹具全过；原夹具自检曾把错误HHI头/PID布局/切换标志误报通过，已保留失败原件并按Linux ABI修正。见 [offline acceptance](../../validation/coordination/perf-stream-offline-acceptance-20260913-03/main-verdict.json)。这不证明stream无损。三个DeepSeek端本批再次终态失败；C记录器写入权已转给OMP（turn `931d6ae4-2b70-417c-89c9-b818b4be0411`），main只收稳定源码后做native验收，不再重复续派同一失败批次。
+
+- C记录器首轮真实编译被两处format-truncation/-Werror拒绝，demo和fault tests均未执行，自有编译进程同boot已退出。编译源快照与后续join/所有权等缺口见 [native admission review](../../validation/coordination/perf-stream-native-acceptance-20260913-01/MAIN_REVIEW.md)。OMP旧turn `931d6ae4-2b70-417c-89c9-b818b4be0411` 最近仍running；等精确终态再将该review续派，THREAD_BUSY不算已通知。

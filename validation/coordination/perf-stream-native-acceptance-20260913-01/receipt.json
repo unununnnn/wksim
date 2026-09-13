@@ -1,0 +1,35 @@
+{
+  "directory": "/root/wksim-stream-native-v5vp6v0l",
+  "boot_id": "50e43206-4e1a-4560-bc80-f0891b4baa3d",
+  "commands": [
+    {
+      "argv": [
+        "cc",
+        "-std=c11",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pthread",
+        "-I.",
+        "-o",
+        "demo",
+        "wksim_perf_stream_demo.c",
+        "wksim_perf_stream.c"
+      ],
+      "pid": 762,
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "wksim_perf_stream.c: In function \u2018settle_errors\u2019:\nwksim_perf_stream.c:268:50: error: \u2018 (errno \u2019 directive output may be truncated writing 8 bytes into a region of size between 1 and 128 [-Werror=format-truncation=]\n  268 |             snprintf(message, sizeof message, \"%s (errno %d: %s)\", primary->text,\n      |                                                  ^~~~~~~~\nIn file included from /usr/include/stdio.h:894,\n                 from wksim_perf_stream.c:35:\n/usr/include/x86_64-linux-gnu/bits/stdio2.h:71:10: note: \u2018__builtin___snprintf_chk\u2019 output 13 or more bytes (assuming 140) into a destination of size 128\n   71 |   return __builtin___snprintf_chk (__s, __n, __USE_FORTIFY_LEVEL - 1,\n      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n   72 |                                    __glibc_objsize (__s), __fmt,\n      |                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n   73 |                                    __va_arg_pack ());\n      |                                    ~~~~~~~~~~~~~~~~~\nwksim_perf_stream.c: In function \u2018record_error.part.0\u2019:\nwksim_perf_stream.c:232:48: error: \u2018%s\u2019 directive output may be truncated writing up to 127 bytes into a region of size 126 [-Werror=format-truncation=]\n  232 |         snprintf(message, sizeof message, \"%s: %s\", where ? where : \"failure\", reason);\n      |                                                ^~                              ~~~~~~\nIn file included from /usr/include/stdio.h:894,\n                 from wksim_perf_stream.c:35:\n/usr/include/x86_64-linux-gnu/bits/stdio2.h:71:10: note: \u2018__builtin___snprintf_chk\u2019 output 3 or more bytes (assuming 130) into a destination of size 128\n   71 |   return __builtin___snprintf_chk (__s, __n, __USE_FORTIFY_LEVEL - 1,\n      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n   72 |                                    __glibc_objsize (__s), __fmt,\n      |                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n   73 |                                    __va_arg_pack ());\n      |                                    ~~~~~~~~~~~~~~~~~\ncc1: all warnings being treated as errors\n",
+      "pgid_empty": true
+    }
+  ],
+  "source_sha256": {
+    "wksim_perf_stream.c": "f93a033843de1eb721b329bd4caf09601565523e94a0912ec309c8f632fa468a",
+    "wksim_perf_stream.h": "96a69a8a97b2502547f4ff5727eb6b2a96eb08ff0d6b4ad3cd1f922c9ccb3f45",
+    "wksim_perf_stream_demo.c": "9b0ee95baa6e22d021cc61025e4b69cd735022d9f0bfb7a74d8a67f65cd3540b",
+    "create_failure_case.c": "e39f34c137f60f0421af6ece3c3837d57b32611fc2fc3f723ed647fb23e236cd"
+  },
+  "boot_after": "50e43206-4e1a-4560-bc80-f0891b4baa3d",
+  "binary_sha256": {}
+}
