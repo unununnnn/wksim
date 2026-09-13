@@ -1,0 +1,70 @@
+{
+  "schema": "wksim.five-slice-final-integration2.dependency-check.v1",
+  "slice_id": "cursor-five-slice-final-integration2-20260914-01",
+  "source_head": "6eafdf9c0b734db07a9fe790c86b409d3468c10b",
+  "owned_disjoint": true,
+  "owned_path_intersection": {
+    "A&B": [],
+    "A&C": [],
+    "A&D": [],
+    "A&E": [],
+    "B&C": [],
+    "B&D": [],
+    "B&E": [],
+    "C&D": [],
+    "C&E": [],
+    "D&E": []
+  },
+  "force_add_A": [
+    "validation/promotion-flight-20260908/independent-candidate/flight-audit.json",
+    "validation/promotion-flight-20260908/independent-candidate/flown-source/manifest.json",
+    "validation/coordination/cursor-g1-g5-uncovered-offline-repair-20260914-01/stdlib_identity_plugin.py",
+    "validation/coordination/cursor-g1-g5-uncovered-offline-repair-20260914-01/isolation_after_g1g5.py"
+  ],
+  "head_seven_rows_frozen": true,
+  "related_artifacts": {
+    "paths": [
+      "validation/coordination/codebuddy-g6-b1-b4-frontier-20260914-01/review.md",
+      "validation/coordination/codebuddy-g6-b1-b4-frontier-20260914-01/frontier.json",
+      "validation/coordination/codebuddy-g6-b1-b4-frontier-20260914-01/owner-input-template.json"
+    ],
+    "includes_current_frame_path": false,
+    "includes_stale_frame_hash_33c490": false,
+    "has_tracked_at_head": false,
+    "tracked_at_source_head": [
+      false,
+      false,
+      false
+    ],
+    "committed_in_any_slice": false,
+    "worktree_untracked_overlay_only": true
+  },
+  "related_frame_cross_semantics": {
+    "budget_30_after_frame_committed": "PASS",
+    "frame_12_after_budget_committed": "PASS",
+    "meaning": "related stays source-head untracked and is not auto-promoted when disposable HEAD tracks frame"
+  },
+  "full_frame_dual_order": {
+    "ABCDE_contains_D_then_E": true,
+    "EDCBA_contains_E_then_D": true,
+    "both_green": true
+  },
+  "cited_sources_file_paths_in_head": 75,
+  "exact_head_equality": {
+    "current_head_equality_defect": false,
+    "g1_semantics": "SOURCE_HEAD ancestor pin; assertNotEqual identities[head] SOURCE_HEAD",
+    "budget_semantics": "observed_at.head is capture pin; merge-base --is-ancestor required",
+    "frame_semantics": "test_head_and_baseline uses merge-base --is-ancestor",
+    "full_semantics": "ledger/snapshot JSON head is capture pin, not rev-parse HEAD",
+    "g3_semantics": "no git HEAD identity"
+  },
+  "not_rerun": [
+    "budget_153",
+    "g3_179",
+    "g3_53",
+    "g3_721",
+    "frame_45",
+    "full_81",
+    "issue_83"
+  ]
+}
