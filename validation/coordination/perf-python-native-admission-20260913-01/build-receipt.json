@@ -1,0 +1,43 @@
+{
+  "cwd": "/root/wksim-architecture-acceptance-20260913",
+  "head": "386f713a7752515502fd2224e9186f2219674732",
+  "architecture_ancestor_exit_code": 0,
+  "work_class": "new-architecture-acceptance preparation; independent perf library",
+  "kernel": "6.6.87.2-microsoft-standard-WSL2",
+  "boot_id": "fbdc0c24-5ea2-4b28-b5cb-bbae95252136",
+  "directory": "/root/wksim-perf-python-admission-apup9qju",
+  "source_sha256": {
+    "wksim_perf_stream.c": "aa807f3baaafcd64ed6174a49f8010b49798a74d139ead2d4eb69eafa503c1d2",
+    "wksim_perf_stream.h": "ef1eabf247107098dc59a314d99b8fc82d4c54dbddd58d645bcec35141a12823"
+  },
+  "command": [
+    "cc",
+    "-std=c11",
+    "-O2",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-pthread",
+    "-shared",
+    "-fPIC",
+    "-o",
+    "/root/wksim-perf-python-admission-apup9qju/libwksim_perf_stream.so",
+    "/root/wksim-perf-python-admission-apup9qju/wksim_perf_stream.c"
+  ],
+  "pid": 823,
+  "exit_code": 0,
+  "timed_out": false,
+  "stdout": "",
+  "stderr": "",
+  "pgid_empty": true,
+  "capture_executed": false,
+  "architecture_acceptance": false,
+  "full_acceptance": false,
+  "library_sha256": "37d9651282bce0da059828056796683b94e780461f7918e60c3e1e77e2130020",
+  "export_check": {
+    "exit_code": 0,
+    "stdout": "0000000000003320 T wksim_perf_last_error\n0000000000003360 T wksim_perf_start\n0000000000003f30 T wksim_perf_stop\n",
+    "stderr": ""
+  },
+  "boot_after": "fbdc0c24-5ea2-4b28-b5cb-bbae95252136"
+}

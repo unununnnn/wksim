@@ -1,0 +1,82 @@
+{
+  "schema": "wksim.perf_python_adapter_review.v2",
+  "reviewer": "ds-perf-python-adapter-20260913-01",
+  "revision": 2,
+  "revision_note": "read-only continuation: EEXIST blocker resolved by main's isolated collision2 case; adapter and test SHAs unchanged",
+  "checked_at": "2026-09-13T20:40:00+09:00",
+  "checked_unix": 1789299600,
+  "mode": "read_only_independent_review",
+  "wrote": [
+    "validation/coordination/ds-perf-python-adapter-20260913-01/review.md",
+    "validation/coordination/ds-perf-python-adapter-20260913-01/review.json"
+  ],
+  "checkout": {
+    "cwd": "C:/Users/PC/Documents/odid编译/wksim",
+    "branch": "main",
+    "head": "0857cd95ed54bb976ef541bbb8462bde29c456e5",
+    "architecture_ancestor_commit": "f333316e6efa6b299b4288a9d91fb2bccedfb9d6",
+    "architecture_ancestor_exit_code": 0,
+    "work_class": "new-development acceptance review"
+  },
+  "reviewed_sha256": {
+    "Simulator/wksim_runtime/perf_capture.py": "c196616fe8324eed2d8b294ef52aaec1f982eb5330abbeb7ee17094399f32e0f",
+    "validation/test_perf_capture.py": "f4d95ae49478729e2f4c3a508f9ef452d3f6b5acffd0c8a3301bc72155d4f3c3",
+    "validation/coordination/perf-python-native-admission-20260913-01/build.py": "54f118ae11abcabc8c1e7313b594bcb5e6261d44c8ec761450f69602b189b1be",
+    "validation/coordination/perf-python-native-admission-20260913-01/run.py": "df9db9a7bb8c6ac647de778329dc4531b68ce307967fc3872ae80d9563e909b2",
+    "validation/coordination/perf-python-native-admission-20260913-01/interrupted-adapter-draft.py": "b4b694133c1ec36024329bc076f178f94473fa9ef533515048235e3d5a2998d7",
+    "validation/coordination/perf-python-native-admission-20260913-01/run_collision2.py": "40156a23a6fa802136790940cdd78bac16cf69a3c798977b7476f333bc8f87e0",
+    "validation/coordination/perf-python-native-admission-20260913-01/collision2-receipt.json": "1d472fc8ec78a1b40666d73afe8cafa1d03f6af4556d732f86fc68bce4dde005",
+    "validation/coordination/perf-python-native-admission-20260913-01/collision2-prechecks.json": "b7b2ae47f866b9278f494228f5a2a5d5711dac4de57f0be6cdf240ba6a7cb5b2",
+    "validation/coordination/perf-python-native-admission-20260913-01/run_collision.py (retained failed artifact)": "2e2c1a7fa10336374b939a2778d69549ea814c9651898e1b48cfa62333b88341",
+    "validation/coordination/perf-python-native-admission-20260913-01/collision-receipt.json (retained failed artifact, exit 1)": "020b350475e4862721249f2efdb5b0eb7028c9d87d3047b344939e86cea76448",
+    "collision2 run-dir driver.py (reproduction of generated driver)": "6970cc832a03e075c59901ac26e78f3a67cad026d1db4817e36310b07e4cc70d",
+    "collision2 run-dir switch.raw (preserved 17 bytes)": "96fe617d939b0f7be812189d3b12df0aa0aec46d5cc1b7194630df38da0aee81",
+    "validation/coordination/ds-perf-stream-recorder-20260913-01/wksim_perf_stream.c": "aa807f3baaafcd64ed6174a49f8010b49798a74d139ead2d4eb69eafa503c1d2",
+    "validation/coordination/ds-perf-stream-recorder-20260913-01/wksim_perf_stream.h": "ef1eabf247107098dc59a314d99b8fc82d4c54dbddd58d645bcec35141a12823",
+    "libwksim_perf_stream.so (WSL live)": "37d9651282bce0da059828056796683b94e780461f7918e60c3e1e77e2130020",
+    "consumer perf_stream_consumer.py used by run.py": "dee9a3b5c3cafb42e69836758ccaebd4dbd78e8fa569d203c7ca1d36a03179bc"
+  },
+  "read_only_checks": [
+    {"check": "python -B -m unittest validation.test_perf_capture -v", "result": "9/9 pass", "loaded_native": false},
+    {"check": "re-parse captured raw records", "result": "normal 384B = 12 x 32B type-14 SWITCH / 6 pairs; wrong-owner 128B = 4 x 32B type-14 SWITCH / 2 pairs; trailing bytes 0"},
+    {"check": "re-hash metadata/raw vs decoded.json inputs and receipt blobs", "result": "match"},
+    {"check": "live sha256 of main-built shared library on Ubuntu-22.04", "result": "equals build receipt pin 37d96512...; kernel 6.6.87.2-microsoft-standard-WSL2; current boot_id 2c6d203d-... equals collision2 boot_id"},
+    {"check": "collision2 isolated EEXIST case (read-only)", "result": "primary error 'stop: create raw: output_exists (errno 17: File exists)'; stop=-1; retained=false; stop_completed=false; 17-byte raw preserved; meta not created; fds 4->4; threads 1->1; pgid_empty=true; adapter_sha256 matches stable c196616f..."},
+    {"check": "governance re-read", "result": "AGENTS.md, architecture-implementation-20260912.md, architecture-continuation-20260913.md, module-delivery-policy-20260912.md, perf-stream-contract-20260913.md, 2026-09-13-perf-kernel-loss-counter.md"}
+  ],
+  "required_behaviors": [
+    {"id": "ctypes_binding", "verdict": "pass", "evidence": "exact POINTER(c_void_p) / [pointer,c_char_p,c_char_p] argtypes with correct restypes; real ctypes.byref in-place write observed by passing tests (handle 1234)"},
+    {"id": "pid_and_native_tid_ownership", "verdict": "pass", "evidence": "os.getpid()+threading.get_native_id() captured in __init__, re-checked before any native call in start/stop; foreign PID and foreign TID both leave native mocks uncalled"},
+    {"id": "failed_start_retains_handle", "verdict": "pass", "evidence": "non-NULL retained pointer kept, retained=True in error, owner cleanup retry via stop(), stop_completed stays false (not a capture)"},
+    {"id": "failed_stop_nonzero_with_cleared_handle", "verdict": "pass", "evidence": "return code tested before handle state; -1 with NULL handle raises retained=False; 0 with live handle rejected; code/last_error text preserved"},
+    {"id": "no_destructor_and_completeness_external", "verdict": "pass", "evidence": "no __del__/context manager/atexit/callback; owns_handle is the explicit finally-path state; completeness only via independent consumer --require-kernel-counter (run.py invokes it for both passing cases, stream_completeness_proven=true, kernel_lost_count=0)"}
+  ],
+  "blockers": [],
+  "resolved_blockers": [
+    {
+      "id": "existing_output_not_isolated_to_eexist",
+      "status": "resolved_in_revision_2",
+      "was": "Recorded primary error in run.py's existing-output case is 'no_switch_pair'; the C pair check runs before the exclusive creates, so EEXIST could only be a later collector error, and no metadata exists for that case to inspect collector_errors.",
+      "resolution_artifact": "validation/coordination/perf-python-native-admission-20260913-01/collision2-receipt.json",
+      "evidence": "primary error 'stop: create raw: output_exists (errno 17: File exists)'; stop=-1; retained=false; stop_completed=false; 17-byte record-clean preserved raw byte-identical; metadata not created by design (C opens meta only after a successful raw open); fds 4->4; threads 1->1; pgid_empty=true; same boot before/after; adapter_sha256 == stable c196616f...; library_sha256 == build pin 37d96512...",
+      "note": "the driver asserts the exact 'create raw'/'errno 17' text, so another error path could not satisfy it; pair check ordering implies a complete switch pair existed. The case does not claim any kernel-counter value (counter_inspected=false), which is correct because no metadata was produced."
+    }
+  ],
+  "retained_failed_artifacts": [
+    {"id": "collision_first_attempt", "files": ["run_collision.py", "collision-receipt.json (exit 1)"], "detail": "main script wrongly expected switch.meta.json to exist; FileNotFoundError. Preserved as a failed artifact and evidence of C ordering (raw open failure precedes meta creation). Not deleted or overwritten; shows no adapter defect."}
+  ],
+  "gaps_not_blocking": [
+    {"id": "per_case_owner_assertion_weak", "detail": "run.py asserts meta owner_pid==owner_tid==cases[0]['owner_pid']; only cases[0] is checked and only holds because pid==tid==765 (main thread). wrong-owner metadata is not compared with its own row; a non-main-thread owner (pid!=tid) would fail the assertion. Original run.py case and its no_switch_pair qualifier are retained as-is."},
+    {"id": "native_wrong_owner_path_not_exercised", "detail": "the Python guard rejects the foreign thread before C, so the C-side EPERM wrong-owner refusal is never reached natively; this matches 'reject before C' but is not native coverage."},
+    {"id": "owner_recording_not_cross_checked", "detail": "adapter owner_pid/owner_tid are never compared with the metadata C writes; the main-thread owner (pid==tid==765) is the only owner sample across admitted runs."},
+    {"id": "build_and_run_on_different_boots", "detail": "build receipt boot_id fbdc0c24-5ea2-4b28-b5cb-bbae95252136 differs from run receipt boot_id 50bfcbdf-eacb-40f9-8294-995611053858 and from collision2 boot_id 2c6d203d-6f09-415d-82d6-58a6d33233ef. Each run is same-boot with its own prechecks (found=[] on both distros), re-checked the library SHA against the build pin and ran on kernel 6.6.87.2-microsoft-standard-WSL2; this is a reboot between phases, not a boot mismatch during a run."}
+  ],
+  "verification_limits": [
+    "native capture was not re-run by this review (forbidden); capture evidence remains main-owned",
+    "this review is Windows-side plus read-only WSL hashing/listing; no .so load, model, ROS, SITL, UE, MATLAB or build was invoked",
+    "interrupted-adapter-draft.py reviewed only as a preserved hash; no claim about its content beyond line count (251) and preservation"
+  ],
+  "verdict": "adapter and pure tests at the stable SHAs show no correctness defect; all five required behaviors evidenced; Revision 1's single evidence blocker (EEXIST not isolated) is resolved by the read-only-reviewed collision2 case; only non-blocking coverage limits remain",
+  "architecture_acceptance": false,
+  "full_acceptance": false
+}

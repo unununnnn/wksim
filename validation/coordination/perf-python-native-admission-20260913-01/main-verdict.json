@@ -1,0 +1,47 @@
+{
+  "checked_unix": 1789303033,
+  "classification": "diagnostic adapter admission",
+  "full_acceptance": false,
+  "architecture_acceptance": false,
+  "source_sha256": {
+    "Simulator/wksim_runtime/perf_capture.py": "c196616fe8324eed2d8b294ef52aaec1f982eb5330abbeb7ee17094399f32e0f",
+    "validation/test_perf_capture.py": "f4d95ae49478729e2f4c3a508f9ef452d3f6b5acffd0c8a3301bc72155d4f3c3"
+  },
+  "pure_linux_tests": 9,
+  "normal_records": 12,
+  "normal_pairs": 6,
+  "wrong_owner_then_owner_stop_records": 4,
+  "wrong_owner_then_owner_stop_pairs": 2,
+  "independent_consumer_required_kernel_counter": true,
+  "collision2": {
+    "failure": "wksim_perf_stop returned -1; retained=False; stop: create raw: output_exists (errno 17: File exists)",
+    "retained": false,
+    "stop_completed": false,
+    "resources_before": {
+      "fds": 4,
+      "threads": 1
+    },
+    "resources_after": {
+      "fds": 4,
+      "threads": 1
+    },
+    "original_preserved": true,
+    "metadata_created": false,
+    "counter_inspected": false
+  },
+  "all_owned_processes_exited": true,
+  "peer_review": {
+    "status": "accepted_with_no_blockers",
+    "thread": "codex://threads/55e4b379-1e9c-4e6e-b453-4774cdde7c6a",
+    "turn_id": "5658e4f9-5630-4659-a2d2-dd5e5f86e7cb",
+    "revision": 2,
+    "review_md_sha256": "55a9695dad5b598837dd59352dd2755bdc21d7bce5af41a3850b6d8192a379dd",
+    "review_json_sha256": "87be479543edbb94c508d1cdc9bf8b034c74ae179d6a10ecf8a2752645e32461",
+    "resolved_blockers": 1,
+    "remaining_non_blocking_gaps": 4
+  },
+  "remaining": [
+    "Whole-duration overhead",
+    "Actual MIXED source/deployment/window binding and native flight acceptance"
+  ]
+}
