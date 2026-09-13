@@ -175,6 +175,18 @@ class PerfCaptureLifecycleTests(unittest.TestCase):
             self.assertIn('stop failed', result['perf_switch_capture']['error'])
             self.assertTrue(result['perf_switch_capture']['owns_handle_after'])
 
+    def test_missing_marker_is_synthesized_and_fails_without_escaping(self):
+        with tempfile.TemporaryDirectory() as directory:
+            capture = FakeCapture(directory)
+            result = dict(status='pass')
+            runner.finalize_perf_capture(result, Path(directory), capture, self.rate())
+            self.assertEqual(result['status'], 'failed')
+            record = result['perf_switch_capture']
+            self.assertEqual(record['status'], 'failed')
+            self.assertFalse(record['capture_lifecycle_complete'])
+            self.assertFalse(record['strict_consumer_passed'])
+            self.assertIn('marker is missing or malformed', record['error'])
+
     def test_missing_segment_or_changed_library_fails_closed(self):
         cases = (
             (False, SimpleNamespace(last_summary=None, last_end=None), 'completed MIXED rate segment'),

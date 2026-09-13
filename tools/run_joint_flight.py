@@ -95,8 +95,11 @@ def start_perf_capture(capture, marker):
 
 def finalize_perf_capture(result, live, capture, rate):
     """Stop and seal diagnostic capture without allowing cleanup errors to escape."""
-    marker = result['perf_switch_capture']
+    marker = None
     try:
+        marker = result.get('perf_switch_capture')
+        if not isinstance(marker, dict):
+            raise RuntimeError('Perf capture result marker is missing or malformed')
         if capture is None:
             raise RuntimeError('Perf capture was requested but not constructed')
         if capture.owns_handle:
@@ -145,6 +148,9 @@ def finalize_perf_capture(result, live, capture, rate):
                       owner_tid=capture.owner_tid, window=window, outputs=outputs,
                       owns_handle_after=capture.owns_handle)
     except BaseException as error:
+        if not isinstance(marker, dict):
+            marker = {}
+            result['perf_switch_capture'] = marker
         marker.update(status='failed', capture_lifecycle_complete=False,
                       strict_consumer_passed=False, error=repr(error),
                       owns_handle_after=bool(capture and capture.owns_handle))
