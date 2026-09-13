@@ -1,0 +1,34 @@
+{
+  "classification": "trace_comparator_admission_only",
+  "full_acceptance": false,
+  "sha256": {
+    "tools/compare_first_step_trace.py": "7f7be184e2e31c6dbb9a4a198b4c313f7cef5b72f8f18abd958606c144eefc9f",
+    "validation/test_compare_first_step_trace.py": "20b4442778ec5263d383e81b324ae8c39c383b4d5662d8c47d35282825b33c91",
+    "validation/coordination/g6-reference-probe-20260913/run-05/reference-first-step.json": "72ff7d8eaeee7854bf026d19a7ee37f38c061764ce5369d0dd5845b1aa084c62",
+    "validation/coordination/g6-reference-probe-20260913/run-03/reference-first-step.json": "99fc1ec84a110bea1e5998a97b4f9c66231966474268ba74bfc343b584e03f85",
+    "validation/coordination/g6-target-mrdivide-20260913/first-step-trace.jsonl": "9cee60eb5b3e5ccc96730f13423f5e0fa07de19654a481d32e9e885953f4bed3",
+    "validation/coordination/g6-diagonal-solve-candidate-20260913/first-step-trace.jsonl": "5e89b720dac275a4980df1881aae2dfde76d223ad9a0bc8dbeba15edaa1e1d09",
+    "validation/coordination/g6-guard-review-20260913-01/replay-20260913-02/generic-vs-run05.json": "d74d755936220a41bc305b2acf0d1d99eb84b5ade908e8a7a85e83154467b7c2",
+    "validation/coordination/g6-guard-review-20260913-01/replay-20260913-02/candidate-vs-run05.json": "0a09b86111bc0f8b7c24c2456551729ee2d5377edb3b6888122905a369b09178",
+    "validation/coordination/g6-guard-review-20260913-01/replay-20260913-02/generic-vs-run03.json": "379ebd2298a473863c7c1b5b79ff97c71556725863bfcab79f58b9c307468400",
+    "validation/coordination/g6-guard-review-20260913-01/replay-20260913-02/candidate-vs-run03.json": "754c248efa2d0b855f59353b32d9ac825f72b81de97a7d0cfbd6faa04ea5a4e9",
+    "validation/coordination/g6-diagonal-solve-candidate-20260913/comparator-result-v2.json": "0a09b86111bc0f8b7c24c2456551729ee2d5377edb3b6888122905a369b09178",
+    "validation/coordination/g6-diagonal-solve-candidate-20260913/main-verification.json": "aa645d9ad2db74263f1e85d8026dde67ee473f0ee195368eb0ed3cc4d9e772e8",
+    "validation/coordination/g6-diagonal-solve-candidate-20260913/main-verification-v2.json": "a7fe0ce3f424c0e28f75faafe371ebc135921254df3f1cd45f8bc7ae9a0fefc2",
+    "validation/coordination/g6-solve-same-source-20260913/source-comparison.json": "c35b78c222549b226e30ea5bcfb16f5b7fdd560d5105a6b451a871878ddbdf3c",
+    "validation/coordination/g6-solve-same-source-20260913/source-comparison-v2.json": "bd8b9e7b4093a09cf7f42712bbbb502ebafdd8a1b4deb9cc814d67b807a10aef"
+  },
+  "source_receipt_sha256": "e2890e094e6e5acfe11111b54a48d9e194110799cc3036a38ccbe414cd543b27",
+  "author_tests": {
+    "command": "python -B -m pytest validation/test_compare_first_step_trace.py -q",
+    "passed": 52,
+    "subtests": 13,
+    "skipped": 0
+  },
+  "independent_review": "claude-comparator-repair-review-20260913-01,10checks/realCLI/realretaineddata",
+  "limitations": [
+    "aligned means13state structuralalignment; inspectnumerator_equal/matrix_equal toclaimsameoperands",
+    "major_output data comparison belongs to separate retainedexperiment",
+    "numericbudget/R1/modelbranch unchanged"
+  ]
+}

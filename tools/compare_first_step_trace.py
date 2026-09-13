@@ -54,10 +54,40 @@ def _fail(reasons, message):
     reasons.append(message)
 
 
-def decode_f64_hex(value):
-    """Strict 16-hex-digit big-endian IEEE-754 double; must decode finite."""
+CANONICAL_HEX_DIGITS = frozenset("0123456789abcdefABCDEF")
+
+
+def canonical_f64_hex(value):
+    """True only for an exactly-16-hex-digit binary64 string with an optional
+    lowercase `0x` prefix. Anything else (embedded whitespace, a `0X` prefix, a
+    short or long digit run, a non-string) is not the canonical form this tool
+    emits and consumes."""
     if not isinstance(value, str):
-        raise ValueError("hex value must be a string")
+        return False
+    text = value[2:] if value.startswith("0x") else value
+    return len(text) == 16 and all(char in CANONICAL_HEX_DIGITS for char in text)
+
+
+def _require_canonical_hex(value):
+    """Raise ValueError unless `value` is canonical 16-hex-digit binary64 text.
+    `bytes.fromhex` alone skips ASCII whitespace, so a value such as
+    '0000 0000 0000 0000' would otherwise decode as data."""
+    if not canonical_f64_hex(value):
+        raise ValueError(f"non-canonical binary64 hex: {value!r}")
+    return value
+
+
+def _int_or_none(value):
+    """Exact integer test: `type(True) is bool`, so equality against 0/1 is not
+    enough for an ordinal."""
+    return value if type(value) is int else None
+
+
+def decode_f64_hex(value):
+    """Strict 16-hex-digit big-endian IEEE-754 double, optional `0x` prefix; must
+    decode finite. Canonical form is enforced before decoding, so whitespace or a
+    `0X` prefix is rejected instead of silently accepted."""
+    _require_canonical_hex(value)
     text = value[2:] if value.startswith("0x") else value
     number = struct.unpack(">d", bytes.fromhex(text))[0]
     if not math.isfinite(number):
@@ -66,8 +96,10 @@ def decode_f64_hex(value):
 
 
 def norm_hex(value):
-    """Lowercase, prefix-free 16-digit f64 hex."""
-    text = value[2:] if isinstance(value, str) and value.startswith("0x") else value
+    """Lowercase, prefix-free 16-digit f64 hex. Canonical form is required, so a
+    comparison can never be satisfied by non-canonical text."""
+    _require_canonical_hex(value)
+    text = value[2:] if value.startswith("0x") else value
     return text.lower()
 
 
@@ -273,35 +305,57 @@ def parse_target(lines):
         _fail(reasons, f"target row sequence differs: {kinds}")
         return None, reasons
     # Major rows are optional; when present they must be exactly k=0 before the
-    # first stage and k=1 after the update, in that order, each unique.
+    # first stage and k=1 after the update, in that order, each unique. `k` is an
+    # exact integer ordinal, not a merely equal value.
     major_positions = [i for i, k in enumerate(kinds) if k == "major_output"]
     if major_positions:
         first_stage = kinds.index("ode4_stage")
         update_index = kinds.index("ode4_update")
+        major_k = [_int_or_none(lines[i].get("k")) for i in major_positions]
         if (len(major_positions) != 2
-                or lines[major_positions[0]].get("k") != 0
+                or major_k != [0, 1]
                 or major_positions[0] > first_stage
-                or lines[major_positions[1]].get("k") != 1
                 or major_positions[1] < update_index):
             _fail(reasons,
-                  "target major_output rows must be k=0 before stages and k=1 after update")
+                  "target major_output rows must be k=0 before stages and k=1 after "
+                  f"update, as exact integers; got k={major_k}")
     stages = [row for row in lines if row.get("kind") == "ode4_stage"]
-    if [row["stage"] for row in stages] != [0, 1, 2, 3]:
-        _fail(reasons, "target stages not exactly 0,1,2,3 in order")
-    times = [struct.unpack(">d", bytes.fromhex(row["time_s"][2:]))[0]
-             for row in stages]
-    if tuple(times) != EXPECTED_TIMES:
+    stage_ordinals = [_int_or_none(row.get("stage")) for row in stages]
+    if stage_ordinals != [0, 1, 2, 3]:
+        _fail(reasons, f"target stages not exactly the integers 0,1,2,3 in order: "
+                       f"{stage_ordinals}")
+    times = []
+    for row in stages:
+        value = row.get("time_s")
+        if not isinstance(value, str):
+            _fail(reasons,
+                  f"target stage {row.get('stage')} time_s must be canonical hex text, "
+                  f"got {type(value).__name__}")
+            continue
+        try:
+            times.append(decode_f64_hex(value))
+        except ValueError as error:
+            _fail(reasons, f"target stage {row.get('stage')} time_s: {error}")
+    if times and tuple(times) != EXPECTED_TIMES:
         _fail(reasons, f"target stage times differ: {times}")
     updates = [row for row in lines if row.get("kind") == "ode4_update"]
     if len(updates) != 1:
         _fail(reasons, f"target must have exactly one ode4_update row, got {len(updates)}")
         return None, reasons
     update = updates[0]
-    if struct.unpack(">d", bytes.fromhex(update["time_s"][2:]))[0] != 0.001:
-        _fail(reasons, "target update row is not the last t=0.001 record")
+    if not isinstance(update.get("time_s"), str):
+        _fail(reasons, "target update time_s must be canonical hex text, got "
+                       f"{type(update.get('time_s')).__name__}")
+    else:
+        try:
+            if decode_f64_hex(update.get("time_s")) != 0.001:
+                _fail(reasons, "target update row is not the last t=0.001 record")
+        except ValueError as error:
+            _fail(reasons, f"target update time_s: {error}")
     # pre/post are the full 36-wide state vectors, strict finite f64 hex.
-    if update.get("nXc") != TOTAL_STATES:
-        _fail(reasons, f"target update nXc must be {TOTAL_STATES}, got {update.get('nXc')!r}")
+    if _int_or_none(update.get("nXc")) != TOTAL_STATES:
+        _fail(reasons, f"target update nXc must be the integer {TOTAL_STATES}, "
+                       f"got {update.get('nXc')!r}")
     for field in ("pre_hex", "post_hex"):
         values = update.get(field)
         if not isinstance(values, list) or len(values) != TOTAL_STATES:
@@ -343,16 +397,28 @@ def parse_solve_target(lines, target):
                "first_step_trace_end"]
     if kinds != pattern:
         _fail(reasons, f"solve trace row order differs: {kinds}")
-    if [row.get("mrdivide_seq") for row in rows] != [0, 1, 2, 3, 4]:
-        _fail(reasons, "solve mrdivide_seq must be 0..4 in order")
-    if any(type(row.get("mrdivide_seq")) is not int or type(row.get("is_major")) is not int for row in rows):
-        _fail(reasons, "solve sequence and major flag must be integers, not bool")
-    times = [struct.unpack(">d", bytes.fromhex(row["time_s"][2:]))[0]
-             for row in rows]
-    if tuple(times) != SOLVE_TIMES:
+    sequences = [_int_or_none(row.get("mrdivide_seq")) for row in rows]
+    if sequences != [0, 1, 2, 3, 4]:
+        _fail(reasons,
+              f"solve mrdivide_seq must be the integers 0..4 in order, got {sequences}")
+    major_flags = [_int_or_none(row.get("is_major")) for row in rows]
+    times = []
+    for row in rows:
+        value = row.get("time_s")
+        if not isinstance(value, str):
+            _fail(reasons,
+                  f"solve {row.get('mrdivide_seq')} time_s must be canonical hex text, "
+                  f"got {type(value).__name__}")
+            continue
+        try:
+            times.append(decode_f64_hex(value))
+        except ValueError as error:
+            _fail(reasons, f"solve {row.get('mrdivide_seq')} time_s: {error}")
+    if times and tuple(times) != SOLVE_TIMES:
         _fail(reasons, f"solve times differ: {times}")
-    if [row.get("is_major") for row in rows] != list(SOLVE_MAJOR_FLAGS):
-        _fail(reasons, "solve major flags must be 1/0/0/0/1")
+    if major_flags != list(SOLVE_MAJOR_FLAGS):
+        _fail(reasons,
+              f"solve major flags must be the integers 1/0/0/0/1, got {major_flags}")
     for row in rows:
         for field, width in (("numerator_hex", 3), ("matrix_hex", 9),
                              ("result_hex", 3)):

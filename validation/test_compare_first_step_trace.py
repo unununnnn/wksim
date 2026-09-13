@@ -7,6 +7,7 @@ real artifacts.  No model/MATLAB/ROS/native execution.
 Run from the repo root:  python -B -m unittest validation.test_compare_first_step_trace
 """
 import json
+import struct
 import subprocess
 import sys
 import tempfile
@@ -17,6 +18,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from tools.compare_first_step_trace import (  # noqa: E402
+    canonical_f64_hex,
     compare,
     decode_f64_hex,
     main,
@@ -28,6 +30,12 @@ REFERENCE = (ROOT / "validation/coordination/g6-reference-probe-20260913"
              / "run-03/reference-first-step.json")
 TARGET = (ROOT / "validation/coordination/g6-target-first-step-20260913"
           / "first-step-trace.jsonl")
+# run-05 carries the pqr_input_probe solve evidence; run-03 does not. Every
+# solve-related test uses this pair so it runs instead of skipping.
+REFERENCE_SOLVE = (ROOT / "validation/coordination/g6-reference-probe-20260913"
+                   / "run-05/reference-first-step.json")
+TARGET_SOLVE = (ROOT / "validation/coordination/g6-target-mrdivide-20260913"
+                / "first-step-trace.jsonl")
 
 
 def load():
@@ -161,6 +169,244 @@ class PrimitiveTests(unittest.TestCase):
             decode_f64_hex("0x7ff8000000000000")  # NaN
 
 
+class CanonicalFormTests(unittest.TestCase):
+    """Canonical 16-hex-digit binary64 text (optional lowercase `0x` prefix) is a
+    precondition for decoding, normalising and comparing. `bytes.fromhex` skips
+    ASCII whitespace, so a decoded value alone cannot establish canonical form."""
+
+    def test_canonical_predicate_accepts_only_16_hex_digits(self):
+        for good in ("3ff0000000000000", "0x3ff0000000000000", "0xABCDEF0123456789",
+                     "0000000000000000", "0x0000000000000000"):
+            self.assertTrue(canonical_f64_hex(good), good)
+        for bad in ("3ff0 0000 0000 0000", "0x3ff000000000000", "0x3ff00000000000000",
+                    "0X3ff0000000000000", "0x3ff000000000000g", "", "0x", 1.0, None,
+                    b"3ff0000000000000", "3ff0000000000000\n"):
+            self.assertFalse(canonical_f64_hex(bad), bad)
+        # the permissive decoder this replaced accepted the whitespace form as 1.0
+        self.assertEqual(bytes.fromhex("3ff0 0000 0000 0000"), bytes.fromhex("3ff0000000000000"))
+
+    def test_whitespace_separated_hex_is_rejected_not_decoded(self):
+        with self.assertRaises(ValueError):
+            decode_f64_hex("3ff0 0000 0000 0000")
+        with self.assertRaises(ValueError):
+            norm_hex("3ff0 0000 0000 0000")
+        with self.assertRaises(ValueError):
+            decode_f64_hex("0x0000 0000 0000 0000")
+
+    def test_short_long_and_uppercase_prefix_hex_are_rejected(self):
+        for bad in ("0x000000000000000", "0x00000000000000000", "0X3ff0000000000000",
+                    "0x000000000000000g"):
+            with self.assertRaises(ValueError, msg=bad):
+                decode_f64_hex(bad)
+
+    def test_non_string_hex_is_a_structured_rejection(self):
+        for bad in (1.0, None, True, b"3ff0000000000000", ["3ff0000000000000"]):
+            with self.assertRaises(ValueError, msg=repr(bad)):
+                decode_f64_hex(bad)
+
+
+def _load_real_target():
+    return [json.loads(line) for line in TARGET.read_bytes().decode("utf-8").splitlines()
+            if line.strip()]
+
+
+@unittest.skipUnless(REFERENCE.is_file() and TARGET.is_file(), "proven artifacts not present")
+class TargetOrdinalAdmissionTests(unittest.TestCase):
+    """Ordinals in the target trace are exact integers. Equality-only checks used to
+    admit `0.0`/`False` for a stage and `True` for a major `k`; these tests feed the
+    real artifact with one mutation each and require a structured rejection."""
+
+    def _rejected(self, mutate):
+        reference = json.loads(REFERENCE.read_bytes().decode("utf-8"))
+        target = _load_real_target()
+        mutate(target)
+        return compare(reference, target)
+
+    def test_python_type_semantics_that_motivate_the_check(self):
+        # `type(x) is int` is the exact test; bool is a distinct type whose values
+        # compare equal to 0/1, which is why equality alone is not enough.
+        self.assertIs(type(True), bool)
+        self.assertIsNot(type(True), int)
+        self.assertTrue(True == 1 and False == 0)
+
+    def test_stage_ordinal_float_is_rejected(self):
+        def mutate(target):
+            next(r for r in target if r.get("kind") == "ode4_stage"
+                 and r.get("stage") == 2)["stage"] = 2.0
+        result = self._rejected(mutate)
+        self.assertEqual(result["status"], "rejected")
+        self.assertIn("stage", " ".join(result["reasons"]))
+
+    def test_stage_ordinal_true_is_rejected(self):
+        def mutate(target):
+            next(r for r in target if r.get("kind") == "ode4_stage"
+                 and r.get("stage") == 1)["stage"] = True
+        result = self._rejected(mutate)
+        self.assertEqual(result["status"], "rejected")
+        self.assertIn("stage", " ".join(result["reasons"]))
+
+    def test_stage_ordinal_false_is_rejected(self):
+        def mutate(target):
+            next(r for r in target if r.get("kind") == "ode4_stage"
+                 and r.get("stage") == 0)["stage"] = False
+        result = self._rejected(mutate)
+        self.assertEqual(result["status"], "rejected")
+        self.assertIn("stage", " ".join(result["reasons"]))
+
+    def _two_major_target(self):
+        """A valid target carrying both required major rows, so a single-field
+        mutation is what the comparison actually rejects. The plain artifact has no
+        major rows; inserting one row would fail the row-count check first and prove
+        nothing about the ordinal type."""
+        target = _load_real_target()
+        target.insert(1, {"kind": "major_output", "k": 0})
+        target.insert(len(target) - 1, {"kind": "major_output", "k": 1})
+        return target
+
+    def test_two_major_fixture_is_admitted_before_mutation(self):
+        reference = json.loads(REFERENCE.read_bytes().decode("utf-8"))
+        result = compare(reference, self._two_major_target())
+        self.assertEqual(result["status"], "aligned", result.get("reasons"))
+
+    def test_major_k_float_is_rejected(self):
+        target = self._two_major_target()
+        next(r for r in target if r.get("kind") == "major_output"
+             and r.get("k") == 1)["k"] = 1.0
+        result = compare(json.loads(REFERENCE.read_bytes().decode("utf-8")), target)
+        self.assertEqual(result["status"], "rejected")
+        self.assertIn("k=", " ".join(result["reasons"]))
+
+    def test_major_k_bool_is_rejected(self):
+        # k=True equals 1, so an equality-only check would accept it.
+        target = self._two_major_target()
+        next(r for r in target if r.get("kind") == "major_output"
+             and r.get("k") == 1)["k"] = True
+        result = compare(json.loads(REFERENCE.read_bytes().decode("utf-8")), target)
+        self.assertEqual(result["status"], "rejected")
+        self.assertIn("k=", " ".join(result["reasons"]))
+
+    def test_major_k_string_is_rejected(self):
+        target = self._two_major_target()
+        next(r for r in target if r.get("kind") == "major_output"
+             and r.get("k") == 0)["k"] = "0"
+        result = compare(json.loads(REFERENCE.read_bytes().decode("utf-8")), target)
+        self.assertEqual(result["status"], "rejected")
+        self.assertIn("k=", " ".join(result["reasons"]))
+
+    @unittest.skipUnless((ROOT / "validation/coordination/g6-target-mrdivide-20260913"
+                          / "first-step-trace.jsonl").is_file(),
+                         "solve-bearing target artifact not present")
+    def test_solve_ordinal_float_is_rejected(self):
+        # Regression only: the previous revision already used an exact-type guard for
+        # mrdivide_seq, so this records behaviour that must not weaken.
+        path = (ROOT / "validation/coordination/g6-target-mrdivide-20260913"
+                / "first-step-trace.jsonl")
+        target = [json.loads(line) for line in path.read_bytes().decode("utf-8").splitlines()
+                  if line.strip()]
+        next(r for r in target if r.get("kind") == "mrdivide_solve"
+             and r.get("mrdivide_seq") == 3)["mrdivide_seq"] = 3.0
+        reference = json.loads(REFERENCE.read_bytes().decode("utf-8"))
+        result = compare(reference, target)
+        self.assertEqual(result["status"], "rejected")
+        self.assertIn("mrdivide_seq", " ".join(result["reasons"]))
+
+    @unittest.skipUnless((ROOT / "validation/coordination/g6-target-mrdivide-20260913"
+                          / "first-step-trace.jsonl").is_file(),
+                         "solve-bearing target artifact not present")
+    def test_solve_major_flag_bool_is_rejected(self):
+        # Regression only: the previous revision already used an exact-type guard for
+        # is_major. Sequence 0 has is_major=1, so mutating it to True leaves numeric
+        # equality intact (True == 1) and only the type rule can reject it.
+        path = (ROOT / "validation/coordination/g6-target-mrdivide-20260913"
+                / "first-step-trace.jsonl")
+        target = [json.loads(line) for line in path.read_bytes().decode("utf-8").splitlines()
+                  if line.strip()]
+        row = next(r for r in target if r.get("kind") == "mrdivide_solve"
+                   and r.get("mrdivide_seq") == 0)
+        self.assertEqual(row["is_major"], 1)
+        row["is_major"] = True
+        self.assertTrue(row["is_major"] == 1)  # equality alone would accept this
+        reference = json.loads(REFERENCE_SOLVE.read_bytes().decode("utf-8"))
+        result = compare(reference, target)
+        self.assertEqual(result["status"], "rejected")
+        self.assertIn("major flags", " ".join(result["reasons"]))
+
+    def test_update_nxc_float_is_rejected(self):
+        # 36.0 equals 36, so equality alone would accept it; the exact-int check
+        # must reject the type.
+        def mutate(target):
+            next(r for r in target if r.get("kind") == "ode4_update")["nXc"] = 36.0
+        result = self._rejected(mutate)
+        self.assertEqual(result["status"], "rejected")
+        self.assertIn("nXc", " ".join(result["reasons"]))
+
+    def test_malformed_time_types_are_rejected_not_crashed(self):
+        for value in (0.0, None, True, ["0x3f40624dd2f1a9fc"], "0x123"):
+            with self.subTest(value=repr(value)):
+                reference = json.loads(REFERENCE.read_bytes().decode("utf-8"))
+                target = _load_real_target()
+                next(r for r in target if r.get("kind") == "ode4_stage")["time_s"] = value
+                result = compare(reference, target)
+                self.assertEqual(result["status"], "rejected")
+                self.assertTrue(result["reasons"])
+
+    def test_non_canonical_hex_in_the_real_artifact_is_rejected(self):
+        def mutate(target):
+            row = next(r for r in target if r.get("kind") == "ode4_stage")
+            row["state_hex"][0] = "0x0000 0000 0000 0000"
+        result = self._rejected(mutate)
+        self.assertEqual(result["status"], "rejected")
+        self.assertIn("non-canonical", " ".join(result["reasons"]))
+
+    def test_untouched_real_artifacts_still_align(self):
+        reference = json.loads(REFERENCE.read_bytes().decode("utf-8"))
+        result = compare(reference, _load_real_target())
+        self.assertEqual(result["status"], "aligned")
+        self.assertEqual(result["earliest_difference"]["block"], "p,q,r")
+        self.assertEqual(result["earliest_difference"]["ulp"], 1)
+
+
+@unittest.skipUnless(REFERENCE.is_file(), "proven reference not present")
+class ReferenceOrdinalRegressionTests(unittest.TestCase):
+    """The reference-side guards were already exact-type; these keep them that way
+    and record that the admitted values are unchanged."""
+
+    def _reference(self):
+        return json.loads(REFERENCE.read_bytes().decode("utf-8"))
+
+    def test_reference_event_time_bool_is_rejected(self):
+        reference = self._reference()
+        reference["events"][0]["time"] = True
+        result = compare(reference, _load_real_target())
+        self.assertEqual(result["status"], "rejected")
+
+    def test_reference_event_count_bool_is_rejected(self):
+        reference = self._reference()
+        reference["event_count"] = True
+        result = compare(reference, _load_real_target())
+        self.assertEqual(result["status"], "rejected")
+
+    def test_reference_dropped_events_bool_is_rejected(self):
+        reference = self._reference()
+        reference["dropped_events"] = False
+        result = compare(reference, _load_real_target())
+        self.assertEqual(result["status"], "rejected")
+
+    @unittest.skipUnless(REFERENCE_SOLVE.is_file(), "solve-bearing reference not present")
+    def test_reference_solve_order_bool_is_rejected(self):
+        # Sequence 0 has order=1, so True keeps numeric equality (True == 1) and only
+        # the reference-side exact-type guard can reject it.
+        reference = json.loads(REFERENCE_SOLVE.read_bytes().decode("utf-8"))
+        event = reference["pqr_input_probe"]["events"][0]
+        self.assertEqual(event["order"], 1)
+        event["order"] = True
+        self.assertTrue(event["order"] == 1)
+        result = compare(reference, _load_real_target())
+        self.assertEqual(result["status"], "rejected")
+        self.assertTrue(any("reference solve event 0" in reason
+                            for reason in result["reasons"]), result["reasons"])
+
+
 TARGET_MAJOR = (ROOT / "validation/coordination/g6-target-first-step-20260913"
                 / "with-major/first-step-trace.jsonl")
 
@@ -279,12 +525,6 @@ class MainReviewFixTests(unittest.TestCase):
                  if d["sign_flip"]]
         self.assertTrue(flips)
         self.assertTrue(all(d["ulp"] is None for d in flips))
-
-
-REFERENCE_SOLVE = (ROOT / "validation/coordination/g6-reference-probe-20260913"
-                   / "run-05/reference-first-step.json")
-TARGET_SOLVE = (ROOT / "validation/coordination/g6-target-mrdivide-20260913"
-                / "first-step-trace.jsonl")
 
 
 def load_solve():
