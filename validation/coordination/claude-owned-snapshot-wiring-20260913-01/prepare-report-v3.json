@@ -1,0 +1,17 @@
+{
+  "schema": "wksim.owned-snapshot-wiring-prepare.v3",
+  "classification": "diagnostic_only",
+  "full_acceptance": false,
+  "supersedes": "run_joint_flight-owned-snapshot-candidate-v2.py.txt (v2 retained)",
+  "baseline_sha256": "08e20642f82f9052284f3054ae91c57d5d7e77017fb996e11d748bb98a86db99",
+  "candidate_sha256": "1c600d7f018376f5c6fe333f0fd5da75798834c5f09e843078b0939142774373",
+  "helper_sha256": "a3f3baddbe6e77bed5727e840ef6a4c7066291ce5f50c706f848e7b1716f8e9e",
+  "v3_review_fixes": [
+    "success path calls the after capture once after the timed segment closes, before clock stop and the manual worker teardown; ExitStack callback is the exception-path fallback under an explicit after_attempted once-state",
+    "targets frozen once at 'before' with minimal identity + real manager identity; 'after' reuses the frozen file and re-verifies its pinned hash, never regenerates",
+    "only a validated capture enters verified metadata; raw failed-validation files are retained with validated=false; hash failures record metadata_error",
+    "helper pin checked before import; imported module origin must equal the pinned path"
+  ],
+  "strip_marked_restores_baseline": true,
+  "not_applied_to_runtime": true
+}

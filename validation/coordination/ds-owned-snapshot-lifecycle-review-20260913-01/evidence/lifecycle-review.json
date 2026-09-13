@@ -1,0 +1,412 @@
+{
+  "anchor_lines": {
+    "helperside_write": {
+      "line": 462,
+      "path": "tools\\capture_owned_scheduling.py",
+      "text": "with self.output.open(\"x\", encoding=\"utf-8\") as stream:"
+    },
+    "v2_after_capture": {
+      "line": 1088,
+      "path": "validation\\coordination\\claude-owned-snapshot-wiring-20260913-01\\run_joint_flight-owned-snapshot-candidate-v2.py.txt",
+      "text": "outcome = owned_snapshot_capture('after')"
+    },
+    "v2_after_registration": {
+      "line": 1094,
+      "path": "validation\\coordination\\claude-owned-snapshot-wiring-20260913-01\\run_joint_flight-owned-snapshot-candidate-v2.py.txt",
+      "text": "resources.callback(owned_snapshot_after)"
+    },
+    "v2_before_capture": {
+      "line": 1070,
+      "path": "validation\\coordination\\claude-owned-snapshot-wiring-20260913-01\\run_joint_flight-owned-snapshot-candidate-v2.py.txt",
+      "text": "outcome = owned_snapshot_capture('before')"
+    },
+    "v2_connect": {
+      "line": 1079,
+      "path": "validation\\coordination\\claude-owned-snapshot-wiring-20260913-01\\run_joint_flight-owned-snapshot-candidate-v2.py.txt",
+      "text": "physics.connect()"
+    },
+    "v2_exitstack_open": {
+      "line": 907,
+      "path": "validation\\coordination\\claude-owned-snapshot-wiring-20260913-01\\run_joint_flight-owned-snapshot-candidate-v2.py.txt",
+      "text": "with ExitStack() as resources:"
+    },
+    "v2_finally_cleanup": {
+      "line": 1262,
+      "path": "validation\\coordination\\claude-owned-snapshot-wiring-20260913-01\\run_joint_flight-owned-snapshot-candidate-v2.py.txt",
+      "text": "cleanup_children(result, children, child_specs,"
+    },
+    "v2_model_close": {
+      "line": 1249,
+      "path": "validation\\coordination\\claude-owned-snapshot-wiring-20260913-01\\run_joint_flight-owned-snapshot-candidate-v2.py.txt",
+      "text": "for child in workers.values():"
+    },
+    "v2_model_stdin_close": {
+      "line": 1250,
+      "path": "validation\\coordination\\claude-owned-snapshot-wiring-20260913-01\\run_joint_flight-owned-snapshot-candidate-v2.py.txt",
+      "text": "child.stdin.close(); child.wait(timeout=3)"
+    },
+    "v2_pass_status": {
+      "line": 1252,
+      "path": "validation\\coordination\\claude-owned-snapshot-wiring-20260913-01\\run_joint_flight-owned-snapshot-candidate-v2.py.txt",
+      "text": "result['status']='pass'"
+    },
+    "v2_refresh_adopt": {
+      "line": 1357,
+      "path": "validation\\coordination\\claude-owned-snapshot-wiring-20260913-01\\run_joint_flight-owned-snapshot-candidate-v2.py.txt",
+      "text": "refreshed[phase] = (dict(file=path.name, sha256=digest(path))"
+    },
+    "v2_refresh_lookup": {
+      "line": 1355,
+      "path": "validation\\coordination\\claude-owned-snapshot-wiring-20260913-01\\run_joint_flight-owned-snapshot-candidate-v2.py.txt",
+      "text": "for phase in ('before', 'after'):"
+    },
+    "v2_retire_stdin_close": {
+      "line": 252,
+      "path": "validation\\coordination\\claude-owned-snapshot-wiring-20260913-01\\run_joint_flight-owned-snapshot-candidate-v2.py.txt",
+      "text": "stream.close()"
+    },
+    "v2_retire_workers": {
+      "line": 233,
+      "path": "validation\\coordination\\claude-owned-snapshot-wiring-20260913-01\\run_joint_flight-owned-snapshot-candidate-v2.py.txt",
+      "text": "def retire_model_workers(children, child_specs, *, timeout=3):"
+    },
+    "v2_status_downgrade": {
+      "line": 1370,
+      "path": "validation\\coordination\\claude-owned-snapshot-wiring-20260913-01\\run_joint_flight-owned-snapshot-candidate-v2.py.txt",
+      "text": "if owned_snapshot and result['status'] == 'pass':"
+    },
+    "v2_stop_action": {
+      "line": 1244,
+      "path": "validation\\coordination\\claude-owned-snapshot-wiring-20260913-01\\run_joint_flight-owned-snapshot-candidate-v2.py.txt",
+      "text": "clock.request(dict(version=1,epoch=clock.epoch,request_id=clock.last_request+1,action='stop'))"
+    },
+    "v3_after_registration": {
+      "line": 1115,
+      "path": "validation\\coordination\\claude-owned-snapshot-wiring-20260913-01\\run_joint_flight-owned-snapshot-candidate-v3.py.txt",
+      "text": "resources.callback(owned_snapshot_after_once)"
+    },
+    "v3_before_capture": {
+      "line": 1099,
+      "path": "validation\\coordination\\claude-owned-snapshot-wiring-20260913-01\\run_joint_flight-owned-snapshot-candidate-v3.py.txt",
+      "text": "owned_snapshot_capture('before')"
+    },
+    "v3_connect": {
+      "line": 1107,
+      "path": "validation\\coordination\\claude-owned-snapshot-wiring-20260913-01\\run_joint_flight-owned-snapshot-candidate-v3.py.txt",
+      "text": "physics.connect()"
+    },
+    "v3_exitstack_open": {
+      "line": 917,
+      "path": "validation\\coordination\\claude-owned-snapshot-wiring-20260913-01\\run_joint_flight-owned-snapshot-candidate-v3.py.txt",
+      "text": "with ExitStack() as resources:"
+    },
+    "v3_finally_cleanup": {
+      "line": 1291,
+      "path": "validation\\coordination\\claude-owned-snapshot-wiring-20260913-01\\run_joint_flight-owned-snapshot-candidate-v3.py.txt",
+      "text": "cleanup_children(result, children, child_specs,"
+    },
+    "v3_model_close": {
+      "line": 1278,
+      "path": "validation\\coordination\\claude-owned-snapshot-wiring-20260913-01\\run_joint_flight-owned-snapshot-candidate-v3.py.txt",
+      "text": "for child in workers.values():"
+    },
+    "v3_model_stdin_close": {
+      "line": 1279,
+      "path": "validation\\coordination\\claude-owned-snapshot-wiring-20260913-01\\run_joint_flight-owned-snapshot-candidate-v3.py.txt",
+      "text": "child.stdin.close(); child.wait(timeout=3)"
+    },
+    "v3_once_def": {
+      "line": 1086,
+      "path": "validation\\coordination\\claude-owned-snapshot-wiring-20260913-01\\run_joint_flight-owned-snapshot-candidate-v3.py.txt",
+      "text": "def owned_snapshot_after_once():"
+    },
+    "v3_once_guard": {
+      "line": 1088,
+      "path": "validation\\coordination\\claude-owned-snapshot-wiring-20260913-01\\run_joint_flight-owned-snapshot-candidate-v3.py.txt",
+      "text": "if meta.get('after_attempted'):"
+    },
+    "v3_pass_status": {
+      "line": 1281,
+      "path": "validation\\coordination\\claude-owned-snapshot-wiring-20260913-01\\run_joint_flight-owned-snapshot-candidate-v3.py.txt",
+      "text": "result['status']='pass'"
+    },
+    "v3_refresh_adopt": {
+      "line": 1388,
+      "path": "validation\\coordination\\claude-owned-snapshot-wiring-20260913-01\\run_joint_flight-owned-snapshot-candidate-v3.py.txt",
+      "text": "refreshed[phase] = dict(file=path.name, sha256=digest(path),"
+    },
+    "v3_refresh_missing": {
+      "line": 1394,
+      "path": "validation\\coordination\\claude-owned-snapshot-wiring-20260913-01\\run_joint_flight-owned-snapshot-candidate-v3.py.txt",
+      "text": "raise ValueError('validated %s capture file is missing' % phase)"
+    },
+    "v3_refresh_raw_note": {
+      "line": 1392,
+      "path": "validation\\coordination\\claude-owned-snapshot-wiring-20260913-01\\run_joint_flight-owned-snapshot-candidate-v3.py.txt",
+      "text": "refreshed[phase]['note'] = 'raw file retained; capture did not validate'"
+    },
+    "v3_refresh_validated": {
+      "line": 1386,
+      "path": "validation\\coordination\\claude-owned-snapshot-wiring-20260913-01\\run_joint_flight-owned-snapshot-candidate-v3.py.txt",
+      "text": "validated = bool(meta.get(phase + '_validated'))"
+    },
+    "v3_stop_action": {
+      "line": 1273,
+      "path": "validation\\coordination\\claude-owned-snapshot-wiring-20260913-01\\run_joint_flight-owned-snapshot-candidate-v3.py.txt",
+      "text": "clock.request(dict(version=1,epoch=clock.epoch,request_id=clock.last_request+1,action='stop'))"
+    },
+    "v3_success_after": {
+      "line": 1271,
+      "path": "validation\\coordination\\claude-owned-snapshot-wiring-20260913-01\\run_joint_flight-owned-snapshot-candidate-v3.py.txt",
+      "text": "owned_snapshot_after_once()"
+    },
+    "v3_validated_flag": {
+      "line": 1084,
+      "path": "validation\\coordination\\claude-owned-snapshot-wiring-20260913-01\\run_joint_flight-owned-snapshot-candidate-v3.py.txt",
+      "text": "meta[phase + '_validated'] = True  # only a validated capture earns this"
+    }
+  },
+  "anchors_verified": {
+    "helperside_write": true,
+    "v2_after_capture": true,
+    "v2_after_registration": true,
+    "v2_before_capture": true,
+    "v2_connect": true,
+    "v2_exitstack_open": true,
+    "v2_finally_cleanup": true,
+    "v2_model_close": true,
+    "v2_model_stdin_close": true,
+    "v2_pass_status": true,
+    "v2_refresh_adopt": true,
+    "v2_refresh_lookup": true,
+    "v2_retire_stdin_close": true,
+    "v2_retire_workers": true,
+    "v2_status_downgrade": true,
+    "v2_stop_action": true,
+    "v3_after_registration": true,
+    "v3_before_capture": true,
+    "v3_connect": true,
+    "v3_exitstack_open": true,
+    "v3_finally_cleanup": true,
+    "v3_model_close": true,
+    "v3_model_stdin_close": true,
+    "v3_once_def": true,
+    "v3_once_guard": true,
+    "v3_pass_status": true,
+    "v3_refresh_adopt": true,
+    "v3_refresh_missing": true,
+    "v3_refresh_raw_note": true,
+    "v3_refresh_validated": true,
+    "v3_stop_action": true,
+    "v3_success_after": true,
+    "v3_validated_flag": true
+  },
+  "capture_file_acceptance": {
+    "minimal_metadata_case": {
+      "branch_fired": 0,
+      "metadata_error": null,
+      "validated": true
+    },
+    "v2_refresh": "v2 lines 1355-1358 re-read any file at the capture path and record name+sha256, so a file whose phase says \"before\" or a stale file from an earlier run is presented as the after capture",
+    "v3_flag_retained": true,
+    "v3_refresh": "v3 lines 1386-1396 present validated=meta[phase+_validated]; a raw file is retained with an explicit note and never presented as verified"
+  },
+  "helper": {
+    "path": "tools/capture_owned_scheduling.py",
+    "pin_matches": true,
+    "sha256": "a3f3baddbe6e77bed5727e840ef6a4c7066291ce5f50c706f848e7b1716f8e9e"
+  },
+  "scenarios": [
+    {
+      "after_after": [
+        "exitstack_unwind",
+        "cleanup_children"
+      ],
+      "after_attempts": 1,
+      "after_validations": 0,
+      "before_after": [
+        "stop_action",
+        "model_close"
+      ],
+      "flight_status": "observed",
+      "meta": {
+        "after": null,
+        "before": null
+      },
+      "order": [
+        "stop_action",
+        "model_close",
+        "after_capture",
+        "exitstack_unwind",
+        "cleanup_children"
+      ],
+      "scenario": "v2-success"
+    },
+    {
+      "after_after": [],
+      "after_attempts": 1,
+      "after_validations": 0,
+      "before_after": [
+        "stop_action",
+        "model_close",
+        "exitstack_unwind",
+        "cleanup_children"
+      ],
+      "flight_status": "observed",
+      "meta": {
+        "after": null,
+        "after_error": "ValueError('targets file differs from history')",
+        "before": null
+      },
+      "order": [
+        "stop_action",
+        "model_close",
+        "exitstack_unwind",
+        "cleanup_children"
+      ],
+      "scenario": "v2-after-capture-failed"
+    },
+    {
+      "after_after": [
+        "cleanup_children"
+      ],
+      "after_attempts": 1,
+      "after_validations": 0,
+      "before_after": [],
+      "flight_status": "failed",
+      "meta": {
+        "after": null,
+        "before": null
+      },
+      "order": [
+        "after_capture",
+        "cleanup_children"
+      ],
+      "scenario": "v2-business-error"
+    },
+    {
+      "after_after": [],
+      "after_attempts": 0,
+      "after_validations": 0,
+      "before_after": [
+        "cleanup_children"
+      ],
+      "flight_status": "failed",
+      "meta": {
+        "after": null,
+        "before": null
+      },
+      "order": [
+        "cleanup_children"
+      ],
+      "scenario": "v2-connect-failed"
+    },
+    {
+      "after_after": [
+        "stop_action",
+        "model_close",
+        "exitstack_unwind",
+        "cleanup_children"
+      ],
+      "after_attempts": 1,
+      "after_validations": 1,
+      "before_after": [],
+      "flight_status": "observed",
+      "meta": {
+        "after": "owned-scheduling-after.json",
+        "after_attempted": true,
+        "after_validated": true,
+        "before": null
+      },
+      "order": [
+        "after_capture",
+        "stop_action",
+        "model_close",
+        "exitstack_unwind",
+        "cleanup_children"
+      ],
+      "scenario": "v3-success"
+    },
+    {
+      "after_after": [
+        "stop_action",
+        "model_close",
+        "cleanup_children"
+      ],
+      "after_attempts": 1,
+      "after_validations": 1,
+      "before_after": [],
+      "flight_status": "failed",
+      "meta": {
+        "after": "owned-scheduling-after.json",
+        "after_attempted": true,
+        "after_validated": true,
+        "before": null
+      },
+      "order": [
+        "after_capture",
+        "stop_action",
+        "model_close",
+        "cleanup_children"
+      ],
+      "scenario": "v3-model-close-error-once-guard"
+    },
+    {
+      "after_after": [],
+      "after_attempts": 0,
+      "after_validations": 0,
+      "before_after": [
+        "cleanup_children"
+      ],
+      "flight_status": "failed",
+      "meta": {
+        "after": null,
+        "before": null
+      },
+      "order": [
+        "cleanup_children"
+      ],
+      "scenario": "v3-connect-failed"
+    }
+  ],
+  "scope": "pure-event fixture for the owned-scheduling snapshot after-capture lifecycle",
+  "sources": {
+    "baseline": {
+      "bytes": 85065,
+      "path": "validation\\coordination\\claude-owned-snapshot-wiring-20260913-01\\baseline-run_joint_flight-08e20642.py.txt",
+      "sha256": "08e20642f82f9052284f3054ae91c57d5d7e77017fb996e11d748bb98a86db99"
+    },
+    "v1": {
+      "bytes": 91140,
+      "path": "validation\\coordination\\claude-owned-snapshot-wiring-20260913-01\\run_joint_flight-owned-snapshot-candidate.py.txt",
+      "sha256": "080476dfaf4723956c4bb98eb649aab868eb47591aff336d0ea6100e6caddc57"
+    },
+    "v2": {
+      "bytes": 95896,
+      "path": "validation\\coordination\\claude-owned-snapshot-wiring-20260913-01\\run_joint_flight-owned-snapshot-candidate-v2.py.txt",
+      "sha256": "acc2713e57b509c5156dc04908c956b065197bf8265801045fded3de74ae4b23"
+    },
+    "v3": {
+      "bytes": 98262,
+      "path": "validation\\coordination\\claude-owned-snapshot-wiring-20260913-01\\run_joint_flight-owned-snapshot-candidate-v3.py.txt",
+      "sha256": "1c600d7f018376f5c6fe333f0fd5da75798834c5f09e843078b0939142774373"
+    }
+  },
+  "v2_defect": {
+    "after_registration_line": 1094,
+    "cleanup_children_line": 1262,
+    "model_stdin_close_line": 1250,
+    "statement": "the after capture is registered only as an ExitStack callback, so it runs while the with-block unwinds: after the stop request, after the runner's own child.stdin.close()/wait() model teardown, and its capture is therefore taken against a model that has already exited",
+    "stop_line": 1244
+  },
+  "v3_fix": {
+    "backstop_registration_line": 1115,
+    "cleanup_children_line": 1291,
+    "model_stdin_close_line": 1279,
+    "once_guard_line": 1088,
+    "statement": "one explicit once-guarded after capture before the stop request and before the model teardown; the ExitStack registration is an error-unwind backstop that the once-state turns into a no-op",
+    "stop_line": 1273,
+    "success_call_line": 1271,
+    "validated_flag_line": 1084
+  }
+}

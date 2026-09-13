@@ -1,0 +1,187 @@
+{
+  "receipt_id": "sha-receipt-20260913-09",
+  "review_scope": "independent pure-fixture review of the owned-scheduling snapshot after-capture lifecycle across baseline 08e20642, candidate v1, v2 and v3",
+  "review_owner": "validation/coordination/ds-owned-snapshot-lifecycle-review-20260913-01",
+  "verdict": {
+    "A_v2_gap": "confirmed",
+    "B_v3_requirements": "all four satisfied",
+    "C_failed_capture_re_designation": "v2 defective, v3 fixed",
+    "residual": [
+      "R1 v2 block 7 refresh must not adopt raw files (superseded by v3)",
+      "R2 v3 internal bookkeeping flags leak into result.json",
+      "R3 v3 refresh trusts the in-memory validated flag and never re-reads the file phase"
+    ],
+    "blocking": false
+  },
+  "produced": {
+    "lifecycle_fixture.py": "e4ed699e85342eafa066382e8f900694074d3e7fdd6e90da047c48c08bb41eb1",
+    "test_snapshot_lifecycle.py": "63f5e50b91831154a8294773475c5ceb1f262c6ed600585eac4b9ea1f0cd5b5c",
+    "run_lifecycle_review.py": "574633b43b446362073a459fcea5c8350d5eceddfa87503f3c57684bc46ab10e",
+    "review-snapshot-lifecycle.md": "1631195074aedc8d8683dba31773d817b2b81bd93f2424e87e3cd2dd35f46f82",
+    "evidence/lifecycle-review.json": "7df347369f292b68634a40f2b82ac14dbd95b33890d8c4e7d81ce01cf029cb99",
+    "evidence/lifecycle-traces.jsonl": "bff9e37e7934a063012ee18f5f502395086536a98113a96d1f82547f9d06d0fc"
+  },
+  "rerun": {
+    "test_snapshot_lifecycle.py": {
+      "exit_code": 0,
+      "result": "OK",
+      "tests": 29,
+      "source_line_anchor_assertions": "all cited lines verbatim"
+    },
+    "run_lifecycle_review.py": {
+      "exit_code": 0,
+      "anchors_all_verified": true,
+      "scenarios": 7
+    }
+  },
+  "reviewed_sources": {
+    "validation/coordination/ds-parent-probe-retention-20260913-01/run_joint_flight-candidate.py.txt": {
+      "sha256": "08e20642f82f9052284f3054ae91c57d5d7e77017fb996e11d748bb98a86db99",
+      "role": "baseline 08e20642; has no owned-snapshot wiring at all"
+    },
+    "validation/coordination/claude-owned-snapshot-wiring-20260913-01/run_joint_flight-owned-snapshot-candidate.py.txt": {
+      "sha256": "080476dfaf4723956c4bb98eb649aab868eb47591aff336d0ea6100e6caddc57",
+      "role": "v1; same ExitStack-only after shape as v2"
+    },
+    "validation/coordination/claude-owned-snapshot-wiring-20260913-01/run_joint_flight-owned-snapshot-candidate-v2.py.txt": {
+      "sha256": "acc2713e57b509c5156dc04908c956b065197bf8265801045fded3de74ae4b23",
+      "role": "v2; audited for gap A and defect C"
+    },
+    "validation/coordination/claude-owned-snapshot-wiring-20260913-01/run_joint_flight-owned-snapshot-candidate-v3.py.txt": {
+      "sha256": "1c600d7f018376f5c6fe333f0fd5da75798834c5f09e843078b0939142774373",
+      "role": "v3; arrived during the review, acceptance-tested"
+    },
+    "tools/capture_owned_scheduling.py": {
+      "sha256": "a3f3baddbe6e77bed5727e840ef6a4c7066291ce5f50c706f848e7b1716f8e9e",
+      "pin_matches_candidates": true,
+      "role": "helper; exclusive-create write at line 462, phase passed through"
+    },
+    "validation/coordination/claude-owned-snapshot-wiring-20260913-01/prepare-report-v2.json": {
+      "sha256": "6a792060ca2ed370cb3194e72c93b56d682c7776cae5d1dcb69340c043be1377"
+    },
+    "validation/coordination/claude-owned-snapshot-wiring-20260913-01/prepare-report-v3.json": {
+      "sha256": "f6a812fd61fdb915e27e2a13d6905312a9799e1f43b94a1e16e1db64162a1565"
+    }
+  },
+  "source_lines_cited": {
+    "v2": {
+      "exitstack_open": 907,
+      "after_registration": 1094,
+      "stop_action": 1244,
+      "model_close": 1249,
+      "model_stdin_close": 1250,
+      "pass_status": 1252,
+      "finally_cleanup": 1262,
+      "retire_model_workers": 233,
+      "retire_stdin_close": 252,
+      "after_capture_call": 1088,
+      "before_capture_call": 1070,
+      "connect": 1079,
+      "refresh_lookup": 1355,
+      "refresh_adopt": 1357,
+      "status_downgrade": 1370
+    },
+    "v3": {
+      "exitstack_open": 917,
+      "after_once_def": 1086,
+      "once_guard": 1088,
+      "validated_flag": 1084,
+      "before_capture_call": 1099,
+      "connect": 1107,
+      "after_registration": 1115,
+      "success_after_call": 1271,
+      "stop_action": 1273,
+      "model_close": 1278,
+      "model_stdin_close": 1279,
+      "pass_status": 1281,
+      "finally_cleanup": 1291,
+      "refresh_validated": 1386,
+      "refresh_adopt": 1388,
+      "refresh_raw_note": 1392,
+      "refresh_missing": 1394
+    }
+  },
+  "gap_A_evidence": {
+    "statement": "v2 registers the after capture only as an ExitStack callback, so it runs while the with-block unwinds: after the stop request (1244), after the runner's own child.stdin.close()/wait() model teardown (1249-1250), and before the finally cleanup_children (1262)",
+    "v2_success_order": [
+      "stop_action",
+      "model_close",
+      "after_capture",
+      "exitstack_unwind",
+      "cleanup_children"
+    ],
+    "v2_success_before_after": [
+      "stop_action",
+      "model_close"
+    ],
+    "v2_connect_failed_attempts": 0,
+    "v2_business_error_attempts": 1,
+    "not_two_arbitrary_callbacks": "every fixture event carries the real source file, line and verbatim text; tests assert those lines first"
+  },
+  "v3_acceptance": {
+    "after_before_stop_and_model_close_exactly_once": {
+      "ok": true,
+      "success_order": [
+        "after_capture",
+        "stop_action",
+        "model_close",
+        "exitstack_unwind",
+        "cleanup_children"
+      ],
+      "before_after": [],
+      "attempts": 1,
+      "validations": 1
+    },
+    "exception_unwind_backstop_exactly_once": {
+      "ok": true,
+      "close_error_scenario": {
+        "attempts": 1,
+        "validations": 1,
+        "after_skipped_once": 1
+      },
+      "failed_capture_scenario": {
+        "attempts": 1,
+        "validations": 0,
+        "after_skipped_once": 1
+      }
+    },
+    "connect_failure_fabricates_no_after": {
+      "ok": true,
+      "attempts": 0,
+      "after": null,
+      "after_error": null,
+      "after_skipped_unconnected": 1
+    },
+    "regression_after_placed_after_stop_is_rejected": {
+      "ok": true,
+      "before_after": [
+        "stop_action"
+      ]
+    }
+  },
+  "capture_file_acceptance": {
+    "v2": {
+      "defect": true,
+      "mechanism": "block 7 (1350-1369) only checks path.is_file(), then records name+sha256; the file's phase and provenance are never inspected",
+      "cases": [
+        "wrong-phase file adopted as after",
+        "stale after file from a previous failed run adopted as after"
+      ]
+    },
+    "v3": {
+      "fixed": true,
+      "mechanism": "meta[phase+'_validated'] set only after the helper returned and host boot matched (1081-1084); refresh presents validated=meta.get(...) (1386) and marks raw files with an explicit note (1390-1392); a validated file that is missing raises metadata_error (1393-1394)",
+      "isolation_case": "v3-legacy-refresh adopts the same stale file while v3 rejects it as raw"
+    }
+  },
+  "constraints_honored": {
+    "wrote_only_assigned_directory": true,
+    "read_only_over_author_files": true,
+    "no_model_ros_build_or_runtime_execution": true,
+    "no_edit_to_author_candidates_helper_or_tools_run_joint_flight": true,
+    "no_polling_wait": "v2 evidence delivered first; v3 acceptance added when the candidate appeared",
+    "no_nested_agents": true,
+    "no_git_mutation": true
+  },
+  "blockers": []
+}
