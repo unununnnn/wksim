@@ -1,0 +1,151 @@
+{
+  "classification": "diagnostic_only",
+  "full_acceptance": false,
+  "claim": "measured differences of a synthetic pacing loop; not the simulator, not a controller, not a flight, and not true whole-flight overhead",
+  "no_performance_threshold": true,
+  "workload": {
+    "requested_duration_ns": 360000000000,
+    "requested_period_ns": 8000000,
+    "iterations": 45000
+  },
+  "base": {
+    "mode": "disabled",
+    "body_checksum": 6837446801634758657,
+    "loop": {
+      "slip_ns": {
+        "count": 45000,
+        "min_ns": 64813,
+        "median_ns": 3882773368,
+        "p90_ns": 6811988551,
+        "p99_ns": 7239928785,
+        "max_ns": 7287172613,
+        "sum_ns": 182491672375682,
+        "mean_ns": 4055370497
+      },
+      "start_to_end_ns": {
+        "count": 45000,
+        "min_ns": 480,
+        "median_ns": 544,
+        "p90_ns": 1283,
+        "p99_ns": 3484,
+        "max_ns": 67225,
+        "sum_ns": 33476728,
+        "mean_ns": 743
+      },
+      "end_minus_earliest_ns": {
+        "count": 45000,
+        "min_ns": 6782,
+        "median_ns": 99014,
+        "p90_ns": 340971,
+        "p99_ns": 787245,
+        "max_ns": 39803110,
+        "sum_ns": 7320649341,
+        "mean_ns": 162681
+      },
+      "slipped_iterations": 45000,
+      "missed_deadlines": 44898,
+      "min_actual_start_gap_ns": 8006285,
+      "min_actual_start_gap_defined": true,
+      "first_ideal_start_ns": 6502604979,
+      "last_end_ns": 373781778136,
+      "loop_span_ns": 367279173157
+    }
+  },
+  "variant": {
+    "mode": "enabled",
+    "body_checksum": 6837446801634758657,
+    "loop": {
+      "slip_ns": {
+        "count": 45000,
+        "min_ns": 72232,
+        "median_ns": 3188824270,
+        "p90_ns": 6336060974,
+        "p99_ns": 6761945438,
+        "max_ns": 6809082905,
+        "sum_ns": 158538033831958,
+        "mean_ns": 3523067418
+      },
+      "start_to_end_ns": {
+        "count": 45000,
+        "min_ns": 483,
+        "median_ns": 539,
+        "p90_ns": 1262,
+        "p99_ns": 3495,
+        "max_ns": 398302,
+        "sum_ns": 31582218,
+        "mean_ns": 701
+      },
+      "end_minus_earliest_ns": {
+        "count": 45000,
+        "min_ns": 9766,
+        "median_ns": 97244,
+        "p90_ns": 199819,
+        "p99_ns": 824878,
+        "max_ns": 1337387,
+        "sum_ns": 6840665123,
+        "mean_ns": 152014
+      },
+      "slipped_iterations": 45000,
+      "missed_deadlines": 44914,
+      "min_actual_start_gap_ns": 8009273,
+      "min_actual_start_gap_defined": true,
+      "first_ideal_start_ns": 373856450581,
+      "last_end_ns": 740657534022,
+      "loop_span_ns": 366801083441
+    }
+  },
+  "statistics_definition": "sorted ascending; median is the lower middle element; p90/p99 are index int(p*n) clamped to the last element",
+  "measured_deltas": {
+    "loop_span_ns": {
+      "base": 367279173157,
+      "variant": 366801083441,
+      "delta": -478089716,
+      "delta_us": -478089.716
+    },
+    "owner_thread_cpu_ns": {
+      "base": 637716000,
+      "variant": 793094000,
+      "delta": 155378000,
+      "delta_us": 155378.0
+    },
+    "process_cpu_ns": {
+      "base": 637716000,
+      "variant": 1288984000,
+      "delta": 651268000,
+      "delta_us": 651268.0
+    },
+    "mean_slip_ns": {
+      "base": 4055370497,
+      "variant": 3523067418,
+      "delta": -532303079,
+      "delta_us": -532303.079
+    },
+    "p99_slip_ns": {
+      "base": 7239928785,
+      "variant": 6761945438,
+      "delta": -477983347,
+      "delta_us": -477983.347
+    },
+    "mean_start_to_end_ns": {
+      "base": 743,
+      "variant": 701,
+      "delta": -42,
+      "delta_us": -0.042
+    },
+    "slipped_iterations": {
+      "base": 45000,
+      "variant": 45000,
+      "delta": 0,
+      "delta_us": 0.0
+    },
+    "missed_deadlines": {
+      "base": 44898,
+      "variant": 44914,
+      "delta": 16,
+      "delta_us": 0.016
+    },
+    "recorder_start_span_ns": 67885407,
+    "recorder_stop_span_ns": 6441002,
+    "explanation": "the two rows are separate processes measured at different times, so these deltas include scheduler noise, CPU migration and co-tenant activity; a small or zero getrusage delta means below-resolution, not zero cost"
+  }
+}

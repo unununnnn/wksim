@@ -1,0 +1,303 @@
+{
+  "directory": "/root/wksim-overhead-long-kbfe59jz",
+  "boot_id": "d01554f1-f19e-4193-8668-69754d6a9170",
+  "source_sha256": {
+    "bench_overhead.c": "e51535a4dfce2107dbc9f8f3f30e68ee094a3a38bb72d1158160fede969df2c7",
+    "analyze_overhead.py": "9da94c6fb9980953550e141797f6c56ae4f9e8482b641365db08518f68dd277e",
+    "wksim_perf_stream.c": "aa807f3baaafcd64ed6174a49f8010b49798a74d139ead2d4eb69eafa503c1d2",
+    "wksim_perf_stream.h": "ef1eabf247107098dc59a314d99b8fc82d4c54dbddd58d645bcec35141a12823",
+    "perf_stream_consumer.py": "dee9a3b5c3cafb42e69836758ccaebd4dbd78e8fa569d203c7ca1d36a03179bc"
+  },
+  "commands": [
+    {
+      "name": "build-shared-recorder",
+      "argv": [
+        "cc",
+        "-std=c11",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pthread",
+        "-I.",
+        "-shared",
+        "-fPIC",
+        "-o",
+        "libwksim_perf_stream.so",
+        "wksim_perf_stream.c"
+      ],
+      "pid": 768,
+      "exit_code": 0,
+      "timed_out": false,
+      "pgid_empty": true,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "name": "build-bench",
+      "argv": [
+        "cc",
+        "-std=c11",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pthread",
+        "-I.",
+        "-o",
+        "bench",
+        "bench_overhead.c",
+        "-L.",
+        "-Wl,-rpath,/root/wksim-overhead-long-kbfe59jz",
+        "-lwksim_perf_stream"
+      ],
+      "pid": 774,
+      "exit_code": 0,
+      "timed_out": false,
+      "pgid_empty": true,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "name": "disabled-360s",
+      "argv": [
+        "./bench",
+        "360000000000",
+        "8000000",
+        "disabled",
+        "/root/wksim-overhead-long-kbfe59jz/disabled"
+      ],
+      "pid": 779,
+      "exit_code": 0,
+      "timed_out": false,
+      "pgid_empty": true,
+      "stdout": "bench: mode=disabled iterations=45000 loop_ns=367279173573 owner_cpu_ns=637716000 process_cpu_ns=637716000\n",
+      "stderr": ""
+    },
+    {
+      "name": "enabled-360s",
+      "argv": [
+        "./bench",
+        "360000000000",
+        "8000000",
+        "enabled",
+        "/root/wksim-overhead-long-kbfe59jz/enabled"
+      ],
+      "pid": 824,
+      "exit_code": 0,
+      "timed_out": false,
+      "pgid_empty": true,
+      "stdout": "bench: mode=enabled iterations=45000 loop_ns=366801083579 owner_cpu_ns=793094000 process_cpu_ns=1288984000\n",
+      "stderr": ""
+    },
+    {
+      "name": "analyze-pair",
+      "argv": [
+        "python3",
+        "-B",
+        "analyze_overhead.py",
+        "/root/wksim-overhead-long-kbfe59jz/disabled",
+        "/root/wksim-overhead-long-kbfe59jz/enabled",
+        "/root/wksim-overhead-long-kbfe59jz/overhead-long.json"
+      ],
+      "pid": 873,
+      "exit_code": 0,
+      "timed_out": false,
+      "pgid_empty": true,
+      "stdout": "workload: duration=360000000000 ns period=8000000 ns iterations=45000\nloop_span_ns           base=367279173157 variant=366801083441 delta=-478089716\nowner_thread_cpu_ns    base=637716000    variant=793094000    delta=155378000\nprocess_cpu_ns         base=637716000    variant=1288984000   delta=651268000\nmean_slip_ns           base=4055370497   variant=3523067418   delta=-532303079\np99_slip_ns            base=7239928785   variant=6761945438   delta=-477983347\nmean_start_to_end_ns   base=743          variant=701          delta=-42\nmissed_deadlines       base=44898        variant=44914        delta=16\nclassification=diagnostic_only full_acceptance=false; no threshold applied\n",
+      "stderr": ""
+    },
+    {
+      "name": "consume-enabled",
+      "argv": [
+        "python3",
+        "-B",
+        "perf_stream_consumer.py",
+        "--raw",
+        "/root/wksim-overhead-long-kbfe59jz/enabled/switch.raw",
+        "--metadata",
+        "/root/wksim-overhead-long-kbfe59jz/enabled/switch.meta.json",
+        "--output",
+        "/root/wksim-overhead-long-kbfe59jz/enabled/decoded.json",
+        "--require-kernel-counter"
+      ],
+      "pid": 874,
+      "exit_code": 0,
+      "timed_out": false,
+      "pgid_empty": true,
+      "stdout": "{\"metadata_sha256\": \"cef207a3b1c41f788bdb9bc89b41afa5d1392effde7d8c705f439c89a31cdff3\", \"ok\": true, \"output\": \"/root/wksim-overhead-long-kbfe59jz/enabled/decoded.json\", \"pairs\": 45001, \"raw_sha256\": \"fd68caf46b125d11eedb9bb23157c81acbbd7df08e79e4e387670c3a19ba041b\", \"records\": 90002, \"windows\": 0}\n",
+      "stderr": ""
+    }
+  ],
+  "checks": [
+    {
+      "name": "builds_exit_zero",
+      "ok": true,
+      "detail": [
+        0,
+        0
+      ]
+    },
+    {
+      "name": "long_rows_exit_zero",
+      "ok": true,
+      "detail": [
+        0,
+        0
+      ]
+    },
+    {
+      "name": "analyzer_exit_zero",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "strict_consumer_exit_zero",
+      "ok": true,
+      "detail": "{\"metadata_sha256\": \"cef207a3b1c41f788bdb9bc89b41afa5d1392effde7d8c705f439c89a31cdff3\", \"ok\": true, \"output\": \"/root/wksim-overhead-long-kbfe59jz/enabled/decoded.json\", \"pairs\": 45001, \"raw_sha256\": \"fd68caf46b125d11eedb9bb23157c81acbbd7df08e79e4e387670c3a19ba041b\", \"records\": 90002, \"windows\": 0}\n"
+    },
+    {
+      "name": "whole_requested_workload",
+      "ok": true,
+      "detail": {
+        "base": [
+          360000000000,
+          8000000,
+          45000
+        ],
+        "variant": [
+          360000000000,
+          8000000,
+          45000
+        ]
+      }
+    },
+    {
+      "name": "body_checksum_identical",
+      "ok": true,
+      "detail": [
+        6837446801634758657,
+        6837446801634758657
+      ]
+    },
+    {
+      "name": "same_boot",
+      "ok": true,
+      "detail": [
+        "d01554f1-f19e-4193-8668-69754d6a9170",
+        "d01554f1-f19e-4193-8668-69754d6a9170"
+      ]
+    },
+    {
+      "name": "all_process_groups_empty",
+      "ok": true,
+      "detail": [
+        {
+          "name": "build-shared-recorder",
+          "pgid_empty": true,
+          "timed_out": false
+        },
+        {
+          "name": "build-bench",
+          "pgid_empty": true,
+          "timed_out": false
+        },
+        {
+          "name": "disabled-360s",
+          "pgid_empty": true,
+          "timed_out": false
+        },
+        {
+          "name": "enabled-360s",
+          "pgid_empty": true,
+          "timed_out": false
+        },
+        {
+          "name": "analyze-pair",
+          "pgid_empty": true,
+          "timed_out": false
+        },
+        {
+          "name": "consume-enabled",
+          "pgid_empty": true,
+          "timed_out": false
+        }
+      ]
+    }
+  ],
+  "started_unix": 1789303989.3591316,
+  "ended_unix": 1789304721.2996957,
+  "boot_after": "d01554f1-f19e-4193-8668-69754d6a9170",
+  "linux_files": {
+    "disabled/result.json": {
+      "bytes": 1250,
+      "sha256": "e5efa906cf2210864d618b4f1d9989f8bb8e784788b73bc67ea557c2dd09ca88"
+    },
+    "disabled/timing.csv": {
+      "bytes": 2551328,
+      "sha256": "3035562f3973c95a3af544ad262599704f5447a02632e150ee6e8517ac39c457"
+    },
+    "enabled/result.json": {
+      "bytes": 1260,
+      "sha256": "8795ae81e727f6a140ca9b2c403fac8aa4f1ed8d19cd48245b32b90d96e9fc25"
+    },
+    "enabled/timing.csv": {
+      "bytes": 2598890,
+      "sha256": "cb10e24c553ea94c9f2209cf4592608a78e22cbad550b937bd9b96d4ddbb612d"
+    },
+    "enabled/switch.raw": {
+      "bytes": 2880064,
+      "sha256": "fd68caf46b125d11eedb9bb23157c81acbbd7df08e79e4e387670c3a19ba041b"
+    },
+    "enabled/switch.meta.json": {
+      "bytes": 1681,
+      "sha256": "cef207a3b1c41f788bdb9bc89b41afa5d1392effde7d8c705f439c89a31cdff3"
+    },
+    "overhead-long.json": {
+      "bytes": 4175,
+      "sha256": "9b431d2165eab46de77c85591ae6fcb85501977d6531661f6715883903c7ba30"
+    }
+  },
+  "decoded_not_copied": {
+    "path": "/root/wksim-overhead-long-kbfe59jz/enabled/decoded.json",
+    "bytes": 12761220,
+    "sha256": "19e8c0e9bcfffbe715a7d1176aa8163d4ef4216694e9733d377f5728bc179dca"
+  },
+  "ok": true,
+  "source_checkout": "C:\\Users\\PC\\Documents\\odid\u7f16\u8bd1\\wksim",
+  "source_head": "ec8e2d215a1ba1d4a1dfb4d28c50c5c9c6e55cef",
+  "architecture_ancestor_exit_code": 0,
+  "work_class": "new-development: whole-duration synthetic perf diagnostic",
+  "architecture_acceptance": false,
+  "full_acceptance": false,
+  "captured_files": {
+    "disabled/result.json": {
+      "bytes": 1250,
+      "sha256": "e5efa906cf2210864d618b4f1d9989f8bb8e784788b73bc67ea557c2dd09ca88"
+    },
+    "disabled/timing.csv": {
+      "bytes": 2551328,
+      "sha256": "3035562f3973c95a3af544ad262599704f5447a02632e150ee6e8517ac39c457"
+    },
+    "enabled/result.json": {
+      "bytes": 1260,
+      "sha256": "8795ae81e727f6a140ca9b2c403fac8aa4f1ed8d19cd48245b32b90d96e9fc25"
+    },
+    "enabled/timing.csv": {
+      "bytes": 2598890,
+      "sha256": "cb10e24c553ea94c9f2209cf4592608a78e22cbad550b937bd9b96d4ddbb612d"
+    },
+    "enabled/switch.raw": {
+      "bytes": 2880064,
+      "sha256": "fd68caf46b125d11eedb9bb23157c81acbbd7df08e79e4e387670c3a19ba041b"
+    },
+    "enabled/switch.meta.json": {
+      "bytes": 1681,
+      "sha256": "cef207a3b1c41f788bdb9bc89b41afa5d1392effde7d8c705f439c89a31cdff3"
+    },
+    "overhead-long.json": {
+      "bytes": 4175,
+      "sha256": "9b431d2165eab46de77c85591ae6fcb85501977d6531661f6715883903c7ba30"
+    }
+  }
+}

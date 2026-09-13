@@ -1,8 +1,8 @@
 {
-  "checked_unix": 1789303781,
+  "checked_unix": 1789304754,
   "cwd": "C:\\Users\\PC\\Documents\\odid编译\\wksim",
   "branch": "main",
-  "source_head": "ee9312a2db212773ce651f85285160a67ce17c6b",
+  "source_head": "ec8e2d215a1ba1d4a1dfb4d28c50c5c9c6e55cef",
   "architecture_ancestor_exit_code": 0,
   "tasks": [
     {
@@ -20,8 +20,8 @@
       "native_allowed": false,
       "initial_turnId": "8fe4eed2-7efc-4da2-b0cd-41f30fe737c7",
       "status": "completed",
-      "next_action": "Bounded native admission passed; main owns the paired whole-duration synthetic run and later actual MIXED integration.",
-      "checked_unix": 1789303781,
+      "next_action": "Whole-duration synthetic pair passed structural and loss-counter checks; main owns actual MIXED window integration.",
+      "checked_unix": 1789304754,
       "recovery": "Prior turn confirmed failed after restored runtime; resumed same thread and received a completed stable delivery.",
       "stable_sha256": {
         "bench_overhead.c": "e51535a4dfce2107dbc9f8f3f30e68ee094a3a38bb72d1158160fede969df2c7",
@@ -30,7 +30,16 @@
         "fault_inject.c": "e21afa16cca0d74cdfa74eb0c7996635b0807e9060481f19f551412d7906652f"
       },
       "native_verified": true,
-      "native_scope": "320 ms / 8 ms smoke, strict loss-counter consumer, and six fail-closed fault cases; whole-duration run pending"
+      "native_scope": "320 ms / 8 ms smoke, six fail-closed fault cases, plus one 360 s / 8 ms disabled-to-enabled synthetic pair with strict loss-counter validation",
+      "whole_duration_synthetic": {
+        "status": "completed",
+        "receipt": "validation/coordination/perf-overhead-long-20260913-01/receipt.json",
+        "iterations_per_mode": 45000,
+        "records": 90002,
+        "pairs": 45001,
+        "kernel_lost_count": 0,
+        "performance_threshold_applied": false
+      }
     },
     {
       "title": "Selective architecture MIXED wiring migration",

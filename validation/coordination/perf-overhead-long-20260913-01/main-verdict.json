@@ -1,0 +1,50 @@
+{
+  "checked_unix": 1789304754,
+  "classification": "whole-duration synthetic diagnostic; not flight acceptance",
+  "source_head": "ec8e2d215a1ba1d4a1dfb4d28c50c5c9c6e55cef",
+  "architecture_ancestor_exit_code": 0,
+  "source_sha256": {
+    "bench_overhead.c": "e51535a4dfce2107dbc9f8f3f30e68ee094a3a38bb72d1158160fede969df2c7",
+    "analyze_overhead.py": "9da94c6fb9980953550e141797f6c56ae4f9e8482b641365db08518f68dd277e",
+    "wksim_perf_stream.c": "aa807f3baaafcd64ed6174a49f8010b49798a74d139ead2d4eb69eafa503c1d2",
+    "wksim_perf_stream.h": "ef1eabf247107098dc59a314d99b8fc82d4c54dbddd58d645bcec35141a12823",
+    "perf_stream_consumer.py": "dee9a3b5c3cafb42e69836758ccaebd4dbd78e8fa569d203c7ca1d36a03179bc"
+  },
+  "workload": {
+    "requested_duration_ns": 360000000000,
+    "requested_period_ns": 8000000,
+    "iterations_per_mode": 45000,
+    "order": ["disabled", "enabled"],
+    "body_checksum": 6837446801634758657
+  },
+  "capture": {
+    "raw_bytes": 2880064,
+    "raw_sha256": "fd68caf46b125d11eedb9bb23157c81acbbd7df08e79e4e387670c3a19ba041b",
+    "metadata_sha256": "cef207a3b1c41f788bdb9bc89b41afa5d1392effde7d8c705f439c89a31cdff3",
+    "records": 90002,
+    "pairs": 45001,
+    "kernel_lost_count": 0,
+    "strict_consumer_exit_code": 0
+  },
+  "measured_deltas": {
+    "loop_span_ns": -478089716,
+    "owner_thread_cpu_ns": 155378000,
+    "process_cpu_ns": 651268000,
+    "mean_slip_ns": -532303079,
+    "p99_slip_ns": -477983347,
+    "mean_start_to_end_ns": -42,
+    "missed_deadlines": 16
+  },
+  "interpretation": "one sequential synthetic pair; wall and slip deltas contain scheduling noise and do not establish causal overhead or a performance threshold",
+  "all_process_groups_empty": true,
+  "same_boot": true,
+  "performance_threshold_applied": false,
+  "whole_duration_synthetic_complete": true,
+  "actual_mixed_complete": false,
+  "architecture_acceptance": false,
+  "full_acceptance": false,
+  "remaining": [
+    "bind the accepted recorder and Python adapter to the actual new-architecture MIXED rate window",
+    "run the affected native admission and preserve all original 1 ms, four-tick, no-catchup, 100 ms, identity and physical gates"
+  ]
+}

@@ -1,6 +1,6 @@
 # ds-perf-overhead-driver-20260913-01：配对 self-thread recorder 开销合成驱动
 
-status: **短时 native admission 已通过，完整时长未运行**。交付时 C 源码尚未运行；main 随后在私有 Ubuntu-22.04 目录编译相同 `bench_overhead.c` 字节，并在修正故障工具后完成短时 smoke、严格 consumer 与原生故障反例。Python 分析器的作者测试为 25 checks、0 failed。逐字节被中断的上一版草稿保留在 `historical-draft/`，**不作为交付物**，仅用于追溯。
+status: **短时 native admission 与 360 秒配对合成测量均已完成**。交付时 C 源码尚未运行；main 随后在私有 Ubuntu-22.04 目录编译相同 `bench_overhead.c` 字节，并在修正故障工具后完成短时 smoke、严格 consumer、原生故障反例及 360 秒 disabled/enabled 配对。Python 分析器的作者测试为 25 checks、0 failed。逐字节被中断的上一版草稿保留在 `historical-draft/`，**不作为交付物**，仅用于追溯。
 
 工作类别：new-development。实际 cwd `C:/Users/PC/Documents/odid编译/wksim`，分支 `main`，HEAD `0857cd95ed54bb976ef541bbb8462bde29c456e5`，`git merge-base --is-ancestor f333316e6efa6b299b4288a9d91fb2bccedfb9d6 HEAD` 退出码 `0`。本次只改本目录文件，不改 recorder/consumer/`perf_capture.py`、不接线 runner、不提交。
 
@@ -25,7 +25,13 @@ status: **短时 native admission 已通过，完整时长未运行**。交付�
 - start_begin、start 返回后时钟、CPU 基线、CPU 收尾四类注入均 exit 3，并由 stop wrapper trace 证明到达统一 owner stop 出口；没有 result/CSV 被接受。
 - `fclose` 第二次报告失败时两个 close 均被观察且 exit 3。真实 stop 成功并清空 handle 后由 wrapper 报告 -1 的反例也 exit 3，raw/metadata 仍由严格 consumer 验证为 80 records / 40 pairs，result/CSV 未生成。
 
-这些是 320 ms 合成 smoke 与清理合同验证；数值差异包含两个进程间的调度噪声，不能外推完整时长，更不构成真实 MIXED 或 Full 结果。
+这些是 320 ms 合成 smoke 与清理合同验证；该短测单独不能外推完整时长，更不构成真实 MIXED 或 Full 结果。
+
+## 360 秒配对合成测量
+
+完整原件位于 `validation/coordination/perf-overhead-long-20260913-01/`。main 使用相同已提交源码与 8 ms period，依次运行 disabled 和 enabled 各 360 秒、45,000 行；两场 checksum 均为 `6837446801634758657`。完整 raw 为 2,880,064 字节，严格 consumer 解出 90,002 records / 45,001 pairs，`kernel_lost_count=0`，无未知、截断或未配对记录。六个自有进程均未超时、PGID 为空，boot 前后一致。
+
+这一次顺序样本中，enabled 相对 disabled 的 loop span 为 `-478,089,716 ns`，owner-thread CPU 为 `+155,378,000 ns`，process CPU 为 `+651,268,000 ns`，missed-deadline 计数为 `+16`。负的 wall/slip 差值说明进程间调度噪声大于可直接归因的 recorder wall 开销；这里只保留实际测量值，不据单次顺序样本设置阈值或宣称 recorder 改善性能。无追赶规则使微小 oversleep 累积，因此两场实际 loop span 约为 367.279 s 与 366.801 s；45,000 行仍完整覆盖请求的 360 s / 8 ms 计划。
 
 ## 交付物
 
@@ -141,7 +147,7 @@ validation/coordination/ds-perf-stream-recorder-20260913-01/wksim_perf_stream.h
 
 ## 遗留限制（不掩盖）
 
-1. 短时 native admission 已验证编译、`clock_nanosleep`、perf recorder、严格 consumer 与故障清理；尚未运行完整时长的配对测量，因此没有长期扰动、整体开销或通过阈值结论。
+1. 已完成一组 360 秒顺序配对；仍只有 disabled→enabled 单次顺序样本，没有反向顺序或统计重复，因此只报告测量差值，不给出性能阈值或因果结论。
 2. `MIN_PERIOD_NS=1ms` 下限意味着 8 ms/360 s 位形可跑，但更细周期属于 spin 测试，本驱动拒绝。
 3. 单线程、单输出目录；未测多进程并发或与其它负载共存时的表示。
 4. `historical-draft/` 中的旧版含手写 SHA256/JSON 与排序采样，已知不符合本轮要求，仅作追溯，禁止据此继续开发。

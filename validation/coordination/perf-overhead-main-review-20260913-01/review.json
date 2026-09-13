@@ -1,6 +1,6 @@
 {
-  "checked_unix": 1789303781,
-  "classification": "accepted diagnostic module with bounded native admission; whole-duration run pending",
+  "checked_unix": 1789304754,
+  "classification": "accepted diagnostic module with bounded native admission and one whole-duration synthetic pair",
   "threadId": "ca00cdfe-65b6-4384-98ed-c281be8c60a8",
   "turnId": "63980b1a-2b85-48e1-a090-df97674cef74",
   "delegationId": "6be8d411-7660-4a59-a2e2-ff4ba1ffa8b4",
@@ -29,6 +29,25 @@
     "all_process_groups_empty": true,
     "same_boot": true
   },
+  "whole_duration_measurement": {
+    "receipt": "validation/coordination/perf-overhead-long-20260913-01/receipt.json",
+    "ok": true,
+    "duration_ns": 360000000000,
+    "period_ns": 8000000,
+    "iterations_per_mode": 45000,
+    "order": ["disabled", "enabled"],
+    "body_checksum_identical": true,
+    "strict_consumer_records": 90002,
+    "strict_consumer_pairs": 45001,
+    "kernel_lost_count": 0,
+    "loop_span_delta_ns": -478089716,
+    "owner_thread_cpu_delta_ns": 155378000,
+    "process_cpu_delta_ns": 651268000,
+    "missed_deadlines_delta": 16,
+    "all_process_groups_empty": true,
+    "same_boot": true,
+    "performance_threshold_applied": false
+  },
   "resolved_findings": [
     "nonzero stop with consumed handle cannot return success",
     "post-start instrumentation failures reach the owner-thread stop path",
@@ -43,11 +62,10 @@
     "log both fclose calls while still really closing the injected stream"
   ],
   "blockers": [],
-  "whole_duration_run": false,
+  "whole_duration_run": true,
   "full_acceptance": false,
   "architecture_acceptance": false,
   "remaining": [
-    "paired whole-duration synthetic measurement under the selected workload",
     "actual MIXED source/deployment/window binding and native flight acceptance"
   ]
 }

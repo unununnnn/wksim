@@ -1,0 +1,7 @@
+{"tool": "wksim_perf_overhead_bench", "version": 2, "classification": "diagnostic_only", "full_acceptance": false, "native_verified": false,
+ "claim": "synthetic pacing loop, not simulator, not controller, not flight; no true whole-flight overhead",
+ "mode": "enabled", "requested_duration_ns": 360000000000, "requested_period_ns": 8000000, "iterations": 45000,
+ "measurement": {"clock": "CLOCK_MONOTONIC", "sleep": "clock_nanosleep(TIMER_ABSTIME)", "catchup": false, "release": "earliest[k]=max(ideal[k],actual_start[k-1]+period_ns)", "loop_span_ns": 366801083579, "recorder_start_span_ns": 67885407, "recorder_stop_span_ns": 6441002, "body_checksum": 6837446801634758657, "cpu_window": "getrusage THREAD/SELF read after start returned and before stop was called; start and stop spans are outside it"},
+ "cpu": {"owner_thread": {"user_ns": 179995000, "sys_ns": 613099000, "cpu_ns": 793094000, "nvcsw": 45001, "nivcsw": 0, "minflt": 440, "majflt": 0}, "process": {"user_ns": 309352000, "sys_ns": 979632000, "cpu_ns": 1288984000}},
+ "recorder": {"enabled": true, "start_rc": 0, "stop_rc": 0, "retained": false},
+ "timing_rows": 45000, "timing_file": "timing.csv", "caveat": "percentiles and deltas are computed offline; no threshold verdict is contained here"}
