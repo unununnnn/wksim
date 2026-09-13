@@ -1,0 +1,180 @@
+{
+  "captured": {
+    "boottime_ns": 3988663330,
+    "monotonic_ns": 3988664974,
+    "wall_utc": "2026-09-13T06:01:49.706028+00:00"
+  },
+  "children": {
+    "path": "/root/wksim-release-acceptance-fe3/validation/last-callbacks-run-20260913-01/snapshot-self-test/targets.json",
+    "roles": 2,
+    "sha256": "7c1afda05ced2973ba5031a5a4fc5c203299026ed8513d1e72d09d3629777b95"
+  },
+  "host": {
+    "boot_id": "75592b14-5507-414d-ab5d-94d0e1b7bbcd",
+    "clock_ticks_per_second": 100,
+    "sched_rt_period_us": "1000000",
+    "sched_rt_runtime_us": "950000",
+    "sched_schedstats": "0",
+    "uptime_seconds": 3.98
+  },
+  "output": "/root/wksim-release-acceptance-fe3/validation/last-callbacks-run-20260913-01/snapshot-self-test/snapshot.json",
+  "performance_verdict": "not_evaluated",
+  "phase": "self_test",
+  "procs": {
+    "manager": {
+      "captured_monotonic_ns": 3988098820,
+      "expected": {
+        "pgid": 608,
+        "pid": 608,
+        "start_ticks": 343
+      },
+      "identity_after": {
+        "comm": "python3",
+        "num_threads": 1,
+        "pgid": 608,
+        "pid": 608,
+        "start_ticks": 343,
+        "state": "R"
+      },
+      "identity_before": {
+        "comm": "python3",
+        "num_threads": 1,
+        "pgid": 608,
+        "pid": 608,
+        "start_ticks": 343,
+        "state": "R"
+      },
+      "read_duration_ns": 263534,
+      "status": "captured",
+      "thread_count": 1,
+      "threads": [
+        {
+          "comm": "python3",
+          "missing": [
+            "schedstat.runqueue_ns",
+            "schedstat.timeslices"
+          ],
+          "proc_status": {
+            "cpus_allowed_list": "0-19",
+            "nonvoluntary_ctxt_switches": "1",
+            "voluntary_ctxt_switches": "56"
+          },
+          "read_consistent": true,
+          "sched": {
+            "kernel_prio": 120
+          },
+          "schedstat": {
+            "raw": {
+              "run_ns": 31696562,
+              "runqueue_ns": 34285,
+              "timeslices": 58
+            },
+            "run_ns": 31696562,
+            "runqueue_counters_valid": false,
+            "runqueue_invalid_reason": "sched_schedstats_disabled",
+            "runqueue_ns": null,
+            "timeslices": null
+          },
+          "start_ticks": 343,
+          "stat": {
+            "nice": 0,
+            "pgid": 608,
+            "policy": 0,
+            "priority": 20,
+            "rt_priority": 0,
+            "state": "R",
+            "stime_ticks": 1,
+            "utime_ticks": 1
+          },
+          "status": "captured",
+          "tid": 608,
+          "unavailable_reason": null
+        }
+      ],
+      "threads_captured": 1,
+      "threads_unavailable": 0
+    },
+    "owned_test_child": {
+      "captured_monotonic_ns": 3988367157,
+      "expected": {
+        "pgid": 700,
+        "pid": 700,
+        "start_ticks": 398
+      },
+      "identity_after": {
+        "comm": "python3",
+        "num_threads": 1,
+        "pgid": 700,
+        "pid": 700,
+        "start_ticks": 398,
+        "state": "R"
+      },
+      "identity_before": {
+        "comm": "python3",
+        "num_threads": 1,
+        "pgid": 700,
+        "pid": 700,
+        "start_ticks": 398,
+        "state": "R"
+      },
+      "read_duration_ns": 290515,
+      "status": "captured",
+      "thread_count": 1,
+      "threads": [
+        {
+          "comm": "python3",
+          "missing": [
+            "schedstat.runqueue_ns",
+            "schedstat.timeslices"
+          ],
+          "proc_status": {
+            "cpus_allowed_list": "0-19",
+            "nonvoluntary_ctxt_switches": "0",
+            "voluntary_ctxt_switches": "1"
+          },
+          "read_consistent": true,
+          "sched": {
+            "kernel_prio": 120
+          },
+          "schedstat": {
+            "raw": {
+              "run_ns": 410476,
+              "runqueue_ns": 0,
+              "timeslices": 2
+            },
+            "run_ns": 410476,
+            "runqueue_counters_valid": false,
+            "runqueue_invalid_reason": "sched_schedstats_disabled",
+            "runqueue_ns": null,
+            "timeslices": null
+          },
+          "start_ticks": 398,
+          "stat": {
+            "nice": 0,
+            "pgid": 700,
+            "policy": 0,
+            "priority": 20,
+            "rt_priority": 0,
+            "state": "R",
+            "stime_ticks": 0,
+            "utime_ticks": 0
+          },
+          "status": "captured",
+          "tid": 700,
+          "unavailable_reason": null
+        }
+      ],
+      "threads_captured": 1,
+      "threads_unavailable": 0
+    }
+  },
+  "sampler_sha256": "a3f3baddbe6e77bed5727e840ef6a4c7066291ce5f50c706f848e7b1716f8e9e",
+  "schema": "wksim.owned-scheduling-snapshot.v1",
+  "scope": "read-only diagnostic snapshot; owned children matched by exact pid/pgid/start_ticks; thread metrics discarded on identity change; schedstat runqueue counters effective only when sched_schedstats=1; missing metrics are null, never 0; no performance verdict",
+  "summary": {
+    "captured": 2,
+    "partial": 0,
+    "requested": 2,
+    "unavailable": 0
+  }
+}

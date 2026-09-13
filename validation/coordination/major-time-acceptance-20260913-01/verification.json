@@ -1,0 +1,65 @@
+{
+  "source": {
+    "builder": "tools/build_generated_e0_major.py",
+    "builder_sha256": "613f2cd83b2d5081012d04c3620ce1a8ab22bbcb48879d8c6554aed8f86248d1",
+    "driver_sha256": "d0a194b0cb4f60854f8a9f4f16de0199770dc05ec79d1c09c28184127c744051",
+    "generation_run_id": "short-cycle-codegen-01",
+    "header_sha256": "7601dbd721f0502e4bd67758d86cc21abf8e5c9568a31fb3160283df1df8c4bc",
+    "insertion_line": 7919,
+    "original_cpp_sha256": "2c25b3fa08c996c8f2ed1a7feae5558062cd722ae5d350cc8a25caf2be10b274",
+    "output_order": [
+      "Vehicle60",
+      "Sensor30",
+      "GPS30"
+    ],
+    "patched_cpp_sha256": "993f33ea3cfcd282418599c94ce6ef4d6265add76f7d9763039965f6c6c1dc9d",
+    "phase": "major root outputs complete; before subsequent explicit Update/ODE",
+    "root_inputs": [
+      "inPWMs[16]",
+      "TerrainIn15d[15]"
+    ],
+    "rtw_continuous_sha256": "8f2c78fdc5a097552078484c738aefcc944463c8834d2ca6319b76cedf526b18",
+    "rtw_solver_sha256": "359ff69aa94a137e8b246721ead52e056dd4fdf11c35a7f92ebb9f14e0cda674",
+    "rtwtypes_sha256": "1b08664b70d40d08ee2952ca47254bd16a9e045be8b5edc9781fe620fb7c199f"
+  },
+  "reference_revision": "SLX model 11.8",
+  "results": {
+    "Vehicle60": {
+      "rows": 501,
+      "slot": 2,
+      "unit": "s",
+      "both_sides_match_product_then_gain": true,
+      "differs_from_division_then_gain": 72,
+      "shifted_row_rejected": true,
+      "reference_row_width": 61,
+      "reference_row_time_division_matches": 429,
+      "reference_row_time_product_matches": 501
+    },
+    "Sensor30": {
+      "rows": 501,
+      "slot": 0,
+      "unit": "us",
+      "both_sides_match_product_then_gain": true,
+      "differs_from_division_then_gain": 61,
+      "shifted_row_rejected": true,
+      "reference_row_width": 31,
+      "reference_row_time_division_matches": 429,
+      "reference_row_time_product_matches": 501
+    },
+    "GPS30": {
+      "rows": 501,
+      "slot": 0,
+      "unit": "us",
+      "both_sides_match_product_then_gain": true,
+      "differs_from_division_then_gain": 61,
+      "shifted_row_rejected": true,
+      "reference_row_width": 31,
+      "reference_row_time_division_matches": 429,
+      "reference_row_time_product_matches": 501
+    }
+  },
+  "phase": "major outputs before update",
+  "runtime_index_relation": "zero-based call i returns runtime tick i+1; major row i precedes that update",
+  "budget_approved": false,
+  "g6_acceptance": false
+}
