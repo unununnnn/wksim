@@ -1,0 +1,783 @@
+{
+  "F1": {
+    "inside_box_witnesses": 16,
+    "nets": [
+      -0.35,
+      -0.35,
+      -0.35,
+      -0.35,
+      -0.35,
+      -0.35,
+      -0.35,
+      -0.35,
+      -0.35,
+      -0.35,
+      -0.35,
+      -0.35,
+      -0.35,
+      -0.35,
+      -0.35,
+      -0.35
+    ]
+  },
+  "F2": [
+    {
+      "calls": 4646,
+      "charge_m": 9.37928253573209e-16,
+      "delta": 0.0,
+      "evaluations": 4646,
+      "reason": null,
+      "speed": 4.224053333292564,
+      "status": "admitted"
+    },
+    {
+      "calls": 4646,
+      "charge_m": 1.875856507146418e-15,
+      "delta": 1.0,
+      "evaluations": 4646,
+      "reason": null,
+      "speed": 4.224053333292564,
+      "status": "admitted"
+    },
+    {
+      "calls": 4646,
+      "charge_m": 1.875856507146417e-15,
+      "delta": 4.0,
+      "evaluations": 4646,
+      "reason": null,
+      "speed": 4.224053333292562,
+      "status": "admitted"
+    },
+    {
+      "calls": 4646,
+      "charge_m": 2.401096329147475e-13,
+      "delta": 1000.0,
+      "evaluations": 4646,
+      "reason": null,
+      "speed": 4.2240533332926695,
+      "status": "admitted"
+    },
+    {
+      "calls": 4646,
+      "charge_m": 2.458722640983345e-10,
+      "delta": 1000000.0,
+      "evaluations": 4646,
+      "reason": null,
+      "speed": 4.224053333183287,
+      "status": "admitted"
+    },
+    {
+      "calls": 0,
+      "charge_m": 3.9339562240467765e-09,
+      "delta": 10000000.0,
+      "evaluations": 0,
+      "reason": "parameter_roundoff_exceeds_envelope",
+      "speed": 4.224053331544138,
+      "status": "indeterminate"
+    },
+    {
+      "calls": 0,
+      "charge_m": 0.0002578087616955993,
+      "delta": 1000000000000.0,
+      "evaluations": 0,
+      "reason": "parameter_roundoff_exceeds_envelope",
+      "speed": 4.2239387516206985,
+      "status": "indeterminate"
+    },
+    {
+      "calls": 0,
+      "charge_m": 0.2715462857116648,
+      "delta": 1000000000000000.0,
+      "evaluations": 0,
+      "reason": "parameter_roundoff_exceeds_envelope",
+      "speed": 4.3447405713866365,
+      "status": "indeterminate"
+    }
+  ],
+  "F3": {
+    "bad_complete": 0,
+    "bad_partial": 0,
+    "complete": 66,
+    "null": 0,
+    "partial": 74
+  },
+  "F4": [
+    {
+      "case": "overflow",
+      "interval": 1e-08,
+      "magnitude": 1e+308,
+      "ok": true
+    },
+    {
+      "case": "overflow",
+      "interval": 1e-12,
+      "magnitude": 1e+308,
+      "ok": true
+    },
+    {
+      "case": "overflow",
+      "interval": 1e-16,
+      "magnitude": 1e+308,
+      "ok": true
+    },
+    {
+      "case": "overflow",
+      "interval": 1e-08,
+      "magnitude": -1e+308,
+      "ok": true
+    },
+    {
+      "case": "overflow",
+      "interval": 1e-12,
+      "magnitude": -1e+308,
+      "ok": true
+    },
+    {
+      "case": "overflow",
+      "interval": 1e-16,
+      "magnitude": -1e+308,
+      "ok": true
+    }
+  ],
+  "ancestor_f333316e_is_ancestor": true,
+  "candidate_edited": false,
+  "candidate_only": true,
+  "cross_platform": {
+    "linux_ubuntu_22_04": {
+      "checks": 721,
+      "failed": 0,
+      "passed": 721
+    },
+    "same_check_names": true,
+    "same_check_statuses": true,
+    "windows": {
+      "checks": 721,
+      "failed": 0,
+      "passed": 721
+    }
+  },
+  "date": "2026-09-14",
+  "findings": [
+    {
+      "count": 0,
+      "id": null,
+      "items": [],
+      "severity": "P1"
+    },
+    {
+      "count": 0,
+      "id": null,
+      "items": [],
+      "severity": "P2"
+    },
+    {
+      "count": 3,
+      "items": [
+        {
+          "detail": "Public scans of family/line geometries with representable midpoints inside the envelope never fail closed on the n-partition gate. Collapse needs a step below ~ulp/2, but the target half-width plus the envelope force 4(t-2g) > 2g for every admissible tolerance. Fault injection still yields rejected / certificate_structure_invalid with evaluations=0 and empty spans.",
+          "evidence": {
+            "collapse_charge_m": 0.003999992,
+            "envelope_limit_m": 2e-09,
+            "public_driven": [],
+            "scanned": 66
+          },
+          "id": "P3-N1",
+          "severity": "P3",
+          "title": "unrepresentable n-partition gate is implemented but not a public decider"
+        },
+        {
+          "detail": "docs/plan/102-exact-clearance-candidate.md calls the rapidly-alternating 200-span representation a safe curve with a dense maximum of 57.6 m/s (ratio 2.08) versus V = 120 m/s. The on-disk alternating_witness() that produces V = 120, 200 spans and 60200 evaluations is unsafe (true net ~0.20 m). The quadratic B-spline of alternating +/-120 derivative controls has mid-span value 0.125*120 + 0.75*(-120) + 0.125*120 = -60, so the true supremum is 60.0 m/s and the true ratio is 2.00. 57.6 appears only on the 1001-point grid u = 0, 0.001, ..., 1.0, whose step is one tenth of the 0.01 s control-alternation period and never hits a span midpoint. Conservative direction: it over-states how loose V is. No certificate field changes.",
+          "evidence": {
+            "V": 120.00000000000257,
+            "dense_interior_m_per_s": 59.99851488824652,
+            "doc_ratio": 2.08,
+            "doc_value_m_per_s": 57.6,
+            "evaluations": 60200,
+            "grids": [
+              [
+                401,
+                60.00000000000118
+              ],
+              [
+                1000,
+                59.99993987981972
+              ],
+              [
+                1001,
+                57.60000000000137
+              ],
+              [
+                2001,
+                60.00000000000118
+              ],
+              [
+                5000,
+                59.99999759903967
+              ],
+              [
+                40001,
+                60.00000000000118
+              ]
+            ],
+            "reason": "obstacle_clearance_below_required",
+            "resonance_1001_m_per_s": 57.60000000000137,
+            "status": "rejected",
+            "true_ratio": 2.0000000000000036,
+            "true_supremum_m_per_s": 60.00000000000118
+          },
+          "id": "P3-DOC-576",
+          "severity": "P3",
+          "title": "measured-limits prose reports 57.6 m/s against a true derivative supremum of 60.0 m/s"
+        },
+        {
+          "detail": "admitted=False holds for every unclosed certificate checked here, but the status is not always indeterminate: an unsafe line with max_nodes_per_span=1 is rejected / obstacle_clearance_below_required with tolerance_met=False. The module docstring does not repeat the over-narrow status claim.",
+          "evidence": {
+            "admitted": false,
+            "reason": "obstacle_clearance_below_required",
+            "status": "rejected",
+            "tolerance_met": false
+          },
+          "id": "P3-DOC-R2",
+          "severity": "P3",
+          "title": "R2 wording says an unclosed certificate is indeterminate rather than admitted"
+        }
+      ],
+      "severity": "P3"
+    }
+  ],
+  "gates": {
+    "no_contract_overclaim": {
+      "documentation_p3": 2,
+      "ok": true
+    },
+    "zero_evaluate_call_on_fail_before_sampling": {
+      "empty_fail_closed_shape": true,
+      "indeterminate_roundoff": 12,
+      "matrix_cases": 16,
+      "ok": true,
+      "rejected_structure": 4,
+      "zero_evaluate_calls": true
+    },
+    "zero_fake_per_span_record": {
+      "ok": true
+    },
+    "zero_unsafe_admission_in_probe_and_suites": {
+      "ok": true
+    }
+  },
+  "git_mutated": false,
+  "hashes_recheck_unchanged": true,
+  "head": "6eafdf9c0b734db07a9fe790c86b409d3468c10b",
+  "independent_runs": {
+    "linux_ubuntu_22_04": {
+      "candidate_pytest": "53 passed, 162 subtests passed in 16.81s",
+      "candidate_unittest": "Ran 53 tests in 15.237s OK",
+      "four_file_pytest": "179 passed, 216 subtests passed in 24.93s",
+      "hostile_probe": "721/721 PASS",
+      "os": "Ubuntu 22.04.5 LTS",
+      "python": "3.10.12",
+      "tree": "same pinned working tree via /mnt/c; writes only under this review directory"
+    },
+    "windows": {
+      "candidate_pytest": "53 passed, 162 subtests passed in 18.08s",
+      "candidate_unittest": "Ran 53 tests in 17.761s OK",
+      "four_file_pytest": "179 passed, 216 subtests passed in 20.54s",
+      "hostile_probe": "721/721 PASS",
+      "python": "3.13.11"
+    }
+  },
+  "non_claims": [
+    "candidate only; not wired; not default; promotion not taken",
+    "not #102 / #39 / G3 / Full acceptance",
+    "no native / model / MATLAB / ROS / DDS / SITL / FC / UE / build / flight / #83",
+    "no git mutation",
+    "not #102 / #39 / G3 / Full acceptance",
+    "exact-rational critic is a falsifier, never a certificate"
+  ],
+  "partition": {
+    "collapse_charge": 0.003999992,
+    "driven": [],
+    "envelope_limit": 2e-09,
+    "scanned": 66
+  },
+  "primary_gate": [
+    {
+      "admitted": false,
+      "any_conclusive": false,
+      "binding_object": null,
+      "binding_span_index": null,
+      "bounds_scope": null,
+      "counted_calls": 0,
+      "evaluated_span_count": 0,
+      "evaluations": 0,
+      "hard_calls": 0,
+      "hard_raised": null,
+      "map_lower": null,
+      "map_upper": null,
+      "max_speed": null,
+      "n_spans": 0,
+      "nodes": 0,
+      "obstacle_lower": null,
+      "obstacle_upper": null,
+      "predicted_nonrep": [
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "reason": "certificate_structure_invalid",
+      "spacing": 1,
+      "start": 1.0,
+      "status": "rejected"
+    },
+    {
+      "admitted": false,
+      "any_conclusive": false,
+      "binding_object": null,
+      "binding_span_index": null,
+      "bounds_scope": null,
+      "counted_calls": 0,
+      "evaluated_span_count": 0,
+      "evaluations": 0,
+      "hard_calls": 0,
+      "hard_raised": null,
+      "map_lower": null,
+      "map_upper": null,
+      "max_speed": null,
+      "n_spans": 0,
+      "nodes": 0,
+      "obstacle_lower": null,
+      "obstacle_upper": null,
+      "predicted_nonrep": [],
+      "reason": "parameter_roundoff_exceeds_envelope",
+      "spacing": 2,
+      "start": 1.0,
+      "status": "indeterminate"
+    },
+    {
+      "admitted": false,
+      "any_conclusive": false,
+      "binding_object": null,
+      "binding_span_index": null,
+      "bounds_scope": null,
+      "counted_calls": 0,
+      "evaluated_span_count": 0,
+      "evaluations": 0,
+      "hard_calls": 0,
+      "hard_raised": null,
+      "map_lower": null,
+      "map_upper": null,
+      "max_speed": null,
+      "n_spans": 0,
+      "nodes": 0,
+      "obstacle_lower": null,
+      "obstacle_upper": null,
+      "predicted_nonrep": [],
+      "reason": "parameter_roundoff_exceeds_envelope",
+      "spacing": 4,
+      "start": 1.0,
+      "status": "indeterminate"
+    },
+    {
+      "admitted": false,
+      "any_conclusive": false,
+      "binding_object": null,
+      "binding_span_index": null,
+      "bounds_scope": null,
+      "counted_calls": 0,
+      "evaluated_span_count": 0,
+      "evaluations": 0,
+      "hard_calls": 0,
+      "hard_raised": null,
+      "map_lower": null,
+      "map_upper": null,
+      "max_speed": null,
+      "n_spans": 0,
+      "nodes": 0,
+      "obstacle_lower": null,
+      "obstacle_upper": null,
+      "predicted_nonrep": [],
+      "reason": "parameter_roundoff_exceeds_envelope",
+      "spacing": 8,
+      "start": 1.0,
+      "status": "indeterminate"
+    },
+    {
+      "admitted": false,
+      "any_conclusive": false,
+      "binding_object": null,
+      "binding_span_index": null,
+      "bounds_scope": null,
+      "counted_calls": 0,
+      "evaluated_span_count": 0,
+      "evaluations": 0,
+      "hard_calls": 0,
+      "hard_raised": null,
+      "map_lower": null,
+      "map_upper": null,
+      "max_speed": null,
+      "n_spans": 0,
+      "nodes": 0,
+      "obstacle_lower": null,
+      "obstacle_upper": null,
+      "predicted_nonrep": [
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "reason": "certificate_structure_invalid",
+      "spacing": 1,
+      "start": 1000.0,
+      "status": "rejected"
+    },
+    {
+      "admitted": false,
+      "any_conclusive": false,
+      "binding_object": null,
+      "binding_span_index": null,
+      "bounds_scope": null,
+      "counted_calls": 0,
+      "evaluated_span_count": 0,
+      "evaluations": 0,
+      "hard_calls": 0,
+      "hard_raised": null,
+      "map_lower": null,
+      "map_upper": null,
+      "max_speed": null,
+      "n_spans": 0,
+      "nodes": 0,
+      "obstacle_lower": null,
+      "obstacle_upper": null,
+      "predicted_nonrep": [],
+      "reason": "parameter_roundoff_exceeds_envelope",
+      "spacing": 2,
+      "start": 1000.0,
+      "status": "indeterminate"
+    },
+    {
+      "admitted": false,
+      "any_conclusive": false,
+      "binding_object": null,
+      "binding_span_index": null,
+      "bounds_scope": null,
+      "counted_calls": 0,
+      "evaluated_span_count": 0,
+      "evaluations": 0,
+      "hard_calls": 0,
+      "hard_raised": null,
+      "map_lower": null,
+      "map_upper": null,
+      "max_speed": null,
+      "n_spans": 0,
+      "nodes": 0,
+      "obstacle_lower": null,
+      "obstacle_upper": null,
+      "predicted_nonrep": [],
+      "reason": "parameter_roundoff_exceeds_envelope",
+      "spacing": 4,
+      "start": 1000.0,
+      "status": "indeterminate"
+    },
+    {
+      "admitted": false,
+      "any_conclusive": false,
+      "binding_object": null,
+      "binding_span_index": null,
+      "bounds_scope": null,
+      "counted_calls": 0,
+      "evaluated_span_count": 0,
+      "evaluations": 0,
+      "hard_calls": 0,
+      "hard_raised": null,
+      "map_lower": null,
+      "map_upper": null,
+      "max_speed": null,
+      "n_spans": 0,
+      "nodes": 0,
+      "obstacle_lower": null,
+      "obstacle_upper": null,
+      "predicted_nonrep": [],
+      "reason": "parameter_roundoff_exceeds_envelope",
+      "spacing": 8,
+      "start": 1000.0,
+      "status": "indeterminate"
+    },
+    {
+      "admitted": false,
+      "any_conclusive": false,
+      "binding_object": null,
+      "binding_span_index": null,
+      "bounds_scope": null,
+      "counted_calls": 0,
+      "evaluated_span_count": 0,
+      "evaluations": 0,
+      "hard_calls": 0,
+      "hard_raised": null,
+      "map_lower": null,
+      "map_upper": null,
+      "max_speed": null,
+      "n_spans": 0,
+      "nodes": 0,
+      "obstacle_lower": null,
+      "obstacle_upper": null,
+      "predicted_nonrep": [
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "reason": "certificate_structure_invalid",
+      "spacing": 1,
+      "start": 1000000.0,
+      "status": "rejected"
+    },
+    {
+      "admitted": false,
+      "any_conclusive": false,
+      "binding_object": null,
+      "binding_span_index": null,
+      "bounds_scope": null,
+      "counted_calls": 0,
+      "evaluated_span_count": 0,
+      "evaluations": 0,
+      "hard_calls": 0,
+      "hard_raised": null,
+      "map_lower": null,
+      "map_upper": null,
+      "max_speed": null,
+      "n_spans": 0,
+      "nodes": 0,
+      "obstacle_lower": null,
+      "obstacle_upper": null,
+      "predicted_nonrep": [],
+      "reason": "parameter_roundoff_exceeds_envelope",
+      "spacing": 2,
+      "start": 1000000.0,
+      "status": "indeterminate"
+    },
+    {
+      "admitted": false,
+      "any_conclusive": false,
+      "binding_object": null,
+      "binding_span_index": null,
+      "bounds_scope": null,
+      "counted_calls": 0,
+      "evaluated_span_count": 0,
+      "evaluations": 0,
+      "hard_calls": 0,
+      "hard_raised": null,
+      "map_lower": null,
+      "map_upper": null,
+      "max_speed": null,
+      "n_spans": 0,
+      "nodes": 0,
+      "obstacle_lower": null,
+      "obstacle_upper": null,
+      "predicted_nonrep": [],
+      "reason": "parameter_roundoff_exceeds_envelope",
+      "spacing": 4,
+      "start": 1000000.0,
+      "status": "indeterminate"
+    },
+    {
+      "admitted": false,
+      "any_conclusive": false,
+      "binding_object": null,
+      "binding_span_index": null,
+      "bounds_scope": null,
+      "counted_calls": 0,
+      "evaluated_span_count": 0,
+      "evaluations": 0,
+      "hard_calls": 0,
+      "hard_raised": null,
+      "map_lower": null,
+      "map_upper": null,
+      "max_speed": null,
+      "n_spans": 0,
+      "nodes": 0,
+      "obstacle_lower": null,
+      "obstacle_upper": null,
+      "predicted_nonrep": [],
+      "reason": "parameter_roundoff_exceeds_envelope",
+      "spacing": 8,
+      "start": 1000000.0,
+      "status": "indeterminate"
+    },
+    {
+      "admitted": false,
+      "any_conclusive": false,
+      "binding_object": null,
+      "binding_span_index": null,
+      "bounds_scope": null,
+      "counted_calls": 0,
+      "evaluated_span_count": 0,
+      "evaluations": 0,
+      "hard_calls": 0,
+      "hard_raised": null,
+      "map_lower": null,
+      "map_upper": null,
+      "max_speed": null,
+      "n_spans": 0,
+      "nodes": 0,
+      "obstacle_lower": null,
+      "obstacle_upper": null,
+      "predicted_nonrep": [
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "reason": "certificate_structure_invalid",
+      "spacing": 1,
+      "start": 1000000000000000.0,
+      "status": "rejected"
+    },
+    {
+      "admitted": false,
+      "any_conclusive": false,
+      "binding_object": null,
+      "binding_span_index": null,
+      "bounds_scope": null,
+      "counted_calls": 0,
+      "evaluated_span_count": 0,
+      "evaluations": 0,
+      "hard_calls": 0,
+      "hard_raised": null,
+      "map_lower": null,
+      "map_upper": null,
+      "max_speed": null,
+      "n_spans": 0,
+      "nodes": 0,
+      "obstacle_lower": null,
+      "obstacle_upper": null,
+      "predicted_nonrep": [],
+      "reason": "parameter_roundoff_exceeds_envelope",
+      "spacing": 2,
+      "start": 1000000000000000.0,
+      "status": "indeterminate"
+    },
+    {
+      "admitted": false,
+      "any_conclusive": false,
+      "binding_object": null,
+      "binding_span_index": null,
+      "bounds_scope": null,
+      "counted_calls": 0,
+      "evaluated_span_count": 0,
+      "evaluations": 0,
+      "hard_calls": 0,
+      "hard_raised": null,
+      "map_lower": null,
+      "map_upper": null,
+      "max_speed": null,
+      "n_spans": 0,
+      "nodes": 0,
+      "obstacle_lower": null,
+      "obstacle_upper": null,
+      "predicted_nonrep": [],
+      "reason": "parameter_roundoff_exceeds_envelope",
+      "spacing": 4,
+      "start": 1000000000000000.0,
+      "status": "indeterminate"
+    },
+    {
+      "admitted": false,
+      "any_conclusive": false,
+      "binding_object": null,
+      "binding_span_index": null,
+      "bounds_scope": null,
+      "counted_calls": 0,
+      "evaluated_span_count": 0,
+      "evaluations": 0,
+      "hard_calls": 0,
+      "hard_raised": null,
+      "map_lower": null,
+      "map_upper": null,
+      "max_speed": null,
+      "n_spans": 0,
+      "nodes": 0,
+      "obstacle_lower": null,
+      "obstacle_upper": null,
+      "predicted_nonrep": [],
+      "reason": "parameter_roundoff_exceeds_envelope",
+      "spacing": 8,
+      "start": 1000000000000000.0,
+      "status": "indeterminate"
+    }
+  ],
+  "promoted": false,
+  "review_directory": "validation/coordination/cursor-g3-exact-postrepair3-review-20260914-01",
+  "reviewed_hashes": {
+    "Simulator/wksim_planning/ego_exact_clearance.py": {
+      "bytes": 38854,
+      "sha256": "8b1d2dd8c097447d32d5d4f22b5827f8712ac84c9de0e963983d24e73efd46ea"
+    },
+    "Simulator/wksim_planning/ego_scene_admission.py": {
+      "bytes": 34774,
+      "sha256": "f88fa9c67b0410b8d7e65145008b21173959c03b6f0773c841cdb5e7e3ff7eca"
+    },
+    "Simulator/wksim_runtime/planner_transport_pump.py": {
+      "bytes": 32032,
+      "sha256": "c9b541b4fb6112b09aacdb405838aa2f3c8935e144a21067f9c420f473279d27"
+    },
+    "docs/plan/102-exact-clearance-candidate.md": {
+      "bytes": 17381,
+      "sha256": "7b1e9bfa71db69e1b12dce71cb9ac5a597b548eaf7b0ec1cda80eed63486abb7"
+    },
+    "validation/test_ego_exact_clearance.py": {
+      "bytes": 56737,
+      "sha256": "d3541280c8d03127b047a2c7d67ce5581b6ff0c4dd0378b96209550ff762ae17"
+    }
+  },
+  "schema": "wksim.g3-exact-postrepair3-review.review.v1",
+  "seal_hashes": {
+    "Simulator/wksim_planning/ego_scene_admission.py": "f88fa9c67b0410b8d7e65145008b21173959c03b6f0773c841cdb5e7e3ff7eca",
+    "Simulator/wksim_runtime/planner_transport_pump.py": "c9b541b4fb6112b09aacdb405838aa2f3c8935e144a21067f9c420f473279d27"
+  },
+  "speed": {
+    "checks": 4560,
+    "failures": 0,
+    "worst_ratio": 1.0
+  },
+  "speed_prose": {
+    "V": 120.00000000000257,
+    "dense_interior": 59.99851488824652,
+    "grids": [
+      [
+        401,
+        60.00000000000118
+      ],
+      [
+        1000,
+        59.99993987981972
+      ],
+      [
+        1001,
+        57.60000000000137
+      ],
+      [
+        2001,
+        60.00000000000118
+      ],
+      [
+        5000,
+        59.99999759903967
+      ],
+      [
+        40001,
+        60.00000000000118
+      ]
+    ],
+    "resonance_1001": 57.60000000000137,
+    "true_supremum": 60.00000000000118
+  },
+  "verdict": "PASS",
+  "verdict_statement": "PASS. Zero P1/P2. Three P3 findings (n-partition not a public decider; 57.6 m/s prose vs true 60.0 m/s supremum; unclosed certificate may be rejected). All fail-before-sampling paths admitted=false, evaluations=0, empty spans, null bounds/binding, and zero evaluate() calls.",
+  "wired": false,
+  "work_class": "independent-offline-hostile-review"
+}

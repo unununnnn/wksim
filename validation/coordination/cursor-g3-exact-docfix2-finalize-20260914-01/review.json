@@ -1,0 +1,201 @@
+{
+  "schema": "wksim.g3-exact-docfix2-finalize.review.v1",
+  "date": "2026-09-14",
+  "review_directory": "validation/coordination/cursor-g3-exact-docfix2-finalize-20260914-01",
+  "work_class": "independent-documentation-delta-finalize",
+  "head": "6eafdf9c0b734db07a9fe790c86b409d3468c10b",
+  "branch": "main",
+  "ancestor_f333316e_is_ancestor": true,
+  "candidate_edited": false,
+  "candidate_only": true,
+  "wired": false,
+  "promoted": false,
+  "git_mutated": false,
+  "repeated_long_tests": false,
+  "repeated_alternating_witness": false,
+  "repeated_hostile_721": false,
+  "repeated_pytest": false,
+  "reran_83": false,
+  "verdict": "PASS",
+  "verdict_statement": "PASS. Zero P1/P2/P3. Final contract hash b1203d51... matches current tree and both prior delta 55/55 PASS embeddings. Independent 107/107 spot-check confirms upper-bound violation, lower-bound admission, unclosed never admitted, tolerance_met != admitted, and alternating witness 120/60/2.00/unsafe/60200 with 57.6 only as resonant-grid observation.",
+  "findings": [
+    {
+      "severity": "P1",
+      "count": 0,
+      "items": []
+    },
+    {
+      "severity": "P2",
+      "count": 0,
+      "items": []
+    },
+    {
+      "severity": "P3",
+      "count": 0,
+      "items": []
+    }
+  ],
+  "current_hashes": {
+    "docs/plan/102-exact-clearance-candidate.md": {
+      "bytes": 17982,
+      "sha256": "b1203d51676cb7ac8676e0f33c7769da2a599f93b2e57560b073f930fc41b0fe"
+    },
+    "Simulator/wksim_planning/ego_exact_clearance.py": {
+      "bytes": 38854,
+      "sha256": "8b1d2dd8c097447d32d5d4f22b5827f8712ac84c9de0e963983d24e73efd46ea"
+    },
+    "validation/test_ego_exact_clearance.py": {
+      "bytes": 56737,
+      "sha256": "d3541280c8d03127b047a2c7d67ce5581b6ff0c4dd0378b96209550ff762ae17"
+    },
+    "Simulator/wksim_planning/ego_scene_admission.py": {
+      "bytes": 34774,
+      "sha256": "f88fa9c67b0410b8d7e65145008b21173959c03b6f0773c841cdb5e7e3ff7eca"
+    },
+    "Simulator/wksim_runtime/planner_transport_pump.py": {
+      "bytes": 32032,
+      "sha256": "c9b541b4fb6112b09aacdb405838aa2f3c8935e144a21067f9c420f473279d27"
+    }
+  },
+  "doc_hash_identity": {
+    "final": "b1203d51676cb7ac8676e0f33c7769da2a599f93b2e57560b073f930fc41b0fe",
+    "pre_docfix_postrepair3": "7b1e9bfa71db69e1b12dce71cb9ac5a597b548eaf7b0ec1cda80eed63486abb7",
+    "stale_wrong_r2_docfix1": "a6637ed87bf6f2e10ba16f77a837299065cedb387b4c19d527414e5a57513ede",
+    "current_is_final": true,
+    "current_is_not_pre_docfix": true,
+    "current_is_not_stale_wrong_r2": true,
+    "stale_receipt_trusted": false
+  },
+  "prior_delta": {
+    "directory": "validation/coordination/cursor-g3-exact-docfix2-delta-review-20260914-01",
+    "internally_consistent": true,
+    "embedded_hashes_match_current": true,
+    "same_check_names": true,
+    "same_check_statuses": true,
+    "same_live": true,
+    "windows": {
+      "verdict": "PASS",
+      "passed": 55,
+      "failed": 0,
+      "checks": 55,
+      "label": "windows",
+      "python": "3.13.11",
+      "results_sha256": "35e0fdffa05da8594ce05b81d88ae5b7bdb5a81f512452e889e27a0781354ee1",
+      "capture_sha256": "c54a01bf3cfc9efd152b56630381a7e38d1536542dd13b3e6875263963803129"
+    },
+    "linux_ubuntu_22_04": {
+      "verdict": "PASS",
+      "passed": 55,
+      "failed": 0,
+      "checks": 55,
+      "label": "linux-ubuntu-22.04",
+      "os": "Ubuntu 22.04.5 LTS",
+      "python": "3.10.12",
+      "results_sha256": "c000c96425460553b2de79f681899df837c84cade1bdf6087a96b61a43a43154",
+      "capture_sha256": "7fffe51d629ab23d4144de26af0466f5c9d72c7c712780f11ad51683664b4c39"
+    },
+    "freeze_sha256": "e172c8111f7b58dc610bf60d7dc10a6d2bbfa5070efbc7f1d3a3943504cc2f7b"
+  },
+  "prior_full_g3_pass": {
+    "directory": "validation/coordination/cursor-g3-exact-postrepair3-review-20260914-01",
+    "verdict": "PASS",
+    "head": "6eafdf9c0b734db07a9fe790c86b409d3468c10b",
+    "doc_hash_then": "7b1e9bfa71db69e1b12dce71cb9ac5a597b548eaf7b0ec1cda80eed63486abb7",
+    "python_hash_unchanged": true,
+    "p1": 0,
+    "p2": 0,
+    "p3_then": ["P3-N1", "P3-DOC-576", "P3-DOC-R2"],
+    "doc_p3_closed_by_final_contract": ["P3-DOC-576", "P3-DOC-R2"],
+    "code_p3_residual_out_of_this_delta": ["P3-N1"]
+  },
+  "contract": {
+    "violation_proof": "certified_upper_bound_only",
+    "admission": "certified_lower_bounds",
+    "unclosed_admitted": false,
+    "tolerance_met_equals_admitted": false,
+    "alternating_witness": {
+      "V_m_per_s": 120,
+      "true_supremum_m_per_s": 60.0,
+      "ratio": 2.00,
+      "property": "unsafe",
+      "evaluations": 60200,
+      "true_net_m": 0.20,
+      "status": "rejected"
+    },
+    "grid_57_6": {
+      "identified_as": "resonant_1001_point_grid_observation",
+      "not_dense_maximum": true,
+      "ratio_if_misread_as_maximum": 2.08
+    }
+  },
+  "independent_spotcheck": {
+    "command": "python validation/coordination/cursor-g3-exact-docfix2-finalize-20260914-01/check/spotcheck.py --label windows --write",
+    "platform": "windows",
+    "python": "3.13.11",
+    "checks": 107,
+    "passed": 107,
+    "failed": 0,
+    "verdict": "PASS",
+    "live_control": {
+      "unclosed_reject": {
+        "status": "rejected",
+        "reason": "obstacle_clearance_below_required",
+        "admitted": false,
+        "tolerance_met": false,
+        "obstacle_clearance_upper": -0.09999999899999995
+      },
+      "unclosed_indet": {
+        "status": "indeterminate",
+        "reason": "work_cap_exhausted",
+        "admitted": false,
+        "tolerance_met": false
+      },
+      "barely_safe_unclosed": {
+        "status": "indeterminate",
+        "reason": "work_cap_exhausted",
+        "admitted": false,
+        "tolerance_met": false,
+        "lower_net": -0.4007797209737409,
+        "upper_net": 0.349220281026259
+      },
+      "closed_reject": {
+        "status": "rejected",
+        "admitted": false,
+        "tolerance_met": true
+      },
+      "banded": {
+        "status": "indeterminate",
+        "reason": "clearance_within_tolerance_band",
+        "admitted": false,
+        "tolerance_met": true
+      },
+      "admitted": {
+        "status": "admitted",
+        "admitted": true,
+        "tolerance_met": true,
+        "obstacle_clearance_lower": 0.30200133055792255
+      },
+      "required_clearance": 0.3,
+      "vehicle_radius": 0.35
+    }
+  },
+  "gates": {
+    "current_doc_is_final_b1203d51": true,
+    "prior_delta_internally_consistent": true,
+    "prior_delta_embedded_hashes_match_current": true,
+    "upper_bound_only_proves_violation": true,
+    "lower_bounds_for_admission": true,
+    "unclosed_never_admitted": true,
+    "tolerance_met_not_equivalent_to_admitted": true,
+    "alternating_120_60_2_unsafe_60200": true,
+    "grid_57_6_only_resonant_observation": true,
+    "independent_spotcheck_pass": true
+  },
+  "non_claims": [
+    "candidate only; not wired; not default; promotion not taken",
+    "not #102 / #39 / G3 / Full acceptance",
+    "no native / model / MATLAB / ROS / DDS / SITL / FC / UE / build / flight / #83",
+    "no git mutation",
+    "did not rerun long tests, hostile 721, pytest, or alternating_witness 60200 path"
+  ]
+}

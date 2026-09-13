@@ -1,0 +1,215 @@
+{
+  "schema": "wksim.g3-exact-precommit-audit.review.v1",
+  "date": "2026-09-14",
+  "review_directory": "validation/coordination/cursor-g3-exact-precommit-audit-20260914-01",
+  "work_class": "read-only-precommit-clean-checkout-audit",
+  "head": "6eafdf9c0b734db07a9fe790c86b409d3468c10b",
+  "branch": "main",
+  "ancestor_f333316e_is_ancestor": true,
+  "candidate_edited": false,
+  "candidate_only": true,
+  "wired": false,
+  "promoted": false,
+  "git_mutated": false,
+  "worktree_used": false,
+  "repeated_four_file_179": false,
+  "repeated_hostile_721": false,
+  "reran_83": false,
+  "verdict": "PASS",
+  "verdict_statement": "PASS. Zero P1/P2. Three P3 (ignored durable reviews need force-add for an evidence commit; contract cites other ignored receipts; two unrelated dirty tracked files must stay out). git archive HEAD plus only the three candidates runs the focused suite on Windows and Ubuntu-22.04. No ignored/untracked runtime or test dependency is missing. 179 skipped because prior captures and source hashes still match.",
+  "expected_hashes": {
+    "Simulator/wksim_planning/ego_exact_clearance.py": "8b1d2dd8c097447d32d5d4f22b5827f8712ac84c9de0e963983d24e73efd46ea",
+    "validation/test_ego_exact_clearance.py": "d3541280c8d03127b047a2c7d67ce5581b6ff0c4dd0378b96209550ff762ae17",
+    "docs/plan/102-exact-clearance-candidate.md": "b1203d51676cb7ac8676e0f33c7769da2a599f93b2e57560b073f930fc41b0fe"
+  },
+  "observed_hashes": {
+    "Simulator/wksim_planning/ego_exact_clearance.py": {
+      "bytes": 38854,
+      "sha256": "8b1d2dd8c097447d32d5d4f22b5827f8712ac84c9de0e963983d24e73efd46ea"
+    },
+    "validation/test_ego_exact_clearance.py": {
+      "bytes": 56737,
+      "sha256": "d3541280c8d03127b047a2c7d67ce5581b6ff0c4dd0378b96209550ff762ae17"
+    },
+    "docs/plan/102-exact-clearance-candidate.md": {
+      "bytes": 17982,
+      "sha256": "b1203d51676cb7ac8676e0f33c7769da2a599f93b2e57560b073f930fc41b0fe"
+    }
+  },
+  "hashes_recheck_unchanged": true,
+  "seal_hashes": {
+    "Simulator/wksim_planning/ego_scene_admission.py": "f88fa9c67b0410b8d7e65145008b21173959c03b6f0773c841cdb5e7e3ff7eca",
+    "Simulator/wksim_runtime/planner_transport_pump.py": "c9b541b4fb6112b09aacdb405838aa2f3c8935e144a21067f9c420f473279d27"
+  },
+  "doc_hash_identity": {
+    "final": "b1203d51676cb7ac8676e0f33c7769da2a599f93b2e57560b073f930fc41b0fe",
+    "pre_docfix_postrepair3": "7b1e9bfa71db69e1b12dce71cb9ac5a597b548eaf7b0ec1cda80eed63486abb7",
+    "stale_wrong_r2_docfix1": "a6637ed87bf6f2e10ba16f77a837299065cedb387b4c19d527414e5a57513ede",
+    "current_is_final": true
+  },
+  "gates": {
+    "candidate_hashes_match_pins": true,
+    "seals_unchanged": true,
+    "clean_tree_is_archive_plus_three": true,
+    "focused_suite_runs_on_clean_tree": true,
+    "no_missing_ignored_untracked_runtime_or_test_dep": true,
+    "prior_179_skip_justified": true,
+    "minimal_add_set_correct": true
+  },
+  "normal_add": [
+    {
+      "path": "Simulator/wksim_planning/ego_exact_clearance.py",
+      "sha256": "8b1d2dd8c097447d32d5d4f22b5827f8712ac84c9de0e963983d24e73efd46ea",
+      "ignored": false,
+      "tracked": false,
+      "needed_for": "focused-candidate"
+    },
+    {
+      "path": "validation/test_ego_exact_clearance.py",
+      "sha256": "d3541280c8d03127b047a2c7d67ce5581b6ff0c4dd0378b96209550ff762ae17",
+      "ignored": false,
+      "tracked": false,
+      "needed_for": "focused-candidate"
+    },
+    {
+      "path": "docs/plan/102-exact-clearance-candidate.md",
+      "sha256": "b1203d51676cb7ac8676e0f33c7769da2a599f93b2e57560b073f930fc41b0fe",
+      "ignored": false,
+      "tracked": false,
+      "needed_for": "candidate-contract"
+    }
+  ],
+  "force_add_for_focused_tests": [],
+  "force_add_selected_durable_reviews": [
+    {
+      "path": "validation/coordination/cursor-g3-exact-postrepair3-review-20260914-01/review.md",
+      "sha256": "06558f85c952718afd31266d3b380a68d130cdf9d52e2f15a7d01c7e02f55c6f",
+      "needed_for": "reproducible-evidence-commit",
+      "ignore_rule": ".gitignore:53:/validation/*/"
+    },
+    {
+      "path": "validation/coordination/cursor-g3-exact-postrepair3-review-20260914-01/review.json",
+      "sha256": "3d3239f61718375b3d1a97eef319a265ff61b400514b79894153cd9f89e295d0",
+      "needed_for": "reproducible-evidence-commit",
+      "ignore_rule": ".gitignore:53:/validation/*/"
+    },
+    {
+      "path": "validation/coordination/cursor-g3-exact-postrepair3-review-20260914-01/SHA256SUMS",
+      "sha256": "68c5cb2dcc9ad1ca3311d9c64989da5968a31cfc178eda0be76bb3fa9d8cc0fe",
+      "needed_for": "reproducible-evidence-commit",
+      "ignore_rule": ".gitignore:53:/validation/*/"
+    },
+    {
+      "path": "validation/coordination/cursor-g3-exact-docfix2-finalize-20260914-01/review.md",
+      "sha256": "743931f3c103c1fdc96e01d1fbeb4ae22436a54a900596850913b1a810462b1a",
+      "needed_for": "reproducible-evidence-commit",
+      "ignore_rule": ".gitignore:53:/validation/*/"
+    },
+    {
+      "path": "validation/coordination/cursor-g3-exact-docfix2-finalize-20260914-01/review.json",
+      "sha256": "23a6b56725ec105c9a5b190d38d494079fda729aae595d4abc229ef5bc53f3a5",
+      "needed_for": "reproducible-evidence-commit",
+      "ignore_rule": ".gitignore:53:/validation/*/"
+    },
+    {
+      "path": "validation/coordination/cursor-g3-exact-docfix2-finalize-20260914-01/SHA256SUMS",
+      "sha256": "4f0e75e9171c15dad08840c69491b1486ee08d67cdb9b083f1eae675a85b52a5",
+      "needed_for": "reproducible-evidence-commit",
+      "ignore_rule": ".gitignore:53:/validation/*/"
+    },
+    {
+      "path": "validation/coordination/cursor-g3-exact-precommit-audit-20260914-01/**",
+      "needed_for": "reproducible-evidence-commit",
+      "ignore_rule": ".gitignore:53:/validation/*/"
+    }
+  ],
+  "already_in_head": [
+    "validation/ego-planner-static-20260912-02/bspline.json",
+    "Simulator/wksim_planning/ego_evaluator.py",
+    "Simulator/wksim_planning/ego_scene_admission.py",
+    "Simulator/wksim_planning/scene_profile.py",
+    "Simulator/wksim_runtime/planner_scene_binding.py",
+    "Simulator/wksim_runtime/planner_transport_pump.py",
+    "validation/test_ego_scene_admission.py",
+    "validation/test_planner_transport_pump.py",
+    "validation/test_planner_transport_receiver.py"
+  ],
+  "clean_tree": {
+    "method": "git archive --format=tar HEAD plus overlay of the three candidate files only",
+    "archive_bytes": 5971220480,
+    "extracted_files": 10370,
+    "dot_git_present": false,
+    "missing_runtime_or_test_deps": []
+  },
+  "independent_runs": {
+    "windows": {
+      "python": "3.13.11",
+      "candidate_pytest": "53 passed, 162 subtests passed in 17.96s",
+      "candidate_unittest": "Ran 53 tests in 18.185s OK",
+      "tree": "git archive HEAD + three overlays under %TEMP%/wksim-g3-exact-precommit-20260914/clean-win"
+    },
+    "linux_ubuntu_22_04": {
+      "os": "Ubuntu 22.04.5 LTS",
+      "python": "3.10.12",
+      "candidate_pytest": "53 passed, 162 subtests passed in 15.25s",
+      "candidate_unittest": "Ran 53 tests in 14.229s OK",
+      "tree": "same archive extracted to /tmp/wksim-g3-exact-precommit-20260914/clean-lin plus the same three overlays"
+    }
+  },
+  "prior_full_g3_pass": {
+    "directory": "validation/coordination/cursor-g3-exact-postrepair3-review-20260914-01",
+    "verdict": "PASS",
+    "python_and_test_hashes_unchanged": true,
+    "four_file_capture_hashes_unchanged": true
+  },
+  "prior_doc_finalize": {
+    "directory": "validation/coordination/cursor-g3-exact-docfix2-finalize-20260914-01",
+    "verdict": "PASS",
+    "doc_hash": "b1203d51676cb7ac8676e0f33c7769da2a599f93b2e57560b073f930fc41b0fe"
+  },
+  "findings": [
+    {
+      "severity": "P1",
+      "count": 0,
+      "items": []
+    },
+    {
+      "severity": "P2",
+      "count": 0,
+      "items": []
+    },
+    {
+      "severity": "P3",
+      "count": 3,
+      "items": [
+        {
+          "id": "P3-EVIDENCE-FORCEADD",
+          "severity": "P3",
+          "title": "selected durable review artifacts are gitignored and need force-add only for an evidence commit",
+          "detail": "postrepair3, docfix2-finalize, and this audit live under /validation/*/. They are not required to run the focused suite on a clean checkout of HEAD plus the three normal-add candidates. They must be git add -f if the commit is to carry the review trail."
+        },
+        {
+          "id": "P3-DOC-IGNORED-CITES",
+          "severity": "P3",
+          "title": "final contract still cites earlier ignored coordination receipts",
+          "detail": "docs/plan/102-exact-clearance-candidate.md points at deepseek-g3-exact-clearance-20260914-01 and earlier repair receipts. Those paths are also ignored by /validation/*/ and are outside the minimal test add set. Not a clean-checkout test hole."
+        },
+        {
+          "id": "P3-UNRELATED-DIRTY",
+          "severity": "P3",
+          "title": "two pre-existing dirty tracked files must stay out of this commit",
+          "detail": "docs/Prometheus.gitmodules.reference and validation/coordination/short-cycle-dispatches.json were already modified before this audit. They were not touched and are not part of the candidate."
+        }
+      ]
+    }
+  ],
+  "non_claims": [
+    "candidate only; not wired; not default; promotion not taken",
+    "not #102 / #39 / G3 / Full acceptance",
+    "no native / model / MATLAB / ROS / DDS / SITL / FC / UE / build / flight / #83",
+    "no git mutation; this is not a commit",
+    "did not rerun hostile 721, four-file 179, or #83",
+    "did not use git worktree"
+  ],
+  "subagent_policy": "dispatcher is not gpt-6-astra; gpt-5.6-luna is not selectable in this interface; work stayed in the main agent"
+}

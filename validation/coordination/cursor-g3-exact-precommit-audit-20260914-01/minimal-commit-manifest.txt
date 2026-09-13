@@ -1,0 +1,123 @@
+# Minimal commit set for the finalized G3 exact-clearance candidate
+# HEAD 6eafdf9c0b734db07a9fe790c86b409d3468c10b
+# This file is an inventory, not a git add/commit.
+
+## A. Normal add (not ignored) — required candidate identity
+Simulator/wksim_planning/ego_exact_clearance.py
+  sha256 8b1d2dd8c097447d32d5d4f22b5827f8712ac84c9de0e963983d24e73efd46ea
+  bytes 38854
+  reason candidate module; not ignored; not in HEAD
+
+validation/test_ego_exact_clearance.py
+  sha256 d3541280c8d03127b047a2c7d67ce5581b6ff0c4dd0378b96209550ff762ae17
+  bytes 56737
+  reason focused suite; .gitignore /validation/*/ does not match files directly under validation/
+
+docs/plan/102-exact-clearance-candidate.md
+  sha256 b1203d51676cb7ac8676e0f33c7769da2a599f93b2e57560b073f930fc41b0fe
+  bytes 17982
+  reason finalized candidate contract (b1203d51...); not ignored; not in HEAD
+  note not imported by the focused suite; required for the finalized-candidate identity
+
+## B. Force-add required so a clean checkout can run the focused suite
+NONE.
+  validation/ego-planner-static-20260912-02/bspline.json is ignored-by-rule
+  (/validation/*/) if it were untracked, but it is already in HEAD
+  (blob 243fe861..., sha256 d4d318cc...) and was present in git archive HEAD.
+  ego_evaluator.py, ego_scene_admission.py, planner_scene_binding.py,
+  and scene_profile.py are already in HEAD.
+
+Proof: disposable trees built with git archive HEAD + only A, on Windows
+and Ubuntu-22.04, both ran 53/53 pytest and 53 unittest OK.
+
+## C. Force-add selected durable review artifacts (evidence commit, not test deps)
+These paths are ignored by .gitignore:53 /validation/*/. They are not
+required to run the focused suite. They are the selected durable trail
+that makes the finalized-candidate verdict reproducible.
+
+# full G3 PASS (721/721, 53/53, 179/179) on the same python/test hashes
+validation/coordination/cursor-g3-exact-postrepair3-review-20260914-01/review.md
+  sha256 06558f85c952718afd31266d3b380a68d130cdf9d52e2f15a7d01c7e02f55c6f
+validation/coordination/cursor-g3-exact-postrepair3-review-20260914-01/review.json
+  sha256 3d3239f61718375b3d1a97eef319a265ff61b400514b79894153cd9f89e295d0
+validation/coordination/cursor-g3-exact-postrepair3-review-20260914-01/SHA256SUMS
+  sha256 68c5cb2dcc9ad1ca3311d9c64989da5968a31cfc178eda0be76bb3fa9d8cc0fe
+validation/coordination/cursor-g3-exact-postrepair3-review-20260914-01/captures/pytest-four-file-windows.txt
+  sha256 edfe0667dcf619e6340645b9b107c379e7102f4444f8a72e5af76fe49e54bad8
+validation/coordination/cursor-g3-exact-postrepair3-review-20260914-01/captures/pytest-four-file-linux-ubuntu-22.04.txt
+  sha256 7b79d411af83671395e9726c11d1759f32df05779bbf67c70c382ec5151a9f51
+validation/coordination/cursor-g3-exact-postrepair3-review-20260914-01/captures/pytest-candidate-windows.txt
+  sha256 7bb448398565d98402fd5fe90f8543a10870812c54ce50d15d07f9b3ce097619
+validation/coordination/cursor-g3-exact-postrepair3-review-20260914-01/captures/pytest-candidate-linux-ubuntu-22.04.txt
+  sha256 e3fcf78a46236bcbc8a4ed4b9b7e2d89edf96d255742337cad2d28824cffafbc
+validation/coordination/cursor-g3-exact-postrepair3-review-20260914-01/captures/unittest-candidate-windows.txt
+  sha256 713adfd314cc6eafa5728efde7d3be39ae1413fe6fbd9bbe990a9ddfd400c1d1
+validation/coordination/cursor-g3-exact-postrepair3-review-20260914-01/captures/unittest-candidate-linux-ubuntu-22.04.txt
+  sha256 4f20643eba791b11950e30725b52a87ceeef73c66a9673956afabe48cb073beb
+
+# document-delta finalize (final contract b1203d51..., 107/107)
+validation/coordination/cursor-g3-exact-docfix2-finalize-20260914-01/review.md
+  sha256 743931f3c103c1fdc96e01d1fbeb4ae22436a54a900596850913b1a810462b1a
+validation/coordination/cursor-g3-exact-docfix2-finalize-20260914-01/review.json
+  sha256 23a6b56725ec105c9a5b190d38d494079fda729aae595d4abc229ef5bc53f3a5
+validation/coordination/cursor-g3-exact-docfix2-finalize-20260914-01/SHA256SUMS
+  sha256 4f0e75e9171c15dad08840c69491b1486ee08d67cdb9b083f1eae675a85b52a5
+
+# this precommit / clean-checkout audit
+validation/coordination/cursor-g3-exact-precommit-audit-20260914-01/review.md
+validation/coordination/cursor-g3-exact-precommit-audit-20260914-01/review.json
+validation/coordination/cursor-g3-exact-precommit-audit-20260914-01/minimal-commit-manifest.txt
+validation/coordination/cursor-g3-exact-precommit-audit-20260914-01/SHA256SUMS
+validation/coordination/cursor-g3-exact-precommit-audit-20260914-01/captures/*
+
+## D. Supporting selected (finalize embeds their hashes; optional if C is kept)
+validation/coordination/cursor-g3-exact-docfix2-delta-review-20260914-01/check/results-windows.json
+  sha256 35e0fdffa05da8594ce05b81d88ae5b7bdb5a81f512452e889e27a0781354ee1
+validation/coordination/cursor-g3-exact-docfix2-delta-review-20260914-01/check/results-linux-ubuntu-22.04.json
+  sha256 c000c96425460553b2de79f681899df837c84cade1bdf6087a96b61a43a43154
+validation/coordination/cursor-g3-exact-clearance-repair3-20260914-01/receipt.json
+  sha256 9d870e66014037b2b9bebdfb232e174c768c8d57fea74d264c04c295606ce9ae
+validation/coordination/cursor-g3-exact-clearance-repair3-20260914-01/review.md
+  sha256 cb1aae0cc501dabd2c6ac123d226397ee20f2ff8bcef0bc503918777b4e564ec
+
+## E. Already in HEAD — do not add
+validation/ego-planner-static-20260912-02/bspline.json
+Simulator/wksim_planning/ego_evaluator.py
+Simulator/wksim_planning/ego_scene_admission.py
+Simulator/wksim_planning/scene_profile.py
+Simulator/wksim_planning/ego_bspline_bridge.py
+Simulator/wksim_planning/ego_trajectory_adapter.py
+Simulator/wksim_planning/trajectory_session.py
+Simulator/wksim_runtime/planner_scene_binding.py
+Simulator/wksim_runtime/planner_transport_pump.py
+validation/test_ego_scene_admission.py
+validation/test_planner_transport_pump.py
+validation/test_planner_transport_receiver.py
+
+## F. Do not include
+docs/Prometheus.gitmodules.reference                  (dirty tracked; unrelated)
+validation/coordination/short-cycle-dispatches.json   (dirty tracked; unrelated)
+validation/coordination/cursor-g3-exact-docfix-20260914-01/**  (stale wrong-R2; not trusted)
+other untracked worktree files
+hostile_probe.py / 721 raw reruns
+#83 / native / model / MATLAB / ROS / DDS / SITL / FC / UE / build / flight
+
+## Commands (inventory only; this audit did not run them)
+git add Simulator/wksim_planning/ego_exact_clearance.py
+git add validation/test_ego_exact_clearance.py
+git add docs/plan/102-exact-clearance-candidate.md
+git add -f validation/coordination/cursor-g3-exact-postrepair3-review-20260914-01/review.md
+git add -f validation/coordination/cursor-g3-exact-postrepair3-review-20260914-01/review.json
+git add -f validation/coordination/cursor-g3-exact-postrepair3-review-20260914-01/SHA256SUMS
+git add -f validation/coordination/cursor-g3-exact-postrepair3-review-20260914-01/captures/pytest-four-file-windows.txt
+git add -f validation/coordination/cursor-g3-exact-postrepair3-review-20260914-01/captures/pytest-four-file-linux-ubuntu-22.04.txt
+git add -f validation/coordination/cursor-g3-exact-postrepair3-review-20260914-01/captures/pytest-candidate-windows.txt
+git add -f validation/coordination/cursor-g3-exact-postrepair3-review-20260914-01/captures/pytest-candidate-linux-ubuntu-22.04.txt
+git add -f validation/coordination/cursor-g3-exact-postrepair3-review-20260914-01/captures/unittest-candidate-windows.txt
+git add -f validation/coordination/cursor-g3-exact-postrepair3-review-20260914-01/captures/unittest-candidate-linux-ubuntu-22.04.txt
+git add -f validation/coordination/cursor-g3-exact-docfix2-finalize-20260914-01/review.md
+git add -f validation/coordination/cursor-g3-exact-docfix2-finalize-20260914-01/review.json
+git add -f validation/coordination/cursor-g3-exact-docfix2-finalize-20260914-01/SHA256SUMS
+git add -f validation/coordination/cursor-g3-exact-precommit-audit-20260914-01
+
+# This audit did not run those commands.
