@@ -1,0 +1,152 @@
+{
+  "artifact": "codebuddy-ds-model-closure-independent-review-20260914-01",
+  "reviewer": "independent CodeBuddy evidence reviewer",
+  "review_date": "2026-09-14",
+  "reviewed_head": "cc42c19f1b06538cf5bfd326d7dcd11f7b1ed6a5",
+  "architecture_ancestor_check": {
+    "command": "git merge-base --is-ancestor f333316e6efa6b299b4288a9d91fb2bccedfb9d6 HEAD",
+    "exit_code": 0
+  },
+  "scope": [
+    "docs/coordination/ds-model-closure-20260912.md",
+    "docs/coordination/ds-model-closure-ingest-note-20260914.md",
+    "validation/test_ds_model_closure_context.py"
+  ],
+  "candidate_hashes": [
+    {
+      "path": "docs/coordination/ds-model-closure-20260912.md",
+      "sha256": "a869117ff88c3e594fb44240b8970ee463aaedd39dca67e578b80f03dbe51d28",
+      "size_bytes": 15346,
+      "tracked": false,
+      "edited_by_review": false
+    },
+    {
+      "path": "docs/coordination/ds-model-closure-ingest-note-20260914.md",
+      "sha256": "979b37553f9716b58559df38d36a4070182d2b84d092e21f797a17d0533c11e9",
+      "size_bytes": 9394,
+      "tracked": false,
+      "edited_by_review": false
+    },
+    {
+      "path": "validation/test_ds_model_closure_context.py",
+      "sha256": "68ead196f66caa3b794ec830d5d2978c1ad2b68f386d0310cebc9b9dd6859884",
+      "size_bytes": 13058,
+      "tracked": false,
+      "edited_by_review": false
+    }
+  ],
+  "verifications": {
+    "strict_hash_size_pins": {
+      "original_doc_hash_and_size": "match",
+      "ingest_note_hash": "match",
+      "manifest_pins_6_of_6": "match (manifest parsed: 5 groups, 6 unique pins; recorded == recomputed current bytes)",
+      "generated_source_pins_3_of_3": "match",
+      "wrapper_model_cpp": {
+        "current_sha256": "150ddf3bab66e9e59701791392f6d792a14346e0b75ecdfe94872095e72d0290",
+        "size_bytes": 4070,
+        "blob_at_7126d4d7": "150ddf3bab66e9e59701791392f6d792a14346e0b75ecdfe94872095e72d0290",
+        "blob_at_HEAD": "150ddf3bab66e9e59701791392f6d792a14346e0b75ecdfe94872095e72d0290",
+        "log_range_7126d4d7_to_HEAD": "empty"
+      },
+      "supersession_artifact_pins": {
+        "docs/plan/full-acceptance-report.md": {
+          "sha256": "daded67206356478badc508cb9a72544054bf7a0c69dff5477042c77c1caf514",
+          "size_bytes": 31086,
+          "match": true
+        },
+        "docs/plan/26-current-source-ac-evidence-20260912.md": {
+          "sha256": "4070bf4bdb87e60a9ad1eb45d8f1512e2bdfbf060cba3e9d94ec13dbbb544a79",
+          "match": true
+        }
+      }
+    },
+    "ancestry": {
+      "f333316e6efa6b299b4288a9d91fb2bccedfb9d6_ancestor_of_HEAD": true,
+      "7126d4d774a33c7d4b2504b9931a93ac27d7fa51_ancestor_of_HEAD": true
+    },
+    "tracked_supersession_anchors": {
+      "docs/plan/full-acceptance-report.md": "tracked",
+      "docs/plan/26-current-source-ac-evidence-20260912.md": "tracked",
+      "docs/plan/9-vendor-abi-defer-boundary.json": "tracked",
+      "current_wrapper_evidence_tracked_files": 22,
+      "current_wrapper_min_tracked_floor": 22
+    },
+    "non_authority_wording": {
+      "ingest_note_self_disclaimer_section_0": "present",
+      "conditions_acd_marked_open": true,
+      "authority_promotion_matches_outside_negations_or_rule_text": false,
+      "original_doc_non_claims_sections_7_8": "present",
+      "note_bound_as_historical_context_only": true
+    },
+    "after_staging_lifecycle_safety": {
+      "test_binds_content_not_tracking_status": true,
+      "test_asserts_candidates_stay_untracked": false,
+      "repo_root_resolution_correct_after_staging": true,
+      "test_performs_no_file_writes": true,
+      "note_self_hash_pin_is_intended_tamper_evidence": true
+    }
+  },
+  "test": {
+    "command": "python -m unittest validation.test_ds_model_closure_context -v",
+    "working_directory": "wksim repo root",
+    "mode": "non-native offline unittest only",
+    "result": "OK",
+    "tests_run": 14,
+    "failures": 0,
+    "errors": 0,
+    "exit_code": 0,
+    "duration_seconds": 0.282
+  },
+  "findings": [
+    {
+      "id": "P3-1",
+      "severity": "P3",
+      "file": "validation/test_ds_model_closure_context.py",
+      "line": 262,
+      "summary": "Authority-promotion regex enforcement applies only to the test's own REFERENCE_PHRASING, not to any repository document; ingest note section 5.7 wording-containment intent for future documents is beyond the test's reach. No current violation observed."
+    },
+    {
+      "id": "P3-2",
+      "severity": "P3",
+      "file": "validation/test_ds_model_closure_context.py",
+      "line": 162,
+      "summary": "Ingest note is bound by SHA256 only, without a size pin (original doc binds hash and size). Slightly weaker tamper-evidence; current note size is 9394 bytes."
+    },
+    {
+      "id": "P3-3",
+      "severity": "P3",
+      "file": "validation/test_ds_model_closure_context.py",
+      "line": 82,
+      "summary": "FORBIDDEN_PROMOTION_PATTERNS are English-only while bound documents are Chinese-dominant; Chinese authority wording would not match even if applied to files."
+    },
+    {
+      "id": "P3-4",
+      "severity": "P3",
+      "file": "docs/coordination/ds-model-closure-ingest-note-20260914.md",
+      "line": 52,
+      "summary": "Wording variance: section 3.2 states exactly 22 tracked current-wrapper evidence files while section 5.6 and the test floor say >=22. Currently exactly 22; no contradiction, but alignment would remove ambiguity."
+    }
+  ],
+  "finding_counts": {
+    "P1": 0,
+    "P2": 0,
+    "P3": 4
+  },
+  "verdict": "PASS",
+  "verdict_basis": "Zero P1 and zero P2 findings; four P3 findings only.",
+  "claims": {
+    "approval": "none — this review grants no approval",
+    "closure": "none — this review closes nothing and does not close #26 or any condition",
+    "acceptance": "none — not an acceptance record for any candidate or ticket",
+    "conditions_acd": "remain open observations requiring current authority (main agent / main session / human ruling); this review does not dispose of them",
+    "scope_limit": "offline evidence-audit pass only; no live GitHub state queried; no native/build/MATLAB/ROS/DDS/SITL/FC/UE/model/flight execution; #83 not touched"
+  },
+  "boundaries": {
+    "candidate_files_edited": false,
+    "existing_files_edited": false,
+    "staged_committed_or_pushed": false,
+    "protected_files_touched": false,
+    "protected_files_pre_existing_modifications": "docs/Prometheus.gitmodules.reference and validation/coordination/short-cycle-dispatches.json showed pre-existing worktree modifications before this review; left untouched",
+    "native_or_model_execution": "none"
+  }
+}

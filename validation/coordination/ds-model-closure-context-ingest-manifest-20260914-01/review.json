@@ -1,0 +1,114 @@
+{
+  "schema": "wksim.ingest-manifest.v1",
+  "manifested_at": "2026-09-14",
+  "owner": "codebuddy-ingest-manifest",
+  "reviewed_head": "cc42c19f1b06538cf5bfd326d7dcd11f7b1ed6a5",
+  "scope": "context-only",
+  "acceptance": "non-acceptance",
+  "exact_paths_sha256": "dabbdcf28001943ed9c4ca7d3b083cc65f05bb9721643627a4c43ec0c1b763c9",
+  "exact_paths_count": 10,
+  "inputs": [
+    {
+      "path": "docs/coordination/ds-model-closure-20260912.md",
+      "role": "historical_context_document",
+      "sha256": "a869117ff88c3e594fb44240b8970ee463aaedd39dca67e578b80f03dbe51d28",
+      "sha256_match_specified": true,
+      "size_bytes": 15346
+    },
+    {
+      "path": "docs/coordination/ds-model-closure-ingest-note-20260914.md",
+      "role": "binding_and_supersession_registration_note",
+      "sha256": "979b37553f9716b58559df38d36a4070182d2b84d092e21f797a17d0533c11e9",
+      "sha256_match_specified": true,
+      "size_bytes": 9394
+    },
+    {
+      "path": "validation/test_ds_model_closure_context.py",
+      "role": "candidate_offline_context_test",
+      "sha256": "68ead196f66caa3b794ec830d5d2978c1ad2b68f386d0310cebc9b9dd6859884",
+      "sha256_match_specified": true,
+      "size_bytes": 13058
+    },
+    {
+      "path": "validation/coordination/codebuddy-ds-model-closure-independent-review-20260914-01/review.md",
+      "role": "independent_review_report",
+      "sha256": "1b2e50a30d56bec687ffb3766ad9c3ed668b5c32945e56d2fc2865647f3dd0ed",
+      "sha256_match_review_sums": true
+    },
+    {
+      "path": "validation/coordination/codebuddy-ds-model-closure-independent-review-20260914-01/review.json",
+      "role": "independent_review_record",
+      "sha256": "6597f54a1f6b7552fc1397144a640c9ccb61a2cea20e9036b122e8d1a2b97cbf",
+      "sha256_match_review_sums": true
+    },
+    {
+      "path": "validation/coordination/codebuddy-ds-model-closure-independent-review-20260914-01/SHA256SUMS",
+      "role": "independent_review_checksum_manifest",
+      "verification": "sha256sum -c from inside the review directory: review.md OK, review.json OK, exit 0"
+    }
+  ],
+  "review_facts": {
+    "reviewer": "independent CodeBuddy evidence reviewer",
+    "reviewed_at": "2026-09-14",
+    "reviewed_head_matches_authoritative_head": true,
+    "verdict": "PASS",
+    "findings_p1": [],
+    "findings_p2": [],
+    "findings_p3_nonblocking": [
+      "P3-1: authority-promotion regex enforcement applies only to the test's own REFERENCE_PHRASING, not to any repository document; ingest note section 5.7 wording-containment intent for future documents is beyond the test's reach (validation/test_ds_model_closure_context.py:262). No current violation observed.",
+      "P3-2: ingest note is bound by SHA256 only, without a size pin (the original doc binds hash and size); slightly weaker tamper-evidence; current note size is 9394 bytes (validation/test_ds_model_closure_context.py:162).",
+      "P3-3: FORBIDDEN_PROMOTION_PATTERNS are English-only while bound documents are Chinese-dominant; Chinese authority wording would not match even if applied to files (validation/test_ds_model_closure_context.py:82).",
+      "P3-4: wording variance — note section 3.2 states exactly 22 tracked current-wrapper evidence files while section 5.6 and the test floor say >=22; currently exactly 22, no contradiction, alignment would remove ambiguity (docs/coordination/ds-model-closure-ingest-note-20260914.md:52)."
+    ],
+    "conditions_acd_status": "open observations requiring current authority (main agent / main session / human ruling); not disposed of by the review or this manifest",
+    "strict_parse_of_review_json": true
+  },
+  "test_facts": {
+    "command": "python -B -m unittest validation.test_ds_model_closure_context -v",
+    "re_run_this_session": {
+      "tests_run": 14,
+      "failures": 0,
+      "errors": 0,
+      "result": "OK",
+      "exit_code": 0
+    },
+    "review_recorded_runs": [
+      {
+        "command": "python -m unittest validation.test_ds_model_closure_context -v",
+        "tests_run": 14,
+        "result": "OK",
+        "failures": 0,
+        "errors": 0,
+        "exit_code": 0,
+        "duration_seconds": 0.282
+      }
+    ]
+  },
+  "verification": {
+    "head_confirmed_before_work": true,
+    "historical_context_document_sha256_matches_specified": true,
+    "ingest_note_sha256_matches_specified": true,
+    "test_candidate_sha256_matches_specified": true,
+    "review_report_sha256_matches_review_sums": true,
+    "review_record_sha256_matches_review_sums": true,
+    "review_sha256sums_verified_relative_to_review_directory": true,
+    "review_json_strict_parsed": true,
+    "review_verdict_pass": true,
+    "review_p1_p2_empty": true,
+    "review_p3_nonblocking_only": true,
+    "test_14_of_14_exit_0": true
+  },
+  "outputs": [
+    "validation/coordination/ds-model-closure-context-ingest-manifest-20260914-01/exact-paths.txt",
+    "validation/coordination/ds-model-closure-context-ingest-manifest-20260914-01/review.md",
+    "validation/coordination/ds-model-closure-context-ingest-manifest-20260914-01/review.json",
+    "validation/coordination/ds-model-closure-context-ingest-manifest-20260914-01/SHA256SUMS"
+  ],
+  "nonclaims": [
+    "This manifest is context-only ingestion of the reviewed batch; it is not an acceptance, approval, review, or closure action.",
+    "No issue acceptance, owner approval, dependency closure, or condition A/C/D disposition is claimed for #26, #9, #83, or any other ticket; conditions A (contract-block disposition marker), C (named main-agent AC5 review record), and D (formal dependency #9 disposition) remain open observations requiring current authority.",
+    "The bound historical document ds-model-closure-20260912.md remains historical context only; its conclusions, conditions, and closure conditions do not assert current status.",
+    "No input file or file outside the output directory was edited; no stage, commit, or push was performed; protected files docs/Prometheus.gitmodules.reference and validation/coordination/short-cycle-dispatches.json (pre-existing worktree modifications) were not touched.",
+    "No native/build/MATLAB/ROS/DDS/SITL/FC/UE/model/flight execution was performed, no live GitHub state was queried, and #83 was not rerun."
+  ]
+}
