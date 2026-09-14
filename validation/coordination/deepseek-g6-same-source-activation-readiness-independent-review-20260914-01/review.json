@@ -1,0 +1,237 @@
+{
+  "schema": "wksim.coordination.independent-review.v1",
+  "kind": "independent_review",
+  "review_id": "deepseek-g6-same-source-activation-readiness-independent-review-20260914-01",
+  "issue": 59,
+  "parent_issue": 10,
+  "date": "2026-09-14",
+  "reviewer": "independent agent (deepseek-v4-flash, DSH harness); not an author of the reviewed candidates",
+  "verdict": "KEEP",
+  "severity_counts": { "P1": 0, "P2": 0, "P3": 5 },
+  "rework_required": false,
+  "subject": {
+    "note": "immutable offline same-source activation-readiness evidence pair; read-only during this review, bytes unchanged before and after every run",
+    "candidates_are_tracked_at_head": false,
+    "files": [
+      {
+        "path": "docs/plan/59-g6-same-source-activation-readiness-20260914.md",
+        "sha256": "9958b00feafb9bc6dc0098da123ab6f2a668e06bb03da551eaa56ac46dacb106",
+        "size_bytes": 15498,
+        "matches_pinned_identity": true,
+        "lf_normalized": true,
+        "git_status": "untracked worktree file"
+      },
+      {
+        "path": "validation/test_codebuddy_g6_same_source_activation_readiness.py",
+        "sha256": "3cd1241a0f0e74bf96d0383bddc8a5ee1564fc7840cd9bd1a8b94696117e0fbc",
+        "size_bytes": 31570,
+        "matches_pinned_identity": true,
+        "git_status": "untracked worktree file"
+      }
+    ]
+  },
+  "checkout": {
+    "cwd": "C:\\Users\\PC\\Documents\\odid编译\\wksim",
+    "branch": "main",
+    "head": "ee6eb88819cefe255f22e788c39a77c0bbab490e",
+    "head_role": "informational only; the candidate pair deliberately pins no exact HEAD value",
+    "required_ancestors": [
+      "f333316e6efa6b299b4288a9d91fb2bccedfb9d6",
+      "6eafdf9c0b734db07a9fe790c86b409d3468c10b",
+      "31e5b65f5448c5558450d16d0f46da0ef0f0a03c"
+    ],
+    "ancestor_exit_codes": {
+      "f333316e6efa6b299b4288a9d91fb2bccedfb9d6": 0,
+      "6eafdf9c0b734db07a9fe790c86b409d3468c10b": 0,
+      "31e5b65f5448c5558450d16d0f46da0ef0f0a03c": 0,
+      "0000000000000000000000000000000000000000": 128
+    },
+    "exact_head_equality_asserted": false,
+    "exact_head_equality_required": false
+  },
+  "context_read": [
+    "AGENTS.md",
+    "tools/run_e0_same_source_conformance.py",
+    "docs/plan/59-e0-same-source-command.md",
+    "docs/plan/10-g6-remediation-contract.md",
+    "validation/e0-budget-approval-provenance-20260914.json",
+    "validation/e0-frame-datum-binding-20260914.json",
+    "Simulator/wksim_core/numerical-conformance-v1.json",
+    "tools/export_model_reference.m",
+    "docs/plan/59-g6-same-source-activation-readiness-20260914.md",
+    "validation/test_codebuddy_g6_same_source_activation_readiness.py"
+  ],
+  "commands": [
+    {
+      "cmd": "Get-FileHash -Algorithm SHA256 docs/plan/59-g6-same-source-activation-readiness-20260914.md validation/test_codebuddy_g6_same_source_activation_readiness.py; Get-Item <same> | Select Length",
+      "mode": "candidate identity (before and after every run)",
+      "result": "9958b00f...acb106 / 15498 and 3cd1241a...e0fbc / 31570 - identical to the fixed review identities at both checks",
+      "exit_code": 0
+    },
+    {
+      "cmd": "git ls-tree -r HEAD -- <six pinned paths>; for each: git cat-file blob HEAD:<path> | sha256 + size vs worktree bytes",
+      "mode": "six tracked source pins",
+      "result": "all six tracked at HEAD; each HEAD-blob sha256/size equals the documented value and equals the worktree bytes (no drift); HEAD blob sha1s recorded in pins[]",
+      "exit_code": 0
+    },
+    {
+      "cmd": "git merge-base --is-ancestor <sha> HEAD  (f333316e..., 6eafdf9c..., 31e5b65f..., then 0000...0000)",
+      "mode": "ancestry gates",
+      "result": "exit 0, 0, 0; invalid object name returns 128, so the gate discriminates",
+      "exit_code": 0
+    },
+    {
+      "cmd": "python -B -m unittest validation.test_codebuddy_g6_same_source_activation_readiness -v",
+      "mode": "normal",
+      "result": "Ran 24 tests in 0.648s - OK (skipped=1); the skip is the external-index-only guard (test_normal_mode_makes_no_index_touching_git_call executed and saw zero index-touching git calls)",
+      "exit_code": 0
+    },
+    {
+      "cmd": "$TMPIDX = Join-Path $env:TEMP 'wksim-tmpidx-g6ssar'; $env:GIT_INDEX_FILE = $TMPIDX; git add -- docs/plan/59-g6-same-source-activation-readiness-20260914.md validation/test_codebuddy_g6_same_source_activation_readiness.py; git ls-files -s; $env:WKSIM_G6_SSAR_TEST_MODE = 'external-index'; python -B -m unittest validation.test_codebuddy_g6_same_source_activation_readiness -v; Remove-Item $TMPIDX",
+      "mode": "repo-external exact-2 temp index",
+      "result": "temp index at C:\\Users\\PC\\AppData\\Local\\Temp\\wksim-tmpidx-g6ssar (outside the repository); git ls-files -s listed exactly 2 stage-0 entries, mode 100644: 46b773b79992459f00512f8578f231a9e4d134f9 docs/plan/... and 6618919eb191dbc3b4f86070d310b52027731bc4 validation/test_...; both blob sha1s independently recomputed from worktree bytes match; Ran 24 tests in 0.889s - OK (skipped=1, the normal-mode-only guard); temp index deleted afterwards",
+      "temp_index_outside_repo": true,
+      "temp_index_removed_after_run": true,
+      "exit_code": 0
+    },
+    {
+      "cmd": "Remove-Item Env:\\GIT_INDEX_FILE; git ls-files | Where-Object { $_ -like '*59-g6-same-source*' -or $_ -like '*test_codebuddy_g6_same_source*' }",
+      "mode": "real-index integrity",
+      "result": "staged_candidate_count=0 - the shared .git/index stages neither candidate; both remain untracked (? ?)",
+      "exit_code": 0
+    },
+    {
+      "cmd": "independent python probe: json-load both pinned ledgers and print slot_set/counts; json-load the R1 contract and sum indices / collect distinct rule and budgets",
+      "result": "ledger counts exact (slots_total=120, slots_dynamic_candidate=56, slots_policy=64, slots_with_numeric_budget=0, slots_with_approval_identity=0, slots_approved=0, slots_blocked=56, slots_pending_owner_policy=64, external_owner_records=0, external_derivation_records=0, dynamic slots frame/datum bound=0); frame counts exact (frame_bound=25, frame_unresolved=31, datum_bound=10, datum_unresolved=46, owner_decision_count=24, slots_total=56, slot_count=56); all 24 owner_decisions status=not_made; policy split 5+59=64; R1 has 32 observables covering exactly 120 indices, distinct absolute_budget={0}, relative_budget={0}, distinct rule={finite_binary64_value_equal}"
+    },
+    {
+      "cmd": "independent python probe: search DOC_TEXT for the sampling-path regex and for any same-source contract JSON",
+      "result": "regex [^\\s`\">]*sampling[^\\s`\"<]*\\.(md|json|py|csv|slx) finds nothing; no tracked or untracked file named *same-source*/*same_source* .json exists; the tracked docs/2026-09-09-reference-sampling-contract.md is not referenced by, and not a dependency of, the candidate pair"
+    },
+    {
+      "cmd": "independent python probe: extract the first textual occurrence of each documented call site inside run() with source line numbers",
+      "result": "validate_contract:1083, validate_execution:1090, preflight probe:1093, _prepare_execution:1095, normal launch:1166, _validate_reference_outputs:1172, prelaunch probe:1174, native launch:1180, _validate_native_inputs:1189, parse_native_record:1191, align:1193, compare_aligned:1194, _execution_result:1195 - strictly increasing and identical to documented steps 1-13"
+    },
+    {
+      "cmd": "independent python probe: build a throwaway synthetic contract outside the repo and call entry.validate_execution directly (twice)",
+      "result": "identity slx/init path equal to the exact resolved staged path string + deliberately wrong identity sha256 (a*64) => validate_execution PASSED; identity path given as a plain relative filename + wrong sha256 => Reject 'normal slx does not match contract identity'. Confirms the OR-shaped identity cross-check (P3-02)"
+    },
+    {
+      "cmd": "independent python probe: compare entry._expected_input_f64(parsed rows) against the raw input-CSV bytes",
+      "result": "re-encoded bytes = 132264 (= 501 x 33 x 8), raw CSV bytes = 36822, equal=False; applied-input.f64 is written by tools/export_model_reference.m line 80 as fwrite(a','double'), so the doc's literal byte-equality wording is unachievable (P3-01)"
+    }
+  ],
+  "tests": {
+    "normal": { "ran": 24, "failures": 0, "errors": 0, "skipped": 1, "ok": true },
+    "temp_index": { "ran": 24, "failures": 0, "errors": 0, "skipped": 1, "ok": true },
+    "union_note": "each mode executes 23 tests and skips the other mode's guard; the two modes together exercise all 24 test methods"
+  },
+  "required_properties": [
+    { "id": 1, "property": "immutable pair identity (sha256 + size)", "result": "PASS", "evidence": "doc 9958b00f...acb106 / 15498 LF-normalized, test 3cd1241a...e0fbc / 31570; re-verified unchanged after both modes and all probes" },
+    { "id": 2, "property": "exactly six tracked source pins, HEAD-blob bound", "result": "PASS", "evidence": "all six HEAD blobs equal the documented sha256/size and the worktree bytes; no worktree-vs-HEAD drift; no seventh source pinned" },
+    { "id": 3, "property": "documented preflight order equals implemented run() order", "result": "PASS", "evidence": "13 documented steps map one-to-one onto lines 1083/1090/1093/1095/1166/1172/1174/1180/1189/1191/1193/1194/1195 in strictly increasing order; no earlier launch/probe call exists" },
+    { "id": 4, "property": "documented blocker counts re-derived from the pinned ledgers", "result": "PASS", "evidence": "all 12 integer ledger counts, the frame counts incl. owner_decision_count=24 and slot_count=56, the 5+59=64 policy split and r1_status=numerical_failed in both ledgers match the document verbatim" },
+    { "id": 5, "property": "R1 contract not appropriable (path + identity + zero budgets + equal-rule)", "result": "PASS", "evidence": "R1 contract_id, 32 observables / exactly 120 indices, every absolute_budget=0 and relative_budget=0, rule=finite_binary64_value_equal, sha256 starts 23d72e26; entry refuses by resolved-path equality and the frozen-R1 run returned blocked with a 'frozen R1 contract' reason and no evidence directory" },
+    { "id": 6, "property": "future authorized command shape matches the CLI and argv builders", "result": "PASS", "evidence": "positional contract + --output + --evidence-dir; normal argv [matlab, -wait, -sd <stage>, -batch export_model_reference]; native argv [wsl.exe, -d <distro>, --exec, timeout, --signal=TERM, --kill-after=5s, <timeout>s, <wsl_executable>, --record, <wsl-input.csv>]; fresh --evidence-dir required and private TEMP/TMP/MATLAB_PREFDIR prepared" },
+    { "id": 7, "property": "expected evidence/result fields exist in the implementation", "result": "PASS", "evidence": "all 14 named evidence artifacts plus normal/ internals and private temp/pref/cache/codegen are produced by _prepare_execution/_launch_process; the 20 execution-path result fields, the 8 blocked-path fields and the 13 per-scalar fields all exist in code" },
+    { "id": 8, "property": "no untracked reference-sampling document is a dependency", "result": "PASS", "evidence": "the sampling-path regex matches nothing in the document; eight pin-relevant paths resolve to the six tracked pins plus the two untracked candidates only; the tracked sampling contract is neither cited nor pinned" },
+    { "id": 9, "property": "six forbidden budget-derivation sources recorded as prohibitions", "result": "PASS", "evidence": "observed differences, ULP/epsilon, noise, RK4 O(h^4)/grid convergence, SITL/flight gates and control-seam rows are each stated only under an explicit prohibition; the mutation tests show each prohibition is load-bearing; no budget value is invented anywhere" },
+    { "id": 10, "property": "non-closure preserved", "result": "PASS", "evidence": "R1 numerical_failed retained in both pinned ledgers; both ledgers carry issues_closed=false, budget_approved=false, g6_acceptance=false, physical_accuracy=false; the document keeps #59/#84/G6 open, Full not-closed and 0/120 budgets approved" },
+    { "id": 11, "property": "fail-closed entry behavior with no launch and no evidence before a launch", "result": "PASS", "evidence": "missing contract, frozen R1 contract and partial-budget contract all returned blocked with physical_accuracy/g6_acceptance/execution_attempted/matlab_launched/native_launched false and no evidence directory created; _result() hardcodes those false values on every blocked path" },
+    { "id": 12, "property": "24 tests in normal mode", "result": "PASS", "evidence": "Ran 24 tests in 0.648s - OK (skipped=1)" },
+    { "id": 13, "property": "24 tests with a repo-external exact-2 temp index", "result": "PASS", "evidence": "exactly two stage-0 worktree-identical entries in an out-of-repo index; Ran 24 tests in 0.889s - OK (skipped=1); index removed; real index untouched" },
+    { "id": 14, "property": "no external simulator, #83, real staging/commit/push or sibling edits", "result": "PASS", "evidence": "only read-only git plumbing, the documented external temp index and pure-python probes were executed; no MATLAB/WSL/ROS/DDS/SITL/Unreal/build/flight; no commit or push; only the three review files were written in this checkout" }
+  ],
+  "pins": [
+    { "id": "entry_seam", "path": "tools/run_e0_same_source_conformance.py", "sha256": "8398100b7fb6b839e279afd6e8f8708e57e415450dbb6621acdc9ea9ecc46517", "size_bytes": 64513, "head_blob_sha1": "e275762475eebbc7e84c0e6822f0c3f596066a93", "worktree_match": true },
+    { "id": "same_source_command", "path": "docs/plan/59-e0-same-source-command.md", "sha256": "345caff0fd354717a64ed1dfac2c3ad33f87c72713cf3362483c395fb66b197e", "size_bytes": 10221, "head_blob_sha1": "b417a1291a5890045f8595a112724f879cda2297", "worktree_match": true },
+    { "id": "g6_remediation_contract", "path": "docs/plan/10-g6-remediation-contract.md", "sha256": "48da61ade51d46111db0be9a9288d93d4eec380251043c2e39bff66b74cae5c0", "size_bytes": 9935, "head_blob_sha1": "256455a46220014c970b556b0bca066391c5e9e1", "worktree_match": true },
+    { "id": "budget_approval_provenance", "path": "validation/e0-budget-approval-provenance-20260914.json", "sha256": "2962931a28dfc3cc05e201dc23b6073c30948080de34279e9f5b21ae23544d3d", "size_bytes": 285820, "head_blob_sha1": "4f2fdacfd556b12dada630dd5af7983062558676", "worktree_match": true },
+    { "id": "frame_datum_binding", "path": "validation/e0-frame-datum-binding-20260914.json", "sha256": "5d589075c128e2a22d24d88d7dea0ce753a68f4d46937386c581d3fae945b69f", "size_bytes": 105018, "head_blob_sha1": "64acd9c8e51e9418e05866f15631e1b8e1e2be80", "worktree_match": true },
+    { "id": "r1_contract", "path": "Simulator/wksim_core/numerical-conformance-v1.json", "sha256": "23d72e26da5dfc7df0b41b96d090664d0ec022d777f6258e409bf7080f2c08f0", "size_bytes": 29846, "head_blob_sha1": "e5d5f33911ff80fc861952612cceac9bf647702d", "worktree_match": true }
+  ],
+  "findings": [
+    {
+      "id": "P3-01",
+      "severity": "P3",
+      "title": "doc SS1 step 6 says applied-input.f64 is byte-identical with the input CSV, which is not the implemented (or possible) check",
+      "detail": "The document reads '`applied-input.f64` 与输入 CSV 字节一致'. The implementation compares the artifact against entry._expected_input_f64(execution['input_rows']) (entry lines 887-892 and 1007-1009), i.e. a fresh row-major little-endian binary64 re-encoding of the parsed CSV rows (501 x 33 x 8 = 132264 bytes), never against the CSV text bytes (36822 bytes in the probe). tools/export_model_reference.m line 80 writes the same encoding with fwrite(a','double'). The native-side statement in step 9 IS literal byte equality (entry line 1030: input_csv.encode('ascii') == input_raw).",
+      "candidate_status": "real wording defect in an immutable candidate; the enforced consistency property is at least as strong as the intent, so no evidence claim is weakened",
+      "impact": "a reader could look for a text-vs-binary byte comparison that cannot exist; no effect on the BLOCKED verdict, blocker counts, or fail-closed behavior",
+      "recommendation": "in the next revision of the document, reword to 'applied-input.f64 equals the little-endian binary64 encoding of the input CSV rows (row-major, 33 doubles per row)'"
+    },
+    {
+      "id": "P3-02",
+      "severity": "P3",
+      "title": "doc SS1 step 2 claims the SLX/init SHA is cross-checked against identity, but the check is an OR that can skip the SHA comparison",
+      "detail": "entry lines 395-402 use '_require(item.get('path') == str(staged['path']) or _sha256(staged['path']) == item.get('sha256'))'. When identity.slx.path / identity.init.path is written as the exact resolved staged path string (absolute, native separators, as _resolve_declared_path supports and as the R1 identity convention of absolute paths suggests), the OR short-circuits on the path and the identity sha256 is never compared with the file bytes. Probe: a synthetic contract with identity path == resolved staged path and identity sha256 'a'*64 passed validate_execution; the same contract with a plain relative identity path was rejected with 'normal slx does not match contract identity'.",
+      "candidate_status": "latent; not reachable today because no same-source contract exists and every real invocation is blocked at validate_contract",
+      "impact": "a stale or wrong identity.slx/init sha256 could pass validate_execution under an absolute-path contract; the staged file's own declared sha256 is still verified against its bytes, and identity shas do not propagate into evidence, so the BLOCKED readiness conclusion is unaffected",
+      "recommendation": "replace the disjunction with a conjunction (compare the resolved staged file hash against identity.sha256, and if desired also require path agreement) in the entry module when it is next revised"
+    },
+    {
+      "id": "P3-03",
+      "severity": "P3",
+      "title": "some SS2 claims are asserted by string presence rather than re-derived by the suite",
+      "detail": "The suite re-derives the ledger/frame integer counts and slot_count, but the SS2 statements about the R1 contract ('120 slots, absolute_budget=0/relative_budget=0, rule=finite_binary64_value_equal, sha starts 23d72e26'), the 5+59=64 policy split and 'all 24 owner decisions are not_made' are only checked as literals in the document.",
+      "candidate_status": "all three statements are independently TRUE: 32 R1 observables covering exactly 120 indices, all budgets 0, single rule finite_binary64_value_equal; slot_set policy_interface_metadata=5 + policy_reserved_not_physical_coverage=59; 24/24 owner_decisions status=not_made",
+      "impact": "no false claim; a future edit could desynchronise these sentences from the pinned artifacts without failing the suite",
+      "recommendation": "future hardening: add re-derivation assertions for the R1 budget/rule summary, the policy split and the owner-decision status histogram"
+    },
+    {
+      "id": "P3-04",
+      "severity": "P3",
+      "title": "the normal-mode 'no index-touching git call' guard is execution-order dependent (informational)",
+      "detail": "TestIndexModes sorts before TestPreflightOrder, TestSourcePins and TestWordingMutations, so INDEX_TOUCHING_CALLS is inspected before those classes run; an index-touching git call introduced there would not be detected by the guard. In the current suite those classes use only ls-tree/show/merge-base/rev-parse, none of which is in INDEX_CMDS.",
+      "candidate_status": "not a defect in the current content",
+      "impact": "mutation-space coverage gap only",
+      "recommendation": "future hardening: assert on the call list in tearDownModule or restrict git usage to an allowlist of read-only plumbing subcommands"
+    },
+    {
+      "id": "P3-05",
+      "severity": "P3",
+      "title": "the SS5 reproducibility sentence is exact for the blocked path but reads as universal (informational)",
+      "detail": "SS5 says the same (C, E) always returns the same status and blocking_reasons and does not depend on time or randomness. That holds for every blocked path. On a fully provisioned contract, _prepare_execution uses uuid4 for the staging name and manifest epoch and refuses an evidence directory that already exists, so a repeat call with the same now-populated evidence_dir argument returns blocked.",
+      "candidate_status": "not a defect: readiness is currently and unconditionally blocked, and the claim is naturally read over a fresh environment E",
+      "impact": "documentation precision only",
+      "recommendation": "none required; optionally scope the sentence to the preflight judgment over a given environment snapshot"
+    }
+  ],
+  "residual_uncertainty": [
+    "The suite verifies structural, byte-identity and wiring properties encoded in the candidate; it cannot prove that the documented preflight order is the only reachable order for every future execution identity (the entry's launcher/probe/path-resolver are injectable and were not exercised on a READY contract, because none exists).",
+    "The candidate's SS8 statement that G0-G6 are all not-closed is consistent with the pinned ledgers (issues_closed=false for #59 and the non_claims text) but was not re-derived from a separate closure ledger; only R1's numerical_failed and #59/#84/G6/Full openness were spot-checked.",
+    "The six pins' own claims were bound by hash and spot-checked against their key fields, not exhaustively re-derived from the MATLAB model or the native build.",
+    "The candidate pair's own suite was executed as the primary behavioral evidence; three additional independent probes (ledger re-derivation, call-order extraction, identity/applied-input probes) were run for the properties above, but the injected-launcher execution path itself was not exercised (no contract can reach it)."
+  ],
+  "non_actions": {
+    "candidates_edited": false,
+    "real_index_staged": false,
+    "committed": false,
+    "pushed": false,
+    "issue_83_run": false,
+    "github_issue_or_pr_mutated": false,
+    "matlab_native_ros_dds_sitl_unreal_build_flight_run": false,
+    "network_used": false,
+    "sibling_projects_touched": false,
+    "wrote_only": [
+      "validation/coordination/deepseek-g6-same-source-activation-readiness-independent-review-20260914-01/review.md",
+      "validation/coordination/deepseek-g6-same-source-activation-readiness-independent-review-20260914-01/review.json",
+      "validation/coordination/deepseek-g6-same-source-activation-readiness-independent-review-20260914-01/SHA256SUMS"
+    ]
+  },
+  "state_preserved": {
+    "r1_status": "numerical_failed",
+    "slots_total": 120,
+    "slots_approved": 0,
+    "slots_with_numeric_budget": 0,
+    "frame_bound": 25,
+    "datum_bound": 10,
+    "owner_decisions_made": false,
+    "budget_approved": false,
+    "g6_acceptance": false,
+    "physical_accuracy": false,
+    "issues_closed": [],
+    "issues_open": ["#59", "#84", "G6"],
+    "full_status": "not-closed"
+  }
+}

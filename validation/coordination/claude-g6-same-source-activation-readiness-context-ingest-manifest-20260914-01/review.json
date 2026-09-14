@@ -1,0 +1,304 @@
+{
+  "schema": "wksim.ingest-manifest.v1",
+  "manifest_id": "claude-g6-same-source-activation-readiness-context-ingest-manifest-20260914-01",
+  "written_at": "2026-09-14",
+  "writer": "independent manifest writer (Claude Opus 4.8 (1M context), Claude Code harness)",
+  "mode": "offline, read-only over inputs; real index untouched; repo-external temp-index staging proof only",
+  "batch_scope": "context-only",
+  "acceptance": "non-acceptance",
+  "repo_head_at_manifest": "cca825b5bac5bd8b7837a9ac75c85e715b67deb6",
+  "head_role": "observation only; no HEAD-equality assertion is made or implied",
+  "ancestry": {
+    "baseline_commit": "31e5b65f5448c5558450d16d0f46da0ef0f0a03c",
+    "baseline_is_ancestor_command": "git merge-base --is-ancestor 31e5b65f5448c5558450d16d0f46da0ef0f0a03c HEAD",
+    "baseline_is_ancestor_exit": 0,
+    "architecture_commit": "f333316e6efa6b299b4288a9d91fb2bccedfb9d6",
+    "architecture_is_ancestor_command": "git merge-base --is-ancestor f333316e6efa6b299b4288a9d91fb2bccedfb9d6 HEAD",
+    "architecture_is_ancestor_exit": 0,
+    "discriminating_negative_control": {
+      "command": "git merge-base --is-ancestor 0000000000000000000000000000000000000000 HEAD",
+      "exit": 128
+    },
+    "head_equality_asserted": false,
+    "head_equality_required": false
+  },
+  "overlap_check": {
+    "method": "git log --name-only --format='' <anchor>..HEAD, de-duplicated with a case-sensitive sort, intersected with the 9 exact-paths.txt paths",
+    "since_31e5b65f": {
+      "commits": 7,
+      "commit_list": ["ab165c3f", "438ab764", "acf32286", "e832fd2a", "615c2f8c", "ee6eb888", "cca825b5"],
+      "distinct_touched_paths": 77,
+      "overlap_with_exact_paths": 0
+    },
+    "since_f333316e": {
+      "commits": 78,
+      "distinct_touched_paths": 1132,
+      "overlap_with_exact_paths": 0
+    },
+    "conclusion": "zero overlap for both ancestry anchors - no commit in either range added, modified or deleted any of the 9 batch paths; all 9 remain untracked working-tree files",
+    "corroboration": "git ls-tree -r HEAD -- <9 paths> returns no entry (none in the HEAD tree); git ls-files -s -- <9 paths> returns no entry (none staged in the real index)"
+  },
+  "exact_paths_verification": {
+    "path": "validation/coordination/claude-g6-same-source-activation-readiness-context-ingest-manifest-20260914-01/exact-paths.txt",
+    "sha256": "91972da6f33441fd676d776b6f1c726ed08d8515f82d48e9f6a14949db953beb",
+    "size_bytes": 920,
+    "line_count": 9,
+    "unique_path_count": 9,
+    "lf_byte_count": 9,
+    "cr_byte_count": 0,
+    "trailing_lf": true,
+    "byte_ordinal_sort_equals_file": true,
+    "composition": {
+      "candidates": 2,
+      "anchored_independent_review_outputs": 3,
+      "manifest_outputs_including_itself": 4
+    },
+    "gitignore_basis": "validation/coordination/** is gitignored via .gitignore:53 (/validation/*/), so git add -f is required for those 7 paths; the other 2 are untracked but not gitignored"
+  },
+  "inputs": [
+    {
+      "path": "docs/plan/59-g6-same-source-activation-readiness-20260914.md",
+      "role": "candidate_same_source_activation_readiness_document",
+      "sha256": "9958b00feafb9bc6dc0098da123ab6f2a668e06bb03da551eaa56ac46dacb106",
+      "size_bytes": 15498
+    },
+    {
+      "path": "validation/test_codebuddy_g6_same_source_activation_readiness.py",
+      "role": "candidate_offline_verification_suite",
+      "sha256": "3cd1241a0f0e74bf96d0383bddc8a5ee1564fc7840cd9bd1a8b94696117e0fbc",
+      "size_bytes": 31570
+    },
+    {
+      "path": "validation/coordination/deepseek-g6-same-source-activation-readiness-independent-review-20260914-01/review.md",
+      "role": "anchored_independent_review_report",
+      "sha256": "2b4c9ccdf7aa92894697efa7f4f4435a5372102f7f001b47476262c71e5a515a",
+      "size_bytes": 14370
+    },
+    {
+      "path": "validation/coordination/deepseek-g6-same-source-activation-readiness-independent-review-20260914-01/review.json",
+      "role": "anchored_independent_review_record",
+      "sha256": "f5a3b9c845b0e98b37166e1b58e215695e217e21166209b5e6109dbc8d06a73c",
+      "size_bytes": 22991
+    },
+    {
+      "path": "validation/coordination/deepseek-g6-same-source-activation-readiness-independent-review-20260914-01/SHA256SUMS",
+      "role": "anchored_independent_review_checksum_manifest",
+      "sha256": "7a4b3832c72cfffcff2cec65b6422757337c73b7a5f027e85df275b62052ad5b",
+      "size_bytes": 758
+    }
+  ],
+  "input_verification": {
+    "all_hashes_and_sizes_recomputed_matching_dispatch": true,
+    "inputs_unmodified_before_and_after_all_runs": true,
+    "all_inputs_lf_only_zero_cr": true,
+    "anchor_review_sha256sums_verified_from_repo_root": true,
+    "anchor_review_sha256sums_entry_lines_matching": 4,
+    "anchor_review_sha256sums_declared_self_check": "73cb551a8962963c6ce510406dd8dd8235142954f62348abc2da5e931e07e466",
+    "anchor_review_sha256sums_self_check_recomputed": "73cb551a8962963c6ce510406dd8dd8235142954f62348abc2da5e931e07e466",
+    "anchor_review_sha256sums_self_check_matches": true,
+    "anchor_review_json_strict_parsed": true
+  },
+  "review_facts": {
+    "verdict_source": "validation/coordination/deepseek-g6-same-source-activation-readiness-independent-review-20260914-01",
+    "review_verdict": "KEEP",
+    "verdict_rule": "KEEP with P1 == 0 and P2 == 0",
+    "severity_counts": { "P1": 0, "P2": 0, "P3": 5 },
+    "rework_required": false,
+    "review_rerun_by_this_manifest": false,
+    "review_re_adjudicated": false,
+    "findings_carried": {
+      "P1": [],
+      "P2": [],
+      "blockers": [],
+      "P3": [
+        "P3-01: doc SS1 step 6 says applied-input.f64 is byte-identical with the input CSV, but the code compares against entry._expected_input_f64(parsed rows) - a fresh row-major little-endian binary64 re-encoding (entry lines 887-892 and 1007-1009; 501 x 33 x 8 = 132264 bytes), never the CSV text bytes (36822 bytes); tools/export_model_reference.m line 80 writes fwrite(a','double'); the native-side step-9 statement IS literal byte equality (entry line 1030); the enforced consistency is at least as strong, so no evidence claim is weakened; recommend rewording in the next revision",
+        "P3-02: doc SS1 step 2 SLX/init SHA cross-check is an OR (entry lines 395-402: identity.path == resolved staged path OR staged sha == identity sha) that can skip the SHA comparison; with an absolute identity path (the R1 convention) a wrong identity.slx/init.sha256 passes validate_execution (probe: path == resolved staged path + sha 'a'*64 passed, a plain relative path was rejected); latent only - no same-source contract exists, the staged file's own declared sha256 is still verified against its bytes, identity shas do not propagate into evidence, and the BLOCKED readiness conclusion is unaffected; recommend a conjunction when the entry is next revised",
+        "P3-03: some SS2 claims are string-checked rather than re-derived by the suite (the R1 budget/rule summary, the 5+59=64 policy split and 'all 24 owner decisions not_made'); all three are independently true; future hardening: re-derive them",
+        "P3-04: the normal-mode 'no index-touching git call' guard is execution-order dependent (informational); TestIndexModes sorts before TestPreflightOrder/TestSourcePins/TestWordingMutations, so an index-touching call added to a later class would escape the guard; no such call exists today",
+        "P3-05: the SS5 reproducibility sentence is exact for the blocked path but reads as universal (informational); _prepare_execution uses uuid4 for staging/epoch and refuses an existing evidence directory, so a repeat call with the same now-populated evidence_dir returns blocked; readiness is currently and unconditionally blocked, so this is documentation precision only"
+      ]
+    },
+    "p3_wording_preserved": true,
+    "p3_scope": "Registered verbatim as documentation-precision / future-hardening observations, not defects that block acceptance of this readiness pair. This manifest does not reword, re-adjudicate, downgrade, apply or dismiss any finding, and edits no candidate byte.",
+    "p3_promoted_to_p2": false,
+    "p3_affects_decision_readiness": false,
+    "review_grants_approval": false,
+    "review_read_only": true,
+    "residual_uncertainty_carried": [
+      "the suite proves only the properties it encodes; it cannot prove that the documented preflight order is the only reachable order for every future execution identity (the entry's launcher, WSL path resolver and identity probe are injectable and no contract can currently reach the READY path)",
+      "the candidate's SS8 statement that G0-G6 are all not-closed is consistent with the pinned ledgers but was not re-derived from a separate closure ledger; only R1's numerical_failed and #59/#84/G6/Full openness were spot-checked",
+      "the six pins' own claims were hash-bound and spot-checked against their key fields, not exhaustively re-derived from the MATLAB model or the native build",
+      "the injected-launcher execution path itself was not exercised (no contract can reach it)"
+    ]
+  },
+  "pins_verified": {
+    "docs/plan/59-g6-same-source-activation-readiness-20260914.md": ["9958b00feafb9bc6dc0098da123ab6f2a668e06bb03da551eaa56ac46dacb106", 15498],
+    "validation/test_codebuddy_g6_same_source_activation_readiness.py": ["3cd1241a0f0e74bf96d0383bddc8a5ee1564fc7840cd9bd1a8b94696117e0fbc", 31570],
+    "validation/coordination/deepseek-g6-same-source-activation-readiness-independent-review-20260914-01/review.md": ["2b4c9ccdf7aa92894697efa7f4f4435a5372102f7f001b47476262c71e5a515a", 14370],
+    "validation/coordination/deepseek-g6-same-source-activation-readiness-independent-review-20260914-01/review.json": ["f5a3b9c845b0e98b37166e1b58e215695e217e21166209b5e6109dbc8d06a73c", 22991],
+    "validation/coordination/deepseek-g6-same-source-activation-readiness-independent-review-20260914-01/SHA256SUMS": ["7a4b3832c72cfffcff2cec65b6422757337c73b7a5f027e85df275b62052ad5b", 758],
+    "validation/coordination/claude-g6-same-source-activation-readiness-context-ingest-manifest-20260914-01/exact-paths.txt": ["91972da6f33441fd676d776b6f1c726ed08d8515f82d48e9f6a14949db953beb", 920],
+    "validation/coordination/claude-g6-same-source-activation-readiness-context-ingest-manifest-20260914-01/review.md": ["fb5a48918857704dd5198fee7df8485aa844fd3a5fed56148ced015ec5d4f2fd", 13018]
+  },
+  "pins_verified_note": "The five immutable inputs (two candidates plus the anchored review triplet) plus this batch's own exact-paths.txt and review.md are pinned above (7 of 9). review.json and SHA256SUMS are self-referential outputs: they cannot enumerate their own SHA256 or their own staged blob SHA1, so those values, together with the final hashes of all four manifest outputs, are reported after the staging proof, making the reported bytes equal the staged bytes.",
+  "candidate_git_state": {
+    "docs/plan/59-g6-same-source-activation-readiness-20260914.md": "untracked; not present in the HEAD tree; not gitignored",
+    "validation/test_codebuddy_g6_same_source_activation_readiness.py": "untracked; not present in the HEAD tree; not gitignored",
+    "validation/coordination/deepseek-g6-same-source-activation-readiness-independent-review-20260914-01/*": "untracked; not present in the HEAD tree (validation/coordination/** is gitignored, .gitignore:53)",
+    "validation/coordination/claude-g6-same-source-activation-readiness-context-ingest-manifest-20260914-01/*": "untracked; not present in the HEAD tree (validation/coordination/** is gitignored, .gitignore:53)",
+    "head_tree_membership_of_all_nine_paths": "none - git ls-tree -r HEAD returns no entry for any of the 9 paths",
+    "real_index_membership_of_all_nine_paths": "none - git ls-files -s over the 9 paths returns no entry"
+  },
+  "tests": {
+    "suite": "validation/test_codebuddy_g6_same_source_activation_readiness.py",
+    "test_method_count": 24,
+    "normal_mode": {
+      "command": "python -B -m unittest -v validation.test_codebuddy_g6_same_source_activation_readiness",
+      "ran": 24,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1,
+      "result": "OK (skipped=1)",
+      "skip_is": "the external-index-only guard; the normal-mode guard test_normal_mode_makes_no_index_touching_git_call executed and observed zero index-touching git calls"
+    },
+    "exact2_candidate_index_mode": {
+      "env": "GIT_INDEX_FILE=<repo-external absent path, created by git add>; WKSIM_G6_SSAR_TEST_MODE=external-index",
+      "command": "git add -- <2 candidates>; python -B -m unittest -v validation.test_codebuddy_g6_same_source_activation_readiness",
+      "git_add_exit": 0,
+      "temp_index_outside_repo": true,
+      "ls_files_listed": 2,
+      "ls_files_stage": 0,
+      "ls_files_mode": "100644",
+      "candidate_blob_sha1": {
+        "docs/plan/59-g6-same-source-activation-readiness-20260914.md": "46b773b79992459f00512f8578f231a9e4d134f9",
+        "validation/test_codebuddy_g6_same_source_activation_readiness.py": "6618919eb191dbc3b4f86070d310b52027731bc4"
+      },
+      "ran": 24,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1,
+      "result": "OK (skipped=1)",
+      "temp_index_removed_after_run": true,
+      "union_note": "each mode executes 23 tests and skips the other mode's guard; the two modes together exercise all 24 test methods"
+    },
+    "exact9_admission": {
+      "verified_separately": true,
+      "reason": "the suite's exact-2 assertion requires that index to hold exactly two paths, so 9-path batch admission is proven by its own temp-index run rather than by the suite",
+      "method": "GIT_INDEX_FILE=<repo-external path>; git read-tree HEAD; git add -f <the 9 exact-paths.txt paths>",
+      "expected_staged_delta_vs_head": { "A": 9, "M": 0, "D": 0 },
+      "all_entries_stage": 0,
+      "blob_equality": "9/9 index blobs byte-equal to working-tree files",
+      "scoped_diff_check": "index-vs-worktree diff scoped to the 9 paths empty (0 rows); index-vs-HEAD scoped delta exactly 9 A rows; git diff --cached --check clean (0 rows) for all 9 paths because every batch path is LF-only with zero CR bytes"
+    },
+    "inputs_byte_stable_across_all_runs": true
+  },
+  "temp_index_proof": {
+    "index_location": "repository-external %TEMP% path; never .git/index",
+    "seed": "git read-tree HEAD (index seeded from the current HEAD tree)",
+    "staging_command": "GIT_INDEX_FILE=<tmp> git add -f <the 9 exact-paths.txt paths>",
+    "force_add_reason": "validation/coordination/** is gitignored (.gitignore:53), so -f is required for those paths",
+    "staged_delta_vs_head": { "A": 9, "M": 0, "D": 0 },
+    "temp_index_total_entries": 10851,
+    "temp_index_total_entries_composition": "10842 HEAD tree entries from git read-tree HEAD plus the 9 additions",
+    "stage_of_all_entries": 0,
+    "all_entry_modes_regular": true,
+    "blob_equality_count": "9/9",
+    "diff_check": {
+      "scoped_index_vs_worktree_diff": "empty (0 rows) - byte-fidelity proof",
+      "scoped_index_vs_head_delta_rows": 9,
+      "cached_check_clean_paths": 9,
+      "cached_check_nonzero_path": null,
+      "cached_check_nonzero_rows": 0,
+      "cached_check_note": "unlike some sibling batches, no pinned input here is CRLF; all nine batch paths are LF-only with zero CR bytes, so git diff --cached --check is clean for all 9",
+      "line_ending_census": {
+        "docs/plan/59-g6-same-source-activation-readiness-20260914.md": { "cr": 0, "lf": 135 },
+        "validation/test_codebuddy_g6_same_source_activation_readiness.py": { "cr": 0, "lf": 667 },
+        "validation/coordination/deepseek-g6-same-source-activation-readiness-independent-review-20260914-01/review.md": { "cr": 0, "lf": 191 },
+        "validation/coordination/deepseek-g6-same-source-activation-readiness-independent-review-20260914-01/review.json": { "cr": 0, "lf": 237 },
+        "validation/coordination/deepseek-g6-same-source-activation-readiness-independent-review-20260914-01/SHA256SUMS": { "cr": 0, "lf": 5 },
+        "validation/coordination/claude-g6-same-source-activation-readiness-context-ingest-manifest-20260914-01/exact-paths.txt": { "cr": 0, "lf": 9 },
+        "validation/coordination/claude-g6-same-source-activation-readiness-context-ingest-manifest-20260914-01/review.md": { "cr": 0, "lf": 200 },
+        "validation/coordination/claude-g6-same-source-activation-readiness-context-ingest-manifest-20260914-01/SHA256SUMS": { "cr": 0, "lf": 3 }
+      },
+      "line_ending_census_note": "all four manifest outputs, the anchored review triplet and both candidates are LF-only with zero CR bytes. This file (review.json) is omitted from the census because its own line count is self-referential."
+    },
+    "observed_staged_blob_sha1": {
+      "docs/plan/59-g6-same-source-activation-readiness-20260914.md": "46b773b79992459f00512f8578f231a9e4d134f9",
+      "validation/coordination/claude-g6-same-source-activation-readiness-context-ingest-manifest-20260914-01/exact-paths.txt": "4f50bc3a446e72320d64a675eb523a49779931eb",
+      "validation/coordination/claude-g6-same-source-activation-readiness-context-ingest-manifest-20260914-01/review.md": "40d48cccd53cecd83ed70e4b99e36efb024880cd",
+      "validation/coordination/deepseek-g6-same-source-activation-readiness-independent-review-20260914-01/SHA256SUMS": "85284229176ca871f0ddd6ac23397267afa3ef36",
+      "validation/coordination/deepseek-g6-same-source-activation-readiness-independent-review-20260914-01/review.json": "d149bd528f4917f6360162d18cb5566faeb4625f",
+      "validation/coordination/deepseek-g6-same-source-activation-readiness-independent-review-20260914-01/review.md": "f768c0b503ebb05451d1f6017f90f7f1f4406d5a",
+      "validation/test_codebuddy_g6_same_source_activation_readiness.py": "6618919eb191dbc3b4f86070d310b52027731bc4"
+    },
+    "observed_staged_blob_sha1_note": "The two remaining staged paths are this file (review.json) and SHA256SUMS, which cannot contain their own blob SHA1 or SHA256; both are staged at stage 0 and blob-equality-proven in the post-write run whose values are reported after the proof so the reported bytes equal the staged bytes.",
+    "candidate_blob_cross_check": "the two candidate blob SHA1s (46b773b7..., 6618919e...) are computed from the pinned bytes whose SHA256 equals the dispatched identities; the staged bytes are therefore the reviewed bytes",
+    "real_index_proof": {
+      "real_index_sha256_before": "7d83f465adfaa9e9e756765823ddf185b2427457e50da0315193aec66f52a712",
+      "real_index_size_bytes_before": 1636473,
+      "real_index_ls_files_s_sha256_before": "0e741b0af12efcfb8672b31e6d115be27a4c932093a53c688538d68107a12ac5",
+      "real_index_ls_files_count_before": 10842,
+      "ls_files_s_sha256_method": "UTF-8 bytes of `git ls-files -s` output lines joined with LF plus a trailing LF, then SHA256",
+      "unchanged_after_all_proofs": true,
+      "fingerprints_byte_identical": true
+    },
+    "temp_index_deleted_after_proof": true,
+    "commit_made": false
+  },
+  "scope_compliance": {
+    "inputs_edited": false,
+    "existing_review_outputs_edited": false,
+    "real_index_staged": false,
+    "committed": false,
+    "pushed": false,
+    "reset_or_clean_or_restore_or_checkout": false,
+    "ref_changed": false,
+    "issue_83_run": false,
+    "github_issue_or_pr_mutated": false,
+    "native_model_matlab_ros_dds_sitl_fc_ue_build_or_flight_run": false,
+    "network_used": false,
+    "sibling_batches_or_sibling_projects_touched": false,
+    "writes_limited_to": [
+      "validation/coordination/claude-g6-same-source-activation-readiness-context-ingest-manifest-20260914-01/exact-paths.txt",
+      "validation/coordination/claude-g6-same-source-activation-readiness-context-ingest-manifest-20260914-01/review.md",
+      "validation/coordination/claude-g6-same-source-activation-readiness-context-ingest-manifest-20260914-01/review.json",
+      "validation/coordination/claude-g6-same-source-activation-readiness-context-ingest-manifest-20260914-01/SHA256SUMS"
+    ]
+  },
+  "excluded_paths": [
+    "docs/Prometheus.gitmodules.reference",
+    "validation/coordination/short-cycle-dispatches.json",
+    "docs/plan/59-g6-owner-decision-request-20260914.md",
+    "docs/plan/59-g6-uncovered-state-map-20260914.md",
+    "validation/e0-g6-owner-decision-request-20260914.json",
+    "validation/test_e0_g6_owner_decision_request.py"
+  ],
+  "excluded_paths_note": "Pre-existing dirty tracked files, concurrent-session untracked artifacts, and every other validation/coordination batch directory (including sibling manifest/review quartets) are outside this 9-path batch and were not created, modified, staged and - apart from the anchored review triplet, which is a batch input read only - not read as inputs.",
+  "batch_observations": [
+    {
+      "id": "BATCH-OBS-1",
+      "severity": "observation (not a review finding)",
+      "title": "HEAD advanced past the anchored review's recorded ee6eb888",
+      "detail": "The anchored independent review recorded HEAD ee6eb88819cefe255f22e788c39a77c0bbab490e (informational only); at manifest time HEAD is cca825b5bac5bd8b7837a9ac75c85e715b67deb6. The candidates deliberately pin no exact HEAD value, and no commit in either ancestry range (31e5b65f..HEAD or f333316e..HEAD) touched any of the 9 batch paths, so the advance does not invalidate the batch.",
+      "status": "carried as an observation only; nothing is edited and no anchored-review finding is created, re-adjudicated, downgraded or promoted by it",
+      "readiness_impact": "none"
+    }
+  ],
+  "nonclaims": [
+    "This manifest is an admission record only; it is not acceptance, approval, review authority or rerun permission for #59, #84, G6, Full or any other ticket.",
+    "No owner decision is made, solicited on the owner's behalf, pre-filled or implied: all owner decisions remain not_made with no option chosen.",
+    "No numeric budget, budget approval, acceptance flip, closure claim or physical-accuracy claim is introduced or implied; r1_status remains numerical_failed and 0/120 budgets remain approved.",
+    "The five P3 findings and the residual uncertainty of the anchored review are carried exactly as recorded and are neither applied nor adjudicated away.",
+    "No issue acceptance or closure is claimed for #59, #84, G6 or Full; Full remains not-closed.",
+    "No same-source contract is created and no READY path is reached; readiness remains BLOCKED and the R1 contract (numerical_failed, 32 observables / 120 indices, zero budgets, finite_binary64_value_equal) is preserved untouched and not appropriated.",
+    "No input or file outside the four manifest outputs was edited; nothing was staged in the real index, committed, pushed, reset, cleaned, restored or checked out; the real index was never modified.",
+    "No sibling batch directory or sibling project was touched; #83 was not rerun and no rerun is triggered or suggested; no network or GitHub query/mutation was performed."
+  ],
+  "outputs": [
+    "validation/coordination/claude-g6-same-source-activation-readiness-context-ingest-manifest-20260914-01/exact-paths.txt",
+    "validation/coordination/claude-g6-same-source-activation-readiness-context-ingest-manifest-20260914-01/review.md",
+    "validation/coordination/claude-g6-same-source-activation-readiness-context-ingest-manifest-20260914-01/review.json",
+    "validation/coordination/claude-g6-same-source-activation-readiness-context-ingest-manifest-20260914-01/SHA256SUMS"
+  ],
+  "sha256sums_coverage": "exact-paths.txt, review.md, review.json only; SHA256SUMS does not self-reference"
+}
