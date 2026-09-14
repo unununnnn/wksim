@@ -1,0 +1,110 @@
+{
+  "schema": "wksim.codebuddy-independent-review.v1",
+  "date": "2026-09-14",
+  "reviewer": "CodeBuddy independent offline review",
+  "repo_checkout": {
+    "branch": "main",
+    "head": "5370b2324672c9036d41239cb93e21fc5eb42897",
+    "ancestor_required": "f333316e6efa6b299b4288a9d91fb2bccedfb9d6",
+    "ancestor_verified": true
+  },
+  "candidate": {
+    "path": "validation/test_audit_26_current_source_plan.py",
+    "sha256": "6ef7be9bc9b6d2b31e960c6e4859602615bcbfa07ec2385b40aa2e8633963fc3",
+    "size_bytes": 33871,
+    "git_status": "untracked"
+  },
+  "source_seams": [
+    {
+      "path": "tools/audit_26_closure_readiness.py",
+      "sha256": "7aad2227a56d42bcaacb5246a9026c8343c5b4aa5787d8dc93843d66ed9e028e",
+      "size_bytes": 80768
+    },
+    {
+      "path": "tools/build_generated_e0.py",
+      "sha256": "0f6c7a8caa6b6b885115e76986bceb0ecc07f06050ea78c316d8aa14747c1c68",
+      "size_bytes": 41243
+    },
+    {
+      "path": "tools/generate_model_e0.py",
+      "sha256": "a2d388a4daf1841a080c1666e196fec17a83126f2b25ef1f59350db17cfa0d44",
+      "size_bytes": 21480
+    }
+  ],
+  "referenced_data": [
+    {
+      "path": "docs/plan/26-current-wrapper-recheck-plan.md",
+      "sha256": "5f3b7f4178bff503fc79a58e85ae2c40465997c3d635eeb804be4196e05b0728",
+      "size_bytes": 18349
+    },
+    {
+      "path": "docs/plan/26-closure-readiness-manifest.json",
+      "sha256": "229eb94c8bc4cec71693719b32ad86f716b8a92ac4a2e19b541fc701bc72a1d7",
+      "size_bytes": 7530
+    }
+  ],
+  "test_execution": {
+    "command": "python validation/test_audit_26_current_source_plan.py -v",
+    "tests_run": 49,
+    "passed": 48,
+    "skipped": 1,
+    "failures": 0,
+    "errors": 0,
+    "wall_seconds": 0.071,
+    "skip_reason": "test_checker_maps_windows_provenance_to_mnt_on_posix_hosts is POSIX-only by design; host is Windows"
+  },
+  "temp_probes": [
+    {"probe": "duplicate JSON key via checker._load_json", "result": "rejected"},
+    {"probe": "NaN literal via checker._load_json", "result": "rejected"},
+    {"probe": "1e999 via checker._load_json then checker._strict_number", "result": "loader returns inf; downstream rejected"},
+    {"probe": "1e999 checked_unix via checker._wsl_precheck_found", "result": "rejected (MISSING)"}
+  ],
+  "findings": {
+    "p1": [],
+    "p2": [],
+    "p3": [
+      {
+        "file": "validation/test_audit_26_current_source_plan.py",
+        "lines": "128-139",
+        "finding": "Second assertion in test_driver_stages_exactly_the_six_sources_the_checker_pins is labeled as checking the checker but re-compares the driver constant to the same literal; checker's six-source literal (tools/audit_26_closure_readiness.py:1373) is not compared here. Covered by tracked sibling test_audit_26_closure_readiness.py, so misleading claim only, not a coverage hole."
+      },
+      {
+        "file": "validation/test_audit_26_current_source_plan.py",
+        "lines": "167-175,178-186",
+        "finding": "Two host-bound tests (private work/ codegen tree; external MATLAB include dir) error rather than skip on hosts lacking them, inconsistent with the skip guard in ExecutedEvidenceTests.setUp (451-453). Still fail-loud by design; portability limit."
+      },
+      {
+        "file": "validation/test_audit_26_current_source_plan.py",
+        "lines": "19",
+        "finding": "Docstring claims the WSL runner is replaced by an in-process recorder; no recorder exists, WSL is simply never invoked. Wording overstatement only."
+      },
+      {
+        "file": "tools/audit_26_closure_readiness.py",
+        "lines": "1579-1581",
+        "finding": "Seam doc inaccuracy: _wsl_precheck_found attributes 1e999 rejection to the strict decoder, but the decoder accepts it as inf; rejection comes from downstream finite guards. Fail-closed outcome verified correct."
+      },
+      {
+        "file": "validation/test_audit_26_current_source_plan.py",
+        "lines": "563-611",
+        "finding": "Coverage note: the checker's duplicate-key/NaN rejection helpers are never directly asserted; only exercised on the happy path via the audit call. Reviewer TEMP probes confirmed both rejections work."
+      }
+    ]
+  },
+  "duplicate_check": {
+    "method": "grep of validation/test_*.py for current-wrapper-01 evidence ids, wrapper hash 150ddf3bab66..., library hash 528db324..., freeze record, plan-doc markers",
+    "result": "all covered only by the candidate; tracked siblings test_audit_26_closure_readiness.py (62 tests) and test_build_generated_e0.py (26 tests) cover the checker/driver generally",
+    "non_duplicate": true
+  },
+  "scope_limits": [
+    "Only the named pure unittest module and TEMP-only pure fixtures were run",
+    "No native, ROS, DDS, SITL, FC, UE, MATLAB, model, or build actions; no compiler; no .so load; no WSL commands; no user-process actions",
+    "No edits to the candidate or any existing file; artifacts only in this review directory",
+    "Offline independent review only: claims neither #26 closure nor #84, Full, G6, nor any official acceptance",
+    "The suite's own recorded limits bind: 100-step constant-input probe window, full_or_g6_acceptance false, no reset/cold-cycle or terrain coverage",
+    "The suite is intentionally single-revision; a wrapper change fails it by design (staleness tripwire)"
+  ],
+  "verdict": "PASS",
+  "recommended_candidate_paths": [
+    "validation/test_audit_26_current_source_plan.py"
+  ]
+}

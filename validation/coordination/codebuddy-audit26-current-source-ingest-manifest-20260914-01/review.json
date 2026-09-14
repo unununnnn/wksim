@@ -1,0 +1,109 @@
+{
+  "schema": "wksim.codebuddy-ingest-manifest.v1",
+  "date": "2026-09-14",
+  "role": "CodeBuddy ingest-manifest owner for the #26 current-source offline contract",
+  "repo_checkout": {
+    "branch": "main",
+    "head": "5370b2324672c9036d41239cb93e21fc5eb42897",
+    "ancestor_required": "f333316e6efa6b299b4288a9d91fb2bccedfb9d6",
+    "ancestor_verified": true
+  },
+  "source_review_dir": "validation/coordination/codebuddy-audit26-current-source-independent-review-20260914-01",
+  "candidate_paths_file": "validation/coordination/codebuddy-audit26-current-source-ingest-manifest-20260914-01/exact-paths.txt",
+  "ingested": [
+    {
+      "path": "validation/test_audit_26_current_source_plan.py",
+      "sha256": "6ef7be9bc9b6d2b31e960c6e4859602615bcbfa07ec2385b40aa2e8633963fc3",
+      "size_bytes": 33871,
+      "git_status": "untracked"
+    },
+    {
+      "path": "validation/coordination/codebuddy-audit26-current-source-independent-review-20260914-01/review.md",
+      "sha256": "d52822b9c5af549eb2fa719ac6c9b4971fb6e7e899ebec0a5c677e96a6efd09c",
+      "size_bytes": 8086
+    },
+    {
+      "path": "validation/coordination/codebuddy-audit26-current-source-independent-review-20260914-01/review.json",
+      "sha256": "5d059f4a91f8e730b532bc11f57a4175b9bbac0b8c38551b9f4764c1de631a69",
+      "size_bytes": 5395
+    },
+    {
+      "path": "validation/coordination/codebuddy-audit26-current-source-independent-review-20260914-01/SHA256SUMS",
+      "sha256": "a0442f15cf3edc669aaa7b5bf56efdffc66f2a962fdc47cda963d216f46f4c44",
+      "size_bytes": 154
+    }
+  ],
+  "hash_cross_checks": {
+    "review_json_internal_hashes": "all six recomputed from current worktree and match (candidate, three source seams, two referenced data files), sizes match",
+    "review_dir_sha256sums": "sha256sum -c: 2/2 OK (review.md, review.json)"
+  },
+  "strict_parse": {
+    "duplicate_keys": "rejected; mechanism proven on crafted inputs {\"a\":1,\"a\":2} and nested-object case; artifact parses clean with zero duplicate keys",
+    "nan_infinity": "NaN, Infinity, -Infinity all rejected via parse_constant",
+    "overflow_1e999": "parses as inf on the JSON number path; rejected by downstream finite guards, matching review probe 3",
+    "artifact_result": "strict parse OK; verdict PASS; recorded counts 49/48/1"
+  },
+  "test_execution": {
+    "command": "python -B -m unittest validation.test_audit_26_current_source_plan",
+    "cwd": "repo root",
+    "exit_code": 0,
+    "tests_run": 49,
+    "passed": 48,
+    "skipped": 1,
+    "failures": 0,
+    "errors": 0,
+    "platform_skip": {
+      "test": "test_checker_maps_windows_provenance_to_mnt_on_posix_hosts",
+      "cls": "validation.test_audit_26_current_source_plan.CheckerBindingTests",
+      "reason": "POSIX-specific mapping rule",
+      "host_platform": "Windows"
+    }
+  },
+  "verdict": "PASS",
+  "findings": {
+    "p1": [],
+    "p2": [],
+    "p3": [
+      {
+        "file": "validation/test_audit_26_current_source_plan.py",
+        "lines": "128-139",
+        "finding": "Second assertion in test_driver_stages_exactly_the_six_sources_the_checker_pins re-compares the driver constant to the same literal instead of the checker's six-source literal (tools/audit_26_closure_readiness.py:1373); covered by tracked sibling test_audit_26_closure_readiness.py, so misleading claim only, not a coverage hole."
+      },
+      {
+        "file": "validation/test_audit_26_current_source_plan.py",
+        "lines": "167-175,178-186",
+        "finding": "Two host-bound tests (private work/ codegen tree; external MATLAB include dir) error rather than skip on hosts lacking them, inconsistent with the skip guard in ExecutedEvidenceTests.setUp (451-453). Still fail-loud by design; portability limit."
+      },
+      {
+        "file": "validation/test_audit_26_current_source_plan.py",
+        "lines": "19",
+        "finding": "Docstring claims an in-process WSL recorder replaces the WSL runner; no recorder exists, WSL is simply never invoked. Wording overstatement only."
+      },
+      {
+        "file": "tools/audit_26_closure_readiness.py",
+        "lines": "1579-1581",
+        "finding": "Seam doc inaccuracy: _wsl_precheck_found attributes 1e999 rejection to the strict decoder, but the decoder accepts it as inf; rejection comes from downstream finite guards. Fail-closed outcome verified correct."
+      },
+      {
+        "file": "validation/test_audit_26_current_source_plan.py",
+        "lines": "563-611",
+        "finding": "Coverage note: the checker's duplicate-key/NaN rejection helpers are never directly asserted; only exercised on the happy path via the audit call. Reviewer TEMP probes confirmed both rejections work."
+      }
+    ]
+  },
+  "limitations": [
+    "Ingest is offline and read-only toward all candidates and existing files; no Git commit/push; no GitHub changes",
+    "Only the named unittest module was executed via python -B -m unittest, plus pure temp-dir JSON strict-parse probes",
+    "No native, WSL, ROS, DDS, SITL, FC, UE, MATLAB, model, build, or flight actions; no user-process actions",
+    "This manifest binds the independent review's claims and adds no new validation beyond the strict parse, hash cross-checks, and the single unittest run",
+    "The suite's own recorded limits bind: 100-step constant-input probe window, full_or_g6_acceptance false, no reset/cold-cycle or terrain coverage; single-revision staleness tripwire by design"
+  ],
+  "acceptance": {
+    "issue_26": "unaccepted",
+    "issue_84": "unaccepted",
+    "full": "unaccepted",
+    "g6": "unaccepted",
+    "goal": "unaccepted",
+    "note": "Verdict PASS covers only the candidate test file's correctness, fail-closed behavior, and non-duplication within its stated offline scope; recommended commit path is exactly validation/test_audit_26_current_source_plan.py"
+  }
+}
