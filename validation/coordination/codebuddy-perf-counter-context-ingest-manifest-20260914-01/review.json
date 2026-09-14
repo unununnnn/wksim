@@ -1,0 +1,207 @@
+{
+  "schema": "wksim.codebuddy-context-ingest-manifest.v1",
+  "manifest_id": "codebuddy-perf-counter-context-ingest-manifest-20260914-01",
+  "written_at": "2026-09-14",
+  "writer": "CodeBuddy manifest writer agent",
+  "owner_approval_claimed": false,
+  "acceptance_claimed": false,
+  "batch": "manifest binding over the independently reviewed OMP perf-counter historical-context ingest",
+  "head": {
+    "observed": "438ab764c0cf70f9e017cfbd82aeb04255282e3a",
+    "role": "ancestry only; no equality assertion; later HEAD movement does not invalidate this manifest",
+    "ancestor_checks": [
+      {"commit": "31e5b65f5448c5558450d16d0f46da0ef0f0a03c", "label": "dispatch baseline", "is_ancestor_of_HEAD": true, "exit_code": 0},
+      {"commit": "f333316e6efa6b299b4288a9d91fb2bccedfb9d6", "label": "architecture anchor", "is_ancestor_of_HEAD": true, "exit_code": 0}
+    ],
+    "note": "the bound ingest note records writing-time HEAD 31e5b65f...; current HEAD descends from it, the relation note section 0 requires"
+  },
+  "exact_paths": {
+    "file": "exact-paths.txt",
+    "sha256": "fcd56a75bdbdaf575a083e7f9469dde147f06c510cd892aff27cd7c3069ea9a4",
+    "git_blob_worktree": "2ecb05efea7226e30a86403631a98ad83e07e169",
+    "entry_count": 11,
+    "unique_count": 11,
+    "lc_all_c_sorted": true,
+    "line_endings": "LF-only, no CR bytes",
+    "composition": "4 candidates + 3 review outputs of codebuddy-perf-counter-independent-review-20260914-01 + 4 manifest outputs (this directory)",
+    "paths": [
+      "docs/coordination/codebuddy-perf-counter-context-ingest-note-20260914.md",
+      "docs/coordination/omp-perf-counter-integration-review-20260913.md",
+      "docs/coordination/omp-perf-lost-counter-review-20260913.md",
+      "validation/coordination/codebuddy-perf-counter-context-ingest-manifest-20260914-01/SHA256SUMS",
+      "validation/coordination/codebuddy-perf-counter-context-ingest-manifest-20260914-01/exact-paths.txt",
+      "validation/coordination/codebuddy-perf-counter-context-ingest-manifest-20260914-01/review.json",
+      "validation/coordination/codebuddy-perf-counter-context-ingest-manifest-20260914-01/review.md",
+      "validation/coordination/codebuddy-perf-counter-independent-review-20260914-01/SHA256SUMS",
+      "validation/coordination/codebuddy-perf-counter-independent-review-20260914-01/review.json",
+      "validation/coordination/codebuddy-perf-counter-independent-review-20260914-01/review.md",
+      "validation/test_codebuddy_perf_counter_context.py"
+    ]
+  },
+  "candidates": [
+    {
+      "path": "docs/coordination/omp-perf-counter-integration-review-20260913.md",
+      "sha256_expected": "9e4a857bb52fc740e25085cb955879f96942f29663a360c802b45e07dab50b2c",
+      "sha256_observed": "9e4a857bb52fc740e25085cb955879f96942f29663a360c802b45e07dab50b2c",
+      "bytes_expected": 5601,
+      "bytes_observed": 5601,
+      "tracked": true,
+      "git_blob_worktree": "e67aba719395cb3bd85911fe822e570c2eb772b6",
+      "head_blob": "e67aba719395cb3bd85911fe822e570c2eb772b6",
+      "match": true
+    },
+    {
+      "path": "docs/coordination/omp-perf-lost-counter-review-20260913.md",
+      "sha256_expected": "e35ba529ae1eb18eb04c591f8bec2aea7f10c1a96ee02c1db56cf696dfcfef39",
+      "sha256_observed": "e35ba529ae1eb18eb04c591f8bec2aea7f10c1a96ee02c1db56cf696dfcfef39",
+      "bytes_expected": 4890,
+      "bytes_observed": 4890,
+      "tracked": true,
+      "git_blob_worktree": "f92fd8110b4e0a0f6b37ae9e80a92be24cc41714",
+      "head_blob": "f92fd8110b4e0a0f6b37ae9e80a92be24cc41714",
+      "match": true
+    },
+    {
+      "path": "docs/coordination/codebuddy-perf-counter-context-ingest-note-20260914.md",
+      "sha256_expected": "0c72d5e33b7efb444e7c9d4cba478991cf691cf0ec51d753b56f950a3780e4ca",
+      "sha256_observed": "0c72d5e33b7efb444e7c9d4cba478991cf691cf0ec51d753b56f950a3780e4ca",
+      "bytes_expected": 10600,
+      "bytes_observed": 10600,
+      "tracked": false,
+      "git_blob_worktree": "1d2532ae430f4c98f646e07a796ba8e7f6bff982",
+      "lifecycle_state": "pre-admission (valid)",
+      "match": true
+    },
+    {
+      "path": "validation/test_codebuddy_perf_counter_context.py",
+      "sha256_expected": "0c5e1590a945cb41515004c3b06c4ec158f82e16dec48bfab85568a9659c948a",
+      "sha256_observed": "0c5e1590a945cb41515004c3b06c4ec158f82e16dec48bfab85568a9659c948a",
+      "bytes_expected": 32082,
+      "bytes_observed": 32082,
+      "tracked": false,
+      "git_blob_worktree": "08a1875be428256538a81f199bb2b4b4aa4e14c3",
+      "lifecycle_state": "pre-admission (valid)",
+      "match": true
+    }
+  ],
+  "prior_review_outputs": {
+    "review_id": "codebuddy-perf-counter-independent-review-20260914-01",
+    "verdict": {"decision": "KEEP", "P1": 0, "P2": 0, "P3": 2},
+    "files": [
+      {"path": "validation/coordination/codebuddy-perf-counter-independent-review-20260914-01/review.md", "sha256_expected": "b4c13ef3f49ccb016e6ddc55dcf403261d9e96e18b9bf9fdf59a9a913009b5fc", "sha256_observed": "b4c13ef3f49ccb016e6ddc55dcf403261d9e96e18b9bf9fdf59a9a913009b5fc", "git_blob_worktree": "0f5ff9e2bfef5ae18a9caede0b181d2c08021b4c", "match": true},
+      {"path": "validation/coordination/codebuddy-perf-counter-independent-review-20260914-01/review.json", "sha256_expected": "ec898acef35997ea5eb6ca5a5716d91e97cea34aaf431eddda8355864958d4a0", "sha256_observed": "ec898acef35997ea5eb6ca5a5716d91e97cea34aaf431eddda8355864958d4a0", "git_blob_worktree": "730735d1faa75e17974fdb97c5fdcd59e3d7dfad", "match": true},
+      {"path": "validation/coordination/codebuddy-perf-counter-independent-review-20260914-01/SHA256SUMS", "sha256_expected": "d247b2f57bf2d7628f38e255d29ad97385dd64f4aa4cd89d40690f1bc379bfcb", "sha256_observed": "d247b2f57bf2d7628f38e255d29ad97385dd64f4aa4cd89d40690f1bc379bfcb", "git_blob_worktree": "dd3fee13181f50c818415f0d1596fcef5d2b9266", "self_check": "recomputed entries b4c13ef3... (review.md) and ec898ace... (review.json) match both recorded lines", "match": true}
+    ],
+    "carried_findings": [
+      {"id": "P3-01", "severity": "P3", "subject": "per-evidence-dir .gitattributes wording", "location": "docs/coordination/codebuddy-perf-counter-context-ingest-note-20260914.md:58", "reconfirmed": "git check-attr text: evidence-dir paths (perf-lost-counter-20260913-01/receipt.json, perf-counter-integration-20260913-01/sources/wksim_perf_stream.c) = 'text: unset' from tracked dir-level '* -text'; docs/coordination review path = 'unspecified'. Note section-7 parenthetical '= unspecified' is imprecise for evidence-dir paths; both values mean no newline conversion, byte-identity premise of note sections 1-3 holds. Wording-only; bound note not rewritten."},
+      {"id": "P3-02", "severity": "P3", "subject": "suite index parser whitespace assumption", "location": "validation/test_codebuddy_perf_counter_context.py:311", "reconfirmed": "read_index_entries keys 'git ls-files -s' rows on parts[3]; paths with spaces would be mis-keyed; all looked-up paths contain no spaces; latent robustness limitation only."}
+    ],
+    "action_on_findings": "carried as registered; not fixed, not rewritten in this batch"
+  },
+  "receipt_arithmetic_reverification": {
+    "method": "all six receipt files re-hashed from working bytes at manifest-writing time; hashes and sizes match ingest-note section 3",
+    "receipts": [
+      {"path": "validation/coordination/perf-lost-counter-20260913-01/receipt.json", "sha256": "9bb5a22c8327b4de518d5283d466d89fc05fb5036bfb0273dfbd0dda0b255f4f", "bytes": 7177},
+      {"path": "validation/coordination/perf-counter-integration-20260913-01/main-verdict.json", "sha256": "4fcd7a6a217fb8e57e598a1b50bebf94e2c1181ab9e8c2f6d0c41bb7f15ebb96", "bytes": 3174},
+      {"path": "validation/coordination/perf-counter-integration-20260913-01/final-consumer-check.json", "sha256": "f7caf584ccf013503dcd011540634306345b909fb8d6b8790f586e9282cb2ebc", "bytes": 881},
+      {"path": "validation/coordination/perf-counter-integration-20260913-01/consumer-receipt.json", "sha256": "dc5476513cadb23e2fefb82c62d4e672c00160335c64b184dd136f621407518e", "bytes": 6290},
+      {"path": "validation/coordination/perf-counter-integration-20260913-02/consumer-receipt.json", "sha256": "6e246ec94eda958de44f348120fc547cc44385aaad635cbb19aa108cedc6e351", "bytes": 6290},
+      {"path": "validation/coordination/perf-counter-integration-20260913-01/receipt.json", "sha256": "66a29ed985491b1884c190f53adbc2ca5676f874fbc064758ad4843f46fc9769", "bytes": 8396}
+    ],
+    "key_figures_carried_unchanged": {
+      "overflow_disabled_without_drain": "kernel_lost=385, queued_records=127, 127+385=512 closes against expected 512-record production, 0 LOST",
+      "normal": "kernel_lost=0, no false positive",
+      "loss_detail_counter": 26471,
+      "consumer_receipts": "17 cases / 0 failures each (integration -01 and -02)",
+      "main_verdict_flags": "diagnostic_only / architecture_acceptance=false / full_acceptance=false, preserved unupgraded"
+    }
+  },
+  "historical_checkout_discrepancy": {
+    "claim": "reviews record main 9e8ba03e43627918d5fab28aa59765a02fb068d1; main-verdict.json source_head is 1b3dfdcc106be18bcff8ff0e69269f6c7eab755d; integration receipt.json records 9e8ba03e",
+    "reverified_at": "2026-09-14, HEAD 438ab764",
+    "merge_base": "9e8ba03e43627918d5fab28aa59765a02fb068d1",
+    "both_ancestors_of_HEAD": true,
+    "impact_on_source_bindings": "none -- all source identity pinned by tracked snapshot bytes, independent of any checkout line",
+    "classification": "historical, registered, left unrewritten"
+  },
+  "boundaries": {
+    "context_only": true,
+    "no_promotion": "binds historical context only; promotes nothing to current execution, acceptance, approval, or closure",
+    "no_g6_full_closure": "no G6-Full conclusion touched or closed; diagnostic_only / architecture_acceptance=false / full_acceptance=false remain in force",
+    "not_84_closure": true,
+    "no_83_rerun": "#83 not rerun and no rerun triggered, suggested, or substituted",
+    "live_contract_outside_batch": "docs/coordination/perf-stream-contract-20260913.md remains tracked, outside the batch; referenced only",
+    "forbidden_elevation_phrases_absent": "验收通过 / 已批准 / 已收口 / full_acceptance=true / #83-rerun claims absent from all four manifest outputs"
+  },
+  "commands": [
+    {
+      "exact": "python -m unittest validation.test_codebuddy_perf_counter_context -v",
+      "mode": "normal (pre-admission lifecycle state)",
+      "tests_run": 31,
+      "passed": 31,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 2,
+      "skipped_reason": "TestTemporaryIndex (only meaningful under a temporary GIT_INDEX_FILE)",
+      "exit_code": 0,
+      "result": "OK (31/31)"
+    },
+    {
+      "exact": "TI=$(mktemp -u); GIT_INDEX_FILE=$TI git read-tree HEAD; GIT_INDEX_FILE=$TI git add -f <8 then-existing exact paths>; GIT_INDEX_FILE=$TI git diff-index --cached --name-status HEAD; rm $TI",
+      "mode": "round-A repo-external temp-index stage (recorded)",
+      "temp_index": "mktemp -u path under C:\\Users\\PC\\AppData\\Local\\Temp (repo-external), never pre-created",
+      "staged_paths": 8,
+      "git_add_forced": "yes for all (validation/coordination/ is gitignored via .gitignore line 53 /validation/*/; two tracked candidates re-stage byte-identically)",
+      "diff_index_cached_HEAD": {"A": 6, "M": 0, "D": 0},
+      "temp_index_file_removed": true,
+      "result": "clean"
+    }
+  ],
+  "closing_exact11_staging": {
+    "timing": "run after all four manifest outputs were final; observed results reported in the dispatch thread",
+    "procedure": "fresh repo-external mktemp -u temp index, git read-tree HEAD, git add -f all 11 exact-paths.txt entries",
+    "required_results": {
+      "staged_set_equals_exact_paths": true,
+      "diff_index_cached_HEAD": {"A": 9, "M": 0, "D": 0, "note": "9 new-in-HEAD paths (ingest note, test, 3 prior review outputs, 4 manifest outputs); the two tracked candidate reviews add no delta"},
+      "all_11_stage0_blob_equal_worktree_hash_object": true,
+      "git_diff_name_only_scoped_to_11_paths": "empty",
+      "temp_index_file_removed": true,
+      "real_index_byte_identical": true
+    },
+    "deviation_is_failure": true
+  },
+  "real_index_integrity": {
+    "git_index_sha256_before": "327b22366c0ba7cb1e3fbddc8cd41023541b92f3cea745af754aba1b41862976",
+    "ls_files_s_sha256_before": "5de63e159c44d37a72acfecee8c178ab154b80b00d36cb9130588e9042f5a8ef",
+    "after_recheck": "reported in dispatch thread; must equal the before values",
+    "git_operations_on_real_index": "none -- read-only (rev-parse, merge-base --is-ancestor, ls-tree, ls-files, hash-object, status, check-attr); no stage/commit/reset/clean/push"
+  },
+  "cross_pins": {
+    "exact-paths.txt sha256": "fcd56a75bdbdaf575a083e7f9469dde147f06c510cd892aff27cd7c3069ea9a4",
+    "review.md sha256": "191735dd7fc618e4b0aee59623c3c0d68b636b7abb950f8c11544b964df77d6a",
+    "SHA256SUMS": "covers exact-paths.txt, review.json, review.md (LC_ALL=C order); review.json's own hash is pinned by SHA256SUMS and review.md cannot pin it because review.json was written after review.md"
+  },
+  "findings": [],
+  "verdict": {
+    "classification": {"P1": 0, "P2": 0, "P3": 0, "carried_from_prior_review": {"P3": 2}},
+    "decision": "MANIFEST-COMPLETE",
+    "rationale": "All 11 exact paths verified against dispatch pins byte-for-byte; the inherited KEEP verdict (P1=0/P2=0/P3=2) is recorded with both P3 items carried, not fixed; receipt arithmetic, checkout-discrepancy registration, and the .gitattributes byte-identity premise re-confirm from raw bytes; suite passes 31/31; round-A staging is clean (6 A / 0 M / 0 D). The manifest is pure historical-context bookkeeping: it promotes nothing, closes nothing, and leaves the real Git index untouched."
+  },
+  "proven_vs_gaps": {
+    "proven_behavior": "offline byte/pin/arithmetic/anchor re-verification, the normal suite run, and the round-A repo-external temp-index stage listed above; the closing exact-11 stage runs after finalization and is reported in the dispatch thread",
+    "acceptance_gaps": "this manifest validates only the historical-context batch bookkeeping; it is not #84 closure, not #83 rerun, and grants no architecture or full acceptance"
+  },
+  "scope_discipline": {
+    "native_or_external_toolchains_invoked": false,
+    "network_access": false,
+    "issue_83_rerun": false,
+    "protected_paths_touched": false,
+    "files_written": [
+      "validation/coordination/codebuddy-perf-counter-context-ingest-manifest-20260914-01/exact-paths.txt",
+      "validation/coordination/codebuddy-perf-counter-context-ingest-manifest-20260914-01/review.md",
+      "validation/coordination/codebuddy-perf-counter-context-ingest-manifest-20260914-01/review.json",
+      "validation/coordination/codebuddy-perf-counter-context-ingest-manifest-20260914-01/SHA256SUMS"
+    ],
+    "artifact_bytes": "LF-only; no .gitattributes added because the directory is gitignored (/validation/*/ in .gitignore line 53) and the dispatch restricts writes to exactly the four named files"
+  }
+}

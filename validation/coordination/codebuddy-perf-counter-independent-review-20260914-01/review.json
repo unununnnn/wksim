@@ -1,0 +1,205 @@
+{
+  "schema": "wksim.codebuddy-independent-review.v1",
+  "review_id": "codebuddy-perf-counter-independent-review-20260914-01",
+  "reviewed_at": "2026-09-14",
+  "reviewer": "independent CodeBuddy review agent",
+  "owner_approval_claimed": false,
+  "acceptance_claimed": false,
+  "batch": "OMP perf-counter historical-context binding (ingest note + offline context suite)",
+  "head": {
+    "expected": "31e5b65f5448c5558450d16d0f46da0ef0f0a03c",
+    "observed": "31e5b65f5448c5558450d16d0f46da0ef0f0a03c",
+    "role": "ancestry baseline (ancestor-of-HEAD checks only; no equality assertion)",
+    "match": true
+  },
+  "ancestry_checks": [
+    {"commit": "31e5b65f5448c5558450d16d0f46da0ef0f0a03c", "label": "writing-time baseline", "is_ancestor_of_HEAD": true},
+    {"commit": "f333316e6efa6b299b4288a9d91fb2bccedfb9d6", "label": "architecture ancestor", "is_ancestor_of_HEAD": true},
+    {"commit": "9e8ba03e43627918d5fab28aa59765a02fb068d1", "label": "review-recorded source checkout", "is_ancestor_of_HEAD": true},
+    {"commit": "1b3dfdcc106be18bcff8ff0e69269f6c7eab755d", "label": "main-verdict receipt source_head", "is_ancestor_of_HEAD": true},
+    {"merge_base": ["9e8ba03e43627918d5fab28aa59765a02fb068d1", "1b3dfdcc106be18bcff8ff0e69269f6c7eab755d"], "result": "9e8ba03e43627918d5fab28aa59765a02fb068d1", "interpretation": "9e8ba03e is an ancestor of 1b3dfdcc (P3 ordering confirmed)"}
+  ],
+  "candidates": [
+    {
+      "path": "docs/coordination/omp-perf-counter-integration-review-20260913.md",
+      "sha256_expected": "9e4a857bb52fc740e25085cb955879f96942f29663a360c802b45e07dab50b2c",
+      "sha256_observed": "9e4a857bb52fc740e25085cb955879f96942f29663a360c802b45e07dab50b2c",
+      "bytes_expected": 5601,
+      "bytes_observed": 5601,
+      "tracked": true,
+      "index_blob_equals_worktree": true,
+      "match": true
+    },
+    {
+      "path": "docs/coordination/omp-perf-lost-counter-review-20260913.md",
+      "sha256_expected": "e35ba529ae1eb18eb04c591f8bec2aea7f10c1a96ee02c1db56cf696dfcfef39",
+      "sha256_observed": "e35ba529ae1eb18eb04c591f8bec2aea7f10c1a96ee02c1db56cf696dfcfef39",
+      "bytes_expected": 4890,
+      "bytes_observed": 4890,
+      "tracked": true,
+      "index_blob_equals_worktree": true,
+      "match": true
+    },
+    {
+      "path": "docs/coordination/codebuddy-perf-counter-context-ingest-note-20260914.md",
+      "sha256_expected": "0c72d5e33b7efb444e7c9d4cba478991cf691cf0ec51d753b56f950a3780e4ca",
+      "sha256_observed": "0c72d5e33b7efb444e7c9d4cba478991cf691cf0ec51d753b56f950a3780e4ca",
+      "bytes_expected": 10600,
+      "bytes_observed": 10600,
+      "tracked": false,
+      "lifecycle_state": "pre-admission (valid)",
+      "match": true
+    },
+    {
+      "path": "validation/test_codebuddy_perf_counter_context.py",
+      "sha256_expected": "0c5e1590a945cb41515004c3b06c4ec158f82e16dec48bfab85568a9659c948a",
+      "sha256_observed": "0c5e1590a945cb41515004c3b06c4ec158f82e16dec48bfab85568a9659c948a",
+      "bytes_expected": 32082,
+      "bytes_observed": 32082,
+      "tracked": false,
+      "lifecycle_state": "pre-admission (valid)",
+      "match": true
+    }
+  ],
+  "independent_verifications": {
+    "receipt_arithmetic": {
+      "method": "raw JSON re-read with python; not delegated to the suite",
+      "lost_counter_receipt": {
+        "kernel": "6.6.87.2-microsoft-standard-WSL2",
+        "read_format": 16,
+        "boot_id_prefix": "b3fa43aa",
+        "normal": {"kernel_lost": 0, "read_bytes": 16, "ring_head": 128, "ring_tail": 0, "queued_records": 4, "queued_lost_records": 0},
+        "overflow_disabled_without_drain": {"kernel_lost": 385, "read_bytes": 16, "ring_head": 4064, "ring_tail": 0, "queued_records": 127, "queued_lost_records": 0},
+        "arithmetic": "127 + 385 = 512 (closes; expected production 512 records)"
+      },
+      "final_consumer_check": {"consumer_sha256": "dee9a3b5c3cafb42e69836758ccaebd4dbd78e8fa569d203c7ca1d36a03179bc", "normal_exit": 0, "loss_exit": 3, "loss_reason": "kernel_loss_counter_nonzero", "detail_26471_in_stderr": true},
+      "main_verdict": {"source_head": "1b3dfdcc106be18bcff8ff0e69269f6c7eab755d", "classification": "diagnostic_only", "architecture_acceptance": false, "full_acceptance": false, "pending_loss_records": 16383, "pending_loss_lost_records": 0, "pending_loss_counter": 26471, "normal_kernel_lost_count": 0},
+      "consumer_receipts": [
+        {"dir": "perf-counter-integration-20260913-01", "cases": 17, "failures": 0, "inspect_legacy_exit": 0, "required_legacy_exit": 3},
+        {"dir": "perf-counter-integration-20260913-02", "cases": 17, "failures": 0, "inspect_legacy_exit": 0, "required_legacy_exit": 3}
+      ],
+      "integration_receipt": {"source_head": "9e8ba03e43627918d5fab28aa59765a02fb068d1", "recorder_pin": "aa807f3b", "header_pin": "ef1eabf2"},
+      "result": "all note section-3 claims reproduce from raw bytes"
+    },
+    "snapshot_and_source_pins": {
+      "files_checked": 17,
+      "all_match": true,
+      "groups": {
+        "recorder wksim_perf_stream.c (55245 B)": ["validation/coordination/ds-perf-stream-recorder-20260913-01/", "validation/coordination/perf-counter-integration-20260913-01/sources/"],
+        "header wksim_perf_stream.h (7318 B)": ["validation/coordination/ds-perf-stream-recorder-20260913-01/", "validation/coordination/perf-counter-integration-20260913-01/sources/"],
+        "consumer perf_stream_consumer.py (29362 B)": ["validation/coordination/ds-perf-stream-consumer-20260913-01/", "validation/coordination/perf-counter-integration-20260913-01/sources/"],
+        "probe lost_counter_probe.c (4579 B)": ["validation/coordination/perf-lost-counter-20260913-01/ top and sources/"]
+      },
+      "receipts_and_raws": ["LOST01 receipt.json", "INT01 receipt.json", "INT01 main-verdict.json", "INT01 final-consumer-check.json", "INT01/INT02 consumer-receipt.json", "LOST01 capture/normal.raw 128 B", "LOST01 capture/overflow_disabled_without_drain.raw 4064 B", "INT01 superseded-sentinel-source.c 57916 B"],
+      "head_tree_identity": "spot-checked 8 tracked files: git ls-tree HEAD blob == git hash-object of working bytes (all match)"
+    },
+    "historical_checkout_discrepancy": {
+      "claim": "reviews record main 9e8ba03e; main-verdict.json source_head is 1b3dfdcc; INT01 receipt.json records 9e8ba03e",
+      "verified": true,
+      "ancestor_relation": "both ancestors of HEAD; merge-base(9e8ba03e, 1b3dfdcc) = 9e8ba03e",
+      "impact_on_source_bindings": "none -- all source identity is pinned by tracked snapshot bytes, independent of checkout line",
+      "classification": "P3 (already registered by the note itself as historical)"
+    },
+    "gitattributes_claims": {
+      "evidence_dirs_checked": 6,
+      "each_tracked_gitattributes_content": "* -text",
+      "dirs": ["perf-lost-counter-20260913-01", "perf-counter-integration-20260913-01", "perf-counter-integration-20260913-02", "ds-perf-stream-recorder-20260913-01", "ds-perf-stream-consumer-20260913-01", "ds-perf-stream-fixtures-20260913-01"],
+      "root_gitattributes_contains_global_text_rule": false,
+      "check_attr": {"evidence_dir_paths": "text: unset (from dir-level * -text; stronger than unspecified, no conversion)", "docs/coordination review path": "text: unspecified", "note_section7_wording": "says '= unspecified' without scoping; for evidence-dir paths the effective value is 'unset' -- substance (no newline conversion) holds (finding P3-01)"},
+      "result": "byte-identity premise of note sections 1-3 holds"
+    },
+    "no_promotion_no_closure": {
+      "main_verdict_flags": "diagnostic_only / architecture_acceptance=false / full_acceptance=false verified in raw JSON",
+      "note_boundary_phrases": "no-promotion and no-closure disclaimers present; forbidden elevation phrases (验收通过 / 已批准 / 已收口 / full_acceptance=true / #83 rerun claims) absent",
+      "live_contract": "docs/coordination/perf-stream-contract-20260913.md remains tracked and outside the batch",
+      "result": "hold"
+    }
+  },
+  "commands": [
+    {
+      "exact": "python -m unittest validation.test_codebuddy_perf_counter_context -v",
+      "mode": "normal (pre-admission lifecycle state)",
+      "tests_run": 31,
+      "passed": 31,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 2,
+      "skipped_reason": "TestTemporaryIndex (only meaningful under temporary GIT_INDEX_FILE)",
+      "exit_code": 0,
+      "result": "OK"
+    },
+    {
+      "exact": "GIT_INDEX_FILE=/tmp/wksim-perf-idx-IJhbLe (mktemp -u, never pre-created) + WKSIM_PERF_COUNTER_TEMP_INDEX=1, then python -m unittest validation.test_codebuddy_perf_counter_context -v",
+      "mode": "private temp-index run",
+      "tests_run": 31,
+      "passed": 31,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "exit_code": 0,
+      "result": "OK"
+    }
+  ],
+  "temp_index_exact4_proof": {
+    "staged_paths": 4,
+    "entries": [
+      {"path": "docs/coordination/omp-perf-counter-integration-review-20260913.md", "stage": 0, "blob": "e67aba719395cb3bd85911fe822e570c2eb772b6"},
+      {"path": "docs/coordination/omp-perf-lost-counter-review-20260913.md", "stage": 0, "blob": "f92fd8110b4e0a0f6b37ae9e80a92be24cc41714"},
+      {"path": "docs/coordination/codebuddy-perf-counter-context-ingest-note-20260914.md", "stage": 0, "blob": "1d2532ae430f4c98f646e07a796ba8e7f6bff982"},
+      {"path": "validation/test_codebuddy_perf_counter_context.py", "stage": 0, "blob": "08a1875be428256538a81f199bb2b4b4aa4e14c3"}
+    ],
+    "blobs_equal_worktree_hash_object": true,
+    "git_diff_name_only_index_vs_worktree": "empty",
+    "temp_index_file_removed_after_run": true
+  },
+  "real_index_integrity": {
+    "git_index_sha256_before": "a7fd6154535cbcde789c99d6ee5f38097d914323453dde5d5ad97b1da09e9253",
+    "git_index_sha256_after_all_work": "a7fd6154535cbcde789c99d6ee5f38097d914323453dde5d5ad97b1da09e9253",
+    "ls_files_s_sha256_before": "5e08ccabec2775053b28f34e44eedd55db1a8b37ef8b4d895023d651f4b835ef",
+    "ls_files_s_sha256_after_staging": "5e08ccabec2775053b28f34e44eedd55db1a8b37ef8b4d895023d651f4b835ef",
+    "byte_identical": true,
+    "git_add_used": "plain git add under GIT_INDEX_FILE only (all 4 batch paths unignored); no git add -f needed for exact-4; real index never touched",
+    "no_stage_commit_reset_clean_push_performed": true
+  },
+  "mutation_negatives": {
+    "location": "in-suite (TestMutationNegatives, 7 tests) + TestLifecycle detector negatives (3 tests)",
+    "repository_writes": false,
+    "result": "all pass: hash detector rejects mutated bytes and mutated size; receipt arithmetic rejects kernel_lost 385->386, queued 127->128, normal false positive 0->1; note boundary detector rejects '不重跑 #83' removal and '验收通过' injection; lifecycle detector rejects mixed presence, nonzero stage, blob mismatch"
+  },
+  "findings": [
+    {
+      "id": "P3-01",
+      "severity": "P3",
+      "file": "docs/coordination/codebuddy-perf-counter-context-ingest-note-20260914.md",
+      "line": 58,
+      "summary": "Section 7 parenthetical 'git check-attr text = unspecified' is imprecise for the six evidence-dir paths: with a tracked dir-level .gitattributes of '* -text', check-attr reports 'text: unset' (verified on receipt.json and sources/wksim_perf_stream.c). 'unspecified' is correct only for paths outside those dirs (e.g. docs/coordination/omp-perf-lost-counter-review-20260913.md).",
+      "impact": "none on the byte-identity conclusion: both 'unset' and 'unspecified' mean no text conversion; the note's substance holds. Wording-only, historical-note text is not rewritten by this review.",
+      "action": "optional future wording fix; do not rewrite the bound historical note in this batch"
+    },
+    {
+      "id": "P3-02",
+      "severity": "P3",
+      "file": "validation/test_codebuddy_perf_counter_context.py",
+      "line": 311,
+      "summary": "read_index_entries parses 'git ls-files -s' by whitespace split and keys on parts[3], so index paths containing spaces would be mis-keyed. All paths this suite looks up (two candidates, tracked anchors) contain no spaces, so no assertion in this batch is affected.",
+      "impact": "latent robustness limitation only; no wrong result possible for the paths asserted in this suite",
+      "action": "optional future hardening (use ls-files -z or -t parsing); not required for this batch"
+    }
+  ],
+  "verdict": {
+    "classification": {"P1": 0, "P2": 0, "P3": 2},
+    "decision": "KEEP",
+    "rationale": "All four candidates match their dispatch pins byte-for-byte. Receipt arithmetic, snapshot/source pins, the P3 checkout discrepancy, per-evidence-dir .gitattributes byte-identity premise, and the no-promotion/no-closure boundaries all reproduce independently from raw bytes. Both suite runs pass (31/31; 2 skips in normal mode are by design). The two P3 findings are wording/robustness items with zero impact on any binding claim. The batch is a pure historical-context binding: it promotes nothing, closes nothing, and leaves the real Git index byte-identical."
+  },
+  "proven_vs_gaps": {
+    "proven_behavior": "offline byte/pin/arithmetic/anchor verification and the two unittest runs listed above; temp-index exact-4 staging under a private GIT_INDEX_FILE",
+    "acceptance_gaps": "this review validates only the historical-context batch; it is not #84 closure, not #83 rerun, and grants no architecture or full acceptance -- per the note's own boundaries and main-verdict.json flags"
+  },
+  "scope_discipline": {
+    "native_or_external_toolchains_invoked": false,
+    "network_access": false,
+    "issue_83_rerun": false,
+    "files_written": ["validation/coordination/codebuddy-perf-counter-independent-review-20260914-01/review.md", "validation/coordination/codebuddy-perf-counter-independent-review-20260914-01/review.json", "validation/coordination/codebuddy-perf-counter-independent-review-20260914-01/SHA256SUMS"],
+    "artifact_bytes": "written LF-only per the '* -text' directive; no .gitattributes added to the artifact dir because the directory is gitignored (/validation/*/ in .gitignore line 53) and the dispatch restricts writes to exactly the three named files"
+  }
+}
