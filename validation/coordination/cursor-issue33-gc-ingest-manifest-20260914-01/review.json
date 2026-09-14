@@ -1,0 +1,463 @@
+{
+  "schema": "wksim.issue33-gc-ingest-manifest.review.v1",
+  "review_id": "cursor-issue33-gc-ingest-manifest-20260914-01",
+  "generated_at": "2026-09-14T09:59:10+09:00",
+  "work_class": "review/ingest-planning",
+  "read_only_candidates": true,
+  "git_real_index_untouched": true,
+  "github_untouched": true,
+  "dispatch": {
+    "cwd": "C:/Users/PC/Documents/odid编译/wksim",
+    "branch": "main",
+    "head": "5370b2324672c9036d41239cb93e21fc5eb42897",
+    "architecture_ancestor": "f333316e6efa6b299b4288a9d91fb2bccedfb9d6",
+    "ancestor_exit": 0,
+    "read": [
+      "AGENTS.md",
+      "docs/architecture-implementation-20260912.md",
+      "docs/coordination/architecture-continuation-20260913.md"
+    ],
+    "module": "ingest planning for stable #33 GC/rate offline comparator",
+    "owned_writes": [
+      "validation/coordination/cursor-issue33-gc-ingest-manifest-20260914-01/exact-paths.txt",
+      "validation/coordination/cursor-issue33-gc-ingest-manifest-20260914-01/review.md",
+      "validation/coordination/cursor-issue33-gc-ingest-manifest-20260914-01/review.json",
+      "validation/coordination/cursor-issue33-gc-ingest-manifest-20260914-01/SHA256SUMS"
+    ],
+    "not_executed": [
+      "native",
+      "model",
+      "MATLAB",
+      "ROS",
+      "DDS",
+      "SITL",
+      "FC",
+      "UE",
+      "build",
+      "flight",
+      "#83",
+      "real_git_add",
+      "commit",
+      "push",
+      "close_ticket",
+      "owner_approval"
+    ]
+  },
+  "verdict": {
+    "overall": "PASS",
+    "meaning": "ingest_planning_ok_not_issue_33_or_84_acceptance",
+    "issue_33_acceptance": false,
+    "issue_84_acceptance": false,
+    "mixed_g6_full_pass": false,
+    "g6_acceptance": false,
+    "full_acceptance": false,
+    "goal_complete": false,
+    "owner_approval": false,
+    "causal": false,
+    "performance_pass": false,
+    "p1_count": 0,
+    "p2_count": 0,
+    "p3_count": 7
+  },
+  "authoritative_current": {
+    "tool": "d836333025a186f6f2c7c085aff686271792cfcd4fbbda16cb7802f78c6c66e7",
+    "test": "b53f427d05c4530600326a8068490feb9ab3a7c4729c28459c58d63338ca500d",
+    "c2_gap": "63431c1b3289ba6f83db4cb2434f7c5ecf00ae6095f3d701656ec1de6daf93af",
+    "c2_phase": "a8fef46b8fad7e83aaf4d9f1e8f94eb014fb7619af3baf905ffb3610d39038da",
+    "measured": "d02ba65adf7af9bd8883ce9b27d548b095785582b010279c5ddf0bddb9b03a50",
+    "next_diagnostic": "4ccf92ecd25cde1e778cd6b2c2102cbc12b32160c1aa23d9eeb3c0aa04b1b358",
+    "all_match_working_tree": true
+  },
+  "exact_paths": {
+    "file": "exact-paths.txt",
+    "count": 12,
+    "bom": false,
+    "empty_lines": 0,
+    "duplicates": [],
+    "order": "dispatch_listed"
+  },
+  "paths": [
+    {
+      "n": 1,
+      "path": "tools/compare_joint_gc_diagnostics.py",
+      "exists": true,
+      "regular_file": true,
+      "symlink": false,
+      "reparse": false,
+      "bytes": 64689,
+      "sha256": "d836333025a186f6f2c7c085aff686271792cfcd4fbbda16cb7802f78c6c66e7",
+      "role": "issue33_current_tool",
+      "ignored": false
+    },
+    {
+      "n": 2,
+      "path": "validation/test_compare_joint_gc_diagnostics.py",
+      "exists": true,
+      "regular_file": true,
+      "symlink": false,
+      "reparse": false,
+      "bytes": 59273,
+      "sha256": "b53f427d05c4530600326a8068490feb9ab3a7c4729c28459c58d63338ca500d",
+      "role": "issue33_current_test",
+      "ignored": false
+    },
+    {
+      "n": 3,
+      "path": "docs/coordination/c2-gap-bounds-20260913.md",
+      "exists": true,
+      "regular_file": true,
+      "symlink": false,
+      "reparse": false,
+      "bytes": 14207,
+      "sha256": "63431c1b3289ba6f83db4cb2434f7c5ecf00ae6095f3d701656ec1de6daf93af",
+      "role": "issue33_current_c2_gap",
+      "ignored": false
+    },
+    {
+      "n": 4,
+      "path": "docs/coordination/c2-phase-correlation-20260913.md",
+      "exists": true,
+      "regular_file": true,
+      "symlink": false,
+      "reparse": false,
+      "bytes": 14198,
+      "sha256": "a8fef46b8fad7e83aaf4d9f1e8f94eb014fb7619af3baf905ffb3610d39038da",
+      "role": "issue33_current_c2_phase",
+      "ignored": false
+    },
+    {
+      "n": 5,
+      "path": "docs/plan/33-rate-measured-candidate-20260912.md",
+      "exists": true,
+      "regular_file": true,
+      "symlink": false,
+      "reparse": false,
+      "bytes": 13417,
+      "sha256": "d02ba65adf7af9bd8883ce9b27d548b095785582b010279c5ddf0bddb9b03a50",
+      "role": "issue33_current_measured",
+      "ignored": false
+    },
+    {
+      "n": 6,
+      "path": "docs/plan/33-rate-next-diagnostic-20260912.md",
+      "exists": true,
+      "regular_file": true,
+      "symlink": false,
+      "reparse": false,
+      "bytes": 23881,
+      "sha256": "4ccf92ecd25cde1e778cd6b2c2102cbc12b32160c1aa23d9eeb3c0aa04b1b358",
+      "role": "issue33_current_next_diagnostic",
+      "ignored": false
+    },
+    {
+      "n": 7,
+      "path": "validation/coordination/cursor-issue33-gc-diagnostics-independent-review-20260914-01/review.md",
+      "exists": true,
+      "regular_file": true,
+      "symlink": false,
+      "reparse": false,
+      "bytes": 11687,
+      "sha256": "1068a3bd587061996924335adacd74643df8c7a070e55aa662f5744cbe865c72",
+      "role": "issue33_review01",
+      "ignored": true
+    },
+    {
+      "n": 8,
+      "path": "validation/coordination/cursor-issue33-gc-diagnostics-independent-review-20260914-01/review.json",
+      "exists": true,
+      "regular_file": true,
+      "symlink": false,
+      "reparse": false,
+      "bytes": 11341,
+      "sha256": "5cf4139ff0fb9ba56bdd15b76f0f4c3ed8b92ef3f471b15b7ee321027319a5f8",
+      "role": "issue33_review01",
+      "ignored": true
+    },
+    {
+      "n": 9,
+      "path": "validation/coordination/cursor-issue33-gc-diagnostics-independent-review-20260914-01/SHA256SUMS",
+      "exists": true,
+      "regular_file": true,
+      "symlink": false,
+      "reparse": false,
+      "bytes": 825,
+      "sha256": "ea7272bec0d1b2f3bd8ea2ef53cc0ba11ba7fc24b988f6b64f64e07bd2645278",
+      "role": "issue33_review01",
+      "ignored": true
+    },
+    {
+      "n": 10,
+      "path": "validation/coordination/cursor-issue33-gc-diagnostics-independent-review-20260914-02/review.md",
+      "exists": true,
+      "regular_file": true,
+      "symlink": false,
+      "reparse": false,
+      "bytes": 12199,
+      "sha256": "3efac0773e4e6d060d47e2b751dc1b286750908344a7ab6dc4ea6046bd4e150a",
+      "role": "issue33_review02",
+      "ignored": true
+    },
+    {
+      "n": 11,
+      "path": "validation/coordination/cursor-issue33-gc-diagnostics-independent-review-20260914-02/review.json",
+      "exists": true,
+      "regular_file": true,
+      "symlink": false,
+      "reparse": false,
+      "bytes": 17254,
+      "sha256": "3b860a3643a59e1802d18f0ab84bc380a89d1c55fc855b01dec50bb225765e6f",
+      "role": "issue33_review02",
+      "ignored": true
+    },
+    {
+      "n": 12,
+      "path": "validation/coordination/cursor-issue33-gc-diagnostics-independent-review-20260914-02/SHA256SUMS",
+      "exists": true,
+      "regular_file": true,
+      "symlink": false,
+      "reparse": false,
+      "bytes": 154,
+      "sha256": "8afffe5d0430c79e26ccdc292afdae892ba49727adfaf0e1b83e6266c68d7d3f",
+      "role": "issue33_review02",
+      "ignored": true
+    }
+  ],
+  "receipt_directories": {
+    "cursor-issue33-gc-diagnostics-independent-review-20260914-01": {
+      "files": [
+        "SHA256SUMS",
+        "review.json",
+        "review.md"
+      ],
+      "count": 3,
+      "exact3": true
+    },
+    "cursor-issue33-gc-diagnostics-independent-review-20260914-02": {
+      "files": [
+        "SHA256SUMS",
+        "review.json",
+        "review.md"
+      ],
+      "count": 3,
+      "exact3": true
+    }
+  },
+  "review_json_parse": {
+    "strict": true,
+    "duplicate_keys": false,
+    "bom": false,
+    "results": [
+      {
+        "path": "validation/coordination/cursor-issue33-gc-diagnostics-independent-review-20260914-01/review.json",
+        "parse": "OK",
+        "overall_recorded": "PASS",
+        "ingest_historical_class": "FAIL_pending_repair",
+        "p1_count": 0,
+        "p2_count": 5,
+        "p3_count": 4,
+        "official_tests_recorded": "38/38",
+        "verdict_rewritten": false,
+        "binds_pre_fix_six_sources": true
+      },
+      {
+        "path": "validation/coordination/cursor-issue33-gc-diagnostics-independent-review-20260914-02/review.json",
+        "parse": "OK",
+        "overall": "PASS",
+        "p1_count": 0,
+        "p2_count": 0,
+        "p3_count": 5,
+        "official_tests_recorded": "53/53",
+        "verdict_rewritten": false,
+        "binds_current_six_sources": true
+      }
+    ]
+  },
+  "historical_hash_explanation": {
+    "review01_binds_pre_fix": true,
+    "review01_p2": 5,
+    "review01_historical_class": "FAIL_pending_repair",
+    "mismatch_vs_current_expected": true,
+    "not_a_defect": true,
+    "do_not_require_old_hash_eq_current": true,
+    "historical_verdicts_not_rewritten": true,
+    "rows": [
+      {
+        "object": "tool",
+        "review01": "c3ef5ef5603f924d618ab93c15e786941cf666b5314471018e2314d7c7e2949d",
+        "current": "d836333025a186f6f2c7c085aff686271792cfcd4fbbda16cb7802f78c6c66e7",
+        "vs_current": "mismatch_expected"
+      },
+      {
+        "object": "test",
+        "review01": "d635d410eb1d73699ba2c6ea08f3b353fb0f829bb3e74c4aa031950e1210e2c1",
+        "current": "b53f427d05c4530600326a8068490feb9ab3a7c4729c28459c58d63338ca500d",
+        "vs_current": "mismatch_expected"
+      },
+      {
+        "object": "c2_gap",
+        "review01": "f23d8e16fb7511f0996f3920309d27019d3544cab95ea1c6f1e59f85fcc59efc",
+        "current": "63431c1b3289ba6f83db4cb2434f7c5ecf00ae6095f3d701656ec1de6daf93af",
+        "vs_current": "mismatch_expected"
+      },
+      {
+        "object": "c2_phase",
+        "review01": "11dfba6e9ed5fa3a4c087cb40330def2a6426033c9a17de242b90d6b90e8675e",
+        "current": "a8fef46b8fad7e83aaf4d9f1e8f94eb014fb7619af3baf905ffb3610d39038da",
+        "vs_current": "mismatch_expected"
+      },
+      {
+        "object": "measured",
+        "review01": "1be6b97bffc362bc29c33b464fbdfc72e243e99c5c81d3da191d8fb71b1b9d86",
+        "current": "d02ba65adf7af9bd8883ce9b27d548b095785582b010279c5ddf0bddb9b03a50",
+        "vs_current": "mismatch_expected"
+      },
+      {
+        "object": "next_diagnostic",
+        "review01": "f8657d39a2f2a0c0894373c559ab3c3a2e4e915fb039598f3ee9aa804cb102ce",
+        "current": "4ccf92ecd25cde1e778cd6b2c2102cbc12b32160c1aa23d9eeb3c0aa04b1b358",
+        "vs_current": "mismatch_expected"
+      }
+    ],
+    "review02_binds_current": {
+      "tool": true,
+      "test": true,
+      "c2_gap": true,
+      "c2_phase": true,
+      "measured": true,
+      "next_diagnostic": true
+    }
+  },
+  "official_tests": {
+    "command": "python -B -m unittest validation.test_compare_joint_gc_diagnostics",
+    "tests": 53,
+    "passed": 53,
+    "failed": 0,
+    "skipped": 0,
+    "elapsed_s": 1.265,
+    "result": "OK",
+    "causal": false,
+    "performance_pass": false,
+    "native_rerun": false
+  },
+  "claim_limits": {
+    "causal": false,
+    "performance_pass": false,
+    "issue_33": false,
+    "issue_84": false,
+    "mixed": false,
+    "g6": false,
+    "full": false
+  },
+  "private_index": {
+    "used_real_index": false,
+    "git_index_file": "C:\\Users\\PC\\AppData\\Local\\Temp\\wksim-i33-gc-ingest-20260914-01\\private.index",
+    "read_tree": "HEAD",
+    "read_tree_exit": 0,
+    "ordinary_add": [
+      "tools/compare_joint_gc_diagnostics.py",
+      "validation/test_compare_joint_gc_diagnostics.py",
+      "docs/coordination/c2-gap-bounds-20260913.md",
+      "docs/coordination/c2-phase-correlation-20260913.md",
+      "docs/plan/33-rate-measured-candidate-20260912.md",
+      "docs/plan/33-rate-next-diagnostic-20260912.md"
+    ],
+    "force_add": [
+      "validation/coordination/cursor-issue33-gc-diagnostics-independent-review-20260914-01/review.md",
+      "validation/coordination/cursor-issue33-gc-diagnostics-independent-review-20260914-01/review.json",
+      "validation/coordination/cursor-issue33-gc-diagnostics-independent-review-20260914-01/SHA256SUMS",
+      "validation/coordination/cursor-issue33-gc-diagnostics-independent-review-20260914-02/review.md",
+      "validation/coordination/cursor-issue33-gc-diagnostics-independent-review-20260914-02/review.json",
+      "validation/coordination/cursor-issue33-gc-diagnostics-independent-review-20260914-02/SHA256SUMS"
+    ],
+    "cached_count": 12,
+    "cached_unique": 12,
+    "all_status_A": true,
+    "set_equals_exact_paths": true,
+    "name_only_order": "git_path_sorted",
+    "extra": [],
+    "missing": [],
+    "duplicates": [],
+    "protected_in_cached": [],
+    "issue29_60_in_cached": [],
+    "other_untracked_in_cached": [],
+    "in_head": [],
+    "cleaned": true,
+    "lock_left": false
+  },
+  "real_index": {
+    "path": "C:\\Users\\PC\\Documents\\odid编译\\wksim\\.git\\index",
+    "sha256_before": "f2c7c20360e034c6fa7c1be13029220cbdac7c50460b24b140a2fb4c679bb834",
+    "sha256_after": "f2c7c20360e034c6fa7c1be13029220cbdac7c50460b24b140a2fb4c679bb834",
+    "bytes": 1594024,
+    "mtime_utc": "2026-09-14T00:15:29.695124Z",
+    "mtime_ns": 1789344929695124400,
+    "diff_cached_name_only": [],
+    "git_index_file_env": ""
+  },
+  "excluded": {
+    "protected": [
+      "docs/Prometheus.gitmodules.reference",
+      "validation/coordination/short-cycle-dispatches.json"
+    ],
+    "issue29_60": [
+      "docs/coordination/agy-aruco-native-correlation.md",
+      "tools/inspect_aruco_native_targets.py",
+      "validation/test_aruco_native_targets.py",
+      "docs/plan/full-acceptance-report.md"
+    ],
+    "delivery_scene_frontier_and_other_untracked": [
+      "docs/coordination/acceptance-frontier.json",
+      "docs/coordination/ds-scene-frontier-20260912.md",
+      "validation/test_delivery_entry_contract.py",
+      "validation/test_scene_frontier_contract.py"
+    ]
+  },
+  "findings": {
+    "p1": [],
+    "p2": [],
+    "p3": [
+      {
+        "id": "P3-1",
+        "title": "private cached name-only is git path-sorted, not exact-paths order",
+        "impact": "set equality holds; exact-paths.txt keeps dispatch order"
+      },
+      {
+        "id": "P3-2",
+        "title": "issue33-01 SHA256SUMS also lists six pre-fix source hashes",
+        "impact": "those lines describe historical bytes; review.md/json lines still match disk"
+      },
+      {
+        "id": "P3-3",
+        "title": "receipt SHA256SUMS omit themselves",
+        "impact": "same convention as other coordination receipts"
+      },
+      {
+        "id": "P3-4",
+        "title": "worktree still has unrelated dirty and untracked files",
+        "impact": "not in the 12; not in private cached"
+      },
+      {
+        "id": "P3-5",
+        "title": "six receipt files require git add -f because /validation/*/ is ignored",
+        "impact": "rehearsal used exact -f; no directory wildcard"
+      },
+      {
+        "id": "P3-6",
+        "title": "this slice does not close #33/#84 or claim MIXED/G6/Full",
+        "impact": "ingest planning only"
+      },
+      {
+        "id": "P3-7",
+        "title": "review-01 labeled PASS despite P2=5; ingest retains FAIL-pending historical",
+        "impact": "old overall field not rewritten; old source hashes not required to equal current"
+      }
+    ]
+  },
+  "limitations": [
+    "ingest planning and private rehearsal only; no real add/commit/push",
+    "does not close #33/#84 or mark MIXED/G6/Full/Goal complete",
+    "no native/model/MATLAB/ROS/DDS/SITL/FC/UE/build/flight/#83",
+    "historical review-01 P2=5 and 38/38 tests remain as recorded and classed FAIL-pending",
+    "this directory four files are not part of the 12-path candidate set"
+  ]
+}

@@ -1,0 +1,337 @@
+{
+  "schema": "wksim.independent-review.v1",
+  "review_id": "cursor-issue33-gc-diagnostics-independent-review-20260914-02",
+  "generated_at": "2026-09-14T09:54:43+09:00",
+  "work_class": "review",
+  "prior_review": "validation/coordination/cursor-issue33-gc-diagnostics-independent-review-20260914-01",
+  "read_only": true,
+  "git_untouched": true,
+  "github_untouched": true,
+  "dispatch": {
+    "cwd": "C:/Users/PC/Documents/odid编译/wksim",
+    "branch": "main",
+    "head": "5370b2324672c9036d41239cb93e21fc5eb42897",
+    "architecture_ancestor": "f333316e6efa6b299b4288a9d91fb2bccedfb9d6",
+    "ancestor_exit": 0,
+    "read": [
+      "CONTEXT-MAP.md",
+      "wksim/CONTEXT.md",
+      "AGENTS.md",
+      "docs/architecture-implementation-20260912.md",
+      "docs/coordination/architecture-continuation-20260913.md",
+      "docs/coordination/short-cycle-goal.md",
+      "https://github.com/unununnnn/wksim/issues/33",
+      "https://github.com/unununnnn/wksim/issues/84",
+      "validation/coordination/cursor-issue33-gc-diagnostics-independent-review-20260914-01"
+    ],
+    "local_adr": "none; parent AeroTwinSim ADRs do not automatically constrain wksim",
+    "module": "offline GC/rate comparator tools/compare_joint_gc_diagnostics.py",
+    "owned_writes": [
+      "validation/coordination/cursor-issue33-gc-diagnostics-independent-review-20260914-02/review.md",
+      "validation/coordination/cursor-issue33-gc-diagnostics-independent-review-20260914-02/review.json",
+      "validation/coordination/cursor-issue33-gc-diagnostics-independent-review-20260914-02/SHA256SUMS"
+    ],
+    "not_executed": [
+      "native",
+      "model",
+      "MATLAB",
+      "ROS",
+      "DDS",
+      "SITL",
+      "FC",
+      "UE",
+      "build",
+      "flight",
+      "#83"
+    ]
+  },
+  "verdict": {
+    "overall": "PASS",
+    "meaning": "offline_comparator_ok_not_issue_33_or_84_acceptance",
+    "issue_33_acceptance": false,
+    "issue_84_acceptance": false,
+    "mixed_g6_full_pass": false,
+    "manager99_rate_gate": false,
+    "issue_83_rerun": false,
+    "p1_count": 0,
+    "p2_count": 0,
+    "p3_count": 5,
+    "pass_with_p2_forbidden": true,
+    "pass_with_p2": false
+  },
+  "github": {
+    "issue_33": {
+      "state": "OPEN",
+      "title": "双栈混合轴与轨迹跟随",
+      "url": "https://github.com/unununnnn/wksim/issues/33"
+    },
+    "issue_84": {
+      "state": "OPEN",
+      "title": "[Astra] 提升同一已证实组合并验证正式入口",
+      "url": "https://github.com/unununnnn/wksim/issues/84",
+      "blocked_by_note": "#83 remains the slice prerequisite; this review did not fetch or rerun #83"
+    }
+  },
+  "source_sha256": {
+    "working_tree_untracked": true,
+    "not_in_head_tree": true,
+    "files": [
+      {
+        "path": "tools/compare_joint_gc_diagnostics.py",
+        "expected": "d836333025a186f6f2c7c085aff686271792cfcd4fbbda16cb7802f78c6c66e7",
+        "observed": "d836333025a186f6f2c7c085aff686271792cfcd4fbbda16cb7802f78c6c66e7",
+        "bytes": 64689,
+        "lines": 1375,
+        "match": true
+      },
+      {
+        "path": "validation/test_compare_joint_gc_diagnostics.py",
+        "expected": "b53f427d05c4530600326a8068490feb9ab3a7c4729c28459c58d63338ca500d",
+        "observed": "b53f427d05c4530600326a8068490feb9ab3a7c4729c28459c58d63338ca500d",
+        "bytes": 59273,
+        "lines": 1119,
+        "match": true
+      },
+      {
+        "path": "docs/coordination/c2-gap-bounds-20260913.md",
+        "expected": "63431c1b3289ba6f83db4cb2434f7c5ecf00ae6095f3d701656ec1de6daf93af",
+        "observed": "63431c1b3289ba6f83db4cb2434f7c5ecf00ae6095f3d701656ec1de6daf93af",
+        "bytes": 14207,
+        "lines": 131,
+        "match": true
+      },
+      {
+        "path": "docs/coordination/c2-phase-correlation-20260913.md",
+        "expected": "a8fef46b8fad7e83aaf4d9f1e8f94eb014fb7619af3baf905ffb3610d39038da",
+        "observed": "a8fef46b8fad7e83aaf4d9f1e8f94eb014fb7619af3baf905ffb3610d39038da",
+        "bytes": 14198,
+        "lines": 154,
+        "match": true
+      },
+      {
+        "path": "docs/plan/33-rate-measured-candidate-20260912.md",
+        "expected": "d02ba65adf7af9bd8883ce9b27d548b095785582b010279c5ddf0bddb9b03a50",
+        "observed": "d02ba65adf7af9bd8883ce9b27d548b095785582b010279c5ddf0bddb9b03a50",
+        "bytes": 13417,
+        "lines": 157,
+        "match": true
+      },
+      {
+        "path": "docs/plan/33-rate-next-diagnostic-20260912.md",
+        "expected": "4ccf92ecd25cde1e778cd6b2c2102cbc12b32160c1aa23d9eeb3c0aa04b1b358",
+        "observed": "4ccf92ecd25cde1e778cd6b2c2102cbc12b32160c1aa23d9eeb3c0aa04b1b358",
+        "bytes": 23881,
+        "lines": 322,
+        "match": true
+      }
+    ]
+  },
+  "checks": {
+    "fail_closed_gates": {
+      "id": 1,
+      "verdict": "PASS",
+      "missing_not_coerced_to_zero": true,
+      "causal_never_true": true,
+      "families": {
+        "boot": "PASS",
+        "source": "PASS",
+        "source_unchanged": "PASS",
+        "time_window": "PASS",
+        "latch": "PASS",
+        "diagnostic_marker": "PASS",
+        "overflow_lost": "PASS",
+        "identity": "PASS"
+      }
+    },
+    "known_field_mismatch": {
+      "id": 2,
+      "verdict": "PASS",
+      "pairs_rejected": [
+        "oayggl_s/x39qjvkw",
+        "x39qjvkw/5lfbcy43",
+        "oayggl_s/rfw9nmbb",
+        "5lfbcy43/rfw9nmbb"
+      ],
+      "named_vs_unnamed_rejected": true,
+      "same_token_still_pairs": true
+    },
+    "claim_class": {
+      "id": 3,
+      "verdict": "PASS",
+      "descriptive": true,
+      "controlled_pairing_only_when_compared": true,
+      "causal": false,
+      "performance_pass": false,
+      "single_sample_not_causal": true
+    },
+    "tests_and_traps": {
+      "id": 4,
+      "verdict": "PASS",
+      "independent_pos_neg": true,
+      "review01_p2_replay_closed": true,
+      "cli_stable_json": true,
+      "cli_no_allow_nan_crash": true,
+      "cli_no_attribute_error": true,
+      "cli_exit_matches_status": true,
+      "legal_boundaries_ok": true
+    },
+    "docs_vs_tickets": {
+      "id": 5,
+      "verdict": "PASS",
+      "issue_83_no_rerun": true,
+      "mixed_g6_full_unpassed": true,
+      "manager99_rate_gate_unmet": true,
+      "issue_33_open": true,
+      "issue_84_open": true,
+      "optional_null_wording_looser_than_code": true
+    }
+  },
+  "official_tests": {
+    "command": "python -B -m unittest validation.test_compare_joint_gc_diagnostics",
+    "tests": 53,
+    "passed": 53,
+    "failed": 0,
+    "skipped": 0,
+    "elapsed_s": 2.411,
+    "result": "OK"
+  },
+  "extra_negatives": {
+    "temp_root": "C:\\Users\\PC\\AppData\\Local\\Temp\\wksim-i33-gc-rev02-en4f68hv",
+    "probe_script": "C:\\Users\\PC\\AppData\\Local\\Temp\\wksim-i33-gc-rev02-probe.py",
+    "deleted": true,
+    "leftover": [],
+    "n_cases": 68,
+    "exceptions": 0,
+    "compared": 12,
+    "rejected": 42,
+    "unavailable": 14,
+    "cases": [
+      {"id": "sanity", "construct": "valid pair", "status": "compared", "controlled_pairing": true, "causal": false},
+      {"id": "sanity-cli", "construct": "CLI valid pair", "status": "compared", "cli_code": 0, "cli_exit_matches_status": true},
+      {"id": "p2-bool-wall", "construct": "rate_anchor.wall_ns=True", "status": "rejected", "review01_p2": "closed"},
+      {"id": "p2-bool-issued", "construct": "issued_monotonic_ns=True", "status": "rejected", "review01_p2": "closed"},
+      {"id": "extra-bool-wall-false", "construct": "rate_anchor.wall_ns=False", "status": "rejected"},
+      {"id": "p2-reversed-gc", "construct": "GC start>end inside window", "status": "rejected", "review01_p2": "closed"},
+      {"id": "p2-negative-gc", "construct": "negative GC clocks", "status": "rejected", "review01_p2": "closed"},
+      {"id": "p2-nan-cpu", "construct": "thread_cpu_ns=NaN", "status": "rejected", "cli_code": 1, "cli_stable": true, "review01_p2": "closed"},
+      {"id": "p2-lost-inf", "construct": "result.lost=Infinity", "status": "rejected", "integrity": "rejected", "review01_p2": "closed"},
+      {"id": "p2-lost-string", "construct": "result.lost string 3", "status": "rejected", "review01_p2": "closed"},
+      {"id": "p2-lost-bool-false", "construct": "result.lost=False", "status": "rejected", "review01_p2": "closed"},
+      {"id": "extra-lost-bool-true", "construct": "result.lost=True", "status": "rejected"},
+      {"id": "extra-overflow-string", "construct": "result.overflow='1'", "status": "rejected"},
+      {"id": "extra-cpu-inf", "construct": "thread_cpu_ns=Infinity", "status": "rejected"},
+      {"id": "extra-cpu-ninf", "construct": "thread_cpu_ns=-Infinity", "status": "rejected"},
+      {"id": "extra-cpu-bool", "construct": "thread_cpu_ns=True", "status": "rejected"},
+      {"id": "extra-cpu-string", "construct": "thread_cpu_ns string", "status": "rejected"},
+      {"id": "extra-lost-negative", "construct": "result.lost=-1", "status": "rejected"},
+      {"id": "p2-result-array", "construct": "result.json=[]", "status": "unavailable", "cli_code": 1, "review01_p2": "closed"},
+      {"id": "extra-result-null", "construct": "result.json=null", "status": "unavailable"},
+      {"id": "extra-result-string", "construct": "result.json string", "status": "unavailable"},
+      {"id": "p2-source-string", "construct": "source_sha256 string", "status": "unavailable", "review01_p2": "closed"},
+      {"id": "p2-source-array", "construct": "source_sha256=[]", "status": "unavailable"},
+      {"id": "p2-source-null", "construct": "source_sha256=null", "status": "rejected"},
+      {"id": "p2-admission-array", "construct": "mixed_admission=[]", "status": "unavailable"},
+      {"id": "p2-admission-string", "construct": "mixed_admission string", "status": "unavailable"},
+      {"id": "p2-manifest-array", "construct": "manifest_sha256=[]", "status": "unavailable"},
+      {"id": "p2-manifest-string", "construct": "manifest_sha256 string", "status": "unavailable"},
+      {"id": "p2-manifest-null", "construct": "manifest_sha256=null", "status": "rejected"},
+      {"id": "p2-markers-array", "construct": "markers=[]", "status": "unavailable"},
+      {"id": "p2-markers-string", "construct": "markers string", "status": "unavailable"},
+      {"id": "p2-markers-null", "construct": "markers=null", "status": "compared", "severity": "P3"},
+      {"id": "p2-named-vs-anon", "construct": "oayggl_s vs run-a", "status": "rejected", "review01_p2": "closed"},
+      {"id": "p2-empty-source-maps", "construct": "empty source_sha256 both sides", "status": "rejected", "review01_p2": "closed"},
+      {"id": "legal-lost-zero", "construct": "lost=0", "status": "compared"},
+      {"id": "legal-overflow-zero", "construct": "overflow=0", "status": "compared"},
+      {"id": "legal-zero-duration-gc", "construct": "zero-duration GC", "status": "compared"},
+      {"id": "legal-float-cpu", "construct": "finite float CPU 24.5", "status": "compared"},
+      {"id": "legal-two-oayggl_s", "construct": "two oayggl_s tokens", "status": "compared"},
+      {"id": "legal-missing-cpu-null", "construct": "missing thread_cpu_ns stays null", "status": "compared", "gc_max": null, "gc_sum": null},
+      {"id": "fc-different-boot", "construct": "different boot", "status": "rejected"},
+      {"id": "fc-different-source", "construct": "different source sha", "status": "rejected"},
+      {"id": "fc-no-latch", "construct": "no latch", "status": "rejected"},
+      {"id": "fc-no-gc", "construct": "no diagnostic GC", "status": "rejected", "gc_max": null},
+      {"id": "fc-lost-positive", "construct": "wire lost=3", "status": "rejected"},
+      {"id": "fc-overflow-true", "construct": "overflow=True", "status": "rejected"},
+      {"id": "fc-known-oayggl_s-x39qjvkw", "construct": "oayggl_s vs x39qjvkw", "status": "rejected"},
+      {"id": "fc-known-x39qjvkw-5lfbcy43", "construct": "x39qjvkw vs 5lfbcy43", "status": "rejected"},
+      {"id": "fc-known-oayggl_s-rfw9nmbb", "construct": "oayggl_s vs rfw9nmbb", "status": "rejected"},
+      {"id": "fc-known-5lfbcy43-rfw9nmbb", "construct": "5lfbcy43 vs rfw9nmbb", "status": "rejected"},
+      {"id": "fc-missing-boot", "construct": "missing boot", "status": "rejected"},
+      {"id": "extra-dup-anchor", "construct": "two rate_anchor", "status": "rejected"},
+      {"id": "extra-empty-rate", "construct": "empty rate.jsonl", "status": "rejected", "reasons": ["mixed_identity_inside_one_field"]},
+      {"id": "extra-empty-wire", "construct": "empty wire", "status": "rejected", "gc_max": null, "gc_sum": null},
+      {"id": "extra-missing-dir", "construct": "missing baseline dir", "status": "unavailable"},
+      {"id": "extra-result-is-dir", "construct": "result.json is directory", "status": "unavailable"},
+      {"id": "extra-group-reversed", "construct": "group end before start", "status": "rejected"},
+      {"id": "extra-markers-lost-true", "construct": "markers.lost_samples=True", "status": "rejected"},
+      {"id": "extra-async-both-missing", "construct": "async absent both sides", "status": "compared", "severity": "P3"},
+      {"id": "extra-nested-reports-dropped-both", "construct": "both sides group_work_timing.reports_dropped=2", "status": "compared", "integrity": "clean", "severity": "P3"},
+      {"id": "extra-float-wall", "construct": "anchor.wall_ns float", "status": "rejected"},
+      {"id": "extra-inf-gc-clock", "construct": "Infinity GC clocks", "status": "rejected"},
+      {"id": "extra-bool-group-clock", "construct": "group actual_start_ns=True", "status": "rejected"},
+      {"id": "extra-rate-row-array", "construct": "rate.jsonl row is array", "status": "rejected"},
+      {"id": "extra-prerun-array", "construct": "pre-run-identity.json=[]", "status": "compared", "severity": "P3"},
+      {"id": "extra-missing-actual-end", "construct": "missing actual_end_ns", "status": "rejected"},
+      {"id": "extra-source-changed", "construct": "source_unchanged=false", "status": "rejected"},
+      {"id": "extra-identities-array", "construct": "admission.identities=[]", "status": "unavailable"}
+    ]
+  },
+  "findings": {
+    "p1": [],
+    "p2": [],
+    "p3": [
+      {
+        "id": "P3-1",
+        "title": "optional JSON null coerced to empty object",
+        "lines": [142, 145, 364, 366, 1208],
+        "file": "tools/compare_joint_gc_diagnostics.py",
+        "detail": "_optional_object maps markers/source/manifest null to {}; markers=null can still compared like empty {}; []/strings unavailable; empty source/manifest still fail pairing",
+        "reproduce": "result.markers=null with an otherwise legal pair",
+        "impact": "docs/claim_limits overstate optional null as unavailable/rejected; empty markers remains the legal path"
+      },
+      {
+        "id": "P3-2",
+        "title": "nested group_work_timing.reports_dropped is not an integrity hit",
+        "lines": [66, 67, 238, 269],
+        "file": "tools/compare_joint_gc_diagnostics.py",
+        "detail": "scan_integrity walks jsonl rows, result top-level keys and markers only; both sides reports_dropped=2 stay integrity=clean and can compared",
+        "reproduce": "both fields group_work_timing.reports_dropped=2 with matching marks",
+        "impact": "dropped count inside group_work_timing is not treated as overflow/lost; one-sided mismatch still rejects"
+      },
+      {
+        "id": "P3-3",
+        "title": "empty rate is rejected as mixed_identity_inside_one_field",
+        "lines": [641, 642, 947, 950],
+        "file": "tools/compare_joint_gc_diagnostics.py",
+        "detail": "zero identity tuples makes identity_consistent false",
+        "reproduce": "empty rate.jsonl",
+        "impact": "still rejected; reason text is imprecise"
+      },
+      {
+        "id": "P3-4",
+        "title": "both-missing async still pairs; pre_run manager_target is never compared",
+        "lines": [1049, 1053, 1138, 1139],
+        "file": "tools/compare_joint_gc_diagnostics.py",
+        "detail": "async_match is None when both sides omit the field and does not fail compatible",
+        "reproduce": "omit async_model_evidence_requested on both sides",
+        "impact": "same residual as review-01 P3-4"
+      },
+      {
+        "id": "P3-5",
+        "title": "unreadable pre-run-identity array does not fail compare when result has boot",
+        "lines": [927, 940],
+        "file": "tools/compare_joint_gc_diagnostics.py",
+        "detail": "TypeError is appended to field reasons; analysis_status stays analyzed",
+        "reproduce": "pre-run-identity.json=[] with host_boot_id on result.json",
+        "impact": "optional sidecar malformation is logged but pairing can proceed"
+      }
+    ]
+  },
+  "open_boundaries": [
+    "#33 and #84 remain OPEN; this comparator does not close them",
+    "#83 stays CLOSED and was not rerun",
+    "MIXED / G6 / Full remain unpassed; manager99 rate gate remains unmet on oayggl_s",
+    "compared is not a performance pass and not causal",
+    "six source files were not modified; no git add/commit/push"
+  ]
+}

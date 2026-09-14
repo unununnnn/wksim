@@ -1,0 +1,274 @@
+{
+  "schema": "wksim.independent-review.v1",
+  "review_id": "cursor-issue33-gc-diagnostics-independent-review-20260914-01",
+  "generated_at": "2026-09-14T09:35:26+09:00",
+  "work_class": "new-development independent review",
+  "read_only": true,
+  "git_untouched": true,
+  "github_untouched": true,
+  "dispatch": {
+    "cwd": "C:/Users/PC/Documents/odid编译/wksim",
+    "branch": "main",
+    "head": "5370b2324672c9036d41239cb93e21fc5eb42897",
+    "architecture_ancestor": "f333316e6efa6b299b4288a9d91fb2bccedfb9d6",
+    "ancestor_exit": 0,
+    "read": [
+      "AGENTS.md",
+      "docs/architecture-implementation-20260912.md",
+      "docs/coordination/architecture-continuation-20260913.md",
+      "CONTEXT.md",
+      "docs/coordination/short-cycle-goal.md",
+      "https://github.com/unununnnn/wksim/issues/33",
+      "https://github.com/unununnnn/wksim/issues/84"
+    ],
+    "module": "offline GC/rate comparator tools/compare_joint_gc_diagnostics.py",
+    "owned_writes": [
+      "validation/coordination/cursor-issue33-gc-diagnostics-independent-review-20260914-01/review.md",
+      "validation/coordination/cursor-issue33-gc-diagnostics-independent-review-20260914-01/review.json",
+      "validation/coordination/cursor-issue33-gc-diagnostics-independent-review-20260914-01/SHA256SUMS"
+    ],
+    "not_executed": [
+      "native",
+      "model",
+      "MATLAB",
+      "ROS",
+      "DDS",
+      "SITL",
+      "FC",
+      "UE",
+      "build",
+      "flight",
+      "#83"
+    ]
+  },
+  "verdict": {
+    "overall": "PASS",
+    "meaning": "offline_comparator_ok_not_issue_33_or_84_acceptance",
+    "issue_33_acceptance": false,
+    "issue_84_acceptance": false,
+    "mixed_g6_full_pass": false,
+    "manager99_rate_gate": false,
+    "issue_83_rerun": false,
+    "p1_count": 0,
+    "p2_count": 5,
+    "p3_count": 4
+  },
+  "github": {
+    "issue_33": {
+      "state": "OPEN",
+      "title": "双栈混合轴与轨迹跟随",
+      "url": "https://github.com/unununnnn/wksim/issues/33"
+    },
+    "issue_84": {
+      "state": "OPEN",
+      "title": "[Astra] 提升同一已证实组合并验证正式入口",
+      "url": "https://github.com/unununnnn/wksim/issues/84",
+      "blocked_by_note": "#83 remains the slice prerequisite; this review did not fetch or rerun #83"
+    }
+  },
+  "source_sha256": {
+    "working_tree_untracked": true,
+    "not_in_head_tree": true,
+    "files": [
+      {
+        "path": "tools/compare_joint_gc_diagnostics.py",
+        "expected": "c3ef5ef5603f924d618ab93c15e786941cf666b5314471018e2314d7c7e2949d",
+        "observed": "c3ef5ef5603f924d618ab93c15e786941cf666b5314471018e2314d7c7e2949d",
+        "bytes": 54046,
+        "lines": 1131,
+        "match": true
+      },
+      {
+        "path": "validation/test_compare_joint_gc_diagnostics.py",
+        "expected": "d635d410eb1d73699ba2c6ea08f3b353fb0f829bb3e74c4aa031950e1210e2c1",
+        "observed": "d635d410eb1d73699ba2c6ea08f3b353fb0f829bb3e74c4aa031950e1210e2c1",
+        "bytes": 48896,
+        "lines": 916,
+        "match": true
+      },
+      {
+        "path": "docs/coordination/c2-gap-bounds-20260913.md",
+        "expected": "f23d8e16fb7511f0996f3920309d27019d3544cab95ea1c6f1e59f85fcc59efc",
+        "observed": "f23d8e16fb7511f0996f3920309d27019d3544cab95ea1c6f1e59f85fcc59efc",
+        "bytes": 13199,
+        "lines": 128,
+        "match": true
+      },
+      {
+        "path": "docs/coordination/c2-phase-correlation-20260913.md",
+        "expected": "11dfba6e9ed5fa3a4c087cb40330def2a6426033c9a17de242b90d6b90e8675e",
+        "observed": "11dfba6e9ed5fa3a4c087cb40330def2a6426033c9a17de242b90d6b90e8675e",
+        "bytes": 13574,
+        "lines": 151,
+        "match": true
+      },
+      {
+        "path": "docs/plan/33-rate-measured-candidate-20260912.md",
+        "expected": "1be6b97bffc362bc29c33b464fbdfc72e243e99c5c81d3da191d8fb71b1b9d86",
+        "observed": "1be6b97bffc362bc29c33b464fbdfc72e243e99c5c81d3da191d8fb71b1b9d86",
+        "bytes": 12727,
+        "lines": 155,
+        "match": true
+      },
+      {
+        "path": "docs/plan/33-rate-next-diagnostic-20260912.md",
+        "expected": "f8657d39a2f2a0c0894373c559ab3c3a2e4e915fb039598f3ee9aa804cb102ce",
+        "observed": "f8657d39a2f2a0c0894373c559ab3c3a2e4e915fb039598f3ee9aa804cb102ce",
+        "bytes": 23557,
+        "lines": 321,
+        "match": true
+      }
+    ]
+  },
+  "checks": {
+    "fail_closed_gates": {
+      "id": 1,
+      "verdict": "PARTIAL",
+      "missing_not_coerced_to_zero": true,
+      "causal_never_true": true,
+      "families": {
+        "boot": "PASS",
+        "source": "PARTIAL",
+        "source_unchanged": "PASS",
+        "time_window": "PARTIAL",
+        "latch": "PASS",
+        "diagnostic_marker": "PASS",
+        "overflow_lost": "PARTIAL",
+        "identity": "PASS"
+      }
+    },
+    "known_field_mismatch": {
+      "id": 2,
+      "verdict": "PASS",
+      "pairs_rejected": [
+        "oayggl_s/x39qjvkw",
+        "x39qjvkw/5lfbcy43",
+        "oayggl_s/rfw9nmbb",
+        "5lfbcy43/rfw9nmbb"
+      ],
+      "named_vs_unnamed_still_pairs": true
+    },
+    "claim_class": {
+      "id": 3,
+      "verdict": "PASS",
+      "descriptive": true,
+      "controlled_pairing_only_when_compared": true,
+      "causal": false,
+      "performance_pass": false,
+      "single_sample_not_causal": true
+    },
+    "tests_and_traps": {
+      "id": 4,
+      "verdict": "PARTIAL",
+      "independent_pos_neg": true,
+      "official_misses_type_holes": true
+    },
+    "docs_vs_tickets": {
+      "id": 5,
+      "verdict": "PASS",
+      "issue_83_no_rerun": true,
+      "mixed_g6_full_unpassed": true,
+      "manager99_rate_gate_unmet": true,
+      "issue_33_open": true,
+      "issue_84_open": true
+    }
+  },
+  "official_tests": {
+    "command": "python -B -m unittest validation.test_compare_joint_gc_diagnostics",
+    "tests": 38,
+    "passed": 38,
+    "failed": 0,
+    "skipped": 0,
+    "elapsed_s": 2.45,
+    "result": "OK"
+  },
+  "extra_negatives": {
+    "temp_root": "C:\\Users\\PC\\AppData\\Local\\Temp\\wksim-i33-gc-neg-t1j3rocz",
+    "deleted": true,
+    "leftover": [],
+    "cases": [
+      {"id": "sanity", "construct": "valid pair", "status": "compared", "controlled_pairing": true, "causal": false},
+      {"id": "neg1", "construct": "rate_anchor.wall_ns=True", "status": "compared", "severity": "P2", "timed_start": true},
+      {"id": "neg2", "construct": "issued_monotonic_ns=True", "status": "compared", "severity": "P2", "timed_gc_relocated_to_post": true},
+      {"id": "neg3", "construct": "gc start>end inside window", "status": "compared", "severity": "P2"},
+      {"id": "neg4", "construct": "thread_cpu_ns=NaN", "status": "compared", "cli": "ValueError allow_nan=False", "severity": "P2"},
+      {"id": "neg5", "construct": "result.lost=Infinity", "status": "compared", "integrity": "clean", "severity": "P2"},
+      {"id": "neg6", "construct": "result.lost string 3", "status": "compared", "integrity": "clean", "severity": "P2"},
+      {"id": "neg7", "construct": "empty rate.jsonl", "status": "rejected", "reasons": ["mixed_identity_inside_one_field"]},
+      {"id": "neg8", "construct": "empty wire", "status": "rejected", "gc_max": null, "gc_sum": null},
+      {"id": "neg9", "construct": "result.json=[]", "status": "exception", "error": "AttributeError", "severity": "P2"},
+      {"id": "neg10", "construct": "duplicate rate_anchor", "status": "rejected"},
+      {"id": "neg11", "construct": "missing actual_end_ns", "status": "rejected"},
+      {"id": "neg12", "construct": "missing baseline dir", "status": "unavailable"},
+      {"id": "neg13", "construct": "result.json is directory", "status": "unavailable"},
+      {"id": "neg14", "construct": "oayggl_s vs run-a", "status": "compared", "severity": "P2"},
+      {"id": "neg15", "construct": "empty source_sha256 both sides", "status": "compared", "severity": "P2"},
+      {"id": "neg16", "construct": "group_work_timing.reports_dropped=2", "status": "rejected", "integrity_missed_nested_dropped": true},
+      {"id": "neg17", "construct": "negative gc clocks", "status": "compared", "severity": "P2"},
+      {"id": "neg18", "construct": "Infinity gc clocks", "status": "rejected", "reasons": ["timebase_inconsistent"]},
+      {"id": "neg19", "construct": "freeze_count_after=True", "status": "rejected"},
+      {"id": "neg20", "construct": "activation.moment_monotonic_ns=True", "status": "rejected"},
+      {"id": "neg21", "construct": "source_unchanged absent", "status": "rejected"},
+      {"id": "neg22", "construct": "async absent both sides", "status": "compared", "severity": "P3"},
+      {"id": "neg23", "construct": "group end before start", "status": "rejected"},
+      {"id": "neg24", "construct": "markers.lost_samples=True", "status": "rejected"},
+      {"id": "neg25", "construct": "two oayggl_s tokens", "status": "compared"}
+    ]
+  },
+  "findings": {
+    "p1": [],
+    "p2": [
+      {
+        "id": "P2-1",
+        "title": "bool timestamps accepted as int",
+        "detail": "scan_rate uses isinstance(..., int); wall_ns=True and issued_monotonic_ns=True keep window complete and can emit compared/deltas"
+      },
+      {
+        "id": "P2-2",
+        "title": "inverted or negative GC clocks still pair",
+        "detail": "_classify_window does not require start<=end or nonnegative; inverted in-window rows count as timed; negative rows count as preparation"
+      },
+      {
+        "id": "P2-3",
+        "title": "integrity misses non-int lost; NaN cpu compared then CLI crash",
+        "detail": "lost=Infinity or '3' stays clean; NaN thread_cpu_ns yields compared; json.dump(allow_nan=False) raises ValueError"
+      },
+      {
+        "id": "P2-4",
+        "title": "result.json array raises AttributeError",
+        "detail": "read_result calls list.get; analyse_field does not catch AttributeError so it is not unavailable"
+      },
+      {
+        "id": "P2-5",
+        "title": "named field vs unnamed, and empty source maps, still pair",
+        "detail": "known_field_compatible defaults true unless both tokens are recognized; empty source_sha256 with source_unchanged=true is source_match"
+      }
+    ],
+    "p3": [
+      {
+        "id": "P3-1",
+        "title": "official tests omit the type/integrity extras found in TEMP"
+      },
+      {
+        "id": "P3-2",
+        "title": "empty rate is rejected as mixed_identity_inside_one_field"
+      },
+      {
+        "id": "P3-3",
+        "title": "nested group_work_timing.reports_dropped is not an integrity hit"
+      },
+      {
+        "id": "P3-4",
+        "title": "both-missing async still pairs; pre_run manager_target is never compared"
+      }
+    ]
+  },
+  "open_boundaries": [
+    "#33 and #84 remain OPEN; this comparator does not close them",
+    "#83 stays CLOSED and was not rerun",
+    "MIXED / G6 / Full remain unpassed; manager99 rate gate remains unmet on oayggl_s",
+    "compared is not a performance pass and not causal",
+    "controlled_pairing is not type-safe window validation until P2 holes are closed",
+    "six source files were not modified; no git add/commit/push"
+  ]
+}
