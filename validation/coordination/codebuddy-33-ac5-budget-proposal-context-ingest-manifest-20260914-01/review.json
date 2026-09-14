@@ -1,0 +1,321 @@
+{
+  "schema": "wksim.ingest-manifest.v1",
+  "manifested_at": "2026-09-14",
+  "owner": "codebuddy-ingest-manifest",
+  "manifested_head": "ee6eb88819cefe255f22e788c39a77c0bbab490e",
+  "reviewed_head": "acf322860831cb2a7c83a45cb4e2586922444c57",
+  "reviewed_head_is_observation_only": true,
+  "scope": "context-only",
+  "acceptance": "non-acceptance",
+  "batch_slice": "codebuddy-33-ac5-budget-proposal-context-ingest-manifest-20260914-01",
+  "exact_paths_sha256": "5dec706de737db5f4643162a1d71ebbd46fa2b005eaedee89c2f7edd8b47c495",
+  "exact_paths_sha256_size_bytes": 819,
+  "exact_paths_count": 9,
+  "exact_paths_composition": {
+    "candidates": 2,
+    "anchor_review_files": 3,
+    "manifest_outputs": 4
+  },
+  "baseline_relations": {
+    "head_reverified_start_and_end_of_session": true,
+    "head_equality_required": false,
+    "ancestry_anchors": [
+      "31e5b65f5448c5558450d16d0f46da0ef0f0a03c",
+      "f333316e6efa6b299b4288a9d91fb2bccedfb9d6"
+    ],
+    "ancestry_anchor_31e5b65f_is_ancestor": true,
+    "ancestry_anchor_f333316e_is_ancestor": true,
+    "ancestry_verified_by": "git merge-base --is-ancestor <anchor> HEAD returns exit 0 for both anchors, re-verified this session",
+    "reviewed_head_is_descendant_of_ancestry_anchor_31e5b65f": true,
+    "intervening_commits_since_31e5b65f": 6,
+    "intervening_commits_since_f333316e": 77,
+    "intervening_commit_list_since_31e5b65f": [
+      "ab165c3f",
+      "438ab764",
+      "acf32286",
+      "e832fd2a",
+      "615c2f8c",
+      "ee6eb888"
+    ],
+    "zero_overlap_with_intervening_commits": true,
+    "zero_overlap_method": "git log <anchor>..HEAD -- <9 exact paths> returns empty for both anchors; git ls-tree -r HEAD -- <9 paths> returns empty (none tracked); git ls-files -s -- <9 paths> returns empty (none staged)",
+    "zero_overlap_note": "No commit in either ancestry range added, modified or deleted any of the 9 batch paths; both candidates remain untracked and all review/manifest artifacts remain inside the gitignored validation/coordination/."
+  },
+  "inputs": [
+    {
+      "path": "docs/plan/33-ac5-budget-row-proposal-20260914.md",
+      "role": "candidate_q01_per_quantity_error_dwell_recovery_budget_row_proposal",
+      "sha256": "998ed98cc668bc36e08acbc401f60e5aa50e356250cd9a82fa6cde5e5c3db5c0",
+      "size_bytes": 5790,
+      "blob_sha1": "2a620fbcb312a50cd07cf320b252711e36443278"
+    },
+    {
+      "path": "validation/test_codebuddy_33_ac5_budget_proposal.py",
+      "role": "candidate_offline_binding_test",
+      "sha256": "9f196f82e0fde227e9ceaae0d5407af5ebdfb195b7d54bc7f00b9269c57d581b",
+      "size_bytes": 14993,
+      "blob_sha1": "236ecce397302757d3845962024a25f660ebc375"
+    },
+    {
+      "path": "validation/coordination/codebuddy-33-ac5-budget-proposal-independent-review-20260914-01/review.md",
+      "role": "anchored_independent_review_report",
+      "sha256": "8f287e2c024bef7924d5421389710e426267a14c628826930dc558b41b92d345",
+      "size_bytes": 10965,
+      "blob_sha1": "da1104a0ca01825a708acf747550e7f95d1452df"
+    },
+    {
+      "path": "validation/coordination/codebuddy-33-ac5-budget-proposal-independent-review-20260914-01/review.json",
+      "role": "anchored_independent_review_record",
+      "sha256": "d00bea931c75e395993c426025620ba996c49af6f51773cc54bf9b83bca9674d",
+      "size_bytes": 3057,
+      "blob_sha1": "6247fbdaf77dafc99900419a9a8a039a8f5c9316"
+    },
+    {
+      "path": "validation/coordination/codebuddy-33-ac5-budget-proposal-independent-review-20260914-01/SHA256SUMS",
+      "role": "anchored_independent_review_checksum_manifest",
+      "sha256": "f07b57a5351d06cf3cdafcd7c83ba1d0a85f5a42437c8cce973087c7646f50c1",
+      "size_bytes": 299,
+      "blob_sha1": "d389d569258b1a17afdafdc68cd73672a7a773fc"
+    }
+  ],
+  "input_verification": {
+    "all_hashes_and_sizes_recomputed_matching_task": true,
+    "inputs_unmodified": true,
+    "anchor_review_sha256sums_verified_relative_to_review_directory": true,
+    "anchor_review_json_strict_parsed": true,
+    "none_of_the_five_inputs_staged_in_real_index": true
+  },
+  "review_facts": {
+    "reviewer": "CodeBuddy (independent, read-only slice)",
+    "review_date": "2026-09-14",
+    "reviewed_head": "acf322860831cb2a7c83a45cb4e2586922444c57",
+    "verdict": "KEEP",
+    "verdict_rule": "KEEP with P1==0 and P2==0",
+    "findings_p1": 0,
+    "findings_p2": 0,
+    "findings_p3": 1,
+    "p3_summary": [
+      "P3-1: proposal section 6 parenthetical (docs/plan/33-ac5-budget-row-proposal-20260914.md:57) can be misread as classifying PV rounds 01-04 as RateUnmet/numerical_failed; in the cited report only round 04 is a wall-clock-overrun failure (111.68 ms > 100 ms), while rounds 01-03 are a diagnostic crash, a ready timeout and a numpy.float32 JSON-write failure, and numerical_failed belongs to the frozen R1 numerical-conformance chain. Wording clarification only; the preservation/non-re-judgment claim itself is correct and no failure record was altered."
+    ],
+    "p3_wording_preserved": true,
+    "p3_wording_scope": "Registered verbatim as a wording nuance; the nuance is preserved unweakened and unreworded. This manifest does not reword, re-adjudicate, downgrade, or apply the suggested edit, and does not modify any candidate byte.",
+    "p3_suggested_edit_not_applied": true,
+    "p3_promoted_to_p2": false,
+    "p3_affects_decision_readiness": false,
+    "review_grants_approval": false,
+    "review_read_only": true,
+    "verified_by_anchor_review": [
+      "candidate byte pins and provenance",
+      "seven SOURCE_ANCHORS SHA256/size/content pins",
+      "ledger Q01 row and #23 AC5 verbatim quotes",
+      "frozen approved bounds rows and five cross-report observed maxima with attribution",
+      "seven section-4 owner-choice checkboxes and three section-8 sign-off checkboxes all unticked (10 total, no - [x]/- [X])",
+      "scope separation from the G6 per-quantity dynamics-equivalence budget",
+      "frozen-record preservation and probe-field exclusion (classification=diagnostic_only, production_performance=false, no masquerade)",
+      "nonclosure claims (#33, #84, Q01, G6, Full)"
+    ],
+    "pending_unsigned_owner_decision_preserved": true,
+    "pending_state_evidence": "Header status PENDING OWNER DECISION, >=6 PENDING OWNER DECISION row/status occurrences, section 8 unsigned block with blank signature/date lines, section 4 seven unticked checkboxes and section 8 three unticked checkboxes",
+    "q01_status_after_manifest": "open",
+    "issue_33_status_after_manifest": "not-closed",
+    "ac_33_5_status_after_manifest": "unticked",
+    "issue_84_status_after_manifest": "not-closed",
+    "g6_status_after_manifest": "not-closed",
+    "full_status_after_manifest": "not-closed",
+    "decision_items_left_open": [
+      "section 3 five per-quantity thresholds: carry original values or substitute (unselected)",
+      "0.4 m/s fresh-estimate waypoint-entry margin (unselected)",
+      "whether recovery reuses the section 3 trajectory thresholds (unselected)",
+      "whether the >=3 independent epochs per tier requirement is retained (unselected)",
+      "acceleration feed-forward execution declaration (undecided)",
+      "yaw-rate and other native-mode boundaries (undecided)",
+      "G6 per-quantity dynamics-equivalence budget (undecided)"
+    ]
+  },
+  "test_facts": {
+    "suite": "validation/test_codebuddy_33_ac5_budget_proposal.py",
+    "command": "python -B validation/test_codebuddy_33_ac5_budget_proposal.py",
+    "tests_defined": 17,
+    "this_session_runs": [
+      {
+        "phase": "run_1_normal_untracked_mode_real_index_untouched",
+        "mode_env": "untracked (default, WKSIM_33_BUDGET_TEST_MODE unset)",
+        "tests_run": 17,
+        "skipped": 1,
+        "skip_reason": "TestIndexModes.test_external_index_has_exactly_two_candidates inactive without external-index mode (by design)",
+        "failures": 0,
+        "errors": 0,
+        "result": "OK (skipped=1)",
+        "exit_code": 0
+      },
+      {
+        "phase": "run_2_external_index_mode_exactly_two_candidates",
+        "method": "Separate repo-external temp index (C:/Users/PC/AppData/Local/Temp/wksim-tmpidx-33budget-candidates, absent beforehand) populated with git add -f of exactly the two candidates; the shared real .git/index is never read, fingerprinted or written in this phase; temp index deleted afterwards (verified absent).",
+        "external_index_entries": 2,
+        "external_index_entries_non_stage0": 0,
+        "external_index_entries_non_100644": 0,
+        "external_index_blob_mismatches_vs_worktree": 0,
+        "external_index_entry_blob_sha1": {
+          "docs/plan/33-ac5-budget-row-proposal-20260914.md": "2a620fbcb312a50cd07cf320b252711e36443278",
+          "validation/test_codebuddy_33_ac5_budget_proposal.py": "236ecce397302757d3845962024a25f660ebc375"
+        },
+        "tests_run": 17,
+        "skipped": 1,
+        "skip_reason": "TestIndexModes.test_untracked_mode_never_touches_any_index inactive outside untracked mode (by design)",
+        "failures": 0,
+        "errors": 0,
+        "result": "OK (skipped=1)",
+        "exit_code": 0
+      }
+    ],
+    "nine_path_index_phase_note": "The 9-path repo-external index used for the admission proof (external_index_proof) holds 10842 entries and therefore cannot serve the suite's external-index mode, whose own contract asserts exactly the two candidates: an observed run against it failed with 'AssertionError: 10842 != 2'. The 9-path index is used only for the 9A/0M/0D admission proof; the suite is run in external-index mode against a separate 2-entry repo-external index. Both indexes are repo-external and neither touches the shared real index. Recorded as a methodology fact, not a suite defect.",
+    "suite_design": "ancestor assertions only, no exact-HEAD constant (a guard test blocks introducing one); content pinned to the absolute ANCESTOR_COMMIT and seven source documents (SHA256 + size + content); repo-relative paths via __file__; no writes, no network, no native execution, no reads of untracked classification artifacts, no requirement that candidates stay untracked; _git strips GIT_INDEX_FILE except for the explicit extra-env ls-files call"
+  },
+  "external_index_proof": {
+    "method": "GIT_INDEX_FILE pointing at a repo-external non-existent path (C:/Users/PC/AppData/Local/Temp/wksim-tmpidx-33budget-exact9, absent before read-tree, confirmed outside git rev-parse --show-toplevel); git read-tree HEAD (exit 0); then git add -f of exactly the 9 exact-paths.txt paths. All real-index fingerprinting done with GIT_INDEX_FILE unset.",
+    "tmp_index_file": "C:/Users/PC/AppData/Local/Temp/wksim-tmpidx-33budget-exact9",
+    "tmp_index_exists_before": false,
+    "tmp_index_outside_repo": true,
+    "read_tree_exit_code": 0,
+    "temp_entries_after_read_tree": 10833,
+    "exact_paths_staged": 9,
+    "temp_entries_after_add": 10842,
+    "diff_index_cached_name_status_head": "9 lines: 9 A, 0 M, 0 D",
+    "diff_index_added": 9,
+    "diff_index_modified": 0,
+    "diff_index_deleted": 0,
+    "temp_index_scoped_entries_for_9_paths": 9,
+    "temp_index_scoped_entries_non_stage0": 0,
+    "temp_index_scoped_entries_non_100644": 0,
+    "temp_index_blob_mismatches_vs_worktree": 0,
+    "staged_blob_sha1": {
+      "docs/plan/33-ac5-budget-row-proposal-20260914.md": "2a620fbcb312a50cd07cf320b252711e36443278",
+      "validation/test_codebuddy_33_ac5_budget_proposal.py": "236ecce397302757d3845962024a25f660ebc375",
+      "validation/coordination/codebuddy-33-ac5-budget-proposal-independent-review-20260914-01/review.md": "da1104a0ca01825a708acf747550e7f95d1452df",
+      "validation/coordination/codebuddy-33-ac5-budget-proposal-independent-review-20260914-01/review.json": "6247fbdaf77dafc99900419a9a8a039a8f5c9316",
+      "validation/coordination/codebuddy-33-ac5-budget-proposal-independent-review-20260914-01/SHA256SUMS": "d389d569258b1a17afdafdc68cd73672a7a773fc",
+      "validation/coordination/codebuddy-33-ac5-budget-proposal-context-ingest-manifest-20260914-01/exact-paths.txt": "b087dbbd5465ed252d486c1a962100bb4f7e5e9d",
+      "validation/coordination/codebuddy-33-ac5-budget-proposal-context-ingest-manifest-20260914-01/review.md": null,
+      "validation/coordination/codebuddy-33-ac5-budget-proposal-context-ingest-manifest-20260914-01/review.json": null,
+      "validation/coordination/codebuddy-33-ac5-budget-proposal-context-ingest-manifest-20260914-01/SHA256SUMS": null
+    },
+    "scoped_diff_check": {
+      "whitespace_check_command": "git diff --cached --check HEAD -- <9 paths>",
+      "whitespace_check_output_lines": 0,
+      "whitespace_check_exit_code": 0,
+      "whitespace_check_clean": true,
+      "name_only_command": "git diff-index --cached --name-only HEAD -- <9 paths>",
+      "name_only_lines": 9,
+      "name_only_note": "All 9 artifacts are additions relative to HEAD, so the name-only branch lists 9 paths; this is consistent with (not contrary to) the 9A/0M/0D result. The diff --check branch is the clean one: 0 output lines, exit code 0.",
+      "five_input_scoped_name_only_lines": 5
+    },
+    "temp_vs_real_index_path_set": {
+      "real_index_entries": 10833,
+      "temp_index_entries": 10842,
+      "setdiff_added": 9,
+      "setdiff_removed": 0,
+      "setdiff_derivation": "10842 - 10833 = 9 added without any removal"
+    },
+    "temp_index_porcelain_status": {
+      "total_lines": 30,
+      "staged_added_lines": 9,
+      "staged_added_are_exactly_the_batch": true
+    },
+    "root_cause_of_earlier_failed_attempt": "The first attempt piped PowerShell output through select/filters and the git index dump, and the suite was run against the 9-path index, producing 'AssertionError: 10842 != 2'. The 9-path index is not a valid suite fixture; the final method uses two separate repo-external indexes as recorded above.",
+    "temp_indexes_removed": true,
+    "final_freeze_reverified": "The exact-9 admission proof, both suite modes and the real-index fingerprint comparison were re-run after the manifest artifacts were frozen at their final bytes; see external_index_proof.final_freeze_measurements.",
+    "final_freeze_measurements": {
+      "head": "ee6eb88819cefe255f22e788c39a77c0bbab490e",
+      "read_tree_exit_code": 0,
+      "temp_entries_after_read_tree": 10833,
+      "temp_entries_after_add": 10842,
+      "diff_index_cached_name_status_head": "9 lines: 9 A, 0 M, 0 D",
+      "scoped_entries": 9,
+      "scoped_entries_non_stage0": 0,
+      "scoped_entries_non_100644": 0,
+      "blob_mismatches_vs_worktree": 0,
+      "name_only_lines": 9,
+      "whitespace_check_exit_code": 0,
+      "whitespace_check_output_lines": 0,
+      "setdiff_added": 9,
+      "setdiff_removed": 0,
+      "real_index_sha256_after": "38bb9b6cdb2fca67ca8099b7b201f29a06c65d7905181fefeddfae83291fa736",
+      "real_index_entries_after": 10833,
+      "real_lsfiles_s_sha256_after": "ffce6973f89f0e1ec49a2fd6ad1c735a48450750b51a946f171c059a6442b7b6",
+      "real_index_entries_for_9_paths_after": 0
+    },
+    "staged_blob_sha1_note": "The five frozen input blobs and the stable exact-paths.txt blob are exact. The three output blobs that are rewritten while this document is finalized (review.md, review.json, SHA256SUMS) are recorded as null; recompute them with `git hash-object` on the final files, and use `sha256sum -c SHA256SUMS` for the digests."
+  },
+  "real_index_unchanged": {
+    "index_file_sha256_before": "38bb9b6cdb2fca67ca8099b7b201f29a06c65d7905181fefeddfae83291fa736",
+    "index_file_sha256_after": "38bb9b6cdb2fca67ca8099b7b201f29a06c65d7905181fefeddfae83291fa736",
+    "index_file_size_bytes": 1634702,
+    "ls_files_s_sha256_before": "ffce6973f89f0e1ec49a2fd6ad1c735a48450750b51a946f171c059a6442b7b6",
+    "ls_files_s_sha256_after": "ffce6973f89f0e1ec49a2fd6ad1c735a48450750b51a946f171c059a6442b7b6",
+    "ls_files_tracked_entries": 10833,
+    "index_file_byte_identical": true,
+    "staged_set_byte_identical": true,
+    "never_staged_in_real_index": true,
+    "temp_indexes_removed": true
+  },
+  "owner_spot_checks": {
+    "exact_paths_file": "9 lines, unique, LC_ALL=C sort -c passes, trailing LF (0x0A), no CRLF; sha256/size/blob recorded above",
+    "anchor_review_dir_self_check": "sha256sum -c in codebuddy-33-ac5-budget-proposal-independent-review-20260914-01/: review.md OK, review.json OK, exit 0; dir unmodified and used as the only anchor review batch",
+    "real_index_state": "git ls-files -s over the 9 batch paths returns empty (none staged); both candidates are untracked and git ls-tree -r HEAD over all 9 paths returns empty",
+    "sibling_isolation": "All other validation/coordination review and manifest directories (including the sibling codebuddy-33-ac5-budget-proposal-independent-review-20260914-01, which is a batch input and was only read) were not created, modified, or staged by this manifest."
+  },
+  "excluded_paths": [
+    "docs/Prometheus.gitmodules.reference",
+    "validation/coordination/short-cycle-dispatches.json",
+    "%TEMP%audit26-report.json",
+    "docs/coordination/claude-native-wait-next-probe.md",
+    "docs/coordination/codebuddy-architecture-applicability-g6-erratum-20260914.md",
+    "docs/coordination/codebuddy-gc-freeze-ingest-note-20260914.md",
+    "docs/coordination/codebuddy-gc-freeze-review-20260912.md",
+    "docs/coordination/rolling-six-plan-20260912.md",
+    "docs/plan/59-g6-owner-decision-request-20260914.md",
+    "validation/_probe_delivery_contract.py",
+    "validation/e0-g6-owner-decision-request-20260914.json",
+    "validation/test_codebuddy_architecture_applicability_g6_erratum.py",
+    "validation/test_codebuddy_gc_freeze_context.py"
+  ],
+  "excluded_paths_note": "All protected/unrelated paths (two pre-existing dirty tracked files, one stray %TEMP% path, and the concurrent-session untracked artifacts) were not read, modified, staged, or otherwise touched. All superseded review/manifest directories from other batches are excluded from this 9-path batch and were not modified or staged.",
+  "outputs": [
+    "validation/coordination/codebuddy-33-ac5-budget-proposal-context-ingest-manifest-20260914-01/exact-paths.txt",
+    "validation/coordination/codebuddy-33-ac5-budget-proposal-context-ingest-manifest-20260914-01/review.md",
+    "validation/coordination/codebuddy-33-ac5-budget-proposal-context-ingest-manifest-20260914-01/review.json",
+    "validation/coordination/codebuddy-33-ac5-budget-proposal-context-ingest-manifest-20260914-01/SHA256SUMS"
+  ],
+  "output_bindings": {
+    "self_reference_policy": "self_sha256/self_size_bytes/self_blob_sha1 are not self-referential: they are computed after review.md was frozen, and review.md points here instead of carrying its own hash, so there is no revision cycle.",
+    "self_sha256": null,
+    "self_blob_sha1": null,
+    "files": {
+      "exact-paths.txt": {
+        "sha256": "5dec706de737db5f4643162a1d71ebbd46fa2b005eaedee89c2f7edd8b47c495",
+        "size_bytes": 819,
+        "blob_sha1": "b087dbbd5465ed252d486c1a962100bb4f7e5e9d"
+      },
+      "review.md": {
+        "sha256": "4953d5a318eb46c266743b889d7ef5681f8004c5edbbdfae2afb3cc3252a70ce",
+        "size_bytes": 14729,
+        "blob_sha1": "61e99b1d9b036d8896fcbe20f4677a81abf2e5b9"
+      }
+    },
+    "review_json_not_self_bound": "review.json is deliberately absent from files: a document cannot stably embed its own SHA-256/SHA-1, because the placeholder substitution is a fixed-point equation with no converging solution (verified by 20 rounds of iteration in this session). The other three outputs are exact because they are frozen and never reference review.json. review.json's own digest is pinned by the sibling SHA256SUMS file, which covers it.",
+    "self_size_bytes": null,
+    "sha256sums_mutual_reference": "SHA256SUMS pins review.json, and a document cannot also pin the file that pins it: the mutual reference has no fixed point (verified by 20 rounds of iteration this session). review.json therefore records no SHA256SUMS pin; SHA256SUMS's own digest is checked with `sha256sum -c SHA256SUMS` in this directory."
+  },
+  "sha256sums_coverage": "exact-paths.txt, review.md, review.json only; SHA256SUMS does not self-reference",
+  "nonclaims": [
+    "This manifest is context-only ingestion of the independently reviewed #33 AC5 Q01 budget-row proposal batch; it is not an acceptance action and elevates no historical context to approval.",
+    "The owner decision remains pending and unsigned: the section 3 budget rows, the section 4 owner choices and the section 8 sign-off block are all unticked. This manifest signs nothing, answers nothing, and closes nothing.",
+    "No issue acceptance, approval, closure, review authority, or rerun permission is claimed or granted for #33, #84, Q01, G6, Full, or any other ticket; Q01 and 33:5 remain open.",
+    "No current error/dwell/recovery budget status and no current rate-gate status is granted; no native result and no flight evidence is produced by this manifest.",
+    "The anchored review P3-1 wording nuance is preserved exactly as recorded and is neither applied nor adjudicated away by this manifest.",
+    "Frozen wording (1 ms tick, four-tick group barrier, 4 ms barrier, no-catch-up, >100 ms latch, 5 s explicit recovery-ready wait, frozen-record preservation, diagnostic-only probe exclusion) is preserved unweakened.",
+    "No input or file outside the four manifest outputs was edited; nothing was staged in the real index, committed, pushed, reset, or cleaned; the real index was never modified.",
+    "The excluded protected/unrelated paths and all sibling or superseded batch directories were not touched.",
+    "No native/build/MATLAB/ROS/DDS/SITL/FC/UE/model/flight execution, no #83 rerun, no GitHub query or mutation, no network use was performed."
+  ]
+}

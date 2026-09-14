@@ -1,0 +1,89 @@
+{
+  "candidates": [
+    {
+      "path": "docs/plan/33-ac5-budget-row-proposal-20260914.md",
+      "role": "candidate",
+      "sha256": "998ed98cc668bc36e08acbc401f60e5aa50e356250cd9a82fa6cde5e5c3db5c0",
+      "size_bytes": 5790
+    },
+    {
+      "path": "validation/test_codebuddy_33_ac5_budget_proposal.py",
+      "role": "candidate",
+      "sha256": "9f196f82e0fde227e9ceaae0d5407af5ebdfb195b7d54bc7f00b9269c57d581b",
+      "size_bytes": 14993
+    }
+  ],
+  "completion_reverification": {
+    "date": "2026-09-14",
+    "note": "Prior reviewer was canceled after an internal EPERM stall; this package completion re-verified all pins and reran the suite. review.md is unchanged and remains the authoritative review record.",
+    "results": {
+      "candidate_hashes_and_sizes": "match",
+      "real_index_fingerprint_unchanged": true,
+      "source_anchor_pins": "7/7 match",
+      "suite_external_index_mode": "OK (skipped=1), exit 0",
+      "suite_normal_mode": "OK (skipped=1), exit 0"
+    },
+    "tests": {
+      "external_index": {
+        "exit_code": 0,
+        "index_entries": 2,
+        "index_entry_blob_sha1": {
+          "docs/plan/33-ac5-budget-row-proposal-20260914.md": "2a620fbcb312a50cd07cf320b252711e36443278",
+          "validation/test_codebuddy_33_ac5_budget_proposal.py": "236ecce397302757d3845962024a25f660ebc375"
+        },
+        "ran": 17,
+        "result": "OK",
+        "skipped": 1
+      },
+      "normal": {
+        "exit_code": 0,
+        "ran": 17,
+        "result": "OK",
+        "skipped": 1
+      }
+    }
+  },
+  "findings": [
+    {
+      "affects_decision_readiness": false,
+      "id": "P3-1",
+      "location": "docs/plan/33-ac5-budget-row-proposal-20260914.md:57",
+      "severity": "P3",
+      "summary": "Section 6 parenthetical can imply PV rounds 01-04 carried RateUnmet/numerical_failed classification; in the cited report only round 04 is a wall-clock-overrun failure and numerical_failed belongs to the frozen R1 numerical-conformance chain. Wording clarification only; preservation/non-re-judgment claim is correct."
+    }
+  ],
+  "provenance": {
+    "ancestry_commits": [
+      "31e5b65f5448c5558450d16d0f46da0ef0f0a03c",
+      "f333316e6efa6b299b4288a9d91fb2bccedfb9d6"
+    ],
+    "ancestry_rule": "Ancestry binding, no exact-HEAD pin; both commits verified as ancestors of HEAD at review time and again at package completion.",
+    "context_read": [
+      "AGENTS.md (parent)",
+      "CONTEXT-MAP.md (parent)",
+      "wksim/AGENTS.md",
+      "wksim/CONTEXT.md"
+    ],
+    "source_anchors_verified": 7
+  },
+  "review": {
+    "date": "2026-09-14",
+    "document": "review.md",
+    "reviewer": "CodeBuddy (independent, read-only slice)",
+    "sha256": "8f287e2c024bef7924d5421389710e426267a14c628826930dc558b41b92d345",
+    "size_bytes": 10965,
+    "slice": "codebuddy-33-ac5-budget-proposal-independent-review-20260914-01"
+  },
+  "tests_total": {
+    "per_mode": 17,
+    "skipped_per_mode": 1
+  },
+  "verdict": {
+    "counts": {
+      "P1": 0,
+      "P2": 0,
+      "P3": 1
+    },
+    "decision": "KEEP"
+  }
+}
