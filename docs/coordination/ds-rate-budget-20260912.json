@@ -1,0 +1,395 @@
+{
+  "schema": "wksim.ds-rate-budget.v1",
+  "owner": "DS-B / #83 诊断就绪模块 (rate / performance evidence, now with an executable diagnostic package)",
+  "generated_local_time": "2026-09-12T21:18:00+09:00",
+  "generated_timezone": "Asia/Tokyo (host Windows and WSL Ubuntu-22.04 both report Asia/Tokyo / JST)",
+  "workspace_checkout": "codex/independent-rgb-integration @ 7126d4d",
+  "scope": [
+    "Offline, read-only streaming rate analysis of retained raw failure directories plus the necessary wire fragments.",
+    "No native/ROS/build execution, no whole-tree directory statistics, no new agents, no Issue.",
+    "This file is diagnostic evidence only; it is not a rate pass, PV pass, or production performance claim."
+  ],
+  "method": {
+    "tools_reused": [
+      "tools/analyze_joint_rate_intervals.py",
+      "tools/analyze_joint_rate_probe.py",
+      "tools/analyze_joint_rate_tail_phases.py"
+    ],
+    "per_file_sha256": {
+      "tools/analyze_joint_rate_intervals.py": "c3ba9de8f4ac61d6b39750bdabed737915d85d3bee53d56fed8157237bca98b8",
+      "tools/analyze_joint_rate_probe.py": "57eeca9c693185f7c8f0768c148a4d33a71c8ce675e310cd7885357ce7e3d1d5",
+      "tools/analyze_joint_rate_tail_phases.py": "a0fb49e5678fe06283eb01b67d7ff360119fd25ffb860bf349ef7c5a53623c56"
+    },
+    "execution": "Rate JSONL was streamed line by line into in-process calls of tools/analyze_joint_rate_intervals.analyze; no analyzer output files were written. zzmg3k47 rate.jsonl was streamed out of the retained tar.gz shards with tar -xzf <(cat raw-evidence.tar.gz.part-00*) and SHA256-verified against the archive manifest before analysis.",
+    "wall_clock_rule": "Only within-run monotonic values are differenced. No value from one run's wall/monotonic origin is subtracted from another run's value."
+  },
+  "raw_failure_directories": {
+    "zzmg3k47": {
+      "role": "complete two-segment P+V combo rate failure (flies both legs' reference streams before latching)",
+      "run_id": "joint-public-flight-zzmg3k47",
+      "epoch": "1a4e2ccf023f4bb8bb880bbd2ea96926",
+      "raw_directories": [
+        "/root/wksim-release-acceptance-fe3/validation/joint-public-flight-zzmg3k47",
+        "/root/wksim-rate-probe-638078d/validation/joint-public-flight-zzmg3k47",
+        "/root/wksim-rate-probe-e132-c215/validation/joint-public-flight-zzmg3k47"
+      ],
+      "contents": "archive.json, experimental-admission.json, result.json, raw-evidence.tar.gz.part-001..004",
+      "archive_bytes": 115850022,
+      "archive_sha256": "4636a5fa55c6c6bbffd199b5f51bb8a7d437749dab97b65f1039c90bafedef1d",
+      "raw_member_mtimes_jst": {
+        "rate.jsonl": "2026-09-11T12:49",
+        "result.json": "2026-09-11T12:49",
+        "arducopter/pv-go-1.json": "2026-09-11T12:48",
+        "arducopter/pv-go-2.json": "2026-09-11T12:49"
+      },
+      "identities": {
+        "ap_manifest_sha256": "1e6250eff8873d6b2e52017b613c223ac29f8260fdf92aac2cf0c7cdcc6ce94c",
+        "control_manifest_sha256": "25edbf816e1b417028be73f409b211b48a1579cce4d63b0d9c6c9b5277e6d610",
+        "control_candidate": "0DQQz9"
+      },
+      "rate_jsonl_sha256": "62596ed95ce9fc631e42a4fb09bbce44cd6571ab2c808f3a3b65732b4ec4ca57",
+      "verified_against": "archive.json member hash, zzmg3k47-rate-analysis.json, and the extracted stream re-hash in this session"
+    },
+    "tpwl1k4p": {
+      "role": "mixed-firmware P+V rate failure that never took off",
+      "run_id": "joint-public-flight-tpwl1k4p",
+      "epoch": "e5c32b2cc92d41b9afa38096489f7bda",
+      "raw_directory": "validation/joint-public-flight-tpwl1k4p (main repository; 284 files, 181496303 bytes)",
+      "raw_mtimes_jst": {"rate.jsonl": "2026-09-12T00:20:59", "result.json": "2026-09-12T00:21:01"},
+      "wsl_remnant": "/root/wksim-private-tmp-8nrqth_z/upper/wksim-control-0/joint-public-flight-tpwl1k4p--1/--2 (counter.json and owner.lock only, 2026-09-12T00:20); /root/wksim-release-acceptance-fe3/validation/83-final-pv-tpwl1k4p-audit.json",
+      "identities": {
+        "ap_manifest_sha256": "1e6250eff8873d6b2e52017b613c223ac29f8260fdf92aac2cf0c7cdcc6ce94c",
+        "control_manifest_sha256": "a6a17b42f92cf6df4b92fe36b6e1e65f6e4e42f684daac4113091591a1802346",
+        "control_candidate": "rWolCy",
+        "message_manifest_sha256": "29969da0702451e3fc6f1de40bc301a67284c4e7d5fae8f88c64773d27a96219"
+      },
+      "build_file_hashes_rechecked_here": {
+        "ap-build.json": "1e6250eff8873d6b2e52017b613c223ac29f8260fdf92aac2cf0c7cdcc6ce94c",
+        "control-build.json": "a6a17b42f92cf6df4b92fe36b6e1e65f6e4e42f684daac4113091591a1802346",
+        "message-build.json": "29969da0702451e3fc6f1de40bc301a67284c4e7d5fae8f88c64773d27a96219"
+      },
+      "rate_jsonl_sha256": "41b1e2a6bc57749a0500d3b067f38e8a8200ad92b8d08e369d0c651d2fbc31e7"
+    },
+    "nqyqcagl": {
+      "role": "newest complete-PV #83 attempt found by raw evidence (not named by the three documents read for B1)",
+      "run_id": "joint-public-flight-nqyqcagl",
+      "epoch": "293c42f44d224b47b3077a99ce3f3936",
+      "raw_directory": "validation/joint-public-flight-nqyqcagl (raw files 2026-09-12T12:49:09 .. 12:52:08 JST)",
+      "published_subset": "validation/33-final-combo-luna/20260912-nqyqcagl (2026-09-12T12:53:58 .. 13:32:08 JST)",
+      "source_commit": "0769c3a",
+      "identities": {
+        "ap_manifest_sha256": "1e6250eff8873d6b2e52017b613c223ac29f8260fdf92aac2cf0c7cdcc6ce94c",
+        "control_manifest_sha256": "3d04d53a5c41d374ee623d16a265e8816d481e5d4433f23a60140a8e8184ecc4",
+        "control_candidate": "ZlTVa4",
+        "message_manifest_sha256": "29969da0702451e3fc6f1de40bc301a67284c4e7d5fae8f88c64773d27a96219"
+      },
+      "rate_jsonl_sha256": "d385de34204ed6e50dfa502808aea229c29c1a4ae3d59e1bb1b0e45b96e9999e"
+    },
+    "8fmacpgy": {
+      "role": "planner release rate failure",
+      "run_id": "joint-public-flight-8fmacpgy",
+      "epoch": "676a53981dd747cb93bfd5271d7f5d95",
+      "raw_directory": "/root/wksim-release-acceptance-fe3/validation/joint-public-flight-8fmacpgy",
+      "raw_mtimes_jst": "2026-09-12T18:27 .. 18:34; arducopter-control.log started event emitted_unix_ns 1789205279882225405 = 2026-09-12T18:27:59 JST",
+      "main_repo_copies": {
+        "validation/planner-release-native-20260912-01": "rate.jsonl.gz decompresses byte-identically to sha256 16f05a808e6e3750181458977840c3ee335740e5857e295231b28ae7457b2b82 (13247192 bytes), equal to the raw rate.jsonl in the WSL directory",
+        "release-failure-analysis.json": "e149536ec2958a6188dd1bbe334d43b38efdc733e24a62ae7ce3c536f02f0205 (main repo copy)"
+      },
+      "identities": {
+        "ap_manifest_sha256": "1e6250eff8873d6b2e52017b613c223ac29f8260fdf92aac2cf0c7cdcc6ce94c",
+        "control_manifest_sha256": "6fe8c0b30775a9ba83407302f602d0785876d307e5f1cb746afa3bf316cf5e7e",
+        "control_candidate": "c2IXOr (the control the rolling queue currently names as frozen)",
+        "message_manifest_sha256": "29969da0702451e3fc6f1de40bc301a67284c4e7d5fae8f88c64773d27a96219",
+        "model_build_sha256": "f254b90ef53cbb5d6e034b7b58facd499f2073ee68bb1a509020108e3dbf2a24"
+      },
+      "rate_jsonl_sha256": "16f05a808e6e3750181458977840c3ee335740e5857e295231b28ae7457b2b82"
+    },
+    "bomvjsmg_context_only": {
+      "role": "lighter single-segment release run; rate guard not crossed; not extrapolated to the complete two-segment PV",
+      "run_id": "joint-public-flight-bomvjsmg",
+      "epoch": "fffc7da8ba73461fa26b1949a31b0007",
+      "raw_directory": "/root/wksim-release-acceptance-fe3/validation/joint-public-flight-bomvjsmg",
+      "main_repo_copy": "validation/39-planner-flight/release-bomvjsmg",
+      "measured_here": {
+        "complete_groups": 23140,
+        "rate_unmet_records": 0,
+        "max_group_start_lateness_ns": 75321700,
+        "max_group_start_lateness_tick": 92592,
+        "max_group_work_ns": 13824550,
+        "groups_work_over_period": 3,
+        "creep_total_ns": 75203176,
+        "work_over_total_ns": 10010625,
+        "release_excess_total_ns": 65192551,
+        "segment_closed": "rate_boundary_check plus rate_segment_end present"
+      },
+      "sha256_note": "SHA256 of the gzip member was not separately re-hashed in B1; the numbers above were reproduced independently from validation/39-planner-flight/release-bomvjsmg/rate.jsonl.gz and match the 75321700 ns already recorded in the queue, which is evidence the copy is the same run, not a substitute for the original."
+    }
+  },
+  "identity_and_timeline": {
+    "ordering_by_raw_records_jst": [
+      "2026-09-11T12:49 joint-public-flight-zzmg3k47 (epoch 1a4e2ccf..., control 25edbf81 / 0DQQz9)",
+      "2026-09-12T00:21 joint-public-flight-tpwl1k4p (epoch e5c32b2c..., control a6a17b42 / rWolCy)",
+      "2026-09-12T12:52 joint-public-flight-nqyqcagl (epoch 293c42f4..., control 3d04d53a / ZlTVa4)",
+      "2026-09-12T18:34 joint-public-flight-8fmacpgy (epoch 676a5398..., control 6fe8c0b3 / c2IXOr)"
+    ],
+    "document_claim_conflict": "docs/2026-09-12-final-pv-rate-failure.md calls tpwl1k4p 'the first formal full_xyz_pv_yaw_v1 attempt'; docs/2026-09-11-final-combo-rate-failure-zzmg3k47.md calls zzmg3k47 the first and only new real full_xyz_pv_yaw_v1 run. Neither wording is used here as date evidence: raw tar-member and file mtimes plus four distinct epochs and control manifests place zzmg3k47 before tpwl1k4p, and nqyqcagl after both.",
+    "different_wall_origins": {
+      "rate_request_or_latch_monotonic_ns": {
+        "zzmg3k47": 61220686312,
+        "tpwl1k4p": 271507270801,
+        "nqyqcagl_latch": 574303549177,
+        "8fmacpgy": 214814589137
+      },
+      "proof_origins_differ": "tpwl1k4p (271.5 s, calendar 2026-09-12T00:21 JST) has a larger monotonic value than 8fmacpgy (214.8 s, calendar 2026-09-12T18:34 JST); the two cannot share one boot origin, so monotonic values across runs must never be subtracted.",
+      "wire_origin_8fmacpgy": "joint-wire.jsonl and pv-dds.jsonl use a run-relative wall (45.758306725 .. 181.978566384) that sits about 169.4 s below issued_monotonic_ns/helper timestamps (351.29 .. 351.53); a 351.2..351.6 s filter over the wire returns zero records."
+    }
+  },
+  "measured_rate": {
+    "zzmg3k47": {
+      "complete_groups": 24665,
+      "closed_intervals": 24664,
+      "max_group_start_lateness_ns": 99999916,
+      "max_group_start_lateness_tick": 98696,
+      "max_group_end_lateness_ns": 96778315,
+      "max_group_end_lateness_tick": 98208,
+      "max_group_work_ns": 13168901,
+      "max_group_work_tick": 1924,
+      "groups_work_over_period": 8,
+      "creep_total_ns": 99881013,
+      "work_over_total_ns": 14535828,
+      "release_excess_total_ns": 85345185,
+      "last_group_work_over_unattributed_ns": 0,
+      "last_group_start_lateness_ns": 99999916,
+      "last_group_work_ns": 3993366,
+      "first_group_start_lateness_ns": 118903,
+      "rate_unmet_tick": 98700,
+      "rate_unmet_lateness_ns": 100092095,
+      "latch_site": "begin_group release wait (no rate_group_start exists for the next group)",
+      "terminal_increment_over_last_group_start_ns": 92179,
+      "measured_rate": 0.49975687561984183,
+      "phase_of_occurrence": "second P+V leg: arducopter/pv-go-2.json leg 2 issued_tick 83924, start_ns 84924000000; latch at tick 98700 = 13.776 s into leg 2; result.json faulted_authority phase=faulted, time_ns 98700000000, last_barrier_tick 98700; no leg-2 endpoint-prepared/completion flag exists in the retained result.json"
+    },
+    "tpwl1k4p": {
+      "complete_groups": 6649,
+      "closed_intervals": 6648,
+      "max_group_start_lateness_ns": 99994226,
+      "max_group_start_lateness_tick": 26632,
+      "max_group_end_lateness_ns": 97572667,
+      "max_group_end_lateness_tick": 24872,
+      "max_group_work_ns": 22835874,
+      "max_group_work_tick": 10128,
+      "groups_work_over_period": 18,
+      "creep_total_ns": 99877507,
+      "work_over_total_ns": 66878794,
+      "release_excess_total_ns": 32998713,
+      "last_group_work_over_unattributed_ns": 0,
+      "last_group_start_lateness_ns": 99994226,
+      "last_group_work_ns": 4251554,
+      "first_group_start_lateness_ns": 116719,
+      "rate_unmet_tick": 26636,
+      "rate_unmet_lateness_ns": 100038885,
+      "latch_site": "begin_group release wait",
+      "terminal_increment_over_last_group_start_ns": 44659,
+      "measured_rate": 0.499096932366686,
+      "phase_of_occurrence": "still on the ground: result.json flown=false, flight_completed=false; latch at tick 26636 (26.636 s of tick time), anchor tick 40; no pv-go-1/pv-go-2 leg was issued"
+    },
+    "nqyqcagl": {
+      "complete_groups": 13270,
+      "closed_intervals": 13269,
+      "max_group_start_lateness_ns": 98036155,
+      "max_group_start_lateness_tick": 53124,
+      "max_group_end_lateness_ns": 104260439,
+      "max_group_end_lateness_tick": 53128,
+      "max_group_work_ns": 15623658,
+      "max_group_work_tick": 47400,
+      "groups_work_over_period": 19,
+      "creep_total_ns": 97921130,
+      "work_over_total_ns": 55176520,
+      "release_excess_total_ns": 42744610,
+      "last_group_work_over_unattributed_ns": 6224284,
+      "last_group_start_lateness_ns": 98036155,
+      "last_group_work_ns": 14224284,
+      "first_group_start_lateness_ns": 115025,
+      "rate_unmet_tick": 53128,
+      "rate_unmet_lateness_ns": 104260439,
+      "latch_site": "end_group",
+      "measured_rate": 0.499509428482496,
+      "phase_of_occurrence": "airborne complete-PV attempt: both aircraft took off, neither completed its task; run wall 178.577832652 s; anchor tick 48; the retained published subset reports a separate wire-interval review but B1 did not re-stream that wire"
+    },
+    "8fmacpgy": {
+      "complete_groups": 16990,
+      "closed_intervals": 16989,
+      "max_group_start_lateness_ns": 70834528,
+      "max_group_start_lateness_tick": 67992,
+      "max_group_end_lateness_ns": 134828282,
+      "max_group_end_lateness_tick": 67996,
+      "max_group_work_ns": 71993754,
+      "max_group_work_tick": 67992,
+      "groups_work_over_period": 17,
+      "creep_total_ns": 70719737,
+      "work_over_total_ns": 21321562,
+      "release_excess_total_ns": 49398175,
+      "last_group_work_over_unattributed_ns": 63993754,
+      "last_group_start_lateness_ns": 70834528,
+      "last_group_work_ns": 71993754,
+      "first_group_start_lateness_ns": 114791,
+      "rate_unmet_tick": 67996,
+      "rate_unmet_lateness_ns": 134828282,
+      "latch_site": "end_group",
+      "measured_rate": 0.4995045075441184,
+      "phase_of_occurrence": "planner release handoff, writer silent; group_before_planner_spawn at tick 67960 (lateness 66800709 ns); helper high_water_verified_wall 351.290481452 s, node_spawned_wall 351.29149844 s, cancel_sent_wall 351.529023245 s = 105068302 ns after the latch; public_movement phase release_writer_silent"
+    }
+  },
+  "cumulative_increment_identity": {
+    "identity": "recorded_latch_lateness_ns = first_group_start_lateness_ns + creep_total_ns + terminal_unreconciled_ns, with terminal_unreconciled_ns = last group work over one period for an end_group latch, or recorded_latch_lateness_ns - last_group_start_lateness_ns for a begin_group release-wait latch",
+    "resolution": "Implemented in tools/analyze_joint_rate_intervals.py sha256 c3ba9de8f4ac61d6b39750bdabed737915d85d3bee53d56fed8157237bca98b8. The fixed analyzer loads the trailing rate_unmet latch for the same epoch/segment/request/rate/transition, reports first_group_start_lateness_ns, recorded_latch_lateness_ns and terminal_unreconciled_ns, refuses a negative residual instead of clamping it with max(0), reports nulls with status unavailable when no matching latch exists, isolates foreign-identity latches, and requires the latch tick to be the last group boundary.",
+    "checks_on_real_traces_read_only": {
+      "zzmg3k47": {
+        "rate_jsonl_sha256": "62596ed95ce9fc631e42a4fb09bbce44cd6571ab2c808f3a3b65732b4ec4ca57",
+        "sum": "118903 + 99881013 + 92179 = 100092095",
+        "latch_site": "begin_group_release_wait",
+        "rate_unmet_tick": 98700,
+        "foreign_rate_unmet": 0,
+        "closes": true
+      },
+      "tpwl1k4p": {
+        "rate_jsonl_sha256": "41b1e2a6bc57749a0500d3b067f38e8a8200ad92b8d08e369d0c651d2fbc31e7",
+        "sum": "116719 + 99877507 + 44659 = 100038885",
+        "latch_site": "begin_group_release_wait",
+        "rate_unmet_tick": 26636,
+        "foreign_rate_unmet": 0,
+        "closes": true
+      },
+      "nqyqcagl": {
+        "rate_jsonl_sha256": "d385de34204ed6e50dfa502808aea229c29c1a4ae3d59e1bb1b0e45b96e9999e",
+        "sum": "115025 + 97921130 + 6224284 = 104260439",
+        "latch_site": "end_group",
+        "rate_unmet_tick": 53128,
+        "foreign_rate_unmet": 0,
+        "closes": true
+      },
+      "8fmacpgy": {
+        "rate_jsonl_sha256": "16f05a808e6e3750181458977840c3ee335740e5857e295231b28ae7457b2b82",
+        "sum": "114791 + 70719737 + 63993754 = 134828282",
+        "latch_site": "end_group",
+        "rate_unmet_tick": 67996,
+        "foreign_rate_unmet": 0,
+        "closes": true
+      },
+      "bomvjsmg": {
+        "trace_content_sha256": "1a4cc6a00b3479b19b23a38d1ffab3c342061668af05f4cd865e80af50f3910b",
+        "result": "no rate_unmet row exists: status unavailable, reason no_rate_unmet_for_identity, recorded_latch_lateness_ns null and terminal_unreconciled_ns null (never zero)",
+        "note": "single-segment lighter release run; not joined to the two-segment PV failures and not extrapolated"
+      }
+    },
+    "residual_closed": "The former 211082 / 161378 ns unreported residual for zzmg3k47 / tpwl1k4p is now carried by terminal_unreconciled_ns (92179 / 44659 ns) plus first_group_start_lateness_ns (118903 / 116719 ns)."
+  },
+  "wire_fragments": {
+    "8fmacpgy": {
+      "joint-wire.jsonl": "115016990 bytes, 255658 lines; kind counts only sensor 84995, actuator 84988, step 67996, barrier 16999, gps 679, connected 1; last record tick 67996 wall 181.978566384; it is a data-plane stream and contains no cancel/ACK record type (an earlier substring match on 'ack' was a false positive from 'stack'/'packet' and is corrected here)",
+      "pv-dds.jsonl": "26569055 bytes, 38190 records, 14 topics; first wall 45.758306725 (tick 0), last wall 181.978427548 (tick 67996, /uav1/prometheus/v2/state, sequence 38190); no record exists at or after the cancel time, so this stream carries no cancel/ACK fragment",
+      "arducopter-control.log": "0 lines matching 'cancel'; the last native_ack is request_id 3 (stage takeoff) at emitted_monotonic_ns 297750407812, i.e. 53673547131 ns before the latch at 351423954943 ns; no native_ack exists in the last 53.67 s"
+    },
+    "zzmg3k47": {
+      "necessity": "not needed: the latch is the internal JointRate pacing check and involves no control-plane exchange",
+      "archived_joint_wire_sha256_identity_only": "15d59dd7f5cf8b170bcc5b597afcb75137086f9c3c707d08b163b1b4ffc34af1"
+    },
+    "tpwl1k4p": {
+      "necessity": "not needed: same reason; no release/cancel exchange exists because the run never flew"
+    },
+    "nqyqcagl": {
+      "necessity": "not streamed in B1; the published subset already carries wire-interval-review.json and the latch mechanism is an in-group work-over, not a control-plane wait"
+    }
+  },
+  "non_attribution": [
+    "No exclusive CPU, AP, PX4, scheduler, or DDS root cause is assigned. The retained records contain no per-thread CPU decomposition for the failing groups.",
+    "For 8fmacpgy the 63.993754 ms work-over of the last group overlaps planner child startup (high-water verified 351.290481452 s, node spawned 351.29149844 s, group end 351.423937361 s), but overlap is not causation and the retained records cannot separate child startup from FC, publish, or scheduler delay.",
+    "For zzmg3k47 and tpwl1k4p the crossing increment is only 92179 / 44659 ns inside the next group's release wait; nothing in the records identifies which of health call, sleep tail, record write, or scheduler wake supplied it.",
+    "Different wall origins are never mixed: no cross-run subtraction of monotonic or wire wall values appears in this report."
+  ],
+  "extrapolation_limits": [
+    "bomvjsmg (75321700 ns worst lateness, 23140 groups, guard not crossed, segment closed) is a lighter single-segment release run and must not be extrapolated to the complete two-segment P+V combo.",
+    "For zzmg3k47 and tpwl1k4p the recorded group starts never reach the 100 ms limit (max 99999916 / 99994226 ns); a claim of the form 'the run failed because a group started more than 100 ms late' is not supported by the retained records.",
+    "For nqyqcagl and 8fmacpgy the latch is an end_group work-over; their maxima must not be merged with the begin_group release-wait mechanism of zzmg3k47/tpwl1k4p."
+  ],
+  "parser_coverage": {
+    "tools/analyze_joint_rate_intervals.py": "Fixed analyzer sha256 c3ba9de8f4ac61d6b39750bdabed737915d85d3bee53d56fed8157237bca98b8 analyzed all five real traces with status analyzed and reconciled every failure latch exactly; no real-data contract failure was triggered by the new checks.",
+    "tools/analyze_joint_rate_probe.py": "ValueError('No rate_timing_probe samples') on every formal failure trace; no rate_timing_probe rows exist in any of the four failure traces. This is a coverage gap to close with a diagnostic run, not damaged evidence.",
+    "tools/analyze_joint_rate_tail_phases.py": "same refusal, because it requires started timing probes; the 100-500 us phase split therefore cannot be produced for the retained formal failures.",
+    "structural_reason": "Simulator/wksim_runtime/joint_profile.py:219-220 rejects formal mixed/PV evidence that contains rate_timing_probe ('Formal mixed/PV evidence cannot include rate_timing_probe'), so a formal failure trace can never carry the probe rows the tail tool needs, and the probe must come from a separately run diagnostic field. Correction to the first edition: tools/audit_joint_rate.py does not reject probe rows wholesale. Its timing_probe_identity() (:32-42) fails closed only when the sealed identity block is missing or differs; a correctly sealed rate_timing_probe row passes and is then silently ignored by schedule() (:44-106 has no rate_timing_probe branch and no else). tools/audit_pv_trajectory.py contains zero rate_timing_probe/timing_probe checks; its :297-299 loop covers pause_probe_requested, scene_lifecycle_requested, scene_lease_loss_requested, dds_loss_requested and diagnostic_land_step_period_s instead. The reason a probe-bearing field cannot serve as #83 acceptance is joint_profile.py:219-220, not an active rejection by those two auditors.",
+    "environment_analyzer_drift": {
+      "main_repository_fixed": "14ed9d64bb0daf0fb2ef9f4e21028a4ec164bb1255f98701542b59a68d2538a8 was the unfixed analyzer; the fixed one is c3ba9de8f4ac61d6b39750bdabed737915d85d3bee53d56fed8157237bca98b8",
+      "experimental_area": "/root/wksim-release-acceptance-fe3/tools/analyze_joint_rate_intervals.py is still 14ed9d64bb0daf0fb2ef9f4e21028a4ec164bb1255f98701542b59a68d2538a8 (unfixed), so post-run analysis must use the main-repository fixed analyzer or copy it in explicitly"
+    }
+  },
+  "next_minimal_diagnosis": {
+    "executable_package": "docs/plan/33-rate-next-diagnostic-20260912.md (single diagnostic run, frozen identity, full command, expected raw fields, stop and failure boundaries)",
+    "primary_uncertainty_to_eliminate": "On the final 0.5x mixed/PV field the guard crosses on an increment that the retained records cannot place: the last recorded group start stays below 100 ms (zzmg3k47 99999916 ns, tpwl1k4p 99994226 ns) while the latch fires 92179 / 44659 ns later inside the next group's begin_group release wait. The next single diagnostic must measure which supervisor section of that wait (entry, health callbacks, sleep elapsed, final spin, record write) supplies the crossing, using the existing diagnostic probe rows, and must not re-run the acceptance field to guess.",
+    "same_run_secondary_observables": "The same run also exposes the end_group shape (nqyqcagl 6224284 ns, 8fmacpgy 63993754 ns work over one period) through the diagnostic step CPU sections, and the per-group phase distribution of the creep-bearing 100-500 us buckets (zzmg3k47 319 intervals / 54343233 ns; 8fmacpgy 178 intervals / 30236171 ns).",
+    "identity_freeze": "The diagnostic identity must be frozen from raw run identity, not document dates: AP mixed 1e6250ef, control c2IXOr 6fe8c0b3, message Rzj3Pf 29969da0, PX4 pin d7e905b3, all re-read by sha256sum in this session. The four failing runs used four different control manifests (25edbf81 0DQQz9, a6a17b42 rWolCy, 3d04d53a ZlTVa4, 6fe8c0b3 c2IXOr) and must never be mixed.",
+    "diagnostic_constraint": "Formal mixed/PV evidence forbids rate_timing_probe, so the phase measurement has to come from a separate diagnostic-only field. That field must not be submitted or registered as #83 acceptance and cannot close #83. This is an operational boundary, not an active rejection by the auditors: a correctly sealed probe row passes tools/audit_joint_rate.py identity validation and is silently ignored by its schedule(), and tools/audit_pv_trajectory.py has no probe check at all; the promotion path that refuses probe-bearing evidence is Simulator/wksim_runtime/joint_profile.py:219-220.",
+    "no_optimization_claim": "No source change, threshold change, catch-up, re-anchor, shorter trajectory, or performance improvement is proposed or claimed here. If the diagnostic shows a measurement is required before any fix, that measurement is this module's deliverable rather than another summary.",
+    "started_here": "Only offline read-only analysis and pure unit tests were run for this module. No native, ROS, model, build, or new flight was started."
+  },
+  "module_artifacts": {
+    "docs/coordination/ds-rate-budget-20260912.json": "this report",
+    "docs/plan/33-rate-next-diagnostic-20260912.md": "executable single-run diagnostic package for the main session",
+    "tools/analyze_joint_rate_intervals.py": "c3ba9de8f4ac61d6b39750bdabed737915d85d3bee53d56fed8157237bca98b8",
+    "validation/test_rate_tail_contract.py": "8b468bb727213339962a3f42dac05f396bb898eafce564262499000a58c4fac0",
+    "test_command": "python -B -m unittest validation.test_rate_tail_contract validation.test_joint_rate_intervals validation.test_analyze_joint_rate_tail_phases validation.test_analyze_joint_rate_probe validation.test_audit_joint_rate validation.test_joint_rate_probe",
+    "test_result": "60 tests, OK (2 pre-existing skips) on the fixed analyzer"
+  },
+  "parameter_validation_20260912": {
+    "method": "The real runner is imported and unittest.mock.patch.object(module, 'run', return_value=0) replaces run(); main(['run', ...documented flags...]) is then called. Nothing is executed, no manifest byte is read, native_called=false. Executed against the main-repository runner and the Linux experimental-area runner (/root/wksim-release-acceptance-fe3/tools/run_joint_flight.py).",
+    "command_shape": "tools/run-joint-flight.sh:22 builds 'python3 -B <repo>/tools/run_joint_flight.py run \"$@\"'",
+    "results": {
+      "documented_command_with_async_model_evidence": {"exit": 0, "run_called": 1, "async_model_evidence": true, "px4_manifest": null, "px4_sha256": null},
+      "alternative_without_async_model_evidence": {"exit": 0, "run_called": 1, "async_model_evidence": false, "note": "the parser accepts both forms; dropping async is not a proven requirement"},
+      "px4_override_added": {
+        "exit": "SystemExit(2)",
+        "run_called": 0,
+        "error": "P+V requires exactly one explicit PV or mixed AP manifest/SHA pair and no alternate probes",
+        "gate": "tools/run_joint_flight.py:1092-1099; line 1097 lists args.px4_manifest or args.px4_sha256 as a forbidden alternate probe for the PV profile"
+      },
+      "plain_ap_manifest_added": {"exit": "SystemExit(2)", "run_called": 0, "error": "same gate"},
+      "pause_probe_added": {"exit": "SystemExit(2)", "run_called": 0, "error": "same gate"}
+    },
+    "correction": "The first edition of docs/plan/33-rate-next-diagnostic-20260912.md carried --px4-manifest/--px4-sha256 in the PV command; that pair makes the PV entrypoint exit 2 before run() (reproduced by the verifier and by this mock probe). The command now omits it, and PX4 identity is verified offline from the fixed profile chain (joint-profiles.json:50-70, pin d7e905b3) plus the recorded mixed_admission fields.",
+    "px4_artifact_reality": {
+      "not_produced": "live/px4-build.json",
+      "reason": "tools/run_joint_flight.py:497-499 copies that file and writes result['manifest_sha256']['px4'] only when --px4-manifest is passed; the PV command cannot pass it, so neither the file nor the manifest_sha256.px4 key will exist in this field",
+      "copied_by_this_command": ["live/ap-build.json (run_joint_flight.py:500)", "live/control-build.json (:501)", "live/message-build.json (:443)", "live/model-build.json (:473)", "live/mixed-source.json and live/baseline-pv-build.json for mixed firmware (:506-507)"],
+      "actual_px4_identity_fields": {
+        "mixed_admission.identities.baseline.manifests.px4.path": "/root/wksim-px4-state-ONa1Kw/wksim-build.json",
+        "mixed_admission.identities.baseline.manifests.px4.sha256": "d7e905b35250d184e185ada70e3fe43f0223f1c605832d81c3c58eeb123d4cb6",
+        "mixed_admission.identities.baseline.px4.path": "/root/wksim-px4-state-ONa1Kw/src/build/px4_sitl_default/bin/px4",
+        "mixed_admission.identities.baseline.px4.sha256": "93b4ebe0d83a5897131ec24ee58d732c8999972bb7730f429fc396bc8d10602a",
+        "mixed_admission.configs.px4.px4_root": "/root/wksim-px4-state-ONa1Kw/src",
+        "source_of_reading": "validation/joint-public-flight-nqyqcagl/result.json"
+      },
+      "originals_the_main_session_may_retain_separately": [
+        "/root/wksim-px4-state-ONa1Kw/wksim-build.json (d7e905b3, the profile pin)",
+        "/root/wksim-ap-clock-stop-OXQqdR/wksim-build.json (f347ba25, baseline clock-stop AP manifest)",
+        "/root/wksim-ap-pv-vn04950x/pv-build.json (e05e5c9d, baseline PV manifest; same hash also lands as live/baseline-pv-build.json)",
+        "/root/wksim-joint-control-FVMjak/build.json (f02edf15, baseline control; admission records only the hash)"
+      ]
+    },
+    "evidence_write_form": {
+      "observed_result_fields": {
+        "zzmg3k47": "no async_model_evidence field",
+        "tpwl1k4p": "async_model_evidence_requested=true, no async_model_evidence block (writer summaries incomplete)",
+        "nqyqcagl": "async_model_evidence_requested=true, both stacks complete=true/closed=true, submitted_bytes==written_bytes",
+        "8fmacpgy": "async_model_evidence_requested=false"
+      },
+      "choice": "the diagnostic passes --async-model-evidence, so async_model_evidence_requested is expected to be true with both stacks complete/closed",
+      "basis": "main session decision, kept consistent with the current #83 contract and with nqyqcagl's requested-and-closed writer configuration, which shows that form coexisting with a real 0.5x latch on full_xyz_pv_yaw_v1; the two timing envs are the explicit diagnostic instrumentation and async is the evidence-write form, both legal for PV (run_joint_flight.py:1090)",
+      "labelled_inference": "No claim is made that async writing harms or is harmless for the supervisor wait, and dropping async is explicitly NOT asserted to be necessary; the parser probe shows both forms are accepted (exit 0). The field readings above are observations only."
+    }
+  },
+  "limitations": [
+    "Correlation and interval arithmetic only; no causal split of release_excess among health checks, record writes, sleep overshoot and scheduler delay.",
+    "zzmg3k47 was analyzed from the retained tar.gz members, so per-file mtimes come from the archive metadata, not from the live directory.",
+    "bomvjsmg is quoted as context and was re-read only from the main-repo gzip copy.",
+    "This report does not close #83, does not re-open any rate gate, and does not replace tools/audit_pv_trajectory.py."
+  ]
+}

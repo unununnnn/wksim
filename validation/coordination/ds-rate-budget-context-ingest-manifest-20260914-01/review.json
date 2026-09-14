@@ -1,0 +1,133 @@
+{
+  "schema": "wksim.ingest-manifest.v1",
+  "manifested_at": "2026-09-14",
+  "owner": "codebuddy-ingest-manifest",
+  "reviewed_head": "9c581ad5b2e316904c9ef53e8543c5a6f413d6f9",
+  "manifested_head": "76f77470e91ecc742148df0f3eba6f5b5494511c",
+  "ancestor_baseline": {
+    "commit": "9c581ad5b2e316904c9ef53e8543c5a6f413d6f9",
+    "role": "review-time authoritative HEAD of the reviewed DS rate-budget historical-context batch",
+    "ancestor_of_manifested_head": true,
+    "verified_by": "git merge-base --is-ancestor 9c581ad5b2e316904c9ef53e8543c5a6f413d6f9 HEAD -> exit 0"
+  },
+  "scope": "context-only",
+  "acceptance": "non-acceptance",
+  "exact_paths_sha256": "2863520b93988e42ff18a07599f9fb3bf34f8f1b64fd6ad39492aefb72553c79",
+  "exact_paths_count": 10,
+  "inputs": [
+    {
+      "path": "docs/coordination/ds-rate-budget-20260912.json",
+      "role": "historical_context_document",
+      "sha256": "b6db16e282e670177eba0b9ce43d5b637ff0845279d8101a430a808d39681b37",
+      "sha256_match_review_record": true,
+      "size_bytes": 32100
+    },
+    {
+      "path": "docs/coordination/ds-rate-budget-ingest-note-20260914.md",
+      "role": "ingest_note",
+      "sha256": "13e18676833ab21783953cb63f45135f3eb24e440e8401d99d6a254b4678dd1b",
+      "sha256_match_review_record": true,
+      "size_bytes": 8751
+    },
+    {
+      "path": "validation/test_ds_rate_budget_context.py",
+      "role": "test_candidate",
+      "sha256": "4d9286f2606ee89373da885e9af860a0faefdd52d10e41611f049aed798969b3",
+      "sha256_match_review_record": true,
+      "size_bytes": 18512
+    },
+    {
+      "path": "validation/coordination/codebuddy-ds-rate-budget-independent-review-20260914-01/review.md",
+      "role": "independent_review_report",
+      "sha256": "d948ab01857abe56ed0bbe5de62f78823c0970b81a592f983f7b208c5d27282d",
+      "sha256_match_review_sums": true
+    },
+    {
+      "path": "validation/coordination/codebuddy-ds-rate-budget-independent-review-20260914-01/review.json",
+      "role": "independent_review_record",
+      "sha256": "9a72b49a380182b3281fe6f0b1d7065594bb8f9b4c777ca234b023b1384f48c2",
+      "sha256_match_review_sums": true
+    },
+    {
+      "path": "validation/coordination/codebuddy-ds-rate-budget-independent-review-20260914-01/SHA256SUMS",
+      "role": "independent_review_sums",
+      "sha256": "a36004ab3d6844225b0be1d3a5c08f68bedc8cbf02ee1e1272d90e1a246d4735",
+      "sha256sum_dash_c_result": "all entries OK"
+    }
+  ],
+  "review_facts": {
+    "reviewer": "independent CodeBuddy evidence reviewer",
+    "review_date": "2026-09-14",
+    "reviewed_head": "9c581ad5b2e316904c9ef53e8543c5a6f413d6f9",
+    "reviewed_head_ancestor_of_manifested_head": true,
+    "verdict": "PASS",
+    "findings_p1": [],
+    "findings_p2": [],
+    "findings_p3_nonblocking": [
+      "P3-1: dead code in test_strict_parser_rejects_duplicate_keys (validation/test_ds_rate_budget_context.py:215) - built string never parsed or asserted",
+      "P3-2: identities.control_candidate at docs/coordination/ds-rate-budget-20260912.json:101 embeds an editorial parenthetical instead of a bare identity token",
+      "P3-3: until the batch itself is committed, the only byte-identity pins for the two bound files live inside untracked candidate files (docs/coordination/ds-rate-budget-ingest-note-20260914.md:14)"
+    ],
+    "finding_counts_match_review_record": "P1=0, P2=0, P3=3 (exactly three, all non-blocking)"
+  },
+  "test_facts": {
+    "command": "python -B -m unittest validation.test_ds_rate_budget_context -v",
+    "review_recorded_runs": [
+      {
+        "mode": "normal worktree, real index untouched",
+        "tests_run": 15,
+        "failures": 0,
+        "errors": 0,
+        "result": "OK",
+        "exit_code": 0
+      },
+      {
+        "mode": "staged_simulation",
+        "detail": "temporary GIT_INDEX_FILE copied from the real index with exactly the 3 scope candidates staged; test executed under that GIT_INDEX_FILE; temp index deleted; real index proven unchanged",
+        "tests_run": 15,
+        "failures": 0,
+        "errors": 0,
+        "result": "OK",
+        "exit_code": 0
+      }
+    ],
+    "re_run_this_session": {
+      "at_head": "76f77470e91ecc742148df0f3eba6f5b5494511c",
+      "tests_run": 15,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "result": "OK",
+      "exit_code": 0
+    }
+  },
+  "verification": {
+    "head_confirmed_before_work": true,
+    "review_head_is_ancestor_of_manifested_head": true,
+    "historical_context_document_sha256_matches_review_record": true,
+    "ingest_note_sha256_matches_review_record": true,
+    "test_candidate_sha256_matches_review_record": true,
+    "review_report_sha256_matches_review_sums": true,
+    "review_record_sha256_matches_review_sums": true,
+    "review_sums_selfcheck_passed": true,
+    "review_verdict_is_pass": true,
+    "review_has_zero_p1_and_zero_p2_and_exactly_three_p3": true,
+    "review_records_both_normal_and_staged_simulation_15_of_15_ok": true,
+    "mandated_test_rerun_this_session_15_of_15_ok": true,
+    "strict_json_review_record_parsed": true,
+    "interrupted_turn_left_no_incomplete_files": "manifest directory did not exist at resume; all four outputs created fresh this session"
+  },
+  "outputs": [
+    "validation/coordination/ds-rate-budget-context-ingest-manifest-20260914-01/exact-paths.txt",
+    "validation/coordination/ds-rate-budget-context-ingest-manifest-20260914-01/review.md",
+    "validation/coordination/ds-rate-budget-context-ingest-manifest-20260914-01/review.json",
+    "validation/coordination/ds-rate-budget-context-ingest-manifest-20260914-01/SHA256SUMS"
+  ],
+  "nonclaims": [
+    "This manifest is context-only ingestion of the reviewed batch; it is not an acceptance, approval, review, or closure action.",
+    "The 2026-09-12 rate-budget snapshot remains a prior-slot historical context only; it carries no current rate-budget/G6 authority and no GitHub issue state was re-verified.",
+    "No input file was edited; nothing was staged in the real index, committed, or pushed; no protected file (docs/Prometheus.gitmodules.reference, validation/coordination/short-cycle-dispatches.json) was touched.",
+    "No native/build/MATLAB/ROS/DDS/SITL/FC/UE/model/flight work was run and #83 was not rerun.",
+    "The test re-run at the new HEAD passes because the reviewed batch pins ancestry, not HEAD equality; this does not extend the review's scope or confer any new authority."
+  ]
+}

@@ -1,0 +1,174 @@
+{
+  "artifact": "codebuddy-ds-rate-budget-independent-review-20260914-01",
+  "reviewer": "independent CodeBuddy evidence reviewer",
+  "review_date": "2026-09-14",
+  "reviewed_head": "9c581ad5b2e316904c9ef53e8543c5a6f413d6f9",
+  "reviewed_head_subject": "Bind model closure context offline",
+  "scope": [
+    "docs/coordination/ds-rate-budget-20260912.json",
+    "docs/coordination/ds-rate-budget-ingest-note-20260914.md",
+    "validation/test_ds_rate_budget_context.py"
+  ],
+  "candidate_hashes": [
+    {
+      "path": "docs/coordination/ds-rate-budget-20260912.json",
+      "sha256": "b6db16e282e670177eba0b9ce43d5b637ff0845279d8101a430a808d39681b37",
+      "size_bytes": 32100,
+      "tracked": false,
+      "edited_by_review": false
+    },
+    {
+      "path": "docs/coordination/ds-rate-budget-ingest-note-20260914.md",
+      "sha256": "13e18676833ab21783953cb63f45135f3eb24e440e8401d99d6a254b4678dd1b",
+      "size_bytes": 8751,
+      "tracked": false,
+      "edited_by_review": false
+    },
+    {
+      "path": "validation/test_ds_rate_budget_context.py",
+      "sha256": "4d9286f2606ee89373da885e9af860a0faefdd52d10e41611f049aed798969b3",
+      "size_bytes": 18512,
+      "tracked": false,
+      "edited_by_review": false
+    }
+  ],
+  "verifications": {
+    "exact_hashes_sizes": {
+      "original_json": "match (recomputed independently; equals the pin in both the ingest note section 1 and the test candidate)",
+      "ingest_note": "match (recomputed independently; equals the test pin NOTE_SHA256/NOTE_SIZE)",
+      "test_candidate": "recomputed at review time (self hash recorded above)"
+    },
+    "strict_json": "docs/coordination/ds-rate-budget-20260912.json strict-parses: duplicate keys, NaN/Infinity, and overflow (1e400) all rejected by the same predicate family the test uses; schema wksim.ds-rate-budget.v1; top-level dict",
+    "historical_and_current_tool_hashes": {
+      "f21fc3af_blob_analyzer": "c3ba9de8f4ac61d6b39750bdabed737915d85d3bee53d56fed8157237bca98b8 == JSON pin (method.per_file_sha256)",
+      "f21fc3af_blob_tail_test": "8b468bb727213339962a3f42dac05f396bb898eafce564262499000a58c4fac0 == JSON pin (module_artifacts)",
+      "75353c06_blob_analyzer": "1c43ac9c4b80f2dcc8eb52ffd9c3fe061f5cd2ef9206d839fe20e7af2f783fc7 != pin (superseded)",
+      "75353c06_blob_tail_test": "cf665b416dcd4a28e12d3c103a4741a94185b94f30e699d7039fe69c2847eb28 != pin (superseded)",
+      "HEAD_blob_analyzer": "1c43ac9c4b80f2dcc8eb52ffd9c3fe061f5cd2ef9206d839fe20e7af2f783fc7 != pin",
+      "HEAD_blob_tail_test": "cf665b416dcd4a28e12d3c103a4741a94185b94f30e699d7039fe69c2847eb28 != pin",
+      "worktree_analyzer": "1c43ac9c4b80f2dcc8eb52ffd9c3fe061f5cd2ef9206d839fe20e7af2f783fc7 == 75353c06 blob (matches note section 2.2)",
+      "worktree_tail_test": "cf665b416dcd4a28e12d3c103a4741a94185b94f30e699d7039fe69c2847eb28 == 75353c06 blob (matches note section 2.2)"
+    },
+    "commit_ancestry": {
+      "7126d4d774a33c7d4b2504b9931a93ac27d7fa51_ancestor_of_HEAD": true,
+      "f333316e6efa6b299b4288a9d91fb2bccedfb9d6_ancestor_of_HEAD": true,
+      "f21fc3affa43df22e4a10c2b47ffae8f20361230_ancestor_of_HEAD": true,
+      "75353c0600652a062491f306b584feeacb942255_ancestor_of_HEAD": true
+    },
+    "tracked_supersession_anchors": {
+      "docs/coordination/ds-7bdfxkb-diagnostic-analysis.json": "tracked at HEAD; schema wksim.ds-rate-diagnostic-analysis.v1; run_id joint-public-flight-7bdfxkb_",
+      "docs/plan/33-rate-measured-candidate-20260912.md": "tracked at HEAD; contains 1w6dru32, CLOSED, '#83 不重跑', 7bdfxkb_, '永不得充当 #83 通过证据' (recorded history only)",
+      "docs/plan/33-rate-next-diagnostic-20260912.md": "tracked at HEAD",
+      "checks_json": "validation/coordination/ds-g0-g5-frontier-20260913-01/checks/checks.json tracked at HEAD"
+    },
+    "checks_json_non_attestation_semantics": "HEAD blob of checks.json (schema wksim.ds-g0-g5-frontier-checks.v1) contains the raw untracked-status listing '?? docs/coordination/ds-rate-budget-20260912.json' exactly once and does NOT contain the bound file's SHA256 b6db16e2…81b37 anywhere: it is an untracked-status listing, not a SHA attestation, as the note section 2.4 states",
+    "note_line_drift_claims_recomputed": {
+      "joint_profile_at_7126d4d7": "rate_timing_probe rejection verified at lines 219-220 ('Formal mixed/PV evidence cannot include rate_timing_probe')",
+      "joint_profile_at_HEAD": "rejection verified at lines 274-276 with marker tuple ('rate_timing_probe', 'group_work_timing', 'perf_switch_capture')",
+      "run_joint_flight_at_7126d4d7": "P+V alternate-probe gate verified at lines 1092-1099",
+      "33c2b06e": "commit 33c2b06e8794ad865a25b307852d08d4c0845a26 'Reject perf diagnostics from formal MIXED evidence' verified; diff adds perf_switch_capture to the marker tuple; rejection scope wider than the bound JSON describes, and the diagnostic-field boundary still holds under the current gate"
+    },
+    "four_identities": {
+      "control_candidates": ["0DQQz9", "rWolCy", "ZlTVa4", "c2IXOr (the control the rolling queue currently names as frozen)"],
+      "control_candidates_distinct": true,
+      "control_manifests_distinct": true,
+      "epochs_distinct": true,
+      "identity_freeze_rule_present": true
+    },
+    "timing_and_no_cross_run_subtraction": {
+      "wall_clock_rule_present": "Only within-run monotonic values are differenced; no cross-run origin subtraction",
+      "monotonic_origins_distinct": true,
+      "provable_origin_disorder": "tpwl1k4p origin 271507270801 > 8fmacpgy origin 214814589137 although tpwl1k4p is calendar-earlier, so the four runs provably do not share one boot origin",
+      "increment_identity_recomputed": "all four recorded identities close exactly: zzmg3k47 118903+99881013+92179=100092095; tpwl1k4p 116719+99877507+44659=100038885; nqyqcagl 115025+97921130+6224284=104260439; 8fmacpgy 114791+70719737+63993754=134828282",
+      "no_causation_claimed": "the bound JSON and this review assign no root cause and no ns-level attribution beyond the exact recorded identity arithmetic"
+    },
+    "no_root_cause_boundaries": "non_attribution present: 'No exclusive CPU, AP, PX4, scheduler, or DDS root cause is assigned' and 'overlap is not causation'; extrapolation_limits forbid bomvjsmg extrapolation and merging begin_group/end_group mechanisms",
+    "meaningful_negatives_in_test": "strict parser rejects duplicate keys, NaN/Infinity/-Infinity, and 1e400 overflow; five in-memory mutants each rejected (creep perturbation, sum-string perturbation, control-identity collapse, wall-origin collapse, rate_jsonl identity detach); no repository file is modified by any mutant",
+    "descendant_and_staging_safety": {
+      "repo_root_from_dunder_file": true,
+      "current_content_read_from_symbolic_HEAD": true,
+      "no_exact_HEAD_equality_assertion": true,
+      "no_assertion_that_candidates_stay_untracked": true,
+      "test_performs_no_file_writes": true,
+      "staged_lifecycle_run": "passed with the three candidates staged in a temporary index (see test_runs.run_2)"
+    }
+  },
+  "test": {
+    "command": "python -B -m unittest validation.test_ds_rate_budget_context -v",
+    "working_directory": "wksim repo root",
+    "mode": "non-native offline unittest only"
+  },
+  "test_runs": {
+    "run_1": {
+      "configuration": "normal worktree, real index untouched",
+      "tests_run": 15,
+      "failures": 0,
+      "errors": 0,
+      "result": "OK",
+      "exit_code": 0,
+      "duration_seconds": 0.243
+    },
+    "run_2": {
+      "configuration": "temporary GIT_INDEX_FILE copied from the real index with exactly the 3 scope candidates staged (git diff --cached showed exactly those 3 paths); test executed under that GIT_INDEX_FILE",
+      "tests_run": 15,
+      "failures": 0,
+      "errors": 0,
+      "result": "OK",
+      "exit_code": 0,
+      "duration_seconds": 0.245,
+      "cleanup": "temporary index file deleted; no temp index files remain",
+      "real_index_unchanged": {
+        "before": "git ls-files -s sha256 6a44e364f1aff11b33559aaf99e317281bfb4f37f8496c16c77538f68c90d3d4, 10704 entries, 0 staged diffs",
+        "after": "git ls-files -s sha256 6a44e364f1aff11b33559aaf99e317281bfb4f37f8496c16c77538f68c90d3d4, 10704 entries, 0 staged diffs"
+      }
+    }
+  },
+  "findings": [
+    {
+      "id": "P3-1",
+      "severity": "P3",
+      "file": "validation/test_ds_rate_budget_context.py",
+      "line": 215,
+      "summary": "Dead code in test_strict_parser_rejects_duplicate_keys: the string 'text' (lines 214-215) is built but never parsed or asserted; the line-214 mutation sets complete_groups to its existing value 24665 (no-op). Only the later 'duplicated' construction (lines 217-220) is actually tested. Harmless, but the first construction adds an 'owner' key, not a duplicate, so it would not exercise the duplicate-key guard even if parsed."
+    },
+    {
+      "id": "P3-2",
+      "severity": "P3",
+      "file": "docs/coordination/ds-rate-budget-20260912.json",
+      "line": 101,
+      "summary": "The 8fmacpgy identities.control_candidate field embeds an editorial parenthetical ('(the control the rolling queue currently names as frozen)') instead of a bare identity token. Distinctness and cross-run identity separation still hold, but a bare-token field would be cleaner for automated identity matching."
+    },
+    {
+      "id": "P3-3",
+      "severity": "P3",
+      "file": "docs/coordination/ds-rate-budget-ingest-note-20260914.md",
+      "line": 14,
+      "summary": "Until this batch itself is committed, the only byte-identity pins for the two bound files live inside untracked candidate files (the note section 1 and the test constants); no tracked artifact attests them. The tracked checks.json deliberately carries no SHA (non-attestation semantics), so the pin chain is self-referential within the batch until commit. Same accepted structural property as the prior context batches."
+    }
+  ],
+  "finding_counts": {
+    "P1": 0,
+    "P2": 0,
+    "P3": 3
+  },
+  "verdict": "PASS",
+  "verdict_basis": "Zero P1 and zero P2 findings; three P3 findings only. All recomputed hashes, ancestry, anchors, identities, timing identities, and both 15-test runs agree with the candidates' claims.",
+  "claims": {
+    "approval": "none — this review grants no approval",
+    "acceptance": "none — this review is not an acceptance record for any candidate, run, or ticket",
+    "closure": "none — this review closes nothing; the '1w6dru32 / #83 CLOSED' wording in the tracked measured-candidate anchor is cited as recorded history only and its current validity is not asserted here",
+    "authority": "all 'current status / may close' judgments remain with the current authority (main agent / main session / human ruling)",
+    "scope_limit": "offline evidence-audit pass only; no live GitHub state queried; no native/build/MATLAB/ROS/DDS/SITL/FC/UE/model/flight execution; #83 not rerun"
+  },
+  "boundaries": {
+    "candidate_files_edited": false,
+    "existing_files_edited": false,
+    "real_index_staged": false,
+    "real_index_unchanged": true,
+    "temporary_index_used_and_deleted": true,
+    "staged_committed_or_pushed": false,
+    "protected_files_touched": false,
+    "protected_files_pre_existing_modifications": "docs/Prometheus.gitmodules.reference and validation/coordination/short-cycle-dispatches.json showed pre-existing worktree modifications before this review; left untouched",
+    "native_or_model_execution": "none"
+  }
+}
