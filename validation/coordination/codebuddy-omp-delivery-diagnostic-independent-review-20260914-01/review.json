@@ -1,0 +1,158 @@
+{
+  "artifact": "codebuddy-omp-delivery-diagnostic-independent-review-20260914-01",
+  "reviewer": "independent CodeBuddy evidence reviewer",
+  "review_date": "2026-09-14",
+  "reviewed_head": "1c5656ed924020b3e626e68739caeeaef9f41a9e",
+  "reviewed_head_subject": "Bind rate budget context offline",
+  "verified_at_head": "e2ecd62e914e075d0d9e40eef8ea9c034b958d2f",
+  "verified_at_head_subject": "Bind scene frontier context offline",
+  "head_relation": "verified_at_head is a descendant of reviewed_head (immediate parent, git merge-base --is-ancestor exit 0); no HEAD equality is required or asserted by this review or by the candidate test suite",
+  "resume_note": "review interrupted after verification and before writing outputs; the atomic scene-frontier commit e2ecd62e landed between turns; the output directory did not exist at resume time (no partial outputs); all three outputs written fresh; all verification facts were established at the reviewed baseline HEAD and re-asserted against the current tree by the 20/20 suite re-run (the intervening commit touched only the 10 scene-frontier files, disjoint from this batch)",
+  "intervening_commit_disjointness": {
+    "baseline_to_verified_head_count": 1,
+    "commit": "e2ecd62e914e075d0d9e40eef8ea9c034b958d2f 'Bind scene frontier context offline'",
+    "changed_paths": "exactly 10 scene-frontier files (docs/coordination/ds-scene-frontier-20260912.md, its ingest note, validation/test_ds_scene_frontier_context.py, the ds-scene-frontier independent review directory, and the ds-scene-frontier context ingest manifest directory)",
+    "overlap_with_batch_or_anchors": "none"
+  },
+  "scope": [
+    "docs/coordination/omp-delivery-gates-20260912.md",
+    "docs/coordination/omp-diagnostic-entry-20260912.md",
+    "docs/coordination/omp-delivery-diagnostic-ingest-note-20260914.md",
+    "validation/test_omp_delivery_diagnostic_context.py"
+  ],
+  "candidate_hashes": [
+    {
+      "path": "docs/coordination/omp-delivery-gates-20260912.md",
+      "sha256": "df438b44ad94940990d84a6e39504df8327e24b8e0c0a914710417c61104ac21",
+      "size_bytes": 4010,
+      "tracked": false,
+      "edited_by_review": false
+    },
+    {
+      "path": "docs/coordination/omp-diagnostic-entry-20260912.md",
+      "sha256": "73bbc35f0db45ee1b3d9925f7ea5bbfff05c5513ce002e078ea10446b065fe0b",
+      "size_bytes": 7530,
+      "tracked": false,
+      "edited_by_review": false
+    },
+    {
+      "path": "docs/coordination/omp-delivery-diagnostic-ingest-note-20260914.md",
+      "sha256": "ba21365683e7b5c3661fc448247a075780b2d64f26461a372b21497105ffa653",
+      "size_bytes": 13251,
+      "tracked": false,
+      "edited_by_review": false
+    },
+    {
+      "path": "validation/test_omp_delivery_diagnostic_context.py",
+      "sha256": "67d3e642e26f8df046133d490e5c121210ed304520e9272bbf44fc7d882f646f",
+      "size_bytes": 19991,
+      "tracked": false,
+      "edited_by_review": false
+    }
+  ],
+  "verifications": {
+    "recomputed_hashes_sizes": "all four candidates recomputed at both the reviewed HEAD and the verified-at HEAD; identical to the task-stated values and to the note's section 1 / test pins",
+    "tracked_anchors": "all 13 paths referenced by the two bound docs are tracked and present: tools/audit_pv_trajectory.py, tools/run_joint_flight.py, tools/run-joint-flight.sh, tools/audit_26_closure_readiness.py, tools/audit_joint_rate.py, validation/test_delivery_entry_contract.py, validation/20-rate-candidate-profile/check-delivery.py, Simulator/wksim_core/joint.py, Simulator/wksim_runtime/joint_rate_probe.py, docs/plan/26-closure-readiness-manifest.json, docs/plan/33-final-combo-rate-candidate.md, docs/plan/39-planner-run-contract.md, docs/coordination/omp-83-freeze-check-20260912.md",
+    "hash_identities": {
+      "Simulator/wksim_core/joint.py": "f5433c2ec7e81794ffcfab26dce0feff18d4e1affdfb44f895a72e4ce0241d50 (recomputed, matches note 2.2)",
+      "Simulator/wksim_runtime/joint_rate_probe.py": "a8bac9ac84ba9960296bb6b43d6d39c6bbc17fa9fdc47adf7e05ce76d7066653 (recomputed)",
+      "docs/plan/33-final-combo-rate-candidate.md": "6f0e764ad3961ee9441ef9715ca4d95466e6f7e3aeb5fd9ee5a158ae0dd942cd current (historical reading 9516a2cd registered as drifted, last touched 941d5843 2026-09-13)"
+    },
+    "note_section_2_2_content_anchors": "all verified in-tree, including joint.py:54 literal CPU-timing read, probe three-state gate at joint_rate_probe.py:25-30 (unset/0 -> off, 1 -> on, other -> raise), runner PV/MIXED hard gates at :424-427, '--'+name loop, candidate_environment(control, messages=None) at :161, reset_on_fork, add_timing_probe_identity at :864, async-model-evidence CLI :1183, audit_joint_rate.py:36 rate_timing_probe fail-closed, check-delivery.py instrumentation-refused + WKSIM_JOINT_CPU_TIMING=1, shell overlays MUlZd0/FVMjak, and the identity table source docs/plan/39-planner-run-contract.md (fhuf05l9/c2IXOr/Rzj3Pf + three FINAL SHAs)",
+    "five_stale_facts_registered_and_verified": {
+      "1_final_control_fork_superseded": "git log -S '3d04d53a' -- tools/ap_mixed_candidate.py yields exactly 0769c3a0 and 941d5843; current file contains no 3d04d53a; FINAL pins 1e6250ef/6fe8c0b3/29969da0 present",
+      "2_ds_a_fixed_ds_d_open": "'refusing to overwrite retained evidence' present in tools/audit_pv_trajectory.py (within :881-896) and tools/audit_planner_release.py (within :353-359); absent from tools/audit_26_closure_readiness.py which still has an unprotected .write_text( at :1745; CLI now :1739-1740",
+      "3_plan33_hash_drift": "9516a2cd historical reading vs 6f0e764a current, last touch 941d5843 (2026-09-13)",
+      "4_runner_line_drift": "c3d4916f (2026-09-13) shifted runner line numbers; content/symbol/SHA anchors used as seams, line numbers registered as 2026-09-12 historical readings only",
+      "5_secondary_line_drifts": "audit_joint_rate.py gate now :36; audit_26 CLI now :1739-1740; all within the note's registered ranges"
+    },
+    "p2_provenance_caveat": "note section 4 verified: validation/test_delivery_entry_contract.py first entered tracking at d5954380 (2026-09-14, 20 test defs), current tracked head 982336cd (21 test defs), worktree 21; git history contains no 2026-09-12 revision; the gates doc's '9 tests, Windows/WSL dual-platform passed' claim is therefore demoted to a recorded historical execution statement that this checkout cannot prove offline; current tracked state is 21 tests",
+    "external_boundaries": "note section 5 correctly scopes the Linux experimental area (/root/wksim-release-acceptance-fe3 and the fhuf05l9/c2IXOr/Rzj3Pf/MUlZd0/FVMjak candidate and overlay paths), the 69-line main/experimental runner drift, --planner-release-proof interaction, and PX4 candidate pairs as outside this checkout and offline-unverifiable (recorded as claims only); main-workspace-side hashes independently recomputed; raw/live roots untouched; no value fabricated for PX4",
+    "staging_and_fresh_clone_safety": "test resolves paths from __file__, asserts ancestry for symbolic HEAD only (f333316e, 76f77470, 1c5656ed), never requires HEAD equality, never asserts candidates stay untracked, performs no writes, and runs its git calls with cwd=REPO_ROOT; the exact-4-candidates staged temp-index run passed (see test_runs.run_2)",
+    "mutation_coverage": "hash drift and size drift (both directions, all three bound files), missing tracked anchor, bogus ancestry, missing current literal, and five promotion-wording mutants are each rejected in-memory with real-value sanity passes; no repository file is modified by any mutant",
+    "non_authority_wording": "note section 0 disclaims acceptance/approval/closure/rerun-permission for #83 (and #9/#26/#29/#62/#102); section 7 separates reusable historical context from non-reusable authority; barriers preserved verbatim (.5x/100ms/1ms runner-built constants with no CLI parameter; CPU-timing out of result.json; rate_timing_probe diagnostic identity never acceptance evidence; single-run monotonic differencing, no cross-run subtraction, no catch-up/backfill, full-window begin/end closure without overlapping sums; identity gates and physics gates; historical failures 7bdfxkb_/manager99 and 1w6dru32 CLOSED cited as recorded history only); diagnostic-entry doc's '诊断场永不得充当验收场' and the '0DQQz9/OEvS3W 仅历史身份' constraint are present in the bound bytes",
+    "issue_83": "not rerun; no rerun permission claimed or implied anywhere in the batch"
+  },
+  "test": {
+    "command": "python -B -m unittest validation.test_omp_delivery_diagnostic_context -v",
+    "working_directory": "wksim repo root",
+    "mode": "non-native offline unittest only",
+    "tests_defined": 20
+  },
+  "test_runs": {
+    "run_1": {
+      "configuration": "normal worktree at verified-at HEAD e2ecd62e, real index untouched",
+      "tests_run": 20,
+      "failures": 0,
+      "errors": 0,
+      "result": "OK",
+      "exit_code": 0,
+      "duration_seconds": 0.448
+    },
+    "run_2": {
+      "configuration": "temporary GIT_INDEX_FILE copied from the real index with exactly the 4 scope candidates staged (git diff --cached showed exactly those 4 paths); suite executed under that index at e2ecd62e",
+      "tests_run": 20,
+      "failures": 0,
+      "errors": 0,
+      "result": "OK",
+      "exit_code": 0,
+      "duration_seconds": 0.462,
+      "cleanup": "temporary index file deleted; no temp index files remain",
+      "real_index_unchanged": {
+        "before": "git ls-files -s sha256 c90e0265fe89d5fb2db93b9ce070e92610fa79496f5d62cf3c3ff0917d98d556, 0 staged diffs",
+        "after": "git ls-files -s sha256 c90e0265fe89d5fb2db93b9ce070e92610fa79496f5d62cf3c3ff0917d98d556, 0 staged diffs"
+      }
+    },
+    "baseline_prior_session_runs": {
+      "note": "the interrupted pre-write session ran the same suite at the reviewed baseline HEAD 1c5656ed with identical outcomes (20/20 OK normal 1.051s; 20/20 OK staged 0.951s); recorded here as continuity evidence, superseded as the review record by the runs above"
+    }
+  },
+  "findings": [
+    {
+      "id": "P3-1",
+      "severity": "P3",
+      "file": "validation/test_omp_delivery_diagnostic_context.py",
+      "line": 203,
+      "summary": "Vacuous self-guard: assertNotIn('rev-parse', 'require_ancestor uses merge-base only') inspects a constant string literal and can never fail, so the 'suite must not pin HEAD' design constraint is documented but not actually enforced by this assertion. The constraint itself genuinely holds (require_ancestor uses merge-base --is-ancestor only), so no masking risk."
+    },
+    {
+      "id": "P3-2",
+      "severity": "P3",
+      "file": "validation/test_omp_delivery_diagnostic_context.py",
+      "line": 235,
+      "summary": "test_current_hash_identities pins current bytes of three tracked files (docs/plan/33-final-combo-rate-candidate.md, Simulator/wksim_core/joint.py, Simulator/wksim_runtime/joint_rate_probe.py). Any legitimate future edit to those files breaks the suite until the note is re-registered. This is intended tamper-evidence consistent with prior context batches, but it is a maintenance seam, not an ancestry-only invariant."
+    },
+    {
+      "id": "P3-3",
+      "severity": "P3",
+      "file": "docs/coordination/omp-delivery-diagnostic-ingest-note-20260914.md",
+      "line": 54,
+      "summary": "The P2 provenance caveat is correctly recorded, but its demotion must travel with every future citation: the gates doc's '9 tests, Windows/WSL dual-platform passed' remains a recorded historical execution statement that no offline checkout can prove; only the tracked 20->21 test history (d5954380 2026-09-14 -> 982336cd) is checkable. Later references citing the 9-test claim as verified fact would regress this registration."
+    }
+  ],
+  "finding_counts": {
+    "P1": 0,
+    "P2": 0,
+    "P3": 3
+  },
+  "verdict": "PASS",
+  "verdict_basis": "Zero P1 and zero P2 findings; three P3 findings only. All recomputed hashes, tracked anchors, content seams, five stale-fact registrations, the P2 provenance caveat, external boundaries, and both 20-test runs agree with the candidates' claims at both the reviewed baseline and the verified-at descendant HEAD.",
+  "claims": {
+    "approval": "none — this review grants no approval",
+    "acceptance": "none — this review is not an acceptance record for any candidate, ticket, or condition",
+    "closure": "none — this review closes nothing",
+    "issue_83": "not rerun; no rerun permission claimed; diagnostic fields remain permanently non-acceptance evidence",
+    "authority": "all 'current status / may accept / may close' judgments remain with the current authority (main agent / main session / human ruling)",
+    "scope_limit": "offline evidence-audit pass only; no live GitHub state queried or mutated; no native/build/MATLAB/ROS/DDS/SITL/FC/UE/model/flight execution"
+  },
+  "boundaries": {
+    "candidate_or_existing_files_edited": false,
+    "real_index_staged": false,
+    "real_index_unchanged": true,
+    "temporary_index_used_and_deleted": true,
+    "staged_committed_or_pushed": false,
+    "protected_files_touched": false,
+    "github_queried_or_mutated": false,
+    "native_or_model_execution": "none"
+  }
+}
