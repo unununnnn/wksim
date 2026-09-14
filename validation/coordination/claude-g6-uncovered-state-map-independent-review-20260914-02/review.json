@@ -1,0 +1,126 @@
+{
+  "review": "claude-g6-uncovered-state-map-independent-review-20260914-02",
+  "review_date": "2026-09-15",
+  "candidate_date": "2026-09-14",
+  "reviewer": "independent final re-reviewer (read-only on candidates)",
+  "prior_review": "claude-g6-uncovered-state-map-independent-review-20260914-01",
+  "repo_head_at_review": "0b10f786e808eebe7698e9a277766bf2f68a4d35",
+  "repo_branch_at_review": "main",
+  "ancestry_checks": {
+    "f333316e6efa6b299b4288a9d91fb2bccedfb9d6": {"command": "git merge-base --is-ancestor f333316e6efa6b299b4288a9d91fb2bccedfb9d6 HEAD", "exit_code": 0, "passed": true},
+    "ee6eb88819cefe255f22e788c39a77c0bbab490e": {"command": "git merge-base --is-ancestor ee6eb88819cefe255f22e788c39a77c0bbab490e HEAD", "exit_code": 0, "passed": true, "note": "map-recorded frozen anchor; strict ancestor of HEAD"}
+  },
+  "candidates": [
+    {"path": "tools/map_g6_uncovered_states.py", "expected_sha256": "d204fcd3563599bc1afb50f15a49636ca17a6cbb5544261428e6f6df863513a0", "observed_sha256": "d204fcd3563599bc1afb50f15a49636ca17a6cbb5544261428e6f6df863513a0", "expected_size_bytes": 65196, "observed_size_bytes": 65196, "hash_match": true, "git_status_at_review": "untracked"},
+    {"path": "validation/g6-uncovered-state-map-20260914.json", "expected_sha256": "19fc85f32c040218896e6d3a3785074f6e782756b00849d519bcb68bf61cb468", "observed_sha256": "19fc85f32c040218896e6d3a3785074f6e782756b00849d519bcb68bf61cb468", "expected_size_bytes": 99845, "observed_size_bytes": 99845, "hash_match": true, "git_status_at_review": "untracked"},
+    {"path": "validation/test_map_g6_uncovered_states.py", "expected_sha256": "955fbfa742119c172f067e9f93164e8c1d9f0499dc5d14d9e54ab105807389f1", "observed_sha256": "955fbfa742119c172f067e9f93164e8c1d9f0499dc5d14d9e54ab105807389f1", "expected_size_bytes": 40622, "observed_size_bytes": 40622, "hash_match": true, "git_status_at_review": "untracked"},
+    {"path": "docs/plan/59-g6-uncovered-state-map-20260914.md", "expected_sha256": "67beeb7c12daa43cfb948667801de17dd8041e32901081d202c12ff3b2264297", "observed_sha256": "67beeb7c12daa43cfb948667801de17dd8041e32901081d202c12ff3b2264297", "expected_size_bytes": 8074, "observed_size_bytes": 8074, "hash_match": true, "git_status_at_review": "untracked"}
+  ],
+  "independent_rederivation": {
+    "trace_stage2_pqr_deriv_hex": "verified - first-step-trace.jsonl ode4_stage stage 2 deriv_hex length 36; deriv_hex[10:13] = [3c47b1ebce4a1e30, bc56d4db33a987b9, 36f8ccceed35d6fd] (p,q,r); matches index_map[11].output_encoding.hex_stage2 exactly",
+    "covered_13_indices_6_18": "verified - comparison-v2 target_indices [6,9]/[10,12]/[13,15]/[16,18] = contiguous 6..18 (13 indices)",
+    "uncovered_23_indices_0_5_19_35": "verified - complement of 6..18 over 0..35",
+    "divergence_pair": "verified - comparison-v2 p,q,r stage2 index1: reference bc56d4db33a987b8 vs target bc56d4db33a987b9 (1 ULP); matches divergence_pair and mrdivide_output_evidence",
+    "builder_state_layout": "verified - tools/build_first_step_trace.py STATE_LAYOUT: 19..24 IntegratorSecondOrderLimited__n, 25..27 TransferFcn4/1/2_CSTATE, 28..35 MotorNonlinearDynamic8..1 .x",
+    "requirement_text_line36": "verified - g6-pqr-derivative-path-20260913.md:36 assigns 19-27 to TransferFcn and 28-35 to MotorNonlinearDynamic; the 19..24 boundary conflict with the builder layout is real"
+  },
+  "prior_blocker_closure": {
+    "F1_output_encoding_hex_stage2": {"status": "CLOSED", "evidence": "committed hex_stage2 = [3c47b1ebce4a1e30, bc56d4db33a987b9, 36f8ccceed35d6fd] matches pinned trace deriv_hex[10:13]; note says transcribed from trace, no comparator-checked claim; validator binds hex_stage2 to the constant AND to a live re-read of the trace"},
+    "F2_head_provenance": {"status": "CLOSED", "evidence": "frozen anchor ee6eb888 replaces stale recorded head; no head key; anchor_policy.observed_head_embedded=false; anchor ancestor of HEAD exit 0; anchor..HEAD evidence diff empty (re-run live); HEAD literal 0b10f786 not embedded (grep 0); suite green both modes; non-ancestor/unavailable/overlap fail closed by independent monkeypatch"},
+    "F3_validation_blind_spots": {"status": "CLOSED", "evidence": "validate() now binds output_encoding, hex_stage2, mrdivide_output_evidence, top-level line_bindings and doc_refs; independent reviewer mutations (not shipped tests) all fail closed with the expected codes"},
+    "F4_symbol_conflict_scope": {"status": "CLOSED", "evidence": "symbol_conflicts and unresolved scope = indices 19..35; indices 19..24 = conflicted_requires_archive_input (not resolved TransferFcn); builder STATE_LAYOUT vs requirement-text boundary disagreement exposed; no per-index-order mischaracterization (grep 0)"},
+    "F5_dead_mislabeled_data": {"status": "CLOSED", "evidence": "SYM_TABLE reduced to 3-element tuples (dead source/exact_binding removed); first_step_mapping renamed first_step_timeline; covered symbol_note attributes flat placement to comparison-v2 target_indices and only says the probe registers listeners on named integrators"},
+    "F6_minor_wording": {"status": "NO_NEW_CONCERN", "evidence": "entry_classes.mrdivide_output_indices=[10,11,12] persists but is framed as the solve-result vector span Product2[0..2], with per-index encoding evidence only on index 11; not a blocker"}
+  },
+  "totals_and_nonclosure": {
+    "total_states": 36, "covered_states": 13, "uncovered_states": 23,
+    "covered_block": [6, 18], "uncovered_blocks": "0..5 and 19..35",
+    "open_items": {"issue_84": "open", "g6": "open", "full": "open"},
+    "r1_status": "numerical_failed",
+    "g6_acceptance": false, "physical_accuracy": false, "issues_closed": false,
+    "budget_approved": false, "effective": false, "authority": "none", "pending_approvals": [],
+    "no_budget_or_physical_acceptance": true
+  },
+  "independent_fail_closed_checks": {
+    "harness": "reviewer-authored (own mutations, validate() called directly; _git_text monkeypatched for anchor cases) - not the shipped tests",
+    "f3_mutations": {
+      "delete_hex_stage2": ["output_encoding_hex_value"],
+      "corrupt_hex_stage2": ["output_encoding_hex_value", "output_encoding_hex_mismatch"],
+      "delete_output_encoding": ["output_encoding_missing"],
+      "delete_mrdivide_output_evidence": ["mrdivide_output_evidence_missing"],
+      "corrupt_mrdivide_output_evidence": ["mrdivide_output_evidence_content", "mrdivide_output_evidence_hex"],
+      "corrupt_top_line_bindings_text": ["line_bindings_mismatch"],
+      "drop_top_line_bindings_entry": ["line_bindings_keys_mismatch", "line_bindings_mismatch"],
+      "delete_top_line_bindings_key": ["missing_key"],
+      "corrupt_doc_refs": ["doc_refs_mismatch"],
+      "delete_doc_refs_key": ["missing_key"]
+    },
+    "f2_anchor_conditions": {
+      "non_ancestor": ["anchor_not_ancestor"],
+      "unavailable_probe": ["anchor_not_ancestor", "evidence_drift_unverifiable", "base_ancestor_not_ancestor", "pin_tracked_flag_mismatch"],
+      "overlap_evidence_drift": ["evidence_drift"]
+    },
+    "baseline_unmutated_ok": true
+  },
+  "test_execution": [
+    {
+      "mode": "normal (untracked)",
+      "command": "python -B -m unittest validation.test_map_g6_uncovered_states -v",
+      "tests_run": 27, "tests_passed": 26, "skipped": 1, "failures": 0,
+      "skipped_test": "test_exact4_staging_binds_the_same_bytes (only meaningful under repo-external GIT_INDEX_FILE)",
+      "result": "OK"
+    },
+    {
+      "mode": "repo-external temporary index with exactly the four candidates",
+      "command": "GIT_INDEX_FILE=<tmp>/index; git read-tree --empty; git add -f <four candidates>; python -B -m unittest validation.test_map_g6_uncovered_states",
+      "temp_index_entries": 4,
+      "temp_index_blobs": {
+        "docs/plan/59-g6-uncovered-state-map-20260914.md": "44b08f41b5e12da9c51bdef64c3e2df93411b485",
+        "tools/map_g6_uncovered_states.py": "89c275458f30da81cad9d9abeabf42a97e059f56",
+        "validation/g6-uncovered-state-map-20260914.json": "d6a2f68ed7476909a3c0b2a53aa655605bb6033b",
+        "validation/test_map_g6_uncovered_states.py": "fff9293e3f8ef17557605eda4ac830997760e2f9"
+      },
+      "staging_fidelity": "each staged blob SHA1 equals git hash-object of the on-disk file (mode 100644, stage 0, core.autocrlf=false); exact path/status/blob equality",
+      "real_index_untouched": true,
+      "real_index_sha256_before": "cf249890d18567a9f62173ff1e8ac717362fe531ecea02a545a72ee185319a32",
+      "real_index_sha256_after": "cf249890d18567a9f62173ff1e8ac717362fe531ecea02a545a72ee185319a32",
+      "head_preserved": "0b10f786e808eebe7698e9a277766bf2f68a4d35",
+      "tests_run": 27, "tests_passed": 27, "skipped": 0, "failures": 0,
+      "result": "OK"
+    }
+  ],
+  "cli_and_determinism": {
+    "validate_command": "python -B tools/map_g6_uncovered_states.py --repo-root . --validate",
+    "validate_result": {"ok": true, "codes": [], "errors": []},
+    "validate_exit_code": 0,
+    "regeneration_byte_identical": true,
+    "regenerated_sha256": "19fc85f32c040218896e6d3a3785074f6e782756b00849d519bcb68bf61cb468",
+    "regenerated_size": 99845,
+    "line_endings": "LF-only, single trailing LF",
+    "candidate_drift": "none - all four hashes/sizes recomputed and match pinned values; files remain untracked",
+    "untracked_provenance_cpp": {"path": "work/quad-parameters-source-review-20260909/Exp1_MinModelTemp.cpp", "sha256": "a35d7c8f39c94f2db8c27b19affee5b66c1b001c63ded334ba83c99f8be54019", "size": 324922, "matches_expected": true, "never_decides_claims": true}
+  },
+  "verdict": "GO",
+  "verdict_scope": [
+    "tools/map_g6_uncovered_states.py",
+    "validation/g6-uncovered-state-map-20260914.json",
+    "validation/test_map_g6_uncovered_states.py",
+    "docs/plan/59-g6-uncovered-state-map-20260914.md"
+  ],
+  "verdict_rationale": "all prior blockers closed: F1 hex_stage2 matches the pinned trace and is trace-bound with no comparator-checked claim; F2 frozen-anchor provenance replaces the stale/self-defeating head, HEAD is observational only, non-ancestor/unavailable/overlap fail closed, and the suite is green in both modes; F3 evidence-field blind spots are now bound (proven by independent mutation); F4 conflict scope is exactly 19..35 with 19..24 conflicted and the builder-vs-requirement boundary disagreement exposed; F5 cleanup honest; totals 36/13/23 and #84/G6/Full non-closure with r1_status=numerical_failed preserved exactly; no budget or physical-accuracy acceptance; --validate clean; regeneration byte-identical; real index/HEAD untouched",
+  "nonclosure_statement": "this review keeps #84, G6 and Full open and changes nothing about r1_status=numerical_failed",
+  "scope_compliance": {
+    "candidates_edited": false,
+    "staged_to_real_index": false,
+    "committed_or_pushed": false,
+    "issue_83_run": false,
+    "matlab_native_ros_dds_unreal_sitl_flight_build_run": false,
+    "solve_form_and_time_field_manifests_touched": false,
+    "protected_files_touched": false,
+    "writes_limited_to": [
+      "validation/coordination/claude-g6-uncovered-state-map-independent-review-20260914-02/review.md",
+      "validation/coordination/claude-g6-uncovered-state-map-independent-review-20260914-02/review.json",
+      "validation/coordination/claude-g6-uncovered-state-map-independent-review-20260914-02/SHA256SUMS"
+    ]
+  }
+}

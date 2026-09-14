@@ -1,0 +1,130 @@
+{
+  "schema": "wksim.ingest-manifest.v1",
+  "manifested_at": "2026-09-15",
+  "owner": "claude-ingest-manifest/main-session-resume-after-upstream-403",
+  "manifested_head": "0b10f786e808eebe7698e9a277766bf2f68a4d35",
+  "scope": "context-only",
+  "acceptance": "non-acceptance",
+  "batch": "g6-uncovered-state-map-remediated",
+  "exact_paths_count": 11,
+  "exact_paths_sha256": "a4fb0d90eb8d47dea103c4d715270a456bc9e0b1bd32cae92ab1c2cf9dd36b12",
+  "exact_paths_bytes": 837,
+  "baseline_relations": {
+    "architecture_anchor": "f333316e6efa6b299b4288a9d91fb2bccedfb9d6",
+    "map_freeze_anchor": "ee6eb88819cefe255f22e788c39a77c0bbab490e",
+    "architecture_anchor_is_ancestor": true,
+    "map_freeze_anchor_is_ancestor": true,
+    "pinned_evidence_paths_unchanged": true,
+    "intervening_paths_disjoint_from_batch": true,
+    "head_equality_required": false,
+    "observed_head_only": true
+  },
+  "inputs": [
+    {
+      "path": "tools/map_g6_uncovered_states.py",
+      "role": "deterministic_offline_generator",
+      "sha256": "d204fcd3563599bc1afb50f15a49636ca17a6cbb5544261428e6f6df863513a0",
+      "size_bytes": 65196
+    },
+    {
+      "path": "validation/g6-uncovered-state-map-20260914.json",
+      "role": "machine_readable_state_map",
+      "sha256": "19fc85f32c040218896e6d3a3785074f6e782756b00849d519bcb68bf61cb468",
+      "size_bytes": 99845
+    },
+    {
+      "path": "validation/test_map_g6_uncovered_states.py",
+      "role": "offline_contract_test",
+      "sha256": "955fbfa742119c172f067e9f93164e8c1d9f0499dc5d14d9e54ab105807389f1",
+      "size_bytes": 40622
+    },
+    {
+      "path": "docs/plan/59-g6-uncovered-state-map-20260914.md",
+      "role": "paired_plan",
+      "sha256": "67beeb7c12daa43cfb948667801de17dd8041e32901081d202c12ff3b2264297",
+      "size_bytes": 8074
+    },
+    {
+      "path": "validation/coordination/claude-g6-uncovered-state-map-independent-review-20260914-02/review.md",
+      "role": "independent_review_report",
+      "sha256": "cebea0d2af26e06554971c2e2f1ea92f811c850337eebbf4eb8658b0e32c1c4c",
+      "size_bytes": 12216
+    },
+    {
+      "path": "validation/coordination/claude-g6-uncovered-state-map-independent-review-20260914-02/review.json",
+      "role": "independent_review_record",
+      "sha256": "9051b847db0a85ac9214c779af558829fc9d48d58645f7e5cdefb9e9157b48c6",
+      "size_bytes": 11303
+    },
+    {
+      "path": "validation/coordination/claude-g6-uncovered-state-map-independent-review-20260914-02/SHA256SUMS",
+      "role": "independent_review_checksum_manifest",
+      "sha256": "ad2d98104582075b2d43cccfc72f23aa22471b7b35532b51f8b3f23d87692845",
+      "size_bytes": 154
+    }
+  ],
+  "review_facts": {
+    "verdict": "GO",
+    "prior_findings_closed": ["F1", "F2", "F3", "F4", "F5"],
+    "total_states": 36,
+    "covered_indices": "6..18",
+    "covered_count": 13,
+    "uncovered_indices": "0..5 and 19..35",
+    "uncovered_count": 23,
+    "conflict_scope": "19..35",
+    "r1_status": "numerical_failed",
+    "verdict_is_issue_acceptance": false
+  },
+  "test_facts": {
+    "mode_a_run_by_manifest_writer": {
+      "command": "python -B -m unittest validation.test_map_g6_uncovered_states",
+      "tests": 27,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1,
+      "result": "OK"
+    },
+    "cli_validate_run_by_manifest_writer": {
+      "command": "python -B tools/map_g6_uncovered_states.py --repo-root . --validate",
+      "result": "ok"
+    },
+    "deterministic_regeneration": {
+      "byte_identical": true,
+      "sha256": "19fc85f32c040218896e6d3a3785074f6e782756b00849d519bcb68bf61cb468",
+      "size_bytes": 99845
+    },
+    "mode_b_carried_from_independent_review": {
+      "attributed_to": "claude-g6-uncovered-state-map-independent-review-20260914-02",
+      "tests": 27,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "result": "OK",
+      "exact_candidate_count": 4
+    },
+    "exact_11_read_tree_head_admission": {
+      "paths_added": 11,
+      "paths_removed": 0,
+      "all_stage_zero": true,
+      "all_staged_blobs_match_worktree": true,
+      "real_index_unchanged": true,
+      "head_unchanged": true
+    },
+    "batch_scoped_diff_check": "clean",
+    "full_tree_diff_check": "only pre-existing trailing whitespace in protected docs/Prometheus.gitmodules.reference"
+  },
+  "outputs": [
+    "validation/coordination/claude-g6-uncovered-state-map-ingest-manifest-20260915-01/exact-paths.txt",
+    "validation/coordination/claude-g6-uncovered-state-map-ingest-manifest-20260915-01/review.md",
+    "validation/coordination/claude-g6-uncovered-state-map-ingest-manifest-20260915-01/review.json",
+    "validation/coordination/claude-g6-uncovered-state-map-ingest-manifest-20260915-01/SHA256SUMS"
+  ],
+  "sha256sums_coverage": "exact-paths.txt, review.md, review.json only; SHA256SUMS does not self-reference",
+  "nonclaims": [
+    "This exact-path manifest admits an offline state-map/tool evidence batch only.",
+    "It does not approve per-quantity budgets or physical accuracy.",
+    "It does not close issue #84, G6, Full, or any other issue.",
+    "It contains no native, model, MATLAB, ROS, flight-controller, Unreal, build, or flight result."
+  ],
+  "resume_note": "Claude Code completed the manifest checks and review.md, then its upstream quota returned HTTP 403 before review.json/SHA256SUMS were written. The main session wrote these two files from the already verified facts and rechecked hashes, JSON parsing, checksums, exact staging, index identity, and HEAD identity."
+}

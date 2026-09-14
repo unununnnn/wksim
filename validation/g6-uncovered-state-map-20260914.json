@@ -1,0 +1,1771 @@
+{
+  "schema": "wksim.59-g6-uncovered-state-map.v1",
+  "kind": "g6_uncovered_state_map",
+  "version": 1,
+  "date": "2026-09-14",
+  "issue": "#59",
+  "title": "G6 36-state offline coverage map (tracked evidence only)",
+  "work_class": "new-development",
+  "layer": "evidence_inventory",
+  "authority": "none",
+  "effective": false,
+  "generator": "tools/map_g6_uncovered_states.py",
+  "generator_command": "python -B tools/map_g6_uncovered_states.py --repo-root . --out validation/g6-uncovered-state-map-20260914.json",
+  "anchor": "ee6eb88819cefe255f22e788c39a77c0bbab490e",
+  "base_ancestor": "f333316e6efa6b299b4288a9d91fb2bccedfb9d6",
+  "anchor_policy": {
+    "anchor": "ee6eb88819cefe255f22e788c39a77c0bbab490e",
+    "anchor_is_ancestor_of_head_required": true,
+    "pinned_evidence_unchanged_since_anchor": true,
+    "observed_head_embedded": false,
+    "note": "the map is pinned to the frozen anchor tree; the live HEAD is observed only to prove the anchor is still an ancestor of it and that no pinned-evidence path changed in anchor..HEAD, and the observed HEAD is never recorded"
+  },
+  "r1_status": "numerical_failed",
+  "g6_acceptance": false,
+  "physical_accuracy": false,
+  "issues_closed": false,
+  "budget_approved": false,
+  "pending_approvals": [],
+  "open_items": [
+    {
+      "id": "issue_84",
+      "state": "open"
+    },
+    {
+      "id": "g6",
+      "state": "open"
+    },
+    {
+      "id": "full",
+      "state": "open"
+    }
+  ],
+  "identity": {
+    "model": "Exp1_MinModelTemp",
+    "case": "C3G",
+    "solver": "ode4",
+    "fixed_step_s": 0.001,
+    "stop_time_s": 0.001,
+    "nXc": 36,
+    "flat_index_domain": [
+      0,
+      35
+    ]
+  },
+  "counts": {
+    "total_states": 36,
+    "covered_states": 13,
+    "uncovered_states": 23,
+    "covered_block": [
+      6,
+      18
+    ],
+    "covered_indices": [
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18
+    ],
+    "uncovered_indices": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35
+    ]
+  },
+  "evidence_policy": {
+    "tracked_evidence_only": true,
+    "requires_tracked_at_anchor": [
+      "agents",
+      "comparison_v2",
+      "first_divergence_doc",
+      "first_step_static_doc",
+      "first_step_trace_doc",
+      "pqr_derivative_path_doc",
+      "reference_block_map",
+      "reference_run03",
+      "source_index",
+      "target_first_step_trace"
+    ],
+    "untracked_inputs_never_decide_claims": true,
+    "frozen_archive_required": true,
+    "archive": {
+      "path": "/mnt/e/rflysimtools/RflySimAPIs/4.RflySimModel/1.BasicExps/e0_MinModelTemp/MulticopterModel.zip",
+      "sha256": "d528b5d247e13d943f1eaa7a37fd3cb4d15c7e9bb7a6b0e5988a1423e59d05ed",
+      "cpp_member": "e0_MinModelTemp/Exp1_MinModelTemp_ert_rtw/Exp1_MinModelTemp.cpp",
+      "header_member": "e0_MinModelTemp/Exp1_MinModelTemp_ert_rtw/Exp1_MinModelTemp.h",
+      "original_cpp_sha256": "a35d7c8f39c94f2db8c27b19affee5b66c1b001c63ded334ba83c99f8be54019",
+      "required_for": [
+        "authoritative flat-index -> state-name layout from the generated header",
+        "authoritative per-flat-index source-line mapping",
+        "resolution of the TransferFcn and MotorNonlinearDynamic symbol-order conflict"
+      ]
+    }
+  },
+  "pins": {
+    "agents": {
+      "path": "AGENTS.md",
+      "tracked_at_anchor": true,
+      "sha256": "144d5157d37e90412840cb38b728581d66293f178a4645c93d3778447f4edac8",
+      "size": 5234
+    },
+    "comparison_v2": {
+      "path": "validation/coordination/g6-target-first-step-20260913/comparison-v2.json",
+      "tracked_at_anchor": true,
+      "sha256": "2a6b8fe9338224d64f0cc91fd4c66139b3422ca23c3032049cd529d6387ea3c9",
+      "size": 3477
+    },
+    "first_divergence_doc": {
+      "path": "docs/coordination/g6-first-divergence-20260913.md",
+      "tracked_at_anchor": true,
+      "sha256": "ed243ca5e53184f0848aa02a27e7bfc81b99b1a14b0118e33c59be7eddae6fd5",
+      "size": 8780
+    },
+    "first_step_static_doc": {
+      "path": "docs/coordination/g6-first-step-static-20260913.md",
+      "tracked_at_anchor": true,
+      "sha256": "3b0de9813da47afa5ad889c2ba10bdd56fe5d29914cce227615fc0eab42eaeef",
+      "size": 13547
+    },
+    "first_step_trace_doc": {
+      "path": "docs/coordination/g6-first-step-trace-20260913.md",
+      "tracked_at_anchor": true,
+      "sha256": "082f6f531f590ffe0bed0e32f97f1d390017f3bee101b88abb6f569243062904",
+      "size": 4933
+    },
+    "pqr_derivative_path_doc": {
+      "path": "docs/coordination/g6-pqr-derivative-path-20260913.md",
+      "tracked_at_anchor": true,
+      "sha256": "bd90a40bde4d9206269e364644c7858f49da45838688b7073ca4b8fa73e25d0d",
+      "size": 6530
+    },
+    "reference_block_map": {
+      "path": "validation/coordination/g6-reference-probe-20260913/block-map.json",
+      "tracked_at_anchor": true,
+      "sha256": "f12ef4603ae4740ed8ea9cd87f381dbaeab09e206fbca49fc3dc75020d739357",
+      "size": 3819
+    },
+    "reference_run03": {
+      "path": "validation/coordination/g6-reference-probe-20260913/run-03/reference-first-step.json",
+      "tracked_at_anchor": true,
+      "sha256": "99fc1ec84a110bea1e5998a97b4f9c66231966474268ba74bfc343b584e03f85",
+      "size": 73758
+    },
+    "source_index": {
+      "path": "validation/coordination/g6-first-step-static-20260913/source-index.json",
+      "tracked_at_anchor": true,
+      "sha256": "e852aa6b3f0a2cc442185dd935dfd19c7ae1511c44c71127f915e7cc67fe190e",
+      "size": 14105
+    },
+    "target_first_step_trace": {
+      "path": "validation/coordination/g6-target-first-step-20260913/first-step-trace.jsonl",
+      "tracked_at_anchor": true,
+      "sha256": "343509972eb3233cd8b4c32c8f0747c2e959cefeb2dab57ea747930c40e3fb86",
+      "size": 8933
+    }
+  },
+  "derived_pins": {
+    "build_first_step_trace": {
+      "path": "tools/build_first_step_trace.py",
+      "tracked_at_anchor": true,
+      "sha256": "8a07c8ca7157f699e9f3d385afd7df6c1747ef8d67b3da36f02395b80babe493",
+      "size": 11868
+    },
+    "compare_first_step_trace": {
+      "path": "tools/compare_first_step_trace.py",
+      "tracked_at_anchor": true,
+      "sha256": "7f7be184e2e31c6dbb9a4a198b4c313f7cef5b72f8f18abd958606c144eefc9f",
+      "size": 27833
+    },
+    "compare_g6_c3g_stage2": {
+      "path": "tools/compare_g6_c3g_stage2.py",
+      "tracked_at_anchor": true,
+      "sha256": "a8589efb10dee0ecaeca6f4dce7fad0ec87c4e21f4e57f68836f1ca605279775",
+      "size": 20299
+    },
+    "map_generator": {
+      "path": "tools/map_g6_uncovered_states.py",
+      "tracked_at_anchor": false,
+      "sha256": "d204fcd3563599bc1afb50f15a49636ca17a6cbb5544261428e6f6df863513a0",
+      "size": 65196
+    },
+    "map_test": {
+      "path": "validation/test_map_g6_uncovered_states.py",
+      "tracked_at_anchor": false,
+      "sha256": "955fbfa742119c172f067e9f93164e8c1d9f0499dc5d14d9e54ab105807389f1",
+      "size": 40622
+    },
+    "probe_reference_first_step": {
+      "path": "tools/probe_reference_first_step.m",
+      "tracked_at_anchor": true,
+      "sha256": "eb485804023c5310ea436af5d14f862e3aa5e75f3342fd057d6f313f00649603",
+      "size": 20251
+    }
+  },
+  "untracked_provenance": {
+    "generated_cpp": {
+      "path": "work/quad-parameters-source-review-20260909/Exp1_MinModelTemp.cpp",
+      "tracked_at_anchor": false,
+      "expected_sha256": "a35d7c8f39c94f2db8c27b19affee5b66c1b001c63ded334ba83c99f8be54019",
+      "available_on_disk": true,
+      "sha256": "a35d7c8f39c94f2db8c27b19affee5b66c1b001c63ded334ba83c99f8be54019",
+      "matches_expected": true,
+      "size": 324922
+    }
+  },
+  "symbol_conflicts": [
+    {
+      "id": "transferfcn_motor_order",
+      "scope": "indices 19..35",
+      "observed_a": "builder_state_layout: IntegratorSecondOrderLimited__n at 19..24, TransferFcn4/1/2_CSTATE at 25..27, then MotorNonlinearDynamic8..1 at 28..35",
+      "observed_b": "docs/coordination/g6-pqr-derivative-path-20260913.md:36 requires text: '19-27(TransferFcn)\u300128-35(MotorNonlinearDynamic\uff0c\u7ea6 12.05)'",
+      "resolution": "conflicted_requires_archive_input",
+      "requires": "model_archive",
+      "requires_member": "e0_MinModelTemp/Exp1_MinModelTemp_ert_rtw/Exp1_MinModelTemp.h",
+      "source_a": "tools/build_first_step_trace.py STATE_LAYOUT",
+      "source_b": "docs/coordination/g6-pqr-derivative-path-20260913.md"
+    }
+  ],
+  "entry_classes": {
+    "supported": [
+      "mrdivide_residual_input",
+      "mrdivide_output",
+      "out_of_mrdivide_path"
+    ],
+    "mrdivide_residual_input_indices": [
+      10,
+      11,
+      12
+    ],
+    "mrdivide_output_indices": [
+      10,
+      11,
+      12
+    ],
+    "physical_semantics_inferred": false
+  },
+  "divergence_pair": {
+    "index": 11,
+    "stage": 2,
+    "target_trace_hex": "bc56d4db33a987b9",
+    "comparison_v2_reference_hex": "bc56d4db33a987b8",
+    "comparison_v2_target_hex": "bc56d4db33a987b9",
+    "ulp": 1,
+    "note": "stage-2 p,q,r derivatives index 1 (q); the tracked comparison records exactly 1 ULP. This is divergence evidence, not an acceptance result and not a root cause."
+  },
+  "index_map": [
+    {
+      "index": 0,
+      "covered": false,
+      "block_symbol": "IntegratorSecondOrderLimited_CS",
+      "block_symbol_range": [
+        0,
+        5
+      ],
+      "symbol_resolution": "resolved",
+      "symbol_evidence": "tracked_builder_state_layout",
+      "symbol_source": "IntegratorSecondOrderLimited_CS",
+      "symbol_note": "symbol text transcribed from the tracked builder state_layout table; no tracked comparison maps this range, so the endpoints are builder-attested only, and the authoritative layout still needs the frozen archive header input",
+      "entry_class": "out_of_mrdivide_path",
+      "entry_kind": "unmapped_state",
+      "entry_reason": "not mapped on the reference side by any tracked source; the tracked evidence does not bind this index to any mrdivide operand or result",
+      "source_line_mapping": "unresolved_requires_archive_input",
+      "tracked_doc_refs": [],
+      "tracked_line_bindings": [],
+      "trace_source": null,
+      "reference_source": null
+    },
+    {
+      "index": 1,
+      "covered": false,
+      "block_symbol": "IntegratorSecondOrderLimited_CS",
+      "block_symbol_range": [
+        0,
+        5
+      ],
+      "symbol_resolution": "resolved",
+      "symbol_evidence": "tracked_builder_state_layout",
+      "symbol_source": "IntegratorSecondOrderLimited_CS",
+      "symbol_note": "symbol text transcribed from the tracked builder state_layout table; no tracked comparison maps this range, so the endpoints are builder-attested only, and the authoritative layout still needs the frozen archive header input",
+      "entry_class": "out_of_mrdivide_path",
+      "entry_kind": "unmapped_state",
+      "entry_reason": "not mapped on the reference side by any tracked source; the tracked evidence does not bind this index to any mrdivide operand or result",
+      "source_line_mapping": "unresolved_requires_archive_input",
+      "tracked_doc_refs": [],
+      "tracked_line_bindings": [],
+      "trace_source": null,
+      "reference_source": null
+    },
+    {
+      "index": 2,
+      "covered": false,
+      "block_symbol": "IntegratorSecondOrderLimited_CS",
+      "block_symbol_range": [
+        0,
+        5
+      ],
+      "symbol_resolution": "resolved",
+      "symbol_evidence": "tracked_builder_state_layout",
+      "symbol_source": "IntegratorSecondOrderLimited_CS",
+      "symbol_note": "symbol text transcribed from the tracked builder state_layout table; no tracked comparison maps this range, so the endpoints are builder-attested only, and the authoritative layout still needs the frozen archive header input",
+      "entry_class": "out_of_mrdivide_path",
+      "entry_kind": "unmapped_state",
+      "entry_reason": "not mapped on the reference side by any tracked source; the tracked evidence does not bind this index to any mrdivide operand or result",
+      "source_line_mapping": "unresolved_requires_archive_input",
+      "tracked_doc_refs": [],
+      "tracked_line_bindings": [],
+      "trace_source": null,
+      "reference_source": null
+    },
+    {
+      "index": 3,
+      "covered": false,
+      "block_symbol": "IntegratorSecondOrderLimited_CS",
+      "block_symbol_range": [
+        0,
+        5
+      ],
+      "symbol_resolution": "resolved",
+      "symbol_evidence": "tracked_builder_state_layout",
+      "symbol_source": "IntegratorSecondOrderLimited_CS",
+      "symbol_note": "symbol text transcribed from the tracked builder state_layout table; no tracked comparison maps this range, so the endpoints are builder-attested only, and the authoritative layout still needs the frozen archive header input",
+      "entry_class": "out_of_mrdivide_path",
+      "entry_kind": "unmapped_state",
+      "entry_reason": "not mapped on the reference side by any tracked source; the tracked evidence does not bind this index to any mrdivide operand or result",
+      "source_line_mapping": "unresolved_requires_archive_input",
+      "tracked_doc_refs": [],
+      "tracked_line_bindings": [],
+      "trace_source": null,
+      "reference_source": null
+    },
+    {
+      "index": 4,
+      "covered": false,
+      "block_symbol": "IntegratorSecondOrderLimited_CS",
+      "block_symbol_range": [
+        0,
+        5
+      ],
+      "symbol_resolution": "resolved",
+      "symbol_evidence": "tracked_builder_state_layout",
+      "symbol_source": "IntegratorSecondOrderLimited_CS",
+      "symbol_note": "symbol text transcribed from the tracked builder state_layout table; no tracked comparison maps this range, so the endpoints are builder-attested only, and the authoritative layout still needs the frozen archive header input",
+      "entry_class": "out_of_mrdivide_path",
+      "entry_kind": "unmapped_state",
+      "entry_reason": "not mapped on the reference side by any tracked source; the tracked evidence does not bind this index to any mrdivide operand or result",
+      "source_line_mapping": "unresolved_requires_archive_input",
+      "tracked_doc_refs": [],
+      "tracked_line_bindings": [],
+      "trace_source": null,
+      "reference_source": null
+    },
+    {
+      "index": 5,
+      "covered": false,
+      "block_symbol": "IntegratorSecondOrderLimited_CS",
+      "block_symbol_range": [
+        0,
+        5
+      ],
+      "symbol_resolution": "resolved",
+      "symbol_evidence": "tracked_builder_state_layout",
+      "symbol_source": "IntegratorSecondOrderLimited_CS",
+      "symbol_note": "symbol text transcribed from the tracked builder state_layout table; no tracked comparison maps this range, so the endpoints are builder-attested only, and the authoritative layout still needs the frozen archive header input",
+      "entry_class": "out_of_mrdivide_path",
+      "entry_kind": "unmapped_state",
+      "entry_reason": "not mapped on the reference side by any tracked source; the tracked evidence does not bind this index to any mrdivide operand or result",
+      "source_line_mapping": "unresolved_requires_archive_input",
+      "tracked_doc_refs": [],
+      "tracked_line_bindings": [],
+      "trace_source": null,
+      "reference_source": null
+    },
+    {
+      "index": 6,
+      "covered": true,
+      "block_symbol": "q0..q3",
+      "block_symbol_range": [
+        6,
+        9
+      ],
+      "symbol_resolution": "resolved",
+      "symbol_evidence": "tracked_comparison_v2_target_indices",
+      "symbol_source": "q0..q3",
+      "symbol_note": "range endpoints bound by tracked evidence: validation/coordination/g6-target-first-step-20260913/comparison-v2.json target_indices places this block at flat indices 6..9, and the tracked reference probe state_integrator_paths registers listeners on the same named rigid-body integrators",
+      "entry_class": "out_of_mrdivide_path",
+      "entry_kind": "mapped_reference_compared_state",
+      "entry_reason": "covered by the tracked 13-state comparison-v2 mapping and the tracked reference probe events; the tracked evidence does not bind this index to any mrdivide operand or result",
+      "source_line_mapping": "unresolved_requires_archive_input",
+      "tracked_doc_refs": [
+        "first_step_timeline",
+        "output_encoding"
+      ],
+      "tracked_line_bindings": [
+        {
+          "key": "first_step_timeline",
+          "source": "first_step_static_doc",
+          "path": "docs/coordination/g6-first-step-static-20260913.md",
+          "tracked_at_anchor": true,
+          "sha256": "3b0de9813da47afa5ad889c2ba10bdd56fe5d29914cce227615fc0eab42eaeef",
+          "size": 13547,
+          "line_start": 16,
+          "line_end": 21,
+          "text": [
+            "",
+            "\u8bb0\u5f55\u5668\u6bcf k \u8c03\u4e00\u6b21 `model->step()`\uff1a\u5148\u5728\u4e3b\u65f6\u95f4\u6b65\u8ba1\u7b97\u6839\u8f93\u51fa\uff08`wk_capture_major` \u91c7\u96c6 `Exp1_MinModelTemp_Y` \u7684 `VehileInfo60d/Sensor30/GPS30`)\uff0c\u518d\u505a ODE4 \u66f4\u65b0\u628a\u72b6\u6001\u4ece t_k \u63a8\u8fdb\u5230 t_{k+1}(ODE4 \u5185\u90e8\u5404\u9636\u6bb5\u4e3a minor step\uff0c\u4e0d\u91cd\u590d\u91c7\u96c6\uff0c\u6545\u6bcf k \u6070 1 \u6b21 major \u91c7\u96c6\uff09\u3002",
+            "",
+            "\u56e0\u6b64 **k=1 \u7684\u8f93\u51fa = \u521d\u59cb\u9759\u6b62\u72b6\u6001\u7ecf\u4e00\u6b21 ODE4 \u66f4\u65b0\u540e\u7684\u72b6\u6001\u7684\u51fd\u6570**\u3002\u9996\u4e2a\u5206\u6b67\uff08k=1\uff09\u8981\u4e48\u6765\u81ea\u8fd9\u6b21 ODE4 \u66f4\u65b0/\u5176\u5bfc\u6570\u6c42\u503c\uff0c\u8981\u4e48\u6765\u81ea k=1 \u7684\u8f93\u51fa\u7f16\u7801\u3002",
+            "",
+            "## \u8ba1\u7b97\u94fe\u843d\u5b9e\uff08\u539f\u59cb\u7248 `a35d7c8f` \u884c\u53f7\uff1b\u4e0e\u5408\u540c source \u5f15\u7528\u4e00\u81f4\uff09"
+          ]
+        }
+      ],
+      "trace_source": "validation/coordination/g6-target-first-step-20260913/first-step-trace.jsonl",
+      "reference_source": "validation/coordination/g6-reference-probe-20260913/run-03/reference-first-step.json"
+    },
+    {
+      "index": 7,
+      "covered": true,
+      "block_symbol": "q0..q3",
+      "block_symbol_range": [
+        6,
+        9
+      ],
+      "symbol_resolution": "resolved",
+      "symbol_evidence": "tracked_comparison_v2_target_indices",
+      "symbol_source": "q0..q3",
+      "symbol_note": "range endpoints bound by tracked evidence: validation/coordination/g6-target-first-step-20260913/comparison-v2.json target_indices places this block at flat indices 6..9, and the tracked reference probe state_integrator_paths registers listeners on the same named rigid-body integrators",
+      "entry_class": "out_of_mrdivide_path",
+      "entry_kind": "mapped_reference_compared_state",
+      "entry_reason": "covered by the tracked 13-state comparison-v2 mapping and the tracked reference probe events; the tracked evidence does not bind this index to any mrdivide operand or result",
+      "source_line_mapping": "unresolved_requires_archive_input",
+      "tracked_doc_refs": [
+        "first_step_timeline",
+        "output_encoding"
+      ],
+      "tracked_line_bindings": [
+        {
+          "key": "first_step_timeline",
+          "source": "first_step_static_doc",
+          "path": "docs/coordination/g6-first-step-static-20260913.md",
+          "tracked_at_anchor": true,
+          "sha256": "3b0de9813da47afa5ad889c2ba10bdd56fe5d29914cce227615fc0eab42eaeef",
+          "size": 13547,
+          "line_start": 16,
+          "line_end": 21,
+          "text": [
+            "",
+            "\u8bb0\u5f55\u5668\u6bcf k \u8c03\u4e00\u6b21 `model->step()`\uff1a\u5148\u5728\u4e3b\u65f6\u95f4\u6b65\u8ba1\u7b97\u6839\u8f93\u51fa\uff08`wk_capture_major` \u91c7\u96c6 `Exp1_MinModelTemp_Y` \u7684 `VehileInfo60d/Sensor30/GPS30`)\uff0c\u518d\u505a ODE4 \u66f4\u65b0\u628a\u72b6\u6001\u4ece t_k \u63a8\u8fdb\u5230 t_{k+1}(ODE4 \u5185\u90e8\u5404\u9636\u6bb5\u4e3a minor step\uff0c\u4e0d\u91cd\u590d\u91c7\u96c6\uff0c\u6545\u6bcf k \u6070 1 \u6b21 major \u91c7\u96c6\uff09\u3002",
+            "",
+            "\u56e0\u6b64 **k=1 \u7684\u8f93\u51fa = \u521d\u59cb\u9759\u6b62\u72b6\u6001\u7ecf\u4e00\u6b21 ODE4 \u66f4\u65b0\u540e\u7684\u72b6\u6001\u7684\u51fd\u6570**\u3002\u9996\u4e2a\u5206\u6b67\uff08k=1\uff09\u8981\u4e48\u6765\u81ea\u8fd9\u6b21 ODE4 \u66f4\u65b0/\u5176\u5bfc\u6570\u6c42\u503c\uff0c\u8981\u4e48\u6765\u81ea k=1 \u7684\u8f93\u51fa\u7f16\u7801\u3002",
+            "",
+            "## \u8ba1\u7b97\u94fe\u843d\u5b9e\uff08\u539f\u59cb\u7248 `a35d7c8f` \u884c\u53f7\uff1b\u4e0e\u5408\u540c source \u5f15\u7528\u4e00\u81f4\uff09"
+          ]
+        }
+      ],
+      "trace_source": "validation/coordination/g6-target-first-step-20260913/first-step-trace.jsonl",
+      "reference_source": "validation/coordination/g6-reference-probe-20260913/run-03/reference-first-step.json"
+    },
+    {
+      "index": 8,
+      "covered": true,
+      "block_symbol": "q0..q3",
+      "block_symbol_range": [
+        6,
+        9
+      ],
+      "symbol_resolution": "resolved",
+      "symbol_evidence": "tracked_comparison_v2_target_indices",
+      "symbol_source": "q0..q3",
+      "symbol_note": "range endpoints bound by tracked evidence: validation/coordination/g6-target-first-step-20260913/comparison-v2.json target_indices places this block at flat indices 6..9, and the tracked reference probe state_integrator_paths registers listeners on the same named rigid-body integrators",
+      "entry_class": "out_of_mrdivide_path",
+      "entry_kind": "mapped_reference_compared_state",
+      "entry_reason": "covered by the tracked 13-state comparison-v2 mapping and the tracked reference probe events; the tracked evidence does not bind this index to any mrdivide operand or result",
+      "source_line_mapping": "unresolved_requires_archive_input",
+      "tracked_doc_refs": [
+        "first_step_timeline",
+        "output_encoding"
+      ],
+      "tracked_line_bindings": [
+        {
+          "key": "first_step_timeline",
+          "source": "first_step_static_doc",
+          "path": "docs/coordination/g6-first-step-static-20260913.md",
+          "tracked_at_anchor": true,
+          "sha256": "3b0de9813da47afa5ad889c2ba10bdd56fe5d29914cce227615fc0eab42eaeef",
+          "size": 13547,
+          "line_start": 16,
+          "line_end": 21,
+          "text": [
+            "",
+            "\u8bb0\u5f55\u5668\u6bcf k \u8c03\u4e00\u6b21 `model->step()`\uff1a\u5148\u5728\u4e3b\u65f6\u95f4\u6b65\u8ba1\u7b97\u6839\u8f93\u51fa\uff08`wk_capture_major` \u91c7\u96c6 `Exp1_MinModelTemp_Y` \u7684 `VehileInfo60d/Sensor30/GPS30`)\uff0c\u518d\u505a ODE4 \u66f4\u65b0\u628a\u72b6\u6001\u4ece t_k \u63a8\u8fdb\u5230 t_{k+1}(ODE4 \u5185\u90e8\u5404\u9636\u6bb5\u4e3a minor step\uff0c\u4e0d\u91cd\u590d\u91c7\u96c6\uff0c\u6545\u6bcf k \u6070 1 \u6b21 major \u91c7\u96c6\uff09\u3002",
+            "",
+            "\u56e0\u6b64 **k=1 \u7684\u8f93\u51fa = \u521d\u59cb\u9759\u6b62\u72b6\u6001\u7ecf\u4e00\u6b21 ODE4 \u66f4\u65b0\u540e\u7684\u72b6\u6001\u7684\u51fd\u6570**\u3002\u9996\u4e2a\u5206\u6b67\uff08k=1\uff09\u8981\u4e48\u6765\u81ea\u8fd9\u6b21 ODE4 \u66f4\u65b0/\u5176\u5bfc\u6570\u6c42\u503c\uff0c\u8981\u4e48\u6765\u81ea k=1 \u7684\u8f93\u51fa\u7f16\u7801\u3002",
+            "",
+            "## \u8ba1\u7b97\u94fe\u843d\u5b9e\uff08\u539f\u59cb\u7248 `a35d7c8f` \u884c\u53f7\uff1b\u4e0e\u5408\u540c source \u5f15\u7528\u4e00\u81f4\uff09"
+          ]
+        }
+      ],
+      "trace_source": "validation/coordination/g6-target-first-step-20260913/first-step-trace.jsonl",
+      "reference_source": "validation/coordination/g6-reference-probe-20260913/run-03/reference-first-step.json"
+    },
+    {
+      "index": 9,
+      "covered": true,
+      "block_symbol": "q0..q3",
+      "block_symbol_range": [
+        6,
+        9
+      ],
+      "symbol_resolution": "resolved",
+      "symbol_evidence": "tracked_comparison_v2_target_indices",
+      "symbol_source": "q0..q3",
+      "symbol_note": "range endpoints bound by tracked evidence: validation/coordination/g6-target-first-step-20260913/comparison-v2.json target_indices places this block at flat indices 6..9, and the tracked reference probe state_integrator_paths registers listeners on the same named rigid-body integrators",
+      "entry_class": "out_of_mrdivide_path",
+      "entry_kind": "mapped_reference_compared_state",
+      "entry_reason": "covered by the tracked 13-state comparison-v2 mapping and the tracked reference probe events; the tracked evidence does not bind this index to any mrdivide operand or result",
+      "source_line_mapping": "unresolved_requires_archive_input",
+      "tracked_doc_refs": [
+        "first_step_timeline",
+        "output_encoding"
+      ],
+      "tracked_line_bindings": [
+        {
+          "key": "first_step_timeline",
+          "source": "first_step_static_doc",
+          "path": "docs/coordination/g6-first-step-static-20260913.md",
+          "tracked_at_anchor": true,
+          "sha256": "3b0de9813da47afa5ad889c2ba10bdd56fe5d29914cce227615fc0eab42eaeef",
+          "size": 13547,
+          "line_start": 16,
+          "line_end": 21,
+          "text": [
+            "",
+            "\u8bb0\u5f55\u5668\u6bcf k \u8c03\u4e00\u6b21 `model->step()`\uff1a\u5148\u5728\u4e3b\u65f6\u95f4\u6b65\u8ba1\u7b97\u6839\u8f93\u51fa\uff08`wk_capture_major` \u91c7\u96c6 `Exp1_MinModelTemp_Y` \u7684 `VehileInfo60d/Sensor30/GPS30`)\uff0c\u518d\u505a ODE4 \u66f4\u65b0\u628a\u72b6\u6001\u4ece t_k \u63a8\u8fdb\u5230 t_{k+1}(ODE4 \u5185\u90e8\u5404\u9636\u6bb5\u4e3a minor step\uff0c\u4e0d\u91cd\u590d\u91c7\u96c6\uff0c\u6545\u6bcf k \u6070 1 \u6b21 major \u91c7\u96c6\uff09\u3002",
+            "",
+            "\u56e0\u6b64 **k=1 \u7684\u8f93\u51fa = \u521d\u59cb\u9759\u6b62\u72b6\u6001\u7ecf\u4e00\u6b21 ODE4 \u66f4\u65b0\u540e\u7684\u72b6\u6001\u7684\u51fd\u6570**\u3002\u9996\u4e2a\u5206\u6b67\uff08k=1\uff09\u8981\u4e48\u6765\u81ea\u8fd9\u6b21 ODE4 \u66f4\u65b0/\u5176\u5bfc\u6570\u6c42\u503c\uff0c\u8981\u4e48\u6765\u81ea k=1 \u7684\u8f93\u51fa\u7f16\u7801\u3002",
+            "",
+            "## \u8ba1\u7b97\u94fe\u843d\u5b9e\uff08\u539f\u59cb\u7248 `a35d7c8f` \u884c\u53f7\uff1b\u4e0e\u5408\u540c source \u5f15\u7528\u4e00\u81f4\uff09"
+          ]
+        }
+      ],
+      "trace_source": "validation/coordination/g6-target-first-step-20260913/first-step-trace.jsonl",
+      "reference_source": "validation/coordination/g6-reference-probe-20260913/run-03/reference-first-step.json"
+    },
+    {
+      "index": 10,
+      "covered": true,
+      "block_symbol": "p,q,r",
+      "block_symbol_range": [
+        10,
+        12
+      ],
+      "symbol_resolution": "resolved",
+      "symbol_evidence": "tracked_comparison_v2_target_indices",
+      "symbol_source": "p,q,r",
+      "symbol_note": "range endpoints bound by tracked evidence: validation/coordination/g6-target-first-step-20260913/comparison-v2.json target_indices places this block at flat indices 10..12, and the tracked reference probe state_integrator_paths registers listeners on the same named rigid-body integrators",
+      "entry_class": "mrdivide_residual_input",
+      "entry_kind": "mrdivide_numerator_vector",
+      "entry_reason": "tracked evidence binds this flat index to the mrdivide numerator rtb_IntegratorSecondOrderLimi_d[0..2] (residual_input)",
+      "source_line_mapping": "mapped_via_untracked_generated_cpp",
+      "tracked_doc_refs": [
+        "residual_index_1",
+        "mrdivide_call"
+      ],
+      "tracked_line_bindings": [
+        {
+          "key": "residual_index_1",
+          "source": "pqr_derivative_path_doc",
+          "path": "docs/coordination/g6-pqr-derivative-path-20260913.md",
+          "tracked_at_anchor": true,
+          "sha256": "bd90a40bde4d9206269e364644c7858f49da45838688b7073ca4b8fa73e25d0d",
+          "size": 6530,
+          "line_start": 18,
+          "line_end": 18,
+          "text": [
+            "**\u7b2c\u4e00\u6b65\uff1a\u89d2\u52a8\u91cf\u6b8b\u5dee**(`rtb_IntegratorSecondOrderLimi_d[1]`,5514\u20135521)\u3002\u9010\u9879\uff08C \u4f18\u5148\u7ea7/\u5de6\u7ed3\u5408\uff1b\u4e00\u5143 `-` \u5148\u4e8e\u4e8c\u5143 `*`):"
+          ]
+        },
+        {
+          "key": "mrdivide_call",
+          "source": "pqr_derivative_path_doc",
+          "path": "docs/coordination/g6-pqr-derivative-path-20260913.md",
+          "tracked_at_anchor": true,
+          "sha256": "bd90a40bde4d9206269e364644c7858f49da45838688b7073ca4b8fa73e25d0d",
+          "size": 6530,
+          "line_start": 28,
+          "line_end": 28,
+          "text": [
+            "**\u7b2c\u4e8c\u6b65\uff1a\u60ef\u6027\u77e9\u9635\u6c42\u89e3**(5546\u20135547)`Product2 = rt_mrdivide_U1d1x3_U2d_9vOrDY9Z(residual, Selector2)`\u3002`Selector2` = `ModelParam_uavJ`(S53 Matrix Concatenation \u53d6\u5217 0\u20132,5367\u20135373 + 5534\u20135538)\uff0c\u5373\u51bb\u7ed3**\u5bf9\u89d2**\u60ef\u6027\u9635 `diag(0.0211, 0.0219, 0.0366)`\uff1b\u4e14\u53ea\u5728 major \u6b65\u91cd\u7b97\uff085529 `if rtmIsMajorTimeStep`)\uff0c\u6b65\u5185\u56db\u7ea7\u4e0d\u53d8\u3002`rt_mrdivide`(3700\u20133751\uff09\u662f**\u624b\u5199\u90e8\u5206\u4e3b\u5143\u9ad8\u65af\u6d88\u5143**\uff08\u4e00\u4e32\u9664\u6cd5 + \u4e58\u51cf\uff09\u3002"
+          ]
+        }
+      ],
+      "trace_source": "validation/coordination/g6-target-first-step-20260913/first-step-trace.jsonl",
+      "reference_source": "validation/coordination/g6-reference-probe-20260913/run-03/reference-first-step.json",
+      "untracked_provenance": {
+        "path": "work/quad-parameters-source-review-20260909/Exp1_MinModelTemp.cpp",
+        "sha256": "a35d7c8f39c94f2db8c27b19affee5b66c1b001c63ded334ba83c99f8be54019",
+        "available_on_disk": true,
+        "tracked_at_anchor": false,
+        "line_spans": {
+          "residual_components": [
+            5506,
+            5528
+          ],
+          "selector2_matrix": [
+            5529,
+            5540
+          ],
+          "mrdivide_call": [
+            5546,
+            5547
+          ]
+        },
+        "note": "line anchors read from the untracked on-disk generated ERT C; the frozen archive member is required to make the source-line mapping independently reproducible"
+      }
+    },
+    {
+      "index": 11,
+      "covered": true,
+      "block_symbol": "p,q,r",
+      "block_symbol_range": [
+        10,
+        12
+      ],
+      "symbol_resolution": "resolved",
+      "symbol_evidence": "tracked_comparison_v2_target_indices",
+      "symbol_source": "p,q,r",
+      "symbol_note": "range endpoints bound by tracked evidence: validation/coordination/g6-target-first-step-20260913/comparison-v2.json target_indices places this block at flat indices 10..12, and the tracked reference probe state_integrator_paths registers listeners on the same named rigid-body integrators",
+      "entry_class": "mrdivide_residual_input",
+      "entry_kind": "mrdivide_numerator_vector",
+      "entry_reason": "tracked evidence binds this flat index to the mrdivide numerator rtb_IntegratorSecondOrderLimi_d[0..2] (residual_input); flat index 11 is the q component named explicitly in docs/coordination/g6-pqr-derivative-path-20260913.md:16,18",
+      "source_line_mapping": "mapped_via_untracked_generated_cpp",
+      "tracked_doc_refs": [
+        "residual_index_1",
+        "mrdivide_call",
+        "uncovered_note"
+      ],
+      "tracked_line_bindings": [
+        {
+          "key": "residual_index_1",
+          "source": "pqr_derivative_path_doc",
+          "path": "docs/coordination/g6-pqr-derivative-path-20260913.md",
+          "tracked_at_anchor": true,
+          "sha256": "bd90a40bde4d9206269e364644c7858f49da45838688b7073ca4b8fa73e25d0d",
+          "size": 6530,
+          "line_start": 18,
+          "line_end": 18,
+          "text": [
+            "**\u7b2c\u4e00\u6b65\uff1a\u89d2\u52a8\u91cf\u6b8b\u5dee**(`rtb_IntegratorSecondOrderLimi_d[1]`,5514\u20135521)\u3002\u9010\u9879\uff08C \u4f18\u5148\u7ea7/\u5de6\u7ed3\u5408\uff1b\u4e00\u5143 `-` \u5148\u4e8e\u4e8c\u5143 `*`):"
+          ]
+        },
+        {
+          "key": "mrdivide_call",
+          "source": "pqr_derivative_path_doc",
+          "path": "docs/coordination/g6-pqr-derivative-path-20260913.md",
+          "tracked_at_anchor": true,
+          "sha256": "bd90a40bde4d9206269e364644c7858f49da45838688b7073ca4b8fa73e25d0d",
+          "size": 6530,
+          "line_start": 28,
+          "line_end": 28,
+          "text": [
+            "**\u7b2c\u4e8c\u6b65\uff1a\u60ef\u6027\u77e9\u9635\u6c42\u89e3**(5546\u20135547)`Product2 = rt_mrdivide_U1d1x3_U2d_9vOrDY9Z(residual, Selector2)`\u3002`Selector2` = `ModelParam_uavJ`(S53 Matrix Concatenation \u53d6\u5217 0\u20132,5367\u20135373 + 5534\u20135538)\uff0c\u5373\u51bb\u7ed3**\u5bf9\u89d2**\u60ef\u6027\u9635 `diag(0.0211, 0.0219, 0.0366)`\uff1b\u4e14\u53ea\u5728 major \u6b65\u91cd\u7b97\uff085529 `if rtmIsMajorTimeStep`)\uff0c\u6b65\u5185\u56db\u7ea7\u4e0d\u53d8\u3002`rt_mrdivide`(3700\u20133751\uff09\u662f**\u624b\u5199\u90e8\u5206\u4e3b\u5143\u9ad8\u65af\u6d88\u5143**\uff08\u4e00\u4e32\u9664\u6cd5 + \u4e58\u51cf\uff09\u3002"
+          ]
+        },
+        {
+          "key": "uncovered_note",
+          "source": "pqr_derivative_path_doc",
+          "path": "docs/coordination/g6-pqr-derivative-path-20260913.md",
+          "tracked_at_anchor": true,
+          "sha256": "bd90a40bde4d9206269e364644c7858f49da45838688b7073ca4b8fa73e25d0d",
+          "size": 6530,
+          "line_start": 36,
+          "line_end": 36,
+          "text": [
+            "t=0.0005\u3002\u521a\u4f53\u6620\u5c04\u6001\uff1aq0q1q2q3=[1,0,0,0]\u3001pqr=[1.28e-21,-2.48e-21,0]\u3001xeyeze=[0,0,0]\u3001ubvbwb=[0,0,-3.38e-6]\u3002**\u6ce8\u610f**:index 0\u20135\uff08\u4e8c\u9636\u9650\u5e45\uff09\u300119\u201327(TransferFcn)\u300128\u201335(MotorNonlinearDynamic\uff0c\u7ea6 12.05\uff09\u7b49**\u7535\u673a/\u63a8\u8fdb\u76f8\u5173\u72b6\u6001\u975e\u96f6**\uff08\u7535\u673a\u5728\u8f6c\uff09\uff0c\u4f46\u8fd9 23 \u4e2a**\u4e0d\u5728\u53c2\u8003\u7aef 13 \u4e2a\u6620\u5c04\u72b6\u6001\u5185**\uff0c\u73b0\u6709\u5bf9\u7167\u672a\u8986\u76d6\u3002"
+          ]
+        }
+      ],
+      "trace_source": "validation/coordination/g6-target-first-step-20260913/first-step-trace.jsonl",
+      "reference_source": "validation/coordination/g6-reference-probe-20260913/run-03/reference-first-step.json",
+      "untracked_provenance": {
+        "path": "work/quad-parameters-source-review-20260909/Exp1_MinModelTemp.cpp",
+        "sha256": "a35d7c8f39c94f2db8c27b19affee5b66c1b001c63ded334ba83c99f8be54019",
+        "available_on_disk": true,
+        "tracked_at_anchor": false,
+        "line_spans": {
+          "residual_components": [
+            5506,
+            5528
+          ],
+          "selector2_matrix": [
+            5529,
+            5540
+          ],
+          "mrdivide_call": [
+            5546,
+            5547
+          ]
+        },
+        "note": "line anchors read from the untracked on-disk generated ERT C; the frozen archive member is required to make the source-line mapping independently reproducible"
+      },
+      "mrdivide_output_evidence": {
+        "index": 11,
+        "stage": 2,
+        "target_trace_hex": "bc56d4db33a987b9",
+        "comparison_v2_reference_hex": "bc56d4db33a987b8",
+        "comparison_v2_target_hex": "bc56d4db33a987b9",
+        "ulp": 1,
+        "note": "stage-2 p,q,r derivatives index 1 (q); the tracked comparison records exactly 1 ULP. This is divergence evidence, not an acceptance result and not a root cause."
+      },
+      "output_encoding": {
+        "kind": "mrdivide_output",
+        "symbol": "mrdivide_output:Exp1_MinModelTemp_B.Product2[0..2]",
+        "result_equals_derivative_slice": [
+          10,
+          13
+        ],
+        "hex_stage2": [
+          "3c47b1ebce4a1e30",
+          "bc56d4db33a987b9",
+          "36f8ccceed35d6fd"
+        ],
+        "note": "the solve result vector is recorded as the p,q,r derivative slice of the same stage; the three stage-2 derivative bytes are transcribed from the pinned target trace deriv[10..12], with index 11 (q) the recorded 1 ULP divergence; recorded as encoding, with no physical interpretation"
+      }
+    },
+    {
+      "index": 12,
+      "covered": true,
+      "block_symbol": "p,q,r",
+      "block_symbol_range": [
+        10,
+        12
+      ],
+      "symbol_resolution": "resolved",
+      "symbol_evidence": "tracked_comparison_v2_target_indices",
+      "symbol_source": "p,q,r",
+      "symbol_note": "range endpoints bound by tracked evidence: validation/coordination/g6-target-first-step-20260913/comparison-v2.json target_indices places this block at flat indices 10..12, and the tracked reference probe state_integrator_paths registers listeners on the same named rigid-body integrators",
+      "entry_class": "mrdivide_residual_input",
+      "entry_kind": "mrdivide_numerator_vector",
+      "entry_reason": "tracked evidence binds this flat index to the mrdivide numerator rtb_IntegratorSecondOrderLimi_d[0..2] (residual_input)",
+      "source_line_mapping": "mapped_via_untracked_generated_cpp",
+      "tracked_doc_refs": [
+        "residual_index_1",
+        "mrdivide_call"
+      ],
+      "tracked_line_bindings": [
+        {
+          "key": "residual_index_1",
+          "source": "pqr_derivative_path_doc",
+          "path": "docs/coordination/g6-pqr-derivative-path-20260913.md",
+          "tracked_at_anchor": true,
+          "sha256": "bd90a40bde4d9206269e364644c7858f49da45838688b7073ca4b8fa73e25d0d",
+          "size": 6530,
+          "line_start": 18,
+          "line_end": 18,
+          "text": [
+            "**\u7b2c\u4e00\u6b65\uff1a\u89d2\u52a8\u91cf\u6b8b\u5dee**(`rtb_IntegratorSecondOrderLimi_d[1]`,5514\u20135521)\u3002\u9010\u9879\uff08C \u4f18\u5148\u7ea7/\u5de6\u7ed3\u5408\uff1b\u4e00\u5143 `-` \u5148\u4e8e\u4e8c\u5143 `*`):"
+          ]
+        },
+        {
+          "key": "mrdivide_call",
+          "source": "pqr_derivative_path_doc",
+          "path": "docs/coordination/g6-pqr-derivative-path-20260913.md",
+          "tracked_at_anchor": true,
+          "sha256": "bd90a40bde4d9206269e364644c7858f49da45838688b7073ca4b8fa73e25d0d",
+          "size": 6530,
+          "line_start": 28,
+          "line_end": 28,
+          "text": [
+            "**\u7b2c\u4e8c\u6b65\uff1a\u60ef\u6027\u77e9\u9635\u6c42\u89e3**(5546\u20135547)`Product2 = rt_mrdivide_U1d1x3_U2d_9vOrDY9Z(residual, Selector2)`\u3002`Selector2` = `ModelParam_uavJ`(S53 Matrix Concatenation \u53d6\u5217 0\u20132,5367\u20135373 + 5534\u20135538)\uff0c\u5373\u51bb\u7ed3**\u5bf9\u89d2**\u60ef\u6027\u9635 `diag(0.0211, 0.0219, 0.0366)`\uff1b\u4e14\u53ea\u5728 major \u6b65\u91cd\u7b97\uff085529 `if rtmIsMajorTimeStep`)\uff0c\u6b65\u5185\u56db\u7ea7\u4e0d\u53d8\u3002`rt_mrdivide`(3700\u20133751\uff09\u662f**\u624b\u5199\u90e8\u5206\u4e3b\u5143\u9ad8\u65af\u6d88\u5143**\uff08\u4e00\u4e32\u9664\u6cd5 + \u4e58\u51cf\uff09\u3002"
+          ]
+        }
+      ],
+      "trace_source": "validation/coordination/g6-target-first-step-20260913/first-step-trace.jsonl",
+      "reference_source": "validation/coordination/g6-reference-probe-20260913/run-03/reference-first-step.json",
+      "untracked_provenance": {
+        "path": "work/quad-parameters-source-review-20260909/Exp1_MinModelTemp.cpp",
+        "sha256": "a35d7c8f39c94f2db8c27b19affee5b66c1b001c63ded334ba83c99f8be54019",
+        "available_on_disk": true,
+        "tracked_at_anchor": false,
+        "line_spans": {
+          "residual_components": [
+            5506,
+            5528
+          ],
+          "selector2_matrix": [
+            5529,
+            5540
+          ],
+          "mrdivide_call": [
+            5546,
+            5547
+          ]
+        },
+        "note": "line anchors read from the untracked on-disk generated ERT C; the frozen archive member is required to make the source-line mapping independently reproducible"
+      }
+    },
+    {
+      "index": 13,
+      "covered": true,
+      "block_symbol": "xe,ye,ze",
+      "block_symbol_range": [
+        13,
+        15
+      ],
+      "symbol_resolution": "resolved",
+      "symbol_evidence": "tracked_comparison_v2_target_indices",
+      "symbol_source": "xe,ye,ze",
+      "symbol_note": "range endpoints bound by tracked evidence: validation/coordination/g6-target-first-step-20260913/comparison-v2.json target_indices places this block at flat indices 13..15, and the tracked reference probe state_integrator_paths registers listeners on the same named rigid-body integrators",
+      "entry_class": "out_of_mrdivide_path",
+      "entry_kind": "mapped_reference_compared_state",
+      "entry_reason": "covered by the tracked 13-state comparison-v2 mapping and the tracked reference probe events; the tracked evidence does not bind this index to any mrdivide operand or result",
+      "source_line_mapping": "unresolved_requires_archive_input",
+      "tracked_doc_refs": [
+        "first_step_timeline",
+        "output_encoding"
+      ],
+      "tracked_line_bindings": [
+        {
+          "key": "first_step_timeline",
+          "source": "first_step_static_doc",
+          "path": "docs/coordination/g6-first-step-static-20260913.md",
+          "tracked_at_anchor": true,
+          "sha256": "3b0de9813da47afa5ad889c2ba10bdd56fe5d29914cce227615fc0eab42eaeef",
+          "size": 13547,
+          "line_start": 16,
+          "line_end": 21,
+          "text": [
+            "",
+            "\u8bb0\u5f55\u5668\u6bcf k \u8c03\u4e00\u6b21 `model->step()`\uff1a\u5148\u5728\u4e3b\u65f6\u95f4\u6b65\u8ba1\u7b97\u6839\u8f93\u51fa\uff08`wk_capture_major` \u91c7\u96c6 `Exp1_MinModelTemp_Y` \u7684 `VehileInfo60d/Sensor30/GPS30`)\uff0c\u518d\u505a ODE4 \u66f4\u65b0\u628a\u72b6\u6001\u4ece t_k \u63a8\u8fdb\u5230 t_{k+1}(ODE4 \u5185\u90e8\u5404\u9636\u6bb5\u4e3a minor step\uff0c\u4e0d\u91cd\u590d\u91c7\u96c6\uff0c\u6545\u6bcf k \u6070 1 \u6b21 major \u91c7\u96c6\uff09\u3002",
+            "",
+            "\u56e0\u6b64 **k=1 \u7684\u8f93\u51fa = \u521d\u59cb\u9759\u6b62\u72b6\u6001\u7ecf\u4e00\u6b21 ODE4 \u66f4\u65b0\u540e\u7684\u72b6\u6001\u7684\u51fd\u6570**\u3002\u9996\u4e2a\u5206\u6b67\uff08k=1\uff09\u8981\u4e48\u6765\u81ea\u8fd9\u6b21 ODE4 \u66f4\u65b0/\u5176\u5bfc\u6570\u6c42\u503c\uff0c\u8981\u4e48\u6765\u81ea k=1 \u7684\u8f93\u51fa\u7f16\u7801\u3002",
+            "",
+            "## \u8ba1\u7b97\u94fe\u843d\u5b9e\uff08\u539f\u59cb\u7248 `a35d7c8f` \u884c\u53f7\uff1b\u4e0e\u5408\u540c source \u5f15\u7528\u4e00\u81f4\uff09"
+          ]
+        }
+      ],
+      "trace_source": "validation/coordination/g6-target-first-step-20260913/first-step-trace.jsonl",
+      "reference_source": "validation/coordination/g6-reference-probe-20260913/run-03/reference-first-step.json"
+    },
+    {
+      "index": 14,
+      "covered": true,
+      "block_symbol": "xe,ye,ze",
+      "block_symbol_range": [
+        13,
+        15
+      ],
+      "symbol_resolution": "resolved",
+      "symbol_evidence": "tracked_comparison_v2_target_indices",
+      "symbol_source": "xe,ye,ze",
+      "symbol_note": "range endpoints bound by tracked evidence: validation/coordination/g6-target-first-step-20260913/comparison-v2.json target_indices places this block at flat indices 13..15, and the tracked reference probe state_integrator_paths registers listeners on the same named rigid-body integrators",
+      "entry_class": "out_of_mrdivide_path",
+      "entry_kind": "mapped_reference_compared_state",
+      "entry_reason": "covered by the tracked 13-state comparison-v2 mapping and the tracked reference probe events; the tracked evidence does not bind this index to any mrdivide operand or result",
+      "source_line_mapping": "unresolved_requires_archive_input",
+      "tracked_doc_refs": [
+        "first_step_timeline",
+        "output_encoding"
+      ],
+      "tracked_line_bindings": [
+        {
+          "key": "first_step_timeline",
+          "source": "first_step_static_doc",
+          "path": "docs/coordination/g6-first-step-static-20260913.md",
+          "tracked_at_anchor": true,
+          "sha256": "3b0de9813da47afa5ad889c2ba10bdd56fe5d29914cce227615fc0eab42eaeef",
+          "size": 13547,
+          "line_start": 16,
+          "line_end": 21,
+          "text": [
+            "",
+            "\u8bb0\u5f55\u5668\u6bcf k \u8c03\u4e00\u6b21 `model->step()`\uff1a\u5148\u5728\u4e3b\u65f6\u95f4\u6b65\u8ba1\u7b97\u6839\u8f93\u51fa\uff08`wk_capture_major` \u91c7\u96c6 `Exp1_MinModelTemp_Y` \u7684 `VehileInfo60d/Sensor30/GPS30`)\uff0c\u518d\u505a ODE4 \u66f4\u65b0\u628a\u72b6\u6001\u4ece t_k \u63a8\u8fdb\u5230 t_{k+1}(ODE4 \u5185\u90e8\u5404\u9636\u6bb5\u4e3a minor step\uff0c\u4e0d\u91cd\u590d\u91c7\u96c6\uff0c\u6545\u6bcf k \u6070 1 \u6b21 major \u91c7\u96c6\uff09\u3002",
+            "",
+            "\u56e0\u6b64 **k=1 \u7684\u8f93\u51fa = \u521d\u59cb\u9759\u6b62\u72b6\u6001\u7ecf\u4e00\u6b21 ODE4 \u66f4\u65b0\u540e\u7684\u72b6\u6001\u7684\u51fd\u6570**\u3002\u9996\u4e2a\u5206\u6b67\uff08k=1\uff09\u8981\u4e48\u6765\u81ea\u8fd9\u6b21 ODE4 \u66f4\u65b0/\u5176\u5bfc\u6570\u6c42\u503c\uff0c\u8981\u4e48\u6765\u81ea k=1 \u7684\u8f93\u51fa\u7f16\u7801\u3002",
+            "",
+            "## \u8ba1\u7b97\u94fe\u843d\u5b9e\uff08\u539f\u59cb\u7248 `a35d7c8f` \u884c\u53f7\uff1b\u4e0e\u5408\u540c source \u5f15\u7528\u4e00\u81f4\uff09"
+          ]
+        }
+      ],
+      "trace_source": "validation/coordination/g6-target-first-step-20260913/first-step-trace.jsonl",
+      "reference_source": "validation/coordination/g6-reference-probe-20260913/run-03/reference-first-step.json"
+    },
+    {
+      "index": 15,
+      "covered": true,
+      "block_symbol": "xe,ye,ze",
+      "block_symbol_range": [
+        13,
+        15
+      ],
+      "symbol_resolution": "resolved",
+      "symbol_evidence": "tracked_comparison_v2_target_indices",
+      "symbol_source": "xe,ye,ze",
+      "symbol_note": "range endpoints bound by tracked evidence: validation/coordination/g6-target-first-step-20260913/comparison-v2.json target_indices places this block at flat indices 13..15, and the tracked reference probe state_integrator_paths registers listeners on the same named rigid-body integrators",
+      "entry_class": "out_of_mrdivide_path",
+      "entry_kind": "mapped_reference_compared_state",
+      "entry_reason": "covered by the tracked 13-state comparison-v2 mapping and the tracked reference probe events; the tracked evidence does not bind this index to any mrdivide operand or result",
+      "source_line_mapping": "unresolved_requires_archive_input",
+      "tracked_doc_refs": [
+        "first_step_timeline",
+        "output_encoding"
+      ],
+      "tracked_line_bindings": [
+        {
+          "key": "first_step_timeline",
+          "source": "first_step_static_doc",
+          "path": "docs/coordination/g6-first-step-static-20260913.md",
+          "tracked_at_anchor": true,
+          "sha256": "3b0de9813da47afa5ad889c2ba10bdd56fe5d29914cce227615fc0eab42eaeef",
+          "size": 13547,
+          "line_start": 16,
+          "line_end": 21,
+          "text": [
+            "",
+            "\u8bb0\u5f55\u5668\u6bcf k \u8c03\u4e00\u6b21 `model->step()`\uff1a\u5148\u5728\u4e3b\u65f6\u95f4\u6b65\u8ba1\u7b97\u6839\u8f93\u51fa\uff08`wk_capture_major` \u91c7\u96c6 `Exp1_MinModelTemp_Y` \u7684 `VehileInfo60d/Sensor30/GPS30`)\uff0c\u518d\u505a ODE4 \u66f4\u65b0\u628a\u72b6\u6001\u4ece t_k \u63a8\u8fdb\u5230 t_{k+1}(ODE4 \u5185\u90e8\u5404\u9636\u6bb5\u4e3a minor step\uff0c\u4e0d\u91cd\u590d\u91c7\u96c6\uff0c\u6545\u6bcf k \u6070 1 \u6b21 major \u91c7\u96c6\uff09\u3002",
+            "",
+            "\u56e0\u6b64 **k=1 \u7684\u8f93\u51fa = \u521d\u59cb\u9759\u6b62\u72b6\u6001\u7ecf\u4e00\u6b21 ODE4 \u66f4\u65b0\u540e\u7684\u72b6\u6001\u7684\u51fd\u6570**\u3002\u9996\u4e2a\u5206\u6b67\uff08k=1\uff09\u8981\u4e48\u6765\u81ea\u8fd9\u6b21 ODE4 \u66f4\u65b0/\u5176\u5bfc\u6570\u6c42\u503c\uff0c\u8981\u4e48\u6765\u81ea k=1 \u7684\u8f93\u51fa\u7f16\u7801\u3002",
+            "",
+            "## \u8ba1\u7b97\u94fe\u843d\u5b9e\uff08\u539f\u59cb\u7248 `a35d7c8f` \u884c\u53f7\uff1b\u4e0e\u5408\u540c source \u5f15\u7528\u4e00\u81f4\uff09"
+          ]
+        }
+      ],
+      "trace_source": "validation/coordination/g6-target-first-step-20260913/first-step-trace.jsonl",
+      "reference_source": "validation/coordination/g6-reference-probe-20260913/run-03/reference-first-step.json"
+    },
+    {
+      "index": 16,
+      "covered": true,
+      "block_symbol": "ub,vb,wb",
+      "block_symbol_range": [
+        16,
+        18
+      ],
+      "symbol_resolution": "resolved",
+      "symbol_evidence": "tracked_comparison_v2_target_indices",
+      "symbol_source": "ub,vb,wb",
+      "symbol_note": "range endpoints bound by tracked evidence: validation/coordination/g6-target-first-step-20260913/comparison-v2.json target_indices places this block at flat indices 16..18, and the tracked reference probe state_integrator_paths registers listeners on the same named rigid-body integrators",
+      "entry_class": "out_of_mrdivide_path",
+      "entry_kind": "mapped_reference_compared_state",
+      "entry_reason": "covered by the tracked 13-state comparison-v2 mapping and the tracked reference probe events; the tracked evidence does not bind this index to any mrdivide operand or result",
+      "source_line_mapping": "unresolved_requires_archive_input",
+      "tracked_doc_refs": [
+        "first_step_timeline",
+        "output_encoding"
+      ],
+      "tracked_line_bindings": [
+        {
+          "key": "first_step_timeline",
+          "source": "first_step_static_doc",
+          "path": "docs/coordination/g6-first-step-static-20260913.md",
+          "tracked_at_anchor": true,
+          "sha256": "3b0de9813da47afa5ad889c2ba10bdd56fe5d29914cce227615fc0eab42eaeef",
+          "size": 13547,
+          "line_start": 16,
+          "line_end": 21,
+          "text": [
+            "",
+            "\u8bb0\u5f55\u5668\u6bcf k \u8c03\u4e00\u6b21 `model->step()`\uff1a\u5148\u5728\u4e3b\u65f6\u95f4\u6b65\u8ba1\u7b97\u6839\u8f93\u51fa\uff08`wk_capture_major` \u91c7\u96c6 `Exp1_MinModelTemp_Y` \u7684 `VehileInfo60d/Sensor30/GPS30`)\uff0c\u518d\u505a ODE4 \u66f4\u65b0\u628a\u72b6\u6001\u4ece t_k \u63a8\u8fdb\u5230 t_{k+1}(ODE4 \u5185\u90e8\u5404\u9636\u6bb5\u4e3a minor step\uff0c\u4e0d\u91cd\u590d\u91c7\u96c6\uff0c\u6545\u6bcf k \u6070 1 \u6b21 major \u91c7\u96c6\uff09\u3002",
+            "",
+            "\u56e0\u6b64 **k=1 \u7684\u8f93\u51fa = \u521d\u59cb\u9759\u6b62\u72b6\u6001\u7ecf\u4e00\u6b21 ODE4 \u66f4\u65b0\u540e\u7684\u72b6\u6001\u7684\u51fd\u6570**\u3002\u9996\u4e2a\u5206\u6b67\uff08k=1\uff09\u8981\u4e48\u6765\u81ea\u8fd9\u6b21 ODE4 \u66f4\u65b0/\u5176\u5bfc\u6570\u6c42\u503c\uff0c\u8981\u4e48\u6765\u81ea k=1 \u7684\u8f93\u51fa\u7f16\u7801\u3002",
+            "",
+            "## \u8ba1\u7b97\u94fe\u843d\u5b9e\uff08\u539f\u59cb\u7248 `a35d7c8f` \u884c\u53f7\uff1b\u4e0e\u5408\u540c source \u5f15\u7528\u4e00\u81f4\uff09"
+          ]
+        }
+      ],
+      "trace_source": "validation/coordination/g6-target-first-step-20260913/first-step-trace.jsonl",
+      "reference_source": "validation/coordination/g6-reference-probe-20260913/run-03/reference-first-step.json"
+    },
+    {
+      "index": 17,
+      "covered": true,
+      "block_symbol": "ub,vb,wb",
+      "block_symbol_range": [
+        16,
+        18
+      ],
+      "symbol_resolution": "resolved",
+      "symbol_evidence": "tracked_comparison_v2_target_indices",
+      "symbol_source": "ub,vb,wb",
+      "symbol_note": "range endpoints bound by tracked evidence: validation/coordination/g6-target-first-step-20260913/comparison-v2.json target_indices places this block at flat indices 16..18, and the tracked reference probe state_integrator_paths registers listeners on the same named rigid-body integrators",
+      "entry_class": "out_of_mrdivide_path",
+      "entry_kind": "mapped_reference_compared_state",
+      "entry_reason": "covered by the tracked 13-state comparison-v2 mapping and the tracked reference probe events; the tracked evidence does not bind this index to any mrdivide operand or result",
+      "source_line_mapping": "unresolved_requires_archive_input",
+      "tracked_doc_refs": [
+        "first_step_timeline",
+        "output_encoding"
+      ],
+      "tracked_line_bindings": [
+        {
+          "key": "first_step_timeline",
+          "source": "first_step_static_doc",
+          "path": "docs/coordination/g6-first-step-static-20260913.md",
+          "tracked_at_anchor": true,
+          "sha256": "3b0de9813da47afa5ad889c2ba10bdd56fe5d29914cce227615fc0eab42eaeef",
+          "size": 13547,
+          "line_start": 16,
+          "line_end": 21,
+          "text": [
+            "",
+            "\u8bb0\u5f55\u5668\u6bcf k \u8c03\u4e00\u6b21 `model->step()`\uff1a\u5148\u5728\u4e3b\u65f6\u95f4\u6b65\u8ba1\u7b97\u6839\u8f93\u51fa\uff08`wk_capture_major` \u91c7\u96c6 `Exp1_MinModelTemp_Y` \u7684 `VehileInfo60d/Sensor30/GPS30`)\uff0c\u518d\u505a ODE4 \u66f4\u65b0\u628a\u72b6\u6001\u4ece t_k \u63a8\u8fdb\u5230 t_{k+1}(ODE4 \u5185\u90e8\u5404\u9636\u6bb5\u4e3a minor step\uff0c\u4e0d\u91cd\u590d\u91c7\u96c6\uff0c\u6545\u6bcf k \u6070 1 \u6b21 major \u91c7\u96c6\uff09\u3002",
+            "",
+            "\u56e0\u6b64 **k=1 \u7684\u8f93\u51fa = \u521d\u59cb\u9759\u6b62\u72b6\u6001\u7ecf\u4e00\u6b21 ODE4 \u66f4\u65b0\u540e\u7684\u72b6\u6001\u7684\u51fd\u6570**\u3002\u9996\u4e2a\u5206\u6b67\uff08k=1\uff09\u8981\u4e48\u6765\u81ea\u8fd9\u6b21 ODE4 \u66f4\u65b0/\u5176\u5bfc\u6570\u6c42\u503c\uff0c\u8981\u4e48\u6765\u81ea k=1 \u7684\u8f93\u51fa\u7f16\u7801\u3002",
+            "",
+            "## \u8ba1\u7b97\u94fe\u843d\u5b9e\uff08\u539f\u59cb\u7248 `a35d7c8f` \u884c\u53f7\uff1b\u4e0e\u5408\u540c source \u5f15\u7528\u4e00\u81f4\uff09"
+          ]
+        }
+      ],
+      "trace_source": "validation/coordination/g6-target-first-step-20260913/first-step-trace.jsonl",
+      "reference_source": "validation/coordination/g6-reference-probe-20260913/run-03/reference-first-step.json"
+    },
+    {
+      "index": 18,
+      "covered": true,
+      "block_symbol": "ub,vb,wb",
+      "block_symbol_range": [
+        16,
+        18
+      ],
+      "symbol_resolution": "resolved",
+      "symbol_evidence": "tracked_comparison_v2_target_indices",
+      "symbol_source": "ub,vb,wb",
+      "symbol_note": "range endpoints bound by tracked evidence: validation/coordination/g6-target-first-step-20260913/comparison-v2.json target_indices places this block at flat indices 16..18, and the tracked reference probe state_integrator_paths registers listeners on the same named rigid-body integrators",
+      "entry_class": "out_of_mrdivide_path",
+      "entry_kind": "mapped_reference_compared_state",
+      "entry_reason": "covered by the tracked 13-state comparison-v2 mapping and the tracked reference probe events; the tracked evidence does not bind this index to any mrdivide operand or result",
+      "source_line_mapping": "unresolved_requires_archive_input",
+      "tracked_doc_refs": [
+        "first_step_timeline",
+        "output_encoding"
+      ],
+      "tracked_line_bindings": [
+        {
+          "key": "first_step_timeline",
+          "source": "first_step_static_doc",
+          "path": "docs/coordination/g6-first-step-static-20260913.md",
+          "tracked_at_anchor": true,
+          "sha256": "3b0de9813da47afa5ad889c2ba10bdd56fe5d29914cce227615fc0eab42eaeef",
+          "size": 13547,
+          "line_start": 16,
+          "line_end": 21,
+          "text": [
+            "",
+            "\u8bb0\u5f55\u5668\u6bcf k \u8c03\u4e00\u6b21 `model->step()`\uff1a\u5148\u5728\u4e3b\u65f6\u95f4\u6b65\u8ba1\u7b97\u6839\u8f93\u51fa\uff08`wk_capture_major` \u91c7\u96c6 `Exp1_MinModelTemp_Y` \u7684 `VehileInfo60d/Sensor30/GPS30`)\uff0c\u518d\u505a ODE4 \u66f4\u65b0\u628a\u72b6\u6001\u4ece t_k \u63a8\u8fdb\u5230 t_{k+1}(ODE4 \u5185\u90e8\u5404\u9636\u6bb5\u4e3a minor step\uff0c\u4e0d\u91cd\u590d\u91c7\u96c6\uff0c\u6545\u6bcf k \u6070 1 \u6b21 major \u91c7\u96c6\uff09\u3002",
+            "",
+            "\u56e0\u6b64 **k=1 \u7684\u8f93\u51fa = \u521d\u59cb\u9759\u6b62\u72b6\u6001\u7ecf\u4e00\u6b21 ODE4 \u66f4\u65b0\u540e\u7684\u72b6\u6001\u7684\u51fd\u6570**\u3002\u9996\u4e2a\u5206\u6b67\uff08k=1\uff09\u8981\u4e48\u6765\u81ea\u8fd9\u6b21 ODE4 \u66f4\u65b0/\u5176\u5bfc\u6570\u6c42\u503c\uff0c\u8981\u4e48\u6765\u81ea k=1 \u7684\u8f93\u51fa\u7f16\u7801\u3002",
+            "",
+            "## \u8ba1\u7b97\u94fe\u843d\u5b9e\uff08\u539f\u59cb\u7248 `a35d7c8f` \u884c\u53f7\uff1b\u4e0e\u5408\u540c source \u5f15\u7528\u4e00\u81f4\uff09"
+          ]
+        }
+      ],
+      "trace_source": "validation/coordination/g6-target-first-step-20260913/first-step-trace.jsonl",
+      "reference_source": "validation/coordination/g6-reference-probe-20260913/run-03/reference-first-step.json"
+    },
+    {
+      "index": 19,
+      "covered": false,
+      "block_symbol": "IntegratorSecondOrderLimited__n",
+      "block_symbol_range": [
+        19,
+        24
+      ],
+      "symbol_resolution": "conflicted_requires_archive_input",
+      "symbol_evidence": "tracked_builder_state_layout_plus_requirement_text",
+      "symbol_source": "IntegratorSecondOrderLimited__n",
+      "symbol_note": "two tracked sources disagree on the block owning the low end of this range: tools/build_first_step_trace.py STATE_LAYOUT places IntegratorSecondOrderLimited__n at 19..24 and TransferFcn4/1/2_CSTATE at 25..27, while the requirement text docs/coordination/g6-pqr-derivative-path-20260913.md:36 assigns 19..27 to TransferFcn; the ownership of indices 19..24 and the authoritative layout need the frozen archive header input",
+      "entry_class": "out_of_mrdivide_path",
+      "entry_kind": "unmapped_state",
+      "entry_reason": "not mapped on the reference side by any tracked source; the tracked evidence does not bind this index to any mrdivide operand or result",
+      "source_line_mapping": "unresolved_requires_archive_input",
+      "tracked_doc_refs": [],
+      "tracked_line_bindings": [],
+      "trace_source": null,
+      "reference_source": null
+    },
+    {
+      "index": 20,
+      "covered": false,
+      "block_symbol": "IntegratorSecondOrderLimited__n",
+      "block_symbol_range": [
+        19,
+        24
+      ],
+      "symbol_resolution": "conflicted_requires_archive_input",
+      "symbol_evidence": "tracked_builder_state_layout_plus_requirement_text",
+      "symbol_source": "IntegratorSecondOrderLimited__n",
+      "symbol_note": "two tracked sources disagree on the block owning the low end of this range: tools/build_first_step_trace.py STATE_LAYOUT places IntegratorSecondOrderLimited__n at 19..24 and TransferFcn4/1/2_CSTATE at 25..27, while the requirement text docs/coordination/g6-pqr-derivative-path-20260913.md:36 assigns 19..27 to TransferFcn; the ownership of indices 19..24 and the authoritative layout need the frozen archive header input",
+      "entry_class": "out_of_mrdivide_path",
+      "entry_kind": "unmapped_state",
+      "entry_reason": "not mapped on the reference side by any tracked source; the tracked evidence does not bind this index to any mrdivide operand or result",
+      "source_line_mapping": "unresolved_requires_archive_input",
+      "tracked_doc_refs": [],
+      "tracked_line_bindings": [],
+      "trace_source": null,
+      "reference_source": null
+    },
+    {
+      "index": 21,
+      "covered": false,
+      "block_symbol": "IntegratorSecondOrderLimited__n",
+      "block_symbol_range": [
+        19,
+        24
+      ],
+      "symbol_resolution": "conflicted_requires_archive_input",
+      "symbol_evidence": "tracked_builder_state_layout_plus_requirement_text",
+      "symbol_source": "IntegratorSecondOrderLimited__n",
+      "symbol_note": "two tracked sources disagree on the block owning the low end of this range: tools/build_first_step_trace.py STATE_LAYOUT places IntegratorSecondOrderLimited__n at 19..24 and TransferFcn4/1/2_CSTATE at 25..27, while the requirement text docs/coordination/g6-pqr-derivative-path-20260913.md:36 assigns 19..27 to TransferFcn; the ownership of indices 19..24 and the authoritative layout need the frozen archive header input",
+      "entry_class": "out_of_mrdivide_path",
+      "entry_kind": "unmapped_state",
+      "entry_reason": "not mapped on the reference side by any tracked source; the tracked evidence does not bind this index to any mrdivide operand or result",
+      "source_line_mapping": "unresolved_requires_archive_input",
+      "tracked_doc_refs": [],
+      "tracked_line_bindings": [],
+      "trace_source": null,
+      "reference_source": null
+    },
+    {
+      "index": 22,
+      "covered": false,
+      "block_symbol": "IntegratorSecondOrderLimited__n",
+      "block_symbol_range": [
+        19,
+        24
+      ],
+      "symbol_resolution": "conflicted_requires_archive_input",
+      "symbol_evidence": "tracked_builder_state_layout_plus_requirement_text",
+      "symbol_source": "IntegratorSecondOrderLimited__n",
+      "symbol_note": "two tracked sources disagree on the block owning the low end of this range: tools/build_first_step_trace.py STATE_LAYOUT places IntegratorSecondOrderLimited__n at 19..24 and TransferFcn4/1/2_CSTATE at 25..27, while the requirement text docs/coordination/g6-pqr-derivative-path-20260913.md:36 assigns 19..27 to TransferFcn; the ownership of indices 19..24 and the authoritative layout need the frozen archive header input",
+      "entry_class": "out_of_mrdivide_path",
+      "entry_kind": "unmapped_state",
+      "entry_reason": "not mapped on the reference side by any tracked source; the tracked evidence does not bind this index to any mrdivide operand or result",
+      "source_line_mapping": "unresolved_requires_archive_input",
+      "tracked_doc_refs": [],
+      "tracked_line_bindings": [],
+      "trace_source": null,
+      "reference_source": null
+    },
+    {
+      "index": 23,
+      "covered": false,
+      "block_symbol": "IntegratorSecondOrderLimited__n",
+      "block_symbol_range": [
+        19,
+        24
+      ],
+      "symbol_resolution": "conflicted_requires_archive_input",
+      "symbol_evidence": "tracked_builder_state_layout_plus_requirement_text",
+      "symbol_source": "IntegratorSecondOrderLimited__n",
+      "symbol_note": "two tracked sources disagree on the block owning the low end of this range: tools/build_first_step_trace.py STATE_LAYOUT places IntegratorSecondOrderLimited__n at 19..24 and TransferFcn4/1/2_CSTATE at 25..27, while the requirement text docs/coordination/g6-pqr-derivative-path-20260913.md:36 assigns 19..27 to TransferFcn; the ownership of indices 19..24 and the authoritative layout need the frozen archive header input",
+      "entry_class": "out_of_mrdivide_path",
+      "entry_kind": "unmapped_state",
+      "entry_reason": "not mapped on the reference side by any tracked source; the tracked evidence does not bind this index to any mrdivide operand or result",
+      "source_line_mapping": "unresolved_requires_archive_input",
+      "tracked_doc_refs": [],
+      "tracked_line_bindings": [],
+      "trace_source": null,
+      "reference_source": null
+    },
+    {
+      "index": 24,
+      "covered": false,
+      "block_symbol": "IntegratorSecondOrderLimited__n",
+      "block_symbol_range": [
+        19,
+        24
+      ],
+      "symbol_resolution": "conflicted_requires_archive_input",
+      "symbol_evidence": "tracked_builder_state_layout_plus_requirement_text",
+      "symbol_source": "IntegratorSecondOrderLimited__n",
+      "symbol_note": "two tracked sources disagree on the block owning the low end of this range: tools/build_first_step_trace.py STATE_LAYOUT places IntegratorSecondOrderLimited__n at 19..24 and TransferFcn4/1/2_CSTATE at 25..27, while the requirement text docs/coordination/g6-pqr-derivative-path-20260913.md:36 assigns 19..27 to TransferFcn; the ownership of indices 19..24 and the authoritative layout need the frozen archive header input",
+      "entry_class": "out_of_mrdivide_path",
+      "entry_kind": "unmapped_state",
+      "entry_reason": "not mapped on the reference side by any tracked source; the tracked evidence does not bind this index to any mrdivide operand or result",
+      "source_line_mapping": "unresolved_requires_archive_input",
+      "tracked_doc_refs": [],
+      "tracked_line_bindings": [],
+      "trace_source": null,
+      "reference_source": null
+    },
+    {
+      "index": 25,
+      "covered": false,
+      "block_symbol": "TransferFcn4/1/2_CSTATE",
+      "block_symbol_range": [
+        25,
+        27
+      ],
+      "symbol_resolution": "conflicted_requires_archive_input",
+      "symbol_evidence": "tracked_builder_state_layout_plus_requirement_text",
+      "symbol_source": "TransferFcn4/1/2_CSTATE",
+      "symbol_note": "two tracked sources disagree on the block owning the low end of this range: tools/build_first_step_trace.py STATE_LAYOUT places IntegratorSecondOrderLimited__n at 19..24 and TransferFcn4/1/2_CSTATE at 25..27, while the requirement text docs/coordination/g6-pqr-derivative-path-20260913.md:36 assigns 19..27 to TransferFcn; the ownership of indices 19..24 and the authoritative layout need the frozen archive header input",
+      "entry_class": "out_of_mrdivide_path",
+      "entry_kind": "unmapped_state",
+      "entry_reason": "not mapped on the reference side by any tracked source; the tracked evidence does not bind this index to any mrdivide operand or result",
+      "source_line_mapping": "unresolved_requires_archive_input",
+      "tracked_doc_refs": [],
+      "tracked_line_bindings": [],
+      "trace_source": null,
+      "reference_source": null
+    },
+    {
+      "index": 26,
+      "covered": false,
+      "block_symbol": "TransferFcn4/1/2_CSTATE",
+      "block_symbol_range": [
+        25,
+        27
+      ],
+      "symbol_resolution": "conflicted_requires_archive_input",
+      "symbol_evidence": "tracked_builder_state_layout_plus_requirement_text",
+      "symbol_source": "TransferFcn4/1/2_CSTATE",
+      "symbol_note": "two tracked sources disagree on the block owning the low end of this range: tools/build_first_step_trace.py STATE_LAYOUT places IntegratorSecondOrderLimited__n at 19..24 and TransferFcn4/1/2_CSTATE at 25..27, while the requirement text docs/coordination/g6-pqr-derivative-path-20260913.md:36 assigns 19..27 to TransferFcn; the ownership of indices 19..24 and the authoritative layout need the frozen archive header input",
+      "entry_class": "out_of_mrdivide_path",
+      "entry_kind": "unmapped_state",
+      "entry_reason": "not mapped on the reference side by any tracked source; the tracked evidence does not bind this index to any mrdivide operand or result",
+      "source_line_mapping": "unresolved_requires_archive_input",
+      "tracked_doc_refs": [],
+      "tracked_line_bindings": [],
+      "trace_source": null,
+      "reference_source": null
+    },
+    {
+      "index": 27,
+      "covered": false,
+      "block_symbol": "TransferFcn4/1/2_CSTATE",
+      "block_symbol_range": [
+        25,
+        27
+      ],
+      "symbol_resolution": "conflicted_requires_archive_input",
+      "symbol_evidence": "tracked_builder_state_layout_plus_requirement_text",
+      "symbol_source": "TransferFcn4/1/2_CSTATE",
+      "symbol_note": "two tracked sources disagree on the block owning the low end of this range: tools/build_first_step_trace.py STATE_LAYOUT places IntegratorSecondOrderLimited__n at 19..24 and TransferFcn4/1/2_CSTATE at 25..27, while the requirement text docs/coordination/g6-pqr-derivative-path-20260913.md:36 assigns 19..27 to TransferFcn; the ownership of indices 19..24 and the authoritative layout need the frozen archive header input",
+      "entry_class": "out_of_mrdivide_path",
+      "entry_kind": "unmapped_state",
+      "entry_reason": "not mapped on the reference side by any tracked source; the tracked evidence does not bind this index to any mrdivide operand or result",
+      "source_line_mapping": "unresolved_requires_archive_input",
+      "tracked_doc_refs": [],
+      "tracked_line_bindings": [],
+      "trace_source": null,
+      "reference_source": null
+    },
+    {
+      "index": 28,
+      "covered": false,
+      "block_symbol": "MotorNonlinearDynamic8..1 .x",
+      "block_symbol_range": [
+        28,
+        35
+      ],
+      "symbol_resolution": "conflicted_requires_archive_input",
+      "symbol_evidence": "tracked_builder_state_layout_plus_requirement_text",
+      "symbol_source": "MotorNonlinearDynamic8..1 .x",
+      "symbol_note": "two tracked sources disagree on the block owning the low end of this range: tools/build_first_step_trace.py STATE_LAYOUT places IntegratorSecondOrderLimited__n at 19..24 and TransferFcn4/1/2_CSTATE at 25..27, while the requirement text docs/coordination/g6-pqr-derivative-path-20260913.md:36 assigns 19..27 to TransferFcn; the ownership of indices 19..24 and the authoritative layout need the frozen archive header input",
+      "entry_class": "out_of_mrdivide_path",
+      "entry_kind": "unmapped_state",
+      "entry_reason": "not mapped on the reference side by any tracked source; the tracked evidence does not bind this index to any mrdivide operand or result",
+      "source_line_mapping": "unresolved_requires_archive_input",
+      "tracked_doc_refs": [],
+      "tracked_line_bindings": [],
+      "trace_source": null,
+      "reference_source": null
+    },
+    {
+      "index": 29,
+      "covered": false,
+      "block_symbol": "MotorNonlinearDynamic8..1 .x",
+      "block_symbol_range": [
+        28,
+        35
+      ],
+      "symbol_resolution": "conflicted_requires_archive_input",
+      "symbol_evidence": "tracked_builder_state_layout_plus_requirement_text",
+      "symbol_source": "MotorNonlinearDynamic8..1 .x",
+      "symbol_note": "two tracked sources disagree on the block owning the low end of this range: tools/build_first_step_trace.py STATE_LAYOUT places IntegratorSecondOrderLimited__n at 19..24 and TransferFcn4/1/2_CSTATE at 25..27, while the requirement text docs/coordination/g6-pqr-derivative-path-20260913.md:36 assigns 19..27 to TransferFcn; the ownership of indices 19..24 and the authoritative layout need the frozen archive header input",
+      "entry_class": "out_of_mrdivide_path",
+      "entry_kind": "unmapped_state",
+      "entry_reason": "not mapped on the reference side by any tracked source; the tracked evidence does not bind this index to any mrdivide operand or result",
+      "source_line_mapping": "unresolved_requires_archive_input",
+      "tracked_doc_refs": [],
+      "tracked_line_bindings": [],
+      "trace_source": null,
+      "reference_source": null
+    },
+    {
+      "index": 30,
+      "covered": false,
+      "block_symbol": "MotorNonlinearDynamic8..1 .x",
+      "block_symbol_range": [
+        28,
+        35
+      ],
+      "symbol_resolution": "conflicted_requires_archive_input",
+      "symbol_evidence": "tracked_builder_state_layout_plus_requirement_text",
+      "symbol_source": "MotorNonlinearDynamic8..1 .x",
+      "symbol_note": "two tracked sources disagree on the block owning the low end of this range: tools/build_first_step_trace.py STATE_LAYOUT places IntegratorSecondOrderLimited__n at 19..24 and TransferFcn4/1/2_CSTATE at 25..27, while the requirement text docs/coordination/g6-pqr-derivative-path-20260913.md:36 assigns 19..27 to TransferFcn; the ownership of indices 19..24 and the authoritative layout need the frozen archive header input",
+      "entry_class": "out_of_mrdivide_path",
+      "entry_kind": "unmapped_state",
+      "entry_reason": "not mapped on the reference side by any tracked source; the tracked evidence does not bind this index to any mrdivide operand or result",
+      "source_line_mapping": "unresolved_requires_archive_input",
+      "tracked_doc_refs": [],
+      "tracked_line_bindings": [],
+      "trace_source": null,
+      "reference_source": null
+    },
+    {
+      "index": 31,
+      "covered": false,
+      "block_symbol": "MotorNonlinearDynamic8..1 .x",
+      "block_symbol_range": [
+        28,
+        35
+      ],
+      "symbol_resolution": "conflicted_requires_archive_input",
+      "symbol_evidence": "tracked_builder_state_layout_plus_requirement_text",
+      "symbol_source": "MotorNonlinearDynamic8..1 .x",
+      "symbol_note": "two tracked sources disagree on the block owning the low end of this range: tools/build_first_step_trace.py STATE_LAYOUT places IntegratorSecondOrderLimited__n at 19..24 and TransferFcn4/1/2_CSTATE at 25..27, while the requirement text docs/coordination/g6-pqr-derivative-path-20260913.md:36 assigns 19..27 to TransferFcn; the ownership of indices 19..24 and the authoritative layout need the frozen archive header input",
+      "entry_class": "out_of_mrdivide_path",
+      "entry_kind": "unmapped_state",
+      "entry_reason": "not mapped on the reference side by any tracked source; the tracked evidence does not bind this index to any mrdivide operand or result",
+      "source_line_mapping": "unresolved_requires_archive_input",
+      "tracked_doc_refs": [],
+      "tracked_line_bindings": [],
+      "trace_source": null,
+      "reference_source": null
+    },
+    {
+      "index": 32,
+      "covered": false,
+      "block_symbol": "MotorNonlinearDynamic8..1 .x",
+      "block_symbol_range": [
+        28,
+        35
+      ],
+      "symbol_resolution": "conflicted_requires_archive_input",
+      "symbol_evidence": "tracked_builder_state_layout_plus_requirement_text",
+      "symbol_source": "MotorNonlinearDynamic8..1 .x",
+      "symbol_note": "two tracked sources disagree on the block owning the low end of this range: tools/build_first_step_trace.py STATE_LAYOUT places IntegratorSecondOrderLimited__n at 19..24 and TransferFcn4/1/2_CSTATE at 25..27, while the requirement text docs/coordination/g6-pqr-derivative-path-20260913.md:36 assigns 19..27 to TransferFcn; the ownership of indices 19..24 and the authoritative layout need the frozen archive header input",
+      "entry_class": "out_of_mrdivide_path",
+      "entry_kind": "unmapped_state",
+      "entry_reason": "not mapped on the reference side by any tracked source; the tracked evidence does not bind this index to any mrdivide operand or result",
+      "source_line_mapping": "unresolved_requires_archive_input",
+      "tracked_doc_refs": [],
+      "tracked_line_bindings": [],
+      "trace_source": null,
+      "reference_source": null
+    },
+    {
+      "index": 33,
+      "covered": false,
+      "block_symbol": "MotorNonlinearDynamic8..1 .x",
+      "block_symbol_range": [
+        28,
+        35
+      ],
+      "symbol_resolution": "conflicted_requires_archive_input",
+      "symbol_evidence": "tracked_builder_state_layout_plus_requirement_text",
+      "symbol_source": "MotorNonlinearDynamic8..1 .x",
+      "symbol_note": "two tracked sources disagree on the block owning the low end of this range: tools/build_first_step_trace.py STATE_LAYOUT places IntegratorSecondOrderLimited__n at 19..24 and TransferFcn4/1/2_CSTATE at 25..27, while the requirement text docs/coordination/g6-pqr-derivative-path-20260913.md:36 assigns 19..27 to TransferFcn; the ownership of indices 19..24 and the authoritative layout need the frozen archive header input",
+      "entry_class": "out_of_mrdivide_path",
+      "entry_kind": "unmapped_state",
+      "entry_reason": "not mapped on the reference side by any tracked source; the tracked evidence does not bind this index to any mrdivide operand or result",
+      "source_line_mapping": "unresolved_requires_archive_input",
+      "tracked_doc_refs": [],
+      "tracked_line_bindings": [],
+      "trace_source": null,
+      "reference_source": null
+    },
+    {
+      "index": 34,
+      "covered": false,
+      "block_symbol": "MotorNonlinearDynamic8..1 .x",
+      "block_symbol_range": [
+        28,
+        35
+      ],
+      "symbol_resolution": "conflicted_requires_archive_input",
+      "symbol_evidence": "tracked_builder_state_layout_plus_requirement_text",
+      "symbol_source": "MotorNonlinearDynamic8..1 .x",
+      "symbol_note": "two tracked sources disagree on the block owning the low end of this range: tools/build_first_step_trace.py STATE_LAYOUT places IntegratorSecondOrderLimited__n at 19..24 and TransferFcn4/1/2_CSTATE at 25..27, while the requirement text docs/coordination/g6-pqr-derivative-path-20260913.md:36 assigns 19..27 to TransferFcn; the ownership of indices 19..24 and the authoritative layout need the frozen archive header input",
+      "entry_class": "out_of_mrdivide_path",
+      "entry_kind": "unmapped_state",
+      "entry_reason": "not mapped on the reference side by any tracked source; the tracked evidence does not bind this index to any mrdivide operand or result",
+      "source_line_mapping": "unresolved_requires_archive_input",
+      "tracked_doc_refs": [],
+      "tracked_line_bindings": [],
+      "trace_source": null,
+      "reference_source": null
+    },
+    {
+      "index": 35,
+      "covered": false,
+      "block_symbol": "MotorNonlinearDynamic8..1 .x",
+      "block_symbol_range": [
+        28,
+        35
+      ],
+      "symbol_resolution": "conflicted_requires_archive_input",
+      "symbol_evidence": "tracked_builder_state_layout_plus_requirement_text",
+      "symbol_source": "MotorNonlinearDynamic8..1 .x",
+      "symbol_note": "two tracked sources disagree on the block owning the low end of this range: tools/build_first_step_trace.py STATE_LAYOUT places IntegratorSecondOrderLimited__n at 19..24 and TransferFcn4/1/2_CSTATE at 25..27, while the requirement text docs/coordination/g6-pqr-derivative-path-20260913.md:36 assigns 19..27 to TransferFcn; the ownership of indices 19..24 and the authoritative layout need the frozen archive header input",
+      "entry_class": "out_of_mrdivide_path",
+      "entry_kind": "unmapped_state",
+      "entry_reason": "not mapped on the reference side by any tracked source; the tracked evidence does not bind this index to any mrdivide operand or result",
+      "source_line_mapping": "unresolved_requires_archive_input",
+      "tracked_doc_refs": [],
+      "tracked_line_bindings": [],
+      "trace_source": null,
+      "reference_source": null
+    }
+  ],
+  "line_bindings": [
+    {
+      "key": "build_trace_scope",
+      "source": "first_step_trace_doc",
+      "path": "docs/coordination/g6-first-step-trace-20260913.md",
+      "tracked_at_anchor": true,
+      "sha256": "082f6f531f590ffe0bed0e32f97f1d390017f3bee101b88abb6f569243062904",
+      "size": 4933,
+      "line_start": 1,
+      "line_end": 12,
+      "text": [
+        "# G6 / R1 \u76ee\u6807\u7aef\u9996\u6b65 ODE4 trace \u6784\u5efa\u5668\uff08\u6e90\u7801\u53d8\u6362 + \u547d\u4ee4\u751f\u6210\uff0c\u4e0d\u7f16\u8bd1\u4e0d\u8fd0\u884c\uff09",
+        "",
+        "2026-09-13\u3002\u8d1f\u8d23\u4eba\uff1aClaude\u3002\u627f\u63a5\u9996\u6b65\u9759\u6001\u8c03\u67e5\u4e0e\u53c2\u8003\u7aef probe\uff08\u53c2\u8003\u7aef run-03 \u5df2\u5b9e\u8bc1\uff1a\u6bcf\u79ef\u5206\u5668\u6bcf\u6b65 4 \u6b21 PostDerivatives\uff0c\u65f6\u95f4 0/.0005/.0005/.001\uff0c\u72b6\u6001/\u5bfc\u6570\u5747\u4ee5 double hex \u8bfb\u5230\uff0c240 \u4e2a major \u8f93\u51fa\u4e0e\u539f C3G f64 \u9010\u4f4d\u76f8\u540c\uff09\u3002\u672c\u4efb\u52a1\u51c6\u5907**\u76ee\u6807\u7aef**\u9996\u6b65 trace\uff1a\u53ea\u8bfb\u63d2\u6869\u751f\u6210\u7684 ODE4 \u6c42\u89e3\u5668\uff0c\u53ea\u8dd1 k=0\u21921\u3002",
+        "",
+        "**\u8fb9\u754c**\uff1a\u53ea\u505a\u6e90\u7801\u53d8\u6362 + \u547d\u4ee4\u751f\u6210 + \u7eaf\u884c\u4e3a\u6d4b\u8bd5\uff1b**\u4e0d\u8fd0\u884c\u7f16\u8bd1\u5668/\u6a21\u578b/MATLAB/ROS**\uff1b\u4e0d\u628a\u751f\u6210\uff08\u5382\u5546\uff09\u6e90\u6216\u4e8c\u8fdb\u5236\u590d\u5236\u8fdb\u4ed3\u5e93\uff08\u63d2\u6869\u4ea7\u7269\u53ea\u5199\u5165\u72ec\u7acb\u6784\u5efa\u6682\u5b58\u76ee\u5f55\uff09\uff1b\u4e0d\u628a\u5b83\u5f53 G6 \u901a\u8fc7\uff1b\u4e0d\u91cd\u6392\u539f\u4e58\u52a0\u8868\u8fbe\u5f0f\u3002",
+        "",
+        "## \u4ea4\u4ed8\u7269",
+        "",
+        "- `tools/build_first_step_trace.py` \u2014 \u6784\u5efa\u5668\uff08instrument + \u547d\u4ee4\u751f\u6210\uff0c\u62d2\u8986\u76d6\uff0cSHA \u7ed1\u5b9a\uff0c\u53ef\u9010\u5b57\u590d\u539f\uff09\u3002",
+        "- `tools/first_step_trace_recorder.cpp` \u2014 \u76ee\u6807\u7aef\u8bb0\u5f55\u5668\u9a71\u52a8\uff08\u6355\u83b7\u94a9\u5b50\u5b9a\u4e49 + \u5355\u6b65 main)\u3002",
+        "- `validation/test_first_step_trace.py` \u2014 \u7eaf Python \u6d4b\u8bd5\uff0810 \u9879\uff0c\u771f\u5b9e\u53ea\u8bfb cpp + \u5408\u6210 fixture)\u3002",
+        "- \u672c\u6587\u6863\u3002"
+      ]
+    },
+    {
+      "key": "divergence_scope",
+      "source": "first_divergence_doc",
+      "path": "docs/coordination/g6-first-divergence-20260913.md",
+      "tracked_at_anchor": true,
+      "sha256": "ed243ca5e53184f0848aa02a27e7bfc81b99b1a14b0118e33c59be7eddae6fd5",
+      "size": 8780,
+      "line_start": 1,
+      "line_end": 16,
+      "text": [
+        "# G6 / R1 \u9996\u4e2a\u6570\u503c\u5206\u6b67\u5b9a\u4f4d\uff08\u79bb\u7ebf\u53ea\u8bfb,\u8c28\u614e\u7ed3\u8bba)",
+        "",
+        "2026-09-13\u3002\u8d1f\u8d23\u4eba\uff1aClaude\uff08\u77ed\u5468\u671f\u5e2d\u4f4d\uff09\u3002\u4efb\u52a1\uff1a\u5b9a\u4f4d G6 \u6570\u503c R1 \u5df2\u6709 **5684** \u4e2a\u5931\u8d25\u503c\u7684**\u9996\u4e2a\u5206\u6b67**\u53ca\u5176\u8f93\u5165/\u6a21\u578b/\u5355\u4f4d/\u5750\u6807\u5951\u7ea6\u3002",
+        "",
+        "\u672c\u5de5\u4f5c\u4e3a**\u7eaf\u79bb\u7ebf\u53ea\u8bfb\u5206\u6790**\uff1a\u4e0d\u91cd\u8dd1\u6a21\u578b\u3001\u4e0d\u542f\u52a8 MATLAB/native/ROS \u8282\u70b9\u3001\u4e0d\u6784\u5efa\u3001\u4e0d\u6539\u51bb\u7ed3\u5951\u7ea6/\u9608\u503c/\u63a5\u53d7\u95e8\u3001\u4e0d\u6539\u4efb\u4f55\u65e2\u6709\u8bc1\u636e\u3002\u4ec5\u65b0\u589e\u79bb\u7ebf\u5bf9\u6bd4\u811a\u672c\u4e0e\u5176\u6d4b\u8bd5,\u8bfb\u53d6\u5df2\u5c01\u5b58\u8bc1\u636e\u3002",
+        "",
+        "- \u5de5\u5177\uff1a`tools/diagnose_g6_first_divergence.py`",
+        "- \u6d4b\u8bd5\uff1a`validation/test_g6_first_divergence.py`(29 \u9879)",
+        "- \u673a\u5668\u7ed3\u8bba\uff1a`validation/coordination/g6-first-divergence-20260913/v3/diagnosis.json`",
+        "- \u8bf4\u660e\uff1a\u9996\u7248 `.../diagnosis.json` \u4e0e\u6b21\u7248 `.../v2/diagnosis.json` \u5747**\u539f\u72b6\u4fdd\u7559**(\u9996\u7248\u7ed3\u8bba\u8fc7\u5f3a\u4e14\u672a\u505a\u5b8c\u6574\u6027\u6838\u9a8c\uff1b\u6b21\u7248\u5df2\u5ba1\u614e\u4f46\u672a\u771f\u6b63\u505a\u5230 read-once)\u3002\u672c\u7248\u62a5\u544a\u5199\u5165 `v3/` \u5b50\u76ee\u5f55\uff0c\u72ec\u5360\u521b\u5efa\u3001\u62d2\u7edd\u8986\u76d6\u3002",
+        "",
+        "## \u7ed3\u8bba\u6458\u8981\uff08\u8c28\u614e)",
+        "",
+        "\u6700\u65e9\u5206\u6b67\u5728 **case `C3G`\u3001\u6837\u672c `k=1`\u3001`Vehicle60[3]`**(NED \u5317\u5411\u901f\u5ea6\uff0c\u5355\u4f4d m/s)\u3002\u53c2\u8003 `6.254852369965466e-30`\uff0c\u76ee\u6807 `6.2548523699654644e-30`\uff0c\u5dee **2 ULP**(binary64 `0x1.fb743384c5850p-98` vs `0x1.fb743384c584ep-98`)\uff0c\u7edd\u5bf9\u8bef\u5dee `1.401298464324817e-45`\u3002",
+        "",
+        "**\u8fd9\u53ea\u662f\u4e00\u6761\u5047\u8bbe\uff08\u672a\u8bc1\uff09**\uff1a\u672c\u51bb\u7ed3\u6570\u636e**\u4e0e**\u4e24\u4e2a\u88ab\u51bb\u7ed3\u6267\u884c\u5f15\u64ce\uff08MATLAB R2022b normal \u53c2\u8003 vs g++ `-O2 -fno-fast-math` \u7f16\u8bd1 C \u76ee\u6807\uff09\u5728\u5171\u4eab\u6a21\u578b\u65b9\u7a0b\u4e0a\u7684**\u6d6e\u70b9\u6c42\u503c\u5dee\u5f02\u4e00\u81f4**\uff1b**\u786e\u5207\u539f\u56e0\u9700\u9996\u6b65\u6b65\u5185\u8bc1\u636e**\uff08\u73b0\u5b58\u8bc1\u636e\u53ea\u542b\u9010 1ms \u4e3b\u8f93\u51fa\uff0c\u65e0\u6b65\u5185\u4e2d\u95f4\u91cf\uff09\u3002\u4ec5\"\u5c0f\u76f8\u5bf9\u8bef\u5dee + \u65e0\u7b26\u53f7\u7ffb\u8f6c\"**\u4e0d\u8db3\u4ee5\u6392\u9664\u6240\u6709\u5750\u6807/\u5355\u4f4d/\u65f6\u5e8f\u5408\u540c\u95ee\u9898**\uff1b\u672c\u6587\u4e0d\u4f5c\u6b64\u6392\u9664\u6027\u5b9a\u8bba\u3002"
+      ]
+    },
+    {
+      "key": "first_step_timeline",
+      "source": "first_step_static_doc",
+      "path": "docs/coordination/g6-first-step-static-20260913.md",
+      "tracked_at_anchor": true,
+      "sha256": "3b0de9813da47afa5ad889c2ba10bdd56fe5d29914cce227615fc0eab42eaeef",
+      "size": 13547,
+      "line_start": 16,
+      "line_end": 21,
+      "text": [
+        "",
+        "\u8bb0\u5f55\u5668\u6bcf k \u8c03\u4e00\u6b21 `model->step()`\uff1a\u5148\u5728\u4e3b\u65f6\u95f4\u6b65\u8ba1\u7b97\u6839\u8f93\u51fa\uff08`wk_capture_major` \u91c7\u96c6 `Exp1_MinModelTemp_Y` \u7684 `VehileInfo60d/Sensor30/GPS30`)\uff0c\u518d\u505a ODE4 \u66f4\u65b0\u628a\u72b6\u6001\u4ece t_k \u63a8\u8fdb\u5230 t_{k+1}(ODE4 \u5185\u90e8\u5404\u9636\u6bb5\u4e3a minor step\uff0c\u4e0d\u91cd\u590d\u91c7\u96c6\uff0c\u6545\u6bcf k \u6070 1 \u6b21 major \u91c7\u96c6\uff09\u3002",
+        "",
+        "\u56e0\u6b64 **k=1 \u7684\u8f93\u51fa = \u521d\u59cb\u9759\u6b62\u72b6\u6001\u7ecf\u4e00\u6b21 ODE4 \u66f4\u65b0\u540e\u7684\u72b6\u6001\u7684\u51fd\u6570**\u3002\u9996\u4e2a\u5206\u6b67\uff08k=1\uff09\u8981\u4e48\u6765\u81ea\u8fd9\u6b21 ODE4 \u66f4\u65b0/\u5176\u5bfc\u6570\u6c42\u503c\uff0c\u8981\u4e48\u6765\u81ea k=1 \u7684\u8f93\u51fa\u7f16\u7801\u3002",
+        "",
+        "## \u8ba1\u7b97\u94fe\u843d\u5b9e\uff08\u539f\u59cb\u7248 `a35d7c8f` \u884c\u53f7\uff1b\u4e0e\u5408\u540c source \u5f15\u7528\u4e00\u81f4\uff09"
+      ]
+    },
+    {
+      "key": "mrdivide_call",
+      "source": "pqr_derivative_path_doc",
+      "path": "docs/coordination/g6-pqr-derivative-path-20260913.md",
+      "tracked_at_anchor": true,
+      "sha256": "bd90a40bde4d9206269e364644c7858f49da45838688b7073ca4b8fa73e25d0d",
+      "size": 6530,
+      "line_start": 28,
+      "line_end": 28,
+      "text": [
+        "**\u7b2c\u4e8c\u6b65\uff1a\u60ef\u6027\u77e9\u9635\u6c42\u89e3**(5546\u20135547)`Product2 = rt_mrdivide_U1d1x3_U2d_9vOrDY9Z(residual, Selector2)`\u3002`Selector2` = `ModelParam_uavJ`(S53 Matrix Concatenation \u53d6\u5217 0\u20132,5367\u20135373 + 5534\u20135538)\uff0c\u5373\u51bb\u7ed3**\u5bf9\u89d2**\u60ef\u6027\u9635 `diag(0.0211, 0.0219, 0.0366)`\uff1b\u4e14\u53ea\u5728 major \u6b65\u91cd\u7b97\uff085529 `if rtmIsMajorTimeStep`)\uff0c\u6b65\u5185\u56db\u7ea7\u4e0d\u53d8\u3002`rt_mrdivide`(3700\u20133751\uff09\u662f**\u624b\u5199\u90e8\u5206\u4e3b\u5143\u9ad8\u65af\u6d88\u5143**\uff08\u4e00\u4e32\u9664\u6cd5 + \u4e58\u51cf\uff09\u3002"
+      ]
+    },
+    {
+      "key": "output_encoding",
+      "source": "first_step_static_doc",
+      "path": "docs/coordination/g6-first-step-static-20260913.md",
+      "tracked_at_anchor": true,
+      "sha256": "3b0de9813da47afa5ad889c2ba10bdd56fe5d29914cce227615fc0eab42eaeef",
+      "size": 13547,
+      "line_start": 41,
+      "line_end": 51,
+      "text": [
+        "### Vehicle60[3] \u2014 velocity_ned \u5317\u5411\uff08m/s)",
+        "- \u8f93\u51fa\uff087823):`VehileInfo60d[3] = B.Product[0]`\u3002",
+        "- \u4e0a\u6e38\uff1a`B.Product[i] = \u03a3_j VectorConcatenate[3i+j] * ubvbwb_CSTATE[j]`(4161\u20134163\uff0c\u4e58-\u52a0\u5faa\u73af\uff09\u2014\u2014\u5373 **VelE = DCM \u00b7 ubvbwb**\uff08\u59ff\u6001\u77e9\u9635\u4e58\u673a\u4f53\u901f\u5ea6\uff09;`VectorConcatenate` \u4e3a DCM\uff0c\u7531\u5f52\u4e00\u5316\u56db\u5143\u6570\u6784\u9020\uff1b`ubvbwb_CSTATE` \u7531 ODE4 \u66f4\u65b0\u3002",
+        "",
+        "### Vehicle60[11] \u2014 Euler \u504f\u822a\uff08rad)",
+        "- \u8f93\u51fa\uff087846):`VehileInfo60d[11] = rtb_sincos_o1_j_idx_0`\u3002",
+        "- \u4e0a\u6e38\uff1a`= rt_atan2d_snf( 2*(q1*q2 + q0*q3), (q0\u00b2+q1\u00b2) - q2\u00b2 - q3\u00b2 )`(4228\u20134231)\uff0c\u4f5c\u7528\u4e8e**\u5f52\u4e00\u5316**\u56db\u5143\u6570\uff08\u8303\u6570 `sqrt(\u03a3q\u1d62\u00b2)` \u5728 4183\uff0c\u5404\u5206\u91cf\u9664\u6cd5\u5728 4194\u20134213);`rt_atan2d_snf` \u5305\u88c5 `std::atan2`(3628\u20133658)\u3002**atan2 \u4e3a\u8d85\u8d8a\u51fd\u6570**\u3002",
+        "",
+        "### Vehicle60[15] \u2014 \u56db\u5143\u6570 qz\uff08\u65e0\u91cf\u7eb2\uff09",
+        "- \u8f93\u51fa\uff087850):`VehileInfo60d[15] = B.Merge_j[3]`\u3002",
+        "- \u4e0a\u6e38\uff1a`Merge_j` \u6765\u81ea **DCM\u2192Quaternion**(Shepperd \u5f00\u65b9\uff1aPositiveTrace 3042\u20133067,sqrt 3052;NegativeTrace 3090\u20133284,sqrt 3123/3182/3241)+ \u5b9a\u53f7\uff08fix_quat_sign);DCM \u7531\u5f52\u4e00\u5316\u56db\u5143\u6570\u6784\u9020\u3002"
+      ]
+    },
+    {
+      "key": "residual_index_1",
+      "source": "pqr_derivative_path_doc",
+      "path": "docs/coordination/g6-pqr-derivative-path-20260913.md",
+      "tracked_at_anchor": true,
+      "sha256": "bd90a40bde4d9206269e364644c7858f49da45838688b7073ca4b8fa73e25d0d",
+      "size": 6530,
+      "line_start": 18,
+      "line_end": 18,
+      "text": [
+        "**\u7b2c\u4e00\u6b65\uff1a\u89d2\u52a8\u91cf\u6b8b\u5dee**(`rtb_IntegratorSecondOrderLimi_d[1]`,5514\u20135521)\u3002\u9010\u9879\uff08C \u4f18\u5148\u7ea7/\u5de6\u7ed3\u5408\uff1b\u4e00\u5143 `-` \u5148\u4e8e\u4e8c\u5143 `*`):"
+      ]
+    },
+    {
+      "key": "solver_observation",
+      "source": "first_step_static_doc",
+      "path": "docs/coordination/g6-first-step-static-20260913.md",
+      "tracked_at_anchor": true,
+      "sha256": "3b0de9813da47afa5ad889c2ba10bdd56fe5d29914cce227615fc0eab42eaeef",
+      "size": 13547,
+      "line_start": 69,
+      "line_end": 74,
+      "text": [
+        "## \u7cbe\u786e\u9996\u6b65 trace \u89c2\u6d4b\u70b9\uff08\u76ee\u6807/\u751f\u6210 C\uff0c\u53d8\u91cf\u540d + \u539f\u59cb\u884c\u53f7\uff09",
+        "",
+        "- **ODE4 \u6c42\u89e3\u5668**(`rt_ertODEUpdateContinuousStates`,2970\u20133034):`id->f[0..3]`\uff08\u56db\u7ea7\u5bfc\u6570\uff09\u3001`id->y`(t_k \u6001\uff09\u3001`x`\uff08\u66f4\u65b0\u540e\u6001\uff09\uff0c\u53d6 `ubvbwb_CSTATE` \u4e0e `q0q1q2q3_CSTATE` \u5bf9\u5e94\u7684\u6241\u5e73\u7d22\u5f15\uff1b\u52a0\u6743\u548c 3029\u20133031\u3002",
+        "- **\u5bfc\u6570\u51fd\u6570**(`Exp1_MinModelTemp_derivatives`,8313\u20138347):`_rtXdot->ubvbwb_CSTATE[0..2]`(=`B.Sum_p`\uff0c\u673a\u4f53\u901f\u5ea6\u5bfc\u6570\uff09\u4e0e `_rtXdot->q0q1q2q3_CSTATE[0..3]`\uff08\u56db\u5143\u6570\u5bfc\u6570\uff0c\u8fd0\u52a8\u5b66\u65b9\u7a0b 7934\u20137956)\u3002",
+        "- **k=1 \u8f93\u51fa\u7f16\u7801**:`B.Product[0]`\u2192`VehileInfo60d[3]`;`rtb_sincos_o1_j_idx_0` \u53ca\u5176 atan2 \u4e24\u53c2\u6570\u2192`VehileInfo60d[11]`;`B.Merge_j[3]`\u2192`VehileInfo60d[15]`\u3002",
+        "- **\u4e2d\u95f4\u91cf**\uff1a\u56db\u5143\u6570\u8303\u6570 sqrt(4183)\u3001\u5f52\u4e00\u5316\u56db\u5143\u6570\u5206\u91cf\uff084194\u20134213)\u3001DCM(`VectorConcatenate`)\u3001`Merge_j` \u7684 merge \u9009\u62e9\uff087769\u20137770)\u3002"
+      ]
+    },
+    {
+      "key": "static_boundary",
+      "source": "first_step_static_doc",
+      "path": "docs/coordination/g6-first-step-static-20260913.md",
+      "tracked_at_anchor": true,
+      "sha256": "3b0de9813da47afa5ad889c2ba10bdd56fe5d29914cce227615fc0eab42eaeef",
+      "size": 13547,
+      "line_start": 113,
+      "line_end": 115,
+      "text": [
+        "## \u8fb9\u754c",
+        "",
+        "\u672a\u8fd0\u884c\u4efb\u4f55\u6a21\u578b/MATLAB/native/ROS\uff0c\u672a\u6784\u5efa\uff1b\u672a\u6539\u751f\u6210\u6e90\u7801/\u7f16\u8bd1/SLX\uff1b\u672a\u9020\u62bd\u8c61 trace \u6846\u67b6\uff1b\u73b0\u6709\u8bca\u65ad\u5668\u4e0e\u5176\u6d4b\u8bd5\u51bb\u7ed3\uff08\u672c\u4efb\u52a1\u672a\u89e6\u78b0\uff09\u3002R1 \u4ecd `numerical_failed`,G6 \u672a\u901a\u8fc7\uff1b\u672c\u6587\u662f\u5b9a\u4f4d + \u5047\u8bbe\u8bc4\u4f30 + \u89c2\u6d4b\u70b9\u89c4\u683c\uff0c\u4e0d\u662f\u6839\u56e0\u8bc1\u660e\u3002"
+      ]
+    },
+    {
+      "key": "uncovered_note",
+      "source": "pqr_derivative_path_doc",
+      "path": "docs/coordination/g6-pqr-derivative-path-20260913.md",
+      "tracked_at_anchor": true,
+      "sha256": "bd90a40bde4d9206269e364644c7858f49da45838688b7073ca4b8fa73e25d0d",
+      "size": 6530,
+      "line_start": 36,
+      "line_end": 36,
+      "text": [
+        "t=0.0005\u3002\u521a\u4f53\u6620\u5c04\u6001\uff1aq0q1q2q3=[1,0,0,0]\u3001pqr=[1.28e-21,-2.48e-21,0]\u3001xeyeze=[0,0,0]\u3001ubvbwb=[0,0,-3.38e-6]\u3002**\u6ce8\u610f**:index 0\u20135\uff08\u4e8c\u9636\u9650\u5e45\uff09\u300119\u201327(TransferFcn)\u300128\u201335(MotorNonlinearDynamic\uff0c\u7ea6 12.05\uff09\u7b49**\u7535\u673a/\u63a8\u8fdb\u76f8\u5173\u72b6\u6001\u975e\u96f6**\uff08\u7535\u673a\u5728\u8f6c\uff09\uff0c\u4f46\u8fd9 23 \u4e2a**\u4e0d\u5728\u53c2\u8003\u7aef 13 \u4e2a\u6620\u5c04\u72b6\u6001\u5185**\uff0c\u73b0\u6709\u5bf9\u7167\u672a\u8986\u76d6\u3002"
+      ]
+    }
+  ],
+  "doc_refs": [
+    {
+      "key": "build_trace_scope",
+      "source": "first_step_trace_doc",
+      "path": "docs/coordination/g6-first-step-trace-20260913.md",
+      "sha256": "082f6f531f590ffe0bed0e32f97f1d390017f3bee101b88abb6f569243062904",
+      "line_start": 1,
+      "line_end": 12
+    },
+    {
+      "key": "divergence_scope",
+      "source": "first_divergence_doc",
+      "path": "docs/coordination/g6-first-divergence-20260913.md",
+      "sha256": "ed243ca5e53184f0848aa02a27e7bfc81b99b1a14b0118e33c59be7eddae6fd5",
+      "line_start": 1,
+      "line_end": 16
+    },
+    {
+      "key": "first_step_timeline",
+      "source": "first_step_static_doc",
+      "path": "docs/coordination/g6-first-step-static-20260913.md",
+      "sha256": "3b0de9813da47afa5ad889c2ba10bdd56fe5d29914cce227615fc0eab42eaeef",
+      "line_start": 16,
+      "line_end": 21
+    },
+    {
+      "key": "mrdivide_call",
+      "source": "pqr_derivative_path_doc",
+      "path": "docs/coordination/g6-pqr-derivative-path-20260913.md",
+      "sha256": "bd90a40bde4d9206269e364644c7858f49da45838688b7073ca4b8fa73e25d0d",
+      "line_start": 28,
+      "line_end": 28
+    },
+    {
+      "key": "output_encoding",
+      "source": "first_step_static_doc",
+      "path": "docs/coordination/g6-first-step-static-20260913.md",
+      "sha256": "3b0de9813da47afa5ad889c2ba10bdd56fe5d29914cce227615fc0eab42eaeef",
+      "line_start": 41,
+      "line_end": 51
+    },
+    {
+      "key": "residual_index_1",
+      "source": "pqr_derivative_path_doc",
+      "path": "docs/coordination/g6-pqr-derivative-path-20260913.md",
+      "sha256": "bd90a40bde4d9206269e364644c7858f49da45838688b7073ca4b8fa73e25d0d",
+      "line_start": 18,
+      "line_end": 18
+    },
+    {
+      "key": "solver_observation",
+      "source": "first_step_static_doc",
+      "path": "docs/coordination/g6-first-step-static-20260913.md",
+      "sha256": "3b0de9813da47afa5ad889c2ba10bdd56fe5d29914cce227615fc0eab42eaeef",
+      "line_start": 69,
+      "line_end": 74
+    },
+    {
+      "key": "static_boundary",
+      "source": "first_step_static_doc",
+      "path": "docs/coordination/g6-first-step-static-20260913.md",
+      "sha256": "3b0de9813da47afa5ad889c2ba10bdd56fe5d29914cce227615fc0eab42eaeef",
+      "line_start": 113,
+      "line_end": 115
+    },
+    {
+      "key": "uncovered_note",
+      "source": "pqr_derivative_path_doc",
+      "path": "docs/coordination/g6-pqr-derivative-path-20260913.md",
+      "sha256": "bd90a40bde4d9206269e364644c7858f49da45838688b7073ca4b8fa73e25d0d",
+      "line_start": 36,
+      "line_end": 36
+    }
+  ],
+  "unresolved": [
+    {
+      "id": "archive_source_line_mapping",
+      "scope": "all 36 flat indices",
+      "status": "unresolved",
+      "requires": "model_archive",
+      "requires_path": "/mnt/e/rflysimtools/RflySimAPIs/4.RflySimModel/1.BasicExps/e0_MinModelTemp/MulticopterModel.zip",
+      "requires_sha256": "d528b5d247e13d943f1eaa7a37fd3cb4d15c7e9bb7a6b0e5988a1423e59d05ed",
+      "requires_member": "e0_MinModelTemp/Exp1_MinModelTemp_ert_rtw/Exp1_MinModelTemp.cpp",
+      "reason": "individual flat-index source-line mapping is only readable from the frozen archive member; the repository does not track generated vendor source"
+    },
+    {
+      "id": "authoritative_state_layout",
+      "scope": "all 36 flat indices",
+      "status": "unresolved",
+      "requires": "model_archive",
+      "requires_path": "/mnt/e/rflysimtools/RflySimAPIs/4.RflySimModel/1.BasicExps/e0_MinModelTemp/MulticopterModel.zip",
+      "requires_sha256": "d528b5d247e13d943f1eaa7a37fd3cb4d15c7e9bb7a6b0e5988a1423e59d05ed",
+      "requires_member": "e0_MinModelTemp/Exp1_MinModelTemp_ert_rtw/Exp1_MinModelTemp.h",
+      "reason": "the flat-index -> state-name layout used here comes from the untracked builder state_layout table; the authoritative source is the generated header inside the archive"
+    },
+    {
+      "id": "residual_component_binding_10",
+      "scope": "index 10",
+      "status": "unresolved",
+      "requires": "model_archive",
+      "requires_path": "/mnt/e/rflysimtools/RflySimAPIs/4.RflySimModel/1.BasicExps/e0_MinModelTemp/MulticopterModel.zip",
+      "requires_sha256": "d528b5d247e13d943f1eaa7a37fd3cb4d15c7e9bb7a6b0e5988a1423e59d05ed",
+      "requires_member": "e0_MinModelTemp/Exp1_MinModelTemp_ert_rtw/Exp1_MinModelTemp.cpp",
+      "reason": "the flat index is attested as a member of the 3-vector mrdivide numerator, but the per-component source-line expression for this component is not bound by tracked line evidence"
+    },
+    {
+      "id": "residual_component_binding_12",
+      "scope": "index 12",
+      "status": "unresolved",
+      "requires": "model_archive",
+      "requires_path": "/mnt/e/rflysimtools/RflySimAPIs/4.RflySimModel/1.BasicExps/e0_MinModelTemp/MulticopterModel.zip",
+      "requires_sha256": "d528b5d247e13d943f1eaa7a37fd3cb4d15c7e9bb7a6b0e5988a1423e59d05ed",
+      "requires_member": "e0_MinModelTemp/Exp1_MinModelTemp_ert_rtw/Exp1_MinModelTemp.cpp",
+      "reason": "the flat index is attested as a member of the 3-vector mrdivide numerator, but the per-component source-line expression for this component is not bound by tracked line evidence"
+    },
+    {
+      "id": "transferfcn_motor_symbol_order",
+      "scope": "indices 19..35",
+      "status": "unresolved",
+      "requires": "model_archive",
+      "requires_path": "/mnt/e/rflysimtools/RflySimAPIs/4.RflySimModel/1.BasicExps/e0_MinModelTemp/MulticopterModel.zip",
+      "requires_sha256": "d528b5d247e13d943f1eaa7a37fd3cb4d15c7e9bb7a6b0e5988a1423e59d05ed",
+      "requires_member": "e0_MinModelTemp/Exp1_MinModelTemp_ert_rtw/Exp1_MinModelTemp.h",
+      "reason": "the tracked builder STATE_LAYOUT places IntegratorSecondOrderLimited__n at 19..24 and TransferFcn4/1/2_CSTATE at 25..27, while the tracked requirement text g6-pqr-derivative-path-20260913.md:36 assigns 19..27 to TransferFcn; the ownership of indices 19..24 and the authoritative per-index layout are recorded as conflicted and never guessed"
+    },
+    {
+      "id": "unmapped_reference_states",
+      "scope": "indices 0..5, 19..35",
+      "status": "unresolved",
+      "requires": "reference_probe_extension",
+      "requires_path": "validation/coordination/g6-reference-probe-20260913/run-03/reference-first-step.json",
+      "requires_sha256": "99fc1ec84a110bea1e5998a97b4f9c66231966474268ba74bfc343b584e03f85",
+      "requires_member": null,
+      "reason": "the tracked reference probe registered listeners on only the four rigid-body 6DOF integrators, so the 23 unmapped states have no reference-side observation"
+    }
+  ],
+  "nonclaims": [
+    "no numerical acceptance: no trace was replayed, compared, or recomputed",
+    "no physical-accuracy claim: state names, units and vehicle semantics are transcribed from tracked text only and are not verified here",
+    "no G6 passage and no R1 passage; r1_status remains numerical_failed",
+    "no issue closure: #84, G6 and Full remain open",
+    "no budget, approval, acceptance, or contract freeze is proposed, requested, or recorded",
+    "no source-line mapping claim for flat indices outside 10..12",
+    "no claim that the 13 covered indices are numerically conformant; they are inventory coverage, and index 11 is a recorded 1 ULP divergence",
+    "no model-runtime, simulator, avionics, visual, or issue-83 execution",
+    "no edit to any existing trace, contract, comparator, or evidence byte"
+  ],
+  "scope_limits": [
+    "one case (C3G), one step (k=0->1), one sample set",
+    "13 of 36 flat continuous states carry a tracked comparison",
+    "coverage is inventory, not conformance and not acceptance"
+  ]
+}
