@@ -1,0 +1,281 @@
+{
+  "schema": "wksim.independent-review.v1",
+  "review_id": "cursor-scene-frontier-contract-independent-review-20260914-01",
+  "generated_at": "2026-09-14T10:00:22+09:00",
+  "work_class": "review",
+  "read_only": true,
+  "candidates_untouched": true,
+  "existing_files_untouched": true,
+  "git_untouched": true,
+  "github_untouched": true,
+  "prior_audit": "validation/coordination/cursor-next-frontier-contract-audit-20260914-01/",
+  "prior_audit_overwritten": false,
+  "dispatch": {
+    "cwd": "C:/Users/PC/Documents/odid编译/wksim",
+    "branch": "main",
+    "head": "5370b2324672c9036d41239cb93e21fc5eb42897",
+    "head_match_expected": true,
+    "architecture_ancestor": "f333316e6efa6b299b4288a9d91fb2bccedfb9d6",
+    "ancestor_exit": 0,
+    "module": "#29 offline scene identity/timeliness frontier",
+    "owned_writes": [
+      "validation/coordination/cursor-scene-frontier-contract-independent-review-20260914-01/review.md",
+      "validation/coordination/cursor-scene-frontier-contract-independent-review-20260914-01/review.json",
+      "validation/coordination/cursor-scene-frontier-contract-independent-review-20260914-01/SHA256SUMS"
+    ],
+    "read": [
+      "CONTEXT-MAP.md",
+      "wksim/CONTEXT.md",
+      "docs/adr/0002-open-core-with-optional-unreal-visuals.md",
+      "docs/adr/0004-single-physics-authority-and-staged-cosys-integration.md",
+      "docs/adr/0008-separate-deterministic-and-interactive-runs.md",
+      "docs/adr/0009-use-ned-frd-and-si-at-the-public-boundary.md",
+      "docs/architecture-implementation-20260912.md",
+      "docs/coordination/architecture-continuation-20260913.md",
+      "docs/coordination/short-cycle-goal.md",
+      "docs/coordination/ds-scene-frontier-20260912.md",
+      "docs/plan/9-abi-environment-accepted.md",
+      "docs/plan/29-102-scene-binding-contract.md",
+      "docs/plan/29-terrain-evidence-manifest.json",
+      "Simulator/wksim_runtime/contact_observer.py",
+      "Simulator/wksim_runtime/planner_scene_binding.py",
+      "Simulator/wksim_runtime/terrain_feedback.py",
+      "validation/test_scene_frontier_contract.py",
+      "validation/coordination/cursor-next-frontier-contract-audit-20260914-01/"
+    ],
+    "not_executed": [
+      "native",
+      "model",
+      "MATLAB",
+      "ROS",
+      "DDS",
+      "SITL",
+      "FC",
+      "UE",
+      "build",
+      "flight",
+      "#83"
+    ],
+    "subagent": {
+      "used": false,
+      "reason": "interface cannot select or verify gpt-5.6-luna; main agent performed the review"
+    }
+  },
+  "verdict": {
+    "overall": "PASS",
+    "meaning": "offline_regression_may_admit_not_issue_29_acceptance",
+    "admit_next_batch": true,
+    "issue_9_state": "OPEN",
+    "issue_29_acceptance": false,
+    "parent_tickets_unlocked": {
+      "#29": false,
+      "#79": false,
+      "#80": false,
+      "#81": false
+    },
+    "physical_consumption": false,
+    "real_ue": false,
+    "full_pass": false,
+    "goal_complete": false,
+    "p1_count": 0,
+    "p2_count": 0,
+    "p3_count": 5
+  },
+  "github": {
+    "issue_9": {
+      "number": 9,
+      "state": "OPEN",
+      "title": "可选模型插件与场景反馈接口决策"
+    },
+    "issue_29": {
+      "number": 29,
+      "state": "OPEN",
+      "title": "坡面与障碍场景的物理反馈",
+      "acceptance_unchecked": true
+    },
+    "issue_79": {
+      "number": 79,
+      "state": "CLOSED",
+      "title": "[Astra] 实现已批准的一种坡面/盒体接触模型"
+    },
+    "issue_80": {
+      "number": 80,
+      "state": "CLOSED",
+      "title": "[Luna] 执行已冻结坡面/盒体接触夹具"
+    },
+    "issue_81": {
+      "number": 81,
+      "state": "CLOSED",
+      "title": "[Luna] 执行一次可视场景与物理反馈验证"
+    }
+  },
+  "candidate": {
+    "path": "validation/test_scene_frontier_contract.py",
+    "tracked": false,
+    "sha256_expected": "3f593d8f3bdb3c34db5c7b51014c305fd9596a73ce803a1c187e3d509b6c3de2",
+    "sha256_observed": "3f593d8f3bdb3c34db5c7b51014c305fd9596a73ce803a1c187e3d509b6c3de2",
+    "sha256_match": true
+  },
+  "checks": {
+    "1_unittest": {
+      "command": "python -B -m unittest validation.test_scene_frontier_contract -v",
+      "ran": 6,
+      "passed": 6,
+      "failed": 0,
+      "skipped": 0,
+      "elapsed_s": 0.002,
+      "result": "OK",
+      "tests": [
+        "SceneIdentityFrontierTests.test_three_identity_layers_are_pairwise_distinct",
+        "SceneIdentityFrontierTests.test_runtime_terrain_seam_binds_the_frozen_fixture_not_the_probe",
+        "SceneIdentityFrontierTests.test_probe_identity_is_never_accepted_as_planner_identity",
+        "InjectedObserverTimelinessTests.test_foreign_epoch_observer_fails_closed_at_the_real_seam",
+        "InjectedObserverTimelinessTests.test_observer_set_must_exactly_match_supported_stacks",
+        "InjectedObserverTimelinessTests.test_matched_epoch_injection_still_binds_the_frozen_fixture"
+      ]
+    },
+    "2_real_interfaces": {
+      "result": "PASS",
+      "string_search_only": false,
+      "traced_calls": {
+        "planner_scene_binding.py:validate_manifest": 4,
+        "terrain_feedback.py:query_terrain": 3,
+        "terrain_feedback.py:__init__": 4,
+        "contact_observer.py:__init__": 6,
+        "contact_observer.py:observe_step": 2,
+        "test_scene_frontier_contract.py:_load_manifest": 3
+      },
+      "observe_step_note": "second query_terrain after freeze short-circuits in TerrainFeedback before observe_step"
+    },
+    "3_identities_fail_closed": {
+      "result": "PASS",
+      "layers": {
+        "visual": {
+          "scene_id": "static-plane-box-v1",
+          "scene_hash": "60ae50970e23d35e0a28b22694d61ca85c4e10af1f574a6ca9f07c79f7e03514",
+          "source": [
+            "29-terrain-evidence-manifest.json",
+            "static-scene-v1.json",
+            "FROZEN_SCENE_SHA256",
+            "LEGACY_SCENE_HASH"
+          ]
+        },
+        "real": {
+          "scene_id": "static-plane-box-v1-real-tick0",
+          "scene_hash": "4889e2ea32146b734a816281915842da1da27c0df78c588d688cd2656f2bb300",
+          "source": [
+            "29-terrain-evidence-manifest.json",
+            "StaticScene rebuild box_center [0,0,0.5]"
+          ]
+        },
+        "planner": {
+          "scene_id": "ego-single-box-v1",
+          "scene_hash": "40ee928113c1ad6b2f9987c01506ee34171bd15099e6e7c9425496498cb8d0ba",
+          "source": [
+            "EGO_SINGLE_BOX_BINDING",
+            "EXPECTED_SCENE_HASH"
+          ]
+        }
+      },
+      "pairwise_distinct": true,
+      "duplicate_json_keys_fail_closed": true,
+      "foreign_epoch_fail_closed": true,
+      "stale_future_window_fail_closed": true,
+      "wrong_scene_stack_observer_fail_closed": true,
+      "legal_dual_stack_passes": true
+    },
+    "4_extra_matrix": {
+      "result": "PASS",
+      "temp_root_pattern": "C:\\Users\\PC\\AppData\\Local\\Temp\\wksim-scene-frontier-ir-*",
+      "temp_cleaned": true,
+      "independent_cases": 33,
+      "failed": 0,
+      "covered": [
+        "bool-as-int tick True/False",
+        "negative tick",
+        "reversed/stale tick",
+        "future envelope window",
+        "expired envelope window",
+        "empty/non-object epoch",
+        "NaN/Infinity/-Infinity in prior_state",
+        "bool in prior_state",
+        "duplicate JSON keys planner load and candidate hook",
+        "foreign epoch injection and other-stack isolation",
+        "wrong expected/probe/zero hash",
+        "wrong stack and observer set",
+        "empty/non-object planner identity",
+        "NaN/Infinity planner origin and query point",
+        "reversed valid window",
+        "legal dual-stack and genuine planner/evidence manifests"
+      ]
+    },
+    "5_exceptions_duplicates_deps": {
+      "result": "PASS",
+      "candidate_broad_except": false,
+      "imported_runtime_bare_or_exception": false,
+      "error_masking": false,
+      "duplicate_of_tracked_tests": false,
+      "unique_seams": [
+        "planner validate_manifest rejects probe scene_id/hash",
+        "TerrainFeedback observers= foreign_epoch freeze",
+        "TerrainFeedback observers key set exactly {arducopter,px4}"
+      ],
+      "untracked_dependencies_other_than_candidate": false,
+      "external_env_required": false,
+      "tracked_dependencies": [
+        "Simulator/wksim_runtime/contact_observer.py",
+        "Simulator/wksim_runtime/planner_scene_binding.py",
+        "Simulator/wksim_runtime/terrain_feedback.py",
+        "Simulator/wksim_runtime/static-scene-v1.json",
+        "Simulator/wksim_core/static_contact.py",
+        "Simulator/wksim_planning/scene_profile.py",
+        "docs/plan/29-terrain-evidence-manifest.json"
+      ]
+    },
+    "6_verdict_rule": {
+      "rule": "FAIL if any P1 or P2; PASS only if 0 P1 and 0 P2",
+      "result": "PASS"
+    }
+  },
+  "findings": {
+    "p1": [],
+    "p2": [],
+    "p3": [
+      {
+        "id": "P3-1",
+        "title": "三层身份常量测试与已纳入 display/audit_29 部分重叠",
+        "lines": "validation/test_scene_frontier_contract.py:73-95",
+        "impact": "重叠不取消 planner-probe 与 observers= 的独有覆盖"
+      },
+      {
+        "id": "P3-2",
+        "title": "双键替换断言父类 BindingError",
+        "lines": "validation/test_scene_frontier_contract.py:107-111",
+        "impact": "实现仍 raise IdentityError（子类），断言过宽"
+      },
+      {
+        "id": "P3-3",
+        "title": "planner 对 probe 是通用 mismatch，不是具名拒绝",
+        "lines": "Simulator/wksim_runtime/planner_scene_binding.py:800-804",
+        "impact": "任意错误 hash 也会失败；语义仍 fail closed"
+      },
+      {
+        "id": "P3-4",
+        "title": "候选未自带 bool/NaN/重复键/过期未来窗口矩阵",
+        "impact": "实现与本审查 33 条独立构造已 fail closed；不构成假绿"
+      },
+      {
+        "id": "P3-5",
+        "title": "2026-09-12 场景前沿文档的零覆盖说法已过期",
+        "lines": "docs/coordination/ds-scene-frontier-20260912.md:52",
+        "impact": "display 合同现拒绝 probe 作显示身份；planner-probe 与 observers= 仍是本候选独有"
+      }
+    ]
+  },
+  "limits": [
+    "#9 remains OPEN",
+    "#29 AC remains unchecked",
+    "CLOSED child tickets #79/#80/#81 are not unlocked by this PASS",
+    "no physical consumption, real UE, FC/SITL/ROS loop, Full, or Goal"
+  ]
+}

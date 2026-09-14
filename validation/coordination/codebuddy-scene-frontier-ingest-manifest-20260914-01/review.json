@@ -1,0 +1,89 @@
+{
+  "schema": "wksim.ingest-manifest.v1",
+  "manifest_id": "codebuddy-scene-frontier-ingest-manifest-20260914-01",
+  "work_class": "manifest ingest",
+  "read_only": true,
+  "candidates_untouched": true,
+  "existing_files_untouched": true,
+  "git_untouched": true,
+  "github_untouched": true,
+  "not_executed": ["native", "ROS", "DDS", "SITL", "FC", "UE", "MATLAB", "models", "build", "flight", "user-process"],
+  "checkout": {
+    "cwd": "C:/Users/PC/Documents/odid编译/wksim",
+    "branch": "main",
+    "head": "5370b2324672c9036d41239cb93e21fc5eb42897",
+    "head_match_expected": true,
+    "architecture_ancestor": "f333316e6efa6b299b4288a9d91fb2bccedfb9d6",
+    "ancestor_exit": 0
+  },
+  "candidates": [
+    {
+      "path": "validation/test_scene_frontier_contract.py",
+      "sha256": "3f593d8f3bdb3c34db5c7b51014c305fd9596a73ce803a1c187e3d509b6c3de2",
+      "sha256_expected_by_dispatch": "3f593d8f3bdb3c34db5c7b51014c305fd9596a73ce803a1c187e3d509b6c3de2",
+      "match": true,
+      "tracked": false,
+      "line_endings": "LF-only",
+      "post_test_sha256_unchanged": true
+    },
+    {
+      "path": "validation/coordination/cursor-scene-frontier-contract-independent-review-20260914-01/review.md",
+      "sha256": "0534e3b48db22498dc973e95bb33416c1600d24e8698585d99f36055dc02a3b2",
+      "match": true,
+      "line_endings": "LF-only"
+    },
+    {
+      "path": "validation/coordination/cursor-scene-frontier-contract-independent-review-20260914-01/review.json",
+      "sha256": "8c72cb9871ed412ff1b1cac0ab00acbcdd6516ea64784a4a5c4ac4e84c9f32bd",
+      "match": true,
+      "line_endings": "LF-only"
+    },
+    {
+      "path": "validation/coordination/cursor-scene-frontier-contract-independent-review-20260914-01/SHA256SUMS",
+      "sha256": "bb78d55b29b53b98d12d310a1c43a5349159b609301e4b3a99a0197f6d500ea9",
+      "match": true,
+      "line_endings": "LF-only"
+    }
+  ],
+  "review_json_parse": {
+    "file": "validation/coordination/cursor-scene-frontier-contract-independent-review-20260914-01/review.json",
+    "strict_parse": true,
+    "schema": "wksim.independent-review.v1",
+    "verdict_overall": "PASS",
+    "p1_count": 0,
+    "p2_count": 0,
+    "p3_count": 5,
+    "candidate_sha256_observed": "3f593d8f3bdb3c34db5c7b51014c305fd9596a73ce803a1c187e3d509b6c3de2",
+    "admit_next_batch": true,
+    "issue_29_acceptance": false
+  },
+  "sha256sums_validation": {
+    "file": "validation/coordination/cursor-scene-frontier-contract-independent-review-20260914-01/SHA256SUMS",
+    "path_interpretation": "bare filenames resolve relative to the sums file directory; equivalent to repo-relative paths under that directory",
+    "sha256sum_minus_c_result": "review.md: OK; review.json: OK (all listed entries verified)",
+    "self_listed": false,
+    "crlf_handling": "all four candidate files are LF-only; hashes computed over raw on-disk bytes; no CRLF normalization applied and no history rewritten"
+  },
+  "test_run": {
+    "command": "python -B -m unittest validation.test_scene_frontier_contract -v",
+    "ran": 6,
+    "passed": 6,
+    "failed": 0,
+    "skipped": 0,
+    "result": "OK"
+  },
+  "recommendation": {
+    "verdict": "PASS",
+    "meaning": "offline regression may be admitted to the next batch (single file, SHA preserved); not issue #29 acceptance",
+    "admit": true,
+    "p1_count": 0,
+    "p2_count": 0,
+    "p3_count": 5
+  },
+  "limitations": [
+    "#9 remains OPEN",
+    "#29 AC remains unchecked; CLOSED child tickets #79/#80/#81 are not unlocked by this PASS",
+    "no physical consumption, real UE, FC/SITL/ROS loop, Full, or Goal proven",
+    "this manifest does not perform git add or the actual admission"
+  ]
+}
