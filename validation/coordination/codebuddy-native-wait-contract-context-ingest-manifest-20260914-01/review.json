@@ -1,0 +1,83 @@
+{
+  "manifest_id": "codebuddy-native-wait-contract-context-ingest-manifest-20260914-01",
+  "written_at": "2026-09-14",
+  "writer": "CodeBuddy (manifest writer)",
+  "mode": "offline, read-only over inputs; real index untouched; temp-index staging proof only",
+  "repo_head_at_manifest": "438ab764c0cf70f9e017cfbd82aeb04255282e3a",
+  "ancestry": {
+    "baseline_commit": "31e5b65f5448c5558450d16d0f46da0ef0f0a03c",
+    "baseline_is_ancestor_exit": 0,
+    "architecture_commit": "f333316e6efa6b299b4288a9d91fb2bccedfb9d6",
+    "architecture_is_ancestor_exit": 0,
+    "head_equality_asserted": false
+  },
+  "batch_scope": "context-only",
+  "verdict_source": "validation/coordination/codebuddy-native-wait-contract-independent-review-20260914-01",
+  "review_verdict": "KEEP",
+  "review_severity_counts": { "P1": 0, "P2": 0, "P3": 2 },
+  "pins_verified": {
+    "docs/coordination/native-wait-integration-contract-20260913.md": ["947e759873513ce8d1f11363cb6df9c8c5fc7dc1c868037fbff3b24e90a7b823", 6132],
+    "docs/coordination/claude-native-input-timing.md": ["f15cd0e28396722c23e005f38b2738ca2dfa889975f5f38ae345b7cbacaf0735", 8714],
+    "docs/coordination/codebuddy-native-wait-contract-ingest-note-20260914.md": ["9a34cb0aea15dd1469699d70facd8b3d6d93f9f3a3394b75e9fa986564de21a6", 7740],
+    "validation/test_codebuddy_native_wait_contract_context.py": ["bebfec48087395f1ec9b5fdbf1082c4c5851a7503b943271f16487d852559906", 26483],
+    "validation/coordination/codebuddy-native-wait-contract-independent-review-20260914-01/review.md": ["2443fc8c6d62a6d9e948c8e0ec52dcbe0ecd01bea719900ea370aeb821da49ce", 9428],
+    "validation/coordination/codebuddy-native-wait-contract-independent-review-20260914-01/review.json": ["82dc0b15055b24b45cef4352bfb4e15845c395bb8a1a76c8928eb44764dfc9d5", 7735],
+    "validation/coordination/codebuddy-native-wait-contract-independent-review-20260914-01/SHA256SUMS": ["e1a07a1ac120026968419e5946c3966e28fda09e3372ce1539a3c72a1732b984", 154]
+  },
+  "candidate_git_state": {
+    "docs/coordination/native-wait-integration-contract-20260913.md": "tracked, worktree clean for this path",
+    "docs/coordination/claude-native-input-timing.md": "tracked, worktree clean for this path",
+    "docs/coordination/codebuddy-native-wait-contract-ingest-note-20260914.md": "untracked",
+    "validation/test_codebuddy_native_wait_contract_context.py": "untracked (not gitignored; validation/coordination subdirs are, per .gitignore:53)"
+  },
+  "contract_section5_drift": {
+    "historical_claim": "required set at joint_profile.py:328-331 excludes both pacer files; enablement negatively bound via single marker rate_timing_probe",
+    "current_bytes": "required set at 330-334 includes joint_rate.py (333) and joint_rate_probe.py (334); marker tuple at 274 includes perf_switch_capture",
+    "classification": "historical; pinned contract bytes not rewritten; drift registered side by side",
+    "related_p3": "P3-1: contract cites sealing loop as 334-339; current bytes 337-339"
+  },
+  "exclusions": {
+    "docs/coordination/perf-stream-contract-20260913.md": "tracked live pointer outside batch; not bound or superseded",
+    "docs/coordination/claude-native-wait-next-probe.md": "untracked at review time; not a candidate; not bound or endorsed"
+  },
+  "findings_carried": {
+    "P1": [],
+    "P2": [],
+    "P3": [
+      "P3-1: contract-internal line drift (334-339 vs current 337-339), covered by byte-binding; no action",
+      "P3-2: concurrent sibling sessions perturbed unrelated files during review window; out of batch scope; real-index proofs use byte-stable fingerprints, identical full status not required"
+    ]
+  },
+  "non_claims": [
+    "no #83 rerun; none triggered or suggested",
+    "no #84 closure",
+    "no G6 closure",
+    "no Full closure",
+    "fixed gates (four-tick boundary, group structure, no-catch-up previous_start+period_ns, 100ms LATE_LIMIT_NS, full-window capture, physics invariants, diagnostic_only identity) preserved untouched",
+    "external /root/wksim-scheduler-probe-35728b1-03 evidence non-reproducible; no conclusion depends on it"
+  ],
+  "tests": {
+    "normal_mode": {
+      "command": "python -m unittest validation.test_codebuddy_native_wait_contract_context",
+      "ran": 30,
+      "skipped": 2,
+      "failed": 0,
+      "result": "OK (skipped=2)"
+    },
+    "temp_index_mode": {
+      "env": "GIT_INDEX_FILE=<repo-external path seeded via git read-tree HEAD> WKSIM_NATIVE_WAIT_TEMP_INDEX=1",
+      "staged_paths": "exactly the 11 paths of exact-paths.txt, added with git add -f (gitignore)",
+      "expected_staged_delta_vs_head": { "A": 9, "M": 0, "D": 0 },
+      "stage": 0,
+      "blob_equality": "11/11 index blobs byte-equal to working-tree files",
+      "scoped_diff_check": "index-vs-worktree diff scoped to the 11 paths must be empty",
+      "real_index_proof": ".git/index sha256 and git ls-files -s | sha256sum byte-identical before/after; temp index deleted after proof; no commit"
+    }
+  },
+  "outputs": [
+    "validation/coordination/codebuddy-native-wait-contract-context-ingest-manifest-20260914-01/exact-paths.txt",
+    "validation/coordination/codebuddy-native-wait-contract-context-ingest-manifest-20260914-01/review.md",
+    "validation/coordination/codebuddy-native-wait-contract-context-ingest-manifest-20260914-01/review.json",
+    "validation/coordination/codebuddy-native-wait-contract-context-ingest-manifest-20260914-01/SHA256SUMS"
+  ]
+}

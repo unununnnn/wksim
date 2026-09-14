@@ -1,0 +1,146 @@
+{
+  "review_id": "codebuddy-native-wait-contract-independent-review-20260914-01",
+  "reviewed_at": "2026-09-14",
+  "reviewer": "CodeBuddy (independent admission reviewer)",
+  "mode": "offline, read-only admission review",
+  "repo_head_at_review": "438ab764c0cf70f9e017cfbd82aeb04255282e3a",
+  "ancestry": {
+    "architecture_commit": "f333316e6efa6b299b4288a9d91fb2bccedfb9d6",
+    "architecture_is_ancestor_exit": 0,
+    "baseline_commit": "31e5b65f5448c5558450d16d0f46da0ef0f0a03c",
+    "baseline_is_ancestor_exit": 0,
+    "head_equality_asserted": false
+  },
+  "candidates": [
+    {
+      "path": "docs/coordination/native-wait-integration-contract-20260913.md",
+      "expected_sha256": "947e759873513ce8d1f11363cb6df9c8c5fc7dc1c868037fbff3b24e90a7b823",
+      "actual_sha256": "947e759873513ce8d1f11363cb6df9c8c5fc7dc1c868037fbff3b24e90a7b823",
+      "expected_bytes": 6132,
+      "actual_bytes": 6132,
+      "git_state": "tracked, worktree clean for this path",
+      "temp_index_blob": "cf16f7fd32ac795c92b51dbb2c4f17069dd9e42d",
+      "head_blob": "cf16f7fd32ac795c92b51dbb2c4f17069dd9e42d",
+      "staged_delta_vs_head": "none (blob-identical re-add)"
+    },
+    {
+      "path": "docs/coordination/claude-native-input-timing.md",
+      "expected_sha256": "f15cd0e28396722c23e005f38b2738ca2dfa889975f5f38ae345b7cbacaf0735",
+      "actual_sha256": "f15cd0e28396722c23e005f38b2738ca2dfa889975f5f38ae345b7cbacaf0735",
+      "expected_bytes": 8714,
+      "actual_bytes": 8714,
+      "git_state": "tracked, worktree clean for this path",
+      "temp_index_blob": "6f74e3f7b775c20e735354546d76bd4fa9dfac21",
+      "head_blob": "6f74e3f7b775c20e735354546d76bd4fa9dfac21",
+      "staged_delta_vs_head": "none (blob-identical re-add)"
+    },
+    {
+      "path": "docs/coordination/codebuddy-native-wait-contract-ingest-note-20260914.md",
+      "expected_sha256": "9a34cb0aea15dd1469699d70facd8b3d6d93f9f3a3394b75e9fa986564de21a6",
+      "actual_sha256": "9a34cb0aea15dd1469699d70facd8b3d6d93f9f3a3394b75e9fa986564de21a6",
+      "expected_bytes": 7740,
+      "actual_bytes": 7740,
+      "git_state": "untracked at review time",
+      "temp_index_blob": "2b5c5a90a6fe2265fbd5008567587add9aaa6fae",
+      "head_blob": null,
+      "staged_delta_vs_head": "A (new)"
+    },
+    {
+      "path": "validation/test_codebuddy_native_wait_contract_context.py",
+      "expected_sha256": "bebfec48087395f1ec9b5fdbf1082c4c5851a7503b943271f16487d852559906",
+      "actual_sha256": "bebfec48087395f1ec9b5fdbf1082c4c5851a7503b943271f16487d852559906",
+      "expected_bytes": 26483,
+      "actual_bytes": 26483,
+      "git_state": "untracked at review time",
+      "temp_index_blob": "27401ba0953b3a97941824d36b357697655f7116",
+      "head_blob": null,
+      "staged_delta_vs_head": "A (new)"
+    }
+  ],
+  "source_anchor_pins_verified": {
+    "Simulator/wksim_runtime/joint_rate.py": ["0b53a16acd65138b4623a9a8573ec8d643a2b78f4e27e8122c65efb9a6da25c4", 7271],
+    "Simulator/wksim_runtime/joint_rate_probe.py": ["a8bac9ac84ba9960296bb6b43d6d39c6bbc17fa9fdc47adf7e05ce76d7066653", 7826],
+    "Simulator/wksim_runtime/joint_profile.py": ["90cc868b8050b41e54ef0c38cf20104c58aefb97f07d1448dfd0be1f8633320a", 31113],
+    "Simulator/wksim_core/joint.py": ["f5433c2ec7e81794ffcfab26dce0feff18d4e1affdfb44f895a72e4ce0241d50", 15808],
+    "validation/33-formal-promotion/current-mixed-oxv29042/result.json": ["68114715ac4057337fe8174cd708f03ae8343e205335ab61a63ca4ad47e73dbd", 130322]
+  },
+  "line_anchors_verified": {
+    "joint_rate.py": [6, 93, "99-103", "100-101", "114-118", "115-116", "120-123", 124, "126-127", "128-130"],
+    "joint_rate_probe.py": ["23-30", "33-39", "221-224"],
+    "joint_profile.py": ["274-275", 330, 333, 334, 335, 338],
+    "joint.py": [53, 54]
+  },
+  "result_json_identity": {
+    "status": "failed",
+    "source_unchanged": true,
+    "pacer_sources_present": true,
+    "pacer_values_equal_current_worktree_bytes": true,
+    "source_count": 37
+  },
+  "contract_section5_drift": {
+    "contract_claim": "required set 328-331 excludes both pacer files; enablement negatively bound via single marker rate_timing_probe only",
+    "current_bytes": "required set 330-334 includes joint_rate.py (333) and joint_rate_probe.py (334); marker tuple at 274 includes perf_switch_capture",
+    "classification": "contract claim is historical; note registers drift without rewriting pinned contract bytes",
+    "verified": true
+  },
+  "exclusions_verified": {
+    "docs/coordination/claude-native-wait-next-probe.md": "untracked (ls-files --error-unmatch exit 1); absent from CANDIDATE_PATHS and SOURCE_PINS; not bound or endorsed",
+    "docs/coordination/perf-stream-contract-20260913.md": "tracked live pointer outside batch"
+  },
+  "tests": {
+    "normal_mode": {
+      "command": "python -m unittest validation.test_codebuddy_native_wait_contract_context -v",
+      "ran": 30,
+      "passed": 28,
+      "skipped": 2,
+      "failed": 0,
+      "result": "OK (skipped=2)"
+    },
+    "temp_index_mode": {
+      "command": "GIT_INDEX_FILE=<repo-external mktemp -u path> WKSIM_NATIVE_WAIT_TEMP_INDEX=1 python -m unittest validation.test_codebuddy_native_wait_contract_context -v",
+      "temp_index_path": "/tmp/tmp.x68vWcdFyT (repo-external, created by git, deleted after)",
+      "ran": 30,
+      "passed": 30,
+      "skipped": 0,
+      "failed": 0,
+      "result": "OK",
+      "staged_set": "exactly the 4 candidates, stage 0, blobs byte-identical to worktree (git diff --name-only empty)",
+      "staged_delta_vs_head": "A for note+test only; no M; no D"
+    },
+    "ancestry_commands": [
+      "git merge-base --is-ancestor 31e5b65f5448c5558450d16d0f46da0ef0f0a03c HEAD -> exit 0",
+      "git merge-base --is-ancestor f333316e6efa6b299b4288a9d91fb2bccedfb9d6 HEAD -> exit 0"
+    ]
+  },
+  "real_index_proof": {
+    "git_index_sha256_before": "327b22366c0ba7cb1e3fbddc8cd41023541b92f3cea745af754aba1b41862976",
+    "git_index_sha256_after": "327b22366c0ba7cb1e3fbddc8cd41023541b92f3cea745af754aba1b41862976",
+    "ls_files_s_sha256_before": "5de63e159c44d37a72acfecee8c178ab154b80b00d36cb9130588e9042f5a8ef",
+    "ls_files_s_sha256_after": "5de63e159c44d37a72acfecee8c178ab154b80b00d36cb9130588e9042f5a8ef",
+    "unchanged": true,
+    "note": "byte-stable fingerprints used instead of full-tree status hash due to concurrent sibling sessions"
+  },
+  "findings": {
+    "P1": [],
+    "P2": [],
+    "P3": [
+      {
+        "id": "P3-1",
+        "finding": "Contract §5 cites joint_profile.py:334-339 for the sealing loop; current bytes place it at 337-339. Historical line drift inside pinned contract bytes; note already binds anchors to current bytes only. No action.",
+        "references": ["docs/coordination/native-wait-integration-contract-20260913.md §5", "Simulator/wksim_runtime/joint_profile.py:337-339"]
+      },
+      {
+        "id": "P3-2",
+        "finding": "Concurrent sibling sessions modified other tracked files during the review window (docs/Prometheus.gitmodules.reference, mixed-work-overrun-20260913-v2.md, validation/coordination/short-cycle-dispatches.json) and dropped sibling untracked files. Out of batch scope; candidates' scoped status unaffected. No action.",
+        "references": ["git status --porcelain during review window"]
+      }
+    ]
+  },
+  "limitations": [
+    "External /root/wksim-scheduler-probe-35728b1-03 capture is non-reproducible here; treated as text anchor only, no PASS depends on it.",
+    "Claude doc's historical test-run claims are context-only bindings, not re-executed (offline boundary); all referenced files exist in this checkout.",
+    "This slice is not #84 acceptance and does not rerun or retire #83."
+  ],
+  "verdict": "KEEP",
+  "severity_counts": { "P1": 0, "P2": 0, "P3": 2 }
+}
