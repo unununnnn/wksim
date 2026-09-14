@@ -1,0 +1,102 @@
+{
+  "schema": "wksim.codebuddy-ingest-manifest.v1",
+  "date": "2026-09-14",
+  "role": "CodeBuddy ingest-manifest owner for the #26 P3-fix patch",
+  "repo_checkout": {
+    "branch": "main",
+    "head": "1884ea64c1fe99502ec7063f00f2f09a17b43ea5",
+    "ancestor_required": "f333316e6efa6b299b4288a9d91fb2bccedfb9d6",
+    "ancestor_verified": true
+  },
+  "source_review_dir": "validation/coordination/codebuddy-audit26-p3-fix-independent-review-20260914-01",
+  "candidate_paths_file": "validation/coordination/codebuddy-audit26-p3-fix-ingest-manifest-20260914-01/exact-paths.txt",
+  "ingested": [
+    {
+      "path": "validation/test_audit_26_current_source_plan.py",
+      "sha256": "b348f282c2dc55372796ca34cc14c2bbde73a05bd52fa26603e4f378b7fe2730",
+      "size_bytes": 37216,
+      "git_status": "modified (tracked, uncommitted working-tree diff; matches dispatch expectation)"
+    },
+    {
+      "path": "validation/coordination/codebuddy-audit26-p3-fix-independent-review-20260914-01/review.md",
+      "sha256": "c2a34447c26c7193359862d83cfdf16936e6e9d548b74fc0ffbf96bf7540c120",
+      "size_bytes": 8201,
+      "git_status": "untracked (gitignored via .gitignore:53 /validation/*/)"
+    },
+    {
+      "path": "validation/coordination/codebuddy-audit26-p3-fix-independent-review-20260914-01/review.json",
+      "sha256": "398288479f3791d228d9cd65f6d12ea60ef107a7cdec6fa24104fd75c655b033",
+      "size_bytes": 4809,
+      "git_status": "untracked (gitignored via .gitignore:53 /validation/*/)"
+    },
+    {
+      "path": "validation/coordination/codebuddy-audit26-p3-fix-independent-review-20260914-01/SHA256SUMS",
+      "sha256": "3084b5df3eaea313fa0127d8ec9a54d67f1aba22495337e6f30f9ec0742a48df",
+      "size_bytes": 154,
+      "git_status": "untracked (gitignored via .gitignore:53 /validation/*/)"
+    }
+  ],
+  "hash_cross_checks": {
+    "dispatch_expected": "first three ingested hashes match the dispatch-expected SHA256 values exactly (candidate, review.md, review.json)",
+    "review_dir_sha256sums": "sha256sum -c: 2/2 OK (review.md, review.json)",
+    "review_internal_binding": "review.json binding.head equals this HEAD; candidate_current_sha256 equals dispatch expectation and current worktree bytes"
+  },
+  "strict_parse": {
+    "duplicate_keys": "rejected; mechanism proven on crafted input {\"a\":1,\"a\":2} via object_pairs_hook; artifact parses clean with zero duplicate keys",
+    "nan_infinity": "NaN, Infinity, -Infinity all rejected via parse_constant; mechanism proven on crafted input",
+    "artifact_result": "strict parse OK; verdict PASS; recorded counts 52/51/0/0/1"
+  },
+  "test_execution": {
+    "command": "python -B -m unittest validation.test_audit_26_current_source_plan -v",
+    "cwd": "repo root",
+    "exit_code": 0,
+    "tests_run": 52,
+    "passed": 51,
+    "skipped": 1,
+    "failures": 0,
+    "errors": 0,
+    "platform_skip": {
+      "test": "test_checker_maps_windows_provenance_to_mnt_on_posix_hosts",
+      "cls": "validation.test_audit_26_current_source_plan.CheckerBindingTests",
+      "reason": "POSIX-specific mapping rule (pre-existing, environment-conditional, not in the P3-fix diff)",
+      "host_platform": "Windows"
+    }
+  },
+  "verdict": "PASS",
+  "findings": {
+    "p1": [],
+    "p2": [],
+    "p3": [
+      {
+        "file": "validation/test_audit_26_current_source_plan.py",
+        "lines": "88",
+        "finding": "P3-1: checker_expected_staged_sources does not guard elements to ast.Constant; a non-constant element yields a garbage set that fails only at the downstream assertEqual (still fail-closed, weaker diagnostic)."
+      },
+      {
+        "file": "validation/test_audit_26_current_source_plan.py",
+        "lines": "79-88",
+        "finding": "P3-2: helper binds to the first expected_staged set literal in ast.walk order; exactly one exists today (verified). A count assertion would harden against a future second literal."
+      },
+      {
+        "file": "validation/test_audit_26_current_source_plan.py",
+        "lines": "682-693",
+        "finding": "P3-3: downstream proof is _strict_number directly; the checker routes probe fields through it (tools/audit_26_closure_readiness.py:1441-1453), but the test does not trace a decoded value into that call site. Honestly scoped in the docstring."
+      }
+    ]
+  },
+  "limitations": [
+    "Ingest is offline and read-only toward all candidates and existing files; no Git stage/commit/push or reset/clean; no GitHub changes",
+    "Only the named unittest module was executed via python -B -m unittest -v, plus in-process JSON strict-parse probes; no native, WSL, ROS, DDS, SITL, FC, UE, MATLAB, model, build, or flight actions; no #83 activity",
+    "This manifest binds the independent review's claims and adds no new validation beyond the strict parse, hash cross-checks, and the single unittest run",
+    "Skip-guard (B1-B4) and strict-JSON negative behaviors were proven by the reviewer's TEMP-only patched probes at review time, not triggered by the suite run on this host (both private trees exist locally)",
+    "Other pre-existing worktree modifications and untracked coordination files unrelated to this patch were preserved untouched"
+  ],
+  "acceptance": {
+    "issue_26": "unaccepted",
+    "full": "unaccepted",
+    "g6": "unaccepted",
+    "goal": "unaccepted",
+    "owner_approval": "none claimed",
+    "note": "Verdict PASS covers only the offline ingest of the P3-fix patch's independent review (hash/strict-parse/test consistency at the recorded HEAD). Final commit batch for this slice is exactly the four candidate paths plus the four files of this manifest directory."
+  }
+}

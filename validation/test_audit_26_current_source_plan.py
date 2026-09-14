@@ -67,6 +67,30 @@ def sha256(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
+def checker_expected_staged_sources():
+    """Extract the staged-sources set the checker requires.
+
+    The checker pins the six build inputs via its ``expected_staged`` set
+    literal inside ``tools/audit_26_closure_readiness.py``.  Read that
+    literal out of the checker source so the test compares the driver
+    against what the checker actually requires, not a copy of itself.
+    """
+    source = (ROOT / "tools/audit_26_closure_readiness.py").read_text(encoding="utf-8")
+    for node in ast.walk(ast.parse(source)):
+        if (
+            isinstance(node, ast.Assign)
+            and isinstance(node.value, ast.Set)
+            and any(
+                isinstance(target, ast.Name) and target.id == "expected_staged"
+                for target in node.targets
+            )
+        ):
+            return {elt.value for elt in node.value.elts}
+    raise AssertionError(
+        "expected_staged set literal not found in tools/audit_26_closure_readiness.py"
+    )
+
+
 # --------------------------------------------------------------------------
 # 1. Input identity: the plan's premise must still be true.
 # --------------------------------------------------------------------------
@@ -125,18 +149,9 @@ class ToolAgreementTests(unittest.TestCase):
                 "rtw_solver.h",
             },
         )
-        # The checker expects the same set in the build manifest.
-        self.assertEqual(
-            set(driver.REQUIRED_BUILD_SOURCES),
-            {
-                "Exp1_MinModelTemp.cpp",
-                "Exp1_MinModelTemp.h",
-                "rtwtypes.h",
-                "model.cpp",
-                "rtw_continuous.h",
-                "rtw_solver.h",
-            },
-        )
+        # The checker requires the same set for build-manifest staged_sources;
+        # compare against the checker's own expected_staged literal.
+        self.assertEqual(set(driver.REQUIRED_BUILD_SOURCES), checker_expected_staged_sources())
 
     def test_driver_excludes_only_ert_main(self):
         self.assertEqual(set(driver.EXCLUDED_BUILD_SOURCES), {"ert_main.cpp"})
@@ -166,6 +181,10 @@ class ToolAgreementTests(unittest.TestCase):
 class DriverGateTests(unittest.TestCase):
     def test_reference_generation_evidence_satisfies_every_gate(self):
         """The real codegen evidence dir must pass the gate without changes."""
+        if not driver.DEFAULT_GENERATION_DIR.exists():
+            self.skipTest(
+                f"private generation evidence tree absent: {driver.DEFAULT_GENERATION_DIR}"
+            )
         result = driver.verify_generation_evidence(
             generation_evidence_dir=driver.DEFAULT_GENERATION_DIR,
             project_root=ROOT,
@@ -176,6 +195,10 @@ class DriverGateTests(unittest.TestCase):
             self.assertEqual(entry["sha256"], result["expected_hashes"][name])
 
     def test_mathworks_include_prerequisites_resolve(self):
+        if not driver.DEFAULT_MATLAB_INCLUDE.exists():
+            self.skipTest(
+                f"private MATLAB include tree absent: {driver.DEFAULT_MATLAB_INCLUDE}"
+            )
         result = driver.verify_external_prerequisites(
             matlab_include_dir=driver.DEFAULT_MATLAB_INCLUDE,
             wrapper_source=WRAPPER,
@@ -623,6 +646,51 @@ class CheckerBindingTests(unittest.TestCase):
         self.assertEqual(
             mapped.as_posix(), "/mnt/d/matlab/install date/simulink/include/rtw_solver.h"
         )
+
+
+# --------------------------------------------------------------------------
+# 5b. The checker's strict JSON loader must fail closed on hostile input.
+# --------------------------------------------------------------------------
+
+
+class CheckerStrictJsonTests(unittest.TestCase):
+    """Direct pure tests of the checker's strict JSON parsing helpers.
+
+    Only ``_load_json``, ``_strict_object_pairs``, ``_reject_constant`` and
+    ``_strict_number`` are exercised, on in-memory temp files: no evidence
+    tree, no execution, no external process.
+    """
+
+    def _load(self, text):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "hostile.json"
+            path.write_text(text, encoding="utf-8")
+            return checker._load_json(path, "hostile input")
+
+    def test_duplicate_keys_fail_closed(self):
+        with self.assertRaisesRegex(checker.AuditDataError, "duplicate JSON key: a"):
+            self._load('{"a": 1, "a": 2}')
+
+    def test_nan_and_infinity_literals_fail_closed(self):
+        for literal in ("NaN", "Infinity", "-Infinity"):
+            with self.subTest(literal=literal):
+                with self.assertRaisesRegex(
+                    checker.AuditDataError, "non-finite JSON number"
+                ):
+                    self._load('{"value": %s}' % literal)
+
+    def test_1e999_is_rejected_downstream_not_by_json_decoding(self):
+        """1e999 decodes to float('inf'): the stdlib never calls
+        parse_constant for overflow literals, so the strict loader alone
+        accepts it.  The checker rejects it only downstream, where its
+        finite-number validation applies."""
+        # The stdlib fact the wording rests on: decoding 1e999 yields inf.
+        self.assertEqual(json.loads("1e999"), float("inf"))
+        # Hence the strict loader also accepts it...
+        self.assertEqual(self._load('{"value": 1e999}')["value"], float("inf"))
+        # ...and the downstream finite-number gate is what fails closed.
+        with self.assertRaisesRegex(checker.AuditDataError, "must be a finite"):
+            checker._strict_number(float("inf"), "hostile value")
 
 
 # --------------------------------------------------------------------------

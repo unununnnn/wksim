@@ -1,0 +1,98 @@
+{
+  "schema": "codebuddy-independent-review/1",
+  "review_id": "codebuddy-audit26-p3-fix-independent-review-20260914-01",
+  "date": "2026-09-14",
+  "reviewer": "CodeBuddy (independent)",
+  "dispatch": {
+    "ticket": "#26 (P3-fix patch)",
+    "candidate": "validation/test_audit_26_current_source_plan.py",
+    "scope": "working-tree diff only",
+    "expected_current_sha256": "b348f282c2dc55372796ca34cc14c2bbde73a05bd52fa26603e4f378b7fe2730"
+  },
+  "binding": {
+    "head": "1884ea64c1fe99502ec7063f00f2f09a17b43ea5",
+    "head_verified": true,
+    "candidate_current_sha256": "b348f282c2dc55372796ca34cc14c2bbde73a05bd52fa26603e4f378b7fe2730",
+    "candidate_sha256_matches_dispatch": true,
+    "candidate_diff_stat": {"files": 1, "insertions": 80, "deletions": 12},
+    "python": "3.13.11",
+    "platform": "Windows 11 Pro (win32)"
+  },
+  "checks": {
+    "ast_helper": {
+      "extracts_checker_expected_staged_literal": true,
+      "checker_literal_location": "tools/audit_26_closure_readiness.py:1373",
+      "assignments_in_checker": 1,
+      "fail_closed_probes": {
+        "literal_absent": "AssertionError (intended message)",
+        "non_literal_assignment": "AssertionError",
+        "annassign_form": "AssertionError",
+        "empty_braces_dict": "AssertionError",
+        "non_constant_element": "no raise at extraction; downstream assertEqual still fails (see P3-1)"
+      },
+      "real_extraction_equals_six_pinned_sources": true
+    },
+    "skip_guards": {
+      "absent_generation_tree": "skipTest with path in message; no failure",
+      "malformed_existing_generation_tree": "real failure, not skipped (no masking)",
+      "absent_matlab_include": "skipTest with path in message; no failure",
+      "malformed_existing_matlab_include": "real failure, not skipped (no masking)",
+      "note": "both private trees exist on this host; skips proven via TEMP-only patched probes, not triggered in suite run"
+    },
+    "strict_json": {
+      "duplicate_keys": "AuditDataError 'duplicate JSON key: a' at parse time (wrapped message matches assertRaisesRegex search)",
+      "nan_infinity_literals": "AuditDataError 'non-finite JSON number' via parse_constant (NaN, Infinity, -Infinity)",
+      "1e999": "accepted by strict loader (parse_constant not invoked; spy-proven); rejected downstream by _strict_number ('must be a finite')",
+      "distinction_correctly_modeled": true
+    }
+  },
+  "test_run": {
+    "command": "python -B -m unittest validation.test_audit_26_current_source_plan -v",
+    "total": 52,
+    "passed": 51,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 1,
+    "skip_detail": "test_checker_maps_windows_provenance_to_mnt_on_posix_hosts (pre-existing POSIX-only conditional, not in diff)",
+    "exit_code": 0,
+    "duration_seconds": 0.094
+  },
+  "temp_negative_probes": {
+    "script": "%TEMP%\\audit26_p3_review_negatives\\negatives.py",
+    "total": 22,
+    "passed": 22,
+    "failed": 0,
+    "exit_code": 0,
+    "cases": ["A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8", "B1", "B2", "B3", "B4", "C1", "C2-NaN", "C2-Infinity", "C2--Infinity", "C3-parse", "C3-loader", "C4", "C5-parse", "C5-gate", "C6"]
+  },
+  "findings": {
+    "P1": [],
+    "P2": [],
+    "P3": [
+      {
+        "id": "P3-1",
+        "location": "validation/test_audit_26_current_source_plan.py:88",
+        "note": "Helper does not guard elt to ast.Constant; a non-constant element yields a garbage set that fails only at the downstream assertEqual (still fail-closed, weaker diagnostic)."
+      },
+      {
+        "id": "P3-2",
+        "location": "validation/test_audit_26_current_source_plan.py:79-88",
+        "note": "Helper binds to first expected_staged set literal in ast.walk order; exactly one exists today (verified). A count assertion would harden against a future second literal."
+      },
+      {
+        "id": "P3-3",
+        "location": "validation/test_audit_26_current_source_plan.py:682-693",
+        "note": "Downstream proof is _strict_number directly; checker does route probe fields through it (tools/audit_26_closure_readiness.py:1441-1453), but the test does not trace a decoded value into that call site. Honestly scoped in the docstring."
+      }
+    ]
+  },
+  "boundaries": {
+    "candidate_edited": false,
+    "source_or_receipt_edits": false,
+    "git_stage_commit_push": false,
+    "wsl_native_ros_dds_sitl_fc_ue_matlab_model_build_flight": false,
+    "writes_confined_to": "validation/coordination/codebuddy-audit26-p3-fix-independent-review-20260914-01/ (gitignored via .gitignore:53 /validation/*/) and %TEMP%\\audit26_p3_review_negatives\\"
+  },
+  "verdict": "PASS",
+  "verdict_detail": "Accept the P3-fix patch. All three dispatch concerns verified by execution; suite green (52 tests, 1 pre-existing environment skip); observations P3-1..P3-3 are non-blocking."
+}
