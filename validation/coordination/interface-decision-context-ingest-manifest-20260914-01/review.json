@@ -1,0 +1,89 @@
+{
+  "schema": "wksim.ingest-manifest.v1",
+  "role": "codebuddy-ingest-manifest-owner",
+  "created": "2026-09-14",
+  "reviewed_head": "e8defc1d8317892e022ee24de086b026c1317e5a",
+  "architecture_ancestor": {
+    "commit": "f333316e6efa6b299b4288a9d91fb2bccedfb9d6",
+    "is_ancestor_of_head": true
+  },
+  "exact_paths_file": "exact-paths.txt",
+  "exact_paths_count": 10,
+  "exact_paths_sha256": "ec06ce4c067fc316dd3971a8545aa04d6f2d6972ad7ad0d19915c4414e241196",
+  "inputs": [
+    {
+      "path": "docs/coordination/ds-interface-decision-packet-20260912.md",
+      "sha256": "a7cfe224f2528a5651c6037eae7cf1547ae57e1dfe210c7792308ad247d5e382"
+    },
+    {
+      "path": "docs/coordination/interface-decision-packet-ingest-note-20260914.md",
+      "sha256": "e1e8171fc6ab46dba28b94ac550eca1893e9d844ddf22b46252f382742302632"
+    },
+    {
+      "path": "validation/test_interface_decision_packet_context.py",
+      "sha256": "89e96db007bb822a2d24ac25b2d07069046ee88e98b07ac84d4dbcd3cc3bf363"
+    },
+    {
+      "path": "validation/coordination/codebuddy-interface-decision-context-independent-review-20260914-01/review.md",
+      "sha256": "5a6ad3cb8d6cfffa43ccc3934c96758034005aa058ddbfa04f4f6f9ab96e01ee"
+    },
+    {
+      "path": "validation/coordination/codebuddy-interface-decision-context-independent-review-20260914-01/review.json",
+      "sha256": "f092644a592d10130da838d9427c0d829d31e2a5b268334b5836e82624e845c4"
+    },
+    {
+      "path": "validation/coordination/codebuddy-interface-decision-context-independent-review-20260914-01/SHA256SUMS",
+      "sha256": "1fa2b1edd923237b2aff743aaff3b5afc07e8f914aa96ec329e52cf061f00b74"
+    }
+  ],
+  "independent_review": {
+    "path": "validation/coordination/codebuddy-interface-decision-context-independent-review-20260914-01/review.json",
+    "schema": "wksim.codebuddy-independent-review.v1",
+    "reviewed_head": "e8defc1d8317892e022ee24de086b026c1317e5a",
+    "verdict": "PASS",
+    "findings_counts": {
+      "P1": 0,
+      "P2": 0,
+      "P3": 3
+    },
+    "candidate_paths": [
+      "docs/coordination/ds-interface-decision-packet-20260912.md",
+      "docs/coordination/interface-decision-packet-ingest-note-20260914.md",
+      "validation/test_interface_decision_packet_context.py"
+    ],
+    "candidate_sha256_match": true,
+    "sha256sums_check": {
+      "command": "sha256sum -c SHA256SUMS",
+      "relative_to": "validation/coordination/codebuddy-interface-decision-context-independent-review-20260914-01",
+      "exit_code": 0,
+      "results": [
+        "review.md: OK",
+        "review.json: OK"
+      ]
+    }
+  },
+  "test": {
+    "command": "python -B -m unittest validation.test_interface_decision_packet_context -v",
+    "exit_code": 0,
+    "tests_ran": 9,
+    "tests_ok": 9,
+    "tests_failed": 0,
+    "tests_errors": 0,
+    "tests_skipped": 0
+  },
+  "verification": [
+    "HEAD verified as e8defc1d8317892e022ee24de086b026c1317e5a via git rev-parse; architecture ancestor f333316e confirmed as ancestor of HEAD (merge-base exit 0).",
+    "All six batch inputs re-hashed this session; the three candidate hashes match the independent review's candidate_sha256 exactly.",
+    "Independent review.json strict-parsed (duplicate-key and non-finite-constant rejection): verdict PASS, P1 empty, P2 empty, P3 three non-blocking findings.",
+    "Mandated test re-run at HEAD: exit 0, Ran 9 tests, OK (9/9, 0 failures, 0 errors, 0 skipped).",
+    "Review-directory SHA256SUMS verified with sha256sum -c relative to its own directory: review.md OK, review.json OK, exit 0."
+  ],
+  "scope": "Offline ingest-identity manifest only. Verifies current hashes, strict-parses the independent review, re-runs the mandated offline test, and binds the exact 10-path batch inventory. No input file edited; no file outside this manifest directory modified; nothing staged, committed, or pushed; no native, build, MATLAB, ROS, DDS, SITL, flight-controller, UE, model, or flight work executed; no #83 work performed.",
+  "nonclaims": [
+    "This manifest does not promote the decision packet, the ingest note, the offline test, or the independent review to decision authority.",
+    "This manifest does not approve numerical budgets, select interfaces, or decide vendor ABI questions.",
+    "This manifest does not accept or close #9, #26, #29, #33, #84, Full, G6, Goal, or any other ticket.",
+    "The passing offline test proves admission semantics, identity binding and explicit supersession only, not UE consumers, a real UE/WSL/FC/ROS2/DDS closed loop, budget approval, or vendor ABI availability.",
+    "The packet's superseded unique-reader statement and the #83 diagnostic-evidence boundary remain as recorded in the ingest note."
+  ]
+}
