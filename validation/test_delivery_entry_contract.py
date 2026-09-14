@@ -406,27 +406,51 @@ class RateAndModeGateTests(unittest.TestCase):
 class FrozenManifestIdentityTests(unittest.TestCase):
     """Frozen manifests are identified by bytes + SHA256 + unique JSON keys."""
 
-    def _require_frozen(self):
-        resolved = []
-        missing = []
-        for posix, digest in FROZEN_MANIFESTS:
-            path = linux_file(posix)
-            if path is None:
-                missing.append(posix)
-            else:
-                resolved.append((posix, path, digest))
-        if missing:
-            self.skipTest("frozen Linux manifests not reachable: " + ", ".join(missing))
-        return resolved
+    def _resolve_frozen(self):
+        """Resolve each frozen manifest independently; absent entries become per-item skips."""
+        return [(posix, linux_file(posix), digest) for posix, digest in FROZEN_MANIFESTS]
 
     def test_frozen_external_manifests_read_bytes_match_sha256_and_unique_keys(self):
-        for posix, path, digest in self._require_frozen():
+        for posix, path, digest in self._resolve_frozen():
             with self.subTest(posix=posix):
+                if path is None:
+                    self.skipTest("frozen Linux manifest not reachable")
                 raw = path.read_bytes()
                 self.assertGreater(len(raw), 0)
                 self.assertEqual(hashlib.sha256(raw).hexdigest(), digest)
                 record = checked_json(path, digest)
                 self.assertIsInstance(record, dict)
+
+    def test_missing_first_manifest_does_not_block_later_reachable_verification(self):
+        with tempfile.TemporaryDirectory(prefix="wksim-delivery-gap-", dir=tempfile.gettempdir()) as tmp:
+            entries = []
+            for index in range(3):
+                path = Path(tmp) / f"build-{index}.json"
+                path.write_bytes(b'{"probe": %d}\n' % index)
+                entries.append((f"/root/gap-{index}/build.json", sha256_file(path), path))
+            seen = []
+
+            def gap_linux_file(posix):
+                seen.append(posix)
+                for candidate, _, path in entries:
+                    if candidate == posix:
+                        return None if candidate == entries[0][0] else path
+                return None
+
+            mocked = tuple((posix, digest) for posix, digest, _ in entries)
+            with patch.object(sys.modules[__name__], "linux_file", gap_linux_file), patch.object(
+                sys.modules[__name__], "FROZEN_MANIFESTS", mocked,
+            ):
+                case = FrozenManifestIdentityTests(
+                    "test_frozen_external_manifests_read_bytes_match_sha256_and_unique_keys"
+                )
+                result = case.run(unittest.TestResult())
+            self.assertEqual(seen, [posix for posix, _, _ in entries])
+            skipped = [subtest.params["posix"] for subtest, _ in result.skipped]
+            self.assertEqual(skipped, [entries[0][0]])
+            self.assertEqual(result.failures, [])
+            self.assertEqual(result.errors, [])
+            self.assertTrue(result.wasSuccessful())
 
     def test_temp_one_byte_change_fails_checked_json_identity(self):
         raw = b'{"probe": true, "n": 1}\n'

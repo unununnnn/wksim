@@ -1,0 +1,110 @@
+{
+  "schema": "wksim.delivery-granular-freeze-independent-review.v1",
+  "review_id": "codebuddy-delivery-granular-freeze-independent-review-20260914-01",
+  "generated_at": "2026-09-14T14:24:08+09:00",
+  "work_class": "review/triage",
+  "read_only_on_source": true,
+  "candidates_untouched": true,
+  "existing_receipts_untouched": true,
+  "git_untouched": "no add/commit/push/stage; git used read-only (rev-parse, status, diff, show, check-ignore)",
+  "github_untouched": true,
+  "no_wsl_command_no_native_no_ros_no_dds_no_sitl_no_fc_no_ue_no_matlab_no_model_no_build_no_flight": true,
+  "dispatch": {
+    "cwd": "C:/Users/PC/Documents/odid编译/wksim",
+    "head_commit": "1884ea64c1fe99502ec7063f00f2f09a17b43ea5",
+    "head_commit_verified": true,
+    "scope": "working-tree diff of validation/test_delivery_entry_contract.py only",
+    "contract": "each reachable FROZEN_MANIFESTS item is independently byte/SHA256/checked_json checked even if another is missing; the added deterministic regression must fail under the prior all-or-nothing implementation and must not falsify live coverage"
+  },
+  "candidate": {
+    "path": "validation/test_delivery_entry_contract.py",
+    "head_blob": "2b9bb906",
+    "current_blob": "2e237ab7",
+    "head_sha256": "390f9061ec74dae1df07067a73ed2ea5433f75485682bee47d1e789a99364075",
+    "current_sha256": "bae759e19d121b2e9b62920aa636203042ab5230dfb72f92330d4d2256dfb350",
+    "expected_current_sha256": "bae759e19d121b2e9b62920aa636203042ab5230dfb72f92330d4d2256dfb350",
+    "expected_current_sha256_match": true,
+    "diff_stat": "1 file changed, 37 insertions(+), 13 deletions(-)",
+    "test_method_count_head": 20,
+    "test_method_count_current": 21,
+    "summary": "HEAD _require_frozen (collect all, skipTest whole test if any missing) replaced by _resolve_frozen + per-subtest skip; one new regression test test_missing_first_manifest_does_not_block_later_reachable_verification"
+  },
+  "contract_checks": [
+    {
+      "claim": "each reachable FROZEN_MANIFESTS item is independently byte/SHA256/checked_json checked even if another is missing",
+      "status": "verified",
+      "evidence": [
+        "validation/test_delivery_entry_contract.py:409-411 _resolve_frozen resolves every entry independently (no early aggregation, no whole-test skip)",
+        "validation/test_delivery_entry_contract.py:413-422 one subTest per posix; skipTest only when that item's path is None; otherwise len(raw)>0, sha256(raw)==digest, checked_json(path,digest) is dict",
+        "live run: subtest posix='/root/wksim-ap-mixed-fhuf05l9/mixed-build.json' skipped; the other two subtests passed (default TextTestResult prints nothing for passing subtests; overall skipped=1 confirms exactly one skip)",
+        "probe A: module's own linux_file() resolves /root/wksim-joint-control-c2IXOr/build.json and /root/wksim-ros2-Rzj3Pf/message-build.json via \\\\wsl$\\Ubuntu-22.04 and their bytes SHA256-match the FROZEN_CONTROL/FROZEN_MESSAGE constants; manifest 1 is genuinely absent, so its skip is genuine, not a masking skip"
+      ]
+    },
+    {
+      "claim": "the deterministic regression would fail under the prior all-or-nothing implementation",
+      "status": "verified",
+      "evidence": [
+        "probe B: HEAD module loaded verbatim from `git show HEAD:validation/test_delivery_entry_contract.py` (sha256 390f9061...); the new regression method executed verbatim against it",
+        "probe B outcome: 1 test run, 1 error, wasSuccessful=false; AttributeError: 'FrozenManifestIdentityTests' object has no attribute 'params' — HEAD skips at test level (no subtest), so subtest.params cannot exist"
+      ]
+    },
+    {
+      "claim": "the regression does not falsify live coverage",
+      "status": "verified",
+      "evidence": [
+        "the regression patches linux_file/FROZEN_MANIFESTS only inside its own context on a fresh case instance built from TEMP files written under tempfile.gettempdir(); the live test still runs unmocked against real FROZEN_MANIFESTS",
+        "live run still performs the real byte/SHA256/checked_json checks for reachable manifests (probe A independently confirms reachable manifests' bytes match frozen constants)",
+        "probe C (negative): with three reachable mocked entries and a wrong digest on the second, exactly subtest posix='/root/gap-1/build.json' fails and the run is unsuccessful — per-item checking detects item-specific corruption and the granular design does not mask a bad item",
+        "probe D (negative): all three mocked entries missing → three granular subtest skips, zero failures/errors, run successful — no crash and no all-or-nothing behavior"
+      ]
+    }
+  ],
+  "tests": {
+    "command": "python -B -m unittest validation.test_delivery_entry_contract -v",
+    "exit_code": 0,
+    "ran": 21,
+    "failures": 0,
+    "errors": 0,
+    "skips": 1,
+    "skip_detail": [
+      {
+        "test": "FrozenManifestIdentityTests.test_frozen_external_manifests_read_bytes_match_sha256_and_unique_keys",
+        "subtest_posix": "/root/wksim-ap-mixed-fhuf05l9/mixed-build.json",
+        "reason": "frozen Linux manifest not reachable"
+      }
+    ],
+    "outcome": "OK (skipped=1)",
+    "temp_only_negatives": [
+      "probe A reachability/digest check using the module's own linux_file (read-only)",
+      "probe B regression executed against HEAD implementation (expected failure observed)",
+      "probe C corrupted-second-digest negative (expected isolated subtest failure observed)",
+      "probe D all-missing negative (expected three granular skips observed)",
+      "all probe writes confined to %TEMP%/cb-freeze-review-probe/ and TemporaryDirectory dirs under tempfile.gettempdir()"
+    ]
+  },
+  "findings": {
+    "P1": [],
+    "P2": [],
+    "P3": [
+      {
+        "title": "skip reason text generalized; aggregated missing list no longer shown",
+        "lines": "validation/test_delivery_entry_contract.py:417",
+        "detail": "HEAD's single skip message listed every missing posix path; the new per-item reason is the generic string 'frozen Linux manifest not reachable'. The per-posix identity is still carried by the subTest params and printed in the skip line, so no functional loss; cosmetic only, no change requested."
+      }
+    ]
+  },
+  "limitations": [
+    "Manifest /root/wksim-ap-mixed-fhuf05l9/mixed-build.json is absent in this environment, so its byte/SHA256/checked_json match is NOT live-covered by this review; only its per-item skip path is proven. Coverage of that item depends on the environment where it is reachable.",
+    "Run performed on a Windows host; the two reachable manifests resolve only through the \\\\wsl$\\Ubuntu-22.04 UNC share. No WSL command was issued; reachability is a host-side file-read fact only.",
+    "Frozen digests were compared to the FROZEN_* constants in the test file only; no cross-check against published identity documents was performed (out of scope).",
+    "Only validation/test_delivery_entry_contract.py was reviewed. The worktree contains other modified/untracked files (docs/Prometheus.gitmodules.reference, validation/coordination/short-cycle-dispatches.json, validation/test_audit_26_current_source_plan.py, validation/_probe_delivery_contract.py, and docs/coordination artifacts); none were read in depth or reviewed.",
+    "Probe B loads the HEAD module verbatim but executes it in a synthetic module namespace with the real repo path as __file__; module-level behavior is identical, but this is an exec-based reconstruction, not a checkout switch."
+  ],
+  "acceptance_disclaimer": "This review validates only the scoped working-tree diff against the stated contract. A green run here is not #84/#33/#26 acceptance, not Full/G6, not official MIXED/entry promotion, and does not transfer any frozen-manifest PASS beyond the items actually reachable in this environment.",
+  "verdict": "PASS (scoped): the granular-freeze patch satisfies the stated contract; the deterministic regression is proven to fail under the prior all-or-nothing implementation, live coverage is not falsified, and no P1/P2 findings were raised.",
+  "artifacts": [
+    "validation/coordination/codebuddy-delivery-granular-freeze-independent-review-20260914-01/review.md",
+    "validation/coordination/codebuddy-delivery-granular-freeze-independent-review-20260914-01/review.json",
+    "validation/coordination/codebuddy-delivery-granular-freeze-independent-review-20260914-01/SHA256SUMS"
+  ]
+}
