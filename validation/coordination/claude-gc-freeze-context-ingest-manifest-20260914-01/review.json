@@ -1,0 +1,237 @@
+{
+  "schema": "wksim.ingest-manifest.v1",
+  "manifested_at": "2026-09-14",
+  "owner": "claude-ingest-manifest",
+  "manifested_head": "cca825b5bac5bd8b7837a9ac75c85e715b67deb6",
+  "manifested_head_subject": "Bind G6 architecture applicability offline",
+  "manifested_head_branch": "main",
+  "reviewed_head": "ee6eb88819cefe255f22e788c39a77c0bbab490e",
+  "reviewed_head_subject": "Bind native-wait context offline",
+  "scope": "context-only",
+  "acceptance": "non-acceptance",
+  "batch": "remediated",
+  "exact_paths_sha256": "be92931e24459f459d2a3d289ee089b2fa5f11a5a5630f1b75acde5eb9bc4932",
+  "exact_paths_bytes": 781,
+  "exact_paths_count": 10,
+  "baseline_relations": {
+    "architecture_continuity_anchor_f333316e_is_ancestor": true,
+    "architecture_ancestor_check": "git merge-base --is-ancestor f333316e6efa6b299b4288a9d91fb2bccedfb9d6 HEAD; exit 0",
+    "writing_time_baseline_31e5b65f_is_ancestor": true,
+    "writing_time_baseline_check": "git merge-base --is-ancestor 31e5b65f5448c5558450d16d0f46da0ef0f0a03c HEAD; exit 0",
+    "anchors_are_fail_closed_not_exact_head_pin": true,
+    "reviewed_head_is_ancestor_of_manifested_head": true,
+    "reviewed_head_ancestor_check": "git merge-base --is-ancestor ee6eb88819cefe255f22e788c39a77c0bbab490e HEAD; exit 0",
+    "manifested_head_equals_reviewed_head": false,
+    "intervening_commits": 1,
+    "intervening_commit_subjects": ["cca825b5bac5bd8b7837a9ac75c85e715b67deb6 Bind G6 architecture applicability offline"],
+    "intervening_touched_path_count": 9,
+    "intervening_paths_disjoint_from_batch_10": true,
+    "intervening_disjointness_basis": "comm -12 of (git log --name-only ee6eb888..HEAD | sort -u) vs (batch-10 | sort -u) = 0 lines; all 9 intervening paths are architecture-applicability-g6-erratum, none gc-freeze",
+    "head_equality_required": false
+  },
+  "inputs": [
+    {
+      "path": "docs/coordination/codebuddy-gc-freeze-review-20260912.md",
+      "role": "historical_context_review_document",
+      "sha256": "64d0e8766274df1ac8cd8d136ec9300b080bc755e0a1694a1272aae3ad406546",
+      "size_bytes": 10594
+    },
+    {
+      "path": "docs/coordination/codebuddy-gc-freeze-ingest-note-20260914.md",
+      "role": "binding_and_registration_note_remediated",
+      "sha256": "f68c165fc44e07b22f40b82f3df956dca03f13bea1d4bdcb2d35e3c8808fa853",
+      "size_bytes": 14664
+    },
+    {
+      "path": "validation/test_codebuddy_gc_freeze_context.py",
+      "role": "offline_binding_test_remediated",
+      "sha256": "91dc7bf443a6ad1117cf59c7cec8a0529ab9d90a5d27cc42ea4a8859669d8b6e",
+      "size_bytes": 38435
+    },
+    {
+      "path": "validation/coordination/codebuddy-gc-freeze-independent-review-20260914-03/review.md",
+      "role": "independent_review_report",
+      "sha256": "922a71a26e11527aeeb0720aa8ef433e45dfc542c1e2e2712a6a4594dc2a6775",
+      "size_bytes": 14314
+    },
+    {
+      "path": "validation/coordination/codebuddy-gc-freeze-independent-review-20260914-03/review.json",
+      "role": "independent_review_record",
+      "sha256": "123643303390a77c2d3a912b3bfa4eda86c80c0ef3ea565c221305ebf816458c",
+      "size_bytes": 10691
+    },
+    {
+      "path": "validation/coordination/codebuddy-gc-freeze-independent-review-20260914-03/SHA256SUMS",
+      "role": "independent_review_checksum_manifest",
+      "sha256": "985a598b1d307694b7d1c1d3d51f87d0c4bceac821ac809678a9cff571031a27",
+      "size_bytes": 154
+    }
+  ],
+  "input_verification": {
+    "all_hashes_and_sizes_recomputed_matching_owner_and_review": true,
+    "inputs_unmodified": true,
+    "all_six_inputs_untracked": true,
+    "candidate_review_manifest_groups_pairwise_disjoint": true,
+    "review_sha256sums_verified_relative_to_review_directory": true,
+    "review_json_strict_parsed": true
+  },
+  "review_facts": {
+    "reviewer": "independent session (codebuddy-gc-freeze-independent-review-20260914-03)",
+    "review_date": "2026-09-14",
+    "review_window_closed_local": "2026-09-14T22:04:22+09:00",
+    "reviewed_head": "ee6eb88819cefe255f22e788c39a77c0bbab490e",
+    "verdict": "KEEP",
+    "verdict_detail": "both dispatched remediation items (P2-1, P3-1) genuinely closed; remediated three-candidate batch kept as-is",
+    "verdict_is_issue_acceptance": false,
+    "findings_p1": 0,
+    "findings_p2_open": 0,
+    "remediation_closed": {
+      "P2-1": {
+        "status": "resolved",
+        "test": "TestArchitectureAncestor.test_genuine_non_ancestor_rejected",
+        "lines": "validation/test_codebuddy_gc_freeze_context.py:591-648",
+        "mechanism": "repo-external temp git repo; two unrelated root commits (mktree + commit-tree); raw merge-base --is-ancestor exits 1 for the genuine non-ancestor and 128 for the fabricated name; real check_ancestor driven over that repo (self-ancestor control passes, genuine non-ancestor raises); module-global git rebound only for the duration and restored in finally",
+        "independent_fail_open_probe": {
+          "control_real": {"ran": 2, "failed": 0},
+          "mutant_exit128_only": {"ran": 2, "failed": 1, "failed_tests": ["test_genuine_non_ancestor_rejected"]},
+          "mutant_exit1_only": {"ran": 2, "failed": 1, "failed_tests": ["test_non_ancestor_rejected"]}
+        }
+      },
+      "P3-1": {
+        "status": "resolved",
+        "test": "TestTemporaryIndex.test_candidates_staged_exactly",
+        "lines": "validation/test_codebuddy_gc_freeze_context.py:805-822",
+        "assertion": "staged == set(CANDIDATE_PATHS) (exact equality, not subset)",
+        "negative_control_superset": {"entries": 4, "tests": 48, "failures": 1, "failed_tests": ["test_candidates_staged_exactly"]}
+      },
+      "no_regressions_from_remediation": true
+    },
+    "findings_p3_informational_kept_nonblocking": [
+      "P3-2: the new negative rebinds the module-global git for its duration; restored in finally; safe under sequential unittest/pytest, unsafe under intra-process threaded parallelism; the suite has no such mode, no action required",
+      "P3-3: test_head_drift_boundary still byte-pins runner c8577093/79221; a future legitimate runner change requires a rebinding revision (accepted in review-02 / note section 9.2)",
+      "P3-4: Mode C on Windows requires core.longpaths=true; without it the checkout is incomplete and a postcommit run there is meaningless"
+    ],
+    "p3_promoted_to_p2": false,
+    "review_grants_approval": false
+  },
+  "test_facts": {
+    "this_session_ran_modes": ["A", "B"],
+    "mode_c_carried_not_rerun": true,
+    "command_mode_a": "python -B validation/test_codebuddy_gc_freeze_context.py",
+    "command_mode_b_env": "temporary GIT_INDEX_FILE outside repo with git read-tree --empty then git add -f of exactly the three candidates, plus WKSIM_GC_FREEZE_TEMP_INDEX=1",
+    "this_session_runs": [
+      {
+        "phase": "mode_a_normal_real_index_untouched",
+        "lifecycle_state": "pre-admission",
+        "tests_run": 48,
+        "passed": 48,
+        "skipped": 2,
+        "failures": 0,
+        "errors": 0,
+        "result": "OK",
+        "exit_code": 0,
+        "skipped_reason": "TestTemporaryIndex pair gated on WKSIM_GC_FREEZE_TEMP_INDEX=1"
+      },
+      {
+        "phase": "mode_b_exact3_temporary_git_index_file",
+        "method": "temp GIT_INDEX_FILE outside repo; read-tree --empty then git add -f of exactly the 3 candidates; ls-files -s = exactly 3 entries all stage 0; blobs f5f5eb43301867826c5b50156f3c1f5aeb41c2dd / a53592476680af7f99523b3102fc3d6b305eabd3 / d1f305a9d7fbaa09b6f5cc1010595c2ae6a05aba each equal git hash-object of the worktree file; temp index deleted after",
+        "tests_run": 48,
+        "passed": 48,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0,
+        "result": "OK",
+        "exit_code": 0
+      }
+    ],
+    "mode_c_evidence_carried_from_review_03": {
+      "rerun_by_this_manifest": false,
+      "reason_not_rerun": "no commit permission; Mode C requires a natural git commit in a scratch clone",
+      "mode": "repo-external single-branch scratch clone, core.autocrlf=false and core.longpaths=true, candidates + untracked self-check evidence + two tracked-dirty protected files copied, natural git add (3 paths) + git commit, suite run; no git replace",
+      "clone_head": "2f47e116a822c824f35fbbf8bbd55194bb007779",
+      "clone_head_parent": "ee6eb88819cefe255f22e788c39a77c0bbab490e",
+      "committed_path_count": 3,
+      "tests": 48,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 2,
+      "result": "OK",
+      "source": "codebuddy-gc-freeze-independent-review-20260914-03 review.md section 3-C / review.json test_runs.mode_c"
+    },
+    "exact_10_read_tree_head_admission": {
+      "separate_from_mode_b": true,
+      "suite_run_under_it": false,
+      "method": "temp GIT_INDEX_FILE outside repo; git read-tree HEAD then git add -f of exactly the exact-paths.txt 10 paths; ls-files path-set diff vs real index = exactly 10 added, 0 removed; temp index never pointed at the real index and was deleted afterwards",
+      "paths_added": 10,
+      "paths_removed": 0
+    },
+    "real_index_unchanged": {
+      "ls_files_s_hash_object_before": "b76fe21040609ac988dad1737d54209999df131c",
+      "ls_files_s_hash_object_after": "b76fe21040609ac988dad1737d54209999df131c",
+      "raw_index_sha256_before": "7d83f465adfaa9e9e756765823ddf185b2427457e50da0315193aec66f52a712",
+      "byte_identical_throughout": true,
+      "note": "fingerprint differs from review-03's eed3f1811e3d9277f765d93bcfd07d40b7ccea62 because HEAD advanced to cca825b5; constant across this session"
+    },
+    "diff_check": {
+      "batch_scoped": "git diff --check -- <10 batch paths> clean (exit 0, no output; all 10 paths are untracked additions, not tracked modifications)",
+      "full_tree": "only pre-existing trailing whitespace inside protected dirty docs/Prometheus.gitmodules.reference, predating this task; not introduced by this manifest"
+    }
+  },
+  "boundary_facts_preserved": {
+    "historical_23_23": "historical pinned evidence only, for the pinned 637c403c/cbf7b018/fd0b7ee6 snapshot triple; both subject paths absent at HEAD; not current execution, not approval, not #83 evidence, not closure",
+    "d3_superseded": "current tracked plan (08e35350, 2026-09-14) consumes manager-gc-candidate.json directly; there is no handmade gc-freeze.json contract; HEAD comparator has 0 gc-freeze/freeze_calls contract occurrences, resolve_inputs at :333; supersession, not repair",
+    "gates_preserved_unweakened": [
+      "1 ms tick",
+      "native barrier",
+      "4-tick",
+      "no-catch-up",
+      "100 ms / full window",
+      "physics/identity gates"
+    ],
+    "diagnostic_field_never_counts_as_83_pass_evidence": true,
+    "c1_status": "tracked hypothesis; no reproducible steady-state effect, no comparator performance_pass output",
+    "nonclosure": {
+      "check_note_boundaries_passed": true,
+      "required_negation_phrases_present": true,
+      "elevation_phrases_absent_independent_scan": true,
+      "elevation_mutation_negative_still_fails": true,
+      "review_doc_preserves_failure_list": true
+    },
+    "issue83_no_rerun": {
+      "plan_binds_83_no_rerun": true,
+      "plan_binds_c1_still_hypothesis": true,
+      "note_phrase_not_83_evidence": true,
+      "forbidden_phrase_83_pass_rejected": true,
+      "delivery_classification": "candidate_source_delivery_not_flight",
+      "native_started": false,
+      "issue83_artifacts_executed": false
+    }
+  },
+  "protected_files": {
+    "docs/Prometheus.gitmodules.reference": {
+      "sha256": "5aa703020961433befcb2f74cd0432e14fbba139db1fd0616b34c6abf0223855",
+      "matches_baseline": true
+    },
+    "validation/coordination/short-cycle-dispatches.json": {
+      "sha256": "06e65cc1cd7d3aa467740f586e92d5e1de00cc973c07db49694c2c6a73862838",
+      "matches_baseline": true
+    }
+  },
+  "outputs": [
+    "validation/coordination/claude-gc-freeze-context-ingest-manifest-20260914-01/exact-paths.txt",
+    "validation/coordination/claude-gc-freeze-context-ingest-manifest-20260914-01/review.md",
+    "validation/coordination/claude-gc-freeze-context-ingest-manifest-20260914-01/review.json",
+    "validation/coordination/claude-gc-freeze-context-ingest-manifest-20260914-01/SHA256SUMS"
+  ],
+  "sha256sums_coverage": "exact-paths.txt, review.md, review.json only; SHA256SUMS does not self-reference",
+  "nonclaims": [
+    "This manifest is context-only admission of the reviewed remediated batch; it grants no issue acceptance, approval, closure, or #83 rerun permission for #83 or any other ticket. The review verdict KEEP keeps the remediated candidates as-is and is not an issue acceptance.",
+    "No current rate gate status is granted; no native result and no flight evidence is produced or claimed.",
+    "Gate wording (1 ms tick, native barrier, 4-tick, no-catch-up, 100 ms/full window, physics/identity) is preserved unweakened; the historical 23/23 remains historical pinned evidence only.",
+    "D3 is superseded: the current tracked plan consumes manager-gc-candidate.json directly and there is no handmade gc-freeze.json contract.",
+    "Mode C was not re-run by this manifest (no commit permission); its evidence is carried verbatim from review-03 and attributed to review-03.",
+    "No input or file outside the four manifest outputs was edited; nothing was staged, committed, or pushed; the real index was never modified (all temp indexes/artifacts were repo-external and deleted).",
+    "Protected files docs/Prometheus.gitmodules.reference and validation/coordination/short-cycle-dispatches.json were not edited, staged, or normalized; prohibited files (rolling-six-plan-20260912.md, claude-native-wait-next-probe.md, validation/_probe_delivery_contract.py, %TEMP%audit26-report.json) were never read or touched.",
+    "No native/build/MATLAB/ROS/DDS/SITL/FC/UE/model/flight execution, no #83 rerun, no git replace, no sibling-project access, and no network or GitHub mutation was performed."
+  ]
+}

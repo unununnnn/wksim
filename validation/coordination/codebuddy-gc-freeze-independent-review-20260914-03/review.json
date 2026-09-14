@@ -1,0 +1,201 @@
+{
+  "review": "codebuddy-gc-freeze-independent-review-20260914-03",
+  "reviewer": "independent session (read-only over real repo; writes limited to this directory)",
+  "date": "2026-09-14",
+  "window_closed_local": "2026-09-14T22:04:22+09:00",
+  "real_repo_head": "ee6eb88819cefe255f22e788c39a77c0bbab490e",
+  "real_repo_head_subject": "Bind native-wait context offline",
+  "real_repo_branch": "main",
+  "python": "3.13.11",
+  "git": "2.53.0.windows.1",
+  "real_index_fingerprint_before_and_after": "eed3f1811e3d9277f765d93bcfd07d40b7ccea62",
+  "verdict": "KEEP",
+  "blockers": [],
+  "candidates": [
+    {
+      "path": "docs/coordination/codebuddy-gc-freeze-review-20260912.md",
+      "sha256": "64d0e8766274df1ac8cd8d136ec9300b080bc755e0a1694a1272aae3ad406546",
+      "bytes": 10594,
+      "hash_match": true,
+      "changed_from_review_02": false
+    },
+    {
+      "path": "docs/coordination/codebuddy-gc-freeze-ingest-note-20260914.md",
+      "sha256": "f68c165fc44e07b22f40b82f3df956dca03f13bea1d4bdcb2d35e3c8808fa853",
+      "bytes": 14664,
+      "hash_match": true,
+      "changed_from_review_02": false
+    },
+    {
+      "path": "validation/test_codebuddy_gc_freeze_context.py",
+      "sha256": "91dc7bf443a6ad1117cf59c7cec8a0529ab9d90a5d27cc42ea4a8859669d8b6e",
+      "bytes": 38435,
+      "hash_match": true,
+      "changed_from_review_02": true,
+      "review_02_sha256": "b0122691a7536bde74d5d0e1a29267fec7c9893914a3ee466fb9dccb7b5d135c",
+      "review_02_bytes": 35278
+    }
+  ],
+  "remediation_checks": {
+    "P2-1_genuine_valid_object_non_ancestor_exit1": {
+      "status": "resolved",
+      "test": "TestArchitectureAncestor.test_genuine_non_ancestor_rejected",
+      "lines": "validation/test_codebuddy_gc_freeze_context.py:591-648",
+      "mechanism": "repo-external temp git repo; two unrelated root commits (mktree + commit-tree); raw merge-base --is-ancestor exits 1 for the genuine non-ancestor and 128 for the fabricated name; real check_ancestor driven over that repo (self-ancestor control passes, genuine non-ancestor raises); module-global git rebound only for the duration and restored in finally",
+      "independent_fail_open_probe": {
+        "control_real": {"ran": 2, "failed": 0},
+        "mutant_exit128_only": {"ran": 2, "failed": 1, "failed_tests": ["test_genuine_non_ancestor_rejected"]},
+        "mutant_exit1_only": {"ran": 2, "failed": 1, "failed_tests": ["test_non_ancestor_rejected"]},
+        "conclusion": "the exit-1 fail-open regression P2-1 described is now caught; the two negatives cover distinct git exit codes and are non-redundant"
+      },
+      "local_genuine_non_ancestor_available": {
+        "object": "5dcd8cfa764d558f3e15dcb88aa7d49e32c54cce",
+        "type": "commit",
+        "is_ancestor_exit_at_HEAD": 1,
+        "used_by_test": false
+      }
+    },
+    "P3-1_temp_index_exact_equality": {
+      "status": "resolved",
+      "test": "TestTemporaryIndex.test_candidates_staged_exactly",
+      "lines": "validation/test_codebuddy_gc_freeze_context.py:805-822",
+      "assertion": "staged == set(CANDIDATE_PATHS) (exact equality, not subset)",
+      "negative_control": {
+        "setup": "temp GIT_INDEX_FILE with the three candidates plus AGENTS.md (4 entries)",
+        "result": "Ran 48 tests, FAILED (failures=1)",
+        "failed_tests": ["test_candidates_staged_exactly"],
+        "conclusion": "assertion is non-vacuous; a superset temp index is rejected"
+      }
+    },
+    "no_regressions_from_remediation": true
+  },
+  "ancestry": {
+    "checked_at": "ee6eb88819cefe255f22e788c39a77c0bbab490e",
+    "31e5b65f5448c5558450d16d0f46da0ef0f0a03c": {"is_ancestor_exit": 0, "in_modeC_clone_exit": 0},
+    "f333316e6efa6b299b4288a9d91fb2bccedfb9d6": {"is_ancestor_exit": 0, "in_modeC_clone_exit": 0},
+    "438ab764c0cf70f9e017cfbd82aeb04255282e3a": {"is_ancestor_exit": 0},
+    "exact_head_equality_assertion_remains": false
+  },
+  "protected_files": {
+    "docs/Prometheus.gitmodules.reference": {
+      "sha256": "5aa703020961433befcb2f74cd0432e14fbba139db1fd0616b34c6abf0223855",
+      "bytes": 492,
+      "matches_baseline": true
+    },
+    "validation/coordination/short-cycle-dispatches.json": {
+      "sha256": "06e65cc1cd7d3aa467740f586e92d5e1de00cc973c07db49694c2c6a73862838",
+      "bytes": 1268,
+      "matches_baseline": true
+    },
+    "note_section_0_other_untouched": {
+      "docs/coordination/rolling-six-plan-20260912.md": "fbe93cbe53b9d7ed4788513231871881191878c6a06cd1dba891dba9433d6b4b",
+      "docs/coordination/claude-native-wait-next-probe.md": "443979e7a0fe5ebbdd6e76967ed24f188f23400a009ae005a9b83f59444f75d86",
+      "validation/_probe_delivery_contract.py": "226b4c1d40fe9e9d7673107521181462adfc588fa21499cfd8d758fff1adc32a"
+    }
+  },
+  "nonclosure": {
+    "check_note_boundaries_passed": true,
+    "required_negation_phrases_present": true,
+    "elevation_phrases_absent_independent_scan": true,
+    "elevation_mutation_negative_still_fails": true,
+    "review_doc_preserves_failure_list": true
+  },
+  "issue83_no_rerun": {
+    "plan_binds_83_no_rerun": true,
+    "plan_binds_c1_still_hypothesis": true,
+    "note_phrase_not_83_evidence": true,
+    "forbidden_phrase_83_pass_rejected": true,
+    "delivery_classification": "candidate_source_delivery_not_flight",
+    "native_started": false,
+    "suite_spawns_only_git": true,
+    "issue83_artifacts_executed": false
+  },
+  "test_runs": {
+    "total_tests_collected": 48,
+    "mode_a": {
+      "mode": "normal current worktree, real repo, lifecycle state A (pre-admission)",
+      "command": "python -m unittest validation.test_codebuddy_gc_freeze_context -v",
+      "tests": 48, "failures": 0, "errors": 0, "skipped": 2, "result": "OK",
+      "real_index_fingerprint_after": "eed3f1811e3d9277f765d93bcfd07d40b7ccea62",
+      "head_after": "ee6eb88819cefe255f22e788c39a77c0bbab490e"
+    },
+    "mode_b": {
+      "mode": "repo-external temp GIT_INDEX_FILE with exactly the three candidates (read-tree --empty + add -f), WKSIM_GC_FREEZE_TEMP_INDEX=1",
+      "temp_index": "%TEMP%/wksim-gcfreeze-modeB-<id>/tempindex (deleted after run)",
+      "temp_index_entries": 3,
+      "temp_index_stages": [0, 0, 0],
+      "temp_index_blobs_equal_worktree": true,
+      "blobs": {
+        "docs/coordination/codebuddy-gc-freeze-review-20260912.md": "f5f5eb43301867826c5b50156f3c1f5aeb41c2dd",
+        "docs/coordination/codebuddy-gc-freeze-ingest-note-20260914.md": "a53592476680af7f99523b3102fc3d6b305eabd3",
+        "validation/test_codebuddy_gc_freeze_context.py": "d1f305a9d7fbaa09b6f5cc1010595c2ae6a05aba"
+      },
+      "tests": 48, "failures": 0, "errors": 0, "skipped": 0, "result": "OK",
+      "real_index_fingerprint_after": "eed3f1811e3d9277f765d93bcfd07d40b7ccea62"
+    },
+    "mode_b_negative_control_superset_index": {
+      "mode": "same as mode B but temp index holds a 4th file (AGENTS.md)",
+      "entries": 4,
+      "tests": 48, "failures": 1, "errors": 0, "skipped": 0,
+      "result": "FAILED",
+      "failed_tests": ["test_candidates_staged_exactly"],
+      "expected_failure_observed": true
+    },
+    "mode_c": {
+      "mode": "repo-external single-branch scratch clone, core.autocrlf=false (and core.longpaths=true), candidates + untracked self-check evidence + two tracked-dirty protected files copied, natural git add (3 paths) + git commit, suite run; no git replace",
+      "clone": "%TEMP%/wksim-mc-<id>/s (deleted after run)",
+      "clone_autocrlf": false,
+      "clone_longpaths": true,
+      "clone_checkout_clean": true,
+      "clone_head_pre_commit": "ee6eb88819cefe255f22e788c39a77c0bbab490e",
+      "clone_head": "2f47e116a822c824f35fbbf8bbd55194bb007779",
+      "clone_head_parent": "ee6eb88819cefe255f22e788c39a77c0bbab490e",
+      "committed_paths": [
+        "docs/coordination/codebuddy-gc-freeze-ingest-note-20260914.md",
+        "docs/coordination/codebuddy-gc-freeze-review-20260912.md",
+        "validation/test_codebuddy_gc_freeze_context.py"
+      ],
+      "committed_path_count": 3,
+      "runner_hash_in_clone": "c8577093a62e4993c8048a69f4501984b3ee9045b8a73d26fb83aedc73acbb3b",
+      "tests": 48, "failures": 0, "errors": 0, "skipped": 2, "result": "OK",
+      "clone_head_after_run": "2f47e116a822c824f35fbbf8bbd55194bb007779",
+      "real_index_fingerprint_after": "eed3f1811e3d9277f765d93bcfd07d40b7ccea62",
+      "head_after": "ee6eb88819cefe255f22e788c39a77c0bbab490e"
+    }
+  },
+  "findings": [
+    {"id": "P1", "severity": "P1", "status": "none"},
+    {"id": "P2", "severity": "P2", "status": "none_open", "note": "review-02 P2-1 resolved and independently proven to catch fail-open"},
+    {"id": "P3-1", "severity": "P3", "status": "resolved", "file": "validation/test_codebuddy_gc_freeze_context.py:805-822"},
+    {"id": "P3-2", "severity": "P3", "status": "informational", "summary": "the new negative rebinds the module-global git for its duration; safe under sequential unittest/pytest, unsafe under intra-process threaded parallelism; no action required while the suite has no such mode"},
+    {"id": "P3-3", "severity": "P3", "status": "informational", "summary": "test_head_drift_boundary still byte-pins runner c8577093/79221; a future legitimate runner change requires a rebinding revision (accepted in review-02 / note section 9.2)"},
+    {"id": "P3-4", "severity": "P3", "status": "informational", "summary": "Mode C on Windows requires core.longpaths=true; without it the checkout is incomplete and a postcommit run there is meaningless. First attempt failed this way in a repo-external clone; resolved and re-run with a verified clean checkout"}
+  ],
+  "environment_observations": {
+    "concurrent_worktree_drift_by_external_actor": true,
+    "drift_paths_are_suite_inputs": false,
+    "drift_paths_touch_candidates_or_protected": false,
+    "drift_examples": [
+      "] (zero-byte file at repo root, 2026-09-14T21:53:40)",
+      "docs/plan/59-g6-*",
+      "tools/check_g6_time_field_forms.py",
+      "tools/map_g6_uncovered_states.py",
+      "validation/g6-*-20260914.json",
+      "validation/test_{check_g6_time_field_forms,codebuddy_g6_same_source_activation_readiness,e0_g6_owner_decision_request,map_g6_uncovered_states}.py"
+    ],
+    "worktree_quiescent": false,
+    "head_constant_throughout_window": true
+  },
+  "operational_attestations": {
+    "real_index_never_staged_or_mutated": true,
+    "no_real_repo_commit_reset_clean_checkout_restore": true,
+    "no_push_no_network": true,
+    "no_git_replace": true,
+    "no_native_matlab_ros_dds_unreal_sitl_flight_hardware": true,
+    "issue83_not_touched_or_rerun": true,
+    "siblings_not_touched": true,
+    "candidates_not_edited": true,
+    "temp_artifacts_removed": true,
+    "only_allowed_artifacts_written": true
+  }
+}
