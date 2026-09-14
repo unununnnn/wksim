@@ -1,0 +1,220 @@
+{
+  "schema": "wksim.ds-rate-diagnostic-analysis.v1",
+  "run_id": "joint-public-flight-7bdfxkb_",
+  "analyzed_local_time": "2026-09-12T22:45:00+09:00",
+  "owner": "DS-B / #83 诊断就绪模块（只读分析）",
+  "scope": "Offline read-only analysis of the real diagnostic field at /root/wksim-release-acceptance-fe3/validation/joint-public-flight-7bdfxkb_. Reused the fixed analyzers from the main repository. No SITL/ROS/build, no runtime/scheduler/gate change, no new agents, no original overwritten.",
+  "inputs": {
+    "rate_jsonl": {
+      "path": "/root/wksim-release-acceptance-fe3/validation/joint-public-flight-7bdfxkb_/rate.jsonl",
+      "bytes": 65785089,
+      "sha256": "484016e746bfad78ef5d46f0d85d19e1761ebe30fea2d22e63649ea57e07d0b"
+    },
+    "result_json": {
+      "path": "/root/wksim-release-acceptance-fe3/validation/joint-public-flight-7bdfxkb_/result.json",
+      "bytes": 127524,
+      "sha256": "cdfe7f4996c34fb00af9efce4fddac3dc726e88a8327e453fc939fb9fd98f478"
+    },
+    "cpu_diagnostic_extract": {
+      "path": "derived: rows with kind diagnostic_* filtered out of joint-wire.jsonl (496 step + 94 gc + 452 native-input)",
+      "bytes": 1042,
+      "sha256": "336b0bc75752cf09fa4ba7253dc2871a0d62ae9bb48798dd1f6a0a44e1f861c7",
+      "note": "this is a derived extract, not an original; originals untouched"
+    },
+    "joint_wire_jsonl": {
+      "path": "/root/wksim-release-acceptance-fe3/validation/joint-public-flight-7bdfxkb_/joint-wire.jsonl",
+      "sha256": "9035a4af48d8fba172cfbfe3868319cd87f9740c1005306f19462bfbdf98cf0e",
+      "note": "hashed by the comparator self-check on the original file; the derived extract above came from this same file"
+    },
+    "stdout_log": {
+      "path": "/root/wksim-release-acceptance-fe3/validation/rate-diagnostic-20260912-01/run.stdout.log",
+      "bytes": 2209
+    }
+  },
+  "identity_check": {
+    "status": "matches the frozen diagnostic package",
+    "source_sha256": {
+      "tools/run_joint_flight.py": "92e3c7dc9d4dde2b7ca38e16705c47a115e8f2a07cbecdd3eb84d7d1cacd073b",
+      "tools/run-joint-flight.sh": "ea012da68bd8fcb3e25383197bf5a9f076aecfe5d3fd9a966675aa0d69fdc883",
+      "Simulator/wksim_runtime/joint_rate.py": "0b53a16acd65138b4623a9a8573ec8d643a2b78f4e27e8122c65efb9a6da25c4",
+      "Simulator/wksim_runtime/joint_rate_probe.py": "a8bac9ac84ba9960296bb6b43d6d39c6bbc17fa9fdc47adf7e05ce76d7066653",
+      "Simulator/wksim_core/joint.py": "f5433c2ec7e81794ffcfab26dce0feff18d4e1affdfb44f895a72e4ce0241d50"
+    },
+    "manifests": {
+      "ap": "1e6250eff8873d6b2e52017b613c223ac29f8260fdf92aac2cf0c7cdcc6ce94c",
+      "control": "6fe8c0b30775a9ba83407302f602d0785876d307e5f1cb746afa3bf316cf5e7e",
+      "message": "29969da0702451e3fc6f1de40bc301a67284c4e7d5fae8f88c64773d27a96219",
+      "px4_manifest": "d7e905b35250d184e185ada70e3fe43f0223f1c605832d81c3c58eeb123d4cb6",
+      "px4_binary": "93b4ebe0d83a5897131ec24ee58d732c8999972bb7730f429fc396bc8d10602a"
+    },
+    "environment": {"WKSIM_JOINT_CPU_TIMING": "1", "WKSIM_JOINT_RATE_TIMING_PROBE": "1"},
+    "async_model_evidence_requested": true,
+    "async_model_evidence": {
+      "arducopter": {"complete": true, "closed": true, "submitted_bytes": 173578932, "written_bytes": 173578932, "error": null},
+      "px4": {"complete": true, "closed": true, "submitted_bytes": 184180985, "written_bytes": 184180985, "error": null}
+    },
+    "rate_timing_probe_identity_present": true,
+    "diagnostic_only": true,
+    "task_profile": "full_xyz_pv_yaw_v1",
+    "scene_epoch": "85df8c49b8f64de8ba794cff149696d1",
+    "result_status": "failed",
+    "error": "RateUnmet('rate_unmet/resource_insufficient')",
+    "wall_seconds": 269.503900622,
+    "flight_completed": false,
+    "source_unchanged": true,
+    "cleanup_errors": [],
+    "faulted_authority": {"tick": 109776, "time_ns": 109776000000, "fault": "rate_unmet/resource_insufficient", "recoverable": false, "synchronized": true}
+  },
+  "structure": {
+    "segments": 1,
+    "anchors": 1,
+    "rate_group_start": 27434,
+    "rate_group_end": 27434,
+    "rate_timing_probe": 27435,
+    "probe_outcomes": {"started": 27434, "rate_unmet": 1},
+    "rate_unmet": 1,
+    "max_group_start_lateness_ns": 99880816,
+    "max_group_end_lateness_ns": 97953365,
+    "max_group_work_ns": 28531250,
+    "parsing_note": "add_timing_probe_identity() attaches the sealed identity block to every recorded row while the probe is active, so a plain grep for 'rate_timing_probe' counts 82307 lines while only 27435 rows have kind='rate_timing_probe'. Analyzers filter on kind and are unaffected."
+  },
+  "latch_reconciliation": {
+    "analyzer": "tools/analyze_joint_rate_intervals.py sha256 c3ba9de8f4ac61d6b39750bdabed737915d85d3bee53d56fed8157237bca98b8",
+    "status": "reconciled",
+    "closes": true,
+    "identity_check_ns": 0,
+    "groups": 27434,
+    "intervals": 27433,
+    "creep_total_ns": 99717577,
+    "work_over_total_ns": 25703958,
+    "release_excess_total_ns": 74013619,
+    "first_group_start_lateness_ns": 163239,
+    "terminal_unreconciled_ns": 169841,
+    "recorded_latch_lateness_ns": 100050657,
+    "rate_unmet_tick": 109776,
+    "latch_site": "begin_group_release_wait",
+    "last_group_start_lateness_ns": 99880816,
+    "last_group_end_lateness_ns": 96205477,
+    "last_group_boundary_tick": 109776,
+    "foreign_rate_unmet": [],
+    "reading": "the guard crossed in the next group's release wait; the last recorded group start is still below 100 ms (99880816) and its end is below too (96205477), so no single group's start lateness explains the latch"
+  },
+  "probe_phases": {
+    "analyzer": "tools/analyze_joint_rate_probe.py sha256 57eeca9c693185f7c8f0768c148a4d33a71c8ce675e310cd7885357ce7e3d1d5",
+    "sample_count": 27435,
+    "phase_totals_ns": {
+      "entry_to_initial_health_ns": 2506165577,
+      "loop_health_ns": 5798023987,
+      "sleep_elapsed_ns": 69014634856,
+      "final_spin_other_ns": 26881438586
+    },
+    "phase_max_ns": {
+      "entry_to_initial_health_ns": 961569,
+      "loop_health_ns": 1145701,
+      "sleep_elapsed_ns": 4135094,
+      "final_spin_other_ns": 1314018
+    },
+    "observed_share": {
+      "entry_to_initial_health_ns": 0.02405143235440482,
+      "loop_health_ns": 0.05564308399745729,
+      "sleep_elapsed_ns": 0.6623268777356737,
+      "final_spin_other_ns": 0.25797860591246424
+    },
+    "counters": {
+      "loop_health_calls_total": 26109,
+      "loop_health_calls_max_per_group": 1,
+      "sleep_requested_ns_total": 67169207566,
+      "sleep_elapsed_ns_total": 69014634856,
+      "sleep_calls_total": 51789,
+      "sleep_max_overshoot_ns_total": 1178947314,
+      "sleep_max_overshoot_ns_max": 1067520
+    },
+    "release_excess_split": {
+      "total_ns": 100050657,
+      "max_ns": 20785815,
+      "entry_lateness_total_ns": 26515920,
+      "entry_lateness_max_ns": 20749745,
+      "post_entry_excess_total_ns": 73534737,
+      "post_entry_excess_max_ns": 323350
+    },
+    "reading": "phase shares are shares of the entire wait, not of the excess; the decisive split is entry_lateness (before the probe entered begin_group, max 20.75 ms) versus post-entry excess (inside the measured wait, max only 0.323 ms)"
+  },
+  "dominant_events": {
+    "note": "entry lateness of a group equals the previous group's work overrun when the wait itself is short; the three rows below carry essentially the whole pre-entry total (20749745 + 3057160 + 2634691 = 26441596 ns vs entry_lateness_total 26515920 ns)",
+    "rows": [
+      {"tick": 107572, "entry_lateness_ns": 20749745, "post_entry_excess_ns": 20785815, "observed_wait_ns": 36070, "loop_health_calls": 0, "sleep_calls": 0},
+      {"tick": 2000, "entry_lateness_ns": 3057160, "post_entry_excess_ns": 3084980, "observed_wait_ns": 27820, "loop_health_calls": 0, "sleep_calls": 0},
+      {"tick": 5504, "entry_lateness_ns": 2634691, "post_entry_excess_ns": 2750021, "observed_wait_ns": 115330, "loop_health_calls": 0, "sleep_calls": 0}
+    ],
+    "largest_post_entry_waits": [
+      {"tick": 70440, "post_entry_excess_ns": 323350, "observed_wait_ns": 4168198, "loop_health_calls": 1, "loop_health_ns": 169802, "sleep_overshoot_ns": 26520, "final_spin_other_ns": 1314018},
+      {"tick": 21812, "post_entry_excess_ns": 309278, "observed_wait_ns": 3694431, "loop_health_calls": 1, "loop_health_ns": 253768, "sleep_overshoot_ns": 31004, "final_spin_other_ns": 1296384},
+      {"tick": 25124, "post_entry_excess_ns": 308403, "observed_wait_ns": 3973317, "loop_health_calls": 1, "loop_health_ns": 155081, "sleep_overshoot_ns": 25545, "final_spin_other_ns": 1297834}
+    ]
+  },
+  "cpu_sections": {
+    "retention_rule": "slow(>2 ms) or periodic(tick%250) samples only, so these are not a full census; each wait brackets only wait_ap/wait_px4",
+    "step_stage_totals_over_496_samples": {
+      "health_and_models": {"wall_sum_ns": 233718673, "wall_max_ns": 2815969, "cpu_sum_ns": 147106677, "cpu_max_ns": 2558512},
+      "encode_send": {"wall_sum_ns": 50062604, "wall_max_ns": 1956642, "cpu_sum_ns": 48033812, "cpu_max_ns": 753181},
+      "native_inputs": {"wall_sum_ns": 266250343, "wall_max_ns": 24975402, "cpu_sum_ns": 182632743, "cpu_max_ns": 24975329}
+    },
+    "stall_chain_tick_107572": {
+      "gc": {"generation": 2, "collected": 0, "thread_cpu_ns": 24329672, "wall_start_ns": 333123296937, "wall_end_ns": 333147623903},
+      "native_wait": {"stack": "px4", "wall_start_ns": 333123246422, "wall_end_ns": 333148032847, "wall_ns": 24786425, "thread_cpu_ns": 24787151},
+      "step_stage": {"native_inputs": {"wall_ns": 24975402, "thread_cpu_ns": 24975329}, "health_and_models": {"wall_ns": 389422, "thread_cpu_ns": 249398}, "encode_send": {"wall_ns": 100018, "thread_cpu_ns": 99826}},
+      "step_total_wall_ns": 25464842,
+      "relation": "the gen-2 GC interval (333123296937..333147623903) is nested inside the px4 wait interval (333123246422..333148032847), which is inside the native_inputs stage; the px4 wait thread CPU equals its wall (24787151 vs 24786425), i.e. the supervisor was running on-CPU rather than blocked off-CPU",
+      "consequence": "the group spanning tick 107572 overran by about 20.75 ms, and the next group's begin_group was entered 20749745 ns after its earliest boundary (20785815 ns post-entry excess) - 20.8 percent of the 100.050657 ms latch in one event"
+    },
+    "other_large_px4_waits": [
+      {"tick": 2000, "wall_ns": 6640870, "thread_cpu_ns": 788832, "gc_rows_at_that_tick": 0},
+      {"tick": 5504, "wall_ns": 6939046, "thread_cpu_ns": 890549, "gc_rows_at_that_tick": 0}
+    ],
+    "gc_census": {"rows": 94, "thread_cpu_sum_ns": 31147795, "thread_cpu_max_ns": 24329672, "largest_shares_of_gc_cpu": 0.781},
+    "health_and_models_max": {"tick": 93777, "wall_ns": 2815969, "thread_cpu_ns": 2558512}
+  },
+  "tail_bucket_100_500us": {
+    "analyzer": "tools/analyze_joint_rate_tail_phases.py sha256 a0fb49e5678fe06283eb01b67d7ff360119fd25ffb860bf349ef7c5a53623c56",
+    "status": "diagnostic",
+    "interval_count": 27433,
+    "selected_count": 317,
+    "release_excess": {"total_ns": 52117631, "mean_ns": 164408.93, "max_ns": 396513, "p99_ns": 308403},
+    "selected_phase_totals_ns": {
+      "entry_to_initial_health_ns": 30028672,
+      "loop_health_ns": 56401535,
+      "sleep_elapsed_ns": 758308439,
+      "final_spin_other_ns": 358175392
+    },
+    "selected_loop_health": {"nonzero_count": 281, "mean_ns": 177922.82, "max_ns": 404412},
+    "reading": "in the creep-bearing bucket the loop_health total (56.4 ms) is at least as large as the bucket's total release excess (52.1 ms); this is a correlation inside the same wait, not a causal split (the tool states correlation is not causal and final_spin_other is a residual)"
+  },
+  "non_attribution": [
+    "No AP, PX4, OS or host root cause is assigned. The px4 wait at ticks 2000/5504 is off-CPU (wall 6.6-6.9 ms vs CPU 0.79-0.89 ms) and the retained rows do not say what the wait was for.",
+    "The tick 107572 stall is measured as a gen-2 GC running inside the px4 wait; the GC record gives thread CPU, not what object graph or allocation triggered it, and the native wait record explicitly excludes acknowledge_ap, barrier/repair_input and record writes.",
+    "Native-input rows are retained by slow/periodic rule only; totals over them are not a census of all 27434 groups.",
+    "This field is probe-instrumented and diagnostic-only: its 100.050657 ms latch and 269.5 s wall must not be A/B-compared with formal (probe-free) runs, per joint_profile.py:219-220 and the probe overhead caveat."
+  ],
+  "candidate_pointer": {
+    "document": "docs/plan/33-rate-measured-candidate-20260912.md",
+    "candidate": "C1 - one arm/prepare/restore window around the timed segment using only gc.collect() and gc.freeze() at tick-0 preparation, then gc.unfreeze() in the runner's outer finally after all native cleanup. gc.disable() and every threshold change are forbidden, and there is no second collect. Measured basis = the tick 107572 gen-2 GC (24.33 ms thread CPU) whose interval is nested in the px4 native wait, with the 20.75 ms work overrun at the same tick.",
+    "status": "hypothesis, not a necessary condition",
+    "honest_bound": "The 20.8 percent share is one measured event in this single field, and the ~20-26 ms ceiling is an inference from that event, not a measured saving. Reproducibility, necessity and sufficiency are all unproven; the distributed 74.01 ms release excess is untouched, so no pass is claimed.",
+    "comparator": {
+      "tool": "tools/compare_joint_gc_diagnostics.py",
+      "tests": "validation/test_compare_joint_gc_diagnostics.py",
+      "self_check": "validation/coordination/gc-diagnostic-comparator-20260912/self-check-7bdfxkb-manager-gc.json",
+      "contract": "consumes the runner's real product result['manager_gc_candidate'] (ManagerGCFreeze.report(), tools/manager_gc_candidate.py sha256 cbf7b0186131c08d4055aea1fcafdb8e7cca36d9acfcb19cdac87938d8786e66) and the side file manager-gc-candidate.json; when both exist they must agree. Validates armed/prepared/restored, froze_own_graph released, original and prepare_check freeze_count 0 with unchanged thresholds, freeze_count before/after 0/1, restore back to 0, activation.clock_tick 0, the armed->prepared->restored event order with no skipped/noop path, and source_sha256 against result['source_sha256']. The comparator never creates or converts gc-freeze.json and never asks the runner to change.",
+      "positive_fixture": "the contract positive case calls the real ManagerGCFreeze with an injected FakeGC module; that report is a test fixture, not a new field or retained evidence"
+    }
+  },
+  "unresolved_gap": {
+    "statement": "The field attributes the cumulative creep between two buckets but not to a phase: 25.70 ms of work overrun (3 events, one with a measured GC) plus 74.01 ms of release excess spread over 27433 intervals (mean 2.7 us) whose per-attempt overrun never exceeds 0.323 ms. The probe phases measure the whole wait (including the legitimate sleep and the designed ~1 ms final spin), not the excess portion, so the retained data cannot say which of sleep overshoot, mid-wait health call, or post-spin dispatch produces the residual 2.7 us per group.",
+    "to_close": "a per-attempt excess decomposition (excess versus phase, not only whole-wait phase) plus wake-to-run/scheduler evidence, which this field does not record."
+  },
+  "limitations": [
+    "Only offline reads of the retained diagnostic field; the derived CPU extract is not an original.",
+    "Diagnostic probe overhead is included in all timings; absolute lateness is not comparable with formal fields.",
+    "The two deliverables of this module are this analysis and docs/plan/33-rate-measured-candidate-20260912.md; nothing here closes or re-opens #83."
+  ]
+}
