@@ -1,0 +1,221 @@
+{
+  "schema": "wksim.coordination.independent-review.v1",
+  "kind": "independent_review",
+  "review_id": "deepseek-g6-owner-decision-request-independent-review-20260914-01",
+  "issue": 59,
+  "parent_issue": 10,
+  "date": "2026-09-14",
+  "reviewer": "independent agent (deepseek-v4-flash, DSH harness); not an author of the reviewed candidates",
+  "verdict": "KEEP",
+  "severity_counts": { "P1": 0, "P2": 0, "P3": 5 },
+  "rework_required": false,
+  "subject": {
+    "note": "immutable candidates; read-only during this review, bytes unchanged before/after",
+    "files": [
+      {
+        "path": "docs/plan/59-g6-owner-decision-request-20260914.md",
+        "sha256": "45dcec197c4e62376a2640de828ae8e14ad062d1ef6b232a0ca4b27a15ecedd7",
+        "size_bytes": 5243,
+        "matches_pinned_identity": true
+      },
+      {
+        "path": "validation/e0-g6-owner-decision-request-20260914.json",
+        "sha256": "42ad4572fbd8c21a9648593a37cae67dac4e13c173f88e0f33b31129a6c83274",
+        "size_bytes": 15723,
+        "matches_pinned_identity": true
+      },
+      {
+        "path": "validation/test_e0_g6_owner_decision_request.py",
+        "sha256": "a10abcfb37b1c9bc3ff123849ea4534f5f1eb020afbd803a8bd64f1fd109f0ba",
+        "size_bytes": 47358,
+        "matches_pinned_identity": true
+      }
+    ]
+  },
+  "checkout": {
+    "cwd": "C:\\Users\\PC\\Documents\\odid编译\\wksim",
+    "branch": "main",
+    "head": "ee6eb88819cefe255f22e788c39a77c0bbab490e",
+    "required_ancestors": [
+      "31e5b65f5448c5558450d16d0f46da0ef0f0a03c",
+      "f333316e6efa6b299b4288a9d91fb2bccedfb9d6"
+    ],
+    "ancestor_exit_codes": {
+      "31e5b65f5448c5558450d16d0f46da0ef0f0a03c": 0,
+      "f333316e6efa6b299b4288a9d91fb2bccedfb9d6": 0,
+      "0000000000000000000000000000000000000000": 128
+    },
+    "exact_head_equality_asserted": false,
+    "exact_head_equality_required": false
+  },
+  "context_read": [
+    "AGENTS.md",
+    "docs/plan/10-g6-remediation-contract.md",
+    "docs/plan/59-e0-dynamic-budget-source-map.md",
+    "validation/e0-frame-datum-binding-20260914.json",
+    "validation/e0-g6-solve-form-decision-20260914.json",
+    "validation/e0-budget-approval-provenance-20260914.json",
+    "Simulator/wksim_core/numerical-conformance-v1.json",
+    "docs/plan/59-g6-owner-decision-request-20260914.md",
+    "validation/e0-g6-owner-decision-request-20260914.json",
+    "validation/test_e0_g6_owner_decision_request.py"
+  ],
+  "commands": [
+    {
+      "cmd": "python -B -m unittest -v validation.test_e0_g6_owner_decision_request",
+      "mode": "normal",
+      "result": "Ran 29 tests in 0.654s - OK (skipped=2)",
+      "exit_code": 0
+    },
+    {
+      "cmd": "$env:GIT_INDEX_FILE = \"$env:TEMP\\wksim-59-odr-index-<guid>\"; git add --force -- docs/plan/59-g6-owner-decision-request-20260914.md validation/e0-g6-owner-decision-request-20260914.json validation/test_e0_g6_owner_decision_request.py; $env:WKSIM_59_ODR_TEMP_INDEX = \"1\"; python -B -m unittest -v validation.test_e0_g6_owner_decision_request",
+      "mode": "repo-external exact-3 temp index",
+      "result": "git ls-files listed exactly the three candidates; git add exit 0; Ran 29 tests in 0.912s - OK (no skips)",
+      "temp_index_outside_repo": true,
+      "temp_index_removed_after_run": true,
+      "exit_code": 0
+    },
+    {
+      "cmd": "Remove-Item Env:\\GIT_INDEX_FILE; git ls-files | Where-Object { $_ -like '*59-g6-owner*' -or $_ -like '*test_e0_g6_owner*' }",
+      "mode": "real-index integrity",
+      "result": "no output - real index stages none of the candidates",
+      "exit_code": 0
+    },
+    {
+      "cmd": "git merge-base --is-ancestor 31e5b65f5448c5558450d16d0f46da0ef0f0a03c HEAD",
+      "result": "exit 0",
+      "exit_code": 0
+    },
+    {
+      "cmd": "git merge-base --is-ancestor f333316e6efa6b299b4288a9d91fb2bccedfb9d6 HEAD",
+      "result": "exit 0",
+      "exit_code": 0
+    },
+    {
+      "cmd": "git merge-base --is-ancestor 0000000000000000000000000000000000000000 HEAD",
+      "result": "exit 128 (fatal: Not a valid commit name) - gate discriminates",
+      "exit_code": 128
+    },
+    {
+      "cmd": "Get-FileHash -Algorithm SHA256 <three candidates>; Get-Item <three candidates> | Select Length",
+      "result": "hashes/sizes match the fixed review-request identities exactly"
+    },
+    {
+      "cmd": "independent python probe: walk the candidate JSON for numeric scalars and budget-like keys",
+      "result": "10 numeric scalars total (issue 59, parent_issue 10, decision_group_count 3, max_pins 6, six pin size_bytes); none is a budget"
+    },
+    {
+      "cmd": "independent python probe: read pinned frame_datum_binding owner_decisions OD-01/OD-02/OD-20 and slot statuses",
+      "result": "questions and slot sets match the request verbatim; all 24 binding ODs state=not_made; Vehicle60[20..23] contract_semantic_status=inactive_channels_not_aircraft_coverage"
+    },
+    {
+      "cmd": "independent python probe: git cat-file blob HEAD:<pin> sha256/size vs candidate vs worktree",
+      "result": "ALL_PINS_OK=True for all six pins"
+    }
+  ],
+  "tests": {
+    "normal": { "ran": 29, "failures": 0, "errors": 0, "skipped": 2, "ok": true },
+    "temp_index": { "ran": 29, "failures": 0, "errors": 0, "skipped": 0, "ok": true }
+  },
+  "required_properties": [
+    { "id": 1, "property": "exactly three decision groups", "result": "PASS", "evidence": "decision_group_count=3; DG-1 solve_form_choice, DG-2 od01_od02_scheduling_time_semantics, DG-3 od20_active_vs_extra_motor_output_scope" },
+    { "id": 2, "property": "all states not_made, no option chosen", "result": "PASS", "evidence": "3 groups state=not_made; 9 options chosen=false; chosen_option/decided_by/decided_utc/decision_text null; owner_decisions_made=false; effective=false" },
+    { "id": 3, "property": "no numeric budget", "result": "PASS", "evidence": "no abs_budget/rel_budget/rms_budget/tolerance field; only 10 numeric scalars, all ids/counts/sizes" },
+    { "id": 4, "property": "six tracked HEAD pins", "result": "PASS", "evidence": "all six HEAD-blob sha256/size equal candidate values and worktree bytes; max_pins=6; tracked_pin_ids exact" },
+    { "id": 5, "property": "ancestry gates without exact HEAD", "result": "PASS", "evidence": "both required ancestors exit 0; exact_head_equality_asserted=false; observed_head documented informational" },
+    { "id": 6, "property": "case-insensitive validation/coordination rejection", "result": "PASS", "evidence": "normalize_path casefolds, converts backslashes, collapses //, strips ./ and whitespace; mutation test plus 5 positive and 3 negative variants pass" },
+    { "id": 7, "property": "RD-01..RD-12 and closure/approval rejection", "result": "PASS", "evidence": "forbidden_derivation_classes=RD-01..RD-12; derivation_class/ref null; non-null rejected; issues_closed=[]; budget_approved/g6_acceptance/physical_accuracy false at top level and in open_items" },
+    { "id": 8, "property": "R1 numerical_failed and open scopes", "result": "PASS", "evidence": "r1_status=numerical_failed; blockers_open=[B1,B3,B4]; owner_decisions_open=OD-03..OD-24 except OD-20 (21 ids, zero overlap); issues_open=[#84,G6,Full]" },
+    { "id": 9, "property": "29 tests normal", "result": "PASS", "evidence": "Ran 29 tests, OK (skipped=2)" },
+    { "id": 10, "property": "repo-external exact-3 temp index", "result": "PASS", "evidence": "Ran 29 tests, OK; exactly three stage-0 entries with worktree-identical blob bytes; real index stages none" },
+    { "id": 11, "property": "candidates unedited", "result": "PASS", "evidence": "sha256/size identical before and after all runs; files remain untracked" },
+    { "id": 12, "property": "no real staging/commit/push/#83/sibling edits", "result": "PASS", "evidence": "only a $env:TEMP index was written and removed; no real-index add/commit/push; no #83 run; no network or GitHub mutation; no sibling path touched" }
+  ],
+  "pins": [
+    { "id": "g6_remediation_contract", "path": "docs/plan/10-g6-remediation-contract.md", "sha256": "48da61ade51d46111db0be9a9288d93d4eec380251043c2e39bff66b74cae5c0", "size_bytes": 9935, "head_blob_sha1": "256455a46220014c970b556b0bca066391c5e9e1", "worktree_match": true },
+    { "id": "dynamic_budget_source_map", "path": "docs/plan/59-e0-dynamic-budget-source-map.md", "sha256": "35a56084105409329131add7d4b9e35be6d1a145c6e18268c96324805313cd42", "size_bytes": 11215, "head_blob_sha1": "97599ae53aa0998133636fa75f6c05bd2f1b4853", "worktree_match": true },
+    { "id": "frame_datum_binding", "path": "validation/e0-frame-datum-binding-20260914.json", "sha256": "5d589075c128e2a22d24d88d7dea0ce753a68f4d46937386c581d3fae945b69f", "size_bytes": 105018, "head_blob_sha1": "64acd9c8e51e9418e05866f15631e1b8e1e2be80", "worktree_match": true },
+    { "id": "solve_form_decision", "path": "validation/e0-g6-solve-form-decision-20260914.json", "sha256": "5086c3fbddd52b4e754a785706cce938ca7f8d68beb5056d564e7f116b34c293", "size_bytes": 11339, "head_blob_sha1": "6f49f3a7d74e922537c4a72992ecd34eba4b4ab0", "worktree_match": true },
+    { "id": "budget_approval_provenance", "path": "validation/e0-budget-approval-provenance-20260914.json", "sha256": "2962931a28dfc3cc05e201dc23b6073c30948080de34279e9f5b21ae23544d3d", "size_bytes": 285820, "head_blob_sha1": "4f2fdacfd556b12dada630dd5af7983062558676", "worktree_match": true },
+    { "id": "r1_contract", "path": "Simulator/wksim_core/numerical-conformance-v1.json", "sha256": "23d72e26da5dfc7df0b41b96d090664d0ec022d777f6258e409bf7080f2c08f0", "size_bytes": 29846, "head_blob_sha1": "e5d5f33911ff80fc861952612cceac9bf647702d", "worktree_match": true }
+  ],
+  "findings": [
+    {
+      "id": "P3-01",
+      "severity": "P3",
+      "title": "numeric-budget gate is key-scoped, not value-scoped",
+      "detail": "Verifier.scan and test_no_numeric_budget_anywhere flag a forbidden key (any key containing budget/tolerance plus the frozen list). A budget written as a bare number under a neutral key, or as a numeric element of an untyped list, would not be flagged.",
+      "candidate_status": "clean: exactly 10 numeric scalars (issue, parent_issue, decision_group_count, max_pins, six size_bytes); none is a budget",
+      "impact": "latent verifier gap only; does not affect the reviewed artifact",
+      "recommendation": "future hardening: add a value-level float rule for request-scoped containers"
+    },
+    {
+      "id": "P3-02",
+      "severity": "P3",
+      "title": "several request strings are not type-validated",
+      "detail": "check_group does not assert the types of title, question, evidence_question_ref, or the elements of not_covered_by_this_group.",
+      "candidate_status": "all present values are well-formed strings",
+      "impact": "mutation-space coverage gap",
+      "recommendation": "future hardening: type-assert these fields"
+    },
+    {
+      "id": "P3-03",
+      "severity": "P3",
+      "title": "check_groups assumes every group element is a dict",
+      "detail": "The id comparison filters with isinstance(group, dict) but the later group.get(\"owner_decision_ids\") does not, so a non-dict element raises AttributeError instead of recording a violation.",
+      "candidate_status": "all three groups are objects",
+      "impact": "still fail-closed, but an unclean rejection path not covered by the 18 mutation tests",
+      "recommendation": "future hardening: guard the declared-id accumulation"
+    },
+    {
+      "id": "P3-04",
+      "severity": "P3",
+      "title": ".. and non-repo absolute prefixes escape the coordination-path check",
+      "detail": "normalize_path handles case, backslashes, duplicate/leading slashes and ./ and whitespace, but not .. resolution or absolute prefixes, so x/../validation/coordination/y.json or C:/repo/validation/coordination/y.json would not be rejected.",
+      "candidate_status": "no coordination path appears in the request; pins are additionally closed by exact frozen-path equality",
+      "impact": "defense-in-depth gap for future path-bearing keys",
+      "recommendation": "future hardening: normalize with pathlib/PurePosixPath and reject any resolved path containing the coordination segment"
+    },
+    {
+      "id": "P3-05",
+      "severity": "P3",
+      "title": "case-insensitivity claim is stricter than the exercised vector set (informational)",
+      "detail": "Exercised variants are upper-case, backslash, double-slash, leading-./ and whitespace; no concrete gap found, but the claim is not a proof over all Unicode case folding.",
+      "candidate_status": "not a defect",
+      "impact": "documentation precision only",
+      "recommendation": "none required"
+    }
+  ],
+  "residual_uncertainty": [
+    "The verifier proves only the structural and byte-identity properties it encodes; it does not prove that the three questions are semantically the right questions for the owner.",
+    "The pinned sources' own claims were spot-checked against their key fields, not exhaustively re-derived from the MATLAB model.",
+    "Case-insensitive rejection is verified over realistic path variants only (P3-05)."
+  ],
+  "non_actions": {
+    "candidates_edited": false,
+    "real_index_staged": false,
+    "committed": false,
+    "pushed": false,
+    "issue_83_run": false,
+    "github_issue_or_pr_mutated": false,
+    "native_model_matlab_ros_fc_ue_build_run": false,
+    "network_used": false,
+    "sibling_projects_touched": false,
+    "wrote_only": [
+      "validation/coordination/deepseek-g6-owner-decision-request-independent-review-20260914-01/review.md",
+      "validation/coordination/deepseek-g6-owner-decision-request-independent-review-20260914-01/review.json",
+      "validation/coordination/deepseek-g6-owner-decision-request-independent-review-20260914-01/SHA256SUMS"
+    ]
+  },
+  "state_preserved": {
+    "r1_status": "numerical_failed",
+    "budget_approved": false,
+    "g6_acceptance": false,
+    "physical_accuracy": false,
+    "owner_decisions_made": false,
+    "effective": false,
+    "issues_closed": [],
+    "blockers_open": ["B1", "B3", "B4"],
+    "issues_open": ["#84", "G6", "Full"]
+  }
+}

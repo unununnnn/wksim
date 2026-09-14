@@ -1,0 +1,316 @@
+{
+  "schema": "wksim.ingest-manifest.v1",
+  "manifest_id": "deepseek-g6-owner-decision-request-context-ingest-manifest-20260914-01",
+  "written_at": "2026-09-14",
+  "writer": "independent manifest writer (deepseek-v4-flash, DSH harness)",
+  "mode": "offline, read-only over inputs; real index untouched; repo-external temp-index staging proof only",
+  "batch_scope": "context-only",
+  "acceptance": "non-acceptance",
+  "repo_head_at_manifest": "ee6eb88819cefe255f22e788c39a77c0bbab490e",
+  "head_role": "observation only; no HEAD-equality assertion is made or implied",
+  "ancestry": {
+    "baseline_commit": "31e5b65f5448c5558450d16d0f46da0ef0f0a03c",
+    "baseline_is_ancestor_command": "git merge-base --is-ancestor 31e5b65f5448c5558450d16d0f46da0ef0f0a03c HEAD",
+    "baseline_is_ancestor_exit": 0,
+    "architecture_commit": "f333316e6efa6b299b4288a9d91fb2bccedfb9d6",
+    "architecture_is_ancestor_command": "git merge-base --is-ancestor f333316e6efa6b299b4288a9d91fb2bccedfb9d6 HEAD",
+    "architecture_is_ancestor_exit": 0,
+    "discriminating_negative_control": {
+      "command": "git merge-base --is-ancestor 0000000000000000000000000000000000000000 HEAD",
+      "exit": 128
+    },
+    "head_equality_asserted": false,
+    "head_equality_required": false
+  },
+  "overlap_check": {
+    "method": "git log --name-only --format='' <anchor>..HEAD, de-duplicated with a case-sensitive sort, intersected with the 10 exact-paths.txt paths",
+    "since_31e5b65f": {
+      "commits": 6,
+      "commit_list": ["ab165c3f", "438ab764", "acf32286", "e832fd2a", "615c2f8c", "ee6eb888"],
+      "distinct_touched_paths": 68,
+      "overlap_with_exact_paths": 0
+    },
+    "since_f333316e": {
+      "commits": 77,
+      "distinct_touched_paths": 1123,
+      "overlap_with_exact_paths": 0
+    },
+    "conclusion": "zero overlap for both ancestry anchors - no commit in either range added, modified or deleted any of the 10 batch paths; all 10 remain untracked working-tree files",
+    "corroboration": "git ls-tree -r HEAD -- <10 paths> returns no entry (none in the HEAD tree); git ls-files -s -- <10 paths> returns no entry (none staged in the real index)"
+  },
+  "exact_paths_verification": {
+    "path": "validation/coordination/deepseek-g6-owner-decision-request-context-ingest-manifest-20260914-01/exact-paths.txt",
+    "sha256": "79010daebbac588d57a202cdc01e30d5e4124c408fad2d420b737b00cec64579",
+    "size_bytes": 885,
+    "line_count": 10,
+    "unique_path_count": 10,
+    "lf_byte_count": 10,
+    "cr_byte_count": 0,
+    "trailing_lf": true,
+    "byte_ordinal_sort_equals_file": true,
+    "composition": {
+      "candidates": 3,
+      "anchored_independent_review_outputs": 3,
+      "manifest_outputs_including_itself": 4
+    },
+    "gitignore_basis": "validation/coordination/** is gitignored via .gitignore:53 (/validation/*/), so git add -f is required for those 7 paths; the other 3 are untracked but not gitignored"
+  },
+  "inputs": [
+    {
+      "path": "docs/plan/59-g6-owner-decision-request-20260914.md",
+      "role": "candidate_owner_decision_request_document",
+      "sha256": "45dcec197c4e62376a2640de828ae8e14ad062d1ef6b232a0ca4b27a15ecedd7",
+      "size_bytes": 5243
+    },
+    {
+      "path": "validation/e0-g6-owner-decision-request-20260914.json",
+      "role": "candidate_machine_readable_decision_request",
+      "sha256": "42ad4572fbd8c21a9648593a37cae67dac4e13c173f88e0f33b31129a6c83274",
+      "size_bytes": 15723
+    },
+    {
+      "path": "validation/test_e0_g6_owner_decision_request.py",
+      "role": "candidate_offline_verification_suite",
+      "sha256": "a10abcfb37b1c9bc3ff123849ea4534f5f1eb020afbd803a8bd64f1fd109f0ba",
+      "size_bytes": 47358
+    },
+    {
+      "path": "validation/coordination/deepseek-g6-owner-decision-request-independent-review-20260914-01/review.md",
+      "role": "anchored_independent_review_report",
+      "sha256": "c77474d14c6284acf3d195be87c68116bf506cd2d087cbc672c68b40032d7cd6",
+      "size_bytes": 12171
+    },
+    {
+      "path": "validation/coordination/deepseek-g6-owner-decision-request-independent-review-20260914-01/review.json",
+      "role": "anchored_independent_review_record",
+      "sha256": "ddc265498515963a4a7df9a38d78d106a2337220b201b6a1cadd5ee93994865b",
+      "size_bytes": 14068
+    },
+    {
+      "path": "validation/coordination/deepseek-g6-owner-decision-request-independent-review-20260914-01/SHA256SUMS",
+      "role": "anchored_independent_review_checksum_manifest",
+      "sha256": "a2897c9ea52304cfa312eaf6166f3a200e54544ca28c57ae07a29d6ed70159bb",
+      "size_bytes": 831
+    }
+  ],
+  "input_verification": {
+    "all_hashes_and_sizes_recomputed_matching_dispatch": true,
+    "inputs_unmodified_before_and_after_all_runs": true,
+    "anchor_review_sha256sums_verified_from_repo_root": true,
+    "anchor_review_sha256sums_entry_lines_matching": 5,
+    "anchor_review_sha256sums_declared_self_check": "8a70cc49c484fbba33ffd6d47a9233f22286b2e1fc5e02e7fdd6fd5a8fcf9633",
+    "anchor_review_sha256sums_self_check_recomputed": "8a70cc49c484fbba33ffd6d47a9233f22286b2e1fc5e02e7fdd6fd5a8fcf9633",
+    "anchor_review_sha256sums_self_check_matches": true,
+    "anchor_review_json_strict_parsed": true
+  },
+  "review_facts": {
+    "verdict_source": "validation/coordination/deepseek-g6-owner-decision-request-independent-review-20260914-01",
+    "review_verdict": "KEEP",
+    "verdict_rule": "KEEP with P1 == 0 and P2 == 0",
+    "severity_counts": { "P1": 0, "P2": 0, "P3": 5 },
+    "rework_required": false,
+    "review_rerun_by_this_manifest": false,
+    "review_re_adjudicated": false,
+    "findings_carried": {
+      "P1": [],
+      "P2": [],
+      "blockers": [],
+      "P3": [
+        "P3-01: numeric-budget gate is key-scoped, not value-scoped (a bare number under a neutral key or a numeric element of an untyped list would not be flagged); candidate is clean with exactly 10 numeric scalars (issue, parent_issue, decision_group_count, max_pins, six size_bytes), none a budget; latent verifier gap only",
+        "P3-02: title, question, evidence_question_ref and the elements of not_covered_by_this_group are not type-validated in check_group; all present values are well-formed strings; mutation-space coverage gap only",
+        "P3-03: check_groups assumes every group element is a dict - the id comparison filters with isinstance(group, dict) but the later group.get(\"owner_decision_ids\") accumulation does not, so a non-dict element raises AttributeError instead of recording a violation; still fail-closed, unclean rejection path not covered by the 18 mutation tests",
+        "P3-04: '..' and non-repo absolute prefixes escape the coordination-path check; normalize_path handles case, backslashes, duplicate/leading slashes, './' and whitespace but not '..' resolution or absolute prefixes, so x/../validation/coordination/y.json or C:/repo/validation/coordination/y.json would not be rejected; pins remain closed by exact frozen-path equality, scan is defense-in-depth for future path-bearing keys",
+        "P3-05: case-insensitivity claim is stricter than the exercised vector set (upper-case, backslash, double-slash, leading-./, whitespace); informational only, not a proof over all Unicode case folding"
+      ]
+    },
+    "p3_wording_preserved": true,
+    "p3_scope": "Registered verbatim as hardening observations on the verifier, not defects in the reviewed artifact. This manifest does not reword, re-adjudicate, downgrade, apply or dismiss any finding, and edits no candidate byte.",
+    "p3_promoted_to_p2": false,
+    "p3_affects_decision_readiness": false,
+    "review_grants_approval": false,
+    "review_read_only": true,
+    "residual_uncertainty_carried": [
+      "the verifier proves only the structural and byte-identity properties it encodes; it does not prove the three questions are semantically the right questions for the owner",
+      "the pinned sources' own claims were spot-checked against their key fields, not exhaustively re-derived from the MATLAB model",
+      "case-insensitive rejection is verified over realistic path variants only (P3-05)"
+    ]
+  },
+  "pins_verified": {
+    "docs/plan/59-g6-owner-decision-request-20260914.md": ["45dcec197c4e62376a2640de828ae8e14ad062d1ef6b232a0ca4b27a15ecedd7", 5243],
+    "validation/e0-g6-owner-decision-request-20260914.json": ["42ad4572fbd8c21a9648593a37cae67dac4e13c173f88e0f33b31129a6c83274", 15723],
+    "validation/test_e0_g6_owner_decision_request.py": ["a10abcfb37b1c9bc3ff123849ea4534f5f1eb020afbd803a8bd64f1fd109f0ba", 47358],
+    "validation/coordination/deepseek-g6-owner-decision-request-independent-review-20260914-01/review.md": ["c77474d14c6284acf3d195be87c68116bf506cd2d087cbc672c68b40032d7cd6", 12171],
+    "validation/coordination/deepseek-g6-owner-decision-request-independent-review-20260914-01/review.json": ["ddc265498515963a4a7df9a38d78d106a2337220b201b6a1cadd5ee93994865b", 14068],
+    "validation/coordination/deepseek-g6-owner-decision-request-independent-review-20260914-01/SHA256SUMS": ["a2897c9ea52304cfa312eaf6166f3a200e54544ca28c57ae07a29d6ed70159bb", 831],
+    "validation/coordination/deepseek-g6-owner-decision-request-context-ingest-manifest-20260914-01/exact-paths.txt": ["79010daebbac588d57a202cdc01e30d5e4124c408fad2d420b737b00cec64579", 885],
+    "validation/coordination/deepseek-g6-owner-decision-request-context-ingest-manifest-20260914-01/review.md": ["787eb1b3024e9c9f3d411785f4d092a84888734880d36a86457bef97276d02cd", 12649]
+  },
+  "pins_verified_note": "The six immutable inputs plus this batch's own exact-paths.txt and review.md are pinned above (8 of 10). review.json and SHA256SUMS are self-referential outputs: they cannot enumerate their own SHA256 or their own staged blob SHA1, so those values, together with the final hashes of all four manifest outputs, are reported after the staging proof, making the reported bytes equal the staged bytes.",
+  "candidate_git_state": {
+    "docs/plan/59-g6-owner-decision-request-20260914.md": "untracked; not present in the HEAD tree",
+    "validation/e0-g6-owner-decision-request-20260914.json": "untracked; not present in the HEAD tree; not gitignored",
+    "validation/test_e0_g6_owner_decision_request.py": "untracked; not present in the HEAD tree; not gitignored",
+    "validation/coordination/deepseek-g6-owner-decision-request-independent-review-20260914-01/*": "untracked; not present in the HEAD tree (validation/coordination/** is gitignored, .gitignore:53)",
+    "validation/coordination/deepseek-g6-owner-decision-request-context-ingest-manifest-20260914-01/*": "untracked; not present in the HEAD tree (validation/coordination/** is gitignored, .gitignore:53)",
+    "head_tree_membership_of_all_ten_paths": "none - git ls-tree -r HEAD returns no entry for any of the 10 paths",
+    "real_index_membership_of_all_ten_paths": "none - git ls-files -s over the 10 paths returns no entry"
+  },
+  "tests": {
+    "suite": "validation/test_e0_g6_owner_decision_request.py",
+    "test_method_count": 29,
+    "normal_mode": {
+      "command": "python -B -m unittest -v validation.test_e0_g6_owner_decision_request",
+      "ran": 29,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 2,
+      "result": "OK (skipped=2)",
+      "skips_are": "the two TemporaryIndexTests, meaningful only in the repo-external temporary-index run"
+    },
+    "exact3_candidate_index_mode": {
+      "env": "GIT_INDEX_FILE=<repo-external absent path, created by git add>; WKSIM_59_ODR_TEMP_INDEX=1",
+      "command": "git add --force -- <3 candidates>; python -B -m unittest -v validation.test_e0_g6_owner_decision_request",
+      "git_add_exit": 0,
+      "temp_index_outside_repo": true,
+      "ls_files_listed": 3,
+      "ran": 29,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "result": "OK",
+      "temp_index_removed_after_run": true
+    },
+    "exact10_admission": {
+      "verified_separately": true,
+      "reason": "the suite's exact-3 assertion (set(git ls-files) == set(CANDIDATE_PATHS)) requires that index to hold exactly three paths, so 10-path batch admission is proven by its own temp-index run rather than by the suite",
+      "method": "GIT_INDEX_FILE=<repo-external path>; git read-tree HEAD; git add -f <the 10 exact-paths.txt paths>",
+      "expected_staged_delta_vs_head": { "A": 10, "M": 0, "D": 0 },
+      "all_entries_stage": 0,
+      "blob_equality": "10/10 index blobs byte-equal to working-tree files",
+      "scoped_diff_check": "index-vs-worktree diff scoped to the 10 paths empty (0 rows); index-vs-HEAD scoped delta exactly 10 A rows; git diff --cached --check clean (0 rows) for 9 of the 10 paths, and 1082 trailing-whitespace notices for validation/test_e0_g6_owner_decision_request.py, which is a CRLF-encoded pinned input (1082 CR / 1082 LF bytes)"
+    },
+    "inputs_byte_stable_across_all_runs": true
+  },
+  "temp_index_proof": {
+    "index_location": "repository-external %TEMP% path; never .git/index",
+    "seed": "git read-tree HEAD (index seeded from the current HEAD tree)",
+    "staging_command": "GIT_INDEX_FILE=<tmp> git add -f <the 10 exact-paths.txt paths>",
+    "force_add_reason": "validation/coordination/** is gitignored (.gitignore:53), so -f is required for those paths",
+    "staged_delta_vs_head": { "A": 10, "M": 0, "D": 0 },
+    "temp_index_total_entries": 10843,
+    "temp_index_total_entries_composition": "10833 HEAD tree entries from git read-tree HEAD plus the 10 additions",
+    "stage_of_all_entries": 0,
+    "all_entry_modes_regular": true,
+    "blob_equality_count": "10/10",
+    "diff_check": {
+      "scoped_index_vs_worktree_diff": "empty (0 rows) - byte-fidelity proof",
+      "scoped_index_vs_head_delta_rows": 10,
+      "cached_check_clean_paths": 9,
+      "cached_check_nonzero_path": "validation/test_e0_g6_owner_decision_request.py",
+      "cached_check_nonzero_rows": 1082,
+      "cached_check_nonzero_reason": "that pinned immutable candidate is CRLF-encoded (1082 CR / 1082 LF bytes), so git diff --cached --check reports 'trailing whitespace' once per added line; this is a property of the pinned input bytes whose SHA256 matches the dispatched identity, not a staging defect, and this manifest does not edit, re-encode or normalize it",
+      "line_ending_census": {
+        "docs/plan/59-g6-owner-decision-request-20260914.md": { "cr": 0, "lf": 61 },
+        "validation/e0-g6-owner-decision-request-20260914.json": { "cr": 0, "lf": 397 },
+        "validation/test_e0_g6_owner_decision_request.py": { "cr": 1082, "lf": 1082 },
+        "validation/coordination/deepseek-g6-owner-decision-request-independent-review-20260914-01/review.md": { "cr": 0, "lf": 170 },
+        "validation/coordination/deepseek-g6-owner-decision-request-independent-review-20260914-01/review.json": { "cr": 0, "lf": 221 },
+        "validation/coordination/deepseek-g6-owner-decision-request-independent-review-20260914-01/SHA256SUMS": { "cr": 0, "lf": 6 },
+        "validation/coordination/deepseek-g6-owner-decision-request-context-ingest-manifest-20260914-01/exact-paths.txt": { "cr": 0, "lf": 10 },
+        "validation/coordination/deepseek-g6-owner-decision-request-context-ingest-manifest-20260914-01/review.md": { "cr": 0, "lf": 202 },
+        "validation/coordination/deepseek-g6-owner-decision-request-context-ingest-manifest-20260914-01/SHA256SUMS": { "cr": 0, "lf": 3 }
+      },
+      "line_ending_census_note": "all four manifest outputs, the anchored review triplet, the request markdown and the request JSON are LF-only with zero CR bytes; only the pinned candidate test file is CRLF. This file (review.json) is omitted from the census because its own line count is self-referential."
+    },
+    "observed_staged_blob_sha1": {
+      "docs/plan/59-g6-owner-decision-request-20260914.md": "d92a1af07c1131ae7d79108ec57c1ca59075e379",
+      "validation/coordination/deepseek-g6-owner-decision-request-context-ingest-manifest-20260914-01/exact-paths.txt": "4b60f10340ffa9b2a184bfdc838f7e3202a73cdf",
+      "validation/coordination/deepseek-g6-owner-decision-request-context-ingest-manifest-20260914-01/review.md": "ef1d5bc8e30b0cd12b9a4a4254684b5f488a5481",
+      "validation/coordination/deepseek-g6-owner-decision-request-independent-review-20260914-01/SHA256SUMS": "c459fcf8b27d510f895b3364a918d07ab7e37b89",
+      "validation/coordination/deepseek-g6-owner-decision-request-independent-review-20260914-01/review.json": "e02fab725799ce55d4f0453d42c45ff7e845c631",
+      "validation/coordination/deepseek-g6-owner-decision-request-independent-review-20260914-01/review.md": "bd241906c7ba7fb9540606f41abd3112e3de42db",
+      "validation/e0-g6-owner-decision-request-20260914.json": "45235b9257cb3f9d18cff4b9fb5db8cf2990f455",
+      "validation/test_e0_g6_owner_decision_request.py": "a0b1d3b0ff77ce18a85f29231ace501fd93abc6b"
+    },
+    "observed_staged_blob_sha1_note": "The two remaining staged paths are this file (review.json) and SHA256SUMS, which cannot contain their own blob SHA1 or SHA256; both are staged at stage 0 and blob-equality-proven in the post-write run whose values are reported after the proof so the reported bytes equal the staged bytes.",
+    "candidate_blob_cross_check": "the three candidate blob SHA1s are computed from the pinned bytes whose SHA256 equals the dispatched identities; the staged bytes are therefore the reviewed bytes",
+    "real_index_proof": {
+      "real_index_sha256_before": "38bb9b6cdb2fca67ca8099b7b201f29a06c65d7905181fefeddfae83291fa736",
+      "real_index_size_bytes_before": 1634702,
+      "real_index_ls_files_s_sha256_before": "d8d80a42a8d34e9a0226896999cb546193012db6392c2591ba8a1026c5e70dc6",
+      "real_index_ls_files_count_before": 10833,
+      "ls_files_s_sha256_method": "UTF-8 bytes of `git ls-files -s` output lines joined with LF plus a trailing LF, then SHA256",
+      "unchanged_after_all_proofs": true,
+      "fingerprints_byte_identical": true
+    },
+    "temp_index_deleted_after_proof": true,
+    "commit_made": false
+  },
+  "scope_compliance": {
+    "inputs_edited": false,
+    "existing_review_outputs_edited": false,
+    "real_index_staged": false,
+    "committed": false,
+    "pushed": false,
+    "reset_or_clean_or_restore_or_checkout": false,
+    "ref_changed": false,
+    "issue_83_run": false,
+    "github_issue_or_pr_mutated": false,
+    "native_model_matlab_ros_dds_sitl_fc_ue_build_or_flight_run": false,
+    "network_used": false,
+    "sibling_batches_or_sibling_projects_touched": false,
+    "writes_limited_to": [
+      "validation/coordination/deepseek-g6-owner-decision-request-context-ingest-manifest-20260914-01/exact-paths.txt",
+      "validation/coordination/deepseek-g6-owner-decision-request-context-ingest-manifest-20260914-01/review.md",
+      "validation/coordination/deepseek-g6-owner-decision-request-context-ingest-manifest-20260914-01/review.json",
+      "validation/coordination/deepseek-g6-owner-decision-request-context-ingest-manifest-20260914-01/SHA256SUMS"
+    ]
+  },
+  "excluded_paths": [
+    "docs/Prometheus.gitmodules.reference",
+    "validation/coordination/short-cycle-dispatches.json",
+    "%TEMP%audit26-report.json",
+    "docs/coordination/claude-native-wait-next-probe.md",
+    "docs/coordination/codebuddy-architecture-applicability-g6-erratum-20260914.md",
+    "docs/coordination/codebuddy-gc-freeze-ingest-note-20260914.md",
+    "docs/coordination/codebuddy-gc-freeze-review-20260912.md",
+    "docs/coordination/rolling-six-plan-20260912.md",
+    "docs/plan/33-ac5-budget-row-proposal-20260914.md",
+    "docs/plan/59-g6-same-source-activation-readiness-20260914.md",
+    "docs/plan/59-g6-uncovered-state-map-20260914.md",
+    "validation/_probe_delivery_contract.py",
+    "validation/g6-uncovered-state-map-20260914.json",
+    "validation/test_codebuddy_33_ac5_budget_proposal.py",
+    "validation/test_codebuddy_architecture_applicability_g6_erratum.py",
+    "tools/check_g6_time_field_forms.py",
+    "tools/map_g6_uncovered_states.py"
+  ],
+  "excluded_paths_note": "Pre-existing dirty tracked files, concurrent-session untracked artifacts, and every other validation/coordination batch directory (including sibling manifest/review quartets) are outside this 10-path batch and were not created, modified, staged and - apart from the anchored review triplet, which is a batch input read only - not read as inputs.",
+  "batch_observations": [
+    {
+      "id": "BATCH-OBS-1",
+      "severity": "observation (not a review finding)",
+      "title": "pinned candidate test file is CRLF-encoded",
+      "detail": "validation/test_e0_g6_owner_decision_request.py contains 1082 CR and 1082 LF bytes, while the other nine batch paths are LF-only. Consequently git diff --cached --check reports one 'trailing whitespace' notice per added line for that path (1082 rows) and is clean (0 rows) for the other nine.",
+      "status": "carried as an observation only; the bytes are the reviewed bytes (SHA256 equals the dispatched pin); nothing is edited, re-encoded or normalized, and no anchored-review finding is created, re-adjudicated, downgraded or promoted by it",
+      "readiness_impact": "none"
+    }
+  ],
+  "nonclaims": [
+    "This manifest is an admission record only; it is not acceptance, approval, review authority or rerun permission for #59, #84, G6, Full or any other ticket.",
+    "No owner decision is made, solicited on the owner's behalf, pre-filled or implied: the three decision groups remain not_made with no option chosen, and all decision fields remain null.",
+    "No numeric budget, budget approval, acceptance flip, closure claim or physical-accuracy claim is introduced or implied.",
+    "The five P3 findings and the residual uncertainty of the anchored review are carried exactly as recorded and are neither applied nor adjudicated away.",
+    "No issue acceptance or closure is claimed for #59, #84, G6 or Full; r1_status remains numerical_failed and B1/B3/B4, OD-03..OD-24 except OD-20, and OD-01/OD-02 remain open.",
+    "Fixed gates are preserved unweakened and untouched: 1 ms physical tick, four-tick group boundary, no-catch-up previous_start + period_ns anchoring, 100 ms LATE_LIMIT_NS, full-window capture, physics invariants, and diagnostic_only identity.",
+    "No input or file outside the four manifest outputs was edited; nothing was staged in the real index, committed, pushed, reset, cleaned, restored or checked out; the real index was never modified.",
+    "No sibling batch directory or sibling project was touched; #83 was not rerun and no rerun is triggered or suggested; no network or GitHub query/mutation was performed."
+  ],
+  "outputs": [
+    "validation/coordination/deepseek-g6-owner-decision-request-context-ingest-manifest-20260914-01/exact-paths.txt",
+    "validation/coordination/deepseek-g6-owner-decision-request-context-ingest-manifest-20260914-01/review.md",
+    "validation/coordination/deepseek-g6-owner-decision-request-context-ingest-manifest-20260914-01/review.json",
+    "validation/coordination/deepseek-g6-owner-decision-request-context-ingest-manifest-20260914-01/SHA256SUMS"
+  ],
+  "sha256sums_coverage": "exact-paths.txt, review.md, review.json only; SHA256SUMS does not self-reference"
+}

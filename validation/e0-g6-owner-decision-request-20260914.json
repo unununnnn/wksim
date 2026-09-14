@@ -1,0 +1,397 @@
+{
+  "schema": "wksim.59-g6-owner-decision-request.v1",
+  "kind": "g6_owner_decision_request",
+  "issue": 59,
+  "parent_issue": 10,
+  "layer": "request",
+  "authority": "request_only",
+  "effective": false,
+  "date": "2026-09-14",
+  "title": "G6 owner-decision request: solve form, OD-01/OD-02 scheduling/time semantics, OD-20 active-vs-extra motor output scope (REQUEST, not a decision)",
+  "work_class": "new-development / offline owner-decision request (no acceptance run)",
+  "claim_text": "Request only. Three decision groups are put to the owner - (1) the C3G first-step solve form, (2) OD-01/OD-02 scheduling and time semantics for the three schedule_metadata time fields, (3) OD-20 active-vs-extra motor output scope. Every decision state is not_made, no option is chosen, no numeric budget appears, and no derivation, approval or closure is recorded. Six committed sources are pinned by tracked HEAD SHA256/size at most. Ancestry of 31e5b65f and f333316e is required; exact-HEAD equality is not asserted. budget_approved, g6_acceptance and physical_accuracy remain false, R1 remains numerical_failed, issues_closed is empty, and B1/B3/B4, OD-03..OD-24 except OD-20, #84, G6 and Full remain open.",
+  "request_for": "wksim owner of #59 / #10 (single owner decision record, external to this request)",
+  "request_scope": {
+    "decision_group_count": 3,
+    "decision_group_keys": [
+      "solve_form_choice",
+      "od01_od02_scheduling_time_semantics",
+      "od20_active_vs_extra_motor_output_scope"
+    ],
+    "only_these_groups_requested": true,
+    "requested_owner_decision_ids": [
+      "OD-01",
+      "OD-02",
+      "OD-20"
+    ]
+  },
+  "observed_at": {
+    "cwd": "C:\\Users\\PC\\Documents\\odid编译\\wksim",
+    "branch": "main",
+    "observed_head": "ee6eb88819cefe255f22e788c39a77c0bbab490e",
+    "observed_head_note": "informational only: main may advance while this request is open, so no verifier may require exact-HEAD equality; the binding requirement is ancestry of required_ancestors plus exact tracked-HEAD SHA256/size for every pin",
+    "required_ancestors": [
+      "31e5b65f5448c5558450d16d0f46da0ef0f0a03c",
+      "f333316e6efa6b299b4288a9d91fb2bccedfb9d6"
+    ],
+    "required_ancestor_check": "git merge-base --is-ancestor <sha> HEAD must exit 0 for both; any nonzero exit (non-ancestor or invalid object name) is rejected",
+    "exact_head_equality_asserted": false,
+    "recorded_utc": "2026-09-14T00:00:00Z"
+  },
+  "evidence_policy": {
+    "digest_algorithm": "sha256",
+    "digest_encoding": "lowercase_hex",
+    "pin_bytes_source": "git cat-file blob HEAD:<path>",
+    "pin_bytes_source_note": "each pin is hashed and sized from the committed HEAD blob, never from working-tree bytes; the working-tree file must additionally match the same SHA256/size so an uncommitted edit fails closed",
+    "tracked_pin_ids": [
+      "g6_remediation_contract",
+      "dynamic_budget_source_map",
+      "frame_datum_binding",
+      "solve_form_decision",
+      "budget_approval_provenance",
+      "r1_contract"
+    ],
+    "max_pins": 6,
+    "forbidden_evidence_paths_case_insensitive": true,
+    "forbidden_evidence_path_prefix_casefold": "validation/coordination/",
+    "forbidden_derivation_classes": [
+      "RD-01",
+      "RD-02",
+      "RD-03",
+      "RD-04",
+      "RD-05",
+      "RD-06",
+      "RD-07",
+      "RD-08",
+      "RD-09",
+      "RD-10",
+      "RD-11",
+      "RD-12"
+    ],
+    "forbidden_numeric_fields": [
+      "abs_budget",
+      "rel_budget",
+      "rms_budget",
+      "budget",
+      "budgets",
+      "tolerance",
+      "abs_tolerance",
+      "rel_tolerance",
+      "error_budget",
+      "ulp_budget",
+      "numeric_budget"
+    ],
+    "fail_closed_on": [
+      "unknown_top_level_key",
+      "unknown_decision_group_key",
+      "missing_required_key",
+      "wrong_type",
+      "decision_group_count_not_three",
+      "duplicate_decision_group",
+      "unknown_owner_decision_id",
+      "requested_decision_set_mismatch",
+      "open_decision_list_mismatch",
+      "blocker_dropped",
+      "owner_decision_already_made",
+      "option_already_chosen",
+      "budget_approval_claim",
+      "forbidden_budget_key",
+      "numeric_budget_present",
+      "closure_claim",
+      "acceptance_claim",
+      "r1_status_changed",
+      "derivation_present",
+      "forbidden_derivation",
+      "forbidden_evidence_path",
+      "pin_count_exceeded",
+      "pin_path_not_listed",
+      "pin_missing",
+      "pin_extra",
+      "pin_not_tracked_at_head",
+      "pin_hash_mismatch",
+      "pin_size_mismatch",
+      "pin_worktree_drift",
+      "required_ancestor_missing",
+      "required_ancestor_not_ancestor",
+      "exact_head_equality_claim",
+      "mutation_scope_claim"
+    ]
+  },
+  "pins": {
+    "g6_remediation_contract": {
+      "id": "g6_remediation_contract",
+      "path": "docs/plan/10-g6-remediation-contract.md",
+      "sha256": "48da61ade51d46111db0be9a9288d93d4eec380251043c2e39bff66b74cae5c0",
+      "size_bytes": 9935,
+      "tracked_at_head": true,
+      "role": "committed G6/B1 implementation seam, required per-quantity fields, and the explicit rule that budgets need error analysis, calibration or sensor specifications"
+    },
+    "dynamic_budget_source_map": {
+      "id": "dynamic_budget_source_map",
+      "path": "docs/plan/59-e0-dynamic-budget-source-map.md",
+      "sha256": "35a56084105409329131add7d4b9e35be6d1a145c6e18268c96324805313cd42",
+      "size_bytes": 11215,
+      "tracked_at_head": true,
+      "role": "committed per-subsystem missing-evidence inventory and the eight-item owner decision checklist (time fields, actuator scope)"
+    },
+    "frame_datum_binding": {
+      "id": "frame_datum_binding",
+      "path": "validation/e0-frame-datum-binding-20260914.json",
+      "sha256": "5d589075c128e2a22d24d88d7dea0ce753a68f4d46937386c581d3fae945b69f",
+      "size_bytes": 105018,
+      "tracked_at_head": true,
+      "role": "committed 56-slot frame/datum binding supplement that owns the OD-01, OD-02 and OD-20 questions and the unresolved time-field and extra-motor slots"
+    },
+    "solve_form_decision": {
+      "id": "solve_form_decision",
+      "path": "validation/e0-g6-solve-form-decision-20260914.json",
+      "sha256": "5086c3fbddd52b4e754a785706cce938ca7f8d68beb5056d564e7f116b34c293",
+      "size_bytes": 11339,
+      "tracked_at_head": true,
+      "role": "committed PROPOSED G6/B5 solve-form packet that lists the three owner options and records owner_decision.state = not_made"
+    },
+    "budget_approval_provenance": {
+      "id": "budget_approval_provenance",
+      "path": "validation/e0-budget-approval-provenance-20260914.json",
+      "sha256": "2962931a28dfc3cc05e201dc23b6073c30948080de34279e9f5b21ae23544d3d",
+      "size_bytes": 285820,
+      "tracked_at_head": true,
+      "role": "committed zero-approval B1 provenance ledger that declares RD-01..RD-12 forbidden provenance classes and keeps all 120 slots unbudgeted and unapproved"
+    },
+    "r1_contract": {
+      "id": "r1_contract",
+      "path": "Simulator/wksim_core/numerical-conformance-v1.json",
+      "sha256": "23d72e26da5dfc7df0b41b96d090664d0ec022d777f6258e409bf7080f2c08f0",
+      "size_bytes": 29846,
+      "tracked_at_head": true,
+      "role": "frozen R1 numerical conformance contract (120 slots, absolute 0 / relative 0); owned by #59 and never modified by this request"
+    }
+  },
+  "decision_groups": [
+    {
+      "id": "DG-1",
+      "key": "solve_form_choice",
+      "title": "C3G first-step solve-form choice (G6/B5)",
+      "source_pin": "solve_form_decision",
+      "owner_decision_ids": [],
+      "slots": [],
+      "related_slots_out_of_scope": [],
+      "question": "Which solve form should be recorded for the C3G first-step trace: adopt the diagnostic uniform diagonal reciprocal-multiply branch, retain the current generated division/mrdivide form, or defer?",
+      "evidence_question_ref": "pins.solve_form_decision#owner_options (three options, all chosen=false) and #owner_decision (state=not_made)",
+      "options": [
+        {
+          "id": "adopt_diagonal_branch",
+          "label": "adopt diagonal branch",
+          "chosen": false
+        },
+        {
+          "id": "retain_division_absorb_ulp",
+          "label": "retain division and absorb one ULP through a separately approved budget",
+          "chosen": false
+        },
+        {
+          "id": "defer",
+          "label": "defer",
+          "chosen": false
+        }
+      ],
+      "state": "not_made",
+      "chosen_option": null,
+      "decided_by": null,
+      "decided_utc": null,
+      "decision_text": null,
+      "derivation_class": null,
+      "derivation_ref": null,
+      "blocked_by": [
+        "B1",
+        "B4"
+      ],
+      "not_covered_by_this_group": [
+        "only the pinned C3G first-step traces were observed; C0/C2G, the remaining major samples, the 23 unmapped states and non-diagonal inertia remain unobserved",
+        "the observed 1 ULP may not be turned into a budget value",
+        "no model change, no B4 freeze and no B1 approval follows from this request"
+      ]
+    },
+    {
+      "id": "DG-2",
+      "key": "od01_od02_scheduling_time_semantics",
+      "title": "OD-01 / OD-02 scheduling and time semantics for the three schedule_metadata time fields",
+      "source_pin": "frame_datum_binding",
+      "owner_decision_ids": [
+        "OD-01",
+        "OD-02"
+      ],
+      "slots": [
+        "Vehicle60[2]",
+        "Sensor30[0]",
+        "GPS30[0]"
+      ],
+      "related_slots_out_of_scope": [],
+      "question": "OD-01: Are the three schedule_metadata time fields excluded from physical-accuracy comparison (B3), or do they receive their own bound budgets? OD-02: What is the absolute zero / epoch of vehicle_time, sensor_time and gps_time, and how is the microsecond-to-second relation anchored?",
+      "evidence_question_ref": "pins.frame_datum_binding#owner_decisions[OD-01] and [OD-02], both state=not_made",
+      "options": [
+        {
+          "id": "exclude_from_physical_comparison",
+          "label": "exclude the three time fields from physical-accuracy comparison and handle them as a separate scheduling check",
+          "chosen": false
+        },
+        {
+          "id": "include_with_own_metric",
+          "label": "include the three time fields as compared quantities with their own metric and epoch",
+          "chosen": false
+        },
+        {
+          "id": "defer",
+          "label": "defer",
+          "chosen": false
+        }
+      ],
+      "state": "not_made",
+      "chosen_option": null,
+      "decided_by": null,
+      "decided_utc": null,
+      "decision_text": null,
+      "derivation_class": null,
+      "derivation_ref": null,
+      "blocked_by": [
+        "B1",
+        "B3"
+      ],
+      "not_covered_by_this_group": [
+        "sampling fixes only the k grid (k=0..500, fixed step 0.001 s) and the major-root output phase; it does not bind an epoch",
+        "no time-field manifest, no metric and no bound is produced here",
+        "OD-03..OD-19 and OD-21..OD-24 time-adjacent items stay open outside this group"
+      ]
+    },
+    {
+      "id": "DG-3",
+      "key": "od20_active_vs_extra_motor_output_scope",
+      "title": "OD-20 active-vs-extra motor output scope",
+      "source_pin": "frame_datum_binding",
+      "owner_decision_ids": [
+        "OD-20"
+      ],
+      "slots": [
+        "Vehicle60[20]",
+        "Vehicle60[21]",
+        "Vehicle60[22]",
+        "Vehicle60[23]"
+      ],
+      "question": "Do the extra_motor_speed inactive channels belong to the external comparison contract at all?",
+      "evidence_question_ref": "pins.frame_datum_binding#owner_decisions[OD-20] state=not_made; the four slots carry contract_semantic_status inactive_channels_not_aircraft_coverage",
+      "related_slots_out_of_scope": [
+        "Vehicle60[16]",
+        "Vehicle60[17]",
+        "Vehicle60[18]",
+        "Vehicle60[19]"
+      ],
+      "options": [
+        {
+          "id": "include_in_external_contract",
+          "label": "treat the extra_motor_speed inactive channels as part of the external comparison contract",
+          "chosen": false
+        },
+        {
+          "id": "exclude_as_inactive_output",
+          "label": "exclude the extra_motor_speed inactive channels as non-aircraft inactive outputs",
+          "chosen": false
+        },
+        {
+          "id": "defer",
+          "label": "defer",
+          "chosen": false
+        }
+      ],
+      "state": "not_made",
+      "chosen_option": null,
+      "decided_by": null,
+      "decided_utc": null,
+      "decision_text": null,
+      "derivation_class": null,
+      "derivation_ref": null,
+      "blocked_by": [
+        "B1",
+        "B4"
+      ],
+      "not_covered_by_this_group": [
+        "OD-19 (scalar rotor speed frame and rpm reference) stays open for all eight motor slots, including the four active ones",
+        "no actuator calibration/source manifest and no rpm reference is produced here",
+        "deciding the scope of these four channels does not approve any of the 120 R1 budgets"
+      ]
+    }
+  ],
+  "open_items": {
+    "blockers_open": [
+      "B1",
+      "B3",
+      "B4"
+    ],
+    "blocker_notes": {
+      "B1": "120-quantity budgets remain unapproved; this request contains no budget value",
+      "B3": "time-field comparison scope remains open, as stated by the OD-01 question in the frame/datum binding",
+      "B4": "the new same-source contract remains unfrozen; this request freezes nothing"
+    },
+    "owner_decisions_open": [
+      "OD-03",
+      "OD-04",
+      "OD-05",
+      "OD-06",
+      "OD-07",
+      "OD-08",
+      "OD-09",
+      "OD-10",
+      "OD-11",
+      "OD-12",
+      "OD-13",
+      "OD-14",
+      "OD-15",
+      "OD-16",
+      "OD-17",
+      "OD-18",
+      "OD-19",
+      "OD-21",
+      "OD-22",
+      "OD-23",
+      "OD-24"
+    ],
+    "issues_open": [
+      "#84",
+      "G6",
+      "Full"
+    ],
+    "issues_closed": [],
+    "budget_approved": false
+  },
+  "non_claims": [
+    "This is a request for owner decisions; it records no owner choice, no budget and no acceptance.",
+    "No option, state or approval in this file may be inferred as an owner decision; every state is not_made.",
+    "RD-01..RD-12 derivations are forbidden provenance classes for this request and no derivation class or derivation reference is bound.",
+    "No validation/coordination path is admissible as evidence for this request, case-insensitively; only the six pinned committed sources above carry byte authority.",
+    "B1/B3/B4, OD-03..OD-24 except OD-20, #84, G6 and Full remain open, and issues_closed is empty.",
+    "R1 remains numerical_failed; budget_approved, g6_acceptance and physical_accuracy remain false.",
+    "Ancestry of 31e5b65f and f333316e is required and exact-HEAD equality is not asserted, so later unrelated commits do not invalidate this request.",
+    "The pinned sources are evidence identities only; they are not budgets, not measurements, not calibrations and not an acceptance decision."
+  ],
+  "scope_limits": {
+    "module": "docs/plan and validation owner-decision request only",
+    "writable_files": [
+      "docs/plan/59-g6-owner-decision-request-20260914.md",
+      "validation/e0-g6-owner-decision-request-20260914.json",
+      "validation/test_e0_g6_owner_decision_request.py"
+    ],
+    "native_or_model_launched": false,
+    "matlab_launched": false,
+    "ros_fc_ue_build_launched": false,
+    "issue_83_launched": false,
+    "issues_mutated": false,
+    "git_index_mutated": false,
+    "git_committed": false,
+    "git_pushed": false
+  },
+  "budget_approved": false,
+  "g6_acceptance": false,
+  "physical_accuracy": false,
+  "owner_decisions_made": false,
+  "r1_status": "numerical_failed",
+  "issues_closed": []
+}
