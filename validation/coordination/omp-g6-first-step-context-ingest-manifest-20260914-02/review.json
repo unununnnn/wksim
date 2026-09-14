@@ -1,0 +1,186 @@
+{
+  "schema": "wksim.ingest-manifest.v1",
+  "manifested_at": "2026-09-14",
+  "owner": "codebuddy-ingest-manifest",
+  "manifested_head": "31e5b65f5448c5558450d16d0f46da0ef0f0a03c",
+  "reviewed_head": "31e5b65f5448c5558450d16d0f46da0ef0f0a03c",
+  "scope": "context-only",
+  "acceptance": "non-acceptance",
+  "exact_paths_sha256": "fb45e44a81391b3d2c8ebc0b4cd09d5df1545721b75cd92927e74bb736a5fdbb",
+  "exact_paths_size_bytes": 873,
+  "exact_paths_count": 11,
+  "baseline_relations": {
+    "manifested_head_equals_session_head": true,
+    "head_advanced_during_writing": false,
+    "reviewed_head_equals_manifested_head": true,
+    "architecture_continuity_anchor_f333316e_is_ancestor": true,
+    "superseded_prior_artifacts_excluded": [
+      "validation/coordination/codebuddy-omp-g6-first-step-independent-review-20260914-02/",
+      "validation/coordination/omp-g6-first-step-context-ingest-manifest-20260914-01/"
+    ],
+    "superseded_prior_artifacts_preserved_byte_identically": true,
+    "superseded_prior_artifacts_included_in_batch": false
+  },
+  "inputs": [
+    {
+      "path": "docs/coordination/omp-reference-first-step-review-20260913.md",
+      "role": "historical_context_document_reference_review",
+      "sha256": "7973f0220c05861547283fbc47f3cfb8e5875a6101023e64593ad7b2664bc17a",
+      "size_bytes": 2979
+    },
+    {
+      "path": "docs/coordination/omp-first-step-comparison-review-20260913.md",
+      "role": "historical_context_comparison_review",
+      "sha256": "728bce90e0e2da893746e9113954694b6fb7147537db18f564e186dfa5769c14",
+      "size_bytes": 3985
+    },
+    {
+      "path": "docs/coordination/omp-g6-first-step-ingest-note-20260914.md",
+      "role": "binding_and_registration_note",
+      "sha256": "c7f034535096047e321ab654fac418d7de5775854ac0e5ff06d97db2369308bc",
+      "size_bytes": 14459,
+      "note": "remediated bytes; matches dispatch pin c7f03453.../14459"
+    },
+    {
+      "path": "validation/test_omp_g6_first_step_context.py",
+      "role": "offline_binding_test",
+      "sha256": "ef7e613b0781902a76f5b88ac383510eaa200599a7fb8a4ec7e4c9885eea25cf",
+      "size_bytes": 54340,
+      "note": "remediated bytes; matches dispatch pin ef7e613b.../54340"
+    },
+    {
+      "path": "validation/coordination/codebuddy-omp-g6-first-step-independent-review-20260914-03/review.md",
+      "role": "independent_review_report",
+      "sha256": "bd9ddbe4ddec784966819e53d29894cf52935faf25361b6f972dc748c706a169",
+      "size_bytes": 8917
+    },
+    {
+      "path": "validation/coordination/codebuddy-omp-g6-first-step-independent-review-20260914-03/review.json",
+      "role": "independent_review_record",
+      "sha256": "65cb4a8466d1665bed1ea47c48447b03e81b88956644d283a9ce13f997be5fb4",
+      "size_bytes": 6834
+    },
+    {
+      "path": "validation/coordination/codebuddy-omp-g6-first-step-independent-review-20260914-03/SHA256SUMS",
+      "role": "independent_review_checksum_manifest",
+      "sha256": "288de5da0ff23daf3bea36dba8fab508404b013aa1cc16871da52f83ebee3f50",
+      "size_bytes": 154
+    }
+  ],
+  "input_verification": {
+    "all_hashes_and_sizes_recomputed_matching_task_pins_and_review_03": true,
+    "inputs_unmodified": true,
+    "inputs_rehashed_identical_after_all_operations": true,
+    "review_03_sha256sums_verified_relative_to_review_directory": true,
+    "review_json_strict_parsed": true,
+    "review_03_verdict": "PASS",
+    "review_03_decision": "ADOPT",
+    "review_03_counts": {"P1": 0, "P2": 0, "P3": 1, "tests": 32}
+  },
+  "review_facts": {
+    "reviewer": "CodeBuddy (independent re-review of remediated batch, read-only; independent of -02)",
+    "review_id": "codebuddy-omp-g6-first-step-independent-review-20260914-03",
+    "authoritative_head": "31e5b65f5448c5558450d16d0f46da0ef0f0a03c",
+    "verdict": "PASS",
+    "decision": "ADOPT",
+    "findings_p1": 0,
+    "findings_p2": 0,
+    "findings_p3": 1,
+    "driver_ruling_recorded": {
+      "frozen_r1_driver_sha256": "7f3bc0c88263a6e1c94a3f42658fe43db2a0b75abca7a5fb59fcfaafdba99cde",
+      "frozen_copies_immutable": true,
+      "frozen_copy_locations": 3,
+      "no_frozen_update_and_no_repo_backfill_authorized": true,
+      "former_two_option_wording_superseded": true,
+      "launch_time_sha_recompute_and_executed_bytes_snapshot_required_for_future_runs": true,
+      "closes_only_owner_ruling_subissue": true,
+      "not_g6_full_pass": true,
+      "repo_driver_sha256": "4221246303642b26290b63c118ced5209a6e928a6101140cc00dc4cd12278040",
+      "repo_driver_head_blob": "1cedff93bd8fd48d7e867541ed83423edaa03089",
+      "introducing_commit": "3f40ba031f670dfd09fd341f4dfdb6fa2b702d51",
+      "frozen_vs_current_difference": "exactly two lines: L137 type gate type(x) in (int, float); L148 float(...) cast",
+      "execution03_invoked_neither_driver_unused_changed_driver_matches_false_non_defect": true,
+      "issue83_state_live_check_during_review_03": "CLOSED",
+      "issue84_state_live_check_during_review_03": "OPEN"
+    },
+    "remaining_limitations_preserved": {
+      "mapped_rigid_states": 13,
+      "total_rigid_states": 36,
+      "uncovered_states": 23,
+      "ode4_stage_mapping_open": true,
+      "native_full_window_evidence_open": true,
+      "mixed_capability_line_missing_per_omp_mixed_failure_review_20260913_md_59": true,
+      "timing_anchors_preserved": "1 ms major; no-catch-up; >100 ms late freeze-with-restore",
+      "no_current_native_or_flight_evidence": true
+    },
+    "ulp_facts_preserved_from_review_03_recomputation": {
+      "stage_chain": "q s3 derivatives[2]=1; q s3 derivatives[3]=64; p,q/r s3 cont_states[1]=1; ub,vb,wb s3 derivatives[0]=1",
+      "final": "q index3 = 44 ULP; ub,vb,wb index0 = 1 ULP; p,q/r and xe,ye,ze final zero",
+      "no_all_1ulp_regularity": true,
+      "all_difference_doubles_normal": true,
+      "value_magnitude_4.95e-18_distinct_from_1ulp_delta_-7.7e-34": true
+    },
+    "p3_simulink_cache_recorded_precisely": {
+      "id": "P3-1",
+      "file": "docs/coordination/omp-g6-first-step-ingest-note-20260914.md",
+      "location": "section 5 evidence-directory sentence",
+      "fact": "'101 tracked files, no untracked residue' is git-semantics true (unignored == [], asserted by the test), but 125 additional gitignored untracked Simulink build cache files (slprj/, .slxc) exist on disk under run-01/cache/; a reader could misread on-disk contents as exactly 101 files",
+      "blocking": false,
+      "byte_change_requested": false,
+      "promoted_to_p2": false,
+      "action_taken": "none; recorded, interpretation already protected by the test's unignored == [] check"
+    },
+    "review_grants_approval": false
+  },
+  "test_facts": {
+    "command": "python -B validation/test_omp_g6_first_step_context.py",
+    "tests_defined": 32,
+    "this_session_runs": [
+      {
+        "phase": "run_1_normal_real_index_untouched",
+        "tests_run": 32,
+        "failures": 0,
+        "errors": 0,
+        "result": "OK",
+        "elapsed_seconds": 3.871,
+        "exit_code": 0
+      },
+      {
+        "phase": "run_2_temporary_git_index_file_exact_11_paths_staged",
+        "method": "temporary GIT_INDEX_FILE outside repo; git read-tree HEAD then git add -f of exactly the exact-paths.txt 11 paths; ls-files -s path-set diff vs real index = exactly 11 added, 0 removed, 0 content-changed (none of the 11 tracked at HEAD); all entries stage 0; each blob equals git hash-object of the worktree file; temp index entry count 10777 = HEAD tree 10766 + 11; temp index deleted afterwards",
+        "tests_run": 32,
+        "failures": 0,
+        "errors": 0,
+        "result": "OK",
+        "exit_code": 0
+      }
+    ],
+    "real_index_unchanged": {
+      "before_sha256_of_ls_files_s": "5e08ccabec2775053b28f34e44eedd55db1a8b37ef8b4d895023d651f4b835ef",
+      "after_sha256_of_ls_files_s": "5e08ccabec2775053b28f34e44eedd55db1a8b37ef8b4d895023d651f4b835ef",
+      "entries": 10766,
+      "identical": true,
+      "note": "real index never modified by this task; final after-snapshot re-verified at session end"
+    },
+    "diff_check": "no whitespace findings from any of the 11 batch paths (all untracked, tracked-diff checks are the empty set for them); full-tree git diff --check findings originate solely from the protected dirty file docs/Prometheus.gitmodules.reference (pre-existing modified, trailing whitespace only, untouched by this task)",
+    "suite_design": "ancestor assertions only, repo-relative paths via __file__, no writes, no network, no native execution, no reads of untracked classification artifacts"
+  },
+  "outputs": [
+    "validation/coordination/omp-g6-first-step-context-ingest-manifest-20260914-02/exact-paths.txt",
+    "validation/coordination/omp-g6-first-step-context-ingest-manifest-20260914-02/review.md",
+    "validation/coordination/omp-g6-first-step-context-ingest-manifest-20260914-02/review.json",
+    "validation/coordination/omp-g6-first-step-context-ingest-manifest-20260914-02/SHA256SUMS"
+  ],
+  "sha256sums_coverage": "exact-paths.txt, review.md, review.json only; SHA256SUMS does not self-reference",
+  "nonclaims": [
+    "This manifest is context-only ingestion of the remediated, independently reviewed batch; it does not pass G6 or Full and elevates no historical context to approval.",
+    "The driver ruling recorded above closes only the owner-ruling subissue; it is not G6/Full acceptance, and no further closure is claimed for #84 or any other ticket.",
+    "No #83 rerun permission is claimed or granted; #83 was live-checked CLOSED and #84 OPEN during review -03 only as a factual observation.",
+    "Remaining limitations are preserved unweakened: 23 of 36 rigid states uncovered, ode4 stage mapping open, native/full-window evidence open, mixed-capability line still MISSING.",
+    "P3-1 (125 gitignored Simulink cache files under run-01/cache/ vs the note's 101-tracked-files wording) is recorded precisely, non-blocking, no byte change requested or performed.",
+    "Superseded review -02 and manifest -01 are excluded from the batch and preserved byte-identically as historical evidence; their byte identities are not trusted.",
+    "Gate wording (1 ms tick, native barrier, 4-tick, no-catch-up, 100 ms/full window, physics and identity gates) is preserved unweakened; diagnostic fields never serve as #83 pass evidence.",
+    "No file outside the four manifest outputs was edited; nothing was staged to the real index, committed, pushed, reset, or cleaned; the real index was never modified.",
+    "No native/build/MATLAB/ROS/DDS/SITL/FC/UE/model/flight execution, no #83 rerun, no network, no GitHub query or mutation was performed by this manifest task."
+  ]
+}

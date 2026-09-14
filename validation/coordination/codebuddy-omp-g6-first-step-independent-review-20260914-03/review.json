@@ -1,0 +1,139 @@
+{
+  "review": "codebuddy-omp-g6-first-step-independent-review-20260914-03",
+  "date": "2026-09-14",
+  "reviewer": "CodeBuddy (independent)",
+  "baseline": {
+    "head": "31e5b65f5448c5558450d16d0f46da0ef0f0a03c",
+    "architecture_ancestor": "f333316e6efa6b299b4288a9d91fb2bccedfb9d6",
+    "ancestor_check": "git merge-base --is-ancestor f333316e... HEAD exit 0"
+  },
+  "superseded_inputs_excluded": [
+    "codebuddy-omp-g6-first-step-independent-review-20260914-02",
+    "omp-g6-first-step-context-ingest-manifest-20260914-01"
+  ],
+  "candidates": [
+    {
+      "path": "docs/coordination/omp-reference-first-step-review-20260913.md",
+      "sha256": "7973f0220c05861547283fbc47f3cfb8e5875a6101023e64593ad7b2664bc17a",
+      "bytes": 2979
+    },
+    {
+      "path": "docs/coordination/omp-first-step-comparison-review-20260913.md",
+      "sha256": "728bce90e0e2da893746e9113954694b6fb7147537db18f564e186dfa5769c14",
+      "bytes": 3985
+    },
+    {
+      "path": "docs/coordination/omp-g6-first-step-ingest-note-20260914.md",
+      "sha256": "c7f034535096047e321ab654fac418d7de5775854ac0e5ff06d97db2369308bc",
+      "bytes": 14459,
+      "matches_dispatch_pin": true
+    },
+    {
+      "path": "validation/test_omp_g6_first_step_context.py",
+      "sha256": "ef7e613b0781902a76f5b88ac383510eaa200599a7fb8a4ec7e4c9885eea25cf",
+      "bytes": 54340,
+      "matches_dispatch_pin": true
+    }
+  ],
+  "claims_verified": {
+    "frozen_r1_driver_sha256": "7f3bc0c88263a6e1c94a3f42658fe43db2a0b75abca7a5fb59fcfaafdba99cde",
+    "frozen_driver_locations": [
+      "validation/numerical-conformance-u56ce17a/C0/run_numerical_conformance.py",
+      "validation/numerical-conformance-gxxh6xhr/C2G/run_numerical_conformance.py",
+      "validation/numerical-conformance-gxxh6xhr/C3G/run_numerical_conformance.py"
+    ],
+    "frozen_copies_byte_identical": true,
+    "repo_driver_sha256": "4221246303642b26290b63c118ced5209a6e928a6101140cc00dc4cd12278040",
+    "repo_driver_head_blob": "1cedff93bd8fd48d7e867541ed83423edaa03089",
+    "repo_driver_blob_bytes_match_worktree": true,
+    "introducing_commit": "3f40ba031f670dfd09fd341f4dfdb6fa2b702d51",
+    "introducing_commit_absent_at_parent_bf3c224e": true,
+    "frozen_vs_current_difference": "exactly two lines: L137 type gate type(x) in (int, float); L148 float(...) cast",
+    "execution03_invoked_neither_driver": true,
+    "unused_changed_driver_non_defect": true,
+    "execution03_evidence": [
+      "validation/coordination/g6-reference-probe-20260913/execution-03/invocation.json (unused_changed_driver, all_used_frozen_identities_match=true, 38 frozen deps)",
+      "validation/coordination/g6-reference-probe-20260913/execution-03/input-checks.json (repo-driver entry expected 7f3bc0c8... actual 42212463... matches=false)"
+    ],
+    "owner_ruling_encoded": {
+      "frozen_copies_immutable": true,
+      "no_frozen_update_and_no_repo_backfill_authorized": true,
+      "former_two_option_wording_superseded": true,
+      "launch_time_sha_and_bytes_snapshot_required_for_future_runs": true,
+      "closes_only_owner_ruling_subissue": true,
+      "not_g6_full_pass": true,
+      "states_remaining": 23,
+      "ode4_stage_mapping_open": true,
+      "native_full_window_open": true,
+      "issue83_never_rerun": true,
+      "issue83_state_live_check": "CLOSED",
+      "issue84_state_live_check": "OPEN"
+    },
+    "artifact_identities": {
+      "reference_first_step_json": "99fc1ec84a110bea1e5998a97b4f9c66231966474268ba74bfc343b584e03f85",
+      "top_level_target_trace": "343509972eb3233cd8b4c32c8f0747c2e959cefeb2dab57ea747930c40e3fb86",
+      "with_major_variant": "d55542d743c456073d2d362ed3f71232d6d4697f450eaa8f8333b88699436360",
+      "comparison_v2_sha256": "2a6b8fe9338224d64f0cc91fd4c66139b3422ca23c3032049cd529d6387ea3c9",
+      "comparison_v2_bytes": 3477,
+      "all_rehashed_independently": true
+    },
+    "ulp_facts_recomputed": {
+      "earliest": "p,q,r stage2 derivatives[1] = 1 ULP",
+      "stage_chain": "q s3 derivatives[2]=1; q s3 derivatives[3]=64; p,q,r s3 cont_states[1]=1; ub,vb,wb s3 derivatives[0]=1",
+      "final": "q index3 = 44 ULP; ub,vb,wb index0 = 1 ULP; p,q,r and xe,ye,ze final zero",
+      "no_all_1ulp_regularity": true,
+      "all_difference_doubles_normal": true,
+      "value_magnitude_distinct_from_ulp_delta": true
+    },
+    "git_facts": {
+      "note_head_e2ecd62e_ancestor_of_current_head": true,
+      "review_head_01181887_ancestor_of_current_head": true,
+      "baseline_1c5656ed_ancestor": true,
+      "e2ecd62e_delta_topic_disjoint": true,
+      "g6_evidence_dirs_tracked_files": 101,
+      "tracked_files_byte_match_disk": true,
+      "on_disk_extras": 125,
+      "on_disk_extras_all_gitignored_simulink_caches": true,
+      "ds_g6_major_time_binding_v3_dir_head_tree_files": 0,
+      "gitignore_line_53": "/validation/*/"
+    }
+  },
+  "test_results": {
+    "suite": "validation/test_omp_g6_first_step_context.py",
+    "normal_run": "32/32 OK (3.5s)",
+    "temp_index_run": "32/32 OK (3.2s)",
+    "temp_index": {
+      "location": "/tmp/wksim-omp-g6-idx03-* (repo-external, mktemp)",
+      "constructed": "git read-tree HEAD + exactly the four candidates (git add; git add -f for the gitignored test)",
+      "entry_count": 10770,
+      "staged_delta_vs_head_is_exactly_four_candidates": true,
+      "cleaned_up": true
+    }
+  },
+  "real_index_immutability": {
+    "fingerprint_before": "5e08ccabec2775053b28f34e44eedd55db1a8b37ef8b4d895023d651f4b835ef",
+    "fingerprint_after": "5e08ccabec2775053b28f34e44eedd55db1a8b37ef8b4d895023d651f4b835ef",
+    "method": "git ls-files -s | sha256sum",
+    "no_add_reset_clean_commit_push_on_real_index": true
+  },
+  "worktree_observations_not_batch_defects": [
+    "docs/Prometheus.gitmodules.reference and validation/coordination/short-cycle-dispatches.json pre-existing modified (known dirty state)",
+    "docs/coordination/mixed-work-overrun-20260913-v2.md modified by external parallel-batch activity (mtime 2026-09-14 20:16, appeared mid-review; investigated, untouched)",
+    "stray untracked %TEMP%audit26-report.json at repo root (parallel-batch artifact; investigated, untouched)"
+  ],
+  "findings": {
+    "p1": [],
+    "p2": [],
+    "p3": [
+      {
+        "id": "P3-1",
+        "file": "docs/coordination/omp-g6-first-step-ingest-note-20260914.md",
+        "location": "section 5 evidence-directory sentence",
+        "summary": "'101 tracked files, no untracked residue' is git-semantics-true (unignored==[]) but 125 gitignored Simulink cache byproducts exist on disk under run-01/cache/; a reader could misread on-disk contents as exactly 101 files. Non-blocking, no byte change requested; the test's unignored==[] check already protects the interpretation."
+      }
+    ]
+  },
+  "verdict": "PASS",
+  "decision": "ADOPT",
+  "counts": { "p1": 0, "p2": 0, "p3": 1, "tests": 32 }
+}
