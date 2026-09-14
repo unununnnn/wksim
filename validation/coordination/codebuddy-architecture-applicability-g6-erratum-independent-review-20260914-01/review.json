@@ -1,0 +1,89 @@
+{
+  "review": "codebuddy-architecture-applicability-g6-erratum-independent-review-20260914-01",
+  "review_date": "2026-09-14",
+  "reviewer": "independent CodeBuddy reviewer",
+  "repo_head_at_review": "acf322860831cb2a7c83a45cb4e2586922444c57",
+  "ancestry_checks": {
+    "f333316e6efa6b299b4288a9d91fb2bccedfb9d6": {"command": "git merge-base --is-ancestor f333316e6efa6b299b4288a9d91fb2bccedfb9d6 HEAD", "exit_code": 0, "passed": true},
+    "31e5b65f5448c5558450d16d0f46da0ef0f0a03c": {"command": "git merge-base --is-ancestor 31e5b65f5448c5558450d16d0f46da0ef0f0a03c HEAD", "exit_code": 0, "passed": true}
+  },
+  "candidates": [
+    {
+      "path": "docs/coordination/codebuddy-architecture-applicability-g6-erratum-20260914.md",
+      "expected_sha256": "b2e1d34141a86080927e979df6cb048ebe667bace99bf422394f96c22fb52a20",
+      "observed_sha256": "b2e1d34141a86080927e979df6cb048ebe667bace99bf422394f96c22fb52a20",
+      "expected_size_bytes": 7468,
+      "observed_size_bytes": 7468,
+      "hash_match": true,
+      "git_status_at_review": "untracked"
+    },
+    {
+      "path": "validation/test_codebuddy_architecture_applicability_g6_erratum.py",
+      "expected_sha256": "a98b8fd339d02cbb7544dd33bc623a03b9ad0318769745d3aeb3715602799428",
+      "observed_sha256": "a98b8fd339d02cbb7544dd33bc623a03b9ad0318769745d3aeb3715602799428",
+      "expected_size_bytes": 26527,
+      "observed_size_bytes": 26527,
+      "hash_match": true,
+      "git_status_at_review": "untracked"
+    }
+  ],
+  "verification_domains": {
+    "applicability_wording": "verified - parent CONTEXT-MAP.md line 12 carries the cited sentence verbatim; authority order mirrors wksim AGENTS.md; ADR adoption/non-adoption entries match ADR texts and wksim targets (WSL Ubuntu22.04 ROS2/DDS, PX4+ArduCopter SITL, UE5.5 + WksimVehicleVisual)",
+    "citation_correction": "verified - erroneous anchor located at ingest note section 5 line 48 quoting proposal.md:58; proposal title line 1 reads unapproved; accepted record confirmed as gate authority",
+    "supersession_scope": "verified - limited to the erroneous citation only; note bytes and all review -03 / manifest -02 anchor bytes unchanged and byte-equal to HEAD blobs",
+    "nonclosure": "verified - explicit nonclaims (no gate change, no architecture approval, no #83 rerun, no #84/G6/Full closure) present",
+    "source_pinning": "verified - all 22 in-test pins independently recomputed with sha256sum; exact match on hash and size",
+    "ancestry_checks": "verified - both ancestor commands exit 0, re-verified during review",
+    "index_independence": "verified - suite git usage limited to rev-parse/cat-file/merge-base; proven by external-temp-index execution mode",
+    "test_quality": "verified - fail-closed byte bindings, in-memory-only negative tests, 0-based line anchors checked against accepted record"
+  },
+  "test_execution": [
+    {
+      "mode": "normal",
+      "command": "python -m unittest validation.test_codebuddy_architecture_applicability_g6_erratum -v",
+      "tests_run": 31,
+      "tests_passed": 31,
+      "failures": 0,
+      "errors": 0,
+      "result": "OK"
+    },
+    {
+      "mode": "repo-external temporary index with exactly two candidates",
+      "command": "GIT_INDEX_FILE=<tmp>/index git read-tree --empty; git add -f <two candidates>; python -m unittest validation.test_codebuddy_architecture_applicability_g6_erratum -v",
+      "temp_index_entries": 2,
+      "temp_index_blobs": {
+        "docs/coordination/codebuddy-architecture-applicability-g6-erratum-20260914.md": "58e909d8c159079024d75b7a8043349546a21bb1",
+        "validation/test_codebuddy_architecture_applicability_g6_erratum.py": "858126147e8063fcde75f818e553133fa3498222"
+      },
+      "staging_fidelity": "blob SHA1s equal git hash-object of disk files (core.autocrlf=false); no content mangling",
+      "real_index_untouched": true,
+      "real_index_sha256_before": "be6979601355dca3af4d9ce9c65a7417c9da4f2425520e1923a179ed21e54e2f",
+      "real_index_sha256_after": "be6979601355dca3af4d9ce9c65a7417c9da4f2425520e1923a179ed21e54e2f",
+      "tests_run": 31,
+      "tests_passed": 31,
+      "failures": 0,
+      "errors": 0,
+      "result": "OK"
+    }
+  ],
+  "findings": [
+    {"id": "F1", "severity": "P3", "summary": "Erratum gate restatement omits accepted-record protocol details (per-tier >=3 independent epochs, 2 s stabilization marking); non-blocking because section 4 rule 2 directs gate citations to accepted records", "blocking": false},
+    {"id": "F2", "severity": "P3", "summary": "Sealed proposal copy validation/joint-rate-contract-20260907/approved-proposal.md is not tracked in HEAD (validation/ gitignored); identity rests on disk hash plus accepted-record pin, cited by SHA256 so unambiguous", "blocking": false},
+    {"id": "F3", "severity": "P3", "summary": "ADR-0009/0014 consistent-guidance characterizations are judgmental but supported (architecture-implementation line 12; CONTEXT.md line 19) and correctly kept non-binding", "blocking": false}
+  ],
+  "counts": {"p1": 0, "p2": 0, "p3": 3, "blockers": 0},
+  "verdict": "KEEP",
+  "verdict_scope": ["docs/coordination/codebuddy-architecture-applicability-g6-erratum-20260914.md", "validation/test_codebuddy_architecture_applicability_g6_erratum.py"],
+  "scope_compliance": {
+    "candidates_edited": false,
+    "staged_to_real_index": false,
+    "committed_or_pushed": false,
+    "issue_83_run": false,
+    "protected_files_touched": false,
+    "writes_limited_to": [
+      "validation/coordination/codebuddy-architecture-applicability-g6-erratum-independent-review-20260914-01/review.md",
+      "validation/coordination/codebuddy-architecture-applicability-g6-erratum-independent-review-20260914-01/review.json",
+      "validation/coordination/codebuddy-architecture-applicability-g6-erratum-independent-review-20260914-01/SHA256SUMS"
+    ]
+  }
+}

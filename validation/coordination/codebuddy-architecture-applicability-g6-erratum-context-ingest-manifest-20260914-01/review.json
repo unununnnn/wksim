@@ -1,0 +1,180 @@
+{
+  "manifest_id": "codebuddy-architecture-applicability-g6-erratum-context-ingest-manifest-20260914-01",
+  "written_at": "2026-09-14",
+  "writer": "CodeBuddy (manifest writer)",
+  "mode": "offline, read-only over inputs; real index untouched; temp-index staging proof only",
+  "resume_of_interrupted_batch": {
+    "partial_files_at_resume": [
+      "validation/coordination/codebuddy-architecture-applicability-g6-erratum-context-ingest-manifest-20260914-01/exact-paths.txt"
+    ],
+    "partial_exact_paths_sha256": "b09ca03ae4df67215b4458742c5fab10517dd263eb222d764d29467f3c994e45",
+    "partial_exact_paths_size_bytes": 968,
+    "byte_identical_to_dispatch_pin_on_resume": true,
+    "created_this_session": [
+      "validation/coordination/codebuddy-architecture-applicability-g6-erratum-context-ingest-manifest-20260914-01/review.md",
+      "validation/coordination/codebuddy-architecture-applicability-g6-erratum-context-ingest-manifest-20260914-01/review.json",
+      "validation/coordination/codebuddy-architecture-applicability-g6-erratum-context-ingest-manifest-20260914-01/SHA256SUMS"
+    ],
+    "files_created_count": 3,
+    "existing_files_edited": false,
+    "candidate_or_review_files_edited": false,
+    "work_redone": "none - candidates, independent review outputs, and the review verdict are carried as already-completed recorded results",
+    "independent_review_rerun": false,
+    "exact_paths_re_sorted_or_rewritten": false
+  },
+  "exact_paths_verification": {
+    "path": "validation/coordination/codebuddy-architecture-applicability-g6-erratum-context-ingest-manifest-20260914-01/exact-paths.txt",
+    "sha256": "b09ca03ae4df67215b4458742c5fab10517dd263eb222d764d29467f3c994e45",
+    "size_bytes": 968,
+    "line_count": 9,
+    "unique_path_count": 9,
+    "case_sensitive_sort_equals_file": true,
+    "composition": {
+      "candidates": 2,
+      "independent_review_outputs": 3,
+      "manifest_outputs_including_itself": 4
+    }
+  },
+  "repo_head_at_manifest": "ee6eb88819cefe255f22e788c39a77c0bbab490e",
+  "head_role": "observation only; no HEAD-equality assertion is made or implied",
+  "ancestry": {
+    "baseline_commit": "31e5b65f5448c5558450d16d0f46da0ef0f0a03c",
+    "baseline_is_ancestor_command": "git merge-base --is-ancestor 31e5b65f5448c5558450d16d0f46da0ef0f0a03c HEAD",
+    "baseline_is_ancestor_exit": 0,
+    "architecture_commit": "f333316e6efa6b299b4288a9d91fb2bccedfb9d6",
+    "architecture_is_ancestor_command": "git merge-base --is-ancestor f333316e6efa6b299b4288a9d91fb2bccedfb9d6 HEAD",
+    "architecture_is_ancestor_exit": 0,
+    "head_equality_asserted": false
+  },
+  "overlap_check_since_acf32286": {
+    "boundary_commit": "acf322860831cb2a7c83a45cb4e2586922444c57",
+    "commits_in_range": [
+      {"commit": "e832fd2a", "subject": "Bind mixed-work overrun context offline", "touched_paths": 10},
+      {"commit": "615c2f8c", "subject": "Bind performance-counter context offline", "touched_paths": 9},
+      {"commit": "ee6eb888", "subject": "Bind native-wait context offline", "touched_paths": 9}
+    ],
+    "touched_paths_union": 28,
+    "overlap_with_exact_paths": 0,
+    "method": "git log --name-only --format='' acf32286..HEAD, de-duplicated with a case-sensitive sort, intersected with exact-paths.txt",
+    "conclusion": "zero overlap - none of the commits after the independent review's HEAD touched any of the 9 batch paths; those batches are independent sibling batches"
+  },
+  "batch_scope": "context-only",
+  "verdict_source": "validation/coordination/codebuddy-architecture-applicability-g6-erratum-independent-review-20260914-01",
+  "review_verdict": "KEEP",
+  "review_severity_counts": {"P1": 0, "P2": 0, "P3": 3},
+  "pins_verified": {
+    "docs/coordination/codebuddy-architecture-applicability-g6-erratum-20260914.md": ["b2e1d34141a86080927e979df6cb048ebe667bace99bf422394f96c22fb52a20", 7468],
+    "validation/test_codebuddy_architecture_applicability_g6_erratum.py": ["a98b8fd339d02cbb7544dd33bc623a03b9ad0318769745d3aeb3715602799428", 26527],
+    "validation/coordination/codebuddy-architecture-applicability-g6-erratum-independent-review-20260914-01/review.md": ["653d53d4204edf4c1a7ad8f2c052a1af09d1355df8dcbfaeddb3a184ead02799", 7378],
+    "validation/coordination/codebuddy-architecture-applicability-g6-erratum-independent-review-20260914-01/review.json": ["e4993702fc58240ae8cf6b648c9b6abef418be20d833c426e163ce7797faa248", 5857],
+    "validation/coordination/codebuddy-architecture-applicability-g6-erratum-independent-review-20260914-01/SHA256SUMS": ["f36236f487e57d4e6b25b0b01685a9828908cd7bee31cdc7880e4cddac10305c", 154],
+    "validation/coordination/codebuddy-architecture-applicability-g6-erratum-context-ingest-manifest-20260914-01/exact-paths.txt": ["b09ca03ae4df67215b4458742c5fab10517dd263eb222d764d29467f3c994e45", 968],
+    "validation/coordination/codebuddy-architecture-applicability-g6-erratum-context-ingest-manifest-20260914-01/review.md": ["fb6b342ca43ddadabfb6a83489227beaf7b6cb276f8e75eda082fa6361e72f8b", 10496]
+  },
+  "pins_verified_note": "Seven of the eight pinned paths above are immutable inputs (2 candidates, 3 independent-review outputs, the pre-existing exact-paths.txt) plus this batch's own review.md. review.json and SHA256SUMS are self-referential outputs: they cannot enumerate their own SHA256 inside themselves and are therefore reported in the dispatch thread after the staging proof, so the reported bytes equal the staged bytes.",
+  "candidate_git_state": {
+    "docs/coordination/codebuddy-architecture-applicability-g6-erratum-20260914.md": "untracked; not present in HEAD tree",
+    "validation/test_codebuddy_architecture_applicability_g6_erratum.py": "untracked; not present in HEAD tree",
+    "validation/coordination/codebuddy-architecture-applicability-g6-erratum-independent-review-20260914-01/*": "untracked; not present in HEAD tree (validation/*/ is gitignored, .gitignore:53)",
+    "validation/coordination/codebuddy-architecture-applicability-g6-erratum-context-ingest-manifest-20260914-01/*": "untracked; not present in HEAD tree (validation/*/ is gitignored, .gitignore:53)",
+    "head_tree_membership_of_all_nine_paths": "none - git ls-tree HEAD returns no entry for any of the 9 paths"
+  },
+  "findings_carried": {
+    "P1": [],
+    "P2": [],
+    "P3": [
+      "P3-F1: erratum gate restatement omits accepted-record protocol details (per-tier >=3 independent epochs, 2 s stabilization marking); non-blocking because erratum section 4 rule 2 directs gate citations to docs/*-accepted*.md",
+      "P3-F2: sealed proposal copy validation/joint-rate-contract-20260907/approved-proposal.md is untracked; identity rests on disk hash plus the accepted record's own pin and the erratum cites it by SHA256, so identity is unambiguous",
+      "P3-F3: ADR-0009/0014 consistent-guidance characterizations are judgmental but supported and correctly kept non-binding"
+    ],
+    "blockers": []
+  },
+  "non_claims": [
+    "no #83 rerun; none triggered or suggested",
+    "no #84 closure",
+    "no G6 closure",
+    "no Full closure",
+    "no gate change and no architecture approval; the erratum is documentation/context only",
+    "fixed gates preserved untouched: 1 ms physical tick, 4 ms common input barrier, strict four-tick single step, 0.5x/1x tiers with 8 ms/4 ms group periods, no-catch-up previous_start+period_ns anchoring, 100 ms LATE_LIMIT_NS, full-window 10 s +/-2% and 60 s +/-1% acceptance with 100 ms phase bound",
+    "this batch is an admission record only, not acceptance or approval"
+  ],
+  "exclusions": {
+    "sibling_batch_quartets": "mixed-work-overrun, perf-counter, and native-wait manifest/review -01 quartets are tracked sibling batches outside this batch; not bound or superseded",
+    "omp_g6_first_step_manifest_02_and_review_03": "earlier G6 context-ingest manifest -02 and review -03 trio; bytes unchanged and only cited as existing anchor evidence",
+    "docs/coordination/claude-native-wait-next-probe.md": "untracked working note, outside the batch, not a candidate, not bound or endorsed",
+    "docs/plan/33-ac5-budget-row-proposal-20260914.md": "untracked working note, outside the batch, not bound or endorsed",
+    "pre_existing_worktree_modifications": "docs/Prometheus.gitmodules.reference and validation/coordination/short-cycle-dispatches.json show pre-existing modifications from other sessions; not candidates, not touched here"
+  },
+  "tests": {
+    "suite": "validation/test_codebuddy_architecture_applicability_g6_erratum.py",
+    "test_method_count": 31,
+    "normal_mode": {
+      "command": "python -m unittest validation.test_codebuddy_architecture_applicability_g6_erratum -v",
+      "ran": 31,
+      "failed": 0,
+      "errors": 0,
+      "result": "OK"
+    },
+    "exact9_temp_index_mode": {
+      "env": "GIT_INDEX_FILE=<repo-external path seeded via git read-tree HEAD>",
+      "command": "GIT_INDEX_FILE=<tmp>/index python -m unittest validation.test_codebuddy_architecture_applicability_g6_erratum -v",
+      "staged_paths": "exactly the 9 paths of exact-paths.txt, added with git add -f (gitignore)",
+      "ran": 31,
+      "failed": 0,
+      "errors": 0,
+      "result": "OK"
+    },
+    "index_independence": "suite git usage is limited to rev-parse --verify, cat-file blob HEAD:<path>, and merge-base --is-ancestor; it inspects no index state, which is why the exact-9 temp-index run yields the same 31/31 as normal mode",
+    "negative_tests_are_in_memory_only": true
+  },
+  "temp_index_proof": {
+    "index_location": "repo-external temporary directory (mktemp -d); never .git/index",
+    "seed": "git read-tree HEAD (index seeded from current HEAD tree)",
+    "staging_command": "GIT_INDEX_FILE=<tmp>/index git add -f <the 9 exact paths>",
+    "force_add_reason": "validation/*/ is gitignored (.gitignore:53), so -f is required to stage the review and manifest outputs",
+    "expected_staged_delta_vs_head": {"A": 9, "M": 0, "D": 0},
+    "all_entries_stage": 0,
+    "blob_equality": "9/9 index blobs byte-equal to working-tree files (git hash-object of each disk file equals its staged index blob)",
+    "diff_check": "scoped index-vs-worktree diff empty; git diff --cached --check clean",
+    "observed_staged_blob_sha1": {
+      "docs/coordination/codebuddy-architecture-applicability-g6-erratum-20260914.md": "58e909d8c159079024d75b7a8043349546a21bb1",
+      "validation/test_codebuddy_architecture_applicability_g6_erratum.py": "858126147e8063fcde75f818e553133fa3498222",
+      "validation/coordination/codebuddy-architecture-applicability-g6-erratum-independent-review-20260914-01/review.md": "b8b20572b7948ffeaaa236e8730694111fc29f10",
+      "validation/coordination/codebuddy-architecture-applicability-g6-erratum-independent-review-20260914-01/review.json": "f857736adb0dbea05ee240e36b57e497970a17af",
+      "validation/coordination/codebuddy-architecture-applicability-g6-erratum-independent-review-20260914-01/SHA256SUMS": "6b2d937db1586e8c4e815126d50ba620dbef45c6",
+      "validation/coordination/codebuddy-architecture-applicability-g6-erratum-context-ingest-manifest-20260914-01/exact-paths.txt": "f3bb44d26ff84539370c5701379105675bcfc549",
+      "validation/coordination/codebuddy-architecture-applicability-g6-erratum-context-ingest-manifest-20260914-01/review.md": "f9c7617ffc664520c431f4eaccb2ba5f4ae32d82"
+    },
+    "observed_staged_blob_sha1_note": "the two remaining staged paths are this file (review.json) and SHA256SUMS, which cannot contain their own blob SHA1; both are staged and blob-equality-proven in the post-write run whose values are reported in the dispatch thread",
+    "candidate_blob_cross_check": "the two candidate blob SHA1s equal the blob SHA1s recorded independently by the completed independent review (58e909d8... and 85812614...), confirming the staged bytes are the reviewed bytes",
+    "real_index_proof": {
+      "real_index_sha256_before": "38bb9b6cdb2fca67ca8099b7b201f29a06c65d7905181fefeddfae83291fa736",
+      "real_index_ls_files_s_sha256_before": "ffce6973f89f0e1ec49a2fd6ad1c735a48450750b51a946f171c059a6442b7b6",
+      "real_index_ls_files_count_before": 10833,
+      "unchanged_after": true
+    },
+    "temp_index_deleted_after_proof": true,
+    "commit_made": false
+  },
+  "scope_compliance": {
+    "existing_exact_paths_edited": false,
+    "candidates_edited": false,
+    "independent_review_outputs_edited": false,
+    "staged_to_real_index": false,
+    "committed_or_pushed": false,
+    "issue_83_run": false,
+    "sibling_directories_touched": false,
+    "protected_files_touched": false,
+    "writes_limited_to": [
+      "validation/coordination/codebuddy-architecture-applicability-g6-erratum-context-ingest-manifest-20260914-01/review.md",
+      "validation/coordination/codebuddy-architecture-applicability-g6-erratum-context-ingest-manifest-20260914-01/review.json",
+      "validation/coordination/codebuddy-architecture-applicability-g6-erratum-context-ingest-manifest-20260914-01/SHA256SUMS"
+    ]
+  },
+  "outputs": [
+    "validation/coordination/codebuddy-architecture-applicability-g6-erratum-context-ingest-manifest-20260914-01/exact-paths.txt",
+    "validation/coordination/codebuddy-architecture-applicability-g6-erratum-context-ingest-manifest-20260914-01/review.md",
+    "validation/coordination/codebuddy-architecture-applicability-g6-erratum-context-ingest-manifest-20260914-01/review.json",
+    "validation/coordination/codebuddy-architecture-applicability-g6-erratum-context-ingest-manifest-20260914-01/SHA256SUMS"
+  ]
+}
