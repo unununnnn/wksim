@@ -1,0 +1,157 @@
+{
+  "schema": "wksim.delivery-entry-ingest-manifest.v1",
+  "review_id": "codebuddy-delivery-entry-ingest-manifest-20260914-01",
+  "generated_at": "2026-09-14T15:30:00+09:00",
+  "work_class": "review/ingest-manifest",
+  "read_only_on_candidates": true,
+  "candidates_untouched": true,
+  "existing_files_untouched": true,
+  "git_commit_push_performed": false,
+  "github_changes_performed": false,
+  "not_executed": [
+    "native",
+    "WSL actions",
+    "ROS",
+    "DDS",
+    "SITL",
+    "FC",
+    "UE",
+    "MATLAB",
+    "models",
+    "builds",
+    "flights",
+    "user-process actions"
+  ],
+  "dispatch": {
+    "cwd": "C:/Users/PC/Documents/odid编译/wksim",
+    "branch": "main",
+    "head": "5370b2324672c9036d41239cb93e21fc5eb42897",
+    "head_match_expected": true,
+    "architecture_ancestor": "f333316e6efa6b299b4288a9d91fb2bccedfb9d6",
+    "ancestor_command": "git merge-base --is-ancestor f333316e6efa6b299b4288a9d91fb2bccedfb9d6 HEAD",
+    "ancestor_exit": 0,
+    "owned_writes": [
+      "validation/coordination/codebuddy-delivery-entry-ingest-manifest-20260914-01/exact-paths.txt",
+      "validation/coordination/codebuddy-delivery-entry-ingest-manifest-20260914-01/review.md",
+      "validation/coordination/codebuddy-delivery-entry-ingest-manifest-20260914-01/review.json",
+      "validation/coordination/codebuddy-delivery-entry-ingest-manifest-20260914-01/SHA256SUMS"
+    ]
+  },
+  "batch": {
+    "definition": "exact commit batch: exactly the seven candidate paths in exact-paths.txt, no duplicates",
+    "candidate_count": 7,
+    "test_file_tracked": false,
+    "test_file_git_status": "untracked (proposed for git add; no git add performed by this manifest)"
+  },
+  "current_hashes": {
+    "validation/test_delivery_entry_contract.py": "390f9061ec74dae1df07067a73ed2ea5433f75485682bee47d1e789a99364075",
+    "validation/coordination/cursor-next-frontier-contract-audit-20260914-01/review.md": "9c9c346bd8477751fe0110e4bba0115bbcff1d346b39d9ea822b5461dd83066f",
+    "validation/coordination/cursor-next-frontier-contract-audit-20260914-01/review.json": "9046382ce129211c3cf65917eca9873bf513402f92ce8050e230ecdc96585686",
+    "validation/coordination/cursor-next-frontier-contract-audit-20260914-01/SHA256SUMS": "0430d936d5c1f50dec1f4f38da06d670a1fbd67a3063f4451f747c0ed0f945bd",
+    "validation/coordination/codebuddy-delivery-entry-contract-review-20260914-01/review.md": "a5cfcfe84d2c38a84b715cd9b8920e5f07e4291626a534582cd967749a7875e7",
+    "validation/coordination/codebuddy-delivery-entry-contract-review-20260914-01/review.json": "26104558ff2d1a27313f82d3707876bd4fc5d252c354ea7cb808570b2cf22f40",
+    "validation/coordination/codebuddy-delivery-entry-contract-review-20260914-01/SHA256SUMS": "1b162d38cdc6162d03879b7a8084cb0d8d2ae66a136169c6c8f1b7d2eff8fb82"
+  },
+  "delivery_hash_history": {
+    "historical_audited_delivery_sha256": "682f3b20b29a1312becad6ec519fdb8434ff09270af118e55c23e3986cdcc808",
+    "current_delivery_sha256": "390f9061ec74dae1df07067a73ed2ea5433f75485682bee47d1e789a99364075",
+    "differ": true,
+    "statement": "The historical audit receipt (cursor-next-frontier-contract-audit-20260914-01) audited the pre-repair delivery candidate at 682f3b20b29a1312becad6ec519fdb8434ff09270af118e55c23e3986cdcc808 and returned overall FAIL with four delivery P2 findings against that hash. The delivery candidate has since been repaired: the current file is 390f9061ec74dae1df07067a73ed2ea5433f75485682bee47d1e789a99364075. The historical FAIL, its delivery P2s, and its 682f3b20 hash remain explicit as historical evidence and are NOT transferred to the current file; the current PASS receipt (codebuddy-delivery-entry-contract-review-20260914-01) applies only to the current 390f9061 hash. The old historical SHA must remain explicit in this manifest."
+  },
+  "sums_validation": {
+    "cursor-next-frontier-contract-audit-20260914-01/SHA256SUMS": {
+      "format_note": "CRLF line terminators present in the historical SUMS file; validated by CRLF-tolerant in-memory parsing; the historical file was not rewritten and history was not modified",
+      "entries": 2,
+      "review.md": "OK",
+      "review.json": "OK",
+      "result": "ALL OK"
+    },
+    "codebuddy-delivery-entry-contract-review-20260914-01/SHA256SUMS": {
+      "format_note": "LF line terminators",
+      "entries": 2,
+      "review.md": "OK",
+      "review.json": "OK",
+      "result": "ALL OK"
+    },
+    "strict_sha256sum_c_form_note": "a strict `sha256sum -c` on the historical CRLF SUMS would reject the formatting; this is a byte-level property of the preserved historical evidence and is not a hash mismatch"
+  },
+  "json_strict_parse": {
+    "method": "json.loads with object_pairs_hook rejecting duplicate keys and parse_constant rejecting NaN/Infinity",
+    "cursor-next-frontier-contract-audit-20260914-01/review.json": "OK strict-parse (overall=FAIL)",
+    "codebuddy-delivery-entry-contract-review-20260914-01/review.json": "OK strict-parse (overall=PASS)"
+  },
+  "tests": {
+    "command": "python -B -m unittest validation.test_delivery_entry_contract",
+    "ran": 20,
+    "passed": 19,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 1,
+    "result": "OK (skipped=1)",
+    "exit_code": 0,
+    "stderr_note": "argparse usage/error text on stderr is expected output from tests exercising CLI rejection paths",
+    "skip_behavior": {
+      "skipped_count": 1,
+      "skip_identity_observed": false,
+      "reason": "the required non-verbose run reports only the aggregate skipped=1 and does not identify which test skipped",
+      "suite_skip_sites": [
+        "validation/test_delivery_entry_contract.py:419 (frozen-manifest identity, skipTest when any frozen Linux manifest path is unreachable)",
+        "validation/test_delivery_entry_contract.py:463 (historical fe3 sibling, skipTest when sibling root is unreachable)"
+      ],
+      "current_receipt_recorded_skip": "the current PASS receipt's run recorded the frozen-manifest identity test as the skip with counts_as_coverage:false; this manifest makes the same non-coverage claim",
+      "skip_is_coverage": false
+    }
+  },
+  "receipts_summary": {
+    "historical": {
+      "path": "validation/coordination/cursor-next-frontier-contract-audit-20260914-01",
+      "overall": "FAIL",
+      "overall_scope": "applies to the pre-repair 682f3b20 delivery candidate and the scene candidate as of that audit; not re-applied to the current file",
+      "p1_count": 0,
+      "p2_count": 4,
+      "p3_count": 5,
+      "delivery_p2_ids": ["P2-1", "P2-2", "P2-3", "P2-4"],
+      "delivery_p2_titles": [
+        "string-only source-substring assertions could stay green if real parser/admit paths broke",
+        "external path existence plus fixed hashes treated as release/identity evidence",
+        "Linux sibling missing silently continued instead of skipping",
+        "historical fe3 runner and current main entry treated as one contract"
+      ]
+    },
+    "current": {
+      "path": "validation/coordination/codebuddy-delivery-entry-contract-review-20260914-01",
+      "overall": "PASS",
+      "overall_scope": "applies only to the current 390f9061 delivery candidate",
+      "p1_count": 0,
+      "p2_count": 0,
+      "p3_count": 5,
+      "p3_ids": ["P3-1", "P3-2", "P3-3", "P3-4", "P3-5"]
+    }
+  },
+  "limitations": [
+    "the required test command is non-verbose, so the single skip in this manifest's own run is not attributed to a specific test; the suite has exactly two conditional skip sites (line 419 frozen-manifest identity, line 463 fe3 sibling)",
+    "no frozen Linux manifest was byte- or hash-verified on this machine in this run; the suite's green result says nothing about whether the frozen triple still exists byte-for-byte",
+    "WSL reachability is intermittent on this host; skip-vs-pass behavior of sibling and frozen-manifest tests can flip between runs without any repo change",
+    "admit() success paths (verify walk, admitted_control, check_messages, children spawn accounting) are intentionally not exercised by the suite; only early rejection is covered",
+    "auditor --output overwrite refusal (tools/audit_pv_trajectory.py:881-888) is not pinned by the suite",
+    "source FINAL_* constants are not cross-checked against doc-published freeze constants by the suite",
+    "the historical SUMS file uses CRLF; validation used CRLF-tolerant in-memory parsing without rewriting history, and strict `sha256sum -c` form-checking would reject that formatting",
+    "no subagent was dispatched: the interface cannot select or verify the policy-required subagent settings, so per policy the work was performed in the main agent; this limitation is reported rather than substituting settings"
+  ],
+  "acceptance_not_claimed": {
+    "#26": false,
+    "#33": false,
+    "#84": false,
+    "Full": false,
+    "G6": false,
+    "Goal": false,
+    "official_MIXED_entry_promotion": false
+  },
+  "acceptance_note": "None of #26, #33, #84, Full, G6, or the short-cycle Goal is accepted or claimed by this manifest; this manifest only binds hashes and records receipt statuses.",
+  "manifest_files": {
+    "exact_paths_txt": "validation/coordination/codebuddy-delivery-entry-ingest-manifest-20260914-01/exact-paths.txt",
+    "review_md": "validation/coordination/codebuddy-delivery-entry-ingest-manifest-20260914-01/review.md",
+    "review_json": "validation/coordination/codebuddy-delivery-entry-ingest-manifest-20260914-01/review.json",
+    "sha256sums": "validation/coordination/codebuddy-delivery-entry-ingest-manifest-20260914-01/SHA256SUMS"
+  }
+}

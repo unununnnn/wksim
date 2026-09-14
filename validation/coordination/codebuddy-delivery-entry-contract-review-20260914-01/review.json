@@ -1,0 +1,220 @@
+{
+  "schema": "wksim.delivery-entry-contract-review.v1",
+  "review_id": "codebuddy-delivery-entry-contract-review-20260914-01",
+  "generated_at": "2026-09-14T13:55:36+09:00",
+  "work_class": "review/triage",
+  "read_only_on_source": true,
+  "candidates_untouched": true,
+  "existing_receipts_untouched": true,
+  "git_untouched": true,
+  "github_untouched": true,
+  "dispatch": {
+    "cwd": "C:/Users/PC/Documents/odid编译/wksim",
+    "branch": "main",
+    "head": "5370b2324672c9036d41239cb93e21fc5eb42897",
+    "head_match_expected": true,
+    "architecture_ancestor": "f333316e6efa6b299b4288a9d91fb2bccedfb9d6",
+    "ancestor_check": "git merge-base --is-ancestor f333316e6efa6b299b4288a9d91fb2bccedfb9d6 HEAD",
+    "ancestor_exit": 0,
+    "module": "delivery entry contract test (validation/test_delivery_entry_contract.py)",
+    "owned_writes": [
+      "validation/coordination/codebuddy-delivery-entry-contract-review-20260914-01/review.md",
+      "validation/coordination/codebuddy-delivery-entry-contract-review-20260914-01/review.json",
+      "validation/coordination/codebuddy-delivery-entry-contract-review-20260914-01/SHA256SUMS"
+    ],
+    "not_executed": [
+      "native",
+      "ROS",
+      "DDS",
+      "SITL",
+      "FC",
+      "UE",
+      "MATLAB",
+      "models",
+      "builds",
+      "flights",
+      "user-process actions"
+    ],
+    "subagent": {
+      "used": false,
+      "reason": "dispatcher is not gpt-6-astra; policy requires gpt-5.6-luna xhigh + Fast, which this interface cannot select or verify, so per policy the review was performed in the main agent and this limitation is reported instead of substituting settings"
+    }
+  },
+  "candidate": {
+    "path": "validation/test_delivery_entry_contract.py",
+    "tracked": false,
+    "git_status": "untracked",
+    "sha256_expected": "390f9061ec74dae1df07067a73ed2ea5433f75485682bee47d1e789a99364075",
+    "sha256_observed": "390f9061ec74dae1df07067a73ed2ea5433f75485682bee47d1e789a99364075",
+    "sha256_match": true
+  },
+  "historical_receipt": {
+    "path": "validation/coordination/cursor-next-frontier-contract-audit-20260914-01",
+    "role": "historical evidence only",
+    "audited_delivery_sha256": "682f3b20b29a1312becad6ec519fdb8434ff09270af118e55c23e3986cdcc808",
+    "audited_delivery_sha256_is_current": false,
+    "note": "the receipt audited the pre-repair delivery candidate; its delivery hash is the repaired-away version and does not match the current file under review",
+    "findings_carried": "its four delivery P2s (string-only assertions; external fixed-hash-as-evidence; fail-open sibling continue; fe3 treated as current entry) were used as the repair checklist, not as findings against the current file",
+    "verdict_reuse": "its overall FAIL applied to the pre-repair candidate and is not re-applied here"
+  },
+  "seam_verification": {
+    "method": "each exercised seam was read in current source before and during review; all are real calls, not string greps",
+    "seams": [
+      {
+        "seam": "MAIN parser via real runner.main(argv) with run() patched",
+        "source": "tools/run_joint_flight.py:1163-1211",
+        "evidence": "task-profile choices ('position', PV_PROFILE, MIXED_PROFILE) at 1193; parser.error paths observed as SystemExit(2) in the run"
+      },
+      {
+        "seam": "timing probe run gate",
+        "source": "tools/run_joint_flight.py:423-425",
+        "evidence": "allowed set is (PV_PROFILE, MIXED_PROFILE); stale 'candidate/PV' wording is message text only"
+      },
+      {
+        "seam": "async-model-evidence gate",
+        "source": "tools/run_joint_flight.py:426-428,1210-1211"
+      },
+      {
+        "seam": "check_isolation reached after gates",
+        "source": "tools/run_joint_flight.py:29,432",
+        "evidence": "imported from Simulator.wksim_runtime.isolation; tests patch the module attribute and prove gate ordering"
+      },
+      {
+        "seam": "mixed.admit early rejections",
+        "source": "tools/ap_mixed_candidate.py:100-116",
+        "evidence": "incomplete pair, exact-final-manifests, unsupported task, explicit-final-message gates all real; verify() patched with AssertionError to prove reject-before-verify"
+      },
+      {
+        "seam": "control check SHA256 fullmatch",
+        "source": "tools/joint_control_candidate.py:145-153"
+      },
+      {
+        "seam": "message check SHA256 fullmatch",
+        "source": "tools/joint_message_candidate.py:106-114"
+      },
+      {
+        "seam": "checked_json SHA256 + duplicate-key identity",
+        "source": "tools/verify_ap_pv_candidate.py:14-25",
+        "evidence": "uses Simulator/wksim_runtime/config.py:118-124 _unique_object raising ConfigError on duplicate keys"
+      },
+      {
+        "seam": "audit_pv CLI",
+        "source": "tools/audit_pv_trajectory.py:874-880"
+      },
+      {
+        "seam": "audit_26 CLI + DEFAULT_MANIFEST",
+        "source": "tools/audit_26_closure_readiness.py:21,1736-1740",
+        "evidence": "DEFAULT_MANIFEST docs/plan/26-closure-readiness-manifest.json exists; test asserting is_file() passed"
+      },
+      {
+        "seam": "cpu_timing predicate",
+        "source": "Simulator/wksim_core/joint.py:54",
+        "evidence": "test evaluates the real assignment expression from AST without constructing JointPhysics"
+      },
+      {
+        "seam": "timing probe env three-state + identity",
+        "source": "Simulator/wksim_runtime/joint_rate_probe.py:14,23-38"
+      }
+    ]
+  },
+  "delivery_policy_compliance": {
+    "frozen_identities_source": "docs/coordination/short-cycle-goal.md:36 (AP 1e6250ef..., control 6fe8c0b3..., message 29969da0...)",
+    "test_freeze_constants_match_policy": true,
+    "continuation_contract": "docs/coordination/architecture-continuation-20260913.md: fe3 is a historical comparison checkout; its PASS must not transfer; the current test models fe3 as separate-or-skip and verifies MAIN independently, and does not require hash equality",
+    "purity": "the suite is pure Python; no ROS/DDS/SITL/FC/UE/MATLAB/model/build/flight process is started; admit()/verify()/run() process work is patched out at the module seam"
+  },
+  "tests": {
+    "command": "python -B -m unittest validation.test_delivery_entry_contract -v",
+    "ran": 20,
+    "passed": 19,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 1,
+    "elapsed_s": 1.632,
+    "result": "OK (skipped=1)",
+    "skips": [
+      {
+        "test": "FrozenManifestIdentityTests.test_frozen_external_manifests_read_bytes_match_sha256_and_unique_keys",
+        "reason": "skipTest 'frozen Linux manifests not reachable: /root/wksim-ap-mixed-fhuf05l9/mixed-build.json'",
+        "detail": "only the AP mixed path was absent at test time; the control and message paths resolved during the run but received no byte or SHA256 verification because the shared test skips as a whole when any member of the frozen triple is missing",
+        "counts_as_coverage": false
+      }
+    ],
+    "nonskip_reachability_observations": {
+      "fe3_during_run": "test_historical_fe3_sibling_is_separate_or_explicitly_skipped executed fully (not skipped): sibling was reachable at that moment and asserted distinct from MAIN",
+      "wsl_reachability_flaky": "direct is_file() probes before and after the run returned False for all four WSL paths (AP, control, message, fe3); reachability is machine-state dependent and this review does not treat any reachability snapshot as stable evidence",
+      "main_runner_sha256_prefix": "c8577093a62e4993 (independently recomputed; matches the value recorded in the historical receipt)"
+    }
+  },
+  "overall": "PASS",
+  "overall_rule": "admit-next-batch is allowed because no P1 or P2 applies to the current file; P3 findings are recorded and none blocks ingest",
+  "verdict": {
+    "p1_count": 0,
+    "p2_count": 0,
+    "p3_count": 5,
+    "candidate_sha256": "390f9061ec74dae1df07067a73ed2ea5433f75485682bee47d1e789a99364075",
+    "test_counts": {
+      "ran": 20,
+      "passed": 19,
+      "failed": 0,
+      "skipped": 1
+    },
+    "historical_receipt_status": "read as historical evidence only; audited hash 682f3b20... is the repaired-away version and does not match the current candidate; its delivery P2s are addressed by the repair; its FAIL is not transferred",
+    "coverage_limits": [
+      "the skipped frozen-manifest test means zero byte/SHA256 identity coverage for the three frozen Linux manifests in this run; the skip is recorded and is not coverage",
+      "no frozen manifest was hash-verified on this machine in this run, so the suite's green result says nothing about whether the frozen triple still exists byte-for-byte",
+      "admit() success paths (verify walk, admitted_control, check_messages, children spawn accounting) are intentionally not exercised; only early rejection is covered",
+      "auditor --output overwrite refusal (tools/audit_pv_trajectory.py:881-888) is not pinned by the suite",
+      "WSL reachability on this host is intermittent; skip-vs-pass on sibling/manifest tests can flip between runs without any repo change",
+      "FINAL_* source constants in ap_mixed_candidate.py are not cross-checked against the doc-published freeze constants by the suite"
+    ],
+    "acceptance_not_claimed": {
+      "#84": false,
+      "#33": false,
+      "#26": false,
+      "Full": false,
+      "G6": false,
+      "official_MIXED_entry_promotion": false
+    },
+    "ingest_candidate_path_set": [
+      "validation/test_delivery_entry_contract.py"
+    ],
+    "ingest_note": "git add exactly validation/test_delivery_entry_contract.py at SHA256 390f9061ec74dae1df07067a73ed2ea5433f75485682bee47d1e789a99364075; no other file is proposed for the ingest manifest"
+  },
+  "findings": {
+    "p1": [],
+    "p2": [],
+    "p3": [
+      {
+        "id": "P3-1",
+        "title": "test name overpromises: sibling-None branch is not forced",
+        "lines": "validation/test_delivery_entry_contract.py:217-222",
+        "impact": "test_main_entry_is_verified_even_if_sibling_lookup_returns_none calls historical_fe3_root() but neither forces None nor branches on it; MAIN verification is real, the 'even if' clause is decorative"
+      },
+      {
+        "id": "P3-2",
+        "title": "no cross-check between source FINAL_* constants and doc-published freeze constants",
+        "lines": "validation/test_delivery_entry_contract.py:50-57; tools/ap_mixed_candidate.py:22-24",
+        "impact": "admit tests use mixed.FINAL_* while frozen-manifest identity uses doc constants; a drift between the two would go unnoticed by the suite"
+      },
+      {
+        "id": "P3-3",
+        "title": "auditor --output overwrite-refusal semantics unpinned",
+        "lines": "tools/audit_pv_trajectory.py:881-888",
+        "impact": "the CLI test exercises argument parsing only; the retained-evidence refusal behavior is untested here"
+      },
+      {
+        "id": "P3-4",
+        "title": "build_cli_parser AST-exec helper couples auditor parser tests to main() statement shapes",
+        "lines": "validation/test_delivery_entry_contract.py:90-111",
+        "impact": "refactors that move parser construction or add statements before parse_args can break the helper; it also cannot test main()'s post-parse behavior, which the MAIN suite covers via real runner.main instead"
+      },
+      {
+        "id": "P3-5",
+        "title": "all-or-nothing skip granularity for the frozen triple",
+        "lines": "validation/test_delivery_entry_contract.py:409-420",
+        "impact": "one missing manifest skips identity verification for all three; in this run control/message were reachable but unverified; defensible for combination identity but reduces observed coverage"
+      }
+    ]
+  }
+}

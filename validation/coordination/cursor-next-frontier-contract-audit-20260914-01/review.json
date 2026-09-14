@@ -1,0 +1,316 @@
+{
+  "schema": "wksim.frontier-contract-audit.v1",
+  "review_id": "cursor-next-frontier-contract-audit-20260914-01",
+  "generated_at": "2026-09-14T09:52:30+09:00",
+  "work_class": "review/triage",
+  "read_only": true,
+  "candidates_untouched": true,
+  "existing_files_untouched": true,
+  "git_untouched": true,
+  "github_untouched": true,
+  "dispatch": {
+    "cwd": "C:/Users/PC/Documents/odid编译/wksim",
+    "branch": "main",
+    "head": "5370b2324672c9036d41239cb93e21fc5eb42897",
+    "head_match_expected": true,
+    "architecture_ancestor": "f333316e6efa6b299b4288a9d91fb2bccedfb9d6",
+    "ancestor_exit": 0,
+    "module": "next frontier contract tests",
+    "owned_writes": [
+      "validation/coordination/cursor-next-frontier-contract-audit-20260914-01/review.md",
+      "validation/coordination/cursor-next-frontier-contract-audit-20260914-01/review.json",
+      "validation/coordination/cursor-next-frontier-contract-audit-20260914-01/SHA256SUMS"
+    ],
+    "read": [
+      "CONTEXT-MAP.md",
+      "wksim/CONTEXT.md",
+      "docs/adr/0002-open-core-with-optional-unreal-visuals.md",
+      "docs/adr/0004-single-physics-authority-and-staged-cosys-integration.md",
+      "docs/adr/0008-separate-deterministic-and-interactive-runs.md",
+      "docs/architecture-implementation-20260912.md",
+      "docs/coordination/architecture-continuation-20260913.md",
+      "docs/coordination/short-cycle-goal.md",
+      "docs/coordination/omp-delivery-gates-20260912.md",
+      "docs/coordination/ds-scene-frontier-20260912.md",
+      "docs/plan/26-closure-readiness-manifest.json",
+      "docs/plan/29-terrain-evidence-manifest.json",
+      "docs/plan/29-display-binding-contract.md",
+      "docs/plan/29-102-scene-binding-contract.md",
+      "validation/test_delivery_entry_contract.py",
+      "validation/test_scene_frontier_contract.py"
+    ],
+    "not_executed": [
+      "native",
+      "model",
+      "MATLAB",
+      "ROS",
+      "DDS",
+      "SITL",
+      "FC",
+      "UE",
+      "build",
+      "flight",
+      "#83"
+    ],
+    "subagent": {
+      "used": false,
+      "reason": "interface cannot select or verify gpt-5.6-luna; main agent performed the review"
+    }
+  },
+  "overall": "FAIL",
+  "overall_rule": "FAIL if any candidate has P1 or P2; PASS only if both have neither",
+  "acceptance_not_claimed": {
+    "#20": false,
+    "#29": false,
+    "#33": false,
+    "#46": false,
+    "#84": false,
+    "#26": false,
+    "#102": false,
+    "Full": false,
+    "G6": false,
+    "official_entry": false
+  },
+  "github": {
+    "query": "gh issue list --repo unununnnn/wksim --state open --limit 80 --json number,title,labels",
+    "query_count": 1,
+    "open_numbers": [84, 78, 77, 76, 74, 73, 64, 63, 62, 60, 46, 33, 29, 28, 27, 26, 20, 10, 9, 1],
+    "issue_102_in_open_list": false,
+    "issue_83_in_open_list": false,
+    "titles": {
+      "20": "联合场景暂停单步与冷重置",
+      "26": "生成模型构建导入与无MATLAB运行",
+      "29": "坡面与障碍场景的物理反馈",
+      "33": "双栈混合轴与轨迹跟随",
+      "46": "固定输入实验的确定性重新运行",
+      "84": "提升同一已证实组合并验证正式入口"
+    }
+  },
+  "candidates": {
+    "delivery": {
+      "path": "validation/test_delivery_entry_contract.py",
+      "verdict": "needs-fix",
+      "priority_max": "P2",
+      "tracked": false,
+      "sha256_expected": "682f3b20b29a1312becad6ec519fdb8434ff09270af118e55c23e3986cdcc808",
+      "sha256_observed": "682f3b20b29a1312becad6ec519fdb8434ff09270af118e55c23e3986cdcc808",
+      "sha256_match": true,
+      "ticket_primary": 84,
+      "ticket_secondary": [33, 26],
+      "ticket_not_mapped": [20, 46, 29],
+      "admit_next_batch": false,
+      "tests": {
+        "command": "python -B -m unittest validation.test_delivery_entry_contract",
+        "ran": 9,
+        "passed": 9,
+        "failed": 0,
+        "skipped": 0,
+        "elapsed_s": 0.022,
+        "result": "OK",
+        "linux_sibling": {
+          "reachable": true,
+          "path": "\\\\wsl$\\Ubuntu-22.04\\root\\wksim-release-acceptance-fe3",
+          "classification": "historical comparison fe3, not new-architecture acceptance",
+          "skip_reason_not_triggered": "Linux execution worktree not reachable",
+          "silent_continue_if_missing": true
+        }
+      }
+    },
+    "scene": {
+      "path": "validation/test_scene_frontier_contract.py",
+      "verdict": "ready",
+      "priority_max": "P3",
+      "tracked": false,
+      "sha256_expected": "3f593d8f3bdb3c34db5c7b51014c305fd9596a73ce803a1c187e3d509b6c3de2",
+      "sha256_observed": "3f593d8f3bdb3c34db5c7b51014c305fd9596a73ce803a1c187e3d509b6c3de2",
+      "sha256_match": true,
+      "ticket_primary": 29,
+      "ticket_secondary": [],
+      "ticket_not_mapped": [20, 33, 46, 84],
+      "issue_102_mentioned_in_candidate": true,
+      "issue_102_mapped": false,
+      "issue_102_reason": "not present in the single open-issue list",
+      "admit_next_batch": true,
+      "duplicate": false,
+      "unique_seams": [
+        "planner validate_manifest rejects probe scene_id/hash",
+        "TerrainFeedback observers= foreign_epoch freeze",
+        "TerrainFeedback observers key set exactly {arducopter,px4}"
+      ],
+      "tests": {
+        "command": "python -B -m unittest validation.test_scene_frontier_contract",
+        "ran": 6,
+        "passed": 6,
+        "failed": 0,
+        "skipped": 0,
+        "elapsed_s": 0.002,
+        "result": "OK"
+      }
+    }
+  },
+  "source_checks": {
+    "main_run_joint_flight_sha256": "c8577093a62e4993c8048a69f4501984b3ee9045b8a73d26fb83aedc73acbb3b",
+    "fe3_run_joint_flight_sha256": "1c600d7f018376f5c6fe333f0fd5da75798834c5f09e843078b0939142774373",
+    "runner_bytes_equal": false,
+    "main_ap_mixed_sha256": "5420e1443d58c66eca379b29d8bdb15ea044335dd343cca2d9da88d2364e368f",
+    "fe3_ap_mixed_sha256": "5420e1443d58c66eca379b29d8bdb15ea044335dd343cca2d9da88d2364e368f",
+    "ap_mixed_bytes_equal": true,
+    "external_manifests_independent_hash": [
+      {
+        "path": "/root/wksim-ap-mixed-fhuf05l9/mixed-build.json",
+        "bytes": 914,
+        "sha256": "1e6250eff8873d6b2e52017b613c223ac29f8260fdf92aac2cf0c7cdcc6ce94c",
+        "matches_verified_constant": true,
+        "tested_by_candidate": "is_file_only"
+      },
+      {
+        "path": "/root/wksim-joint-control-c2IXOr/build.json",
+        "bytes": 12091,
+        "sha256": "6fe8c0b30775a9ba83407302f602d0785876d307e5f1cb746afa3bf316cf5e7e",
+        "matches_verified_constant": true,
+        "tested_by_candidate": "is_file_only"
+      },
+      {
+        "path": "/root/wksim-ros2-Rzj3Pf/message-build.json",
+        "bytes": 7149,
+        "sha256": "29969da0702451e3fc6f1de40bc301a67284c4e7d5fae8f88c64773d27a96219",
+        "matches_verified_constant": true,
+        "tested_by_candidate": "is_file_only"
+      }
+    ],
+    "implementation_lines": {
+      "run_joint_flight_flags": "tools/run_joint_flight.py:1183-1195",
+      "timing_probe_gate": "tools/run_joint_flight.py:423-425",
+      "async_model_evidence_gate": "tools/run_joint_flight.py:427-428,473,1211",
+      "ap_mixed_pair_reject": "tools/ap_mixed_candidate.py:108-116",
+      "control_sha_fullmatch": "tools/joint_control_candidate.py:148-149",
+      "message_sha_fullmatch": "tools/joint_message_candidate.py:109-110",
+      "audit_pv_cli": "tools/audit_pv_trajectory.py:877-879",
+      "audit_pv_refuse_overwrite": "tools/audit_pv_trajectory.py:881-888",
+      "audit_26_cli": "tools/audit_26_closure_readiness.py:1739-1740",
+      "cpu_timing": "Simulator/wksim_core/joint.py:54",
+      "rate_probe_env": "Simulator/wksim_runtime/joint_rate_probe.py:14,36",
+      "planner_validate_manifest": "Simulator/wksim_runtime/planner_scene_binding.py:792-809",
+      "terrain_observers": "Simulator/wksim_runtime/terrain_feedback.py:45-48,59-78",
+      "foreign_epoch": "Simulator/wksim_runtime/contact_observer.py:132-133"
+    }
+  },
+  "findings": {
+    "p1": [],
+    "p2": [
+      {
+        "id": "P2-1",
+        "candidate": "delivery",
+        "title": "只断言源码子串存在，可在真实 parser/admit 失效时仍绿",
+        "lines": "validation/test_delivery_entry_contract.py:59-84,90-105,128-149",
+        "repro": "python -B -m unittest validation.test_delivery_entry_contract → 9 OK；对照 tools/run_joint_flight.py:1183-1195 与 ap_mixed_candidate.py:108-116 仅被 assertIn，从未 parse_args/admit/check。rate 拒绝字面 candidate/PV（L142 / run_joint_flight.py:425）与允许集 PV/MIXED 不一致。",
+        "impact": "纳入后不能作为正式入口或 #84 门；字符串残留即通过。"
+      },
+      {
+        "id": "P2-2",
+        "candidate": "delivery",
+        "title": "外部路径存在性 + 固定哈希被当作发布/身份证据",
+        "lines": "validation/test_delivery_entry_contract.py:31-33,107-122",
+        "repro": "测试只 is_file()。本审查按同一 UNC 构造独立哈希：三份清单字节碰巧等于 VERIFIED_*，但替换字节后测试仍绿。",
+        "impact": "绿不能证明冻结组合仍是那些字节；不能当 #84 已证实组合验收。"
+      },
+      {
+        "id": "P2-3",
+        "candidate": "delivery",
+        "title": "Linux sibling 缺失时 silently continue，不 skip",
+        "lines": "validation/test_delivery_entry_contract.py:60-62,91-93",
+        "repro": "本机 LINUX 可达故 skipped=0。L60-62/L91-93 在 LINUX is None 时 continue；只有 L108-109 的 pin 测试 skipTest。",
+        "impact": "无 sibling 的主机仍可 8/9 绿，隐藏执行区合同未查。"
+      },
+      {
+        "id": "P2-4",
+        "candidate": "delivery",
+        "title": "把历史 fe3 runner 与当前 main 入口当成同一合同",
+        "lines": "validation/test_delivery_entry_contract.py:21-27,59-70",
+        "repro": "fe3 run_joint_flight.py SHA256 1c600d7f018376f5… ≠ main c8577093a62e4993…；两边字符串检查均绿。",
+        "impact": "违反接续合同：历史对照 PASS 不得转移。不能宣称当前正式入口已核。"
+      }
+    ],
+    "p3": [
+      {
+        "id": "P3-1",
+        "candidate": "delivery",
+        "title": "未覆盖 bool/NaN/空对象/重复键；未断言 main FINAL_*",
+        "lines": "validation/test_delivery_entry_contract.py:43-53,107-113",
+        "impact": "module_constants 只收字符串字面；main 今日碰巧与 LINUX 相同。"
+      },
+      {
+        "id": "P3-2",
+        "candidate": "delivery",
+        "title": "2026-09-12 文档中的 --output 覆盖缺口已过期",
+        "lines": "tools/audit_pv_trajectory.py:881-888",
+        "impact": "现拒绝覆盖已有输出；本测试不钉该语义。"
+      },
+      {
+        "id": "P3-3",
+        "candidate": "scene",
+        "title": "三层身份常量测试与已纳入 display 合同部分重叠",
+        "lines": "validation/test_scene_frontier_contract.py:73-95; validation/test_display_scene_binding.py:73-94",
+        "impact": "重叠不取消 planner-probe 与 observers= 的独有覆盖。"
+      },
+      {
+        "id": "P3-4",
+        "candidate": "scene",
+        "title": "双键替换用父类 BindingError；异常只含 froze 子串",
+        "lines": "validation/test_scene_frontier_contract.py:107-111,126-128",
+        "impact": "实现双键仍 raise IdentityError（子类），断言过宽。"
+      },
+      {
+        "id": "P3-5",
+        "candidate": "scene",
+        "title": "planner 对 probe 是通用 mismatch，不是具名拒绝；无 bool/NaN 矩阵",
+        "lines": "Simulator/wksim_runtime/planner_scene_binding.py:800-804",
+        "impact": "任意错误 hash 也会失败；实现 query_terrain 已拒 bool/NaN，测试未钉。"
+      }
+    ]
+  },
+  "p1_count": 0,
+  "p2_count": 4,
+  "p3_count": 5,
+  "next_card": {
+    "title": "纳入 scene frontier 合同测试，不纳入 delivery 字符串门",
+    "work_class": "new-development",
+    "exclusive_files": [
+      "validation/test_scene_frontier_contract.py"
+    ],
+    "action": "git add only the existing untracked scene test; keep SHA256 3f593d8f3bdb3c34db5c7b51014c305fd9596a73ce803a1c187e3d509b6c3de2; do not edit it in this card unless a later owner slice slims P3 overlap",
+    "read_only_dependencies": [
+      "Simulator/wksim_runtime/planner_scene_binding.py",
+      "Simulator/wksim_runtime/terrain_feedback.py",
+      "Simulator/wksim_runtime/contact_observer.py",
+      "docs/plan/29-terrain-evidence-manifest.json",
+      "Simulator/wksim_runtime/static-scene-v1.json"
+    ],
+    "tests": [
+      "python -B -m unittest validation.test_scene_frontier_contract"
+    ],
+    "do_not_admit": [
+      "validation/test_delivery_entry_contract.py"
+    ],
+    "do_not_edit": [
+      "tools/*",
+      "Simulator/wksim_runtime/*",
+      "validation/test_delivery_entry_contract.py"
+    ],
+    "cannot_claim": [
+      "#20",
+      "#29 AC",
+      "#33",
+      "#46",
+      "#84",
+      "#26",
+      "#102",
+      "Full",
+      "G6",
+      "official MIXED/entry",
+      "UE colocation",
+      "slope/contact-force",
+      "display disconnect"
+    ]
+  }
+}
