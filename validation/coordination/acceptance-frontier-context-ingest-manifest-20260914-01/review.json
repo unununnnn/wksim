@@ -1,0 +1,105 @@
+{
+  "schema": "wksim.ingest-manifest.v1",
+  "manifested_at": "2026-09-14",
+  "owner": "codebuddy-ingest-manifest",
+  "reviewed_head": "e8defc1d8317892e022ee24de086b026c1317e5a",
+  "scope": "context-only",
+  "acceptance": "non-acceptance",
+  "exact_paths_sha256": "c0b9c989c46bc0c77a0a9541486c6f1558f8455c99bb18a4823408e1b501cbec",
+  "exact_paths_count": 9,
+  "inputs": [
+    {
+      "path": "docs/coordination/acceptance-frontier.json",
+      "role": "candidate_context_document",
+      "sha256": "885ea287c58ee412a1577cff18428a8b9425ff4b70e0c0ed9433bf18d46a16c2",
+      "sha256_match_specified": true
+    },
+    {
+      "path": "validation/test_acceptance_frontier_context.py",
+      "role": "candidate_test",
+      "sha256": "b8533f49d72f6d4bf5bcfd730d51c96c2be1b7381ba45b80e6f764f7df2036b0",
+      "sha256_match_specified": true
+    },
+    {
+      "path": "validation/coordination/codebuddy-acceptance-frontier-independent-review-20260914-01/review.md",
+      "role": "independent_review_report",
+      "sha256": "20ce4fbb0376366beb9f64dee4d5a82c76637213bd222479ad587365bca28535",
+      "sha256_match_review_sums": true
+    },
+    {
+      "path": "validation/coordination/codebuddy-acceptance-frontier-independent-review-20260914-01/review.json",
+      "role": "independent_review_record",
+      "sha256": "8d0bc792154a68ed5886bcc868cf5fcffc88e134d0a5628b5ee9e7043f19a220",
+      "sha256_match_review_sums": true
+    },
+    {
+      "path": "validation/coordination/codebuddy-acceptance-frontier-independent-review-20260914-01/SHA256SUMS",
+      "role": "independent_review_checksum_manifest",
+      "verification": "sha256sum -c from inside the review directory: review.md OK, review.json OK"
+    }
+  ],
+  "review_facts": {
+    "review_schema": "wksim.codebuddy-independent-review.v1",
+    "reviewer": "codebuddy-independent-reviewer",
+    "reviewed_at": "2026-09-14",
+    "reviewed_head_matches_authoritative_head": true,
+    "verdict": "PASS",
+    "findings_p1": [],
+    "findings_p2": [],
+    "findings_p3_nonblocking": [
+      "P3-1: exact-single-occurrence check of the frontier path in the defer record has no dedicated negative test",
+      "P3-2: no negative test for issue reordering or removal; only duplicate-append is mutated",
+      "P3-3: malformed-JSON coverage overlaps between TestStrictJsonLoader and TestNegativeMutations; harmless redundancy",
+      "P3-4: EXPECTED_REPO_PATHS equality couples to first-occurrence string order of the hash-pinned document; lockstep updates required on legitimate frontier revision"
+    ],
+    "strict_parse_of_review_json": true
+  },
+  "test_facts": {
+    "command": "python -B -m unittest validation.test_acceptance_frontier_context -v",
+    "re_run_this_session": {
+      "tests_run": 25,
+      "failures": 0,
+      "errors": 0,
+      "result": "OK",
+      "exit_code": 0
+    },
+    "review_recorded_runs": [
+      {
+        "phase": "before_staging_frontier_untracked",
+        "tests_run": 25,
+        "result": "OK",
+        "exit_code": 0
+      },
+      {
+        "phase": "after_staging_simulation_temporary_git_index_file",
+        "tests_run": 25,
+        "result": "OK",
+        "exit_code": 0
+      }
+    ]
+  },
+  "verification": {
+    "head_confirmed_before_work": true,
+    "original_candidate_sha256_matches_specified": true,
+    "test_candidate_sha256_matches_specified": true,
+    "review_json_strict_parsed": true,
+    "review_verdict_pass": true,
+    "review_p1_p2_empty": true,
+    "review_p3_nonblocking_only": true,
+    "review_sha256sums_verified_relative_to_review_directory": true,
+    "test_25_of_25_exit_0": true
+  },
+  "outputs": [
+    "validation/coordination/acceptance-frontier-context-ingest-manifest-20260914-01/exact-paths.txt",
+    "validation/coordination/acceptance-frontier-context-ingest-manifest-20260914-01/review.md",
+    "validation/coordination/acceptance-frontier-context-ingest-manifest-20260914-01/review.json",
+    "validation/coordination/acceptance-frontier-context-ingest-manifest-20260914-01/SHA256SUMS"
+  ],
+  "nonclaims": [
+    "This manifest is context-only ingestion of the reviewed batch; it is not an acceptance action.",
+    "No issue acceptance, owner approval, or dependency closure is claimed for #9, #26, #29, #62, #83, #102, or any other ticket.",
+    "Recorded OPEN/requires_owner_input fields in the pinned frontier document are snapshots only; no GitHub access was performed.",
+    "No input file or file outside the output directory was edited; no stage, commit, or push was performed; no protected file was touched.",
+    "No native/build/MATLAB/ROS/DDS/SITL/FC/UE/model/flight execution and no #83 work was performed."
+  ]
+}

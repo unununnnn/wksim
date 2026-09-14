@@ -1,0 +1,163 @@
+{
+  "schema": "wksim.codebuddy-independent-review.v1",
+  "reviewed_at": "2026-09-14",
+  "reviewer": "codebuddy-independent-reviewer",
+  "reviewed_head": "e8defc1d8317892e022ee24de086b026c1317e5a",
+  "candidates": [
+    {
+      "path": "docs/coordination/acceptance-frontier.json",
+      "role": "candidate_context_document",
+      "git_status": "untracked",
+      "sha256": "885ea287c58ee412a1577cff18428a8b9425ff4b70e0c0ed9433bf18d46a16c2",
+      "sha256_match": true
+    },
+    {
+      "path": "validation/test_acceptance_frontier_context.py",
+      "role": "candidate_test",
+      "git_status": "untracked",
+      "sha256": "b8533f49d72f6d4bf5bcfd730d51c96c2be1b7381ba45b80e6f764f7df2036b0",
+      "sha256_match": true
+    }
+  ],
+  "bound_files_inspected": [
+    {
+      "path": "docs/plan/9-vendor-abi-defer-boundary.json",
+      "role": "tracked_defer_boundary_pin_host",
+      "sha256": "2a7ac0f57d4cd9a981391ac47a5c8471b17f7a8769dfcc09d6852c8c58c43ba1",
+      "git_status": "tracked",
+      "pin_location": "host_bounded_gaps.acceptance_frontier (lines 825-830)",
+      "pin_tracked_value": false,
+      "pin_sha256_matches_candidate": true
+    }
+  ],
+  "test": {
+    "command": "python -B -m unittest validation.test_acceptance_frontier_context -v",
+    "runs": [
+      {
+        "phase": "before_staging_frontier_untracked",
+        "tests_run": 25,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "result": "OK",
+        "exit_code": 0
+      },
+      {
+        "phase": "after_staging_simulation_temporary_git_index_file",
+        "method": "temporary GIT_INDEX_FILE with read-tree HEAD plus update-index --cacheinfo --info-only of the frontier path; real repository index untouched (frontier still untracked)",
+        "tests_run": 25,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "result": "OK",
+        "exit_code": 0
+      }
+    ],
+    "staging_invariance": "suite never calls git_tracked() on the frontier path; historical tracked=false pin is bound against the unchanged defer JSON; live tracking may change without affecting any assertion"
+  },
+  "semantic_checks": {
+    "strict_json": {
+      "duplicate_keys_rejected": true,
+      "nested_duplicate_keys_rejected": true,
+      "nan_infinity_minus_infinity_rejected": true,
+      "numeric_overflow_1e999_rejected": true,
+      "malformed_and_truncated_input_rejected": true
+    },
+    "issue_semantics": {
+      "version_pinned": "1.1",
+      "exact_issue_order_enforced": ["#62", "#102", "#83", "#29", "#26"],
+      "duplicate_issue_entries_rejected": true
+    },
+    "path_semantics": {
+      "extracted_referenced_paths": [
+        "tools/run_joint_scheduler_windows.py",
+        "validation/lunar-29-terrain-reset-c8f05c6e",
+        "docs/plan/29-terrain-closure-report.md",
+        "docs/plan/26-closure-readiness-manifest.json",
+        "docs/2026-09-10-generated-e0-lifecycle.md",
+        "validation/codegen-e0-lifecycle-01/audit.json"
+      ],
+      "all_extracted_paths_tracked_and_present": true
+    },
+    "pin_semantics": {
+      "exactly_one_host_bounded_gaps_pin_for_frontier_path": true,
+      "pin_key_must_equal_acceptance_frontier": true,
+      "pin_sha256_bound_to_live_frontier_digest": true,
+      "tracked_must_be_literal_false_rejects_true_and_missing": true,
+      "frontier_path_must_occur_exactly_once_in_defer_record": true
+    },
+    "context_only_scope": {
+      "network_or_github_queries": false,
+      "file_writes_by_suite": false,
+      "build_runtime_native_ros_fc_ue_execution": false,
+      "recorded_snapshot_fields_only": true,
+      "defer_policy_nonacceptance_asserted": true
+    },
+    "negative_coverage": {
+      "hash_drift_rejected": true,
+      "duplicate_issue_rejected": true,
+      "pin_hash_drift_rejected": true,
+      "tracked_promotion_rejected": true,
+      "malformed_json_rejected": true,
+      "missing_tracked_reference_rejected": true
+    }
+  },
+  "findings": {
+    "p1": [],
+    "p2": [],
+    "p3": [
+      {
+        "id": "P3-1",
+        "file": "validation/test_acceptance_frontier_context.py",
+        "line": "219-227",
+        "summary": "The exact-single-occurrence check of the frontier path in the defer record has no dedicated negative test; that fail-closed branch is not demonstrated by any mutation."
+      },
+      {
+        "id": "P3-2",
+        "file": "validation/test_acceptance_frontier_context.py",
+        "line": "378-384",
+        "summary": "No negative test for issue reordering or removal; validate_frontier would catch it, but only duplicate-append is mutated."
+      },
+      {
+        "id": "P3-3",
+        "file": "validation/test_acceptance_frontier_context.py",
+        "line": "271-273, 398-406",
+        "summary": "Malformed-JSON coverage overlaps between TestStrictJsonLoader and TestNegativeMutations; harmless redundancy."
+      },
+      {
+        "id": "P3-4",
+        "file": "validation/test_acceptance_frontier_context.py",
+        "line": "48-55, 300-302",
+        "summary": "EXPECTED_REPO_PATHS equality couples to first-occurrence string order of the hash-pinned document; any legitimate frontier revision must update pin constant, defer pin, and this list in lockstep."
+      }
+    ]
+  },
+  "verdict": "PASS",
+  "verdict_rationale": "Both candidates match their specified SHA256 values; the mandated test command passes 25/25 with exit 0 before staging and under an isolated after-staging simulation; strict-JSON, issue/path/pin, and context-only semantics are correctly fail-closed; the historical tracked=false pin remains bound independently of live tracking. Findings are limited to P3 negative-test breadth.",
+  "scope": {
+    "inspected": [
+      "docs/coordination/acceptance-frontier.json",
+      "validation/test_acceptance_frontier_context.py",
+      "docs/plan/9-vendor-abi-defer-boundary.json"
+    ],
+    "commands_run": [
+      "git rev-parse HEAD / git log / git status --porcelain",
+      "sha256sum of the three inspected files",
+      "python -B -m unittest validation.test_acceptance_frontier_context -v (twice: real index and temporary index)",
+      "read-only python inspection of extracted paths and git_tracked() results",
+      "git check-ignore / git ls-files (read-only)"
+    ],
+    "artifacts_written": [
+      "validation/coordination/codebuddy-acceptance-frontier-independent-review-20260914-01/review.md",
+      "validation/coordination/codebuddy-acceptance-frontier-independent-review-20260914-01/review.json",
+      "validation/coordination/codebuddy-acceptance-frontier-independent-review-20260914-01/SHA256SUMS"
+    ]
+  },
+  "nonclaims": [
+    "This review does not claim issue acceptance, owner approval, or dependency closure for #62, #102, #83, #29, #26, #9, or any other ticket.",
+    "Recorded issue state/requires_owner_input fields are pinned-document snapshots; no GitHub query was performed.",
+    "No candidate or existing file was edited; no stage, commit, or push was performed on the repository (the after-staging check used a temporary GIT_INDEX_FILE outside the repo).",
+    "No native/build/MATLAB/ROS/DDS/SITL/FC/UE/model/flight execution and no #83 work was performed.",
+    "A passing offline slice does not satisfy any parent-ticket acceptance criterion."
+  ]
+}

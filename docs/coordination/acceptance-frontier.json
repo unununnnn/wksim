@@ -1,0 +1,158 @@
+{
+  "version": "1.1",
+  "generated_at": "2026-09-12T08:58:00+09:00",
+  "coordination_context": {
+    "goal": "Three Luna agents plus Claude Code, Oh My Pi and agy; primary agent owns integration and real acceptance runs",
+    "active_milestones": {
+      "M1": "Scheduler end-to-end and rate verification (Parent #20, child #62-#64, #33/#83)",
+      "M2": "Real point cloud injection and full EGO planner avoidance (Parent #39, child #102)"
+    },
+    "peer_workstream_boundaries": {
+      "primary": "Integration, sole real execution line, commits and issue acceptance",
+      "claude": "Assigned launcher implementation/review slice",
+      "omp": "Assigned collector or trajectory-transport slice; committed snapshot service is not an unfinished deliverable",
+      "agy": "Assigned implementation/review and frontier discovery; not the primary coordinator",
+      "luna": "Three bounded implementation/review slices; see next-acceptance-goal.md and live agent status for current file ownership"
+    },
+    "canonical_triage_labels": [
+      "needs-triage",
+      "needs-info",
+      "ready-for-agent",
+      "ready-for-human",
+      "wontfix"
+    ],
+    "branch_blocking_isolation": {
+      "g6_budget_branch": "G6 numerical budget and provenance unmapping (#59, #60) block ONLY the G6 precision branch; they do NOT block M1 (scheduler), M2 (planner), #29 (terrain), or #26 (model codegen). However, G6 independent progression does NOT waive the original parent dependencies of #29 (#9, #17, #23) or #26 (#9, #24), which remain strictly required for parent closure.",
+      "unknown_abi_branch": "Unknown vendor RflySim DLL ABI (NO-GO in #9) blocks ONLY #27, #28, #73, #74, #76, #77, #78; it does NOT block native wk_model_* C ABI models (#26) or M1/M2 flight integration."
+    },
+    "excluded_closed_issues": [
+      "#75",
+      "#104",
+      "#40",
+      "#70",
+      "#71",
+      "#72"
+    ]
+  },
+  "acceptance_frontier": [
+    {
+      "issue": "#62",
+      "state": "OPEN",
+      "real_prerequisites": [
+        "Ground scheduler diagnostic probe passing with clean startup and thread capture (ground diagnostic only; cannot serve as rate or flight acceptance)",
+        "Windows launcher (tools/run_joint_scheduler_windows.py) and WSL snapshot collector integration validated",
+        "Independent 1x airborne flight entry setup under original contract"
+      ],
+      "existing_evidence": [
+        "0.5x lifecycle regression passed (joint-rate-flow-ox8h58cv)",
+        "1x RateUnmet structured failure audit committed (844148b)",
+        "Sealed readiness and rate-fault epochs characterized (bcae3a3)",
+        "Retained lifecycle evidence gates hardened (04efddd)",
+        "Windows snapshot exchange and launcher lifecycle unit tested offline (db0afb0, 17w)"
+      ],
+      "missing_acceptance": [
+        "Ground scheduler probe clean pass verifying thread capture without process stall (diagnostic gate only)",
+        "One clean 1x continuous 60-second airborne flight epoch without lateness exceeding 100ms or RateUnmet fault latch under independent flight entry",
+        "Independent raw audit of the 60s execution trace"
+      ],
+      "next_concrete_action": "Complete review of launcher and collector integration, run the ground scheduler diagnostic probe to verify PID resolution, and upon diagnostic pass proceed to the independent 1x 60s flight epoch entry.",
+      "requires_owner_input": false,
+      "source_url": "https://github.com/unununnnn/wksim/issues/62"
+    },
+    {
+      "issue": "#102",
+      "state": "OPEN",
+      "real_prerequisites": [
+        "GridMap 3D inflation slice review pass (completed Task 17x GO)",
+        "Real point cloud generator/topic publishing exact 11,000 voxel centers matching profile hash",
+        "Execution of pure TCP transport pump connecting decoded Bspline to TrajectorySession",
+        "Clearance observer linkage from #29 and trajectory execution via #33"
+      ],
+      "existing_evidence": [
+        "Frozen ego-single-box-v1 launch and profile contract (commit 0a68760)",
+        "GridMap parameter safety fail-closed parsing (commit 989b45d)",
+        "GridMap init signed-overflow guard and C++17 build verified (commit adcf009, libplan_env.so built)",
+        "GridMap 3D inflation unified with candidate-inward bounds checks (audited Task 17x GO)",
+        "Offline Bspline TCP decoder (378168e), scene admission gate (c049954), pump (eb4f273), and sender (cd88dfc) with 175 tests across 3 platforms"
+      ],
+      "missing_acceptance": [
+        "Live execution of ROS1 EGO planner node with the 11,000-point cloud topic",
+        "Active generation of collision-free B-spline trajectory around the single box",
+        "Verification of actual flight clearance against obstacle AABB [-0.5, 0.5] x [-1.0, 1.0] x [0.0, 5.5]"
+      ],
+      "next_concrete_action": "Feed the frozen 11,000-point cloud to map_generator/global_cloud, run the planner node, and stream the generated Bspline through the TCP admission pump into TrajectorySession.",
+      "requires_owner_input": false,
+      "source_url": "https://github.com/unununnnn/wksim/issues/102"
+    },
+    {
+      "issue": "#83",
+      "state": "OPEN",
+      "real_prerequisites": [
+        "Ground scheduler diagnostic probe passing with unambiguous arducopter/PX4 kernel thread PID mapping in WSL/procfs (ground diagnostic only; cannot serve as flight acceptance)",
+        "Release order and bootstrap token verification between scheduler and FC processes",
+        "Dedicated PV flight task environment setup"
+      ],
+      "existing_evidence": [
+        "Child admission hardened to enforce child SCHED_OTHER and prevent FIFO inheritance (bdd39ee)",
+        "Bootstrap and gate publication timing contract repaired (186b839)",
+        "Isolated scheduler probe failure diagnostic indexed (9899881)",
+        "Task snapshot and exchange protocol tested offline (85 unit tests passing)"
+      ],
+      "missing_acceptance": [
+        "Ground scheduler diagnostic probe clean pass in a fresh directory verifying exact kernel PID mapping without tick 25 stall",
+        "Execution of one formal mixed-axis position/velocity (PV) flight task and raw audit"
+      ],
+      "next_concrete_action": "Deploy the host task snapshot collector with the launcher to execute the ground scheduler diagnostic probe, confirm arducopter PID resolution, and then schedule the formal PV flight task.",
+      "requires_owner_input": false,
+      "source_url": "https://github.com/unununnnn/wksim/issues/83"
+    },
+    {
+      "issue": "#29",
+      "state": "OPEN",
+      "real_prerequisites": [
+        "Parent dependencies #9, #17, #23 remain open (formal dependencies remain in force; G6 branch independent progress does not lift #23 or #9)",
+        "Scene geometry and contact observer linkage to ego-single-box-v1 avoidance path",
+        "Live closed-loop contact and obstacle clearance evaluation against active flight trajectory"
+      ],
+      "existing_evidence": [
+        "Authoritative generated-model terrain ingress and state reaction proven under 1ms steps (b8d141c)",
+        "Cold reset reproducibility proven with identical 50x120-state replay (validation/lunar-29-terrain-reset-c8f05c6e)",
+        "Parent evidence map in docs/plan/29-terrain-closure-report.md: AC1/AC4/AC5 PASS, AC2/AC3 PARTIAL",
+        "ego-single-box-v1 canonical AABB and offline contact query frozen (7a08bd5)",
+        "Terrain evidence audit verified 24 pinned files (c3f0d31)"
+      ],
+      "missing_acceptance": [
+        "Live clearance observation during active trajectory following in the single-box scene",
+        "Real UE disconnect/reconnect and live visual/physical binding (AC3)",
+        "Closed-loop physical contact force and slope dynamics (AC2, 待核验)",
+        "Resolution of parent dependencies (#9, #17, #23)"
+      ],
+      "next_concrete_action": "Integrate the frozen contact query wrapper with the live trajectory execution to emit continuous clearance/contact evidence against obstacle box [-0.5, 0.5] x [-1.0, 1.0] x [0.0, 5.5], while tracking parent dependency closure.",
+      "requires_owner_input": false,
+      "source_url": "https://github.com/unununnnn/wksim/issues/29"
+    },
+    {
+      "issue": "#26",
+      "state": "OPEN",
+      "real_prerequisites": [
+        "Current-checkout provenance, wrapper, and lifecycle revalidation (checkout currently not_ready per docs/plan/26-closure-readiness-manifest.json; model.cpp pin and private library availability 待核验)",
+        "Open parent dependency on #9 remains in force (parent closes only when original AC and original Blocked-by are both satisfied)",
+        "Revalidation of parent AC (editable source chain, toolchain license checkout, MATLAB-free lifecycle, controlled vendor materials, delivery identity)"
+      ],
+      "existing_evidence": [
+        "Sub-tickets #70-#72 closed",
+        "Historical generated E0 lifecycle evidence retained (docs/2026-09-10-generated-e0-lifecycle.md, validation/codegen-e0-lifecycle-01/audit.json)",
+        "Conservative readiness audit committed (bf84322, 27 tests passing across Windows/Ubuntu/RflySim)",
+        "Closure-readiness manifest committed (docs/plan/26-closure-readiness-manifest.json)"
+      ],
+      "missing_acceptance": [
+        "Current-checkout provenance and wrapper revalidation against historical pins (待核验)",
+        "Parent dependency #9 remains OPEN and unclosed",
+        "Formal closure audit confirming all parent AC conditions are satisfied without missing source or toolchain evidence"
+      ],
+      "next_concrete_action": "Revalidate current-checkout wrapper and build artifacts against docs/plan/26-closure-readiness-manifest.json, verify source provenance, and track #9 decision progress.",
+      "requires_owner_input": false,
+      "source_url": "https://github.com/unununnnn/wksim/issues/26"
+    }
+  ]
+}
