@@ -1,0 +1,199 @@
+{
+  "review": "codebuddy-audit-matrix-independent-review-20260914-02",
+  "date": "2026-09-14",
+  "reviewer": {
+    "identity": "CodeBuddy Code, independent reviewer",
+    "independence": "This reviewer is independent of the owner; the review was performed read-only against tracked artifacts, Git history, and the candidate bytes, with no input from the owner beyond the scoped candidate list and expected identities.",
+    "verified_head_before_work": true
+  },
+  "authoritative_head": {
+    "commit": "31e5b65f5448c5558450d16d0f46da0ef0f0a03c",
+    "subject": "Bind mixed failure context offline",
+    "head_equals_expected_at_session_start": true,
+    "dispatch_requirement": "ancestor only",
+    "dispatch_requirement_satisfied": true,
+    "architecture_anchor_f333316e_is_ancestor": true
+  },
+  "supersession": {
+    "prior_review_01": "superseded (candidate note/test bytes changed after -01); excluded and untouched",
+    "blocked_manifest_01": "codebuddy-audit-matrix-context-ingest-manifest-20260914-01 remains superseded/blocked; failure conclusion unchanged; not rehabilitated by this review; excluded and untouched"
+  },
+  "candidates": [
+    {
+      "path": "docs/coordination/codebuddy-audit-matrix-review-20260912.md",
+      "sha256": "fbb2568bea73167997ee62782fb71f1aba98dd54cd3e2f99108c591f41abcbf1",
+      "bytes": 5805,
+      "dispatch_identity": "prefix fbb2568b",
+      "matches_dispatch_identity": true
+    },
+    {
+      "path": "docs/coordination/codebuddy-audit-matrix-review-ingest-note-20260914.md",
+      "sha256": "7fa1bdcc2c210e3e6e3fbe76be1dded409abd793f66c2b643753712962b8f22c",
+      "bytes": 16071,
+      "dispatch_identity": "full hash + size",
+      "matches_dispatch_identity": true
+    },
+    {
+      "path": "validation/test_codebuddy_audit_matrix_review_context.py",
+      "sha256": "59fd4eaa8d1ba35abf246b890a5db8ac979b00b2297ac3a8631f0e607b19a106",
+      "bytes": 30616,
+      "dispatch_identity": "full hash + size",
+      "matches_dispatch_identity": true
+    }
+  ],
+  "lifecycle_fix_verification": {
+    "command": "python -B validation/test_codebuddy_audit_matrix_review_context.py",
+    "normal_run": { "ran": 31, "failures": 0, "errors": 0, "result": "OK" },
+    "temp_index_exact_3_candidates": {
+      "git_index_file": "repo-external mktemp -u path (non-existent; git creates it; real index never touched)",
+      "staged_paths": 3,
+      "all_mode_100644_stage_0": true,
+      "ran": 31, "failures": 0, "errors": 0, "result": "OK"
+    },
+    "temp_index_10_blocked_manifest_paths": {
+      "purpose": "lifecycle proof only; paths taken verbatim from blocked -01 manifest exact-paths.txt",
+      "staged_paths": 10,
+      "staging_note": "3 candidates staged with plain git add; 7 gitignored validation/coordination files staged with git add -f; temp index only",
+      "all_mode_100644_stage_0": true,
+      "ran": 31, "failures": 0, "errors": 0, "result": "OK",
+      "significance": "this shape was impossible under the former exact-3 check; the remediated candidate-subset verifier accepts it, so the same suite can validate larger admission batches"
+    },
+    "real_negative_missing_candidate": {
+      "setup": "temp index with only 2 of 3 candidates",
+      "assertion": "AssertionError: staged index must contain candidate path validation/test_codebuddy_audit_matrix_review_context.py",
+      "python_exit_code": 1,
+      "result": "rejected as expected"
+    },
+    "in_suite_negatives": [
+      "binding hash drift rejected",
+      "size drift rejected",
+      "untracked/nonexistent paths rejected",
+      "bogus ancestor rejected",
+      "wrong HEAD blob sha256 rejected",
+      "missing literal rejected",
+      "staged-subset: missing candidate rejected",
+      "staged-subset: nonzero stage rejected",
+      "staged-subset: duplicated candidate entry rejected",
+      "staged-subset: blob mismatch rejected",
+      "staged-subset: exact-3 and extra-paths-allowed positives pass",
+      "strict JSON duplicate key and NaN rejected",
+      "promotion-wording phrases rejected (7) with sanity positives"
+    ]
+  },
+  "point_checks": {
+    "candidate_subset_enforcement": "proven positive (runs 2-3) and negative (run 4); extra independent-review/manifest paths allowed by design per note section 8 step 5",
+    "stage0_and_blob_identity": {
+      "method": "git ls-files --stage under temp index vs git hash-object of working bytes",
+      "all_entries_mode_100644_stage_0": true,
+      "all_blobs_equal_working_bytes": true,
+      "candidate_blob_sha1s": {
+        "docs/coordination/codebuddy-audit-matrix-review-20260912.md": "64947957ace023a357d35ded1a517890509054a2",
+        "docs/coordination/codebuddy-audit-matrix-review-ingest-note-20260914.md": "68dcba6d2ca1ca85cbdb595b2f5a1bb313cb98e7",
+        "validation/test_codebuddy_audit_matrix_review_context.py": "d6bcfb2e2b03c5d4e0e47585b682d6196b3e100d"
+      }
+    },
+    "no_promotion_or_closure": {
+      "assert_no_promotion_on_note": true,
+      "assert_no_promotion_on_review": true,
+      "manual_read_confirms": true,
+      "issue83": "CLOSED/PASS, never rerun; not rerun here; no rerun permission granted",
+      "issue84_g6_full": "remain incomplete; unchanged by this review"
+    },
+    "architecture_ancestor": {
+      "f333316e_is_ancestor_of_head": true,
+      "verified_directly": true,
+      "suite_also_asserts": ["e897fb8e", "5ec3d389", "09b9729e"]
+    },
+    "note_factual_spot_checks": {
+      "session_py_accept_def_line": 86,
+      "trajectory_bridge_build_ros_mode_request_line": 91,
+      "node_py_set_px4_mode_branch_line": 512,
+      "matrix_dir_five_files_bound_by_suite": true,
+      "handoff_16_keys_no_envelope_payload": true,
+      "f5_70_listed_vs_66_unique": true,
+      "dedup_regression_test_tracked": true
+    },
+    "suite_performs_no_file_writes": true,
+    "suite_is_offline": true
+  },
+  "protected_baselines": {
+    "touched_by_this_session": false,
+    "real_index_byte_identical": {
+      "git_index_sha256_before": "a7fd6154535cbcde789c99d6ee5f38097d914323453dde5d5ad97b1da09e9253",
+      "git_index_sha256_after": "a7fd6154535cbcde789c99d6ee5f38097d914323453dde5d5ad97b1da09e9253",
+      "ls_files_s_sha256_before": "5e08ccabec2775053b28f34e44eedd55db1a8b37ef8b4d895023d651f4b835ef",
+      "ls_files_s_sha256_after": "5e08ccabec2775053b28f34e44eedd55db1a8b37ef8b4d895023d651f4b835ef"
+    },
+    "pre_existing_worktree_vs_head_drift": [
+      {
+        "path": "docs/Prometheus.gitmodules.reference",
+        "nature": "pure CRLF/LF byte difference; visible content identical",
+        "mtime": "2026-09-12 08:27:21 +0900",
+        "predates_session": true,
+        "caused_by_this_session": false
+      },
+      {
+        "path": "validation/coordination/short-cycle-dispatches.json",
+        "nature": "live automation heartbeat/status content drift vs HEAD",
+        "mtime": "2026-09-12 08:27:21 +0900",
+        "predates_session": true,
+        "caused_by_this_session": false
+      }
+    ],
+    "status_window_note": "status-porcelain hash reported for the artifact-creation window only (pre-first-write e4361e5c1f6e36c4e2bab1bbd4eb439d15c699320cce4e884029a83c62913fb3, post-last-write recorded in review.md companion JSON field status_window_sha256_after); full-session status deltas are attributable to concurrent sibling sessions per coordination policy",
+    "status_window_sha256_after": "e4361e5c1f6e36c4e2bab1bbd4eb439d15c699320cce4e884029a83c62913fb3",
+    "superseded_01_dirs_untouched": {
+      "aggregate_sha256_of_all_7_files": "aaeb475ce2e2aa401771af4882d712fa79c183db40e77ba4038d5f9366f6703e",
+      "reverified_at_review_end": true
+    }
+  },
+  "findings": {
+    "p1": [],
+    "p2": [],
+    "p3": [
+      {
+        "id": "P3-1",
+        "file": "validation/test_codebuddy_audit_matrix_review_context.py",
+        "lines": "310-319",
+        "summary": "assert_no_promotion regexes are English-only while the ingest note is predominantly Chinese; a Chinese-language promotion claim would not be caught by the guard. Manual read found no promotion wording in either candidate.",
+        "severity": "p3",
+        "action_required": false
+      },
+      {
+        "id": "P3-2",
+        "file": "validation/test_codebuddy_audit_matrix_review_context.py",
+        "lines": "563-565",
+        "summary": "test_note_registers_line_drift asserts the bare substring '86', which matches anywhere in the note; weak as a drift-registration check. The real anchor is enforced by require_literal on session.py and this reviewer confirmed line 86 directly.",
+        "severity": "p3",
+        "action_required": false
+      },
+      {
+        "id": "P3-3",
+        "file": "validation/test_codebuddy_audit_matrix_review_context.py",
+        "lines": "267-307",
+        "summary": "With the P2 lifecycle fix the candidate suite no longer detects an over-broad staged batch (extra unrelated paths pass silently); exact-path equality is deferred to the manifest/final verifier by documented design. Registered so subset semantics are not misread as batch-equality enforcement.",
+        "severity": "p3",
+        "action_required": false
+      }
+    ]
+  },
+  "boundaries": {
+    "verdict_scope": "This review adopts nothing into any issue, gate, or acceptance; it assesses only the candidate batch and its lifecycle fix.",
+    "prohibited_actions_respected": [
+      "no candidate file modified",
+      "no real index staging/reset/clean/commit/push/fetch",
+      "no network",
+      "no native/build/MATLAB/ROS/DDS/SITL/FC/UE/model/flight work",
+      "no #83 rerun",
+      "protected files untouched",
+      "superseded/blocked -01 dirs untouched and excluded"
+    ]
+  },
+  "limitations": [
+    "External WSL run-02 artifacts remain outside this checkout and declaration-only per note section 5.",
+    "The candidate-subset suite intentionally does not enforce exact staged-batch equality; that remains the manifest/final verifier's duty.",
+    "Pre-existing worktree-vs-HEAD drift in two protected files is characterized but not repaired (repair is outside this review's scope)."
+  ],
+  "verdict": "ADOPT",
+  "verdict_rule": "ADOPT requires P1=0 and P2=0; both hold. P3 findings are non-blocking observations."
+}
