@@ -1,0 +1,284 @@
+{
+  "schema": "wksim.ingest-manifest.v1",
+  "manifested_at": "2026-09-14",
+  "owner": "claude-ingest-manifest",
+  "manifested_head": "0b10f786e808eebe7698e9a277766bf2f68a4d35",
+  "manifested_head_subject": "Bind GC-freeze review context offline",
+  "manifested_head_branch": "main",
+  "manifested_head_role": "observation_only_not_a_binding_pin",
+  "reviewed_head": "0b10f786e808eebe7698e9a277766bf2f68a4d35",
+  "reviewed_head_subject": "Bind GC-freeze review context offline",
+  "scope": "offline-evidence-tool-delivery",
+  "acceptance": "non-acceptance",
+  "batch": "reviewed-go",
+  "issue": "#59",
+  "exact_paths_sha256": "ed8ef7fd3541d86e80b8191eb7622bd5f896499ebe89585e38846d7f33e01356",
+  "exact_paths_bytes": 814,
+  "exact_paths_count": 11,
+  "baseline_relations": {
+    "architecture_continuity_anchor_f333316e_is_ancestor": true,
+    "architecture_ancestor_check": "git merge-base --is-ancestor f333316e6efa6b299b4288a9d91fb2bccedfb9d6 HEAD; exit 0 (re-verified this session)",
+    "anchor_is_fail_closed_not_exact_head_pin": true,
+    "reviewed_head": "0b10f786e808eebe7698e9a277766bf2f68a4d35",
+    "reviewed_head_equals_manifested_head": true,
+    "reviewed_head_is_ancestor_of_manifested_head": true,
+    "reviewed_head_ancestor_check": "git merge-base --is-ancestor 0b10f786e808eebe7698e9a277766bf2f68a4d35 HEAD; exit 0 (a commit is trivially an ancestor of itself)",
+    "intervening_commits": 0,
+    "intervening_touched_path_count": 0,
+    "intervening_paths_disjoint_from_batch_11": true,
+    "intervening_disjointness_basis": "reviewed_head == manifested_head, so the interval 0b10f786..HEAD is empty; trivially zero overlap with the batch-11 paths",
+    "head_equality_required": false,
+    "head_equality_note": "reviewed_head happening to equal manifested_head is an observed coincidence, never a requirement; the binding is the fail-closed f333316 ancestry anchor plus pinned-evidence-path stability, so this manifest stays correct as HEAD drifts across any clean descendant of the anchor",
+    "evidence_path_non_overlap": {
+      "pinned_evidence_paths_unchanged_anchor_to_head": true,
+      "pinned_paths_checked": [
+        "validation/e0-major-recorder-parent-final-01/record.jsonl",
+        "Simulator/wksim_core/numerical-conformance-v1.json",
+        "validation/coordination/major-time-acceptance-20260913-01/verification.json",
+        "validation/coordination/major-time-acceptance-20260913-01/initial-assumption-rejected.json",
+        "validation/coordination/major-time-acceptance-20260913-01/verify_times.py",
+        "docs/2026-09-13-major-time-conventions.md"
+      ],
+      "method": "git diff f333316e..HEAD -- <path> is empty for each of the six pinned evidence paths (re-verified this session); the anchor..HEAD interval touches none of them, so the reviewed evidence remains valid at the manifested HEAD",
+      "basis": "mirrors the candidate generator's own fail-closed pinned-path-overlap gate (independent review checks 2 and 3)"
+    }
+  },
+  "inputs": [
+    {
+      "path": "tools/check_g6_time_field_forms.py",
+      "group": "candidate",
+      "role": "offline_structural_checker_tool",
+      "sha256": "23ad9e9263632d2d070726c113573ee0ced6a373712a2e48a12977304d8d1607",
+      "size_bytes": 99822,
+      "git_blob": "520583cbfc1faebb4c32e1972e953866fcf0fcd7",
+      "tracked_at_head": false,
+      "hash_matches_independent_review": true
+    },
+    {
+      "path": "validation/g6-time-field-forms-20260914.json",
+      "group": "candidate",
+      "role": "deterministic_result_document_evidence",
+      "sha256": "bf87ef7e2c0b6f2ea69b51ab18c92089741858ac32be50c26a09b437cb13b37d",
+      "size_bytes": 117396,
+      "git_blob": "e4370b256fdf598fabfd32af2b63d0409c538606",
+      "tracked_at_head": false,
+      "hash_matches_independent_review": true
+    },
+    {
+      "path": "validation/test_check_g6_time_field_forms.py",
+      "group": "candidate",
+      "role": "offline_test_suite",
+      "sha256": "d5bd68b69e1d15d45cc6e36c90413f24004d39ffb72f739e0cb8b8481236b40c",
+      "size_bytes": 71982,
+      "git_blob": "cd2799a918a58c23c46c9eae6714e6386e54a775",
+      "tracked_at_head": false,
+      "hash_matches_independent_review": true
+    },
+    {
+      "path": "docs/plan/59-g6-time-field-forms-20260914.md",
+      "group": "candidate",
+      "role": "plan_document",
+      "sha256": "780b01713e7f029445f4d2176b900d5bc71aff4f2236d5470ab869b7ae62ef01",
+      "size_bytes": 9248,
+      "git_blob": "1d8f3fd781f3cd986fd893531cb246d6cbca9a1b",
+      "tracked_at_head": false,
+      "hash_matches_independent_review": true
+    },
+    {
+      "path": "validation/coordination/claude-g6-time-field-forms-independent-review-20260914-01/review.md",
+      "group": "independent_review_artifact",
+      "role": "independent_review_report",
+      "sha256": "a9947f0e57eb66c4d73743d63a0d333bcba83de8dc73a1fa221aaab6431d8387",
+      "size_bytes": 6832,
+      "git_blob": "45d4319eda20bfb6cdde083e96361c37f78e223d",
+      "tracked_at_head": false
+    },
+    {
+      "path": "validation/coordination/claude-g6-time-field-forms-independent-review-20260914-01/review.json",
+      "group": "independent_review_artifact",
+      "role": "independent_review_record",
+      "sha256": "0f4746b910298b37d2b7ef04b692b2e683299d520897c6a54bc6f88f0c6f8750",
+      "size_bytes": 6498,
+      "git_blob": "beb4707758212372d3cde8d461796c977784a749",
+      "tracked_at_head": false
+    },
+    {
+      "path": "validation/coordination/claude-g6-time-field-forms-independent-review-20260914-01/SHA256SUMS",
+      "group": "independent_review_artifact",
+      "role": "independent_review_checksum_manifest",
+      "sha256": "32a8d7504e5cdc56a5e9ebb67d78c9991ec5f1e4989a0d217ee708c686c599b9",
+      "size_bytes": 434,
+      "git_blob": "12fcdce45c951dc69e06176247ad4df28ad20ddb",
+      "tracked_at_head": false
+    }
+  ],
+  "input_verification": {
+    "all_hashes_and_sizes_recomputed_this_session": true,
+    "four_candidate_hashes_match_independent_review": true,
+    "inputs_unmodified": true,
+    "all_seven_inputs_untracked_at_head": true,
+    "untracked_check": "git ls-files -s and git ls-tree HEAD each return 0 entries for every one of the seven inputs",
+    "candidate_and_review_groups_pairwise_disjoint": true,
+    "review_sha256sums_verified": true,
+    "review_sha256sums_method": "sha256sum -c run from the repository root because the independent review's SHA256SUMS lists repository-relative candidate paths (tools/..., validation/..., docs/plan/...), not files inside its own directory; result 4/4 OK, exit 0",
+    "review_json_strict_parsed": true,
+    "review_verdict_go_confirmed": true,
+    "gitignored_paths_require_force_add": "7 of the 11 batch paths (the 3 independent-review artifacts and the 4 manifest outputs, all under validation/coordination/<dir>/) are gitignored via .gitignore line 53 '/validation/*/'; the 4 candidate files are not ignored; git add -f is therefore required for the ignored 7"
+  },
+  "review_facts": {
+    "source": "validation/coordination/claude-g6-time-field-forms-independent-review-20260914-01/ (review.md / review.json / SHA256SUMS)",
+    "schema": "wksim.independent-review.g6-time-field-forms.v1",
+    "reviewer": "claude-opus-4.8 (1M context), acting as independent final reviewer",
+    "review_date": "2026-09-14",
+    "subject": "G6 time-field-forms offline candidate (issue #59)",
+    "verdict": "GO",
+    "verdict_is_issue_acceptance": false,
+    "observed_head": "0b10f786e808eebe7698e9a277766bf2f68a4d35",
+    "anchor": "f333316e6efa6b299b4288a9d91fb2bccedfb9d6",
+    "evidence_derivation": "independent: read-only git, in-memory regeneration, self-built sandbox repos, independent AST/import scan; shipped tests executed but not trusted in place of inspection",
+    "candidates_reviewed": 4,
+    "candidates_all_match_expected_hash": true,
+    "candidates_all_untracked": true,
+    "checks_total": 8,
+    "checks_passed": 8,
+    "check_names": [
+      "1 anchor_is_ancestor_of_observed_head",
+      "2 pinned_paths_unchanged_and_no_exact_head_requirement",
+      "3 fail_closed_negative_probes (18/18)",
+      "4 offline_hygiene (stdlib-only imports; git read-only subcommands)",
+      "5 regenerated_json_validates_no_forbidden_claims",
+      "6 unittest_normal_mode (68 OK, skipped=2)",
+      "7 repo_external_git_index_file_exact4 (68 OK; real index/HEAD preserved)",
+      "8 candidate_hashes_unchanged"
+    ],
+    "review_grants_approval": false
+  },
+  "test_facts": {
+    "carried_from_independent_review": {
+      "rerun_by_this_manifest": false,
+      "attribution": "all 68-test suite results below are the independent reviewer's (claude-opus-4.8) own runs, carried verbatim; this manifest did not re-run the test suite",
+      "normal_mode": {
+        "command": "python -B -m unittest validation.test_check_g6_time_field_forms",
+        "tests_run": 68,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 2,
+        "exit_code": 0,
+        "skipped_reason": "the two TestExact4TempIndex tests are meaningful only under a temp index"
+      },
+      "repo_external_exact4": {
+        "staged_count": 4,
+        "staged_paths_equal_candidates": true,
+        "all_stage_zero_mode_100644": true,
+        "blob_git_id_and_sha256_equal_worktree": true,
+        "suite_tests_run": 68,
+        "suite_exit_code": 0,
+        "exact4_tests_ran_and_passed": [
+          "test_exact4_staging_is_detected_and_binds_the_same_bytes",
+          "test_candidates_are_tracked_once_committed_or_staged"
+        ],
+        "real_index_before_sha256": "cf249890d18567a9f62173ff1e8ac717362fe531ecea02a545a72ee185319a32",
+        "real_index_after_sha256": "cf249890d18567a9f62173ff1e8ac717362fe531ecea02a545a72ee185319a32",
+        "head_before": "0b10f786e808eebe7698e9a277766bf2f68a4d35",
+        "head_after": "0b10f786e808eebe7698e9a277766bf2f68a4d35"
+      }
+    },
+    "this_session_verifications": {
+      "note": "the following are this manifest owner's own read-only / repo-external checks, distinct from the carried test-suite facts above",
+      "exact_11_read_tree_head_admission": {
+        "method": "temporary GIT_INDEX_FILE outside the repo; git read-tree HEAD then git add -f of exactly the exact-paths.txt 11 paths; path-set delta of the temp index vs the real index computed via git ls-files of each",
+        "paths_added": 11,
+        "paths_removed": 0,
+        "all_stage_zero": true,
+        "staged_blobs_match_worktree": true,
+        "temp_index_repo_external": true,
+        "temp_index_never_pointed_at_real_index": true,
+        "temp_index_deleted_after": true
+      },
+      "real_index_unchanged": {
+        "ls_files_s_hash_object_before": "0d1d6e82938d145689e3f2d47bbda081918922bd",
+        "ls_files_s_hash_object_after": "0d1d6e82938d145689e3f2d47bbda081918922bd",
+        "raw_index_sha256_before": "cf249890d18567a9f62173ff1e8ac717362fe531ecea02a545a72ee185319a32",
+        "raw_index_sha256_after": "cf249890d18567a9f62173ff1e8ac717362fe531ecea02a545a72ee185319a32",
+        "byte_identical_throughout": true,
+        "note": "raw .git/index sha256 cf249890... matches the independent review's recorded real-index value; constant across this session"
+      },
+      "head_unchanged": {
+        "before": "0b10f786e808eebe7698e9a277766bf2f68a4d35",
+        "after": "0b10f786e808eebe7698e9a277766bf2f68a4d35"
+      },
+      "diff_check": {
+        "batch_scoped": "git diff --check -- <11 batch paths> clean (exit 0, no output; all 11 paths are untracked/gitignored additions, not tracked modifications)",
+        "full_tree": "the only full-tree git diff --check warnings are pre-existing trailing whitespace inside the protected dirty file docs/Prometheus.gitmodules.reference, predating this task; not introduced by this manifest and that file was not read or modified"
+      }
+    }
+  },
+  "boundary_facts_preserved": {
+    "delivery_classification": "offline evidence/tool delivery only",
+    "not_approved_per_quantity_budgets": true,
+    "not_g6_physical_acceptance": true,
+    "not_issue84_full_closure": true,
+    "no_native_result": true,
+    "scope_limits": "scheduling evidence only: the two writings (product form vs division form) of the three schedule_metadata time slots across the sealed 501-row major evidence; the remaining 118 non-time slots of the three arrays and any absolute/relative error budget or physical accuracy are neither evaluated, nor bounded, nor approved",
+    "evidence_json_decision_surface": {
+      "schema": "wksim.59-g6-time-field-forms.v1",
+      "status": "ok",
+      "block_reason_codes": [],
+      "base_ancestor": "f333316e6efa6b299b4288a9d91fb2bccedfb9d6",
+      "authority": "none",
+      "effective": false,
+      "r1_status": "numerical_failed",
+      "g6_acceptance": false,
+      "physical_accuracy": false,
+      "issues_closed": false,
+      "budget_approved": false,
+      "pending_approvals": [],
+      "open_items": [
+        {"id": "issue_84", "state": "open"},
+        {"id": "g6", "state": "open"},
+        {"id": "full", "state": "open"}
+      ],
+      "evidence_class_split_evaluated_here": false,
+      "observed_head_recording": "deliberately_not_recorded",
+      "work_class": "new-development",
+      "layer": "structural_conformance_check"
+    },
+    "issue83_not_rerun": true,
+    "no_forbidden_execution": "no model, executable, solver, MATLAB, Simulink, native, ROS, DDS, SITL, flight-controller, UE, or build was run; only sealed bytes were re-decoded (plan section 1 and 6)",
+    "gates_preserved_unweakened": "this manifest adds an offline checker only; it does not weaken any existing rate/physics/identity gate and grants no current gate status"
+  },
+  "protected_files": {
+    "docs/Prometheus.gitmodules.reference": {
+      "sha256": "5aa703020961433befcb2f74cd0432e14fbba139db1fd0616b34c6abf0223855",
+      "size_bytes": 492,
+      "matches_baseline": true,
+      "untouched": true
+    },
+    "validation/coordination/short-cycle-dispatches.json": {
+      "sha256": "06e65cc1cd7d3aa467740f586e92d5e1de00cc973c07db49694c2c6a73862838",
+      "size_bytes": 1268,
+      "matches_baseline": true,
+      "untouched": true
+    },
+    "other_agents_untracked_and_dirty_files_untouched": true
+  },
+  "outputs": [
+    "validation/coordination/claude-g6-time-field-forms-ingest-manifest-20260914-01/exact-paths.txt",
+    "validation/coordination/claude-g6-time-field-forms-ingest-manifest-20260914-01/review.md",
+    "validation/coordination/claude-g6-time-field-forms-ingest-manifest-20260914-01/review.json",
+    "validation/coordination/claude-g6-time-field-forms-ingest-manifest-20260914-01/SHA256SUMS"
+  ],
+  "sha256sums_coverage": "exact-paths.txt, review.md, review.json only; SHA256SUMS does not self-reference (its own hash is recorded only in the session terminal report)",
+  "nonclaims": [
+    "This manifest is an offline evidence/tool delivery admission of the independently reviewed (GO) G6 time-field-forms batch; it grants no issue acceptance, approval, closure, or rerun permission for #59, #84, G6, Full, or any other ticket. The independent review verdict GO is a delivery-quality verdict, not an issue acceptance.",
+    "Not approved per-quantity budgets: the dynamics/physics budgets (the 118 non-time slots and any absolute/relative error budget) are neither evaluated, nor bounded, nor approved (budget_approved=false).",
+    "Not G6 physical acceptance: g6_acceptance=false and physical_accuracy=false; r1_status remains numerical_failed.",
+    "Not #84 / Full closure: issues_closed=false; open_items issue_84, g6, and full all remain open.",
+    "No native result and no flight evidence is produced or claimed; no model, executable, solver, MATLAB, Simulink, native, ROS, DDS, SITL, flight-controller, UE, or build was run. #83 was not rerun.",
+    "Current HEAD 0b10f786... is recorded only as a manifested observation; the binding is the fail-closed f333316 ancestry anchor plus pinned-evidence-path stability, and exact HEAD equality is never required. reviewed_head == manifested_head is an observed coincidence, not a requirement.",
+    "The 68-test suite results are carried verbatim from the independent review and attributed to it; this manifest did not re-run the suite. This session's own checks were limited to read-only/repo-external verification (input rehash, review parse, ancestry, the exact-11 read-tree HEAD staging proof, real index/HEAD byte-identity, scoped diff --check, and SHA256SUMS verification).",
+    "No input or file outside the four manifest outputs was edited; nothing was staged, committed, or pushed; the real index was never modified (the temp index was repo-external and deleted).",
+    "Protected files docs/Prometheus.gitmodules.reference and validation/coordination/short-cycle-dispatches.json were not edited, staged, or normalized; all other agents' untracked and dirty files were left untouched.",
+    "No network or GitHub mutation, no git replace, and no sibling-project access was performed."
+  ]
+}

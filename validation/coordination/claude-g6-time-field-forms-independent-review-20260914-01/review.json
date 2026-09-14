@@ -1,0 +1,168 @@
+{
+  "schema": "wksim.independent-review.g6-time-field-forms.v1",
+  "kind": "independent_final_review",
+  "reviewer": "claude-opus-4.8 (1M context)",
+  "date": "2026-09-14",
+  "subject": "G6 time-field-forms offline candidate (issue #59)",
+  "verdict": "GO",
+  "evidence_derivation": "independent: read-only git, in-memory regeneration, self-built sandbox repos, independent AST/import scan; shipped tests executed but not trusted in place of inspection",
+  "repository": {
+    "path": "C:/Users/PC/Documents/odid编译/wksim",
+    "branch": "main",
+    "observed_head": "0b10f786e808eebe7698e9a277766bf2f68a4d35",
+    "anchor": "f333316e6efa6b299b4288a9d91fb2bccedfb9d6"
+  },
+  "candidates": [
+    {
+      "path": "tools/check_g6_time_field_forms.py",
+      "sha256": "23ad9e9263632d2d070726c113573ee0ced6a373712a2e48a12977304d8d1607",
+      "size": 99822,
+      "matches_expected_hash": true,
+      "tracked_at_head": false,
+      "gitignored": false
+    },
+    {
+      "path": "validation/g6-time-field-forms-20260914.json",
+      "sha256": "bf87ef7e2c0b6f2ea69b51ab18c92089741858ac32be50c26a09b437cb13b37d",
+      "size": 117396,
+      "matches_expected_hash": true,
+      "tracked_at_head": false,
+      "gitignored": false
+    },
+    {
+      "path": "validation/test_check_g6_time_field_forms.py",
+      "sha256": "d5bd68b69e1d15d45cc6e36c90413f24004d39ffb72f739e0cb8b8481236b40c",
+      "size": 71982,
+      "matches_expected_hash": true,
+      "tracked_at_head": false,
+      "gitignored": false
+    },
+    {
+      "path": "docs/plan/59-g6-time-field-forms-20260914.md",
+      "sha256": "780b01713e7f029445f4d2176b900d5bc71aff4f2236d5470ab869b7ae62ef01",
+      "size": 9248,
+      "matches_expected_hash": true,
+      "tracked_at_head": false,
+      "gitignored": false
+    }
+  ],
+  "checks": [
+    {
+      "id": 1,
+      "name": "anchor_is_ancestor_of_observed_head",
+      "result": "pass",
+      "command": "git merge-base --is-ancestor f333316e6efa6b299b4288a9d91fb2bccedfb9d6 HEAD",
+      "exit_code": 0,
+      "anchor_object_type": "commit"
+    },
+    {
+      "id": 2,
+      "name": "pinned_paths_unchanged_and_no_exact_head_requirement",
+      "result": "pass",
+      "pinned_paths_with_nonempty_diff": [],
+      "pinned_paths_checked": [
+        "validation/e0-major-recorder-parent-final-01/record.jsonl",
+        "Simulator/wksim_core/numerical-conformance-v1.json",
+        "validation/coordination/major-time-acceptance-20260913-01/verification.json",
+        "validation/coordination/major-time-acceptance-20260913-01/initial-assumption-rejected.json",
+        "validation/coordination/major-time-acceptance-20260913-01/verify_times.py",
+        "docs/2026-09-13-major-time-conventions.md"
+      ],
+      "observed_head_literal_present_in_candidates": false,
+      "only_commit_literal_in_generator": "f333316e6efa6b299b4288a9d91fb2bccedfb9d6",
+      "exact_head_equality_requirement_present": false
+    },
+    {
+      "id": 3,
+      "name": "fail_closed_negative_probes",
+      "result": "pass",
+      "probes_total": 18,
+      "probes_passed": 18,
+      "cases": {
+        "non_ancestor": "classified not_ancestor; base_ancestor_not_ancestor block; anchor_is_ancestor=False",
+        "unavailable_probe": "anchor object absent -> unavailable; base_ancestor_check_unavailable + evidence_diff_unavailable",
+        "observed_head_none": "observed_head_unavailable block",
+        "missing_raw_inputs": "status=blocked; three missing_untracked_input::* blocks; no invented value",
+        "missing_tracked_evidence": "status=blocked; missing_tracked_evidence blocks",
+        "pinned_path_overlap": "pinned_path_overlap block; changed_pinned_paths=[rel]; clean controls produce no block"
+      }
+    },
+    {
+      "id": 4,
+      "name": "offline_hygiene",
+      "result": "pass",
+      "generator_imports": ["__future__", "argparse", "hashlib", "json", "pathlib", "struct", "subprocess", "sys"],
+      "subprocess_program": "git",
+      "git_subcommands": ["diff", "ls-tree", "merge-base", "rev-parse"],
+      "index_or_state_mutating_git_verbs": [],
+      "network_or_simulator_surface": []
+    },
+    {
+      "id": 5,
+      "name": "regenerated_json_validates_no_forbidden_claims",
+      "result": "pass",
+      "regeneration_byte_identical_to_committed": true,
+      "regenerated_sha256": "bf87ef7e2c0b6f2ea69b51ab18c92089741858ac32be50c26a09b437cb13b37d",
+      "validate_ok": true,
+      "validate_codes": [],
+      "cli_validate_exit": 0,
+      "g6_acceptance": false,
+      "physical_accuracy": false,
+      "budget_approved": false,
+      "issues_closed": false,
+      "pending_approvals": [],
+      "open_items": {"issue_84": "open", "g6": "open", "full": "open"},
+      "forbidden_budget_or_acceptance_keys_present": []
+    },
+    {
+      "id": 6,
+      "name": "unittest_normal_mode",
+      "result": "pass",
+      "command": "python -B -m unittest validation.test_check_g6_time_field_forms",
+      "tests_run": 68,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 2,
+      "exit_code": 0
+    },
+    {
+      "id": 7,
+      "name": "repo_external_git_index_file_exact4",
+      "result": "pass",
+      "staged_count": 4,
+      "staged_paths_equal_candidates": true,
+      "all_stage_zero_mode_100644": true,
+      "blob_git_id_and_sha256_equal_worktree": true,
+      "suite_tests_run": 68,
+      "suite_exit_code": 0,
+      "exact4_tests_ran_and_passed": [
+        "test_exact4_staging_is_detected_and_binds_the_same_bytes",
+        "test_candidates_are_tracked_once_committed_or_staged"
+      ],
+      "real_index": {
+        "before_sha256": "cf249890d18567a9f62173ff1e8ac717362fe531ecea02a545a72ee185319a32",
+        "after_sha256": "cf249890d18567a9f62173ff1e8ac717362fe531ecea02a545a72ee185319a32",
+        "preserved": true
+      },
+      "head": {
+        "before": "0b10f786e808eebe7698e9a277766bf2f68a4d35",
+        "after": "0b10f786e808eebe7698e9a277766bf2f68a4d35",
+        "preserved": true
+      }
+    },
+    {
+      "id": 8,
+      "name": "candidate_hashes_unchanged",
+      "result": "pass",
+      "all_four_match_expected": true,
+      "any_hash_changed": false
+    }
+  ],
+  "non_actions": [
+    "no staging, commit, or push",
+    "no modification of any repository path",
+    "no model, MATLAB, ROS, flight-controller, UE, build, or native/full-profile execution",
+    "other agents' untracked files ignored and untouched",
+    "scratch repos and temp index created under system temp and removed; real .git/index and HEAD never written"
+  ]
+}
