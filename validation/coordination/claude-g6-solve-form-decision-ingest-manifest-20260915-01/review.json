@@ -1,0 +1,315 @@
+{
+  "schema": "wksim.ingest-manifest.v1",
+  "manifested_at": "2026-09-15",
+  "owner": "claude-ingest-manifest",
+  "manifested_head": "0b10f786e808eebe7698e9a277766bf2f68a4d35",
+  "manifested_head_subject": "Bind GC-freeze review context offline",
+  "manifested_head_branch": "main",
+  "manifested_head_role": "observation_only_not_a_pin",
+  "reviewed_head": "0b10f786e808eebe7698e9a277766bf2f68a4d35",
+  "reviewed_head_subject": "Bind GC-freeze review context offline",
+  "packet_observed_at_head": "768526aafa1e48c342c5c8840a9154e8ed90f68d",
+  "scope": "offline-decision-stability-packet-only",
+  "acceptance": "non-acceptance",
+  "batch": "stable-evidence-repair",
+  "exact_paths_sha256": "56e211b23669f861eb34218f09851667f5a0c618b0a571b2c2a350ac8bf7e597",
+  "exact_paths_bytes": 809,
+  "exact_paths_count": 10,
+  "baseline_relations": {
+    "architecture_continuity_anchor_f333316e_is_ancestor": true,
+    "architecture_ancestor_check": "git merge-base --is-ancestor f333316e6efa6b299b4288a9d91fb2bccedfb9d6 HEAD; exit 0 (re-verified this session)",
+    "anchor_is_fail_closed_not_exact_head_pin": true,
+    "manifested_head_equals_reviewed_head": true,
+    "head_advanced_since_review": false,
+    "intervening_commits": 0,
+    "intervening_basis": "review live_repo.head = 0b10f786...; this session git rev-parse HEAD = 0b10f786...; identical, so no intervening-commit disjointness analysis is needed and the review evidence applies unchanged to this manifested HEAD",
+    "packet_observed_at_head_is_ancestor_of_head": true,
+    "packet_observed_at_head_check": "git merge-base --is-ancestor 768526aafa1e48c342c5c8840a9154e8ed90f68d HEAD; exit 0",
+    "packet_observed_at_head_equals_live_head": false,
+    "packet_observed_at_head_role": "runtime_diagnostics_only (head_pinned=false); a genuine past observation, never required to equal the live checkout HEAD",
+    "head_equality_required": false
+  },
+  "inputs": [
+    {
+      "path": "validation/e0-g6-solve-form-decision-20260914.json",
+      "role": "g6_b5_solve_form_decision_packet",
+      "sha256": "bc8302e970bf703622c0f57a1966398bc5f71b04ce9b223668b4103c83580507",
+      "size_bytes": 11435,
+      "tracked_state": "tracked_worktree_modified",
+      "head_blob_note": "pre-repair committed blob sha256(content) 5086c3fb... per review; real-index stage-0 blob equals HEAD blob (git rev-parse HEAD:path == git ls-files -s); nothing staged"
+    },
+    {
+      "path": "validation/test_e0_g6_solve_form_decision.py",
+      "role": "offline_verifier_test",
+      "sha256": "86c96dff53a0e2201922cbf9d123277b61a87209605345a2ac1d251f6c7ce49a",
+      "size_bytes": 48045,
+      "tracked_state": "tracked_worktree_modified",
+      "head_blob_note": "pre-repair committed blob sha256(content) 21ea73e2... per review; real-index stage-0 blob equals HEAD blob; nothing staged"
+    },
+    {
+      "path": "docs/plan/59-g6-solve-form-decision-20260914.md",
+      "role": "decision_plan_markdown",
+      "sha256": "4c773018b5ee45d6a521fb50453401b3237dbff4ffea51387e45b8f3f7cdb7ce",
+      "size_bytes": 7079,
+      "tracked_state": "tracked_worktree_modified",
+      "head_blob_note": "pre-repair committed blob sha256(content) ada0a77a... per review; real-index stage-0 blob equals HEAD blob; nothing staged"
+    },
+    {
+      "path": "validation/coordination/claude-g6-solve-form-decision-independent-review-20260914-01/review.md",
+      "role": "independent_review_report",
+      "sha256": "12ca216f2637bd44ae6f485c5e18eaba76f1fd62e90cbeebf0b40a1e738a7bd9",
+      "size_bytes": 14587,
+      "tracked_state": "untracked_gitignored (.gitignore:53 /validation/*/; hence add -f)"
+    },
+    {
+      "path": "validation/coordination/claude-g6-solve-form-decision-independent-review-20260914-01/review.json",
+      "role": "independent_review_record",
+      "sha256": "09a5c4c5845d3d96357167789229e2f2f09e432c3a6dda74e824b4e30b81889c",
+      "size_bytes": 7692,
+      "tracked_state": "untracked_gitignored (.gitignore:53 /validation/*/; hence add -f)"
+    },
+    {
+      "path": "validation/coordination/claude-g6-solve-form-decision-independent-review-20260914-01/SHA256SUMS",
+      "role": "independent_review_checksum_manifest",
+      "sha256": "b3211b6eb3252c43f2d138ca2eb583e10d9bb60ae63fa7a67daa4973b9bba7aa",
+      "size_bytes": 154,
+      "tracked_state": "untracked_gitignored (.gitignore:53 /validation/*/; hence add -f)"
+    }
+  ],
+  "input_verification": {
+    "all_hashes_and_sizes_recomputed_this_session": true,
+    "candidate_hashes_match_review_recorded_values": true,
+    "review_artifact_hashes_match_review_sha256sums": true,
+    "inputs_unmodified": true,
+    "three_candidates_tracked_worktree_modified": true,
+    "three_review_files_untracked_gitignored": true,
+    "candidate_review_manifest_groups_pairwise_disjoint": true,
+    "review_sha256sums_verified_relative_to_review_directory": "sha256sum -c SHA256SUMS in the review dir: review.md OK, review.json OK, exit 0",
+    "review_json_strict_parsed": true,
+    "review_json_verdict": "GO",
+    "review_json_authority": "proposal_only_assessment",
+    "review_json_non_claims_all_false": true
+  },
+  "review_facts": {
+    "reviewer": "claude-opus-4.8-1m (independent adversarial reviewer)",
+    "review_date": "2026-09-14",
+    "review_directory": "validation/coordination/claude-g6-solve-form-decision-independent-review-20260914-01",
+    "verdict": "GO",
+    "authority": "proposal_only_assessment",
+    "verdict_is_issue_acceptance": false,
+    "carried_with_attribution_not_rerun": true,
+    "difficult_point": {
+      "question": "does per-path rev-list count prove introduced-once-never-modified, and is it weaker than a concrete later content-anchor plus zero-diff window",
+      "conclusion": "not_weaker",
+      "nogo_conditional_triggered": false,
+      "source": "independent review review.md section 4 / review.json difficult_point; the merge-simplification content-faithfulness argument (throwaway merge repos, section 4.4) is carried from the review and was NOT rerun by this manifest"
+    },
+    "fail_closed_independent_cases_all_rejected": [
+      {"case": "live_ancestry_failure", "code": "tampering"},
+      {"case": "source_overlap_anchored_path_touched", "code": "tampering"},
+      {"case": "derived_remodification_count2", "code": "tampering"},
+      {"case": "derived_delete_readd_count3", "code": "tampering"},
+      {"case": "derived_count0_impossible_state", "code": "tampering"},
+      {"case": "malformed_observed_head", "code": "malformed_hex"},
+      {"case": "head_pinned_true", "code": "tampering"},
+      {"case": "baseline_ancestor_tampered", "code": "tampering"},
+      {"case": "g6_acceptance_true", "code": "g6_or_physical_acceptance_claim"}
+    ],
+    "change_confinement": {
+      "only_changed_top_level_key": "observed_at",
+      "fail_closed_on_codes_preserved": true,
+      "fail_closed_on_code_count": 12,
+      "pin_set_preserved": true,
+      "pin_count": 7,
+      "owner_decision_meaning_unchanged": true,
+      "owner_decision_state": "not_made",
+      "owner_decision_chosen_option": null,
+      "b1_remains": "unapproved",
+      "b4_remains": "unfrozen",
+      "acceptance_flags_all_false": true,
+      "r1_status": "numerical_failed",
+      "no_acceptance_claim_in_markdown": true
+    },
+    "recheck_handling": {
+      "recheck_pinned_at_head": true,
+      "recheck_sha256": "ba140e4245baf220e2ae94c0dd0f8114283e5e8ac03ef68e39899e263aaa4f60",
+      "recheck_single_intro_commit": "6eafdf9c0b734db07a9fe790c86b409d3468c10b",
+      "stale_self_hashes_treated_as_live": false,
+      "stale_checkout_head_treated_as_live": false,
+      "unchanged_evidence_pins_cross_checked_live": true,
+      "honest": true,
+      "source": "carried from independent review review.md section 7 / review.json recheck_handling"
+    },
+    "hardening_note_non_blocking": "Optionally strengthen _check_evidence_stability to content-anchor each derived pin at its --diff-filter=A commit plus assert git diff --quiet intro..HEAD (and baseline..HEAD for source pins). Defense-in-depth only; the current window is linear, the review verified the stronger method agrees, and the evidence content is independently sha256-pinned regardless. Not required for GO.",
+    "review_non_claims": "The review does not accept G6, Full, #84, or physical accuracy; does not approve any B1 budget; does not freeze B4; does not choose or endorse any owner option; does not close #59."
+  },
+  "pin_stability": {
+    "verified_this_session_with_read_only_probes": "cat-file -e, rev-list --count, log --diff-filter=A, show, commit-vs-commit diff (all read-only, index-independent)",
+    "stronger_method_framing_attributed_to_review": true,
+    "window_commits": 82,
+    "window_merge_commits": 0,
+    "window_is_linear": true,
+    "not_reduced_to_exact_head_equality": "Each pin is content-anchored, not merely HEAD-equal. Derived pins are anchored at their genuine add commit 0785f0e with a zero-diff intro..HEAD window (no later effective modification); source pins are anchored at the baseline f333316 with a zero-diff f333316..HEAD window. Exact-HEAD equality alone would not prove introduced-once-never-modified; the content-anchor plus zero-diff window does.",
+    "derived_pins": [
+      {
+        "id": "division_vs_reference",
+        "path": "validation/coordination/cursor-g6-solve-form-20260914-01/division-vs-reference.json",
+        "present_at_anchor_f333316": false,
+        "window_touch_count": 1,
+        "intro_add_commit": "0785f0e69c8756f34ea95425145fde0a3668e015",
+        "intro_blob_equals_head_equals_worktree_equals_pin": true,
+        "pin_sha256": "bb45b0213dd9966c27e135bd173ebad5e250bdd51ae8cf108b0aa11ab8c2932d",
+        "zero_diff_intro_to_head": true
+      },
+      {
+        "id": "diagonal_vs_reference",
+        "path": "validation/coordination/cursor-g6-solve-form-20260914-01/diagonal-vs-reference.json",
+        "present_at_anchor_f333316": false,
+        "window_touch_count": 1,
+        "intro_add_commit": "0785f0e69c8756f34ea95425145fde0a3668e015",
+        "intro_blob_equals_head_equals_worktree_equals_pin": true,
+        "pin_sha256": "56a611f96f72e6bce2a5b4bd612105cc88a4c2208de2918c16339e21de2eabbd",
+        "zero_diff_intro_to_head": true
+      },
+      {
+        "id": "stage2_operand_boundary",
+        "path": "validation/coordination/cursor-g6-solve-form-20260914-01/stage2-operand-boundary.json",
+        "present_at_anchor_f333316": false,
+        "window_touch_count": 1,
+        "intro_add_commit": "0785f0e69c8756f34ea95425145fde0a3668e015",
+        "intro_blob_equals_head_equals_worktree_equals_pin": true,
+        "pin_sha256": "07b5b6c07060417151470b48ddf0510920977c4101718ab7156d3b36ff2ee634",
+        "zero_diff_intro_to_head": true
+      }
+    ],
+    "source_pins": [
+      {
+        "id": "reference_run05",
+        "path": "validation/coordination/g6-reference-probe-20260913/run-05/reference-first-step.json",
+        "present_at_anchor_f333316": true,
+        "window_touch_count": 0,
+        "anchor_blob_equals_head_equals_worktree_equals_pin": true,
+        "pin_sha256": "72ff7d8eaeee7854bf026d19a7ee37f38c061764ce5369d0dd5845b1aa084c62",
+        "zero_diff_baseline_to_head": true
+      },
+      {
+        "id": "target_mrdivide",
+        "path": "validation/coordination/g6-target-mrdivide-20260913/first-step-trace.jsonl",
+        "present_at_anchor_f333316": true,
+        "window_touch_count": 0,
+        "anchor_blob_equals_head_equals_worktree_equals_pin": true,
+        "pin_sha256": "9cee60eb5b3e5ccc96730f13423f5e0fa07de19654a481d32e9e885953f4bed3",
+        "zero_diff_baseline_to_head": true
+      },
+      {
+        "id": "diagonal_candidate",
+        "path": "validation/coordination/g6-diagonal-solve-candidate-20260913/first-step-trace.jsonl",
+        "present_at_anchor_f333316": true,
+        "window_touch_count": 0,
+        "anchor_blob_equals_head_equals_worktree_equals_pin": true,
+        "pin_sha256": "5e89b720dac275a4980df1881aae2dfde76d223ad9a0bc8dbeba15edaa1e1d09",
+        "zero_diff_baseline_to_head": true
+      },
+      {
+        "id": "comparison_v2",
+        "path": "validation/coordination/g6-target-first-step-20260913/comparison-v2.json",
+        "present_at_anchor_f333316": true,
+        "window_touch_count": 0,
+        "anchor_blob_equals_head_equals_worktree_equals_pin": true,
+        "pin_sha256": "2a6b8fe9338224d64f0cc91fd4c66139b3422ca23c3032049cd529d6387ea3c9",
+        "zero_diff_baseline_to_head": true
+      }
+    ]
+  },
+  "test_facts": {
+    "suite_rerun_by_this_manifest": false,
+    "suite_evidence_carried_from_review": {
+      "rerun_by_this_manifest": false,
+      "reason_not_rerun": "this manifest performs the exact-10 read-tree HEAD admission proof only; it does not re-execute the offline verifier suite. Suite results are carried verbatim from the independent review and attributed to it.",
+      "normal_run": {"command": "python -B -m unittest validation.test_e0_g6_solve_form_decision", "tests": 36, "result": "OK", "skipped": 2},
+      "exact3_run": {"tests": 36, "result": "OK", "skipped": 0, "staged_exactly_three": true, "staged_blobs_equal_worktree": true},
+      "real_index_sha256_constant": "cf249890d18567a9f62173ff1e8ac717362fe531ecea02a545a72ee185319a32",
+      "head_constant": "0b10f786e808eebe7698e9a277766bf2f68a4d35",
+      "candidate_drift": false,
+      "source": "independent review review.md section 8 / review.json test_execution"
+    },
+    "exact_10_read_tree_head_admission": {
+      "run_by_this_manifest": true,
+      "suite_run_under_it": false,
+      "purpose": "admission proof only: stage exactly the 10 batch paths into a repo-external index and prove confinement; the offline verifier suite is not run under it",
+      "method": "temporary GIT_INDEX_FILE outside the repo; git read-tree HEAD then git add -f of exactly the exact-paths.txt 10 paths (the -f is required because the 7 untracked batch paths are git-ignored via .gitignore:53 /validation/*/); the temp index never pointed at the real index and was deleted afterwards; git add wrote only the external index plus content-addressed blob objects under .git/objects (no ref, no real index, no worktree)",
+      "path_set_additions_vs_real_index": 7,
+      "path_set_removals_vs_real_index": 0,
+      "in_place_content_updates_on_tracked_candidates": 3,
+      "distinct_paths_affected": 10,
+      "affected_equals_exact_10_batch": true,
+      "no_unrelated_path_touched": true,
+      "all_at_stage_zero": true,
+      "staged_blobs_equal_worktree": true,
+      "literal_10_additions_deviation_explained": "The reference manifest reported '10 added, 0 removed' because all 10 of its batch paths were untracked. Here 3 of the 10 batch paths (the packet JSON, the test, the plan markdown) are tracked pre-repair candidates already present in the real index at their HEAD blob, so re-adding their post-repair worktree bytes registers as an in-place content update on an already-tracked path, not a path addition. The path-SET delta is therefore 7 additions (the 7 git-ignored batch paths) + 0 removals, plus 3 in-place content updates on the tracked candidates: together exactly the 10 batch paths and no other path added, removed, or content-changed. The security invariant the dispatch intends (confinement to exactly the 10 batch paths, stage 0, staged blobs equal worktree, real index/HEAD untouched) holds.",
+      "real_index_and_head_byte_identical_before_after": true
+    },
+    "real_index_unchanged": {
+      "ls_files_s_hash_object_before": "0d1d6e82938d145689e3f2d47bbda081918922bd",
+      "ls_files_s_hash_object_after": "0d1d6e82938d145689e3f2d47bbda081918922bd",
+      "raw_index_sha256_before": "cf249890d18567a9f62173ff1e8ac717362fe531ecea02a545a72ee185319a32",
+      "raw_index_sha256_after": "cf249890d18567a9f62173ff1e8ac717362fe531ecea02a545a72ee185319a32",
+      "head_before": "0b10f786e808eebe7698e9a277766bf2f68a4d35",
+      "head_after": "0b10f786e808eebe7698e9a277766bf2f68a4d35",
+      "byte_identical_throughout": true,
+      "note": "raw index sha256 matches the review's recorded real_index_sha256_constant; ls-files -s fingerprint is constant across this session"
+    },
+    "diff_check": {
+      "batch_scoped": "git diff --check -- <10 batch paths> clean (exit 0, no output; the 3 tracked candidates' worktree-vs-HEAD diffs carry no whitespace errors, the 7 untracked batch paths are not in any diff)",
+      "full_tree": "git diff --check exit 2; the only warnings are pre-existing trailing whitespace inside the protected dirty file docs/Prometheus.gitmodules.reference (lines 1-12, all pre-existing submodule lines), predating this task; not introduced by this manifest and left untouched; the other protected dirty file validation/coordination/short-cycle-dispatches.json produces no whitespace warning"
+    }
+  },
+  "protected_files": {
+    "docs/Prometheus.gitmodules.reference": {
+      "sha256": "5aa703020961433befcb2f74cd0432e14fbba139db1fd0616b34c6abf0223855",
+      "size_bytes": 492,
+      "matches_reference_baseline": true,
+      "status": "pre-existing tracked-modified dirty; not read for editing, not staged, not normalized, untouched"
+    },
+    "validation/coordination/short-cycle-dispatches.json": {
+      "sha256": "06e65cc1cd7d3aa467740f586e92d5e1de00cc973c07db49694c2c6a73862838",
+      "size_bytes": 1268,
+      "matches_reference_baseline": true,
+      "status": "pre-existing tracked-modified dirty; not staged, untouched"
+    },
+    "state_map_time_field_work_other_agents_untracked": [
+      "docs/plan/59-g6-time-field-forms-20260914.md",
+      "docs/plan/59-g6-uncovered-state-map-20260914.md",
+      "tools/check_g6_time_field_forms.py",
+      "tools/map_g6_uncovered_states.py",
+      "validation/g6-time-field-forms-20260914.json",
+      "validation/g6-uncovered-state-map-20260914.json",
+      "validation/test_check_g6_time_field_forms.py",
+      "validation/test_map_g6_uncovered_states.py"
+    ],
+    "state_map_time_field_status": "other agents' untracked work; never read, edited, or staged",
+    "prohibited_files_never_read_or_touched": [
+      "docs/coordination/rolling-six-plan-20260912.md",
+      "docs/coordination/claude-native-wait-next-probe.md",
+      "validation/_probe_delivery_contract.py",
+      "%TEMP%audit26-report.json"
+    ]
+  },
+  "outputs": [
+    "validation/coordination/claude-g6-solve-form-decision-ingest-manifest-20260915-01/exact-paths.txt",
+    "validation/coordination/claude-g6-solve-form-decision-ingest-manifest-20260915-01/review.md",
+    "validation/coordination/claude-g6-solve-form-decision-ingest-manifest-20260915-01/review.json",
+    "validation/coordination/claude-g6-solve-form-decision-ingest-manifest-20260915-01/SHA256SUMS"
+  ],
+  "sha256sums_coverage": "exact-paths.txt, review.md, review.json only; SHA256SUMS does not self-reference",
+  "nonclaims": [
+    "This manifest admits an offline decision/stability packet only. It grants no approved budgets (B1 stays unapproved), no solve-form owner decision (owner_decision stays not_made / chosen_option null), no G6 or physical acceptance (g6_acceptance / physical_accuracy stay false; r1_status stays numerical_failed), no #84 or Full closure, and no native evidence.",
+    "The review verdict GO is a proposal-only assessment that the stable-evidence repair correctly and honestly implements its contract and preserves every non-acceptance and owner-decision boundary; it is not an issue acceptance and does not close #59.",
+    "The current HEAD 0b10f786... is an observation only, not a pin; the packet's observed_at.head 768526a... is a genuine ancestor recorded as runtime diagnostics only (head_pinned=false), never required to equal the live checkout HEAD, and no current HEAD is embedded.",
+    "Pin stability is recorded as content-anchored, not reduced to exact-HEAD equality: the three derived pins are introduced once at 0785f0e with intro blob == HEAD == worktree == pin and an empty intro..HEAD diff (no later effective modification); the source pins are zero-diff from the baseline f333316. The merge-simplification content-faithfulness argument is carried from the independent review with attribution and was not rerun by this manifest.",
+    "The offline verifier suite was not re-run by this manifest; its results (normal 36 OK skipped 2; exact3 36 OK skipped 0) are carried verbatim from the independent review and attributed to it. This manifest ran only the exact-10 read-tree HEAD admission proof.",
+    "No input or file outside the four manifest outputs was edited; nothing was staged in, committed to, or pushed from the real index (the temporary index and all artifacts were repo-external and deleted).",
+    "Protected files docs/Prometheus.gitmodules.reference and validation/coordination/short-cycle-dispatches.json were not edited, staged, or normalized; state-map/time-field work and all other agents' files were not read or touched; prohibited files (rolling-six-plan-20260912.md, claude-native-wait-next-probe.md, validation/_probe_delivery_contract.py, %TEMP%audit26-report.json) were never read or touched.",
+    "No model/MATLAB/ROS/flight-controller/UE/build/native/#83 execution, no git replace, no sibling-project access, and no network or GitHub mutation was performed."
+  ]
+}

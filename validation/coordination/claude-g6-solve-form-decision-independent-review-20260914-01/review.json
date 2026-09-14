@@ -1,0 +1,129 @@
+{
+  "schema": "wksim.59-g6-solve-form-decision-independent-review.v1",
+  "kind": "independent_adversarial_review",
+  "reviewer": "claude-opus-4.8-1m (independent adversarial reviewer)",
+  "review_date": "2026-09-14",
+  "verdict": "GO",
+  "authority": "proposal_only_assessment",
+  "non_claims": {
+    "g6_acceptance": false,
+    "physical_accuracy": false,
+    "full_acceptance": false,
+    "issue_84": false,
+    "b1_budget_approved": false,
+    "b4_frozen": false,
+    "owner_option_chosen": false,
+    "issue_59_closed": false
+  },
+  "candidates": {
+    "validation/e0-g6-solve-form-decision-20260914.json": {
+      "sha256": "bc8302e970bf703622c0f57a1966398bc5f71b04ce9b223668b4103c83580507",
+      "size_bytes": 11435,
+      "matches_expected_hash": true,
+      "committed_state": "uncommitted_worktree_modification",
+      "head_blob_sha256": "5086c3fbddd52b4e754a785706cce938ca7f8d68beb5056d564e7f116b34c293"
+    },
+    "validation/test_e0_g6_solve_form_decision.py": {
+      "sha256": "86c96dff53a0e2201922cbf9d123277b61a87209605345a2ac1d251f6c7ce49a",
+      "size_bytes": 48045,
+      "matches_expected_hash": true,
+      "committed_state": "uncommitted_worktree_modification",
+      "head_blob_sha256": "21ea73e2ba5442854eccb4f0f717e62a47a6519a3314e8d7c5e9d1aad420d8de"
+    },
+    "docs/plan/59-g6-solve-form-decision-20260914.md": {
+      "sha256": "4c773018b5ee45d6a521fb50453401b3237dbff4ffea51387e45b8f3f7cdb7ce",
+      "size_bytes": 7079,
+      "matches_expected_hash": true,
+      "committed_state": "uncommitted_worktree_modification",
+      "head_blob_sha256": "ada0a77a26ddf37ff4e582c1a1d12070533900dc280a47c770f28ae4a8f0b668"
+    }
+  },
+  "live_repo": {
+    "head": "0b10f786e808eebe7698e9a277766bf2f68a4d35",
+    "branch": "main",
+    "anchor": "f333316e6efa6b299b4288a9d91fb2bccedfb9d6",
+    "anchor_is_ancestor_of_head": true,
+    "observed_at_head": "768526aafa1e48c342c5c8840a9154e8ed90f68d",
+    "observed_head_equals_live_head": false,
+    "observed_head_is_ancestor_of_live_head": true,
+    "head_pinned": false,
+    "live_head_literal_embedded_in_packet": false,
+    "live_head_literal_embedded_in_test": false,
+    "live_head_literal_embedded_in_markdown": false,
+    "window_commits": 82,
+    "window_merge_commits": 0,
+    "window_is_linear": true
+  },
+  "difficult_point": {
+    "question": "does per-path rev-list count prove introduced-once-never-modified, and is it weaker than content-anchor+zero-diff",
+    "conclusion": "not_weaker",
+    "nogo_conditional_triggered": false,
+    "evidence": {
+      "window_linear_zero_merges": true,
+      "default_revlist_equals_full_history_all_pins": true,
+      "independent_content_anchor_agrees_all_pins": true,
+      "simplification_content_faithful_for_absent_to_pinned_property": true,
+      "evidence_content_independently_sha256_pinned_at_head_and_worktree": true,
+      "derived_pins_introduced_via_diff_filter_A_add_not_rename": true,
+      "derived_intro_commit": "0785f0e69c8756f34ea95425145fde0a3668e015"
+    }
+  },
+  "pins": {
+    "reference_run05": {"path": "validation/coordination/g6-reference-probe-20260913/run-05/reference-first-step.json", "at_anchor": true, "revlist_count": 0, "full_history_count": 0, "content_anchor_at_baseline_matches_head": true, "zero_diff_baseline_to_head": true},
+    "target_mrdivide": {"path": "validation/coordination/g6-target-mrdivide-20260913/first-step-trace.jsonl", "at_anchor": true, "revlist_count": 0, "full_history_count": 0, "content_anchor_at_baseline_matches_head": true, "zero_diff_baseline_to_head": true},
+    "diagonal_candidate": {"path": "validation/coordination/g6-diagonal-solve-candidate-20260913/first-step-trace.jsonl", "at_anchor": true, "revlist_count": 0, "full_history_count": 0, "content_anchor_at_baseline_matches_head": true, "zero_diff_baseline_to_head": true},
+    "comparison_v2": {"path": "validation/coordination/g6-target-first-step-20260913/comparison-v2.json", "at_anchor": true, "revlist_count": 0, "full_history_count": 0, "content_anchor_at_baseline_matches_head": true, "zero_diff_baseline_to_head": true},
+    "division_vs_reference": {"path": "validation/coordination/cursor-g6-solve-form-20260914-01/division-vs-reference.json", "at_anchor": false, "revlist_count": 1, "full_history_count": 1, "intro_blob_equals_head_equals_worktree_equals_pin": true, "zero_diff_intro_to_head": true},
+    "diagonal_vs_reference": {"path": "validation/coordination/cursor-g6-solve-form-20260914-01/diagonal-vs-reference.json", "at_anchor": false, "revlist_count": 1, "full_history_count": 1, "intro_blob_equals_head_equals_worktree_equals_pin": true, "zero_diff_intro_to_head": true},
+    "stage2_operand_boundary": {"path": "validation/coordination/cursor-g6-solve-form-20260914-01/stage2-operand-boundary.json", "at_anchor": false, "revlist_count": 1, "full_history_count": 1, "intro_blob_equals_head_equals_worktree_equals_pin": true, "zero_diff_intro_to_head": true}
+  },
+  "fail_closed": [
+    {"case": "live_ancestry_failure", "result": "rejected", "code": "tampering"},
+    {"case": "source_overlap_anchored_path_touched", "result": "rejected", "code": "tampering"},
+    {"case": "derived_remodification_count2", "result": "rejected", "code": "tampering"},
+    {"case": "derived_delete_readd_count3", "result": "rejected", "code": "tampering"},
+    {"case": "derived_count0_impossible_state", "result": "rejected", "code": "tampering"},
+    {"case": "malformed_observed_head", "result": "rejected", "code": "malformed_hex"},
+    {"case": "head_pinned_true", "result": "rejected", "code": "tampering"},
+    {"case": "baseline_ancestor_tampered", "result": "rejected", "code": "tampering"},
+    {"case": "g6_acceptance_true", "result": "rejected", "code": "g6_or_physical_acceptance_claim"}
+  ],
+  "change_confinement": {
+    "only_changed_top_level_key": "observed_at",
+    "fail_closed_on_codes_preserved": true,
+    "fail_closed_on_code_count": 12,
+    "pin_set_preserved": true,
+    "pin_count": 7,
+    "owner_decision_meaning_unchanged": true,
+    "b1_remains": "unapproved",
+    "b4_remains": "unfrozen",
+    "acceptance_flags_all_false": true,
+    "r1_status": "numerical_failed",
+    "no_acceptance_claim_in_markdown": true
+  },
+  "recheck_handling": {
+    "recheck_pinned_at_head": true,
+    "recheck_sha256": "ba140e4245baf220e2ae94c0dd0f8114283e5e8ac03ef68e39899e263aaa4f60",
+    "recheck_single_intro_commit": "6eafdf9c0b734db07a9fe790c86b409d3468c10b",
+    "stale_self_hashes_treated_as_live": false,
+    "stale_checkout_head_treated_as_live": false,
+    "unchanged_evidence_pins_cross_checked_live": true,
+    "honest": true
+  },
+  "test_execution": {
+    "normal_run": {"command": "python -B -m unittest validation.test_e0_g6_solve_form_decision", "tests": 36, "result": "OK", "skipped": 2},
+    "exact3_run": {"tests": 36, "result": "OK", "skipped": 0, "staged_exactly_three": true, "staged_blobs_equal_worktree": true},
+    "real_index_sha256_constant": "cf249890d18567a9f62173ff1e8ac717362fe531ecea02a545a72ee185319a32",
+    "head_constant": "0b10f786e808eebe7698e9a277766bf2f68a4d35",
+    "index_and_head_untouched": true,
+    "candidate_drift": false
+  },
+  "hardening_note_non_blocking": "Optionally strengthen _check_evidence_stability to content-anchor each derived pin at its --diff-filter=A commit plus assert git diff --quiet intro..HEAD (and baseline..HEAD for source pins). Defense-in-depth only; current linear window, independent content-anchor agreement, and independent sha256 content pinning make this non-blocking.",
+  "scope": {
+    "git_mutated": false,
+    "issues_mutated": false,
+    "other_paths_edited": false,
+    "model_matlab_ros_fc_ue_build_run": false,
+    "issue_83_run": false
+  }
+}

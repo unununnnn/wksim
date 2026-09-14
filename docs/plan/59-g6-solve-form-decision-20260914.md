@@ -10,10 +10,13 @@
 | --- | --- |
 | 工作类别 | new-development |
 | cwd / 分支 | `C:\Users\PC\Documents\odid编译\wksim` / `main` |
-| HEAD | `768526aafa1e48c342c5c8840a9154e8ed90f68d` |
-| 基线祖先 | `git merge-base --is-ancestor f333316e6efa6b299b4288a9d91fb2bccedfb9d6 HEAD` → exit 0 |
+| 观测 HEAD | 运行时诊断，仅记录、不钉死：`observed_at.head` 记录观测时 HEAD（`768526aafa1e48c342c5c8840a9154e8ed90f68d`），`head_pinned=false`，不要求等于当前检出 |
+| 稳定证据合同 | 架构/证据锚 `f333316e6efa6b299b4288a9d91fb2bccedfb9d6` 必须是观测 HEAD 的祖先（`git merge-base --is-ancestor … HEAD` → exit 0）；每个钉死证据路径在 `baseline_ancestor..HEAD` 窗口内零差异 |
+| 零差异判据 | 锚上已跟踪的路径：窗口内触及它的提交数必须为 0；锚之后首次引入的路径：窗口内触及它的提交数必须恰为 1（仅其钉死提交，引入后不再改动） |
 | 独占文件 | 本文、`validation/e0-g6-solve-form-decision-20260914.json`、`validation/test_e0_g6_solve_form_decision.py`、`validation/coordination/cursor-g6-solve-form-20260914-01/**` |
 | 未改 | 比较器、R1 合同、同源入口、既有对角候选证据、其他 `59-e0-*`、#26/#33/#9 |
+
+本次稳定性修复只把「要求精确 HEAD `768526a…`」换成上述稳定证据合同；所有求解形式证据、所有者裁决语义、失败关闭边界与非验收边界均保持不变。
 
 ## 从源重算并钉死的三份追迹
 
@@ -83,4 +86,6 @@ Selector2 为冻结对角 `diag(0.0211, 0.0219, 0.0366)`，六个非对角元均
 python -B -m unittest validation.test_e0_g6_solve_form_decision
 ```
 
-不启动模型、MATLAB、ROS、native、飞控、UE、构建或 #83，不改工单，不 git add/commit/push。
+套件的所有 git 探测均为只读且与索引无关（`rev-parse`/`cat-file`/`merge-base`/`rev-list`/提交对提交 `diff`/`show`）。因此它也能在「仓库外临时索引」模式下运行：把 `GIT_INDEX_FILE` 指向仓库外临时文件、空索引中只 `git add` 上述恰好三个独占文件（`exact3`），再运行同一命令。套件会校验该临时索引恰好装有三个文件且字节与工作树一致，并断言真实 `.git/index` 与 HEAD 字节不变。
+
+不启动模型、MATLAB、ROS、native、飞控、UE、构建或 #83，不改工单，不 git add/commit/push（`exact3` 模式的 `git add` 只写仓库外临时索引，不触真实索引）。

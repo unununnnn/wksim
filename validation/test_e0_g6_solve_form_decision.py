@@ -11,6 +11,21 @@ compares, and then proves the verifier fails closed on malformed hex, wrong
 case/stage, a non-diagonal Selector2, solve-form mismatch, missing or extra
 pins, unknown option keys, a fourth option, an unknown top-level key, B1
 approval, a B4 freeze, acceptance flips and tampering.
+
+Stable-evidence contract (this repair replaces exact-HEAD pinning): the
+architecture/evidence anchor ``f333316e6efa6b299b4288a9d91fb2bccedfb9d6`` must
+be an ancestor of the observed HEAD, and every pinned evidence path must have
+zero diff in ``baseline_ancestor..HEAD``.  A path already tracked at the anchor
+is stable only when no commit in that window touches it; a path first
+introduced after the anchor is stable only when exactly one commit in that
+window touches it (its pinning commit, never modified afterwards).  The
+observed HEAD is runtime diagnostics only: it is recorded, validated for shape,
+and never required to equal the live checkout HEAD, and no current HEAD is
+embedded.  All git probes are read-only and index-independent
+(``rev-parse``/``cat-file``/``merge-base``/``rev-list``/commit-vs-commit
+``diff``/``show``), so the suite also passes under a repo-external temporary
+``GIT_INDEX_FILE`` in which exactly the three owned files are staged
+(``exact3``); the real index is verified to remain byte-identical.
 """
 
 from __future__ import annotations
@@ -18,6 +33,7 @@ from __future__ import annotations
 import copy
 import hashlib
 import json
+import os
 import struct
 import subprocess
 import sys
@@ -47,8 +63,14 @@ RECHECK_RELATIVE = "validation/coordination/cursor-g6-solve-form-20260914-01/rec
 
 SCHEMA = "wksim.59-g6-solve-form-decision.v1"
 KIND = "g6_b5_solve_form_decision_packet"
-HEAD = "768526aafa1e48c342c5c8840a9154e8ed90f68d"
 ANCESTOR = "f333316e6efa6b299b4288a9d91fb2bccedfb9d6"
+# The three owned files of this slice, staged exactly in the repo-external
+# temporary-index ("exact3") run mode.
+STAGING_PATHS = (
+    "docs/plan/59-g6-solve-form-decision-20260914.md",
+    PACKET_RELATIVE,
+    "validation/test_e0_g6_solve_form_decision.py",
+)
 REF_HEX = "bc56d4db33a987b8"
 DIV_HEX = "bc56d4db33a987b9"
 NUM_Q = "bc000013449033b2"
@@ -165,6 +187,78 @@ def _head_blob_sha256(relative):
     return hashlib.sha256(raw).hexdigest()
 
 
+def _git(*args):
+    result = subprocess.run(["git", *args], cwd=ROOT, capture_output=True, text=True)
+    return result.returncode, result.stdout.strip()
+
+
+def _full_sha(value):
+    return (
+        isinstance(value, str)
+        and len(value) == 40
+        and all(char in CANONICAL_HEX_DIGITS for char in value)
+    )
+
+
+def _live_head():
+    code, out = _git("rev-parse", "HEAD")
+    if code != 0 or not _full_sha(out):
+        raise AssertionError("git rev-parse HEAD did not return a full sha")
+    return out
+
+
+def _is_ancestor(ancestor, descendant):
+    code, _ = _git("merge-base", "--is-ancestor", ancestor, descendant)
+    return code == 0
+
+
+def _tracked_at(commit, path):
+    code, _ = _git("cat-file", "-e", f"{commit}:{path}")
+    return code == 0
+
+
+def _window_touch_count(ancestor, descendant, path):
+    """Number of commits in ``ancestor..descendant`` that touch ``path``."""
+    code, out = _git("rev-list", "--count", f"{ancestor}..{descendant}", "--", path)
+    if code != 0 or not out.isdigit():
+        return -1
+    return int(out)
+
+
+def _real_index_path():
+    code, out = _git("rev-parse", "--absolute-git-dir")
+    if code != 0 or not out:
+        return None
+    return Path(out) / "index"
+
+
+def _staged_mode():
+    value = os.environ.get("GIT_INDEX_FILE")
+    if not value:
+        return False
+    try:
+        Path(value).resolve().relative_to(ROOT)
+    except ValueError:
+        return True
+    return False
+
+
+def _staged_paths():
+    result = subprocess.run(
+        ["git", "ls-files", "--cached", "-z"], cwd=ROOT, capture_output=True
+    )
+    if result.returncode != 0:
+        return set()
+    return set(result.stdout.decode("utf-8", "replace").split("\0")) - {""}
+
+
+def _staged_blob(relative):
+    result = subprocess.run(
+        ["git", "cat-file", "blob", f":{relative}"], cwd=ROOT, capture_output=True
+    )
+    return result.stdout if result.returncode == 0 else None
+
+
 def _ieee_pair(num_hex, den_hex):
     u0 = decode_f64_hex(num_hex)
     u1 = decode_f64_hex(den_hex)
@@ -183,8 +277,15 @@ def _selector_is_diagonal(hexes):
 
 
 class Verifier:
-    def __init__(self):
+    def __init__(self, checkout=None):
         self.violations = []
+        # Optional stable-evidence facts injected by negative tests.  Any fact
+        # not supplied here is probed live from the repository (read-only).
+        # Recognised keys:
+        #   "anchor_is_ancestor_of_head": bool
+        #   "paths": {path: {"tracked_at_anchor": bool,
+        #                    "window_touch_count": int}}
+        self._checkout = checkout or {}
 
     def flag(self, code, message):
         self.violations.append({"code": code, "message": message})
@@ -220,6 +321,36 @@ class Verifier:
         except (TypeError, ValueError) as error:
             self.flag("malformed_hex", f"{label}: {error}")
             return None
+
+    def _check_evidence_stability(self, pin_id, path):
+        """Clause (b): the pinned evidence path must have zero diff in
+        ``baseline_ancestor..HEAD``.
+
+        A path already tracked at the anchor is stable only when no commit in
+        the window touches it (count 0).  A path first introduced after the
+        anchor is stable only when exactly one commit in the window touches it
+        (count 1: its pinning commit, never modified afterwards).  Any other
+        count means the pinned evidence overlapped with later change and the
+        verifier fails closed.
+        """
+        overrides = (self._checkout.get("paths") or {}).get(path) or {}
+        tracked_at_anchor = overrides.get("tracked_at_anchor")
+        if tracked_at_anchor is None:
+            tracked_at_anchor = _tracked_at(ANCESTOR, path)
+        touch = overrides.get("window_touch_count")
+        if touch is None:
+            touch = _window_touch_count(ANCESTOR, "HEAD", path)
+        if tracked_at_anchor:
+            if touch != 0:
+                self.flag(
+                    "tampering",
+                    f"pin {pin_id} anchored evidence changed in baseline_ancestor..HEAD",
+                )
+        elif touch != 1:
+            self.flag(
+                "tampering",
+                f"pin {pin_id} post-anchor evidence is not stable in baseline_ancestor..HEAD",
+            )
 
     def verify(self, document, *, traces=None):
         if not isinstance(document, dict):
@@ -274,14 +405,27 @@ class Verifier:
         elif identity.get("case") != "C3G" or identity.get("stage") != 2:
             self.flag("wrong_case_or_stage", "identity.case must be C3G and identity.stage must be 2")
 
+        # Clause (a): the architecture/evidence anchor must be an ancestor of
+        # the observed HEAD.  This is a live, read-only ancestry check; the
+        # recorded snapshot fields are never trusted in its place.
+        anchor_is_ancestor = self._checkout.get("anchor_is_ancestor_of_head")
+        if anchor_is_ancestor is None:
+            anchor_is_ancestor = _is_ancestor(ANCESTOR, "HEAD")
+        if not anchor_is_ancestor:
+            self.flag("tampering", "baseline ancestor f333316 is not an ancestor of observed HEAD")
+
+        # Clause (c): the observed HEAD is runtime diagnostics only.  It is
+        # validated for shape but never required to equal the live checkout
+        # HEAD, and the packet must declare that it is not pinned.
         observed = document.get("observed_at")
         if isinstance(observed, dict):
-            if observed.get("head") != HEAD:
-                self.flag("tampering", "observed_at.head does not match the required checkout")
             if observed.get("baseline_ancestor") != ANCESTOR:
                 self.flag("tampering", "baseline ancestor pin differs")
-            if observed.get("ancestor_check_exit") != 0:
-                self.flag("tampering", "ancestor check must be exit 0")
+            if observed.get("head_pinned") is not False:
+                self.flag("tampering", "observed head must be diagnostics-only (head_pinned=false)")
+            head = observed.get("head")
+            if head is not None and not _full_sha(head):
+                self.flag("malformed_hex", "observed_at.head is not a full lowercase sha")
 
         pins = document.get("pins")
         if not isinstance(pins, dict):
@@ -322,6 +466,7 @@ class Verifier:
                     continue
                 if head_digest != digest:
                     self.flag("tampering", f"pin {pin_id} HEAD blob digest differs")
+                self._check_evidence_stability(pin_id, path)
             if traces and pin_id in traces:
                 loaded[pin_id] = traces[pin_id]
             elif pin_id in ("reference_run05", "comparison_v2") or pin_id in DERIVED_PINS:
@@ -514,8 +659,8 @@ class Verifier:
         }
 
 
-def verify_decision(document, traces=None):
-    return Verifier().verify(document, traces=traces)
+def verify_decision(document, traces=None, checkout=None):
+    return Verifier(checkout).verify(document, traces=traces)
 
 
 def load_packet():
@@ -552,6 +697,31 @@ class RealPacketTests(unittest.TestCase):
             self.assertEqual(pin["sha256"], _head_blob_sha256(pin["path"]))
             self.assertTrue(pin["tracked_at_head"])
 
+    def test_stable_evidence_contract_holds_live(self):
+        # Clause (a): the anchor is an ancestor of the observed HEAD.
+        self.assertTrue(
+            _is_ancestor(ANCESTOR, "HEAD"),
+            "anchor f333316 must be an ancestor of HEAD",
+        )
+        document, _ = load_packet()
+        observed = document["observed_at"]
+        self.assertEqual(observed["baseline_ancestor"], ANCESTOR)
+        self.assertFalse(observed["head_pinned"])
+        self.assertTrue(_full_sha(observed["head"]))
+        # Clause (c): the recorded head is diagnostics-only and must not pin
+        # the current checkout HEAD.
+        self.assertNotEqual(observed["head"], _live_head())
+        # Clause (b): every pinned evidence path has zero diff in
+        # baseline_ancestor..HEAD (count 0 when anchored, count 1 when it was
+        # first introduced after the anchor and never modified since).
+        for pin_id in TRACKED_PINS:
+            path = document["pins"][pin_id]["path"]
+            with self.subTest(pin=pin_id):
+                if _tracked_at(ANCESTOR, path):
+                    self.assertEqual(_window_touch_count(ANCESTOR, "HEAD", path), 0, path)
+                else:
+                    self.assertEqual(_window_touch_count(ANCESTOR, "HEAD", path), 1, path)
+
     def test_discriminating_point_is_exactly_pair_2_index_1(self):
         document, _ = load_packet()
         point = document["discriminating_point"]
@@ -587,7 +757,8 @@ class RealPacketTests(unittest.TestCase):
         self.assertEqual(document["b1_b4_effects"]["B4"]["current"], "unfrozen")
         self.assertEqual(document["identity"]["case"], "C3G")
         self.assertEqual(document["identity"]["stage"], 2)
-        self.assertEqual(document["observed_at"]["head"], HEAD)
+        self.assertEqual(document["observed_at"]["baseline_ancestor"], ANCESTOR)
+        self.assertFalse(document["observed_at"]["head_pinned"])
         self.assertEqual(set(document["pins"]), set(CLOSED_PINS))
         self.assertEqual(
             set(document["evidence_policy"]["require_tracked_at_head"]),
@@ -606,19 +777,24 @@ class RealPacketTests(unittest.TestCase):
             self.assertEqual(payload["status"], "aligned")
             self.assertFalse(payload.get("g6_acceptance", False))
         self.assertTrue(MARKDOWN.is_file())
+        # recheck.json is the immutable historical replay snapshot recorded at
+        # the original observation head.  This stability repair does not touch
+        # it: it must stay byte-identical to its HEAD blob, and its evidence
+        # pins (which are stable) must still match the packet.  Its recorded
+        # packet/markdown/test self-hashes and its recorded checkout head
+        # predate this repair and are intentionally NOT re-pinned to the live
+        # files; the repaired packet/markdown/test are the live source of truth.
         recheck_path = ROOT / RECHECK_RELATIVE
         recheck, _ = _load_json(recheck_path)
         self.assertEqual(_sha256(recheck_path), _head_blob_sha256(RECHECK_RELATIVE))
-        self.assertEqual(recheck["packet_sha256"], _sha256(PACKET))
-        self.assertEqual(recheck["markdown_sha256"], _sha256(MARKDOWN))
-        self.assertEqual(recheck["test_sha256"], _sha256(Path(__file__)))
+        self.assertEqual(recheck["checkout"]["baseline_ancestor"], ANCESTOR)
+        self.assertTrue(_full_sha(recheck["checkout"]["head"]))
         self.assertFalse(recheck["g6_acceptance"])
         self.assertFalse(recheck["physical_accuracy"])
         self.assertTrue(recheck["discriminating_point"]["verified"])
         self.assertEqual(recheck["discriminating_point"]["pair"], 2)
         self.assertEqual(recheck["discriminating_point"]["index"], 1)
         self.assertEqual(recheck["owner_decision"], "not_made")
-        self.assertEqual(recheck["checkout"]["head"], HEAD)
         self.assertEqual(recheck["source_pins"]["reference_run05"], document["pins"]["reference_run05"]["sha256"])
         self.assertEqual(recheck["source_pins"]["target_mrdivide"], document["pins"]["target_mrdivide"]["sha256"])
         self.assertEqual(recheck["source_pins"]["diagonal_candidate"], document["pins"]["diagonal_candidate"]["sha256"])
@@ -636,7 +812,7 @@ class RealPacketTests(unittest.TestCase):
 
 
 class MutationTests(unittest.TestCase):
-    def reject(self, mutate_document=None, traces=None):
+    def reject(self, mutate_document=None, traces=None, checkout=None):
         document, _ = load_packet()
         if mutate_document:
             mutate_document(document)
@@ -647,7 +823,7 @@ class MutationTests(unittest.TestCase):
                 "target_mrdivide": division,
                 "diagonal_candidate": diagonal,
             }
-        return verify_decision(document, traces=traces)
+        return verify_decision(document, traces=traces, checkout=checkout)
 
     def test_malformed_hex_rejected(self):
         result = self.reject(lambda doc: doc["discriminating_point"].__setitem__("reference_hex", "bc56 ZZ"))
@@ -791,6 +967,110 @@ class MutationTests(unittest.TestCase):
         result = self.reject(mutate)
         self.assertEqual(result["status"], "rejected")
         self.assertIn("owner_decision_made", result["codes"])
+
+    def test_non_ancestor_baseline_rejected(self):
+        # Clause (a): when the anchor is not an ancestor of the observed HEAD
+        # the verifier must fail closed.
+        result = self.reject(checkout={"anchor_is_ancestor_of_head": False})
+        self.assertEqual(result["status"], "rejected")
+        self.assertIn("tampering", result["codes"])
+        self.assertFalse(result["g6_acceptance"])
+        self.assertFalse(result["physical_accuracy"])
+
+    def test_pinned_evidence_overlap_rejected(self):
+        # Clause (b): an anchored evidence path touched by a later commit in
+        # baseline_ancestor..HEAD overlaps with the window and must be refused.
+        anchored = "validation/coordination/g6-target-first-step-20260913/comparison-v2.json"
+        checkout = {"paths": {anchored: {"tracked_at_anchor": True, "window_touch_count": 1}}}
+        result = self.reject(checkout=checkout)
+        self.assertEqual(result["status"], "rejected")
+        self.assertIn("tampering", result["codes"])
+
+    def test_post_anchor_evidence_remodified_rejected(self):
+        # Clause (b): a path introduced after the anchor that is touched more
+        # than once in the window (added then modified) is not stable.
+        derived = "validation/coordination/cursor-g6-solve-form-20260914-01/division-vs-reference.json"
+        checkout = {"paths": {derived: {"tracked_at_anchor": False, "window_touch_count": 2}}}
+        result = self.reject(checkout=checkout)
+        self.assertEqual(result["status"], "rejected")
+        self.assertIn("tampering", result["codes"])
+
+    def test_head_pinned_flag_rejected(self):
+        result = self.reject(
+            lambda doc: doc["observed_at"].__setitem__("head_pinned", True)
+        )
+        self.assertEqual(result["status"], "rejected")
+        self.assertIn("tampering", result["codes"])
+
+    def test_malformed_observed_head_rejected(self):
+        result = self.reject(
+            lambda doc: doc["observed_at"].__setitem__("head", "not-a-sha")
+        )
+        self.assertEqual(result["status"], "rejected")
+        self.assertIn("malformed_hex", result["codes"])
+
+    def test_no_exact_current_head_pinning(self):
+        # Regression guard against the brittle pattern this repair removes:
+        # neither the packet nor this suite may embed the current checkout
+        # HEAD, and a packet that pins the live HEAD must be refused.
+        live = _live_head()
+        self.assertNotIn(live, PACKET.read_text(encoding="utf-8"))
+        self.assertNotIn(live, Path(__file__).read_text(encoding="utf-8"))
+        document, _ = load_packet()
+        self.assertFalse(document["observed_at"]["head_pinned"])
+
+        def pin_current_head(doc):
+            doc["observed_at"]["head"] = live
+            doc["observed_at"]["head_pinned"] = True
+
+        result = self.reject(pin_current_head)
+        self.assertEqual(result["status"], "rejected")
+        self.assertIn("tampering", result["codes"])
+
+
+class RealIndexTests(unittest.TestCase):
+    """The suite's git usage never mutates the real index or HEAD."""
+
+    def test_real_index_and_head_untouched(self):
+        index_path = _real_index_path()
+        self.assertIsNotNone(index_path, "could not resolve the real git index")
+        before_head = _live_head()
+        before_index = _sha256(index_path) if index_path.is_file() else None
+        document, _ = load_packet()
+        result = verify_decision(document)
+        self.assertEqual(result["status"], "verified", result["reasons"])
+        after_head = _live_head()
+        after_index = _sha256(index_path) if index_path.is_file() else None
+        self.assertEqual(before_head, after_head)
+        self.assertEqual(before_index, after_index)
+
+
+class ExactThreeTempIndexTests(unittest.TestCase):
+    """Under a repo-external GIT_INDEX_FILE exactly the three owned files are
+    staged, and verification is independent of that temporary index."""
+
+    def test_exact3_staging_binds_the_same_bytes(self):
+        if not _staged_mode():
+            self.skipTest("only meaningful under a repo-external GIT_INDEX_FILE")
+        staged = _staged_paths()
+        self.assertEqual(staged, set(STAGING_PATHS))
+        for rel in STAGING_PATHS:
+            blob = _staged_blob(rel)
+            self.assertIsNotNone(blob, rel)
+            self.assertEqual(
+                hashlib.sha256(blob).hexdigest(),
+                _sha256(ROOT / rel),
+                rel,
+            )
+
+    def test_exact3_verification_is_index_independent(self):
+        if not _staged_mode():
+            self.skipTest("only meaningful under a repo-external GIT_INDEX_FILE")
+        document, _ = load_packet()
+        result = verify_decision(document)
+        self.assertEqual(result["status"], "verified", result["reasons"])
+        self.assertFalse(result["g6_acceptance"])
+        self.assertFalse(result["physical_accuracy"])
 
 
 if __name__ == "__main__":
