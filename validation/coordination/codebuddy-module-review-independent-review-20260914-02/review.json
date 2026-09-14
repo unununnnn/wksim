@@ -1,0 +1,150 @@
+{
+  "artifact": "codebuddy-module-review-independent-review-20260914-02",
+  "generated_local_date": "2026-09-14",
+  "reviewer": "CodeBuddy independent evidence reviewer (offline, read-only, fresh session)",
+  "head_verified": "31e5b65f5448c5558450d16d0f46da0ef0f0a03c",
+  "architecture_ancestor": {
+    "commit": "f333316e6efa6b299b4288a9d91fb2bccedfb9d6",
+    "command": "git merge-base --is-ancestor f333316e6efa6b299b4288a9d91fb2bccedfb9d6 HEAD",
+    "exit_code": 0,
+    "verified": true
+  },
+  "prior_review_preserved": {
+    "dir": "validation/coordination/codebuddy-module-review-independent-review-20260914-01/",
+    "review_md_sha256": "300fa59cad7a2a5f81df86512ab434b66dbe20e0d24d97c290b6aabade44b9fb",
+    "review_json_sha256": "e1dd8c2de78c084d4404bebe7c3dadd1a7a69008f12c6d7974e813d1133a19fa",
+    "match_own_sha256sums": true,
+    "unchanged": true
+  },
+  "candidates": [
+    {
+      "path": "docs/coordination/codebuddy-module-review-20260912.md",
+      "expected_sha256": "7fd97029dfd4c0a8f301badfdc3abadb02a097b184c9908a07aa9f85e6f2e2db",
+      "recomputed_sha256": "7fd97029dfd4c0a8f301badfdc3abadb02a097b184c9908a07aa9f85e6f2e2db",
+      "expected_bytes": 7544,
+      "recomputed_bytes": 7544,
+      "match": true,
+      "note": "identical to the hash recorded by review -01; the -01-bound source snapshot was not modified by this remediation"
+    },
+    {
+      "path": "docs/coordination/codebuddy-module-review-ingest-note-20260914.md",
+      "expected_sha256": "0841c96a5a27b1b554c342610eb6e05141c81d2e037682bb0dcea13ed7e27703",
+      "recomputed_sha256": "0841c96a5a27b1b554c342610eb6e05141c81d2e037682bb0dcea13ed7e27703",
+      "expected_bytes": 8221,
+      "recomputed_bytes": 8221,
+      "match": true,
+      "note": "revised revision (was f19e315e.../6064 B in -01)"
+    },
+    {
+      "path": "validation/test_codebuddy_module_review_context.py",
+      "expected_sha256": "bc56db56480ff05ba542cad7401f4284116aa358ed31561df1597b65fa0fd2fd",
+      "recomputed_sha256": "bc56db56480ff05ba542cad7401f4284116aa358ed31561df1597b65fa0fd2fd",
+      "expected_bytes": 12778,
+      "recomputed_bytes": 12778,
+      "match": true,
+      "note": "revised revision (was 04d66051.../12694 B in -01)"
+    }
+  ],
+  "p3_remediation_verification": {
+    "P3-1": {
+      "disposition": "note §2.2 now cites the current gate by content anchor at :274-276 and registers joint_profile.py:219-220 as a historical reading (2026-09-12 review time only)",
+      "live_recheck": "Simulator/wksim_runtime/joint_profile.py read at HEAD: marker loop 'for marker in (rate_timing_probe, group_work_timing, perf_switch_capture)' at :274, raise \"'Formal mixed/PV evidence cannot include '+marker\" at :276; :219-220 is now unrelated code (_raw_proof return + blank)",
+      "verified": true
+    },
+    "P3-2": {
+      "disposition": "note §2.2 attributes the D2 correction solely to parser_coverage.structural_reason; §5 records that diagnostic_constraint is nested only, not a correction carrier",
+      "live_recheck": "all 19 top-level keys of ds-rate-budget-20260912.json enumerated; 'diagnostic_constraint' absent at top level, present only at next_minimal_diagnosis.diagnostic_constraint (recursive location); all 12 D1/D2 anchor strings present in structural_reason (1057 chars); 'joint_profile.py:219-220' retained in JSON as historical; revised test adds assertNotIn('diagnostic_constraint', document)",
+      "verified": true
+    },
+    "P3-3": {
+      "disposition": "test comment and module docstring rewritten: 219-220 labeled historical, live gate asserted by content anchor at :274-276; new live content-anchor test added",
+      "live_recheck": "test_live_promotion_gate_content_anchor asserts both content strings against the live joint_profile.py; no residual present-tense 219-220 current-gate claim anywhere in the test file",
+      "verified": true
+    },
+    "P3-4": {
+      "disposition": "tautological test test_missing_d2_gate_text_is_detected and the trivial line-count assertNotEqual removed; mutation negatives now re-run the same production-style helpers as the positives (d1_folding_ok / d2_folding_ok / count_lines / sha256_of_bytes / strict_load)",
+      "live_recheck": "grep: removed tests absent; test_d1_text_drift_detected_by_production_assertion and test_d2_text_drift_detected_by_production_assertion assertTrue on the positive and assertFalse on the in-memory mutant; D2 negative removes both historical 219-220 citations and the gate text (proves the assertion is not satisfied by historical text alone); line-count negative uses assertEqual(count_lines(drifted), E0_TEST_LINES + 1); hash negative proves hash sensitivity; all mutations strictly in-memory; negatives cover distinct drift classes (hash, line count, D1 text, D2 text, duplicate keys, non-finite values) and are not redundant",
+      "verified": true
+    },
+    "P3-5": {
+      "disposition": "duplicate-key mutant replaced with a deterministic minimal literal through the same strict_load production loader",
+      "live_recheck": "test_strict_loader_rejects_duplicate_keys_deterministically uses the constant '{\"schema\": \"a\", \"schema\": \"b\"}'; strict_load's object_pairs hook raises ValueError('duplicate key: ...') deterministically on the second key with no dependence on document content or ordering; test passes",
+      "verified": true
+    },
+    "note_disposition_table_consistent_with_revisions": true
+  },
+  "claim_revalidation": {
+    "D1": {
+      "status": "folded",
+      "recheck": "structural_reason carries 'Correction to the first edition', 'tools/audit_pv_trajectory.py contains zero rate_timing_probe/timing_probe checks' and the five flag names; plan 33 carries matching corrected wording",
+      "verified": true
+    },
+    "D2": {
+      "status": "folded",
+      "recheck": "structural_reason carries all mechanism assertion strings; 219-220 retained in JSON as historical; live gate verified at joint_profile.py:274-276",
+      "verified": true
+    },
+    "D3": {
+      "status": "folded",
+      "recheck": "plan 33 carries both value-domain correction strings verbatim; claude-native-input-timing.md carries \"WKSIM_JOINT_CPU_TIMING == '1'\" and 默认关闭; joint_rate_probe.py three-state raise text and joint.py:54 '=='1'' predicate present live",
+      "verified": true
+    },
+    "D5": {
+      "status": "active_fact_correction_not_folded_not_fixed",
+      "recheck": "ds-26-host-recheck-20260912.json plan_package.key_discovery.why_it_matters still records '782 行测试'; no '886' anywhere in the JSON; wc -l validation/test_build_generated_e0.py = 886 (tracked, working-tree clean)",
+      "verified": true,
+      "active": true
+    },
+    "boundaries": {
+      "historical_only": "note declares 'historical context only' / '非权威', binding limited to 2026-09-12 - verified present",
+      "non_approval_non_closure": "note declares '不构成任何验收、批准、收口或复核记录' and '不声称：D5 已修复' - verified present; D5 source confirmed not modified (still 782)",
+      "issue_83": "note declares '未重跑 #83' (§3/§4); no closure/acceptance claims - verified",
+      "folding_not_invalidation": "note declares '折叠只表示正确语义已进入 tracked 锚' and '源文件按字节保留原样' - byte-binding test passes, consistent",
+      "p3_dispositions_no_upgrade": "note §5 declares '不声称 P3 \"清零\"仅陈述修正完成' - verified",
+      "verified": true
+    }
+  },
+  "test_runs": {
+    "normal": {
+      "command": "python -B validation/test_codebuddy_module_review_context.py -v",
+      "result": "Ran 25 tests - OK (was 23 in -01; two tautological/fragile tests removed, live content-anchor and production-helper negatives added)"
+    },
+    "staging_run": {
+      "procedure": "GIT_INDEX_FILE set to a copy of .git/index in %TEMP%; git add --force exactly the 3 candidates; git diff --cached --name-only = 3 (status A); suite re-run with temp index active",
+      "result": "Ran 25 tests - OK"
+    },
+    "real_index_integrity": {
+      "sha256_before": "7cf4a1989043e82954f59bd4aa704cbee88703cce2aba095428dd3a329ca26b1",
+      "sha256_after": "7cf4a1989043e82954f59bd4aa704cbee88703cce2aba095428dd3a329ca26b1",
+      "matches_review_01_recorded_value": true,
+      "byte_identical": true
+    },
+    "post_run_checks": {
+      "git_diff_check_candidate_paths": "clean",
+      "real_index_staged_entries": 0,
+      "candidates_status": "untracked (??)",
+      "temp_index_removed": true,
+      "protected_files_sha256_before_after": {
+        "docs/Prometheus.gitmodules.reference": "5aa703020961433befcb2f74cd0432e14fbba139db1fd0616b34c6abf0223855",
+        "validation/coordination/short-cycle-dispatches.json": "06e65cc1cd7d3aa467740f586e92d5e1de00cc973c07db49694c2c6a73862838",
+        "byte_identical": true
+      }
+    }
+  },
+  "findings": [],
+  "findings_note": "No P1, no P2, no new P3. All five -01 P3 remediations independently verified as effective (see p3_remediation_verification); no new defects introduced by the remediation.",
+  "scope_limitations": [
+    "Historical SHA snapshots inside the 2026-09-12 review's modules 1/2/3 were not exhaustively re-verified (scope inherited from -01: byte binding, D1/D2/D3/D5 claims, P3 remediations, boundaries, test quality).",
+    "The two protected files exhibit a pre-existing worktree 'M' state (line-ending-only diff in docs/Prometheus.gitmodules.reference; a stale checked_utc field in validation/coordination/short-cycle-dispatches.json). This state predates this review, is unrelated to the candidate batch, byte-stability across the review window was verified, and its provenance was not investigated.",
+    "Historical-only content of the 2026-09-12 review is treated as valid for its observation moment, not as current state."
+  ],
+  "verdict": {
+    "result": "PASS",
+    "statement": "All three candidates byte-match their declared SHA256/size at HEAD 31e5b65f (revised note/test at new hashes; the -01-bound source snapshot unchanged at 7fd97029.../7544 B). All five -01 P3 remediations independently verified against live code, tracked anchors, and the revised tests: the current joint_profile marker gate is at :274-276 with 219-220 registered as historical-only; no false top-level diagnostic_constraint attribution; test comments corrected; mutation negatives share the positive helper path and are not redundant; the strict duplicate-key mutant is deterministic. D1/D2/D3 folding re-verified; D5 remains an active fact correction (782 vs 886). Boundaries (historical-only, non-approval, non-closure, #83, folding-not-invalidation) hold; ancestor f333316e verified. Suite 25/25 passes normally and with the 3 candidates staged via a temporary index; real index byte-identical and matching the -01 recorded value; candidate paths diff-check clean. No P1/P2/new-P3 findings. Candidates are accepted as evidence artifacts for their declared purposes; this review constitutes no acceptance, approval, or closure of any ticket including #83.",
+    "p1_count": 0,
+    "p2_count": 0,
+    "p3_new_count": 0,
+    "prior_p3_remediations_verified": 5
+  },
+  "hashes_note": "SHA256 of review.json and review.md are recorded in SHA256SUMS (a file cannot contain its own digest)"
+}

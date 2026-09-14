@@ -1,0 +1,143 @@
+{
+  "schema": "wksim.ingest-manifest.v1",
+  "manifested_at": "2026-09-14",
+  "owner": "codebuddy-ingest-manifest",
+  "manifested_head": "31e5b65f5448c5558450d16d0f46da0ef0f0a03c",
+  "reviewed_head": "31e5b65f5448c5558450d16d0f46da0ef0f0a03c",
+  "scope": "context-only",
+  "acceptance": "non-acceptance",
+  "exact_paths_sha256": "6a44aebbd35ea933430f274b3566b1021deae79c279884788f75d00a8947adf1",
+  "exact_paths_sha256_size_bytes": 826,
+  "exact_paths_count": 10,
+  "baseline_relations": {
+    "reviewed_head_equals_manifested_head": true,
+    "intervening_commits": 0,
+    "architecture_continuity_anchor_f333316e_is_ancestor": true,
+    "head_equality_required": false,
+    "head_reverified_start_and_end_of_session": true
+  },
+  "inputs": [
+    {
+      "path": "docs/coordination/codebuddy-module-review-20260912.md",
+      "role": "historical_context_document_module_review_snapshot",
+      "sha256": "7fd97029dfd4c0a8f301badfdc3abadb02a097b184c9908a07aa9f85e6f2e2db",
+      "size_bytes": 7544
+    },
+    {
+      "path": "docs/coordination/codebuddy-module-review-ingest-note-20260914.md",
+      "role": "binding_and_folding_registration_note_revised",
+      "sha256": "0841c96a5a27b1b554c342610eb6e05141c81d2e037682bb0dcea13ed7e27703",
+      "size_bytes": 8221
+    },
+    {
+      "path": "validation/test_codebuddy_module_review_context.py",
+      "role": "offline_binding_test_revised",
+      "sha256": "bc56db56480ff05ba542cad7401f4284116aa358ed31561df1597b65fa0fd2fd",
+      "size_bytes": 12778
+    },
+    {
+      "path": "validation/coordination/codebuddy-module-review-independent-review-20260914-02/review.md",
+      "role": "independent_review_report",
+      "sha256": "c049c56d96144c3b4f5cd6bb0c15db3d1e4b39542712dc585ad75ca0aa56ed9d",
+      "size_bytes": 10483
+    },
+    {
+      "path": "validation/coordination/codebuddy-module-review-independent-review-20260914-02/review.json",
+      "role": "independent_review_record",
+      "sha256": "e134bf3c0219624f1260856d6c1d59cb6c3d68624c275d2f77175173bf22a114",
+      "size_bytes": 11245
+    },
+    {
+      "path": "validation/coordination/codebuddy-module-review-independent-review-20260914-02/SHA256SUMS",
+      "role": "independent_review_checksum_manifest",
+      "sha256": "e8526bfbac864e39e69be9484fb5155d33f067396b67cede8c848e584fb41271",
+      "size_bytes": 154
+    }
+  ],
+  "input_verification": {
+    "all_hashes_and_sizes_recomputed_matching_task": true,
+    "inputs_unmodified": true,
+    "review_02_sha256sums_verified_relative_to_review_directory": true,
+    "review_02_json_strict_parsed": true
+  },
+  "review_facts": {
+    "reviewer": "CodeBuddy independent evidence reviewer (offline, read-only, fresh session)",
+    "review_date": "2026-09-14",
+    "reviewed_head": "31e5b65f5448c5558450d16d0f46da0ef0f0a03c",
+    "verdict": "PASS",
+    "findings_p1": 0,
+    "findings_p2": 0,
+    "findings_p3_new": 0,
+    "prior_p3_remediations_verified": 5,
+    "prior_p3_remediation_summary": [
+      "P3-1: note 2.2 now cites current gate by content anchor joint_profile.py:274-276; 219-220 registered as historical reading (2026-09-12 only)",
+      "P3-2: D2 correction attributed solely to parser_coverage.structural_reason; diagnostic_constraint absent from top-level rate-budget keys, nested only under next_minimal_diagnosis; all 12 D1/D2 anchors in structural_reason",
+      "P3-3: stale present-tense 219-220 promotion comment removed from test; live content-anchor test added",
+      "P3-4: mutation negatives re-run the same production helpers as positives (d1_folding_ok/d2_folding_ok/count_lines/sha256_of_bytes/strict_load) with distinct, non-redundant failure classes",
+      "P3-5: duplicate-key mutant replaced by deterministic minimal literal through the same strict_load production loader"
+    ],
+    "d5_status": "active_fact_correction_not_folded_not_fixed: ds-26-host-recheck-20260912.json plan_package.key_discovery.why_it_matters still records 782; no 886 anywhere in that JSON; validation/test_build_generated_e0.py is 886 lines (tracked, clean)",
+    "p3_promoted_to_p2": false,
+    "review_grants_approval": false
+  },
+  "owner_spot_checks": {
+    "minus_01_dir_preserved": "sha256sum -c in codebuddy-module-review-independent-review-20260914-01/: review.md OK, review.json OK, exit 0; dir unmodified and excluded from this 10-path batch",
+    "d5_live_recheck": "grep -c 782 in ds-26-host-recheck-20260912.json = 1; grep -c 886 = 0; wc -l test_build_generated_e0.py = 886",
+    "gate_anchor_live_recheck": "Simulator/wksim_runtime/joint_profile.py:274-276 marker loop raise 'Formal mixed/PV evidence cannot include '+marker present"
+  },
+  "test_facts": {
+    "command": "python -B validation/test_codebuddy_module_review_context.py",
+    "tests_defined": 25,
+    "this_session_runs": [
+      {
+        "phase": "run_1_normal_real_index_untouched",
+        "tests_run": 25,
+        "failures": 0,
+        "errors": 0,
+        "result": "OK",
+        "exit_code": 0
+      },
+      {
+        "phase": "run_2_temporary_git_index_file_exact_10_paths_staged",
+        "method": "temporary GIT_INDEX_FILE outside repo; read-tree HEAD then git add -f of exactly the exact-paths.txt 10 paths; ls-files path-set diff vs real index = exactly 10 added, 0 removed; temp index deleted afterwards",
+        "tests_run": 25,
+        "failures": 0,
+        "errors": 0,
+        "result": "OK",
+        "exit_code": 0
+      }
+    ],
+    "real_index_unchanged": {
+      "index_file_sha256_before": "7cf4a1989043e82954f59bd4aa704cbee88703cce2aba095428dd3a329ca26b1",
+      "index_file_sha256_after": "7cf4a1989043e82954f59bd4aa704cbee88703cce2aba095428dd3a329ca26b1",
+      "matches_review_02_recorded_value": true,
+      "ls_files_s_sha256_before": "5e08ccabec2775053b28f34e44eedd55db1a8b37ef8b4d895023d651f4b835ef",
+      "ls_files_s_sha256_after": "5e08ccabec2775053b28f34e44eedd55db1a8b37ef8b4d895023d651f4b835ef",
+      "byte_identical": true,
+      "never_staged": true
+    },
+    "diff_check": {
+      "batch_scoped_10_paths": "clean, exit 0",
+      "full_tree": "known pre-existing trailing whitespace only in protected docs/Prometheus.gitmodules.reference; originates from an uncommitted edit predating this task; file untouched by this task"
+    },
+    "suite_design": "ancestor assertions only, repo-relative paths via __file__, no writes, no network, no native execution, no reads of untracked classification artifacts, no requirement that candidates stay untracked"
+  },
+  "outputs": [
+    "validation/coordination/codebuddy-module-review-context-ingest-manifest-20260914-01/exact-paths.txt",
+    "validation/coordination/codebuddy-module-review-context-ingest-manifest-20260914-01/review.md",
+    "validation/coordination/codebuddy-module-review-context-ingest-manifest-20260914-01/review.json",
+    "validation/coordination/codebuddy-module-review-context-ingest-manifest-20260914-01/SHA256SUMS"
+  ],
+  "sha256sums_coverage": "exact-paths.txt, review.md, review.json only; SHA256SUMS does not self-reference",
+  "nonclaims": [
+    "This manifest is context-only ingestion of the reviewed batch; it is not an acceptance action and elevates no historical context to approval.",
+    "No issue acceptance, approval, closure, review authority, or #83 rerun permission is claimed or granted for #83, #9, #26, #29, #62, #102, or any other ticket.",
+    "No current rate-gate status is granted; no native result and no flight evidence is produced by this manifest.",
+    "Gate wording (1 ms tick, native barrier, 4-tick, no-catch-up, 100 ms/full window, physics/identity gates) is preserved unweakened; diagnostic-scene results can never serve as #83 pass evidence.",
+    "D5 remains an active fact correction (782 vs 886); this manifest neither fixes nor closes it.",
+    "The failed -01 independent review is preserved byte-identically as historical evidence and excluded from this batch; it was not modified or staged.",
+    "No input or file outside the four manifest outputs was edited; nothing was staged, committed, pushed, reset, or cleaned; the real index was never modified.",
+    "Protected files docs/Prometheus.gitmodules.reference and validation/coordination/short-cycle-dispatches.json were not touched; their pre-existing modified status predates this task. rolling-six-plan-20260912.md, claude-native-wait-next-probe.md, validation/_probe_delivery_contract.py, and %TEMP%audit26-report.json were not edited or staged.",
+    "No native/build/MATLAB/ROS/DDS/SITL/FC/UE/model/flight execution, no #83 rerun, no GitHub query or mutation, no network use was performed."
+  ]
+}

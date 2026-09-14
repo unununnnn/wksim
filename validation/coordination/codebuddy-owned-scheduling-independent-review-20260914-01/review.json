@@ -1,0 +1,121 @@
+{
+  "review": "codebuddy-owned-scheduling-independent-review-20260914-01",
+  "role": "independent CodeBuddy reviewer (non-implementing)",
+  "authoritative_head": "31e5b65f5448c5558450d16d0f46da0ef0f0a03c",
+  "head_confirmed": true,
+  "architecture_baseline": {
+    "commit": "f333316e6efa6b299b4288a9d91fb2bccedfb9d6",
+    "is_ancestor_of_head": true,
+    "verified_by": "git merge-base --is-ancestor exit 0"
+  },
+  "candidates": [
+    {
+      "path": "docs/coordination/codebuddy-owned-scheduling-ingest-note-20260914.md",
+      "sha256": "a8559e33f75d4475a4756787ab724b3c3338db4df8832a8fed6037c7d0da75a7",
+      "bytes": 10688,
+      "identity_recomputed_by_reviewer": true
+    },
+    {
+      "path": "validation/test_owned_scheduling_context.py",
+      "sha256": "07d5f11be9d6e83198a51828bc503e83a1f2c5ea3697120753cf0ed4a2f2a884",
+      "bytes": 23376,
+      "identity_recomputed_by_reviewer": true
+    }
+  ],
+  "verdict": "PASS/ADOPT",
+  "verdict_rule": "PASS/ADOPT only if P1==0 and P2==0",
+  "findings": {
+    "p1": [],
+    "p2": [],
+    "p3": [
+      "Ingest note section 8 is an explicit placeholder delegating final SHA/counters to the batch report; its own section 1/2 tables are complete and independently verified.",
+      "Candidate test pins NOTE_SHA256/NOTE_SIZE of the ingest note; future note edits require re-pinning both constants (documented coupling).",
+      "31/40 collected counts derive from 2026-09-13 review docs (parametrize expansion) and were not re-executed; 18/23 def counts verified directly and consistent."
+    ]
+  },
+  "tests": {
+    "normal_mode": {
+      "command": "python -m unittest validation.test_owned_scheduling_context -v",
+      "ran": 25,
+      "passed": 24,
+      "skipped": 1,
+      "skip_reason": "TestStagedIndexMode.test_staged_index_contract inactive without GIT_INDEX_FILE (by design)",
+      "failures": 0,
+      "errors": 0,
+      "result": "OK (skipped=1)"
+    },
+    "staged_index_mode": {
+      "mechanism": "single repo-external temporary GIT_INDEX_FILE copied from the real index; staged exactly the 2 candidates plus 3 review artifacts (5 new paths)",
+      "command": "GIT_INDEX_FILE=<repo-external tmp> python -m unittest validation.test_owned_scheduling_context",
+      "ran": 25,
+      "passed": 25,
+      "skipped": 0,
+      "failures": 0,
+      "errors": 0,
+      "result": "OK",
+      "contract_checks": {
+        "candidates_staged_in_external_index": true,
+        "staged_blob_equals_worktree_bytes": true,
+        "real_index_contains_no_candidate": true
+      }
+    },
+    "staged_index_proofs": {
+      "diff_cached_name_status_head": "exactly 5 lines, all A (added); no M, no D",
+      "delta_added_paths": 5,
+      "existing_changes": 0,
+      "removals": 0,
+      "batch_diff_check_clean": true,
+      "real_git_index_bytes_unchanged": true,
+      "git_status_porcelain_unchanged": true
+    }
+  },
+  "boundaries": {
+    "verified_claims": [
+      "five 2026-09-13 source docs: SHA256/sizes match note section 1; tracked; worktree == HEAD blob",
+      "six tracked anchors: SHA256/sizes match note section 2; tracked; worktree == HEAD blob",
+      "semantic anchors at claimed lines (capture :458/:462/:327/:105/:222-225/:203/:205/:276-277/:380/:405/:415; compare :140/:160/:121/:126) verified by direct reads",
+      "test def counts: 18 (test_owned_scheduling.py), 23 (test_compare_owned_scheduling.py)",
+      "current comparator 13a61a7f/21412B supersedes comparison-review pin 033d8af8/21218B; v1 bytes preserved byte-exact in source-compare-v1.py",
+      "historical test pin 20cc4590/19740B absent from all 8719 unique blobs at the anchor commit (exhaustive git cat-file --batch sha256 search)",
+      "e2e result.json verdict=pass and source_sha256 == {capture a3f3badd, compare 033d8af8, run_e2e b2e691cd}",
+      "both flight snapshots: schema wksim.owned-scheduling-snapshot.v1, sampler_sha256 == capture tool, 11 roles all captured in before and after, host.sched_schedstats == '0' (string), CLK_TCK == 100, performance_verdict == not_evaluated",
+      "snapshot byte sizes 228813/331637 (last-callbacks) and 228656/331602 (manager99); raw-byte SHA256 match pins and result.json.owned_scheduling records (chain intact)",
+      "result.json both runs: classification=diagnostic_only, full_acceptance=false, initialized=true, flight_completed=false, error=RateUnmet('rate_unmet/resource_insufficient')",
+      "monotonic_ns pins match and strictly increase (91625358121->270719650116; 97474541343->316507734204)",
+      "then-HEAD 820f5323 exists; five docs framed as superseded historical context, no current-HEAD acceptance claimed",
+      "forbidden-promotion language present; no pass/acceptance claims in the note",
+      "e2e framed as ordinary Python verifier/spinner smoke, not SITL/model/native evidence; sched_schedstats=0 nulls not read as zero wait; kernel_prio not RT priority",
+      "frozen gates (1ms tick, native barrier, 4-tick group, no catch-up, 100ms late limit, full sliding window, physics, identity) restated only, no promotion",
+      "drift policy implemented as described: anchor-pinned reads, HEAD-mismatch skip, unreachable-anchor fail-safe skip, mismatch FAIL, candidates absent at anchor",
+      "excluded/in-progress files untouched; git status --porcelain identical before/after"
+    ],
+    "no_acceptance_promotion": true,
+    "diagnostic_only_preserved": true,
+    "full_acceptance_false_preserved": true,
+    "flight_completed_false_preserved": true
+  },
+  "limitations": [
+    "This review validates only the offline historical-context ingest batch; it is not acceptance for #84/G6/Full and not native/SITL/model evidence.",
+    "Historical test pin 20cc4590/19740B cannot be anchored to tracked bytes; disclosed limitation, must not be cited as current fact.",
+    "Historical tail values (e.g. 57419470ns/54569053ns) belong to 2026-09-13 sessions and are not transferred to the current HEAD.",
+    "#83 is CLOSED/PASS and was never rerun; #84/G6/Full remain incomplete."
+  ],
+  "independence": {
+    "reviewer_authored_candidates": false,
+    "all_identities_recomputed": true,
+    "all_claims_rederived_from_tracked_bytes": true,
+    "candidate_files_modified": false,
+    "tracked_files_modified": false,
+    "real_index_mutated": false,
+    "git_add_commit_push_fetch_used_on_real_repo_state": false,
+    "network_used": false,
+    "forbidden_runs_executed": false,
+    "excluded_files_touched": false,
+    "manifest_created": false
+  },
+  "artifacts": [
+    "validation/coordination/codebuddy-owned-scheduling-independent-review-20260914-01/review.md",
+    "validation/coordination/codebuddy-owned-scheduling-independent-review-20260914-01/review.json",
+    "validation/coordination/codebuddy-owned-scheduling-independent-review-20260914-01/SHA256SUMS"
+  ]
+}

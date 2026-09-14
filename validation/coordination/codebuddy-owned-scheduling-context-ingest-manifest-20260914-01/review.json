@@ -1,0 +1,150 @@
+{
+  "schema": "wksim.ingest-manifest.v1",
+  "manifested_at": "2026-09-14",
+  "owner": "codebuddy-ingest-manifest",
+  "manifested_head": "31e5b65f5448c5558450d16d0f46da0ef0f0a03c",
+  "reviewed_head": "31e5b65f5448c5558450d16d0f46da0ef0f0a03c",
+  "scope": "context-only",
+  "acceptance": "non-acceptance",
+  "exact_paths_sha256": "da50faabe22f292f2119abc727e2fb533305a38c841741ddfdf82192a6e2e9e2",
+  "exact_paths_sha256_size_bytes": 789,
+  "exact_paths_count": 9,
+  "baseline_relations": {
+    "reviewed_head_equals_manifested_head": true,
+    "intervening_commits": 0,
+    "architecture_continuity_anchor_f333316e_is_ancestor": true,
+    "head_equality_required": false,
+    "head_reverified_start_and_end_of_session": true
+  },
+  "inputs": [
+    {
+      "path": "docs/coordination/codebuddy-owned-scheduling-ingest-note-20260914.md",
+      "role": "candidate_binding_and_registration_ingest_note",
+      "sha256": "a8559e33f75d4475a4756787ab724b3c3338db4df8832a8fed6037c7d0da75a7",
+      "size_bytes": 10688
+    },
+    {
+      "path": "validation/test_owned_scheduling_context.py",
+      "role": "candidate_offline_binding_test",
+      "sha256": "07d5f11be9d6e83198a51828bc503e83a1f2c5ea3697120753cf0ed4a2f2a884",
+      "size_bytes": 23376
+    },
+    {
+      "path": "validation/coordination/codebuddy-owned-scheduling-independent-review-20260914-01/review.md",
+      "role": "independent_review_report",
+      "sha256": "9d2acc9c0cc7e67775c13da6797f8600be2622cd9591af6d6f9c35e1ddddb75c",
+      "size_bytes": 10850
+    },
+    {
+      "path": "validation/coordination/codebuddy-owned-scheduling-independent-review-20260914-01/review.json",
+      "role": "independent_review_record",
+      "sha256": "0a9e173f4bf17fb3936e7afc167b021e5cdf3cee4a24c10e4177a89081bdba5d",
+      "size_bytes": 6790
+    },
+    {
+      "path": "validation/coordination/codebuddy-owned-scheduling-independent-review-20260914-01/SHA256SUMS",
+      "role": "independent_review_checksum_manifest",
+      "sha256": "93e4650def55edf87aaf9ed6d6a684abc8ad7511a6e29db41f991fef4be64a00",
+      "size_bytes": 154
+    }
+  ],
+  "input_verification": {
+    "all_hashes_and_sizes_recomputed_matching_task": true,
+    "inputs_unmodified": true,
+    "review_01_sha256sums_verified_relative_to_review_directory": true,
+    "review_01_json_strict_parsed": true,
+    "none_of_the_five_inputs_staged_in_real_index": true
+  },
+  "review_facts": {
+    "reviewer": "CodeBuddy independent evidence reviewer (offline, read-only, non-implementing, fresh session)",
+    "review_date": "2026-09-14",
+    "reviewed_head": "31e5b65f5448c5558450d16d0f46da0ef0f0a03c",
+    "verdict": "PASS/ADOPT",
+    "verdict_rule": "PASS/ADOPT only if P1==0 and P2==0",
+    "findings_p1": 0,
+    "findings_p2": 0,
+    "findings_p3": 3,
+    "p3_summary": [
+      "P3-1: ingest note section 8 is an explicit placeholder delegating final SHA/counters to the batch report; its own section 1/2 tables are complete and independently verified",
+      "P3-2: candidate test pins NOTE_SHA256/NOTE_SIZE of the ingest note; future note edits require re-pinning both constants (documented coupling)",
+      "P3-3: 31/40 collected counts derive from 2026-09-13 review docs (parametrize expansion) and were not re-executed; 18/23 def counts verified directly and consistent"
+    ],
+    "p3_promoted_to_p2": false,
+    "review_grants_approval": false
+  },
+  "test_facts": {
+    "command": "python -B validation/test_owned_scheduling_context.py",
+    "tests_defined": 25,
+    "this_session_runs": [
+      {
+        "phase": "run_1_normal_real_index_untouched",
+        "tests_run": 25,
+        "passed": 24,
+        "skipped": 1,
+        "skip_reason": "TestStagedIndexMode.test_staged_index_contract inactive without GIT_INDEX_FILE (by design)",
+        "failures": 0,
+        "errors": 0,
+        "result": "OK (skipped=1)",
+        "exit_code": 0
+      },
+      {
+        "phase": "run_2_temporary_git_index_file_exact_9_paths_staged",
+        "method": "temporary GIT_INDEX_FILE outside repo; git read-tree HEAD then git add -f of exactly the exact-paths.txt 9 paths; ls-files path-set diff vs real index = exactly 9 added, 0 removed; temp index deleted afterwards",
+        "tests_run": 25,
+        "passed": 25,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0,
+        "result": "OK",
+        "exit_code": 0
+      }
+    ],
+    "run_2_self_reference_note": "run_2 was executed while review.md/review.json still carried PENDING markers for the run-result fields recorded here; the staged-index contract test binds only the two candidate blobs (byte-exact to working-tree bytes, unchanged throughout the session) and the 9-path set-equality claim is byte-independent, so the exact-9-path admission holds for the finalized outputs as well.",
+    "real_index_unchanged": {
+      "index_file_sha256_before": "a7fd6154535cbcde789c99d6ee5f38097d914323453dde5d5ad97b1da09e9253",
+      "index_file_sha256_after": "a7fd6154535cbcde789c99d6ee5f38097d914323453dde5d5ad97b1da09e9253",
+      "ls_files_s_sha256_before": "5e08ccabec2775053b28f34e44eedd55db1a8b37ef8b4d895023d651f4b835ef",
+      "ls_files_s_sha256_after": "5e08ccabec2775053b28f34e44eedd55db1a8b37ef8b4d895023d651f4b835ef",
+      "status_porcelain_sha256_before_manifest_outputs": "3958957ea18a84fdd337168fcdc123c1d85d5cfa2d6b88d633fdac23a78b78b4",
+      "status_porcelain_sha256_after_manifest_outputs": "3958957ea18a84fdd337168fcdc123c1d85d5cfa2d6b88d633fdac23a78b78b4",
+      "status_porcelain_sha256_session_start": "d5da1742f56c36ab59ea4083e01a11d78144abcdd8830fc5ad1fe0d57b206d10",
+      "status_porcelain_note": "git status --porcelain is line-identical (22 lines) before and after creation of the four manifest outputs: this task's outputs (all inside gitignored validation/coordination/) do not appear in status and perturb nothing. The full-session delta (d5da1742..3958957e) is attributable to a concurrent third-party session modifying docs/coordination/mixed-work-overrun-20260913-v2.md (mtime 2026-09-14 20:16:23 during this session), a path outside this batch that this task never read, modified, or staged.",
+      "staged_set_byte_identical": true,
+      "index_file_byte_identical": true,
+      "never_staged": true
+    },
+    "suite_design": "ancestor assertions only, content pinned to absolute ANCHOR_COMMIT 31e5b65f with safe-drift skips, repo-relative paths via __file__, no writes, no network, no native execution, no reads of untracked classification artifacts, no requirement that candidates stay untracked; staged-index mode additionally asserts candidates staged in the external index with blob==worktree bytes and absent from the real index"
+  },
+  "owner_spot_checks": {
+    "exact_paths_file": "9 lines, unique, LC_ALL=C sort -c passes, trailing LF, no CRLF; sha256/size recorded above",
+    "review_01_dir_self_check": "sha256sum -c in codebuddy-owned-scheduling-independent-review-20260914-01/: review.md OK, review.json OK, exit 0; dir unmodified and included as the only review batch",
+    "real_index_state": "git ls-files -s over the 5 input paths returns empty (none staged); candidates are untracked (gitignore covers validation/*; docs note untracked)"
+  },
+  "excluded_paths": [
+    "docs/Prometheus.gitmodules.reference",
+    "validation/coordination/short-cycle-dispatches.json",
+    "docs/coordination/rolling-six-plan-20260912.md",
+    "docs/coordination/claude-native-wait-next-probe.md",
+    "validation/_probe_delivery_contract.py",
+    "%TEMP%audit26-report.json"
+  ],
+  "excluded_paths_note": "All six protected/unrelated paths were not read, modified, staged, or otherwise touched. All superseded review/manifest directories from other batches are excluded from this 9-path batch and were not modified or staged.",
+  "outputs": [
+    "validation/coordination/codebuddy-owned-scheduling-context-ingest-manifest-20260914-01/exact-paths.txt",
+    "validation/coordination/codebuddy-owned-scheduling-context-ingest-manifest-20260914-01/review.md",
+    "validation/coordination/codebuddy-owned-scheduling-context-ingest-manifest-20260914-01/review.json",
+    "validation/coordination/codebuddy-owned-scheduling-context-ingest-manifest-20260914-01/SHA256SUMS"
+  ],
+  "sha256sums_coverage": "exact-paths.txt, review.md, review.json only; SHA256SUMS does not self-reference",
+  "nonclaims": [
+    "This manifest is context-only ingestion of the independently reviewed owned-scheduling batch; it is not an acceptance action and elevates no historical context to approval.",
+    "No issue acceptance, approval, closure, review authority, or rerun permission is claimed or granted for #83, #84, G6, Full, or any other ticket.",
+    "No current rate-gate status is granted; no native result and no flight evidence is produced by this manifest.",
+    "Frozen gate wording (1 ms tick, native barrier, 4-tick group, no-catch-up, 100 ms/full sliding window, physics/identity gates) is preserved unweakened; diagnostic-scene results can never serve as #83 pass evidence.",
+    "diagnostic_only, full_acceptance=false, flight_completed=false, and performance_verdict=not_evaluated classifications are preserved exactly as reviewed; no promotion is performed.",
+    "Historical test pin 20cc4590/19740B remains unanchored to tracked bytes (disclosed limitation) and is not cited as current fact; historical tail values are not transferred to the current HEAD.",
+    "No input or file outside the four manifest outputs was edited; nothing was staged, committed, pushed, reset, or cleaned; the real index was never modified.",
+    "The six excluded protected/unrelated paths and all superseded batch directories were not touched.",
+    "No native/build/MATLAB/ROS/DDS/SITL/FC/UE/model/flight execution, no #83 rerun, no GitHub query or mutation, no network use was performed."
+  ]
+}
