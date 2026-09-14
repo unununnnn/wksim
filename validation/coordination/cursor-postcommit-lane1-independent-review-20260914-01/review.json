@@ -1,0 +1,364 @@
+{
+  "schema": "wksim.postcommit-lane1-independent-review.review.v1",
+  "audit_id": "cursor-postcommit-lane1-independent-review-20260914-01",
+  "source_audit_id": "cursor-postcommit-lane1-remote-chain-20260914-01",
+  "plan": "cursor-postcommit-three-lane-verification-plan-20260914-01",
+  "date": "2026-09-14",
+  "work_class": "postcommit-lane1-independent-review",
+  "cwd": "C:/Users/PC/Documents/odid编译/wksim",
+  "branch": "main",
+  "final_head": "59d8da51b4c31b6aa050929ebbe81ccc357acfb5",
+  "observed_head": "59d8da51b4c31b6aa050929ebbe81ccc357acfb5",
+  "final_tree": "5d1cbb9e0ca663d0f10f60d6b645b97b5998b256",
+  "source_head": "6eafdf9c0b734db07a9fe790c86b409d3468c10b",
+  "source_tree": "435471df1371a0bec80d4b6013c3bc9cbc8af938",
+  "architecture_ancestor": "f333316e6efa6b299b4288a9d91fb2bccedfb9d6",
+  "ancestor_check_exit": 0,
+  "source_ancestor_check_exit": 0,
+  "full_origin_clone_executed": false,
+  "full_176_sha256_rescan": false,
+  "pytest_or_unittest_run": false,
+  "native_build_flight_83": false,
+  "source_receipts_edited": false,
+  "git_mutated": false,
+  "git_add_commit_push": false,
+  "scripts": [],
+  "claims_owner_approval": false,
+  "claims_gate_or_issue_or_full_closure": false,
+  "substitute_supports_steps_1_to_7_pass": false,
+  "substitute_supports_step_2_pass": false,
+  "substitute_supports_object_layer_steps_3_to_6": true,
+  "substitute_supports_step_1_tip_bind": true,
+  "substitute_supports_step_7_spotcheck": true,
+  "verdict": "FAIL",
+  "verdict_statement": "FAIL. One P1 rejects the source claim that steps 1-7 are all green. Cloning the already-bound FINAL_HEAD from the local planner repo and retargeting origin to GitHub is not the card-specified origin clone, so it cannot mark step 2 PASS. Object-layer spot checks of the parent chain, six name-sets, dirty blobs, and 12 first/last paths hold on current git objects. FETCH_HEAD equals 59d8da51 from GitHub and content-addressing makes that SHA unique, but fetch after a local clone does not prove an independent origin pack. Source 0 P1 / 0 P2 / all-green is not accepted. No full clone, no 176 SHA-256 rescan, no tests, no source-receipt or git mutation.",
+  "p1": [
+    {
+      "id": "P1-STEP2-LOCAL-CLONE-NOT-ORIGIN",
+      "fail_this_review": true,
+      "source_claim": "Step 2 PASS; steps 1-7 green; 0 P1; 0 P2; inspection checkout recorded only as P3",
+      "observed": {
+        "card_step_2": "git clone --no-tags --single-branch --branch main https://github.com/unununnnn/wksim.git",
+        "origin_full_clone": "C:/Users/PC/AppData/Local/Temp/wksim-lane1-20260914-080259",
+        "origin_full_clone_completed": false,
+        "origin_full_clone_has_head": false,
+        "origin_full_clone_has_pack": false,
+        "inspection_checkout": "C:/Users/PC/AppData/Local/Temp/wksim-lane1-fresh-20260914-01",
+        "inspection_reflog": "clone: from C:\\Users\\PC\\Documents\\odid编译\\wksim",
+        "inspection_origin_after_retarget": "https://github.com/unununnnn/wksim.git",
+        "inspection_fetch_head": "59d8da51b4c31b6aa050929ebbe81ccc357acfb5",
+        "inspection_shallow": false,
+        "inspection_alternates": false,
+        "inspection_status_short": ""
+      },
+      "note": "Retargeted origin plus FETCH_HEAD can bind the remote tip. It cannot rewrite step 2 into PASS or support source all-green."
+    }
+  ],
+  "p2": [
+    {
+      "id": "P2-ORIGIN-CLONE-STILL-HEADLESS",
+      "fail_this_review": false,
+      "path": "C:/Users/PC/AppData/Local/Temp/wksim-lane1-20260914-080259",
+      "note": "The card-specified origin clone directory still has no HEAD, pack, or FETCH_HEAD. It cannot be treated as a completed step 2."
+    },
+    {
+      "id": "P2-NO-176-SHA256-AND-NO-LSREMOTE-RERUN",
+      "fail_this_review": false,
+      "note": "This review compared six-group name-sets and 12 first/last paths only. It did not rescan 176 SHA-256, rerun ls-remote, or run tests."
+    }
+  ],
+  "p3": [
+    "P3-BUDGET-APPROVAL-PROVENANCE-IS-CANDIDATE-NAME-NOT-OWNER-APPROVAL",
+    "P3-THIS-REVIEW-NOT-IN-176",
+    "P3-NO-OWNER-APPROVAL-OR-GATE-CLOSURE",
+    "P3-NO-TESTS",
+    "P3-NO-SHA256-RECOMPUTE"
+  ],
+  "checks": {
+    "source_json_parseable": true,
+    "final_head_bound": true,
+    "step1_tip_ne_source_head": true,
+    "step1_ls_remote_rerun": false,
+    "step2_direct_origin_clone": false,
+    "step3_head_tree_symbolic_ref_count": true,
+    "step4_parent_chain_no_merge": true,
+    "step5_name_sets_match_oracle": true,
+    "step6_dirty_blobs_unchanged": true,
+    "step7_first_last_visibility_spotcheck": true,
+    "source_all_green_1_to_7": false,
+    "source_zero_p1_zero_p2": false
+  },
+  "source_files": {
+    "review_md": {
+      "path": "validation/coordination/cursor-postcommit-lane1-remote-chain-20260914-01/review.md",
+      "bytes": 7021
+    },
+    "review_json": {
+      "path": "validation/coordination/cursor-postcommit-lane1-remote-chain-20260914-01/review.json",
+      "parseable": true,
+      "bytes": 9408
+    }
+  },
+  "source_claims": {
+    "verdict": "PASS",
+    "p1": [],
+    "p2": [],
+    "origin_full_clone_completed": false,
+    "used_depth_1": false,
+    "inspection_checkout_is_planner_dirty_worktree": false,
+    "ls_remote_main": "59d8da51b4c31b6aa050929ebbe81ccc357acfb5",
+    "FINAL_HEAD": "59d8da51b4c31b6aa050929ebbe81ccc357acfb5",
+    "claims_owner_approval": false
+  },
+  "card": {
+    "path": "validation/coordination/cursor-postcommit-three-lane-verification-plan-20260914-01/lane1.txt",
+    "step2_required": "git clone --no-tags --single-branch --branch main https://github.com/unununnnn/wksim.git",
+    "forbidden": ["--depth 1", "planner dirty worktree as fresh checkout"]
+  },
+  "path_oracle": "validation/coordination/cursor-final-176-six-commit-private-rehearsal-20260914-01/six-groups.json",
+  "parent_chain": {
+    "rev_list_count": 6,
+    "merges": [],
+    "FINAL_HEAD_equals_COMMIT_F": true,
+    "COMMIT_A_parent_equals_SOURCE_HEAD": true,
+    "commits": {
+      "A": {
+        "sha": "14e474e47e1ee1c114d423870a034fbf2cb26e76",
+        "parent": "6eafdf9c0b734db07a9fe790c86b409d3468c10b",
+        "tree": "4ec2299950d72f0ce1f31cdba08c6afb468f9843",
+        "parents": 1,
+        "subject": "Add G1/G5 offline-drift candidate and exact evidence"
+      },
+      "B": {
+        "sha": "f5509c35db8fc62c5722fb55a29299cb60ff4f4a",
+        "parent": "14e474e47e1ee1c114d423870a034fbf2cb26e76",
+        "tree": "0433687ca8a2f551b376a7728013fe3d1e4d239b",
+        "parents": 1,
+        "subject": "Add G3 exact-clearance candidate with postrepair3 and docfix2"
+      },
+      "C": {
+        "sha": "bc0648dcff8c1a4c2de55e6de67b30f2f524c457",
+        "parent": "f5509c35db8fc62c5722fb55a29299cb60ff4f4a",
+        "tree": "5c6b3ae2430acc276f9ce73698a8ac6947f960b1",
+        "parents": 1,
+        "subject": "Add G6 budget-approval-provenance candidate and exact evidence"
+      },
+      "D": {
+        "sha": "f30ebf0f116b75c56802375702eaa1b2cbc3beba",
+        "parent": "bc0648dcff8c1a4c2de55e6de67b30f2f524c457",
+        "tree": "fbdf039f046e02a5b5d7e19d840dc525448ba0cf",
+        "parents": 1,
+        "subject": "Add G6 frame-datum-binding candidate and exact evidence"
+      },
+      "E": {
+        "sha": "88349152a30d29ca95ec92364c4228c2a37d617b",
+        "parent": "f30ebf0f116b75c56802375702eaa1b2cbc3beba",
+        "tree": "e5c98e40eb151d3054ae67fba0b1fe160809e569",
+        "parents": 1,
+        "subject": "Add Full original AC gap-ledger candidate and exact evidence"
+      },
+      "F": {
+        "sha": "59d8da51b4c31b6aa050929ebbe81ccc357acfb5",
+        "parent": "88349152a30d29ca95ec92364c4228c2a37d617b",
+        "tree": "5d1cbb9e0ca663d0f10f60d6b645b97b5998b256",
+        "parents": 1,
+        "subject": "Add five-slice dual-order integration2 receipt"
+      }
+    },
+    "forbidden_title_hits": []
+  },
+  "group_name_sets": {
+    "A": {"count": 34, "extra": [], "missing": [], "duplicate": []},
+    "B": {"count": 26, "extra": [], "missing": [], "duplicate": []},
+    "C": {"count": 60, "extra": [], "missing": [], "duplicate": []},
+    "D": {"count": 17, "extra": [], "missing": [], "duplicate": []},
+    "E": {"count": 32, "extra": [], "missing": [], "duplicate": []},
+    "F": {"count": 7, "extra": [], "missing": [], "duplicate": []},
+    "total": 176,
+    "pairwise_intersections_empty": true,
+    "g1_four_only_in_A": true,
+    "g3_postrepair3_docfix2_count_in_B": 13,
+    "g3_postrepair3_docfix2_only_in_B": true,
+    "C_excludes_three_frame_candidates": true,
+    "F_is_exactly_seven_integration2": true,
+    "F_intersect_169_empty": true,
+    "note": "Name-set equality via diff-tree, not SHA-256 rescan. diff-tree order is path-sorted; oracle list order differs except F."
+  },
+  "first_last_paths": [
+    {
+      "group": "A",
+      "role": "oracle_first",
+      "path": "validation/test_g1_g5_offline_drift.py",
+      "source_cat_file_e": 128,
+      "final_type": "blob",
+      "final_mode": "100644",
+      "fresh_stage_mode": "100644"
+    },
+    {
+      "group": "A",
+      "role": "oracle_last",
+      "path": "validation/coordination/cursor-g1-g5-final-private-stage-finalize-20260914-01/SHA256SUMS",
+      "source_cat_file_e": 128,
+      "final_type": "blob",
+      "final_mode": "100644",
+      "fresh_stage_mode": "100644"
+    },
+    {
+      "group": "B",
+      "role": "oracle_first",
+      "path": "Simulator/wksim_planning/ego_exact_clearance.py",
+      "source_cat_file_e": 128,
+      "final_type": "blob",
+      "final_mode": "100644",
+      "fresh_stage_mode": "100644"
+    },
+    {
+      "group": "B",
+      "role": "oracle_last",
+      "path": "validation/coordination/cursor-g3-exact-precommit-audit-20260914-01/captures/prior-179-match.json",
+      "source_cat_file_e": 128,
+      "final_type": "blob",
+      "final_mode": "100644",
+      "fresh_stage_mode": "100644"
+    },
+    {
+      "group": "C",
+      "role": "oracle_first",
+      "path": "docs/plan/59-e0-budget-approval-provenance-20260914.md",
+      "source_cat_file_e": 128,
+      "final_type": "blob",
+      "final_mode": "100644",
+      "fresh_stage_mode": "100644"
+    },
+    {
+      "group": "C",
+      "role": "oracle_last",
+      "path": "validation/coordination/cursor-g6-budget-related-source-final-review-20260914-01/SHA256SUMS",
+      "source_cat_file_e": 128,
+      "final_type": "blob",
+      "final_mode": "100644",
+      "fresh_stage_mode": "100644"
+    },
+    {
+      "group": "D",
+      "role": "oracle_first",
+      "path": "docs/plan/59-e0-frame-datum-binding-20260914.md",
+      "source_cat_file_e": 128,
+      "final_type": "blob",
+      "final_mode": "100644",
+      "fresh_stage_mode": "100644"
+    },
+    {
+      "group": "D",
+      "role": "oracle_last",
+      "path": "validation/coordination/cursor-g6-frame-datum-precommit-audit-20260914-01/captures/prior-full-suite-recheck.json",
+      "source_cat_file_e": 128,
+      "final_type": "blob",
+      "final_mode": "100644",
+      "fresh_stage_mode": "100644"
+    },
+    {
+      "group": "E",
+      "role": "oracle_first",
+      "path": "docs/plan/full-original-ac-gap-ledger-20260914.md",
+      "source_cat_file_e": 128,
+      "final_type": "blob",
+      "final_mode": "100644",
+      "fresh_stage_mode": "100644"
+    },
+    {
+      "group": "E",
+      "role": "oracle_last",
+      "path": "validation/coordination/cursor-full-frame-postcommit-sequence-20260914-01/captures/lin-full-then-frame-final-frame-12.txt",
+      "source_cat_file_e": 128,
+      "final_type": "blob",
+      "final_mode": "100644",
+      "fresh_stage_mode": "100644"
+    },
+    {
+      "group": "F",
+      "role": "oracle_first",
+      "path": "validation/coordination/cursor-five-slice-final-integration2-20260914-01/SHA256SUMS",
+      "source_cat_file_e": 128,
+      "final_type": "blob",
+      "final_mode": "100644",
+      "fresh_stage_mode": "100644"
+    },
+    {
+      "group": "F",
+      "role": "oracle_last",
+      "path": "validation/coordination/cursor-five-slice-final-integration2-20260914-01/sequence-matrix.json",
+      "source_cat_file_e": 128,
+      "final_type": "blob",
+      "final_mode": "100644",
+      "fresh_stage_mode": "100644"
+    }
+  ],
+  "dirty_exclusion": {
+    "docs/Prometheus.gitmodules.reference": {
+      "source_blob": "382f2c17feacc6c08af9db7c58b20cd1f76b7ea2",
+      "final_blob": "382f2c17feacc6c08af9db7c58b20cd1f76b7ea2",
+      "blob_bytes": 480,
+      "log_oneline": "",
+      "in_any_diff_tree": false
+    },
+    "validation/coordination/short-cycle-dispatches.json": {
+      "source_blob": "0688c231349cbdb32701495538d45c34252f6817",
+      "final_blob": "0688c231349cbdb32701495538d45c34252f6817",
+      "blob_bytes": 1361,
+      "log_oneline": "",
+      "in_any_diff_tree": false,
+      "planner_worktree_bytes": 1268,
+      "fresh_worktree_raw_bytes": 1361,
+      "fresh_carries_planner_1268_dirty_bytes": false
+    }
+  },
+  "inspection_checkout": {
+    "path": "C:/Users/PC/AppData/Local/Temp/wksim-lane1-fresh-20260914-01",
+    "exists": true,
+    "clone_from": "C:\\Users\\PC\\Documents\\odid编译\\wksim",
+    "head": "59d8da51b4c31b6aa050929ebbe81ccc357acfb5",
+    "tree": "5d1cbb9e0ca663d0f10f60d6b645b97b5998b256",
+    "symbolic_ref": "refs/heads/main",
+    "origin": "https://github.com/unununnnn/wksim.git",
+    "fetch_head": "59d8da51b4c31b6aa050929ebbe81ccc357acfb5",
+    "shallow": false,
+    "alternates": false,
+    "status_short": "",
+    "rev_list_count": 6
+  },
+  "origin_full_clone": {
+    "path": "C:/Users/PC/AppData/Local/Temp/wksim-lane1-20260914-080259",
+    "exists": true,
+    "completed": false,
+    "has_head": false,
+    "has_pack": false,
+    "has_fetch_head": false
+  },
+  "non_binding_rehearsal_objects_absent": {
+    "A": "afdc9b9720850c6310d08c29ba3d2c3cf1501b1b",
+    "F": "9c9506278ebddc36445c63f6c11a881181a01396",
+    "integration2_18file_tree": "317b98b873ba8c2e62a478144107a795929fa4b5"
+  },
+  "remaining_evidence": [
+    "Completed card-specified git clone --no-tags --single-branch --branch main https://github.com/unununnnn/wksim.git with HEAD=59d8da51, symbolic-ref=refs/heads/main, not --depth 1, not the planner dirty worktree",
+    "Or a written owner acceptance that local-path clone plus origin retarget plus ls-remote/fetch tip bind equals step 2. This review does not write that acceptance"
+  ],
+  "does_not_close": [
+    "#39",
+    "#102",
+    "#59",
+    "#10",
+    "#60",
+    "G1",
+    "G5",
+    "G3",
+    "G6",
+    "Full"
+  ],
+  "output_dir": "validation/coordination/cursor-postcommit-lane1-independent-review-20260914-01",
+  "output_names": [
+    "review.md",
+    "review.json"
+  ]
+}

@@ -1,0 +1,310 @@
+{
+  "schema": "wksim.postcommit-lane3-hash-integrity.review.v1",
+  "audit_id": "cursor-postcommit-lane3-hash-integrity-20260914-01",
+  "plan": "cursor-postcommit-three-lane-verification-plan-20260914-01",
+  "date": "2026-09-14",
+  "work_class": "postcommit-lane3-hash-integrity",
+  "cwd": "C:/Users/PC/Documents/odid编译/wksim",
+  "branch": "main",
+  "source_head": "6eafdf9c0b734db07a9fe790c86b409d3468c10b",
+  "final_head": "59d8da51b4c31b6aa050929ebbe81ccc357acfb5",
+  "observed_head": "59d8da51b4c31b6aa050929ebbe81ccc357acfb5",
+  "observed_origin_main": "59d8da51b4c31b6aa050929ebbe81ccc357acfb5",
+  "final_tree": "5d1cbb9e0ca663d0f10f60d6b645b97b5998b256",
+  "architecture_ancestor": "f333316e6efa6b299b4288a9d91fb2bccedfb9d6",
+  "ancestor_check_exit": 0,
+  "commit_f_card": "59d8da51b4c31b6aa050929ebbe81ccc357acfb5",
+  "final_head_equals_commit_f": true,
+  "final_head_ne_source_head": true,
+  "hash_oracle": "validation/coordination/cursor-final-176-six-commit-private-rehearsal-20260914-01/path-hashes.json",
+  "addon_list": "validation/coordination/cursor-final-receipt-ingest-minimization-20260914-01/exact-addon-paths.txt",
+  "hash_method": "git -c core.autocrlf=false cat-file blob FINAL_HEAD:path; hashlib.sha256(raw_bytes)",
+  "rehearsal_commit_shas_used_as_final_head": false,
+  "candidate_edited": false,
+  "receipts_edited": false,
+  "existing_files_edited": false,
+  "git_mutated": false,
+  "git_add_commit_reset_ref_update": false,
+  "tests_rerun": false,
+  "pytest_or_unittest_run": false,
+  "parent_chain_walked": false,
+  "native_build_flight_83": false,
+  "scripts_left": false,
+  "scripts": [],
+  "claims_owner_approval": false,
+  "claims_gate_or_issue_or_full_closure": false,
+  "verdict": "PASS",
+  "verdict_statement": "PASS. A 176/176 hash and byte match with empty missing/hash_mismatch/bytes_mismatch. B 7/7 addon including SHA256SUMS self-pin 166b9e9a… and 6 listed bodies. C secret_hits=[] hygiene clean exact-sha duplicates=0 same-size>=8KiB pairs=0 known unique ledgers 285820/225429. D pid directory present, 83 cited_sources exist, G3 evaluator/admission/bspline remain, budget 13 and frame 23 pins remain, G1 seven product rows remain, related B1/B4 trio cat-file -e exits 128/128/128. FINAL_HEAD=59d8da51… bound from ls-remote and equals COMMIT_F. claims_owner_approval=false; no issue/gate closed.",
+  "p1": [],
+  "p2": [],
+  "p3": [
+    "P3-SUMS-OMITS-SELF",
+    "P3-TOKEN-FIELD-NAME-DIAGNOSTIC",
+    "P3-THIS-LANE3-NOT-IN-176",
+    "P3-NO-TESTS-NO-PARENT-CHAIN",
+    "P3-SCANNER-NOT-LEFT-IN-OUTPUT"
+  ],
+  "gates": {
+    "A_176_of_176": true,
+    "B_7_of_7": true,
+    "C_secret_hits_empty": true,
+    "C_hygiene": true,
+    "C_large_files": true,
+    "D_pid_directory": true,
+    "D_cited_sources": true,
+    "D_g3_planning_deps": true,
+    "D_budget_frame_pins": true,
+    "D_g1_seven_rows": true,
+    "D_related_trio_absent": true,
+    "final_head_bound": true,
+    "no_scripts_left": true,
+    "no_owner_approval_or_gate_close": true
+  },
+  "A": {
+    "listed": 176,
+    "matched": 176,
+    "missing": [],
+    "hash_mismatch": [],
+    "bytes_mismatch": [],
+    "by_group": {
+      "A": 34,
+      "B": 26,
+      "C": 60,
+      "D": 17,
+      "E": 32,
+      "F": 7
+    },
+    "pass": true
+  },
+  "B": {
+    "listed": 7,
+    "matched": 7,
+    "sha256sums_self": "166b9e9acec1a0bfe7278b44e3746bb3d05fc255b7008155e610d3a5456307a6",
+    "sha256sums_pin": "166b9e9acec1a0bfe7278b44e3746bb3d05fc255b7008155e610d3a5456307a6",
+    "sha256sums_omits_self": true,
+    "listed_bodies": 6,
+    "listed_bodies_matched": 6,
+    "sums_line_mismatch": [],
+    "missing": [],
+    "hash_mismatch": [],
+    "pass": true,
+    "paths": [
+      {
+        "path": "validation/coordination/cursor-five-slice-final-integration2-20260914-01/SHA256SUMS",
+        "sha256": "166b9e9acec1a0bfe7278b44e3746bb3d05fc255b7008155e610d3a5456307a6",
+        "role": "self-pin"
+      },
+      {
+        "path": "validation/coordination/cursor-five-slice-final-integration2-20260914-01/review.md",
+        "sha256": "fe8594105b323fd5d01733b8855ad142b1552be2aff47a070a367f5d6ea89940",
+        "role": "sums-line"
+      },
+      {
+        "path": "validation/coordination/cursor-five-slice-final-integration2-20260914-01/review.json",
+        "sha256": "e5d9255cd7bd66a8e37fc0bb71f095650294ce701dea0027b9a718c367c80ed9",
+        "role": "sums-line"
+      },
+      {
+        "path": "validation/coordination/cursor-five-slice-final-integration2-20260914-01/sequence-matrix.json",
+        "sha256": "e5af8dd647789ef79e027954cd08998d62f82e76dbeb33661e49ff00f884d511",
+        "role": "sums-line"
+      },
+      {
+        "path": "validation/coordination/cursor-five-slice-final-integration2-20260914-01/candidate-hashes.json",
+        "sha256": "6b7293e3a310e3312bb676e74409d83e1765943e418a5940d96457384b97715e",
+        "role": "sums-line"
+      },
+      {
+        "path": "validation/coordination/cursor-five-slice-final-integration2-20260914-01/dependency-check.json",
+        "sha256": "be3f3c74c491aa63f27e4e40ed677f66878d3083603034f9601d398f80f51466",
+        "role": "sums-line"
+      },
+      {
+        "path": "validation/coordination/cursor-five-slice-final-integration2-20260914-01/durable-evidence-manifest.txt",
+        "sha256": "a644faa044844516d787cd5162edff6a700963c4e4706c64fdb2f44265c64398",
+        "role": "sums-line"
+      }
+    ]
+  },
+  "C": {
+    "secret_hits": [],
+    "secret_scan": {
+      "rules": [
+        "pem_private_key",
+        "openssh_private_key",
+        "pgp_private_key",
+        "aws_access_key_id",
+        "github_pat",
+        "github_token",
+        "slack_token",
+        "google_api_key",
+        "authorization_header",
+        "jwt_compact",
+        "aws_secret_assignment",
+        "client_secret_assignment",
+        "password_assignment",
+        "private_key_json",
+        "azure_account_key",
+        "stripe_live",
+        "npm_token",
+        "connection_string_pwd"
+      ],
+      "real_credential_count": 0,
+      "field_name_only_not_flagged": [
+        {
+          "rule": "token_field_name",
+          "path": "validation/coordination/cursor-g6-budget-related-source-final-review-20260914-01/hostile-delta.json",
+          "classification": "diagnostic_token_not_credential"
+        }
+      ]
+    },
+    "hygiene_hits": [],
+    "hygiene": {
+      "nul_count": 0,
+      "archive_count": 0,
+      "pyc_count": 0,
+      "vendor_count": 0,
+      "pycache_count": 0,
+      "temp_scratch_path_in_176_plus_7": 0
+    },
+    "large_files": {
+      "exact_sha256_duplicates": 0,
+      "same_size_ge_8kib_pairs": 0,
+      "known_unique_ledgers": {
+        "validation/e0-budget-approval-provenance-20260914.json": 285820,
+        "validation/full-original-ac-gap-ledger-20260914.json": 225429
+      },
+      "known_unique_ledgers_match": true
+    },
+    "pass": true
+  },
+  "D": {
+    "pid_directory": "validation/pid-final-px4-20260909",
+    "pid_directory_present": true,
+    "cited_sources_count": 83,
+    "cited_missing": [],
+    "cited_sources": {
+      "totals": 83,
+      "blob": 76,
+      "tree": 7,
+      "missing": []
+    },
+    "g3_source_planning_deps": [
+      {
+        "path": "Simulator/wksim_planning/ego_evaluator.py",
+        "source": true,
+        "final": true,
+        "sha256": "ad91915c5f61625c05497a9e64ece596c4aa336e03723e96efb2104b7ff9b1e2"
+      },
+      {
+        "path": "Simulator/wksim_planning/ego_scene_admission.py",
+        "source": true,
+        "final": true,
+        "sha256": "f88fa9c67b0410b8d7e65145008b21173959c03b6f0773c841cdb5e7e3ff7eca"
+      },
+      {
+        "path": "Simulator/wksim_planning/ego_bspline_bridge.py",
+        "source": true,
+        "final": true,
+        "sha256": "c696f936208ed9faed2575a9df1b6aa5e13acfd6c96f21a5d48b8d71a11aaa51"
+      },
+      {
+        "path": "validation/ego-planner-static-20260912-02/bspline.json",
+        "source": true,
+        "final": true,
+        "sha256": "d4d318cc99cc55460a5de229881f8c83bbd032a7c97fd80f7f603ca4e2684447"
+      },
+      {
+        "path": "Simulator/wksim_runtime/planner_scene_binding.py",
+        "source": true,
+        "final": true,
+        "sha256": "da45997ec4caceb45cd6652717b71973d8be041e94f690ba89b7011e6ea1a0cf"
+      }
+    ],
+    "g3_missing": [],
+    "budget_pin_paths_count": 13,
+    "budget_pin_missing": [],
+    "frame_expected_pins_count": 23,
+    "frame_missing": [],
+    "g1_seven_product_rows": [
+      {
+        "path": "Simulator/wksim_runtime/examples/arducopter-mission.json",
+        "source": true,
+        "final": true,
+        "sha256": "cce5d7c77e550cb6326fbc10f83f0a657838d2c4f14ffcb730c7da56d1cbb00e"
+      },
+      {
+        "path": "Simulator/wksim_runtime/examples/px4-mission.json",
+        "source": true,
+        "final": true,
+        "sha256": "62cda2312cecd71291630b9cf64207cafbcfd0006f734ef48bb38480c0597bb6"
+      },
+      {
+        "path": "Simulator/wksim_runtime/independent_profile.py",
+        "source": true,
+        "final": true,
+        "sha256": "28816b6e330785f2d576b5fae93efc4835d2155e94e4008ca0889dfde469278c"
+      },
+      {
+        "path": "Simulator/wksim_runtime/independent-profile-evidence.json",
+        "source": true,
+        "final": true,
+        "sha256": "a0f1d60b4ad5b01fb38e775f42907b2b2f1cdc3741da152b3ea81343b7015535"
+      },
+      {
+        "path": "Simulator/wksim_runtime/task.py",
+        "source": true,
+        "final": true,
+        "sha256": "9791913df7ad61d229a151d4d1d0e5c2b3f32d127a7545096b43a32638f0dbbc"
+      },
+      {
+        "path": "Simulator/wksim_runtime/telemetry.py",
+        "source": true,
+        "final": true,
+        "sha256": "e62be21faeec23fd1d70932b7b25fe1d668e167af76e0b6df2624a1d42849eb0"
+      },
+      {
+        "path": "Simulator/wksim_core/ap_json.py",
+        "source": true,
+        "final": true,
+        "sha256": "db3498d5df50aa3ab46601a8e899c6739e613d431a7d221ac57d2a86e1846469"
+      }
+    ],
+    "g1_missing": [],
+    "related_trio": [
+      {
+        "path": "validation/coordination/codebuddy-g6-b1-b4-frontier-20260914-01/review.md",
+        "present": false,
+        "cat_file_e_exit": 128
+      },
+      {
+        "path": "validation/coordination/codebuddy-g6-b1-b4-frontier-20260914-01/frontier.json",
+        "present": false,
+        "cat_file_e_exit": 128
+      },
+      {
+        "path": "validation/coordination/codebuddy-g6-b1-b4-frontier-20260914-01/owner-input-template.json",
+        "present": false,
+        "cat_file_e_exit": 128
+      }
+    ],
+    "related_present": [],
+    "pass": true
+  },
+  "oracle_source_pins": {
+    "five-groups.json": {
+      "sha256": "a8dcbe245d0fd5305eb3ba027572d9379e4df9a4b7a0f7090723263fabb4848d",
+      "match": true
+    },
+    "exact-addon-paths.txt": {
+      "sha256": "e5b209aac481ee266909b6b1e87dc25717d5ef8e36837da1692be366d33ace17",
+      "match": true
+    }
+  },
+  "output_dir": "validation/coordination/cursor-postcommit-lane3-hash-integrity-20260914-01",
+  "output_names": [
+    "review.md",
+    "review.json",
+    "hashes.json"
+  ]
+}

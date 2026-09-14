@@ -1,0 +1,276 @@
+{
+  "schema": "wksim.postcommit-receipt-content-audit.review.v1",
+  "audit_id": "cursor-postcommit-receipt-content-audit-20260914-01",
+  "date": "2026-09-14",
+  "work_class": "postcommit-receipt-content-audit",
+  "cwd": "C:/Users/PC/Documents/odid编译/wksim",
+  "branch": "main",
+  "FINAL_HEAD": "59d8da51b4c31b6aa050929ebbe81ccc357acfb5",
+  "observed_head": "59d8da51b4c31b6aa050929ebbe81ccc357acfb5",
+  "FINAL_TREE": "5d1cbb9e0ca663d0f10f60d6b645b97b5998b256",
+  "SOURCE_HEAD": "6eafdf9c0b734db07a9fe790c86b409d3468c10b",
+  "SOURCE_TREE": "435471df1371a0bec80d4b6013c3bc9cbc8af938",
+  "architecture_ancestor": "f333316e6efa6b299b4288a9d91fb2bccedfb9d6",
+  "ancestor_check_exit": 0,
+  "six_commit_chain": {
+    "A": {"sha": "14e474e47e1ee1c114d423870a034fbf2cb26e76", "tree": "4ec2299950d72f0ce1f31cdba08c6afb468f9843"},
+    "B": {"sha": "f5509c35db8fc62c5722fb55a29299cb60ff4f4a", "tree": "0433687ca8a2f551b376a7728013fe3d1e4d239b"},
+    "C": {"sha": "bc0648dcff8c1a4c2de55e6de67b30f2f524c457", "tree": "5c6b3ae2430acc276f9ce73698a8ac6947f960b1"},
+    "D": {"sha": "f30ebf0f116b75c56802375702eaa1b2cbc3beba", "tree": "fbdf039f046e02a5b5d7e19d840dc525448ba0cf"},
+    "E": {"sha": "88349152a30d29ca95ec92364c4228c2a37d617b", "tree": "e5c98e40eb151d3054ae67fba0b1fe160809e569"},
+    "F": {"sha": "59d8da51b4c31b6aa050929ebbe81ccc357acfb5", "tree": "5d1cbb9e0ca663d0f10f60d6b645b97b5998b256"}
+  },
+  "read_only_source_dirs": [
+    "validation/coordination/cursor-postcommit-lane1-remote-chain-20260914-01",
+    "validation/coordination/cursor-postcommit-lane1-independent-review-20260914-01",
+    "validation/coordination/cursor-postcommit-lane1-remote-chain-fast-20260914-01",
+    "validation/coordination/cursor-postcommit-lane1-fast-independent-review-20260914-01",
+    "validation/coordination/cursor-postcommit-lane1-finalization-20260914-01",
+    "validation/coordination/cursor-postcommit-lane2-representative-matrix-20260914-01",
+    "validation/coordination/cursor-postcommit-lane2-autocrlf-false-rerun-20260914-01",
+    "validation/coordination/cursor-postcommit-lane2-autocrlf-rerun-independent-review-20260914-01",
+    "validation/coordination/cursor-postcommit-lane2-representative-matrix-fast2-20260914-01",
+    "validation/coordination/cursor-postcommit-lane3-hash-integrity-20260914-01",
+    "validation/coordination/cursor-postcommit-lane3-independent-review-20260914-01"
+  ],
+  "other_agent_new_dirs_not_read": [
+    "validation/coordination/cursor-postcommit-lane2-cross-review-20260914-01",
+    "validation/coordination/cursor-postcommit-receipt-ingest-preplan-20260914-01",
+    "validation/coordination/cursor-postcommit-three-lane-plan-final-review-20260914-01"
+  ],
+  "source_receipts_edited": false,
+  "existing_files_edited": false,
+  "git_mutated": false,
+  "git_add_commit_push_reset_clean_checkout": false,
+  "issue_83_flight": false,
+  "native_model_matlab_ros_dds_sitl_fc_ue_build_flight": false,
+  "scripts": [],
+  "claims_owner_approval": false,
+  "claims_gate_or_issue_or_full_closure": false,
+  "this_card_authorizes_add_commit_push": false,
+  "this_card_closes_issue_or_gate": false,
+  "does_not_close": ["#39", "#102", "#59", "#10", "#60", "G1", "G5", "G3", "G6", "Full"],
+  "does_not_rejudge": ["Lane 1", "Lane 2", "Lane 3"],
+  "verdict": "PASS",
+  "verdict_statement": "PASS. 0 P1. 3 P2 do not fail this audit. 11 P3. Strict JSON 12/12 (11 review.json + hashes.json): no bare TAB, no duplicate keys, no illegal escapes, UTF-8. Existing SHA256SUMS 5 manifests / 36 entries all rematch. Authoritative PASS receipts bind FINAL_HEAD=59d8da51, FINAL_TREE=5d1cbb9e, SOURCE_HEAD=6eafdf9c, and the A-F chain. Original FAIL receipts remain FAIL. Review.md/json path refs 219/219 exist. No owner-approval or Full/G0-G6 closure claims. Secret rules 0 hits. Two >=100KiB Windows budget failure captures reported, not deleted.",
+  "p1": [],
+  "p2": [
+    {
+      "id": "P2-LANE2-FAIL-UNPINNED-530K",
+      "fail_this_review": false,
+      "path": "validation/coordination/cursor-postcommit-lane2-representative-matrix-20260914-01/windows/budget.log",
+      "bytes": 530628,
+      "sha256": "bf2bd5ceb60685fbe5701dda829c6ebcec3e6934cd61635ea4d7d6ab3e72a8fe",
+      "note": "Historical FAIL directory has no SHA256SUMS. Original FAIL remains FAIL."
+    },
+    {
+      "id": "P2-FAST2-SUMS-OMITS-40-CAPTURES",
+      "fail_this_review": false,
+      "path": "validation/coordination/cursor-postcommit-lane2-representative-matrix-fast2-20260914-01/SHA256SUMS",
+      "listed": 2,
+      "unlisted": 40,
+      "largest_unlisted": {
+        "path": "captures/win-A-budget-system-autocrlf.txt",
+        "bytes": 530644,
+        "sha256": "7aa5712c080b4f52e16481e1a9e155ef6de842f5feb582ecba0c3f517a3dac9a"
+      },
+      "note": "fast2 is a shadow receipt: from_origin=false, not original Lane 2 authority."
+    },
+    {
+      "id": "P2-L3-INDEP-SOURCE-BYTES",
+      "fail_this_review": false,
+      "path": "validation/coordination/cursor-postcommit-lane3-independent-review-20260914-01/review.json",
+      "claimed_source_review_json_bytes": 11173,
+      "actual_source_review_json_bytes": 11302,
+      "actual_cr_count": 310,
+      "note": "Byte-count mismatch only. Lane 3 SHA256SUMS still matches current review.json. Does not rewrite Lane 3 PASS."
+    }
+  ],
+  "p3": [
+    "P3-SUMS-OMITS-SELF",
+    "P3-RECEIPT-HOST-AND-TEMP-PATHS",
+    "P3-CRLF-REVIEW-JSON",
+    "P3-BOM-BIND-TXT",
+    "P3-LARGE-WIN-BUDGET-CAPTURES",
+    "P3-LANE1-OVERWIDE-PASS-RETAINED-NOT-AUTHORITY",
+    "P3-FAST2-SHADOW-NOT-ORIGIN",
+    "P3-L3-OUTPUT-NAMES-OMIT-SUMS",
+    "P3-NO-OWNER-APPROVAL-OR-GATE-CLOSURE",
+    "P3-THIS-AUDIT-NOT-IN-176",
+    "P3-CARRIED-SOURCE-P2-NOT-REOPENED"
+  ],
+  "counts": {
+    "dirs": 11,
+    "strict_json": 12,
+    "review_json": 11,
+    "hashes_json": 1,
+    "json_bare_tab": 0,
+    "json_duplicate_keys": 0,
+    "json_illegal_escape": 0,
+    "sha256sums_manifests": 5,
+    "sha256sums_entries": 36,
+    "sha256sums_matched": 36,
+    "sha256sums_mismatch": 0,
+    "sha256sums_missing": 0,
+    "review_path_refs_checked": 219,
+    "review_path_refs_missing": 0,
+    "secret_hits": 0,
+    "large_files_ge_100kib": 2,
+    "original_fail_receipts_retained": 2,
+    "p1": 0,
+    "p2": 3,
+    "p3": 11
+  },
+  "json_strict": {
+    "parser": "json.loads(strict=True) plus object_pairs_hook duplicate-key detector",
+    "all_ok": true,
+    "files": [
+      {"path": "validation/coordination/cursor-postcommit-lane1-remote-chain-20260914-01/review.json", "bytes": 9408, "recorded_verdict": "PASS", "strict": true},
+      {"path": "validation/coordination/cursor-postcommit-lane1-independent-review-20260914-01/review.json", "bytes": 14880, "recorded_verdict": "FAIL", "strict": true},
+      {"path": "validation/coordination/cursor-postcommit-lane1-remote-chain-fast-20260914-01/review.json", "bytes": 8097, "recorded_verdict": "PASS", "strict": true},
+      {"path": "validation/coordination/cursor-postcommit-lane1-fast-independent-review-20260914-01/review.json", "bytes": 17527, "recorded_verdict": "PASS", "strict": true},
+      {"path": "validation/coordination/cursor-postcommit-lane1-finalization-20260914-01/review.json", "bytes": 8320, "recorded_verdict": "PASS", "strict": true},
+      {"path": "validation/coordination/cursor-postcommit-lane2-representative-matrix-20260914-01/review.json", "bytes": 8410, "recorded_verdict": "FAIL", "strict": true},
+      {"path": "validation/coordination/cursor-postcommit-lane2-autocrlf-false-rerun-20260914-01/review.json", "bytes": 7185, "recorded_verdict": "PASS", "strict": true},
+      {"path": "validation/coordination/cursor-postcommit-lane2-autocrlf-rerun-independent-review-20260914-01/review.json", "bytes": 10039, "recorded_verdict": "PASS", "strict": true},
+      {"path": "validation/coordination/cursor-postcommit-lane2-representative-matrix-fast2-20260914-01/review.json", "bytes": 9827, "recorded_verdict": "PASS", "strict": true},
+      {"path": "validation/coordination/cursor-postcommit-lane3-hash-integrity-20260914-01/review.json", "bytes": 11302, "recorded_verdict": "PASS", "strict": true},
+      {"path": "validation/coordination/cursor-postcommit-lane3-hash-integrity-20260914-01/hashes.json", "bytes": 78601, "recorded_verdict": null, "strict": true},
+      {"path": "validation/coordination/cursor-postcommit-lane3-independent-review-20260914-01/review.json", "bytes": 10711, "recorded_verdict": "PASS", "strict": true}
+    ]
+  },
+  "sha256sums": {
+    "manifests": [
+      {
+        "path": "validation/coordination/cursor-postcommit-lane1-finalization-20260914-01/SHA256SUMS",
+        "listed": 2,
+        "matched": 2,
+        "unlisted_other": 0,
+        "omits_self": true
+      },
+      {
+        "path": "validation/coordination/cursor-postcommit-lane2-autocrlf-false-rerun-20260914-01/SHA256SUMS",
+        "listed": 27,
+        "matched": 27,
+        "unlisted_other": 0,
+        "omits_self": true
+      },
+      {
+        "path": "validation/coordination/cursor-postcommit-lane2-autocrlf-rerun-independent-review-20260914-01/SHA256SUMS",
+        "listed": 2,
+        "matched": 2,
+        "unlisted_other": 0,
+        "omits_self": true
+      },
+      {
+        "path": "validation/coordination/cursor-postcommit-lane2-representative-matrix-fast2-20260914-01/SHA256SUMS",
+        "listed": 2,
+        "matched": 2,
+        "unlisted_other": 40,
+        "omits_self": true
+      },
+      {
+        "path": "validation/coordination/cursor-postcommit-lane3-hash-integrity-20260914-01/SHA256SUMS",
+        "listed": 3,
+        "matched": 3,
+        "unlisted_other": 0,
+        "omits_self": true
+      }
+    ]
+  },
+  "authority": {
+    "lane1": {
+      "authoritative_pass": [
+        "cursor-postcommit-lane1-remote-chain-fast-20260914-01",
+        "cursor-postcommit-lane1-fast-independent-review-20260914-01"
+      ],
+      "finalization": "cursor-postcommit-lane1-finalization-20260914-01",
+      "historical_overwide_pass": "cursor-postcommit-lane1-remote-chain-20260914-01",
+      "historical_fail": "cursor-postcommit-lane1-independent-review-20260914-01"
+    },
+    "lane2": {
+      "authoritative_pass": [
+        "cursor-postcommit-lane2-autocrlf-false-rerun-20260914-01",
+        "cursor-postcommit-lane2-autocrlf-rerun-independent-review-20260914-01"
+      ],
+      "historical_fail": "cursor-postcommit-lane2-representative-matrix-20260914-01",
+      "shadow_not_origin": "cursor-postcommit-lane2-representative-matrix-fast2-20260914-01"
+    },
+    "lane3": {
+      "authoritative_pass": [
+        "cursor-postcommit-lane3-hash-integrity-20260914-01",
+        "cursor-postcommit-lane3-independent-review-20260914-01"
+      ],
+      "historical_fail": null
+    }
+  },
+  "original_fail_retained": [
+    {
+      "dir": "cursor-postcommit-lane1-independent-review-20260914-01",
+      "verdict": "FAIL",
+      "p1": ["P1-STEP2-LOCAL-CLONE-NOT-ORIGIN"],
+      "overwritten": false
+    },
+    {
+      "dir": "cursor-postcommit-lane2-representative-matrix-20260914-01",
+      "verdict": "FAIL",
+      "windows_core_autocrlf": "true",
+      "overwritten": false
+    }
+  ],
+  "dir_verdicts": [
+    {"dir": "cursor-postcommit-lane1-remote-chain-20260914-01", "recorded": "PASS", "this_audit": "PASS", "role": "historical-overwide-pass"},
+    {"dir": "cursor-postcommit-lane1-independent-review-20260914-01", "recorded": "FAIL", "this_audit": "PASS", "role": "historical-authoritative-fail"},
+    {"dir": "cursor-postcommit-lane1-remote-chain-fast-20260914-01", "recorded": "PASS", "this_audit": "PASS", "role": "lane1-authority-primary"},
+    {"dir": "cursor-postcommit-lane1-fast-independent-review-20260914-01", "recorded": "PASS", "this_audit": "PASS", "role": "lane1-authority-review"},
+    {"dir": "cursor-postcommit-lane1-finalization-20260914-01", "recorded": "PASS", "this_audit": "PASS", "role": "lane1-finalization"},
+    {"dir": "cursor-postcommit-lane2-representative-matrix-20260914-01", "recorded": "FAIL", "this_audit": "PASS", "role": "historical-fail"},
+    {"dir": "cursor-postcommit-lane2-autocrlf-false-rerun-20260914-01", "recorded": "PASS", "this_audit": "PASS", "role": "lane2-authority-primary"},
+    {"dir": "cursor-postcommit-lane2-autocrlf-rerun-independent-review-20260914-01", "recorded": "PASS", "this_audit": "PASS", "role": "lane2-authority-review"},
+    {"dir": "cursor-postcommit-lane2-representative-matrix-fast2-20260914-01", "recorded": "PASS", "this_audit": "PASS", "role": "shadow-not-origin"},
+    {"dir": "cursor-postcommit-lane3-hash-integrity-20260914-01", "recorded": "PASS", "this_audit": "PASS", "role": "lane3-authority-primary"},
+    {"dir": "cursor-postcommit-lane3-independent-review-20260914-01", "recorded": "PASS", "this_audit": "PASS", "role": "lane3-authority-review"}
+  ],
+  "oracles_exist": [
+    "validation/coordination/cursor-final-176-six-commit-private-rehearsal-20260914-01/six-groups.json",
+    "validation/coordination/cursor-final-176-six-commit-private-rehearsal-20260914-01/path-hashes.json",
+    "validation/coordination/cursor-final-receipt-ingest-minimization-20260914-01/exact-addon-paths.txt",
+    "validation/coordination/cursor-five-commit-order-path-isolation-audit-20260914-01/five-groups.json",
+    "validation/coordination/cursor-postcommit-three-lane-verification-plan-20260914-01/lane1.txt",
+    "validation/coordination/cursor-postcommit-three-lane-verification-plan-20260914-01/lane2.txt",
+    "validation/pid-final-px4-20260909",
+    "validation/coordination/cursor-five-slice-final-integration2-20260914-01/SHA256SUMS"
+  ],
+  "large_files": [
+    {
+      "path": "validation/coordination/cursor-postcommit-lane2-representative-matrix-20260914-01/windows/budget.log",
+      "bytes": 530628,
+      "sha256": "bf2bd5ceb60685fbe5701dda829c6ebcec3e6934cd61635ea4d7d6ab3e72a8fe"
+    },
+    {
+      "path": "validation/coordination/cursor-postcommit-lane2-representative-matrix-fast2-20260914-01/captures/win-A-budget-system-autocrlf.txt",
+      "bytes": 530644,
+      "sha256": "7aa5712c080b4f52e16481e1a9e155ef6de842f5feb582ecba0c3f517a3dac9a"
+    }
+  ],
+  "secret_hits": [],
+  "gates": {
+    "strict_json_12_of_12": true,
+    "sha256sums_36_of_36": true,
+    "authoritative_pass_head_tree_base_chain": true,
+    "run_scope_and_failure_history": true,
+    "review_path_refs_exist": true,
+    "no_owner_approval_or_gate_closure": true,
+    "original_fail_retained": true,
+    "secrets_zero": true,
+    "large_files_reported_not_deleted": true,
+    "no_git_mutation": true
+  },
+  "failed_gates": [],
+  "output_dir": "validation/coordination/cursor-postcommit-receipt-content-audit-20260914-01",
+  "output_names": [
+    "review.md",
+    "review.json",
+    "SHA256SUMS"
+  ]
+}

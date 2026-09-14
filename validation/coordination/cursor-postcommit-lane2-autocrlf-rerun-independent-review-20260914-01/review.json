@@ -1,0 +1,244 @@
+{
+  "schema": "wksim.postcommit-lane2-autocrlf-rerun-independent-review.review.v1",
+  "audit_id": "cursor-postcommit-lane2-autocrlf-rerun-independent-review-20260914-01",
+  "source_audit_id": "cursor-postcommit-lane2-autocrlf-false-rerun-20260914-01",
+  "original_fail_audit_id": "cursor-postcommit-lane2-representative-matrix-20260914-01",
+  "plan": "cursor-postcommit-three-lane-verification-plan-20260914-01",
+  "card": "validation/coordination/cursor-postcommit-three-lane-verification-plan-20260914-01/lane2.txt",
+  "date": "2026-09-14",
+  "work_class": "postcommit-lane2-autocrlf-rerun-independent-review",
+  "cwd": "C:/Users/PC/Documents/odid编译/wksim",
+  "branch": "main",
+  "final_head": "59d8da51b4c31b6aa050929ebbe81ccc357acfb5",
+  "observed_head": "59d8da51b4c31b6aa050929ebbe81ccc357acfb5",
+  "final_tree": "5d1cbb9e0ca663d0f10f60d6b645b97b5998b256",
+  "source_head": "6eafdf9c0b734db07a9fe790c86b409d3468c10b",
+  "architecture_ancestor": "f333316e6efa6b299b4288a9d91fb2bccedfb9d6",
+  "ancestor_check_exit": 0,
+  "source_ancestor_check_exit": 0,
+  "pytest_or_unittest_run": false,
+  "native_build_flight_83": false,
+  "clone_inspected": false,
+  "source_receipts_edited": false,
+  "original_fail_receipt_edited": false,
+  "git_mutated": false,
+  "git_add_commit_push": false,
+  "scripts": [],
+  "claims_owner_approval": false,
+  "claims_gate_or_issue_or_full_closure": false,
+  "verdict": "PASS",
+  "verdict_statement": "PASS. 0 P1. 1 P2. Parsed all rerun captures without rerunning tests. Both hosts Pass A Ran 4/4/30/12/5, OK, rc=0. Both hosts Pass B Ran 12, OK, rc=0. Tree 5d1cbb9e… unchanged. FINAL_HEAD 59d8da51…. Both ancestor exits 0. Windows core.autocrlf=false and five candidate files have no CR in captures; HEAD blobs in this repo match and have no CR. Original representative-matrix receipt remains FAIL. SHA256SUMS 27/27. Both review.json files parse with json.loads(strict=True). Planner HEAD/index/two dirty blobs unchanged. No clone/native/build/flight/#83. No source-receipt or git mutation.",
+  "p1": [],
+  "p2": [
+    {
+      "id": "P2-NO-RERUN-TESTS",
+      "fail_this_review": false,
+      "note": "This review parsed captures only. It did not rerun unittest, inspect disposable clones, or execute native/build/flight/#83. It does not rewrite 4/4/30/12/5 as the full suites and does not speak for Lane 1 or Lane 3."
+    }
+  ],
+  "p3": [
+    "P3-SUMS-OMITS-SELF",
+    "P3-WINDOWS-RECEIPT-FILES-CONTAIN-CR-BYTES-HASHED-AS-IS",
+    "P3-BIND-OMITS-FINAL-HEAD-ANCESTOR-EXITS",
+    "P3-THIS-REVIEW-NOT-IN-176",
+    "P3-NO-OWNER-APPROVAL-OR-GATE-CLOSURE",
+    "P3-NO-CLONE-INSPECTION"
+  ],
+  "checks": {
+    "source_json_strict_parseable": true,
+    "original_json_strict_parseable": true,
+    "sha256sums_27_of_27": true,
+    "pass_a_both_hosts_4_4_30_12_5": true,
+    "pass_a_rc_failures_errors_zero": true,
+    "pass_b_both_hosts_ran_12_rc_0": true,
+    "tree_5d1cbb9e": true,
+    "final_head_59d8da51": true,
+    "both_ancestors_zero": true,
+    "windows_autocrlf_false": true,
+    "key_files_no_crlf": true,
+    "original_fail_unchanged": true,
+    "planner_head_index_dirty_unchanged": true,
+    "source_verdict_pass_accepted": true
+  },
+  "source_files": {
+    "review_md": {
+      "path": "validation/coordination/cursor-postcommit-lane2-autocrlf-false-rerun-20260914-01/review.md",
+      "bytes": 5607,
+      "sha256": "d78c0f35248cfaa7e1d69a6fe2e2bad65418507267f0bf714085a5c16c598e9a",
+      "contains_cr": true
+    },
+    "review_json": {
+      "path": "validation/coordination/cursor-postcommit-lane2-autocrlf-false-rerun-20260914-01/review.json",
+      "bytes": 7185,
+      "sha256": "279c79938e1a9bc84796a62c52458420910259fbf02b22518f8bd33690f80cca",
+      "contains_cr": true,
+      "parseable_strict": true,
+      "verdict": "PASS"
+    },
+    "sha256sums": {
+      "path": "validation/coordination/cursor-postcommit-lane2-autocrlf-false-rerun-20260914-01/SHA256SUMS",
+      "bytes": 2441,
+      "contains_cr": false,
+      "listed": 27,
+      "matched": 27,
+      "omits_self": true,
+      "unlisted_other": []
+    }
+  },
+  "original_fail": {
+    "path": "validation/coordination/cursor-postcommit-lane2-representative-matrix-20260914-01",
+    "review_json_bytes": 8410,
+    "review_json_sha256": "c94211fcb7449186ba93d1ac53064956929c870dd2feefef143b4a2ca1f2d97e",
+    "review_json_parseable_strict": true,
+    "review_md_bytes": 6721,
+    "review_md_sha256": "8a8d991e74b3fdb998ce9210b8ae8265bc6bce827a1f879d13ef1afc774be25f",
+    "verdict": "FAIL",
+    "windows_empty_head": "b59660cf745e2015d949e1f94a713850aa33930f",
+    "ubuntu_empty_head": "83b53d7a005598b62225a4722d3c2f0d28404cbf",
+    "tree": "5d1cbb9e0ca663d0f10f60d6b645b97b5998b256",
+    "windows_core_autocrlf": "true",
+    "windows_g1g5_still_failed_failures_2": true,
+    "windows_pass_b_still_starts_ff": true,
+    "overwritten": false
+  },
+  "source_claims": {
+    "verdict": "PASS",
+    "original_overwritten": false,
+    "pass_a_ubuntu": "4/4/30/12/5",
+    "pass_a_windows": "4/4/30/12/5",
+    "pass_b_ubuntu_ran": 12,
+    "pass_b_windows_ran": 12,
+    "FINAL_HEAD": "59d8da51b4c31b6aa050929ebbe81ccc357acfb5",
+    "tree": "5d1cbb9e0ca663d0f10f60d6b645b97b5998b256",
+    "windows_core_autocrlf": "false",
+    "claims_owner_approval": false
+  },
+  "pass_a_from_captures": {
+    "ubuntu": {
+      "g1g5": {"ran": 4, "ok": true, "rc": 0, "elapsed_s": 0.126, "unittest_s": 0.031},
+      "g3": {"ran": 4, "ok": true, "rc": 0, "elapsed_s": 0.109, "unittest_s": 0.008},
+      "budget": {"ran": 30, "ok": true, "rc": 0, "elapsed_s": 1.655, "unittest_s": 1.607},
+      "frame": {"ran": 12, "ok": true, "rc": 0, "elapsed_s": 2.47, "unittest_s": 2.432},
+      "full": {"ran": 5, "ok": true, "rc": 0, "elapsed_s": 0.054, "unittest_s": 0.013},
+      "counts": "4/4/30/12/5",
+      "failures_errors_rc": [0, 0, 0]
+    },
+    "windows": {
+      "g1g5": {"ran": 4, "ok": true, "rc": 0, "elapsed_s": 0.362, "unittest_s": 0.172},
+      "g3": {"ran": 4, "ok": true, "rc": 0, "elapsed_s": 0.176, "unittest_s": 0.013},
+      "budget": {"ran": 30, "ok": true, "rc": 0, "elapsed_s": 10.397, "unittest_s": 10.313},
+      "frame": {"ran": 12, "ok": true, "rc": 0, "elapsed_s": 55.132, "unittest_s": 55.047},
+      "full": {"ran": 5, "ok": true, "rc": 0, "elapsed_s": 0.174, "unittest_s": 0.083},
+      "counts": "4/4/30/12/5",
+      "failures_errors_rc": [0, 0, 0]
+    }
+  },
+  "pass_b_from_captures": {
+    "tree_before": "5d1cbb9e0ca663d0f10f60d6b645b97b5998b256",
+    "tree_after_both": "5d1cbb9e0ca663d0f10f60d6b645b97b5998b256",
+    "tree_unchanged": true,
+    "ubuntu": {
+      "empty_head": "24800304ec20469cd787f9f64907fb01f1c45caa",
+      "empty_ne_final": true,
+      "source_ancestor_exit": 0,
+      "architecture_ancestor_exit": 0,
+      "core_autocrlf": "false",
+      "ran": 12,
+      "ok": true,
+      "rc": 0,
+      "elapsed_s": 0.456,
+      "unittest_s": 0.284,
+      "pushed": false
+    },
+    "windows": {
+      "empty_head": "ceb796310c2210ea93736dec7014033d45f2aad6",
+      "empty_ne_final": true,
+      "source_ancestor_exit": 0,
+      "architecture_ancestor_exit": 0,
+      "core_autocrlf": "false",
+      "ran": 12,
+      "ok": true,
+      "rc": 0,
+      "elapsed_s": 4.818,
+      "unittest_s": 4.544,
+      "pushed": false
+    }
+  },
+  "windows_crlf": {
+    "core_autocrlf_after_correction": "false",
+    "plain_checkout_left_crlf": true,
+    "after_rewrite_all_lf_and_match": true,
+    "planner_head_blobs_independently_checked": [
+      {
+        "path": "Simulator/wksim_runtime/independent-profile-evidence.json",
+        "sha256": "a0f1d60b4ad5b01fb38e775f42907b2b2f1cdc3741da152b3ea81343b7015535",
+        "bytes": 45994,
+        "head_has_cr": false
+      },
+      {
+        "path": "validation/promotion-flight-20260908/independent-candidate/flight-audit.json",
+        "sha256": "b1df8a365ff9864d02fb8d7508cf2e002b4c87307ee61d0646923ba34eb68b9a",
+        "bytes": 7005,
+        "head_has_cr": false
+      },
+      {
+        "path": "validation/e0-budget-approval-provenance-20260914.json",
+        "sha256": "2962931a28dfc3cc05e201dc23b6073c30948080de34279e9f5b21ae23544d3d",
+        "bytes": 285820,
+        "head_has_cr": false
+      },
+      {
+        "path": "docs/plan/59-e0-budget-approval-provenance-20260914.md",
+        "sha256": "15b4f457912aef9f31537b4a3660d32e8d90110f042550aa0b6d5909f6d277bd",
+        "bytes": 21203,
+        "head_has_cr": false
+      },
+      {
+        "path": "validation/test_e0_budget_approval_provenance.py",
+        "sha256": "6030470ab32e28fd3a4b8401e4eb92875d22c16d8b7e56e8edfd9002f0636b44",
+        "bytes": 151778,
+        "head_has_cr": false
+      }
+    ]
+  },
+  "planner_state": {
+    "head": "59d8da51b4c31b6aa050929ebbe81ccc357acfb5",
+    "tree": "5d1cbb9e0ca663d0f10f60d6b645b97b5998b256",
+    "branch": "main",
+    "index_staged_names": [],
+    "unstaged_tracked": [
+      "docs/Prometheus.gitmodules.reference",
+      "validation/coordination/short-cycle-dispatches.json"
+    ],
+    "dirty_exclusion": {
+      "docs/Prometheus.gitmodules.reference": {
+        "index_and_head_blob": "382f2c17feacc6c08af9db7c58b20cd1f76b7ea2",
+        "worktree_hash_object": "dc0a843a279ee1b3ddea4facd6b5a3457951a882",
+        "status": " M"
+      },
+      "validation/coordination/short-cycle-dispatches.json": {
+        "index_and_head_blob": "0688c231349cbdb32701495538d45c34252f6817",
+        "worktree_hash_object": "cc7c4dcb2e3c1de6f613a4b260f7d76722891eb1",
+        "status": " M"
+      }
+    }
+  },
+  "does_not_close": [
+    "#39",
+    "#102",
+    "#59",
+    "#10",
+    "#60",
+    "G1",
+    "G5",
+    "G3",
+    "G6",
+    "Full"
+  ],
+  "output_dir": "validation/coordination/cursor-postcommit-lane2-autocrlf-rerun-independent-review-20260914-01",
+  "output_names": [
+    "review.md",
+    "review.json",
+    "SHA256SUMS"
+  ]
+}

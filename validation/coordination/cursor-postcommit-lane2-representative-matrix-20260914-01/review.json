@@ -1,0 +1,201 @@
+{
+  "schema": "wksim.cursor-postcommit-lane2-representative-matrix.v1",
+  "plan": "cursor-postcommit-three-lane-verification-plan-20260914-01",
+  "lane": "2",
+  "output": "validation/coordination/cursor-postcommit-lane2-representative-matrix-20260914-01",
+  "recorded_utc": "2026-09-13T23:33:03Z",
+  "verdict": "FAIL",
+  "this_card_authorizes_add_commit_push": false,
+  "this_card_closes_issue_or_gate": false,
+  "work_class": "historical-comparison / post-commit representative verification",
+  "main_repo": {
+    "cwd": "C:/Users/PC/Documents/odid编译/wksim",
+    "branch": "main",
+    "head": "59d8da51b4c31b6aa050929ebbe81ccc357acfb5",
+    "architecture_ancestor_exit": 0,
+    "empty_committed": false,
+    "pushed": false
+  },
+  "bindings": {
+    "SOURCE_HEAD": "6eafdf9c0b734db07a9fe790c86b409d3468c10b",
+    "ARCHITECTURE_ANCESTOR": "f333316e6efa6b299b4288a9d91fb2bccedfb9d6",
+    "FINAL_HEAD": "59d8da51b4c31b6aa050929ebbe81ccc357acfb5",
+    "ORIGIN": "https://github.com/unununnnn/wksim.git",
+    "head_equals_source": false,
+    "COMMIT_A": "14e474e47e1ee1c114d423870a034fbf2cb26e76",
+    "COMMIT_B": "f5509c35db8fc62c5722fb55a29299cb60ff4f4a",
+    "COMMIT_C": "bc0648dcff8c1a4c2de55e6de67b30f2f524c457",
+    "COMMIT_D": "f30ebf0f116b75c56802375702eaa1b2cbc3beba",
+    "COMMIT_E": "88349152a30d29ca95ec92364c4228c2a37d617b",
+    "COMMIT_F": "59d8da51b4c31b6aa050929ebbe81ccc357acfb5"
+  },
+  "hosts": {
+    "windows": {
+      "clone": "C:/Users/PC/Documents/odid编译/wksim-lane2-win-20260914-01",
+      "python": "D:\\date\\miniconda\\python.exe",
+      "python_version": "3.13.11",
+      "core_autocrlf": "true",
+      "pass_a_head": "59d8da51b4c31b6aa050929ebbe81ccc357acfb5",
+      "source_ancestor_exit": 0,
+      "architecture_ancestor_exit": 0
+    },
+    "ubuntu": {
+      "clone": "/root/wksim-lane2-ubu-20260914-01",
+      "first_origin_clone": "/tmp/wksim-lane2-ubu-20260914-01",
+      "first_origin_clone_bound_then_tmp_reclaimed": true,
+      "second_clone_used_reference_dissociate_of_lane2_windows_tree": true,
+      "reused_lane1_or_lane3": false,
+      "python": "/usr/bin/python3",
+      "python_version": "3.10.12",
+      "pass_a_head": "59d8da51b4c31b6aa050929ebbe81ccc357acfb5",
+      "source_ancestor_exit": 0,
+      "architecture_ancestor_exit": 0
+    }
+  },
+  "pass_a": {
+    "ubuntu": {
+      "g1g5": {"ran": 4, "failures": 0, "errors": 0, "rc": 0, "elapsed_s": 0.158},
+      "g3": {"ran": 4, "failures": 0, "errors": 0, "rc": 0, "elapsed_s": 0.112},
+      "budget": {"ran": 30, "failures": 0, "errors": 0, "rc": 0, "elapsed_s": 1.681},
+      "frame": {"ran": 12, "failures": 0, "errors": 0, "rc": 0, "elapsed_s": 2.772},
+      "full": {"ran": 5, "failures": 0, "errors": 0, "rc": 0, "elapsed_s": 0.058},
+      "pass": true
+    },
+    "windows": {
+      "g1g5": {"ran": 4, "failures": 2, "errors": 0, "rc": 1, "elapsed_s": 0.623},
+      "g3": {"ran": 4, "failures": 0, "errors": 0, "rc": 0, "elapsed_s": 0.285},
+      "budget": {"ran": 30, "failures": 4, "errors": 0, "rc": 1, "elapsed_s": 11.37},
+      "frame": {"ran": 12, "failures": 0, "errors": 0, "rc": 0, "elapsed_s": 57.439},
+      "full": {"ran": 5, "failures": 0, "errors": 0, "rc": 0, "elapsed_s": 0.217},
+      "pass": false
+    }
+  },
+  "pass_b": {
+    "tree_before": "5d1cbb9e0ca663d0f10f60d6b645b97b5998b256",
+    "tree_after_both": "5d1cbb9e0ca663d0f10f60d6b645b97b5998b256",
+    "tree_unchanged": true,
+    "pushed": false,
+    "ubuntu": {
+      "empty_head": "83b53d7a005598b62225a4722d3c2f0d28404cbf",
+      "empty_ne_final": true,
+      "source_ancestor_exit": 0,
+      "architecture_ancestor_exit": 0,
+      "ran": 12,
+      "failures": 0,
+      "errors": 0,
+      "rc": 0,
+      "elapsed_s": 0.555,
+      "pass": true
+    },
+    "windows": {
+      "empty_head": "b59660cf745e2015d949e1f94a713850aa33930f",
+      "empty_ne_final": true,
+      "source_ancestor_exit": 0,
+      "architecture_ancestor_exit": 0,
+      "ran": 12,
+      "failures": 2,
+      "errors": 0,
+      "rc": 1,
+      "elapsed_s": 6.434,
+      "pass": false
+    },
+    "identities": {
+      "rev_parse_head_equals_source_head": false,
+      "budget_observed_at_head": "6eafdf9c0b734db07a9fe790c86b409d3468c10b",
+      "budget_observed_at_head_is_capture_pin": true,
+      "frame_observed_at_head": "521b5124949ea8bb057459142e09b270ae54dde3",
+      "frame_uses_ancestor_not_current_head": true,
+      "full_json_head": "6eafdf9c0b734db07a9fe790c86b409d3468c10b",
+      "full_json_head_is_not_rev_parse_head": true
+    }
+  },
+  "windows_crlf_diagnostic": {
+    "core_autocrlf": "true",
+    "path": "Simulator/wksim_runtime/independent-profile-evidence.json",
+    "head_has_cr": false,
+    "worktree_has_cr": true,
+    "head_len": 45994,
+    "worktree_len": 46287,
+    "delta_bytes": 293,
+    "head_sha256": "a0f1d60b4ad5b01fb38e775f42907b2b2f1cdc3741da152b3ea81343b7015535",
+    "worktree_sha256": "726898b3536d1267531b4e8995805613a4fba4a16b953116cced876f7107c727",
+    "git_hash_object_matches_head_blob": true,
+    "remote_head_blob_content_drift": false,
+    "note": "tests read worktree bytes; HEAD blobs stay LF"
+  },
+  "blockers": [
+    {
+      "id": "win-pass-a-g1g5-worktree-sha1",
+      "host": "windows",
+      "phase": "A",
+      "node": "validation.test_g1_g5_offline_drift.HeadIdentityTests.test_head_and_row_blobs_fail_closed_on_drift",
+      "detail": "worktree blob SHA-1 drifted: Simulator/wksim_runtime/independent-profile-evidence.json"
+    },
+    {
+      "id": "win-pass-a-g1g5-audit-pin",
+      "host": "windows",
+      "phase": "A",
+      "node": "validation.test_g1_g5_offline_drift.IndependentEvidenceTests.test_evidence_descriptor_schema_and_local_pin_bytes",
+      "detail": "audit worktree sha256 7ffbdd39096cec0c4f7e837a7fd0b20814c90a1dd846d9e2e1f00275fb93c6b1 != pin b1df8a365ff9864d02fb8d7508cf2e002b4c87307ee61d0646923ba34eb68b9a"
+    },
+    {
+      "id": "win-pass-a-budget-worktree-hash",
+      "host": "windows",
+      "phase": "A",
+      "node": "validation.test_e0_budget_approval_provenance.FrozenInputTests.test_ledger_head_blob_matches_worktree_when_tracked",
+      "detail": "worktree sha256 ea3e55fbebf948f02e5a59e64cafe01991756e4fb54cc8ea4225aa04348d8618 != 2962931a28dfc3cc05e201dc23b6073c30948080de34279e9f5b21ae23544d3d"
+    },
+    {
+      "id": "win-pass-a-budget-lf-json",
+      "host": "windows",
+      "phase": "A",
+      "node": "validation.test_e0_budget_approval_provenance.LedgerContractTests.test_deliverables_are_lf_normalized",
+      "detail": "CR in worktree e0-budget-approval-provenance-20260914.json"
+    },
+    {
+      "id": "win-pass-a-budget-lf-md",
+      "host": "windows",
+      "phase": "A",
+      "node": "validation.test_e0_budget_approval_provenance.LedgerContractTests.test_deliverables_are_lf_normalized",
+      "detail": "CR in worktree 59-e0-budget-approval-provenance-20260914.md"
+    },
+    {
+      "id": "win-pass-a-budget-lf-py",
+      "host": "windows",
+      "phase": "A",
+      "node": "validation.test_e0_budget_approval_provenance.LedgerContractTests.test_deliverables_are_lf_normalized",
+      "detail": "CR in worktree test_e0_budget_approval_provenance.py"
+    },
+    {
+      "id": "win-pass-b-g1g5-same-crlf",
+      "host": "windows",
+      "phase": "B",
+      "node": "HeadIdentityTests.test_head_and_row_blobs_fail_closed_on_drift and test_source_head_is_ancestor_pin_not_current_head_equality",
+      "detail": "same worktree CRLF after empty-HEAD; tree unchanged"
+    }
+  ],
+  "not_blockers": [
+    "ubuntu pass A 4/4/30/12/5 all green",
+    "ubuntu pass B 12 green",
+    "empty tree unchanged on both hosts",
+    "ancestor checks remain 0 after empty-HEAD",
+    "HEAD blobs remain LF; origin main content not drifted",
+    "isolation plugin not run and therefore not red"
+  ],
+  "did_not_run": [
+    "budget 153",
+    "G3 179 / 53 / 721",
+    "frame 45",
+    "Full 81",
+    "issue 83",
+    "Full test_cited_sources_exist",
+    "G1/G5 isolation via pytest -p stdlib_identity_plugin",
+    "native / model / MATLAB / ROS / DDS / SITL / FC / UE / build / flight",
+    "Lane 1 six-commit diff-tree",
+    "Lane 3 SHA256SUMS / secrets"
+  ],
+  "claims_not_made": [
+    "4/30/12/5 does not equal 53/153/179/721/45/81",
+    "not flight acceptance"
+  ]
+}

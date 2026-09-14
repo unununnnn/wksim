@@ -1,0 +1,283 @@
+{
+  "schema": "wksim.postcommit-lane3-independent-review.review.v1",
+  "audit_id": "cursor-postcommit-lane3-independent-review-20260914-01",
+  "source_audit_id": "cursor-postcommit-lane3-hash-integrity-20260914-01",
+  "plan": "cursor-postcommit-three-lane-verification-plan-20260914-01",
+  "date": "2026-09-14",
+  "work_class": "postcommit-lane3-independent-review",
+  "cwd": "C:/Users/PC/Documents/odid编译/wksim",
+  "branch": "main",
+  "final_head": "59d8da51b4c31b6aa050929ebbe81ccc357acfb5",
+  "observed_head": "59d8da51b4c31b6aa050929ebbe81ccc357acfb5",
+  "final_tree": "5d1cbb9e0ca663d0f10f60d6b645b97b5998b256",
+  "source_head_quoted": "6eafdf9c0b734db07a9fe790c86b409d3468c10b",
+  "architecture_ancestor": "f333316e6efa6b299b4288a9d91fb2bccedfb9d6",
+  "ancestor_check_exit": 0,
+  "hash_method": "git -c core.autocrlf=false cat-file blob FINAL_HEAD:path; hashlib.sha256(raw_bytes)",
+  "random_seed": 20260914,
+  "full_176_rescan": false,
+  "pytest_or_unittest_run": false,
+  "native_build_flight_83": false,
+  "existing_files_edited": false,
+  "git_mutated": false,
+  "git_add_commit_push": false,
+  "scripts": [],
+  "claims_owner_approval": false,
+  "claims_gate_or_issue_or_full_closure": false,
+  "verdict": "PASS",
+  "verdict_statement": "PASS. Zero P1. One P2 does not fail this review: source said 83 cited_sources are all repo files; count is 83 and cat-file -e all 0, but 7 are trees. Source review.json and hashes.json parse. FINAL_HEAD=59d8da51… equals checkout HEAD and hashes.json. Structural 176/176 (34/26/60/17/32/7) and 7/7. Spot-check 17/17 including all 7 addons. secret_hits=[]. Lane3 output scripts=[]. claims_owner_approval=false. Related trio exits 128/128/128. No full rescan, tests, or git mutation.",
+  "p1": [],
+  "p2": [
+    {
+      "id": "P2-CITED-SOURCES-SEVEN-TREES",
+      "source_claim": "83 cited_sources are all FINAL repo files",
+      "observed_count": 83,
+      "unique": 83,
+      "missing": [],
+      "blob": 76,
+      "tree": 7,
+      "trees": [
+        "validation/pid-final-px4-20260909",
+        "validation/ude-runtime-acceptance-20260909",
+        "validation/ne-runtime-acceptance-20260910",
+        "validation/46-reexecution",
+        "validation/47-global-flight",
+        "validation/lunar-20-epoch-1",
+        "validation/velocity-yaw-20260908"
+      ],
+      "fail_this_review": false,
+      "note": "Count and existence hold. Plan asks cat-file -e plus pid directory presence. Wording overclaim only."
+    }
+  ],
+  "p3": [
+    "P3-SUMS-OMITS-SELF",
+    "P3-SOURCE-SCRIPTS-LEFT-NOT-SCRIPTS-ARRAY",
+    "P3-THIS-REVIEW-NOT-IN-176",
+    "P3-NO-FULL-176-RESCAN",
+    "P3-NO-TESTS-NO-PARENT-CHAIN",
+    "P3-NO-OWNER-APPROVAL-OR-GATE-CLOSURE"
+  ],
+  "checks": {
+    "json_parseable": true,
+    "final_head": true,
+    "A_176_of_176": true,
+    "B_7_of_7": true,
+    "secret_hits_empty": true,
+    "scripts_empty": true,
+    "claims_owner_approval_false": true,
+    "related_trio_absent": true,
+    "cited_sources_count_83": true
+  },
+  "source_files": {
+    "review_md": "validation/coordination/cursor-postcommit-lane3-hash-integrity-20260914-01/review.md",
+    "review_json": {
+      "path": "validation/coordination/cursor-postcommit-lane3-hash-integrity-20260914-01/review.json",
+      "parseable": true,
+      "bytes": 11173
+    },
+    "hashes_json": {
+      "path": "validation/coordination/cursor-postcommit-lane3-hash-integrity-20260914-01/hashes.json",
+      "parseable": true,
+      "bytes": 78601
+    }
+  },
+  "source_claims": {
+    "final_head": "59d8da51b4c31b6aa050929ebbe81ccc357acfb5",
+    "hashes_final_head": "59d8da51b4c31b6aa050929ebbe81ccc357acfb5",
+    "listed_176": 176,
+    "matched_176": 176,
+    "addon_7": 7,
+    "secret_hits": [],
+    "scripts_left": false,
+    "scripts_field": null,
+    "claims_owner_approval": false,
+    "verdict": "PASS",
+    "p1": [],
+    "p2": [],
+    "by_group": {
+      "A": 34,
+      "B": 26,
+      "C": 60,
+      "D": 17,
+      "E": 32,
+      "F": 7
+    }
+  },
+  "lane3_output_files": [
+    "hashes.json",
+    "review.json",
+    "review.md"
+  ],
+  "spotcheck": {
+    "method": "random.Random(20260914).sample 2 per group A-E; all 7 group F / addon",
+    "listed": 17,
+    "matched": 17,
+    "missing": [],
+    "hash_mismatch": [],
+    "bytes_mismatch": [],
+    "paths": [
+      {
+        "group": "A",
+        "path": "validation/coordination/cursor-g1-g5-postcommit-head-finalize2-20260914-01/durable-evidence-manifest.txt",
+        "bytes": 4081,
+        "sha256": "58553946b76d7426f7fdab0dd7a8beff788e6f28b42def7df2ef06b2f110a4d4",
+        "match": true
+      },
+      {
+        "group": "A",
+        "path": "validation/coordination/cursor-g1-g5-final-private-stage-finalize-20260914-01/review.json",
+        "bytes": 3337,
+        "sha256": "f50105ca9ba66b917e8ec99ad45b73eaa7e5830dd6dd6335021cfeda351dc703",
+        "match": true
+      },
+      {
+        "group": "B",
+        "path": "validation/coordination/cursor-g3-exact-precommit-audit-20260914-01/captures/pytest-candidate-linux-ubuntu-22.04.txt",
+        "bytes": 111,
+        "sha256": "5bba34bb725a8b66555cf6bdfb38789f1dc747eda2d258a333d506cf52ef3b5d",
+        "match": true
+      },
+      {
+        "group": "B",
+        "path": "validation/coordination/cursor-g3-exact-postrepair3-review-20260914-01/captures/unittest-candidate-linux-ubuntu-22.04.txt",
+        "bytes": 153,
+        "sha256": "4f20643eba791b11950e30725b52a87ceeef73c66a9673956afabe48cb073beb",
+        "match": true
+      },
+      {
+        "group": "C",
+        "path": "validation/coordination/cursor-g6-budget-related-source-p2-repair-20260914-01/candidate-hashes.json",
+        "bytes": 2175,
+        "sha256": "90aa4fb649620ff929572eb9d9ab6fc928e583c157a61457c717b273a239eccb",
+        "match": true
+      },
+      {
+        "group": "C",
+        "path": "validation/coordination/cursor-g6-budget-related-source-p2-repair-20260914-01/captures/win-seq-budget-then-frame-after-empty-budget-30.txt",
+        "bytes": 134,
+        "sha256": "68dcc7e9501c2c212c73182d7867723080b24750c86da70190de4a58be576b5f",
+        "match": true
+      },
+      {
+        "group": "D",
+        "path": "docs/plan/59-e0-frame-datum-binding-20260914.md",
+        "bytes": 15449,
+        "sha256": "3fbb0e7fbdbc069a702dd0e8417c9b6a8dd3961575d5a188817990b280b553f8",
+        "match": true
+      },
+      {
+        "group": "D",
+        "path": "validation/coordination/cursor-g6-frame-datum-precommit-audit-20260914-01/minimal-commit-manifest.txt",
+        "bytes": 3853,
+        "sha256": "bd21ab391eae6aab85f39b9ea5885c25c44bb13cdc5fb72a27efc6da923861db",
+        "match": true
+      },
+      {
+        "group": "E",
+        "path": "validation/coordination/cursor-full-frame-postcommit-sequence-20260914-01/review.md",
+        "bytes": 10841,
+        "sha256": "1ddde2c2eec70f2324d5c461ad8f4952acf337232ba9ccd10c88eec1fb83e976",
+        "match": true
+      },
+      {
+        "group": "E",
+        "path": "validation/coordination/cursor-full-ac-precommit-audit-20260914-01/minimal-commit-manifest.txt",
+        "bytes": 3605,
+        "sha256": "d7a00115f68bcbb4b163e22d78672e001326279debc077a55bcdcc465453440e",
+        "match": true
+      },
+      {
+        "group": "F",
+        "path": "validation/coordination/cursor-five-slice-final-integration2-20260914-01/SHA256SUMS",
+        "bytes": 513,
+        "sha256": "166b9e9acec1a0bfe7278b44e3746bb3d05fc255b7008155e610d3a5456307a6",
+        "match": true
+      },
+      {
+        "group": "F",
+        "path": "validation/coordination/cursor-five-slice-final-integration2-20260914-01/candidate-hashes.json",
+        "bytes": 9973,
+        "sha256": "6b7293e3a310e3312bb676e74409d83e1765943e418a5940d96457384b97715e",
+        "match": true
+      },
+      {
+        "group": "F",
+        "path": "validation/coordination/cursor-five-slice-final-integration2-20260914-01/dependency-check.json",
+        "bytes": 2547,
+        "sha256": "be3f3c74c491aa63f27e4e40ed677f66878d3083603034f9601d398f80f51466",
+        "match": true
+      },
+      {
+        "group": "F",
+        "path": "validation/coordination/cursor-five-slice-final-integration2-20260914-01/durable-evidence-manifest.txt",
+        "bytes": 6061,
+        "sha256": "a644faa044844516d787cd5162edff6a700963c4e4706c64fdb2f44265c64398",
+        "match": true
+      },
+      {
+        "group": "F",
+        "path": "validation/coordination/cursor-five-slice-final-integration2-20260914-01/review.json",
+        "bytes": 1533,
+        "sha256": "e5d9255cd7bd66a8e37fc0bb71f095650294ce701dea0027b9a718c367c80ed9",
+        "match": true
+      },
+      {
+        "group": "F",
+        "path": "validation/coordination/cursor-five-slice-final-integration2-20260914-01/review.md",
+        "bytes": 13497,
+        "sha256": "fe8594105b323fd5d01733b8855ad142b1552be2aff47a070a367f5d6ea89940",
+        "match": true
+      },
+      {
+        "group": "F",
+        "path": "validation/coordination/cursor-five-slice-final-integration2-20260914-01/sequence-matrix.json",
+        "bytes": 41406,
+        "sha256": "e5af8dd647789ef79e027954cd08998d62f82e76dbeb33661e49ff00f884d511",
+        "match": true
+      }
+    ]
+  },
+  "addon": {
+    "listed": 7,
+    "matched": 7,
+    "sha256sums_self": "166b9e9acec1a0bfe7278b44e3746bb3d05fc255b7008155e610d3a5456307a6",
+    "sha256sums_omits_self": true,
+    "listed_bodies": 6,
+    "listed_bodies_matched": 6,
+    "pass": true
+  },
+  "related_trio": [
+    {
+      "path": "validation/coordination/codebuddy-g6-b1-b4-frontier-20260914-01/review.md",
+      "present": false,
+      "cat_file_e_exit": 128
+    },
+    {
+      "path": "validation/coordination/codebuddy-g6-b1-b4-frontier-20260914-01/frontier.json",
+      "present": false,
+      "cat_file_e_exit": 128
+    },
+    {
+      "path": "validation/coordination/codebuddy-g6-b1-b4-frontier-20260914-01/owner-input-template.json",
+      "present": false,
+      "cat_file_e_exit": 128
+    }
+  ],
+  "cited_sources": {
+    "ledger": "validation/full-original-ac-gap-ledger-20260914.json",
+    "field": "inputs.cited_sources",
+    "count": 83,
+    "unique": 83,
+    "missing": [],
+    "blob": 76,
+    "tree": 7,
+    "existence_sample_indices": [0, 20, 41, 62, 82],
+    "existence_sample_exits": [0, 0, 0, 0, 0],
+    "pid_directory_present": true
+  },
+  "output_dir": "validation/coordination/cursor-postcommit-lane3-independent-review-20260914-01",
+  "output_names": [
+    "review.md",
+    "review.json"
+  ]
+}

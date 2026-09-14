@@ -1,0 +1,174 @@
+{
+  "schema": "wksim.cursor-postcommit-lane2-autocrlf-false-rerun.v1",
+  "plan": "cursor-postcommit-three-lane-verification-plan-20260914-01",
+  "lane": "2",
+  "card": "validation/coordination/cursor-postcommit-three-lane-verification-plan-20260914-01/lane2.txt",
+  "output": "validation/coordination/cursor-postcommit-lane2-autocrlf-false-rerun-20260914-01",
+  "recorded_utc": "2026-09-13T23:43:47Z",
+  "verdict": "PASS",
+  "this_card_authorizes_add_commit_push": false,
+  "this_card_closes_issue_or_gate": false,
+  "work_class": "historical-comparison / post-commit representative verification / autocrlf-false rerun",
+  "original_receipt": {
+    "path": "validation/coordination/cursor-postcommit-lane2-representative-matrix-20260914-01",
+    "verdict": "FAIL",
+    "overwritten": false,
+    "windows_empty_head": "b59660cf745e2015d949e1f94a713850aa33930f",
+    "ubuntu_empty_head": "83b53d7a005598b62225a4722d3c2f0d28404cbf",
+    "tree": "5d1cbb9e0ca663d0f10f60d6b645b97b5998b256",
+    "windows_core_autocrlf": "true",
+    "failure": "Windows core.autocrlf=true converted worktree bytes to CRLF; tests read worktree; HEAD blobs stayed LF"
+  },
+  "main_repo": {
+    "cwd": "C:/Users/PC/Documents/odid编译/wksim",
+    "branch": "main",
+    "head": "59d8da51b4c31b6aa050929ebbe81ccc357acfb5",
+    "architecture_ancestor_exit": 0,
+    "empty_committed": false,
+    "added": false,
+    "pushed": false,
+    "reset": false,
+    "clean": false
+  },
+  "bindings": {
+    "SOURCE_HEAD": "6eafdf9c0b734db07a9fe790c86b409d3468c10b",
+    "ARCHITECTURE_ANCESTOR": "f333316e6efa6b299b4288a9d91fb2bccedfb9d6",
+    "FINAL_HEAD": "59d8da51b4c31b6aa050929ebbe81ccc357acfb5",
+    "ORIGIN": "https://github.com/unununnnn/wksim.git",
+    "head_equals_source": false,
+    "COMMIT_A": "14e474e47e1ee1c114d423870a034fbf2cb26e76",
+    "COMMIT_B": "f5509c35db8fc62c5722fb55a29299cb60ff4f4a",
+    "COMMIT_C": "bc0648dcff8c1a4c2de55e6de67b30f2f524c457",
+    "COMMIT_D": "f30ebf0f116b75c56802375702eaa1b2cbc3beba",
+    "COMMIT_E": "88349152a30d29ca95ec92364c4228c2a37d617b",
+    "COMMIT_F": "59d8da51b4c31b6aa050929ebbe81ccc357acfb5"
+  },
+  "correction": {
+    "core_autocrlf_set": "false",
+    "restored_to": "59d8da51b4c31b6aa050929ebbe81ccc357acfb5",
+    "windows_plain_checkout_left_crlf": true,
+    "windows_rewrite": "git rm -r --cached . ; git -c core.autocrlf=false checkout -f -B main FINAL_HEAD",
+    "candidate_files_crlf_after_rewrite": false,
+    "origin_ls_remote": "59d8da51b4c31b6aa050929ebbe81ccc357acfb5"
+  },
+  "hosts": {
+    "windows": {
+      "clone": "C:/Users/PC/Documents/odid编译/wksim-lane2-win-20260914-01",
+      "python": "D:\\date\\miniconda\\python.exe",
+      "python_version": "3.13.11",
+      "core_autocrlf": "false",
+      "pass_a_head": "59d8da51b4c31b6aa050929ebbe81ccc357acfb5",
+      "source_ancestor_exit": 0,
+      "architecture_ancestor_exit": 0
+    },
+    "ubuntu": {
+      "clone": "/root/wksim-lane2-ubu-20260914-01",
+      "reused_lane1_or_lane3": false,
+      "python": "/usr/bin/python3",
+      "python_version": "3.10.12",
+      "core_autocrlf": "false",
+      "pass_a_head": "59d8da51b4c31b6aa050929ebbe81ccc357acfb5",
+      "source_ancestor_exit": 0,
+      "architecture_ancestor_exit": 0
+    }
+  },
+  "pass_a": {
+    "ubuntu": {
+      "g1g5": {"ran": 4, "failures": 0, "errors": 0, "rc": 0, "elapsed_s": 0.126},
+      "g3": {"ran": 4, "failures": 0, "errors": 0, "rc": 0, "elapsed_s": 0.109},
+      "budget": {"ran": 30, "failures": 0, "errors": 0, "rc": 0, "elapsed_s": 1.655},
+      "frame": {"ran": 12, "failures": 0, "errors": 0, "rc": 0, "elapsed_s": 2.47},
+      "full": {"ran": 5, "failures": 0, "errors": 0, "rc": 0, "elapsed_s": 0.054},
+      "pass": true
+    },
+    "windows": {
+      "g1g5": {"ran": 4, "failures": 0, "errors": 0, "rc": 0, "elapsed_s": 0.362},
+      "g3": {"ran": 4, "failures": 0, "errors": 0, "rc": 0, "elapsed_s": 0.176},
+      "budget": {"ran": 30, "failures": 0, "errors": 0, "rc": 0, "elapsed_s": 10.397},
+      "frame": {"ran": 12, "failures": 0, "errors": 0, "rc": 0, "elapsed_s": 55.132},
+      "full": {"ran": 5, "failures": 0, "errors": 0, "rc": 0, "elapsed_s": 0.174},
+      "pass": true
+    }
+  },
+  "pass_b": {
+    "tree_before": "5d1cbb9e0ca663d0f10f60d6b645b97b5998b256",
+    "tree_after_both": "5d1cbb9e0ca663d0f10f60d6b645b97b5998b256",
+    "tree_unchanged": true,
+    "pushed": false,
+    "ubuntu": {
+      "empty_head": "24800304ec20469cd787f9f64907fb01f1c45caa",
+      "empty_ne_final": true,
+      "source_ancestor_exit": 0,
+      "architecture_ancestor_exit": 0,
+      "ran": 12,
+      "failures": 0,
+      "errors": 0,
+      "rc": 0,
+      "elapsed_s": 0.456,
+      "pass": true
+    },
+    "windows": {
+      "empty_head": "ceb796310c2210ea93736dec7014033d45f2aad6",
+      "empty_ne_final": true,
+      "source_ancestor_exit": 0,
+      "architecture_ancestor_exit": 0,
+      "ran": 12,
+      "failures": 0,
+      "errors": 0,
+      "rc": 0,
+      "elapsed_s": 4.818,
+      "pass": true
+    },
+    "identities": {
+      "rev_parse_head_equals_source_head": false,
+      "budget_observed_at_head": "6eafdf9c0b734db07a9fe790c86b409d3468c10b",
+      "budget_observed_at_head_is_capture_pin": true,
+      "frame_observed_at_head": "521b5124949ea8bb057459142e09b270ae54dde3",
+      "frame_uses_ancestor_not_current_head": true,
+      "full_json_head": "6eafdf9c0b734db07a9fe790c86b409d3468c10b",
+      "full_json_head_is_not_rev_parse_head": true
+    }
+  },
+  "windows_crlf_diagnostic": {
+    "core_autocrlf": "false",
+    "path": "Simulator/wksim_runtime/independent-profile-evidence.json",
+    "head_has_cr": false,
+    "worktree_has_cr": false,
+    "head_len": 45994,
+    "worktree_len": 45994,
+    "delta_bytes": 0,
+    "head_sha256": "a0f1d60b4ad5b01fb38e775f42907b2b2f1cdc3741da152b3ea81343b7015535",
+    "worktree_sha256": "a0f1d60b4ad5b01fb38e775f42907b2b2f1cdc3741da152b3ea81343b7015535",
+    "git_hash_object_matches_head_blob": true,
+    "remote_head_blob_content_drift": false,
+    "note": "after autocrlf=false and worktree rewrite, tests read LF worktree bytes matching HEAD"
+  },
+  "blockers": [],
+  "not_blockers": [
+    "ubuntu pass A 4/4/30/12/5 all green",
+    "windows pass A 4/4/30/12/5 all green after autocrlf=false rewrite",
+    "ubuntu pass B 12 green",
+    "windows pass B 12 green",
+    "empty tree unchanged on both hosts",
+    "ancestor checks remain 0 after empty-HEAD",
+    "origin ls-remote still FINAL_HEAD; empty heads not pushed",
+    "original FAIL receipt left in place"
+  ],
+  "did_not_run": [
+    "budget 153",
+    "G3 179 / 53 / 721",
+    "frame 45",
+    "Full 81",
+    "issue 83",
+    "Full test_cited_sources_exist",
+    "G1/G5 isolation via pytest -p stdlib_identity_plugin",
+    "native / model / MATLAB / ROS / DDS / SITL / FC / UE / build / flight",
+    "Lane 1 six-commit diff-tree",
+    "Lane 3 SHA256SUMS / secrets"
+  ],
+  "claims_not_made": [
+    "4/30/12/5 does not equal 53/153/179/721/45/81",
+    "not flight acceptance",
+    "does not rewrite original FAIL receipt as PASS"
+  ]
+}
