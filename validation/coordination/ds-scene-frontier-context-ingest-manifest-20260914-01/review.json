@@ -1,0 +1,158 @@
+{
+  "schema": "wksim.ingest-manifest.v1",
+  "manifested_at": "2026-09-14",
+  "owner": "codebuddy-ingest-manifest",
+  "manifested_head": "1c5656ed924020b3e626e68739caeeaef9f41a9e",
+  "manifested_head_subject": "Bind rate budget context offline",
+  "reviewed_head_of_independent_review": "76f77470e91ecc742148df0f3eba6f5b5494511c",
+  "reviewed_head_ancestor_of_manifested_head": true,
+  "intervening_commit_disjointness": "exactly one commit between the reviewed HEAD and the manifested HEAD: 1c5656ed 'Bind rate budget context offline' admitted only the disjoint rate-budget batch (10 files: docs/coordination/ds-rate-budget-20260912.json, ds-rate-budget-ingest-note-20260914.md, validation/test_ds_rate_budget_context.py, the codebuddy-ds-rate-budget-independent-review-20260914-01 directory, and the ds-rate-budget-context-ingest-manifest-20260914-01 directory); no scene-frontier path was touched and no scene-frontier byte changed",
+  "scope": "context-only",
+  "acceptance": "non-acceptance",
+  "exact_paths_sha256": "7acb197d30ec70c8625bb51c8d7bf1e4a9499e312910721f6bac325902483233",
+  "exact_paths_count": 10,
+  "inputs": [
+    {
+      "path": "docs/coordination/ds-scene-frontier-20260912.md",
+      "role": "historical_context_document",
+      "sha256": "9922942f3e13d712d02c050e62825dcc004f9cac41205de8b169b83c232a557e",
+      "sha256_match_specified": true,
+      "size_bytes": 7691,
+      "tracked": false
+    },
+    {
+      "path": "docs/coordination/ds-scene-frontier-ingest-note-20260914.md",
+      "role": "binding_and_supersession_registration_note",
+      "sha256": "f4804e46035c3f9be4c2ae5300ad51b84bc71068d469ef65e19e0eb4a7ebfe3e",
+      "sha256_match_specified": true,
+      "size_bytes": 9376,
+      "tracked": false
+    },
+    {
+      "path": "validation/test_ds_scene_frontier_context.py",
+      "role": "candidate_offline_context_test",
+      "sha256": "9699c84836f03fdf5e639524321abc7fb437686f6c5e29eb5b79604a273aa719",
+      "sha256_match_specified": true,
+      "size_bytes": 17763,
+      "tracked": false
+    },
+    {
+      "path": "validation/coordination/codebuddy-ds-scene-frontier-independent-review-20260914-01/review.md",
+      "role": "independent_review_report",
+      "sha256": "8ba3d1724e218dc4ac7dd1a7c5bcc993927e01a1d9d4562c13ca6d1f6cae7576",
+      "sha256_match_review_sums": true,
+      "tracked": false
+    },
+    {
+      "path": "validation/coordination/codebuddy-ds-scene-frontier-independent-review-20260914-01/review.json",
+      "role": "independent_review_record",
+      "sha256": "41225fb366c5fcc80736f8247c1f1643cf0850d479b97d93e62c701a3304e483",
+      "sha256_match_review_sums": true,
+      "tracked": false
+    },
+    {
+      "path": "validation/coordination/codebuddy-ds-scene-frontier-independent-review-20260914-01/SHA256SUMS",
+      "role": "independent_review_checksum_manifest",
+      "verification": "sha256sum -c from inside the review directory re-run at the manifested HEAD: review.md OK, review.json OK, exit 0"
+    }
+  ],
+  "review_facts": {
+    "reviewer": "independent CodeBuddy evidence reviewer",
+    "reviewed_at": "2026-09-14",
+    "reviewed_head": "76f77470e91ecc742148df0f3eba6f5b5494511c",
+    "reviewed_head_ancestor_of_manifested_head_verified": "git merge-base --is-ancestor 76f77470e91ecc742148df0f3eba6f5b5494511c HEAD, exit 0, re-run this session",
+    "verdict": "PASS",
+    "findings_p1": [],
+    "findings_p2": [],
+    "findings_p3_nonblocking": [
+      "P3-1: the note's section 1 binding table records the companion test size as 6364 bytes; the file and its blob at cf509f53 are 7115 bytes. The SHA256 cell is correct and the section 5.1 seam re-checks the companion by SHA only, so the error errs toward false rejection, not false acceptance (docs/coordination/ds-scene-frontier-ingest-note-20260914.md:14).",
+      "P3-2: the note's section 3.1 four-file supersession list includes validation/coordination/deepseek-102-residual-20260914-01/probe.py, which is untracked and gitignored (.gitignore:53 '/validation/*/'); a fresh clone at HEAD would show only three token-bearing tracked files. The supersession substance survives via the three tracked files (docs/coordination/ds-scene-frontier-ingest-note-20260914.md:28).",
+      "P3-3: the note's section 3.1 count '共 4 个 validation/*.py 文件' is a writing-time snapshot (HEAD 9c581ad5); at the reviewed HEAD 76f77470 the batch's own binding test validation/test_ds_scene_frontier_context.py also contains both identity tokens (fifth file). The drift strengthens the supersession (docs/coordination/ds-scene-frontier-ingest-note-20260914.md:28)."
+    ],
+    "candidate_hashes_match_review_record": true,
+    "candidate_sizes_match_review_record": true,
+    "historical_only_boundaries": "the review and the manifest assert no acceptance, approval, closure, or live ticket-state judgment; the historical doc's ticket table is a 2026-09-12 snapshot requiring live re-query; all 'current status' judgments remain with the current authority (main agent / main session / human ruling)",
+    "strict_parse_of_review_json": true
+  },
+  "test_facts": {
+    "command": "python -B -m unittest validation.test_ds_scene_frontier_context validation.test_scene_frontier_contract -v",
+    "re_run_this_session": {
+      "tests_run": 23,
+      "failures": 0,
+      "errors": 0,
+      "result": "OK",
+      "exit_code": 0,
+      "duration_seconds": 0.453
+    },
+    "staged_lifecycle_re_run_this_session": {
+      "configuration": "temporary GIT_INDEX_FILE copied from the real index with exactly the 3 scene-frontier candidates staged (git diff --cached showed exactly those 3 paths); both modules executed under that index; temporary index deleted afterwards and no temp index files remain",
+      "tests_run": 23,
+      "failures": 0,
+      "errors": 0,
+      "result": "OK",
+      "exit_code": 0,
+      "duration_seconds": 0.445
+    },
+    "real_index": {
+      "empty": true,
+      "staged_diffs": 0,
+      "entries": 10724,
+      "ls_files_sha256": "18b1182a31e8209a2de457295115a128484de345747e6c9e49b354e59a90278f",
+      "unchanged_across_both_runs": true
+    },
+    "review_recorded_runs": [
+      {
+        "command": "python -B -m unittest validation.test_ds_scene_frontier_context validation.test_scene_frontier_contract -v",
+        "configuration": "normal worktree at reviewed HEAD 76f77470",
+        "tests_run": 23,
+        "result": "OK",
+        "failures": 0,
+        "errors": 0,
+        "exit_code": 0,
+        "duration_seconds": 0.434
+      },
+      {
+        "command": "python -B -m unittest validation.test_ds_scene_frontier_context validation.test_scene_frontier_contract -v",
+        "configuration": "temporary GIT_INDEX_FILE with exactly the 3 candidates staged at reviewed HEAD 76f77470",
+        "tests_run": 23,
+        "result": "OK",
+        "failures": 0,
+        "errors": 0,
+        "exit_code": 0,
+        "duration_seconds": 0.425
+      }
+    ]
+  },
+  "verification": {
+    "head_confirmed_before_work": true,
+    "reviewed_head_76f77470_ancestor_of_manifested_head": true,
+    "historical_context_document_sha256_matches_specified": true,
+    "ingest_note_sha256_matches_specified": true,
+    "test_candidate_sha256_matches_specified": true,
+    "review_report_sha256_matches_review_sums": true,
+    "review_record_sha256_matches_review_sums": true,
+    "review_sha256sums_verified_relative_to_review_directory": true,
+    "review_json_strict_parsed": true,
+    "review_verdict_pass": true,
+    "review_p1_p2_empty": true,
+    "review_p3_nonblocking_only": true,
+    "manifest_partial_open_acceptance_false_blocking_issue_9": "re-read this session: docs/plan/29-terrain-evidence-manifest.json remains status=partial_open, acceptance=false, blocking_issue=9, exactly three unproven_boundaries",
+    "test_23_of_23_exit_0_normal": true,
+    "test_23_of_23_exit_0_staged_temp_index": true,
+    "real_index_empty_and_unchanged": true,
+    "no_partial_outputs_from_cancelled_turn": "the manifest directory did not exist at resume time; nothing to reconcile; all four outputs written fresh and deterministically"
+  },
+  "outputs": [
+    "validation/coordination/ds-scene-frontier-context-ingest-manifest-20260914-01/exact-paths.txt",
+    "validation/coordination/ds-scene-frontier-context-ingest-manifest-20260914-01/review.md",
+    "validation/coordination/ds-scene-frontier-context-ingest-manifest-20260914-01/review.json",
+    "validation/coordination/ds-scene-frontier-context-ingest-manifest-20260914-01/SHA256SUMS"
+  ],
+  "nonclaims": [
+    "This manifest is context-only ingestion of the reviewed batch; it is not an acceptance, approval, review, or closure action.",
+    "No issue acceptance, owner approval, dependency closure, or ticket-state disposition is claimed for #29, #102, #9, #83, or any other ticket; the historical doc's ticket table remains a 2026-09-12 snapshot requiring live re-query by the current authority.",
+    "The bound historical document ds-scene-frontier-20260912.md remains historical context only; its conclusions, gap tables, and 'current status' wording do not assert current state.",
+    "No input file or file outside the output directory was edited; no stage, commit, or push was performed; protected files docs/Prometheus.gitmodules.reference and validation/coordination/short-cycle-dispatches.json (pre-existing worktree modifications) were not touched.",
+    "No native/build/MATLAB/ROS/DDS/SITL/FC/UE/model/flight execution was performed, no live GitHub state was queried or mutated, and #83 was not rerun."
+  ]
+}

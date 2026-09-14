@@ -1,0 +1,173 @@
+{
+  "artifact": "codebuddy-ds-scene-frontier-independent-review-20260914-01",
+  "reviewer": "independent CodeBuddy evidence reviewer",
+  "review_date": "2026-09-14",
+  "reviewed_head": "76f77470e91ecc742148df0f3eba6f5b5494511c",
+  "reviewed_head_subject": "Bind Full frontier context offline",
+  "scope": [
+    "docs/coordination/ds-scene-frontier-20260912.md",
+    "docs/coordination/ds-scene-frontier-ingest-note-20260914.md",
+    "validation/test_ds_scene_frontier_context.py"
+  ],
+  "reference_not_a_candidate": {
+    "path": "validation/test_scene_frontier_contract.py",
+    "sha256": "3f593d8f3bdb3c34db5c7b51014c305fd9596a73ce803a1c187e3d509b6c3de2",
+    "size_bytes": 7115,
+    "tracked": true,
+    "blob_at_cf509f53": "3f593d8f3bdb3c34db5c7b51014c305fd9596a73ce803a1c187e3d509b6c3de2",
+    "single_commit_history": "cf509f5361f468e78bb81e47b3992ddf7db02957 'Add scene frontier contract checks'",
+    "edited_by_review": false
+  },
+  "candidate_hashes": [
+    {
+      "path": "docs/coordination/ds-scene-frontier-20260912.md",
+      "sha256": "9922942f3e13d712d02c050e62825dcc004f9cac41205de8b169b83c232a557e",
+      "size_bytes": 7691,
+      "tracked": false,
+      "edited_by_review": false
+    },
+    {
+      "path": "docs/coordination/ds-scene-frontier-ingest-note-20260914.md",
+      "sha256": "f4804e46035c3f9be4c2ae5300ad51b84bc71068d469ef65e19e0eb4a7ebfe3e",
+      "size_bytes": 9376,
+      "tracked": false,
+      "edited_by_review": false
+    },
+    {
+      "path": "validation/test_ds_scene_frontier_context.py",
+      "sha256": "9699c84836f03fdf5e639524321abc7fb437686f6c5e29eb5b79604a273aa719",
+      "size_bytes": 17763,
+      "tracked": false,
+      "edited_by_review": false
+    }
+  ],
+  "verifications": {
+    "exact_hashes_sizes": {
+      "frontier_doc": "recomputed; equals the note section 1 binding and the test candidate pins (SHA256 + size 7691)",
+      "ingest_note": "recomputed; equals the test candidate pins (NOTE_SHA256 f4804e46… / NOTE_SIZE 9376); the note does not self-pin (its hash/size are declared in the delivery report per its section 6), consistent",
+      "test_candidate": "recomputed at review time (self hash recorded above)",
+      "companion_reference": "worktree SHA256 equals blob at cf509f53 and the note section 1 / test candidate SHA pins; size cell discrepancy recorded as P3-1"
+    },
+    "note_bindings": "frontier doc SHA256+size, companion SHA256, binding HEAD 9c581ad5, and commits cf509f53/c3f0d319 are all present in the note text as the test asserts",
+    "commit_ancestry": {
+      "9c581ad5b2e316904c9ef53e8543c5a6f413d6f9_ancestor_of_HEAD": true,
+      "f333316e6efa6b299b4288a9d91fb2bccedfb9d6_ancestor_of_HEAD": true,
+      "cf509f5361f468e78bb81e47b3992ddf7db02957_ancestor_of_HEAD": true,
+      "c3f0d319_ancestor_of_HEAD": true
+    },
+    "manifest_semantics": {
+      "status": "partial_open",
+      "acceptance": false,
+      "blocking_issue": 9,
+      "unproven_boundaries_exactly_three": [
+        "missing_real_ue_physics_colocation",
+        "missing_fc_closed_loop",
+        "missing_slope_contact_force_dynamics"
+      ],
+      "manifest_last_touch": "c3f0d319 (2026-09-12 04:05:42 +0900 'Audit retained terrain evidence'), present in the manifest's commit history at HEAD",
+      "frontier_doc_unchanged_since_writing": "date-only 'git log --since=2026-09-12' over the manifest, two contracts, three runtime modules, and the probe tool returns empty (reproduced); last touches 7a08bd52 (02:51:36 +0900) and c3f0d319 (04:05:42 +0900) both precede the frontier doc's same-day writing, so the doc's 'current valid status' statement holds at this HEAD"
+    },
+    "three_scene_identities_and_frozen_seam": {
+      "visual_static_scene": "static-plane-box-v1 / 60ae5097… @[2.0, 0.0, 0.5]",
+      "real_terrain_scene": "static-plane-box-v1-real-tick0 / 4889e2ea… @[0.0, 0.0, 0.5]",
+      "planner_layer": "EXPECTED_SCENE_HASH 40ee9281… (planner_scene_binding.py:77); EGO_SINGLE_BOX_BINDING at :1072; LEGACY_SCENE_ID/HASH at :64-65",
+      "pairwise_distinct": true,
+      "frozen_seam": "FROZEN_SCENE_SHA256 (contact_observer.py:26) == visual fixture 60ae5097…, != probe identity",
+      "runtime_constants_match_manifest": true
+    },
+    "supersessions": {
+      "zero_occurrence": "the frontier doc's zero-occurrence claim is registered as superseded; per-file token presence pattern verified against all four listed files (companion True/True; check_g3_closure.py False/True; omp-g4 probe.py True/False; deepseek probe.py False/True); no other tracked validation/*.py carries either token",
+      "ticket_table_snapshot_scoping": "note section 3.2 declares the section 2 ticket table a 2026-09-12 snapshot requiring live re-query; no live GitHub query performed by note, test, or this review",
+      "delivery_asymmetry": "note section 3.3 registers: companion test tracked and clean at cf509f53, frontier doc still untracked; registered as current fact, not a defect ruling or a commit instruction"
+    },
+    "non_authority_wording": "note section 0: '不构成 #29、#102 或 #9 的验收、批准、收口或复核记录', '不构成任何实时票面状态裁定', '也不授予任何原生物理/构建/联调执行许可'; section 6: no git add/commit/push, protected files untouched, no #83 rerun; the historical doc's ticket-table wording ('关闭本父票仍需…') is a quoted requirement and '本轮不关闭、不改写任何 Issue' is a negative; forbidden promotion patterns enforced on the test's REFERENCE_PHRASING with five rejection mutants",
+    "meaningful_negatives": "hash/size drift mutants rejected (both bound files, size perturbations both directions); missing-anchor and bogus-ancestry mutants rejected with current-anchor sanity passes; wording-promotion mutants rejected; manifest-drift check re-asserts bound status facts; reference test rejects probe identity as planner identity (PlannerSceneIdentityError / PlannerSceneBindingError) and proves foreign-epoch observers freeze fail-closed at the real seam",
+    "descendant_and_staging_safety": {
+      "repo_root_from_dunder_file": true,
+      "binding_head_asserted_as_ancestor_not_equality": true,
+      "current_content_read_from_symbolic_HEAD": true,
+      "no_assertion_that_candidates_stay_untracked": true,
+      "companion_tracked_status_only_live_assertion": "staging or committing candidates cannot untrack it",
+      "test_performs_no_file_writes": true,
+      "staged_lifecycle_run": "passed with the three candidates staged in a temporary index (see test_runs.run_2)"
+    }
+  },
+  "test": {
+    "command": "python -B -m unittest validation.test_ds_scene_frontier_context validation.test_scene_frontier_contract -v",
+    "working_directory": "wksim repo root",
+    "mode": "non-native offline unittest only; pure-Python imports of Simulator.wksim_runtime modules"
+  },
+  "test_runs": {
+    "run_1": {
+      "configuration": "normal worktree, real index untouched",
+      "tests_run": 23,
+      "failures": 0,
+      "errors": 0,
+      "result": "OK",
+      "exit_code": 0,
+      "duration_seconds": 0.434
+    },
+    "run_2": {
+      "configuration": "temporary GIT_INDEX_FILE copied from the real index with exactly the 3 scope candidates staged (git diff --cached showed exactly those 3 paths); both modules executed under that GIT_INDEX_FILE",
+      "tests_run": 23,
+      "failures": 0,
+      "errors": 0,
+      "result": "OK",
+      "exit_code": 0,
+      "duration_seconds": 0.425,
+      "cleanup": "temporary index file deleted; no temp index files remain",
+      "real_index_unchanged": {
+        "before": "git ls-files -s sha256 905998f11b4212a07df2d30d3b64af7cd7acef02c9be888992f770668bd130a4, 10714 entries, 0 staged diffs",
+        "after": "git ls-files -s sha256 905998f11b4212a07df2d30d3b64af7cd7acef02c9be888992f770668bd130a4, 10714 entries, 0 staged diffs"
+      }
+    }
+  },
+  "findings": [
+    {
+      "id": "P3-1",
+      "severity": "P3",
+      "file": "docs/coordination/ds-scene-frontier-ingest-note-20260914.md",
+      "line": 14,
+      "summary": "The note's section 1 binding table records the companion test size as 6364 bytes, but the file (and its blob at cf509f53, single-commit history) is 7115 bytes; the SHA256 cell is correct. The section 5.1 seam re-checks the companion by SHA only, so no verification path consumes the wrong size and the error direction is false rejection, not false acceptance; the correct size 7115 is recorded here."
+    },
+    {
+      "id": "P3-2",
+      "severity": "P3",
+      "file": "docs/coordination/ds-scene-frontier-ingest-note-20260914.md",
+      "line": 28,
+      "summary": "The note's section 3.1 four-file supersession list includes validation/coordination/deepseek-102-residual-20260914-01/probe.py, which is untracked and gitignored (.gitignore:53 '/validation/*/'). A fresh clone at this HEAD would show only three token-bearing tracked files. The supersession substance survives via the three tracked files alone, and the binding test reads the worktree, so it passes now and would fail loudly if the file vanished."
+    },
+    {
+      "id": "P3-3",
+      "severity": "P3",
+      "file": "docs/coordination/ds-scene-frontier-ingest-note-20260914.md",
+      "line": 28,
+      "summary": "The section 3.1 count '共 4 个 validation/*.py 文件' is a writing-time snapshot (HEAD 9c581ad5): at the reviewed HEAD 76f77470 the batch's own binding test validation/test_ds_scene_frontier_context.py also contains both identity tokens (fifth file in the worktree scan). The drift strengthens the supersession rather than weakening it, but the count should be read as time-scoped like the claim it supersedes."
+    }
+  ],
+  "finding_counts": {
+    "P1": 0,
+    "P2": 0,
+    "P3": 3
+  },
+  "verdict": "PASS",
+  "verdict_basis": "Zero P1 and zero P2 findings; three P3 findings only. All recomputed hashes, bindings, ancestry, manifest semantics, identities, supersessions, and both 23-test runs agree with the candidates' claims.",
+  "claims": {
+    "approval": "none — this review grants no approval",
+    "acceptance": "none — this review is not an acceptance record for any candidate, ticket, or condition",
+    "closure": "none — this review closes nothing; the ticket states recorded in the historical doc are cited as a 2026-09-12 snapshot only and their current validity is not asserted here",
+    "live_state": "none — no live GitHub state was queried by this review; any current ticket-status judgment requires live re-query or current-authority ruling (main agent / main session / human ruling)",
+    "scope_limit": "offline evidence-audit pass only; no native/build/MATLAB/ROS/DDS/SITL/FC/UE/model/flight execution; #83 not rerun"
+  },
+  "boundaries": {
+    "candidate_or_reference_files_edited": false,
+    "existing_files_edited": false,
+    "real_index_staged": false,
+    "real_index_unchanged": true,
+    "temporary_index_used_and_deleted": true,
+    "staged_committed_or_pushed": false,
+    "protected_files_touched": false,
+    "protected_files_pre_existing_modifications": "docs/Prometheus.gitmodules.reference and validation/coordination/short-cycle-dispatches.json showed pre-existing worktree modifications before this review; left untouched",
+    "native_or_model_execution": "none"
+  }
+}
