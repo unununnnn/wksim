@@ -1,0 +1,144 @@
+{
+  "schema": "wksim.independent-review.v1",
+  "artifact": "ds-startup-cost historical-context batch (4 candidates)",
+  "reviewer": "independent CodeBuddy evidence reviewer",
+  "review_date": "2026-09-14",
+  "reviewed_head": "011818876c1b94875fd67cedaaa73abfac866633",
+  "reviewed_head_subject": "Bind OMP delivery diagnostic context offline",
+  "verified_head": "011818876c1b94875fd67cedaaa73abfac866633",
+  "head_relation": "reviewed_head equals verified_head in this session; the review required only ancestry, never HEAD equality: f333316e6efa6b299b4288a9d91fb2bccedfb9d6 (architecture ancestor), 76f77470e91ecc742148df0f3eba6f5b5494511c (evidence-audit baseline), 1c5656ed924020b3e626e68739caeeaef9f41a9e (note-writing HEAD) and e2ecd62e914e075d0d9e40eef8ea9c034b958d2f (binding baseline) were each verified as ancestors of the running HEAD via git merge-base --is-ancestor (all exit 0)",
+  "scope": [
+    {
+      "path": "docs/coordination/ds-startup-cost-evidence-20260912.json",
+      "sha256": "675026ab4f13b1a61e44fa60a208483faa26a3b08794a30118a453103689e709",
+      "size_bytes": 18778,
+      "tracked": false
+    },
+    {
+      "path": "docs/coordination/ds-startup-cost-evidence-20260912.md",
+      "sha256": "a1df834b37241f7dc8fb2e1a9ec4407f330a05158e8e8b11f31ca6911800e2c4",
+      "size_bytes": 17495,
+      "tracked": false
+    },
+    {
+      "path": "docs/coordination/ds-startup-cost-evidence-ingest-note-20260914.md",
+      "sha256": "2ce0ac2d86999543eb4789f5a3502078dc441d93a678f6c1e755865c140c89a1",
+      "size_bytes": 12417,
+      "tracked": false
+    },
+    {
+      "path": "validation/test_ds_startup_cost_evidence_context.py",
+      "sha256": "b79ede1df0f59cafd0607c96f37c984649eb629a28e34513c51d27e483d06366",
+      "size_bytes": 26826,
+      "tracked": false
+    }
+  ],
+  "candidate_hashes_match_task_statement": true,
+  "protected_files_in_scope": false,
+  "verifications": {
+    "strict_json_parse": true,
+    "schema_and_revision": "wksim.ds-startup-cost-evidence.v2, revision 2",
+    "terminal_pins_5_sources_plus_6_raw_11_total": true,
+    "json_md_terminal_table_11_of_11": true,
+    "triple_outputs_groups_creep_work_over_release_excess_match": true,
+    "creep_minus_work_over_equals_release_excess_bitwise_all_three": true,
+    "candidate_ns_values_nearest_1000ns_roundings": true,
+    "three_trace_sha256_equal_retained_raw_rate_pins": true,
+    "phase_partition_early_246_248_249_and_boundary_247_249_250": true,
+    "c1_terminal_latch_closure_100129488_tick_96624_identity_sums_true": true,
+    "retained_raw_not_in_checkout_declared_note_4_4": true,
+    "joint_py_current_equals_pin_f5433c2e": true,
+    "joint_rate_py_current_equals_pin_0b53a16a": true,
+    "worker_pin_equals_acf81d56_blob_drifted_1abf5f39": true,
+    "analyzer_pin_equals_e1c16314_blob": true,
+    "runner_pin_fd0b7ee6_equals_7cb7e840_blob": true,
+    "runner_7cb7e840_not_ancestor_of_head_exit_1": true,
+    "runner_cited_blob_lines_296_305_901_903_916_919_963_967_match": true,
+    "current_tree_runner_anchors_959_975_in_place": true,
+    "current_tree_worker_anchors_93_96_114_249_in_place": true,
+    "p3_1_analyzer_generation_correction_accurate": true,
+    "p3_2_joint_189_193_attribution_correction_accurate": true,
+    "p3_3_24147_typo_correction_accurate": true,
+    "p3_4_rounding_qualifier_correction_accurate": true,
+    "continuity_snapshots_untracked_and_byte_attestations_only": true,
+    "c2_disposition_unresolved_not_adjudicated": true,
+    "unexcluded_items_still_unexcluded_on_current_tree": true,
+    "staging_safe_suite_by_construction": true,
+    "negative_mutations_in_memory_only": true
+  },
+  "test": {
+    "command": "python -B -m unittest validation.test_ds_startup_cost_evidence_context -v",
+    "tests_defined": 19,
+    "runs": [
+      {
+        "configuration": "normal worktree at verified_head 011818876c1b94875fd67cedaaa73abfac866633, real index untouched",
+        "tests_run": 19,
+        "failures": 0,
+        "errors": 0,
+        "result": "OK",
+        "exit_code": 0
+      },
+      {
+        "configuration": "temporary GIT_INDEX_FILE copied from the real index with exactly the 4 candidate paths force-added; staged set diff-verified as exactly those 4 paths; suite executed under that index",
+        "tests_run": 19,
+        "failures": 0,
+        "errors": 0,
+        "result": "OK",
+        "exit_code": 0
+      }
+    ],
+    "real_index": {
+      "sha256_before_and_after": "c3f83d45432294559230eb32978dd7a4ca8b92be1b9a08bea25afffaf243cd3b",
+      "unchanged_across_both_runs": true,
+      "staged_diffs_after": 0
+    },
+    "temp_index": {
+      "removed": true,
+      "temp_dir_removed": true
+    }
+  },
+  "findings": [
+    {
+      "id": "P3-A",
+      "severity": "P3",
+      "summary": "Fresh-clone object availability of the runner pin: commit 7cb7e8401776848fcb11e0a8dd2237c1eee2337b is contained in no refs/remotes ref of this checkout (exhaustive for-each-ref scan). Origin branch codex/planner-release-validation exists (tip 90bb3e1dfd11a8a5d28a2ec224a8f2e47b676846, confirmed by one read-only git ls-remote query, no mutation) but does NOT contain 7cb7e840 (git merge-base --is-ancestor 7cb7e840 90bb3e1d exit 1, both objects present locally). A fresh clone therefore cannot resolve the runner pin or the note section 6 step-4 seam without out-of-band object transfer; the two runner-dependent tests take their documented skip path and the registration degrades to stale exactly as the note prescribes. No code change required; future citations of the runner pin should carry this caveat."
+    },
+    {
+      "id": "P3-B",
+      "severity": "P3",
+      "summary": "Malformed 63-character hash in an older tracked artifact: docs/coordination/ds-7bdfxkb-diagnostic-analysis.json (tracked at e8defc1d) records its rate.jsonl input as a 63-character string (…1761ebe30fea…), while the analyzer-produced triple output validation/33-rate-profile/diagnostic-triple-20260912/7bdfxkb.json and this batch's candidate both pin the 64-character 484016e746bfad78ef5d46f0d85d19e1761ebea30fea2d22e63649ea57e07d0b. The candidate is correct; the older tracked record is defective. Left for the current authority; not a defect of this batch."
+    },
+    {
+      "id": "P3-C",
+      "severity": "P3",
+      "summary": "Carry-forward of the note's four registered P3 corrections (P3-1 analyzer generation 75353c06/1c43ac9c vs c3ba9de8, P3-2 joint.py:189-193 attribution, P3-3 24147-group typo, P3-4 nearest-1000-ns rounding qualifier): each verified accurate at its cited location and must travel with every future citation of the bound snapshot, as the note itself requires."
+    }
+  ],
+  "finding_counts": {
+    "P1": 0,
+    "P2": 0,
+    "P3": 3
+  },
+  "verdict": "PASS",
+  "verdict_basis": "zero P1 and zero P2; all byte, arithmetic, trace, latch, phase-partition, pin-resolution, correction and boundary claims verified independently at the reviewed HEAD; 19/19 tests pass in both normal and staged-lifecycle configurations with the real index byte-for-byte unchanged",
+  "boundaries": {
+    "historical_context_only": true,
+    "no_acceptance_approval_closure_or_rerun_permission_for_83_or_any_ticket": true,
+    "barrier_preservation_wording_present": true,
+    "identity_gates_and_historical_identities_only": true,
+    "physics_gates_fail_closed": true,
+    "historical_failures_as_recorded_history_only": true,
+    "no_issue_83_rerun": true,
+    "candidates_or_existing_files_edited": false,
+    "real_index_staged": false,
+    "protected_files_touched": false,
+    "github_queried_or_mutated": false,
+    "network": "one read-only git ls-remote query to origin (no mutation); no other network use",
+    "native_or_model_execution": "none"
+  },
+  "nonclaims": [
+    "This review confers no authority, approval, acceptance or closure on the bound snapshot or on any ticket.",
+    "The bound snapshot remains historical context only; current-status judgments belong to the current authority.",
+    "The C2 disposition and the six unexcluded hypotheses remain open on the current tree."
+  ]
+}

@@ -1,0 +1,162 @@
+{
+  "schema": "wksim.ingest-manifest.v1",
+  "manifested_at": "2026-09-14",
+  "owner": "codebuddy-ingest-manifest",
+  "manifested_head": "011818876c1b94875fd67cedaaa73abfac866633",
+  "manifested_head_subject": "Bind OMP delivery diagnostic context offline",
+  "reviewed_head_of_independent_review": "011818876c1b94875fd67cedaaa73abfac866633",
+  "reviewed_head_ancestor_of_manifested_head": true,
+  "head_equality_required": false,
+  "head_relation": "the independent review's reviewed_head equals the manifested head in this session; equality is recorded as incidental, not required — the manifest requires only that f333316e6efa6b299b4288a9d91fb2bccedfb9d6, 76f77470e91ecc742148df0f3eba6f5b5494511c, 1c5656ed924020b3e626e68739caeeaef9f41a9e and e2ecd62e914e075d0d9e40eef8ea9c034b958d2f are ancestors of the running HEAD (git merge-base --is-ancestor, all exit 0, re-verified by the candidate suite and by this manifest owner)",
+  "scope": "context-only",
+  "acceptance": "non-acceptance",
+  "exact_paths_sha256": "071963724eab3008f4cf138750168cad6af5f66b29eb30f7fdabbe410315254e",
+  "exact_paths_count": 11,
+  "inputs": [
+    {
+      "path": "docs/coordination/ds-startup-cost-evidence-20260912.json",
+      "role": "historical_context_snapshot_json",
+      "sha256": "675026ab4f13b1a61e44fa60a208483faa26a3b08794a30118a453103689e709",
+      "size_bytes": 18778,
+      "tracked": false
+    },
+    {
+      "path": "docs/coordination/ds-startup-cost-evidence-20260912.md",
+      "role": "historical_context_snapshot_markdown",
+      "sha256": "a1df834b37241f7dc8fb2e1a9ec4407f330a05158e8e8b11f31ca6911800e2c4",
+      "size_bytes": 17495,
+      "tracked": false
+    },
+    {
+      "path": "docs/coordination/ds-startup-cost-evidence-ingest-note-20260914.md",
+      "role": "binding_and_supersession_registration_note",
+      "sha256": "2ce0ac2d86999543eb4789f5a3502078dc441d93a678f6c1e755865c140c89a1",
+      "size_bytes": 12417,
+      "tracked": false
+    },
+    {
+      "path": "validation/test_ds_startup_cost_evidence_context.py",
+      "role": "candidate_offline_context_test",
+      "sha256": "b79ede1df0f59cafd0607c96f37c984649eb629a28e34513c51d27e483d06366",
+      "size_bytes": 26826,
+      "tracked": false
+    },
+    {
+      "path": "validation/coordination/codebuddy-ds-startup-cost-independent-review-20260914-01/review.md",
+      "role": "independent_review_report",
+      "sha256": "13860c00a996e329ab82561508e2175d37406e2c231f29767c30985cf5b38293",
+      "size_bytes": 9473,
+      "tracked": false
+    },
+    {
+      "path": "validation/coordination/codebuddy-ds-startup-cost-independent-review-20260914-01/review.json",
+      "role": "independent_review_record",
+      "sha256": "ccc4300e6662b72dcfb42c9559e8ee55359bdcc48d4e748f28339d1bf2d13760",
+      "size_bytes": 8050,
+      "tracked": false
+    },
+    {
+      "path": "validation/coordination/codebuddy-ds-startup-cost-independent-review-20260914-01/SHA256SUMS",
+      "role": "independent_review_checksum_manifest",
+      "sha256": "0cceed0e5ac5e592945ae08a8a8f33c5450148a4c3d9e556a9997efb18b55782",
+      "size_bytes": 154,
+      "verification": "sha256sum -c from inside the review directory re-run at this HEAD: review.md OK, review.json OK, exit 0"
+    }
+  ],
+  "review_facts": {
+    "reviewer": "independent CodeBuddy evidence reviewer",
+    "reviewed_at": "2026-09-14",
+    "reviewed_head": "011818876c1b94875fd67cedaaa73abfac866633",
+    "verified_head": "011818876c1b94875fd67cedaaa73abfac866633",
+    "schema": "wksim.independent-review.v1",
+    "verdict": "PASS",
+    "findings_p1": [],
+    "findings_p2": [],
+    "finding_counts": {
+      "P1": 0,
+      "P2": 0,
+      "P3": 3
+    },
+    "p3_carry_forward_without_promotion_or_demotion": [
+      {
+        "id": "P3-A",
+        "summary": "fresh-clone object availability of the runner pin: commit 7cb7e8401776848fcb11e0a8dd2237c1eee2337b is reachable from no origin ref; origin branch codex/planner-release-validation exists (tip 90bb3e1dfd11a8a5d28a2ec224a8f2e47b676846) but does not contain it, so fresh clones cannot resolve the runner pin (documented test skip path; out-of-band object transfer required); the caveat must travel with every citation of the runner pin"
+      },
+      {
+        "id": "P3-B",
+        "summary": "malformed 63-character hash in the older tracked docs/coordination/ds-7bdfxkb-diagnostic-analysis.json for the 7bdfxkb_ rate.jsonl input; the candidate's 64-character pin 484016e746bfad78ef5d46f0d85d19e1761ebea30fea2d22e63649ea57e07d0b matches the analyzer-produced triple output and is correct; left for the current authority, not a defect of this batch"
+      },
+      {
+        "id": "P3-C",
+        "summary": "the note's four registered P3 corrections (P3-1 analyzer generation 75353c06/1c43ac9c vs c3ba9de8, P3-2 joint.py:189-193 attribution, P3-3 the 24147-group typo, P3-4 nearest-1000-ns rounding qualifier) are verified accurate and must travel with every future citation of the bound snapshot"
+      }
+    ],
+    "candidate_hashes_match_review_record": true,
+    "review_hashes_match_task_statement": true,
+    "review_sha256sums_self_verify": true,
+    "strict_parse_of_review_json": true,
+    "historical_only_boundaries": "the review and this manifest assert no acceptance, approval, closure, review or rerun permission for #83 (or #9/#26/#29/#62/#102 or any ticket); the bound snapshot is historical context only ('2026-09-12 当时观察到了什么'), not current status or permission; all 'current status / may accept / may close' judgments remain with the current authority (main agent / main session / human ruling)"
+  },
+  "test_facts": {
+    "command": "python -B -m unittest validation.test_ds_startup_cost_evidence_context -v",
+    "tests_defined": 19,
+    "re_run_this_session": {
+      "normal": {
+        "configuration": "normal worktree at the manifested HEAD 011818876c1b94875fd67cedaaa73abfac866633, real index untouched",
+        "tests_run": 19,
+        "failures": 0,
+        "errors": 0,
+        "result": "OK",
+        "exit_code": 0
+      },
+      "staged_lifecycle": {
+        "configuration": "temporary GIT_INDEX_FILE copied from the real index with exactly the 11 proposed paths force-added (git diff --cached --name-only set-equal to exact-paths.txt); suite executed under that index",
+        "tests_run": 19,
+        "failures": 0,
+        "errors": 0,
+        "result": "OK",
+        "exit_code": 0,
+        "cleanup": "temporary index file and its directory deleted; no temp index files remain"
+      },
+      "real_index": {
+        "empty_of_staged_diffs": true,
+        "unchanged_across_both_runs": true,
+        "staged_diff_count_after": 0
+      },
+      "diff_check": {
+        "command": "git diff --check over all 11 input and output paths",
+        "exit_code": 0,
+        "clean": true
+      },
+      "staging_safety_note": "the suite's tracked-status probes cover only tracked anchors unaffected by staging these 11 paths; the two runner-dependent tests skip with a clear reason if the historical blob 7cb7e840 is absent from a clone"
+    }
+  },
+  "verification": {
+    "head_confirmed_before_work": true,
+    "review_input_hashes_sizes_recomputed_match": true,
+    "review_sha256sums_self_verify_exit_0": true,
+    "review_json_strict_parsed": true,
+    "review_verdict_pass": true,
+    "review_p1_p2_empty": true,
+    "review_p3_nonblocking_only": true,
+    "exact_paths_11_unique_sorted_all_exist": true,
+    "architecture_and_binding_ancestry_verified": true,
+    "test_19_of_19_exit_0_normal": true,
+    "test_19_of_19_exit_0_staged_11_paths": true,
+    "real_index_unchanged": true,
+    "temp_index_removed": true,
+    "diff_check_clean": true
+  },
+  "outputs": [
+    "validation/coordination/ds-startup-cost-context-ingest-manifest-20260914-01/exact-paths.txt",
+    "validation/coordination/ds-startup-cost-context-ingest-manifest-20260914-01/review.md",
+    "validation/coordination/ds-startup-cost-context-ingest-manifest-20260914-01/review.json",
+    "validation/coordination/ds-startup-cost-context-ingest-manifest-20260914-01/SHA256SUMS"
+  ],
+  "nonclaims": [
+    "This manifest is context-only ingestion of the independently reviewed historical batch; it is not acceptance, approval, closure, review status or rerun permission for #83 or any ticket.",
+    "The bound snapshot remains historical context only; current-status judgments belong to the current authority.",
+    "The six unexcluded hypotheses remain unexcluded; M1/M2/M3 remain open suggestions; the C2 disposition remains unresolved; this manifest adjudicates none of them.",
+    "The three P3 findings are carried forward without promotion or demotion and block nothing in this registration."
+  ]
+}

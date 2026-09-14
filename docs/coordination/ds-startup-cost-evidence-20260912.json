@@ -1,0 +1,193 @@
+{
+  "kind": "ds-startup-cost-evidence",
+  "schema": "wksim.ds-startup-cost-evidence.v2",
+  "revision": 2,
+  "revision_note": "Rewritten after review. v1's five material errors are retracted and the report now separates proven facts, unexcluded hypotheses and required measurements. No exclusive conclusion is drawn.",
+  "author": "DS-B",
+  "scope": "Read-only independent investigation over /root/wksim-release-acceptance-fe3 sources and retained raw. No file in that workspace was modified; no native/ROS/SITL run, no build, no model load, no nested agent, no git. No analyzer extension and no instrumentation proposed for implementation.",
+  "question": "Does manager/worker/Control lazy initialization, protocol decode, or log/async-writer preparation happen after the rate anchor?",
+  "verdict": {
+    "post_anchor_initialization_proven": false,
+    "post_anchor_initialization_excluded": false,
+    "statement": "The call-site ordering in section proven is established. It does not prove that no first-time cost remains after the anchor, and it does not exclude log flush, I/O blocking, thread contention, decode CPU variation or host-periodic factors. No exclusive attribution is made."
+  },
+  "terminal_shas": {
+    "note": "SHAs of the sources actually read in this round; nothing was edited.",
+    "sources": {
+      "Simulator/wksim_core/joint.py": "f5433c2ec7e81794ffcfab26dce0feff18d4e1affdfb44f895a72e4ce0241d50",
+      "Simulator/wksim_core/worker.py": "0becd1f3214b53c6169fb61ae010a969fb57a4ccbe26fb3ed3c3652c26ef7fab",
+      "Simulator/wksim_runtime/joint_rate.py": "0b53a16acd65138b4623a9a8573ec8d643a2b78f4e27e8122c65efb9a6da25c4",
+      "tools/run_joint_flight.py": "fd0b7ee6dfb99be7a2d6f580555c6f9bfcddf721e25f68e97761d7f5670df246",
+      "tools/analyze_joint_rate_intervals.py": "14ed9d64bb0daf0fb2ef9f4e21028a4ec164bb1255f98701542b59a68d2538a8",
+      "tools/analyze_joint_rate_intervals.py_role": "stale private copy in fe3, not the committed tool; v3 phase_partition exists only in the committed c3ba9de8 revision, so this round only quoted its already-published output values and ran no analyzer"
+    },
+    "retained_raw": {
+      "validation/joint-public-flight-ztdsk269/rate.jsonl": "9c79867222989eac6f627dafa115a6c5f214a418412be2aec89f3f28a0f9cb92",
+      "validation/joint-public-flight-vwen35gc/rate.jsonl": "e8c1c9e343dec468cdfa7de7708a9f499bb2dfffa54185b6c56695944236e0d8",
+      "validation/joint-public-flight-7bdfxkb_/rate.jsonl": "484016e746bfad78ef5d46f0d85d19e1761ebea30fea2d22e63649ea57e07d0b",
+      "validation/joint-public-flight-ztdsk269/joint-wire.jsonl": "843edc94be6e8930e4960157ad4ccb909bc082fbc80d6f726061a542d12f4841",
+      "validation/joint-public-flight-vwen35gc/joint-wire.jsonl": "6a6f9498a0908d8474e22a03b4ddb04e8181e80f892de2fc19911359e8bed631",
+      "validation/joint-public-flight-7bdfxkb_/joint-wire.jsonl": "9035a4af48d8fba172cfbfe3868319cd87f9740c1005306f19462bfbdf98cf0e"
+    }
+  },
+  "retractions_from_v1": [
+    {
+      "id": 1,
+      "v1_claim": "initialized.json plus ros_time_ns == 0 proves Control/task readiness and that all lazy initialization has finished",
+      "correction": "It only proves that the Task's named transport graph is ready. tools/pv_trajectory_task.py:40-52 request_graph_ready checks that setup_pub and command_pub each have exactly 2 subscribers on v2/setup and v2/command, that the node-name set is {wksim_joint_<stack>_control, recorder_name}, that namespaces are '/', and that the two endpoint GIDs are non-empty and distinct. It says nothing about Control's internal background activity.",
+      "evidence": "tools/run_joint_flight.py:296-305 (gate and write), tools/pv_trajectory_task.py:40-52 (predicate)"
+    },
+    {
+      "id": 2,
+      "v1_claim": "the tick-0 initial request fetched the 120-value initial state",
+      "correction": "That request never happened in these two fields. The runner sends a read-only snapshot (dict(version=1, epoch=..., snapshot=True)) which takes the worker's snapshot branch and answers state=None. The 120-value path is JointPhysics.initialize_states -> worker initial_request -> model.initial_state, and nothing in the flight path calls it.",
+      "evidence": "tools/run_joint_flight.py:901-903; Simulator/wksim_core/worker.py:88-92, 109-125, 151-152, 211-221, 238-245; Simulator/wksim_core/joint.py:69-93; only callers of initialize_states are Simulator/wksim_runtime/joint_runtime.py:705 and tools/probe_joint_terrain_feedback.py:716 (grep count in tools/run_joint_flight.py, tools/joint_pause_probe.py, tools/run-joint-flight.sh is 0 and the runner does not import joint_runtime); no *-truth.jsonl.initial.jsonl exists in either archive"
+    },
+    {
+      "id": 3,
+      "v1_claim": "identical wire record counts and byte counts exclude log flush, I/O blocking and decode CPU variation",
+      "correction": "Record counts only show which record call sites were reached. wire.write targets a 65536-byte buffered file object and the wall field is read when the record dict is built, so identical counts say nothing about when bytes reach the kernel, about write blocking, about page-cache jitter, or about decode cost variation. The only per-stage wall/CPU evidence is the conditionally sampled diagnostic_step_cpu_timing, which is not a census.",
+      "evidence": "tools/run_joint_flight.py:801,812-816 (buffered writers and wall read at build time); Simulator/wksim_core/joint.py:215 (retention trigger wall_end-wall_start > 2 ms or tick%250==0)"
+    },
+    {
+      "id": 4,
+      "v1_claim": "final_spin_other of about 900-960 us proves the release loop under-measures a segment",
+      "correction": "It is fully consistent with the code. The loop spins without health/sleep/record work only when remaining <= 1 ms, and the last sleep is only issued while remaining > 1 ms for min((remaining-1ms)/1e9, .002), so a roughly 1 ms spin is the designed expectation; sleep can also overshoot part of the margin. The probe's observed_elapsed closes the whole entry-to-terminal span and does not include the rate_group_start record write, which happens after actual_start_ns.",
+      "evidence": "Simulator/wksim_runtime/joint_rate.py:89-130 (branch structure, 1 ms threshold, 2 ms sleep cap, design comment); Simulator/wksim_runtime/joint_rate_probe.py:151-193 (closure identity and release_excess); measured sleep_max_overshoot means 93 us (first 250 groups) and 49.5 us (groups 5000-6000)"
+    },
+    {
+      "id": 5,
+      "v1_claim": "spikes at different ticks in the two fields exclude a host-periodic event",
+      "correction": "The two fields ran at different times and this round established no common time mapping between their domains, so the observation cannot exclude a host-periodic factor. It is unexcluded.",
+      "evidence": "rate_anchor.anchor.wall_ns ztdsk269 1218406571925 vs vwen35gc 571735907115; no shared sampling marker in either field"
+    },
+    {
+      "id": 6,
+      "v1_claim": "250 intervals equals the first two seconds and matches the tool's split bit for bit",
+      "correction": "At 0.5x a 4-tick group spans 8 ms of ideal wall time, so 250 intervals is about 2 s of ideal wall time, but the block is this report's arbitrary measurement window, not the committed phase_partition. The real steady_after partition is early 246 (ztdsk269), 248 (vwen35gc), 249 (baseline). The two are different partitions and must not be called matching.",
+      "evidence": "phase_partition outputs recorded in docs/coordination/ds-c1-actual-analysis-20260912.json (groups_at_or_before_boundary 247 / 249 / 250; early intervals 246 / 248 / 249)"
+    }
+  ],
+  "proven": {
+    "rate_timing_starts_from_an_already_running_stage": {
+      "statement": "The anchor is armed only at a complete four-tick boundary where clock.synchronized is already true, and synchronized requires a PX4 HIL_ACTUATOR_CONTROLS whose stamp equals the current tick.",
+      "evidence": ["tools/run_joint_flight.py:916-919", "Simulator/wksim_runtime/scene_clock.py:63-72", "Simulator/wksim_core/joint.py:157-170", "Simulator/wksim_core/joint.py:256-267"]
+    },
+    "initialization_call_sites_and_their_order_relative_to_the_anchor": [
+      {"stage": "AP UDP socket, listening TCP socket, common.MAVLink class, gc.callbacks registration", "site": "Simulator/wksim_core/joint.py:32-67", "called_at": "JointPhysics construction, tools/run_joint_flight.py:818", "relative_to_anchor": "before"},
+      {"stage": "wire / clock / rate writers with 65536 buffers", "site": "tools/run_joint_flight.py:801,812,813", "called_at": "before entering the loop", "relative_to_anchor": "before"},
+      {"stage": "record('connected'), first wait_ap frame, first decode_servos", "site": "Simulator/wksim_core/joint.py:102-129 via physics.connect, tools/run_joint_flight.py:911", "called_at": "wire tick field 0", "relative_to_anchor": "before"},
+      {"stage": "PX4 startup 4 ms polling window", "site": "Simulator/wksim_core/joint.py:143-149", "called_at": "first barrier tick 4", "relative_to_anchor": "before"},
+      {"stage": "first HIL_SENSOR encode/send", "site": "Simulator/wksim_core/joint.py:202-206", "called_at": "tick 4 onward", "relative_to_anchor": "before"},
+      {"stage": "model worker Model(library): CDLL, wk_model_create, argtypes, output buffer", "site": "Simulator/wksim_core/worker.py:198 -> Simulator/wksim_core/model.py:111-136", "called_at": "worker process start", "relative_to_anchor": "before"},
+      {"stage": "worker evidence writer", "site": "Simulator/wksim_core/worker.py:166-170", "called_at": "before Model construction", "relative_to_anchor": "before"},
+      {"stage": "first worker RPC including os.set_blocking and the select read/write loop", "site": "Simulator/wksim_core/worker.py:297-374", "called_at": "first model step, tick 1", "relative_to_anchor": "before"},
+      {"stage": "read-only snapshot request (state is None), no file written", "site": "tools/run_joint_flight.py:901-903 -> Simulator/wksim_core/worker.py:88-92,151-152", "called_at": "tick 0", "relative_to_anchor": "before"}
+    ],
+    "readiness_gate_semantics": {
+      "initialized_json_written_at": "tools/run_joint_flight.py:296-305",
+      "predicate": "tools/pv_trajectory_task.py:40-52",
+      "proves": "the Task's named setup/command transport graph is established with exactly two endpoints and ros_time_ns == 0",
+      "does_not_prove": "that Control's internal background activity has settled"
+    },
+    "tick0_request_is_a_read_only_snapshot": {
+      "request": "dict(version=1, epoch=clock.epoch, snapshot=True)",
+      "worker_branch": "Simulator/wksim_core/worker.py:88-92 returns None from step_request; Simulator/wksim_core/worker.py:151-152 admits tick == 0 with state None",
+      "result": "response state is None; no model step, no initial.jsonl sidecar"
+    },
+    "initial_120_value_path_not_executed_in_these_fields": {
+      "path": "Simulator/wksim_core/joint.py:69-93 initialize_states <- Simulator/wksim_core/worker.py:109-125 initial_request <- Simulator/wksim_core/worker.py:211-221 -> Simulator/wksim_core/model.py:198-217",
+      "callers_found": ["Simulator/wksim_runtime/joint_runtime.py:705", "tools/probe_joint_terrain_feedback.py:716"],
+      "runner_occurrences": 0,
+      "corroboration": "no *-truth.jsonl.initial.jsonl in either flight archive; that sidecar is written only in Simulator/wksim_core/worker.py:238-245"
+    },
+    "arithmetic_recomputation": {
+      "method": {
+        "axis": "rate_group_start.actual_start_ns per segment",
+        "creep": "start[i] - start[i-1] - 8000000 ns",
+        "work_over": "max(0, (paired rate_group_end.actual_end_ns - rate_group_start.actual_start_ns) - 8000000 ns)",
+        "pairing_key": "end_tick == start_tick + 4 within the same segment_id"
+      },
+      "fields": {
+        "ztdsk269": {"creep_total_ns": 99688000, "work_over_ns": 33372000, "release_excess_ns": 66315000, "groups_with_work_over_8ms": 21},
+        "vwen35gc": {"creep_total_ns": 99637000, "work_over_ns": 34869000, "release_excess_ns": 64768000, "groups_with_work_over_8ms": 18},
+        "baseline_7bdfxkb": {"creep_total_ns": 99718000, "work_over_ns": 25704000, "release_excess_ns": 74014000, "groups_with_work_over_8ms": 3}
+      },
+      "agreement": "identical to the values already recorded by DS-A and the main session for all three fields",
+      "non_comparable": "these are full-run totals; DS-A's early/crossing/steady split is a different, authoritative partition"
+    },
+    "probe_ledger_is_closed": {
+      "identity": "observed_elapsed = entry_to_initial_health + loop_health + sleep_elapsed + final_spin_other",
+      "sum_release_excess_ns_over_all_groups_ztdsk269": 100129000,
+      "equals_recorded_latch_ns": true,
+      "settled_group_mean_us_groups_5000_6000": {
+        "observed_elapsed_ns": 3508.3,
+        "entry_to_initial_health_ns": 106.7,
+        "loop_health_ns": 195.6,
+        "sleep_elapsed_ns": 2250.9,
+        "final_spin_other_ns": 955.1,
+        "sleep_max_overshoot_ns": 49.5,
+        "release_excess_ns": 23.8
+      },
+      "first_250_groups_mean_us": {
+        "observed_elapsed_ns": 3243.9,
+        "entry_to_initial_health_ns": 117.0,
+        "loop_health_ns": 182.7,
+        "sleep_elapsed_ns": 2004.3,
+        "final_spin_other_ns": 939.9,
+        "sleep_max_overshoot_ns": 93.3,
+        "release_excess_ns": 16.1
+      }
+    },
+    "time_attribution_by_code": {
+      "observed_elapsed": "probe entry to terminal, where terminal is actual_start_ns; excludes the rate_group_start record write",
+      "final_spin_other": "residual after subtracting the classified parts from observed_elapsed; equals spin wall time plus anything the classifier did not wrap",
+      "release_excess": "terminal - earliest; independent of whether sleep occurred",
+      "group_work_ns": "actual_start_ns to the paired rate_group_end.actual_end_ns, so the rate_group_start record write and the return to the caller fall at the start of the next group's work_ns"
+    },
+    "wire_event_sequence_within_one_field": {
+      "connected_and_actuator": "tick 0",
+      "sensor_and_step": "tick 1",
+      "barrier": "tick 4 and every 4 ticks",
+      "gps": "tick 100 and every 100 ticks",
+      "note": "reliable as a sequence; it establishes no mapping between the wire wall domain and the rate absolute-ns domain"
+    }
+  },
+  "unexcluded": [
+    {"id": "log_flush_and_io_blocking", "why": "wire record counts and byte counts show only which call sites were reached and how many bytes were serialized; writes go to a 65536-byte buffered file object and the wall field is read when the record is built, so kernel write timing, blocking and page-cache jitter are unmeasured"},
+    {"id": "thread_contention", "why": "no measurement isolates competition between the manager thread and the process's other threads or between the manager and its children"},
+    {"id": "decode_and_encode_cpu_variation", "why": "equal byte counts do not imply equal decode cost; the only per-stage evidence is the conditionally sampled diagnostic_step_cpu_timing, which retained only 22 records in ticks 40..1200 for ztdsk269 and is not a census"},
+    {"id": "host_periodic_event", "why": "the two fields ran at different times and no common time mapping was established, so different spike ticks cannot exclude a host-periodic factor"},
+    {"id": "health_probe_cost_in_the_hot_path", "why": "physics_health (tools/run_joint_flight.py:570-583) is passed into begin_group at tools/run_joint_flight.py:919 and runs roughly every 2 ms there; the probe records its call count and cumulative wall time inside begin_group but no per-part cost"},
+    {"id": "first_time_cost_after_the_anchor", "why": "the call-site ordering proves these sites ran before the anchor; it does not prove that no first execution remains inside Control, in DDS thread wakeups, or in a first subscription callback inside pause_probe.pump()"}
+  ],
+  "still_to_measure": [
+    {"id": "M1", "cost": "zero native", "action": "read the committed phase_partition output and compare the early class across the two fields and the baseline", "purpose": "decide whether the opening loss is one-off inside the early class or the same small per-interval surplus seen in steady", "note": "do not extend the analyzer; A owns it"},
+    {"id": "M2", "cost": "zero native", "action": "recompute per-250-group creep / work_over / release_excess, labelled as an arbitrary block and never as a phase partition", "purpose": "give a comparable decay curve on existing raw"},
+    {"id": "M3", "cost": "one field with the existing probe", "action": "record three instants in the release loop (entry, last health return, spin exit) to split final_spin_other into the designed approximately 1 ms spin and any extra consumed by scheduling or blocking", "purpose": "only needed if M1 cannot separate the two explanations", "note": "this reads clocks and therefore perturbs what it measures; it is a diagnostic change requiring review and is not implemented or proposed as zero-cost here"}
+  ],
+  "not_recommended": [
+    "relaxing LATE_LIMIT_NS, the 0.5 requested rate, the 8 ms group period, the 4-tick barrier or any health bound",
+    "blind repetition of the same configuration before the unexcluded items are separated"
+  ],
+  "incidental_duplicate_construction_sites": {
+    "note": "stated for completeness only; not edited, not run, and unrelated to this report's conclusions. The main session is moving repeated Path construction out of the loop as candidate C2 under A.",
+    "sites": [
+      "Simulator/wksim_core/joint.py:197-199 rebuilds the sensor_fields dict and five list slices every tick (Simulator/wksim_core/ap_json.py:37-41) and then json.dumps with allow_nan=False per tick",
+      "Simulator/wksim_core/worker.py:182-193 rebuilds per-RPC request dicts and copies the 120-element state list; Simulator/wksim_core/worker.py:228-236 rebuilds response, commands, input, request and extras dicts",
+      "tools/run_joint_flight.py:963-967 imports math and rebuilds the summaries row update inside the per-tick loop",
+      "tools/run_joint_flight.py:750-757 and similar branches construct Path objects inside per-tick loops"
+    ]
+  },
+  "not_done": [
+    "no native/ROS/SITL run, no build, no model load",
+    "no edit to the runner, wksim_core, wksim_runtime, the DS-A analyzer or the old DS-B comparator",
+    "no analyzer extension and no instrumentation implementation",
+    "no git commit, no nested agent, no takeover of the old DS-B thread's unaccepted comparator"
+  ],
+  "not_claimed": [
+    "that the runtime is fixed",
+    "any exclusive attribution to host, flight controller, GC or probes",
+    "that log flush, I/O blocking, thread contention, decode CPU variation or host-periodic factors are excluded"
+  ]
+}
