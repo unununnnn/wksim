@@ -1,0 +1,178 @@
+{
+  "review_id": "codebuddy-mixed-work-overrun-independent-review-20260914-01",
+  "reviewer": "CodeBuddy (independent)",
+  "date": "2026-09-14",
+  "workspace": "C:/Users/PC/Documents/odid编译/wksim",
+  "head": {
+    "expected": "31e5b65f5448c5558450d16d0f46da0ef0f0a03c",
+    "observed": "31e5b65f5448c5558450d16d0f46da0ef0f0a03c",
+    "exact_match": true,
+    "arch_ancestor_f333316e_is_ancestor_of_head": true
+  },
+  "scope": [
+    {
+      "path": "docs/coordination/mixed-work-overrun-20260913-v2.md",
+      "sha256_expected": "b432e2c3bca0ffbcd7b77dd91304d6a5d064e9d6dabd20a8fba1ec99e8836352",
+      "sha256_observed": "b432e2c3bca0ffbcd7b77dd91304d6a5d064e9d6dabd20a8fba1ec99e8836352",
+      "bytes_expected": 5410,
+      "bytes_observed": 5410,
+      "git_state": "tracked, worktree-modified (remediation uncommitted); HEAD-tree blob 24ad15729ac393026488f9356f265297a8b4b071c92ab6a501b0fe45bca4893a / 2863 bytes (pre-remediation)"
+    },
+    {
+      "path": "docs/coordination/codebuddy-mixed-work-overrun-ingest-note-20260914.md",
+      "sha256_expected": "1648f3d486e3e9bfe42632c39efaf4976237385be3703dc0903a4885bec6c575",
+      "sha256_observed": "1648f3d486e3e9bfe42632c39efaf4976237385be3703dc0903a4885bec6c575",
+      "bytes_expected": 9531,
+      "bytes_observed": 9531,
+      "git_state": "untracked candidate"
+    },
+    {
+      "path": "validation/test_codebuddy_mixed_work_overrun_context.py",
+      "sha256_expected": "a510bd6aac8fd96f779e234b5be4b2974e66909a75ad7dde3bc150f86882450b",
+      "sha256_observed": "a510bd6aac8fd96f779e234b5be4b2974e66909a75ad7dde3bc150f86882450b",
+      "bytes_expected": 25557,
+      "bytes_observed": 25557,
+      "git_state": "untracked candidate"
+    }
+  ],
+  "verifications": {
+    "tracked_anchors": {
+      "status": "PASS",
+      "method": "recomputed via git show HEAD:<path> | sha256sum / wc -c, independent of suite constants",
+      "anchors": {
+        "validation/coordination/mixed-work-overrun-20260913/analyze_mixed_work_overrun.py": "1162d9fbcaa581fe795dadd2a33427c6f03b69c81aa67111b8b98eda4e691972 / 28503",
+        "validation/coordination/mixed-work-overrun-20260913/mixed-work-overrun-v2.json": "e10619cc08f4f49cfc8db25b56ab12d48e74672979ee28646b74b119b568c408 / 12062",
+        "validation/coordination/mixed-work-overrun-20260913/mixed-work-overrun.json": "d0a214e34ffbece76cbb2e1291a7e295beec68da6e3bb948942f145042218272 / 9843",
+        "validation/coordination/mixed-work-overrun-20260913/main-rate-crosscheck.json": "461f6bd328a0f7fe339f360dabb71a41850a5bc7081ce60cc2b20396e009febe / 926",
+        "docs/coordination/mixed-work-overrun-20260913.md": "a0bd3df069419257314f91a519291aa9d8425ee0bc81cc4ef2d233b0086cd3ec / 4082",
+        "validation/33-formal-promotion/current-mixed-oxv29042/rate.jsonl.gz": "8058ecff7f4730d5fd81a50e8817a8a4190230cc2de3b8170496e46e279c99da / 2138673",
+        "validation/33-formal-promotion/current-mixed-oxv29042/source__tools__run_joint_flight.py.txt": "65c7a86765a99d2173a62ffafaf56c43243674dd1e3cbbc1150147b4c56d8161 / 82953",
+        "tools/run_joint_flight.py": "c8577093a62e4993c8048a69f4501984b3ee9045b8a73d26fb83aedc73acbb3b / 79221",
+        "Simulator/wksim_core/joint.py": "f5433c2ec7e81794ffcfab26dce0feff18d4e1affdfb44f895a72e4ce0241d50 (worktree byte-identical to HEAD tree)",
+        "validation/coordination/ds-g0-g5-frontier-20260913-01/audit.json": "7206d768cddb16192f837603ac252c5cd2525fe29aa63777bdd59b226f79d94f / 64330"
+      },
+      "joint_py_line54_gate": "self.cpu_timing = os.environ.get('WKSIM_JOINT_CPU_TIMING') == '1'",
+      "snapshot_record_lines": "829-831",
+      "v1_doc_line15_cites": "e5a0db2b…d81595fe",
+      "analyzer_path_history": "single commit 596cb5e6, content 1162d9fb… (path-scoped; see F-1 bound)",
+      "runner_drift_diff_count": 377,
+      "gates_phrase_in_ds_audit": true,
+      "protected_dirty_files_match_test_baseline": true
+    },
+    "launch_sh_line4_unset_semantics": {
+      "status": "PASS",
+      "line": "unset CMAKE_PREFIX_PATH AMENT_PREFIX_PATH COLCON_PREFIX_PATH LD_LIBRARY_PATH PYTHONPATH ROS_PACKAGE_PATH ROS_DISTRO PKG_CONFIG_PATH WKSIM_JOINT_CPU_TIMING WKSIM_JOINT_RATE_TIMING_PROBE",
+      "verified_in": ["HEAD tree", "worktree"],
+      "launch_json_children_start_matches": 0,
+      "pre_run_identity_json_line28": "\"WKSIM_JOINT_CPU_TIMING\": null"
+    },
+    "external_absence_limitations": {
+      "status": "PASS",
+      "absent_from_head_tree_and_disk": [
+        "validation/33-formal-promotion/current-mixed-oxv29042/go.json",
+        "validation/33-formal-promotion/current-mixed-oxv29042/experimental-admission.json",
+        "validation/33-formal-promotion/current-mixed-oxv29042/joint-wire.jsonl"
+      ],
+      "raw_wire_declared_non_recomputable_locally": true,
+      "v2_json_fixature_independently_parsed": {
+        "observed_counts": {"diagnostic_gc_timing": 0, "diagnostic_step_cpu_timing": 0, "diagnostic_native_input_timing": 0},
+        "observed_total": 0,
+        "rows_in_overrun_windows": [],
+        "extractable_stages": null,
+        "expected_min_step_cpu_records_if_enabled": 527,
+        "arithmetic_check_527": "floor(131760/250)=527 OK",
+        "window_groups": [1992, 5496, 47732, 57448, 87636, 119276, 127936],
+        "window_group_len": 17,
+        "window_ticks_total": 119,
+        "wire_kind_census": ["actuator", "barrier", "connected", "gps", "sensor", "step"],
+        "tick_alignment_control": {"true_P+1..P+4": true, "wrong_alignments_rejected": true},
+        "run_id": "joint-public-flight-oxv29042",
+        "epoch": "18c96a7e0af9477092aa87e18239c23c",
+        "full_run_acceptance": false,
+        "performance_pass": false,
+        "native_executed": false
+      },
+      "no_pass_depends_on_untracked_only_artifact": true
+    },
+    "v1_historical_vs_v2_authoritative": {
+      "status": "PASS",
+      "v1_preserved": "a0bd3df069419257314f91a519291aa9d8425ee0bc81cc4ef2d233b0086cd3ec",
+      "v2_declares_authority_boundary": true,
+      "remediation_uncommitted_at_head": "HEAD tree = 24ad15729ac393026488f9356f265297a8b4b071c92ab6a501b0fe45bca4893a / 2863"
+    },
+    "no_promotion_no_closure": {
+      "status": "PASS",
+      "v2_json_flags_all_false": true,
+      "note_disclaims_acceptance_approval_closure_promotion": true,
+      "forbidden_elevation_phrases_absent": true
+    },
+    "gate_language": {
+      "status": "PASS",
+      "vocabulary_preserved": ["1ms tick", "native barrier", "4-tick grouping", "no catch-up", "100ms", "full-window", "physics", "identity gates"],
+      "tracked_anchor_sentence_verified": true
+    },
+    "mutation_negatives": {
+      "status": "PASS",
+      "executed": 6,
+      "detectors_fail_closed_on": ["mutated source hash", "size mutation", "nonzero diagnostic count", "assignment mutation of launch.sh:4", "fake/second analyzer version", "missing boundary phrase", "elevation insert"]
+    }
+  },
+  "test_results": {
+    "python": "3.13.11",
+    "normal_run": {
+      "command": "python -m unittest validation.test_codebuddy_mixed_work_overrun_context -v",
+      "result": "OK",
+      "tests": 29,
+      "skipped": 1,
+      "skip_reason": "TestTemporaryIndex: only meaningful in the temporary GIT_INDEX_FILE run",
+      "exit_code": 0
+    },
+    "temp_index_exact3_run": {
+      "temp_index_path": "/tmp/wksim_tempidx_cWII (non-existent before use, git-created, removed after)",
+      "env": {"GIT_INDEX_FILE": "temp path", "WKSIM_MIXED_OVERRUN_TEMP_INDEX": "1"},
+      "staged_paths": [
+        "docs/coordination/mixed-work-overrun-20260913-v2.md",
+        "docs/coordination/codebuddy-mixed-work-overrun-ingest-note-20260914.md",
+        "validation/test_codebuddy_mixed_work_overrun_context.py"
+      ],
+      "staged_entry_count": 3,
+      "all_stage0_mode_100644": true,
+      "result": "OK",
+      "tests": 29,
+      "skipped": 0,
+      "TestTemporaryIndex_passed": true,
+      "exit_code": 0
+    },
+    "real_index_byte_identical": {
+      "sha256_before": "a7fd6154535cbcde789c99d6ee5f38097d914323453dde5d5ad97b1da09e9253",
+      "sha256_after": "a7fd6154535cbcde789c99d6ee5f38097d914323453dde5d5ad97b1da09e9253",
+      "identical": true
+    },
+    "scoped_status_before_artifact_writes": {
+      "sha256": "1889870ad0cc735c27388f081aab200734baece9b096b0cf342baf2a755c6428",
+      "detail": "M docs/coordination/mixed-work-overrun-20260913-v2.md; ?? note; ?? test"
+    }
+  },
+  "findings": [
+    {
+      "id": "F-1",
+      "severity": "P3",
+      "class": "environmental, pre-existing",
+      "summary": "Shallow clone plus refs/codex/turn-diffs/checkpoints/* beyond the shallow boundary makes unrestricted git log --all -S traversal abort (fatal: unable to read d12de5b5c7b91b9acf06e790113d6b1a1bdd4ef5); 'e5a0db2b never committed' is proven within completable path-scoped history (single commit 596cb5e6, content 1162d9fb…), the same method the suite uses (exit 0). Not introduced by this batch; no batch claim invalidated; no action required in this slice."
+    }
+  ],
+  "counts": {"P1": 0, "P2": 0, "P3": 1},
+  "verdict": "KEEP",
+  "verdict_rationale": "All independently recomputable claims matched; limitation boundaries are honest; promotion/closure prohibitions hold in prose and machine-checked form; suite is fail-closed and passes in both normal and private temp-index exact-3 modes; real index byte-identical. Proven behavior is the offline slice only and does not constitute field acceptance, G6/Full/#84 closure, or an #83 trigger.",
+  "constraints_respected": {
+    "no_staging_into_real_index": true,
+    "no_commit": true,
+    "no_reset": true,
+    "no_clean": true,
+    "no_push": true,
+    "no_protected_file_touched": true,
+    "no_external_native_toolchains": true,
+    "issue_83_not_rerun": true,
+    "wrote_only_review_artifacts": true
+  }
+}

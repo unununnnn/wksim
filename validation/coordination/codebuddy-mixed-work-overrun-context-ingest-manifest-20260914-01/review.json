@@ -1,0 +1,175 @@
+{
+  "schema": "wksim.ingest-manifest.v1",
+  "manifested_at": "2026-09-14",
+  "owner": "codebuddy-ingest-manifest",
+  "manifested_head": "438ab764c0cf70f9e017cfbd82aeb04255282e3a",
+  "reviewed_head": "31e5b65f5448c5558450d16d0f46da0ef0f0a03c",
+  "scope": "context-only",
+  "acceptance": "non-acceptance",
+  "exact_paths_sha256": "c17890a97d15255cef65511734e0dac1b632ef47c33f22c8509d42220dffe9e7",
+  "exact_paths_sha256_size_bytes": 869,
+  "exact_paths_count": 10,
+  "exact_paths_composition": "3 candidates + 3 independent-review outputs + 4 manifest outputs",
+  "baseline_relations": {
+    "reviewed_head_is_ancestor_of_manifested_head": true,
+    "intervening_commits": 2,
+    "architecture_continuity_anchor_f333316e_is_ancestor": true,
+    "head_equality_required": false,
+    "head_reverified_start_and_end_of_session": true
+  },
+  "source_m_lifecycle": {
+    "path": "docs/coordination/mixed-work-overrun-20260913-v2.md",
+    "git_state": "tracked, worktree-modified ( M in git status --porcelain), unstaged",
+    "head_tree_blob_sha256": "24ad15729ac393026488f9356f265297a8b4b071c92ab6a501b0fe45bca4893a",
+    "head_tree_bytes": 2863,
+    "head_tree_version": "pre-remediation, reverified at manifested HEAD 438ab764 via git show HEAD:<path>",
+    "worktree_sha256": "b432e2c3bca0ffbcd7b77dd91304d6a5d064e9d6dabd20a8fba1ec99e8836352",
+    "worktree_bytes": 5410,
+    "binding_target": "working-tree bytes (remediated v2)",
+    "commitment_decision": "left to current authority; this manifest does not commit or decide on its behalf"
+  },
+  "inputs": [
+    {
+      "path": "docs/coordination/mixed-work-overrun-20260913-v2.md",
+      "role": "candidate_remediated_source_document_tracked_modified",
+      "sha256": "b432e2c3bca0ffbcd7b77dd91304d6a5d064e9d6dabd20a8fba1ec99e8836352",
+      "size_bytes": 5410
+    },
+    {
+      "path": "docs/coordination/codebuddy-mixed-work-overrun-ingest-note-20260914.md",
+      "role": "candidate_binding_and_registration_ingest_note",
+      "sha256": "1648f3d486e3e9bfe42632c39efaf4976237385be3703dc0903a4885bec6c575",
+      "size_bytes": 9531
+    },
+    {
+      "path": "validation/test_codebuddy_mixed_work_overrun_context.py",
+      "role": "candidate_offline_binding_test",
+      "sha256": "a510bd6aac8fd96f779e234b5be4b2974e66909a75ad7dde3bc150f86882450b",
+      "size_bytes": 25557
+    },
+    {
+      "path": "validation/coordination/codebuddy-mixed-work-overrun-independent-review-20260914-01/review.md",
+      "role": "independent_review_report",
+      "sha256": "901f3b05d9ba227a4b450de3fb7767f619dd79a59342af80fb4b137f01541929"
+    },
+    {
+      "path": "validation/coordination/codebuddy-mixed-work-overrun-independent-review-20260914-01/review.json",
+      "role": "independent_review_record",
+      "sha256": "a1916cbdb9c2d3da33302e62ef10c645332ad0a837e308696ee7af1815621979"
+    },
+    {
+      "path": "validation/coordination/codebuddy-mixed-work-overrun-independent-review-20260914-01/SHA256SUMS",
+      "role": "independent_review_checksum_manifest",
+      "sha256": "71f65bcc1c60f24011d54c3cd2e0136424c4b23aa939e5639ae3e72d819fd498"
+    }
+  ],
+  "input_verification": {
+    "all_hashes_and_sizes_recomputed_matching_task": true,
+    "inputs_unmodified": true,
+    "review_01_sha256sums_verified_relative_to_review_directory": "sha256sum -c: review.md OK, review.json OK, exit 0",
+    "review_01_json_strict_parsed": true,
+    "expected_staged_delta": {
+      "added": 9,
+      "modified": 1,
+      "deleted": 0,
+      "modified_path": "docs/coordination/mixed-work-overrun-20260913-v2.md",
+      "added_paths_note": "ingest note, test, 3 independent-review outputs, 4 manifest outputs; all absent from the HEAD tree at 438ab764 (git ls-tree -r verified)"
+    }
+  },
+  "review_facts": {
+    "reviewer": "CodeBuddy (independent session)",
+    "review_date": "2026-09-14",
+    "reviewed_head": "31e5b65f5448c5558450d16d0f46da0ef0f0a03c",
+    "verdict": "KEEP",
+    "findings_p1": 0,
+    "findings_p2": 0,
+    "findings_p3": 1,
+    "p3_summary": [
+      "P3-1 (F-1, environmental, pre-existing): shallow clone plus refs/codex/turn-diffs/checkpoints/* beyond the shallow boundary makes unrestricted git log --all -S traversal abort (fatal: unable to read d12de5b5...); the 'e5a0db2b... never committed' conclusion is proven only within completable path-scoped history (exactly one commit 596cb5e6, content 1162d9fb...). Not introduced by this batch; no batch claim invalidated; no action required."
+    ],
+    "p3_promoted_to_p2": false,
+    "review_grants_approval": false
+  },
+  "tracked_anchor_limits": {
+    "no_pass_depends_on_untracked_only_artifact": true,
+    "external_absent_from_head_tree_and_disk": [
+      "validation/33-formal-promotion/current-mixed-oxv29042/go.json",
+      "validation/33-formal-promotion/current-mixed-oxv29042/experimental-admission.json",
+      "validation/33-formal-promotion/current-mixed-oxv29042/joint-wire.jsonl"
+    ],
+    "external_artifacts_verifiable_only_at_acceptance_root": true,
+    "suite_content_assertions_anchor": "tracked anchors at HEAD-tree bytes plus the two/three candidates' working-tree bytes; ancestry-only HEAD assertions (31e5b65f ancestor, f333316e ancestor)"
+  },
+  "test_facts": {
+    "command": "python -m unittest validation.test_codebuddy_mixed_work_overrun_context -v",
+    "tests_defined": 29,
+    "this_session_runs": [
+      {
+        "phase": "run_1_normal_real_index_untouched",
+        "tests_run": 29,
+        "passed": 28,
+        "skipped": 1,
+        "skip_reason": "TestTemporaryIndex inactive without WKSIM_MIXED_OVERRUN_TEMP_INDEX=1 (by design)",
+        "failures": 0,
+        "errors": 0,
+        "result": "OK (skipped=1)",
+        "exit_code": 0
+      },
+      {
+        "phase": "run_2_temporary_git_index_file_exact_10_paths_staged",
+        "method": "temporary GIT_INDEX_FILE outside repo (/tmp/tmp.GgJuif45kh, mktemp -u non-existent path, git-created via read-tree HEAD); git add -f of exactly the exact-paths.txt 10 paths; diff-index --cached --name-status HEAD = exactly 10 lines, 9 A + 1 M (M = source doc 24ad1572 -> b432e2c3), 0 D; temp-index vs real-index path-set diff = exactly 9 added, 0 removed; all 10 batch entries stage 0 (suite asserts no non-stage-0 entry across the whole temp index) and blob-identical to working-tree bytes (git hash-object, 10/10 OK); git diff --name-only scoped to the 10 batch paths empty (unscoped additionally lists the two protected dirty files, dirty vs HEAD before this session, not part of this batch); suite with WKSIM_MIXED_OVERRUN_TEMP_INDEX=1: 29/29 OK, 0 skipped, exit 0; temp index removed afterwards (verified absent)",
+        "tests_run": 29,
+        "passed": 29,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0,
+        "result": "OK",
+        "exit_code": 0
+      }
+    ],
+    "run_2_self_reference_note": "run_2 was executed while review.md/review.json still carried PENDING markers for the run-result fields recorded here and SHA256SUMS held an interim version; the staged-index contract test binds only the two candidate blobs (ingest note + test, byte-exact to working-tree bytes, unchanged throughout the session) and the 10-path set-equality and 9A/1M-delta claims are byte-independent, so the exact-10-path admission holds for the finalized outputs as well. SHA256SUMS covers the finalized exact-paths.txt/review.md/review.json and does not self-reference.",
+    "real_index_unchanged": {
+      "index_file_sha256_before": "327b22366c0ba7cb1e3fbddc8cd41023541b92f3cea745af754aba1b41862976",
+      "index_file_sha256_after": "327b22366c0ba7cb1e3fbddc8cd41023541b92f3cea745af754aba1b41862976",
+      "ls_files_s_sha256_before": "5de63e159c44d37a72acfecee8c178ab154b80b00d36cb9130588e9042f5a8ef",
+      "ls_files_s_sha256_after": "5de63e159c44d37a72acfecee8c178ab154b80b00d36cb9130588e9042f5a8ef",
+      "status_porcelain_sha256_before_manifest_outputs": "bdbe7fe887f7f0caefdcfff7ef2431ea90efebc9ded5463c0b112ac504736d27",
+      "status_porcelain_lines_before": 18,
+      "status_porcelain_sha256_after_manifest_outputs": "9edc0672fa3d8e0d3010c793d6bcdeb68a1681f0afd244826aa592e5ecec4c91",
+      "status_porcelain_lines_after": 19,
+      "status_porcelain_note": "The 1-line delta is attributable to a concurrent third-party session creating validation/test_codebuddy_native_wait_contract_context.py (mtime 2026-09-14 21:03:31 inside this session window), a path outside this batch that this task never read, modified, or staged. This task's four outputs (all inside gitignored validation/coordination/) do not appear in status and perturb nothing. HEAD unchanged 438ab764... at start and end of session.",
+      "staged_set_byte_identical": true,
+      "index_file_byte_identical": true,
+      "never_staged": true
+    },
+    "suite_design": "ancestor assertions only (31e5b65f and f333316e ancestry, never equality), content pinned to HEAD-tree bytes of tracked anchors and candidate worktree bytes, fail-closed mutation negatives, paths resolved via __file__, no writes, no network, no native execution, no reads of untracked-only external artifacts, no requirement that candidates stay untracked; temp-index mode additionally asserts the two candidates staged at stage 0 with blob==worktree bytes"
+  },
+  "owner_spot_checks": {
+    "exact_paths_file": "10 lines, unique, LC_ALL=C sort -c passes, trailing LF, no CRLF; sha256/size recorded above",
+    "review_01_dir_self_check": "sha256sum -c in codebuddy-mixed-work-overrun-independent-review-20260914-01/: review.md OK, review.json OK, exit 0; dir unmodified and included as the only review batch",
+    "real_index_state": "none of the 6 input paths staged in the real index; source M unstaged ( M), note/test untracked, review/manifest outputs inside gitignored validation/coordination/"
+  },
+  "excluded_paths": [
+    "docs/Prometheus.gitmodules.reference",
+    "validation/coordination/short-cycle-dispatches.json"
+  ],
+  "excluded_paths_note": "Both protected paths were not read, modified, staged, or otherwise touched. #83 and its diagnostic field directories are outside this batch: not rerun, not touched. All other review/manifest batch directories are excluded from this 10-path batch and were not modified or staged.",
+  "outputs": [
+    "validation/coordination/codebuddy-mixed-work-overrun-context-ingest-manifest-20260914-01/exact-paths.txt",
+    "validation/coordination/codebuddy-mixed-work-overrun-context-ingest-manifest-20260914-01/review.md",
+    "validation/coordination/codebuddy-mixed-work-overrun-context-ingest-manifest-20260914-01/review.json",
+    "validation/coordination/codebuddy-mixed-work-overrun-context-ingest-manifest-20260914-01/SHA256SUMS"
+  ],
+  "sha256sums_coverage": "exact-paths.txt, review.md, review.json only; SHA256SUMS does not self-reference",
+  "nonclaims": [
+    "This manifest is context-only ingestion of the independently reviewed (KEEP) mixed-work-overrun batch; it is not an acceptance action and elevates no historical context to approval or current authority.",
+    "No G6 closure, no Full closure, no #84 closure, no #83 rerun, and no acceptance promotion is claimed, granted, or triggered by this manifest.",
+    "No issue acceptance, approval, closure, review authority, or rerun permission is claimed or granted for #83, #84, G6, Full, or any other ticket.",
+    "No current rate-gate status is granted; no native result and no flight evidence is produced by this manifest.",
+    "full_run_acceptance=false, performance_pass=false, native_executed=false are preserved exactly as reviewed; the 527 counterfactual bound, 7x17-tick window census, launch.sh:4 unset semantics, v1-historical/v2-authoritative boundary, and external-artifact limits are preserved unweakened.",
+    "Frozen gate wording (1 ms tick, native barrier, 4-tick group, no catch-up, <=100 ms lateness, complete windows, physics/identity gates) is preserved unweakened; diagnostic-scene results can never serve as #83 pass evidence.",
+    "No input or file outside the four manifest outputs was edited; nothing was staged into the real index, committed, pushed, reset, or cleaned.",
+    "The two excluded protected paths, #83, and all other batch directories were not touched.",
+    "No native/build/MATLAB/ROS/DDS/SITL/FC/UE/model/flight execution, no network use was performed."
+  ]
+}
