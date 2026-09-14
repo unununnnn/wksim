@@ -1,0 +1,144 @@
+{
+  "schema": "wksim.ingest-manifest.v1",
+  "manifested_at": "2026-09-14",
+  "owner": "codebuddy-ingest-manifest",
+  "owner_transition": "prior owner terminally cancelled; write authority transferred; partial outputs audited then corrected/completed by current owner",
+  "manifested_head": "4b13e7efaa19348d383c1c9d95af12348bac3087",
+  "reviewed_head": "011818876c1b94875fd67cedaaa73abfac866633",
+  "scope": "context-only",
+  "acceptance": "non-acceptance",
+  "exact_paths_sha256": "e86e278cad646dd419b272bc87be09e42896e0f1407e685545b71fb40a3f6946",
+  "exact_paths_count": 10,
+  "baseline_relations": {
+    "reviewed_head_is_ancestor_of_manifested_head": true,
+    "architecture_continuity_anchor_f333316e_is_ancestor": true,
+    "intervening_range": "011818876c1b94875fd67cedaaa73abfac866633..4b13e7efaa19348d383c1c9d95af12348bac3087",
+    "intervening_commits": 1,
+    "intervening_commit_subject": "Bind startup cost context offline",
+    "intervening_added_paths_count": 11,
+    "intervening_all_startup_related": true,
+    "intervening_disjoint_from_batch_10": true,
+    "intervening_touches_protected_files": false,
+    "head_equality_required": false
+  },
+  "inputs": [
+    {
+      "path": "docs/coordination/omp-mixed-failure-review-20260913.md",
+      "role": "historical_context_document",
+      "sha256": "2417c299d57ccdc79b7368e03180bd0b767aabb91c012257e1443a17fca331c3",
+      "size_bytes": 4448
+    },
+    {
+      "path": "docs/coordination/omp-mixed-failure-ingest-note-20260914.md",
+      "role": "binding_and_supersession_note",
+      "sha256": "92f8adf24faf0ba924ed402c2f07a4b0a2ef68f2583639f38e8f1a7bd67862a4",
+      "size_bytes": 9762
+    },
+    {
+      "path": "validation/test_omp_mixed_failure_context.py",
+      "role": "offline_binding_test",
+      "sha256": "e13cfc72d44a4cd878f77ad3a95abcacea4003859c6458aa0f8f0000cef5f9fd",
+      "size_bytes": 15148
+    },
+    {
+      "path": "validation/coordination/codebuddy-omp-mixed-failure-independent-review-20260914-01/review.md",
+      "role": "independent_review_report",
+      "sha256": "15cd3d97051f31a94de02e5f0a85b47d1eb78e7baf77eb3a75de6699c2245e2e",
+      "size_bytes": 9713
+    },
+    {
+      "path": "validation/coordination/codebuddy-omp-mixed-failure-independent-review-20260914-01/review.json",
+      "role": "independent_review_record",
+      "sha256": "a8cfb38a54f2fd5120987eceb460813c1e0b93e2ee3d18ceb393f415acad8bc9",
+      "size_bytes": 11698
+    },
+    {
+      "path": "validation/coordination/codebuddy-omp-mixed-failure-independent-review-20260914-01/SHA256SUMS",
+      "role": "independent_review_checksum_manifest",
+      "sha256": "ca4be7e0899f2bfe9f52bfbfdb736b99c8662c2392019fb48cb5b49df5ee9ef4",
+      "size_bytes": 154
+    }
+  ],
+  "input_verification": {
+    "all_hashes_and_sizes_recomputed_matching_task": true,
+    "inputs_unmodified": true,
+    "review_sha256sums_verified_relative_to_review_directory": true,
+    "review_json_strict_parsed": true
+  },
+  "prior_owner_audit": {
+    "partial_exact_paths_txt": {
+      "sha256": "e86e278cad646dd419b272bc87be09e42896e0f1407e685545b71fb40a3f6946",
+      "size_bytes": 803,
+      "audit_result": "correct: exactly 10 lines, unique, bytewise sorted, set equals mandated 10 paths",
+      "action": "retained byte-identical"
+    },
+    "partial_review_md": {
+      "sha256": "3b9e386a9da2c585e52ea14929a6950d7e56e9e00634829078e1f697f5bc2779",
+      "size_bytes": 5811,
+      "audit_result": "internally coherent but anchored to 011818876 with a now-stale zero-intervening-commits claim superseded by 4b13e7ef",
+      "action": "rewritten by current owner"
+    },
+    "missing_review_json_and_sha256sums": "created by current owner"
+  },
+  "review_facts": {
+    "reviewer": "independent CodeBuddy evidence reviewer",
+    "review_date": "2026-09-14",
+    "reviewed_head": "011818876c1b94875fd67cedaaa73abfac866633",
+    "verdict": "PASS",
+    "findings_p1": 0,
+    "findings_p2": 0,
+    "findings_p3_kept_nonblocking": [
+      "P3-1: steady ~2.9us per-interval release excess stated without basis; derivable figures are 2.59us or 2.98us",
+      "P3-2: sleep 2050.6/2107.3ms literals exist in no checkout artifact; only their 56.7ms difference matches tracked overshoot total; declaration-only",
+      "P3-3: 'same field same identity' phrasing ambiguous across xtj8wk8i (792e1feb) vs oxv29042 (18c96a7e) epochs",
+      "P3-4: test import re sits after its use site in assert_no_promotion; runtime-safe but fragile style"
+    ],
+    "p3_promoted_to_p2": false,
+    "review_grants_approval": false
+  },
+  "test_facts": {
+    "command": "python -B validation/test_omp_mixed_failure_context.py",
+    "tests_defined": 20,
+    "this_session_runs": [
+      {
+        "phase": "run_1_normal_real_index_untouched",
+        "tests_run": 20,
+        "failures": 0,
+        "errors": 0,
+        "result": "OK",
+        "exit_code": 0
+      },
+      {
+        "phase": "run_2_temporary_git_index_file_exact_10_paths_staged",
+        "method": "temporary GIT_INDEX_FILE outside repo; read-tree HEAD then git add -f of exactly the exact-paths.txt 10 paths; ls-files path-set diff vs real index = exactly 10 added, 0 removed; temp index deleted afterwards",
+        "tests_run": 20,
+        "failures": 0,
+        "errors": 0,
+        "result": "OK",
+        "exit_code": 0,
+        "note": "first attempt failed with git exit 128 because prior owner had not produced review.json/SHA256SUMS; rerun after completing the four outputs"
+      }
+    ],
+    "real_index_unchanged": {
+      "before": "93ce9851638511abce6baa649f20f8948c8ba36f4b2ec699170af9429e3d822e",
+      "after": "93ce9851638511abce6baa649f20f8948c8ba36f4b2ec699170af9429e3d822e"
+    },
+    "diff_check": "clean for all paths excluding the protected docs/Prometheus.gitmodules.reference; its 24 trailing-whitespace lines belong to a pre-existing uncommitted edit predating this task, which this task did not read or modify",
+    "suite_design": "ancestor assertions only, repo-relative paths via __file__, no writes, no network, no native execution, no reads of untracked classification artifacts, no requirement that candidates stay untracked"
+  },
+  "outputs": [
+    "validation/coordination/omp-mixed-failure-context-ingest-manifest-20260914-01/exact-paths.txt",
+    "validation/coordination/omp-mixed-failure-context-ingest-manifest-20260914-01/review.md",
+    "validation/coordination/omp-mixed-failure-context-ingest-manifest-20260914-01/review.json",
+    "validation/coordination/omp-mixed-failure-context-ingest-manifest-20260914-01/SHA256SUMS"
+  ],
+  "sha256sums_coverage": "exact-paths.txt, review.md, review.json only; SHA256SUMS does not self-reference",
+  "nonclaims": [
+    "This manifest is context-only ingestion of the reviewed batch; it is not an acceptance action and elevates no historical context to approval.",
+    "No issue acceptance, approval, closure, review authority, or #83 rerun permission is claimed or granted for #83, #9, #26, #29, #62, #102, or any other ticket.",
+    "Gate wording (1 ms/4-tick/no-catch-up/100 ms/full window/run-internal monotonic differencing) and the permanently-missing mixed capability proof row are preserved unweakened.",
+    "No input or file outside the output directory was edited; nothing was staged, committed, or pushed; the real index was never modified.",
+    "Protected files docs/Prometheus.gitmodules.reference and validation/coordination/short-cycle-dispatches.json were not touched; their pre-existing modified status predates this task.",
+    "No native/build/MATLAB/ROS/DDS/SITL/FC/UE/model/flight execution, no #83 rerun, no GitHub query or mutation was performed."
+  ]
+}

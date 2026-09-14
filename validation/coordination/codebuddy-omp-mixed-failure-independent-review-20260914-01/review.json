@@ -1,0 +1,138 @@
+{
+  "artifact": "codebuddy-omp-mixed-failure-independent-review-20260914-01",
+  "reviewer": "independent CodeBuddy evidence reviewer",
+  "review_date": "2026-09-14",
+  "reviewed_head": "011818876c1b94875fd67cedaaa73abfac866633",
+  "reviewed_head_subject": "Bind OMP delivery diagnostic context offline",
+  "head_stability": "HEAD at review start equals the task baseline and did not move during the review; no intervening commit occurred",
+  "scope": [
+    "docs/coordination/omp-mixed-failure-review-20260913.md",
+    "docs/coordination/omp-mixed-failure-ingest-note-20260914.md",
+    "validation/test_omp_mixed_failure_context.py"
+  ],
+  "candidate_hashes": [
+    {
+      "path": "docs/coordination/omp-mixed-failure-review-20260913.md",
+      "sha256": "2417c299d57ccdc79b7368e03180bd0b767aabb91c012257e1443a17fca331c3",
+      "size_bytes": 4448,
+      "tracked": false,
+      "edited_by_review": false
+    },
+    {
+      "path": "docs/coordination/omp-mixed-failure-ingest-note-20260914.md",
+      "sha256": "92f8adf24faf0ba924ed402c2f07a4b0a2ef68f2583639f38e8f1a7bd67862a4",
+      "size_bytes": 9762,
+      "tracked": false,
+      "edited_by_review": false
+    },
+    {
+      "path": "validation/test_omp_mixed_failure_context.py",
+      "sha256": "e13cfc72d44a4cd878f77ad3a95abcacea4003859c6458aa0f8f0000cef5f9fd",
+      "size_bytes": 15148,
+      "tracked": false,
+      "edited_by_review": false
+    }
+  ],
+  "verifications": {
+    "recomputed_hashes_sizes": "all three candidates recomputed on disk at the baseline HEAD; identical to the task-stated values byte-for-byte",
+    "history_current_boundary": "ingest note section 0 binds the 2026-09-13 review as historical context only (historical context only / non-authoritative); it claims no acceptance, approval, closure, review authority, or #83 rerun permission for itself or the bound file; all current-status judgments are explicitly reserved to the current authority; nothing in the batch elevates historical context into approval",
+    "topology_claims": "git merge-base --is-ancestor exit 0 for e2ecd62e914e075d0d9e40eef8ea9c034b958d2f and f333316e6efa6b299b4288a9d91fb2bccedfb9d6; git rev-list e2ecd62e..011818876 --count = 1; that single commit (01181887) touches exactly 11 OMP delivery-gate/diagnostic-entry context files (two 2026-09-12 docs, their ingest note, validation/test_omp_delivery_diagnostic_context.py, the independent-review directory trio, the context-ingest-manifest quartet), disjoint from this batch and from both protected files",
+    "relocated_artifact": "validation/current-mixed-20260913-01/ absent; byte-identical tracked artifact at validation/33-formal-promotion/current-mixed-oxv29042/main-rate-analysis.json sha256 b4c7f44e12f96ac63b720b217cd102afeba5c846b3ecbf41c6e4dbd275c410cc; note registers this as path-drift registration requiring citations to use the tracked path",
+    "bundle_rate_trace_pins": "bundle dir has exactly 20 tracked files; bundle-manifest.json f316862f37e6c8997543ef08d03247223c991553919c53152516ee90f804b546 (4153 bytes) and rate.jsonl.gz 8058ecff7f4730d5fd81a50e8817a8a4190230cc2de3b8170496e46e279c99da both tracked; strict JSON (duplicate-key and NaN/Infinity rejecting) parses; manifest pins run joint-public-flight-oxv29042, epoch 18c96a7e0af9477092aa87e18239c23c, raw trace rate.jsonl sha256 8725b63c568783199b4a5e7d3de7df532003749b73d4c255131da4bcedee8b91, analysis b4c7f44e..., status failed, RateUnmet('rate_unmet/resource_insufficient'), mixed_capability_proof 'missing'",
+    "analyzer_epoch": "tools/analyze_joint_rate_intervals.py recomputed sha256 1c43ac9c4b80f2dcc8eb52ffd9c3fe061f5cd2ef9206d839fe20e7af2f783fc7 (current, matches note and analysis); epoch prefix 18c96a7e present in manifest, analysis, note, and bound review",
+    "arithmetic_latch": "all exact: 975731+4+98805073=99780808; 115732+99780808+138204=100034744; 5140957+406205=5547162; (131760-40)//4=32930; 100034744-100000000=34744; steady_after_ns 112030174978 minus anchor wall 110030174978 = 2.0 s; latch block (tick 131760, lateness 100034744, reason resource_insufficient, anchor tick 40 / wall 110030174978, completed_groups 32930) present in both bundle-manifest and main-rate-analysis; partition 249/975731, 1/4, 32679/98805073 present in analysis",
+    "two_retractions_and_residual": "retraction 1 (tick<=2040 wall-clock partition voided) present in review bytes and registered in note section 3 with do-not-revive wording; retraction 2 (v1 '15.19 ms attributed residual' withdrawn) present in review bytes, registered in note section 3, and consistent with the classification artifact residual_note 'removed: the difference is not an attributable residual...'",
+    "untracked_classification_artifacts": "validation/33-formal-promotion/20260913-mixed-failure-review/ is gitignored (.gitignore:53) untracked, exactly as note section 2.3 registers (declaration-only); its xtj8wk8i-probe-classification.json strict-parses and literally supports the review's 894 groups / 71821720 ns, sleep overshoot 56629628 ns / mean 63344 ns / max 1269606 ns / 1 group over 1 ms, final_spin_other median 1036079 / max 1399275, zero-sleep 2 groups / 315935 ns, boundary proof, and external /root trace path; the test suite deliberately never reads these files and asserts their registration against the note bytes only",
+    "external_wsl_distinction": "note section 4 scopes raw field dirs, live dirs, experimental-area paths, and PGID process-state claims as outside this checkout, transient, and declaration-only; bundle manifest raw_root/live_root are /root/... corroborating the distinction; nothing in the checkout fabricates values for the external side",
+    "gate_wording": "1 ms tick, 4-tick group, no-catch-up, 100 ms lateness gate, full window, run-internal monotonic differencing, no cross-run origin subtraction, no catch-up/backfill, no overlapping-interval sums, identity gates, physics gates, and land_accepted-without-terminal-state-is-not-pass are all present in the bound bytes and unweakened",
+    "issue_83": "not rerun; bound review says the mixed capability proof row stays MISSING and the field is diagnostic evidence only; note section 5 states diagnostic fields can never serve as #83 pass evidence and grants no rerun permission; promotion-wording regexes find no hit in either bound doc; this review likewise reruns nothing and grants nothing"
+  },
+  "test": {
+    "command": "python validation/test_omp_mixed_failure_context.py",
+    "working_directory": "wksim repo root",
+    "mode": "non-native offline unittest only",
+    "tests_defined": 20
+  },
+  "test_runs": {
+    "run_1": {
+      "configuration": "normal worktree at 011818876, real index untouched",
+      "tests_run": 20,
+      "failures": 0,
+      "errors": 0,
+      "result": "OK",
+      "exit_code": 0,
+      "duration_seconds": 0.517
+    },
+    "run_2": {
+      "configuration": "temporary GIT_INDEX_FILE created via git read-tree HEAD plus exactly the 3 scope candidates staged (git ls-files diff vs real index shows exactly 3 added paths, 10748 total); suite executed under that index at 011818876",
+      "tests_run": 20,
+      "failures": 0,
+      "errors": 0,
+      "result": "OK",
+      "exit_code": 0,
+      "duration_seconds": 0.45,
+      "cleanup": "temporary index file deleted; no temp index files remain",
+      "real_index_unchanged": {
+        "before": "git ls-files -s | sha256sum = 944e3ef9d5ccb574a46ecbc8a1245a9b7c53de5d08185014227e50dbf4c8e2f9",
+        "after": "git ls-files -s | sha256sum = 944e3ef9d5ccb574a46ecbc8a1245a9b7c53de5d08185014227e50dbf4c8e2f9"
+      }
+    },
+    "suite_design_notes": "ancestor assertions only (no HEAD equality), repo-relative paths via __file__, no writes, no network, no native execution, no reads of untracked classification artifacts, no requirement that candidates stay untracked"
+  },
+  "findings": [
+    {
+      "id": "P3-1",
+      "severity": "P3",
+      "file": "docs/coordination/omp-mixed-failure-review-20260913.md",
+      "section": "可复核的下一诊断问题",
+      "summary": "'稳态 ~2.9µs/区间的持续 release 超额' states no basis. Derivable tracked figures are release_excess_total 84640824 ns / 32679 steady intervals = 2.59 µs, or creep 99780808 ns / 33508 total intervals = 2.98 µs. Magnitude correct and marked approximate in a historical-context doc; citations should state the basis or use a derivable value."
+    },
+    {
+      "id": "P3-2",
+      "severity": "P3",
+      "file": "docs/coordination/omp-mixed-failure-review-20260913.md",
+      "section": "xtj8wk8i 诊断场 release 路径分类",
+      "summary": "The sleep requested 2050.6 ms vs actual 2107.3 ms literals exist in no checkout artifact; only their 56.7 ms difference matches the classification JSON overshoot total 56629628 ns (56.63 ms) within rounding. Covered by note section 2.3's untracked/declaration-only registration, but not byte-reproducible offline; citations must carry that qualifier."
+    },
+    {
+      "id": "P3-3",
+      "severity": "P3",
+      "file": "docs/coordination/omp-mixed-failure-review-20260913.md",
+      "section": "xtj8wk8i 诊断场 release 路径分类（标题括注）",
+      "summary": "'同场同身份' is ambiguous: xtj8wk8i epoch is 792e1feb... while the reviewed failure field oxv29042 epoch is 18c96a7e... (per classification JSON and bundle manifest, separate diagnostic fields). The section title names xtj8wk8i so no factual conflation occurs, but readers could misread 同场 as same-epoch; expand the phrasing when citing."
+    },
+    {
+      "id": "P3-4",
+      "severity": "P3",
+      "file": "validation/test_omp_mixed_failure_context.py",
+      "line": 169,
+      "summary": "import re sits after its use site in assert_no_promotion (line 165). Runtime-safe (module-level import executes before any test call) and noqa-commented, but fragile style; reordering imports or moving the function could introduce a NameError for future maintainers."
+    }
+  ],
+  "finding_counts": {
+    "P1": 0,
+    "P2": 0,
+    "P3": 4
+  },
+  "verdict": "PASS",
+  "verdict_basis": "Zero P1 and zero P2 findings; four P3 findings only. All recomputed candidate hashes/sizes, topology claims, relocated tracked artifacts, bundle/rate/trace pins, analyzer/epoch identity, strict JSON parses, exact arithmetic and latch closure, both retractions with residual removal, external-WSL boundary distinction, gate wording, and #83 freeze wording agree with the candidates' claims; both unittest runs are 20/20 OK including the exact-three-candidate temporary-index staging with the real index proven unchanged.",
+  "claims": {
+    "approval": "none — this review grants no approval",
+    "acceptance": "none — this review is not an acceptance record for any candidate, ticket, or condition",
+    "closure": "none — this review closes nothing",
+    "issue_83": "not rerun; no rerun permission claimed; diagnostic fields remain permanently non-acceptance evidence",
+    "authority": "all 'current status / may accept / may close' judgments remain with the current authority (main agent / main session / human ruling); historical context is not elevated to approval",
+    "scope_limit": "offline evidence-audit pass only; no GitHub state queried or mutated; no native/build/MATLAB/ROS/DDS/SITL/FC/UE/model/flight execution"
+  },
+  "boundaries": {
+    "candidate_or_existing_files_edited": false,
+    "real_index_staged": false,
+    "real_index_unchanged": true,
+    "temporary_index_used_and_deleted": true,
+    "staged_committed_or_pushed": false,
+    "protected_files_touched": false,
+    "protected_files_read_or_listed": false,
+    "github_queried_or_mutated": false,
+    "native_or_model_execution": "none"
+  }
+}
