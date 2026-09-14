@@ -1,0 +1,363 @@
+{
+  "schema": "wksim.independent-review.v1",
+  "review_id": "cursor-issue29-offline-independent-review-20260914-02",
+  "generated_at": "2026-09-14T09:41:33+09:00",
+  "work_class": "review",
+  "round": 2,
+  "prior_review": "validation/coordination/cursor-issue29-offline-independent-review-20260914-01/",
+  "prior_review_overwritten": false,
+  "read_only": true,
+  "git_untouched": true,
+  "github_untouched": true,
+  "dispatch": {
+    "cwd": "C:/Users/PC/Documents/odid编译/wksim",
+    "branch": "main",
+    "head": "5370b2324672c9036d41239cb93e21fc5eb42897",
+    "architecture_ancestor": "f333316e6efa6b299b4288a9d91fb2bccedfb9d6",
+    "ancestor_exit": 0,
+    "read": [
+      "CONTEXT-MAP.md",
+      "wksim/CONTEXT.md",
+      "docs/adr/0002-open-core-with-optional-unreal-visuals.md",
+      "docs/adr/0004-single-physics-authority-and-staged-cosys-integration.md",
+      "docs/adr/0008-separate-deterministic-and-interactive-runs.md",
+      "docs/adr/0009-use-ned-frd-and-si-at-the-public-boundary.md",
+      "docs/architecture-implementation-20260912.md",
+      "docs/coordination/architecture-continuation-20260913.md",
+      "docs/coordination/short-cycle-goal.md",
+      "docs/coordination/module-delivery-policy-20260912.md",
+      "docs/plan/29-display-binding-contract.md",
+      "docs/plan/9-vendor-abi-defer-boundary.md",
+      "https://github.com/unununnnn/wksim/issues/29",
+      "https://github.com/unununnnn/wksim/issues/9",
+      "validation/coordination/cursor-issue29-offline-independent-review-20260914-01/"
+    ],
+    "module": "#29 offline scene-feedback admission/correlation helper tools/inspect_aruco_native_targets.py",
+    "owned_writes": [
+      "validation/coordination/cursor-issue29-offline-independent-review-20260914-02/review.md",
+      "validation/coordination/cursor-issue29-offline-independent-review-20260914-02/review.json",
+      "validation/coordination/cursor-issue29-offline-independent-review-20260914-02/SHA256SUMS"
+    ],
+    "not_executed": [
+      "native",
+      "model",
+      "MATLAB",
+      "ROS",
+      "DDS",
+      "SITL",
+      "FC",
+      "UE",
+      "build",
+      "flight",
+      "#83"
+    ]
+  },
+  "verdict": {
+    "overall": "PASS",
+    "meaning": "offline_admission_assist_ok_not_issue_29_acceptance",
+    "issue_29_acceptance": false,
+    "full_pass": false,
+    "goal_complete": false,
+    "parent_tickets_unlocked": {
+      "#29": false,
+      "#79": false,
+      "#80": false,
+      "#81": false
+    },
+    "p1_count": 0,
+    "p2_count": 0,
+    "p3_count": 5
+  },
+  "github": {
+    "issue_9": {
+      "state": "OPEN",
+      "title": "可选模型插件与场景反馈接口决策",
+      "url": "https://github.com/unununnnn/wksim/issues/9"
+    },
+    "issue_29": {
+      "state": "OPEN",
+      "title": "坡面与障碍场景的物理反馈",
+      "url": "https://github.com/unununnnn/wksim/issues/29",
+      "acceptance_checkboxes": {
+        "ac1_frozen_representation": false,
+        "ac2_slope_contact_reset": false,
+        "ac3_disconnect_stale": false,
+        "ac4_no_visual_offset_as_collision": false,
+        "ac5_delivery_and_review": false
+      },
+      "blocked_by": [9, 17, 23]
+    },
+    "child_tickets": {
+      "#79": "CLOSED",
+      "#80": "CLOSED",
+      "#81": "CLOSED",
+      "note": "child CLOSED does not satisfy parent #29 AC; helper keeps all four locked"
+    }
+  },
+  "source_sha256": {
+    "working_tree_untracked": true,
+    "not_in_head_tree": true,
+    "files": [
+      {
+        "path": "tools/inspect_aruco_native_targets.py",
+        "expected": "03a36c58c67e1e361ddd035d3e3cc440f9ac0544256126687bfec5c7d500838e",
+        "observed": "03a36c58c67e1e361ddd035d3e3cc440f9ac0544256126687bfec5c7d500838e",
+        "bytes": 26202,
+        "lines": 672,
+        "match": true
+      },
+      {
+        "path": "validation/test_aruco_native_targets.py",
+        "expected": "e42a0824b8c2a8287dbfda178fa6f17c6e3840cce9bb2913262cdb84e7ed1097",
+        "observed": "e42a0824b8c2a8287dbfda178fa6f17c6e3840cce9bb2913262cdb84e7ed1097",
+        "bytes": 20271,
+        "lines": 460,
+        "match": true
+      },
+      {
+        "path": "docs/coordination/agy-aruco-native-correlation.md",
+        "expected": "c2d863c76c1cf832699e919125b412c6280b036f7cd6c3bfd2454af505eaef51",
+        "observed": "c2d863c76c1cf832699e919125b412c6280b036f7cd6c3bfd2454af505eaef51",
+        "bytes": 6305,
+        "lines": 95,
+        "match": true
+      }
+    ]
+  },
+  "round1_source_sha256_historical": {
+    "not_rewritten": true,
+    "inspect": "b370d12dd8574c4d70cd14eb426f12c19b71dc77e4f7aae025a5479c430d7a05",
+    "tests": "fe391a386b26dfce54d99efe5610b167b15303c0e5e373d3d49b99d185cb1bc4",
+    "docs": "f9c07b7588e3089bff23ecaf0da16685a92f310a2b01872726cb4af5edb602bc"
+  },
+  "round1_receipts_unchanged": {
+    "review_md": "7298f7babc44786a7c22baa84ba15096109388e736516b69504a80882b4da390",
+    "review_json": "ff516905e77081f156d02f367275a2a598d5e7be108c71529519937b7c18806f"
+  },
+  "checks": {
+    "r1_p2_replay": {
+      "id": 1,
+      "verdict": "PASS",
+      "cases": [
+        {
+          "id": "P2-1",
+          "construct": "physical source_identity=\"\"",
+          "status": "rejected",
+          "correlated": false,
+          "reasons": ["missing_source_identity"],
+          "stable": true
+        },
+        {
+          "id": "P2-2",
+          "construct": "step=0 sim_time_ns=False current_step=0",
+          "status": "rejected",
+          "correlated": false,
+          "reasons": ["missing_feedback_valid_time"],
+          "stable": true
+        },
+        {
+          "id": "P2-3",
+          "construct": "contact_point_enu_m=\"not-a-vector\"",
+          "status": "rejected",
+          "correlated": false,
+          "reasons": ["invalid_vector"],
+          "stable": true
+        }
+      ],
+      "cli_matches_api": true,
+      "lines": {
+        "_is_identity": "138-146",
+        "_is_nonneg_int": "149-150",
+        "_is_finite_vector": "165-171",
+        "physical_type_gates": "347-356"
+      }
+    },
+    "source_identity_matrix": {
+      "id": 2,
+      "verdict": "PASS",
+      "rejected": [
+        "missing_key",
+        "null",
+        "empty_object",
+        "true",
+        "false",
+        "list",
+        "empty_string_subfield",
+        "empty_key",
+        "visual_missing",
+        "visual_empty",
+        "scene_empty_present"
+      ],
+      "correlated_locked": [
+        "legal_nonempty_object",
+        "nested_legal_objects"
+      ]
+    },
+    "time_step_matrix": {
+      "id": 3,
+      "verdict": "PASS",
+      "rejected": [
+        "bool_current_true",
+        "bool_current_false",
+        "step_true",
+        "step_false",
+        "sim_time_true_step1",
+        "negative",
+        "float",
+        "string",
+        "none",
+        "missing_window",
+        "sim_time_mismatch"
+      ],
+      "legal_zero_correlates": true,
+      "huge_int_type_ok_window_enforced": true
+    },
+    "vector_scalar_matrix": {
+      "id": 4,
+      "verdict": "PASS",
+      "rejected": [
+        "string",
+        "dict",
+        "len0",
+        "len2",
+        "len4",
+        "bool_element",
+        "nan",
+        "inf",
+        "ninf",
+        "penetration_bool",
+        "penetration_nan",
+        "penetration_inf"
+      ],
+      "legal_finite_3vector": true,
+      "negative_finite_penetration_accepted": true
+    },
+    "markers_and_correlated_semantics": {
+      "id": 5,
+      "verdict": "PASS",
+      "fail_closed": [
+        "stale_feedback",
+        "future_feedback",
+        "scene_identity_mismatch",
+        "scene_identity_conflation",
+        "planner_hash",
+        "foreign_epoch",
+        "reuse_cache_tokens",
+        "render_frame_advances_physics",
+        "fabricated_issue_9_closure",
+        "physical_list",
+        "json_array"
+      ],
+      "extra_stream_keys_ignored_but_locked": true,
+      "correlated_does_not_mean": [
+        "physical_consumed",
+        "issue_29_pass",
+        "unlock_79_80_81",
+        "full_pass",
+        "goal_complete"
+      ]
+    },
+    "docs_vs_tickets": {
+      "id": 6,
+      "verdict": "PASS",
+      "issue_9_open": true,
+      "issue_29_ac_unchecked": true,
+      "parent_tickets_not_unlocked": true,
+      "real_ue_physics_fc_sitl_ros_uncovered": true,
+      "no_full_or_goal_claim": true,
+      "doc_consistent": true
+    }
+  },
+  "official_tests": {
+    "command": "python -B -m unittest validation.test_aruco_native_targets",
+    "tests": 34,
+    "passed": 34,
+    "failed": 0,
+    "skipped": 0,
+    "elapsed_s": 0.013,
+    "result": "OK"
+  },
+  "extra_negatives": {
+    "temp_root": "C:\\Users\\PC\\AppData\\Local\\Temp\\wksim-i29-r02-a7384b07",
+    "deleted": true,
+    "leftover": [],
+    "n": 91,
+    "ok": 91,
+    "fail": 0,
+    "independent_epoch": "r02-independent-epoch-9f3c1a70b4e8d216",
+    "highlights": [
+      {
+        "id": "r1p2_empty_source_identity",
+        "via": ["inspect_pack", "cli"],
+        "status": "rejected",
+        "reasons": ["missing_source_identity"]
+      },
+      {
+        "id": "r1p2_step0_sim_time_false",
+        "via": ["inspect_pack", "cli"],
+        "status": "rejected",
+        "reasons": ["missing_feedback_valid_time"]
+      },
+      {
+        "id": "r1p2_string_contact_point",
+        "via": ["inspect_pack", "cli"],
+        "status": "rejected",
+        "reasons": ["invalid_vector"]
+      },
+      {
+        "id": "time_legal_zero",
+        "status": "correlated",
+        "unlocked_any": false
+      },
+      {
+        "id": "pack_acceptance_true_no_leak",
+        "status": "correlated",
+        "acceptance_in_report": false,
+        "unlocked_any": false
+      }
+    ]
+  },
+  "findings": {
+    "p1": [],
+    "p2": [],
+    "p3": [
+      {
+        "id": "P3-1",
+        "title": "official tests omit some extra boundaries now covered only in TEMP",
+        "lines": "validation/test_aruco_native_targets.py:257-331",
+        "impact": "unit=meter, foreign_epoch, visual-only empty identity, negative penetration, extra overflow keys are not formal pins"
+      },
+      {
+        "id": "P3-2",
+        "title": "tests import implementation scene hashes; file pins mitigate",
+        "lines": "validation/test_aruco_native_targets.py:20-32"
+      },
+      {
+        "id": "P3-3",
+        "title": "stale/disconnect accept any non-reuse token including overflow/lost",
+        "lines": "tools/inspect_aruco_native_targets.py:104,369-372"
+      },
+      {
+        "id": "P3-4",
+        "title": "visual-offset copy detection is exact list equality only",
+        "lines": "tools/inspect_aruco_native_targets.py:226-229"
+      },
+      {
+        "id": "P3-5",
+        "title": "single-pack widths: unknown identities, extra marker keys, step-vs-window, CLI path, truncated JSON, FileExistsError",
+        "lines": "tools/inspect_aruco_native_targets.py:126-127,233-246,433-437,609-610",
+        "impact": "none unlock tickets or imply #29 AC"
+      }
+    ]
+  },
+  "open_boundaries": [
+    "#9 remains OPEN; vendor DLL ABI still NO-GO",
+    "#29 original AC all unchecked",
+    "#79/#80/#81 CLOSED does not unlock parent",
+    "tool cannot prove UE colocation, real disconnect, slope/side/force, dynamic objects, FC/SITL/ROS closed loop",
+    "keep 60ae5097… and 4889e2ea… distinct",
+    "correlated is offline field association only, not physical consumption or #29 AC",
+    "this review does not claim Full or Goal complete",
+    "#29 still blocked by #9/#17/#23"
+  ]
+}

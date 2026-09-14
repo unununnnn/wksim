@@ -1,0 +1,285 @@
+{
+  "schema": "wksim.independent-review.v1",
+  "review_id": "cursor-issue29-offline-independent-review-20260914-01",
+  "generated_at": "2026-09-14T09:29:39+09:00",
+  "work_class": "new-development independent review",
+  "read_only": true,
+  "git_untouched": true,
+  "github_untouched": true,
+  "dispatch": {
+    "cwd": "C:/Users/PC/Documents/odid编译/wksim",
+    "branch": "main",
+    "head": "5370b2324672c9036d41239cb93e21fc5eb42897",
+    "architecture_ancestor": "f333316e6efa6b299b4288a9d91fb2bccedfb9d6",
+    "ancestor_exit": 0,
+    "read": [
+      "AGENTS.md",
+      "docs/architecture-implementation-20260912.md",
+      "docs/coordination/architecture-continuation-20260913.md",
+      "CONTEXT.md",
+      "https://github.com/unununnnn/wksim/issues/29",
+      "https://github.com/unununnnn/wksim/issues/9"
+    ],
+    "module": "offline admission assist tools/inspect_aruco_native_targets.py",
+    "owned_writes": [
+      "validation/coordination/cursor-issue29-offline-independent-review-20260914-01/review.md",
+      "validation/coordination/cursor-issue29-offline-independent-review-20260914-01/review.json",
+      "validation/coordination/cursor-issue29-offline-independent-review-20260914-01/SHA256SUMS"
+    ],
+    "not_executed": [
+      "native",
+      "model",
+      "MATLAB",
+      "ROS",
+      "DDS",
+      "SITL",
+      "FC",
+      "UE",
+      "build",
+      "flight",
+      "#83"
+    ]
+  },
+  "verdict": {
+    "overall": "PASS",
+    "meaning": "offline_admission_assist_ok_not_issue_29_acceptance",
+    "issue_29_acceptance": false,
+    "parent_tickets_unlocked": {
+      "#29": false,
+      "#79": false,
+      "#80": false,
+      "#81": false
+    },
+    "p1_count": 0,
+    "p2_count": 3,
+    "p3_count": 5
+  },
+  "github": {
+    "issue_9": {
+      "state": "OPEN",
+      "title": "可选模型插件与场景反馈接口决策",
+      "url": "https://github.com/unununnnn/wksim/issues/9"
+    },
+    "issue_29": {
+      "state": "OPEN",
+      "title": "坡面与障碍场景的物理反馈",
+      "url": "https://github.com/unununnnn/wksim/issues/29",
+      "acceptance_checkboxes": {
+        "ac1_frozen_representation": false,
+        "ac2_slope_contact_reset": false,
+        "ac3_disconnect_stale": false,
+        "ac4_no_visual_offset_as_collision": false,
+        "ac5_delivery_and_review": false
+      },
+      "blocked_by": [9, 17, 23]
+    },
+    "child_tickets": {
+      "#79": "CLOSED",
+      "#80": "CLOSED",
+      "#81": "CLOSED",
+      "note": "child CLOSED does not satisfy parent #29 AC"
+    }
+  },
+  "source_sha256": {
+    "working_tree_untracked": true,
+    "not_in_head_tree": true,
+    "files": [
+      {
+        "path": "tools/inspect_aruco_native_targets.py",
+        "expected": "b370d12dd8574c4d70cd14eb426f12c19b71dc77e4f7aae025a5479c430d7a05",
+        "observed": "b370d12dd8574c4d70cd14eb426f12c19b71dc77e4f7aae025a5479c430d7a05",
+        "bytes": 22477,
+        "lines": 601,
+        "match": true
+      },
+      {
+        "path": "validation/test_aruco_native_targets.py",
+        "expected": "fe391a386b26dfce54d99efe5610b167b15303c0e5e373d3d49b99d185cb1bc4",
+        "observed": "fe391a386b26dfce54d99efe5610b167b15303c0e5e373d3d49b99d185cb1bc4",
+        "bytes": 16262,
+        "lines": 382,
+        "match": true
+      },
+      {
+        "path": "docs/coordination/agy-aruco-native-correlation.md",
+        "expected": "f9c07b7588e3089bff23ecaf0da16685a92f310a2b01872726cb4af5edb602bc",
+        "observed": "f9c07b7588e3089bff23ecaf0da16685a92f310a2b01872726cb4af5edb602bc",
+        "bytes": 4958,
+        "lines": 81,
+        "match": true
+      }
+    ]
+  },
+  "checks": {
+    "offline_no_input_write": {
+      "id": 1,
+      "verdict": "PASS",
+      "imports": ["argparse", "hashlib", "json", "math", "pathlib", "typing"],
+      "absent": ["rclpy", "ROS", "UE", "subprocess", "socket", "ctypes", "importlib", "eval", "exec"],
+      "writes": "exclusive --output report only, mode x, never overwrites evidence"
+    },
+    "itemized_rejection": {
+      "id": 2,
+      "verdict": "PARTIAL",
+      "families": {
+        "coordinate_unit": "PASS",
+        "feedback_valid_time": "PARTIAL",
+        "source_identity": "PARTIAL",
+        "freeze_disconnect_stale": "PASS",
+        "contact_schema": "PARTIAL",
+        "visual_offset_masquerade": "PASS",
+        "unapproved_budget": "PASS"
+      }
+    },
+    "correlated_semantics": {
+      "id": 3,
+      "verdict": "PASS",
+      "correlated_means": "offline field/identity association only",
+      "does_not_mean": ["real_contact", "issue_29_pass", "unlock_79_80_81"]
+    },
+    "tests_and_traps": {
+      "id": 4,
+      "verdict": "PASS",
+      "independent_pos_neg": true,
+      "only_restates_implementation_constants": false,
+      "notes": "official suite misses empty-identity/bool-time/nonvector cases found by extra TEMP probes"
+    },
+    "docs_vs_tickets": {
+      "id": 5,
+      "verdict": "PASS",
+      "issue_9_open": true,
+      "issue_29_ac_unchecked": true,
+      "doc_consistent": true
+    }
+  },
+  "official_tests": {
+    "command": "python -B -m unittest validation.test_aruco_native_targets -v",
+    "tests": 28,
+    "passed": 28,
+    "failed": 0,
+    "skipped": 0,
+    "elapsed_s": 0.011,
+    "result": "OK"
+  },
+  "extra_negatives": {
+    "temp_root": "C:\\Users\\PC\\AppData\\Local\\Temp\\wksim-i29-neg-fumzt_g4",
+    "deleted": true,
+    "leftover": [],
+    "cases": [
+      {
+        "id": "sanity",
+        "via": "inspect_pack",
+        "status": "correlated",
+        "unlocked_any": false
+      },
+      {
+        "id": "neg1",
+        "via": "main+inspect_path",
+        "construct": "unit=meter",
+        "status": "rejected",
+        "reasons": ["unsupported_unit"]
+      },
+      {
+        "id": "neg2",
+        "via": "main+inspect_path",
+        "construct": "dotdot path + foreign epoch",
+        "status": "rejected",
+        "reasons": ["foreign_epoch"],
+        "resolved_under_temp": true
+      },
+      {
+        "id": "neg3",
+        "via": "inspect_path",
+        "construct": "JSON array",
+        "error": "InspectError must contain a JSON object"
+      },
+      {
+        "id": "neg4",
+        "via": "inspect_pack",
+        "construct": "physical source_identity empty string",
+        "status": "correlated",
+        "severity": "P2"
+      },
+      {
+        "id": "neg5",
+        "via": "inspect_pack",
+        "construct": "step=0 sim_time_ns=False",
+        "status": "correlated",
+        "severity": "P2"
+      },
+      {
+        "id": "neg6",
+        "via": "inspect_pack",
+        "construct": "contact_point_enu_m string",
+        "status": "correlated",
+        "severity": "P2"
+      },
+      {
+        "id": "neg7",
+        "via": "inspect_pack",
+        "construct": "current_step=True",
+        "status": "rejected",
+        "reasons": ["missing_feedback_valid_time"]
+      },
+      {
+        "id": "neg8",
+        "via": "main --output",
+        "construct": "reuse tokens + exclusive overwrite",
+        "status": "rejected",
+        "reasons": ["missing_stale_or_disconnect_semantics"],
+        "second_write": "FileExistsError"
+      }
+    ]
+  },
+  "findings": {
+    "p1": [],
+    "p2": [
+      {
+        "id": "P2-1",
+        "title": "empty physical source_identity still correlates",
+        "detail": "visual checks None/\"\"; physical only tests key presence"
+      },
+      {
+        "id": "P2-2",
+        "title": "False sim_time_ns with step=0 still correlates",
+        "detail": "bool/int trap False==0 bypasses sim_time_ns == step*1e6"
+      },
+      {
+        "id": "P2-3",
+        "title": "contact geometry keys not type-checked",
+        "detail": "string/NaN/Infinity/bool penetration can correlate if keys exist"
+      }
+    ],
+    "p3": [
+      {
+        "id": "P3-1",
+        "title": "official tests omit the P2 type cases and unit/epoch extras"
+      },
+      {
+        "id": "P3-2",
+        "title": "tests import implementation scene hashes; file pins mitigate"
+      },
+      {
+        "id": "P3-3",
+        "title": "stale/disconnect accept any non-reuse token"
+      },
+      {
+        "id": "P3-4",
+        "title": "visual-offset copy detection is exact list equality only"
+      },
+      {
+        "id": "P3-5",
+        "title": "unknown scene identities may correlate if self-consistent; CLI reads any path; single-line JSON without newline treated as truncated; overwrite FileExistsError not mapped"
+      }
+    ]
+  },
+  "open_boundaries": [
+    "#9 remains OPEN; vendor DLL ABI still NO-GO",
+    "#29 original AC all unchecked",
+    "tool cannot prove UE colocation, real disconnect, slope/side/force, dynamic objects, FC/SITL/ROS closed loop",
+    "keep 60ae5097… and 4889e2ea… distinct",
+    "correlated is not type-safe schema validation",
+    "child ticket CLOSED does not close parent",
+    "#29 still blocked by #9/#17/#23"
+  ]
+}

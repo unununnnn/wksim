@@ -1,0 +1,409 @@
+{
+  "schema": "wksim.independent-review.v1",
+  "review_id": "cursor-issue60-full-report-independent-review-20260914-01",
+  "generated_at": "2026-09-14T09:37:42+09:00",
+  "work_class": "review",
+  "read_only": true,
+  "git_untouched": true,
+  "github_untouched": true,
+  "source_report_untouched": true,
+  "dispatch": {
+    "cwd": "C:/Users/PC/Documents/odid编译/wksim",
+    "branch": "main",
+    "head": "5370b2324672c9036d41239cb93e21fc5eb42897",
+    "architecture_ancestor": "f333316e6efa6b299b4288a9d91fb2bccedfb9d6",
+    "ancestor_exit": 0,
+    "read": [
+      "AGENTS.md",
+      "docs/architecture-implementation-20260912.md",
+      "docs/coordination/architecture-continuation-20260913.md",
+      "../CONTEXT-MAP.md",
+      "CONTEXT.md",
+      "https://github.com/unununnnn/wksim/issues/60",
+      "docs/plan/full-scope-expansion.md",
+      "docs/coordination/short-cycle-goal.md",
+      "docs/plan/goal-objective.md"
+    ],
+    "module": "Full/G0-G6 report layer",
+    "subject": "docs/plan/full-acceptance-report.md",
+    "expected_sha256": "3edcc5c84b08cdf02648112c0aa9abd4ebc396dcb266bcc574277d34354721d1",
+    "observed_sha256": "3edcc5c84b08cdf02648112c0aa9abd4ebc396dcb266bcc574277d34354721d1",
+    "owned_writes": [
+      "validation/coordination/cursor-issue60-full-report-independent-review-20260914-01/review.md",
+      "validation/coordination/cursor-issue60-full-report-independent-review-20260914-01/review.json",
+      "validation/coordination/cursor-issue60-full-report-independent-review-20260914-01/SHA256SUMS"
+    ],
+    "github_readonly": {
+      "issue_view": "gh issue view 60 --repo unununnnn/wksim --json number,title,state,labels",
+      "issue_list": "gh issue list --repo unununnnn/wksim --state all --limit 200 --json number,title,state"
+    },
+    "not_executed": [
+      "native",
+      "model",
+      "MATLAB",
+      "ROS",
+      "DDS",
+      "SITL",
+      "FC",
+      "UE",
+      "build",
+      "flight",
+      "#83",
+      "R1",
+      "RateUnmet"
+    ]
+  },
+  "verdict": {
+    "overall": "PASS",
+    "meaning": "report_layer_mechanical_review_ok_not_full_or_g6_acceptance",
+    "full_acceptance": false,
+    "g6_acceptance": false,
+    "goal_complete": false,
+    "issue_60_closed": false,
+    "owner_approval": false,
+    "p1_count": 0,
+    "p2_count": 0,
+    "p3_count": 2
+  },
+  "mechanical": {
+    "source_file": "docs/plan/full-scope-expansion.md",
+    "source_sha256": "85c15ad817afe35fcd325435f02ccb894ad33015e223537daa3cc3706a564fee",
+    "source_pattern": "^\\| (SIM|COMM|MODEL|OPS)-\\d+ \\|",
+    "source_total": 48,
+    "source_unique": 48,
+    "source_duplicates": [],
+    "source_status_counts": {
+      "blocked": 8,
+      "evidenced": 12,
+      "not-implemented": 28
+    },
+    "report_total": 48,
+    "report_unique": 48,
+    "report_duplicates": [],
+    "missing_keys": [],
+    "extra_keys": [],
+    "keyset_equal": true,
+    "key_order_equal": true,
+    "families": {
+      "SIM": 12,
+      "COMM": 7,
+      "MODEL": 16,
+      "OPS": 13
+    },
+    "recomputed_verdicts": {
+      "accepted": 0,
+      "partial": 12,
+      "blocked": 8,
+      "not-tested": 28,
+      "total": 48
+    },
+    "claimed_verdicts_match": true,
+    "illegal_verdicts": [],
+    "mapping_failures": [],
+    "accepted_rows": [],
+    "gap_mismatches": 0,
+    "partial_keys": [
+      "SIM-02",
+      "SIM-08",
+      "COMM-03",
+      "OPS-01",
+      "OPS-02",
+      "OPS-04",
+      "OPS-05",
+      "OPS-06",
+      "OPS-08",
+      "OPS-10",
+      "OPS-11",
+      "OPS-12"
+    ],
+    "blocked_keys": [
+      "SIM-01",
+      "SIM-05",
+      "SIM-06",
+      "SIM-09",
+      "SIM-10",
+      "SIM-12",
+      "MODEL-01",
+      "OPS-13"
+    ]
+  },
+  "gates": {
+    "ids": ["G0", "G1", "G2", "G3", "G4", "G5", "G6"],
+    "duplicates": [],
+    "coverage_complete": true,
+    "any_accepted": false,
+    "full_or_g6_announced_pass": false,
+    "verdicts": {
+      "G0": "partial",
+      "G1": "partial",
+      "G2": "blocked",
+      "G3": "partial",
+      "G4": "blocked",
+      "G5": "partial",
+      "G6": "blocked"
+    },
+    "distribution": {
+      "accepted": 0,
+      "partial": 4,
+      "blocked": 3,
+      "not-tested": 0
+    },
+    "compatible_with_row_evidence": true,
+    "exit_copied_verbatim": {
+      "G0": false,
+      "G1": false,
+      "G2": false,
+      "G3": false,
+      "G4": false,
+      "G5": false,
+      "G6": false
+    },
+    "g0_equals_user_plus_exit": true
+  },
+  "github": {
+    "issue_60": {
+      "state": "OPEN",
+      "title": "[Astra] 按完整原规格及G0–G6进行最终Full复核",
+      "labels": ["wayfinder:task", "ready-for-agent"]
+    },
+    "live_states": {
+      "1": "OPEN",
+      "9": "OPEN",
+      "10": "OPEN",
+      "20": "OPEN",
+      "25": "CLOSED",
+      "26": "OPEN",
+      "27": "OPEN",
+      "28": "OPEN",
+      "29": "OPEN",
+      "33": "OPEN",
+      "35": "CLOSED",
+      "36": "CLOSED",
+      "37": "CLOSED",
+      "38": "CLOSED",
+      "39": "CLOSED",
+      "40": "CLOSED",
+      "44": "CLOSED",
+      "45": "CLOSED",
+      "46": "OPEN",
+      "47": "CLOSED",
+      "48": "CLOSED",
+      "55": "CLOSED",
+      "56": "CLOSED",
+      "59": "CLOSED",
+      "60": "OPEN",
+      "83": "CLOSED",
+      "84": "OPEN"
+    },
+    "report_states_match_live": true,
+    "closed_written_as_open": [],
+    "open_written_as_complete": [],
+    "still_open_full_blockers_reported": [9, 20, 26, 27, 28, 29, 33, 46, 1, 10, 60]
+  },
+  "retained_failures": {
+    "r1": {
+      "status": "numerical_failed",
+      "failed_values": 5684,
+      "cases": {
+        "C0": 2,
+        "C2G": 1943,
+        "C3G": 3739
+      },
+      "rerun_claimed": false,
+      "index_path": "validation/numerical-conformance-gxxh6xhr/run-index.json",
+      "index_sha256": "2a964b731d585ca11c26ec2cc01f9d2b653942c8fc94b347b826c4280e605a94"
+    },
+    "rate_unmet": {
+      "field": "oayggl_s",
+      "failed_at": "tick108004",
+      "mixed_evidence_empty": true,
+      "rerun_claimed": false,
+      "issue_33": "OPEN"
+    },
+    "issue_83": {
+      "state": "CLOSED",
+      "pv": "1w6dru32",
+      "result": "PASS",
+      "rerun_claimed": false,
+      "does_not_imply_full_or_g6": true,
+      "report_path": "docs/2026-09-13-final-combo-pv-pass.md",
+      "report_sha256": "d3c70b49da4f090748ee19fc6101d0d86f5021b5daafef1ede5ef15dd146e512"
+    }
+  },
+  "cited_paths": [
+    {
+      "path": "docs/plan/full-scope-expansion.md",
+      "exists": true,
+      "claimed": "85c15ad817afe35fcd325435f02ccb894ad33015e223537daa3cc3706a564fee",
+      "observed": "85c15ad817afe35fcd325435f02ccb894ad33015e223537daa3cc3706a564fee",
+      "match": true
+    },
+    {
+      "path": "docs/plan/requirement-coverage.md",
+      "exists": true,
+      "claimed": "ad659194f12ee52df56278466d5e786c1ea21a25ac5ba1ff63990e84011bbc79",
+      "observed": "ad659194f12ee52df56278466d5e786c1ea21a25ac5ba1ff63990e84011bbc79",
+      "match": true
+    },
+    {
+      "path": "docs/plan/full-followup-tickets.json",
+      "exists": true,
+      "claimed": "3747d09a939f70152cc236bf34769e75d68f2ba44a777f9168ac1c8c1a95f5a0",
+      "observed": "3747d09a939f70152cc236bf34769e75d68f2ba44a777f9168ac1c8c1a95f5a0",
+      "match": true
+    },
+    {
+      "path": "docs/plan/goal-objective.md",
+      "exists": true,
+      "claimed": "e035a9a467708fd0240a39866f56d69ca64fa58a4a1e555c0c0aac1894d020a5",
+      "observed": "e035a9a467708fd0240a39866f56d69ca64fa58a4a1e555c0c0aac1894d020a5",
+      "match": true
+    },
+    {
+      "path": "docs/2026-09-09-numerical-conformance-report.md",
+      "exists": true,
+      "claimed": "82539300993f12fc6509e35ad8147caa57a2777d84e9a1aafac2a6a22c2d4561",
+      "observed": "82539300993f12fc6509e35ad8147caa57a2777d84e9a1aafac2a6a22c2d4561",
+      "match": true
+    },
+    {
+      "path": "docs/2026-09-09-first-phase-acceptance-report.md",
+      "exists": true,
+      "claimed": "4135836babb67ba1a8257cb2a8568a0312d8ea900dcfadfbe93d61d3deb9f65a",
+      "observed": "4135836babb67ba1a8257cb2a8568a0312d8ea900dcfadfbe93d61d3deb9f65a",
+      "match": true
+    },
+    {
+      "path": "docs/2026-09-13-final-combo-pv-pass.md",
+      "exists": true,
+      "claimed": "d3c70b49da4f090748ee19fc6101d0d86f5021b5daafef1ede5ef15dd146e512",
+      "observed": "d3c70b49da4f090748ee19fc6101d0d86f5021b5daafef1ede5ef15dd146e512",
+      "match": true
+    },
+    {
+      "path": "docs/coordination/short-cycle-goal.md",
+      "exists": true,
+      "claimed": "d6339f23b61e3b1fee4e5d729b283bf1378da2622d9538a8ce29affaa606c71c",
+      "observed": "d6339f23b61e3b1fee4e5d729b283bf1378da2622d9538a8ce29affaa606c71c",
+      "match": true
+    },
+    {
+      "path": "docs/architecture-implementation-20260912.md",
+      "exists": true,
+      "claimed": "2c0d23b204b0cd70da9343106c4f3749f8adef56563cefdf39f0539706500d4d",
+      "observed": "2c0d23b204b0cd70da9343106c4f3749f8adef56563cefdf39f0539706500d4d",
+      "match": true
+    },
+    {
+      "path": "docs/coordination/architecture-continuation-20260913.md",
+      "exists": true,
+      "claimed": "665890489b087085d1bf143143b8ae7ddfa0a37af4d3506f3525c31372c1295d",
+      "observed": "665890489b087085d1bf143143b8ae7ddfa0a37af4d3506f3525c31372c1295d",
+      "match": true
+    },
+    {
+      "path": "CONTEXT.md",
+      "exists": true,
+      "claimed": "7932cda0d609c4de74a3df4cbc47553f8f7951fc3ae6c61319b9733dd2d512a2",
+      "observed": "7932cda0d609c4de74a3df4cbc47553f8f7951fc3ae6c61319b9733dd2d512a2",
+      "match": true
+    },
+    {
+      "path": "AGENTS.md",
+      "exists": true,
+      "claimed": "144d5157d37e90412840cb38b728581d66293f178a4645c93d3778447f4edac8",
+      "observed": "144d5157d37e90412840cb38b728581d66293f178a4645c93d3778447f4edac8",
+      "match": true
+    },
+    {
+      "path": "validation/numerical-conformance-gxxh6xhr/run-index.json",
+      "exists": true,
+      "claimed": "2a964b731d585ca11c26ec2cc01f9d2b653942c8fc94b347b826c4280e605a94",
+      "observed": "2a964b731d585ca11c26ec2cc01f9d2b653942c8fc94b347b826c4280e605a94",
+      "match": true
+    }
+  ],
+  "missing_cited_paths": [],
+  "placeholders": [],
+  "close_ticket_language": false,
+  "owner_approval_implied": false,
+  "parser": {
+    "positive": {
+      "ok": true,
+      "n_rows": 48,
+      "n_gates": 7,
+      "errors": []
+    },
+    "negatives": {
+      "temp_root": "C:\\Users\\PC\\AppData\\Local\\Temp\\wksim-i60-full-neg-7ktm2qds",
+      "deleted": true,
+      "leftover": [],
+      "repo_writes": [],
+      "cases": [
+        {
+          "id": "dup_key",
+          "construct": "duplicate SIM-01 row",
+          "ok": false,
+          "errors": ["row_count=49 expected 48", "duplicate_row_keys:SIM-01"]
+        },
+        {
+          "id": "miss_key",
+          "construct": "delete SIM-03",
+          "ok": false,
+          "errors": ["row_count=47 expected 48", "keyset_mismatch missing=['SIM-03'] extra=[]"]
+        },
+        {
+          "id": "illegal_status",
+          "construct": "SIM-02 verdict=pass",
+          "ok": false,
+          "errors": ["illegal_verdict line=54 key=SIM-02 verdict='pass'"]
+        },
+        {
+          "id": "dup_gate",
+          "construct": "duplicate G0 row after G1",
+          "ok": false,
+          "errors": ["gates=['G0', 'G1', 'G0', 'G2', 'G3', 'G4', 'G5', 'G6']", "duplicate_gates:G0"]
+        },
+        {
+          "id": "more_rows",
+          "construct": "insert SIM-99",
+          "ok": false,
+          "errors": ["row_count=49 expected 48", "keyset_mismatch missing=[] extra=['SIM-99']"]
+        },
+        {
+          "id": "fewer_rows",
+          "construct": "delete OPS-13",
+          "ok": false,
+          "errors": ["row_count=47 expected 48", "keyset_mismatch missing=['OPS-13'] extra=[]"]
+        }
+      ]
+    }
+  },
+  "findings": {
+    "p1": [],
+    "p2": [],
+    "p3": [
+      {
+        "id": "P3-1",
+        "lines": [128, 133, 134, 135, 136, 137, 138],
+        "title": "G0-G6 exit_copied is not verbatim exit text",
+        "repro": "Compare docs/plan/goal-objective.md L25-L31 with report L132-L138",
+        "impact": "Gate table omits some mandatory exit clauses; verdicts remain partial/blocked and Full/G6 stay failed"
+      },
+      {
+        "id": "P3-2",
+        "lines": [3, 14],
+        "title": "work_class labeled new-development on a report-only slice",
+        "repro": "Read report L3-L8",
+        "impact": "Dispatch class can be confused with implementation work; does not change 48-row or G6 conclusions"
+      }
+    ]
+  },
+  "limitations": [
+    "report-layer review only; no native/Full acceptance executed",
+    "Goal OPEN not read from Goal DB",
+    "does not close #1/#10/#60 or mark Goal complete",
+    "no add/commit/push/owner approval",
+    "CONTEXT-MAP.md and ADR files are absent from this checkout"
+  ]
+}
