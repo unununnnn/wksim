@@ -1,0 +1,133 @@
+{
+  "schema": "wksim.ingest-manifest.v1",
+  "manifested_at": "2026-09-14",
+  "owner": "codebuddy-ingest-manifest",
+  "reviewed_head": "9c581ad5b2e316904c9ef53e8543c5a6f413d6f9",
+  "ancestor_baseline": {
+    "commit": "cc42c19f1b06538cf5bfd326d7dcd11f7b1ed6a5",
+    "role": "binding baseline of the reviewed DS Full historical-context batch",
+    "ancestor_of_reviewed_head": true,
+    "verified_by": "git merge-base --is-ancestor cc42c19f1b06538cf5bfd326d7dcd11f7b1ed6a5 HEAD -> exit 0"
+  },
+  "scope": "context-only",
+  "acceptance": "non-acceptance",
+  "exact_paths_sha256": "e01b0acdd9eac0ff6dd2e4840c1e09c016b5d5c6a45a6d3f8b1c6e844c32b042",
+  "exact_paths_count": 10,
+  "inputs": [
+    {
+      "path": "docs/coordination/ds-full-frontier-20260912.json",
+      "role": "historical_context_document",
+      "sha256": "3fcf2003bc589b8692b95f350bf0b697dc52ac1567c9b8b98d2c32cd27c209c4",
+      "sha256_match_specified": true,
+      "size_bytes": 36161
+    },
+    {
+      "path": "docs/coordination/ds-full-frontier-ingest-note-20260914.md",
+      "role": "ingest_note",
+      "sha256": "7701eee11c91615c069fab26b309512830315c5f5d6cb62cb6ce87a41c8d9a61",
+      "sha256_match_specified": true,
+      "size_bytes": 12050
+    },
+    {
+      "path": "validation/test_ds_full_frontier_context.py",
+      "role": "test_candidate",
+      "sha256": "5a23b662813ae41a9c4ed619cd32143df635a6196afa1afebd8d4119957c3478",
+      "sha256_match_specified": true,
+      "size_bytes": 16923
+    },
+    {
+      "path": "validation/coordination/codebuddy-ds-full-frontier-independent-review-20260914-02/review.md",
+      "role": "independent_review_report",
+      "sha256": "5c75ab7ff6f107010afc9ef1e0126dc2a4c0346b2b91ef9d12dde0392578ae36",
+      "sha256_match_review_sums": true
+    },
+    {
+      "path": "validation/coordination/codebuddy-ds-full-frontier-independent-review-20260914-02/review.json",
+      "role": "independent_review_record",
+      "sha256": "5a791470d0421cd2182baea1fe079bbb6b2022d35db8598add8b4ead61a2c162",
+      "sha256_match_review_sums": true
+    },
+    {
+      "path": "validation/coordination/codebuddy-ds-full-frontier-independent-review-20260914-02/SHA256SUMS",
+      "role": "independent_review_sums",
+      "sha256": "07c8691f64848697156b58ef8a77cee45dc2209ce06a05befdb2efa23d5ed979",
+      "sha256sum_dash_c_result": "all entries OK"
+    }
+  ],
+  "review_facts": {
+    "reviewer": "independent CodeBuddy re-reviewer",
+    "reviewed_at": "2026-09-14",
+    "reviewed_head": "cc42c19f1b06538cf5bfd326d7dcd11f7b1ed6a5",
+    "reviewed_head_ancestor_of_current_head": true,
+    "verdict": "PASS",
+    "findings_p1": [],
+    "findings_p2": [],
+    "findings_p3_nonblocking": [
+      "N-01: f333316e ancestry is enforced only transitively via the cc42c19f baseline check (documentation nuance)",
+      "N-02: test_grep_allowlist_mutation_rejected mutation portion is tautological (cosmetic)"
+    ],
+    "prior_review_dir_excluded": "validation/coordination/codebuddy-ds-full-frontier-independent-review-20260914-01 (prior FAIL review; ignored and not included per assignment)"
+  },
+  "test_facts": {
+    "command": "python -B -m unittest validation.test_ds_full_frontier_context -v",
+    "review_recorded_runs": [
+      {
+        "mode": "unstaged",
+        "tests_run": 15,
+        "passed": 15,
+        "failed": 0,
+        "errors": 0,
+        "result": "OK",
+        "at_head": "cc42c19f1b06538cf5bfd326d7dcd11f7b1ed6a5"
+      },
+      {
+        "mode": "staged_simulation",
+        "detail": "temporary GIT_INDEX_FILE copied from the real index with exactly the three candidates staged; real index unchanged; temp index deleted",
+        "tests_run": 15,
+        "passed": 15,
+        "failed": 0,
+        "errors": 0,
+        "result": "OK",
+        "at_head": "cc42c19f1b06538cf5bfd326d7dcd11f7b1ed6a5"
+      }
+    ],
+    "re_run_this_session": {
+      "at_head": "9c581ad5b2e316904c9ef53e8543c5a6f413d6f9",
+      "tests_run": 15,
+      "passed": 15,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "result": "OK",
+      "exit_code": 0
+    }
+  },
+  "verification": {
+    "head_confirmed_before_work": true,
+    "ancestor_baseline_is_ancestor_of_reviewed_head": true,
+    "historical_context_document_sha256_matches_specified": true,
+    "ingest_note_sha256_matches_specified": true,
+    "test_candidate_sha256_matches_specified": true,
+    "review_report_sha256_matches_review_sums": true,
+    "review_record_sha256_matches_review_sums": true,
+    "review_sums_selfcheck_passed": true,
+    "review_verdict_is_pass": true,
+    "review_has_zero_p1_and_zero_p2": true,
+    "review_records_both_unstaged_and_staged_simulation_15_of_15_ok": true,
+    "mandated_test_rerun_this_session_15_of_15_ok": true,
+    "strict_json_review_record_parsed": true
+  },
+  "outputs": [
+    "validation/coordination/ds-full-frontier-context-ingest-manifest-20260914-01/exact-paths.txt",
+    "validation/coordination/ds-full-frontier-context-ingest-manifest-20260914-01/review.md",
+    "validation/coordination/ds-full-frontier-context-ingest-manifest-20260914-01/review.json",
+    "validation/coordination/ds-full-frontier-context-ingest-manifest-20260914-01/SHA256SUMS"
+  ],
+  "nonclaims": [
+    "This manifest is context-only ingestion of the reviewed batch; it is not an acceptance, approval, review, or closure action.",
+    "The 2026-09-12 snapshot remains a prior-slot historical context only; it carries no current Full/G0-G6 authority and no GitHub issue state was re-verified.",
+    "No input file was edited; nothing was staged, committed, or pushed; no protected file (docs/Prometheus.gitmodules.reference, validation/coordination/short-cycle-dispatches.json) was touched.",
+    "No native/build/MATLAB/ROS/DDS/SITL/FC/UE/model/flight work was run and #83 was not rerun.",
+    "The test re-run at the new HEAD passes because the reviewed batch pins ancestry (cc42c19f as ancestor baseline), not HEAD equality; this does not extend the review's scope or confer any new authority."
+  ]
+}

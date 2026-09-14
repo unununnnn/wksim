@@ -1,0 +1,524 @@
+{
+  "schema": "wksim.ds-full-frontier.v1",
+  "slot": "DS-D",
+  "role": "Full剩余依赖与模型分支负责人",
+  "generated_at": "2026-09-12",
+  "repository": "unununnnn/wksim",
+  "scope_statement": "本文件只登记 DS-D 独立负责的 Full 剩余依赖与模型分支；不重复 DS-A 审计、DS-B 倍率、DS-C 场景已接的 #29/#33/#39，不关闭 Issue/Goal，不修改既有共享文档。",
+  "read_only_rule": "全部条目为只读核验；未运行 MATLAB/Embedded Coder，未重新编译、未重新运行任何模型、飞控、ROS1/ROS2 或 UE 进程。",
+  "input_sources": {
+    "documents_read": [
+      "docs/plan/full-remaining-ledger.json",
+      "docs/plan/full-remaining-ledger.md",
+      "docs/plan/full-scope-expansion.md",
+      "docs/plan/26-closure-readiness-manifest.json",
+      "docs/plan/26-generation-contract.md",
+      "docs/plan/10-g6-remediation-contract.md",
+      "docs/plan/10-g6-budget-manifest.schema.json",
+      "docs/plan/59-e0-dynamic-budget-source-map.md",
+      "docs/plan/tickets/36-deterministic-reexecution.md",
+      "docs/coordination/acceptance-frontier.json",
+      "validation/10-g6-remediation/review-20260909/summary.md",
+      "validation/46-reexecution/run-115-20260909-01/summary.md",
+      "validation/codegen-e0-lifecycle-01/audit.json",
+      "validation/codegen-e0/short-cycle-codegen-01/summary.json",
+      "validation/codegen-e0/short-cycle-codegen-01/generated-sources-manifest.json"
+    ],
+    "live_issue_state": {
+      "method": "gh issue view <n> --repo unununnnn/wksim --json number,title,state,stateReason,labels,closedAt,updatedAt",
+      "queried_at": "2026-09-12",
+      "head_commit_at_query": "7126d4d774a33c7d4b2504b9931a93ac27d7fa51"
+    },
+    "ticket_files_not_read": [
+      "docs/plan/tickets/16-generated-model-import.md",
+      "docs/plan/tickets/17-legacy-dll-host.md",
+      "docs/plan/tickets/18-modern-dll-host.md"
+    ],
+    "ticket_file_read": [
+      "docs/plan/tickets/36-deterministic-reexecution.md (与 #46 GitHub 正文一致)"
+    ],
+    "declared_but_absent": [
+      "docs/plan/full-acceptance-report.md (#60 声明的新文件，当前不存在)"
+    ]
+  },
+  "live_issue_ledger": {
+    "note": "以下状态来自本次真实 gh 查询，不是对 ready-for-agent 标签或历史台账的复述。台账 full-remaining-ledger.json(2026-09-09) 中 #26/#27/#28/#46/#59 的 OPEN 结论与本次一致。",
+    "issues": [
+      { "number": 1, "state": "OPEN", "title": "Wayfinder：Prometheus 双飞控 SITL 移植（UE5.5 / ROS2 / DDS）", "role": "图谱根; 不关闭" },
+      { "number": 9, "state": "OPEN", "title": "可选模型插件与场景反馈接口决策", "labels": ["wayfinder:grilling"], "role": "外部决策阻塞源" },
+      { "number": 10, "state": "OPEN", "title": "规格：Prometheus 到 wksim 完整仿真工具链移植", "role": "Full 父票" },
+      { "number": 16, "state": "CLOSED", "closedAt": "2026-09-05", "role": "#46 依赖(已满足)" },
+      { "number": 20, "state": "OPEN", "title": "联合场景暂停单步与冷重置", "role": "#46 依赖(未满足)" },
+      { "number": 23, "state": "CLOSED", "closedAt": "2026-09-09", "role": "原父依赖(保留)" },
+      { "number": 24, "state": "CLOSED", "closedAt": "2026-09-09", "role": "#26/#46 依赖(已满足)" },
+      { "number": 26, "state": "OPEN", "labels": ["ready-for-agent"], "updatedAt": "2026-09-11", "role": "本槽主对象" },
+      { "number": 27, "state": "OPEN", "labels": ["ready-for-agent"], "updatedAt": "2026-09-11", "role": "本槽主对象" },
+      { "number": 28, "state": "OPEN", "labels": ["ready-for-agent"], "updatedAt": "2026-09-09", "role": "本槽主对象" },
+      { "number": 46, "state": "OPEN", "labels": ["ready-for-agent"], "updatedAt": "2026-09-09", "role": "本槽主对象" },
+      { "number": 55, "state": "CLOSED", "closedAt": "2026-09-09", "role": "台账复核来源" },
+      { "number": 56, "state": "CLOSED", "closedAt": "2026-09-10", "role": "硬件/资源边界来源" },
+      { "number": 59, "state": "OPEN", "labels": ["wayfinder:task", "needs-triage"], "updatedAt": "2026-09-11", "role": "G6 数值路线" },
+      { "number": 60, "state": "OPEN", "labels": ["wayfinder:task", "ready-for-agent"], "updatedAt": "2026-09-09", "role": "最终 Full 复核" },
+      { "number": 70, "state": "CLOSED", "closedAt": "2026-09-10", "role": "#26 子票(已关闭)" },
+      { "number": 71, "state": "CLOSED", "closedAt": "2026-09-10", "role": "#26 子票(已关闭)" },
+      { "number": 72, "state": "CLOSED", "closedAt": "2026-09-10", "role": "#26 子票(已关闭)" },
+      { "number": 73, "state": "OPEN", "labels": ["wayfinder:task", "needs-triage"], "role": "#27 子票(未关闭)" },
+      { "number": 74, "state": "OPEN", "labels": ["wayfinder:task", "ready-for-agent"], "role": "#27 子票(未关闭)" },
+      { "number": 75, "state": "CLOSED", "closedAt": "2026-09-11", "role": "#27 子票(已关闭)" },
+      { "number": 76, "state": "OPEN", "role": "#28 子票(未关闭)" },
+      { "number": 77, "state": "OPEN", "role": "#28 子票(未关闭)" },
+      { "number": 78, "state": "OPEN", "role": "#28 子票(未关闭)" },
+      { "number": 113, "state": "CLOSED", "closedAt": "2026-09-09", "role": "#46 子票(已关闭)" },
+      { "number": 114, "state": "CLOSED", "closedAt": "2026-09-09", "role": "#46 子票(已关闭)" },
+      { "number": 115, "state": "CLOSED", "closedAt": "2026-09-09", "role": "#46 子票(已关闭)" }
+    ]
+  },
+  "closure_rule_in_force": {
+    "rule": "父票只有在原 AC 与原 Blocked-by 同时满足时才可关闭；子票关闭不等于父票关闭。",
+    "consequence": "#26 子票 70/71/72 全关闭但父票 OPEN；#46 子票 113/114/115 全关闭但父票 OPEN 且依赖 #20 未满足。"
+  },
+  "model_branch_decision": {
+    "issue": 9,
+    "live_state": "OPEN",
+    "effect_on_this_slot": "唯一可机器判定的外部阻塞：形式 Blocked-by 未清除。它阻塞 #26、#27、#28 的父票关闭。",
+    "evidence": {
+      "manifest_field": "docs/plan/26-closure-readiness-manifest.json:7-16 (closure_blocker.issue=9, relation=blocked-by)",
+      "manifest_caveat": "该清单自述 state_source=pinned_github_issue_snapshot、realtime_check=not_performed_by_local_audit；本槽已用 gh 实时确认 #9 仍为 OPEN，因此该阻塞当前成立而非过期快照。"
+    },
+    "next_action": {
+      "owner": "主会话 (human-in-the-loop decision)",
+      "action": "在 #9 形成 ABI/插件与场景反馈接口的可执行决策，或明确接受用原生 wk_model_* C ABI 路线替代厂商 DLL ABI，并据此解除 #26/#27/#28 的形式依赖。",
+      "not_actionable_by_agent": true
+    }
+  },
+  "frontier": [
+    {
+      "issue": 26,
+      "title": "生成模型构建导入与无MATLAB运行",
+      "ticket_file": "docs/plan/tickets/16-generated-model-import.md",
+      "live_state": "OPEN",
+      "formal_blocked_by": [
+        { "issue": 24, "live_state": "CLOSED", "satisfied": true },
+        { "issue": 9, "live_state": "OPEN", "satisfied": false }
+      ],
+      "sub_tickets": [
+        { "issue": 70, "state": "CLOSED" },
+        { "issue": 71, "state": "CLOSED" },
+        { "issue": 72, "state": "CLOSED" }
+      ],
+      "internal_contradiction": "子票全关闭而父票 OPEN，且父票正文仍写“阻塞未清除前不进入执行前沿”。子票关闭只证明三个限定切片完成，不证明父票 5 项原 AC 全部满足。",
+      "acceptance_criteria": [
+        {
+          "id": "AC1",
+          "text": "完整记录可编辑材料、生成产物、编译工具、导入模型和运行证据的来源链。",
+          "verdict": "已证（本地范围内）",
+          "evidence": [
+            "validation/codegen-e0/short-cycle-codegen-01/source-manifest.json (来源身份)",
+            "validation/codegen-e0/short-cycle-codegen-01/generated-sources-manifest.json (4 个新生成文件 SHA256)",
+            "validation/codegen-e0-build-short-cycle-01/build-manifest.json (编译 argv 与 model.cpp pin)",
+            "validation/codegen-e0/short-cycle-codegen-01/codegen-report.json (9 阶段全 ok)"
+          ],
+          "residual": "“导入模型”一环的当前 checkout 导入器身份未在本票内单独复核；见 AC5 残留。"
+        },
+        {
+          "id": "AC2",
+          "text": "复用本机MATLAB/Simulink构建工具时实际检查可用性，不把文件存在当作许可检出成功。",
+          "verdict": "已证",
+          "evidence": [
+            "validation/codegen-e0/short-cycle-codegen-01/codegen-report.json stages[license_verification].status == 'ok'",
+            "validation/codegen-e0/short-cycle-codegen-01/summary.json licenses_ok == true, matlab_return_code == 0"
+          ],
+          "residual": "本项只覆盖本次 test/checkout；不覆盖再分发权，后者保持未证且不属于本票 AC。"
+        },
+        {
+          "id": "AC3",
+          "text": "生成后关闭MATLAB，核心仍独立加载、运行、重置和终止该模型。",
+          "verdict": "已证（外部构件证据）",
+          "evidence": [
+            "validation/codegen-e0-lifecycle-01/audit.json status='pass', schema='wksim.generated-e0-lifecycle.v1', cycles=4, compared_values=480000",
+            "两次独立进程身份 pid 693 / pid 694，returncode 均为 0",
+            "两次运行的 library_sha256 均为 7da6853201b89238c273f2e1360ad21fe479e267d0ed08cf3500f98bf535505e"
+          ],
+          "residual": "audit.json 自述 limitation='Independent Linux reconstruction and reset only; no flight or MATLAB numeric oracle'。构件位于仓库外 /root/wksim-codegen-e0-* 与 /root/wksim-codegen-e0-cold-*；本 checkout 内不存在该 .so，无法就地复核字节。"
+        },
+        {
+          "id": "AC4",
+          "text": "厂商材料留在受控本地来源，不提交授权不明生成源码；不把旧ZIP直接编译称为已验证完整生成流程。",
+          "verdict": "已证",
+          "evidence": [
+            "git ls-files 中无 Exp1_MinModelTemp*/ert_rtw 生成源码（生成物仅存在于 work/ 与 WSL 构建根，未进版本库）",
+            "validation/codegen-e0/short-cycle-codegen-01/post-source-verification.json 三个厂商输入哈希 unchanged=true",
+            "validation/10-g6-remediation/review-20260909/summary.md 明确本次未发布厂商字节"
+          ],
+          "residual": "厂商 SLX/init/ZIP 的再分发条款仍未评估；本 AC 只要求“不提交”，不要求“可分发”。"
+        },
+        {
+          "id": "AC5",
+          "text": "交付实际命令、版本/身份、预期与结果、失败/未验证边界；主代理复核后才能关闭。",
+          "verdict": "缺证（未闭合）",
+          "evidence": [
+            "命令与身份：validation/codegen-e0/short-cycle-codegen-01/command.json 与 driver-identities.json",
+            "边界：docs/plan/26-generation-contract.md 第 62 行明确“#71 所需完整生成命令目前缺失”，第 7 行结论为 blocked_source_authorization_and_generation_entry"
+          ],
+          "residual": "两点未闭合：(a) 合同自身的许可/入口阻塞结论（blocked_source_authorization_and_generation_entry）从未被后续文档显式撤回，只有 §1 摘要称其为“历史检查点”；(b) 本票要求的主代理复核批准记录不存在于任何已读文件。"
+        }
+      ],
+      "evidence_status": "partial-evidence",
+      "proved": [
+        "生成、编译、无MATLAB生命周期的完整本地证据链存在且已固化哈希",
+        "五项许可 test/checkout 与 9 个生成阶段实际成功",
+        "厂商材料未被提交进版本库"
+      ],
+      "missing_evidence": [
+        "AC5 要求的主代理复核/批准记录",
+        "当前 checkout 内可复现的构建导入路径复核（生成源码与 .so 均不在版本库）",
+        "#26 父票正文所列 5 项 AC 的显式逐项复核表（本文件是外部核验，不是票内复核）"
+      ],
+      "external_blockers": [
+        { "kind": "formal_dependency", "issue": 9, "live_state": "OPEN", "machine_decidable": true },
+        { "kind": "vendor_material_authorization", "detail": "本地生成使用权的权利人/条款定位与六项权限(local_generate/local_modify/local_compile/local_run/redistribute_source/redistribute_binary)未取得", "machine_decidable": false }
+      ],
+      "forbidden_claims": [
+        "不得据子票 70/71/72 CLOSED 声明 #26 已满足原 AC",
+        "不得把无MATLAB生命周期字节重复性当作物理精度或 G6 通过",
+        "不得把本机可编译厂商 ZIP 表述为可公开分发",
+        "不得把 SLX 11.8 与旧 ZIP 11.0 当作同版本配对复用期望值"
+      ],
+      "next_action": {
+        "owner": "主会话",
+        "action_1": "为 #26 写入一张 5 项原 AC 的逐项复核表，把 AC1–AC4 的已证范围与 AC5 残留分开列，附带当前 checkout 导入路径的只读复核结论。",
+        "action_2": "在结论中显式处置 26-generation-contract.md 的 blocked_source_authorization_and_generation_entry：或撤回并给出撤回依据，或保留为未解除阻塞。",
+        "action_3": "跟踪 #9 决策；在 #9 关闭前不关闭 #26。",
+        "no_agent_action": "不重新生成、不重新编译、不重新运行 MATLAB"
+      }
+    },
+    {
+      "issue": 27,
+      "title": "可选旧ABI模型DLL生命周期闭环",
+      "ticket_file": "docs/plan/tickets/17-legacy-dll-host.md",
+      "live_state": "OPEN",
+      "formal_blocked_by": [
+        { "issue": 12, "live_state": "CLOSED", "satisfied": true },
+        { "issue": 23, "live_state": "CLOSED", "satisfied": true },
+        { "issue": 9, "live_state": "OPEN", "satisfied": false }
+      ],
+      "sub_tickets": [
+        { "issue": 73, "state": "OPEN", "labels": ["wayfinder:task", "needs-triage"], "role": "实现隔离宿主" },
+        { "issue": 74, "state": "OPEN", "role": "执行旧ABI样本生命周期" },
+        { "issue": 75, "state": "CLOSED", "role": "禁用DLL后自主核心仍可运行" }
+      ],
+      "acceptance_criteria": [
+        { "id": "AC1", "text": "按批准ABI核对导出、签名、数组布局和单位，以输入输出对照验证而非只查导出名。", "verdict": "缺证", "reason": "实现票 #73 仍 OPEN/needs-triage，无已读文件记录任何导出/签名/布局对照结果。" },
+        { "id": "AC2", "text": "同一固定工况下完成初始化、步进、重置、终止和卸载，错误有确定反馈。", "verdict": "缺证", "reason": "#74 仍 OPEN，无生命周期记录。" },
+        { "id": "AC3", "text": "宿主崩溃或不兼容DLL被隔离，不影响原厂安装或其他运行。", "verdict": "缺证", "reason": "无崩溃隔离证据；#73 的 needs-triage 表明宿主实现本身尚未定稿。" },
+        { "id": "AC4", "text": "禁用/移除DLL后自主模型流程仍运行；本票不自动宣称新ABI兼容。", "verdict": "部分已证", "evidence": ["#75 CLOSED"], "reason": "只覆盖“禁用后核心仍可运行”一项，且 #75 的证据仅在票内；本槽未复读 #75 证据体。新ABI隔离性明确不属本票。" },
+        { "id": "AC5", "text": "交付实际命令、版本/身份、预期与结果、失败/未验证边界；主代理复核后才能关闭。", "verdict": "缺证" }
+      ],
+      "evidence_status": "uncovered",
+      "proved": [
+        "禁用/移除 DLL 后自主核心仍可运行（#75 已关闭）",
+        "形式依赖 #12、#23 已满足"
+      ],
+      "missing_evidence": [
+        "已批准的 ABI 定义本身（导出符号、调用约定、数组布局、单位）",
+        "旧ABI样本的生命周期与错误反馈记录",
+        "宿主崩溃/不兼容DLL的隔离证明",
+        "交付命令与身份清单"
+      ],
+      "external_blockers": [
+        { "kind": "owner_decision", "issue": 9, "detail": "docs/coordination/acceptance-frontier.json 记录该 ABI 分支在 #9 中判定为 NO-GO（未知厂商 RflySim DLL ABI）；未取得 ABI 决定前 #27 无法定义“批准ABI”。" },
+        { "kind": "legal", "detail": "旧ABI DLL 属厂商二进制，本地使用与再分发的授权状态未记录；本槽不复制、不披露任何厂商源码或二进制。" }
+      ],
+      "forbidden_claims": [
+        "不得用 #75 单独关闭证明 #27 全生命周期闭环",
+        "不得按函数名相近推测旧/新 ABI 可互换",
+        "不得把“能加载一个 DLL”升级为“ABI 已验证”"
+      ],
+      "next_action": {
+        "owner": "主会话 (需 #9 决策输入)",
+        "action_1": "把 #73 从 needs-triage 提升为可执行前置：先冻结旧ABI 的导出/布局/单位定义，否则 #74 无法产生可判定证据。",
+        "action_2": "在 #9 未给出 ABI 决定前，把 #27 标记为外部阻塞，不派发 #74。",
+        "action_3": "若 #9 决定拒绝厂商 DLL ABI 路线，则把 #27/#28 转为 wontfix 并记录理由，而不是留 ready-for-agent 假前沿。",
+        "no_agent_action": "不加载厂商二进制，不复制厂商字节"
+      }
+    },
+    {
+      "issue": 28,
+      "title": "可选新ABI模型DLL与扩展输出",
+      "ticket_file": "docs/plan/tickets/18-modern-dll-host.md",
+      "live_state": "OPEN",
+      "formal_blocked_by": [
+        { "issue": 27, "live_state": "OPEN", "satisfied": false },
+        { "issue": 9, "live_state": "OPEN", "satisfied": false }
+      ],
+      "sub_tickets": [
+        { "issue": 76, "state": "OPEN", "role": "实现新ABI与扩展输出适配" },
+        { "issue": 77, "state": "OPEN", "role": "执行新ABI样本及扩展输出检查" },
+        { "issue": 78, "state": "OPEN", "role": "执行旧ABI兼容回归" }
+      ],
+      "acceptance_criteria": [
+        { "id": "AC1", "text": "明确区分旧/新命名和真实ABI，不依靠函数名相近猜测可互换。", "verdict": "缺证", "reason": "#76 OPEN。" },
+        { "id": "AC2", "text": "验证该样本全部已声明输入输出长度、单位、有效性及生命周期。", "verdict": "缺证", "reason": "#77 OPEN。" },
+        { "id": "AC3", "text": "按批准预算与固定输入完成新ABI对照，非法布局明确拒绝。", "verdict": "缺证", "reason": "同时缺“批准预算”与执行；批准预算的来源见本文件 #59 条目。" },
+        { "id": "AC4", "text": "旧ABI回归保持通过，新旧DLL均不成为核心必需依赖；未测扩展I/O单列后续。", "verdict": "缺证", "reason": "#78 OPEN；旧ABI回归的基线自身未建立（#27 未闭合）。" },
+        { "id": "AC5", "text": "交付实际命令、版本/身份、预期与结果、失败/未验证边界；主代理复核后才能关闭。", "verdict": "缺证" }
+      ],
+      "evidence_status": "uncovered",
+      "proved": [],
+      "missing_evidence": [
+        "新ABI 与旧ABI 的对照定义",
+        "新ABI 样本的全部已声明 I/O 长度/单位/有效性",
+        "旧ABI 兼容回归基线与结果",
+        "扩展输出通道的单独清单"
+      ],
+      "external_blockers": [
+        { "kind": "formal_dependency", "issue": 27, "detail": "#28 的 Blocked-by 直接包含仍 OPEN 的 #27，且 #27 自身被 #9 阻塞；形成 #9 → #27 → #28 的三级未解除链。" },
+        { "kind": "unknown_abi", "detail": "未知厂商 RflySim DLL ABI（#9 NO-GO）直接覆盖 #28/#76/#77/#78。" },
+        { "kind": "budget", "detail": "AC3 要求“按批准预算”，而 G6 逐量预算当前全部 unresolved/blocked（见本文件 #59 条目）。" }
+      ],
+      "forbidden_claims": [
+        "不得在 #27 未闭合时声称旧ABI回归通过",
+        "不得用扩展输出的存在性代替布局验证",
+        "不得以原生 C ABI 模型（#26 路线）的通过代替 DLL ABI 通过"
+      ],
+      "next_action": {
+        "owner": "主会话 (先决在 #9)",
+        "action_1": "在 #9 给出 ABI 结论前不派发 #76/#77/#78；把三级依赖链写进 #28 正文的阻塞说明，避免按 ready-for-agent 标签误判可派发。",
+        "action_2": "AC3 的“批准预算”需引用 #59 的预算批准记录；该记录不存在前把 AC3 标为 blocked 而非 pending。",
+        "no_agent_action": "不加载、不复制任何厂商 DLL"
+      }
+    },
+    {
+      "issue": 46,
+      "title": "固定输入实验的确定性重新运行",
+      "ticket_file": "docs/plan/tickets/36-deterministic-reexecution.md",
+      "live_state": "OPEN",
+      "formal_blocked_by": [
+        { "issue": 16, "live_state": "CLOSED", "satisfied": true },
+        { "issue": 20, "live_state": "OPEN", "satisfied": false },
+        { "issue": 24, "live_state": "CLOSED", "satisfied": true }
+      ],
+      "sub_tickets": [
+        { "issue": 113, "state": "CLOSED", "role": "确定完整可重算的物理输入合同" },
+        { "issue": 114, "state": "CLOSED", "role": "实现独立物理重算与缺输入拒绝" },
+        { "issue": 115, "state": "CLOSED", "role": "执行一次无飞控物理重算与对照" }
+      ],
+      "internal_contradiction": "三个子票全关闭，父票 OPEN。证据体自述“Only #115 is eligible for closure”，即子票关闭范围被显式限定，父票 5 项 AC 未全部覆盖。",
+      "acceptance_criteria": [
+        {
+          "id": "AC1",
+          "text": "区别离线状态回放与重新计算物理，输入、种子、模型和时间条件完整可得。",
+          "verdict": "已证（受限工况）",
+          "evidence": [
+            "validation/46-reexecution/run-115-20260909-01/summary.md 第 43 行：新执行使用不同 PID、检查库映射、按冻结输入行逐步，未使用 replay reader",
+            "native/run/process.json, native/run/loaded.json, native/run/request.json"
+          ],
+          "residual": "冻结工况名为 quad-mass-cold-post-step-v1，仅 25 ms 静态源；不是任意记录导入。"
+        },
+        {
+          "id": "AC2",
+          "text": "源运行记录不足时拒绝声称可重演，不对降采样缺口自行插值成真值。",
+          "verdict": "已证",
+          "evidence": [
+            "九个真实源副本负例全部 exit 2 且在 child/request 创建前拒绝：missing tick / changed input / foreign model / changed seed / missing initialization / stale event / missing terminal / truncation / phase mismatch",
+            "native/refused-*/failure.json"
+          ],
+          "residual": "仅覆盖已枚举的九类缺陷；未证明对未枚举缺陷同样拒绝。"
+        },
+        {
+          "id": "AC3",
+          "text": "同一受控构建的重演满足预先预算，并记录平台差异而非要求跨平台位级一致。",
+          "verdict": "缺证（预算未被批准）",
+          "evidence": [
+            "本次在同构建、atol=0/rtol=0 下 3,000/3,000 输出完全相等",
+            "native/independent-comparison.json, native/audit.json (120 槽零误差)"
+          ],
+          "residual": "“预先预算”未定义：零预算来自 #24/#113 冻结的静态 profile，不是本票预先声明的工程误差包络。跨平台差异未记录，只在单一 Linux 构建上执行。summary.md 第 68 行自述不证明 cross-platform accuracy。"
+        },
+        {
+          "id": "AC4",
+          "text": "异常事件、暂停/单步与重置身份可追溯，重演不向真实飞控或原运行发送控制。",
+          "verdict": "部分已证",
+          "evidence": [
+            "summary.md 第 72-74 行：所有子进程返回，未启动 FC/ROS/UE/控制发布者，CLI 不接受控制目的地址",
+            "native/negative-stale-event/, native/negative-phase/ 证明异常事件与相位错配被拒"
+          ],
+          "residual": "暂停/单步语义不在本次范围内（其归属 #20 仍 OPEN）；重置身份仅有冷重建进程身份，未见与 #20 联合场景暂停/单步身份的绑定。"
+        },
+        {
+          "id": "AC5",
+          "text": "交付实际命令、版本/身份、预期与结果、失败/未验证边界；主代理复核后才能关闭。",
+          "verdict": "已证",
+          "evidence": [
+            "summary.md 精确命令块与 native/*.command.json 全 argv/exit/stdout/stderr",
+            "native/review.json, archive-hashes.json 索引全部证据字节",
+            "边界段列出未证明范围（非飞行、非任意记录导入、非生命周期/事件、非跨平台精度、非持续 1x 性能、非 Full/G6）"
+          ],
+          "residual": "主代理是否已执行复核未见记录；若需审计痕迹，应补一条复核记录。"
+        }
+      ],
+      "evidence_status": "partial-evidence",
+      "proved": [
+        "同构建冷重算 25 ms 静态源，3,000/3,000 输出 atol=0/rtol=0 相等",
+        "九类缺陷输入在子进程创建前被拒绝",
+        "未向真实飞控或原运行发送控制",
+        "工具与证据身份完整可复核"
+      ],
+      "missing_evidence": [
+        "预先声明的工程误差预算（AC3）",
+        "与 #20 暂停/单步/冷重置身份的联合证明（父票 AC4 后半）",
+        "非静态、长轨迹或任意记录导入的重演范围"
+      ],
+      "external_blockers": [
+        { "kind": "formal_dependency", "issue": 20, "live_state": "OPEN", "machine_decidable": true, "note": "唯一未满足的形式依赖；#16 与 #24 已关闭。" },
+        { "kind": "budget", "detail": "AC3 的“预先预算”依赖 #59 预算批准链，当前 unresolved。" }
+      ],
+      "forbidden_claims": [
+        "不得因子票 113/114/115 全关闭而声明 #46 可关闭",
+        "不得把 atol=0/rtol=0 的字节相等当作物理精度通过",
+        "不得把本次 25 ms 静态切片表述为任意记录可重演"
+      ],
+      "next_action": {
+        "owner": "主会话",
+        "action_1": "在 #20 关闭前保持 #46 OPEN；把“仅 #115 可关闭”的范围限定写进票内，避免后续代理按全关闭子票推断父票完成。",
+        "action_2": "AC3 的“预先预算”需引用具名预算工件；在 #59 产生批准预算前，把 AC3 状态由默认通过改为 blocked 并说明依据。",
+        "action_3": "AC4 的暂停/单步部分与 #20 合并验收，不单独计为已证。",
+        "no_agent_action": "不重新运行重算，不启动飞控"
+      }
+    },
+    {
+      "issue": 59,
+      "title": "[Astra] 确定来源一致的 G6 数值验收路线并保留R1失败",
+      "contract_file": "docs/plan/10-g6-remediation-contract.md",
+      "live_state": "OPEN",
+      "live_labels": ["wayfinder:task", "needs-triage"],
+      "formal_blocked_by": "无本票额外开放依赖（票内自述）；但完成条件依赖 owner 预算批准与未创建的执行入口",
+      "delivered": [
+        "来源决策：固定 e0 SLX 11.8 + 原 init 作 normal 参考；由同一冻结副本新生成并独立编译的 native 作候选",
+        "采样/随机数约束：ODE4、1ms、major 采样 k=0..500、左端整步保持、7 组 seed 保留",
+        "R1 三份输入的精确 CSV 身份冻结（C0 全零；C2G k100 起四路 .6；C3G 初始四路 .6，k100 起第一路 .65）",
+        "docs/plan/10-g6-budget-manifest.schema.json：56 槽逐量预算 schema，acceptance 常量 false，status 枚举仅 blocked / pending_owner_decision",
+        "docs/plan/59-e0-dynamic-budget-source-map.md：56 个 dynamic observable 的九组来源映射与 8 项 owner 决策清单",
+        "validation/10-g6-remediation/review-20260909/summary.md：R1 15 份身份与 5684 个原始失败保留"
+      ],
+      "g6_budget_state": {
+        "slot_count": 56,
+        "budget_values_filled": 0,
+        "schema_admits_approved_state": false,
+        "detail": "schema 的 acceptance 为常量 false，status 枚举只有 blocked 与 pending_owner_decision，因此即使有预算工件也不能由 v1 schema 自证批准；56 项保持 unresolved/blocked。"
+      },
+      "schema_input_pins_revalidated": [
+        { "path": "validation/e0-current-rhs-references-20260912.json", "expected": "fa068cc78f8f93e695417d6e315002c799f1bd4d7ef03641a5b236be9cddc188", "observed": "fa068cc78f8f93e695417d6e315002c799f1bd4d7ef03641a5b236be9cddc188", "match": true },
+        { "path": "validation/e0-source-to-slot-manifest-20260911.json", "expected": "e48982b4732e4fd84ea26390eb516b7e35aea93267aa741ef3c32538cefa6867", "observed": "e48982b4732e4fd84ea26390eb516b7e35aea93267aa741ef3c32538cefa6867", "match": true },
+        { "path": "Simulator/wksim_core/numerical-conformance-v1.json", "expected": "23d72e26da5dfc7df0b41b96d090664d0ec022d777f6258e409bf7080f2c08f0", "observed": "23d72e26da5dfc7df0b41b96d090664d0ec022d777f6258e409bf7080f2c08f0", "match": true }
+      ],
+      "r1_state": {
+        "status": "numerical_failed (保持原状，不改判)",
+        "contract_sha256": "23d72e26da5dfc7df0b41b96d090664d0ec022d777f6258e409bf7080f2c08f0",
+        "comparisons": 180360,
+        "failed_values": 5684,
+        "failed_cases_axes": 49,
+        "per_case_unequal": { "C0": 2, "C2G": 1943, "C3G": 3739 }
+      },
+      "proved": [
+        "来源一致路线已选定并写成可审阅设计",
+        "56 槽逐量预算 schema 与来源映射已交付，且 schema 自身禁止自证批准",
+        "R1 原件与 5684 个失败值经身份复核未被改写",
+        "下一比较所需的采样、seed、工况与拒绝边界已被约束"
+      ],
+      "missing_evidence": [
+        "56 项中任何一项的 abs/rel/RMS 预算数值与推导依据",
+        "8 项 owner 决策的裁决结果（真值/datum/metric/噪声归因/参数不确定度/传感器规格/motor 槽语义/批准记录）",
+        "同源比较执行入口（生成准入→编译→major 记录器适配→合同解析→独立执行→离线比较）",
+        "SLX 11.8 在当前生成源码上的逐槽行号映射（保持 unresolved，禁止复用 11.0 行号）"
+      ],
+      "external_blockers": [
+        { "kind": "owner_decision", "detail": "8 项 owner 决策全部需要人类裁决；docs/plan/59-e0-dynamic-budget-source-map.md:63-72", "machine_decidable": false },
+        { "kind": "missing_reference_metrology", "detail": "实机准确性预算需可追溯物理参考、测量不确定度、标定与适用域；当前不存在，禁止用 R1 差值/RK4 阶数/epsilon 反推", "machine_decidable": false },
+        { "kind": "missing_execution_entry", "detail": "同源比较 CLI 尚不存在；#59 只允许文档与新证据，不得修改旧 R1 pin 绕过", "machine_decidable": true }
+      ],
+      "forbidden_claims": [
+        "不得由候选差值乘系数反推验收预算",
+        "不得把生命周期字节重复性当作 G6 数值通过",
+        "不得改写或放宽 R1 预算，不得把原失败改判为通过",
+        "不得把 11.0 与 11.8 视为同版本配对"
+      ],
+      "next_action": {
+        "owner": "主会话 + 人类裁决",
+        "action_1": "收齐 8 项 owner 决策的裁决并落成 owner-approval record；在裁决完成前 #59 保持 needs-triage。",
+        "action_2": "为生成准入/比较器分配 tools/ 与核心配方的写入范围；入口未交付前不派发执行。",
+        "action_3": "若短期无法取得预算依据，把 G6 数值精度明确列为外部阻塞项，与生命周期验证分开报告，避免以“模型已能无 MATLAB 运行”暗示 G6 进展。",
+        "no_agent_action": "不重新生成、不重新编译、不运行 MATLAB"
+      }
+    },
+    {
+      "issue": 60,
+      "title": "[Astra] 按完整原规格及G0–G6进行最终Full复核",
+      "live_state": "OPEN",
+      "live_labels": ["wayfinder:task", "ready-for-agent"],
+      "declared_write_scope": ["docs/plan/full-acceptance-report.md (new)"],
+      "declared_write_scope_absent": true,
+      "prerequisites_from_body": [55, 56, 59, 20, 25, 26, 27, 28, 29, 33, 35, 36, 37, 38, 39, 40, 44, 45, 46, 47, 9],
+      "original_parent": 10,
+      "completion_conditions": [
+        { "id": "CC1", "text": "Every required Full row and gate accepted, or explicit unresolved list keeps #1/#10/Goal open. #48 first phase is retained without re-running by default." },
+        { "id": "CC2", "text": "交付源码/配置身份、准确命令、原始结果和失败边界；仅关闭本子票。" }
+      ],
+      "prerequisite_state": {
+        "closed": [55, 56, 38, 44, 45, 47],
+        "closed_confirmed_this_slot": [55, 56],
+        "open_confirmed_this_slot": [9, 20, 26, 27, 28, 46, 59],
+        "unchecked_this_slot": [25, 29, 33, 35, 36, 37, 39, 40],
+        "note": "未在本槽核验的票号是避免与 DS-A/DS-B/DS-C 及其他槽重复；本文件不对其状态下结论。"
+      },
+      "evidence_status": "not-started",
+      "proved": [
+        "票存在且写范围被显式限定为单一新文件",
+        "完成条件要求“未解决清单”而非允许静默通过"
+      ],
+      "missing_evidence": [
+        "交付文件 docs/plan/full-acceptance-report.md 不存在",
+        "96 行 Full 覆盖逐行结论与 G0–G6 逐关结论",
+        "失败边界记录"
+      ],
+      "external_blockers": [
+        { "kind": "prerequisite_cascade", "detail": "#60 前置包含 #9、#20、#26、#27、#28、#46、#59 等仍 OPEN 项；在这些未解决前 #60 只能产出“未解决清单”，不能产出通过结论。" },
+        { "kind": "hidden_scope_trap", "detail": "#60 的写范围只有 docs/plan/full-acceptance-report.md；它没有权限修复前置缺口，因此 ready-for-agent 标签在此不等于可产出通过结论。" }
+      ],
+      "forbidden_claims": [
+        "不得在交付文件不存在时声称复核已完成",
+        "不得用本槽的 frontier 文件代替 #60 的正式交付文件",
+        "不得把“仅关闭本子票”解释为可关闭 #1/#10/Goal"
+      ],
+      "next_action": {
+        "owner": "主会话",
+        "action_1": "把本文件的 frontier 条目作为 #60 报告中 #26/#27/#28/#46/#59 行的输入，但不代替其逐行复核。",
+        "action_2": "在 #60 报告中显式列出仍未解决前置（至少 #9、#20、#59 阻塞链），按完成条件 CC1 保留 #1/#10/Goal 开放。",
+        "action_3": "在派发 #60 前确认前置是否已由其他槽推进；本文件不重复该判定。",
+        "no_agent_action": "本槽不创建 #60 的交付文件，避免与主会话写范围冲突"
+      }
+    }
+  ],
+  "preserved_parent_dependencies": [
+    { "issue": 9, "state": "OPEN", "preserved_for": [26, 27, 28], "note": "原 Blocked-by 保留；不得由任何子票关闭或代理自行判定解除。" },
+    { "issue": 23, "state": "CLOSED", "preserved_for": [27], "note": "原父依赖已完成，但保留记录以证明其曾被要求且不被后续文档删除。" },
+    { "issue": 24, "state": "CLOSED", "preserved_for": [26, 46], "note": "同上；#24 的历史静态运行不替代新生成模型的验证。" },
+    { "issue": 20, "state": "OPEN", "preserved_for": [46], "note": "唯一未满足的 #46 形式依赖。" },
+    { "issue": 1, "state": "OPEN", "preserved_for": [59, 60], "note": "图谱根，不关闭。" },
+    { "issue": 10, "state": "OPEN", "preserved_for": [26, 46, 59, 60], "note": "Full 父票，不关闭。" }
+  ],
+  "excluded_per_instruction": {
+    "issues": [29, 33, 39],
+    "reason": "其他槽已接；本文件不重复分析，也不对其状态下结论。"
+  },
+  "slot_self_constraints": {
+    "no_new_agents": true,
+    "no_shared_doc_edits": true,
+    "no_issue_or_goal_closure": true,
+    "no_matlab_generation_build_or_run": true,
+    "no_vendor_source_or_binary_copy": true,
+    "workspace_scan": "仅按已知路径直接读取；未扫描整个 workspace"
+  },
+  "completion_percentages": null,
+  "completion_percentage_policy": "本文件不提供完成度百分比；仅提供已证/缺证/外部阻塞/下一动作四类可判定事实。"
+}

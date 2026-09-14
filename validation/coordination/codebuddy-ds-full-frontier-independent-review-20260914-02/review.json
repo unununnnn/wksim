@@ -1,0 +1,116 @@
+{
+  "schema": "wksim.codebuddy-independent-review.v1",
+  "review_id": "codebuddy-ds-full-frontier-independent-review-20260914-02",
+  "reviewed_at": "2026-09-14",
+  "reviewed_head": "cc42c19f1b06538cf5bfd326d7dcd11f7b1ed6a5",
+  "prior_review": "validation/coordination/codebuddy-ds-full-frontier-independent-review-20260914-01/review.json (verdict FAIL)",
+  "candidates": [
+    {
+      "path": "docs/coordination/ds-full-frontier-20260912.json",
+      "sha256": "3fcf2003bc589b8692b95f350bf0b697dc52ac1567c9b8b98d2c32cd27c209c4",
+      "size_bytes": 36161,
+      "role": "2026-09-12 prior-slot snapshot ingested as historical context only; unchanged from round 01"
+    },
+    {
+      "path": "docs/coordination/ds-full-frontier-ingest-note-20260914.md",
+      "sha256": "7701eee11c91615c069fab26b309512830315c5f5d6cb62cb6ce87a41c8d9a61",
+      "size_bytes": 12050,
+      "role": "remediated ingest note; hash matches the test NOTE_SHA256 pin exactly"
+    },
+    {
+      "path": "validation/test_ds_full_frontier_context.py",
+      "sha256": "5a23b662813ae41a9c4ed619cd32143df635a6196afa1afebd8d4119957c3478",
+      "size_bytes": 16923,
+      "role": "remediated offline context-binding test suite (the note section-5 seam)"
+    }
+  ],
+  "tests": [
+    {
+      "mode": "unstaged",
+      "command": "python -B -m unittest validation.test_ds_full_frontier_context -v",
+      "ran": 15,
+      "passed": 15,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "result": "OK"
+    },
+    {
+      "mode": "staged_simulation",
+      "detail": "Temporary GIT_INDEX_FILE copied from the real index; exactly the three candidates git-add-ed into the temporary index only; same command run with GIT_INDEX_FILE set; temporary index deleted afterwards. Real index proven unchanged via identical 'git ls-files -s | sha256sum' (795ee281d77fa6081106c90fc248477eed631d9eebc0737d4394cc754d90ed8b) before and after; candidates remain untracked in the real index.",
+      "command": "GIT_INDEX_FILE=<temporary copy> python -B -m unittest validation.test_ds_full_frontier_context -v",
+      "ran": 15,
+      "passed": 15,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "result": "OK",
+      "scoped_grep_under_temp_index": [
+        "validation/coordination/ds-g0-g5-frontier-20260913-01/audit.json",
+        "validation/coordination/ds-g0-g5-frontier-20260913-01/audit.md",
+        "validation/coordination/ds-g0-g5-frontier-20260913-01/checks/checks.json",
+        "validation/coordination/ds-g0-g5-frontier-20260913-01/verify_frontier.py"
+      ]
+    }
+  ],
+  "checks": {
+    "strict_json": "pass",
+    "unique_attestation_binding": "pass (checks.json:257-262 entry matches note section 2 verbatim; exactly one dict record binds the original)",
+    "candidate_hash_size_binding": "pass (all three recomputed independently; original byte-identical to round 01; note hash equals test NOTE_SHA256)",
+    "scoped_exact_historical_grep_allowlist": "pass (exactly the four ds-g0-g5 files, identical unstaged and under staged simulation)",
+    "supersession_anchors_and_authority_boundaries": "pass (all eight named paths exist and are tracked; boundary-2 packet preserves its own PROPOSED/proposal_only/effective:false layering; commit 521b5124 and 1884ea64 evidence verified)",
+    "baseline_architecture_ancestry": "pass (cc42c19f, 2b436c12, e8defc1d ancestors of HEAD; f333316e ancestor of the cc42c19f baseline; see N-01)",
+    "context_only_non_current_non_approval_no_closure_wording": "pass",
+    "r1_numerical_failed": "pass (verbatim status plus figures match original r1_state: 23d72e26..., 180360, 5684, 49, C0=2/C2G=1943/C3G=3739)",
+    "issue_83_boundary": "pass (note states the binding does not constitute Full/G6 acceptance; no #83 work rerun)",
+    "after_staging_validity": "pass (proven empirically via the staged simulation; F-01 fixed)",
+    "meaningful_negative_mutations": "pass with N-02"
+  },
+  "prior_findings_resolution": {
+    "F-01": "fixed (P1): grep pathspec-scoped to validation/coordination/ds-g0-g5-frontier-20260913-01 with exact four-file allowlist; staging-stability proven by the staged simulation",
+    "F-02": "fixed (P2): boundaries 2 and 4 name concrete tracked anchors, all independently verified for existence, tracking, and preserved authority layering",
+    "F-03": "unchanged (P3): dict-record walk still correctly ignores the '?? docs/...' status-list string at checks.json:28",
+    "F-04": "fixed (P3): HEAD-equality pin replaced by baseline-ancestry checks valid at descendant commits"
+  },
+  "findings": [
+    {
+      "id": "N-01",
+      "severity": "P3",
+      "title": "f333316e ancestry is enforced only transitively",
+      "detail": "The module docstring (validation/test_ds_full_frontier_context.py:28) says the suite asserts e8defc1d/f333316e are ancestors of the running HEAD, but only BASELINE_FULL (cc42c19f...) and ANCESTOR_FULL (e8defc1d...) are directly checked (lines 325-330). The invariant holds because f333316e6efa6b299b4288a9d91fb2bccedfb9d6 is an ancestor of cc42c19f (independently verified, exit 0), so any HEAD passing the baseline check necessarily contains f333316e. Documentation nuance only; a direct constant would be defense-in-depth.",
+      "evidence": [
+        "validation/test_ds_full_frontier_context.py:28",
+        "validation/test_ds_full_frontier_context.py:325-330",
+        "git merge-base --is-ancestor f333316e6efa6b299b4288a9d91fb2bccedfb9d6 cc42c19f1b06538cf5bfd326d7dcd11f7b1ed6a5 -> exit 0"
+      ],
+      "fix": "Optionally add a direct F333316E_FULL ancestor check or reword the docstring to state the transitive enforcement."
+    },
+    {
+      "id": "N-02",
+      "severity": "P3",
+      "title": "test_grep_allowlist_mutation_rejected mutation portion is tautological",
+      "detail": "After the real scoped-grep exact-match assertion, the two assertRaises(AssertionError) blocks (validation/test_ds_full_frontier_context.py:398-401) assert that assertEqual raises for deliberately unequal lists - guaranteed by Python semantics and independent of git/grep behavior. Real allowlist coverage exists via the positive exact-match assertion and the staged-simulation proof, so the mutation blocks add no evidence.",
+      "evidence": [
+        "validation/test_ds_full_frontier_context.py:393-401"
+      ],
+      "fix": "Optionally replace with a genuinely mutated expectation derived from a simulated grep result, or drop the tautological blocks."
+    }
+  ],
+  "verdict": "PASS",
+  "verdict_basis": "Zero P1/P2 findings. Prior blocking findings F-01 (P1) and F-02 (P2) and prior F-04 (P3) are verifiably fixed; the mandated suite passes 15/15 both unstaged and under a temporary index staging exactly the three candidates; the scoped grep is proven staging-stable; all hashes, anchors, ancestry, wording, R1, and #83 boundaries verify at the reviewed HEAD.",
+  "scope": [
+    "Independent SHA256/size recomputation of the three mandated candidates at cc42c19f1b06538cf5bfd326d7dcd11f7b1ed6a5",
+    "Read-only inspection of the three candidates, the prior review artifacts, checks.json lines 250-270, and the eight named anchor files",
+    "Read-only git queries: rev-parse, merge-base --is-ancestor, ls-files, scoped grep -l -F, log/show --stat for 521b5124 and 1884ea64",
+    "The single mandated unittest, run unstaged and under a temporary GIT_INDEX_FILE staging exactly the three candidates",
+    "Deletion of the temporary index and real-index invariance proof"
+  ],
+  "nonclaims": [
+    "No candidate, prior-review, or protected file (docs/Prometheus.gitmodules.reference, validation/coordination/short-cycle-dispatches.json) was edited",
+    "Nothing was staged in the real index, committed, or pushed",
+    "No native/build/MATLAB/ROS/DDS/SITL/FC/UE/model/flight work was run; #83 was not rerun",
+    "No GitHub re-verification of snapshot issue states was performed",
+    "This review does not confer authority, approval, acceptance, or closure on the 2026-09-12 snapshot, the ingest note, the test, or any G6/Full state; it evaluates binding, wording, and after-staging validity only",
+    "Findings bind the exact candidate hashes above"
+  ]
+}
